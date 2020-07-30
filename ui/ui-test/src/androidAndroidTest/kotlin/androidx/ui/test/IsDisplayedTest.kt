@@ -31,7 +31,6 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withParent
-import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.filters.MediumTest
 import androidx.compose.ui.Layout
 import androidx.compose.ui.Modifier
@@ -46,7 +45,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.util.BoundaryNode
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -74,9 +73,7 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
     }
 
     @get:Rule
-    val composeTestRule = AndroidComposeTestRule(
-        ActivityScenarioRule(config.activityClass)
-    )
+    val composeTestRule = createAndroidComposeRule(config.activityClass)
 
     private val colors = listOf(Color.Red, Color.Green, Color.Blue)
 
