@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:OptIn(ExperimentalPointerInput::class)
+
 package androidx.compose.ui.gesture
 
 import androidx.compose.runtime.remember
@@ -37,8 +39,6 @@ import androidx.compose.ui.util.fastAny
 import kotlinx.coroutines.Job
 import kotlin.coroutines.CoroutineContext
 
-// TODO(b/138605697): This bug tracks the note below: DoubleTapGestureDetector should use the
-//  eventual api that will allow it to temporary block tap.
 // TODO(b/138754591): The behavior of this gesture detector needs to be finalized.
 // TODO(b/139020678): Probably has shared functionality with other press based detectors.
 /**
