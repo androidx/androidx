@@ -17,8 +17,8 @@
 package androidx.ui.integration.test.core.text
 
 import androidx.compose.runtime.Composable
-import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.mutableStateOf
@@ -34,22 +34,31 @@ import androidx.compose.ui.unit.TextUnit
 class TextToggleTextTestCase(
     private val textGenerator: RandomTextGenerator,
     private val textLength: Int,
+    private val textNumber: Int,
     private val width: Dp,
     private val fontSize: TextUnit
 ) : ComposeTestCase, ToggleableTestCase {
 
-    val text = mutableStateOf(textGenerator.nextParagraph(length = textLength))
+    private val texts = mutableStateOf(
+        List(textNumber) {
+            textGenerator.nextParagraph(length = textLength)
+        }
+    )
 
     @Composable
     override fun emitContent() {
-        Box(
+        Column(
             modifier = Modifier.wrapContentSize(Alignment.Center).preferredWidth(width)
         ) {
-            Text(text = text.value, color = Color.Black, fontSize = fontSize)
+            for (text in texts.value) {
+                Text(text = text, color = Color.Black, fontSize = fontSize)
+            }
         }
     }
 
     override fun toggleState() {
-        text.value = textGenerator.nextParagraph(length = textLength)
+        texts.value = List(textNumber) {
+            textGenerator.nextParagraph(length = textLength)
+        }
     }
 }

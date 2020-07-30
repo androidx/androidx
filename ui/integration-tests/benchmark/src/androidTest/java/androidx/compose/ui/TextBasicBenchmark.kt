@@ -16,6 +16,7 @@
 
 package androidx.compose.ui
 
+import androidx.compose.ui.text.AnnotatedString
 import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.benchmarkDrawPerf
@@ -24,7 +25,6 @@ import androidx.ui.benchmark.toggleStateBenchmarkDraw
 import androidx.ui.benchmark.toggleStateBenchmarkLayout
 import androidx.ui.benchmark.toggleStateBenchmarkMeasure
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
-import androidx.ui.integration.test.core.text.TextBasicTestCase
 import androidx.ui.integration.test.TextBenchmarkTestRule
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -32,6 +32,7 @@ import androidx.ui.benchmark.benchmarkFirstComposeFast
 import androidx.ui.benchmark.benchmarkFirstDrawFast
 import androidx.ui.benchmark.benchmarkFirstLayoutFast
 import androidx.ui.benchmark.benchmarkFirstMeasureFast
+import androidx.ui.integration.test.core.text.TextInColumnTestCase
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -60,7 +61,7 @@ class TextBasicBenchmark(
     private val width = textBenchmarkRule.widthDp.dp
     private val fontSize = textBenchmarkRule.fontSizeSp.sp
 
-    private val textCaseFactory = {
+    private val caseFactory = {
         textBenchmarkRule.generator { textGenerator ->
             /**
              * Text render has a word cache in the underlying system. To get a proper metric of its
@@ -68,9 +69,11 @@ class TextBasicBenchmark(
              * public API. Here is a workaround which generates a new string when a new test case
              * is created.
              */
-            val text = textGenerator.nextParagraph(textLength)
-            TextBasicTestCase(
-                text = text,
+            val texts = List(textBenchmarkRule.repeatTimes) {
+                AnnotatedString(textGenerator.nextParagraph(textLength))
+            }
+            TextInColumnTestCase(
+                texts = texts,
                 width = width,
                 fontSize = fontSize
             )
@@ -83,7 +86,7 @@ class TextBasicBenchmark(
      */
     @Test
     fun first_compose() {
-        benchmarkRule.benchmarkFirstComposeFast(textCaseFactory)
+        benchmarkRule.benchmarkFirstComposeFast(caseFactory)
     }
 
     /**
@@ -92,11 +95,7 @@ class TextBasicBenchmark(
      */
     @Test
     fun first_measure() {
-        textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstMeasureFast {
-                TextBasicTestCase(textGenerator.nextParagraph(textLength), width, fontSize)
-            }
-        }
+        benchmarkRule.benchmarkFirstMeasureFast(caseFactory)
     }
 
     /**
@@ -105,7 +104,7 @@ class TextBasicBenchmark(
      */
     @Test
     fun first_layout() {
-        benchmarkRule.benchmarkFirstLayoutFast(textCaseFactory)
+        benchmarkRule.benchmarkFirstLayoutFast(caseFactory)
     }
 
     /**
@@ -113,7 +112,7 @@ class TextBasicBenchmark(
      */
     @Test
     fun first_draw() {
-        benchmarkRule.benchmarkFirstDrawFast(textCaseFactory)
+        benchmarkRule.benchmarkFirstDrawFast(caseFactory)
     }
 
     /**
@@ -122,7 +121,7 @@ class TextBasicBenchmark(
      */
     @Test
     fun layout() {
-        benchmarkRule.benchmarkLayoutPerf(textCaseFactory)
+        benchmarkRule.benchmarkLayoutPerf(caseFactory)
     }
 
     /**
@@ -130,7 +129,7 @@ class TextBasicBenchmark(
      */
     @Test
     fun draw() {
-        benchmarkRule.benchmarkDrawPerf(textCaseFactory)
+        benchmarkRule.benchmarkDrawPerf(caseFactory)
     }
 
     /**
@@ -138,7 +137,7 @@ class TextBasicBenchmark(
      */
     @Test
     fun toggleColor_recompose() {
-        benchmarkRule.toggleStateBenchmarkRecompose(textCaseFactory)
+        benchmarkRule.toggleStateBenchmarkRecompose(caseFactory)
     }
 
     /**
@@ -146,7 +145,7 @@ class TextBasicBenchmark(
      */
     @Test
     fun toggleColor_measure() {
-        benchmarkRule.toggleStateBenchmarkMeasure(textCaseFactory)
+        benchmarkRule.toggleStateBenchmarkMeasure(caseFactory)
     }
 
     /**
@@ -154,7 +153,7 @@ class TextBasicBenchmark(
      */
     @Test
     fun toggleColor_layout() {
-        benchmarkRule.toggleStateBenchmarkLayout(textCaseFactory)
+        benchmarkRule.toggleStateBenchmarkLayout(caseFactory)
     }
 
     /**
@@ -162,6 +161,6 @@ class TextBasicBenchmark(
      */
     @Test
     fun toggleColor_draw() {
-        benchmarkRule.toggleStateBenchmarkDraw(textCaseFactory)
+        benchmarkRule.toggleStateBenchmarkDraw(caseFactory)
     }
 }

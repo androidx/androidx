@@ -24,11 +24,11 @@ import androidx.ui.benchmark.benchmarkFirstDraw
 import androidx.ui.benchmark.benchmarkFirstLayout
 import androidx.ui.benchmark.benchmarkFirstMeasure
 import androidx.ui.benchmark.benchmarkLayoutPerf
-import androidx.ui.integration.test.core.text.TextMultiStyleTestCase
 import androidx.ui.integration.test.TextBenchmarkTestRule
 import androidx.ui.integration.test.cartesian
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.ui.integration.test.core.text.TextInColumnTestCase
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,25 +59,39 @@ class TextMultiStyleBenchmark(
     @get:Rule
     val benchmarkRule = ComposeBenchmarkRule()
 
-    val width = textBenchmarkRule.widthDp.dp
-    val fontSize = textBenchmarkRule.fontSizeSp.sp
+    private val width = textBenchmarkRule.widthDp.dp
+    private val fontSize = textBenchmarkRule.fontSizeSp.sp
+
+    private val caseFactory = {
+        textBenchmarkRule.generator { textGenerator ->
+            /**
+             * Text render has a word cache in the underlying system. To get a proper metric of its
+             * performance, the cache needs to be disabled, which unfortunately is not doable via
+             * public API. Here is a workaround which generates a new string when a new test case
+             * is created.
+             */
+            val texts = List(textBenchmarkRule.repeatTimes) {
+                textGenerator.nextAnnotatedString(
+                    length = textLength,
+                    styleCount = styleCount,
+                    hasMetricAffectingStyle = true
+                )
+            }
+            TextInColumnTestCase(
+                texts = texts,
+                width = width,
+                fontSize = fontSize
+            )
+        }
+    }
+
     /**
      * Measure the time taken to compose a [Text] composable from scratch with styled text as input.
      * This is the time taken to call the [Text] composable function.
      */
     @Test
     fun first_compose() {
-        textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstCompose {
-                TextMultiStyleTestCase(
-                    width,
-                    fontSize,
-                    textLength,
-                    styleCount,
-                    textGenerator
-                )
-            }
-        }
+        benchmarkRule.benchmarkFirstCompose(caseFactory)
     }
 
     /**
@@ -86,17 +100,7 @@ class TextMultiStyleBenchmark(
      */
     @Test
     fun first_measure() {
-        textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstMeasure {
-                TextMultiStyleTestCase(
-                    width,
-                    fontSize,
-                    textLength,
-                    styleCount,
-                    textGenerator
-                )
-            }
-        }
+        benchmarkRule.benchmarkFirstMeasure(caseFactory)
     }
 
     /**
@@ -105,17 +109,7 @@ class TextMultiStyleBenchmark(
      */
     @Test
     fun first_layout() {
-        textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstLayout {
-                TextMultiStyleTestCase(
-                    width,
-                    fontSize,
-                    textLength,
-                    styleCount,
-                    textGenerator
-                )
-            }
-        }
+        benchmarkRule.benchmarkFirstLayout(caseFactory)
     }
 
     /**
@@ -124,17 +118,7 @@ class TextMultiStyleBenchmark(
      */
     @Test
     fun first_draw() {
-        textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstDraw {
-                TextMultiStyleTestCase(
-                    width,
-                    fontSize,
-                    textLength,
-                    styleCount,
-                    textGenerator
-                )
-            }
-        }
+        benchmarkRule.benchmarkFirstDraw(caseFactory)
     }
 
     /**
@@ -144,17 +128,7 @@ class TextMultiStyleBenchmark(
      */
     @Test
     fun layout() {
-        textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkLayoutPerf {
-                TextMultiStyleTestCase(
-                    width,
-                    fontSize,
-                    textLength,
-                    styleCount,
-                    textGenerator
-                )
-            }
-        }
+        benchmarkRule.benchmarkLayoutPerf(caseFactory)
     }
 
     /**
@@ -162,16 +136,6 @@ class TextMultiStyleBenchmark(
      */
     @Test
     fun draw() {
-        textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkDrawPerf {
-                TextMultiStyleTestCase(
-                    width,
-                    fontSize,
-                    textLength,
-                    styleCount,
-                    textGenerator
-                )
-            }
-        }
+        benchmarkRule.benchmarkDrawPerf(caseFactory)
     }
 }

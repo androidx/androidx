@@ -50,40 +50,37 @@ class AndroidTextViewBenchmark(private val textLength: Int) {
     @get:Rule
     val benchmarkRule = AndroidBenchmarkRule()
 
+    private val caseFactory = {
+        textBenchmarkRule.generator { textGenerator ->
+            AndroidTextViewTestCase(
+                List(textBenchmarkRule.repeatTimes) {
+                    textGenerator.nextParagraph(textLength)
+                }
+            )
+        }
+    }
     @Test
     fun first_setContent() {
-        textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstSetContent {
-                AndroidTextViewTestCase(textGenerator.nextParagraph(textLength))
-            }
-        }
+        benchmarkRule.benchmarkFirstSetContent(caseFactory)
     }
 
     @Test
     fun first_measure() {
-        textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstMeasure {
-                AndroidTextViewTestCase(textGenerator.nextParagraph(textLength))
-            }
-        }
+        benchmarkRule.benchmarkFirstMeasure(caseFactory)
     }
 
     @Test
     fun first_setContentPlusMeasure() {
-        textBenchmarkRule.generator { textGenerator ->
-            with(benchmarkRule) {
-                runBenchmarkFor(
-                    { AndroidTextViewTestCase(textGenerator.nextParagraph(textLength)) }
-                ) {
-                    measureRepeated {
-                        setupContent()
-                        runWithTimingDisabled {
-                            requestLayout()
-                        }
-                        measure()
-                        runWithTimingDisabled {
-                            disposeContent()
-                        }
+        with(benchmarkRule) {
+            runBenchmarkFor(caseFactory) {
+                measureRepeated {
+                    setupContent()
+                    runWithTimingDisabled {
+                        requestLayout()
+                    }
+                    measure()
+                    runWithTimingDisabled {
+                        disposeContent()
                     }
                 }
             }
@@ -92,37 +89,21 @@ class AndroidTextViewBenchmark(private val textLength: Int) {
 
     @Test
     fun first_layout() {
-        textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstLayout {
-                AndroidTextViewTestCase(textGenerator.nextParagraph(textLength))
-            }
-        }
+        benchmarkRule.benchmarkFirstLayout(caseFactory)
     }
 
     @Test
     fun first_draw() {
-        textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkFirstDraw {
-                AndroidTextViewTestCase(textGenerator.nextParagraph(textLength))
-            }
-        }
+        benchmarkRule.benchmarkFirstDraw(caseFactory)
     }
 
     @Test
     fun layout() {
-        textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkLayoutPerf {
-                AndroidTextViewTestCase(textGenerator.nextParagraph(textLength))
-            }
-        }
+        benchmarkRule.benchmarkLayoutPerf(caseFactory)
     }
 
     @Test
     fun draw() {
-        textBenchmarkRule.generator { textGenerator ->
-            benchmarkRule.benchmarkDrawPerf {
-                AndroidTextViewTestCase(textGenerator.nextParagraph(textLength))
-            }
-        }
+        benchmarkRule.benchmarkDrawPerf(caseFactory)
     }
 }
