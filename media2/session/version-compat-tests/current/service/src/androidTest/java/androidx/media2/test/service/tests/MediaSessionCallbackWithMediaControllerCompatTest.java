@@ -145,10 +145,11 @@ public class MediaSessionCallbackWithMediaControllerCompatTest extends MediaSess
     }
 
     @Test
-    public void disconnectedAfterTimeout() throws InterruptedException {
+    public void disconnectedAfterTimeout() throws Exception {
         CountDownLatch disconnectedLatch = new CountDownLatch(1);
+        RemoteMediaControllerCompat controller = null;
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
-                .setId("testDisconnectedAfterTimeout")
+                .setId("disconnectedAfterTimeout")
                 .setSessionCallback(sHandlerExecutor, new SessionCallback() {
                     private ControllerInfo mConnectedController;
 
@@ -165,24 +166,33 @@ public class MediaSessionCallbackWithMediaControllerCompatTest extends MediaSess
                     @Override
                     public void onDisconnected(@NonNull MediaSession session,
                             @NonNull ControllerInfo controller) {
-                        if (mConnectedController == controller) {
+                        if (TestUtils.equals(mConnectedController, controller)) {
                             disconnectedLatch.countDown();
                         }
                     }
                 })
                 .build()) {
-            long timeoutMs = 100;
-            session.setLegacyControllerConnectionTimeoutMs(timeoutMs);
-            disconnectedLatch.await(timeoutMs * 2, TimeUnit.MILLISECONDS);
+            // Make onDisconnected() to be called immediately after the connection.
+            session.setLegacyControllerConnectionTimeoutMs(0);
+            controller = new RemoteMediaControllerCompat(
+                    mContext, session.getSessionCompatToken(), /* waitForConnection= */ true);
+            // Invoke any command for session to recognize the controller compat.
+            controller.getTransportControls().seekTo(111);
+            assertTrue(disconnectedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        } finally {
+            if (controller != null) {
+                controller.cleanUp();
+            }
         }
     }
 
     @Test
-    public void connectedCallbackAfterDisconnectedByTimeout() throws InterruptedException {
-        CountDownLatch connectedLatch = new CountDownLatch(1);
+    public void connectedCallbackAfterDisconnectedByTimeout() throws Exception {
+        CountDownLatch connectedLatch = new CountDownLatch(2);
         CountDownLatch disconnectedLatch = new CountDownLatch(1);
+        RemoteMediaControllerCompat controller = null;
         try (MediaSession session = new MediaSession.Builder(mContext, mPlayer)
-                .setId("testConnectedAfterDisconnectedByTimeout")
+                .setId("connectedCallbackAfterDisconnectedByTimeout")
                 .setSessionCallback(sHandlerExecutor, new SessionCallback() {
                     private ControllerInfo mConnectedController;
 
@@ -200,21 +210,28 @@ public class MediaSessionCallbackWithMediaControllerCompatTest extends MediaSess
                     @Override
                     public void onDisconnected(@NonNull MediaSession session,
                             @NonNull ControllerInfo controller) {
-                        if (mConnectedController == controller) {
+                        if (TestUtils.equals(mConnectedController, controller)) {
                             disconnectedLatch.countDown();
                         }
                     }
                 })
                 .build()) {
-            long timeoutMs = 100;
-            session.setLegacyControllerConnectionTimeoutMs(timeoutMs);
-            disconnectedLatch.await(timeoutMs * 2, TimeUnit.MILLISECONDS);
+            // Make onDisconnected() to be called immediately after the connection.
+            session.setLegacyControllerConnectionTimeoutMs(0);
+            controller = new RemoteMediaControllerCompat(
+                    mContext, session.getSessionCompatToken(), /* waitForConnection= */ true);
+            // Invoke any command for session to recognize the controller compat.
+            controller.getTransportControls().seekTo(111);
+            assertTrue(disconnectedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
 
-            // Test whether sending any command after the onDisconnected() would invoke onConnect()
-            // again.
-            mController.getTransportControls().seekTo(111);
+            // Test whenter onConnect() is called again after the onDisconnected().
+            controller.getTransportControls().seekTo(111);
 
-            connectedLatch.await(timeoutMs, TimeUnit.MILLISECONDS);
+            assertTrue(connectedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        } finally {
+            if (controller != null) {
+                controller.cleanUp();
+            }
         }
     }
 
