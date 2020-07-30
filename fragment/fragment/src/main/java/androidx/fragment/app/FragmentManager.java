@@ -105,9 +105,11 @@ public abstract class FragmentManager implements FragmentResultOwner {
      *     <li>Handling postponed transactions</li>
      * </ul>
      *
-     * This should only be changed <strong>before</strong> any fragment transactions are done
+     * This must only be changed <strong>before</strong> any fragment transactions are done
      * (i.e., in your <code>Application</code> class or prior to <code>super.onCreate()</code>
-     * in every activity).
+     * in every activity with the same value for all activities). Changing it after that point
+     * is <strong>not</strong> supported and can result in fragments not moving to their
+     * expected state.
      *
      * @param enabled Whether the new state manager should be enabled.
      */
