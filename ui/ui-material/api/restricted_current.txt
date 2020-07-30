@@ -389,24 +389,28 @@ package androidx.compose.material {
     method @androidx.compose.runtime.Composable public static void Switch-y3bT5vQ(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, androidx.compose.ui.Modifier modifier = Modifier, boolean enabled = true, long color = MaterialTheme.colors.secondaryVariant);
   }
 
+  public final class TabConstants {
+    method @androidx.compose.runtime.Composable public void DefaultDivider-Z-uBYeE(androidx.compose.ui.Modifier modifier = Modifier, float thickness = DefaultDividerThickness, long color = contentColor().copy(DefaultDividerOpacity));
+    method @androidx.compose.runtime.Composable public void DefaultIndicator-Z-uBYeE(androidx.compose.ui.Modifier modifier = Modifier, float height = DefaultIndicatorHeight, long color = contentColor());
+    method public androidx.compose.ui.Modifier defaultTabIndicatorOffset(androidx.compose.ui.Modifier, androidx.compose.material.TabPosition currentTabPosition);
+    method public float getDefaultDividerThickness();
+    method public float getDefaultIndicatorHeight();
+    property public final float DefaultDividerThickness;
+    property public final float DefaultIndicatorHeight;
+    field public static final float DefaultDividerOpacity = 0.12f;
+    field public static final androidx.compose.material.TabConstants INSTANCE;
+  }
+
   public final class TabKt {
     method @androidx.compose.runtime.Composable public static void Tab(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, androidx.compose.ui.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> content);
     method @androidx.compose.runtime.Composable public static void Tab-fk33sX0(kotlin.jvm.functions.Function0<kotlin.Unit> text = emptyContent(), kotlin.jvm.functions.Function0<kotlin.Unit> icon = emptyContent(), boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelected, androidx.compose.ui.Modifier modifier = Modifier, long activeColor = contentColor(), long inactiveColor = EmphasisAmbient.current.medium.applyEmphasis(activeColor));
-    method @androidx.compose.runtime.Composable public static <T> void TabRow-7iP9hSk(java.util.List<? extends T> items, int selectedIndex, androidx.compose.ui.Modifier modifier = Modifier, long backgroundColor = MaterialTheme.colors.primarySurface, long contentColor = contentColorFor(backgroundColor), boolean scrollable = false, kotlin.jvm.functions.Function1<? super java.util.List<androidx.compose.material.TabRow.TabPosition>,kotlin.Unit> indicatorContainer = { tabPositions -> TabRow.IndicatorContainer(tabPositions, selectedIndex, { 
-    TabRow.Indicator()
-}) }, kotlin.jvm.functions.Function0<kotlin.Unit> divider = { Divider(1.dp, contentColor().copy(DividerOpacity)) }, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,kotlin.Unit> tab);
+    method @androidx.compose.runtime.Composable public static <T> void TabRow-7iP9hSk(java.util.List<? extends T> items, int selectedIndex, androidx.compose.ui.Modifier modifier = Modifier, long backgroundColor = MaterialTheme.colors.primarySurface, long contentColor = contentColorFor(backgroundColor), boolean scrollable = false, kotlin.jvm.functions.Function1<? super java.util.List<androidx.compose.material.TabPosition>,kotlin.Unit> indicator = { tabPositions -> TabConstants.DefaultIndicator(Modifier.defaultTabIndicatorOffset(tabPositions[selectedIndex])) }, kotlin.jvm.functions.Function0<kotlin.Unit> divider = { TabConstants.DefaultDivider() }, kotlin.jvm.functions.Function2<? super java.lang.Integer,? super T,kotlin.Unit> tab);
   }
 
-  public final class TabRow {
-    method @androidx.compose.runtime.Composable public void Indicator-xNd_lko(androidx.compose.ui.Modifier modifier = Modifier, long color = contentColor());
-    method @androidx.compose.runtime.Composable public void IndicatorContainer(java.util.List<androidx.compose.material.TabRow.TabPosition> tabPositions, int selectedIndex, kotlin.jvm.functions.Function0<kotlin.Unit> indicator);
-    field public static final androidx.compose.material.TabRow INSTANCE;
-  }
-
-  @androidx.compose.runtime.Immutable public static final class TabRow.TabPosition {
+  @androidx.compose.runtime.Immutable public final class TabPosition {
     method public float component1();
     method public float component2();
-    method @androidx.compose.runtime.Immutable public androidx.compose.material.TabRow.TabPosition copy-ioHfwGI(float left, float width);
+    method @androidx.compose.runtime.Immutable public androidx.compose.material.TabPosition copy-ioHfwGI(float left, float width);
     method public float getLeft();
     method public float getRight();
     method public float getWidth();

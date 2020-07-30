@@ -21,6 +21,7 @@ import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.material.TabConstants.defaultTabIndicatorOffset
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.samples.ScrollingTextTabs
@@ -108,23 +109,22 @@ class TabTest {
             var state by remember { mutableStateOf(0) }
             val titles = listOf("TAB 1", "TAB 2")
 
-            val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
-                TabRow.IndicatorContainer(tabPositions, state) {
-                    Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .preferredHeight(indicatorHeight)
-                            .background(color = Color.Red)
+            val indicator = @Composable { tabPositions: List<TabPosition> ->
+                Box(
+                    Modifier
+                        .defaultTabIndicatorOffset(tabPositions[state])
+                        .fillMaxWidth()
+                        .preferredHeight(indicatorHeight)
+                        .background(color = Color.Red)
                         .testTag("indicator")
-                    )
-                }
+                )
             }
 
             Box(Modifier.testTag("tabRow")) {
                 TabRow(
                     items = titles,
                     selectedIndex = state,
-                    indicatorContainer = indicatorContainer
+                    indicator = indicator
                 ) { index, text ->
                     Tab(
                         text = { Text(text) },
@@ -275,16 +275,15 @@ class TabTest {
             var state by remember { mutableStateOf(0) }
             val titles = listOf("TAB 1", "TAB 2")
 
-            val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
-                TabRow.IndicatorContainer(tabPositions, state) {
-                    Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .preferredHeight(indicatorHeight)
-                            .background(color = Color.Red)
-                        .testTag("indicator")
-                    )
-                }
+            val indicator = @Composable { tabPositions: List<TabPosition> ->
+                Box(
+                    Modifier
+                        .defaultTabIndicatorOffset(tabPositions[state])
+                        .fillMaxWidth()
+                        .preferredHeight(indicatorHeight)
+                        .background(color = Color.Red)
+                    .testTag("indicator")
+                )
             }
 
             Box {
@@ -293,7 +292,7 @@ class TabTest {
                     items = titles,
                     scrollable = true,
                     selectedIndex = state,
-                    indicatorContainer = indicatorContainer
+                    indicator = indicator
                 ) { index, text ->
                     Tab(
                         text = { Text(text) },

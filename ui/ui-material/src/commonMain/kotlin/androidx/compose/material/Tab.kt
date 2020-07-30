@@ -26,7 +26,7 @@ import androidx.compose.runtime.Providers
 import androidx.compose.runtime.emptyContent
 import androidx.compose.runtime.remember
 import androidx.compose.animation.ColorPropKey
-import androidx.compose.animation.DpPropKey
+import androidx.compose.animation.animate
 import androidx.compose.animation.transition
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.Layout
@@ -46,14 +46,16 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredWidth
-import androidx.compose.material.TabRow.TabPosition
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.FirstBaseline
 import androidx.compose.foundation.text.LastBaseline
+import androidx.compose.material.TabConstants.defaultTabIndicatorOffset
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.composed
 import androidx.compose.ui.layout.ExperimentalSubcomposeLayoutApi
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.text.style.TextAlign
@@ -82,34 +84,31 @@ import kotlin.math.max
  *
  * @sample androidx.compose.material.samples.FancyTab
  *
- * As well as customizing the tab, you can also provide a custom [indicatorContainer], to customize
- * the indicator displayed for a tab. [indicatorContainer] is responsible for positioning an
- * indicator and for animating its position when [selectedIndex] changes.
+ * As well as customizing the tab, you can also provide a custom [indicator], to customize
+ * the indicator displayed for a tab. [indicator] will be placed to fill the entire TabRow, so it
+ * should internally take care of sizing and positioning the indicator to match changes to
+ * [selectedIndex].
  *
  * For example, given an indicator that draws a rounded rectangle near the edges of the [Tab]:
  *
  * @sample androidx.compose.material.samples.FancyIndicator
  *
- * We can reuse [TabRow.IndicatorContainer] and just provide this indicator, as we aren't changing
- * the transition:
+ * We can reuse [TabConstants.defaultTabIndicatorOffset] and just provide this indicator,
+ * as we aren't changing how the size and position of the indicator changes between tabs:
  *
  * @sample androidx.compose.material.samples.FancyIndicatorTabs
  *
- * You may also want to provide a custom transition, to allow you to dynamically change the
+ * You may also want to use a custom transition, to allow you to dynamically change the
  * appearance of the indicator as it animates between tabs, such as changing its color or size.
- * [indicatorContainer] is stacked on top of the entire TabRow, so you just need to provide a custom
- * container that animates the offset of the indicator from the start of the TabRow and place your
- * custom indicator inside of it. For example, take the following custom container that animates
- * position of the indicator, the color of the indicator, and also adds a physics based 'spring'
- * effect to the indicator in the direction of motion:
+ * [indicator] is stacked on top of the entire TabRow, so you just need to provide a custom
+ * transition that animates the offset of the indicator from the start of the TabRow. For
+ * example, take the following example that uses a transition to animate the offset, width, and
+ * color of the same FancyIndicator from before, also adding a physics based 'spring' effect to
+ * the indicator in the direction of motion:
  *
- * @sample androidx.compose.material.samples.FancyIndicatorContainer
+ * @sample androidx.compose.material.samples.FancyAnimatedIndicator
  *
- * This container will fill up the entire width of the TabRow, and when a new tab is selected,
- * the transition will be called with a new value for [selectedIndex], which will animate the
- * indicator to the position of the new tab.
- *
- * We can use this custom container similarly to before:
+ * We can now just pass this indicator directly to TabRow:
  *
  * @sample androidx.compose.material.samples.FancyIndicatorContainerTabs
  *
@@ -125,9 +124,11 @@ import kotlin.math.max
  * @param scrollable if the tabs should be scrollable. If `false` the tabs will take up an equal
  * amount of the space given to TabRow. If `true` the tabs will take up only as much space as they
  * need, with any excess tabs positioned off screen and able to be scrolled to.
- * @param indicatorContainer the container responsible for positioning and animating the position of
- * the indicator between tabs. By default this will be [TabRow.IndicatorContainer], which animates a
- * [TabRow.Indicator] between tabs.
+ * @param indicator the indicator that represents which tab is currently selected. By default this
+ * will be a [TabConstants.DefaultIndicator], using a [TabConstants.defaultTabIndicatorOffset]
+ * modifier to animate its position. Note that this indicator will be forced to fill up the
+ * entire TabRow, so you should use [TabConstants.defaultTabIndicatorOffset] or similar to
+ * animate the actual drawn indicator inside this space, and provide an offset from the start.
  * @param divider the divider displayed at the bottom of the TabRow. This provides a layer of
  * separation between the TabRow and the content displayed underneath.
  * @param tab the [Tab] to be emitted for the given index and element of type [T] in [items]
@@ -140,13 +141,13 @@ fun <T> TabRow(
     backgroundColor: Color = MaterialTheme.colors.primarySurface,
     contentColor: Color = contentColorFor(backgroundColor),
     scrollable: Boolean = false,
-    indicatorContainer: @Composable (tabPositions: List<TabPosition>) -> Unit = { tabPositions ->
-        TabRow.IndicatorContainer(tabPositions, selectedIndex) {
-            TabRow.Indicator()
-        }
+    indicator: @Composable (tabPositions: List<TabPosition>) -> Unit = { tabPositions ->
+        TabConstants.DefaultIndicator(
+            Modifier.defaultTabIndicatorOffset(tabPositions[selectedIndex])
+        )
     },
     divider: @Composable () -> Unit = {
-        Divider(thickness = 1.dp, color = contentColor().copy(alpha = DividerOpacity))
+        TabConstants.DefaultDivider()
     },
     tab: @Composable (Int, T) -> Unit
 ) {
@@ -158,7 +159,7 @@ fun <T> TabRow(
                     tab(index, item)
                 }
             }
-            ScrollableTabRow(selectedIndex, tabs, indicatorContainer, divider)
+            ScrollableTabRow(selectedIndex, tabs, indicator, divider)
         } else {
             // TODO: b/150138067 remove modifier here and use the global LayoutWeight
             // modifier when it exists
@@ -169,7 +170,7 @@ fun <T> TabRow(
                     }
                 }
             }
-            FixedTabRow(items.size, tabs, indicatorContainer, divider)
+            FixedTabRow(items.size, tabs, indicator, divider)
         }
     }
 }
@@ -336,42 +337,25 @@ private class ScrollableTabData(
     }
 }
 
-object TabRow {
-    private val IndicatorOffset = DpPropKey()
-
+/**
+ * Contains default values used by tabs from the Material specification.
+ */
+object TabConstants {
     /**
-     * Data class that contains information about a tab's position on screen
+     * Default [Divider], which will be positioned at the bottom of the [TabRow], underneath the
+     * indicator.
      *
-     * @property left the left edge's x position from the start of the [TabRow]
-     * @property right the right edge's x position from the start of the [TabRow]
-     * @property width the width of this tab
-     */
-    @Immutable
-    data class TabPosition internal constructor(val left: Dp, val width: Dp) {
-        val right: Dp get() = left + width
-    }
-
-    /**
-     * Positions and animates the given [indicator] between tabs when [selectedIndex] changes.
+     * @param modifier modifier for the divider's layout
+     * @param thickness thickness of the divider
+     * @param color color of the divider
      */
     @Composable
-    fun IndicatorContainer(
-        tabPositions: List<TabPosition>,
-        selectedIndex: Int,
-        indicator: @Composable () -> Unit
+    fun DefaultDivider(
+        modifier: Modifier = Modifier,
+        thickness: Dp = DefaultDividerThickness,
+        color: Color = contentColor().copy(alpha = DefaultDividerOpacity)
     ) {
-        // TODO: should we animate the width of the indicator as it moves between tabs of different
-        // sizes inside a scrollable tab row?
-        val currentTabWidth = tabPositions[selectedIndex].width
-
-        Box(Modifier.fillMaxSize(), gravity = ContentGravity.BottomStart) {
-            IndicatorTransition(tabPositions, selectedIndex) { indicatorOffset ->
-                Box(
-                    Modifier.padding(start = indicatorOffset).preferredWidth(currentTabWidth),
-                    children = indicator
-                )
-            }
-        }
+        Divider(modifier = modifier, thickness = thickness, color = color)
     }
 
     /**
@@ -379,52 +363,72 @@ object TabRow {
      * divider.
      *
      * @param modifier modifier for the indicator's layout
+     * @param height height of the indicator
      * @param color color of the indicator
      */
     @Composable
-    fun Indicator(modifier: Modifier = Modifier, color: Color = contentColor()) {
-        Box(modifier.fillMaxWidth().preferredHeight(IndicatorHeight).background(color = color))
+    fun DefaultIndicator(
+        modifier: Modifier = Modifier,
+        height: Dp = DefaultIndicatorHeight,
+        color: Color = contentColor()
+    ) {
+        Box(modifier
+            .fillMaxWidth()
+            .preferredHeight(height)
+            .background(color = color)
+        )
     }
 
     /**
-     * [transition] that animates the indicator offset between a given list of [TabPosition]s.
+     * [Modifier] that takes up all the available width inside the [TabRow], and then animates
+     * the offset of the indicator it is applied to, depending on the [currentTabPosition].
+     *
+     * @param currentTabPosition [TabPosition] of the currently selected tab. This is used to
+     * calculate the offset of the indicator this modifier is applied to, as well as its width.
      */
-    @Composable
-    internal fun IndicatorTransition(
-        tabPositions: List<TabPosition>,
-        selectedIndex: Int,
-        indicator: @Composable (indicatorOffset: Dp) -> Unit
-    ) {
-        val transitionDefinition = remember(tabPositions) {
-            transitionDefinition<Int> {
-                // TODO: currently the first state set is the 'default' state, so we want to define the
-                // state that is initially selected first, so we don't have any initial animations.
-                // When this is supported by transitionDefinition, we should fix this to just set a
-                // default or similar.
-                state(selectedIndex) {
-                    this[IndicatorOffset] = tabPositions[selectedIndex].left
-                }
-
-                tabPositions.forEachIndexed { index, position ->
-                    if (index != selectedIndex) {
-                        state(index) {
-                            this[IndicatorOffset] = position.left
-                        }
-                    }
-                }
-
-                transition {
-                    IndicatorOffset using tween(
-                        durationMillis = 250,
-                        easing = FastOutSlowInEasing
-                    )
-                }
-            }
-        }
-
-        val state = transition(transitionDefinition, selectedIndex)
-        indicator(state[IndicatorOffset])
+    fun Modifier.defaultTabIndicatorOffset(
+        currentTabPosition: TabPosition
+    ): Modifier = composed {
+        // TODO: should we animate the width of the indicator as it moves between tabs of different
+        // sizes inside a scrollable tab row?
+        val currentTabWidth = currentTabPosition.width
+        val indicatorOffset = animate(
+            target = currentTabPosition.left,
+            animSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing)
+        )
+        fillMaxWidth()
+            .wrapContentSize(Alignment.BottomStart)
+            .offset(x = indicatorOffset)
+            .preferredWidth(currentTabWidth)
     }
+
+    /**
+     * Default opacity for the color of [DefaultDivider]
+     */
+    const val DefaultDividerOpacity = 0.12f
+
+    /**
+     * Default thickness for [DefaultDivider]
+     */
+    val DefaultDividerThickness = 1.dp
+
+    /**
+     * Default height for [DefaultIndicator]
+     */
+    val DefaultIndicatorHeight = 2.dp
+}
+
+/**
+ * Data class that contains information about a tab's position on screen, used for calculating
+ * where to place the indicator that shows which tab is selected.
+ *
+ * @property left the left edge's x position from the start of the [TabRow]
+ * @property right the right edge's x position from the start of the [TabRow]
+ * @property width the width of this tab
+ */
+@Immutable
+data class TabPosition internal constructor(val left: Dp, val width: Dp) {
+    val right: Dp get() = left + width
 }
 
 /**
@@ -591,19 +595,18 @@ private fun TabBaselineLayout(
                     iconPlaceable = iconPlaceable,
                     tabWidth = tabWidth,
                     tabHeight = tabHeight,
-                    firstBaseline = requireNotNull(firstBaseline) { "No text baselines found" },
-                    lastBaseline = requireNotNull(lastBaseline) { "No text baselines found" }
+                    firstBaseline = firstBaseline,
+                    lastBaseline = lastBaseline
                 )
                 hasTextPlaceable -> placeText(
                     density = this@Layout,
                     textPlaceable = textPlaceable,
                     tabHeight = tabHeight,
-                    firstBaseline = requireNotNull(firstBaseline) { "No text baselines found" },
-                    lastBaseline = requireNotNull(lastBaseline) { "No text baselines found" }
+                    firstBaseline = firstBaseline,
+                    lastBaseline = lastBaseline
                 )
                 hasIconPlaceable -> placeIcon(iconPlaceable, tabHeight)
-                else -> {
-                }
+                else -> {}
             }
         }
     }
@@ -638,7 +641,9 @@ private fun Placeable.PlacementScope.placeText(
     }
 
     // Total offset between the last text baseline and the bottom of the Tab layout
-    val totalOffset = with(density) { baselineOffset.toIntPx() + IndicatorHeight.toIntPx() }
+    val totalOffset = with(density) {
+        baselineOffset.toIntPx() + TabConstants.DefaultIndicatorHeight.toIntPx()
+    }
 
     val textPlaceableY = tabHeight - lastBaseline - totalOffset
     textPlaceable.place(0, textPlaceableY)
@@ -665,7 +670,9 @@ private fun Placeable.PlacementScope.placeTextAndIcon(
     }
 
     // Total offset between the last text baseline and the bottom of the Tab layout
-    val textOffset = with(density) { baselineOffset.toIntPx() + IndicatorHeight.toIntPx() }
+    val textOffset = with(density) {
+        baselineOffset.toIntPx() + TabConstants.DefaultIndicatorHeight.toIntPx()
+    }
 
     // How much space there is between the top of the icon (essentially the top of this layout)
     // and the top of the text layout's bounding box (not baseline)
@@ -683,8 +690,6 @@ private fun Placeable.PlacementScope.placeTextAndIcon(
 }
 
 // TabRow specifications
-private val IndicatorHeight = 2.dp
-private const val DividerOpacity = 0.12f
 // How far from the start and end of a scrollable TabRow should the first Tab be displayed
 private val ScrollableTabRowEdgeOffset = 52.dp
 private val ScrollableTabRowMinimumTabWidth = 90.dp
