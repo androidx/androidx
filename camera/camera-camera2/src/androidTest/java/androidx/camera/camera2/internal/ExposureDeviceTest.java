@@ -458,7 +458,6 @@ public class ExposureDeviceTest {
     }
 
     public static class FakeTestUseCase extends FakeUseCase {
-        private FakeUseCaseConfig mConfig;
         private DeferrableSurface mDeferrableSurface;
         private CameraCaptureSession.StateCallback mSessionStateCallback;
         CameraCaptureSession.CaptureCallback mCameraCaptureCallback;
@@ -468,9 +467,6 @@ public class ExposureDeviceTest {
                 @NonNull CameraInternal cameraInternal,
                 @NonNull CameraCaptureSession.StateCallback sessionStateCallback) {
             super(config);
-            // Ensure we're using the combined configuration (user config + defaults)
-            mConfig = (FakeUseCaseConfig) getUseCaseConfig();
-
             mSessionStateCallback = sessionStateCallback;
         }
 
@@ -497,7 +493,7 @@ public class ExposureDeviceTest {
         }
 
         private void createPipeline(Size resolution) {
-            SessionConfig.Builder builder = SessionConfig.Builder.createFrom(mConfig);
+            SessionConfig.Builder builder = SessionConfig.Builder.createFrom(getUseCaseConfig());
 
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
             if (mDeferrableSurface != null) {

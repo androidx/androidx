@@ -16,9 +16,6 @@
 
 package androidx.camera.camera2;
 
-import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
-import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_SESSION_CONFIG;
-
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertEquals;
@@ -71,7 +68,6 @@ import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
-import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -131,6 +127,7 @@ public final class ImageCaptureTest {
     private static final int BACK_LENS_FACING = CameraSelector.LENS_FACING_BACK;
     private static final CameraSelector BACK_SELECTOR =
             new CameraSelector.Builder().requireLensFacing(BACK_LENS_FACING).build();
+    private static final int FLASH_MODE_UNKNOWN = -1;
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
 
@@ -761,6 +758,7 @@ public final class ImageCaptureTest {
     @Test
     public void defaultAspectRatioWillBeSet_whenTargetResolutionIsNotSet() {
         ImageCapture useCase = new ImageCapture.Builder().build();
+        CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
         ImageOutputConfig config = (ImageOutputConfig) useCase.getUseCaseConfig();
         assertThat(config.getTargetAspectRatio()).isEqualTo(AspectRatio.RATIO_4_3);
     }
@@ -793,6 +791,7 @@ public final class ImageCaptureTest {
     public void targetResolutionIsUpdatedAfterTargetRotationIsUpdated() {
         ImageCapture imageCapture = new ImageCapture.Builder().setTargetResolution(
                 DEFAULT_RESOLUTION).setTargetRotation(Surface.ROTATION_0).build();
+        CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, imageCapture);
 
         // Updates target rotation from ROTATION_0 to ROTATION_90.
         imageCapture.setTargetRotation(Surface.ROTATION_90);
@@ -995,22 +994,7 @@ public final class ImageCaptureTest {
         });
 
         UseCaseConfig<?> configAfterUnbinding = useCase.getUseCaseConfig();
-
-        // After detaching from a camera the options from getUseCaseConfig() should be restored
-        // to those prior to attaching to the camera. The option list should have the same option
-        // list as the initial config after the use case is unbound.
-        for (Config.Option<?> opt : configAfterUnbinding.listOptions()) {
-            // There is no equivalence relation between two SessionConfig or CaptureConfig
-            // objects. Therefore, only checking that the default SessionConfig or CaptureConfig
-            // also exists in initialConfig when it exists in configAfterUnbinding.
-            if (opt.equals(OPTION_DEFAULT_SESSION_CONFIG) || opt.equals(
-                    OPTION_DEFAULT_CAPTURE_CONFIG)) {
-                assertThat(initialConfig.containsOption(opt)).isTrue();
-            } else {
-                assertThat(initialConfig.retrieveOption(opt).equals(
-                        configAfterUnbinding.retrieveOption(opt))).isTrue();
-            }
-        }
+        assertThat(initialConfig.equals(configAfterUnbinding)).isTrue();
     }
 
     @Test
@@ -1134,6 +1118,35 @@ public final class ImageCaptureTest {
                 mMainExecutor, callback2);
         // Wait for the signal that the image has been saved.
         verify(callback2, timeout(10000)).onImageSaved(any());
+    }
+
+    @Test
+    public void returnValidTargetRotation_afterUseCaseIsCreated() {
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
+        assertThat(imageCapture.getTargetRotation()).isNotEqualTo(
+                ImageOutputConfig.INVALID_ROTATION);
+    }
+
+    @Test
+    public void returnCorrectTargetRotation_afterUseCaseIsAttached() {
+        ImageCapture imageCapture = new ImageCapture.Builder().setTargetRotation(
+                Surface.ROTATION_180).build();
+        CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, imageCapture);
+        assertThat(imageCapture.getTargetRotation()).isEqualTo(Surface.ROTATION_180);
+    }
+
+    @Test
+    public void returnDefaultFlashMode_beforeUseCaseIsAttached() {
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
+        assertThat(imageCapture.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_OFF);
+    }
+
+    @Test
+    public void returnCorrectFlashMode_afterUseCaseIsAttached() {
+        ImageCapture imageCapture = new ImageCapture.Builder().setFlashMode(
+                ImageCapture.FLASH_MODE_ON).build();
+        CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, imageCapture);
+        assertThat(imageCapture.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_ON);
     }
 
     private static final class ImageProperties {
