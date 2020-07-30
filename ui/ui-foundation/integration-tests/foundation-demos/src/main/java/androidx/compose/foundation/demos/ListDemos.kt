@@ -49,6 +49,9 @@ import androidx.compose.ui.platform.LayoutDirectionAmbient
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.foundation.lazy.ExperimentalLazyDsl
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import kotlin.random.Random
 
 val LazyListDemos = listOf(
@@ -57,7 +60,9 @@ val LazyListDemos = listOf(
     ComposableDemo("Horizontal list") { LazyRowItemsDemo() },
     ComposableDemo("List with indexes") { ListWithIndexSample() },
     ComposableDemo("Pager-like list") { PagerLikeDemo() },
-    ComposableDemo("Rtl list") { RtlListDemo() }
+    ComposableDemo("Rtl list") { RtlListDemo() },
+    ComposableDemo("LazyColumn DSL") { LazyColumnScope() },
+    ComposableDemo("LazyRow DSL") { LazyRowScope() }
 )
 
 @Composable
@@ -174,3 +179,43 @@ private val colors = listOf(
     Color(0xFFe3ffd9.toInt()),
     Color(0xFFd0fff8.toInt())
 )
+
+@Composable
+@OptIn(ExperimentalLazyDsl::class)
+private fun LazyColumnScope() {
+    LazyColumn {
+        items((1..10).toList()) {
+            Text("$it", fontSize = 40.sp)
+        }
+
+        item {
+            Text("Single item", fontSize = 40.sp)
+        }
+
+        val items = listOf("A", "B", "C")
+        itemsIndexed(items) { index, item ->
+            Text("Item $item has index $index", fontSize = 40.sp)
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalLazyDsl::class)
+private fun LazyRowScope() {
+    LazyRow {
+        items((1..10).toList()) {
+            Text("$it", fontSize = 40.sp)
+        }
+
+        item {
+            Text("Single item", fontSize = 40.sp)
+        }
+
+        val items = listOf(Color.Cyan, Color.Blue, Color.Magenta)
+        itemsIndexed(items) { index, item ->
+            Box(modifier = Modifier.background(item).size(40.dp), gravity = ContentGravity.Center) {
+                Text("$index", fontSize = 30.sp)
+            }
+        }
+    }
+}

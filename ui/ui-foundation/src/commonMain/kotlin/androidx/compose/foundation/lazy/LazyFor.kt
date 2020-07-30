@@ -262,7 +262,7 @@ fun <T> LazyRowItems(
 @Suppress("NOTHING_TO_INLINE")
 @Composable
 @OptIn(ExperimentalSubcomposeLayoutApi::class)
-private inline fun LazyFor(
+internal inline fun LazyFor(
     itemsCount: Int,
     modifier: Modifier = Modifier,
     contentPadding: InnerPadding,
