@@ -35,7 +35,7 @@ import java.util.EnumSet
 
 class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleScanner {
     companion object {
-        const val FRAGMENT_VERSION = "1.3.0-alpha07"
+        const val FRAGMENT_VERSION = "1.3.0-alpha08"
 
         val ISSUE = Issue.create(
             id = "InvalidFragmentVersionForActivityResult",
