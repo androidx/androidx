@@ -79,7 +79,8 @@ package androidx.compose.material {
     method @androidx.compose.runtime.Composable public static void TriStateCheckbox-6H4mBLc(androidx.compose.foundation.selection.ToggleableState state, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, boolean enabled = true, androidx.compose.ui.Modifier modifier = Modifier, long checkedColor = MaterialTheme.colors.secondary, long uncheckedColor = MaterialTheme.colors.onSurface, long disabledColor = MaterialTheme.colors.onSurface, long checkMarkColor = MaterialTheme.colors.surface);
   }
 
-  public interface Colors {
+  @androidx.compose.runtime.Stable public final class Colors {
+    method public androidx.compose.material.Colors copy-7EMdAJ8(long primary = this.primary, long primaryVariant = this.primaryVariant, long secondary = this.secondary, long secondaryVariant = this.secondaryVariant, long background = this.background, long surface = this.surface, long error = this.error, long onPrimary = this.onPrimary, long onSecondary = this.onSecondary, long onBackground = this.onBackground, long onSurface = this.onSurface, long onError = this.onError, boolean isLight = this.isLight);
     method public long getBackground();
     method public long getError();
     method public long getOnBackground();
@@ -93,19 +94,19 @@ package androidx.compose.material {
     method public long getSecondaryVariant();
     method public long getSurface();
     method public boolean isLight();
-    property public abstract long background;
-    property public abstract long error;
-    property public abstract boolean isLight;
-    property public abstract long onBackground;
-    property public abstract long onError;
-    property public abstract long onPrimary;
-    property public abstract long onSecondary;
-    property public abstract long onSurface;
-    property public abstract long primary;
-    property public abstract long primaryVariant;
-    property public abstract long secondary;
-    property public abstract long secondaryVariant;
-    property public abstract long surface;
+    property public final long background;
+    property public final long error;
+    property public final boolean isLight;
+    property public final long onBackground;
+    property public final long onError;
+    property public final long onPrimary;
+    property public final long onSecondary;
+    property public final long onSurface;
+    property public final long primary;
+    property public final long primaryVariant;
+    property public final long secondary;
+    property public final long secondaryVariant;
+    property public final long surface;
   }
 
   public final class ColorsKt {

@@ -16,16 +16,14 @@
 
 package androidx.compose.material
 
-import androidx.compose.runtime.Ambient
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.Providers
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.staticAmbientOf
 import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.foundation.contentColor
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.useOrElse
 
@@ -33,72 +31,167 @@ import androidx.compose.ui.graphics.useOrElse
  * Collection of colors in the
  * [Material color specification](https://material.io/design/color/the-color-system.html#color-theme-creation)
  *
- * To create a light set of colors, use [lightColors]
- * To create a dark set of colors, use [darkColors]
+ * To create a light set of colors using the baseline values, use [lightColors]
+ * To create a dark set of colors using the baseline values, use [darkColors]
+ *
+ * @property primary The primary color is the color displayed most frequently across your app’s
+ * screens and components.
+ * @property primaryVariant The primary variant color is used to distinguish two elements of the
+ * app using the primary color, such as the top app bar and the system bar.
+ * @property secondary The secondary color provides more ways to accent and distinguish your
+ * product. Secondary colors are best for:
+ * - Floating action buttons
+ * - Selection controls, like checkboxes and radio buttons
+ * - Highlighting selected text
+ * - Links and headlines
+ * @property secondaryVariant The secondary variant color is used to distinguish two elements of the
+ * app using the secondary color.
+ * @property background The background color appears behind scrollable content.
+ * @property surface The surface color is used on surfaces of components, such as cards, sheets and
+ * menus.
+ * @property error The error color is used to indicate error within components, such as text fields.
+ * @property onPrimary Color used for text and icons displayed on top of the primary color.
+ * @property onSecondary Color used for text and icons displayed on top of the secondary color.
+ * @property onBackground Color used for text and icons displayed on top of the background color.
+ * @property onSurface Color used for text and icons displayed on top of the surface color.
+ * @property onError Color used for text and icons displayed on top of the error color.
+ * @property isLight Whether this Colors is considered as a 'light' or 'dark' set of colors. This
+ * affects default behavior for some components: for example, in a light theme a [TopAppBar] will
+ * use [primary] by default for its background color, when in a dark theme it will use [surface].
  */
-interface Colors {
+@Stable
+class Colors (
+    primary: Color,
+    primaryVariant: Color,
+    secondary: Color,
+    secondaryVariant: Color,
+    background: Color,
+    surface: Color,
+    error: Color,
+    onPrimary: Color,
+    onSecondary: Color,
+    onBackground: Color,
+    onSurface: Color,
+    onError: Color,
+    isLight: Boolean
+) {
+    var primary by mutableStateOf(primary, structuralEqualityPolicy())
+        internal set
+    var primaryVariant by mutableStateOf(primaryVariant, structuralEqualityPolicy())
+        internal set
+    var secondary by mutableStateOf(secondary, structuralEqualityPolicy())
+        internal set
+    var secondaryVariant by mutableStateOf(secondaryVariant, structuralEqualityPolicy())
+        internal set
+    var background by mutableStateOf(background, structuralEqualityPolicy())
+        internal set
+    var surface by mutableStateOf(surface, structuralEqualityPolicy())
+        internal set
+    var error by mutableStateOf(error, structuralEqualityPolicy())
+        internal set
+    var onPrimary by mutableStateOf(onPrimary, structuralEqualityPolicy())
+        internal set
+    var onSecondary by mutableStateOf(onSecondary, structuralEqualityPolicy())
+        internal set
+    var onBackground by mutableStateOf(onBackground, structuralEqualityPolicy())
+        internal set
+    var onSurface by mutableStateOf(onSurface, structuralEqualityPolicy())
+        internal set
+    var onError by mutableStateOf(onError, structuralEqualityPolicy())
+        internal set
+    var isLight by mutableStateOf(isLight, structuralEqualityPolicy())
+        internal set
+
     /**
-     * The primary color is the color displayed most frequently across your app’s screens and
-     * components.
+     * Returns a copy of this Colors, optionally overriding some of the values.
      */
-    val primary: Color
-    /**
-     * The primary variant color is used to distinguish two elements of the app using the primary
-     * color, such as the top app bar and the system bar.
-     */
-    val primaryVariant: Color
-    /**
-     * The secondary color provides more ways to accent and distinguish your product.
-     * Secondary colors are best for:
-     * - Floating action buttons
-     * - Selection controls, like checkboxes and radio buttons
-     * - Highlighting selected text
-     * - Links and headlines
-     */
-    val secondary: Color
-    /**
-     * The secondary variant color is used to distinguish two elements of the app using the
-     * secondary color.
-     */
-    val secondaryVariant: Color
-    /**
-     * The background color appears behind scrollable content.
-     */
-    val background: Color
-    /**
-     * The surface color is used on surfaces of components, such as cards, sheets and menus.
-     */
-    val surface: Color
-    /**
-     * The error color is used to indicate error within components, such as text fields.
-     */
-    val error: Color
-    /**
-     * Color used for text and icons displayed on top of the primary color.
-     */
-    val onPrimary: Color
-    /**
-     * Color used for text and icons displayed on top of the secondary color.
-     */
-    val onSecondary: Color
-    /**
-     * Color used for text and icons displayed on top of the background color.
-     */
-    val onBackground: Color
-    /**
-     * Color used for text and icons displayed on top of the surface color.
-     */
-    val onSurface: Color
-    /**
-     * Color used for text and icons displayed on top of the error color.
-     */
-    val onError: Color
-    /**
-     * Whether this Colors is considered as a 'light' or 'dark' set of colors. This affects
-     * default behavior for some components: for example, in a light theme a [TopAppBar] will use
-     * [primary] by default for its background color, when in a dark theme it will use [surface].
-     */
-    val isLight: Boolean
+    fun copy(
+        primary: Color = this.primary,
+        primaryVariant: Color = this.primaryVariant,
+        secondary: Color = this.secondary,
+        secondaryVariant: Color = this.secondaryVariant,
+        background: Color = this.background,
+        surface: Color = this.surface,
+        error: Color = this.error,
+        onPrimary: Color = this.onPrimary,
+        onSecondary: Color = this.onSecondary,
+        onBackground: Color = this.onBackground,
+        onSurface: Color = this.onSurface,
+        onError: Color = this.onError,
+        isLight: Boolean = this.isLight
+    ): Colors = Colors(
+        primary,
+        primaryVariant,
+        secondary,
+        secondaryVariant,
+        background,
+        surface,
+        error,
+        onPrimary,
+        onSecondary,
+        onBackground,
+        onSurface,
+        onError,
+        isLight
+    )
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as Colors
+
+        if (primary != other.primary) return false
+        if (primaryVariant != other.primaryVariant) return false
+        if (secondary != other.secondary) return false
+        if (secondaryVariant != other.secondaryVariant) return false
+        if (background != other.background) return false
+        if (surface != other.surface) return false
+        if (error != other.error) return false
+        if (onPrimary != other.onPrimary) return false
+        if (onSecondary != other.onSecondary) return false
+        if (onBackground != other.onBackground) return false
+        if (onSurface != other.onSurface) return false
+        if (onError != other.onError) return false
+        if (isLight != other.isLight) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = primary.hashCode()
+        result = 31 * result + primaryVariant.hashCode()
+        result = 31 * result + secondary.hashCode()
+        result = 31 * result + secondaryVariant.hashCode()
+        result = 31 * result + background.hashCode()
+        result = 31 * result + surface.hashCode()
+        result = 31 * result + error.hashCode()
+        result = 31 * result + onPrimary.hashCode()
+        result = 31 * result + onSecondary.hashCode()
+        result = 31 * result + onBackground.hashCode()
+        result = 31 * result + onSurface.hashCode()
+        result = 31 * result + onError.hashCode()
+        result = 31 * result + isLight.hashCode()
+        return result
+    }
+
+    override fun toString(): String {
+        return "Colors(" +
+                "primary=$primary, " +
+                "primaryVariant=$primaryVariant, " +
+                "secondary=$secondary, " +
+                "secondaryVariant=$secondaryVariant, " +
+                "background=$background, " +
+                "surface=$surface, " +
+                "error=$error, " +
+                "onPrimary=$onPrimary, " +
+                "onSecondary=$onSecondary, " +
+                "onBackground=$onBackground, " +
+                "onSurface=$onSurface, " +
+                "onError=$onError, " +
+                "isLight=$isLight" +
+                ")"
+    }
 }
 
 /**
@@ -121,7 +214,7 @@ fun lightColors(
     onBackground: Color = Color.Black,
     onSurface: Color = Color.Black,
     onError: Color = Color.White
-): Colors = ObservableColors(
+): Colors = Colors(
     primary,
     primaryVariant,
     secondary,
@@ -156,7 +249,7 @@ fun darkColors(
     onBackground: Color = Color.White,
     onSurface: Color = Color.White,
     onError: Color = Color.Black
-): Colors = ObservableColors(
+): Colors = Colors(
     primary,
     primaryVariant,
     secondary,
@@ -211,71 +304,19 @@ fun contentColorFor(color: Color) =
     MaterialTheme.colors.contentColorFor(color).useOrElse { contentColor() }
 
 /**
- * Default observable backing implementation for [Colors].
+ * Updates the internal values of the given [Colors] with values from the [other] [Colors]. This
+ * allows efficiently updating a subset of [Colors], without recomposing every composable that
+ * consumes values from [ColorAmbient].
  *
- * Typically we would just change the value of the [ColorAmbient] ambient when the theme changes, but
- * in the case of wide-reaching data such as colors in the [MaterialTheme], this will cause almost
- * every UI component on a screen to be recomposed. In reality, we only want to recompose
- * components that consume the specific color(s) that have been changed - so this default
- * implementation is intended to be memoized in the ambient, and then when a new immutable
- * [Colors] is provided, we can simply diff and update any values that need to be changed.
- * Because the internal values are provided by an State delegate class, components consuming the
- * specific color will be recomposed, while everything else will remain the same. This allows for
- * large performance improvements when the theme is being changed, especially if it is being
- * animated.
+ * Because [Colors] is very wide-reaching, and used by many expensive composables in the
+ * hierarchy, providing a new value to [ColorAmbient] causes every composable consuming
+ * [ColorAmbient] to recompose, which is prohibitively expensive in cases such as animating one
+ * color in the theme. Instead, [Colors] is internally backed by [mutableStateOf], and this
+ * function mutates the internal state of [this] to match values in [other]. This means that any
+ * changes will mutate the internal state of [this], and only cause composables that are reading
+ * the specific changed value to recompose.
  */
-private class ObservableColors(
-    primary: Color,
-    primaryVariant: Color,
-    secondary: Color,
-    secondaryVariant: Color,
-    background: Color,
-    surface: Color,
-    error: Color,
-    onPrimary: Color,
-    onSecondary: Color,
-    onBackground: Color,
-    onSurface: Color,
-    onError: Color,
-    isLight: Boolean
-) : Colors {
-
-    constructor(colors: Colors) : this(
-        primary = colors.primary,
-        primaryVariant = colors.primaryVariant,
-        secondary = colors.secondary,
-        secondaryVariant = colors.secondaryVariant,
-        background = colors.background,
-        surface = colors.surface,
-        error = colors.error,
-        onPrimary = colors.onPrimary,
-        onSecondary = colors.onSecondary,
-        onBackground = colors.onBackground,
-        onSurface = colors.onSurface,
-        onError = colors.onError,
-        isLight = colors.isLight
-    )
-
-    override var primary by mutableStateOf(primary, structuralEqualityPolicy())
-    override var primaryVariant by mutableStateOf(primaryVariant, structuralEqualityPolicy())
-    override var secondary by mutableStateOf(secondary, structuralEqualityPolicy())
-    override var secondaryVariant by mutableStateOf(secondaryVariant, structuralEqualityPolicy())
-    override var background by mutableStateOf(background, structuralEqualityPolicy())
-    override var surface by mutableStateOf(surface, structuralEqualityPolicy())
-    override var error by mutableStateOf(error, structuralEqualityPolicy())
-    override var onPrimary by mutableStateOf(onPrimary, structuralEqualityPolicy())
-    override var onSecondary by mutableStateOf(onSecondary, structuralEqualityPolicy())
-    override var onBackground by mutableStateOf(onBackground, structuralEqualityPolicy())
-    override var onSurface by mutableStateOf(onSurface, structuralEqualityPolicy())
-    override var onError by mutableStateOf(onError, structuralEqualityPolicy())
-    override var isLight by mutableStateOf(isLight, structuralEqualityPolicy())
-}
-
-/**
- * Updates the internal values of the given [ObservableColors] with values from the [other]
- * [Colors].
- */
-private fun ObservableColors.updateColorsFrom(other: Colors): ObservableColors {
+internal fun Colors.updateColorsFrom(other: Colors) {
     primary = other.primary
     primaryVariant = other.primaryVariant
     secondary = other.secondary
@@ -289,27 +330,14 @@ private fun ObservableColors.updateColorsFrom(other: Colors): ObservableColors {
     onSurface = other.onSurface
     onError = other.onError
     isLight = other.isLight
-    return this
-}
-
-/**
- * Memoizes and mutates the given [colors] if it is an [ObservableColors], otherwise
- * just provides the given [colors] through the [ColorAmbient] [Ambient].
- */
-@Composable
-internal fun ProvideColors(colors: Colors, content: @Composable () -> Unit) {
-    val palette = when (colors) {
-        is ObservableColors -> {
-            (remember { ObservableColors(colors) }).updateColorsFrom(colors)
-        }
-        else -> colors
-    }
-    Providers(ColorAmbient provides palette, children = content)
 }
 
 /**
  * Ambient used to pass [Colors] down the tree.
  *
+ * Setting the value here is typically done as part of [MaterialTheme], which will
+ * automatically handle efficiently updating any changed colors without causing unnecessary
+ * recompositions, using [Colors.updateColorsFrom].
  * To retrieve the current value of this ambient, use [MaterialTheme.colors].
  */
 internal val ColorAmbient = staticAmbientOf { lightColors() }
