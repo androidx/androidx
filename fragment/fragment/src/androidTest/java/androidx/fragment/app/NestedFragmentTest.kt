@@ -66,7 +66,7 @@ class NestedFragmentTest {
             IntentFilter(Intent.ACTION_CALL), activityResult, true /* block */
         )
 
-        // Sanity check that onActivityResult hasn't been called yet.
+        // Verify that onActivityResult hasn't been called yet.
         assertThat(parentFragment.childFragment.onActivityResultCalled).isFalse()
 
         val latch = CountDownLatch(1)
@@ -95,7 +95,7 @@ class NestedFragmentTest {
             IntentFilter(Intent.ACTION_CALL), activityResult, true /* block */
         )
 
-        // Sanity check that onActivityResult hasn't been called yet.
+        // Verify that onActivityResult hasn't been called yet.
         assertThat(parentFragment.childFragment.onActivityResultCalled).isFalse()
 
         val latch = CountDownLatch(1)
