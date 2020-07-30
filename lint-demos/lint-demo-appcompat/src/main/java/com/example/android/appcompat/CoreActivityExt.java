@@ -22,7 +22,7 @@ import android.os.Bundle;
 import android.widget.Toolbar;
 
 /**
- * Dummy extension activity for the AppCompat Lint demo
+ * No-op extension activity for the AppCompat Lint demo
  */
 public class CoreActivityExt extends Activity {
     @Override

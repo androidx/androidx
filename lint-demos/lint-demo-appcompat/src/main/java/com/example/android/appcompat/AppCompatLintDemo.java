@@ -29,7 +29,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.content.res.AppCompatResources;
 
 /**
- * Dummy activity for the AppCompat Lint demo
+ * No-op activity for the AppCompat Lint demo
  */
 public class AppCompatLintDemo extends AppCompatActivity {
     private class ResourceLoader {
@@ -42,26 +42,26 @@ public class AppCompatLintDemo extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        TextView dummy = findViewById(R.id.dummy);
+        TextView noop = findViewById(R.id.noop);
         // The following call to getColorStateList should be flagged by our Lint rule, since
         // it's on the core Android Resources class
         ColorStateList csl =
                 getResources().getColorStateList(R.color.color_state_list_missing_android_alpha);
-        dummy.setTextColor(csl);
+        noop.setTextColor(csl);
 
         // The following call to getColorStateList should not be flagged by our Lint rule, since
         // it's on our own custom inner class
         ColorStateList csl2 = new ResourceLoader().getColorStateList(
                 R.color.color_state_list_missing_android_alpha);
-        dummy.setTextColor(csl2);
+        noop.setTextColor(csl2);
 
         Drawable dr = getResources().getDrawable(R.drawable.app_sample_code);
-        dummy.setCompoundDrawables(dr, null, null, null);
+        noop.setCompoundDrawables(dr, null, null, null);
 
         if (Build.VERSION.SDK_INT >= 23) {
             // These should be flagged to use TextViewCompat
-            dummy.setCompoundDrawableTintList(csl);
-            dummy.setCompoundDrawableTintMode(PorterDuff.Mode.DST);
+            noop.setCompoundDrawableTintList(csl);
+            noop.setCompoundDrawableTintMode(PorterDuff.Mode.DST);
         }
 
         // The following usage of the core Switch widget should be flagged by our Lint rule
