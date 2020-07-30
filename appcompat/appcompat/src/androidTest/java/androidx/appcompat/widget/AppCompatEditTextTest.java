@@ -174,25 +174,25 @@ public class AppCompatEditTextTest {
     public void testGetTextClassifier() {
         final AppCompatEditText editText = new AppCompatEditText(mActivityTestRule.getActivity());
         editText.getTextClassifier();
-        DummyTextClassifier dummyTextClassifier = new DummyTextClassifier();
+        NoOpTextClassifier noOpTextClassifier = new NoOpTextClassifier();
 
         TextClassificationManager textClassificationManager =
                 mActivityTestRule.getActivity().getSystemService(TextClassificationManager.class);
-        textClassificationManager.setTextClassifier(dummyTextClassifier);
+        textClassificationManager.setTextClassifier(noOpTextClassifier);
 
-        assertEquals(dummyTextClassifier, editText.getTextClassifier());
+        assertEquals(noOpTextClassifier, editText.getTextClassifier());
     }
 
     @SdkSuppress(minSdkVersion = 26)
     @Test
     public void testSetTextClassifier() {
         final AppCompatEditText editText = new AppCompatEditText(mActivityTestRule.getActivity());
-        DummyTextClassifier dummyTextClassifier = new DummyTextClassifier();
+        NoOpTextClassifier noOpTextClassifier = new NoOpTextClassifier();
 
-        editText.setTextClassifier(dummyTextClassifier);
+        editText.setTextClassifier(noOpTextClassifier);
 
-        assertEquals(dummyTextClassifier, editText.getTextClassifier());
+        assertEquals(noOpTextClassifier, editText.getTextClassifier());
     }
 
-    private static class DummyTextClassifier implements TextClassifier {}
+    private static class NoOpTextClassifier implements TextClassifier {}
 }
