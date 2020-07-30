@@ -32,7 +32,6 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SESSION_CONFIG
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SUPPORTED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_ASPECT_RATIO;
-import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_ASPECT_RATIO_CUSTOM;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_CLASS;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_RESOLUTION;
@@ -95,6 +94,7 @@ import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.camera.core.impl.utils.Exif;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -257,9 +257,9 @@ public final class ImageCapture extends UseCase {
 
     /** Callback used to match the {@link ImageProxy} with the {@link ImageInfo}. */
     private CameraCaptureCallback mMetadataMatchingCaptureCallback;
-    private ImageCaptureConfig mUserSettingConfig;
     private DeferrableSurface mDeferrableSurface;
     private ImageCaptureRequestProcessor mImageCaptureRequestProcessor;
+    private Rational mCropAspectRatio;
 
     private final ImageReaderProxy.OnImageAvailableListener mClosingListener = (imageReader -> {
         try (ImageProxy image = imageReader.acquireLatestImage()) {
@@ -290,20 +290,20 @@ public final class ImageCapture extends UseCase {
     ImageCapture(@NonNull ImageCaptureConfig userConfig) {
         super(userConfig);
         // Ensure we're using the combined configuration (user config + defaults)
-        mUserSettingConfig = (ImageCaptureConfig) getUseCaseConfig();
-        mCaptureMode = mUserSettingConfig.getCaptureMode();
-        mFlashMode = mUserSettingConfig.getFlashMode();
+        ImageCaptureConfig useCaseConfig = (ImageCaptureConfig) getUseCaseConfig();
+        mCaptureMode = useCaseConfig.getCaptureMode();
+        mFlashMode = useCaseConfig.getFlashMode();
 
-        mCaptureProcessor = mUserSettingConfig.getCaptureProcessor(null);
-        mMaxCaptureStages = mUserSettingConfig.getMaxCaptureStages(MAX_IMAGES);
+        mCaptureProcessor = useCaseConfig.getCaptureProcessor(null);
+        mMaxCaptureStages = useCaseConfig.getMaxCaptureStages(MAX_IMAGES);
         Preconditions.checkArgument(mMaxCaptureStages >= 1,
                 "Maximum outstanding image count must be at least 1");
 
-        mCaptureBundle = mUserSettingConfig.getCaptureBundle(
+        mCaptureBundle = useCaseConfig.getCaptureBundle(
                 CaptureBundles.singleDefaultCaptureBundle());
 
         mIoExecutor = Preconditions.checkNotNull(
-                mUserSettingConfig.getIoExecutor(CameraXExecutors.ioExecutor()));
+                useCaseConfig.getIoExecutor(CameraXExecutors.ioExecutor()));
 
         if (mCaptureMode == CAPTURE_MODE_MAXIMIZE_QUALITY) {
             mEnableCheck3AConverged = true; // check 3A convergence in MAX_QUALITY mode
@@ -311,7 +311,7 @@ public final class ImageCapture extends UseCase {
             mEnableCheck3AConverged = false; // skip 3A convergence in MIN_LATENCY mode
         }
 
-        CaptureConfig.Builder captureBuilder = CaptureConfig.Builder.createFrom(mUserSettingConfig);
+        CaptureConfig.Builder captureBuilder = CaptureConfig.Builder.createFrom(useCaseConfig);
         mCaptureConfig = captureBuilder.build();
     }
 
@@ -510,16 +510,7 @@ public final class ImageCapture extends UseCase {
      * @param aspectRatio New target aspect ratio.
      */
     public void setCropAspectRatio(@NonNull Rational aspectRatio) {
-        ImageCaptureConfig oldConfig = (ImageCaptureConfig) getUseCaseConfig();
-        Builder builder = Builder.fromConfig(oldConfig);
-        Rational oldRatio = mUserSettingConfig.getTargetAspectRatioCustom(null);
-        if (!aspectRatio.equals(oldRatio)) {
-            builder.setTargetAspectRatioCustom(aspectRatio);
-            updateUseCaseConfig(builder.getUseCaseConfig());
-            mUserSettingConfig = (ImageCaptureConfig) getUseCaseConfig();
-
-            // TODO(b/122846516): Reconfigure capture session if the ratio is changed drastically.
-        }
+        mCropAspectRatio = aspectRatio;
     }
 
     /**
@@ -584,8 +575,19 @@ public final class ImageCapture extends UseCase {
      *                 {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
      */
     public void setTargetRotation(@RotationValue int rotation) {
+        int oldRotation = getTargetRotation();
+
         if (setTargetRotationInternal(rotation)) {
-            mUserSettingConfig = (ImageCaptureConfig) getUseCaseConfig();
+            // For the crop aspect ratio value, the numerator and denominator of original setting
+            // value will be swapped then set back. It is an orientation-dependent value that will
+            // be used to crop ImageCapture's output image.
+            if (mCropAspectRatio != null) {
+                int oldRotationDegrees = CameraOrientationUtil.surfaceRotationToDegrees(
+                        oldRotation);
+                int newRotationDegrees = CameraOrientationUtil.surfaceRotationToDegrees(rotation);
+                mCropAspectRatio = ImageUtil.getRotatedAspectRatio(
+                        Math.abs(newRotationDegrees - oldRotationDegrees), mCropAspectRatio);
+            }
 
             // TODO(b/122846516): Update session configuration and possibly reconfigure session.
         }
@@ -748,12 +750,10 @@ public final class ImageCapture extends UseCase {
 
         CameraInfoInternal cameraInfoInternal = attachedCamera.getCameraInfoInternal();
         int relativeRotation = cameraInfoInternal.getSensorRotationDegrees(
-                mUserSettingConfig.getTargetRotation(Surface.ROTATION_0));
-
-        Rational targetRatio = mUserSettingConfig.getTargetAspectRatioCustom(null);
+                ((ImageCaptureConfig) getUseCaseConfig()).getTargetRotation(Surface.ROTATION_0));
 
         mImageCaptureRequestProcessor.sendRequest(
-                new ImageCaptureRequest(relativeRotation, getJpegQuality(), targetRatio,
+                new ImageCaptureRequest(relativeRotation, getJpegQuality(), mCropAspectRatio,
                         getViewPortCropRect(), callbackExecutor, callback));
     }
 
@@ -1034,8 +1034,8 @@ public final class ImageCapture extends UseCase {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
-        mSessionConfigBuilder = createPipeline(getCameraId(), mUserSettingConfig,
-                suggestedResolution);
+        mSessionConfigBuilder = createPipeline(getCameraId(),
+                (ImageCaptureConfig) getUseCaseConfig(), suggestedResolution);
 
         updateSessionConfig(mSessionConfigBuilder.build());
 
@@ -2008,7 +2008,7 @@ public final class ImageCapture extends UseCase {
                 // If Viewport is present, use the crop rect based on Viewport.
                 dispatchedImageProxy.setCropRect(mViewPortCropRect);
             } else if (mTargetRatio != null) {
-                // Fall back to custom aspect ratio if view port is not available.
+                // Fall back to crop aspect ratio if view port is not available.
                 Rational dispatchRatio = mTargetRatio;
                 if ((dispatchRotation % 180) != 0) {
                     dispatchRatio = new Rational(
@@ -2153,7 +2153,20 @@ public final class ImageCapture extends UseCase {
                 }
             }
 
-            return new ImageCapture(getUseCaseConfig());
+            ImageCapture imageCapture = new ImageCapture(getUseCaseConfig());
+
+            // Makes the crop aspect ratio match the target resolution setting as what mentioned
+            // in javadoc of setTargetResolution(). When the target resolution is set, {@link
+            // ImageCapture#setCropAspectRatio(Rational)} will be automatically called to set
+            // corresponding value.
+            Size targetResolution = getMutableConfig().retrieveOption(OPTION_TARGET_RESOLUTION,
+                    null);
+            if (targetResolution != null) {
+                imageCapture.setCropAspectRatio(new Rational(targetResolution.getWidth(),
+                        targetResolution.getHeight()));
+            }
+
+            return imageCapture;
         }
 
         /**
@@ -2309,45 +2322,6 @@ public final class ImageCapture extends UseCase {
         /**
          * Sets the aspect ratio of the intended target for images from this configuration.
          *
-         * <p>This is the ratio of the target's width to the image's height, where the numerator of
-         * the provided {@link Rational} corresponds to the width, and the denominator corresponds
-         * to the height.
-         *
-         * <p>The target aspect ratio is used as a hint when determining the resulting output aspect
-         * ratio which may differ from the request, possibly due to device constraints.
-         * Application code should check the resulting output's resolution and the resulting aspect
-         * ratio may not be exactly as requested.
-         *
-         * <p>This method can be used to request an aspect ratio that is not from the standard set
-         * of aspect ratios defined in the {@link AspectRatio}.
-         *
-         * <p>This method will remove any value set by setTargetAspectRatio().
-         *
-         * <p>setTargetAspectRatioCustom will crop the file outputs from takePicture methods
-         * as opposed to {@link #setTargetAspectRatio(int)} which does not apply a crop.  The source
-         * (pre-crop) resolution will an automatically selected resolution suitable for still
-         * images.
-         *
-         * <p>For ImageCapture, the outputs are the {@link ImageProxy} or the File passed to image
-         * capture listeners.
-         *
-         * @param aspectRatio A {@link Rational} representing the ratio of the target's width and
-         *                    height.
-         * @return The current Builder.
-         * @hide
-         */
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @NonNull
-        @Override
-        public Builder setTargetAspectRatioCustom(@NonNull Rational aspectRatio) {
-            getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM, aspectRatio);
-            getMutableConfig().removeOption(OPTION_TARGET_ASPECT_RATIO);
-            return this;
-        }
-
-        /**
-         * Sets the aspect ratio of the intended target for images from this configuration.
-         *
          * <p>The aspect ratio is the ratio of width to height in the sensor orientation.
          *
          * <p>It is not allowed to set both target aspect ratio and target resolution on the same
@@ -2425,9 +2399,9 @@ public final class ImageCapture extends UseCase {
          * orientation may specify 640x480.
          *
          * <p>When the target resolution is set,
-         * {@link ImageCapture.Builder#setCropAspectRatio(Rational)} will be automatically called
-         * to set corresponding value. Such that the output image will be cropped into the
-         * desired aspect ratio.
+         * {@link ImageCapture#setCropAspectRatio(Rational)} will be automatically called to set
+         * corresponding value. Such that the output image will be cropped into the desired
+         * aspect ratio.
          *
          * <p>The maximum available resolution that could be selected for an {@link ImageCapture}
          * will depend on the camera device's capability.
@@ -2442,10 +2416,6 @@ public final class ImageCapture extends UseCase {
         @Override
         public Builder setTargetResolution(@NonNull Size resolution) {
             getMutableConfig().insertOption(OPTION_TARGET_RESOLUTION, resolution);
-            if (resolution != null) {
-                getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM,
-                        new Rational(resolution.getWidth(), resolution.getHeight()));
-            }
             return this;
         }
 

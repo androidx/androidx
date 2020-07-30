@@ -22,7 +22,6 @@ import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_IMAGE_READER_
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
-import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO_CUSTOM;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ROTATION;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
@@ -39,7 +38,6 @@ import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECU
 import android.media.ImageReader;
 import android.util.Log;
 import android.util.Pair;
-import android.util.Rational;
 import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
@@ -772,42 +770,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        // Implementations of ImageOutputConfig.Builder default methods
-
-        /**
-         * Sets the aspect ratio of the intended target for images from this configuration.
-         *
-         * <p>This is the ratio of the target's width to the image's height, where the numerator of
-         * the provided {@link Rational} corresponds to the width, and the denominator corresponds
-         * to the height.
-         *
-         * <p>The target aspect ratio is used as a hint when determining the resulting output aspect
-         * ratio which may differ from the request, possibly due to device constraints.
-         * Application code should check the resulting output's resolution and the resulting aspect
-         * ratio may not be exactly as requested.
-         *
-         * <p>This method can be used to request an aspect ratio that is not from the standard set
-         * of aspect ratios defined in the {@link AspectRatio}.
-         *
-         * <p>This method will remove any value set by setTargetAspectRatio().
-         *
-         * <p>For ImageAnalysis, the output is the {@link ImageProxy} passed to the analyzer
-         * function.
-         *
-         * @param aspectRatio A {@link Rational} representing the ratio of the target's width and
-         *                    height.
-         * @return The current Builder.
-         * @hide
-         */
-        @NonNull
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        public Builder setTargetAspectRatioCustom(@NonNull Rational aspectRatio) {
-            getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM, aspectRatio);
-            getMutableConfig().removeOption(OPTION_TARGET_ASPECT_RATIO);
-            return this;
-        }
-
         /**
          * Sets the aspect ratio of the intended target for images from this configuration.
          *
@@ -902,8 +864,6 @@ public final class ImageAnalysis extends UseCase {
         public Builder setTargetResolution(@NonNull Size resolution) {
             getMutableConfig()
                     .insertOption(ImageOutputConfig.OPTION_TARGET_RESOLUTION, resolution);
-            getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM,
-                    new Rational(resolution.getWidth(), resolution.getHeight()));
             return this;
         }
 
