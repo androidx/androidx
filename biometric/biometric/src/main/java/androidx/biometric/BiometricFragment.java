@@ -609,10 +609,9 @@ public class BiometricFragment extends Fragment {
         // Get the KeyguardManager service in whichever way the platform supports.
         final KeyguardManager keyguardManager = KeyguardUtils.getKeyguardManager(activity);
         if (keyguardManager == null) {
-            Log.e(TAG, "Failed to check device credential. KeyguardManager not found.");
             sendErrorAndDismiss(
-                    BiometricPrompt.ERROR_HW_UNAVAILABLE,
-                    getString(R.string.default_error_msg));
+                    BiometricPrompt.ERROR_HW_NOT_PRESENT,
+                    getString(R.string.generic_error_no_keyguard));
             return;
         }
 
