@@ -23,18 +23,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Providers
 import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.platform.FontLoaderAmbient
-import androidx.compose.ui.platform.TextInputServiceAmbient
 import androidx.compose.ui.platform.setContent
+import androidx.compose.ui.text.platform.FontLoader
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
-import androidx.compose.ui.platform.DesktopPlatformInput
-import androidx.compose.ui.text.platform.FontLoader
 import androidx.ui.desktop.initCompose
-import androidx.compose.ui.text.input.TextInputService
 import org.jetbrains.skija.Canvas
 import org.jetbrains.skija.Surface
 
@@ -70,7 +67,6 @@ class TestSkiaWindow(
 
         val context = object : Context() {}
         val viewGroup = object : ViewGroup(context) {}
-        val platformInputService = DesktopPlatformInput()
         ViewTreeLifecycleOwner.set(viewGroup, object : LifecycleOwner {
             val lifecycleRegistry = LifecycleRegistry(this).apply {
                 currentState = Lifecycle.State.RESUMED
@@ -82,8 +78,6 @@ class TestSkiaWindow(
         })
         viewGroup.setContent(Recomposer.current(), null, @Composable {
             Providers(
-                TextInputServiceAmbient provides TextInputService(
-                    platformInputService),
                 FontLoaderAmbient provides FontLoader(),
                 children = content
             )

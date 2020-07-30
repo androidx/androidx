@@ -22,25 +22,28 @@ import androidx.compose.ui.platform.DesktopPlatformInput
 import androidx.ui.desktop.view.LayoutScope
 import javax.swing.SwingUtilities
 import org.jetbrains.skija.Canvas
+import java.awt.event.InputMethodEvent
 
 fun Window.setContent(content: @Composable () -> Unit) {
     SwingUtilities.invokeLater {
         val mainLayout = LayoutScope(glCanvas)
-        mainLayout.setContent(content)
+        val platformInputService = DesktopPlatformInput(glCanvas)
+        mainLayout.setContent(platformInputService, content)
         this.renderer = Renderer(
             mainLayout.context,
-            mainLayout.platformInputService)
+            platformInputService)
     }
 }
 
 fun Dialog.setContent(content: @Composable () -> Unit) {
     SwingUtilities.invokeLater {
         val mainLayout = LayoutScope(glCanvas)
-        mainLayout.setContent(content)
+        val platformInputService = DesktopPlatformInput(glCanvas)
+        mainLayout.setContent(platformInputService, content)
 
         this.renderer = Renderer(
             mainLayout.context,
-            mainLayout.platformInputService)
+            platformInputService)
     }
 }
 
@@ -106,6 +109,13 @@ private class Renderer(
 
     override fun onKeyReleased(code: Int, char: Char) {
         platformInputService.onKeyReleased(code, char)
+    }
+
+    override fun inputMethodRequests() =
+        platformInputService.getInputMethodRequests()
+
+    override fun onInputMethodTextChanged(event: InputMethodEvent) {
+        platformInputService.onInputMethodTextChanged(event)
     }
 
     override fun onKeyTyped(char: Char) {

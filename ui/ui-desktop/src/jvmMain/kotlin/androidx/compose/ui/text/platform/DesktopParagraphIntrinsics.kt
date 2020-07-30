@@ -24,13 +24,19 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.SpanStyleRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.TextUnit
+import org.jetbrains.skija.paragraph.DecorationLineStyle as SkDecorationLineStyle
 import org.jetbrains.skija.paragraph.Paragraph
 import org.jetbrains.skija.paragraph.ParagraphBuilder
 import org.jetbrains.skija.paragraph.ParagraphStyle
 import kotlin.math.ceil
 import org.jetbrains.skija.paragraph.TextStyle as SkTextStyle
+import org.jetbrains.skija.paragraph.DecorationStyle as SkDecorationStyle
+import org.jetbrains.skija.FontStyle as SkFontStyle
+import org.jetbrains.skija.Paint as SkPaint
 
 @Suppress("unused", "UNUSED_PARAMETER")
 internal /*actual*/ fun ActualParagraphIntrinsics(
@@ -158,6 +164,19 @@ internal class DesktopParagraphIntrinsics(
             val fontFamilies = fontLoader.ensureRegistered(it)
             to.setFontFamilies(fontFamilies.toTypedArray())
         }
+        from.fontStyle?.let {
+            to.fontStyle = it.toSkFontStyle()
+        }
+        from.textDecoration?.let {
+            to.decorationStyle = it.toSkDecorationStyle(from.color)
+        }
+        to.background = SkPaint().apply {
+            color = from.background.toArgb()
+        }
+        from.fontWeight?.let {
+            to.fontStyle = to.fontStyle.withWeight(it.weight)
+        }
+
         // TODO: support [TextUnit.Em]
         if (from.fontSize != TextUnit.Inherit) {
             to.setFontSize(from.fontSize.value)
@@ -174,4 +193,29 @@ internal class DesktopParagraphIntrinsics(
         }
         return skStyle
     }
+}
+
+fun FontStyle.toSkFontStyle(): SkFontStyle {
+    return when (this) {
+        FontStyle.Normal -> SkFontStyle.NORMAL
+        FontStyle.Italic -> SkFontStyle.ITALIC
+    }
+}
+
+fun TextDecoration.toSkDecorationStyle(color: Color): SkDecorationStyle {
+    val underline = contains(TextDecoration.Underline)
+    val overline = false
+    val lineThrough = contains(TextDecoration.LineThrough)
+    val gaps = false
+    val lineStyle = SkDecorationLineStyle.SOLID
+    val thicknessMultiplier = 1f
+    return SkDecorationStyle(
+        underline,
+        overline,
+        lineThrough,
+        gaps,
+        color.toArgb(),
+        lineStyle,
+        thicknessMultiplier
+    )
 }
