@@ -2203,7 +2203,7 @@ public class NotificationCompat {
          *
          */
         public @NonNull Builder setShortcutInfo(@Nullable final ShortcutInfoCompat shortcutInfo) {
-            // TODO: b/156784300 add sanity check to filter long-lived and sharing shortcut
+            // TODO: b/156784300 add check to filter long-lived and sharing shortcut
             if (shortcutInfo == null) {
                 return this;
             }
