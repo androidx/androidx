@@ -297,13 +297,11 @@ class PointerInteropFilterComposeHookupTest {
             root.dispatchTouchEvent(move)
         }
 
-        assertThat(eventStringLog).hasSize(6)
+        assertThat(eventStringLog).hasSize(4)
         assertThat(eventStringLog[0]).isEqualTo(PointerEventPass.InitialDown.toString())
-        assertThat(eventStringLog[1]).isEqualTo(PointerEventPass.PreUp.toString())
-        assertThat(eventStringLog[2]).isEqualTo(PointerEventPass.PreDown.toString())
-        assertThat(eventStringLog[3]).isEqualTo(PointerEventPass.PostUp.toString())
-        assertThat(eventStringLog[4]).isEqualTo(PointerEventPass.PostDown.toString())
-        assertThat(eventStringLog[5]).isEqualTo("motionEvent")
+        assertThat(eventStringLog[1]).isEqualTo(PointerEventPass.PostUp.toString())
+        assertThat(eventStringLog[2]).isEqualTo(PointerEventPass.PostDown.toString())
+        assertThat(eventStringLog[3]).isEqualTo("motionEvent")
     }
 
     @Test
@@ -336,13 +334,11 @@ class PointerInteropFilterComposeHookupTest {
             root.dispatchTouchEvent(move)
         }
 
-        assertThat(eventStringLog).hasSize(6)
+        assertThat(eventStringLog).hasSize(4)
         assertThat(eventStringLog[0]).isEqualTo(PointerEventPass.InitialDown.toString())
         assertThat(eventStringLog[1]).isEqualTo("motionEvent")
-        assertThat(eventStringLog[2]).isEqualTo(PointerEventPass.PreUp.toString())
-        assertThat(eventStringLog[3]).isEqualTo(PointerEventPass.PreDown.toString())
-        assertThat(eventStringLog[4]).isEqualTo(PointerEventPass.PostUp.toString())
-        assertThat(eventStringLog[5]).isEqualTo(PointerEventPass.PostDown.toString())
+        assertThat(eventStringLog[2]).isEqualTo(PointerEventPass.PostUp.toString())
+        assertThat(eventStringLog[3]).isEqualTo(PointerEventPass.PostDown.toString())
     }
 
     @Test
@@ -387,13 +383,11 @@ class PointerInteropFilterComposeHookupTest {
             root.dispatchTouchEvent(move2)
         }
 
-        assertThat(eventStringLog).hasSize(6)
+        assertThat(eventStringLog).hasSize(4)
         assertThat(eventStringLog[0]).isEqualTo(PointerEventPass.InitialDown.toString())
-        assertThat(eventStringLog[1]).isEqualTo(PointerEventPass.PreUp.toString())
-        assertThat(eventStringLog[2]).isEqualTo(PointerEventPass.PreDown.toString())
-        assertThat(eventStringLog[3]).isEqualTo(PointerEventPass.PostUp.toString())
-        assertThat(eventStringLog[4]).isEqualTo(PointerEventPass.PostDown.toString())
-        assertThat(eventStringLog[5]).isEqualTo("motionEvent")
+        assertThat(eventStringLog[1]).isEqualTo(PointerEventPass.PostUp.toString())
+        assertThat(eventStringLog[2]).isEqualTo(PointerEventPass.PostDown.toString())
+        assertThat(eventStringLog[3]).isEqualTo("motionEvent")
     }
 
     @Test
@@ -448,12 +442,10 @@ class PointerInteropFilterComposeHookupTest {
             root.dispatchTouchEvent(moveB)
         }
 
-        assertThat(eventStringLog).hasSize(6)
+        assertThat(eventStringLog).hasSize(4)
         assertThat(eventStringLog[0]).isEqualTo(PointerEventPass.InitialDown.toString())
-        assertThat(eventStringLog[1]).isEqualTo(PointerEventPass.PreUp.toString())
-        assertThat(eventStringLog[2]).isEqualTo(PointerEventPass.PreDown.toString())
-        assertThat(eventStringLog[3]).isEqualTo(PointerEventPass.PostUp.toString())
-        assertThat(eventStringLog[4]).isEqualTo(PointerEventPass.PostDown.toString())
-        assertThat(eventStringLog[5]).isEqualTo("motionEvent")
+        assertThat(eventStringLog[1]).isEqualTo(PointerEventPass.PostUp.toString())
+        assertThat(eventStringLog[2]).isEqualTo(PointerEventPass.PostDown.toString())
+        assertThat(eventStringLog[3]).isEqualTo("motionEvent")
     }
 }
