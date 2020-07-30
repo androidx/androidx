@@ -38,9 +38,9 @@ public class SQLiteCursorCompatTest {
         final Boolean[] calledSetter = { false };
         SQLiteDatabase db = SQLiteDatabase.create(new SQLiteDatabase.CursorFactory() {
             @Override
-            public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery,
+            public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver primaryQuery,
                     String editTable, SQLiteQuery query) {
-                SQLiteCursor cursor = new SQLiteCursor(masterQuery, editTable, query);
+                SQLiteCursor cursor = new SQLiteCursor(primaryQuery, editTable, query);
                 SQLiteCursorCompat.setFillWindowForwardOnly(cursor, true);
 
                 // no easy way to read whether setter worked, so
