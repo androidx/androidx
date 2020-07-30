@@ -13,6 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+// suppression needed for onChildPositioned import
+@file:Suppress("DEPRECATION")
 
 package androidx.compose.foundation.layout
 
@@ -77,6 +79,7 @@ class OnPositionedTest : LayoutTest() {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun simplePaddingWithChildPositioned() = with(density) {
         val paddingLeftPx = 100f
         val paddingTopPx = 120f
@@ -148,6 +151,7 @@ class OnPositionedTest : LayoutTest() {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun childPositionedForTwoContainers() = with(density) {
         val size = 100.0f
         val sizeDp = size.toDp()

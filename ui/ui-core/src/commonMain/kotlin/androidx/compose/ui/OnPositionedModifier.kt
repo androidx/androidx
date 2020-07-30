@@ -38,11 +38,10 @@ fun Modifier.onPositioned(
  * Invoke [onChildPositioned] with the [LayoutCoordinates] of each child element after each one
  * is positioned.
   * Note that it will be called **after** a composition when the coordinates are finalized.
- *
- * Usage example:
- * @sample androidx.compose.ui.samples.OnChildPositionedSample
  */
 // TODO inline me!
+@Suppress("DEPRECATION")
+@Deprecated("Use onPositioned directly on the child.")
 fun Modifier.onChildPositioned(
     onChildPositioned: (LayoutCoordinates) -> Unit
 ) = this.then(object : OnChildPositionedModifier {
@@ -73,10 +72,8 @@ interface OnPositionedModifier : Modifier.Element {
  * A modifier whose [onChildPositioned] is called with the final LayoutCoordinates of the children
  * Layouts after measuring.
  * Note that it will be called after a composition when the coordinates are finalized.
- *
- * Usage example:
- * @sample androidx.compose.ui.samples.OnChildPositionedSample
  */
+@Deprecated("Use OnPositionedModifier directly on the child.")
 interface OnChildPositionedModifier : Modifier.Element {
     /**
      * Called with the final LayoutCoordinates of the children Layouts after measuring.
@@ -111,10 +108,8 @@ fun onPositioned(onPositioned: (LayoutCoordinates) -> Unit): Modifier =
  * Returns a modifier whose [onChildPositioned] is called with the final LayoutCoordinates of the
  * children Layouts after measuring.
  * Note that it will be called after a composition when the coordinates are finalized.
- *
- * Usage example:
- * @sample androidx.compose.ui.samples.OnChildPositionedSample
  */
+@Suppress("DEPRECATION")
 @Deprecated(
     "use Modifier.onChildPositioned",
     replaceWith = ReplaceWith(
