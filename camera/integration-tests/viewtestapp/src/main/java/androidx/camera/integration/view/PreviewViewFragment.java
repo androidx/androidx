@@ -70,6 +70,12 @@ public class PreviewViewFragment extends Fragment {
 
     private static final String TAG = "PreviewViewFragment";
 
+    // Possible values for this intent key are the name values of LensFacing encoded as
+    // strings (case-insensitive): "back", "front".
+    private static final String INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction";
+    private static final String CAMERA_DIRECTION_BACK = "back";
+    private static final String CAMERA_DIRECTION_FRONT = "front";
+
     private ListenableFuture<ProcessCameraProvider> mCameraProviderFuture;
     @SuppressWarnings("WeakerAccess")
     PreviewView mPreviewView;
@@ -102,6 +108,7 @@ public class PreviewViewFragment extends Fragment {
                 }
 
                 setUpToggleVisibility(cameraProvider, view);
+                setUpCameraLensFacing(cameraProvider);
                 setUpToggleCamera(cameraProvider, view);
                 setUpScaleTypeSelect(view);
                 bindPreview(cameraProvider);
@@ -149,19 +156,52 @@ public class PreviewViewFragment extends Fragment {
     }
 
     @SuppressWarnings("WeakerAccess")
+    void setUpCameraLensFacing(@NonNull final ProcessCameraProvider cameraProvider) {
+        try {
+            // Get extra option for setting initial camera direction
+            boolean isCameraDirectionValid = false;
+            String cameraDirectionString = null;
+            Bundle bundle = getActivity().getIntent().getExtras();
+            if (bundle != null) {
+                cameraDirectionString = bundle.getString(INTENT_EXTRA_CAMERA_DIRECTION);
+                isCameraDirectionValid =
+                        cameraDirectionString != null && (cameraDirectionString.equalsIgnoreCase(
+                                CAMERA_DIRECTION_BACK) || cameraDirectionString.equalsIgnoreCase(
+                                CAMERA_DIRECTION_FRONT));
+            }
+            if (isCameraDirectionValid) {
+                if (cameraDirectionString.equalsIgnoreCase(CAMERA_DIRECTION_BACK)
+                        && cameraProvider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)) {
+                    mCurrentLensFacing = CameraSelector.LENS_FACING_BACK;
+                } else if (cameraDirectionString.equalsIgnoreCase(CAMERA_DIRECTION_FRONT)
+                        && cameraProvider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)) {
+                    mCurrentLensFacing = CameraSelector.LENS_FACING_FRONT;
+                } else {
+                    throw new IllegalStateException(
+                            "The camera " + cameraDirectionString + " is unavailable.");
+                }
+            } else {
+                if (cameraProvider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)) {
+                    mCurrentLensFacing = CameraSelector.LENS_FACING_BACK;
+                } else if (cameraProvider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)) {
+                    mCurrentLensFacing = CameraSelector.LENS_FACING_FRONT;
+                } else {
+                    throw new IllegalStateException("Front and back cameras are unavailable.");
+                }
+            }
+        } catch (CameraInfoUnavailableException e) {
+            Log.e(TAG, "Unable to access camera: " + e.getMessage());
+        }
+    }
+
+    @SuppressWarnings("WeakerAccess")
     void setUpToggleCamera(@NonNull final ProcessCameraProvider cameraProvider,
             @NonNull final View rootView) {
         final Button toggleCameraButton = rootView.findViewById(R.id.toggle_camera);
         try {
-            if (cameraProvider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)) {
-                mCurrentLensFacing = CameraSelector.LENS_FACING_BACK;
-                if (cameraProvider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)) {
-                    toggleCameraButton.setEnabled(true);
-                }
-            } else if (cameraProvider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)) {
-                mCurrentLensFacing = CameraSelector.LENS_FACING_FRONT;
-            } else {
-                throw new IllegalStateException("Front and back cameras are unavailable.");
+            if (cameraProvider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)
+                    && cameraProvider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)) {
+                toggleCameraButton.setEnabled(true);
             }
             toggleCameraButton.setOnClickListener(view -> {
                 animateToggleCamera(rootView);
