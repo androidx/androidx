@@ -44,7 +44,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.state
-import androidx.compose.ui.platform.setViewContent
+import androidx.compose.ui.platform.setContent
 import androidx.ui.androidview.WebComponent
 import androidx.ui.androidview.WebContext
 import androidx.compose.ui.viewinterop.emitView
@@ -61,7 +61,7 @@ open class WebComponentActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        setViewContent {
+        setContent {
             if (WebContext.debug) {
                 Log.e("WebCompAct", "setContent")
             }

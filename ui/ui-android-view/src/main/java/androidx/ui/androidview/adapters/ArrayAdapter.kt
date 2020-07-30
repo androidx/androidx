@@ -26,7 +26,8 @@ import android.widget.Filterable
 import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.setViewContent
+import androidx.compose.runtime.Recomposer
+import androidx.compose.ui.platform.setContent
 
 // TODO(lmr): This should be moved to a separate module, but needs to be one that is not IR-compiled
 class ArrayAdapter<T> : BaseAdapter(), Filterable {
@@ -113,8 +114,7 @@ class ArrayAdapter<T> : BaseAdapter(), Filterable {
         val view = convertView ?: FrameLayout(parent.context)
         val group = view as ViewGroup
 
-        // TODO(lmr): we should use the variant of this that passes through ambients if we can
-        group.setViewContent {
+        group.setContent(Recomposer.current()) {
             composable!!(item)
         }
 
