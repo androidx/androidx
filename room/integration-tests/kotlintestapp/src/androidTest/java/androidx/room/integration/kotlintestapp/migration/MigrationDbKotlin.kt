@@ -18,16 +18,16 @@ package androidx.room.integration.kotlintestapp.migration
 
 import android.content.ContentValues
 import android.database.sqlite.SQLiteDatabase
-import androidx.room.Entity
-import androidx.room.Database
-import androidx.room.RoomDatabase
-import androidx.room.Index
-import androidx.room.PrimaryKey
-import androidx.room.ForeignKey
-import androidx.room.Query
-import androidx.room.Insert
-import androidx.room.Ignore
 import androidx.room.Dao
+import androidx.room.Database
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.Ignore
+import androidx.room.Index
+import androidx.room.Insert
+import androidx.room.PrimaryKey
+import androidx.room.Query
+import androidx.room.RoomDatabase
 import androidx.room.RoomWarnings
 import androidx.sqlite.db.SupportSQLiteDatabase
 
@@ -105,7 +105,7 @@ abstract class MigrationDbKotlin : RoomDatabase() {
             val insertionId = mDb.insert(Entity1.TABLE_NAME,
                     SQLiteDatabase.CONFLICT_REPLACE, values)
             if (insertionId == -1L) {
-                throw RuntimeException("test sanity failure")
+                throw RuntimeException("test failure")
             }
         }
     }
@@ -122,7 +122,7 @@ abstract class MigrationDbKotlin : RoomDatabase() {
             val insertionId = mDb.insert(Entity2.TABLE_NAME,
                     SQLiteDatabase.CONFLICT_REPLACE, values)
             if (insertionId == -1L) {
-                throw RuntimeException("test sanity failure")
+                throw RuntimeException("test failure")
             }
         }
     }

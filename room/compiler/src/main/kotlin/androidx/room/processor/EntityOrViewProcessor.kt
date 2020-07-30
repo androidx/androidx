@@ -31,7 +31,7 @@ interface EntityOrViewProcessor {
 }
 
 /**
- * A dummy implementation of [EntityOrViewProcessor] that just prints a processor error for use of
+ * A no-op implementation of [EntityOrViewProcessor] that just prints a processor error for use of
  * an invalid class as [EntityOrView].
  */
 private class NonEntityOrViewProcessor(

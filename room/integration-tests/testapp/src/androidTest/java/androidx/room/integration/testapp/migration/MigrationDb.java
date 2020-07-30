@@ -133,7 +133,7 @@ public abstract class MigrationDb extends RoomDatabase {
             long insertionId = mDb.insert(Entity1.TABLE_NAME,
                     SQLiteDatabase.CONFLICT_REPLACE, values);
             if (insertionId == -1) {
-                throw new RuntimeException("test sanity failure");
+                throw new RuntimeException("test failure");
             }
         }
     }
@@ -155,7 +155,7 @@ public abstract class MigrationDb extends RoomDatabase {
             long insertionId = mDb.insert(Entity2.TABLE_NAME,
                     SQLiteDatabase.CONFLICT_REPLACE, values);
             if (insertionId == -1) {
-                throw new RuntimeException("test sanity failure");
+                throw new RuntimeException("test failure");
             }
         }
     }

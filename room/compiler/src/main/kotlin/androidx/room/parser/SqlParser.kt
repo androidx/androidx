@@ -155,7 +155,7 @@ class SqlParser {
             input.isNotBlank() && INVALID_IDENTIFIER_CHARS.none { input.contains(it) }
 
         /**
-         * creates a dummy select query for raw queries that queries the given list of tables.
+         * creates a no-op select query for raw queries that queries the given list of tables.
          */
         fun rawQueryForTables(tableNames: Set<String>): ParsedQuery {
             return ParsedQuery(
