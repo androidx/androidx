@@ -27,11 +27,15 @@ import com.android.tools.lint.detector.api.Implementation
 import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Location
+import com.android.tools.lint.detector.api.Project
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
 import org.jetbrains.uast.UCallExpression
 import org.jetbrains.uast.UElement
 import java.util.EnumSet
+import kotlin.reflect.full.memberFunctions
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.jvm.isAccessible
 
 class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleScanner {
     companion object {
@@ -39,7 +43,7 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
 
         val ISSUE = Issue.create(
             id = "InvalidFragmentVersionForActivityResult",
-            briefDescription = "Update to $FRAGMENT_VERSION to use ActivityResult APIs",
+            briefDescription = "Update to Fragment $FRAGMENT_VERSION to use ActivityResult APIs",
             explanation = """In order to use the ActivityResult APIs you must upgrade your \
                 Fragment version to $FRAGMENT_VERSION. Previous versions of FragmentActivity \
                 failed to call super.onRequestPermissionsResult() and used invalid request codes""",
@@ -93,22 +97,77 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
             // always check api dependencies
             reportIssue(value, context)
         } else if (!checkedImplementationDependencies) {
-            val explicitLibraries =
-                context.project.currentVariant.mainArtifact.dependencies.libraries
-
-            // collect all of the library dependencies
-            val allLibraries = HashSet<AndroidLibrary>()
-            addIndirectAndroidLibraries(explicitLibraries, allLibraries)
-            // check all of the dependencies
-            allLibraries.forEach {
-                val resolvedCoords = it.resolvedCoordinates
-                val groupId = resolvedCoords.groupId
-                val artifactId = resolvedCoords.artifactId
-                val version = resolvedCoords.version
-                reportIssue("$groupId:$artifactId:$version", context, false)
+            val project = context.project
+            if (useNewLintVersion(project)) {
+                checkWithNewLintVersion(project, context)
+            } else {
+                checkWithOldLintVersion(project, context)
             }
-            checkedImplementationDependencies = true
         }
+    }
+
+    private fun useNewLintVersion(project: Project): Boolean {
+        project::class.memberFunctions.forEach { function ->
+            if (function.name == "getBuildVariant") {
+                return true
+            }
+        }
+        return false
+    }
+
+    private fun checkWithNewLintVersion(project: Project, context: GradleContext) {
+        val buildVariant = callFunctionWithReflection(project, "getBuildVariant")
+        val mainArtifact = getMemberWithReflection(buildVariant, "mainArtifact")
+        val dependencies = getMemberWithReflection(mainArtifact, "dependencies")
+        val all = callFunctionWithReflection(dependencies, "getAll")
+        (all as ArrayList<*>).forEach { lmLibrary ->
+            lmLibrary::class.memberProperties.forEach { libraryMembers ->
+                if (libraryMembers.name == "resolvedCoordinates") {
+                    reportIssue(libraryMembers.call(lmLibrary).toString(), context, false)
+                }
+            }
+        }
+    }
+
+    private fun checkWithOldLintVersion(project: Project, context: GradleContext) {
+        lateinit var explicitLibraries: Collection<AndroidLibrary>
+        val currentVariant = callFunctionWithReflection(project, "getCurrentVariant")
+        val mainArtifact = callFunctionWithReflection(currentVariant, "getMainArtifact")
+        val dependencies = callFunctionWithReflection(mainArtifact, "getDependencies")
+        @Suppress("UNCHECKED_CAST")
+        explicitLibraries =
+            callFunctionWithReflection(dependencies, "getLibraries") as Collection<AndroidLibrary>
+
+        // collect all of the library dependencies
+        val allLibraries = HashSet<AndroidLibrary>()
+        addIndirectAndroidLibraries(explicitLibraries, allLibraries)
+        // check all of the dependencies
+        allLibraries.forEach {
+            val resolvedCoords = it.resolvedCoordinates
+            val groupId = resolvedCoords.groupId
+            val artifactId = resolvedCoords.artifactId
+            val version = resolvedCoords.version
+            reportIssue("$groupId:$artifactId:$version", context, false)
+        }
+    }
+
+    private fun callFunctionWithReflection(caller: Any, functionName: String): Any {
+        caller::class.memberFunctions.forEach { function ->
+            if (function.name == functionName) {
+                function.isAccessible = true
+                return function.call(caller)!!
+            }
+        }
+        return Unit
+    }
+
+    private fun getMemberWithReflection(caller: Any, memberName: String): Any {
+        caller::class.memberProperties.forEach { member ->
+            if (member.name == memberName) {
+                return member.getter.call(caller)!!
+            }
+        }
+        return Unit
     }
 
     private fun addIndirectAndroidLibraries(

@@ -146,4 +146,36 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
             """.trimIndent()
             )
     }
+
+    @Test
+    fun expectFailTransitiveDependency() {
+        val projectFragment = project(kotlin(
+                """
+                package com.example
+
+                import androidx.activity.result.ActivityResultCaller
+                import androidx.activity.result.contract.ActivityResultContract
+
+                val launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
+            """
+            ), gradle(
+                "build.gradle", """
+                dependencies {
+                    implementation("androidx.fragment:fragment-ktx:1.3.0-alpha05")
+                }
+            """).indented()).withDependencyGraph("""
+                +--- androidx.fragment:fragment-ktx:1.3.0-alpha05
+                     \--- androidx.fragment:fragment:1.3.0-alpha05
+            """.trimIndent()
+        )
+
+        lint().projects(projectFragment).run().expect(
+            """
+                src/main/kotlin/com/example/test.kt:7: Error: Upgrade Fragment version to at least $FRAGMENT_VERSION. [InvalidFragmentVersionForActivityResult]
+                                val launcher = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
+                                               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                1 errors, 0 warnings
+            """.trimIndent()
+        )
+    }
 }
