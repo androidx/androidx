@@ -39,12 +39,12 @@ class ViewTreeViewModelStoreOwnerTest {
             .that(v.findViewTreeViewModelStoreOwner())
             .isNull()
 
-        val dummyOwner: ViewModelStoreOwner = DummyViewModelStoreOwner()
-        ViewTreeViewModelStoreOwner.set(v, dummyOwner)
+        val fakeOwner: ViewModelStoreOwner = FakeViewModelStoreOwner()
+        ViewTreeViewModelStoreOwner.set(v, fakeOwner)
 
         assertWithMessage("get the ViewModelStoreOwner set directly")
             .that(v.findViewTreeViewModelStoreOwner())
-            .isEqualTo(dummyOwner)
+            .isEqualTo(fakeOwner)
     }
 
     /**
@@ -64,18 +64,18 @@ class ViewTreeViewModelStoreOwnerTest {
             .that(child.findViewTreeViewModelStoreOwner())
             .isNull()
 
-        val dummyOwner: ViewModelStoreOwner = DummyViewModelStoreOwner()
-        ViewTreeViewModelStoreOwner.set(root, dummyOwner)
+        val fakeOwner: ViewModelStoreOwner = FakeViewModelStoreOwner()
+        ViewTreeViewModelStoreOwner.set(root, fakeOwner)
 
         assertWithMessage("root sees owner")
             .that(root.findViewTreeViewModelStoreOwner())
-            .isEqualTo(dummyOwner)
+            .isEqualTo(fakeOwner)
         assertWithMessage("direct child sees owner")
             .that(parent.findViewTreeViewModelStoreOwner())
-            .isEqualTo(dummyOwner)
+            .isEqualTo(fakeOwner)
         assertWithMessage("grandchild sees owner")
             .that(child.findViewTreeViewModelStoreOwner())
-            .isEqualTo(dummyOwner)
+            .isEqualTo(fakeOwner)
     }
 
     /**
@@ -96,24 +96,24 @@ class ViewTreeViewModelStoreOwnerTest {
             .that(child.findViewTreeViewModelStoreOwner())
             .isNull()
 
-        val rootDummyOwner: ViewModelStoreOwner = DummyViewModelStoreOwner()
-        ViewTreeViewModelStoreOwner.set(root, rootDummyOwner)
+        val rootFakeOwner: ViewModelStoreOwner = FakeViewModelStoreOwner()
+        ViewTreeViewModelStoreOwner.set(root, rootFakeOwner)
 
-        val parentDummyOwner: ViewModelStoreOwner = DummyViewModelStoreOwner()
-        ViewTreeViewModelStoreOwner.set(parent, parentDummyOwner)
+        val parentFakeOwner: ViewModelStoreOwner = FakeViewModelStoreOwner()
+        ViewTreeViewModelStoreOwner.set(parent, parentFakeOwner)
 
         assertWithMessage("root sees owner")
             .that(root.findViewTreeViewModelStoreOwner())
-            .isEqualTo(rootDummyOwner)
+            .isEqualTo(rootFakeOwner)
         assertWithMessage("direct child sees owner")
             .that(parent.findViewTreeViewModelStoreOwner())
-            .isEqualTo(parentDummyOwner)
+            .isEqualTo(parentFakeOwner)
         assertWithMessage("grandchild sees owner")
             .that(child.findViewTreeViewModelStoreOwner())
-            .isEqualTo(parentDummyOwner)
+            .isEqualTo(parentFakeOwner)
     }
 
-    internal class DummyViewModelStoreOwner : ViewModelStoreOwner {
+    internal class FakeViewModelStoreOwner : ViewModelStoreOwner {
         override fun getViewModelStore(): ViewModelStore {
             throw UnsupportedOperationException("not a real ViewModelStoreOwner")
         }
