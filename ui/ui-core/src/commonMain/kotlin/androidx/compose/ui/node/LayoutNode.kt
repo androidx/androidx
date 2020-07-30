@@ -140,7 +140,7 @@ class LayoutNode : Measurable, Remeasurement {
         }
     }
 
-    private val _children: MutableVector<LayoutNode>
+    internal val _children: MutableVector<LayoutNode>
         get() = if (virtualChildrenCount == 0) {
             _foldedChildren
         } else {
@@ -772,6 +772,13 @@ class LayoutNode : Measurable, Remeasurement {
      */
     private val onChildPositionedCallbacks = mutableVectorOf<OnChildPositionedModifier>()
 
+    /**
+     * Flag used by [OnPositionedDispatcher] to identify LayoutNodes that have already
+     * had their [OnPositionedModifier]'s dispatch called so that they aren't called
+     * multiple times.
+     */
+    internal var needsOnPositionedDispatch = false
+
     fun place(x: Int, y: Int) {
         with(InnerPlacementScope) {
             val previousParentWidth = parentWidth
@@ -1034,8 +1041,6 @@ class LayoutNode : Measurable, Remeasurement {
         parent?.onChildPositionedCallbacks?.forEach {
             it.onChildPositioned(coordinates)
         }
-        // iterate through the subtree
-        _children.forEach { it.dispatchOnPositionedCallbacks() }
     }
 
     /**
