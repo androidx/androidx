@@ -106,7 +106,7 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
                 .setIcon(IconCompat.createWithBitmap(Bitmap.createBitmap(
                         10, 10, Bitmap.Config.ARGB_8888)))
                 .setShortLabel("Test shortcut")
-                .setIntent(new Intent("Dummy"))
+                .setIntent(new Intent("No-op"))
                 .build();
         mShortcutInfoCompatSaver = mock(ShortcutInfoCompatSaver.class);
         ShortcutManagerCompat.setShortcutInfoCompatSaver(mShortcutInfoCompatSaver);
@@ -150,11 +150,11 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
         doReturn(mockShortcutManager).when(mContext).getSystemService(eq(Context.SHORTCUT_SERVICE));
 
         when(mockShortcutManager.createShortcutResultIntent(any(ShortcutInfo.class)))
-                .thenReturn(new Intent("some-dummy-action"));
+                .thenReturn(new Intent("some-no-op-action"));
 
         Intent result = ShortcutManagerCompat.createShortcutResultIntent(mContext, mInfoCompat);
         verifyLegacyIntent(result);
-        assertEquals("some-dummy-action", result.getAction());
+        assertEquals("some-no-op-action", result.getAction());
 
         ArgumentCaptor<ShortcutInfo> captor = ArgumentCaptor.forClass(ShortcutInfo.class);
         verify(mockShortcutManager, times(1)).createShortcutResultIntent(captor.capture());
@@ -384,7 +384,7 @@ public class ShortcutManagerCompatTest extends BaseInstrumentationTestCase<TestA
     private void verifyLegacyIntent(Intent intent) {
         assertNotNull(intent);
         assertEquals("Test shortcut", intent.getStringExtra(Intent.EXTRA_SHORTCUT_NAME));
-        assertEquals("Dummy", ((Intent) intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_INTENT))
+        assertEquals("No-op", ((Intent) intent.getParcelableExtra(Intent.EXTRA_SHORTCUT_INTENT))
                 .getAction());
     }
 

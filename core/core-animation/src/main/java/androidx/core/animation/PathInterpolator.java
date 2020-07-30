@@ -196,7 +196,7 @@ public class PathInterpolator implements Interpolator {
 
         int numPoints = getNumOfPoints();
 
-        // Sanity check
+        // Initial validation check
         if (!floatEquals(getXAtIndex(0), 0f) || !floatEquals(getYAtIndex(0), 0f)
                 || !floatEquals(getXAtIndex(numPoints - 1), 1f)
                 || !floatEquals(getYAtIndex(numPoints - 1), 1f)) {
