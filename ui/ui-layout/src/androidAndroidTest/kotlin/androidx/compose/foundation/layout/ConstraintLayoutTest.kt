@@ -430,7 +430,7 @@ class ConstraintLayoutTest : LayoutTest() {
 
         composeTestRule.setContent {
             ConstraintLayout(
-                ConstraintSet2 {
+                ConstraintSet {
                     val box0 = createRefFor("box0")
                     val box1 = createRefFor("box1")
                     val box2 = createRefFor("box2")
@@ -965,7 +965,7 @@ class ConstraintLayoutTest : LayoutTest() {
     fun testConstraintLayout_ConstraintSetDSL_recompositionDoesNotCrash() = with(density) {
         val first = mutableStateOf(true)
         composeTestRule.setContent {
-            ConstraintLayout(ConstraintSet2 {
+            ConstraintLayout(ConstraintSet {
                 val box = createRefFor("box")
                 constrain(box) { }
             }) {
@@ -1002,7 +1002,7 @@ class ConstraintLayoutTest : LayoutTest() {
         composeTestRule.setContent {
             ConstraintLayout(
                 modifier = if (first.value) Modifier else Modifier.padding(10.dp),
-                constraintSet = ConstraintSet2 { }
+                constraintSet = ConstraintSet { }
             ) {
                 Box(if (first.value) Modifier else Modifier.size(20.dp))
             }
