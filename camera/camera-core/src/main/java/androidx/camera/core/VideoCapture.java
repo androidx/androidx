@@ -66,7 +66,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.ConfigProvider;
@@ -344,10 +343,6 @@ public class VideoCapture extends UseCase {
             return;
         }
 
-        CameraInfoInternal cameraInfoInternal = attachedCamera.getCameraInfoInternal();
-        int relativeRotation = cameraInfoInternal.getSensorRotationDegrees(
-                ((ImageOutputConfig) getUseCaseConfig()).getTargetRotation(Surface.ROTATION_0));
-
         try {
             synchronized (mMuxerLock) {
                 mMuxer =
@@ -355,7 +350,7 @@ public class VideoCapture extends UseCase {
                                 saveLocation.getAbsolutePath(),
                                 MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
 
-                mMuxer.setOrientationHint(relativeRotation);
+                mMuxer.setOrientationHint(getRelativeRotation(attachedCamera));
                 if (metadata.location != null) {
                     mMuxer.setLocation(
                             (float) metadata.location.getLatitude(),
