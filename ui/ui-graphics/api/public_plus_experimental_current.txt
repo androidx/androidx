@@ -319,38 +319,6 @@ package androidx.compose.ui.graphics {
   public final class Float16Kt {
   }
 
-  @Deprecated @androidx.compose.runtime.InternalComposeApi public final class GraphicsFactory {
-    method @Deprecated public kotlin.jvm.functions.Function0<androidx.compose.ui.graphics.InternalCanvasHolder> getCanvasHolder();
-    method @Deprecated public kotlin.reflect.KFunction<androidx.compose.ui.graphics.Canvas> getImageCanvas();
-    method @Deprecated public kotlin.jvm.functions.Function1<android.graphics.Canvas,androidx.compose.ui.graphics.Canvas> getNativeCanvas();
-    method @Deprecated public kotlin.jvm.functions.Function0<androidx.compose.ui.graphics.Paint> getPaint();
-    method @Deprecated public kotlin.jvm.functions.Function0<androidx.compose.ui.graphics.Path> getPath();
-    method @Deprecated public void setCanvasHolder(kotlin.jvm.functions.Function0<? extends androidx.compose.ui.graphics.InternalCanvasHolder> p);
-    method @Deprecated public void setImageCanvas(kotlin.reflect.KFunction<? extends androidx.compose.ui.graphics.Canvas> p);
-    method @Deprecated public void setNativeCanvas(kotlin.jvm.functions.Function1<? super android.graphics.Canvas,? extends androidx.compose.ui.graphics.Canvas> p);
-    method @Deprecated public void setPaint(kotlin.jvm.functions.Function0<? extends androidx.compose.ui.graphics.Paint> p);
-    method @Deprecated public void setPath(kotlin.jvm.functions.Function0<? extends androidx.compose.ui.graphics.Path> p);
-    property public final kotlin.jvm.functions.Function0<androidx.compose.ui.graphics.InternalCanvasHolder> canvasHolder;
-    property public final kotlin.reflect.KFunction<androidx.compose.ui.graphics.Canvas> imageCanvas;
-    property public final kotlin.jvm.functions.Function1<android.graphics.Canvas,androidx.compose.ui.graphics.Canvas> nativeCanvas;
-    property public final kotlin.jvm.functions.Function0<androidx.compose.ui.graphics.Paint> paint;
-    property public final kotlin.jvm.functions.Function0<androidx.compose.ui.graphics.Path> path;
-    field @Deprecated public static final androidx.compose.ui.graphics.GraphicsFactory INSTANCE;
-  }
-
-  @Deprecated public static final class GraphicsFactory.Shader {
-    method @Deprecated public kotlin.reflect.KFunction<android.graphics.Shader> getImage();
-    method @Deprecated public kotlin.reflect.KFunction<android.graphics.Shader> getLinear();
-    method @Deprecated public kotlin.reflect.KFunction<android.graphics.Shader> getRadial();
-    method @Deprecated public void setImage(kotlin.reflect.KFunction<? extends android.graphics.Shader> p);
-    method @Deprecated public void setLinear(kotlin.reflect.KFunction<? extends android.graphics.Shader> p);
-    method @Deprecated public void setRadial(kotlin.reflect.KFunction<? extends android.graphics.Shader> p);
-    property public final kotlin.reflect.KFunction<android.graphics.Shader> image;
-    property public final kotlin.reflect.KFunction<android.graphics.Shader> linear;
-    property public final kotlin.reflect.KFunction<android.graphics.Shader> radial;
-    field @Deprecated public static final androidx.compose.ui.graphics.GraphicsFactory.Shader INSTANCE;
-  }
-
   public interface ImageAsset {
     method public androidx.compose.ui.graphics.colorspace.ColorSpace getColorSpace();
     method public androidx.compose.ui.graphics.ImageAssetConfig getConfig();
@@ -379,14 +347,6 @@ package androidx.compose.ui.graphics {
   public final class ImageAssetKt {
     method public static androidx.compose.ui.graphics.ImageAsset ImageAsset(int width, int height, androidx.compose.ui.graphics.ImageAssetConfig config = androidx.compose.ui.graphics.ImageAssetConfig.Argb8888, boolean hasAlpha = true, androidx.compose.ui.graphics.colorspace.ColorSpace colorSpace = ColorSpaces.Srgb);
     method public static androidx.compose.ui.graphics.PixelMap toPixelMap(androidx.compose.ui.graphics.ImageAsset, int startX = 0, int startY = 0, int width = this.width, int height = this.height, int[] buffer = null(width * height), int bufferOffset = 0, int stride = width);
-  }
-
-  @androidx.compose.runtime.InternalComposeApi public interface InternalCanvasHolder {
-    method public androidx.compose.ui.graphics.Canvas getCanvas();
-    method public android.graphics.Canvas getInternalCanvas();
-    method public void setInternalCanvas(android.graphics.Canvas p);
-    property public abstract androidx.compose.ui.graphics.Canvas canvas;
-    property public abstract android.graphics.Canvas internalCanvas;
   }
 
   @androidx.compose.runtime.Immutable public final class LinearGradient extends androidx.compose.ui.graphics.ShaderBrush {

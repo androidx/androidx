@@ -31,14 +31,14 @@ class DesktopPaintTest : DesktopGraphicsTest() {
 
         assertEquals(Color.Black, paint.color)
         assertEquals(1f, paint.alpha)
-        assertEquals(PaintingStyle.fill, paint.style)
+        assertEquals(PaintingStyle.Fill, paint.style)
         assertEquals(0f, paint.strokeWidth)
-        assertEquals(StrokeCap.butt, paint.strokeCap)
+        assertEquals(StrokeCap.Butt, paint.strokeCap)
         assertEquals(0f, paint.strokeMiterLimit)
-        assertEquals(StrokeJoin.round, paint.strokeJoin)
+        assertEquals(StrokeJoin.Round, paint.strokeJoin)
         assertEquals(true, paint.isAntiAlias)
-        assertEquals(FilterQuality.none, paint.filterQuality)
-        assertEquals(BlendMode.srcOver, paint.blendMode)
+        assertEquals(FilterQuality.None, paint.filterQuality)
+        assertEquals(BlendMode.SrcOver, paint.blendMode)
         assertEquals(null, paint.colorFilter)
         assertEquals(null, paint.shader)
     }
@@ -48,7 +48,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
         canvas.drawRect(left = 0f, top = 0f, right = 16f, bottom = 16f, paint = redPaint)
         canvas.drawRect(left = 4f, top = 4f, right = 12f, bottom = 12f, paint = Paint().apply {
             color = Color.Blue
-            blendMode = BlendMode.plus
+            blendMode = BlendMode.Plus
         })
 
         screenshotRule.snap(surface)
@@ -59,7 +59,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
         canvas.drawRect(left = 0f, top = 0f, right = 16f, bottom = 16f, paint = redPaint)
         canvas.drawRect(left = 4f, top = 4f, right = 12f, bottom = 12f, paint = Paint().apply {
             color = Color.Gray
-            blendMode = BlendMode.multiply
+            blendMode = BlendMode.Multiply
         })
 
         screenshotRule.snap(surface)
@@ -73,7 +73,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
             image = imageFromResource("androidx/ui/desktop/test.png"),
             topLeftOffset = Offset(2f, 4f),
             paint = Paint().apply {
-                colorFilter = ColorFilter(Color.Blue, BlendMode.plus)
+                colorFilter = ColorFilter(Color.Blue, BlendMode.Plus)
             }
         )
 
@@ -97,7 +97,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
             dstOffset = IntOffset(4, 4),
             dstSize = IntSize(4, 12),
             paint = redPaint.apply {
-                filterQuality = FilterQuality.low
+                filterQuality = FilterQuality.Low
             }
         )
         canvas.drawImageRect(
@@ -107,7 +107,7 @@ class DesktopPaintTest : DesktopGraphicsTest() {
             dstOffset = IntOffset(8, 4),
             dstSize = IntSize(4, 12),
             paint = redPaint.apply {
-                filterQuality = FilterQuality.high
+                filterQuality = FilterQuality.High
             }
         )
 

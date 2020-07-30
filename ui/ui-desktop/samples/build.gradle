@@ -16,6 +16,8 @@
 
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+import androidx.build.SupportConfigKt
+
 plugins {
     id("AndroidXPlugin")
     id("AndroidXUiPlugin")
@@ -26,19 +28,17 @@ dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
 }
 
-def sdkDir = "${project.rootProject.buildDir}/desktop/compose-libs/"
-
 kotlin {
     jvm()
 
     sourceSets {
         jvmMain {
+            resources.srcDirs += new File(SupportConfigKt.getExternalProjectPath(project), "noto-fonts/other/")
             resources.srcDirs += "src/jvmMain/res"
         }
 
         jvmMain.dependencies {
             implementation project(":compose:desktop:desktop")
-            implementation fileTree(sdkDir)
         }
     }
 }
@@ -55,8 +55,7 @@ task run1(type: JavaExec) {
     def compilation = kotlin.jvm().compilations["main"]
     classpath =
         compilation.output.allOutputs +
-        compilation.runtimeDependencyFiles +
-        fileTree(sdkDir)
+        compilation.runtimeDependencyFiles
 }
 
 task run2(type: JavaExec) {
@@ -65,8 +64,7 @@ task run2(type: JavaExec) {
     def compilation = kotlin.jvm().compilations["main"]
     classpath =
         compilation.output.allOutputs +
-        compilation.runtimeDependencyFiles +
-        fileTree(sdkDir)
+        compilation.runtimeDependencyFiles
 }
 
 task run3(type: JavaExec) {
@@ -75,8 +73,7 @@ task run3(type: JavaExec) {
     def compilation = kotlin.jvm().compilations["main"]
     classpath =
         compilation.output.allOutputs +
-        compilation.runtimeDependencyFiles +
-        fileTree(sdkDir)
+        compilation.runtimeDependencyFiles
 }
 
 task run {

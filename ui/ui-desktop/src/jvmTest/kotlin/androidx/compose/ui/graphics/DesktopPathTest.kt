@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.graphics
 
-import androidx.compose.ui.geometry.RRect
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
@@ -43,12 +43,12 @@ class DesktopPathTest : DesktopGraphicsTest() {
         }
 
         canvas.withSave {
-            canvas.clipPath(path, ClipOp.intersect)
+            canvas.clipPath(path, ClipOp.Intersect)
             canvas.drawRect(0f, 0f, 16f, 16f, redPaint)
         }
 
         canvas.withSave {
-            canvas.clipPath(path, ClipOp.difference)
+            canvas.clipPath(path, ClipOp.Difference)
             canvas.drawRect(0f, 0f, 16f, 16f, bluePaint)
         }
 
@@ -82,7 +82,7 @@ class DesktopPathTest : DesktopGraphicsTest() {
         val path = Path().apply {
             addOval(Rect(0f, 0f, 8f, 4f))
             addRect(Rect(12f, 0f, 16f, 8f))
-            addRRect(RRect(0f, 8f, 4f, 16f, 4f, 4f))
+            addRoundRect(RoundRect(0f, 8f, 4f, 16f, 4f, 4f))
         }
 
         canvas.drawPath(path, redPaint)
@@ -110,7 +110,7 @@ class DesktopPathTest : DesktopGraphicsTest() {
             addRect(Rect(4f, 4f, 12f, 12f))
         }
 
-        assertEquals(PathFillType.nonZero, path.fillType)
+        assertEquals(PathFillType.NonZero, path.fillType)
         canvas.drawPath(path, redPaint)
 
         screenshotRule.snap(surface)
@@ -129,7 +129,7 @@ class DesktopPathTest : DesktopGraphicsTest() {
             relativeLineTo(0f, -8f)
         }
 
-        assertEquals(PaintingStyle.fill, redPaint.style)
+        assertEquals(PaintingStyle.Fill, redPaint.style)
         canvas.drawPath(path, redPaint)
 
         screenshotRule.snap(surface)
@@ -150,7 +150,7 @@ class DesktopPathTest : DesktopGraphicsTest() {
         }
 
         canvas.drawPath(path, redPaint.apply {
-            style = PaintingStyle.stroke
+            style = PaintingStyle.Stroke
             strokeWidth = 2f
         })
 

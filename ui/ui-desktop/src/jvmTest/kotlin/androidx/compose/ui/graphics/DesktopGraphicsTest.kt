@@ -40,7 +40,7 @@ abstract class DesktopGraphicsTest {
     protected fun initCanvas(widthPx: Int, heightPx: Int): Canvas {
         require(_surface == null)
         _surface = Surface.makeRasterN32Premul(widthPx, heightPx)
-        return Canvas(android.graphics.Canvas(_surface!!.canvas))
+        return DesktopCanvas(_surface!!.canvas)
     }
 
     @After

@@ -34,6 +34,7 @@ dependencies {
 
 kotlin {
     android()
+    jvm("desktop")
 
     sourceSets {
         commonMain.dependencies {
@@ -71,7 +72,12 @@ kotlin {
             implementation(KOTLIN_STDLIB)
         }
 
+        desktopMain.dependencies {
+            implementation(SKIJA)
+        }
+
         androidMain.dependsOn jvmMain
+        desktopMain.dependsOn jvmMain
 
         test.dependencies {
             implementation(ANDROIDX_TEST_RULES)

@@ -118,32 +118,6 @@ internal fun resolveTextDirectionHeuristics(
     }
 }
 
-// TODO(b/159152328): temporary workaround for desktop. remove when full support of MPP will be in-place
-@Deprecated(
-    "Temporary workaround. Supposed to be used only in desktop before MPP",
-    level = DeprecationLevel.ERROR
-)
-@InternalPlatformTextApi
-var paragraphIntrinsicsActualFactory: ((
-    text: String,
-    style: TextStyle,
-    spanStyles: List<AnnotatedString.Range<SpanStyle>>,
-    placeholders: List<AnnotatedString.Range<Placeholder>>,
-    density: Density,
-    resourceLoader: Font.ResourceLoader
-) -> ParagraphIntrinsics) = { text, style, spanStyles, placeholders, density, resourceLoader ->
-    AndroidParagraphIntrinsics(
-        text = text,
-        style = style,
-        placeholders = placeholders,
-        typefaceAdapter = TypefaceAdapter(
-            resourceLoader = resourceLoader
-        ),
-        spanStyles = spanStyles,
-        density = density
-    )
-}
-
 @OptIn(InternalPlatformTextApi::class)
 internal actual fun ActualParagraphIntrinsics(
     text: String,
@@ -152,8 +126,13 @@ internal actual fun ActualParagraphIntrinsics(
     placeholders: List<AnnotatedString.Range<Placeholder>>,
     density: Density,
     resourceLoader: Font.ResourceLoader
-): ParagraphIntrinsics =
-    @Suppress("DEPRECATION_ERROR")
-    paragraphIntrinsicsActualFactory(
-        text, style, spanStyles, placeholders, density, resourceLoader
-    )
+): ParagraphIntrinsics = AndroidParagraphIntrinsics(
+    text = text,
+    style = style,
+    placeholders = placeholders,
+    typefaceAdapter = TypefaceAdapter(
+        resourceLoader = resourceLoader
+    ),
+    spanStyles = spanStyles,
+    density = density
+)

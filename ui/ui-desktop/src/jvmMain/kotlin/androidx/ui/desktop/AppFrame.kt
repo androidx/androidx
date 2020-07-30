@@ -39,7 +39,7 @@ abstract class AppFrame {
     var isCentered: Boolean = true
         protected set
 
-    var onDismissEvent: (() -> Unit)? = null
+    val onDismissEvents = mutableListOf<() -> Unit>()
 
     abstract fun setPosition(x: Int, y: Int)
 
