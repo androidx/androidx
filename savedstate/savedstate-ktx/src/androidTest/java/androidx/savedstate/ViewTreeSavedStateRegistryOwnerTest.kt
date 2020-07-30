@@ -40,12 +40,12 @@ class ViewTreeSavedStateRegistryOwnerTest {
             .that(v.findViewTreeSavedStateRegistryOwner())
             .isNull()
 
-        val dummyOwner: SavedStateRegistryOwner = DummySavedStateRegistryOwner()
-        ViewTreeSavedStateRegistryOwner.set(v, dummyOwner)
+        val fakeOwner: SavedStateRegistryOwner = FakeSavedStateRegistryOwner()
+        ViewTreeSavedStateRegistryOwner.set(v, fakeOwner)
 
         assertWithMessage("get the SavedStateRegistryOwner set directly")
             .that(v.findViewTreeSavedStateRegistryOwner())
-            .isEqualTo(dummyOwner)
+            .isEqualTo(fakeOwner)
     }
 
     /**
@@ -65,18 +65,18 @@ class ViewTreeSavedStateRegistryOwnerTest {
             .that(child.findViewTreeSavedStateRegistryOwner())
             .isNull()
 
-        val dummyOwner: SavedStateRegistryOwner = DummySavedStateRegistryOwner()
-        ViewTreeSavedStateRegistryOwner.set(root, dummyOwner)
+        val fakeOwner: SavedStateRegistryOwner = FakeSavedStateRegistryOwner()
+        ViewTreeSavedStateRegistryOwner.set(root, fakeOwner)
 
         assertWithMessage("root sees owner")
             .that(root.findViewTreeSavedStateRegistryOwner())
-            .isEqualTo(dummyOwner)
+            .isEqualTo(fakeOwner)
         assertWithMessage("direct child sees owner")
             .that(parent.findViewTreeSavedStateRegistryOwner())
-            .isEqualTo(dummyOwner)
+            .isEqualTo(fakeOwner)
         assertWithMessage("grandchild sees owner")
             .that(child.findViewTreeSavedStateRegistryOwner())
-            .isEqualTo(dummyOwner)
+            .isEqualTo(fakeOwner)
     }
 
     /**
@@ -97,24 +97,24 @@ class ViewTreeSavedStateRegistryOwnerTest {
             .that(child.findViewTreeSavedStateRegistryOwner())
             .isNull()
 
-        val rootDummyOwner: SavedStateRegistryOwner = DummySavedStateRegistryOwner()
-        ViewTreeSavedStateRegistryOwner.set(root, rootDummyOwner)
+        val rootFakeOwner: SavedStateRegistryOwner = FakeSavedStateRegistryOwner()
+        ViewTreeSavedStateRegistryOwner.set(root, rootFakeOwner)
 
-        val parentDummyOwner: SavedStateRegistryOwner = DummySavedStateRegistryOwner()
-        ViewTreeSavedStateRegistryOwner.set(parent, parentDummyOwner)
+        val parentFakeOwner: SavedStateRegistryOwner = FakeSavedStateRegistryOwner()
+        ViewTreeSavedStateRegistryOwner.set(parent, parentFakeOwner)
 
         assertWithMessage("root sees owner")
             .that(root.findViewTreeSavedStateRegistryOwner())
-            .isEqualTo(rootDummyOwner)
+            .isEqualTo(rootFakeOwner)
         assertWithMessage("direct child sees owner")
             .that(parent.findViewTreeSavedStateRegistryOwner())
-            .isEqualTo(parentDummyOwner)
+            .isEqualTo(parentFakeOwner)
         assertWithMessage("grandchild sees owner")
             .that(child.findViewTreeSavedStateRegistryOwner())
-            .isEqualTo(parentDummyOwner)
+            .isEqualTo(parentFakeOwner)
     }
 
-    internal class DummySavedStateRegistryOwner : SavedStateRegistryOwner {
+    internal class FakeSavedStateRegistryOwner : SavedStateRegistryOwner {
         override fun getLifecycle(): Lifecycle {
             throw UnsupportedOperationException("not a real SavedStateRegistryOwner")
         }

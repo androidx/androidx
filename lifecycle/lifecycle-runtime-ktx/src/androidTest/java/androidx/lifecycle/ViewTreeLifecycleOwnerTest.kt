@@ -35,14 +35,14 @@ class ViewTreeLifecycleOwnerTest {
     @Test
     fun setGetSameView() {
         val v = View(InstrumentationRegistry.getInstrumentation().context)
-        val dummyOwner = DummyLifecycleOwner()
+        val fakeOwner = FakeLifecycleOwner()
 
         assertNull("initial LifecycleOwner expects null", v.findViewTreeLifecycleOwner())
 
-        ViewTreeLifecycleOwner.set(v, dummyOwner)
+        ViewTreeLifecycleOwner.set(v, fakeOwner)
 
         assertEquals("get the LifecycleOwner set directly",
-            dummyOwner, v.findViewTreeLifecycleOwner())
+            fakeOwner, v.findViewTreeLifecycleOwner())
     }
 
     /**
@@ -60,12 +60,12 @@ class ViewTreeLifecycleOwnerTest {
 
         assertNull("initial LifecycleOwner expects null", child.findViewTreeLifecycleOwner())
 
-        val dummyOwner = DummyLifecycleOwner()
-        ViewTreeLifecycleOwner.set(root, dummyOwner)
+        val fakeOwner = FakeLifecycleOwner()
+        ViewTreeLifecycleOwner.set(root, fakeOwner)
 
-        assertEquals("root sees owner", dummyOwner, root.findViewTreeLifecycleOwner())
-        assertEquals("direct child sees owner", dummyOwner, parent.findViewTreeLifecycleOwner())
-        assertEquals("grandchild sees owner", dummyOwner, child.findViewTreeLifecycleOwner())
+        assertEquals("root sees owner", fakeOwner, root.findViewTreeLifecycleOwner())
+        assertEquals("direct child sees owner", fakeOwner, parent.findViewTreeLifecycleOwner())
+        assertEquals("grandchild sees owner", fakeOwner, child.findViewTreeLifecycleOwner())
     }
 
     /**
@@ -83,19 +83,19 @@ class ViewTreeLifecycleOwnerTest {
 
         assertNull("initial LifecycleOwner expects null", child.findViewTreeLifecycleOwner())
 
-        val rootDummyOwner = DummyLifecycleOwner()
-        ViewTreeLifecycleOwner.set(root, rootDummyOwner)
+        val rootFakeOwner = FakeLifecycleOwner()
+        ViewTreeLifecycleOwner.set(root, rootFakeOwner)
 
-        val parentDummyOwner = DummyLifecycleOwner()
-        ViewTreeLifecycleOwner.set(parent, parentDummyOwner)
+        val parentFakeOwner = FakeLifecycleOwner()
+        ViewTreeLifecycleOwner.set(parent, parentFakeOwner)
 
-        assertEquals("root sees owner", rootDummyOwner, root.findViewTreeLifecycleOwner())
+        assertEquals("root sees owner", rootFakeOwner, root.findViewTreeLifecycleOwner())
         assertEquals("direct child sees owner",
-            parentDummyOwner, parent.findViewTreeLifecycleOwner())
-        assertEquals("grandchild sees owner", parentDummyOwner, child.findViewTreeLifecycleOwner())
+            parentFakeOwner, parent.findViewTreeLifecycleOwner())
+        assertEquals("grandchild sees owner", parentFakeOwner, child.findViewTreeLifecycleOwner())
     }
 
-    private class DummyLifecycleOwner : LifecycleOwner {
+    private class FakeLifecycleOwner : LifecycleOwner {
         override fun getLifecycle(): Lifecycle {
             throw UnsupportedOperationException("not a real LifecycleOwner")
         }
