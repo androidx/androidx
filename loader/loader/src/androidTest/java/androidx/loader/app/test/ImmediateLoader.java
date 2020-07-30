@@ -20,8 +20,8 @@ import android.content.Context;
 
 import androidx.loader.content.Loader;
 
-public class DummyLoader extends Loader<Boolean> {
-    public DummyLoader(Context context) {
+public class ImmediateLoader extends Loader<Boolean> {
+    public ImmediateLoader(Context context) {
         super(context);
     }
 

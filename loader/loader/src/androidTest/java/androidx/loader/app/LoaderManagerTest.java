@@ -28,7 +28,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.testing.TestLifecycleOwner;
 import androidx.loader.app.test.DelayLoaderCallbacks;
-import androidx.loader.app.test.DummyLoaderCallbacks;
+import androidx.loader.app.test.ImmediateLoaderCallbacks;
 import androidx.loader.content.Loader;
 import androidx.test.annotation.UiThreadTest;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -60,7 +60,7 @@ public class LoaderManagerTest {
             @Override
             public void run() {
                 mLoaderManager.initLoader(65, null,
-                        new DummyLoaderCallbacks(mock(Context.class)) {
+                        new ImmediateLoaderCallbacks(mock(Context.class)) {
                             @NonNull
                             @Override
                             public Loader<Boolean> onCreateLoader(int id, Bundle args) {
@@ -91,7 +91,7 @@ public class LoaderManagerTest {
             @Override
             public void run() {
                 mLoaderManager.initLoader(43, null,
-                        new DummyLoaderCallbacks(mock(Context.class)) {
+                        new ImmediateLoaderCallbacks(mock(Context.class)) {
                             @Override
                             public void onLoadFinished(@NonNull Loader<Boolean> loader,
                                     Boolean data) {
@@ -294,13 +294,13 @@ public class LoaderManagerTest {
     @Test(expected = IllegalStateException.class)
     public void enforceOnMainThread_initLoader() {
         mLoaderManager.initLoader(-1, null,
-                new DummyLoaderCallbacks(mock(Context.class)));
+                new ImmediateLoaderCallbacks(mock(Context.class)));
     }
 
     @Test(expected = IllegalStateException.class)
     public void enforceOnMainThread_restartLoader() {
         mLoaderManager.restartLoader(-1, null,
-                new DummyLoaderCallbacks(mock(Context.class)));
+                new ImmediateLoaderCallbacks(mock(Context.class)));
     }
 
     @Test(expected = IllegalStateException.class)

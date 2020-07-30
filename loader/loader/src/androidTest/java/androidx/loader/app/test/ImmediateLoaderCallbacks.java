@@ -23,20 +23,20 @@ import androidx.annotation.NonNull;
 import androidx.loader.app.LoaderManager;
 import androidx.loader.content.Loader;
 
-public class DummyLoaderCallbacks implements LoaderManager.LoaderCallbacks<Boolean> {
+public class ImmediateLoaderCallbacks implements LoaderManager.LoaderCallbacks<Boolean> {
     private final Context mContext;
 
     public boolean mOnLoadFinished;
     public boolean mOnLoaderReset;
 
-    public DummyLoaderCallbacks(Context context) {
+    public ImmediateLoaderCallbacks(Context context) {
         mContext = context;
     }
 
     @NonNull
     @Override
     public Loader<Boolean> onCreateLoader(int id, Bundle args) {
-        return new DummyLoader(mContext);
+        return new ImmediateLoader(mContext);
     }
 
     @Override
