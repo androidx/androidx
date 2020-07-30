@@ -52,20 +52,9 @@ interface KeyEvent {
     val type: KeyEventType
 
     /**
-     * Indicates whether the left Alt key is pressed.
+     * Indicates the status of the Alt key.
      */
-    val isLeftAltPressed: Boolean
-
-    /**
-     * Indicates whether the right Alt key is pressed.
-     */
-    val isRightAltPressed: Boolean
-
-    /**
-     * Indicates whether the Alt key is pressed.
-     */
-    val isAltPressed: Boolean
-        get() = isLeftAltPressed || isRightAltPressed
+    val alt: Alt
 }
 
 /**
@@ -87,4 +76,26 @@ enum class KeyEventType {
      * Type of KeyEvent sent when the user presses down their finger on a key on the keyboard.
      */
     KeyDown
+}
+
+/**
+ * Indicates the status of the Alt key.
+ */
+@ExperimentalKeyInput
+interface Alt {
+    /**
+     * Indicates whether the Alt key is pressed.
+     */
+    val isPressed: Boolean
+        get() = isLeftAltPressed || isRightAltPressed
+
+    /**
+     * Indicates whether the left Alt key is pressed.
+     */
+    val isLeftAltPressed: Boolean
+
+    /**
+     * Indicates whether the right Alt key is pressed.
+     */
+    val isRightAltPressed: Boolean
 }
