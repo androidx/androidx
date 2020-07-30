@@ -120,6 +120,8 @@ includeProject(":compose:runtime:runtime-livedata:samples", "ui-livedata/samples
 includeProject(":test-screenshot", "../test/screenshot")
 includeProject(":compose:runtime:runtime-rxjava2", "ui-rxjava2")
 includeProject(":compose:runtime:runtime-rxjava2:samples", "ui-rxjava2/samples")
+includeProject(":compose:ui:ui-viewbinding", "ui-core-viewbinding")
+includeProject(":compose:ui:ui-viewbinding:samples", "ui-core-viewbinding/samples")
 
 /////////////////////////////
 //

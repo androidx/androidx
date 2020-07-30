@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.AndroidOwner
 import androidx.compose.ui.util.fastFirstOrNull
 import androidx.compose.ui.util.fastForEach
 import androidx.compose.ui.viewinterop.AndroidViewHolder
+import androidx.compose.ui.viewinterop.InternalInteropApi
 import kotlin.math.roundToInt
 
 /**
@@ -93,8 +94,8 @@ private fun obtainMeasureSpec(
  * Builds a [LayoutNode] tree representation for an Android [View].
  * The component nodes will proxy the Compose core calls to the [View].
  */
-@OptIn(ExperimentalLayoutNodeApi::class)
-internal fun AndroidViewHolder<out View>.toLayoutNode(): LayoutNode {
+@OptIn(ExperimentalLayoutNodeApi::class, InternalInteropApi::class)
+internal fun AndroidViewHolder.toLayoutNode(): LayoutNode {
     // TODO(soboleva): add layout direction here?
     // TODO(popam): forward pointer input, accessibility, focus
     // Prepare layout node that proxies measure and layout passes to the View.

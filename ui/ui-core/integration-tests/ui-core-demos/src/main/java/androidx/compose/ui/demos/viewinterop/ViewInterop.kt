@@ -36,11 +36,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Button
+import androidx.compose.ui.demos.databinding.TestLayoutBinding
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.compose.ui.viewinterop.AndroidViewBinding
 import androidx.compose.ui.viewinterop.emitView
 
 @Composable
@@ -48,6 +50,11 @@ fun ViewInteropDemo() {
     Column {
         // This is a collection of multiple ways to include Android Views in Compose UI hierarchies
         // and Compose in Android ViewGroups. Note that these APIs are subject to change.
+
+        // Compose and inflate a layout with ViewBinding.
+        AndroidViewBinding(TestLayoutBinding::inflate) {
+            text1.text = "Text updated"
+        }
 
         // Compose Android View.
         AndroidView({ context -> TextView(context).apply { text = "This is a TextView" } })
