@@ -22,7 +22,7 @@
     android:orientation="vertical">
 
     <TextView
-        android:id="@+id/dummy"
+        android:id="@+id/noop"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:drawableStartCompat="@drawable/app_sample_code"
@@ -30,7 +30,7 @@
         app:drawableTintMode="src_in" />
 
     <TextView
-        android:id="@+id/dummy2"
+        android:id="@+id/noop2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:drawableStart="@drawable/app_sample_code"
