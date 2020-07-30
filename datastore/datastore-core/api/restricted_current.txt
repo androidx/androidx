@@ -23,8 +23,8 @@ package androidx.datastore {
 
   public final class DataStoreFactory {
     ctor public DataStoreFactory();
-    method public <T> androidx.datastore.DataStore<T> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.Serializer<T> serializer, androidx.datastore.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler = null, java.util.List<? extends kotlin.jvm.functions.Function0<? extends androidx.datastore.DataMigration<T>>> migrationProducers = listOf(), kotlinx.coroutines.CoroutineScope scope = CoroutineScope(Dispatchers.IO + SupervisorJob()));
-    method public <T> androidx.datastore.DataStore<T> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.Serializer<T> serializer, androidx.datastore.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler = null, java.util.List<? extends kotlin.jvm.functions.Function0<? extends androidx.datastore.DataMigration<T>>> migrationProducers = listOf());
+    method public <T> androidx.datastore.DataStore<T> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.Serializer<T> serializer, androidx.datastore.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler = null, java.util.List<? extends androidx.datastore.DataMigration<T>> migrations = listOf(), kotlinx.coroutines.CoroutineScope scope = CoroutineScope(Dispatchers.IO + SupervisorJob()));
+    method public <T> androidx.datastore.DataStore<T> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.Serializer<T> serializer, androidx.datastore.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler = null, java.util.List<? extends androidx.datastore.DataMigration<T>> migrations = listOf());
     method public <T> androidx.datastore.DataStore<T> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.Serializer<T> serializer, androidx.datastore.handlers.ReplaceFileCorruptionHandler<T>? corruptionHandler = null);
     method public <T> androidx.datastore.DataStore<T> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.Serializer<T> serializer);
   }
@@ -47,13 +47,17 @@ package androidx.datastore.handlers {
 
 package androidx.datastore.migrations {
 
-  public interface MigrationFromSharedPreferences<T> {
-    method public suspend Object? migrate(androidx.datastore.migrations.SharedPreferencesView prefs, T? currentData, kotlin.coroutines.Continuation<? super T> p);
-    method public default suspend Object? shouldMigrate(T? currentData, kotlin.coroutines.Continuation<? super java.lang.Boolean> p);
+  public final class SharedPreferencesMigration<T> implements androidx.datastore.DataMigration<T> {
+    ctor public SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName, java.util.Set<java.lang.String>? keysToMigrate, boolean deleteEmptyPreferences, kotlin.jvm.functions.Function2<? super T,? super kotlin.coroutines.Continuation<? super java.lang.Boolean>,?> shouldRunMigration, kotlin.jvm.functions.Function3<? super androidx.datastore.migrations.SharedPreferencesView,? super T,? super kotlin.coroutines.Continuation<? super T>,?> migrate);
+    ctor public SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName, java.util.Set<java.lang.String>? keysToMigrate, boolean deleteEmptyPreferences, kotlin.jvm.functions.Function3<? super androidx.datastore.migrations.SharedPreferencesView,? super T,? super kotlin.coroutines.Continuation<? super T>,?> migrate);
+    ctor public SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName, java.util.Set<java.lang.String>? keysToMigrate, kotlin.jvm.functions.Function3<? super androidx.datastore.migrations.SharedPreferencesView,? super T,? super kotlin.coroutines.Continuation<? super T>,?> migrate);
+    ctor public SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName, kotlin.jvm.functions.Function3<? super androidx.datastore.migrations.SharedPreferencesView,? super T,? super kotlin.coroutines.Continuation<? super T>,?> migrate);
+    method @kotlin.jvm.Throws(exceptionClasses=IOException::class) public suspend Object? cleanUp(kotlin.coroutines.Continuation<? super kotlin.Unit> p) throws java.io.IOException;
+    method public suspend Object? migrate(T? currentData, kotlin.coroutines.Continuation<? super T> p);
+    method public suspend Object? shouldMigrate(T? currentData, kotlin.coroutines.Continuation<? super java.lang.Boolean> p);
   }
 
-  public final class SharedPreferencesMigration {
-    method public static <T> kotlin.jvm.functions.Function0<androidx.datastore.DataMigration<T>> SharedPreferencesMigration(android.content.Context context, String sharedPreferencesName, androidx.datastore.migrations.MigrationFromSharedPreferences<T> migration, java.util.Set<java.lang.String>? keysToMigrate = MIGRATE_ALL_KEYS, boolean deleteEmptyPreferences = true);
+  public final class SharedPreferencesMigrationKt {
   }
 
   public final class SharedPreferencesView {

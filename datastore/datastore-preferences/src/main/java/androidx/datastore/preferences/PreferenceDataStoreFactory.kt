@@ -43,16 +43,16 @@ class PreferenceDataStoreFactory {
      * @param corruptionHandler The corruptionHandler is invoked if DataStore encounters a [CorruptionException] when
      * attempting to read data. CorruptionExceptions are thrown by serializers when data can
      * not be de-serialized.
-     * @param migrationProducers Migrations are run before any access to data can occur. Each
+     * @param migrations are run before any access to data can occur. Each
      * producer and migration may be run more than once whether or not it already succeeded
      * (potentially because another migration failed or a write to disk failed.)
      * @param scope The scope in which IO operations and transform functions will execute.
      */
-    @JvmOverloads
+    @JvmOverloads // Generate methods for default params for java users.
     fun create(
         produceFile: () -> File,
         corruptionHandler: ReplaceFileCorruptionHandler<Preferences>? = null,
-        migrationProducers: List<() -> DataMigration<Preferences>> = listOf(),
+        migrations: List<DataMigration<Preferences>> = listOf(),
         scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     ): DataStore<Preferences> =
         dataStoreFactory.create(
@@ -66,7 +66,7 @@ class PreferenceDataStoreFactory {
             },
             serializer = PreferencesSerializer,
             corruptionHandler = corruptionHandler,
-            migrationProducers = migrationProducers,
+            migrations = migrations,
             scope = scope
         )
 }

@@ -17,8 +17,6 @@
 package androidx.datastore.preferences
 
 import android.content.Context
-import androidx.datastore.DataMigration
-import androidx.datastore.migrations.MigrationFromSharedPreferences
 import androidx.datastore.migrations.SharedPreferencesView
 import androidx.datastore.migrations.SharedPreferencesMigration
 
@@ -38,66 +36,47 @@ import androidx.datastore.migrations.SharedPreferencesMigration
  * SharedPreferences to begin with then the (potentially) empty SharedPreferences
  * won't be cleaned up by this option. This functionality is best effort - if there
  * is an issue deleting the SharedPreferences file it will be silently ignored.
+ *
+ * TODO(rohitsat): determine whether to remove the deleteEmptyPreferences option.
  */
+@JvmOverloads // Generate methods for default params for java users.
 fun SharedPreferencesMigration(
     context: Context,
     sharedPreferencesName: String,
-    keysToMigrate: Set<String>? = SharedPreferencesToPreferences.MIGRATE_ALL_KEYS,
+    keysToMigrate: Set<String>? = MIGRATE_ALL_KEYS,
     deleteEmptyPreferences: Boolean = true
-): () -> DataMigration<Preferences> {
+): SharedPreferencesMigration<Preferences> {
     return SharedPreferencesMigration(
-        context,
-        sharedPreferencesName,
-        SharedPreferencesToPreferences(keysToMigrate),
-        keysToMigrate,
-        deleteEmptyPreferences
-    )
-}
+        context = context,
+        sharedPreferencesName = sharedPreferencesName,
+        keysToMigrate = keysToMigrate,
+        deleteEmptyPreferences = deleteEmptyPreferences,
+        shouldRunMigration = { prefs ->
+            // If any key hasn't been migrated to currentData, we can't skip the migration. If
+            // the key set is not specified, we can't skip the migration.
+            keysToMigrate?.any { it !in prefs } ?: true
+        },
+        migrate = { sharedPrefs: SharedPreferencesView, currentData: Preferences ->
+            // prefs.getAll is already filtered to our key set.
+            val preferencesToMigrate =
+                sharedPrefs.getAll().filter { (key, _) -> key !in currentData }
 
-/**
- * A DataMigration which migrates SharedPreferences to DataStore.
- *
- * Note: this accesses the SharedPreferences using MODE_PRIVATE.
- */
-internal class SharedPreferencesToPreferences(
-    private val keysToMigrate: Set<String>?
-) : MigrationFromSharedPreferences<Preferences> {
-
-    companion object {
-        internal val MIGRATE_ALL_KEYS = null
-    }
-
-    override suspend fun shouldMigrate(currentData: Preferences): Boolean {
-        if (keysToMigrate == null) {
-            // We need to migrate all keys from the SharedPreferences.
-            return true
-        }
-
-        // If any key hasn't been migrated to currentData, we can't skip the migration.
-        return keysToMigrate.any { it !in currentData }
-    }
-
-    override suspend fun migrate(
-        prefs: SharedPreferencesView,
-        currentData: Preferences
-    ): Preferences {
-        // prefs.getAll is already filtered to our key set.
-        val preferencesToMigrate = prefs.getAll().filter { (key, _) -> key !in currentData }
-
-        val preferencesBuilder = currentData.toBuilder()
-        for ((key, value) in preferencesToMigrate) {
-            when (value) {
-                is Boolean -> preferencesBuilder.setBoolean(key, value)
-                is Float -> preferencesBuilder.setFloat(key, value)
-                is Int -> preferencesBuilder.setInt(key, value)
-                is Long -> preferencesBuilder.setLong(key, value)
-                is String -> preferencesBuilder.setString(key, value)
-                is Set<*> ->
-                    @Suppress("UNCHECKED_CAST")
-                    preferencesBuilder.setStringSet(key, value.toSet() as Set<String>)
+            val preferencesBuilder = currentData.toBuilder()
+            for ((key, value) in preferencesToMigrate) {
+                when (value) {
+                    is Boolean -> preferencesBuilder.setBoolean(key, value)
+                    is Float -> preferencesBuilder.setFloat(key, value)
+                    is Int -> preferencesBuilder.setInt(key, value)
+                    is Long -> preferencesBuilder.setLong(key, value)
+                    is String -> preferencesBuilder.setString(key, value)
+                    is Set<*> ->
+                        @Suppress("UNCHECKED_CAST")
+                        preferencesBuilder.setStringSet(key, value.toSet() as Set<String>)
+                }
             }
-        }
 
-        return preferencesBuilder.build()
-    }
+            preferencesBuilder.build()
+        })
 }
+
+internal val MIGRATE_ALL_KEYS = null

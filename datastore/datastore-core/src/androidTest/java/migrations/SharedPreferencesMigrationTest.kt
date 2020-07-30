@@ -58,20 +58,12 @@ class SharedPreferencesMigrationTest {
 
     @Test
     fun testShouldMigrateSkipsMigration() = runBlockingTest {
-        val migration = object : MigrationFromSharedPreferences<Byte> {
-            override suspend fun shouldMigrate(currentData: Byte) = false
-
-            override suspend fun migrate(
-                prefs: SharedPreferencesView,
-                currentData: Byte
-            ) = throw IllegalStateException("Migration is skipped.")
-        }
-
-        val sharedPrefsMigration = SharedPreferencesMigration(
+        val sharedPrefsMigration = SharedPreferencesMigration<Byte>(
             context = context,
             sharedPreferencesName = sharedPrefsName,
-            migration = migration
-        )
+            shouldRunMigration = { false }) { _: SharedPreferencesView, _: Byte ->
+            throw IllegalStateException("Migration should've been skipped.")
+        }
 
         val dataStore = getDataStoreWithMigrations(listOf(sharedPrefsMigration))
 
@@ -91,28 +83,17 @@ class SharedPreferencesMigrationTest {
                 .putInt(notMigratedKey, 123).commit()
         ).isTrue()
 
-        val migration = object : MigrationFromSharedPreferences<Byte> {
-            override suspend fun shouldMigrate(currentData: Byte) = true
-
-            override suspend fun migrate(
-                prefs: SharedPreferencesView,
-                currentData: Byte
-            ): Byte {
-                assertThat(prefs.getInt(includedKey, -1)).isEqualTo(includedVal)
-                assertThrows<IllegalStateException> { prefs.getInt(notMigratedKey, -1) }
-
-                assertThat(prefs.getAll()).isEqualTo(mapOf(includedKey to includedVal))
-
-                return 99.toByte()
-            }
-        }
-
         val sharedPrefsMigration = SharedPreferencesMigration(
             context = context,
             sharedPreferencesName = sharedPrefsName,
-            migration = migration,
             keysToMigrate = setOf(includedKey)
-        )
+        ) { prefs: SharedPreferencesView, _: Byte ->
+            assertThat(prefs.getInt(includedKey, -1)).isEqualTo(includedVal)
+            assertThrows<IllegalStateException> { prefs.getInt(notMigratedKey, -1) }
+            assertThat(prefs.getAll()).isEqualTo(mapOf(includedKey to includedVal))
+
+            99.toByte()
+        }
 
         val dataStore = getDataStoreWithMigrations(listOf(sharedPrefsMigration))
 
@@ -135,27 +116,17 @@ class SharedPreferencesMigrationTest {
                 .commit()
         ).isTrue()
 
-        val migration = object : MigrationFromSharedPreferences<Byte> {
-            override suspend fun shouldMigrate(currentData: Byte) = true
-
-            override suspend fun migrate(
-                prefs: SharedPreferencesView,
-                currentData: Byte
-            ): Byte {
-                assertThat(prefs.getInt(key1, -1)).isEqualTo(val1)
-                assertThat(prefs.getInt(key2, -1)).isEqualTo(val2)
-
-                assertThat(prefs.getAll()).isEqualTo(mapOf(key1 to val1, key2 to val2))
-
-                return 99.toByte()
-            }
-        }
-
         val sharedPrefsMigration = SharedPreferencesMigration(
             context = context,
-            sharedPreferencesName = sharedPrefsName,
-            migration = migration
-        )
+            sharedPreferencesName = sharedPrefsName
+        ) { prefs: SharedPreferencesView, _: Byte ->
+            assertThat(prefs.getInt(key1, -1)).isEqualTo(val1)
+            assertThat(prefs.getInt(key2, -1)).isEqualTo(val2)
+
+            assertThat(prefs.getAll()).isEqualTo(mapOf(key1 to val1, key2 to val2))
+
+            99.toByte()
+        }
 
         val dataStore = getDataStoreWithMigrations(listOf(sharedPrefsMigration))
 
@@ -165,12 +136,12 @@ class SharedPreferencesMigrationTest {
     }
 
     private fun getDataStoreWithMigrations(
-        migrationProducers: List<() -> DataMigration<Byte>>
+        migrations: List<DataMigration<Byte>>
     ): DataStore<Byte> {
         return DataStoreFactory().create(
             produceFile = { datastoreFile },
             serializer = TestingSerializer(),
-            migrationProducers = migrationProducers,
+            migrations = migrations,
             scope = TestCoroutineScope()
         )
     }

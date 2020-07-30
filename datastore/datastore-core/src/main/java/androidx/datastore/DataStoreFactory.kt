@@ -44,23 +44,23 @@ class DataStoreFactory {
      * @param corruptionHandler The corruptionHandler is invoked if DataStore encounters a
      * [CorruptionException] when attempting to read data. CorruptionExceptions are thrown by
      * serializers when data can not be de-serialized.
-     * @param migrationProducers Migrations are run before any access to data can occur. Migrations
-     * must be idempotent.
+     * @param migrations Migrations are run before any access to data can occur. Migrations must
+     * be idempotent.
      * @param scope The scope in which IO operations and transform functions will execute.
      */
-    @JvmOverloads
+    @JvmOverloads // Generate constructors for default params for java users.
     fun <T> create(
         produceFile: () -> File,
         serializer: Serializer<T>,
         corruptionHandler: ReplaceFileCorruptionHandler<T>? = null,
-        migrationProducers: List<() -> DataMigration<T>> = listOf(),
+        migrations: List<DataMigration<T>> = listOf(),
         scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     ): DataStore<T> =
         SingleProcessDataStore(
             produceFile = produceFile,
             serializer = serializer,
             corruptionHandler = corruptionHandler ?: NoOpCorruptionHandler(),
-            initTasksList = listOf(DataMigrationInitializer.getInitializer(migrationProducers)),
+            initTasksList = listOf(DataMigrationInitializer.getInitializer(migrations)),
             scope = scope
         )
 }
