@@ -27,7 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.ListFragment;
 
-import com.example.android.supportv4.Shakespeare;
+import com.example.android.supportv4.LoremIpsum;
 
 /**
  * Demonstration of using ListFragment to show a list of items
@@ -52,7 +52,7 @@ public class FragmentListArraySupport extends FragmentActivity {
         public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
             super.onViewCreated(view, savedInstanceState);
             setListAdapter(new ArrayAdapter<String>(getActivity(),
-                    android.R.layout.simple_list_item_1, Shakespeare.TITLES));
+                    android.R.layout.simple_list_item_1, LoremIpsum.TITLES));
         }
 
         @Override
