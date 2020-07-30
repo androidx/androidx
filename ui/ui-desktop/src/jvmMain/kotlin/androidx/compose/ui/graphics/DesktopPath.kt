@@ -17,8 +17,8 @@
 package androidx.compose.ui.graphics
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.RRect
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.vectormath.degrees
 import org.jetbrains.skija.Matrix33
 import org.jetbrains.skija.PathDirection
@@ -133,8 +133,8 @@ class DesktopPath(
         internalPath.addArc(oval.toSkijaRect(), startAngleDegrees, sweepAngleDegrees)
     }
 
-    override fun addRRect(rrect: RRect) {
-        internalPath.addRRect(rrect.toSkijaRRect(), PathDirection.COUNTER_CLOCKWISE)
+    override fun addRoundRect(roundRect: RoundRect) {
+        internalPath.addRRect(roundRect.toSkijaRRect(), PathDirection.COUNTER_CLOCKWISE)
     }
 
     override fun addPath(path: Path, offset: Offset) {

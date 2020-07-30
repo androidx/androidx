@@ -34,80 +34,6 @@ package androidx.compose.ui.geometry {
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Offset lerp(androidx.compose.ui.geometry.Offset start, androidx.compose.ui.geometry.Offset stop, float fraction);
   }
 
-  public final class RRect {
-    ctor public RRect(float left, float top, float right, float bottom, float topLeftRadiusX, float topLeftRadiusY, float topRightRadiusX, float topRightRadiusY, float bottomRightRadiusX, float bottomRightRadiusY, float bottomLeftRadiusX, float bottomLeftRadiusY);
-    method public float component1();
-    method public float component10();
-    method public float component11();
-    method public float component12();
-    method public float component2();
-    method public float component3();
-    method public float component4();
-    method public float component5();
-    method public float component6();
-    method public float component7();
-    method public float component8();
-    method public float component9();
-    method public boolean contains(androidx.compose.ui.geometry.Offset point);
-    method public androidx.compose.ui.geometry.RRect copy(float left, float top, float right, float bottom, float topLeftRadiusX, float topLeftRadiusY, float topRightRadiusX, float topRightRadiusY, float bottomRightRadiusX, float bottomRightRadiusY, float bottomLeftRadiusX, float bottomLeftRadiusY);
-    method public float getBottom();
-    method public float getBottomLeftRadiusX();
-    method public float getBottomLeftRadiusY();
-    method public float getBottomRightRadiusX();
-    method public float getBottomRightRadiusY();
-    method public float getHeight();
-    method public float getLeft();
-    method public float getRight();
-    method public float getTop();
-    method public float getTopLeftRadiusX();
-    method public float getTopLeftRadiusY();
-    method public float getTopRightRadiusX();
-    method public float getTopRightRadiusY();
-    method public float getWidth();
-    method public static androidx.compose.ui.geometry.RRect getZero();
-    property public final float height;
-    property public final float width;
-    field public static final androidx.compose.ui.geometry.RRect.Companion Companion;
-  }
-
-  public static final class RRect.Companion {
-    method public androidx.compose.ui.geometry.RRect getZero();
-    property public final androidx.compose.ui.geometry.RRect Zero;
-  }
-
-  public final class RRectKt {
-    method public static androidx.compose.ui.geometry.RRect RRect(float left, float top, float right, float bottom, float radiusX, float radiusY);
-    method public static androidx.compose.ui.geometry.RRect RRect(androidx.compose.ui.geometry.Rect rect, float radiusX, float radiusY);
-    method public static androidx.compose.ui.geometry.RRect RRect-9kgzNNk(androidx.compose.ui.geometry.Rect rect, long topLeft = Radius.Zero, long topRight = Radius.Zero, long bottomRight = Radius.Zero, long bottomLeft = Radius.Zero);
-    method public static androidx.compose.ui.geometry.RRect RRect-FXlJaX8(androidx.compose.ui.geometry.Rect rect, long radius);
-    method public static androidx.compose.ui.geometry.RRect RRect-HepwI24(float left, float top, float right, float bottom, long topLeft = Radius.Zero, long topRight = Radius.Zero, long bottomRight = Radius.Zero, long bottomLeft = Radius.Zero);
-    method public static androidx.compose.ui.geometry.RRect RRect-TZLOQlQ(float left, float top, float right, float bottom, long radius);
-    method public static long bottomLeftRadius(androidx.compose.ui.geometry.RRect);
-    method public static long bottomRightRadius(androidx.compose.ui.geometry.RRect);
-    method public static androidx.compose.ui.geometry.Offset center(androidx.compose.ui.geometry.RRect);
-    method public static float getLongestSide(androidx.compose.ui.geometry.RRect);
-    method public static float getShortestSide(androidx.compose.ui.geometry.RRect);
-    method public static androidx.compose.ui.geometry.RRect grow(androidx.compose.ui.geometry.RRect, float delta);
-    method public static boolean isCircle(androidx.compose.ui.geometry.RRect);
-    method public static boolean isEllipse(androidx.compose.ui.geometry.RRect);
-    method public static boolean isEmpty(androidx.compose.ui.geometry.RRect);
-    method public static boolean isFinite(androidx.compose.ui.geometry.RRect);
-    method public static boolean isRect(androidx.compose.ui.geometry.RRect);
-    method public static boolean isSimple(androidx.compose.ui.geometry.RRect);
-    method public static boolean isStadium(androidx.compose.ui.geometry.RRect);
-    method public static androidx.compose.ui.geometry.RRect lerp(androidx.compose.ui.geometry.RRect start, androidx.compose.ui.geometry.RRect stop, float fraction);
-    method public static androidx.compose.ui.geometry.Rect middleRect(androidx.compose.ui.geometry.RRect);
-    method public static androidx.compose.ui.geometry.Rect outerRect(androidx.compose.ui.geometry.RRect);
-    method public static androidx.compose.ui.geometry.Rect safeInnerRect(androidx.compose.ui.geometry.RRect);
-    method public static androidx.compose.ui.geometry.RRect shift(androidx.compose.ui.geometry.RRect, androidx.compose.ui.geometry.Offset offset);
-    method public static androidx.compose.ui.geometry.RRect shrink(androidx.compose.ui.geometry.RRect, float delta);
-    method public static androidx.compose.ui.geometry.Rect tallMiddleRect(androidx.compose.ui.geometry.RRect);
-    method public static long topLeftRadius(androidx.compose.ui.geometry.RRect);
-    method public static long topRightRadius(androidx.compose.ui.geometry.RRect);
-    method public static androidx.compose.ui.geometry.Rect wideMiddleRect(androidx.compose.ui.geometry.RRect);
-    method public static androidx.compose.ui.geometry.RRect withRadius-LKZqP28(androidx.compose.ui.geometry.RRect, long radius);
-  }
-
   @androidx.compose.runtime.Immutable public final inline class Radius {
     ctor public Radius();
     method public static long constructor-impl(internal long packedValue);
@@ -209,6 +135,87 @@ package androidx.compose.ui.geometry {
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Rect Rect(androidx.compose.ui.geometry.Offset center, float radius);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Rect Rect-MrV732k(androidx.compose.ui.geometry.Offset offset, long size);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Rect lerp(androidx.compose.ui.geometry.Rect start, androidx.compose.ui.geometry.Rect stop, float fraction);
+  }
+
+  @androidx.compose.runtime.Immutable public final class RoundRect {
+    ctor public RoundRect(float left, float top, float right, float bottom, float topLeftRadiusX, float topLeftRadiusY, float topRightRadiusX, float topRightRadiusY, float bottomRightRadiusX, float bottomRightRadiusY, float bottomLeftRadiusX, float bottomLeftRadiusY);
+    method public float component1();
+    method public float component10();
+    method public float component11();
+    method public float component12();
+    method public float component2();
+    method public float component3();
+    method public float component4();
+    method public float component5();
+    method public float component6();
+    method public float component7();
+    method public float component8();
+    method public float component9();
+    method public boolean contains(androidx.compose.ui.geometry.Offset point);
+    method @androidx.compose.runtime.Immutable public androidx.compose.ui.geometry.RoundRect copy(float left, float top, float right, float bottom, float topLeftRadiusX, float topLeftRadiusY, float topRightRadiusX, float topRightRadiusY, float bottomRightRadiusX, float bottomRightRadiusY, float bottomLeftRadiusX, float bottomLeftRadiusY);
+    method public float getBottom();
+    method public float getBottomLeftRadiusX();
+    method public float getBottomLeftRadiusY();
+    method public float getBottomRightRadiusX();
+    method public float getBottomRightRadiusY();
+    method public float getHeight();
+    method public float getLeft();
+    method public float getRight();
+    method public float getTop();
+    method public float getTopLeftRadiusX();
+    method public float getTopLeftRadiusY();
+    method public float getTopRightRadiusX();
+    method public float getTopRightRadiusY();
+    method public float getWidth();
+    method public static androidx.compose.ui.geometry.RoundRect getZero();
+    property public final float height;
+    property public final float width;
+    field public static final androidx.compose.ui.geometry.RoundRect.Companion Companion;
+  }
+
+  public static final class RoundRect.Companion {
+    method public androidx.compose.ui.geometry.RoundRect getZero();
+    property public final androidx.compose.ui.geometry.RoundRect Zero;
+  }
+
+  public final class RoundRectKt {
+    method @Deprecated public static androidx.compose.ui.geometry.RoundRect RRect(float left, float top, float right, float bottom, float topLeftRadiusX, float topLeftRadiusY, float topRightRadiusX, float topRightRadiusY, float bottomRightRadiusX, float bottomRightRadiusY, float bottomLeftRadiusX, float bottomLeftRadiusY);
+    method @Deprecated public static androidx.compose.ui.geometry.RoundRect RRect(float left, float top, float right, float bottom, float radiusX, float radiusY);
+    method @Deprecated public static androidx.compose.ui.geometry.RoundRect RRect(androidx.compose.ui.geometry.Rect rect, float radiusX, float radiusY);
+    method @Deprecated public static androidx.compose.ui.geometry.RoundRect RRect-9kgzNNk(androidx.compose.ui.geometry.Rect rect, long topLeft = Radius.Zero, long topRight = Radius.Zero, long bottomRight = Radius.Zero, long bottomLeft = Radius.Zero);
+    method @Deprecated public static androidx.compose.ui.geometry.RoundRect RRect-FXlJaX8(androidx.compose.ui.geometry.Rect rect, long radius);
+    method @Deprecated public static androidx.compose.ui.geometry.RoundRect RRect-HepwI24(float left, float top, float right, float bottom, long topLeft = Radius.Zero, long topRight = Radius.Zero, long bottomRight = Radius.Zero, long bottomLeft = Radius.Zero);
+    method @Deprecated public static androidx.compose.ui.geometry.RoundRect RRect-TZLOQlQ(float left, float top, float right, float bottom, long radius);
+    method public static androidx.compose.ui.geometry.RoundRect RoundRect(float left, float top, float right, float bottom, float radiusX, float radiusY);
+    method public static androidx.compose.ui.geometry.RoundRect RoundRect(androidx.compose.ui.geometry.Rect rect, float radiusX, float radiusY);
+    method public static androidx.compose.ui.geometry.RoundRect RoundRect-9kgzNNk(androidx.compose.ui.geometry.Rect rect, long topLeft = Radius.Zero, long topRight = Radius.Zero, long bottomRight = Radius.Zero, long bottomLeft = Radius.Zero);
+    method public static androidx.compose.ui.geometry.RoundRect RoundRect-FXlJaX8(androidx.compose.ui.geometry.Rect rect, long radius);
+    method public static androidx.compose.ui.geometry.RoundRect RoundRect-HepwI24(float left, float top, float right, float bottom, long topLeft = Radius.Zero, long topRight = Radius.Zero, long bottomRight = Radius.Zero, long bottomLeft = Radius.Zero);
+    method public static androidx.compose.ui.geometry.RoundRect RoundRect-TZLOQlQ(float left, float top, float right, float bottom, long radius);
+    method public static long bottomLeftRadius(androidx.compose.ui.geometry.RoundRect);
+    method public static long bottomRightRadius(androidx.compose.ui.geometry.RoundRect);
+    method public static androidx.compose.ui.geometry.Offset center(androidx.compose.ui.geometry.RoundRect);
+    method public static float getLongestSide(androidx.compose.ui.geometry.RoundRect);
+    method public static float getShortestSide(androidx.compose.ui.geometry.RoundRect);
+    method public static androidx.compose.ui.geometry.RoundRect grow(androidx.compose.ui.geometry.RoundRect, float delta);
+    method public static boolean isCircle(androidx.compose.ui.geometry.RoundRect);
+    method public static boolean isEllipse(androidx.compose.ui.geometry.RoundRect);
+    method public static boolean isEmpty(androidx.compose.ui.geometry.RoundRect);
+    method public static boolean isFinite(androidx.compose.ui.geometry.RoundRect);
+    method public static boolean isRect(androidx.compose.ui.geometry.RoundRect);
+    method public static boolean isSimple(androidx.compose.ui.geometry.RoundRect);
+    method public static boolean isStadium(androidx.compose.ui.geometry.RoundRect);
+    method public static androidx.compose.ui.geometry.RoundRect lerp(androidx.compose.ui.geometry.RoundRect start, androidx.compose.ui.geometry.RoundRect stop, float fraction);
+    method public static androidx.compose.ui.geometry.Rect middleRect(androidx.compose.ui.geometry.RoundRect);
+    method public static androidx.compose.ui.geometry.Rect outerRect(androidx.compose.ui.geometry.RoundRect);
+    method public static androidx.compose.ui.geometry.Rect safeInnerRect(androidx.compose.ui.geometry.RoundRect);
+    method public static androidx.compose.ui.geometry.RoundRect shift(androidx.compose.ui.geometry.RoundRect, androidx.compose.ui.geometry.Offset offset);
+    method public static androidx.compose.ui.geometry.RoundRect shrink(androidx.compose.ui.geometry.RoundRect, float delta);
+    method public static androidx.compose.ui.geometry.Rect tallMiddleRect(androidx.compose.ui.geometry.RoundRect);
+    method public static long topLeftRadius(androidx.compose.ui.geometry.RoundRect);
+    method public static long topRightRadius(androidx.compose.ui.geometry.RoundRect);
+    method public static androidx.compose.ui.geometry.Rect wideMiddleRect(androidx.compose.ui.geometry.RoundRect);
+    method public static androidx.compose.ui.geometry.RoundRect withRadius-Z0w6hBY(androidx.compose.ui.geometry.RoundRect, long radius);
   }
 
   @androidx.compose.runtime.Immutable public final inline class Size {

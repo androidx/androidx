@@ -71,8 +71,8 @@ package androidx.compose.ui.graphics {
     method public void addArcRad(androidx.compose.ui.geometry.Rect oval, float startAngleRadians, float sweepAngleRadians);
     method public void addOval(androidx.compose.ui.geometry.Rect oval);
     method public void addPath(androidx.compose.ui.graphics.Path path, androidx.compose.ui.geometry.Offset offset);
-    method public void addRRect(androidx.compose.ui.geometry.RRect rrect);
     method public void addRect(androidx.compose.ui.geometry.Rect rect);
+    method public void addRoundRect(androidx.compose.ui.geometry.RoundRect roundRect);
     method public void arcTo(androidx.compose.ui.geometry.Rect rect, float startAngleDegrees, float sweepAngleDegrees, boolean forceMoveTo);
     method public void close();
     method public void cubicTo(float x1, float y1, float x2, float y2, float x3, float y3);
@@ -411,10 +411,10 @@ package androidx.compose.ui.graphics {
   }
 
   @androidx.compose.runtime.Immutable public static final class Outline.Rounded extends androidx.compose.ui.graphics.Outline {
-    ctor public Outline.Rounded(androidx.compose.ui.geometry.RRect rrect);
-    method public androidx.compose.ui.geometry.RRect component1();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.graphics.Outline.Rounded copy(androidx.compose.ui.geometry.RRect rrect);
-    method public androidx.compose.ui.geometry.RRect getRrect();
+    ctor public Outline.Rounded(androidx.compose.ui.geometry.RoundRect roundRect);
+    method public androidx.compose.ui.geometry.RoundRect component1();
+    method @androidx.compose.runtime.Immutable public androidx.compose.ui.graphics.Outline.Rounded copy(androidx.compose.ui.geometry.RoundRect roundRect);
+    method public androidx.compose.ui.geometry.RoundRect getRoundRect();
   }
 
   public final class OutlineKt {
@@ -483,8 +483,9 @@ package androidx.compose.ui.graphics {
     method public void addArcRad(androidx.compose.ui.geometry.Rect oval, float startAngleRadians, float sweepAngleRadians);
     method public void addOval(androidx.compose.ui.geometry.Rect oval);
     method public void addPath(androidx.compose.ui.graphics.Path path, androidx.compose.ui.geometry.Offset offset = Offset.Zero);
-    method public void addRRect(androidx.compose.ui.geometry.RRect rrect);
+    method @Deprecated public default void addRRect(androidx.compose.ui.geometry.RoundRect rrect);
     method public void addRect(androidx.compose.ui.geometry.Rect rect);
+    method public void addRoundRect(androidx.compose.ui.geometry.RoundRect roundRect);
     method public void arcTo(androidx.compose.ui.geometry.Rect rect, float startAngleDegrees, float sweepAngleDegrees, boolean forceMoveTo);
     method public default void arcToRad(androidx.compose.ui.geometry.Rect rect, float startAngleRadians, float sweepAngleRadians, boolean forceMoveTo);
     method public void close();

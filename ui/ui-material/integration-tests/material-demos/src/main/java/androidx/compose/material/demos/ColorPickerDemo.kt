@@ -43,7 +43,6 @@ import androidx.compose.foundation.currentTextStyle
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.RRect
 import androidx.compose.ui.geometry.Radius
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
@@ -67,6 +66,7 @@ import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.material.Surface
 import androidx.compose.material.TopAppBar
+import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -296,7 +296,7 @@ private val MagnifierPopupShape = GenericShape { size ->
     val arrowY = height * 0.8f
     val arrowXOffset = width * 0.4f
 
-    addRRect(RRect(0f, 0f, width, arrowY, radius = Radius(20f, 20f)))
+    addRoundRect(RoundRect(0f, 0f, width, arrowY, radius = Radius(20f, 20f)))
 
     moveTo(arrowXOffset, arrowY)
     lineTo(width / 2f, height)
