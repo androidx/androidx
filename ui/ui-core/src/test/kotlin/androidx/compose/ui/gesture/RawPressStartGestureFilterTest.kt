@@ -189,57 +189,12 @@ class RawPressStartGestureFilterTest {
     }
 
     @Test
-    fun onPointerInput_preUp_behaviorOccursAtCorrectTime() {
-        filter.setExecutionPass(PointerEventPass.PreUp)
-
-        var pointer = filter::onPointerInput.invokeOverPasses(
-            down(0),
-            PointerEventPass.InitialDown
-        )
-
-        verify(filter.onPressStart, never()).invoke(any())
-        assertThat(pointer.consumed.downChange, `is`(false))
-
-        pointer = filter::onPointerInput.invokeOverPasses(
-            down(1),
-            PointerEventPass.PreUp
-        )
-
-        verify(filter.onPressStart).invoke(any())
-        assertThat(pointer.consumed.downChange, `is`(true))
-    }
-
-    @Test
-    fun onPointerInput_preDown_behaviorOccursAtCorrectTime() {
-        filter.setExecutionPass(PointerEventPass.PreDown)
-
-        var pointer = filter::onPointerInput.invokeOverPasses(
-            down(0),
-            PointerEventPass.InitialDown,
-            PointerEventPass.PreUp
-        )
-
-        verify(filter.onPressStart, never()).invoke(any())
-        assertThat(pointer.consumed.downChange, `is`(false))
-
-        pointer = filter::onPointerInput.invokeOverPasses(
-            down(1),
-            PointerEventPass.PreDown
-        )
-
-        verify(filter.onPressStart).invoke(any())
-        assertThat(pointer.consumed.downChange, `is`(true))
-    }
-
-    @Test
     fun onPointerInput_PostUp_behaviorOccursAtCorrectTime() {
         filter.setExecutionPass(PointerEventPass.PostUp)
 
         var pointer = filter::onPointerInput.invokeOverPasses(
             down(0),
-            PointerEventPass.InitialDown,
-            PointerEventPass.PreUp,
-            PointerEventPass.PreDown
+            PointerEventPass.InitialDown
         )
 
         verify(filter.onPressStart, never()).invoke(any())
@@ -261,8 +216,6 @@ class RawPressStartGestureFilterTest {
         var pointer = filter::onPointerInput.invokeOverPasses(
             down(0),
             PointerEventPass.InitialDown,
-            PointerEventPass.PreUp,
-            PointerEventPass.PreDown,
             PointerEventPass.PostUp
         )
 

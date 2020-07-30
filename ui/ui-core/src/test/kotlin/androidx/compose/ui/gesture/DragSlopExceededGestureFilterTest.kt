@@ -321,8 +321,6 @@ class DragSlopExceededGestureFilterTest {
             listOf(move),
             listOf(
                 PointerEventPass.InitialDown,
-                PointerEventPass.PreUp,
-                PointerEventPass.PreDown,
                 PointerEventPass.PostUp
             )
         )
@@ -690,8 +688,6 @@ class DragSlopExceededGestureFilterTest {
             listOf(move),
             listOf(
                 PointerEventPass.InitialDown,
-                PointerEventPass.PreUp,
-                PointerEventPass.PreDown,
                 PointerEventPass.PostUp
             )
         )
@@ -713,8 +709,6 @@ class DragSlopExceededGestureFilterTest {
             listOf(move),
             listOf(
                 PointerEventPass.InitialDown,
-                PointerEventPass.PreUp,
-                PointerEventPass.PreDown,
                 PointerEventPass.PostUp
             )
         )
@@ -743,8 +737,6 @@ class DragSlopExceededGestureFilterTest {
             listOf(move),
             listOf(
                 PointerEventPass.InitialDown,
-                PointerEventPass.PreUp,
-                PointerEventPass.PreDown,
                 PointerEventPass.PostUp
             )
         )
@@ -772,8 +764,6 @@ class DragSlopExceededGestureFilterTest {
             listOf(move),
             listOf(
                 PointerEventPass.InitialDown,
-                PointerEventPass.PreUp,
-                PointerEventPass.PreDown,
                 PointerEventPass.PostUp
             )
         )
