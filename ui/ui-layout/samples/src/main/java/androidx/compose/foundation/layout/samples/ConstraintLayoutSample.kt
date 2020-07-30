@@ -22,7 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.ConstraintLayout
-import androidx.compose.foundation.layout.ConstraintSet2
+import androidx.compose.foundation.layout.ConstraintSet
 import androidx.compose.foundation.layout.Dimension
 import androidx.compose.foundation.layout.atMost
 import androidx.compose.ui.unit.dp
@@ -52,7 +52,7 @@ fun DemoInlineDSL() {
 @Sampled
 @Composable
 fun DemoConstraintSet() {
-    ConstraintLayout(ConstraintSet2 {
+    ConstraintLayout(ConstraintSet {
         val text1 = createRefFor("text1")
         val text2 = createRefFor("text2")
         val text3 = createRefFor("text3")
