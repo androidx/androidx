@@ -158,13 +158,13 @@ public abstract class UseCase {
 
         MutableConfig defaultMutableConfig = defaultConfigBuilder.getMutableConfig();
 
-        // If OPTION_TARGET_ASPECT_RATIO has been set by the user, remove
-        // OPTION_TARGET_ASPECT_RATIO_CUSTOM from defaultConfigBuilder. Otherwise, it may cause
-        // aspect ratio mismatched issue.
-        if (userConfig.containsOption(ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)
+        // If OPTION_TARGET_RESOLUTION has been set by the user, remove
+        // OPTION_TARGET_ASPECT_RATIO from defaultConfigBuilder because these two settings can be
+        // set at the same time.
+        if (userConfig.containsOption(ImageOutputConfig.OPTION_TARGET_RESOLUTION)
                 && defaultMutableConfig.containsOption(
-                ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO_CUSTOM)) {
-            defaultMutableConfig.removeOption(ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO_CUSTOM);
+                ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)) {
+            defaultMutableConfig.removeOption(ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO);
         }
 
         // If any options need special handling, this is the place to do it. For now we'll just copy

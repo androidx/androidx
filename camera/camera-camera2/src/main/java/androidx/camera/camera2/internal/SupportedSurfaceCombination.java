@@ -326,11 +326,8 @@ final class SupportedSurfaceCombination {
         Arrays.sort(outputSizes, new CompareSizesByArea(true));
 
         // Calibrate targetSize by the target rotation value.
-        Size targetSize = imageOutputConfig.getTargetResolution(ZERO_SIZE);
-        if (isRotationNeeded(targetRotation)) {
-            targetSize = new Size(/* width= */targetSize.getHeight(), /* height=
-             */targetSize.getWidth());
-        }
+        Size targetSize = imageOutputConfig.getTargetResolution(null);
+        targetSize = flipSizeByRotation(targetSize, targetRotation);
 
         Size minSize = DEFAULT_SIZE;
         int defaultSizeArea = getArea(DEFAULT_SIZE);
@@ -339,8 +336,8 @@ final class SupportedSurfaceCombination {
         // will be ignored. Otherwise, set the minimal size according to min(DEFAULT_SIZE,
         // TARGET_RESOLUTION).
         if (maxSizeArea < defaultSizeArea) {
-            minSize = new Size(0, 0);
-        } else if (!targetSize.equals(ZERO_SIZE) && getArea(targetSize) < defaultSizeArea) {
+            minSize = ZERO_SIZE;
+        } else if (targetSize != null && getArea(targetSize) < defaultSizeArea) {
             minSize = targetSize;
         }
 
@@ -383,9 +380,11 @@ final class SupportedSurfaceCombination {
                     default:
                         // Unhandled event.
                 }
-            } else {
-                aspectRatio = imageOutputConfig.getTargetAspectRatioCustom(null);
-                aspectRatio = rotateAspectRatioByRotation(aspectRatio, targetRotation);
+            } else if (targetSize != null) {
+                // Target size is calculated from the target resolution. If target size is not
+                // null, sizes which aspect ratio is nearest to the aspect ratio of target size
+                // will be selected in priority.
+                aspectRatio = new Rational(targetSize.getWidth(), targetSize.getHeight());
             }
         }
 
@@ -411,11 +410,10 @@ final class SupportedSurfaceCombination {
         }
 
         // Check the default resolution if the target resolution is not set
-        targetSize = targetSize.equals(ZERO_SIZE) ? imageOutputConfig.getDefaultResolution(
-                ZERO_SIZE) : targetSize;
+        targetSize = targetSize == null ? imageOutputConfig.getDefaultResolution(null) : targetSize;
 
         // If the target resolution is set, use it to find the minimum one from big enough items
-        if (!targetSize.equals(ZERO_SIZE)) {
+        if (targetSize != null) {
             removeSupportedSizesByTargetSize(sizesMatchAspectRatio, targetSize);
             removeSupportedSizesByTargetSizeAndAspectRatio(sizesMismatchAspectRatio, targetSize);
         }
@@ -428,16 +426,14 @@ final class SupportedSurfaceCombination {
         return supportedResolutions;
     }
 
-    // Use target rotation to calibrate the aspect ratio.
-    private Rational rotateAspectRatioByRotation(Rational aspectRatio, int targetRotation) {
-        Rational outputRatio = aspectRatio;
-        // Calibrates the aspect ratio with the display and sensor rotation degrees values.
-        // Otherwise, retrieves default aspect ratio for the target use case.
-        if (aspectRatio != null && isRotationNeeded(targetRotation)) {
-            outputRatio = new Rational(aspectRatio.getDenominator(),
-                    aspectRatio.getNumerator());
+    // Use target rotation to calibrate the size.
+    private Size flipSizeByRotation(Size size, int targetRotation) {
+        Size outputSize = size;
+        // Calibrates the size with the display and sensor rotation degrees values.
+        if (outputSize != null && isRotationNeeded(targetRotation)) {
+            outputSize = new Size(/* width= */size.getHeight(), /* height= */size.getWidth());
         }
-        return outputRatio;
+        return outputSize;
     }
 
     private boolean isRotationNeeded(int targetRotation) {

@@ -17,7 +17,6 @@
 package androidx.camera.testing.fakes;
 
 import android.util.Pair;
-import android.util.Rational;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
@@ -165,14 +164,6 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
 
         @NonNull
         @Override
-        public Builder setTargetAspectRatioCustom(@NonNull Rational aspectRatio) {
-            getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM, aspectRatio);
-            getMutableConfig().removeOption(OPTION_TARGET_ASPECT_RATIO);
-            return this;
-        }
-
-        @NonNull
-        @Override
         public Builder setTargetAspectRatio(int aspectRatio) {
             getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO, aspectRatio);
             return this;
@@ -189,8 +180,6 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
         @Override
         public Builder setTargetResolution(@NonNull Size resolution) {
             getMutableConfig().insertOption(ImageOutputConfig.OPTION_TARGET_RESOLUTION, resolution);
-            getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM,
-                    new Rational(resolution.getWidth(), resolution.getHeight()));
             return this;
         }
 
