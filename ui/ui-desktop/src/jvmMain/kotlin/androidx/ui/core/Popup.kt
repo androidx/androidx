@@ -69,7 +69,7 @@ private fun PopupLayout(
     val view = ViewAmbient.current
     val layout = remember { LayoutScope(view, view.context) }
     layout.setLayoutParams(alignment, offset)
-    layout.setContent(children)
+    layout.setContent(content = children)
 
     onDispose {
         layout.dismiss()
