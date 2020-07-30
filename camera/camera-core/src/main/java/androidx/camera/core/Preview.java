@@ -55,6 +55,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CaptureConfig;
@@ -73,15 +74,11 @@ import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.core.impl.utils.futures.FutureCallback;
-import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.CameraCaptureResultImageInfo;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
-import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Consumer;
-
-import com.google.common.util.concurrent.ListenableFuture;
+import androidx.core.util.Preconditions;
 
 import java.util.List;
 import java.util.UUID;
@@ -146,20 +143,18 @@ public final class Preview extends UseCase {
     private HandlerThread mProcessingPreviewThread;
     @Nullable
     private Handler mProcessingPreviewHandler;
-
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @Nullable
-    SurfaceProvider mSurfaceProvider;
-    @SuppressWarnings("WeakerAccess") /* Synthetic Accessor */
+    private SurfaceProvider mSurfaceProvider;
     @NonNull
-    Executor mSurfaceProviderExecutor = DEFAULT_SURFACE_PROVIDER_EXECUTOR;
-    @Nullable
-    private CallbackToFutureAdapter.Completer<Pair<SurfaceProvider, Executor>>
-            mSurfaceProviderCompleter;
-    @Nullable
-    private Size mLatestResolution;
+    private Executor mSurfaceProviderExecutor = DEFAULT_SURFACE_PROVIDER_EXECUTOR;
 
     private DeferrableSurface mSessionDeferrableSurface;
+
+    // SurfaceRequest created by the pipeline but hasn't been sent because SurfaceProvider is not
+    // set. Null if there is no pending SurfaceRequest.
+    @VisibleForTesting
+    @Nullable
+    SurfaceRequest mPendingSurfaceRequest;
 
     /**
      * Creates a new preview use case from the given configuration.
@@ -184,9 +179,13 @@ public final class Preview extends UseCase {
             mSessionDeferrableSurface.close();
         }
 
-        final SurfaceRequest surfaceRequest = new SurfaceRequest(resolution,
-                getCamera(), getViewPortCropRect());
-        setUpSurfaceProviderWrap(surfaceRequest);
+        final SurfaceRequest surfaceRequest = new SurfaceRequest(resolution, getCamera(),
+                getViewPortCropRect());
+
+        if (!sendSurfaceRequest(surfaceRequest)) {
+            // SurfaceRequest can't be sent. Save and send at a later time.
+            mPendingSurfaceRequest = surfaceRequest;
+        }
 
         if (captureProcessor != null) {
             CaptureStage captureStage = new CaptureStage.DefaultCaptureStage();
@@ -237,22 +236,17 @@ public final class Preview extends UseCase {
             mSessionDeferrableSurface = surfaceRequest.getDeferrableSurface();
         }
         sessionConfigBuilder.addSurface(mSessionDeferrableSurface);
-        sessionConfigBuilder.addErrorListener(new SessionConfig.ErrorListener() {
-            @Override
-            public void onError(@NonNull SessionConfig sessionConfig,
-                    @NonNull SessionConfig.SessionError error) {
+        sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
+            // Ensure the attached camera has not changed before resetting.
+            // TODO(b/143915543): Ensure this never gets called by a camera that is not attached
+            //  to this use case so we don't need to do this check.
+            if (isCurrentCamera(cameraId)) {
+                // Only reset the pipeline when the bound camera is the same.
+                SessionConfig.Builder sessionConfigBuilder1 = createPipeline(cameraId, config,
+                        resolution);
 
-                // Ensure the attached camera has not changed before resetting.
-                // TODO(b/143915543): Ensure this never gets called by a camera that is not attached
-                //  to this use case so we don't need to do this check.
-                if (isCurrentCamera(cameraId)) {
-                    // Only reset the pipeline when the bound camera is the same.
-                    SessionConfig.Builder sessionConfigBuilder = createPipeline(cameraId, config,
-                            resolution);
-
-                    updateSessionConfig(sessionConfigBuilder.build());
-                    notifyReset();
-                }
+                updateSessionConfig(sessionConfigBuilder1.build());
+                notifyReset();
             }
         });
 
@@ -286,43 +280,6 @@ public final class Preview extends UseCase {
         setTargetRotationInternal(targetRotation);
     }
 
-    private void setUpSurfaceProviderWrap(
-            @NonNull final SurfaceRequest surfaceRequest) {
-        final ListenableFuture<Pair<SurfaceProvider, Executor>> future =
-                CallbackToFutureAdapter.getFuture(completer -> {
-                    if (mSurfaceProviderCompleter != null) {
-                        mSurfaceProviderCompleter.setCancelled();
-                    }
-
-                    mSurfaceProviderCompleter = completer;
-                    if (mSurfaceProvider != null) {
-                        mSurfaceProviderCompleter.set(
-                                new Pair<>(mSurfaceProvider, mSurfaceProviderExecutor));
-                        mSurfaceProviderCompleter = null;
-                    }
-                    return "surface provider and executor future";
-                });
-        Futures.addCallback(future, new FutureCallback<Pair<SurfaceProvider, Executor>>() {
-            @Override
-            public void onSuccess(@Nullable final Pair<SurfaceProvider, Executor> result) {
-                if (result == null) {
-                    return;
-                }
-
-                final SurfaceProvider surfaceProvider = result.first;
-                final Executor executor = result.second;
-                if (surfaceProvider != null && executor != null) {
-                    executor.execute(() -> surfaceProvider.onSurfaceRequested(surfaceRequest));
-                }
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                surfaceRequest.getDeferrableSurface().close();
-            }
-        }, CameraXExecutors.directExecutor());
-    }
-
     /**
      * Sets a {@link SurfaceProvider} to provide a {@link Surface} for Preview.
      *
@@ -340,34 +297,41 @@ public final class Preview extends UseCase {
             @Nullable SurfaceProvider surfaceProvider) {
         Threads.checkMainThread();
         if (surfaceProvider == null) {
+            // SurfaceProvider is removed. Inactivate the use case.
             mSurfaceProvider = null;
             notifyInactive();
         } else {
             mSurfaceProvider = surfaceProvider;
             mSurfaceProviderExecutor = executor;
             notifyActive();
-            onSurfaceProviderAvailable();
 
-            // This method may be updating the current SurfaceProvider, in which case a
-            // DeferrableSurface will have already been provided to the camera. If that's the
-            // case, it is invalidated.
-            if (mSessionDeferrableSurface != null) {
-                mSessionDeferrableSurface.close();
+            if (mPendingSurfaceRequest != null) {
+                sendSurfaceRequest(mPendingSurfaceRequest);
+                mPendingSurfaceRequest = null;
+            } else {
+                // No pending SurfaceRequest. It could be a previous request has already been
+                // sent, which means the caller wants to replace the Surface. Or, it could be the
+                // pipeline has not started.
+                // Either way, try updating session config and let createPipeline() sends a
+                // new SurfaceRequest.
+                if (getAttachedSurfaceResolution() != null) {
+                    updateConfigAndOutput(getCameraId(), (PreviewConfig) getUseCaseConfig(),
+                            getAttachedSurfaceResolution());
+                    notifyReset();
+                }
             }
-
-            // Notify that the use case needs to be reset since the preview surface will change.
-            notifyReset();
         }
     }
 
-    private void onSurfaceProviderAvailable() {
-        if (mSurfaceProviderCompleter != null) {
-            mSurfaceProviderCompleter.set(new Pair<>(mSurfaceProvider, mSurfaceProviderExecutor));
-            mSurfaceProviderCompleter = null;
-        } else if (mLatestResolution != null) {
-            updateConfigAndOutput(getCameraId(), (PreviewConfig) getUseCaseConfig(),
-                    mLatestResolution);
+    private boolean sendSurfaceRequest(@NonNull SurfaceRequest surfaceRequest) {
+        Preconditions.checkNotNull(surfaceRequest);
+        final SurfaceProvider surfaceProvider = mSurfaceProvider;
+        if (surfaceProvider != null) {
+            mSurfaceProviderExecutor.execute(
+                    () -> surfaceProvider.onSurfaceRequested(surfaceRequest));
+            return true;
         }
+        return false;
     }
 
     /**
@@ -462,10 +426,6 @@ public final class Preview extends UseCase {
                 }
             }, CameraXExecutors.directExecutor());
         }
-        if (mSurfaceProviderCompleter != null) {
-            mSurfaceProviderCompleter.setCancelled();
-            mSurfaceProviderCompleter = null;
-        }
     }
 
     /**
@@ -477,6 +437,7 @@ public final class Preview extends UseCase {
     @Override
     public void onDestroy() {
         mSurfaceProvider = null;
+        mPendingSurfaceRequest = null;
     }
 
     /**
@@ -488,12 +449,9 @@ public final class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
-        mLatestResolution = suggestedResolution;
-
         updateConfigAndOutput(getCameraId(), (PreviewConfig) getUseCaseConfig(),
-                mLatestResolution);
-
-        return mLatestResolution;
+                suggestedResolution);
+        return suggestedResolution;
     }
 
     /**
