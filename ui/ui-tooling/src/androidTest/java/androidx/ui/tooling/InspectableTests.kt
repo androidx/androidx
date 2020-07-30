@@ -27,6 +27,7 @@ import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
@@ -58,7 +59,7 @@ class InspectableTests : ToolingTest() {
         // Should be able to find the group for this test
         val tree = slotTableRecord.store.first().asTree()
         val group = tree.firstOrNull {
-            it.position?.contains("InspectableTests.kt") == true && it.box.right > 0
+            it.location?.sourceFile?.equals("InspectableTests.kt") == true && it.box.right > 0
         } ?: error("Expected a group from this file")
         assertNotNull(group)
 
@@ -109,8 +110,8 @@ class InspectableTests : ToolingTest() {
         val tree = slotTableRecord.store.first().asTree()
         val list = tree.asList()
         val parameters = list.filter {
-            it.parameters.isNotEmpty() && it.key.let {
-                it is String && it.contains("InspectableTests")
+            it.parameters.isNotEmpty() && it.location.let {
+                it != null && it.sourceFile == "InspectableTests.kt"
             }
         }
 
@@ -315,10 +316,10 @@ class InspectableTests : ToolingTest() {
         assertFalse(displayed)
     }
 
+    @InternalComposeApi
     @Test // regression test for b/161839910
     fun textParametersAreCorrect() {
         val slotTableRecord = SlotTableRecord.create()
-
         show {
             Inspectable(slotTableRecord) {
                 Text("Test")
@@ -327,8 +328,8 @@ class InspectableTests : ToolingTest() {
         val tree = slotTableRecord.store.first().asTree()
         val list = tree.asList()
         val parameters = list.filter {
-            it.parameters.isNotEmpty() && it.key.let {
-                it is String && it.contains("InspectableTests")
+            it.parameters.isNotEmpty() && it.location.let {
+                it != null && it.sourceFile == "InspectableTests.kt"
             }
         }
         val names = parameters.first().parameters.map { it.name }
