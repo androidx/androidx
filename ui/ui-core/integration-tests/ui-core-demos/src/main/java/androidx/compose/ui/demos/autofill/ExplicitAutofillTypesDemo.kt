@@ -17,28 +17,28 @@
 package androidx.compose.ui.demos.autofill
 
 import android.graphics.Rect
-import androidx.compose.runtime.Composable
 import androidx.compose.foundation.BaseTextField
-import androidx.compose.runtime.state
-import androidx.compose.ui.autofill.AutofillNode
-import androidx.compose.ui.autofill.AutofillType
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.onChildPositioned
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Text
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.material.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.state
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.AutofillNode
+import androidx.compose.ui.autofill.AutofillType
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.toComposeRect
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.onPositioned
 import androidx.compose.ui.platform.AutofillAmbient
 import androidx.compose.ui.platform.AutofillTreeAmbient
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -108,7 +108,7 @@ private fun Autofill(
     val autofillTree = AutofillTreeAmbient.current
     autofillTree += autofillNode
 
-    Box(Modifier.onChildPositioned {
+    Box(Modifier.onPositioned {
         autofillNode.boundingBox = it.boundingBox().toComposeRect()
     }) {
         children(autofillNode)

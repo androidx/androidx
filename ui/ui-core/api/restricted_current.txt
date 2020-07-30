@@ -303,8 +303,8 @@ package androidx.compose.ui {
     method public default <R> R! foldOut(R? initial, kotlin.jvm.functions.Function2<? super androidx.compose.ui.Modifier.Element,? super R,? extends R> operation);
   }
 
-  public interface OnChildPositionedModifier extends androidx.compose.ui.Modifier.Element {
-    method public void onChildPositioned(androidx.compose.ui.layout.LayoutCoordinates coordinates);
+  @Deprecated public interface OnChildPositionedModifier extends androidx.compose.ui.Modifier.Element {
+    method @Deprecated public void onChildPositioned(androidx.compose.ui.layout.LayoutCoordinates coordinates);
   }
 
   public interface OnPositionedModifier extends androidx.compose.ui.Modifier.Element {
@@ -312,7 +312,7 @@ package androidx.compose.ui {
   }
 
   public final class OnPositionedModifierKt {
-    method public static androidx.compose.ui.Modifier onChildPositioned(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.LayoutCoordinates,kotlin.Unit> onChildPositioned);
+    method @Deprecated public static androidx.compose.ui.Modifier onChildPositioned(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.LayoutCoordinates,kotlin.Unit> onChildPositioned);
     method @Deprecated public static androidx.compose.ui.Modifier onChildPositioned(kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.LayoutCoordinates,kotlin.Unit> onChildPositioned);
     method public static androidx.compose.ui.Modifier onPositioned(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.LayoutCoordinates,kotlin.Unit> onPositioned);
     method @Deprecated public static androidx.compose.ui.Modifier onPositioned(kotlin.jvm.functions.Function1<? super androidx.compose.ui.layout.LayoutCoordinates,kotlin.Unit> onPositioned);
