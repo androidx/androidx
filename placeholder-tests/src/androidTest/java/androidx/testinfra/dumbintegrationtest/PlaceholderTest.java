@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.testinfra.dumbintegrationtest;
+package androidx.testinfra.placeholderintegrationtest;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
@@ -32,7 +32,7 @@ import org.junit.runner.RunWith;
  * AffectedModuleDetector.
  */
 @RunWith(AndroidJUnit4.class)
-public class DumbTest {
+public class PlaceholderTest {
     @Test
     @SmallTest
     public void testSmall() {

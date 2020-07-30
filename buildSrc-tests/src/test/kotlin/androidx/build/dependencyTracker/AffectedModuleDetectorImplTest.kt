@@ -163,7 +163,7 @@ class AffectedModuleDetectorImplTest {
             .build()
         p11 = ProjectBuilder.builder()
             .withProjectDir(tmpDir.resolve("p11"))
-            .withName("dumb-tests")
+            .withName("placeholder-tests")
             .withParent(root)
             .build()
         p12 = ProjectBuilder.builder()
@@ -179,7 +179,7 @@ class AffectedModuleDetectorImplTest {
             .build()
         p14 = ProjectBuilder.builder()
             .withProjectDir(tmpDir2.resolve("p14"))
-            .withName("dumb-tests")
+            .withName("placeholder-tests")
             .withParent(root2)
             .build()
     }
