@@ -141,11 +141,12 @@ includeProject(":collection:collection-benchmark", "collection/collection-benchm
 includeProject(":collection:collection-ktx", "collection/collection-ktx")
 includeProject(":concurrent:concurrent-futures", "concurrent/futures")
 includeProject(":concurrent:concurrent-futures-ktx", "concurrent/futures-ktx")
-includeProject(":contentaccess:contentaccess-runtime", "contentaccess/contentaccess-runtime")
 includeProject(":contentaccess:contentaccess-annotations", "contentaccess/contentaccess-annotations")
 includeProject(":contentaccess:contentaccess-compiler", "contentaccess/contentaccess-compiler")
+includeProject(":contentaccess:contentaccess-entities", "contentaccess/contentaccess-entities")
 includeProject(":contentaccess:integration-tests:testapp",
         "contentaccess/integration-tests/testapp")
+includeProject(":contentaccess:contentaccess-runtime", "contentaccess/contentaccess-runtime")
 includeProject(":contentpager:contentpager", "contentpager/contentpager")
 includeProject(":coordinatorlayout:coordinatorlayout", "coordinatorlayout/coordinatorlayout")
 includeProject(":core:core", "core/core")
