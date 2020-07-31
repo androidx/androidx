@@ -55,6 +55,7 @@ public class WebViewFeature {
             SAFE_BROWSING_ENABLE,
             DISABLED_ACTION_MODE_MENU_ITEMS,
             START_SAFE_BROWSING,
+            SAFE_BROWSING_ALLOWLIST,
             SAFE_BROWSING_WHITELIST,
             SAFE_BROWSING_PRIVACY_POLICY_URL,
             SERVICE_WORKER_BASIC_USAGE,
@@ -142,8 +143,20 @@ public class WebViewFeature {
     /**
      * Feature for {@link #isFeatureSupported(String)}.
      * This feature covers
+     * {@link androidx.webkit.WebViewCompat#setSafeBrowsingAllowlist(List, ValueCallback)}.
+     *
+     * @hide
+     */
+    // TODO(b/160326030): unhide this API and deprecate SAFE_BROWSING_WHITELIST
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String SAFE_BROWSING_ALLOWLIST = "SAFE_BROWSING_ALLOWLIST";
+
+    /**
+     * Feature for {@link #isFeatureSupported(String)}.
+     * This feature covers
      * {@link androidx.webkit.WebViewCompat#setSafeBrowsingWhitelist(List, ValueCallback)}.
      */
+    // TODO(b/160326030): deprecate this API and unhide SAFE_BROWSING_ALLOWLIST
     public static final String SAFE_BROWSING_WHITELIST = "SAFE_BROWSING_WHITELIST";
 
     /**
