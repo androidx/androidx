@@ -34,10 +34,12 @@ import androidx.compose.ui.layout.id
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentColorAmbient
-import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.ProvideTextStyle
 import androidx.compose.foundation.background
 import androidx.compose.foundation.contentColor
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -58,7 +60,7 @@ import kotlin.math.max
 
 /**
  * A Tab represents a single page of content using a text label and/or icon. It represents its
- * selected state by tinting the text label and/or image with [activeColor].
+ * selected state by tinting the text label and/or image with [selectedContentColor].
  *
  * This should typically be used inside of a [TabRow], see the corresponding documentation for
  * example usage.
@@ -66,32 +68,32 @@ import kotlin.math.max
  * This Tab has slots for [text] and/or [icon] - see the other Tab overload for a generic Tab
  * that is not opinionated about its content.
  *
+ * @param selected whether this tab is selected or not
+ * @param onClick the callback to be invoked when this tab is selected
+ * @param modifier optional [Modifier] for this tab
  * @param text the text label displayed in this tab
  * @param icon the icon displayed in this tab
- * @param selected whether this tab is selected or not
- * @param onSelected the callback to be invoked when this tab is selected
- * @param modifier optional [Modifier] for this tab
- * @param activeColor the color for the content of this tab when selected
- * @param inactiveColor the color for the content of this tab when not selected
+ * @param selectedContentColor the color for the content of this tab when selected
+ * @param unselectedContentColor the color for the content of this tab when not selected
  */
 @Composable
 fun Tab(
+    selected: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
     text: @Composable () -> Unit = emptyContent(),
     icon: @Composable () -> Unit = emptyContent(),
-    selected: Boolean,
-    onSelected: () -> Unit,
-    modifier: Modifier = Modifier,
-    activeColor: Color = contentColor(),
-    inactiveColor: Color = EmphasisAmbient.current.medium.applyEmphasis(activeColor)
+    selectedContentColor: Color = contentColor(),
+    unselectedContentColor: Color = EmphasisAmbient.current.medium.applyEmphasis(
+        selectedContentColor
+    )
 ) {
     val styledText = @Composable {
         val style = MaterialTheme.typography.button.copy(textAlign = TextAlign.Center)
         ProvideTextStyle(style, children = text)
     }
-    Tab(selected, onSelected, modifier) {
-        TabTransition(activeColor, inactiveColor, selected) {
-            TabBaselineLayout(icon = icon, text = styledText)
-        }
+    Tab(selected, onClick, modifier, selectedContentColor, unselectedContentColor) {
+        TabBaselineLayout(icon = icon, text = styledText)
     }
 }
 
@@ -105,24 +107,33 @@ fun Tab(
  * @sample androidx.compose.material.samples.FancyTab
  *
  * @param selected whether this tab is selected or not
- * @param onSelected the callback to be invoked when this tab is selected
+ * @param onClick the callback to be invoked when this tab is selected
  * @param modifier optional [Modifier] for this tab
+ * @param selectedContentColor the color for the content of this tab when selected
+ * @param unselectedContentColor the color for the content of this tab when not selected
  * @param content the content of this tab
  */
 @Composable
 fun Tab(
     selected: Boolean,
-    onSelected: () -> Unit,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
+    selectedContentColor: Color = contentColor(),
+    unselectedContentColor: Color = EmphasisAmbient.current.medium.applyEmphasis(
+        selectedContentColor
+    ),
+    content: @Composable ColumnScope.() -> Unit
 ) {
-    Box(
-        modifier = modifier
-            .selectable(selected = selected, onClick = onSelected)
-            .fillMaxWidth(),
-        gravity = ContentGravity.Center,
-        children = content
-    )
+    TabTransition(selectedContentColor, unselectedContentColor, selected) {
+        Column(
+            modifier = modifier
+                .selectable(selected = selected, onClick = onClick)
+                .fillMaxWidth(),
+            horizontalGravity = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            children = content
+        )
+    }
 }
 
 /**

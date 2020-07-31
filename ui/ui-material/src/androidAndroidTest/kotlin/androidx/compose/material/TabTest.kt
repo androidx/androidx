@@ -71,7 +71,7 @@ class TabTest {
     fun textTab_height() {
         composeTestRule
             .setMaterialContentForSizeAssertions {
-                Tab(text = { Text("Text") }, selected = true, onSelected = {})
+                Tab(text = { Text("Text") }, selected = true, onClick = {})
             }
             .assertHeightIsEqualTo(ExpectedSmallTabHeight)
     }
@@ -80,7 +80,7 @@ class TabTest {
     fun iconTab_height() {
         composeTestRule
             .setMaterialContentForSizeAssertions {
-                Tab(icon = { Icon(icon) }, selected = true, onSelected = {})
+                Tab(icon = { Icon(icon) }, selected = true, onClick = {})
             }
             .assertHeightIsEqualTo(ExpectedSmallTabHeight)
     }
@@ -94,7 +94,7 @@ class TabTest {
                         text = { Text("Text and Icon") },
                         icon = { Icon(icon) },
                         selected = true,
-                        onSelected = {}
+                        onClick = {}
                     )
                 }
             }
@@ -129,7 +129,7 @@ class TabTest {
                         Tab(
                             text = { Text(title) },
                             selected = state == index,
-                            onSelected = { state = index }
+                            onClick = { state = index }
                         )
                     }
                 }
@@ -173,7 +173,7 @@ class TabTest {
                                 Text(title, Modifier.testTag("text"))
                             },
                             selected = state == index,
-                            onSelected = { state = index }
+                            onClick = { state = index }
                         )
                     }
                 }
@@ -211,7 +211,7 @@ class TabTest {
                             },
                             icon = { Icon(Icons.Filled.Favorite) },
                             selected = state == index,
-                            onSelected = { state = index }
+                            onClick = { state = index }
                         )
                     }
                 }
@@ -248,7 +248,7 @@ class TabTest {
                                 Text(title, Modifier.testTag("text"), maxLines = 2)
                             },
                             selected = state == index,
-                            onSelected = { state = index }
+                            onClick = { state = index }
                         )
                     }
                 }
@@ -299,7 +299,7 @@ class TabTest {
                         Tab(
                             text = { Text(title) },
                             selected = state == index,
-                            onSelected = { state = index }
+                            onClick = { state = index }
                         )
                     }
                 }

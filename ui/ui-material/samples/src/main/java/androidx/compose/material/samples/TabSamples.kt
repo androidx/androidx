@@ -69,7 +69,7 @@ fun TextTabs() {
                 Tab(
                     text = { Text(title) },
                     selected = state == index,
-                    onSelected = { state = index }
+                    onClick = { state = index }
                 )
             }
         }
@@ -91,7 +91,7 @@ fun IconTabs() {
                 Tab(
                     icon = { Icon(icon) },
                     selected = state == index,
-                    onSelected = { state = index }
+                    onClick = { state = index }
                 )
             }
         }
@@ -118,7 +118,7 @@ fun TextAndIconTabs() {
                     text = { Text(title) },
                     icon = { Icon(icon) },
                     selected = state == index,
-                    onSelected = { state = index }
+                    onClick = { state = index }
                 )
             }
         }
@@ -151,7 +151,7 @@ fun ScrollingTextTabs() {
                 Tab(
                     text = { Text(title) },
                     selected = state == index,
-                    onSelected = { state = index }
+                    onClick = { state = index }
                 )
             }
         }
@@ -202,7 +202,7 @@ fun FancyIndicatorTabs() {
                 Tab(
                     text = { Text(title) },
                     selected = state == index,
-                    onSelected = { state = index }
+                    onClick = { state = index }
                 )
             }
         }
@@ -233,7 +233,7 @@ fun FancyIndicatorContainerTabs() {
                 Tab(
                     text = { Text(title) },
                     selected = state == index,
-                    onSelected = { state = index }
+                    onClick = { state = index }
                 )
             }
         }
@@ -273,7 +273,7 @@ fun ScrollingFancyIndicatorContainerTabs() {
                 Tab(
                     text = { Text(title) },
                     selected = state == index,
-                    onSelected = { state = index }
+                    onClick = { state = index }
                 )
             }
         }
