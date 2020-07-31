@@ -18,7 +18,7 @@ package androidx.ui.test.partialgesturescope
 
 import androidx.test.filters.MediumTest
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.test.AndroidBaseInputDispatcher.InputDispatcherTestRule
+import androidx.ui.test.android.AndroidInputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.inputdispatcher.verifyNoGestureInProgress
 import androidx.ui.test.partialgesturescope.Common.partialGesture

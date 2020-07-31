@@ -41,7 +41,7 @@ import org.junit.runners.model.Statement
  * animations. Otherwise, built in steps that make sure the UI is stable when performing actions
  * or assertions will fail to work.
  */
-class AnimationClockTestRule : TestRule {
+internal class AndroidAnimationClockTestRule : AnimationClockTestRule {
 
     /** Backing property for [clock] */
     private val _clock = AndroidTestAnimationClock()
@@ -52,27 +52,27 @@ class AnimationClockTestRule : TestRule {
      * make sure to let it implement [TestAnimationClock] and register it with
      * [registerTestClock].
      */
-    val clock: TestAnimationClock get() = _clock
+    override val clock: TestAnimationClock get() = _clock
 
     /**
      * Convenience property for calling [`clock.isPaused`][TestAnimationClock.isPaused]
      */
-    val isPaused: Boolean get() = clock.isPaused
+    override val isPaused: Boolean get() = clock.isPaused
 
     /**
      * Convenience method for calling [`clock.pauseClock()`][TestAnimationClock.pauseClock]
      */
-    fun pauseClock() = clock.pauseClock()
+    override fun pauseClock() = clock.pauseClock()
 
     /**
      * Convenience method for calling [`clock.resumeClock()`][TestAnimationClock.resumeClock]
      */
-    fun resumeClock() = clock.resumeClock()
+    override fun resumeClock() = clock.resumeClock()
 
     /**
      * Convenience method for calling [`clock.advanceClock()`][TestAnimationClock.advanceClock]
      */
-    fun advanceClock(milliseconds: Long) = clock.advanceClock(milliseconds)
+    override fun advanceClock(milliseconds: Long) = clock.advanceClock(milliseconds)
 
     override fun apply(base: Statement, description: Description?): Statement {
         return AnimationClockStatement(base)
@@ -97,3 +97,6 @@ class AnimationClockTestRule : TestRule {
         }
     }
 }
+
+actual fun createAnimationClockRule(): AnimationClockTestRule =
+    AndroidAnimationClockTestRule()
