@@ -34,10 +34,15 @@ import javax.lang.model.util.Types
 internal class JavacProcessingEnv(
     val delegate: ProcessingEnvironment
 ) : XProcessingEnv {
-
     val elementUtils: Elements = delegate.elementUtils
 
     val typeUtils: Types = delegate.typeUtils
+
+    private val typeElementStore =
+        XTypeElementStore { qName ->
+            val result = delegate.elementUtils.getTypeElement(qName)
+            result?.let(this::wrapTypeElement)
+        }
 
     override val messager: XMessager by lazy {
         JavacProcessingEnvMessager(delegate)
@@ -49,8 +54,7 @@ internal class JavacProcessingEnv(
         get() = delegate.options
 
     override fun findTypeElement(qName: String): JavacTypeElement? {
-        val result = delegate.elementUtils.getTypeElement(qName)
-        return result?.let(this::wrapTypeElement)
+        return typeElementStore[qName]
     }
 
     override fun findType(qName: String): XType? {
