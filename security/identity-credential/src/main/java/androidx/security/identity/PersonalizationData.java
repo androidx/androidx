@@ -121,6 +121,13 @@ public class PersonalizationData {
         /**
          * Adds a new entry to the builder.
          *
+         * <p>This is a low-level method which expects the data to be the bytes of a
+         * <a href="https://tools.ietf.org/html/rfc7049">CBOR</a>
+         * value. When possible, applications should use methods such as
+         * {@link #putEntryString(String, String, Collection, String)} or
+         * {@link #putEntryInteger(String, String, Collection, long)} which
+         * accept normal Java data types.</p>
+         *
          * @param namespace               The namespace to use, e.g. {@code org.iso.18013-5.2019}.
          * @param name                    The name of the entry, e.g. {@code height}.
          * @param accessControlProfileIds A set of access control profiles to use.
@@ -144,6 +151,10 @@ public class PersonalizationData {
         /**
          * Adds a new entry to the builder.
          *
+         * <p>This is a convenience method which encodes {@code value} as CBOR and adds the
+         * resulting bytes using {@link #putEntry(String, String, Collection, byte[])}. The
+         * resulting CBOR will be major type 3 (text string).</p>
+         *
          * @param namespace               The namespace to use, e.g. {@code org.iso.18013-5.2019}.
          * @param name                    The name of the entry, e.g. {@code height}.
          * @param accessControlProfileIds A set of access control profiles to use.
@@ -159,6 +170,10 @@ public class PersonalizationData {
 
         /**
          * Adds a new entry to the builder.
+         *
+         * <p>This is a convenience method which encodes {@code value} as CBOR and adds the
+         * resulting bytes using {@link #putEntry(String, String, Collection, byte[])}. The
+         * resulting CBOR will be major type 2 (bytestring).</p>
          *
          * @param namespace               The namespace to use, e.g. {@code org.iso.18013-5.2019}.
          * @param name                    The name of the entry, e.g. {@code height}.
@@ -177,6 +192,11 @@ public class PersonalizationData {
         /**
          * Adds a new entry to the builder.
          *
+         * <p>This is a convenience method which encodes {@code value} as CBOR and adds the
+         * resulting bytes using {@link #putEntry(String, String, Collection, byte[])}. The
+         * resulting CBOR will be major type 0 (unsigned integer) if non-negative, otherwise
+         * major type 1 (negative integer).</p>
+         *
          * @param namespace               The namespace to use, e.g. {@code org.iso.18013-5.2019}.
          * @param name                    The name of the entry, e.g. {@code height}.
          * @param accessControlProfileIds A set of access control profiles to use.
@@ -192,6 +212,11 @@ public class PersonalizationData {
 
         /**
          * Adds a new entry to the builder.
+         *
+         * <p>This is a convenience method which encodes {@code value} as CBOR and adds the
+         * resulting bytes using {@link #putEntry(String, String, Collection, byte[])}. The
+         * resulting CBOR will be major type 7 (simple value) with additional information 20 (for
+         * the value {@code false}) or 21 (for the value {@code true}).</p>
          *
          * @param namespace               The namespace to use, e.g. {@code org.iso.18013-5.2019}.
          * @param name                    The name of the entry, e.g. {@code height}.
@@ -209,6 +234,15 @@ public class PersonalizationData {
 
         /**
          * Adds a new entry to the builder.
+         *
+         * <p>This is a convenience method which encodes {@code value} as CBOR and adds the
+         * resulting bytes using {@link #putEntry(String, String, Collection, byte[])}. The
+         * resulting CBOR will be a tagged string with tag 0 as per
+         * <a href="https://tools.ietf.org/html/rfc7049#section-2.4.1">Section 2.4.1 of RFC
+         * 7049</a>. This means that the tagged string follows the standard format described in
+         * <a href="https://tools.ietf.org/html/rfc3339">RFC 3339</a>,
+         * as refined by Section 3.3 of
+         * <a href="https://tools.ietf.org/html/rfc4287">RFC 4287></a>.</p>
          *
          * @param namespace               The namespace to use, e.g. {@code org.iso.18013-5.2019}.
          * @param name                    The name of the entry, e.g. {@code height}.
