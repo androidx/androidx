@@ -73,11 +73,12 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -431,13 +432,14 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
     private final AtomicInteger mBackStackIndex = new AtomicInteger();
 
-    private final ConcurrentHashMap<String, Bundle> mResults = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, LifecycleAwareResultListener> mResultListeners =
-            new ConcurrentHashMap<>();
+    private final Map<String, Bundle> mResults =
+            Collections.synchronizedMap(new HashMap<String, Bundle>());
+    private final Map<String, LifecycleAwareResultListener> mResultListeners =
+            Collections.synchronizedMap(new HashMap<String, LifecycleAwareResultListener>());
 
     private ArrayList<OnBackStackChangedListener> mBackStackChangeListeners;
-    private ConcurrentHashMap<Fragment, HashSet<CancellationSignal>>
-            mExitAnimationCancellationSignals = new ConcurrentHashMap<>();
+    private Map<Fragment, HashSet<CancellationSignal>> mExitAnimationCancellationSignals =
+            Collections.synchronizedMap(new HashMap<Fragment, HashSet<CancellationSignal>>());
     private final FragmentTransition.Callback mFragmentTransitionCallback =
             new FragmentTransition.Callback() {
                 @Override
