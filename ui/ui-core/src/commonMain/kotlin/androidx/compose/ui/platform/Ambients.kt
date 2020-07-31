@@ -21,7 +21,6 @@ import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.animation.core.rootAnimationClockFactory
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Providers
-import androidx.compose.runtime.ambientOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticAmbientOf
 import androidx.compose.ui.autofill.Autofill
@@ -32,7 +31,6 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
-import kotlin.coroutines.CoroutineContext
 
 /**
  * The default animation clock used for animations when an explicit clock isn't provided.
@@ -56,13 +54,6 @@ val AutofillTreeAmbient = staticAmbientOf<AutofillTree>()
  * The ambient to provide communication with platform clipboard service.
  */
 val ClipboardManagerAmbient = staticAmbientOf<ClipboardManager>()
-
-/**
- * Don't use this.
- * @suppress
- */
-@Deprecated(message = "This will be replaced with something more appropriate when suspend works.")
-val CoroutineContextAmbient = ambientOf<CoroutineContext>()
 
 /**
  * Provides the [Density] to be used to transform between [density-independent pixel
@@ -111,7 +102,6 @@ val LayoutDirectionAmbient = staticAmbientOf<LayoutDirection>()
 internal fun ProvideCommonAmbients(
     owner: Owner,
     uriHandler: UriHandler,
-    coroutineContext: CoroutineContext,
     content: @Composable () -> Unit
 ) {
     val rootAnimationClock = remember { rootAnimationClockFactory() }
@@ -122,7 +112,6 @@ internal fun ProvideCommonAmbients(
         AutofillTreeAmbient provides owner.autofillTree,
         ClipboardManagerAmbient provides owner.clipboardManager,
         @Suppress("DEPRECATION")
-        CoroutineContextAmbient provides coroutineContext,
         DensityAmbient provides owner.density,
         FontLoaderAmbient provides owner.fontLoader,
         HapticFeedBackAmbient provides owner.hapticFeedBack,
