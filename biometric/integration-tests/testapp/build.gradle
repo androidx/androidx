@@ -28,22 +28,25 @@ android {
         applicationId "androidx.biometric.integration.testapp"
         minSdkVersion 18
         versionCode 1
+        testInstrumentationRunnerArgument "listener", "leakcanary.FailTestOnLeakRunListener"
     }
 
     sourceSets {
         main.manifest.srcFile 'src/main/AndroidManifest.xml'
         main.java.srcDirs = ['src/main/java']
-        main.java.excludes = ['**/build/**']
         main.java.includes = ['**/*.java']
+        main.java.excludes = ['**/build/**']
         main.res.srcDirs = ['src/main/res']
     }
 
     buildTypes {
         debug {
-            testCoverageEnabled true
+            testCoverageEnabled false
         }
 
         release {
+            minifyEnabled true
+            shrinkResources true
         }
     }
 }
@@ -52,6 +55,20 @@ dependencies {
     implementation(project(":biometric:biometric"))
     implementation("androidx.activity:activity-ktx:1.1.0")
     implementation("androidx.core:core:1.2.0")
-    implementation("androidx.fragment:fragment:1.2.5")
+    implementation("androidx.fragment:fragment-ktx:1.2.5")
     implementation(KOTLIN_STDLIB)
+
+    debugImplementation(LEAKCANARY)
+
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_UIAUTOMATOR)
+    androidTestImplementation(ESPRESSO_CORE)
+    androidTestImplementation(ESPRESSO_IDLING_RESOURCE)
+    androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(LEAKCANARY)
+    androidTestImplementation(LEAKCANARY_INSTRUMENTATION)
+    androidTestImplementation(TRUTH)
 }

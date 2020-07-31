@@ -27,6 +27,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import java.lang.ref.WeakReference;
 import java.util.concurrent.Executor;
 
 /**
@@ -40,6 +41,103 @@ import java.util.concurrent.Executor;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY)
 public class BiometricViewModel extends ViewModel {
+    /**
+     * The default executor provided when {@link #getClientExecutor()} is called before
+     * {@link #setClientExecutor(Executor)}.
+     */
+    private static class DefaultExecutor implements Executor {
+        private final Handler mHandler = new Handler(Looper.getMainLooper());
+
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        DefaultExecutor() {}
+
+        @Override
+        public void execute(Runnable runnable) {
+            mHandler.post(runnable);
+        }
+    }
+
+    /**
+     * The authentication callback listener passed to {@link AuthenticationCallbackProvider} when
+     * {@link #getAuthenticationCallbackProvider()} is called.
+     */
+    private static final class CallbackListener extends AuthenticationCallbackProvider.Listener {
+        private final WeakReference<BiometricViewModel> mViewModelRef;
+
+        /**
+         * Creates a callback listener with a weak reference to the given view model.
+         *
+         * @param viewModel The view model instance to hold a weak reference to.
+         */
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        CallbackListener(BiometricViewModel viewModel) {
+            mViewModelRef = new WeakReference<>(viewModel);
+        }
+
+        @Override
+        void onSuccess(@NonNull BiometricPrompt.AuthenticationResult result) {
+            if (mViewModelRef.get() != null && mViewModelRef.get().isAwaitingResult()) {
+                // Try to infer the authentication type if unknown.
+                if (result.getAuthenticationType()
+                        == BiometricPrompt.AUTHENTICATION_RESULT_TYPE_UNKNOWN) {
+                    result = new BiometricPrompt.AuthenticationResult(
+                            result.getCryptoObject(),
+                            mViewModelRef.get().getInferredAuthenticationResultType());
+                }
+
+                mViewModelRef.get().setAuthenticationResult(result);
+            }
+        }
+
+        @Override
+        void onError(int errorCode, @Nullable CharSequence errorMessage) {
+            if (mViewModelRef.get() != null
+                    && !mViewModelRef.get().isConfirmingDeviceCredential()
+                    && mViewModelRef.get().isAwaitingResult()) {
+                mViewModelRef.get().setAuthenticationError(
+                        new BiometricErrorData(errorCode, errorMessage));
+            }
+        }
+
+        @Override
+        void onHelp(@Nullable CharSequence helpMessage) {
+            if (mViewModelRef.get() != null) {
+                mViewModelRef.get().setAuthenticationHelpMessage(helpMessage);
+            }
+        }
+
+        @Override
+        void onFailure() {
+            if (mViewModelRef.get() != null && mViewModelRef.get().isAwaitingResult()) {
+                mViewModelRef.get().setAuthenticationFailurePending(true);
+            }
+        }
+    }
+
+    /**
+     * The dialog listener that is returned by {@link #getNegativeButtonListener()}.
+     */
+    private static class NegativeButtonListener implements DialogInterface.OnClickListener {
+        private final WeakReference<BiometricViewModel> mViewModelRef;
+
+        /**
+         * Creates a negative button listener with a weak reference to the given view model.
+         *
+         * @param viewModel The view model instance to hold a weak reference to.
+         */
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        NegativeButtonListener(BiometricViewModel viewModel) {
+            mViewModelRef = new WeakReference<>(viewModel);
+        }
+
+        @Override
+        public void onClick(DialogInterface dialogInterface, int which) {
+            if (mViewModelRef.get() != null) {
+                mViewModelRef.get().setNegativeButtonPressPending(true);
+            }
+        }
+    }
+
     /**
      * The executor that will run authentication callback methods.
      *
@@ -159,16 +257,7 @@ public class BiometricViewModel extends ViewModel {
 
     @NonNull
     Executor getClientExecutor() {
-        if (mClientExecutor == null) {
-            final Handler handler = new Handler(Looper.getMainLooper());
-            mClientExecutor = new Executor() {
-                @Override
-                public void execute(@NonNull Runnable command) {
-                    handler.post(command);
-                }
-            };
-        }
-        return mClientExecutor;
+        return mClientExecutor != null ? mClientExecutor : new DefaultExecutor();
     }
 
     void setClientExecutor(@NonNull Executor clientExecutor) {
@@ -297,44 +386,8 @@ public class BiometricViewModel extends ViewModel {
     @NonNull
     AuthenticationCallbackProvider getAuthenticationCallbackProvider() {
         if (mAuthenticationCallbackProvider == null) {
-            mAuthenticationCallbackProvider = new AuthenticationCallbackProvider(
-                    new AuthenticationCallbackProvider.Listener() {
-                        @Override
-                        void onSuccess(@NonNull BiometricPrompt.AuthenticationResult result) {
-                            if (isAwaitingResult()) {
-                                // Try to infer the authentication type if unknown.
-                                if (result.getAuthenticationType()
-                                        == BiometricPrompt.AUTHENTICATION_RESULT_TYPE_UNKNOWN) {
-                                    result = new BiometricPrompt.AuthenticationResult(
-                                            result.getCryptoObject(),
-                                            getInferredAuthenticationResultType());
-                                }
-
-                                setAuthenticationResult(result);
-                            }
-                        }
-
-                        @Override
-                        void onError(int errorCode, @Nullable CharSequence errorMessage) {
-                            if (!isConfirmingDeviceCredential() && isAwaitingResult()) {
-                                setAuthenticationError(
-                                        new BiometricErrorData(errorCode, errorMessage));
-                            }
-                        }
-
-                        @Override
-                        void onHelp(@Nullable CharSequence helpMessage) {
-                            setAuthenticationHelpMessage(helpMessage);
-                        }
-
-                        @Override
-                        void onFailure() {
-                            if (isAwaitingResult()) {
-                                setAuthenticationFailurePending(true);
-                            }
-                        }
-                    }
-            );
+            mAuthenticationCallbackProvider =
+                    new AuthenticationCallbackProvider(new CallbackListener(this));
         }
         return mAuthenticationCallbackProvider;
     }
@@ -350,12 +403,7 @@ public class BiometricViewModel extends ViewModel {
     @NonNull
     DialogInterface.OnClickListener getNegativeButtonListener() {
         if (mNegativeButtonListener == null) {
-            mNegativeButtonListener = new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    setNegativeButtonPressPending(true);
-                }
-            };
+            mNegativeButtonListener = new NegativeButtonListener(this);
         }
         return mNegativeButtonListener;
     }
@@ -540,20 +588,6 @@ public class BiometricViewModel extends ViewModel {
     }
 
     /**
-     * Ensures the value of a given mutable live data object is updated on the main thread.
-     *
-     * @param liveData The mutable live data object whose value should be updated.
-     * @param value    The new value to be set for the mutable live data object.
-     */
-    private static <T> void updateValue(MutableLiveData<T> liveData, T value) {
-        if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
-            liveData.setValue(value);
-        } else {
-            liveData.postValue(value);
-        }
-    }
-
-    /**
      * Attempts to infer the type of authenticator that was used to authenticate the user.
      *
      * @return The inferred authentication type, or
@@ -568,5 +602,19 @@ public class BiometricViewModel extends ViewModel {
             return BiometricPrompt.AUTHENTICATION_RESULT_TYPE_BIOMETRIC;
         }
         return BiometricPrompt.AUTHENTICATION_RESULT_TYPE_UNKNOWN;
+    }
+
+    /**
+     * Ensures the value of a given mutable live data object is updated on the main thread.
+     *
+     * @param liveData The mutable live data object whose value should be updated.
+     * @param value    The new value to be set for the mutable live data object.
+     */
+    private static <T> void updateValue(MutableLiveData<T> liveData, T value) {
+        if (Thread.currentThread() == Looper.getMainLooper().getThread()) {
+            liveData.setValue(value);
+        } else {
+            liveData.postValue(value);
+        }
     }
 }
