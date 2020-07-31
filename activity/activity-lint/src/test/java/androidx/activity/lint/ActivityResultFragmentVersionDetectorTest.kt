@@ -148,6 +148,47 @@ class ActivityResultFragmentVersionDetectorTest : LintDetectorTest() {
     }
 
     @Test
+    fun expectFailRegisterForActivityResultMultipleCalls() {
+        lint().files(
+            gradle(
+                """
+                dependencies {
+                    api("androidx.fragment:fragment:1.3.0-alpha05")
+                }
+            """
+            ),
+            kotlin(
+                """
+                package com.example
+
+                import androidx.activity.result.ActivityResultCaller
+                import androidx.activity.result.contract.ActivityResultContract
+
+                val launcher1 = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
+
+                lateinit var launcher2: ActivityResultLauncher
+
+                fun foo() {
+                    launcher2 = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
+                }
+            """
+            ).indented()
+        )
+            .run()
+            .expect(
+                """
+                src/main/kotlin/com/example/test.kt:6: Error: Upgrade Fragment version to at least 1.3.0-alpha08. [InvalidFragmentVersionForActivityResult]
+                val launcher1 = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
+                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                src/main/kotlin/com/example/test.kt:11: Error: Upgrade Fragment version to at least 1.3.0-alpha08. [InvalidFragmentVersionForActivityResult]
+                    launcher2 = ActivityResultCaller().registerForActivityResult(ActivityResultContract())
+                                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+                2 errors, 0 warnings
+            """.trimIndent()
+            )
+    }
+
+    @Test
     fun expectFailTransitiveDependency() {
         val projectFragment = project(kotlin(
                 """
