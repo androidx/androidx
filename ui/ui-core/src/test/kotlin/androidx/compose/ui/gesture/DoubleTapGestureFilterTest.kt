@@ -18,17 +18,17 @@
 
 package androidx.compose.ui.gesture
 
-import androidx.compose.ui.platform.CustomEventDispatcher
-import androidx.compose.ui.platform.PointerId
-import androidx.compose.ui.platform.consumeDownChange
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.gesture.customevents.DelayUpEvent
 import androidx.compose.ui.gesture.customevents.DelayUpMessage
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.consume
 import androidx.compose.ui.input.pointer.down
 import androidx.compose.ui.input.pointer.invokeOverAllPasses
 import androidx.compose.ui.input.pointer.moveTo
 import androidx.compose.ui.input.pointer.up
+import androidx.compose.ui.platform.CustomEventDispatcher
+import androidx.compose.ui.platform.PointerId
+import androidx.compose.ui.platform.consumeDownChange
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
@@ -39,6 +39,7 @@ import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
+import kotlinx.coroutines.CoroutineScope
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,6 +55,7 @@ import java.util.concurrent.TimeUnit
 class DoubleTapGestureFilterTest {
 
     private val DoubleTapTimeoutMillis = 100.milliseconds
+
     @Suppress("DEPRECATION")
     private val testContext = kotlinx.coroutines.test.TestCoroutineContext()
     private val onDoubleTap: (Offset) -> Unit = mock()
@@ -62,7 +64,7 @@ class DoubleTapGestureFilterTest {
 
     @Before
     fun setup() {
-        filter = DoubleTapGestureFilter(testContext)
+        filter = DoubleTapGestureFilter(CoroutineScope(testContext))
         filter.onDoubleTap = onDoubleTap
         filter.doubleTapTimeout = DoubleTapTimeoutMillis
         filter.onInit(customEventDispatcher)

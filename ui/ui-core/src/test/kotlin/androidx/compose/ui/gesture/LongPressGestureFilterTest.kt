@@ -16,17 +16,17 @@
 
 package androidx.compose.ui.gesture
 
-import androidx.compose.ui.platform.CustomEventDispatcher
-import androidx.compose.ui.platform.PointerEventPass
-import androidx.compose.ui.platform.consumeDownChange
-import androidx.compose.ui.gesture.customevents.LongPressFiredEvent
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.gesture.customevents.LongPressFiredEvent
 import androidx.compose.ui.input.pointer.consume
 import androidx.compose.ui.input.pointer.down
 import androidx.compose.ui.input.pointer.invokeOverAllPasses
 import androidx.compose.ui.input.pointer.moveBy
 import androidx.compose.ui.input.pointer.moveTo
 import androidx.compose.ui.input.pointer.up
+import androidx.compose.ui.platform.CustomEventDispatcher
+import androidx.compose.ui.platform.PointerEventPass
+import androidx.compose.ui.platform.consumeDownChange
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
@@ -34,6 +34,7 @@ import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.verify
+import kotlinx.coroutines.CoroutineScope
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -53,7 +54,7 @@ class LongPressGestureFilterTest {
 
     @Before
     fun setup() {
-        filter = LongPressGestureFilter(testContext)
+        filter = LongPressGestureFilter(CoroutineScope(testContext))
         filter.onLongPress = onLongPress
         filter.longPressTimeout = LongPressTimeoutMillis
         filter.onInit(customEventDispatcher)

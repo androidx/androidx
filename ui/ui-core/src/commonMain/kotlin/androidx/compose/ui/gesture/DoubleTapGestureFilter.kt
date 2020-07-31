@@ -19,13 +19,13 @@
 package androidx.compose.ui.gesture
 
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.gesture.customevents.DelayUpEvent
 import androidx.compose.ui.gesture.customevents.DelayUpMessage
 import androidx.compose.ui.input.pointer.PointerInputFilter
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.CoroutineContextAmbient
 import androidx.compose.ui.platform.CustomEventDispatcher
 import androidx.compose.ui.platform.PointerEventPass
 import androidx.compose.ui.platform.PointerId
@@ -35,9 +35,13 @@ import androidx.compose.ui.platform.changedToDown
 import androidx.compose.ui.platform.changedToUp
 import androidx.compose.ui.platform.consumeDownChange
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.inMilliseconds
+import androidx.compose.ui.util.annotation.VisibleForTesting
 import androidx.compose.ui.util.fastAny
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 // TODO(b/138754591): The behavior of this gesture detector needs to be finalized.
 // TODO(b/139020678): Probably has shared functionality with other press based detectors.
@@ -55,16 +59,14 @@ import kotlin.coroutines.CoroutineContext
 fun Modifier.doubleTapGestureFilter(
     onDoubleTap: (Offset) -> Unit
 ): Modifier = composed {
-    @Suppress("DEPRECATION")
-    val coroutineContext = CoroutineContextAmbient.current
-    // TODO(shepshapard): coroutineContext should be a field
-    val filter = remember { DoubleTapGestureFilter(coroutineContext) }
+    val scope = rememberCoroutineScope()
+    val filter = remember { DoubleTapGestureFilter(scope) }
     filter.onDoubleTap = onDoubleTap
     PointerInputModifierImpl(filter)
 }
 
 internal class DoubleTapGestureFilter(
-    val coroutineContext: CoroutineContext
+    val coroutineScope: CoroutineScope
 ) : PointerInputFilter() {
 
     lateinit var onDoubleTap: (Offset) -> Unit
@@ -73,7 +75,9 @@ internal class DoubleTapGestureFilter(
         Idle, Down, Up, SecondDown
     }
 
-    var doubleTapTimeout = DoubleTapTimeout
+    @VisibleForTesting
+    internal var doubleTapTimeout = DoubleTapTimeout
+
     private var state = State.Idle
     private var job: Job? = null
     private lateinit var delayUpDispatcher: DelayUpDispatcher
@@ -97,10 +101,13 @@ internal class DoubleTapGestureFilter(
             if (state == State.Down && changes.all { it.changedToUp() }) {
                 state = State.Up
                 delayUpDispatcher.delayUp(changes)
-                job = delay(doubleTapTimeout, coroutineContext) {
+
+                job = coroutineScope.launch {
+                    delay(doubleTapTimeout.inMilliseconds())
                     state = State.Idle
                     delayUpDispatcher.allowUp()
                 }
+
                 return changes
             }
 

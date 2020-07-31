@@ -17,12 +17,12 @@
 package androidx.compose.ui.gesture
 
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.gesture.customevents.LongPressFiredEvent
 import androidx.compose.ui.input.pointer.PointerInputFilter
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.CoroutineContextAmbient
 import androidx.compose.ui.platform.CustomEvent
 import androidx.compose.ui.platform.CustomEventDispatcher
 import androidx.compose.ui.platform.PointerEventPass
@@ -34,9 +34,13 @@ import androidx.compose.ui.platform.changedToUp
 import androidx.compose.ui.platform.changedToUpIgnoreConsumed
 import androidx.compose.ui.platform.consumeDownChange
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.inMilliseconds
+import androidx.compose.ui.util.annotation.VisibleForTesting
 import androidx.compose.ui.util.fastAny
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
-import kotlin.coroutines.CoroutineContext
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 // TODO(b/137569202): This bug tracks the note below regarding the need to eventually
 //  improve LongPressGestureDetector.
@@ -52,18 +56,19 @@ fun Modifier.longPressGestureFilter(
     onLongPress: (Offset) -> Unit
 ): Modifier = composed {
     @Suppress("DEPRECATION")
-    val coroutineContext = CoroutineContextAmbient.current
-    val filter = remember { LongPressGestureFilter(coroutineContext) }
+    val scope = rememberCoroutineScope()
+    val filter = remember { LongPressGestureFilter(scope) }
     filter.onLongPress = onLongPress
     PointerInputModifierImpl(filter)
 }
 
 internal class LongPressGestureFilter(
-    private val coroutineContext: CoroutineContext
+    private val coroutineScope: CoroutineScope
 ) : PointerInputFilter() {
     lateinit var onLongPress: (Offset) -> Unit
 
-    var longPressTimeout = LongPressTimeout
+    @VisibleForTesting
+    internal var longPressTimeout = LongPressTimeout
 
     private enum class State {
         Idle, Primed, Fired
@@ -160,7 +165,8 @@ internal class LongPressGestureFilter(
 
     private fun primeToFire() {
         state = State.Primed
-        job = delay(longPressTimeout, coroutineContext) {
+        job = coroutineScope.launch {
+            delay(longPressTimeout.inMilliseconds())
             fireLongPress()
         }
     }
