@@ -149,18 +149,18 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
             assertThat(onBackStackChangedTimes).isEqualTo(2)
             assertThat(fragment.requireView()).isEqualTo(view1)
         } else {
-            // If reorder is not allowed we will get the exit Transition
-            fragment.waitForTransition()
-            fragment.exitTransition.verifyAndClearTransition {
-                exitingViews += listOf(green, blue)
-            }
             assertThat(onBackStackChangedTimes).isEqualTo(3)
             if (FragmentManager.USE_STATE_MANAGER) {
-                // When using FragmentStateManager, the Fragment does not go all the way through
-                // to destroying the view before coming back up, so the view instances will
-                // still match
+                // When using FragmentStateManager, the transition gets cancelled and the
+                // Fragment  does not go all the way through to destroying the view before
+                // coming back up, so the view instances will still match
                 assertThat(fragment.requireView()).isEqualTo(view1)
             } else {
+                // If reorder is not allowed we will get the exit Transition
+                fragment.waitForTransition()
+                fragment.exitTransition.verifyAndClearTransition {
+                    exitingViews += listOf(green, blue)
+                }
                 assertThat(fragment.requireView()).isNotEqualTo(view1)
             }
         }
