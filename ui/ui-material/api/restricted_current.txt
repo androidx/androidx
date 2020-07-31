@@ -116,6 +116,30 @@ package androidx.compose.material {
     method public static androidx.compose.material.Colors lightColors-hW7iGhc(long primary = Color(4284612846), long primaryVariant = Color(4281794739), long secondary = Color(4278442694), long secondaryVariant = Color(4278290310), long background = Color.White, long surface = Color.White, long error = Color(4289724448), long onPrimary = Color.White, long onSecondary = Color.Black, long onBackground = Color.Black, long onSurface = Color.Black, long onError = Color.White);
   }
 
+  public enum DismissDirection {
+    method public static androidx.compose.material.DismissDirection valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.compose.material.DismissDirection[] values();
+    enum_constant public static final androidx.compose.material.DismissDirection EndToStart;
+    enum_constant public static final androidx.compose.material.DismissDirection StartToEnd;
+  }
+
+  @androidx.compose.material.ExperimentalMaterialApi public final class DismissState extends androidx.compose.material.SwipeableState<androidx.compose.material.DismissValue> {
+    ctor public DismissState(androidx.compose.material.DismissValue initialValue, androidx.compose.animation.core.AnimationClockObservable clock, kotlin.jvm.functions.Function1<? super androidx.compose.material.DismissValue,java.lang.Boolean> confirmStateChange);
+    method public void dismiss(androidx.compose.material.DismissDirection direction, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissed = null);
+    method public androidx.compose.material.DismissDirection? getDismissDirection();
+    method public boolean isDismissed(androidx.compose.material.DismissDirection direction);
+    method public void reset(kotlin.jvm.functions.Function0<kotlin.Unit>? onReset = null);
+    property public final androidx.compose.material.DismissDirection? dismissDirection;
+  }
+
+  public enum DismissValue {
+    method public static androidx.compose.material.DismissValue valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.compose.material.DismissValue[] values();
+    enum_constant public static final androidx.compose.material.DismissValue Default;
+    enum_constant public static final androidx.compose.material.DismissValue DismissedToEnd;
+    enum_constant public static final androidx.compose.material.DismissValue DismissedToStart;
+  }
+
   public final class DividerKt {
     method @androidx.compose.runtime.Composable public static void Divider-JRSVyrs(androidx.compose.ui.Modifier modifier = Modifier, long color = MaterialTheme.colors.onSurface.copy(DividerAlpha), float thickness = 1.dp, float startIndent = 0.dp);
   }
@@ -310,6 +334,11 @@ package androidx.compose.material {
     method public T! getFrom();
     method public float getProgress();
     method public T! getTo();
+  }
+
+  public final class SwipeToDismissKt {
+    method @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static void SwipeToDismiss(androidx.compose.material.DismissState state, androidx.compose.ui.Modifier modifier = Modifier, java.util.Set<? extends androidx.compose.material.DismissDirection> directions = setOf(EndToStart, StartToEnd), kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> background, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> dismissContent);
+    method @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static androidx.compose.material.DismissState rememberDismissState(androidx.compose.material.DismissValue initialValue = androidx.compose.material.DismissValue.Default, kotlin.jvm.functions.Function1<? super androidx.compose.material.DismissValue,java.lang.Boolean> confirmStateChange = { return true });
   }
 
   public final class SwipeableKt {
