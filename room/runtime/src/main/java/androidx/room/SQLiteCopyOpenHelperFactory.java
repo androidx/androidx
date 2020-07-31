@@ -20,8 +20,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.File;
 import java.io.InputStream;
 import java.util.concurrent.Callable;
@@ -51,7 +49,7 @@ class SQLiteCopyOpenHelperFactory implements SupportSQLiteOpenHelper.Factory {
         mDelegate = factory;
     }
 
-    @NotNull
+    @NonNull
     @Override
     public SupportSQLiteOpenHelper create(SupportSQLiteOpenHelper.Configuration configuration) {
         return new SQLiteCopyOpenHelper(
