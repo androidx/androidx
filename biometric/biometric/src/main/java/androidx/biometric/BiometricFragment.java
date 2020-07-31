@@ -109,20 +109,25 @@ public class BiometricFragment extends Fragment {
     private static final boolean DEBUG_FORCE_FINGERPRINT = false;
 
     /**
-     * A handler used to post delayed events and to execute framework code.
-     */
-    @VisibleForTesting Handler mHandler = new Handler(Looper.getMainLooper());
-
-    /**
      * An executor used by {@link android.hardware.biometrics.BiometricPrompt} to run framework
      * code.
      */
-    private final Executor mPromptExecutor = new Executor() {
+    private static class PromptExecutor implements Executor {
+        private final Handler mPromptHandler = new Handler(Looper.getMainLooper());
+
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        PromptExecutor() {}
+
         @Override
         public void execute(@NonNull Runnable runnable) {
-            mHandler.post(runnable);
+            mPromptHandler.post(runnable);
         }
-    };
+    }
+
+    /**
+     * A handler used to post delayed events.
+     */
+    @VisibleForTesting Handler mHandler = new Handler(Looper.getMainLooper());
 
     /**
      * The view model for the ongoing authentication session.
@@ -365,9 +370,8 @@ public class BiometricFragment extends Fragment {
      */
     @RequiresApi(Build.VERSION_CODES.P)
     private void showBiometricPromptForAuthentication() {
-        final Context context = requireContext();
         final android.hardware.biometrics.BiometricPrompt.Builder builder =
-                Api28Impl.createPromptBuilder(context);
+                Api28Impl.createPromptBuilder(requireContext().getApplicationContext());
 
         final CharSequence title = mViewModel.getTitle();
         final CharSequence subtitle = mViewModel.getSubtitle();
@@ -410,20 +414,17 @@ public class BiometricFragment extends Fragment {
                 Api28Impl.buildPrompt(builder);
         final android.os.CancellationSignal cancellationSignal =
                 mViewModel.getCancellationSignalProvider().getBiometricCancellationSignal();
+        final Executor executor = new PromptExecutor();
         final android.hardware.biometrics.BiometricPrompt.AuthenticationCallback callback =
                 mViewModel.getAuthenticationCallbackProvider().getBiometricCallback();
         BiometricPrompt.CryptoObject crypto = mViewModel.getCryptoObject();
         if (crypto == null) {
-            Api28Impl.authenticate(biometricPrompt, cancellationSignal, mPromptExecutor, callback);
+            Api28Impl.authenticate(biometricPrompt, cancellationSignal, executor, callback);
         } else {
             android.hardware.biometrics.BiometricPrompt.CryptoObject wrappedCrypto =
                     Objects.requireNonNull(CryptoObjectUtils.wrapForBiometricPrompt(crypto));
             Api28Impl.authenticate(
-                    biometricPrompt,
-                    wrappedCrypto,
-                    cancellationSignal,
-                    mPromptExecutor,
-                    callback);
+                    biometricPrompt, wrappedCrypto, cancellationSignal, executor, callback);
         }
     }
 
