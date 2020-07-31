@@ -33,21 +33,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.AtLeastSize
 import androidx.compose.ui.FixedSize
+import androidx.compose.ui.Layout
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.PaddingModifier
 import androidx.compose.ui.SimpleRow
 import androidx.compose.ui.Wrap
-import androidx.test.filters.SmallTest
-import androidx.compose.ui.Layout
-import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.onChildPositioned
 import androidx.compose.ui.onPositioned
-import androidx.compose.ui.test.TestActivity
-import androidx.compose.ui.unit.PxBounds
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.runOnUiThreadIR
+import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.PxBounds
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -318,13 +318,14 @@ class OnPositionedTest {
         var positionedLatch = CountDownLatch(1)
         var coordinates: LayoutCoordinates? = null
         var scrollView: ScrollView? = null
+        var frameLayout: FrameLayout? = null
 
         rule.runOnUiThread {
             scrollView = ScrollView(rule.activity)
             activity.setContentView(scrollView, ViewGroup.LayoutParams(100, 100))
-            val frameLayout = FrameLayout(rule.activity)
+            frameLayout = FrameLayout(rule.activity)
             scrollView!!.addView(frameLayout)
-            frameLayout.setContent(Recomposer.current()) {
+            frameLayout?.setContent(Recomposer.current()) {
                 Layout({}, modifier = Modifier.onPositioned {
                     coordinates = it
                     positionedLatch.countDown()
@@ -334,7 +335,6 @@ class OnPositionedTest {
             }
         }
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
-        val startY = coordinates!!.globalPosition.y
         positionedLatch = CountDownLatch(1)
 
         rule.runOnUiThread {
@@ -345,7 +345,13 @@ class OnPositionedTest {
             "OnPositioned is not called when the container scrolled",
             positionedLatch.await(1, TimeUnit.SECONDS)
         )
-        assertEquals(startY - 50f, coordinates!!.globalPosition.y)
+        // There is a bug on older devices where the location isn't exactly 50
+        // pixels off of the start position, even though we've scrolled by 50 pixels.
+        val position = intArrayOf(0, 0)
+        rule.runOnUiThread {
+            frameLayout?.getLocationOnScreen(position)
+        }
+        assertEquals(position[1].toFloat(), coordinates!!.globalPosition.y)
     }
 
     @Test
