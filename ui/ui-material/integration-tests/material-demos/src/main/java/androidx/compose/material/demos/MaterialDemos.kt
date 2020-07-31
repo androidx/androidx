@@ -61,5 +61,6 @@ val MaterialDemos = DemoCategory("Material", listOf(
     ComposableDemo("Selection Controls") { SelectionControlsDemo() },
     ComposableDemo("Slider") { SliderDemo() },
     ComposableDemo("Snackbar") { SnackbarDemo() },
+    ComposableDemo("Swipe to dismiss") { SwipeToDismissDemo() },
     ComposableDemo("Tabs") { TabDemo() }
 ))
