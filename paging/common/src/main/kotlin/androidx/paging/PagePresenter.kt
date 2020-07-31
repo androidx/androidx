@@ -32,6 +32,10 @@ internal class PagePresenter<T : Any>(
     override var storageCount: Int = insertEvent.pages.fullCount()
         private set
 
+    val firstPageIndex: Int
+        get() = pages.first().originalPageOffset
+    val lastPageIndex: Int
+        get() = pages.last().originalPageOffset
     override var placeholdersBefore: Int = insertEvent.placeholdersBefore
         private set
     override var placeholdersAfter: Int = insertEvent.placeholdersAfter
@@ -84,51 +88,8 @@ internal class PagePresenter<T : Any>(
         return pages[pageIndex].data[indexInPage]
     }
 
-    private inline fun <T> withIndex(
-        index: Int,
-        block: (pageIndex: Int, indexInPage: Int) -> T
-    ): T {
-        var pageIndex = 0
-        var indexInPage = index - placeholdersBefore
-        while (indexInPage >= pages[pageIndex].data.size && pageIndex < pages.lastIndex) {
-            // index doesn't appear in current page, keep looking!
-            indexInPage -= pages[pageIndex].data.size
-            pageIndex++
-        }
-
-        return block(pageIndex, indexInPage)
-    }
-
-    /**
-     * @return For a given index location, returns a [ViewportHint] reporting the nearest page and
-     * index.
-     */
-    fun indexToHint(index: Int): ViewportHint {
-        checkIndex(index)
-
-        return withIndex(index) { pageIndex, indexInPage ->
-            pages[pageIndex].getLoadHint(indexInPage)
-        }
-    }
-
-    /**
-     * @return For a given index location, returns a [ViewportHint] reporting the nearest page and
-     * index if it is a placeholder, `null` otherwise.
-     */
-    fun placeholderIndexToHintOrNull(
-        index: Int
-    ): ViewportHint? = withIndex(index) { pageIndex, indexInPage ->
-        when (indexInPage) {
-            in pages[pageIndex].data.indices -> null
-            else -> pages[pageIndex].getLoadHint(indexInPage)
-        }
-    }
-
     override val size: Int
         get() = placeholdersBefore + storageCount + placeholdersAfter
-
-    val loadedCount: Int
-        get() = storageCount
 
     private fun List<TransformablePage<T>>.fullCount() = sumBy { it.data.size }
 
@@ -144,6 +105,31 @@ internal class PagePresenter<T : Any>(
                 )
             }
         }
+    }
+
+    fun presenterIndexToHint(index: Int): ViewportHint {
+        var pageIndex = 0
+        var indexInPage = index - placeholdersBefore
+        while (indexInPage >= pages[pageIndex].data.size && pageIndex < pages.lastIndex) {
+            // index doesn't appear in current page, keep looking!
+            indexInPage -= pages[pageIndex].data.size
+            pageIndex++
+        }
+
+        val originalIndices = pages[pageIndex].originalIndices
+        return ViewportHint(
+            pageOffset = pages[pageIndex].originalPageOffset,
+            indexInPage = if (originalIndices != null && indexInPage in originalIndices.indices) {
+                originalIndices[indexInPage]
+            } else {
+                indexInPage
+            },
+            presentedItemsBefore = index - placeholdersBefore,
+            presentedItemsAfter = size - index - placeholdersAfter - 1,
+            originalPageOffsetFirst = firstPageIndex,
+            originalPageOffsetLast = lastPageIndex
+
+        )
     }
 
     /**

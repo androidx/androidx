@@ -57,16 +57,6 @@ internal data class TransformablePage<T : Any>(
         }
     }
 
-    fun getLoadHint(relativeIndex: Int): ViewportHint {
-        val indexInPage = when {
-            relativeIndex < 0 -> relativeIndex
-            relativeIndex >= data.size -> relativeIndex - data.size + originalPageSize
-            originalIndices != null -> originalIndices[relativeIndex]
-            else -> relativeIndex
-        }
-        return ViewportHint(originalPageOffset, indexInPage)
-    }
-
     val originalLastIndex
         get() = originalPageSize - 1
 }
