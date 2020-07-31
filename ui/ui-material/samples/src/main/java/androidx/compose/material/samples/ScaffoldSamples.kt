@@ -23,24 +23,47 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
+import androidx.compose.foundation.drawBorder
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomAppBar
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ExtendedFloatingActionButton
 import androidx.compose.material.FabPosition
 import androidx.compose.material.IconButton
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
+import androidx.compose.material.Snackbar
+import androidx.compose.material.SnackbarHost
+import androidx.compose.material.SnackbarHostState
+import androidx.compose.material.SnackbarResult
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.launchInComposition
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.BroadcastChannel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.asFlow
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.launch
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -154,6 +177,120 @@ fun ScaffoldWithBottomBarAndCutout() {
                     )
                 }
             }
+        }
+    )
+}
+
+@Sampled
+@Composable
+@OptIn(ExperimentalMaterialApi::class)
+fun ScaffoldWithSimpleSnackbar() {
+    val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
+    Scaffold(
+        scaffoldState = scaffoldState,
+        floatingActionButton = {
+            var clickCount by remember { mutableStateOf(0) }
+            ExtendedFloatingActionButton(
+                text = { Text("Show snackbar") },
+                onClick = {
+                    // show snackbar as a suspend function
+                    scope.launch {
+                        scaffoldState.snackbarHostState.showSnackbar("Snackbar # ${++clickCount}")
+                    }
+                }
+            )
+        },
+        bodyContent = { innerPadding ->
+            Text(
+                text = "Body content",
+                modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize()
+            )
+        }
+    )
+}
+
+@Sampled
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun ScaffoldWithCustomSnackbar() {
+    val scaffoldState = rememberScaffoldState()
+    val scope = rememberCoroutineScope()
+    Scaffold(
+        scaffoldState = scaffoldState,
+        snackbarHost = {
+            // reuse default SnackbarHost to have default animation and timing handling
+            SnackbarHost(it) { data ->
+                // custom snackbar with the custom border
+                Snackbar(
+                    modifier = Modifier.drawBorder(2.dp, MaterialTheme.colors.secondary),
+                    snackbarData = data
+                )
+            }
+        },
+        floatingActionButton = {
+            var clickCount by remember { mutableStateOf(0) }
+            ExtendedFloatingActionButton(
+                text = { Text("Show snackbar") },
+                onClick = {
+                    scope.launch {
+                        scaffoldState.snackbarHostState.showSnackbar("Snackbar # ${++clickCount}")
+                    }
+                }
+            )
+        },
+        bodyContent = { innerPadding ->
+            Text(
+                text = "Custom Snackbar Demo",
+                modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize()
+            )
+        }
+    )
+}
+
+@Sampled
+@OptIn(ExperimentalMaterialApi::class, ExperimentalCoroutinesApi::class, FlowPreview::class)
+@Composable
+fun ScaffoldWithCoroutinesSnackbar() {
+    // decouple snackbar host state from scaffold state for demo purposes
+    // this state, channel and flow is for demo purposes to demonstrate business logic layer
+    val snackbarHostState = remember { SnackbarHostState() }
+    // we allow only one snackbar to be in the queue here, hence conflated
+    val channel = remember { BroadcastChannel<Int>(Channel.Factory.CONFLATED) }
+    launchInComposition {
+        channel.asFlow().collect { index ->
+            val result = snackbarHostState.showSnackbar(
+                message = "Snackbar # $index",
+                actionLabel = "Action on $index"
+            )
+            when (result) {
+                SnackbarResult.ActionPerformed -> {
+                    /* action has been performed */
+                }
+                SnackbarResult.Dismissed -> {
+                    /* dismissed, no action needed */
+                }
+            }
+        }
+    }
+    Scaffold(
+        // attach snackbar host state to the scaffold
+        scaffoldState = rememberScaffoldState(snackbarHostState = snackbarHostState),
+        floatingActionButton = {
+            var clickCount by remember { mutableStateOf(0) }
+            ExtendedFloatingActionButton(
+                text = { Text("Show snackbar") },
+                onClick = {
+                    // offset snackbar data to the business logic
+                    channel.offer(++clickCount)
+                }
+            )
+        },
+        bodyContent = { innerPadding ->
+            Text(
+                "Snackbar demo",
+                modifier = Modifier.padding(innerPadding).fillMaxSize().wrapContentSize()
+            )
         }
     )
 }

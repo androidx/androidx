@@ -288,13 +288,14 @@ package androidx.compose.material {
   }
 
   public final class ScaffoldKt {
-    method @androidx.compose.runtime.Composable public static void Scaffold-4errzsg(androidx.compose.ui.Modifier modifier = Modifier, androidx.compose.material.ScaffoldState scaffoldState = rememberScaffoldState(), kotlin.jvm.functions.Function0<kotlin.Unit>? topBar = null, kotlin.jvm.functions.Function0<kotlin.Unit>? bottomBar = null, kotlin.jvm.functions.Function0<kotlin.Unit>? floatingActionButton = null, androidx.compose.material.FabPosition floatingActionButtonPosition = androidx.compose.material.FabPosition.End, boolean isFloatingActionButtonDocked = false, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>? drawerContent = null, androidx.compose.ui.graphics.Shape drawerShape = large, float drawerElevation = DrawerConstants.DefaultElevation, long drawerBackgroundColor = MaterialTheme.colors.surface, long drawerContentColor = contentColorFor(drawerBackgroundColor), long drawerScrimColor = MaterialTheme.colors.onSurface.copy(DrawerConstants.ScrimDefaultOpacity), long backgroundColor = MaterialTheme.colors.background, long contentColor = contentColorFor(backgroundColor), kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.InnerPadding,kotlin.Unit> bodyContent);
-    method @androidx.compose.runtime.Composable public static androidx.compose.material.ScaffoldState rememberScaffoldState(androidx.compose.material.DrawerState drawerState = rememberDrawerState(DrawerValue.Closed), boolean isDrawerGesturesEnabled = true);
+    method @androidx.compose.runtime.Composable public static void Scaffold-6SxdeRQ(androidx.compose.ui.Modifier modifier = Modifier, androidx.compose.material.ScaffoldState scaffoldState = rememberScaffoldState(), kotlin.jvm.functions.Function0<kotlin.Unit>? topBar = null, kotlin.jvm.functions.Function0<kotlin.Unit>? bottomBar = null, kotlin.jvm.functions.Function1<? super androidx.compose.material.SnackbarHostState,kotlin.Unit> snackbarHost = { SnackbarHost(it) }, kotlin.jvm.functions.Function0<kotlin.Unit>? floatingActionButton = null, androidx.compose.material.FabPosition floatingActionButtonPosition = androidx.compose.material.FabPosition.End, boolean isFloatingActionButtonDocked = false, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit>? drawerContent = null, androidx.compose.ui.graphics.Shape drawerShape = large, float drawerElevation = DrawerConstants.DefaultElevation, long drawerBackgroundColor = MaterialTheme.colors.surface, long drawerContentColor = contentColorFor(drawerBackgroundColor), long drawerScrimColor = MaterialTheme.colors.onSurface.copy(DrawerConstants.ScrimDefaultOpacity), long backgroundColor = MaterialTheme.colors.background, long contentColor = contentColorFor(backgroundColor), kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.InnerPadding,kotlin.Unit> bodyContent);
+    method @androidx.compose.runtime.Composable public static androidx.compose.material.ScaffoldState rememberScaffoldState(androidx.compose.material.DrawerState drawerState = rememberDrawerState(DrawerValue.Closed), androidx.compose.material.SnackbarHostState snackbarHostState = androidx.compose.material.SnackbarHostState(), boolean isDrawerGesturesEnabled = true);
   }
 
   @androidx.compose.runtime.Stable public final class ScaffoldState {
-    ctor public ScaffoldState(androidx.compose.material.DrawerState drawerState, boolean isDrawerGesturesEnabled);
+    ctor public ScaffoldState(androidx.compose.material.DrawerState drawerState, androidx.compose.material.SnackbarHostState snackbarHostState, boolean isDrawerGesturesEnabled);
     method public androidx.compose.material.DrawerState getDrawerState();
+    method public androidx.compose.material.SnackbarHostState getSnackbarHostState();
     method public boolean isDrawerGesturesEnabled();
     method public void setDrawerGesturesEnabled(boolean p);
     property public final boolean isDrawerGesturesEnabled;
@@ -333,8 +334,46 @@ package androidx.compose.material {
     field public static final androidx.compose.material.SnackbarConstants INSTANCE;
   }
 
+  @androidx.compose.material.ExperimentalMaterialApi public interface SnackbarData {
+    method public void dismiss();
+    method public String? getActionLabel();
+    method public androidx.compose.material.SnackbarDuration getDuration();
+    method public String getMessage();
+    method public void performAction();
+    property public abstract String? actionLabel;
+    property public abstract androidx.compose.material.SnackbarDuration duration;
+    property public abstract String message;
+  }
+
+  public enum SnackbarDuration {
+    method public static androidx.compose.material.SnackbarDuration valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.compose.material.SnackbarDuration[] values();
+    enum_constant public static final androidx.compose.material.SnackbarDuration Indefinite;
+    enum_constant public static final androidx.compose.material.SnackbarDuration Long;
+    enum_constant public static final androidx.compose.material.SnackbarDuration Short;
+  }
+
+  public final class SnackbarHostKt {
+    method @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static void SnackbarHost(androidx.compose.material.SnackbarHostState hostState, androidx.compose.ui.Modifier modifier = Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.material.SnackbarData,kotlin.Unit> snackbar = { Snackbar(it) });
+  }
+
+  @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Stable public final class SnackbarHostState {
+    ctor public SnackbarHostState();
+    method public androidx.compose.material.SnackbarData? getCurrentSnackbarData();
+    method public suspend Object? showSnackbar(String message, String? actionLabel = null, androidx.compose.material.SnackbarDuration duration = androidx.compose.material.SnackbarDuration.Short, kotlin.coroutines.Continuation<? super androidx.compose.material.SnackbarResult> p = androidx.compose.material.SnackbarDuration.Short);
+    property public final androidx.compose.material.SnackbarData? currentSnackbarData;
+  }
+
   public final class SnackbarKt {
     method @androidx.compose.runtime.Composable public static void Snackbar-GiTsVJ0(androidx.compose.ui.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>? action = null, boolean actionOnNewLine = false, androidx.compose.ui.graphics.Shape shape = small, long backgroundColor = SnackbarConstants.defaultBackgroundColor, long contentColor = MaterialTheme.colors.surface, float elevation = 6.dp, kotlin.jvm.functions.Function0<kotlin.Unit> text);
+    method @androidx.compose.runtime.Composable public static void Snackbar-Ou9cdGU(androidx.compose.material.SnackbarData snackbarData, androidx.compose.ui.Modifier modifier = Modifier, boolean actionOnNewLine = false, androidx.compose.ui.graphics.Shape shape = small, long backgroundColor = SnackbarConstants.defaultBackgroundColor, long contentColor = MaterialTheme.colors.surface, long actionColor = SnackbarConstants.defaultActionPrimaryColor, float elevation = 6.dp);
+  }
+
+  public enum SnackbarResult {
+    method public static androidx.compose.material.SnackbarResult valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.compose.material.SnackbarResult[] values();
+    enum_constant public static final androidx.compose.material.SnackbarResult ActionPerformed;
+    enum_constant public static final androidx.compose.material.SnackbarResult Dismissed;
   }
 
   public final class SurfaceKt {
