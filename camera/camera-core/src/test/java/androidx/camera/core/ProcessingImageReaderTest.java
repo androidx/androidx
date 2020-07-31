@@ -36,6 +36,7 @@ import androidx.camera.core.impl.ImageProxyBundle;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.testing.fakes.FakeCameraCaptureResult;
 import androidx.camera.testing.fakes.FakeCaptureStage;
 import androidx.camera.testing.fakes.FakeImageReaderProxy;
 import androidx.test.filters.SmallTest;
@@ -52,6 +53,7 @@ import org.robolectric.shadows.ShadowLooper;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -91,6 +93,7 @@ public final class ProcessingImageReaderTest {
     private final CaptureStage mCaptureStage2 = new FakeCaptureStage(CAPTURE_ID_2, null);
     private final CaptureStage mCaptureStage3 = new FakeCaptureStage(CAPTURE_ID_3, null);
     private final FakeImageReaderProxy mImageReaderProxy = new FakeImageReaderProxy(8);
+    private MetadataImageReader mMetadataImageReader;
     private CaptureBundle mCaptureBundle;
     private String mTagBundleKey;
 
@@ -98,6 +101,7 @@ public final class ProcessingImageReaderTest {
     public void setUp() {
         mCaptureBundle = CaptureBundles.createCaptureBundle(mCaptureStage0, mCaptureStage1);
         mTagBundleKey = Integer.toString(mCaptureBundle.hashCode());
+        mMetadataImageReader = new MetadataImageReader(mImageReaderProxy);
     }
 
     @Test
@@ -106,7 +110,7 @@ public final class ProcessingImageReaderTest {
         // Sets the callback from ProcessingImageReader to start processing
         CaptureProcessor captureProcessor = mock(CaptureProcessor.class);
         ProcessingImageReader processingImageReader = new ProcessingImageReader(
-                mImageReaderProxy, AsyncTask.THREAD_POOL_EXECUTOR, mCaptureBundle,
+                mMetadataImageReader, AsyncTask.THREAD_POOL_EXECUTOR, mCaptureBundle,
                 captureProcessor);
         processingImageReader.setOnImageAvailableListener(mock(
                 ImageReaderProxy.OnImageAvailableListener.class),
@@ -158,14 +162,77 @@ public final class ProcessingImageReaderTest {
         }
     }
 
+    // Make sure that closing the ProcessingImageReader while the CaptureProcessor is processing
+    // the image is safely done so that the CaptureProcessor will not be accessing closed images
+    @Test
+    public void canCloseWhileProcessingIsOccurring()
+            throws InterruptedException {
+        // Sets the callback from ProcessingImageReader to start processing
+        WaitingCaptureProcessor waitingCaptureProcessor = new WaitingCaptureProcessor();
+        ProcessingImageReader processingImageReader = new ProcessingImageReader(
+                mMetadataImageReader, AsyncTask.THREAD_POOL_EXECUTOR, mCaptureBundle,
+                waitingCaptureProcessor);
+        processingImageReader.setOnImageAvailableListener(mock(
+                ImageReaderProxy.OnImageAvailableListener.class),
+                CameraXExecutors.mainThreadExecutor());
+        Map<Integer, Long> resultMap = new HashMap<>();
+        resultMap.put(CAPTURE_ID_0, TIMESTAMP_0);
+        resultMap.put(CAPTURE_ID_1, TIMESTAMP_1);
+
+        // Cache current CaptureBundle as the TagBundle key for generate the fake image
+        mTagBundleKey = processingImageReader.getTagBundleKey();
+
+        // Trigger the Images so that the CaptureProcessor starts
+        for (Map.Entry<Integer, Long> idTimestamp : resultMap.entrySet()) {
+            triggerImageAvailable(idTimestamp.getKey(), idTimestamp.getValue());
+        }
+
+        // Wait for CaptureProcessor.process() to start so that it is in the middle of processing
+        assertThat(waitingCaptureProcessor.waitForProcessingToStart(3000)).isTrue();
+
+        processingImageReader.close();
+
+        // Allow the CaptureProcessor to continue processing. Calling finishProcessing() will
+        // cause the CaptureProcessor to start accessing the ImageProxy. If the ImageProxy has
+        // already been closed then
+        waitingCaptureProcessor.finishProcessing();
+
+        // The processing will only complete if no exception was thrown during the processing
+        // which causes it to return prematurely.
+        assertThat(waitingCaptureProcessor.waitForProcessingToComplete(3000)).isTrue();
+    }
+
+    @Test
+    public void closeImageHalfway() throws InterruptedException {
+        // Sets the callback from ProcessingImageReader to start processing
+        ProcessingImageReader processingImageReader = new ProcessingImageReader(
+                mMetadataImageReader, AsyncTask.THREAD_POOL_EXECUTOR, mCaptureBundle,
+                NOOP_PROCESSOR);
+        processingImageReader.setOnImageAvailableListener(mock(
+                ImageReaderProxy.OnImageAvailableListener.class),
+                CameraXExecutors.mainThreadExecutor());
+
+        // Cache current CaptureBundle as the TagBundle key for generate the fake image
+        mTagBundleKey = processingImageReader.getTagBundleKey();
+        triggerImageAvailable(CAPTURE_ID_0, TIMESTAMP_0);
+
+        processingImageReader.close();
+
+        triggerImageAvailable(CAPTURE_ID_1, TIMESTAMP_1);
+
+        assertThat(mImageReaderProxy.isClosed()).isTrue();
+    }
+
     @Test(expected = IllegalArgumentException.class)
     public void imageReaderSizeIsSmallerThanCaptureBundle() {
         // Creates a ProcessingImageReader with maximum Image number smaller than CaptureBundle
         // size.
         ImageReaderProxy imageReaderProxy = new FakeImageReaderProxy(1);
+        MetadataImageReader metadataImageReader = new MetadataImageReader(imageReaderProxy);
 
         // Expects to throw exception when creating ProcessingImageReader.
-        new ProcessingImageReader(imageReaderProxy, AsyncTask.THREAD_POOL_EXECUTOR, mCaptureBundle,
+        new ProcessingImageReader(metadataImageReader, AsyncTask.THREAD_POOL_EXECUTOR,
+                mCaptureBundle,
                 NOOP_PROCESSOR);
     }
 
@@ -183,8 +250,90 @@ public final class ProcessingImageReaderTest {
     }
 
     private void triggerImageAvailable(int captureId, long timestamp) throws InterruptedException {
-        mImageReaderProxy.triggerImageAvailable(TagBundle.create(new Pair<>(mTagBundleKey,
-                captureId)), timestamp);
+        TagBundle tagBundle = TagBundle.create(new Pair<>(mTagBundleKey, captureId));
+        mImageReaderProxy.triggerImageAvailable(tagBundle, timestamp);
+        FakeCameraCaptureResult.Builder builder = new FakeCameraCaptureResult.Builder();
+        builder.setTimestamp(timestamp);
+        builder.setTag(tagBundle);
+
+        mMetadataImageReader.getCameraCaptureCallback().onCaptureCompleted(builder.build());
     }
 
+    // Only allows for processing once.
+    private static class WaitingCaptureProcessor implements CaptureProcessor {
+        // Block processing so that the ProcessingImageReader can be closed before the
+        // CaptureProcessor has finished accessing the ImageProxy and ImageProxyBundle
+        private CountDownLatch mProcessingLatch = new CountDownLatch(1);
+
+        // To wait for processing to start. This makes sure that the ProcessingImageReader can be
+        // closed after processing has started
+        private CountDownLatch mProcessingStartLatch = new CountDownLatch(1);
+
+        // Block processing from completing. This ensures that the CaptureProcessor has finished
+        // accessing the ImageProxy and ImageProxyBundle successfully.
+        private CountDownLatch mProcessingComplete = new CountDownLatch(1);
+
+        WaitingCaptureProcessor() {
+        }
+
+        @Override
+        public void onOutputSurface(Surface surface, int imageFormat) {
+        }
+
+        @Override
+        public void process(ImageProxyBundle bundle) {
+            mProcessingStartLatch.countDown();
+            try {
+                mProcessingLatch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return;
+            }
+
+            ImageProxy imageProxy;
+            try {
+                imageProxy = bundle.getImageProxy(CAPTURE_ID_0).get();
+            } catch (ExecutionException | InterruptedException e) {
+                e.printStackTrace();
+                return;
+            }
+
+            // Try to get the crop rect. If the image has already been closed it will thrown an
+            // IllegalStateException
+            try {
+                imageProxy.getFormat();
+            } catch (IllegalStateException e) {
+                e.printStackTrace();
+                return;
+            }
+
+            mProcessingComplete.countDown();
+        }
+
+        @Override
+        public void onResolutionUpdate(Size size) {
+        }
+
+        void finishProcessing() {
+            mProcessingLatch.countDown();
+        }
+
+        /** Returns false if it fails to start processing. */
+        boolean waitForProcessingToStart(long timeout) {
+            try {
+                return mProcessingStartLatch.await(timeout, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                return false;
+            }
+        }
+
+        /** Returns false if processing does not complete. */
+        boolean waitForProcessingToComplete(long timeout) {
+            try {
+                return mProcessingComplete.await(timeout, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                return false;
+            }
+        }
+    }
 }
