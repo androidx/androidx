@@ -48,7 +48,6 @@ public class DefaultSelectionTracker_SingleSelectTest {
                 keyProvider,
                 SelectionPredicates.createSelectSingleAnything(),
                 StorageStrategy.createStringStorage());
-        EventBridge.install(mAdapter, mTracker, keyProvider);
 
         mTracker.addObserver(mListener);
 
