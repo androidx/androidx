@@ -3372,6 +3372,13 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             @NonNull final ActivityResultContract<I, O> contract,
             @NonNull final Function<Void, ActivityResultRegistry> registryProvider,
             @NonNull final ActivityResultCallback<O> callback) {
+        // Throw if attempting to register after the Fragment is CREATED.
+        if (mState > CREATED) {
+            throw new IllegalStateException("Fragment " + this + " is attempting to "
+                    + "registerForActivityResult after being created. Fragments must call "
+                    + "registerForActivityResult() before they are created (i.e. initialization, "
+                    + "onAttach(), or onCreate()).");
+        }
         final AtomicReference<ActivityResultLauncher<I>> ref = new AtomicReference<>();
         // We can't call generateActivityResultKey during initialization of the Fragment
         // since we need to wait for the mWho to be restored from saved instance state
