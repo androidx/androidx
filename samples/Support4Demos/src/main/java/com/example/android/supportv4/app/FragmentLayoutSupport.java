@@ -35,8 +35,8 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.fragment.app.ListFragment;
 
+import com.example.android.supportv4.LoremIpsum;
 import com.example.android.supportv4.R;
-import com.example.android.supportv4.Shakespeare;
 
 /**
  * Demonstration of using fragments to implement different activity layouts.
@@ -101,7 +101,7 @@ public class FragmentLayoutSupport extends FragmentActivity {
             // Populate list with our static array of titles.
             setListAdapter(new ArrayAdapter<String>(getActivity(),
                     R.layout.simple_list_item_checkable_1,
-                    android.R.id.text1, Shakespeare.TITLES));
+                    android.R.id.text1, LoremIpsum.TITLES));
 
             // Check to see if we have a frame in which to embed the details
             // fragment directly in the containing UI.
@@ -217,7 +217,7 @@ public class FragmentLayoutSupport extends FragmentActivity {
                     4, getActivity().getResources().getDisplayMetrics());
             text.setPadding(padding, padding, padding, padding);
             scroller.addView(text);
-            text.setText(Shakespeare.DIALOGUE[getShownIndex()]);
+            text.setText(LoremIpsum.DIALOGUE[getShownIndex()]);
             return scroller;
         }
     }
