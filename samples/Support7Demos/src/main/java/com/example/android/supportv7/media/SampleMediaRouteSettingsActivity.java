@@ -19,7 +19,7 @@ package com.example.android.supportv7.media;
 import androidx.appcompat.app.AppCompatActivity;
 
 /**
- * This activity is a dummy settings activity for the
+ * This activity is a no-op settings activity for the
  * {@link SampleMediaRouteProvider}.
  */
 public class SampleMediaRouteSettingsActivity extends AppCompatActivity {
