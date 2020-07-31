@@ -277,7 +277,16 @@ class PageFetcherTest {
         // Assert onBoundary is not called for non-terminal page load.
         assertTrue { remoteMediatorMock.loadEvents.isEmpty() }
 
-        fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, 1))
+        fetcherState.pagingDataList[0].receiver.accessHint(
+            ViewportHint(
+                pageOffset = 0,
+                indexInPage = 1,
+                presentedItemsBefore = 0,
+                presentedItemsAfter = 0,
+                originalPageOffsetFirst = 0,
+                originalPageOffsetLast = 0
+            )
+        )
 
         advanceUntilIdle()
 
@@ -305,16 +314,58 @@ class PageFetcherTest {
             val fetcherState = collectFetcherState(pageFetcher)
 
             advanceUntilIdle()
-
-            fetcherState.pagingDataList[0].receiver.addHint(ViewportHint(0, -50))
-            advanceUntilIdle()
-
-            val expected: List<PageEvent<Int>> = listOf(
-                LoadStateUpdate(REFRESH, false, Loading),
-                createRefresh(range = 50..51)
+            assertThat(fetcherState.newEvents()).isEqualTo(
+                listOf<PageEvent<Int>>(
+                    LoadStateUpdate(REFRESH, false, Loading),
+                    createRefresh(range = 50..51)
+                )
             )
-            assertEvents(expected, fetcherState.pageEventLists[0])
+
+            // Jump due to sufficiently large presentedItemsBefore
+            fetcherState.pagingDataList[0].receiver.accessHint(
+                ViewportHint(
+                    pageOffset = 0,
+                    // indexInPage value is incorrect, but should not be considered for jumps
+                    indexInPage = 0,
+                    presentedItemsBefore = -20,
+                    presentedItemsAfter = 0,
+                    originalPageOffsetFirst = 0,
+                    originalPageOffsetLast = 0
+                )
+            )
+            advanceUntilIdle()
             assertTrue { pagingSources[0].invalid }
+            // Assert no new events added to current generation
+            assertEquals(2, fetcherState.pageEventLists[0].size)
+            assertThat(fetcherState.newEvents()).isEqualTo(
+                listOf<PageEvent<Int>>(
+                    LoadStateUpdate(REFRESH, false, Loading),
+                    createRefresh(range = 50..51)
+                )
+            )
+
+            // Jump due to sufficiently large presentedItemsAfter
+            fetcherState.pagingDataList[1].receiver.accessHint(
+                ViewportHint(
+                    pageOffset = 0,
+                    // indexInPage value is incorrect, but should not be considered for jumps
+                    indexInPage = 0,
+                    presentedItemsBefore = 0,
+                    presentedItemsAfter = -20,
+                    originalPageOffsetFirst = 0,
+                    originalPageOffsetLast = 0
+                )
+            )
+            advanceUntilIdle()
+            assertTrue { pagingSources[1].invalid }
+            // Assert no new events added to current generation
+            assertEquals(2, fetcherState.pageEventLists[1].size)
+            assertThat(fetcherState.newEvents()).isEqualTo(
+                listOf<PageEvent<Int>>(
+                    LoadStateUpdate(REFRESH, false, Loading),
+                    createRefresh(range = 50..51)
+                )
+            )
 
             fetcherState.job.cancel()
         }
@@ -350,7 +401,22 @@ internal class FetcherState<T : Any>(
     val pagingDataList: ArrayList<PagingData<T>>,
     val pageEventLists: ArrayList<ArrayList<PageEvent<T>>>,
     val job: Job
-)
+) {
+    private var lastPageEventListIndex = -1
+    var lastIndex = -1
+
+    fun newEvents(): List<PageEvent<T>>? {
+        if (lastPageEventListIndex != pageEventLists.lastIndex) {
+            lastPageEventListIndex = pageEventLists.lastIndex
+            lastIndex = -1
+        }
+
+        val pageEvents = pageEventLists.lastOrNull()?.toMutableList() ?: listOf<PageEvent<T>>()
+        return pageEvents.drop(lastIndex + 1).also {
+            lastIndex = pageEvents.lastIndex
+        }
+    }
+}
 
 internal fun CoroutineScope.collectFetcherState(fetcher: PageFetcher<Int, Int>): FetcherState<Int> {
     val pagingDataList: ArrayList<PagingData<Int>> = ArrayList()

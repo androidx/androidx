@@ -16,8 +16,8 @@
 
 package androidx.paging
 
-import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.PREPEND
+import androidx.paging.LoadState.NotLoading
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert.Companion.Append
 import androidx.paging.PageEvent.Insert.Companion.Prepend
@@ -59,23 +59,7 @@ class PagingDataDifferTest {
     fun collectFrom_static() = testScope.runBlockingTest {
         pauseDispatcher {
             val differ = SimpleDiffer(dummyDifferCallback)
-            val receiver = object : UiReceiver {
-                val hintsAdded = mutableListOf<ViewportHint>()
-                var didRetry = false
-                var didRefresh = false
-
-                override fun addHint(hint: ViewportHint) {
-                    hintsAdded.add(hint)
-                }
-
-                override fun retry() {
-                    didRetry = true
-                }
-
-                override fun refresh() {
-                    didRefresh = true
-                }
-            }
+            val receiver = UiReceiverFake()
 
             val job1 = launch {
                 differ.collectFrom(infinitelySuspendingPagingData(receiver))
@@ -94,8 +78,8 @@ class PagingDataDifferTest {
             differ.refresh()
             advanceUntilIdle()
 
-            assertFalse { receiver.didRetry }
-            assertFalse { receiver.didRefresh }
+            assertFalse { receiver.retryEvents.isNotEmpty() }
+            assertFalse { receiver.refreshEvents.isNotEmpty() }
         }
     }
 
@@ -221,7 +205,7 @@ class PagingDataDifferTest {
         job.cancel()
     }
 
-    @Test
+        @Test
     fun fetch_loadHintResentWhenUnfulfilled() = testScope.runBlockingTest {
         val differ = SimpleDiffer(dummyDifferCallback)
 
@@ -257,7 +241,21 @@ class PagingDataDifferTest {
             )
         }
 
+        // Initial state:
+        // [null, null, [-1], [1], [3], null, null]
         assertNull(differ[0])
+        assertThat(receiver.hints).isEqualTo(
+            listOf(
+                ViewportHint(
+                    pageOffset = -1,
+                    indexInPage = -2,
+                    presentedItemsBefore = -2,
+                    presentedItemsAfter = 4,
+                    originalPageOffsetFirst = -1,
+                    originalPageOffsetLast = 1
+                )
+            )
+        )
 
         // Insert a new page, PagingDataDiffer should try to resend hint since index 0 still points
         // to a placeholder:
@@ -267,6 +265,18 @@ class PagingDataDifferTest {
                 pages = listOf(TransformablePage(-2, listOf())),
                 placeholdersBefore = 2,
                 combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
+            )
+        )
+        assertThat(receiver.hints).isEqualTo(
+            listOf(
+                ViewportHint(
+                    pageOffset = -2,
+                    indexInPage = -2,
+                    presentedItemsBefore = -2,
+                    presentedItemsAfter = 4,
+                    originalPageOffsetFirst = -2,
+                    originalPageOffsetLast = 1
+                )
             )
         )
 
@@ -283,9 +293,22 @@ class PagingDataDifferTest {
                 )
             )
         )
+        assertThat(receiver.hints).isEmpty()
 
         // This index points to a valid placeholder that ends up removed by filter().
         assertNull(differ[5])
+        assertThat(receiver.hints).isEqualTo(
+            listOf(
+                ViewportHint(
+                    pageOffset = 1,
+                    indexInPage = 2,
+                    presentedItemsBefore = 5,
+                    presentedItemsAfter = -2,
+                    originalPageOffsetFirst = -3,
+                    originalPageOffsetLast = 1
+                )
+            )
+        )
 
         // Should only resend the hint for index 5, since index 0 has already been loaded:
         // [[-3], [], [-1], [1], [3], [], null, null]
@@ -297,6 +320,18 @@ class PagingDataDifferTest {
                     refreshLocal = NotLoading.Incomplete,
                     prependLocal = NotLoading.Complete,
                     appendLocal = NotLoading.Incomplete
+                )
+            )
+        )
+        assertThat(receiver.hints).isEqualTo(
+            listOf(
+                ViewportHint(
+                    pageOffset = 2,
+                    indexInPage = 1,
+                    presentedItemsBefore = 5,
+                    presentedItemsAfter = -2,
+                    originalPageOffsetFirst = -3,
+                    originalPageOffsetLast = 2
                 )
             )
         )
@@ -315,15 +350,7 @@ class PagingDataDifferTest {
 
             )
         )
-
-        assertThat(receiver.hints).isEqualTo(
-            listOf(
-                ViewportHint(-1, -2, false),
-                ViewportHint(-2, -2, false),
-                ViewportHint(1, 3, false),
-                ViewportHint(2, 1, false)
-            )
-        )
+        assertThat(receiver.hints).isEmpty()
 
         job.cancel()
     }
@@ -364,7 +391,21 @@ class PagingDataDifferTest {
             )
         }
 
+        // Initial state:
+        // [null, null, [-1], [1], [3], null, null]
         assertNull(differ[0])
+        assertThat(receiver.hints).isEqualTo(
+            listOf(
+                ViewportHint(
+                    pageOffset = -1,
+                    indexInPage = -2,
+                    presentedItemsBefore = -2,
+                    presentedItemsAfter = 4,
+                    originalPageOffsetFirst = -1,
+                    originalPageOffsetLast = 1
+                )
+            )
+        )
 
         // Insert a new page, PagingDataDiffer should try to resend hint since index 0 still points
         // to a placeholder:
@@ -374,6 +415,18 @@ class PagingDataDifferTest {
                 pages = listOf(TransformablePage(-2, listOf())),
                 placeholdersBefore = 2,
                 combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
+            )
+        )
+        assertThat(receiver.hints).isEqualTo(
+            listOf(
+                ViewportHint(
+                    pageOffset = -2,
+                    indexInPage = -2,
+                    presentedItemsBefore = -2,
+                    presentedItemsAfter = 4,
+                    originalPageOffsetFirst = -2,
+                    originalPageOffsetLast = 1
+                )
             )
         )
 
@@ -389,13 +442,6 @@ class PagingDataDifferTest {
                 pages = listOf(TransformablePage(-2, listOf())),
                 placeholdersBefore = 2,
                 combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
-            )
-        )
-
-        assertThat(receiver.hints).isEqualTo(
-            listOf(
-                ViewportHint(-1, -2, false),
-                ViewportHint(-2, -2, false)
             )
         )
 
@@ -450,19 +496,26 @@ class PagingDataDifferTest {
     }
 }
 
-private fun infinitelySuspendingPagingData(receiver: UiReceiver = dummyReceiver) =
-    PagingData(
-        flow { emit(suspendCancellableCoroutine<PageEvent<Int>> { }) },
-        receiver
-    )
+private fun infinitelySuspendingPagingData(receiver: UiReceiver = dummyReceiver) = PagingData(
+    flow { emit(suspendCancellableCoroutine<PageEvent<Int>> { }) },
+    receiver
+)
 
 private class UiReceiverFake : UiReceiver {
-    val hints = mutableListOf<ViewportHint>()
+    private val _hints = mutableListOf<ViewportHint>()
+    val hints: List<ViewportHint>
+        get() {
+            val result = _hints.toList()
+            @OptIn(ExperimentalStdlibApi::class)
+            repeat(result.size) { _hints.removeFirst() }
+            return result
+        }
+
     val retryEvents = mutableListOf<Unit>()
     val refreshEvents = mutableListOf<Unit>()
 
-    override fun addHint(hint: ViewportHint) {
-        hints.add(hint)
+    override fun accessHint(viewportHint: ViewportHint) {
+        _hints.add(viewportHint)
     }
 
     override fun retry() {
@@ -484,10 +537,8 @@ private class SimpleDiffer(differCallback: DifferCallback) : PagingDataDiffer<In
 }
 
 internal val dummyReceiver = object : UiReceiver {
-    override fun addHint(hint: ViewportHint) {}
-
+    override fun accessHint(viewportHint: ViewportHint) {}
     override fun retry() {}
-
     override fun refresh() {}
 }
 
