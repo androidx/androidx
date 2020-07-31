@@ -22,7 +22,9 @@ import androidx.compose.ui.semantics.AccessibilityRangeInfo
 import androidx.compose.ui.semantics.SemanticsProperties
 
 /**
- * Asserts that the current semantics node has hidden property set to true.
+ * Asserts that the current semantics node has hidden property set to true. A hidden node is a
+ * node that is not visible for accessibility. It will still be shown, but it will be skipped by
+ * accessibility services.
  *
  * Note that this does not verify parents of the node. For stronger guarantees of visibility
  * see [assertIsNotDisplayed]. If you want to assert that the node is not even in the hierarchy
