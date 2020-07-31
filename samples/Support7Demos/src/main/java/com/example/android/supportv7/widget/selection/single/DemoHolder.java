@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.supportv7.widget.selection.simple;
+package com.example.android.supportv7.widget.selection.single;
 
 import android.graphics.Rect;
 import android.view.MotionEvent;

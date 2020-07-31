@@ -20,8 +20,8 @@ import android.widget.LinearLayout;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-abstract class FancyHolder extends RecyclerView.ViewHolder {
-    FancyHolder(LinearLayout layout) {
+abstract class DemoHolder extends RecyclerView.ViewHolder {
+    DemoHolder(LinearLayout layout) {
         super(layout);
     }
 }

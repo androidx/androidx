@@ -16,6 +16,8 @@
 
 package androidx.recyclerview.selection;
 
+import static androidx.core.util.Preconditions.checkArgument;
+import static androidx.core.util.Preconditions.checkNotNull;
 import static androidx.recyclerview.selection.Shared.DEBUG;
 
 import android.util.Log;
@@ -27,16 +29,28 @@ import androidx.annotation.Nullable;
 import androidx.collection.LongSparseArray;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnChildAttachStateChangeListener;
+import androidx.recyclerview.widget.RecyclerView.RecyclerListener;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 /**
  * An {@link ItemKeyProvider} that provides stable ids by way of cached
- * {@link RecyclerView.Adapter} stable ids. Items enter the cache as they are laid out by
- * RecyclerView, and are removed from the cache as they are recycled.
+ * {@link RecyclerView.Adapter} stable ids. Items enter the cache as they are
+ * attached by RecyclerView and are removed when they are recycled.
  *
  * <p>
  * There are trade-offs with this implementation as it necessarily auto-boxes {@code long}
  * stable id values into {@code Long} values for use as selection keys. The core Selection API
  * uses a parameterized key type to permit other keys (such as Strings or URIs).
+ *
+ * <p>
+ * FYI: Use of StableIdKeyProvider limits the availability of some features
+ * such as mouse-driven band selection that may otherwise provide an enhanced
+ * experience for users of ChromeOS or other devices with attached pointing devices.
+ * For that reason,  consider implementing your own {@link ItemKeyProvider}
+ * that can provide item keys based on your item data, such as a stable
+ * {@link android.net.Uri} or other unique identifier. For an example of
+ * such a provider see com.example.android.supportv7.widget.selection.fancy.DemoAdapter.KeyProvider
+ * in the SupportV7 Demos package.
  */
 public final class StableIdKeyProvider extends ItemKeyProvider<Long> {
 
@@ -44,7 +58,32 @@ public final class StableIdKeyProvider extends ItemKeyProvider<Long> {
 
     private final SparseArray<Long> mPositionToKey = new SparseArray<>();
     private final LongSparseArray<Integer> mKeyToPosition = new LongSparseArray<>();
-    private final RecyclerView mRecyclerView;
+    private final ViewHost mHost;
+
+    StableIdKeyProvider(@NonNull ViewHost host) {
+        // Provider is based on the stable ids provided by ViewHolders which
+        // are only accessible when the holders are attached or yet-to-be-recycled.
+        // For that reason we can only satisfy "CACHED" scope key access which
+        // limits library features such as mouse-driven band selection.
+        super(SCOPE_CACHED);
+
+        checkNotNull(host);
+        mHost = host;
+
+        mHost.registerLifecycleListener(
+                new ViewHost.LifecycleListener() {
+                    @Override
+                    public void onAttached(@NonNull View view) {
+                        StableIdKeyProvider.this.onAttached(view);
+                    }
+
+                    @Override
+                    public void onRecycled(@NonNull View view) {
+                        StableIdKeyProvider.this.onRecycled(view);
+                    }
+                }
+        );
+    }
 
     /**
      * Creates a new key provider that uses cached {@code long} stable ids associated
@@ -53,39 +92,23 @@ public final class StableIdKeyProvider extends ItemKeyProvider<Long> {
      * @param recyclerView the owner RecyclerView
      */
     public StableIdKeyProvider(@NonNull RecyclerView recyclerView) {
+        this(new DefaultViewHost(recyclerView));
 
-        // Since this provide is based on stable ids based on whats laid out in the window
-        // we can only satisfy "window" scope key access.
-        super(SCOPE_CACHED);
-
-        mRecyclerView = recyclerView;
-
-        mRecyclerView.addOnChildAttachStateChangeListener(
-                new OnChildAttachStateChangeListener() {
-                    @Override
-                    public void onChildViewAttachedToWindow(View view) {
-                        onAttached(view);
-                    }
-
-                    @Override
-                    public void onChildViewDetachedFromWindow(View view) {
-                        onDetached(view);
-                    }
-                }
-        );
-
+        // Adapters used w/ StableIdKeyProvider MUST have StableIds enabled.
+        checkArgument(recyclerView.getAdapter().hasStableIds(), "RecyclerView"
+                + ".Adapter#hasStableIds must return true.");
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void onAttached(@NonNull View view) {
-        RecyclerView.ViewHolder holder = mRecyclerView.findContainingViewHolder(view);
+        ViewHolder holder = mHost.findViewHolder(view);
         if (holder == null) {
             if (DEBUG) {
                 Log.w(TAG, "Unable to find ViewHolder for View. Ignoring onAttached event.");
             }
             return;
         }
-        int position = holder.getAbsoluteAdapterPosition();
+        int position = mHost.getPosition(holder);
         long id = holder.getItemId();
         if (position != RecyclerView.NO_POSITION && id != RecyclerView.NO_ID) {
             mPositionToKey.put(position, id);
@@ -94,15 +117,15 @@ public final class StableIdKeyProvider extends ItemKeyProvider<Long> {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void onDetached(@NonNull View view) {
-        RecyclerView.ViewHolder holder = mRecyclerView.findContainingViewHolder(view);
+    void onRecycled(@NonNull View view) {
+        ViewHolder holder = mHost.findViewHolder(view);
         if (holder == null) {
             if (DEBUG) {
                 Log.w(TAG, "Unable to find ViewHolder for View. Ignoring onDetached event.");
             }
             return;
         }
-        int position = holder.getAbsoluteAdapterPosition();
+        int position = mHost.getPosition(holder);
         long id = holder.getItemId();
         if (position != RecyclerView.NO_POSITION && id != RecyclerView.NO_ID) {
             mPositionToKey.delete(position);
@@ -112,11 +135,100 @@ public final class StableIdKeyProvider extends ItemKeyProvider<Long> {
 
     @Override
     public @Nullable Long getKey(int position) {
+        // TODO: Consider using RecyclerView.NO_ID for consistency w/ getPosition impl.
+        // Currently GridModel impl depends on null return values.
         return mPositionToKey.get(position, null);
     }
 
     @Override
     public int getPosition(@NonNull Long key) {
         return mKeyToPosition.get(key, RecyclerView.NO_POSITION);
+    }
+
+    /**
+     * A wrapper interface for RecyclerView allowing for easy unit testing.
+     */
+    interface ViewHost {
+        /** Registers View{Holder} lifecycle event listener. **/
+        void registerLifecycleListener(@NonNull LifecycleListener listener);
+
+        /**
+         * Returns the ViewHolder containing {@code View}.
+         */
+        @Nullable ViewHolder findViewHolder(@NonNull View view);
+
+        /**
+         * Returns the position of the ViewHolder, or RecyclerView.NO_POSITION
+         * if unknown.
+         *
+         * This method supports testing of StableIdKeyProvider independent of
+         * a real RecyclerView instance. The correct runtime implementation is
+         * {@code return holder.getAbsoluteAdapterPosition}. This implementation
+         * depends on a concrete RecyclerView instance, which isn't test friendly
+         * given the testing approach in StableIdKeyProviderTest. Thus the
+         * introduction of this interface method allowing a test double to
+         * supply adapter position as needed to test.
+         */
+        int getPosition(@NonNull ViewHolder holder);
+
+        /** A View{Holder} lifecycle listener interface. */
+        interface LifecycleListener {
+
+            /** Called when view is attached. */
+            void onAttached(@NonNull View view);
+
+            /** Called when view is recycled. */
+            void onRecycled(@NonNull View view);
+        }
+    }
+
+    /**
+     * Implementation of ViewHost that wraps a RecyclerView instance.
+     */
+    private static class DefaultViewHost implements ViewHost {
+        private final @NonNull RecyclerView mRecyclerView;
+
+        DefaultViewHost(@NonNull RecyclerView recyclerView) {
+            checkNotNull(recyclerView);
+            mRecyclerView = recyclerView;
+        }
+
+        @Override
+        public void registerLifecycleListener(@NonNull LifecycleListener listener) {
+
+            mRecyclerView.addOnChildAttachStateChangeListener(
+                    new OnChildAttachStateChangeListener() {
+                        @Override
+                        public void onChildViewAttachedToWindow(@NonNull View view) {
+                            listener.onAttached(view);
+                        }
+
+                        @Override
+                        public void onChildViewDetachedFromWindow(@NonNull View view) {
+                            // Cached position <> key data is discarded only when
+                            // a view is recycled. See b/145767095 for details.
+                        }
+                    }
+            );
+
+            mRecyclerView.setRecyclerListener(
+                    new RecyclerListener() {
+                        @Override
+                        public void onViewRecycled(@NonNull ViewHolder holder) {
+                            listener.onRecycled(holder.itemView);
+                        }
+                    }
+            );
+        }
+
+        @Override
+        public @Nullable ViewHolder findViewHolder(@NonNull View view) {
+            return mRecyclerView.findContainingViewHolder(view);
+        }
+
+        @Override
+        public int getPosition(@NonNull ViewHolder holder) {
+            return holder.getAbsoluteAdapterPosition();
+        }
     }
 }
