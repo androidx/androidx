@@ -17,16 +17,17 @@
 package androidx.compose.foundation.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.gestures.draggable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.offsetPx
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.preferredWidth
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Sampled
@@ -37,7 +38,7 @@ fun DraggableSample() {
     val max = 300.dp
     val min = 0.dp
     // this is the  state we will update while dragging
-    val offsetPosition = state { 0f }
+    val offsetPosition = remember { mutableStateOf(0f) }
 
     // seekbar itself
     Box(

@@ -16,18 +16,19 @@
 
 package androidx.compose.ui.demos.gestures
 
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Layout
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.gesture.RawScaleObserver
-import androidx.compose.foundation.Text
-import androidx.compose.foundation.background
-import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.ui.gesture.rawScaleGestureFilter
+import androidx.compose.ui.graphics.Color
 import kotlin.math.roundToInt
 
 /**
@@ -66,7 +67,7 @@ private fun Scalable(
     children: @Composable () -> Unit
 ) {
 
-    val currentPercent = state { 1f }
+    val currentPercent = remember { mutableStateOf(1f) }
 
     val outerScaleObserver = object : RawScaleObserver {
         override fun onScale(scaleFactor: Float): Float {

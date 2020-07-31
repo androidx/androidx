@@ -18,8 +18,8 @@ package androidx.compose.ui.selection
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Providers
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.state
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.gesture.dragGestureFilter
 import androidx.compose.ui.gesture.longPressDragGestureFilter
@@ -35,7 +35,7 @@ import androidx.compose.ui.text.InternalTextApi
  */
 @Composable
 internal fun SelectionContainer(children: @Composable () -> Unit) {
-    val selection = state<Selection?> { null }
+    val selection = remember { mutableStateOf<Selection?>(null) }
     SelectionContainer(
         selection = selection.value,
         onSelectionChange = { selection.value = it },

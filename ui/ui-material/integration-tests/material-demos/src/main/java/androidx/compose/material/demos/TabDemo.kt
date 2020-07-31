@@ -16,13 +16,8 @@
 
 package androidx.compose.material.demos
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.preferredHeight
@@ -35,12 +30,18 @@ import androidx.compose.material.samples.ScrollingFancyIndicatorContainerTabs
 import androidx.compose.material.samples.ScrollingTextTabs
 import androidx.compose.material.samples.TextAndIconTabs
 import androidx.compose.material.samples.TextTabs
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
 fun TabDemo() {
     ScrollableColumn {
-        val showingSimple = state { true }
+        val showingSimple = remember { mutableStateOf(true) }
         val buttonText = "Show ${if (showingSimple.value) "custom" else "simple"} tabs"
 
         Spacer(Modifier.height(24.dp))

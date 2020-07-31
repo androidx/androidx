@@ -15,25 +15,26 @@
  */
 package androidx.compose.material
 
-import androidx.compose.runtime.state
-import androidx.test.filters.MediumTest
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Strings
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.selection.ToggleableState
 import androidx.compose.foundation.selection.ToggleableState.Indeterminate
 import androidx.compose.foundation.selection.ToggleableState.Off
 import androidx.compose.foundation.selection.ToggleableState.On
-import androidx.compose.foundation.layout.Column
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.dp
+import androidx.test.filters.MediumTest
 import androidx.ui.test.assertHasNoClickAction
 import androidx.ui.test.assertIsEnabled
 import androidx.ui.test.assertIsOff
 import androidx.ui.test.assertIsOn
 import androidx.ui.test.assertValueEquals
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.performClick
 import androidx.ui.test.onNodeWithTag
-import androidx.compose.ui.unit.dp
+import androidx.ui.test.performClick
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -71,7 +72,7 @@ class CheckboxUiTest {
     @Test
     fun checkBoxTest_toggle() {
         composeTestRule.setMaterialContent {
-            val (checked, onCheckedChange) = state { false }
+            val (checked, onCheckedChange) = remember { mutableStateOf(false) }
             Checkbox(checked, onCheckedChange, modifier = Modifier.testTag(defaultTag))
         }
 
@@ -84,7 +85,7 @@ class CheckboxUiTest {
     @Test
     fun checkBoxTest_toggle_twice() {
         composeTestRule.setMaterialContent {
-            val (checked, onCheckedChange) = state { false }
+            val (checked, onCheckedChange) = remember { mutableStateOf(false) }
             Checkbox(checked, onCheckedChange, modifier = Modifier.testTag(defaultTag))
         }
 
@@ -100,7 +101,7 @@ class CheckboxUiTest {
     fun checkBoxTest_untoggleable_whenNoLambda() {
 
         composeTestRule.setMaterialContent {
-            val (checked, _) = state { false }
+            val (checked, _) = remember { mutableStateOf(false) }
             Checkbox(checked, {}, enabled = false, modifier = Modifier.testTag(defaultTag))
         }
 

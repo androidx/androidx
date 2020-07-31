@@ -25,19 +25,20 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.focus.ExperimentalFocus
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.isFocused
 import androidx.compose.ui.focusObserver
 import androidx.compose.ui.focusRequester
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.gesture.tapGestureFilter
+import androidx.compose.ui.graphics.Color
 
 private const val size = 200f
 private enum class CurrentShape { Circle, Square }
@@ -56,7 +57,7 @@ fun ReuseFocusRequester() {
         // Shared focus requester.
         val focusRequester = FocusRequester()
 
-        var shape by state { CurrentShape.Square }
+        var shape by remember { mutableStateOf(CurrentShape.Square) }
         when (shape) {
             CurrentShape.Circle -> Circle(
                 modifier = Modifier
@@ -77,7 +78,7 @@ fun ReuseFocusRequester() {
 @Composable
 @OptIn(ExperimentalFocus::class)
 private fun Circle(modifier: Modifier = Modifier, nextShape: () -> Unit) {
-    var isFocused by state { false }
+    var isFocused by remember { mutableStateOf(false) }
     val scale = animate(if (isFocused) 0f else 1f, TweenSpec(2000)) {
         if (it == 0f) {
             nextShape()
@@ -101,7 +102,7 @@ private fun Circle(modifier: Modifier = Modifier, nextShape: () -> Unit) {
 @Composable
 @OptIn(ExperimentalFocus::class)
 private fun Square(modifier: Modifier = Modifier, nextShape: () -> Unit) {
-    var isFocused by state { false }
+    var isFocused by remember { mutableStateOf(false) }
     val scale = animate(if (isFocused) 0f else 1f, TweenSpec(2000)) {
         if (it == 0f) {
             nextShape()

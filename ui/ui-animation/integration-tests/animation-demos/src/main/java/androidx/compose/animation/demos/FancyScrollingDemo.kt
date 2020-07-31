@@ -17,25 +17,26 @@
 package androidx.compose.animation.demos
 
 import android.util.Log
+import androidx.compose.animation.animatedFloat
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.TargetAnimation
 import androidx.compose.animation.core.fling
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.compose.animation.animatedFloat
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.DragObserver
-import androidx.compose.ui.gesture.rawDragGestureFilter
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Text
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.gesture.DragObserver
+import androidx.compose.ui.gesture.rawDragGestureFilter
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.roundToInt
@@ -51,7 +52,7 @@ fun FancyScrollingDemo() {
             modifier = Modifier.padding(40.dp)
         )
         val animScroll = animatedFloat(0f)
-        val itemWidth = state { 0f }
+        val itemWidth = remember { mutableStateOf(0f) }
         val gesture = Modifier.rawDragGestureFilter(dragObserver = object : DragObserver {
             override fun onDrag(dragDistance: Offset): Offset {
                 // Snap to new drag position

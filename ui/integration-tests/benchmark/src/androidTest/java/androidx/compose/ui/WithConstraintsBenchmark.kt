@@ -16,25 +16,26 @@
 
 package androidx.compose.ui
 
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.ContentGravity
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
-import androidx.compose.runtime.state
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.toggleStateBenchmarkComposeMeasureLayout
 import androidx.ui.benchmark.toggleStateBenchmarkMeasureLayout
-import androidx.compose.foundation.Box
-import androidx.compose.foundation.ContentGravity
 import androidx.ui.integration.test.ToggleableTestCase
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.preferredSize
-import androidx.compose.ui.unit.Constraints
 import androidx.ui.test.ComposeTestCase
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -69,7 +70,7 @@ private class NoWithConstraintsTestCase : ComposeTestCase, ToggleableTestCase {
 
     @Composable
     override fun emitContent() {
-        val size = state { 200.dp }
+        val size = remember { mutableStateOf(200.dp) }
         this.state = size
         Box(Modifier.preferredSize(300.dp), gravity = ContentGravity.Center) {
             Spacer(Modifier.preferredSize(width = size.value, height = size.value))
@@ -87,7 +88,7 @@ private class WithConstraintsTestCase : ComposeTestCase, ToggleableTestCase {
 
     @Composable
     override fun emitContent() {
-        val size = state { 200.dp }
+        val size = remember { mutableStateOf(200.dp) }
         this.state = size
         WithConstraints {
             Box(Modifier.preferredSize(300.dp), gravity = ContentGravity.Center) {
@@ -107,7 +108,7 @@ private class ChangingConstraintsTestCase : ComposeTestCase, ToggleableTestCase 
 
     @Composable
     override fun emitContent() {
-        val size = state { 100 }
+        val size = remember { mutableStateOf(100) }
         this.state = size
         ChangingConstraintsLayout(state) {
             WithConstraints {

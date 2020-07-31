@@ -16,19 +16,20 @@
 
 package androidx.compose.ui.demos.gestures
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.ScaleObserver
-import androidx.compose.ui.gesture.scaleGestureFilter
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.gesture.ScaleObserver
+import androidx.compose.ui.gesture.scaleGestureFilter
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 /**
@@ -36,7 +37,7 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 fun ScaleGestureFilterDemo() {
-    val size = state { 192.dp }
+    val size = remember { mutableStateOf(192.dp) }
 
     val scaleObserver = object : ScaleObserver {
         override fun onScale(scaleFactor: Float) {

@@ -17,8 +17,8 @@ package androidx.compose.ui.platform
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Providers
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.state
 import androidx.compose.ui.Layout
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -58,7 +58,7 @@ private fun Wrap(modifier: Modifier = Modifier, children: @Composable () -> Unit
 
 @Composable
 internal fun DesktopSelectionContainer(children: @Composable () -> Unit) {
-    val selection = state<Selection?> { null }
+    val selection = remember { mutableStateOf<Selection?>(null) }
     DesktopSelectionContainer(
         selection = selection.value,
         onSelectionChange = { selection.value = it },

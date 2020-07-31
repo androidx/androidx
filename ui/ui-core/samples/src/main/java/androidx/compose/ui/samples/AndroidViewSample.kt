@@ -24,10 +24,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.viewinterop.AndroidView
 
 @Sampled
@@ -36,7 +37,7 @@ fun AndroidViewSample() {
     // Compose a TextView.
     AndroidView({ context -> TextView(context).apply { text = "This is a TextView" } })
     // Compose a View and update its size based on state. Note the modifiers.
-    var size by state { 20 }
+    var size by remember { mutableStateOf(20) }
     AndroidView(::View, Modifier.clickable { size += 20 }.background(Color.Blue)) { view ->
         view.layoutParams = ViewGroup.LayoutParams(size, size)
     }

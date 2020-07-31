@@ -20,30 +20,10 @@
 package androidx.compose.material
 
 import android.os.Build
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Providers
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
-import androidx.test.filters.FlakyTest
-import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.boundsInRoot
-import androidx.compose.ui.onChildPositioned
-import androidx.compose.ui.onPositioned
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.contentColor
 import androidx.compose.foundation.currentTextStyle
-import androidx.compose.foundation.shape.CutCornerShape
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.layout.RowScope
@@ -57,6 +37,34 @@ import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CutCornerShape
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Providers
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.onChildPositioned
+import androidx.compose.ui.onPositioned
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.PxBounds
+import androidx.compose.ui.unit.center
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.width
+import androidx.test.filters.FlakyTest
+import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.ui.test.assertHasClickAction
 import androidx.ui.test.assertHasNoClickAction
 import androidx.ui.test.assertHeightIsAtLeast
@@ -67,19 +75,12 @@ import androidx.ui.test.assertShape
 import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.performClick
+import androidx.ui.test.hasClickAction
 import androidx.ui.test.onNode
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.onNodeWithText
-import androidx.ui.test.hasClickAction
+import androidx.ui.test.performClick
 import androidx.ui.test.runOnIdle
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.PxBounds
-import androidx.compose.ui.unit.center
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.height
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.width
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -152,7 +153,7 @@ class ButtonTest {
         val tag = "myButton"
 
         composeTestRule.setMaterialContent {
-            var enabled by state { true }
+            var enabled by remember { mutableStateOf(true) }
             val onClick = { enabled = false }
             Stack {
                 Button(modifier = Modifier.testTag(tag), onClick = onClick, enabled = enabled) {

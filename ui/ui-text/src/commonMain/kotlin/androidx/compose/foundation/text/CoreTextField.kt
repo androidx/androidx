@@ -19,6 +19,8 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.foundation.text.selection.SelectionHandle
+import androidx.compose.foundation.text.selection.TextFieldSelectionManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.emptyContent
 import androidx.compose.runtime.getValue
@@ -27,41 +29,32 @@ import androidx.compose.runtime.onDispose
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.state
+import androidx.compose.ui.FocusModifier
 import androidx.compose.ui.Layout
-import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.onPositioned
+import androidx.compose.ui.drawBehind
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focusState
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.gesture.DragObserver
 import androidx.compose.ui.gesture.LongPressDragObserver
 import androidx.compose.ui.gesture.dragGestureFilter
 import androidx.compose.ui.gesture.longPressDragGestureFilter
 import androidx.compose.ui.gesture.pressIndicatorGestureFilter
-import androidx.compose.ui.selection.SelectionLayout
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.drawscope.drawCanvas
-import androidx.compose.ui.text.input.EditProcessor
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.NO_SESSION
-import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.semantics.onClick
-import androidx.compose.foundation.text.selection.SelectionHandle
-import androidx.compose.foundation.text.selection.TextFieldSelectionManager
-import androidx.compose.ui.FocusModifier
-import androidx.compose.ui.drawBehind
-import androidx.compose.ui.focus.FocusState
-import androidx.compose.ui.focusState
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.onPositioned
 import androidx.compose.ui.platform.ClipboardManagerAmbient
 import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.platform.FontLoaderAmbient
 import androidx.compose.ui.platform.HapticFeedBackAmbient
 import androidx.compose.ui.platform.TextInputServiceAmbient
 import androidx.compose.ui.platform.TextToolbarAmbient
-import kotlin.math.max
+import androidx.compose.ui.selection.SelectionLayout
 import androidx.compose.ui.semantics.focused
 import androidx.compose.ui.semantics.getTextLayoutResult
+import androidx.compose.ui.semantics.onClick
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.setSelection
 import androidx.compose.ui.semantics.setText
 import androidx.compose.ui.semantics.text
@@ -74,6 +67,13 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.constrain
+import androidx.compose.ui.text.input.EditProcessor
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.NO_SESSION
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.VisualTransformation
+import kotlin.math.max
 import kotlin.math.roundToInt
 
 @Suppress("DEPRECATION")
@@ -93,7 +93,7 @@ fun CoreTextField(
     onTextLayout: (TextLayoutResult) -> Unit = {},
     onTextInputStarted: (SoftwareKeyboardController) -> Unit = {}
 ) {
-    val fullModel = state { TextFieldValue() }
+    val fullModel = remember { mutableStateOf(TextFieldValue()) }
     if (fullModel.value.text != value.text ||
         fullModel.value.selection != value.selection ||
         fullModel.value.composition != value.composition) {
@@ -196,7 +196,10 @@ fun CoreTextField(
     // and IME may think it is updated. To fix this inconsistent state, enforce recompose by
     // incrementing generation counter when we callback to the developer and reset the state with
     // the latest state.
-    val generation = state { 0 }
+
+    // BUG: b/162464429 - this can throw, "Expected a group" exceptions if changed to the
+    //      suggested equivalent for the deprecated state {} function.
+    val generation = state { 0 } // remember { mutableStateOf(0) }
     val Wrapper: @Composable (Int, @Composable () -> Unit) -> Unit = { _, child -> child() }
     val onValueChangeWrapper: (TextFieldValue) -> Unit = { onValueChange(it); generation.value++ }
 
@@ -474,7 +477,7 @@ private fun textInputEventObserver(
     onBlur: (hasNextClient: Boolean) -> Unit,
     focusModifier: FocusModifier
 ): Modifier {
-    val prevState = state { FocusState.NotFocused }
+    val prevState = remember { mutableStateOf(FocusState.NotFocused) }
     if (focusModifier.focusState == FocusState.Focused &&
         prevState.value == FocusState.NotFocused
     ) {
@@ -611,7 +614,7 @@ private fun Modifier.dragPositionGestureFilter(
     onRelease: (Offset) -> Unit,
     longPressDragObserver: LongPressDragObserver
 ): Modifier {
-    val tracker = state { DragEventTracker() }
+    val tracker = remember { DragEventTracker() }
     // TODO(shepshapard): PressIndicator doesn't seem to be the right thing to use here.  It
     //  actually may be functionally correct, but might mostly suggest that it should not
     //  actually be called PressIndicator, but instead something else.
@@ -619,15 +622,15 @@ private fun Modifier.dragPositionGestureFilter(
     return this
         .pressIndicatorGestureFilter(
             onStart = {
-                tracker.value.init(it)
+                tracker.init(it)
                 onPress(it)
             }, onStop = {
-                onRelease(tracker.value.getPosition())
+                onRelease(tracker.getPosition())
             })
         .dragGestureFilter(dragObserver = object :
             DragObserver {
             override fun onDrag(dragDistance: Offset): Offset {
-                tracker.value.onDrag(dragDistance)
+                tracker.onDrag(dragDistance)
                 return Offset.Zero
             }
         })

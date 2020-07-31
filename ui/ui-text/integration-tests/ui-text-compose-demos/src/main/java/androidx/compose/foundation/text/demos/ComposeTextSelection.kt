@@ -16,24 +16,25 @@
 
 package androidx.compose.foundation.text.demos
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.selection.Selection
-import androidx.compose.ui.selection.SelectionContainer
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.selection.Selection
+import androidx.compose.ui.selection.SelectionContainer
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.annotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.text.withStyle
 
 @Composable
@@ -50,7 +51,7 @@ fun TextSelectionDemo() {
 
 @Composable
 fun TextDemoSelection() {
-    val selection = state<Selection?> { null }
+    val selection = remember { mutableStateOf<Selection?>(null) }
     val arabicSentence =
         "\nكلمة شين في قاموس المعاني الفوري مجال البحث مصطلحات المعجم الوسيط ،اللغة"
     SelectionContainer(
@@ -95,7 +96,7 @@ fun TextDemoSelection() {
 
 @Composable
 fun TextDemoSelectionWithStringInput() {
-    val selection = state<Selection?> { null }
+    val selection = remember { mutableStateOf<Selection?>(null) }
     SelectionContainer(
         selection = selection.value,
         onSelectionChange = { selection.value = it }) {
@@ -128,7 +129,7 @@ fun TextDemoSelection2DArrayVertical() {
         Color(0xFFFF0000)
     )
 
-    val selection = state<Selection?> { null }
+    val selection = remember { mutableStateOf<Selection?>(null) }
     SelectionContainer(
         selection = selection.value,
         onSelectionChange = { selection.value = it }) {

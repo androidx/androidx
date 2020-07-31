@@ -17,9 +17,6 @@
 package androidx.compose.material.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -29,12 +26,16 @@ import androidx.compose.material.AlertDialog
 import androidx.compose.material.AlertDialogButtonLayout
 import androidx.compose.material.Button
 import androidx.compose.material.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Sampled
 @Composable
 fun SideBySideAlertDialogSample() {
-    val openDialog = state { true }
+    val openDialog = remember { mutableStateOf(true) }
 
     if (openDialog.value) {
         AlertDialog(
@@ -75,7 +76,7 @@ fun SideBySideAlertDialogSample() {
 @Sampled
 @Composable
 fun StackedAlertDialogSample() {
-    val openDialog = state { true }
+    val openDialog = remember { mutableStateOf(true) }
 
     if (openDialog.value) {
         AlertDialog(
@@ -115,7 +116,7 @@ fun StackedAlertDialogSample() {
 @Sampled
 @Composable
 fun CustomAlertDialogSample() {
-    val openDialog = state { true }
+    val openDialog = remember { mutableStateOf(true) }
 
     if (openDialog.value) {
         AlertDialog(

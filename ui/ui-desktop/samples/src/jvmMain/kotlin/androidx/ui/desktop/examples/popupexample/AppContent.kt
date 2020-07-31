@@ -33,7 +33,8 @@ import androidx.compose.material.Button
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.state
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,9 +49,9 @@ import androidx.compose.ui.window.Dialog
 @Composable
 fun content() {
 
-    val popupState = state { false }
-    val dialogState = state { false }
-    val amount = state { 0 }
+    val popupState = remember { mutableStateOf(false) }
+    val dialogState = remember { mutableStateOf(false) }
+    val amount = remember { mutableStateOf(0) }
 
     Surface(
         modifier = Modifier.fillMaxSize(),

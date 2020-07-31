@@ -17,13 +17,13 @@ package androidx.compose.animation
 
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.animation.core.TweenSpec
+import androidx.compose.foundation.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.onDispose
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
 import androidx.test.filters.MediumTest
-import androidx.compose.foundation.Text
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.onNodeWithText
 import androidx.ui.test.runOnIdle
@@ -46,7 +46,7 @@ class CrossfadeTest {
         composeTestRule.clockTestRule.pauseClock()
 
         composeTestRule.setContent {
-            val showFirst by state { true }
+            val showFirst by remember { mutableStateOf(true) }
             Crossfade(showFirst) {
                 Text(if (it) First else Second)
             }

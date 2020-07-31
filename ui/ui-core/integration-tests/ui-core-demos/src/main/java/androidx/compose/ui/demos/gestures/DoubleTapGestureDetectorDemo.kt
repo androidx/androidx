@@ -16,11 +16,6 @@
 
 package androidx.compose.ui.demos.gestures
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.doubleTapGestureFilter
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
@@ -29,7 +24,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.gesture.doubleTapGestureFilter
 import androidx.compose.ui.unit.dp
 
 /**
@@ -37,7 +38,7 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 fun DoubleTapGestureFilterDemo() {
-    val color = state { Colors.random() }
+    val color = remember { mutableStateOf(Colors.random()) }
 
     val onDoubleTap: (Offset) -> Unit = {
         color.value = color.value.anotherRandomColor()

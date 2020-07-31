@@ -24,11 +24,6 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
-import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
@@ -36,6 +31,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.Button
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.demos.databinding.TestLayoutBinding
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
@@ -60,7 +61,7 @@ fun ViewInteropDemo() {
         AndroidView({ context -> TextView(context).apply { text = "This is a TextView" } })
 
         // Compose Android View and update its size based on state. The AndroidView takes modifiers.
-        var size by state { 20 }
+        var size by remember { mutableStateOf(20) }
         AndroidView(::View, Modifier.clickable { size += 20 }.background(Color.Blue)) { view ->
             view.layoutParams = ViewGroup.LayoutParams(size, size)
         }
@@ -93,7 +94,7 @@ fun ViewInteropDemo() {
         Button(onClick = { squareRef.value!!.size += 50 }) {
             Text("Increase size of Android view")
         }
-        val colorIndex = state { 0 }
+        val colorIndex = remember { mutableStateOf(0) }
         Button(onClick = {
             colorIndex.value = (colorIndex.value + 1) % 4
             squareRef.value!!.color = arrayOf(

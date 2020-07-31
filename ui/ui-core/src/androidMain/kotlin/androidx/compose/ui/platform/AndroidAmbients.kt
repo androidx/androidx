@@ -24,12 +24,12 @@ import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.Providers
 import androidx.compose.runtime.ambientOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.neverEqualPolicy
 import androidx.compose.runtime.onDispose
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.savedinstancestate.UiSavedStateRegistryAmbient
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
 import androidx.compose.runtime.staticAmbientOf
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModelStoreOwner
@@ -68,11 +68,12 @@ internal fun ProvideAndroidAmbients(owner: AndroidOwner, content: @Composable ()
     val view = owner.view
     val context = view.context
 
-    var configuration by state(
-        @OptIn(ExperimentalComposeApi::class)
-        neverEqualPolicy()
-    ) {
-        context.applicationContext.resources.configuration
+    var configuration by remember {
+        mutableStateOf(
+            context.applicationContext.resources.configuration,
+            @OptIn(ExperimentalComposeApi::class)
+            neverEqualPolicy()
+        )
     }
     // onConfigurationChange is the correct hook to update configuration, however it is
     // possible that the configuration object itself may come from a wrapped

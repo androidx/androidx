@@ -16,30 +16,31 @@
 
 package androidx.compose.animation.demos
 
+import androidx.compose.animation.animatedFloat
 import androidx.compose.animation.core.AnimationEndReason
 import androidx.compose.animation.core.ExponentialDecay
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.TargetAnimation
 import androidx.compose.animation.core.fling
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.compose.animation.animatedFloat
-import androidx.compose.ui.platform.DensityAmbient
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.DragObserver
-import androidx.compose.ui.gesture.rawDragGestureFilter
-import androidx.compose.ui.onPositioned
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Text
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.gesture.DragObserver
+import androidx.compose.ui.gesture.rawDragGestureFilter
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import androidx.compose.ui.onPositioned
+import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.math.sign
@@ -63,9 +64,9 @@ private val padding = 10f
 @Composable
 private fun SwipeToDismiss() {
     val itemBottom = animatedFloat(height)
-    val index = state { 0 }
-    val itemWidth = state { 0f }
-    val isFlinging = state { false }
+    val index = remember { mutableStateOf(0) }
+    val itemWidth = remember { mutableStateOf(0f) }
+    val isFlinging = remember { mutableStateOf(false) }
     val modifier = Modifier.rawDragGestureFilter(dragObserver = object : DragObserver {
         override fun onStart(downPosition: Offset) {
             itemBottom.setBounds(0f, height)

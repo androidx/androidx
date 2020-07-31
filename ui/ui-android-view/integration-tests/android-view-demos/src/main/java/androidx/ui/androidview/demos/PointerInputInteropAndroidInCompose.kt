@@ -20,16 +20,10 @@ import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.runtime.Composable
-import androidx.ui.androidview.adapters.setOnClick
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.tapGestureFilter
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.ScrollableRow
 import androidx.compose.foundation.Text
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,13 +32,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.state
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.gesture.tapGestureFilter
 import androidx.compose.ui.input.pointer.pointerInteropFilter
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.ui.androidview.adapters.setOnClick
 import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.DemoCategory
-import androidx.compose.ui.viewinterop.AndroidView
 
 val AndroidInComposeDemos = DemoCategory("Android In Compose Interop", listOf(
     ComposableDemo("4 Android tap in Compose") { FourAndroidTapInCompose() },
@@ -276,7 +277,7 @@ private fun TwoAndroidScrollViewsInCompose() {
 @Composable
 private fun PointerInteropFilterDemo() {
 
-    val motionEventString: MutableState<String> = state { "Touch here!" }
+    val motionEventString: MutableState<String> = remember { mutableStateOf("Touch here!") }
 
     Column {
         Text("Demonstrates the functionality of pointerInteropFilter.")

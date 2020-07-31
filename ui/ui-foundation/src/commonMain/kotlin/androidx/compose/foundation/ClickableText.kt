@@ -16,7 +16,8 @@
 package androidx.compose.foundation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.gesture.pressIndicatorGestureFilter
 import androidx.compose.ui.gesture.tapGestureFilter
@@ -66,7 +67,7 @@ fun ClickableText(
     onTextLayout: (TextLayoutResult) -> Unit = {},
     onClick: (Int) -> Unit
 ) {
-    val layoutResult = state<TextLayoutResult?> { null }
+    val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
     val pressIndicator = Modifier.tapGestureFilter { pos ->
         layoutResult.value?.let { layoutResult ->
             onClick(layoutResult.getOffsetForPosition(pos))

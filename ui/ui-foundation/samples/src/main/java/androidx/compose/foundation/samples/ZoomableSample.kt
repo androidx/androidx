@@ -17,7 +17,6 @@
 package androidx.compose.foundation.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.Text
@@ -27,10 +26,11 @@ import androidx.compose.foundation.gestures.rememberZoomableController
 import androidx.compose.foundation.gestures.zoomable
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
-import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.drawLayer
@@ -45,7 +45,7 @@ fun ZoomableSample() {
         Modifier.preferredSize(300.dp).clipToBounds(),
         backgroundColor = Color.LightGray
     ) {
-        var scale by state(structuralEqualityPolicy()) { 1f }
+        var scale by remember { mutableStateOf(1f) }
         val zoomableController = rememberZoomableController { scale *= it }
         Box(
             Modifier

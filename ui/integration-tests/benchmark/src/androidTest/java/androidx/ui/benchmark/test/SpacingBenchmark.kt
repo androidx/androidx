@@ -16,9 +16,17 @@
 
 package androidx.ui.benchmark.test
 
+import androidx.compose.foundation.layout.InnerPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.state
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Layout
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.offset
 import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.benchmarkDrawPerf
@@ -31,15 +39,8 @@ import androidx.ui.benchmark.toggleStateBenchmarkDraw
 import androidx.ui.benchmark.toggleStateBenchmarkLayout
 import androidx.ui.benchmark.toggleStateBenchmarkMeasure
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
-import androidx.compose.ui.Layout
-import androidx.compose.ui.Modifier
 import androidx.ui.integration.test.ToggleableTestCase
-import androidx.compose.foundation.layout.InnerPadding
-import androidx.compose.foundation.layout.padding
 import androidx.ui.test.ComposeTestCase
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.offset
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -168,7 +169,7 @@ private sealed class PaddingTestCase : ComposeTestCase,
 
     @Composable
     override fun emitContent() {
-        val padding = state { 5.dp }
+        val padding = remember { mutableStateOf(5.dp) }
         paddingState = padding
 
         FillerContainer {

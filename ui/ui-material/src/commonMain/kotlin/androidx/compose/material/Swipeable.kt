@@ -40,7 +40,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.onCommit
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
@@ -254,7 +253,7 @@ internal fun <T> swipeableStateFor(
     onStateChange: (T) -> Unit,
     animationSpec: AnimationSpec<Float> = SpringSpec()
 ): SwipeableState<T> {
-    val forceAnimationCheck = state { false }
+    val forceAnimationCheck = remember { mutableStateOf(false) }
     val clock = AnimationClockAmbient.current.asDisposableClock()
     val swipeableState = remember(clock) {
         SwipeableState(state, clock, animationSpec = animationSpec)

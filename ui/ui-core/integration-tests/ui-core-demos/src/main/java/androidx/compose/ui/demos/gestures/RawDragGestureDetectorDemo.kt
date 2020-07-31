@@ -16,12 +16,6 @@
 
 package androidx.compose.ui.demos.gestures
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.DragObserver
-import androidx.compose.ui.gesture.rawDragGestureFilter
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Column
@@ -29,7 +23,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.gesture.DragObserver
+import androidx.compose.ui.gesture.rawDragGestureFilter
 import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.dp
 
@@ -38,7 +39,7 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 fun RawDragGestureFilterDemo() {
-    val offset = state { Offset.Zero }
+    val offset = remember { mutableStateOf(Offset.Zero) }
 
     val dragObserver = object : DragObserver {
         override fun onDrag(dragDistance: Offset): Offset {

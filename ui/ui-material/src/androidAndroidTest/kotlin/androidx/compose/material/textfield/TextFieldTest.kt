@@ -17,56 +17,57 @@
 package androidx.compose.material.textfield
 
 import android.os.Build
-import androidx.compose.runtime.Providers
-import androidx.compose.runtime.state
-import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.node.Ref
-import androidx.compose.ui.onPositioned
-import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.contentColor
 import androidx.compose.foundation.currentTextStyle
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.compositeOver
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredSize
-import androidx.compose.material.TextField
+import androidx.compose.foundation.text.FirstBaseline
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.TextField
 import androidx.compose.material.runOnIdleWithDensity
 import androidx.compose.material.setMaterialContent
 import androidx.compose.material.setMaterialContentForSizeAssertions
-import androidx.ui.test.assertHeightIsEqualTo
-import androidx.ui.test.assertShape
-import androidx.ui.test.captureToBitmap
-import androidx.ui.test.createComposeRule
-import androidx.ui.test.performClick
-import androidx.ui.test.performGesture
-import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.runOnIdle
-import androidx.ui.test.click
-import androidx.ui.test.performImeAction
-import androidx.ui.test.waitForIdle
-import androidx.compose.foundation.text.FirstBaseline
+import androidx.compose.runtime.Providers
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.node.Ref
+import androidx.compose.ui.onPositioned
 import androidx.compose.ui.platform.TextInputServiceAmbient
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.SoftwareKeyboardController
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.input.TextInputService
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
+import androidx.ui.test.assertHeightIsEqualTo
+import androidx.ui.test.assertShape
+import androidx.ui.test.captureToBitmap
+import androidx.ui.test.click
+import androidx.ui.test.createComposeRule
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.performClick
+import androidx.ui.test.performGesture
+import androidx.ui.test.performImeAction
+import androidx.ui.test.runOnIdle
+import androidx.ui.test.waitForIdle
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.atLeastOnce
@@ -637,7 +638,7 @@ class TextFieldTest {
             Providers(
                 TextInputServiceAmbient provides textInputService
             ) {
-                val text = state { TextFieldValue("") }
+                val text = remember { mutableStateOf(TextFieldValue("")) }
                 TextField(
                     modifier = Modifier.testTag(TextfieldTag),
                     value = text.value,

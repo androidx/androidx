@@ -16,19 +16,20 @@
 
 package androidx.compose.foundation
 
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.CoreTextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.test.annotation.UiThreadTest
-import androidx.test.filters.LargeTest
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.FocusModifier
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.foundation.layout.width
+import androidx.compose.ui.unit.dp
+import androidx.test.annotation.UiThreadTest
+import androidx.test.filters.LargeTest
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.runOnUiThread
-import androidx.compose.foundation.text.CoreTextField
-import androidx.compose.ui.FocusModifier
-import androidx.compose.ui.unit.dp
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -46,7 +47,7 @@ class TextFieldFocusTest {
     @Composable
     private fun TextFieldApp(dataList: List<FocusTestData>) {
         for (data in dataList) {
-            val editor = state { TextFieldValue() }
+            val editor = remember { mutableStateOf(TextFieldValue()) }
             CoreTextField(
                 value = editor.value,
                 modifier = Modifier.width(10.dp).then(data.id),

@@ -15,30 +15,31 @@
  */
 package androidx.compose.ui.demos.keyinput
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.ExperimentalFocus
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.input.key.ExperimentalKeyInput
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.foundation.Text
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus
+import androidx.compose.ui.focus.ExperimentalFocus
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.isFocused
 import androidx.compose.ui.focusObserver
 import androidx.compose.ui.focusRequester
 import androidx.compose.ui.gesture.tapGestureFilter
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.ExperimentalKeyInput
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.keyInputFilter
 
 @Composable
@@ -52,13 +53,13 @@ fun KeyInputDemo() {
             )
         }
         CenteredRow {
-            FocusableText(state { "Enter Text Here" })
+            FocusableText(remember { mutableStateOf("Enter Text Here") })
         }
         CenteredRow {
-            FocusableText(state { "Enter Text Here" })
+            FocusableText(remember { mutableStateOf("Enter Text Here") })
         }
         CenteredRow {
-            FocusableText(state { "Enter Text Here" })
+            FocusableText(remember { mutableStateOf("Enter Text Here") })
         }
     }
 }
@@ -69,7 +70,7 @@ fun KeyInputDemo() {
     ExperimentalKeyInput::class
 )
 private fun FocusableText(text: MutableState<String>) {
-    var color by state { Color.Black }
+    var color by remember { mutableStateOf(Color.Black) }
     val focusRequester = FocusRequester()
     Text(
         modifier = Modifier

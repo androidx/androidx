@@ -26,7 +26,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.AutofillNode
 import androidx.compose.ui.autofill.AutofillType
@@ -45,8 +46,8 @@ import androidx.compose.ui.unit.dp
 @OptIn(ExperimentalFoundationApi::class)
 fun ExplicitAutofillTypesDemo() {
     Column {
-        val nameState = state { TextFieldValue("Enter name here") }
-        val emailState = state { TextFieldValue("Enter email here") }
+        val nameState = remember { mutableStateOf(TextFieldValue("Enter name here")) }
+        val emailState = remember { mutableStateOf(TextFieldValue("Enter email here")) }
         val autofill = AutofillAmbient.current
         val labelStyle = MaterialTheme.typography.subtitle1
         val textStyle = MaterialTheme.typography.h6

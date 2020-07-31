@@ -16,12 +16,6 @@
 
 package androidx.compose.ui.demos.gestures
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.longPressDragGestureFilter
-import androidx.compose.ui.gesture.LongPressDragObserver
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Column
@@ -29,7 +23,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.gesture.LongPressDragObserver
+import androidx.compose.ui.gesture.longPressDragGestureFilter
 import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.dp
 
@@ -39,8 +40,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun LongPressDragGestureFilterDemo() {
 
-    val offset = state { Offset.Zero }
-    val color = state { Grey }
+    val offset = remember { mutableStateOf(Offset.Zero) }
+    val color = remember { mutableStateOf(Grey) }
 
     val longPressDragObserver =
         object : LongPressDragObserver {
