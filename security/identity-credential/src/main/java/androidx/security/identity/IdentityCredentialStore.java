@@ -26,6 +26,7 @@ import androidx.annotation.RestrictTo;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.security.cert.X509Certificate;
 
 /**
  * An interface to a secure store for user identity documents.
@@ -138,9 +139,16 @@ public abstract class IdentityCredentialStore {
      * Checks if direct-access is supported.
      *
      * <p>Direct access requires specialized NFC hardware and may not be supported on all
-     * devices even if default store is available. Credentials provisioned to the direct
-     * access store should <strong>always</strong> use reader authentication to protect
-     * data elements.
+     * devices even if default store is available.</p>
+     *
+     * <p>Because Android is not running when direct-access credentials are presented, there is
+     * no way for the user to consent to release of credential data. Therefore, credentials
+     * provisioned to the direct access store should <strong>always</strong> use reader
+     * authentication to protect data elements such that only readers authorized by the issuer
+     * can access them. The
+     * {@link AccessControlProfile.Builder#setReaderCertificate(X509Certificate)}
+     * method can be used at provisioning time to set which reader (or group of readers) are
+     * authorized to access data elements.</p>
      *
      * @param context the application context.
      * @return {@code true} if direct-access is supported.
