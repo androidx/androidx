@@ -238,6 +238,9 @@ class FragmentStateManager {
             case CREATED:
                 maxState = Math.min(maxState, Fragment.CREATED);
                 break;
+            case INITIALIZED:
+                maxState = Math.min(maxState, Fragment.ATTACHED);
+                break;
             default:
                 maxState = Math.min(maxState, Fragment.INITIALIZING);
         }

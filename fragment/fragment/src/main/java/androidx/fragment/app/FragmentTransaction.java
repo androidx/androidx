@@ -454,9 +454,10 @@ public abstract class FragmentTransaction {
      * already above the received state, it will be forced down to the correct state.
      *
      * <p>The fragment provided must currently be added to the FragmentManager to have it's
-     * Lifecycle state capped, or previously added as part of this transaction. The
-     * {@link Lifecycle.State} passed in must at least be {@link Lifecycle.State#CREATED}, otherwise
-     * an {@link IllegalArgumentException} will be thrown.</p>
+     * Lifecycle state capped, or previously added as part of this transaction. If the
+     * {@link Lifecycle.State#INITIALIZED} is passed in as the {@link Lifecycle.State} and the
+     * provided fragment has already moved beyond {@link Lifecycle.State#INITIALIZED}, an
+     * {@link IllegalArgumentException} will be thrown.</p>
      *
      * @param fragment the fragment to have it's state capped.
      * @param state the ceiling state for the fragment.
