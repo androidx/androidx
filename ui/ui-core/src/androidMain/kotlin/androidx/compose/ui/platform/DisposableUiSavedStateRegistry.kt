@@ -67,7 +67,7 @@ internal fun DisposableUiSavedStateRegistry(
 
     val androidxRegistry = savedStateRegistryOwner.savedStateRegistry
     val bundle = androidxRegistry.consumeRestoredStateForKey(key)
-    val restored: Map<String, Any>? = bundle?.toMap()
+    val restored: Map<String, List<Any?>>? = bundle?.toMap()
 
     val uiSavedStateRegistry = UiSavedStateRegistry(restored) {
         canBeSavedToBundle(it)
@@ -142,33 +142,23 @@ private val AcceptableClasses = arrayOf(
     SizeF::class.java
 )
 
-private val ValuesKey = "values"
-private val KeysKey = "keys"
-
-private fun Bundle.toMap(): Map<String, Any>? {
-    val keys = getStringArrayList(KeysKey)
-    @Suppress("UNCHECKED_CAST")
-    val values = getParcelableArrayList<Parcelable>(ValuesKey) as ArrayList<Any>?
-    check(keys != null && values != null && keys.size == values.size) {
-        "Invalid bundle passed as restored state"
-    }
-    val map = mutableMapOf<String, Any>()
-    for (i in keys.indices) {
-        map[keys[i]] = values[i]
+private fun Bundle.toMap(): Map<String, List<Any?>>? {
+    val map = mutableMapOf<String, List<Any?>>()
+    this.keySet().forEach { key ->
+        map[key] = getParcelableArrayList<Parcelable?>(key) as List<Any?>
     }
     return map
 }
 
-private fun Map<String, Any>.toBundle(): Bundle {
-    val keys = ArrayList<String>(size)
-    val values = ArrayList<Any>(size)
-    forEach { (key, value) ->
-        keys.add(key)
-        values.add(value)
-    }
+private fun Map<String, List<Any?>>.toBundle(): Bundle {
     val bundle = Bundle()
-    bundle.putStringArrayList(KeysKey, keys)
-    @Suppress("UNCHECKED_CAST")
-    bundle.putParcelableArrayList(ValuesKey, values as ArrayList<Parcelable>)
+    forEach { (key, list) ->
+        val arrayList = if (list is ArrayList<*>) list else ArrayList(list)
+        @Suppress("UNCHECKED_CAST")
+        bundle.putParcelableArrayList(
+            key,
+            arrayList as ArrayList<Parcelable?>
+        )
+    }
     return bundle
 }

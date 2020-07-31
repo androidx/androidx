@@ -35,15 +35,6 @@ class AutoSaverTest {
                 .isEqualTo(2)
         }
     }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun exceptionWhenCantBeSaved() {
-        val saver = autoSaver<Int>()
-
-        with(saver) {
-            disallowingScope.save(2)
-        }
-    }
 }
 
 val allowingScope = object : SaverScope {

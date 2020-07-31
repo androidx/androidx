@@ -33,8 +33,13 @@ interface UiSavedStateRegistry {
     /**
      * Registers the value provider.
      *
-     * The same [key] cannot be registered twice, if you need to update the provider call
-     * [unregisterProvider] first and then register again.
+     * There are could be multiple providers registered for the same [key]. In this case the
+     * order in which they were registered matters.
+     *
+     * Say we registered two providers for the key. One provides "1", second provides "2".
+     * [performSave] in this case will have listOf("1", "2) as a value for the key in the map.
+     * And later, when the registry will be recreated with the previously saved values, the first
+     * execution of [consumeRestored] would consume "1" and the second one "2".
      *
      * @param key Key to use for storing the value
      * @param valueProvider Provides the current value, to be executed when [performSave]
@@ -46,8 +51,9 @@ interface UiSavedStateRegistry {
      * Unregisters the value provider previously registered via [registerProvider].
      *
      * @param key Key of the value which shouldn't be saved anymore
+     * @param valueProvider The provider previously passed to [registerProvider]
      */
-    fun unregisterProvider(key: String)
+    fun unregisterProvider(key: String, valueProvider: () -> Any?)
 
     /**
      * Returns true if the value can be saved using this Registry.
@@ -58,9 +64,10 @@ interface UiSavedStateRegistry {
     fun canBeSaved(value: Any): Boolean
 
     /**
-     * Executes all the registered value providers and combines these values into a key-value map.
+     * Executes all the registered value providers and combines these values into a map. We have
+     * a list of values for each key as it is allowed to have multiple providers for the same key.
      */
-    fun performSave(): Map<String, Any>
+    fun performSave(): Map<String, List<Any?>>
 }
 
 /**
@@ -70,7 +77,7 @@ interface UiSavedStateRegistry {
  * @param canBeSaved Function which returns true if the given value can be saved by the registry
  */
 fun UiSavedStateRegistry(
-    restoredValues: Map<String, Any>?,
+    restoredValues: Map<String, List<Any?>>?,
     canBeSaved: (Any) -> Boolean
 ): UiSavedStateRegistry = UiSavedStateRegistryImpl(restoredValues, canBeSaved)
 
@@ -80,42 +87,68 @@ fun UiSavedStateRegistry(
 val UiSavedStateRegistryAmbient = staticAmbientOf<UiSavedStateRegistry?> { null }
 
 private class UiSavedStateRegistryImpl(
-    restored: Map<String, Any>?,
+    restored: Map<String, List<Any?>>?,
     private val canBeSaved: (Any) -> Boolean
 ) : UiSavedStateRegistry {
 
-    private val restored: MutableMap<String, Any> = restored?.toMutableMap() ?: mutableMapOf()
-    private val valueProviders = mutableMapOf<String, () -> Any?>()
+    private val restored: MutableMap<String, List<Any?>> =
+        restored?.toMutableMap() ?: mutableMapOf()
+    private val valueProviders = mutableMapOf<String, MutableList<() -> Any?>>()
 
     override fun canBeSaved(value: Any): Boolean = canBeSaved.invoke(value)
 
-    override fun consumeRestored(key: String): Any? = restored.remove(key)
+    override fun consumeRestored(key: String): Any? {
+        val list = restored.remove(key)
+        return if (list != null && list.isNotEmpty()) {
+            if (list.size > 1) {
+                restored[key] = list.subList(1, list.size)
+            }
+            list[0]
+        } else {
+            null
+        }
+    }
 
     override fun registerProvider(key: String, valueProvider: () -> Any?) {
         require(key.isNotBlank()) { "Registered key is empty or blank" }
-        require(!valueProviders.contains(key)) {
-            "Key $key was already registered. Please call " +
-                    "unregister before registering again"
-        }
         @Suppress("UNCHECKED_CAST")
-        valueProviders[key] = valueProvider
+        valueProviders.getOrPut(key) { mutableListOf() }.add(valueProvider)
     }
 
-    override fun unregisterProvider(key: String) {
-        require(valueProviders.contains(key)) {
-            "Key $key wasn't registered, but unregister " +
-                    "requested"
+    override fun unregisterProvider(key: String, valueProvider: () -> Any?) {
+        val list = valueProviders.remove(key)
+        val found = list?.remove(valueProvider)
+        require(found == true) {
+            "The given key $key , valueProvider pair wasn't previously registered"
         }
-        valueProviders.remove(key)
+        if (list.isNotEmpty()) {
+            // if there are other providers for this key return list back to the map
+            valueProviders[key] = list
+        }
     }
 
-    override fun performSave(): Map<String, Any> {
+    override fun performSave(): Map<String, List<Any?>> {
         val map = restored.toMutableMap()
-        valueProviders.forEach {
-            val value = it.value()
-            if (value != null) {
-                check(canBeSaved(value))
-                map[it.key] = value
+        valueProviders.forEach { (key, list) ->
+            if (list.size == 1) {
+                val value = list[0].invoke()
+                if (value != null) {
+                    check(canBeSaved(value))
+                    map[key] = arrayListOf<Any?>(value)
+                }
+            } else {
+                // if we have multiple providers we should store null values as well to preserve
+                // the order in which providers were registered. say there were two providers.
+                // the first provider returned null(nothing to save) and the second one returned
+                // "1". when we will be restoring the first provider would restore null (it is the
+                // same as to have nothing to restore) and the second one restore "1".
+                map[key] = list.map {
+                    val value = it.invoke()
+                    if (value != null) {
+                        check(canBeSaved(value))
+                    }
+                    value
+                }
             }
         }
         return map

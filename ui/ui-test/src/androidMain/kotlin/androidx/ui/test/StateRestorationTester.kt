@@ -98,7 +98,7 @@ class StateRestorationTester(private val composeTestRule: ComposeTestRule) {
         var shouldEmitChildren by mutableStateOf(true)
             private set
         private var currentRegistry: UiSavedStateRegistry = original
-        private var savedMap: Map<String, Any> = emptyMap()
+        private var savedMap: Map<String, List<Any?>> = emptyMap()
 
         fun saveStateAndDisposeChildren() {
             savedMap = currentRegistry.performSave()
@@ -118,7 +118,8 @@ class StateRestorationTester(private val composeTestRule: ComposeTestRule) {
         override fun registerProvider(key: String, valueProvider: () -> Any?) =
             currentRegistry.registerProvider(key, valueProvider)
 
-        override fun unregisterProvider(key: String) = currentRegistry.unregisterProvider(key)
+        override fun unregisterProvider(key: String, valueProvider: () -> Any?) =
+            currentRegistry.unregisterProvider(key, valueProvider)
 
         override fun canBeSaved(value: Any) = currentRegistry.canBeSaved(value)
 
