@@ -41,6 +41,7 @@ import androidx.compose.ui.layout.id
 import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.SoftwareKeyboardController
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.constrain
 import androidx.compose.ui.text.input.ImeAction
@@ -163,21 +164,22 @@ fun TextField(
     shape: Shape =
         MaterialTheme.shapes.small.copy(bottomLeft = ZeroCornerSize, bottomRight = ZeroCornerSize)
 ) {
-    var textFieldValue by remember { mutableStateOf(TextFieldValue()) }
-    if (textFieldValue.text != value) {
-        @OptIn(InternalTextApi::class)
-        textFieldValue = TextFieldValue(
-            text = value,
-            selection = textFieldValue.selection.constrain(0, value.length)
-        )
-    }
+    var selection by remember { mutableStateOf(TextRange.Zero) }
+    var composition by remember { mutableStateOf<TextRange?>(null) }
+    @OptIn(InternalTextApi::class)
+    val textFieldValue = TextFieldValue(
+        text = value,
+        selection = selection.constrain(0, value.length),
+        composition = composition?.constrain(0, value.length)
+    )
+
     TextFieldImpl(
         type = TextFieldType.Filled,
         value = textFieldValue,
         onValueChange = {
-            val previousValue = textFieldValue.text
-            textFieldValue = it
-            if (previousValue != it.text) {
+            selection = it.selection
+            composition = it.composition
+            if (value != it.text) {
                 onValueChange(it.text)
             }
         },

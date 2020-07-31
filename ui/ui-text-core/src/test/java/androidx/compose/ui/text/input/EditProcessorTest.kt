@@ -28,6 +28,7 @@ import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -63,5 +64,31 @@ class EditProcessorTest {
         assertEquals(1, newState.selection.max)
         // onEditCommands should not fire onStateUpdated since need to pass it to developer first.
         verify(tis, never()).onStateUpdated(any(), any())
+    }
+
+    @Test
+    fun textNewState_bufferNotUpdated_ifSameModelStructurally() {
+        val processor = EditProcessor()
+        val textInputService = mock<TextInputService>()
+        val token = 10 // mock token value
+
+        val initialBuffer = processor.mBuffer
+        processor.onNewState(
+            TextFieldValue("qwerty", TextRange.Zero, TextRange.Zero),
+            textInputService,
+            token
+        )
+        assertNotEquals(initialBuffer, processor.mBuffer)
+
+        val updatedBuffer = processor.mBuffer
+        processor.onNewState(
+            TextFieldValue("qwerty", TextRange.Zero, TextRange.Zero),
+            textInputService,
+            token
+        )
+        assertEquals(
+            updatedBuffer,
+            processor.mBuffer
+        )
     }
 }
