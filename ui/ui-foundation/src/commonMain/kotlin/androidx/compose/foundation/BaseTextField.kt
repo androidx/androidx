@@ -16,10 +16,14 @@
 
 package androidx.compose.foundation
 
+import androidx.compose.animation.animatedColor
 import androidx.compose.animation.core.AnimatedValue
 import androidx.compose.animation.core.AnimationConstants.Infinite
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.repeatable
+import androidx.compose.foundation.layout.defaultMinSizeConstraints
+import androidx.compose.foundation.text.CoreTextField
+import androidx.compose.foundation.text.TextFieldDelegate
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
@@ -28,8 +32,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.onCommit
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
-import androidx.compose.animation.animatedColor
 import androidx.compose.ui.ContentDrawScope
 import androidx.compose.ui.DrawModifier
 import androidx.compose.ui.Modifier
@@ -38,19 +40,16 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.useOrElse
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.InternalTextApi
+import androidx.compose.ui.text.SoftwareKeyboardController
+import androidx.compose.ui.text.TextLayoutResult
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.constrain
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.foundation.layout.defaultMinSizeConstraints
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.foundation.text.CoreTextField
-import androidx.compose.ui.text.InternalTextApi
-import androidx.compose.ui.text.SoftwareKeyboardController
-import androidx.compose.foundation.text.TextFieldDelegate
-import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.constrain
 import androidx.compose.ui.unit.dp
 
 // TODO(b/151940543): Remove this variable when we have a solution for idling animations
@@ -138,7 +137,7 @@ fun BaseTextField(
     onTextInputStarted: (SoftwareKeyboardController) -> Unit = {},
     cursorColor: Color = contentColor()
 ) {
-    val fullModel = state { TextFieldValue() }
+    val fullModel = remember { mutableStateOf(TextFieldValue()) }
     if (fullModel.value != value) {
         @OptIn(InternalTextApi::class)
         fullModel.value = TextFieldValue(

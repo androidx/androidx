@@ -17,22 +17,22 @@
 package androidx.ui.test
 
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.layout.Stack
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.state
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.onPositioned
 import androidx.test.espresso.AppNotIdleException
 import androidx.test.espresso.IdlingPolicies
 import androidx.test.espresso.IdlingPolicy
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.IdlingResource
 import androidx.test.filters.LargeTest
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.onPositioned
-import androidx.compose.foundation.Box
-import androidx.compose.foundation.Text
-import androidx.compose.foundation.layout.Stack
-import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.android.ComposeNotIdleException
+import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.util.expectError
 import org.junit.After
 import org.junit.Before
@@ -72,7 +72,7 @@ class TimeOutTest {
     @Composable
     fun infiniteCase() {
         Stack {
-            val infiniteCounter = state { 0 }
+            val infiniteCounter = remember { mutableStateOf(0) }
             Box(Modifier.onPositioned {
                 infiniteCounter.value += 1
             }) {

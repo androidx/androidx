@@ -17,41 +17,17 @@
 package androidx.compose.material.demos
 
 import android.graphics.SweepGradient
+import androidx.compose.animation.DpPropKey
 import androidx.compose.animation.core.FloatPropKey
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.emptyContent
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
-import androidx.compose.animation.DpPropKey
 import androidx.compose.animation.transition
-import androidx.compose.ui.platform.DensityAmbient
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.WithConstraints
-import androidx.compose.ui.draw.drawOpacity
-import androidx.compose.ui.gesture.DragObserver
-import androidx.compose.ui.gesture.dragGestureFilter
 import androidx.compose.foundation.Border
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.currentTextStyle
-import androidx.compose.foundation.shape.GenericShape
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Radius
-import androidx.compose.ui.graphics.Canvas
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageAsset
-import androidx.compose.ui.graphics.Paint
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.isSet
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.graphics.toPixelMap
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -64,9 +40,33 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.material.Surface
 import androidx.compose.material.TopAppBar
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.emptyContent
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.WithConstraints
+import androidx.compose.ui.draw.drawOpacity
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Radius
 import androidx.compose.ui.geometry.RoundRect
+import androidx.compose.ui.gesture.DragObserver
+import androidx.compose.ui.gesture.dragGestureFilter
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageAsset
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.isSet
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.toPixelMap
+import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -79,7 +79,7 @@ import java.util.Locale
  */
 @Composable
 fun ColorPickerDemo() {
-    var primary by state { Color(0xFF6200EE) }
+    var primary by remember { mutableStateOf(Color(0xFF6200EE)) }
     Surface(color = Color(0xFF121212)) {
         Column {
             TopAppBar(title = { Text("Color Picker") }, backgroundColor = primary)
@@ -96,10 +96,10 @@ private fun ColorPicker(onColorChange: (Color) -> Unit) {
             .aspectRatio(1f)
     ) {
         val diameter = constraints.maxWidth
-        var position by state { Offset.Zero }
+        var position by remember { mutableStateOf(Offset.Zero) }
         val colorWheel = remember(diameter) { ColorWheel(diameter) }
 
-        var isDragging by state { false }
+        var isDragging by remember { mutableStateOf(false) }
         val inputModifier = SimplePointerInput(
             position = position,
             onPositionChange = { newPosition ->

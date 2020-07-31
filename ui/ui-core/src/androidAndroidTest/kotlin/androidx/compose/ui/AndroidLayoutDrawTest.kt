@@ -29,8 +29,12 @@ import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.drawBackground
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.FrameManager
+import androidx.compose.runtime.Providers
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.emptyContent
@@ -38,17 +42,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
-import androidx.test.filters.SdkSuppress
-import androidx.test.filters.SmallTest
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.LayoutDirection
-import androidx.compose.ui.unit.constrainHeight
-import androidx.compose.ui.unit.constrainWidth
-import androidx.compose.ui.layout.layoutId
-import androidx.compose.ui.unit.offset
-import androidx.compose.foundation.drawBackground
-import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -58,23 +51,29 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.graphics.drawscope.translate
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.Providers
-import androidx.compose.ui.platform.AndroidOwnerExtraAssertionsRule
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.id
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.node.Ref
+import androidx.compose.ui.platform.AndroidOwnerExtraAssertionsRule
 import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.platform.LayoutDirectionAmbient
 import androidx.compose.ui.platform.setContent
+import androidx.compose.ui.test.TestActivity
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.unit.constrainHeight
+import androidx.compose.ui.unit.constrainWidth
+import androidx.compose.ui.unit.offset
+import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotNull
@@ -2191,7 +2190,7 @@ class AndroidLayoutDrawTest {
         activityTestRule.runOnUiThreadIR {
             activity.setContent {
                 Layout(children = {
-                    val state = state { false }
+                    val state = remember { mutableStateOf(false) }
                     var lastLayoutValue: Boolean = false
                     Layout(children = {}, modifier = Modifier.drawBehind {
                         // this verifies the layout was remeasured before being drawn
@@ -3129,7 +3128,7 @@ fun Scroller(
     offset: State<Int>,
     child: @Composable () -> Unit
 ) {
-    val maxPosition = state { Constraints.Infinity }
+    val maxPosition = remember { mutableStateOf(Constraints.Infinity) }
     ScrollerLayout(
         modifier = modifier,
         maxPosition = maxPosition.value,

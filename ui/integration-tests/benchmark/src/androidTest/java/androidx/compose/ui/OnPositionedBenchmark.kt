@@ -16,20 +16,21 @@
 
 package androidx.compose.ui
 
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.ContentGravity
+import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.state
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.toggleStateBenchmarkLayout
-import androidx.compose.foundation.Box
-import androidx.compose.foundation.ContentGravity
 import androidx.ui.integration.test.ToggleableTestCase
-import androidx.compose.foundation.layout.Stack
-import androidx.compose.foundation.layout.preferredSize
 import androidx.ui.test.ComposeTestCase
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -57,7 +58,7 @@ private class DeepHierarchyOnPositionedTestCase :
 
     @Composable
     override fun emitContent() {
-        val size = state { 200.dp }
+        val size = remember { mutableStateOf(200.dp) }
         this.state = size
         Stack {
             Box(Modifier.preferredSize(size.value), gravity = ContentGravity.Center) {

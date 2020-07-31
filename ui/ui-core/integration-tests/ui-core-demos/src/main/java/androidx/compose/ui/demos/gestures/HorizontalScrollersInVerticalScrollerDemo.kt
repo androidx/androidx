@@ -16,31 +16,32 @@
 
 package androidx.compose.ui.demos.gestures
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.ContentDrawScope
-import androidx.compose.ui.DrawModifier
-import androidx.compose.ui.Layout
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.ScrollCallback
-import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.drawBorder
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.ContentDrawScope
+import androidx.compose.ui.DrawModifier
+import androidx.compose.ui.Layout
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.gesture.Direction
+import androidx.compose.ui.gesture.ScrollCallback
 import androidx.compose.ui.gesture.doubleTapGestureFilter
 import androidx.compose.ui.gesture.longPressGestureFilter
 import androidx.compose.ui.gesture.pressIndicatorGestureFilter
 import androidx.compose.ui.gesture.scrollGestureFilter
+import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.ui.gesture.tapGestureFilter
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.clipRect
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
@@ -81,8 +82,8 @@ fun HorizontalScrollersInVerticalScrollersDemo() {
 @Composable
 private fun Scrollable(orientation: Orientation, children: @Composable () -> Unit) {
     val maxOffset = 0f
-    val offset = state { maxOffset }
-    val minOffset = state { 0f }
+    val offset = remember { mutableStateOf(maxOffset) }
+    val minOffset = remember { mutableStateOf(0f) }
 
     val scrollObserver = object : ScrollCallback {
         override fun onScroll(scrollDistance: Float): Float {
@@ -183,8 +184,8 @@ private fun Pressable(
     val pressedColor = PressedColor
     val defaultColor = Red
 
-    val color = state { defaultColor }
-    val showPressed = state { false }
+    val color = remember { mutableStateOf(defaultColor) }
+    val showPressed = remember { mutableStateOf(false) }
 
     val onPress: (Offset) -> Unit = {
         showPressed.value = true

@@ -16,24 +16,24 @@
 
 package androidx.compose.ui.demos.gestures
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
-import androidx.compose.ui.input.pointer.PointerInputFilter
-import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.drawBorder
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumnFor
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.PointerInputFilter
+import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.platform.PointerEventPass
 import androidx.compose.ui.platform.PointerInputChange
 import androidx.compose.ui.platform.changedToDownIgnoreConsumed
@@ -68,7 +68,7 @@ fun PointerInputDuringSubComp() {
                 .size(200.dp)
                 .background(color = Color.White)
         ) {
-            val pointerCount = state { 0 }
+            val pointerCount = remember { mutableStateOf(0) }
 
             Box(
                 Modifier.fillParentMaxSize()

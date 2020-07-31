@@ -15,39 +15,40 @@
  */
 package androidx.compose.material
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
-import androidx.test.filters.LargeTest
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.samples.ScrollingTextTabs
 import androidx.compose.material.samples.TextTabs
-import androidx.ui.test.assertCountEquals
-import androidx.ui.test.assertHeightIsEqualTo
-import androidx.ui.test.assertIsEqualTo
-import androidx.ui.test.assertIsSelected
-import androidx.ui.test.assertIsNotSelected
-import androidx.ui.test.assertPositionInRootIsEqualTo
-import androidx.ui.test.createComposeRule
-import androidx.ui.test.performClick
-import androidx.ui.test.onAllNodes
-import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.getUnclippedBoundsInRoot
-import androidx.ui.test.isInMutuallyExclusiveGroup
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
+import androidx.test.filters.LargeTest
+import androidx.ui.test.assertCountEquals
+import androidx.ui.test.assertHeightIsEqualTo
+import androidx.ui.test.assertIsEqualTo
+import androidx.ui.test.assertIsNotSelected
+import androidx.ui.test.assertIsSelected
+import androidx.ui.test.assertPositionInRootIsEqualTo
+import androidx.ui.test.createComposeRule
+import androidx.ui.test.getUnclippedBoundsInRoot
+import androidx.ui.test.isInMutuallyExclusiveGroup
+import androidx.ui.test.onAllNodes
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.performClick
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -104,7 +105,7 @@ class TabTest {
         val indicatorHeight = 1.dp
 
         composeTestRule.setMaterialContent {
-            var state by state { 0 }
+            var state by remember { mutableStateOf(0) }
             val titles = listOf("TAB 1", "TAB 2")
 
             val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
@@ -157,7 +158,7 @@ class TabTest {
     @Test
     fun singleLineTab_textBaseline() {
         composeTestRule.setMaterialContent {
-            var state by state { 0 }
+            var state by remember { mutableStateOf(0) }
             val titles = listOf("TAB")
 
             Box {
@@ -193,7 +194,7 @@ class TabTest {
     @Test
     fun singleLineTab_withIcon_textBaseline() {
         composeTestRule.setMaterialContent {
-            var state by state { 0 }
+            var state by remember { mutableStateOf(0) }
             val titles = listOf("TAB")
 
             Box {
@@ -230,7 +231,7 @@ class TabTest {
     @Test
     fun twoLineTab_textBaseline() {
         composeTestRule.setMaterialContent {
-            var state by state { 0 }
+            var state by remember { mutableStateOf(0) }
             val titles = listOf("Two line \n text")
 
             Box {
@@ -271,7 +272,7 @@ class TabTest {
         val minimumTabWidth = 90.dp
 
         composeTestRule.setMaterialContent {
-            var state by state { 0 }
+            var state by remember { mutableStateOf(0) }
             val titles = listOf("TAB 1", "TAB 2")
 
             val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->

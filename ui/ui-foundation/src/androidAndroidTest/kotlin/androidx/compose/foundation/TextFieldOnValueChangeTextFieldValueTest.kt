@@ -17,10 +17,11 @@
 package androidx.compose.foundation
 
 import androidx.compose.runtime.Providers
-import androidx.compose.runtime.state
-import androidx.test.filters.SmallTest
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.TextInputServiceAmbient
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.CommitTextEditOp
 import androidx.compose.ui.text.input.DeleteSurroundingTextEditOp
 import androidx.compose.ui.text.input.EditOperation
@@ -29,14 +30,14 @@ import androidx.compose.ui.text.input.SetComposingRegionEditOp
 import androidx.compose.ui.text.input.SetComposingTextEditOp
 import androidx.compose.ui.text.input.SetSelectionEditOp
 import androidx.compose.ui.text.input.TextInputService
+import androidx.test.filters.SmallTest
+import androidx.ui.test.click
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.performGesture
-import androidx.ui.test.onNode
 import androidx.ui.test.hasInputMethodsSupport
+import androidx.ui.test.onNode
+import androidx.ui.test.performGesture
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.runOnUiThread
-import androidx.ui.test.click
-import androidx.compose.ui.text.TextRange
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.argumentCaptor
@@ -75,10 +76,12 @@ class TextFieldOnValueChangeTextFieldValueTest {
             Providers(
                 TextInputServiceAmbient provides textInputService
             ) {
-                val state = state {
-                    androidx.compose.ui.text.input.TextFieldValue(
-                        "abcde",
-                        TextRange.Zero
+                val state = remember {
+                    mutableStateOf(
+                        androidx.compose.ui.text.input.TextFieldValue(
+                            "abcde",
+                            TextRange.Zero
+                        )
                     )
                 }
                 BaseTextField(

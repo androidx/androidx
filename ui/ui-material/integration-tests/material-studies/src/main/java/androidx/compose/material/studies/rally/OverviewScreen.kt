@@ -17,12 +17,6 @@
 package androidx.compose.material.studies.rally
 
 import android.annotation.SuppressLint
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Arrangement
@@ -39,6 +33,13 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import java.util.Locale
 
@@ -58,7 +59,7 @@ fun OverviewBody() {
  */
 @Composable
 private fun AlertCard() {
-    var openDialog by state { false }
+    var openDialog by remember { mutableStateOf(false) }
     val alertMessage = "Heads up, you've used up 90% of your Shopping budget for this month."
 
     if (openDialog) {

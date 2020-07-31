@@ -16,16 +16,17 @@
 
 package androidx.ui.test
 
-import androidx.compose.runtime.state
-import androidx.test.filters.FlakyTest
-import androidx.test.filters.MediumTest
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.test.filters.FlakyTest
+import androidx.test.filters.MediumTest
 import androidx.ui.test.util.expectAssertionError
 import org.junit.Rule
 import org.junit.Test
@@ -45,7 +46,7 @@ class AssertExistsTest {
         composeTestRule.setContent {
             MaterialTheme {
                 Surface {
-                    val (showText, toggle) = state { true }
+                    val (showText, toggle) = remember { mutableStateOf(true) }
                     Column {
                         Button(
                             modifier = Modifier.testTag("MyButton"),

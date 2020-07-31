@@ -16,29 +16,29 @@
 
 package androidx.compose.foundation
 
+import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
-import androidx.test.filters.MediumTest
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.layout.Stack
+import androidx.test.filters.MediumTest
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.assertIsInMutuallyExclusiveGroup
-import androidx.ui.test.assertIsSelected
 import androidx.ui.test.assertIsNotSelected
+import androidx.ui.test.assertIsSelected
 import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.down
+import androidx.ui.test.isInMutuallyExclusiveGroup
+import androidx.ui.test.onAllNodes
+import androidx.ui.test.onFirst
+import androidx.ui.test.onNode
+import androidx.ui.test.onNodeWithText
 import androidx.ui.test.performClick
 import androidx.ui.test.performGesture
-import androidx.ui.test.onNode
-import androidx.ui.test.onAllNodes
-import androidx.ui.test.onNodeWithText
-import androidx.ui.test.onFirst
-import androidx.ui.test.isInMutuallyExclusiveGroup
 import androidx.ui.test.runOnIdle
-import androidx.ui.test.down
 import androidx.ui.test.up
 import com.google.common.truth.Truth
 import org.junit.Rule
@@ -72,7 +72,7 @@ class SelectableTest {
     @Test
     fun selectable_defaultClicks() {
         composeTestRule.setContent {
-            val (selected, onSelected) = state { false }
+            val (selected, onSelected) = remember { mutableStateOf(false) }
             Text(
                 "Text in item",
                 modifier = Modifier.selectable(
@@ -93,7 +93,7 @@ class SelectableTest {
     @Test
     fun selectable_noClicksNoChanges() {
         composeTestRule.setContent {
-            val (selected, _) = state { false }
+            val (selected, _) = remember { mutableStateOf(false) }
             Text(
                 "Text in item",
                 modifier = Modifier.selectable(

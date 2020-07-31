@@ -16,20 +16,21 @@
 
 package androidx.ui.benchmark.test
 
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.state
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.benchmarkFirstCompose
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
-import androidx.compose.ui.Modifier
-import androidx.compose.foundation.Box
 import androidx.ui.integration.test.ToggleableTestCase
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.preferredWidth
 import androidx.ui.test.ComposeTestCase
-import androidx.compose.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -69,7 +70,7 @@ private sealed class TrailingLambdaTestCase() : ComposeTestCase,
 
     @Composable
     override fun emitContent() {
-        val number = state { 5 }
+        val number = remember { mutableStateOf(5) }
         numberState = number
 
         val content = @Composable {

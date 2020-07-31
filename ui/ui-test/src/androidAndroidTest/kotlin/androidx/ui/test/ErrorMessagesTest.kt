@@ -16,18 +16,19 @@
 
 package androidx.ui.test
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.test.filters.MediumTest
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.SemanticsActions
+import androidx.test.filters.MediumTest
 import androidx.ui.test.util.expectErrorMessage
 import androidx.ui.test.util.expectErrorMessageStartsWith
 import org.junit.Rule
@@ -315,7 +316,7 @@ class ErrorMessagesTest {
     @Composable
     fun ComposeTextToHideCase() {
         MaterialTheme {
-            val (showText, toggle) = state { true }
+            val (showText, toggle) = remember { mutableStateOf(true) }
             Column {
                 TestButton(
                     modifier = Modifier.testTag("MyButton"),

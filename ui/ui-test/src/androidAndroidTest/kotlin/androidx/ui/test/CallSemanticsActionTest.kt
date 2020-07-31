@@ -16,16 +16,17 @@
 
 package androidx.ui.test
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.test.filters.MediumTest
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.layout.Column
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.AccessibilityAction
 import androidx.compose.ui.semantics.SemanticsPropertyKey
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.accessibilityLabel
+import androidx.compose.ui.semantics.semantics
+import androidx.test.filters.MediumTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,7 +42,7 @@ class CallSemanticsActionTest {
     @Test
     fun performSemanticsAction() {
         composeTestRule.setContent {
-            val state = state { "Nothing" }
+            val state = remember { mutableStateOf("Nothing") }
             BoundaryNode {
                 setString("SetString") { state.value = it; return@setString true }
                 accessibilityLabel = state.value

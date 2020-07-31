@@ -16,33 +16,31 @@
 
 package androidx.compose.ui.demos.gestures
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.state
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.DragObserver
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.Text
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.preferredSize
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.gesture.DragObserver
 import androidx.compose.ui.gesture.dragGestureFilter
-import androidx.compose.ui.window.Popup
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.round
+import androidx.compose.ui.window.Popup
 
 @Composable
 fun PopupDragDemo() {
     // TODO fix this demo in RTL (check when draggable handles RTL)
-    val offset = state {
-        Offset.Zero
-    }
+    val offset = remember { mutableStateOf(Offset.Zero) }
 
     val observer = remember {
         object : DragObserver {

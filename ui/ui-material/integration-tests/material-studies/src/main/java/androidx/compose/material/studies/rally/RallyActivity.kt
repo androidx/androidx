@@ -18,15 +18,16 @@ package androidx.compose.material.studies.rally
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.setContent
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Scaffold
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.setContent
 
 /**
  * This Activity recreates the Rally Material Study from
@@ -45,7 +46,7 @@ class RallyActivity : ComponentActivity() {
 fun RallyApp() {
     RallyTheme {
         val allScreens = RallyScreenState.values().toList()
-        var currentScreen by state { RallyScreenState.Overview }
+        var currentScreen by remember { mutableStateOf(RallyScreenState.Overview) }
         Scaffold(
             topBar = {
                 RallyTopAppBar(

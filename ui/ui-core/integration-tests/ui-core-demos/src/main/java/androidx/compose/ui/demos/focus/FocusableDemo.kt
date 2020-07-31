@@ -15,26 +15,27 @@
  */
 package androidx.compose.ui.demos.focus
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.state
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.ExperimentalFocus
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.foundation.Text
-import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.graphics.Color.Companion.Green
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus
+import androidx.compose.ui.focus.ExperimentalFocus
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.isFocused
 import androidx.compose.ui.focusObserver
 import androidx.compose.ui.focusRequester
 import androidx.compose.ui.gesture.tapGestureFilter
+import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.graphics.Color.Companion.Green
 
 @Composable
 fun FocusableDemo() {
@@ -59,7 +60,7 @@ fun FocusableDemo() {
 @Composable
 @OptIn(ExperimentalFocus::class)
 private fun FocusableText(text: String) {
-    var color by state { Black }
+    var color by remember { mutableStateOf(Black) }
     val focusRequester = FocusRequester()
     Text(
         modifier = Modifier

@@ -17,11 +17,6 @@
 package androidx.compose.foundation.layout.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.tapGestureFilter
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.absoluteOffsetPx
@@ -29,6 +24,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.offsetPx
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.gesture.tapGestureFilter
 import androidx.compose.ui.unit.dp
 
 @Sampled
@@ -61,7 +62,7 @@ fun LayoutAbsoluteOffsetModifier() {
 fun LayoutOffsetPxModifier() {
     // This text will be offset in steps of 10.dp from the top left of the available space in
     // left-to-right context, and from top right in right-to-left context.
-    val offset = state { 0f }
+    val offset = remember { mutableStateOf(0f) }
     Text(
         "Layout offset modifier sample",
         Modifier
@@ -74,7 +75,7 @@ fun LayoutOffsetPxModifier() {
 @Composable
 fun LayoutAbsoluteOffsetPxModifier() {
     // This text will be offset in steps of 10.dp from the top left of the available space.
-    val offset = state { 0f }
+    val offset = remember { mutableStateOf(0f) }
     Text(
         "Layout offset modifier sample",
         Modifier

@@ -32,10 +32,12 @@ import androidx.compose.material.Scaffold
 import androidx.compose.material.Slider
 import androidx.compose.material.TextField
 import androidx.compose.material.TopAppBar
-import androidx.compose.runtime.state
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.fontFamily
@@ -44,7 +46,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.ui.desktop.AppWindow
-import androidx.compose.ui.res.imageResource
 
 private const val title = "Desktop Compose Elements"
 
@@ -67,9 +68,11 @@ fun main() {
                 )
             },
             bodyContent = {
-                val amount = state { 0 }
-                val animation = state { true }
-                val text = state { "Hello \uD83E\uDDD1\uD83C\uDFFF\u200D\uD83E\uDDB0\nПривет" }
+                val amount = remember { mutableStateOf(0) }
+                val animation = remember { mutableStateOf(true) }
+                val text = remember {
+                    mutableStateOf("Hello \uD83E\uDDD1\uD83C\uDFFF\u200D\uD83E\uDDB0\nПривет")
+                }
                 Column(Modifier.fillMaxSize(), Arrangement.SpaceEvenly) {
                     Text(
                         text = "Привет! 你好! Desktop Compose ${amount.value}",

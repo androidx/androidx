@@ -20,15 +20,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.SnapshotMutationPolicy
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.state
 import androidx.compose.runtime.structuralEqualityPolicy
 
 /**
  * Used to introduce a state value of type [T] into a composition.
  *
- * It behaves similarly to [state], but the stored value will survive the activity or process
- * recreation using the saved instance state mechanism (for example it happens when the screen is
- * rotated in the Android application).
+ * It behaves similarly to `remember { mutableStateOf(...) }`, but the stored value will survive
+ * the activity or process recreation using the saved instance state mechanism (for example it
+ * happens when the screen is rotated in the Android application).
  *
  * @sample androidx.compose.runtime.savedinstancestate.samples.SavedInstanceStateSample
  *

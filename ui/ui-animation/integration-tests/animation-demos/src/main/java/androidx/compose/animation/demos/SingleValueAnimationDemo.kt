@@ -16,18 +16,19 @@
 
 package androidx.compose.animation.demos
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.state
 import androidx.compose.animation.animate
-import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.clickable
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 
 @Composable
 fun SingleValueAnimationDemo() {
-    val enabled = state { true }
+    val enabled = remember { mutableStateOf(true) }
     val color = animate(if (enabled.value) Color.Green else Color.Red)
     Box(
         Modifier.fillMaxSize().clickable { enabled.value = !enabled.value },

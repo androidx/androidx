@@ -16,13 +16,13 @@
 
 package androidx.ui.test
 
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.onPreCommit
-import androidx.compose.runtime.state
+import androidx.compose.runtime.remember
 import androidx.test.filters.SmallTest
-import androidx.compose.foundation.Box
-import androidx.compose.foundation.Text
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -69,7 +69,7 @@ class AndroidComposeTestCaseRunnerTest {
     // @Test //- TODO: Does not work, performs only 1 frame until stable
     fun foreverRecomposing_viaState_shouldFail() {
         composeTestRule.forGivenContent {
-            val state = state { 0 }
+            val state = remember { mutableStateOf(0) }
             Text("Hello ${state.value}")
             state.value++
         }.performTestWithEventsControl {
@@ -83,7 +83,7 @@ class AndroidComposeTestCaseRunnerTest {
     // @Test //- TODO: Does not work, performs only 1 frame until stable
     fun foreverRecomposing_viaStatePreCommit_shouldFail() {
         composeTestRule.forGivenContent {
-            val state = state { 0 }
+            val state = remember { mutableStateOf(0) }
             Text("Hello ${state.value}")
             onPreCommit {
                 state.value++
@@ -119,7 +119,7 @@ class AndroidComposeTestCaseRunnerTest {
     @Test
     fun recomposeOnce() {
         composeTestRule.forGivenContent {
-            val state = state { 0 }
+            val state = remember { mutableStateOf(0) }
             if (state.value < 1) {
                 state.value++
             }
@@ -132,7 +132,7 @@ class AndroidComposeTestCaseRunnerTest {
     // @Test //- TODO: Does not work, performs only 1 frame until stable
     fun recomposeTwice() {
         composeTestRule.forGivenContent {
-            val state = state { 0 }
+            val state = remember { mutableStateOf(0) }
             if (state.value < 2) {
                 state.value++
             }
