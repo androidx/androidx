@@ -27,7 +27,7 @@ import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
 
 import com.example.android.supportv7.R;
 
-final class FancyItemHolder extends FancyHolder {
+final class DemoItemHolder extends DemoHolder {
 
     private final LinearLayout mContainer;
     private final TextView mSelector;
@@ -36,7 +36,7 @@ final class FancyItemHolder extends FancyHolder {
 
     private @Nullable Uri mKey;
 
-    FancyItemHolder(LinearLayout layout) {
+    DemoItemHolder(LinearLayout layout) {
         super(layout);
 
         mContainer = layout.findViewById(R.id.container);
@@ -45,28 +45,28 @@ final class FancyItemHolder extends FancyHolder {
         mDetails = new ItemDetails<Uri>() {
             @Override
             public int getPosition() {
-                return FancyItemHolder.this.getBindingAdapterPosition();
+                return DemoItemHolder.this.getAbsoluteAdapterPosition();
             }
 
             @Override
             public Uri getSelectionKey() {
-                return FancyItemHolder.this.mKey;
+                return DemoItemHolder.this.mKey;
             }
 
             @Override
             public boolean inDragRegion(@NonNull MotionEvent e) {
-                return FancyItemHolder.this.inDragRegion(e);
+                return DemoItemHolder.this.inDragRegion(e);
             }
 
             @Override
             public boolean inSelectionHotspot(@NonNull MotionEvent e) {
-                return FancyItemHolder.this.inSelectRegion(e);
+                return DemoItemHolder.this.inSelectRegion(e);
             }
 
             @NonNull
             @Override
             public String toString() {
-                return FancyItemHolder.this.toString();
+                return DemoItemHolder.this.toString();
             }
         };
     }

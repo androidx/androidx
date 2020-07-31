@@ -45,19 +45,29 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.android.supportv7.R;
 
 /**
- * ContentPager demo activity.
+ * RecyclerView Selection library fancy demo activity. The fancy
+ * demo includes support for both touch and mouse (band) driven selection.
+ * Use this activity as your example when implementing an activity/fragment
+ * that will run on a wide range of devices, including devices like ChromeOS
+ * where a pointing device may be present, or even the sole means of input.
+ *
+ * <p>The key to an implementation that provides mouse support is
+ * to provide an {@link ItemKeyProvider} that is
+ * {@link ItemKeyProvider#SCOPE_MAPPED}. This means the key provider
+ * can supply information about both position and item key at any time,
+ * even when an item is not attached to the recycler view. See
+ * {@link DemoAdapter.KeyProvider} for an example of a SCOPE_MAPPED
+ * provider that uses simple {@link Uri}s as the keys.
  */
 public class FancySelectionDemoActivity extends AppCompatActivity {
 
     private static final String TAG = "SelectionDemos";
-    private static final String EXTRA_COLUMN_COUNT = "demo-column-count";
 
     private RecyclerView mRecView;
-    private FancySelectionDemoAdapter mAdapter;
+    private DemoAdapter mAdapter;
     private SelectionTracker<Uri> mSelectionTracker;
 
     private GridLayoutManager mLayout;
-    private int mColumnCount = 1;  // This will get updated when layout changes.
     private boolean mIterceptListenerEnabled = false;
 
     @Override
@@ -80,7 +90,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
             @Override
             public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
                 return mIterceptListenerEnabled
-                        && FancyHeaderHolder.isHeader(rv.findChildViewUnder(e.getX(), e.getY()));
+                        && DemoHeaderHolder.isHeader(rv.findChildViewUnder(e.getX(), e.getY()));
             }
 
             @Override
@@ -93,9 +103,9 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
             }
         });
 
-        mLayout = new GridLayoutManager(this, mColumnCount);
+        mLayout = new GridLayoutManager(this, 1);
         mRecView.setLayoutManager(mLayout);
-        mAdapter = new FancySelectionDemoAdapter(this);
+        mAdapter = new DemoAdapter(this);
         mRecView.setAdapter(mAdapter);
         ItemKeyProvider<Uri> keyProvider = mAdapter.getItemKeyProvider();
 
@@ -103,18 +113,25 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
                 "fancy-demo",
                 mRecView,
                 keyProvider,
-                new FancyDetailsLookup(mRecView),
+                new DemoDetailsLookup(mRecView),
                 StorageStrategy.createParcelableStorage(Uri.class));
 
-        // Override default behaviors and build in multi select mode.
-        // Call .withSelectionPredicate(SelectionTracker.SelectionPredicate.SINGLE_ANYTHING)
-        // for single selection mode.
+        // Build a multi-selection enabled tracker with support for many
+        // mouse/keyboard centric niceties friendly to ChromeOS users
+        // of your app.
         mSelectionTracker = builder
                 .withSelectionPredicate(SelectionPredicates.createSelectAnything())
+                // Allow users to drag a selection, can be initiated by long pressing
+                // on existing selection, or click-dragging with a mouse.
                 .withOnDragInitiatedListener(new OnDragInitiatedListener(this))
+                // Respond to context clicks allows you to add options for mouse users.
                 .withOnContextClickListener(new OnContextClickListener())
                 .withOnItemActivatedListener(new OnItemActivatedListener(this))
+                // Keep track of item focus which can aid in creating desirable
+                // keyboard based experiences for users on laptops.
                 .withFocusDelegate(new FocusDelegate())
+                // Use a custom band overlay when mouse selection is active.
+                // The library provides a default resource.
                 .withBandOverlay(R.drawable.selection_demo_band_overlay)
                 .build();
 
@@ -139,18 +156,10 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
     protected void onSaveInstanceState(@NonNull Bundle state) {
         super.onSaveInstanceState(state);
         mSelectionTracker.onSaveInstanceState(state);
-        state.putInt(EXTRA_COLUMN_COUNT, mColumnCount);
     }
 
     private void updateFromSavedState(Bundle state) {
         mSelectionTracker.onRestoreInstanceState(state);
-
-        if (state != null) {
-            if (state.containsKey(EXTRA_COLUMN_COUNT)) {
-                mColumnCount = state.getInt(EXTRA_COLUMN_COUNT);
-                mLayout.setSpanCount(mColumnCount);
-            }
-        }
     }
 
     @Override
@@ -172,7 +181,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         mIterceptListenerEnabled = !mIterceptListenerEnabled;
         return true;
     }
@@ -276,7 +285,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
         }
 
         @Override
-        public boolean onItemActivated(ItemDetails<Uri> item, MotionEvent e) {
+        public boolean onItemActivated(@NonNull ItemDetails<Uri> item, @NonNull MotionEvent e) {
             toast(mContext, "Activate item: " + item);
             return true;
         }

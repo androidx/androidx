@@ -172,7 +172,8 @@ public abstract class ItemDetailsLookup<K> {
 
         /**
          * Returns the adapter position of the item. See
-         * {@link RecyclerView.ViewHolder#getAdapterPosition() ViewHolder.getAdapterPosition}
+         * {@link RecyclerView.ViewHolder#getAbsoluteAdapterPosition() ViewHolder
+         * .getAbsoluteAdapterPosition}
          *
          * @return the position of an item.
          */

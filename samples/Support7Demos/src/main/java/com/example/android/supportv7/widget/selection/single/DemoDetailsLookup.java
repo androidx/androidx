@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.supportv7.widget.selection.fancy;
+package com.example.android.supportv7.widget.selection.single;
 
-import android.net.Uri;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -28,24 +27,22 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 /**
  * Access to details of an item associated with a {@link MotionEvent} instance.
  */
-final class FancyDetailsLookup extends ItemDetailsLookup<Uri> {
+final class DemoDetailsLookup extends ItemDetailsLookup<Long> {
 
     private final RecyclerView mRecView;
 
-    FancyDetailsLookup(RecyclerView view) {
+    DemoDetailsLookup(RecyclerView view) {
         mRecView = view;
     }
 
     @Override
-    public ItemDetails<Uri> getItemDetails(@NonNull MotionEvent e) {
+    public ItemDetails<Long> getItemDetails(@NonNull MotionEvent e) {
         @Nullable View view = mRecView.findChildViewUnder(e.getX(), e.getY());
         if (view != null) {
             ViewHolder holder = mRecView.getChildViewHolder(view);
-            if (holder instanceof FancyItemHolder) {
-                return ((FancyItemHolder) holder).getItemDetails();
+            if (holder instanceof DemoHolder) {
+                return ((DemoHolder) holder).getItemDetails();
             }
-            // FancyHeaderHolder doesn't hold a selectable item,
-            // so it doesn't support getItemDetails.
         }
         return null;
     }
