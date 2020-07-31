@@ -211,7 +211,7 @@ public final class StableIdKeyProvider extends ItemKeyProvider<Long> {
                     }
             );
 
-            mRecyclerView.setRecyclerListener(
+            mRecyclerView.addRecyclerListener(
                     new RecyclerListener() {
                         @Override
                         public void onViewRecycled(@NonNull ViewHolder holder) {
