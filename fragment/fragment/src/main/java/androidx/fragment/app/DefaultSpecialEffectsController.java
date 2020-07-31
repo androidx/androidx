@@ -137,6 +137,20 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
             transitions.add(new TransitionInfo(operation, transitionCancellationSignal, isPop,
                     isPop ? operation == firstOut : operation == lastIn));
 
+            // When the operation completes, make sure that the view that had requested
+            // focus before the operation started has its focus requested again
+            operation.addCompletionListener(new Runnable() {
+                @Override
+                public void run() {
+                    if (operation.getFinalState() == Operation.State.VISIBLE) {
+                        View focusedView = operation.getFragment().getFocusedView();
+                        if (focusedView != null) {
+                            focusedView.requestFocus();
+                            operation.getFragment().setFocusedView(null);
+                        }
+                    }
+                }
+            });
             // Ensure that if the Operation is synchronously complete, we still
             // apply the container changes before the Operation completes
             operation.addCompletionListener(new Runnable() {

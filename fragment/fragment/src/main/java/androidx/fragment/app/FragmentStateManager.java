@@ -575,6 +575,8 @@ class FragmentStateManager {
             if (FragmentManager.USE_STATE_MANAGER) {
                 mFragment.setPostOnViewCreatedVisibility(postOnViewCreatedVisibility);
                 if (mFragment.mContainer != null && postOnViewCreatedVisibility == View.VISIBLE) {
+                    // Save the focused view if one was set via requestFocus()
+                    mFragment.setFocusedView(mFragment.mView.findFocus());
                     // Set the view to INVISIBLE to allow for postponed animations
                     mFragment.mView.setVisibility(View.INVISIBLE);
                 }
