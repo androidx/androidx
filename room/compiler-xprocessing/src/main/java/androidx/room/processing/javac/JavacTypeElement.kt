@@ -31,7 +31,7 @@ internal class JavacTypeElement(
     override val element: TypeElement
 ) : JavacElement(env, element), XTypeElement {
 
-    private val kotlinMetadata by lazy {
+    val kotlinMetadata by lazy {
         KotlinMetadataElement.createFor(element)
     }
 

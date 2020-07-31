@@ -18,7 +18,6 @@ package androidx.room.processing.javac
 
 import androidx.room.processing.XExecutableElement
 import androidx.room.processing.XTypeElement
-import androidx.room.processing.javac.kotlin.KotlinMetadataElement
 import androidx.room.processing.javac.kotlin.descriptor
 import javax.lang.model.element.ExecutableElement
 
@@ -31,7 +30,7 @@ internal abstract class JavacExecutableElement(
     element
 ), XExecutableElement {
     protected val kotlinMetadata by lazy {
-        KotlinMetadataElement.createFor(element)
+        (enclosingElement as? JavacTypeElement)?.kotlinMetadata
     }
 
     val descriptor by lazy {
