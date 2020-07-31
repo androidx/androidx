@@ -540,20 +540,23 @@ public class AppSearchManager {
      *     ‘Video’ schema type.
      * </ul>
      *
+     * <p> This method is lightweight. The heavy work will be done in
+     * {@link SearchResults#getNextPage()}.
+     *
      * @param queryExpression Query String to search.
      * @param searchSpec      Spec for setting filters, raw query etc.
-     * @return The pending result of performing this operation.
+     * @return The search result of performing this operation.
      * @hide
      */
     @NonNull
-    public ListenableFuture<AppSearchResult<SearchResults>> query(
+    public SearchResults query(
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec) {
-        // TODO(b/146386470): Transmit the result documents as a RemoteStream instead of sending
-        //     them in one big list.
         Preconditions.checkNotNull(queryExpression);
         Preconditions.checkNotNull(searchSpec);
-        return execute(() -> mBackend.query(mDatabaseName, queryExpression, searchSpec));
+        AppSearchBackend.BackendSearchResults backendSearchResults =
+                mBackend.query(mDatabaseName, queryExpression, searchSpec);
+        return new SearchResults(mExecutorService, backendSearchResults);
     }
 
     /**

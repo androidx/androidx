@@ -315,7 +315,6 @@ public final class AppSearchImpl {
      * @throws AppSearchException on IcingSearchEngine error.
      * @throws InterruptedException if the current thread was interrupted during execution.
      */
-    // TODO(b/161838267) support getNextPage for query, under the read lock.
     @NonNull
     public SearchResultProto query(
             @NonNull String databaseName,
@@ -347,21 +346,42 @@ public final class AppSearchImpl {
         if (searchResultProto.getResultsCount() == 0) {
             return searchResultProto;
         }
+        return rewriteSearchResultProto(databaseName, searchResultProto);
+    }
 
-        // Remove the rewritten schema types from any result documents.
-        SearchResultProto.Builder searchResultsBuilder = searchResultProto.toBuilder();
-        for (int i = 0; i < searchResultsBuilder.getResultsCount(); i++) {
-            if (searchResultProto.getResults(i).hasDocument()) {
-                SearchResultProto.ResultProto.Builder resultBuilder =
-                        searchResultsBuilder.getResults(i).toBuilder();
-                DocumentProto.Builder documentBuilder = resultBuilder.getDocument().toBuilder();
-                rewriteDocumentTypes(
-                        getDatabasePrefix(databaseName), documentBuilder, /*add=*/false);
-                resultBuilder.setDocument(documentBuilder);
-                searchResultsBuilder.setResults(i, resultBuilder);
-            }
+    /**
+     * Fetches the next page of results of a previously executed query. Results can be empty if
+     * next-page token is invalid or all pages have been returned.
+     *
+     * @param databaseName The databaseName of the previously executed query.
+     * @param nextPageToken The token of pre-loaded results of previously executed query.
+     * @return The next page of results of previously executed query.
+     * @throws AppSearchException on IcingSearchEngine error.
+     * @throws InterruptedException if the current thread was interrupted during execution.
+     */
+    @NonNull
+    public SearchResultProto getNextPage(@NonNull String databaseName, long nextPageToken)
+            throws AppSearchException, InterruptedException {
+        checkInitialized();
+
+        SearchResultProto searchResultProto = mIcingSearchEngine.getNextPage(nextPageToken);
+        checkSuccess(searchResultProto.getStatus());
+        if (searchResultProto.getResultsCount() == 0) {
+            return searchResultProto;
         }
-        return searchResultsBuilder.build();
+        return rewriteSearchResultProto(databaseName, searchResultProto);
+    }
+
+    /**
+     * Invalidates the next-page token so that no more results of the related query can be returned.
+     * @param nextPageToken The token of pre-loaded results of previously executed query to be
+     *                      Invalidated.
+     */
+    public void invalidateNextPageToken(long nextPageToken)
+            throws AppSearchException, InterruptedException {
+        checkInitialized();
+
+        mIcingSearchEngine.invalidateNextPageToken(nextPageToken);
     }
 
     /**
@@ -807,6 +827,24 @@ public final class AppSearchImpl {
             //  a field to indicate lost_schema and lost_documents in OptimizeResultProto.
             //  go/icing-library-apis.
         }
+    }
+
+    /** Remove the rewritten schema types from any result documents.*/
+    private SearchResultProto rewriteSearchResultProto(@NonNull String databaseName,
+            @NonNull SearchResultProto searchResultProto) {
+        SearchResultProto.Builder searchResultsBuilder = searchResultProto.toBuilder();
+        for (int i = 0; i < searchResultsBuilder.getResultsCount(); i++) {
+            if (searchResultProto.getResults(i).hasDocument()) {
+                SearchResultProto.ResultProto.Builder resultBuilder =
+                        searchResultsBuilder.getResults(i).toBuilder();
+                DocumentProto.Builder documentBuilder = resultBuilder.getDocument().toBuilder();
+                rewriteDocumentTypes(
+                        getDatabasePrefix(databaseName), documentBuilder, /*add=*/false);
+                resultBuilder.setDocument(documentBuilder);
+                searchResultsBuilder.setResults(i, resultBuilder);
+            }
+        }
+        return searchResultsBuilder.build();
     }
 
     @VisibleForTesting

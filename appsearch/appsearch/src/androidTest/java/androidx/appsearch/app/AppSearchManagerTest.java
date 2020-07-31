@@ -38,7 +38,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Future;
 
 public class AppSearchManagerTest {
@@ -415,6 +417,52 @@ public class AppSearchManagerTest {
         results = doQuery(mDb1, "body email");
         assertThat(results).hasSize(1);
         assertThat(results.get(0)).isEqualTo(inEmail);
+    }
+
+    @Test
+    public void testQuery_GetNextPage() throws Exception {
+        // Schema registration
+        checkIsResultSuccess(mDb1.setSchema(
+                new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()));
+        Set<AppSearchEmail> emailSet = new HashSet<>();
+        PutDocumentsRequest.Builder putDocumentsRequestBuilder = new PutDocumentsRequest.Builder();
+        // Index 31 documents
+        for (int i = 0; i < 31; i++) {
+            AppSearchEmail inEmail =
+                    new AppSearchEmail.Builder("uri" + i)
+                            .setFrom("from@example.com")
+                            .setTo("to1@example.com", "to2@example.com")
+                            .setSubject("testPut example")
+                            .setBody("This is the body of the testPut email")
+                            .build();
+            emailSet.add(inEmail);
+            putDocumentsRequestBuilder.addGenericDocument(inEmail);
+        }
+        checkIsBatchResultSuccess(mDb1.putDocuments(putDocumentsRequestBuilder.build()));
+
+        // Set number of results per page is 7.
+        SearchResults searchResults = mDb1.query("body",
+                SearchSpec.newBuilder()
+                        .setTermMatchType(SearchSpec.TERM_MATCH_TYPE_EXACT_ONLY)
+                        .setNumPerPage(7)
+                        .build());
+        List<GenericDocument> documents = new ArrayList<>();
+
+        int pageNumber = 0;
+        List<SearchResults.Result> results;
+
+        // keep loading next page until it's empty.
+        do {
+            results = checkIsResultSuccess(searchResults.getNextPage());
+            ++pageNumber;
+            for (SearchResults.Result result : results) {
+                documents.add(result.getDocument());
+            }
+        } while (results.size() > 0);
+
+        // check all document presents
+        assertThat(documents).containsExactlyElementsIn(emailSet);
+        assertThat(pageNumber).isEqualTo(6); // 5 (upper(31/7)) + 1 (final empty page)
     }
 
     @Test
@@ -931,15 +979,18 @@ public class AppSearchManagerTest {
     private List<GenericDocument> doQuery(
             AppSearchManager instance, String queryExpression, String... schemaTypes)
             throws Exception {
-        SearchResults searchResults = checkIsResultSuccess(instance.query(
-                queryExpression,
+        SearchResults searchResults = instance.query(queryExpression,
                 SearchSpec.newBuilder()
                         .setSchemaTypes(schemaTypes)
                         .setTermMatchType(SearchSpec.TERM_MATCH_TYPE_EXACT_ONLY)
-                        .build()));
+                        .build());
+        List<SearchResults.Result> results = checkIsResultSuccess(searchResults.getNextPage());
         List<GenericDocument> documents = new ArrayList<>();
-        while (searchResults.hasNext()) {
-            documents.add(searchResults.next().getDocument());
+        while (results.size() > 0) {
+            for (SearchResults.Result result : results) {
+                documents.add(result.getDocument());
+            }
+            results = checkIsResultSuccess(searchResults.getNextPage());
         }
         return documents;
     }

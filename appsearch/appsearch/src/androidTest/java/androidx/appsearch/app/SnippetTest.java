@@ -34,7 +34,7 @@ public class SnippetTest {
 
     // TODO(sidchhabra): Add tests for Double and Long Snippets.
     @Test
-    public void testSingleStringSnippet() {
+    public void testSingleStringSnippet() throws Exception {
 
         final String propertyKeyString = "content";
         final String propertyValueString = "A commonly used fake word is foo.\n"
@@ -75,11 +75,10 @@ public class SnippetTest {
         SearchResultProto searchResultProto = SearchResultProto.newBuilder()
                 .addResults(resultProto)
                 .build();
-        SearchResults searchResults = new SearchResults(searchResultProto);
 
         // Making ResultReader and getting Snippet values.
-        while (searchResults.hasNext()) {
-            SearchResults.Result result = searchResults.next();
+        for (SearchResultProto.ResultProto proto : searchResultProto.getResultsList()) {
+            SearchResults.Result result = new SearchResults.Result(proto);
             MatchInfo match = result.getMatchInfo().get(0);
             assertThat(match.getPropertyPath()).isEqualTo(propertyKeyString);
             assertThat(match.getFullText()).isEqualTo(propertyValueString);
@@ -95,7 +94,7 @@ public class SnippetTest {
 
     // TODO(sidchhabra): Add tests for Double and Long Snippets.
     @Test
-    public void testNoSnippets() {
+    public void testNoSnippets() throws Exception {
 
         final String propertyKeyString = "content";
         final String propertyValueString = "A commonly used fake word is foo.\n"
@@ -123,16 +122,15 @@ public class SnippetTest {
         SearchResultProto searchResultProto = SearchResultProto.newBuilder()
                 .addResults(resultProto)
                 .build();
-        SearchResults searchResults = new SearchResults(searchResultProto);
 
-        while (searchResults.hasNext()) {
-            SearchResults.Result result = searchResults.next();
+        for (SearchResultProto.ResultProto proto : searchResultProto.getResultsList()) {
+            SearchResults.Result result = new SearchResults.Result(proto);
             assertThat(result.getMatchInfo()).isEqualTo(null);
         }
     }
 
     @Test
-    public void testMultipleStringSnippet() {
+    public void testMultipleStringSnippet() throws Exception {
         final String searchWord = "Test";
 
         // Building the SearchResult received from query.
@@ -184,11 +182,10 @@ public class SnippetTest {
         SearchResultProto searchResultProto = SearchResultProto.newBuilder()
                 .addResults(resultProto)
                 .build();
-        SearchResults searchResults = new SearchResults(searchResultProto);
 
         // Making ResultReader and getting Snippet values.
-        while (searchResults.hasNext()) {
-            SearchResults.Result result = searchResults.next();
+        for (SearchResultProto.ResultProto proto : searchResultProto.getResultsList()) {
+            SearchResults.Result result = new SearchResults.Result(proto);
 
             MatchInfo match1 = result.getMatchInfo().get(0);
             assertThat(match1.getPropertyPath()).isEqualTo("sender.name");
