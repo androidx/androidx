@@ -76,7 +76,7 @@ import androidx.compose.ui.unit.dp
  * @param disabledBackgroundColor The background color used when [enabled] is false
  * @param contentColor The preferred content color. Will be used by text and iconography
  * @param disabledContentColor The preferred content color used when [enabled] is false
- * @param padding The spacing values to apply internally between the container and the content
+ * @param contentPadding The spacing values to apply internally between the container and the content
  */
 @Composable
 fun Button(
@@ -91,7 +91,7 @@ fun Button(
     disabledBackgroundColor: Color = ButtonConstants.defaultDisabledBackgroundColor,
     contentColor: Color = contentColorFor(backgroundColor),
     disabledContentColor: Color = ButtonConstants.defaultDisabledContentColor,
-    padding: InnerPadding = ButtonConstants.DefaultInnerPadding,
+    contentPadding: InnerPadding = ButtonConstants.DefaultContentPadding,
     content: @Composable RowScope.() -> Unit
 ) {
     // TODO(aelias): Avoid manually putting the clickable above the clip and
@@ -121,7 +121,7 @@ fun Button(
                         minHeight = ButtonConstants.DefaultMinHeight
                     )
                     .indication(interactionState, IndicationAmbient.current())
-                    .padding(padding),
+                    .padding(contentPadding),
                 horizontalArrangement = Arrangement.Center,
                 verticalGravity = Alignment.CenterVertically,
                 children = content
@@ -161,7 +161,7 @@ fun Button(
  * @param backgroundColor The background color. Use [Color.Transparent] to have no color
  * @param contentColor The preferred content color. Will be used by text and iconography
  * @param disabledContentColor The preferred content color used when [enabled] is false
- * @param padding The spacing values to apply internally between the container and the content
+ * @param contentPadding The spacing values to apply internally between the container and the content
  */
 @Composable
 inline fun OutlinedButton(
@@ -170,13 +170,11 @@ inline fun OutlinedButton(
     enabled: Boolean = true,
     elevation: Dp = 0.dp,
     shape: Shape = MaterialTheme.shapes.small,
-    border: Border? = Border(
-        1.dp, MaterialTheme.colors.onSurface.copy(alpha = OutlinedStrokeOpacity)
-    ),
+    border: Border? = ButtonConstants.defaultOutlinedBorder,
     backgroundColor: Color = MaterialTheme.colors.surface,
     contentColor: Color = MaterialTheme.colors.primary,
     disabledContentColor: Color = ButtonConstants.defaultDisabledContentColor,
-    padding: InnerPadding = ButtonConstants.DefaultInnerPadding,
+    contentPadding: InnerPadding = ButtonConstants.DefaultContentPadding,
     noinline content: @Composable RowScope.() -> Unit
 ) = Button(
     modifier = modifier,
@@ -190,7 +188,7 @@ inline fun OutlinedButton(
     disabledBackgroundColor = backgroundColor,
     contentColor = contentColor,
     disabledContentColor = disabledContentColor,
-    padding = padding,
+    contentPadding = contentPadding,
     content = content
 )
 
@@ -222,7 +220,7 @@ inline fun OutlinedButton(
  * @param backgroundColor The background color. Use [Color.Transparent] to have no color
  * @param contentColor The preferred content color. Will be used by text and iconography
  * @param disabledContentColor The preferred content color used when [enabled] is false
- * @param padding The spacing values to apply internally between the container and the content
+ * @param contentPadding The spacing values to apply internally between the container and the content
  */
 @Composable
 inline fun TextButton(
@@ -235,7 +233,7 @@ inline fun TextButton(
     backgroundColor: Color = Color.Transparent,
     contentColor: Color = MaterialTheme.colors.primary,
     disabledContentColor: Color = ButtonConstants.defaultDisabledContentColor,
-    padding: InnerPadding = TextButtonConstants.DefaultInnerPadding,
+    contentPadding: InnerPadding = ButtonConstants.DefaultTextContentPadding,
     noinline content: @Composable RowScope.() -> Unit
 ) = Button(
     modifier = modifier,
@@ -249,7 +247,7 @@ inline fun TextButton(
     disabledBackgroundColor = backgroundColor,
     contentColor = contentColor,
     disabledContentColor = disabledContentColor,
-    padding = padding,
+    contentPadding = contentPadding,
     content = content
 )
 
@@ -261,9 +259,9 @@ object ButtonConstants {
     private val ButtonVerticalPadding = 8.dp
 
     /**
-     * The default inner padding used by [Button]
+     * The default content padding used by [Button]
      */
-    val DefaultInnerPadding = InnerPadding(
+    val DefaultContentPadding = InnerPadding(
         start = ButtonHorizontalPadding,
         top = ButtonVerticalPadding,
         end = ButtonHorizontalPadding,
@@ -316,22 +314,33 @@ object ButtonConstants {
         get(): Color = with(MaterialTheme.colors) {
             EmphasisAmbient.current.disabled.applyEmphasis(onSurface)
         }
-}
 
-/**
- * Contains the default values used by [TextButton]
- */
-object TextButtonConstants {
+    /**
+     * The default color opacity used for an [OutlinedButton]'s border color
+     */
+    const val OutlinedBorderOpacity = 0.12f
+
+    /**
+     * The default [OutlinedButton]'s border size
+     */
+    val OutlinedBorderSize = 1.dp
+
+    /**
+     * The default disabled content color used by all types of [Button]s
+     */
+    @Composable
+    val defaultOutlinedBorder: Border
+        get() = Border(
+            OutlinedBorderSize, MaterialTheme.colors.onSurface.copy(alpha = OutlinedBorderOpacity)
+        )
+
     private val TextButtonHorizontalPadding = 8.dp
 
     /**
-     * The default inner padding used by [TextButton]
+     * The default content padding used by [TextButton]
      */
-    val DefaultInnerPadding = ButtonConstants.DefaultInnerPadding.copy(
+    val DefaultTextContentPadding = DefaultContentPadding.copy(
         start = TextButtonHorizontalPadding,
         end = TextButtonHorizontalPadding
     )
 }
-
-@PublishedApi
-internal const val OutlinedStrokeOpacity = 0.12f
