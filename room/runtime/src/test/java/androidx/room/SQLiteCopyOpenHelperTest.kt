@@ -207,6 +207,7 @@ class SQLiteCopyOpenHelperTest {
             context,
             copyFromAssetFile.name,
             null,
+            null,
             DB_VERSION,
             delegate
         ).apply { setDatabaseConfiguration(configuration) }

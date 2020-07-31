@@ -47,6 +47,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.Callable;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -59,6 +62,30 @@ public class PrepackageTest {
         ProductsDatabase database = Room.databaseBuilder(
                 context, ProductsDatabase.class, "products.db")
                 .createFromAsset("databases/products_v1.db")
+                .build();
+
+        ProductDao dao = database.getProductDao();
+        assertThat(dao.countProducts(), is(2));
+
+        database.close();
+    }
+
+    @Test
+    public void createFromZippedAsset() {
+        Context context = ApplicationProvider.getApplicationContext();
+        context.deleteDatabase("products.db");
+
+        final Callable<InputStream> inputStreamCallable = () -> {
+            final ZipInputStream zipInputStream =
+                    new ZipInputStream(
+                            context.getAssets().open("databases/products_v1.db.zip"));
+            zipInputStream.getNextEntry();
+            return zipInputStream;
+        };
+
+        ProductsDatabase database = Room.databaseBuilder(
+                context, ProductsDatabase.class, "products.db")
+                .createFromInputStream(inputStreamCallable)
                 .build();
 
         ProductDao dao = database.getProductDao();

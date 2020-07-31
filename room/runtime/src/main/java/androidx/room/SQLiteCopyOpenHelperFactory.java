@@ -20,7 +20,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
+import java.io.InputStream;
+import java.util.concurrent.Callable;
 
 /**
  * Implementation of {@link SupportSQLiteOpenHelper.Factory} that creates
@@ -32,24 +36,29 @@ class SQLiteCopyOpenHelperFactory implements SupportSQLiteOpenHelper.Factory {
     private final String mCopyFromAssetPath;
     @Nullable
     private final File mCopyFromFile;
+    private final Callable<InputStream> mInputStreamCallable;
     @NonNull
     private final SupportSQLiteOpenHelper.Factory mDelegate;
 
     SQLiteCopyOpenHelperFactory(
             @Nullable String copyFromAssetPath,
             @Nullable File copyFromFile,
+            @Nullable Callable<InputStream> inputStreamCallable,
             @NonNull SupportSQLiteOpenHelper.Factory factory) {
         mCopyFromAssetPath = copyFromAssetPath;
         mCopyFromFile = copyFromFile;
+        mInputStreamCallable = inputStreamCallable;
         mDelegate = factory;
     }
 
+    @NotNull
     @Override
     public SupportSQLiteOpenHelper create(SupportSQLiteOpenHelper.Configuration configuration) {
         return new SQLiteCopyOpenHelper(
                 configuration.context,
                 mCopyFromAssetPath,
                 mCopyFromFile,
+                mInputStreamCallable,
                 configuration.callback.version,
                 mDelegate.create(configuration));
     }
