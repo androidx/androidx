@@ -47,7 +47,7 @@ import java.util.concurrent.TimeUnit
 @MediumTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
-class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
+class FragmentTransitionTest(private val reorderingAllowed: ReorderingAllowed) {
 
     @Suppress("DEPRECATION")
     @get:Rule
@@ -145,7 +145,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
         // If reordering is allowed, the remove is ignored and the transaction is just added to the
         // back stack
-        if (reorderingAllowed) {
+        if (reorderingAllowed is Reordered) {
             assertThat(onBackStackChangedTimes).isEqualTo(2)
             assertThat(fragment.requireView()).isEqualTo(view1)
         } else {
@@ -782,7 +782,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
         // FragmentStateManager is able to build the correct transition
         // whether you use reordering or not
-        if (FragmentManager.USE_STATE_MANAGER || reorderingAllowed) {
+        if (FragmentManager.USE_STATE_MANAGER || reorderingAllowed is Reordered) {
             fragment1.exitTransition.verifyAndClearTransition {
                 exitingViews += listOf(startGreen, startBlue)
             }
@@ -836,7 +836,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
     // Test that invisible fragment views don't participate in transitions
     @Test
     fun invisibleNoTransitions() {
-        if (!reorderingAllowed) {
+        if (reorderingAllowed is Ordered) {
             return // only reordered transitions can avoid interaction
         }
         // enter transition
@@ -927,7 +927,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
         fragment2.waitForTransition()
         // It does not transition properly for ordered transactions, though.
-        if (reorderingAllowed) {
+        if (reorderingAllowed is Reordered) {
             // reordering allowed fragment3 to get a transition so we should wait for it to finish
             fragment3.waitForTransition()
             if (FragmentManager.USE_STATE_MANAGER) {
@@ -987,7 +987,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         activityRule.executePendingTransactions()
 
         // It does not transition properly for ordered transactions, though.
-        if (reorderingAllowed) {
+        if (reorderingAllowed is Reordered) {
             // reordering allowed fragment3 to get a transition so we should wait for it to finish
             fragment2.waitForTransition()
 
@@ -1012,11 +1012,11 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
                 enteringViews += endGreen
             }
             fragment2.sharedElementEnter.verifyAndClearTransition {
-                if (FragmentManager.USE_STATE_MANAGER) {
-                    epicenter = endGreenBounds
+                epicenter = if (FragmentManager.USE_STATE_MANAGER) {
+                    endGreenBounds
                 } else {
                     // In this case, we can't find an epicenter
-                    epicenter = Rect()
+                    Rect()
                 }
                 exitingViews += startBlue
                 enteringViews += endBlue
@@ -1058,7 +1058,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
         // FragmentStateManager is able to build the correct transition
         // whether you use reordering or not
-        if (FragmentManager.USE_STATE_MANAGER || reorderingAllowed) {
+        if (FragmentManager.USE_STATE_MANAGER || reorderingAllowed is Reordered) {
             fragment2.sharedElementEnter.verifyAndClearTransition {
                 epicenter = startGreenBounds
                 exitingViews += startGreen
@@ -1164,7 +1164,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         from2: TransitionFragment
     ) {
         val startNumOnBackStackChanged = onBackStackChangedTimes
-        val changesPerOperation = if (reorderingAllowed) 1 else 2
+        val changesPerOperation = if (reorderingAllowed is Reordered) 1 else 2
 
         val to1 = TransitionFragment(R.layout.scene2)
         val to2 = TransitionFragment(R.layout.scene2)
@@ -1405,9 +1405,9 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters
-        fun data(): Array<Boolean> {
-            return arrayOf(false, true)
+        @Parameterized.Parameters(name = "ordering={0}")
+        fun data(): Array<ReorderingAllowed> {
+            return arrayOf(Ordered, Reordered)
         }
     }
 }
