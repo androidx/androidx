@@ -60,7 +60,7 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
         )
     }
 
-    var location: Location? = null
+    var locations = ArrayList<Location>()
     lateinit var expression: UCallExpression
 
     private var checkedImplementationDependencies = false
@@ -76,7 +76,7 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
                     return
                 }
                 expression = node
-                location = context.getLocation(node)
+                locations.add(context.getLocation(node))
             }
         }
     }
@@ -90,7 +90,7 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
         valueCookie: Any,
         statementCookie: Any
     ) {
-        if (location == null) {
+        if (locations.isEmpty()) {
             return
         }
         if (property == "api") {
@@ -195,8 +195,10 @@ class ActivityResultFragmentVersionDetector : Detector(), UastScanner, GradleSca
 
         if (library.isNotEmpty() &&
             library.substringAfter("androidx.fragment:fragment:") < FRAGMENT_VERSION) {
-            context.report(ISSUE, expression, location!!,
-                "Upgrade Fragment version to at least $FRAGMENT_VERSION.")
+            locations.forEach { location ->
+                context.report(ISSUE, expression, location,
+                    "Upgrade Fragment version to at least $FRAGMENT_VERSION.")
+            }
         }
     }
 
