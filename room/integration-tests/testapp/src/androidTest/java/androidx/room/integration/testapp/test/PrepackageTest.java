@@ -51,7 +51,6 @@ import java.io.OutputStream;
 import java.util.concurrent.Callable;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 @MediumTest
@@ -79,9 +78,8 @@ public class PrepackageTest {
         context.deleteDatabase("products.db");
 
         final Callable<InputStream> inputStreamCallable = () -> {
-            final ZipInputStream zipInputStream =
-                    new ZipInputStream(
-                            context.getAssets().open("databases/products_v1.db.zip"));
+            ZipInputStream zipInputStream =
+                    new ZipInputStream(context.getAssets().open("databases/products_v1.db.zip"));
             zipInputStream.getNextEntry();
             return zipInputStream;
         };

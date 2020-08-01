@@ -34,18 +34,19 @@ class SQLiteCopyOpenHelperFactory implements SupportSQLiteOpenHelper.Factory {
     private final String mCopyFromAssetPath;
     @Nullable
     private final File mCopyFromFile;
-    private final Callable<InputStream> mInputStreamCallable;
+    @Nullable
+    private final Callable<InputStream> mCopyFromInputStream;
     @NonNull
     private final SupportSQLiteOpenHelper.Factory mDelegate;
 
     SQLiteCopyOpenHelperFactory(
             @Nullable String copyFromAssetPath,
             @Nullable File copyFromFile,
-            @Nullable Callable<InputStream> inputStreamCallable,
+            @Nullable Callable<InputStream> copyFromInputStream,
             @NonNull SupportSQLiteOpenHelper.Factory factory) {
         mCopyFromAssetPath = copyFromAssetPath;
         mCopyFromFile = copyFromFile;
-        mInputStreamCallable = inputStreamCallable;
+        mCopyFromInputStream = copyFromInputStream;
         mDelegate = factory;
     }
 
@@ -56,7 +57,7 @@ class SQLiteCopyOpenHelperFactory implements SupportSQLiteOpenHelper.Factory {
                 configuration.context,
                 mCopyFromAssetPath,
                 mCopyFromFile,
-                mInputStreamCallable,
+                mCopyFromInputStream,
                 configuration.callback.version,
                 mDelegate.create(configuration));
     }

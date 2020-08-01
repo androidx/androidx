@@ -10,6 +10,7 @@ package androidx.room {
     field public final android.content.Context context;
     field public final String? copyFromAssetPath;
     field public final java.io.File? copyFromFile;
+    field public final java.util.concurrent.Callable<java.io.InputStream!>? copyFromInputStream;
     field public final androidx.room.RoomDatabase.JournalMode! journalMode;
     field public final androidx.room.RoomDatabase.MigrationContainer migrationContainer;
     field public final boolean multiInstanceInvalidation;

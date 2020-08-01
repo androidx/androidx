@@ -57,8 +57,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import kotlin.Suppress;
-
 /**
  * Base class for all Room databases. All classes that are annotated with {@link Database} must
  * extend this class.
@@ -568,7 +566,7 @@ public abstract class RoomDatabase {
 
         private String mCopyFromAssetPath;
         private File mCopyFromFile;
-        private Callable<InputStream> mInputStreamCallable;
+        private Callable<InputStream> mCopyFromInputStream;
 
         Builder(@NonNull Context context, @NonNull Class<T> klass, @Nullable String name) {
             mContext = context;
@@ -629,12 +627,12 @@ public abstract class RoomDatabase {
         }
 
         /**
-         * Configures Room to create and open the database using an {@link InputStream}.
+         * Configures Room to create and open the database using a pre-packaged database via an
+         * {@link InputStream}.
          * <p>
-         * Provide Room with a pre-packaged database via an {@link InputStream}. This is useful
-         * for processing compressed files. Room does not open the pre-packaged database, instead
-         * it copies it into the internal app database folder, and then opens it. The given file
-         * must be accessible and the right permissions must be granted for Room to copy the file.
+         * This is useful for processing compressed database files. Room does not open the
+         * pre-packaged database, instead it copies it into the internal app database folder, and
+         * then open it.
          * <p>
          * The pre-packaged database schema will be validated. It might be best to create your
          * pre-packaged database schema utilizing the exported schema files generated when
@@ -648,11 +646,11 @@ public abstract class RoomDatabase {
          *
          * @return This {@link Builder} instance.
          */
-        @SuppressLint("BuilderSetStyle")
         @NonNull
+        @SuppressLint("BuilderSetStyle") // To keep naming consistency, methods pre-dates rule.
         public Builder<T> createFromInputStream(
                 @NonNull Callable<InputStream> inputStreamCallable) {
-            mInputStreamCallable = inputStreamCallable;
+            mCopyFromInputStream = inputStreamCallable;
             return this;
         }
 
@@ -951,8 +949,9 @@ public abstract class RoomDatabase {
                 mFactory = new FrameworkSQLiteOpenHelperFactory();
             }
 
-            if (mCopyFromAssetPath != null || mCopyFromFile != null
-                    || mInputStreamCallable != null) {
+            if (mCopyFromAssetPath != null
+                    || mCopyFromFile != null
+                    || mCopyFromInputStream != null) {
                 if (mName == null) {
                     throw new IllegalArgumentException("Cannot create from asset or file for an "
                             + "in-memory database.");
@@ -960,7 +959,7 @@ public abstract class RoomDatabase {
 
                 final int copyConfigurations = (mCopyFromAssetPath == null ? 0 : 1) +
                         (mCopyFromFile == null ? 0 : 1) +
-                        (mInputStreamCallable == null ? 0 : 1);
+                        (mCopyFromInputStream == null ? 0 : 1);
                 if (copyConfigurations != 1) {
                     throw new IllegalArgumentException("More than one of createFromAsset(), "
                             + "createFromInputStream(), and createFromFile() were called on this "
@@ -968,7 +967,7 @@ public abstract class RoomDatabase {
                             + "three configurations.");
                 }
                 mFactory = new SQLiteCopyOpenHelperFactory(mCopyFromAssetPath, mCopyFromFile,
-                        mInputStreamCallable, mFactory);
+                        mCopyFromInputStream, mFactory);
             }
             DatabaseConfiguration configuration =
                     new DatabaseConfiguration(
@@ -986,7 +985,8 @@ public abstract class RoomDatabase {
                             mAllowDestructiveMigrationOnDowngrade,
                             mMigrationsNotRequiredFrom,
                             mCopyFromAssetPath,
-                            mCopyFromFile);
+                            mCopyFromFile,
+                            mCopyFromInputStream);
             T db = Room.getGeneratedImplementation(mDatabaseClass, DB_IMPL_SUFFIX);
             db.init(configuration);
             return db;
