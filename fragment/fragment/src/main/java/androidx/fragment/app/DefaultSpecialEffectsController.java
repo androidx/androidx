@@ -482,7 +482,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 }
             } else {
                 // Target the Transition to *only* the set of transitioning views
-                ArrayList<View> transitioningViews = new ArrayList<>();
+                final ArrayList<View> transitioningViews = new ArrayList<>();
                 captureTransitioningViews(transitioningViews,
                         transitionInfo.getOperation().getFragment().mView);
                 if (involvedInSharedElementTransition) {
@@ -500,6 +500,25 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                     transitionImpl.scheduleRemoveTargets(transition,
                             transition, transitioningViews,
                             null, null, null, null);
+                    if (transitionInfo.getOperation().getFinalState() == Operation.State.GONE) {
+                        // We're hiding the Fragment. This requires a bit of extra work
+                        transitionImpl.scheduleHideFragmentView(transition,
+                                transitionInfo.getOperation().getFragment().mView,
+                                transitioningViews);
+                        // This OneShotPreDrawListener gets fired before the delayed start of
+                        // the Transition and changes the visibility of any exiting child views
+                        // that *ARE NOT* shared element transitions. The TransitionManager then
+                        // properly considers exiting views and marks them as disappearing,
+                        // applying a transition and a listener to take proper actions once the
+                        // transition is complete.
+                        OneShotPreDrawListener.add(getContainer(), new Runnable() {
+                            @Override
+                            public void run() {
+                                FragmentTransition.setViewVisibility(transitioningViews,
+                                        View.INVISIBLE);
+                            }
+                        });
+                    }
                 }
                 if (transitionInfo.getOperation().getFinalState() == Operation.State.VISIBLE) {
                     enteringViews.addAll(transitioningViews);
