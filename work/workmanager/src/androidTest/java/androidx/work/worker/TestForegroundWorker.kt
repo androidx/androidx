@@ -26,7 +26,7 @@ class TestForegroundWorker(val context: Context, val parameters: WorkerParameter
     Worker(context, parameters) {
 
     override fun doWork(): Result {
-        setForegroundAsync(getNotification())
+        setForegroundAsync(getNotification()).get()
         return Result.success()
     }
 
