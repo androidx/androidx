@@ -955,10 +955,10 @@ public abstract class RoomDatabase {
                             + "in-memory database.");
                 }
 
-                final int copiesSet = (mCopyFromAssetPath == null ? 0 : 1) +
+                final int copyConfigurations = (mCopyFromAssetPath == null ? 0 : 1) +
                         (mCopyFromFile == null ? 0 : 1) +
                         (mInputStreamCallable == null ? 0 : 1);
-                if (copiesSet != 1) {
+                if (copyConfigurations != 1) {
                     throw new IllegalArgumentException("More than one of createFromAsset(), "
                             + "createFromInputStream(), and createFromFile() were called on this "
                             + "Builder, but the database can only be created using one of the "
