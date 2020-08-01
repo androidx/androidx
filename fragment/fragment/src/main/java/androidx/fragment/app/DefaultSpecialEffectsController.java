@@ -137,6 +137,20 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
             transitions.add(new TransitionInfo(operation, transitionCancellationSignal, isPop,
                     isPop ? operation == firstOut : operation == lastIn));
 
+            // When the operation completes, make sure that the view that had requested
+            // focus before the operation started has its focus requested again
+            operation.addCompletionListener(new Runnable() {
+                @Override
+                public void run() {
+                    if (operation.getFinalState() == Operation.State.VISIBLE) {
+                        View focusedView = operation.getFragment().getFocusedView();
+                        if (focusedView != null) {
+                            focusedView.requestFocus();
+                            operation.getFragment().setFocusedView(null);
+                        }
+                    }
+                }
+            });
             // Ensure that if the Operation is synchronously complete, we still
             // apply the container changes before the Operation completes
             operation.addCompletionListener(new Runnable() {
@@ -297,10 +311,27 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 sharedElementTransition = transitionImpl.wrapTransitionInSet(
                         transitionImpl.cloneTransition(
                                 transitionInfo.getSharedElementTransition()));
-                Fragment sharedElementFragment = transitionInfo.getOperation().getFragment();
-                ArrayList<String> exitingNames = sharedElementFragment
+                // The exiting shared elements default to the source names from the
+                // last in fragment
+                ArrayList<String> exitingNames = lastIn.getFragment()
                         .getSharedElementSourceNames();
-                ArrayList<String> enteringNames = sharedElementFragment
+                // But if we're doing multiple transactions, we may need to re-map
+                // the names from the first out fragment
+                ArrayList<String> firstOutSourceNames = firstOut.getFragment()
+                        .getSharedElementSourceNames();
+                ArrayList<String> firstOutTargetNames = firstOut.getFragment()
+                        .getSharedElementTargetNames();
+                // We do this by iterating through each first out target,
+                // seeing if there is a match from the last in sources
+                for (int index = 0; index < firstOutTargetNames.size(); index++) {
+                    int nameIndex = exitingNames.indexOf(firstOutTargetNames.get(index));
+                    if (nameIndex != -1) {
+                        // If we found a match, replace the last in source name
+                        // with the first out source name
+                        exitingNames.set(nameIndex, firstOutSourceNames.get(index));
+                    }
+                }
+                ArrayList<String> enteringNames = lastIn.getFragment()
                         .getSharedElementTargetNames();
                 SharedElementCallback exitingCallback;
                 SharedElementCallback enteringCallback;

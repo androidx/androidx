@@ -3309,6 +3309,17 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return mAnimationInfo.mPostOnViewCreatedVisibility;
     }
 
+    void setFocusedView(View view) {
+        ensureAnimationInfo().mFocusedView = view;
+    }
+
+    View getFocusedView() {
+        if (mAnimationInfo == null) {
+            return null;
+        }
+        return mAnimationInfo.mFocusedView;
+    }
+
     boolean isPostponed() {
         if (mAnimationInfo == null) {
             return false;
@@ -3483,6 +3494,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         SharedElementCallback mExitTransitionCallback = null;
 
         int mPostOnViewCreatedVisibility = View.VISIBLE;
+        View mFocusedView = null;
 
         // True when postponeEnterTransition has been called and startPostponeEnterTransition
         // hasn't been called yet.
