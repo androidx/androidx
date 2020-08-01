@@ -41,6 +41,21 @@ After running `setupPlayground`, it can either include projects via `includeProj
 method or filter projects from the main AndroidX settings gradle file using the
 `selectProjectsFromAndroidX` method.
 
+### Properties
+When a `gradle.properties` file shows up under a sub project, main AndroidX build ends up
+reading it. For this reason, we can only keep a minimal `gradle.properties` file in these
+sub modules that also support playground setup.
+
+We cannot avoid creating `gradle.properties` as certain properties (e.g. `useAndroidX`) are
+read at configuration time and we cannot set it dynamically.
+
+Properties that will be set dynamically are kept in `playground.properties` file while
+shared properties are kept in `androidx-shared.properties` file.
+The dynamic properties are read in the `playground-include-settings.gradle` file and set
+on each project.
+
+There is a `VerifyPlaygroundGradlePropertiesTask` task that validates the contents of
+`androidx-shared.properties` file as part of the main AndroidX build.
 ### Optional Dependencies
 Even though sub-projects usually declare exact coordinates for their dependencies,
 for tests, it is a common practice to declare `project` dependencies. To avoid needing
