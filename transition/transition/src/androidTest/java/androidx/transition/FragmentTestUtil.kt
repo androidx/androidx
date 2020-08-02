@@ -50,7 +50,7 @@ sealed class StateManager {
 
     fun teardown() {
         // Reset it back to the default
-        FragmentManager.enableNewStateManager(false)
+        FragmentManager.enableNewStateManager(true)
     }
 }
 object NewStateManager : StateManager() {
