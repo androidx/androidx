@@ -23,6 +23,7 @@ import androidx.compose.ui.Layout
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Border
 import androidx.compose.foundation.ContentColorAmbient
+import androidx.compose.foundation.Icon
 import androidx.compose.foundation.ProvideTextStyle
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
@@ -40,6 +41,10 @@ import androidx.compose.ui.zIndex
 import kotlin.math.ln
 
 /**
+ * Material surface is the central metaphor in material design. Each surface exists at a given
+ * elevation, which influences how that piece of surface visually relates to other surfaces and
+ * how that surface casts shadows.
+ *
  * The [Surface] is responsible for:
  *
  * 1) Clipping: Surface clips its children to the shape specified by [shape]
@@ -49,18 +54,18 @@ import kotlin.math.ln
  *
  * 3) Borders: If [shape] has a border, then it will also be drawn.
  *
- * Material surface is the central metaphor in material design. Each surface
- * exists at a given elevation, which influences how that piece of surface
- * visually relates to other surfaces and how that surface casts shadows.
+ * 4) Background: Surface fills the shape specified by [shape] with the [color].
  *
- * [contentColor] is the preferred color for any children inside this surface - any [Text] inside
- * this Surface will use this color by default.
+ * 5) Content color: Surface uses [contentColor] to specify a preferred color for the content of
+ * this surface - this is used by the [Text] and [Icon] components as a default color.
  *
  * If no [contentColor] is set, this surface will try and match its background color to a color
  * defined in the theme [Colors], and return the corresponding `onFoo` color. For example,
  * if the [color] of this surface is [Colors.surface], [contentColor] will be set to
  * [Colors.onSurface]. If [color] is not part of the theme palette, [contentColor] will keep
  * the same value set above this Surface.
+ *
+ * @sample androidx.compose.material.samples.SurfaceSample
  *
  * To modify these default style values used by text, use [ProvideTextStyle] or explicitly
  * pass a new [TextStyle] to your text.
