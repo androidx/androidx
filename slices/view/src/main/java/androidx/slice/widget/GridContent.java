@@ -30,6 +30,7 @@ import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
+import static androidx.slice.core.SliceHints.HINT_OVERLAY;
 import static androidx.slice.core.SliceHints.UNKNOWN_IMAGE;
 
 import androidx.annotation.NonNull;
@@ -187,7 +188,7 @@ public class GridContent extends SliceContent {
             boolean containsSeeMore = SliceQuery.find(item, null, HINT_SEE_MORE, null) != null;
             boolean isNonCellContent = containsSeeMore
                     || item.hasAnyHints(HINT_SHORTCUT, HINT_SEE_MORE, HINT_KEYWORDS, HINT_TTL,
-                            HINT_LAST_UPDATED);
+                    HINT_LAST_UPDATED, HINT_OVERLAY);
             if (SUBTYPE_CONTENT_DESCRIPTION.equals(item.getSubType())) {
                 mContentDescr = item;
             } else if (!isNonCellContent) {
@@ -239,6 +240,7 @@ public class GridContent extends SliceContent {
         private SliceItem mContentDescr;
         private int mTextCount;
         private boolean mHasImage;
+        private SliceItem mOverlayItem;
         private int mImageMode = -1;
         private SliceItem mTitleItem;
 
@@ -272,11 +274,17 @@ public class GridContent extends SliceContent {
                         mContentDescr = item;
                     } else if (mTextCount < 2 && (FORMAT_TEXT.equals(itemFormat)
                             || FORMAT_LONG.equals(itemFormat))) {
-                        mTextCount++;
-                        mCellItems.add(item);
                         if (mTitleItem == null
                                 || (!mTitleItem.hasHint(HINT_TITLE) && item.hasHint(HINT_TITLE))) {
                             mTitleItem = item;
+                        }
+                        if (item.hasHint(HINT_OVERLAY)) {
+                            if (mOverlayItem == null) {
+                                mOverlayItem = item;
+                            }
+                        } else {
+                            mTextCount++;
+                            mCellItems.add(item);
                         }
                     } else if (imageCount < 1 && FORMAT_IMAGE.equals(item.getFormat())) {
                         mImageMode = SliceUtils.parseImageMode(item);
@@ -297,6 +305,14 @@ public class GridContent extends SliceContent {
         @Nullable
         public SliceItem getTitleItem() {
             return mTitleItem;
+        }
+
+        /**
+         * @return image overlay text slice item if this cell has one.
+         */
+        @Nullable
+        public SliceItem getOverlayItem() {
+            return mOverlayItem;
         }
 
         /**

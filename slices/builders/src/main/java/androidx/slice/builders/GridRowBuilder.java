@@ -279,6 +279,11 @@ public class GridRowBuilder {
          */
         @RestrictTo(LIBRARY)
         public static final int TYPE_IMAGE = 2;
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public static final int TYPE_OVERLAY = 3;
 
         private List<Object> mObjects = new ArrayList<>();
         private List<Integer> mTypes = new ArrayList<>();
@@ -386,6 +391,36 @@ public class GridRowBuilder {
                 @ListBuilder.ImageMode int imageMode, boolean isLoading) {
             mObjects.add(new Pair<>(image, imageMode));
             mTypes.add(TYPE_IMAGE);
+            mLoadings.add(isLoading);
+            return this;
+        }
+
+        /**
+         * Adds text to the cell. Text added with this method will be overlaid in the image in
+         * the cell. There can be only one overlay text, the first added will be used, others
+         * will be ignored.
+         */
+        @NonNull
+        public CellBuilder addOverlayText(@NonNull CharSequence text) {
+            return addOverlayText(text, false /* isLoading */);
+        }
+
+        /**
+         * Adds text to the cell. Text added with this method will be overlaid in the image in
+         * the cell. There can be only one overlay text, the first added will be used, others
+         * will be ignored.
+         * <p>
+         * Use this method to specify content that will appear in the template once it's been
+         * loaded.
+         * </p>
+         *
+         * @param isLoading indicates whether the app is doing work to load the added content in the
+         *                  background or not.
+         */
+        @NonNull
+        public CellBuilder addOverlayText(@Nullable CharSequence text, boolean isLoading) {
+            mObjects.add(text);
+            mTypes.add(TYPE_OVERLAY);
             mLoadings.add(isLoading);
             return this;
         }

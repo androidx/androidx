@@ -96,10 +96,12 @@ public class SampleSliceProvider extends SliceProvider {
             "contact3",
             "contact4",
             "gallery",
+            "galleryoverlay",
             "indeterminaterange",
             "indeterminaterange2",
             "indeterminaterange3",
             "weather",
+            "weatheroverlay",
             "reservation",
             "loadlist",
             "loadgrid",
@@ -188,8 +190,12 @@ public class SampleSliceProvider extends SliceProvider {
                 return createContact4(sliceUri);
             case "/gallery":
                 return createGallery(sliceUri);
+            case "/galleryoverlay":
+                return createGalleryOverlay(sliceUri);
             case "/weather":
                 return createWeather(sliceUri);
+            case "/weatheroverlay":
+                return createWeatherOverlay(sliceUri);
             case "/reservation":
                 return createReservationSlice(sliceUri);
             case "/loadlist":
@@ -238,36 +244,73 @@ public class SampleSliceProvider extends SliceProvider {
                 .setSubtitle("High 69\u00B0, Low 62\u00B0")
                 .setPrimaryAction(primaryAction));
         return lb.addGridRow(new GridRowBuilder()
-                        .addCell(new CellBuilder()
-                                .addImage(IconCompat.createWithResource(getContext(),
-                                        R.drawable.weather_1),
-                                        SMALL_IMAGE)
-                                .addText("MON")
-                                .addTitleText("69\u00B0"))
-                        .addCell(new CellBuilder()
-                                .addImage(IconCompat.createWithResource(getContext(),
-                                        R.drawable.weather_2),
-                                        SMALL_IMAGE)
-                                .addText("TUE")
-                                .addTitleText("71\u00B0"))
-                        .addCell(new CellBuilder()
-                                .addImage(IconCompat.createWithResource(getContext(),
-                                        R.drawable.weather_3),
-                                        SMALL_IMAGE)
-                                .addText("WED")
-                                .addTitleText("76\u00B0"))
-                        .addCell(new CellBuilder()
-                                .addImage(IconCompat.createWithResource(getContext(),
-                                        R.drawable.weather_4),
-                                        SMALL_IMAGE)
-                                .addText("THU")
-                                .addTitleText("72\u00B0"))
-                        .addCell(new CellBuilder()
-                                .addImage(IconCompat.createWithResource(getContext(),
-                                        R.drawable.weather_1),
-                                        SMALL_IMAGE)
-                                .addText("FRI")
-                                .addTitleText("68\u00B0")))
+                .addCell(new CellBuilder()
+                        .addImage(IconCompat.createWithResource(getContext(),
+                                R.drawable.weather_1),
+                                SMALL_IMAGE)
+                        .addText("MON")
+                        .addTitleText("69\u00B0"))
+                .addCell(new CellBuilder()
+                        .addImage(IconCompat.createWithResource(getContext(),
+                                R.drawable.weather_2),
+                                SMALL_IMAGE)
+                        .addText("TUE")
+                        .addTitleText("71\u00B0"))
+                .addCell(new CellBuilder()
+                        .addImage(IconCompat.createWithResource(getContext(),
+                                R.drawable.weather_3),
+                                SMALL_IMAGE)
+                        .addText("WED")
+                        .addTitleText("76\u00B0"))
+                .addCell(new CellBuilder()
+                        .addImage(IconCompat.createWithResource(getContext(),
+                                R.drawable.weather_4),
+                                SMALL_IMAGE)
+                        .addText("THU")
+                        .addTitleText("72\u00B0"))
+                .addCell(new CellBuilder()
+                        .addImage(IconCompat.createWithResource(getContext(),
+                                R.drawable.weather_1),
+                                SMALL_IMAGE)
+                        .addText("FRI")
+                        .addTitleText("68\u00B0")))
+                .build();
+    }
+
+    private Slice createWeatherOverlay(Uri sliceUri) {
+        SliceAction primaryAction = SliceAction.create(getBroadcastIntent(ACTION_TOAST,
+                "open weather app"),
+                IconCompat.createWithResource(getContext(), R.drawable.weather_1), SMALL_IMAGE,
+                "Weather is happening!");
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY);
+        lb.setHeader(new HeaderBuilder()
+                .setTitle("Mountain View Weather")
+                .setSubtitle("High 69\u00B0, Low 62\u00B0")
+                .setPrimaryAction(primaryAction));
+        return lb.addGridRow(new GridRowBuilder()
+                .addCell(new CellBuilder()
+                        .addImage(IconCompat.createWithResource(getContext(),
+                                R.drawable.weather_1),
+                                LARGE_IMAGE)
+                        .addOverlayText("MON 69\u00B0"))
+                .addCell(new CellBuilder()
+                        .addImage(IconCompat.createWithResource(getContext(),
+                                R.drawable.weather_2),
+                                SMALL_IMAGE)
+                        .addOverlayText("TUE 71\u00B0"))
+                .addCell(new CellBuilder()
+                        .addImage(IconCompat.createWithResource(getContext(),
+                                R.drawable.weather_3),
+                                LARGE_IMAGE))
+                .addCell(new CellBuilder()
+                        .addImage(IconCompat.createWithResource(getContext(),
+                                R.drawable.weather_4),
+                                SMALL_IMAGE))
+                .addCell(new CellBuilder()
+                        .addImage(IconCompat.createWithResource(getContext(),
+                                R.drawable.weather_1),
+                                LARGE_IMAGE)
+                        .addOverlayText("FRI 68\u00B0")))
                 .build();
     }
 
@@ -306,12 +349,47 @@ public class SampleSliceProvider extends SliceProvider {
         return lb.addGridRow(grb).build();
     }
 
+    private Slice createGalleryOverlay(Uri sliceUri) {
+        SliceAction primaryAction = SliceAction.create(
+                getBroadcastIntent(ACTION_TOAST, "open photo album"),
+                IconCompat.createWithResource(getContext(), R.drawable.slices_1),
+                LARGE_IMAGE,
+                "Open photo album");
+        ListBuilder lb = new ListBuilder(getContext(), sliceUri, INFINITY)
+                .setAccentColor(0xff4285F4);
+        lb.addRow(new RowBuilder()
+                .setTitle("Family trip to Hawaii")
+                .setSubtitle("Sep 30, 2017 - Oct 2, 2017")
+                .setPrimaryAction(primaryAction))
+                .addAction(SliceAction.create(
+                        getBroadcastIntent(ACTION_TOAST, "cast photo album"),
+                        IconCompat.createWithResource(getContext(), R.drawable.ic_cast), ICON_IMAGE,
+                        "Cast photo album"))
+                .addAction(SliceAction.create(
+                        getBroadcastIntent(ACTION_TOAST, "share photo album"),
+                        IconCompat.createWithResource(getContext(), R.drawable.ic_share),
+                        ICON_IMAGE, "Share photo album"));
+        int[] galleryResId = new int[]{R.drawable.slices_1, R.drawable.slices_2,
+                R.drawable.slices_3, R.drawable.slices_4};
+        int imageCount = 7;
+        GridRowBuilder grb = new GridRowBuilder();
+        for (int i = 0; i < imageCount; i++) {
+            IconCompat ic = IconCompat.createWithResource(getContext(),
+                    galleryResId[i % galleryResId.length]);
+            grb.addCell(new CellBuilder().addImage(ic, LARGE_IMAGE).addOverlayText("image " + i));
+        }
+        grb.setPrimaryAction(primaryAction)
+                .setSeeMoreAction(getBroadcastIntent(ACTION_TOAST, "see your gallery"))
+                .setContentDescription("Images from your trip to Hawaii");
+        return lb.addGridRow(grb).build();
+    }
+
     private Slice createFoodOptionsSlice(Uri sliceUri) {
-        int[] pizzaResId = new int[] {R.drawable.pizza3, R.drawable.pizza2, R.drawable.pizza1,
+        int[] pizzaResId = new int[]{R.drawable.pizza3, R.drawable.pizza2, R.drawable.pizza1,
                 R.drawable.pizza4};
-        String[] titles = new String[] {"Sung's Pizza", "Slice of Life", "Ideal Triangles",
+        String[] titles = new String[]{"Sung's Pizza", "Slice of Life", "Ideal Triangles",
                 "Meeting place"};
-        String[] subtitles = new String[] {"5 stars", "5 stars", "4 stars",
+        String[] subtitles = new String[]{"5 stars", "5 stars", "4 stars",
                 "4 stars"};
 
         int count = 4; // How many things show in the grid

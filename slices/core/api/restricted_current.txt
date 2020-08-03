@@ -229,6 +229,7 @@ package androidx.slice.core {
     field public static final int DETERMINATE_RANGE = 0; // 0x0
     field public static final String HINT_ACTIVITY = "activity";
     field public static final String HINT_CACHED = "cached";
+    field public static final String HINT_OVERLAY = "overlay";
     field public static final String HINT_RAW = "raw";
     field public static final String HINT_SELECTION_OPTION = "selection_option";
     field public static final int ICON_IMAGE = 0; // 0x0
