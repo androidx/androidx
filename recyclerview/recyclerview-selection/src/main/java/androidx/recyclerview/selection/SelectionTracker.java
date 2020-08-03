@@ -709,7 +709,7 @@ public abstract class SelectionTracker<K> {
             // Event glue between RecyclerView and SelectionTracker keeps the classes separate
             // so that a SelectionTracker can be shared across RecyclerView instances that
             // represent the same data in different ways.
-            EventBridge.install(mAdapter, tracker, mKeyProvider);
+            EventBridge.install(mAdapter, tracker, mKeyProvider, mRecyclerView::post);
 
             // Scroller is stateful and can be reset, but we don't manage it directly.
             // GestureSelectionHelper will reset scroller when it is reset.

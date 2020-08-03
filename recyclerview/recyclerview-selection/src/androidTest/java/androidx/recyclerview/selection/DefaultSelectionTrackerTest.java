@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.util.SparseBooleanArray;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Consumer;
 import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate;
 import androidx.recyclerview.selection.testing.Bundles;
 import androidx.recyclerview.selection.testing.SelectionProbe;
@@ -89,7 +90,13 @@ public class DefaultSelectionTrackerTest {
                 mSelectionPredicate,
                 StorageStrategy.createStringStorage());
 
-        EventBridge.install(mAdapter, mTracker, mKeyProvider);
+        EventBridge.install(
+                mAdapter, mTracker, mKeyProvider, new Consumer<Runnable>() {
+                    @Override
+                    public void accept(Runnable runnable) {
+                        runnable.run();
+                    }
+                });
 
         mTracker.addObserver(mListener);
 
@@ -515,7 +522,13 @@ public class DefaultSelectionTrackerTest {
                 mSelectionPredicate,
                 StorageStrategy.createStringStorage());
 
-        EventBridge.install(mAdapter, mTracker, mKeyProvider);
+        EventBridge.install(
+                mAdapter, mTracker, mKeyProvider, new Consumer<Runnable>() {
+                    @Override
+                    public void accept(Runnable runnable) {
+                        runnable.run();
+                    }
+                });
 
         mTracker.addObserver(mListener);
 
