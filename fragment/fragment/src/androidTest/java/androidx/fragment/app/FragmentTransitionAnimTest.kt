@@ -31,6 +31,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,12 +42,21 @@ import java.util.concurrent.TimeUnit
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
-class FragmentTransitionAnimTest(private val reorderingAllowed: ReorderingAllowed) {
+class FragmentTransitionAnimTest(
+    private val reorderingAllowed: ReorderingAllowed,
+    private val stateManager: StateManager
+) {
     private var onBackStackChangedTimes: Int = 0
 
     @Before
     fun setup() {
+        stateManager.setup()
         onBackStackChangedTimes = 0
+    }
+
+    @After
+    fun teardown() {
+        stateManager.teardown()
     }
 
     // Ensure when transition duration is shorter than animation duration, we will get both end
@@ -309,9 +319,17 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: ReorderingAllowe
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters(name = "ordering={0}")
-        fun data(): Array<ReorderingAllowed> {
-            return arrayOf(Ordered, Reordered)
+        @Parameterized.Parameters(name = "ordering={0}, stateManager={1}")
+        fun data() = mutableListOf<Array<Any>>().apply {
+            arrayOf(
+                Ordered,
+                Reordered
+            ).forEach { ordering ->
+                // Run the test with the new state manager
+                add(arrayOf(ordering, NewStateManager))
+                // Run the test with the old state manager
+                add(arrayOf(ordering, OldStateManager))
+            }
         }
 
         @AnimRes

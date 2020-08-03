@@ -25,7 +25,6 @@ import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelStore
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -33,18 +32,27 @@ import androidx.testutils.runOnUiThreadRethrow
 import androidx.testutils.waitForExecution
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
+import org.junit.After
 import org.junit.Assert.fail
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
 @LargeTest
-@RunWith(AndroidJUnit4::class)
+@RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
-class PostponedTransitionTest {
+class PostponedTransitionTest(private val stateManager: StateManager) {
+
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "stateManager={0}")
+        fun data() = arrayOf(NewStateManager, OldStateManager)
+    }
+
     @Suppress("DEPRECATION")
     @get:Rule
     var activityRule = androidx.test.rule.ActivityTestRule(FragmentTestActivity::class.java)
@@ -54,6 +62,7 @@ class PostponedTransitionTest {
 
     @Before
     fun setupContainer() {
+        stateManager.setup()
         activityRule.setContentView(R.layout.simple_container)
         val fm = activityRule.activity.supportFragmentManager
 
@@ -83,6 +92,11 @@ class PostponedTransitionTest {
             enteringViews += listOf(blueSquare, greenSquare)
         }
         verifyNoOtherTransitions(beginningFragment)
+    }
+
+    @After
+    fun teardown() {
+        stateManager.teardown()
     }
 
     // Ensure that replacing with a fragment that has a postponed transition
@@ -230,7 +244,7 @@ class PostponedTransitionTest {
         }
         activityRule.waitForExecution()
 
-        if (FragmentManager.USE_STATE_MANAGER) {
+        if (stateManager is NewStateManager) {
             // fragment2 should have been put on the back stack without any transitions
             verifyNoOtherTransitions(fragment2)
 
@@ -269,7 +283,7 @@ class PostponedTransitionTest {
 
         activityRule.popBackStackImmediate(commit, FragmentManager.POP_BACK_STACK_INCLUSIVE)
 
-        if (FragmentManager.USE_STATE_MANAGER) {
+        if (stateManager is NewStateManager) {
             // The transition back to beginningFragment should be postponed
             // and fragment2 should be removed without any transitions
             assertPostponedTransition(fragment3, beginningFragment, fragment2)
@@ -332,7 +346,7 @@ class PostponedTransitionTest {
         // and start fragment2 -> fragment3 transition postponed
         activityRule.waitForExecution()
 
-        if (FragmentManager.USE_STATE_MANAGER) {
+        if (stateManager is NewStateManager) {
             // fragment2 should have been put on the back stack without any transitions
             verifyNoOtherTransitions(fragment2)
 
@@ -373,7 +387,7 @@ class PostponedTransitionTest {
         // start the beginningFragment transaction postponed
         activityRule.popBackStackImmediate()
 
-        if (FragmentManager.USE_STATE_MANAGER) {
+        if (stateManager is NewStateManager) {
             // The transition back to beginningFragment should be postponed
             // and no transitions should be done on fragment2
             assertPostponedTransition(fragment3, beginningFragment)
@@ -783,7 +797,7 @@ class PostponedTransitionTest {
                 .commitNow()
         }
 
-        if (FragmentManager.USE_STATE_MANAGER) {
+        if (stateManager is NewStateManager) {
             // fragment2 should have been put on the back stack without any transitions
             verifyNoOtherTransitions(fragment2)
 
@@ -951,7 +965,7 @@ class PostponedTransitionTest {
             // start the postponed transition
             fragment.startPostponedEnterTransition()
 
-            if (FragmentManager.USE_STATE_MANAGER) {
+            if (stateManager is NewStateManager) {
                 // This should succeed since onResume() is called outside of the
                 // transaction completing
                 fm.executePendingTransactions()
@@ -1092,6 +1106,8 @@ class PostponedTransitionTest {
         assertWithMessage(
             "After startPostponed is called the transition should not be postponed"
         ).that(fragment.isPostponed).isFalse()
+
+        fragment.waitForTransition()
     }
 
     // Ensure postponedEnterTransaction(long, TimeUnit) works even if called in constructor
@@ -1142,7 +1158,7 @@ class PostponedTransitionTest {
         assertThat(toFragment.requireView().isAttachedToWindow).isTrue()
         assertThat(fromFragment.requireView().visibility).isEqualTo(View.VISIBLE)
 
-        if (FragmentManager.USE_STATE_MANAGER) {
+        if (stateManager is NewStateManager) {
             assertThat(toFragment.requireView().visibility).isEqualTo(View.INVISIBLE)
         } else {
             assertThat(toFragment.requireView().visibility).isEqualTo(View.VISIBLE)
@@ -1150,7 +1166,7 @@ class PostponedTransitionTest {
         }
         verifyNoOtherTransitions(fromFragment)
         verifyNoOtherTransitions(toFragment)
-        if (FragmentManager.USE_STATE_MANAGER) {
+        if (stateManager is NewStateManager) {
             assertThat(fromFragment.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
             assertThat(toFragment.lifecycle.currentState).isEqualTo(Lifecycle.State.STARTED)
         } else {
