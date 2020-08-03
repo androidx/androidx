@@ -83,7 +83,7 @@ fun Switch(
             .swipeable(
                 state = swipeableState,
                 anchors = mapOf(minBound to false, maxBound to true),
-                thresholds = fractionalThresholds(0.5f),
+                thresholds = { _, _ -> FractionalThreshold(0.5f) },
                 orientation = Orientation.Horizontal,
                 enabled = enabled,
                 reverseDirection = isRtl,
