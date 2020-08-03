@@ -24,6 +24,7 @@ import android.graphics.Rect;
 import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Consumer;
 import androidx.recyclerview.selection.GridModel.GridHost;
 import androidx.recyclerview.selection.testing.TestAdapter;
 import androidx.recyclerview.selection.testing.TestAutoScroller;
@@ -74,7 +75,13 @@ public class BandSelectionHelperTest {
                 SelectionPredicates.createSelectAnything(),
                 StorageStrategy.createStringStorage());
 
-        EventBridge.install(mAdapter, mTracker, mKeyProvider);
+        EventBridge.install(mAdapter, mTracker, mKeyProvider, new Consumer<Runnable>() {
+            @Override
+            public void accept(Runnable runnable) {
+                runnable.run();
+            }
+        });
+
         FocusDelegate<String> focusDelegate = FocusDelegate.dummy();
 
         mBandController = new BandSelectionHelper<String>(
