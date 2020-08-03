@@ -23,6 +23,7 @@ import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert.Companion.Append
 import androidx.paging.PageEvent.Insert.Companion.Prepend
 import androidx.paging.PageEvent.Insert.Companion.Refresh
+import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
@@ -31,21 +32,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import kotlin.test.assertEquals
-
-private fun <T : Any> assertEvents(expected: List<PageEvent<T>>, actual: List<PageEvent<T>>) {
-    try {
-        assertEquals(expected, actual)
-    } catch (e: Throwable) {
-        throw AssertionError(
-            e.localizedMessage
-                .replace("),", "),\n")
-                .replace("<[", "<[\n ")
-                .replace("actual", "\nactual\n")
-                .replace("Expected", "\nExpected\n")
-                .replace("pages=", "pages=\n")
-        )
-    }
-}
 
 private fun <T : Any> List<PageEvent<T>>.getItems() = mapNotNull { event ->
     when (event) {
@@ -73,34 +59,7 @@ private fun <T : Any> assertInsertData(
 class SeparatorsTest {
     @Test
     fun refreshFull() = runBlockingTest {
-        assertEvents(
-            listOf(
-                Refresh(
-                    pages = listOf(
-                        TransformablePage(
-                            originalPageOffset = 0,
-                            data = listOf("a2", "B", "b1"),
-                            originalPageSize = 2,
-                            originalIndices = listOf(0, 1, 1)
-                        ),
-                        TransformablePage(
-                            originalPageOffset = 1,
-                            data = listOf("C"),
-                            originalPageSize = 2,
-                            originalIndices = listOf(0)
-                        ),
-                        TransformablePage(
-                            originalPageOffset = 1,
-                            data = listOf("c1", "c2"),
-                            originalPageSize = 2,
-                            originalIndices = null
-                        )
-                    ),
-                    placeholdersBefore = 0,
-                    placeholdersAfter = 1,
-                    combinedLoadStates = localLoadStatesOf()
-                )
-            ),
+        assertThat(
             flowOf(
                 Refresh(
                     pages = listOf(
@@ -112,6 +71,32 @@ class SeparatorsTest {
                     combinedLoadStates = localLoadStatesOf()
                 )
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+        ).isEqualTo(
+            listOf(
+                Refresh(
+                    pages = listOf(
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(0),
+                            data = listOf("a2", "B", "b1"),
+                            hintOriginalPageOffset = 0,
+                            hintOriginalIndices = listOf(0, 1, 1)
+                        ),
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(0, 1),
+                            data = listOf("C"),
+                            hintOriginalPageOffset = 1,
+                            hintOriginalIndices = listOf(0)
+                        ),
+                        TransformablePage(
+                            originalPageOffset = 1,
+                            data = listOf("c1", "c2")
+                        )
+                    ),
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 1,
+                    combinedLoadStates = localLoadStatesOf()
+                )
+            )
         )
     }
 
@@ -125,40 +110,8 @@ class SeparatorsTest {
             placeholdersAfter = 1,
             combinedLoadStates = localLoadStatesOf()
         )
-        assertEvents(
-            listOf(
-                refresh,
-                Prepend(
-                    pages = listOf(
-                        TransformablePage(
-                            originalPageOffset = -2,
-                            data = listOf("a1", "B", "b1"),
-                            originalPageSize = 2,
-                            originalIndices = listOf(0, 1, 1)
-                        ),
-                        TransformablePage(
-                            originalPageOffset = -1,
-                            data = listOf(),
-                            originalPageSize = 2,
-                            originalIndices = null
-                        ),
-                        TransformablePage(
-                            originalPageOffset = -1,
-                            data = listOf("b2", "b3"),
-                            originalPageSize = 2,
-                            originalIndices = null
-                        ),
-                        TransformablePage(
-                            originalPageOffset = -1,
-                            data = listOf("C"),
-                            originalPageSize = 2,
-                            originalIndices = listOf(1) // note: using last index of 2nd page in
-                        )
-                    ),
-                    placeholdersBefore = 1,
-                    combinedLoadStates = localLoadStatesOf()
-                )
-            ),
+
+        assertThat(
             flowOf(
                 refresh,
                 Prepend(
@@ -170,6 +123,32 @@ class SeparatorsTest {
                     combinedLoadStates = localLoadStatesOf()
                 )
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+        ).isEqualTo(
+            listOf(
+                refresh,
+                Prepend(
+                    pages = listOf(
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(-2),
+                            data = listOf("a1", "B", "b1"),
+                            hintOriginalPageOffset = -2,
+                            hintOriginalIndices = listOf(0, 1, 1)
+                        ),
+                        TransformablePage(
+                            originalPageOffset = -1,
+                            data = listOf("b2", "b3")
+                        ),
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(-1, 0),
+                            data = listOf("C"),
+                            hintOriginalPageOffset = -1,
+                            hintOriginalIndices = listOf(1)
+                        )
+                    ),
+                    placeholdersBefore = 1,
+                    combinedLoadStates = localLoadStatesOf()
+                )
+            )
         )
     }
 
@@ -183,40 +162,7 @@ class SeparatorsTest {
             placeholdersAfter = 1,
             combinedLoadStates = localLoadStatesOf()
         )
-        assertEvents(
-            listOf(
-                refresh,
-                Append(
-                    pages = listOf(
-                        TransformablePage(
-                            originalPageOffset = 1,
-                            data = listOf("C"),
-                            originalPageSize = 2,
-                            originalIndices = listOf(0)
-                        ),
-                        TransformablePage(
-                            originalPageOffset = 1,
-                            data = listOf("c1", "D", "d1"),
-                            originalPageSize = 2,
-                            originalIndices = listOf(0, 1, 1)
-                        ),
-                        TransformablePage(
-                            originalPageOffset = 2,
-                            data = listOf(),
-                            originalPageSize = 2,
-                            originalIndices = null
-                        ),
-                        TransformablePage(
-                            originalPageOffset = 2,
-                            data = listOf("d2", "d3"),
-                            originalPageSize = 2,
-                            originalIndices = null
-                        )
-                    ),
-                    placeholdersAfter = 1,
-                    combinedLoadStates = localLoadStatesOf()
-                )
-            ),
+        assertThat(
             flowOf(
                 refresh,
                 Append(
@@ -228,41 +174,39 @@ class SeparatorsTest {
                     combinedLoadStates = localLoadStatesOf()
                 )
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+        ).isEqualTo(
+            listOf(
+                refresh,
+                Append(
+                    pages = listOf(
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(0, 1),
+                            data = listOf("C"),
+                            hintOriginalPageOffset = 1,
+                            hintOriginalIndices = listOf(0)
+                        ),
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(1),
+                            data = listOf("c1", "D", "d1"),
+                            hintOriginalPageOffset = 1,
+                            hintOriginalIndices = listOf(0, 1, 1)
+                        ),
+                        TransformablePage(
+                            originalPageOffset = 2,
+                            data = listOf("d2", "d3")
+                        )
+                    ),
+                    placeholdersAfter = 1,
+                    combinedLoadStates = localLoadStatesOf()
+                )
+            )
         )
     }
 
     @Test
     fun refreshDropFull() = runBlockingTest {
-        assertEvents(
-            expected = listOf(
-                Refresh(
-                    pages = listOf(
-                        TransformablePage(
-                            originalPageOffset = 0,
-                            data = listOf("a1"),
-                            originalPageSize = 1,
-                            originalIndices = null
-                        ),
-                        TransformablePage(
-                            originalPageOffset = 1,
-                            data = listOf(),
-                            originalPageSize = 1,
-                            originalIndices = null
-                        ),
-                        TransformablePage(
-                            originalPageOffset = 1,
-                            data = listOf("a2"),
-                            originalPageSize = 1,
-                            originalIndices = null
-                        )
-                    ),
-                    placeholdersBefore = 0,
-                    placeholdersAfter = 1,
-                    combinedLoadStates = localLoadStatesOf()
-                ),
-                Drop<String>(APPEND, 2, 4)
-            ),
-            actual = flowOf(
+        assertThat(
+            flowOf(
                 Refresh(
                     pages = listOf(
                         listOf("a1"),
@@ -272,8 +216,27 @@ class SeparatorsTest {
                     placeholdersAfter = 1,
                     combinedLoadStates = localLoadStatesOf()
                 ),
-                Drop<String>(APPEND, 1, 4)
+                Drop<String>(APPEND, 1, 1, 4)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+        ).isEqualTo(
+            listOf(
+                Refresh(
+                    pages = listOf(
+                        TransformablePage(
+                            originalPageOffset = 0,
+                            data = listOf("a1")
+                        ),
+                        TransformablePage(
+                            originalPageOffset = 1,
+                            data = listOf("a2")
+                        )
+                    ),
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 1,
+                    combinedLoadStates = localLoadStatesOf()
+                ),
+                Drop<String>(APPEND, 1, 1, 4)
+            )
         )
     }
 
@@ -312,10 +275,12 @@ class SeparatorsTest {
         combinedLoadStates = localLoadStatesOf(appendLocal = append)
     )
 
-    private fun drop(
-        loadType: LoadType,
-        count: Int
-    ) = Drop<String>(loadType = loadType, count = count, placeholdersRemaining = 0)
+    private fun drop(loadType: LoadType, minPageOffset: Int, maxPageOffset: Int) = Drop<String>(
+        loadType = loadType,
+        minPageOffset = minPageOffset,
+        maxPageOffset = maxPageOffset,
+        placeholdersRemaining = 0
+    )
 
     @Test
     fun refreshNoop() = runBlockingTest {
@@ -433,14 +398,14 @@ class SeparatorsTest {
             listOf(
                 // not enough data to create separators yet
                 refresh(pages = listOf()),
-                // don't insert a separator, since a drop occurred (even though it's 0 size)
+                // don't insert a separator, since a drop occurred
                 append(pages = listOf("a1")),
                 // but now add the separator, since start is done again
                 prepend(pages = listOf("A"))
             ),
             flowOf(
                 refresh(pages = listOf(), prepend = NotLoading.Complete),
-                drop(loadType = PREPEND, count = 0),
+                drop(loadType = PREPEND, minPageOffset = 0, maxPageOffset = 0),
                 append(pages = listOf("a1")),
                 prepend(pages = listOf(), prepend = NotLoading.Complete)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
@@ -453,14 +418,14 @@ class SeparatorsTest {
             listOf(
                 // not enough data to create separators yet
                 refresh(pages = listOf()),
-                // don't insert a separator, since a drop occurred (even though it's 0 size)
+                // don't insert a separator, since a drop occurred
                 prepend(pages = listOf("a1")),
                 // but now add the separator, since end is done again
                 append(pages = listOf("END"))
             ),
             flowOf(
                 refresh(pages = listOf(), append = NotLoading.Complete),
-                drop(loadType = APPEND, count = 0),
+                drop(loadType = APPEND, minPageOffset = 0, maxPageOffset = 0),
                 prepend(pages = listOf("a1")),
                 append(pages = listOf(), append = NotLoading.Complete)
             ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
@@ -500,96 +465,90 @@ class SeparatorsTest {
     @Test
     fun refreshEmptyStartDropFull() = runBlockingTest {
         // when start terminal separator is inserted, we need to drop count*2 + 1
-        assertEvents(
+        assertThat(
+            flowOf(
+                refresh(
+                    pages = listOf("a1", "b1"),
+                    prepend = NotLoading.Complete
+                ),
+                drop(loadType = PREPEND, minPageOffset = 0, maxPageOffset = 0)
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+        ).isEqualTo(
             listOf(
                 Refresh(
                     pages = listOf(
                         TransformablePage(
-                            originalPageOffset = 0,
+                            originalPageOffsets = intArrayOf(0),
                             data = listOf("A"),
-                            originalPageSize = 1,
-                            originalIndices = listOf(0)
+                            hintOriginalPageOffset = 0,
+                            hintOriginalIndices = listOf(0)
                         ),
                         TransformablePage(
                             originalPageOffset = 0,
-                            data = listOf("a1"),
-                            originalPageSize = 1,
-                            originalIndices = null
+                            data = listOf("a1")
                         ),
                         TransformablePage(
-                            originalPageOffset = 1,
+                            originalPageOffsets = intArrayOf(0, 1),
                             data = listOf("B"),
-                            originalPageSize = 1,
-                            originalIndices = listOf(0)
+                            hintOriginalPageOffset = 1,
+                            hintOriginalIndices = listOf(0)
                         ),
                         TransformablePage(
                             originalPageOffset = 1,
-                            data = listOf("b1"),
-                            originalPageSize = 1,
-                            originalIndices = null
+                            data = listOf("b1")
                         )
                     ),
                     placeholdersBefore = 0,
                     placeholdersAfter = 1,
                     combinedLoadStates = localLoadStatesOf(prependLocal = NotLoading.Complete)
                 ),
-                drop(loadType = PREPEND, count = 3)
-            ),
-            flowOf(
-                refresh(
-                    pages = listOf("a1", "b1"),
-                    prepend = NotLoading.Complete
-                ),
-                drop(loadType = PREPEND, count = 1)
-            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+                drop(loadType = PREPEND, minPageOffset = 0, maxPageOffset = 0)
+            )
         )
     }
 
     @Test
     fun refreshEmptyEndDropFull() = runBlockingTest {
         // when end terminal separator is inserted, we need to drop count*2 + 1
-        assertEvents(
+        assertThat(
+            flowOf(
+                refresh(
+                    pages = listOf("a1", "b1"),
+                    append = NotLoading.Complete
+                ),
+                drop(loadType = APPEND, minPageOffset = 0, maxPageOffset = 0)
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+        ).isEqualTo(
             listOf(
                 Refresh(
                     pages = listOf(
                         TransformablePage(
                             originalPageOffset = 0,
-                            data = listOf("a1"),
-                            originalPageSize = 1,
-                            originalIndices = null
+                            data = listOf("a1")
                         ),
                         TransformablePage(
-                            originalPageOffset = 1,
+                            originalPageOffsets = intArrayOf(0, 1),
                             data = listOf("B"),
-                            originalPageSize = 1,
-                            originalIndices = listOf(0)
+                            hintOriginalPageOffset = 1,
+                            hintOriginalIndices = listOf(0)
                         ),
                         TransformablePage(
                             originalPageOffset = 1,
-                            data = listOf("b1"),
-                            originalPageSize = 1,
-                            originalIndices = null
+                            data = listOf("b1")
                         ),
                         TransformablePage(
-                            originalPageOffset = 1,
+                            originalPageOffsets = intArrayOf(1),
                             data = listOf("END"),
-                            originalPageSize = 1,
-                            originalIndices = listOf(0)
+                            hintOriginalPageOffset = 1,
+                            hintOriginalIndices = listOf(0)
                         )
                     ),
                     placeholdersBefore = 0,
                     placeholdersAfter = 1,
                     combinedLoadStates = localLoadStatesOf(appendLocal = NotLoading.Complete)
                 ),
-                drop(loadType = APPEND, count = 3)
-            ),
-            flowOf(
-                refresh(
-                    pages = listOf("a1", "b1"),
-                    append = NotLoading.Complete
-                ),
-                drop(loadType = APPEND, count = 1)
-            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+                drop(loadType = APPEND, minPageOffset = 0, maxPageOffset = 0)
+            )
         )
     }
 
@@ -627,6 +586,396 @@ class SeparatorsTest {
                     SeparatorType("B")
                 } else null)
             }.toList()
+        )
+    }
+
+    @Test
+    fun refreshEmptyPagesExceptOne() = runBlockingTest {
+        assertThat(
+            flowOf(
+                Refresh(
+                    pages = listOf(
+                        listOf(),
+                        listOf(),
+                        listOf("a2", "b1"),
+                        listOf(),
+                        listOf()
+                    ).toTransformablePages(),
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 1,
+                    combinedLoadStates = localLoadStatesOf()
+                )
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+        ).isEqualTo(
+            listOf(
+                Refresh(
+                    pages = listOf(
+                        TransformablePage(
+                            originalPageOffset = 0,
+                            data = listOf()
+                        ),
+                        TransformablePage(
+                            originalPageOffset = 1,
+                            data = listOf()
+                        ),
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(2),
+                            data = listOf("a2", "B", "b1"),
+                            hintOriginalPageOffset = 2,
+                            hintOriginalIndices = listOf(0, 1, 1)
+                        ),
+                        TransformablePage(
+                            originalPageOffset = 3,
+                            data = listOf()
+                        ),
+                        TransformablePage(
+                            originalPageOffset = 4,
+                            data = listOf()
+                        )
+                    ),
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 1,
+                    combinedLoadStates = localLoadStatesOf()
+                )
+            )
+        )
+    }
+
+    @Test
+    fun refreshSparsePages() = runBlockingTest {
+        assertThat(
+            flowOf(
+                Refresh(
+                    pages = listOf(
+                        listOf(),
+                        listOf("a2", "b1"),
+                        listOf(),
+                        listOf("c1", "c2"),
+                        listOf()
+                    ).toTransformablePages(),
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 1,
+                    combinedLoadStates = localLoadStatesOf()
+                )
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+        ).isEqualTo(
+            listOf(
+                Refresh(
+                    pages = listOf(
+                        TransformablePage(
+                            originalPageOffset = 0,
+                            data = listOf()
+                        ),
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(1),
+                            data = listOf("a2", "B", "b1"),
+                            hintOriginalPageOffset = 1,
+                            hintOriginalIndices = listOf(0, 1, 1)
+                        ),
+                        TransformablePage(
+                            originalPageOffset = 2,
+                            data = listOf()
+                        ),
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(1, 3),
+                            data = listOf("C"),
+                            hintOriginalPageOffset = 3,
+                            hintOriginalIndices = listOf(0)
+                        ),
+                        TransformablePage(
+                            originalPageOffset = 3,
+                            data = listOf("c1", "c2")
+                        ),
+                        TransformablePage(
+                            originalPageOffset = 4,
+                            data = listOf()
+                        )
+                    ),
+                    placeholdersBefore = 0,
+                    placeholdersAfter = 1,
+                    combinedLoadStates = localLoadStatesOf()
+                )
+            )
+        )
+    }
+
+    @Test
+    fun prependEmptyPagesExceptOne() = runBlockingTest {
+        val refresh = Refresh(
+            pages = listOf(
+                listOf("c1", "c2")
+            ).toTransformablePages(),
+            placeholdersBefore = 2,
+            placeholdersAfter = 0,
+            combinedLoadStates = localLoadStatesOf()
+        )
+
+        assertThat(
+            flowOf(
+                refresh,
+                Prepend(
+                    pages = listOf(
+                        listOf(),
+                        listOf(),
+                        listOf("a1", "b1"),
+                        listOf(),
+                        listOf()
+                    ).toTransformablePages(5),
+                    placeholdersBefore = 0,
+                    combinedLoadStates = localLoadStatesOf()
+                )
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+        ).isEqualTo(
+            listOf(
+                refresh,
+                Prepend(
+                    pages = listOf(
+                        TransformablePage(
+                            originalPageOffset = -5,
+                            data = listOf()
+                        ),
+                        TransformablePage(
+                            originalPageOffset = -4,
+                            data = listOf()
+                        ),
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(-3),
+                            data = listOf("a1", "B", "b1"),
+                            hintOriginalPageOffset = -3,
+                            hintOriginalIndices = listOf(0, 1, 1)
+                        ),
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(-3, 0),
+                            data = listOf("C"),
+                            hintOriginalPageOffset = -3,
+                            hintOriginalIndices = listOf(1)
+                        ),
+                        TransformablePage(
+                            originalPageOffset = -2,
+                            data = listOf()
+                        ),
+                        TransformablePage(
+                            originalPageOffset = -1,
+                            data = listOf()
+                        )
+                    ),
+                    placeholdersBefore = 0,
+                    combinedLoadStates = localLoadStatesOf()
+                )
+            )
+        )
+    }
+
+    @Test
+    fun prependSparsePages() = runBlockingTest {
+        val refresh = Refresh(
+            pages = listOf(
+                listOf("d1", "d2")
+            ).toTransformablePages(),
+            placeholdersBefore = 0,
+            placeholdersAfter = 4,
+            combinedLoadStates = localLoadStatesOf()
+        )
+
+        assertThat(
+            flowOf(
+                refresh,
+                Prepend(
+                    pages = listOf(
+                        listOf(),
+                        listOf("a1", "b1"),
+                        listOf(),
+                        listOf("c1", "c2"),
+                        listOf()
+                    ).toTransformablePages(5),
+                    placeholdersBefore = 0,
+                    combinedLoadStates = localLoadStatesOf()
+                )
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+        ).isEqualTo(
+            listOf(
+                refresh,
+                Prepend(
+                    pages = listOf(
+                        TransformablePage(
+                            originalPageOffset = -5,
+                            data = listOf()
+                        ),
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(-4),
+                            data = listOf("a1", "B", "b1"),
+                            hintOriginalPageOffset = -4,
+                            hintOriginalIndices = listOf(0, 1, 1)
+                        ),
+                        TransformablePage(
+                            originalPageOffset = -3,
+                            data = listOf()
+                        ),
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(-4, -2),
+                            data = listOf("C"),
+                            hintOriginalPageOffset = -4,
+                            hintOriginalIndices = listOf(1)
+                        ),
+                        TransformablePage(
+                            originalPageOffset = -2,
+                            data = listOf("c1", "c2")
+                        ),
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(-2, 0),
+                            data = listOf("D"),
+                            hintOriginalPageOffset = -2,
+                            hintOriginalIndices = listOf(1)
+                        ),
+                        TransformablePage(
+                            originalPageOffset = -1,
+                            data = listOf()
+                        )
+                    ),
+                    placeholdersBefore = 0,
+                    combinedLoadStates = localLoadStatesOf()
+                )
+            )
+        )
+    }
+
+    @Test
+    fun appendEmptyPagesExceptOne() = runBlockingTest {
+        val refresh = Refresh(
+            pages = listOf(
+                listOf("a1", "a2")
+            ).toTransformablePages(),
+            placeholdersBefore = 0,
+            placeholdersAfter = 2,
+            combinedLoadStates = localLoadStatesOf()
+        )
+
+        assertThat(
+            flowOf(
+                refresh,
+                Append(
+                    pages = listOf(
+                        listOf(),
+                        listOf(),
+                        listOf("b1", "c1"),
+                        listOf(),
+                        listOf()
+                    ).toTransformablePages(-1),
+                    placeholdersAfter = 0,
+                    combinedLoadStates = localLoadStatesOf()
+                )
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+        ).isEqualTo(
+            listOf(
+                refresh,
+                Append(
+                    pages = listOf(
+                        TransformablePage(
+                            originalPageOffset = 1,
+                            data = listOf()
+                        ),
+                        TransformablePage(
+                            originalPageOffset = 2,
+                            data = listOf()
+                        ),
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(0, 3),
+                            data = listOf("B"),
+                            hintOriginalPageOffset = 3,
+                            hintOriginalIndices = listOf(0)
+                        ),
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(3),
+                            data = listOf("b1", "C", "c1"),
+                            hintOriginalPageOffset = 3,
+                            hintOriginalIndices = listOf(0, 1, 1)
+                        ),
+                        TransformablePage(
+                            originalPageOffset = 4,
+                            data = listOf()
+                        ),
+                        TransformablePage(
+                            originalPageOffset = 5,
+                            data = listOf()
+                        )
+                    ),
+                    placeholdersAfter = 0,
+                    combinedLoadStates = localLoadStatesOf()
+                )
+            )
+        )
+    }
+
+    @Test
+    fun appendSparsePages() = runBlockingTest {
+        val refresh = Refresh(
+            pages = listOf(
+                listOf("a1", "a2")
+            ).toTransformablePages(),
+            placeholdersBefore = 0,
+            placeholdersAfter = 4,
+            combinedLoadStates = localLoadStatesOf()
+        )
+
+        assertThat(
+            flowOf(
+                refresh,
+                Append(
+                    pages = listOf(
+                        listOf(),
+                        listOf("b1", "c1"),
+                        listOf(),
+                        listOf("d1", "d2"),
+                        listOf()
+                    ).toTransformablePages(-1),
+                    placeholdersAfter = 0,
+                    combinedLoadStates = localLoadStatesOf()
+                )
+            ).insertEventSeparators(LETTER_SEPARATOR_GENERATOR).toList()
+        ).isEqualTo(
+            listOf(
+                refresh,
+                Append(
+                    pages = listOf(
+                        TransformablePage(
+                            originalPageOffset = 1,
+                            data = listOf()
+                        ),
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(0, 2),
+                            data = listOf("B"),
+                            hintOriginalPageOffset = 2,
+                            hintOriginalIndices = listOf(0)
+                        ),
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(2),
+                            data = listOf("b1", "C", "c1"),
+                            hintOriginalPageOffset = 2,
+                            hintOriginalIndices = listOf(0, 1, 1)
+                        ),
+                        TransformablePage(
+                            originalPageOffset = 3,
+                            data = listOf()
+                        ),
+                        TransformablePage(
+                            originalPageOffsets = intArrayOf(2, 4),
+                            data = listOf("D"),
+                            hintOriginalPageOffset = 4,
+                            hintOriginalIndices = listOf(0)
+                        ),
+                        TransformablePage(
+                            originalPageOffset = 4,
+                            data = listOf("d1", "d2")
+                        ),
+                        TransformablePage(
+                            originalPageOffset = 5,
+                            data = listOf()
+                        )
+                    ),
+                    placeholdersAfter = 0,
+                    combinedLoadStates = localLoadStatesOf()
+                )
+            )
         )
     }
 

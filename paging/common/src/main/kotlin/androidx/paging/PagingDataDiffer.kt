@@ -121,6 +121,8 @@ abstract class PagingDataDiffer<T : Any>(
     suspend fun collectFrom(pagingData: PagingData<T>) = collectFromRunner.runInIsolation {
         receiver = pagingData.receiver
 
+        // TODO: Validate only empty pages between separator pages and its dependent
+        //  pages.
         pagingData.flow.collect { event ->
             withContext<Unit>(mainDispatcher) {
                 if (event is PageEvent.Insert && event.loadType == REFRESH) {
@@ -151,7 +153,9 @@ abstract class PagingDataDiffer<T : Any>(
                     // list.
                     transformedLastAccessedIndex?.let { newIndex ->
                         lastAccessedIndex = newIndex
-                        receiver?.accessHint(newPresenter.presenterIndexToHint(newIndex))
+                        receiver?.accessHint(
+                            newPresenter.viewportHintForPresenterIndex(newIndex)
+                        )
                     }
                 } else {
                     if (postEvents()) {
@@ -170,7 +174,8 @@ abstract class PagingDataDiffer<T : Any>(
                     // If index points to a placeholder after transformations, resend it unless
                     // there are no more items to load.
                     if (event is PageEvent.Insert) {
-                        val prependDone = event.combinedLoadStates.prepend.endOfPaginationReached
+                        val prependDone =
+                            event.combinedLoadStates.prepend.endOfPaginationReached
                         val appendDone = event.combinedLoadStates.append.endOfPaginationReached
                         val canContinueLoading = !(event.loadType == PREPEND && prependDone) &&
                                 !(event.loadType == APPEND && appendDone)
@@ -187,7 +192,7 @@ abstract class PagingDataDiffer<T : Any>(
 
                             if (shouldResendHint) {
                                 receiver?.accessHint(
-                                    presenter.presenterIndexToHint(lastAccessedIndex)
+                                    presenter.viewportHintForPresenterIndex(lastAccessedIndex)
                                 )
                             } else {
                                 // lastIndex fulfilled, so reset lastAccessedIndexUnfulfilled.
@@ -211,7 +216,7 @@ abstract class PagingDataDiffer<T : Any>(
         lastAccessedIndexUnfulfilled = true
         lastAccessedIndex = index
 
-        receiver?.accessHint(presenter.presenterIndexToHint(index))
+        receiver?.accessHint(presenter.viewportHintForPresenterIndex(index))
         return presenter.get(index)
     }
 

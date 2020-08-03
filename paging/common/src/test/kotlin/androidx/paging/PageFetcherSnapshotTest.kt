@@ -157,7 +157,12 @@ class PageFetcherSnapshotTest {
         assertThat(fetcherState.newEvents()).isEqualTo(
             listOf<PageEvent<Int>>(
                 LoadStateUpdate(APPEND, false, Loading),
-                Drop(loadType = PREPEND, count = 1, placeholdersRemaining = 1),
+                Drop(
+                    loadType = PREPEND,
+                    minPageOffset = -1,
+                    maxPageOffset = -1,
+                    placeholdersRemaining = 1
+                ),
                 createAppend(
                     pageOffset = 1,
                     range = 3..3,
@@ -239,7 +244,12 @@ class PageFetcherSnapshotTest {
                 endState = NotLoading.Complete
             ),
             LoadStateUpdate(PREPEND, false, Loading),
-            Drop(APPEND, 1, 1),
+            Drop(
+                loadType = APPEND,
+                minPageOffset = 1,
+                maxPageOffset = 1,
+                placeholdersRemaining = 1
+            ),
             createPrepend(
                 pageOffset = -1,
                 range = 96..96,
@@ -408,7 +418,12 @@ class PageFetcherSnapshotTest {
                 LoadStateUpdate(PREPEND, false, Loading),
                 createPrepend(pageOffset = -1, range = 48..49),
                 LoadStateUpdate(PREPEND, false, Loading),
-                Drop(APPEND, 1, 50),
+                Drop(
+                    loadType = APPEND,
+                    minPageOffset = 0,
+                    maxPageOffset = 0,
+                    placeholdersRemaining = 50
+                ),
                 createPrepend(pageOffset = -2, range = 46..47)
             )
 
@@ -539,7 +554,12 @@ class PageFetcherSnapshotTest {
                 listOf<PageEvent<Int>>(
                     LoadStateUpdate(PREPEND, false, Loading),
                     LoadStateUpdate(APPEND, false, Loading),
-                    Drop(APPEND, 1, 50),
+                    Drop(
+                        loadType = APPEND,
+                        minPageOffset = 0,
+                        maxPageOffset = 0,
+                        placeholdersRemaining = 50
+                    ),
                     createPrepend(pageOffset = -2, range = 46..47)
                 )
             )
@@ -640,9 +660,19 @@ class PageFetcherSnapshotTest {
         assertThat(fetcherState.newEvents()).isEqualTo(
             listOf<PageEvent<Int>>(
                 LoadStateUpdate(loadType = APPEND, fromMediator = false, loadState = Loading),
-                Drop(loadType = PREPEND, count = 1, placeholdersRemaining = 49),
+                Drop(
+                    loadType = PREPEND,
+                    minPageOffset = -2,
+                    maxPageOffset = -2,
+                    placeholdersRemaining = 49
+                ),
                 createAppend(pageOffset = 1, range = 53..53, endState = Loading),
-                Drop(loadType = PREPEND, count = 1, placeholdersRemaining = 50),
+                Drop(
+                    loadType = PREPEND,
+                    minPageOffset = -1,
+                    maxPageOffset = -1,
+                    placeholdersRemaining = 50
+                ),
                 createAppend(pageOffset = 2, range = 54..54)
             )
         )
@@ -662,7 +692,12 @@ class PageFetcherSnapshotTest {
         assertThat(fetcherState.newEvents()).isEqualTo(
             listOf<PageEvent<Int>>(
                 LoadStateUpdate(loadType = PREPEND, fromMediator = false, loadState = Loading),
-                Drop(loadType = APPEND, count = 1, placeholdersRemaining = 46),
+                Drop(
+                    loadType = APPEND,
+                    minPageOffset = 2,
+                    maxPageOffset = 2,
+                    placeholdersRemaining = 46
+                ),
                 createPrepend(pageOffset = -1, range = 49..49)
             )
         )
@@ -793,7 +828,12 @@ class PageFetcherSnapshotTest {
         assertThat(fetcherState.newEvents()).isEqualTo(
             listOf<PageEvent<Int>>(
                 LoadStateUpdate(APPEND, false, Loading),
-                Drop(PREPEND, 1, 52),
+                Drop(
+                    loadType = PREPEND,
+                    minPageOffset = 0,
+                    maxPageOffset = 0,
+                    placeholdersRemaining = 52
+                ),
                 createAppend(pageOffset = 2, range = 54..55)
             )
         )
@@ -842,7 +882,7 @@ class PageFetcherSnapshotTest {
                 createAppend(pageOffset = 2, range = 56..56)
             )
 
-            assertEvents(expected, fetcherState.pageEventLists[0])
+            assertThat(fetcherState.pageEventLists[0]).isEqualTo(expected)
             fetcherState.job.cancel()
         }
     }
@@ -913,7 +953,12 @@ class PageFetcherSnapshotTest {
                 listOf<PageEvent<Int>>(
                     LoadStateUpdate(APPEND, false, Loading),
                     LoadStateUpdate(PREPEND, false, Loading),
-                    Drop(PREPEND, 1, 52),
+                    Drop(
+                        loadType = PREPEND,
+                        minPageOffset = 0,
+                        maxPageOffset = 0,
+                        placeholdersRemaining = 52
+                    ),
                     createAppend(
                         pageOffset = 2,
                         range = 54..55,
@@ -982,9 +1027,19 @@ class PageFetcherSnapshotTest {
         assertThat(fetcherState.newEvents()).isEqualTo(
             listOf<PageEvent<Int>>(
                 LoadStateUpdate(loadType = PREPEND, fromMediator = false, loadState = Loading),
-                Drop(loadType = APPEND, count = 1, placeholdersRemaining = 46),
+                Drop(
+                    loadType = APPEND,
+                    minPageOffset = 2,
+                    maxPageOffset = 2,
+                    placeholdersRemaining = 46
+                ),
                 createPrepend(pageOffset = -1, range = 49..49, startState = Loading),
-                Drop(loadType = APPEND, count = 1, placeholdersRemaining = 47),
+                Drop(
+                    loadType = APPEND,
+                    minPageOffset = 1,
+                    maxPageOffset = 1,
+                    placeholdersRemaining = 47
+                ),
                 createPrepend(pageOffset = -2, range = 48..48)
             )
         )
@@ -1004,7 +1059,12 @@ class PageFetcherSnapshotTest {
         assertThat(fetcherState.newEvents()).isEqualTo(
             listOf<PageEvent<Int>>(
                 LoadStateUpdate(loadType = APPEND, fromMediator = false, loadState = Loading),
-                Drop(loadType = PREPEND, count = 1, placeholdersRemaining = 49),
+                Drop(
+                    loadType = PREPEND,
+                    minPageOffset = -2,
+                    maxPageOffset = -2,
+                    placeholdersRemaining = 49
+                ),
                 createAppend(pageOffset = 1, range = 53..53)
             )
         )
@@ -2058,9 +2118,7 @@ class PageFetcherSnapshotTest {
                         pages = listOf(
                             TransformablePage(
                                 originalPageOffset = 0,
-                                data = listOf(0),
-                                originalPageSize = 1,
-                                originalIndices = null
+                                data = listOf(0)
                             )
                         ),
                         placeholdersBefore = 0,
@@ -2076,9 +2134,7 @@ class PageFetcherSnapshotTest {
                         pages = listOf(
                             TransformablePage(
                                 originalPageOffset = -1,
-                                data = listOf(),
-                                originalPageSize = 0,
-                                originalIndices = null
+                                data = listOf()
                             )
                         ),
                         placeholdersBefore = 0,
@@ -2132,9 +2188,7 @@ class PageFetcherSnapshotTest {
                         pages = listOf(
                             TransformablePage(
                                 originalPageOffset = 0,
-                                data = listOf(0),
-                                originalPageSize = 1,
-                                originalIndices = null
+                                data = listOf(0)
                             )
                         ),
                         placeholdersBefore = 0,
@@ -2150,9 +2204,7 @@ class PageFetcherSnapshotTest {
                         pages = listOf(
                             TransformablePage(
                                 originalPageOffset = -1,
-                                data = listOf(),
-                                originalPageSize = 0,
-                                originalIndices = null
+                                data = listOf()
                             )
                         ),
                         placeholdersBefore = 0,
@@ -2221,9 +2273,7 @@ class PageFetcherSnapshotTest {
                             pages = listOf(
                                 TransformablePage(
                                     originalPageOffset = 0,
-                                    data = listOf(1, 2, 3),
-                                    originalPageSize = 3,
-                                    originalIndices = null
+                                    data = listOf(1, 2, 3)
                                 )
                             ),
                             placeholdersBefore = 1,
@@ -2239,9 +2289,7 @@ class PageFetcherSnapshotTest {
                             pages = listOf(
                                 TransformablePage(
                                     originalPageOffset = -1,
-                                    data = listOf(0),
-                                    originalPageSize = 1,
-                                    originalIndices = null
+                                    data = listOf(0)
                                 )
                             ),
                             placeholdersBefore = 0,
@@ -2258,9 +2306,7 @@ class PageFetcherSnapshotTest {
                             pages = listOf(
                                 TransformablePage(
                                     originalPageOffset = -2,
-                                    data = listOf(),
-                                    originalPageSize = 0,
-                                    originalIndices = null
+                                    data = listOf()
                                 )
                             ),
                             placeholdersBefore = 0,
@@ -2316,9 +2362,7 @@ class PageFetcherSnapshotTest {
                         pages = listOf(
                             TransformablePage(
                                 originalPageOffset = 0,
-                                data = listOf(99),
-                                originalPageSize = 1,
-                                originalIndices = null
+                                data = listOf(99)
                             )
                         ),
                         placeholdersBefore = 99,
@@ -2334,9 +2378,7 @@ class PageFetcherSnapshotTest {
                         pages = listOf(
                             TransformablePage(
                                 originalPageOffset = 1,
-                                data = listOf(),
-                                originalPageSize = 0,
-                                originalIndices = null
+                                data = listOf()
                             )
                         ),
                         placeholdersAfter = 0,
@@ -2390,9 +2432,7 @@ class PageFetcherSnapshotTest {
                         pages = listOf(
                             TransformablePage(
                                 originalPageOffset = 0,
-                                data = listOf(99),
-                                originalPageSize = 1,
-                                originalIndices = null
+                                data = listOf(99)
                             )
                         ),
                         placeholdersBefore = 99,
@@ -2408,9 +2448,7 @@ class PageFetcherSnapshotTest {
                         pages = listOf(
                             TransformablePage(
                                 originalPageOffset = 1,
-                                data = listOf(),
-                                originalPageSize = 0,
-                                originalIndices = null
+                                data = listOf()
                             )
                         ),
                         placeholdersAfter = 0,
@@ -2479,9 +2517,7 @@ class PageFetcherSnapshotTest {
                             pages = listOf(
                                 TransformablePage(
                                     originalPageOffset = 0,
-                                    data = listOf(96, 97, 98),
-                                    originalPageSize = 3,
-                                    originalIndices = null
+                                    data = listOf(96, 97, 98)
                                 )
                             ),
                             placeholdersBefore = 96,
@@ -2497,9 +2533,7 @@ class PageFetcherSnapshotTest {
                             pages = listOf(
                                 TransformablePage(
                                     originalPageOffset = 1,
-                                    data = listOf(99),
-                                    originalPageSize = 1,
-                                    originalIndices = null
+                                    data = listOf(99)
                                 )
                             ),
                             placeholdersAfter = 0,
@@ -2516,9 +2550,7 @@ class PageFetcherSnapshotTest {
                             pages = listOf(
                                 TransformablePage(
                                     originalPageOffset = 2,
-                                    data = listOf(),
-                                    originalPageSize = 0,
-                                    originalIndices = null
+                                    data = listOf()
                                 )
                             ),
                             placeholdersAfter = 0,
@@ -2586,9 +2618,7 @@ class PageFetcherSnapshotTest {
                             pages = listOf(
                                 TransformablePage(
                                     originalPageOffset = 0,
-                                    data = listOf(50),
-                                    originalPageSize = 1,
-                                    originalIndices = null
+                                    data = listOf(50)
                                 )
                             ),
                             placeholdersBefore = 50,

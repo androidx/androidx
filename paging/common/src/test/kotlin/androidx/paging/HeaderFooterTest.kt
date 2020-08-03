@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-@file:OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-
 package androidx.paging
 
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.PageEvent.Insert.Companion.Append
 import androidx.paging.PageEvent.Insert.Companion.Prepend
 import androidx.paging.PageEvent.Insert.Companion.Refresh
+import com.google.common.truth.Truth.assertThat
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.test.runBlockingTest
@@ -38,6 +38,7 @@ private val fullLoadStates = localLoadStatesOf(
     appendLocal = NotLoading.Complete
 )
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class HeaderFooterTest {
 
@@ -62,9 +63,7 @@ class HeaderFooterTest {
             pages = listOf(
                 TransformablePage(
                     data = listOf(0),
-                    originalPageOffset = -1,
-                    originalPageSize = 1,
-                    originalIndices = listOf(0)
+                    originalPageOffset = -1
                 )
             ),
             placeholdersBefore = 0,
@@ -75,22 +74,20 @@ class HeaderFooterTest {
             pages = listOf(
                 TransformablePage(
                     data = listOf(-1),
-                    originalPageOffset = -1,
-                    originalPageSize = 1,
-                    originalIndices = listOf(0)
+                    originalPageOffsets = intArrayOf(-1),
+                    hintOriginalPageOffset = -1,
+                    hintOriginalIndices = listOf(0)
                 ),
                 TransformablePage(
                     data = listOf(0),
-                    originalPageOffset = -1,
-                    originalPageSize = 1,
-                    originalIndices = listOf(0)
+                    originalPageOffset = -1
                 )
             ),
             placeholdersBefore = 0,
             combinedLoadStates = fullLoadStates
         )
 
-        assertEquals(expected, actual)
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -99,9 +96,7 @@ class HeaderFooterTest {
             pages = listOf(
                 TransformablePage(
                     data = listOf("a"),
-                    originalPageOffset = 0,
-                    originalPageSize = 1,
-                    originalIndices = listOf(0)
+                    originalPageOffset = 0
                 )
             ),
             placeholdersBefore = 0,
@@ -113,21 +108,13 @@ class HeaderFooterTest {
             pages = listOf(
                 TransformablePage(
                     data = listOf("HEADER"),
-                    originalPageOffset = 0,
-                    originalPageSize = 1,
-                    originalIndices = listOf(0)
+                    originalPageOffsets = intArrayOf(0),
+                    hintOriginalPageOffset = 0,
+                    hintOriginalIndices = listOf(0)
                 ),
                 TransformablePage(
                     data = listOf("a"),
-                    originalPageOffset = 0,
-                    originalPageSize = 1,
-                    originalIndices = listOf(0)
-                ),
-                TransformablePage(
-                    data = listOf(),
-                    originalPageOffset = 0,
-                    originalPageSize = 1,
-                    originalIndices = null
+                    originalPageOffset = 0
                 )
             ),
             placeholdersBefore = 0,
@@ -135,7 +122,7 @@ class HeaderFooterTest {
             combinedLoadStates = fullLoadStates
         )
 
-        assertEquals(expected, actual)
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -144,9 +131,7 @@ class HeaderFooterTest {
             pages = listOf(
                 TransformablePage(
                     data = emptyList<String>(),
-                    originalPageOffset = 0,
-                    originalPageSize = 0,
-                    originalIndices = emptyList()
+                    originalPageOffset = 0
                 )
             ),
             placeholdersBefore = 0,
@@ -158,9 +143,9 @@ class HeaderFooterTest {
             pages = listOf(
                 TransformablePage(
                     data = listOf("HEADER"),
-                    originalPageOffset = 0,
-                    originalPageSize = 0,
-                    originalIndices = listOf(0)
+                    originalPageOffsets = intArrayOf(0),
+                    hintOriginalPageOffset = 0,
+                    hintOriginalIndices = listOf(0)
                 )
             ),
             placeholdersBefore = 0,
@@ -177,9 +162,7 @@ class HeaderFooterTest {
             pages = listOf(
                 TransformablePage(
                     data = listOf("b"),
-                    originalPageOffset = 0,
-                    originalPageSize = 1,
-                    originalIndices = listOf(0)
+                    originalPageOffset = 0
                 )
             ),
             placeholdersAfter = 0,
@@ -190,15 +173,13 @@ class HeaderFooterTest {
             pages = listOf(
                 TransformablePage(
                     data = listOf("b"),
-                    originalPageOffset = 0,
-                    originalPageSize = 1,
-                    originalIndices = listOf(0)
+                    originalPageOffset = 0
                 ),
                 TransformablePage(
                     data = listOf("FOOTER"),
-                    originalPageOffset = 0,
-                    originalPageSize = 1,
-                    originalIndices = listOf(0)
+                    originalPageOffsets = intArrayOf(0),
+                    hintOriginalPageOffset = 0,
+                    hintOriginalIndices = listOf(0)
                 )
             ),
             placeholdersAfter = 0,
@@ -214,9 +195,7 @@ class HeaderFooterTest {
             pages = listOf(
                 TransformablePage(
                     data = listOf("a"),
-                    originalPageOffset = 0,
-                    originalPageSize = 1,
-                    originalIndices = listOf(0)
+                    originalPageOffset = 0
                 )
             ),
             placeholdersBefore = 0,
@@ -227,22 +206,14 @@ class HeaderFooterTest {
         val expected = Refresh(
             pages = listOf(
                 TransformablePage(
-                    data = listOf(),
-                    originalPageOffset = 0,
-                    originalPageSize = 1,
-                    originalIndices = null
-                ),
-                TransformablePage(
                     data = listOf("a"),
-                    originalPageOffset = 0,
-                    originalPageSize = 1,
-                    originalIndices = listOf(0)
+                    originalPageOffset = 0
                 ),
                 TransformablePage(
                     data = listOf("FOOTER"),
-                    originalPageOffset = 0,
-                    originalPageSize = 1,
-                    originalIndices = listOf(0)
+                    originalPageOffsets = intArrayOf(0),
+                    hintOriginalPageOffset = 0,
+                    hintOriginalIndices = listOf(0)
                 )
             ),
             placeholdersBefore = 0,
@@ -250,7 +221,7 @@ class HeaderFooterTest {
             combinedLoadStates = fullLoadStates
         )
 
-        assertEquals(expected, actual)
+        assertThat(actual).isEqualTo(expected)
     }
 
     @Test
@@ -259,9 +230,7 @@ class HeaderFooterTest {
             pages = listOf(
                 TransformablePage(
                     data = emptyList<String>(),
-                    originalPageOffset = 0,
-                    originalPageSize = 0,
-                    originalIndices = emptyList()
+                    originalPageOffset = 0
                 )
             ),
             placeholdersBefore = 0,
@@ -273,9 +242,9 @@ class HeaderFooterTest {
             pages = listOf(
                 TransformablePage(
                     data = listOf("FOOTER"),
-                    originalPageOffset = 0,
-                    originalPageSize = 0,
-                    originalIndices = listOf(0)
+                    originalPageOffsets = intArrayOf(0),
+                    hintOriginalPageOffset = 0,
+                    hintOriginalIndices = listOf(0)
                 )
             ),
             placeholdersBefore = 0,
@@ -283,6 +252,6 @@ class HeaderFooterTest {
             combinedLoadStates = fullLoadStates
         )
 
-        assertEquals(expected, actual)
+        assertThat(actual).isEqualTo(expected)
     }
 }
