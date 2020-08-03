@@ -17,27 +17,24 @@
 package androidx.room.solver.types
 
 import androidx.room.ext.L
+import androidx.room.processing.XType
 import androidx.room.solver.CodeGenScope
-import box
-import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.type.TypeMirror
 
 /**
  * Adapters for all boxed primitives that has direct cursor mappings.
  */
 open class BoxedPrimitiveColumnTypeAdapter(
-    boxed: TypeMirror,
+    boxed: XType,
     val primitiveAdapter: PrimitiveColumnTypeAdapter
 ) : ColumnTypeAdapter(boxed, primitiveAdapter.typeAffinity) {
     companion object {
         fun createBoxedPrimitiveAdapters(
-            processingEnvironment: ProcessingEnvironment,
             primitiveAdapters: List<PrimitiveColumnTypeAdapter>
         ): List<ColumnTypeAdapter> {
 
             return primitiveAdapters.map {
                 BoxedPrimitiveColumnTypeAdapter(
-                    it.out.box(processingEnvironment.typeUtils),
+                    it.out.boxed(),
                     it
                 )
             }

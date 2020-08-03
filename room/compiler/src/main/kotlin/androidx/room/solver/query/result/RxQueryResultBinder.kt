@@ -21,18 +21,17 @@ import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.T
 import androidx.room.ext.arrayTypeName
-import androidx.room.ext.typeName
+import androidx.room.processing.XType
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.RxType
 import com.squareup.javapoet.FieldSpec
-import javax.lang.model.type.TypeMirror
 
 /**
  * Binds the result as an RxJava2 Flowable, Publisher and Observable.
  */
 internal class RxQueryResultBinder(
     private val rxType: RxType,
-    val typeArg: TypeMirror,
+    val typeArg: XType,
     val queryTableNames: Set<String>,
     adapter: QueryResultAdapter?
 ) : BaseObservableQueryResultBinder(adapter) {
@@ -43,7 +42,7 @@ internal class RxQueryResultBinder(
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
-        val callableImpl = CallableTypeSpecBuilder(typeArg.typeName()) {
+        val callableImpl = CallableTypeSpecBuilder(typeArg.typeName) {
             createRunQueryAndReturnStatements(builder = this,
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
                 inTransaction = inTransaction,
@@ -62,7 +61,7 @@ internal class RxQueryResultBinder(
                 rxType.factoryMethodName,
                 dbField,
                 if (inTransaction) "true" else "false",
-                String::class.arrayTypeName(),
+                String::class.arrayTypeName,
                 tableNamesList,
                 callableImpl)
         }

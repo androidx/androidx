@@ -19,13 +19,12 @@ package androidx.room.processor
 import androidx.room.Query
 import androidx.room.SkipQueryVerification
 import androidx.room.Transaction
-import androidx.room.ext.hasAnnotation
-import androidx.room.ext.name
-import androidx.room.ext.toAnnotationBox
-import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.QueryType
 import androidx.room.parser.SqlParser
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XMethodElement
+import androidx.room.processing.XType
 import androidx.room.solver.query.result.PojoRowAdapter
 import androidx.room.verifier.DatabaseVerificationErrors
 import androidx.room.verifier.DatabaseVerifier
@@ -34,15 +33,11 @@ import androidx.room.vo.QueryParameter
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
 import androidx.room.vo.WriteQueryMethod
-import isNotError
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeMirror
 
 class QueryMethodProcessor(
     baseContext: Context,
-    val containing: DeclaredType,
-    val executableElement: ExecutableElement,
+    val containing: XDeclaredType,
+    val executableElement: XMethodElement,
     val dbVerifier: DatabaseVerifier? = null
 ) {
     val context = baseContext.fork(executableElement)
@@ -102,8 +97,8 @@ class QueryMethodProcessor(
 
 private class InternalQueryProcessor(
     val context: Context,
-    val executableElement: ExecutableElement,
-    val containing: DeclaredType,
+    val executableElement: XMethodElement,
+    val containing: XDeclaredType,
     val dbVerifier: DatabaseVerifier? = null
 ) {
     fun processQuery(input: String?): QueryMethod {
@@ -127,7 +122,7 @@ private class InternalQueryProcessor(
             ParsedQuery.MISSING
         }
 
-        val returnTypeName = returnType.typeName()
+        val returnTypeName = returnType.typeName
         context.checker.notUnbound(
             returnTypeName, executableElement,
             ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS
@@ -180,7 +175,7 @@ private class InternalQueryProcessor(
 
     private fun getPreparedQueryMethod(
         delegate: MethodProcessorDelegate,
-        returnType: TypeMirror,
+        returnType: XType,
         query: ParsedQuery
     ): WriteQueryMethod {
         val resultBinder = delegate.findPreparedResultBinder(returnType, query)
@@ -203,7 +198,7 @@ private class InternalQueryProcessor(
 
     private fun getQueryMethod(
         delegate: MethodProcessorDelegate,
-        returnType: TypeMirror,
+        returnType: XType,
         query: ParsedQuery
     ): QueryMethod {
         val resultBinder = delegate.findResultBinder(returnType, query)

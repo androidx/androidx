@@ -16,24 +16,19 @@
 
 package androidx.room.processor
 
-import androidx.room.ext.asMemberOf
-import androidx.room.ext.name
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XVariableElement
 import androidx.room.vo.QueryParameter
-import javax.lang.model.element.VariableElement
-import javax.lang.model.type.DeclaredType
 
 class QueryParameterProcessor(
     baseContext: Context,
-    val containing: DeclaredType,
-    val element: VariableElement,
+    val containing: XDeclaredType,
+    val element: XVariableElement,
     private val sqlName: String? = null
 ) {
     val context = baseContext.fork(element)
     fun process(): QueryParameter {
-        val asMember = element.asMemberOf(
-            context.processingEnv.typeUtils,
-            containing
-        )
+        val asMember = element.asMemberOf(containing)
         val parameterAdapter = context.typeAdapterStore.findQueryParameterAdapter(asMember)
         context.checker.check(parameterAdapter != null, element,
                 ProcessorErrors.CANNOT_BIND_QUERY_PARAMETER_INTO_STMT)

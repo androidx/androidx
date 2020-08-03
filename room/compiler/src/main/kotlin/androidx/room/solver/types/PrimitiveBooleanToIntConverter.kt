@@ -17,18 +17,17 @@
 package androidx.room.solver.types
 
 import androidx.room.ext.L
-import androidx.room.ext.requireTypeMirror
+import androidx.room.processing.XProcessingEnv
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.TypeName
-import javax.annotation.processing.ProcessingEnvironment
 
 /**
  * int to boolean adapter.
  */
 object PrimitiveBooleanToIntConverter {
-    fun create(processingEnvironment: ProcessingEnvironment): List<TypeConverter> {
-        val tBoolean = processingEnvironment.requireTypeMirror(TypeName.BOOLEAN)
-        val tInt = processingEnvironment.requireTypeMirror(TypeName.INT)
+    fun create(processingEnvironment: XProcessingEnv): List<TypeConverter> {
+        val tBoolean = processingEnvironment.requireType(TypeName.BOOLEAN)
+        val tInt = processingEnvironment.requireType(TypeName.INT)
         return listOf(
                 object : TypeConverter(tBoolean, tInt) {
                     override fun convert(

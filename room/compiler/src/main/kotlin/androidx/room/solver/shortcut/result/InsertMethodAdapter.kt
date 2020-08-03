@@ -21,24 +21,16 @@ import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.T
 import androidx.room.ext.typeName
+import androidx.room.processing.XType
+import androidx.room.processing.asDeclaredType
+import androidx.room.processing.isArray
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.ShortcutQueryParameter
-import asArray
-import asDeclaredType
 import com.squareup.javapoet.ArrayTypeName
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import isArray
-import isBoxedLong
-import isKotlinUnit
-import isList
-import isLong
-import isPrimitiveLong
-import isVoid
-import isVoidObject
-import javax.lang.model.type.TypeMirror
 
 /**
  * Class that knows how to generate an insert method body.
@@ -46,7 +38,7 @@ import javax.lang.model.type.TypeMirror
 class InsertMethodAdapter private constructor(private val insertionType: InsertionType) {
     companion object {
         fun create(
-            returnType: TypeMirror,
+            returnType: XType,
             params: List<ShortcutQueryParameter>
         ): InsertMethodAdapter? {
             val insertionType = getInsertionType(returnType)
@@ -87,7 +79,7 @@ class InsertMethodAdapter private constructor(private val insertionType: Inserti
         }
 
         @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
-        private fun getInsertionType(returnType: TypeMirror): InsertionType? {
+        private fun getInsertionType(returnType: XType): InsertionType? {
 
             return if (returnType.isVoid()) {
                 InsertionType.INSERT_VOID
@@ -183,6 +175,6 @@ class InsertMethodAdapter private constructor(private val insertionType: Inserti
         INSERT_ID_ARRAY_BOX("insertAndReturnIdsArrayBox",
                 ArrayTypeName.of(TypeName.LONG.box())), // return Long[]
         INSERT_ID_LIST("insertAndReturnIdsList", // return List<Long>
-                ParameterizedTypeName.get(List::class.typeName(), TypeName.LONG.box())),
+                ParameterizedTypeName.get(List::class.typeName, TypeName.LONG.box())),
     }
 }

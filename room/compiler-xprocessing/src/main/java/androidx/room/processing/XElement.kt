@@ -110,7 +110,7 @@ interface XElement {
      * of it will be returned where fields can be read. Otherwise, `null` value is returned.
      *
      * @see [hasAnnotation]
-     * @see [hasAnnotationInPackage]
+     * @see [hasAnnotationWithPackage]
      */
     fun <T : Annotation> toAnnotationBox(annotation: KClass<T>): XAnnotationBox<T>?
 
@@ -118,7 +118,7 @@ interface XElement {
      * Returns `true` if this element has an annotation that is declared in the given package.
      */
     // a very sad method but helps avoid abstraction annotation
-    fun hasAnnotationInPackage(pkg: String): Boolean
+    fun hasAnnotationWithPackage(pkg: String): Boolean
 
     /**
      * Returns `true` if this element is annotated with the given [annotation].

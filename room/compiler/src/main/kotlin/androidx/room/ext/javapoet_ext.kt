@@ -24,7 +24,6 @@ import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import java.util.concurrent.Callable
 import javax.lang.model.element.Modifier
-import javax.lang.model.type.TypeMirror
 import kotlin.reflect.KClass
 
 val L = "\$L"
@@ -32,9 +31,10 @@ val T = "\$T"
 val N = "\$N"
 val S = "\$S"
 
-fun KClass<*>.typeName() = ClassName.get(this.java)
-fun KClass<*>.arrayTypeName() = ArrayTypeName.of(typeName())
-fun TypeMirror.typeName() = TypeName.get(this)
+val KClass<*>.typeName: ClassName
+        get() = ClassName.get(this.java)
+val KClass<*>.arrayTypeName: ArrayTypeName
+        get() = ArrayTypeName.of(typeName)
 
 object SupportDbTypeNames {
     val DB: ClassName = ClassName.get("$SQLITE_PACKAGE.db", "SupportSQLiteDatabase")
@@ -205,10 +205,10 @@ fun CallableTypeSpecBuilder(
     parameterTypeName: TypeName,
     callBody: MethodSpec.Builder.() -> Unit
 ) = TypeSpec.anonymousClassBuilder("").apply {
-    superclass(ParameterizedTypeName.get(Callable::class.typeName(), parameterTypeName))
+    superclass(ParameterizedTypeName.get(Callable::class.typeName, parameterTypeName))
     addMethod(MethodSpec.methodBuilder("call").apply {
         returns(parameterTypeName)
-        addException(Exception::class.typeName())
+        addException(Exception::class.typeName)
         addModifiers(Modifier.PUBLIC)
         addAnnotation(Override::class.java)
         callBody()
@@ -223,7 +223,7 @@ fun Function1TypeSpecBuilder(
 ) = TypeSpec.anonymousClassBuilder("").apply {
     superclass(
         ParameterizedTypeName.get(
-            Function1::class.typeName(),
+            Function1::class.typeName,
             parameterTypeName,
             returnTypeName
         )

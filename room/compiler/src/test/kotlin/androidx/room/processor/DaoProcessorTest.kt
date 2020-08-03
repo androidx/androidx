@@ -18,15 +18,12 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.ext.RoomTypeNames
-import androidx.room.ext.asDeclaredType
-import androidx.room.ext.asTypeElement
-import androidx.room.ext.requireTypeMirror
+import androidx.room.processing.asDeclaredType
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.Dao
 import androidx.room.vo.ReadQueryMethod
 import androidx.room.vo.Warning
-import asDeclaredType
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
@@ -171,7 +168,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
             }
             """) { dao, invocation ->
             val dbType = invocation.context.processingEnv
-                    .requireTypeMirror(RoomTypeNames.ROOM_DB).asDeclaredType()
+                    .requireType(RoomTypeNames.ROOM_DB).asDeclaredType()
             val daoProcessor =
                 DaoProcessor(invocation.context, dao.element, dbType, null)
 
@@ -200,7 +197,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
             }
             """) { dao, invocation ->
             val dbType = invocation.context.processingEnv
-                    .requireTypeMirror(RoomTypeNames.ROOM_DB).asDeclaredType()
+                    .requireType(RoomTypeNames.ROOM_DB).asDeclaredType()
             val daoProcessor =
                 DaoProcessor(invocation.context, dao.element, dbType, null)
             assertThat(daoProcessor.context.logger
@@ -330,7 +327,7 @@ class DaoProcessorTest(val enableVerification: Boolean) {
                                 null
                             }
                             val dbType = invocation.context.processingEnv
-                                            .requireTypeMirror(RoomTypeNames.ROOM_DB)
+                                            .requireType(RoomTypeNames.ROOM_DB)
                                 .asDeclaredType()
                             val parser = DaoProcessor(invocation.context,
                                     dao.asTypeElement(), dbType, dbVerifier)

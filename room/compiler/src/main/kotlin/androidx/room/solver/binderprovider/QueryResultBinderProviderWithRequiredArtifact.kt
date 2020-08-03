@@ -15,13 +15,12 @@
  */
 package androidx.room.solver.binderprovider
 
-import androidx.room.ext.findTypeElement
 import androidx.room.parser.ParsedQuery
+import androidx.room.processing.XDeclaredType
 import androidx.room.processor.Context
 import androidx.room.solver.QueryResultBinderProvider
 import androidx.room.solver.query.result.QueryResultBinder
 import com.squareup.javapoet.TypeName
-import javax.lang.model.type.DeclaredType
 
 /**
  * Common functionality for binder providers that require an additional artifact
@@ -47,11 +46,11 @@ private class QueryResultBinderProviderWithRequiredArtifact(
         context.processingEnv.findTypeElement(requiredType) != null
     }
 
-    override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
+    override fun provide(declared: XDeclaredType, query: ParsedQuery): QueryResultBinder {
         return delegate.provide(declared, query)
     }
 
-    override fun matches(declared: DeclaredType): Boolean {
+    override fun matches(declared: XDeclaredType): Boolean {
         val result = delegate.matches(declared)
         if (result && !hasRequiredArtifact) {
             context.logger.e(missingArtifactErrorMsg)

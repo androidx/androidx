@@ -17,24 +17,22 @@
 package androidx.room.processor
 
 import androidx.room.RewriteQueriesToDropUnusedColumns
-import androidx.room.ext.hasAnnotation
-import androidx.room.ext.requireTypeMirror
 import androidx.room.log.RLog
 import androidx.room.parser.expansion.ProjectionExpander
 import androidx.room.parser.optimization.RemoveUnusedColumnQueryRewriter
 import androidx.room.preconditions.Checks
+import androidx.room.processing.XElement
+import androidx.room.processing.XProcessingEnv
+import androidx.room.processing.XType
 import androidx.room.processor.cache.Cache
 import androidx.room.solver.TypeAdapterStore
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.Warning
 import java.io.File
 import java.util.LinkedHashSet
-import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.element.Element
-import javax.lang.model.type.TypeMirror
 
 class Context private constructor(
-    val processingEnv: ProcessingEnvironment,
+    val processingEnv: XProcessingEnv,
     val logger: RLog,
     private val typeConverters: CustomConverterProcessor.ProcessResult,
     private val inheritedAdapterStore: TypeAdapterStore?,
@@ -42,7 +40,7 @@ class Context private constructor(
     private val canRewriteQueriesToDropUnusedColumns: Boolean
 ) {
     val checker: Checks = Checks(logger)
-    val COMMON_TYPES: Context.CommonTypes = Context.CommonTypes(processingEnv)
+    val COMMON_TYPES = CommonTypes(processingEnv)
 
     val typeAdapterStore by lazy {
         if (inheritedAdapterStore != null) {
@@ -87,23 +85,23 @@ class Context private constructor(
         this.databaseVerifier = databaseVerifier
     }
 
-    constructor(processingEnv: ProcessingEnvironment) : this(
+    constructor(processingEnv: XProcessingEnv) : this(
             processingEnv = processingEnv,
-            logger = RLog(RLog.ProcessingEnvMessager(processingEnv), emptySet(), null),
+            logger = RLog(processingEnv.messager, emptySet(), null),
             typeConverters = CustomConverterProcessor.ProcessResult.EMPTY,
             inheritedAdapterStore = null,
             cache = Cache(null, LinkedHashSet(), emptySet()),
             canRewriteQueriesToDropUnusedColumns = false)
 
-    class CommonTypes(val processingEnv: ProcessingEnvironment) {
-        val VOID: TypeMirror by lazy {
-            processingEnv.requireTypeMirror("java.lang.Void")
+    class CommonTypes(val processingEnv: XProcessingEnv) {
+        val VOID: XType by lazy {
+            processingEnv.requireType("java.lang.Void")
         }
-        val STRING: TypeMirror by lazy {
-            processingEnv.requireTypeMirror("java.lang.String")
+        val STRING: XType by lazy {
+            processingEnv.requireType("java.lang.String")
         }
-        val COLLECTION: TypeMirror by lazy {
-            processingEnv.requireTypeMirror("java.util.Collection")
+        val COLLECTION: XType by lazy {
+            processingEnv.requireType("java.util.Collection")
         }
     }
 
@@ -129,7 +127,7 @@ class Context private constructor(
         return Pair(result, collector)
     }
 
-    fun fork(element: Element, forceSuppressedWarnings: Set<Warning> = emptySet()): Context {
+    fun fork(element: XElement, forceSuppressedWarnings: Set<Warning> = emptySet()): Context {
         val suppressedWarnings = SuppressWarningProcessor.getSuppressedWarnings(element)
         val processConvertersResult = CustomConverterProcessor.findConverters(this, element)
         val canReUseAdapterStore = processConvertersResult.classes.isEmpty()
@@ -155,7 +153,7 @@ class Context private constructor(
         return subContext
     }
 
-    private fun Element.hasRemoveUnusedColumnsAnnotation(): Boolean {
+    private fun XElement.hasRemoveUnusedColumnsAnnotation(): Boolean {
         return hasAnnotation(RewriteQueriesToDropUnusedColumns::class).also { annotated ->
             if (annotated && BooleanProcessorOptions.EXPAND_PROJECTION.getValue(processingEnv)) {
                 logger.w(
@@ -176,10 +174,10 @@ class Context private constructor(
         EXPAND_PROJECTION("room.expandProjection", false);
 
         /**
-         * Returns the value of this option passed through the [ProcessingEnvironment]. If the value
+         * Returns the value of this option passed through the [XProcessingEnv]. If the value
          * is null or blank, it returns the default value instead.
          */
-        fun getValue(processingEnv: ProcessingEnvironment): Boolean {
+        fun getValue(processingEnv: XProcessingEnv): Boolean {
             val value = processingEnv.options[argName]
             return if (value.isNullOrBlank()) {
                 defaultValue

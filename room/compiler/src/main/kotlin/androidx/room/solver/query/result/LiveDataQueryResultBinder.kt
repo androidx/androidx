@@ -21,16 +21,15 @@ import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.T
 import androidx.room.ext.arrayTypeName
-import androidx.room.ext.typeName
+import androidx.room.processing.XType
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.FieldSpec
-import javax.lang.model.type.TypeMirror
 
 /**
  * Converts the query into a LiveData and returns it. No query is run until necessary.
  */
 class LiveDataQueryResultBinder(
-    val typeArg: TypeMirror,
+    val typeArg: XType,
     val tableNames: Set<String>,
     adapter: QueryResultAdapter?
 ) : BaseObservableQueryResultBinder(adapter) {
@@ -42,7 +41,7 @@ class LiveDataQueryResultBinder(
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
-        val callableImpl = CallableTypeSpecBuilder(typeArg.typeName()) {
+        val callableImpl = CallableTypeSpecBuilder(typeArg.typeName) {
             createRunQueryAndReturnStatements(
                 builder = this,
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
@@ -62,7 +61,7 @@ class LiveDataQueryResultBinder(
             addStatement(
                 "return $N.getInvalidationTracker().createLiveData(new $T{$L}, $L, $L)",
                 dbField,
-                String::class.arrayTypeName(),
+                String::class.arrayTypeName,
                 tableNamesList,
                 if (inTransaction) "true" else "false",
                 callableImpl

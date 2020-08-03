@@ -16,7 +16,9 @@
 
 package androidx.room
 
-import androidx.room.ext.asTypeElement
+import androidx.room.processing.XProcessingEnv
+import androidx.room.processing.XProcessingStep
+import androidx.room.processing.XTypeElement
 import androidx.room.processor.Context
 import androidx.room.processor.DatabaseProcessor
 import androidx.room.processor.MissingTypeException
@@ -25,20 +27,17 @@ import androidx.room.vo.DaoMethod
 import androidx.room.vo.Warning
 import androidx.room.writer.DaoWriter
 import androidx.room.writer.DatabaseWriter
-import com.google.auto.common.BasicAnnotationProcessor
-import com.google.common.collect.SetMultimap
 import java.io.File
-import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.element.Element
+import kotlin.reflect.KClass
 
-class DatabaseProcessingStep(val processingEnv: ProcessingEnvironment) :
-    BasicAnnotationProcessor.ProcessingStep {
+class DatabaseProcessingStep : XProcessingStep {
     override fun process(
-        elementsByAnnotation: SetMultimap<Class<out Annotation>, Element>
-    ): MutableSet<Element> {
-        val context = Context(processingEnv)
-        val rejectedElements = mutableSetOf<Element>()
-        val databases = elementsByAnnotation[Database::class.java]
+        env: XProcessingEnv,
+        elementsByAnnotation: Map<KClass<out Annotation>, List<XTypeElement>>
+    ): Set<XTypeElement> {
+        val context = Context(env)
+        val rejectedElements = mutableSetOf<XTypeElement>()
+        val databases = elementsByAnnotation[Database::class]
             ?.mapNotNull {
                 try {
                     DatabaseProcessor(
@@ -80,7 +79,7 @@ class DatabaseProcessingStep(val processingEnv: ProcessingEnvironment) :
                     if (!schemaOutFolder.exists()) {
                         schemaOutFolder.mkdirs()
                     }
-                    val qName = db.element.qualifiedName.toString()
+                    val qName = db.element.qualifiedName
                     val dbSchemaFolder = File(schemaOutFolder, qName)
                     if (!dbSchemaFolder.exists()) {
                         dbSchemaFolder.mkdirs()
@@ -97,8 +96,8 @@ class DatabaseProcessingStep(val processingEnv: ProcessingEnvironment) :
         return rejectedElements
     }
 
-    override fun annotations(): MutableSet<out Class<out Annotation>> {
-        return mutableSetOf(Database::class.java)
+    override fun annotations(): Set<KClass<out Annotation>> {
+        return mutableSetOf(Database::class)
     }
 
     /**

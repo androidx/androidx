@@ -18,8 +18,8 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.Embedded
-import androidx.room.ext.requireTypeElement
 import androidx.room.parser.SQLTypeAffinity
+import androidx.room.processing.XVariableElement
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_TYPE
 import androidx.room.processor.ProcessorErrors.POJO_FIELD_HAS_DUPLICATE_COLUMN_NAME
@@ -53,7 +53,6 @@ import org.mockito.Mockito.mock
 import simpleRun
 import toJFO
 import java.io.File
-import javax.lang.model.element.VariableElement
 import javax.tools.JavaFileObject
 
 /**
@@ -872,8 +871,8 @@ class PojoProcessorTest {
             assertThat(pojo5, sameInstance(pojo4))
 
             val type = invocation.context.COMMON_TYPES.STRING
-            val mockElement = mock(VariableElement::class.java)
-            doReturn(type).`when`(mockElement).asType()
+            val mockElement = mock(XVariableElement::class.java)
+            doReturn(type).`when`(mockElement).type
             val fakeField = Field(
                     element = mockElement,
                     name = "foo",

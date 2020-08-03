@@ -21,15 +21,12 @@ import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomGuavaTypeNames
 import androidx.room.ext.T
-import androidx.room.ext.findTypeElement
-import androidx.room.ext.typeName
+import androidx.room.processing.XDeclaredType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.shortcut.binder.CallableInsertMethodBinder.Companion.createInsertBinder
 import androidx.room.solver.shortcut.binder.InsertMethodBinder
 import androidx.room.vo.ShortcutQueryParameter
-import erasure
-import javax.lang.model.type.DeclaredType
 
 /**
  * Provider for Guava ListenableFuture binders.
@@ -42,13 +39,12 @@ class GuavaListenableFutureInsertMethodBinderProvider(
         context.processingEnv.findTypeElement(RoomGuavaTypeNames.GUAVA_ROOM) != null
     }
 
-    override fun matches(declared: DeclaredType): Boolean =
+    override fun matches(declared: XDeclaredType): Boolean =
         declared.typeArguments.size == 1 &&
-                declared.erasure(context.processingEnv.typeUtils).typeName() ==
-                GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
+                declared.erasure().typeName == GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
 
     override fun provide(
-        declared: DeclaredType,
+        declared: XDeclaredType,
         params: List<ShortcutQueryParameter>
     ): InsertMethodBinder {
         if (!hasGuavaRoom) {

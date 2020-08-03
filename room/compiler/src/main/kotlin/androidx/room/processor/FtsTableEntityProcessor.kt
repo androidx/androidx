@@ -20,13 +20,11 @@ import androidx.room.Fts3
 import androidx.room.Fts4
 import androidx.room.FtsOptions.MatchInfo
 import androidx.room.FtsOptions.Order
-import androidx.room.ext.AnnotationBox
-import androidx.room.ext.hasAnnotation
-import androidx.room.ext.name
-import androidx.room.ext.requireTypeMirror
-import androidx.room.ext.toAnnotationBox
 import androidx.room.parser.FtsVersion
 import androidx.room.parser.SQLTypeAffinity
+import androidx.room.processing.XAnnotationBox
+import androidx.room.processing.XType
+import androidx.room.processing.XTypeElement
 import androidx.room.processor.EntityProcessor.Companion.extractForeignKeys
 import androidx.room.processor.EntityProcessor.Companion.extractIndices
 import androidx.room.processor.EntityProcessor.Companion.extractTableName
@@ -39,23 +37,19 @@ import androidx.room.vo.FtsOptions
 import androidx.room.vo.LanguageId
 import androidx.room.vo.PrimaryKey
 import androidx.room.vo.columnNames
-import asTypeElement
-import isSameType
-import javax.lang.model.element.TypeElement
-import javax.lang.model.type.TypeMirror
 
 class FtsTableEntityProcessor internal constructor(
     baseContext: Context,
-    val element: TypeElement,
+    val element: XTypeElement,
     private val referenceStack: LinkedHashSet<String> = LinkedHashSet()
 ) : EntityProcessor {
 
     val context = baseContext.fork(element)
 
-    override fun process(): androidx.room.vo.FtsEntity {
+    override fun process(): FtsEntity {
         return context.cache.entities.get(Cache.EntityKey(element)) {
             doProcess()
-        } as androidx.room.vo.FtsEntity
+        } as FtsEntity
     }
 
     private fun doProcess(): FtsEntity {
@@ -129,7 +123,7 @@ class FtsTableEntityProcessor internal constructor(
         return entity
     }
 
-    private fun getFts3Options(annotation: AnnotationBox<Fts3>) =
+    private fun getFts3Options(annotation: XAnnotationBox<Fts3>) =
         FtsOptions(
             tokenizer = annotation.value.tokenizer,
             tokenizerArgs = annotation.value.tokenizerArgs.asList(),
@@ -140,8 +134,8 @@ class FtsTableEntityProcessor internal constructor(
             prefixSizes = emptyList(),
             preferredOrder = Order.ASC)
 
-    private fun getFts4Options(annotation: AnnotationBox<Fts4>): FtsOptions {
-        val contentEntity: Entity? = getContentEntity(annotation.getAsTypeMirror("contentEntity"))
+    private fun getFts4Options(annotation: XAnnotationBox<Fts4>): FtsOptions {
+        val contentEntity: Entity? = getContentEntity(annotation.getAsType("contentEntity"))
         return FtsOptions(
                 tokenizer = annotation.value.tokenizer,
                 tokenizerArgs = annotation.value.tokenizerArgs.asList(),
@@ -153,14 +147,14 @@ class FtsTableEntityProcessor internal constructor(
                 preferredOrder = annotation.value.order)
     }
 
-    private fun getContentEntity(entityType: TypeMirror?): Entity? {
+    private fun getContentEntity(entityType: XType?): Entity? {
         if (entityType == null) {
             context.logger.e(element, ProcessorErrors.FTS_EXTERNAL_CONTENT_CANNOT_FIND_ENTITY)
             return null
         }
 
-        val defaultType = context.processingEnv.requireTypeMirror(Object::class)
-        if (entityType.isSameType(context.processingEnv.typeUtils, defaultType)) {
+        val defaultType = context.processingEnv.requireType(Object::class)
+        if (entityType.isSameType(defaultType)) {
             return null
         }
         val contentEntityElement = entityType.asTypeElement()
@@ -173,7 +167,7 @@ class FtsTableEntityProcessor internal constructor(
     }
 
     private fun findAndValidatePrimaryKey(
-        entityAnnotation: AnnotationBox<androidx.room.Entity>?,
+        entityAnnotation: XAnnotationBox<androidx.room.Entity>?,
         fields: List<Field>
     ): PrimaryKey {
         val keysFromEntityAnnotation =
@@ -231,8 +225,9 @@ class FtsTableEntityProcessor internal constructor(
             contentEntity.fields.any { contentField -> contentField.columnName == it.columnName }
         }.forEach {
             context.logger.e(it.element, ProcessorErrors.missingFtsContentField(
-                    element.qualifiedName.toString(), it.columnName,
-                    contentEntity.element.qualifiedName.toString()))
+                element.qualifiedName, it.columnName,
+                contentEntity.element.qualifiedName
+            ))
         }
     }
 

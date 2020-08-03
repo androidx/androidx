@@ -105,6 +105,7 @@ configurations {
 dependencies {
     implementation(project(":room:room-common"))
     implementation(project(":room:room-migration"))
+    implementation(project(":room:room-compiler-xprocessing"))
     implementation(KOTLIN_STDLIB)
     implementation(AUTO_COMMON)
     implementation(AUTO_VALUE_ANNOTATIONS)

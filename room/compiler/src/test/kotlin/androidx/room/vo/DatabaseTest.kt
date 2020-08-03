@@ -16,17 +16,17 @@
 
 package androidx.room.vo
 
+import androidx.room.processing.XConstructorElement
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XElement
+import androidx.room.processing.XType
+import androidx.room.processing.XTypeElement
 import org.apache.commons.codec.digest.DigestUtils
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
-import javax.lang.model.element.Element
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.TypeElement
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeMirror
 
 @RunWith(JUnit4::class)
 class DatabaseTest {
@@ -34,16 +34,16 @@ class DatabaseTest {
     @Test
     fun indexLegacyHash() {
         val database = Database(
-            element = mock(TypeElement::class.java),
-            type = mock(TypeMirror::class.java),
+            element = mock(XTypeElement::class.java),
+            type = mock(XType::class.java),
             entities = listOf(
                 Entity(
-                    mock(TypeElement::class.java),
+                    mock(XTypeElement::class.java),
                     tableName = "TheTable",
-                    type = mock(DeclaredType::class.java),
+                    type = mock(XDeclaredType::class.java),
                     fields = emptyList(),
                     embeddedFields = emptyList(),
-                    primaryKey = PrimaryKey(mock(Element::class.java), Fields(), false),
+                    primaryKey = PrimaryKey(mock(XElement::class.java), Fields(), false),
                     indices = listOf(
                         Index(
                             name = "leIndex",
@@ -55,7 +55,7 @@ class DatabaseTest {
                             fields = Fields())
                     ),
                     foreignKeys = emptyList(),
-                    constructor = Constructor(mock(ExecutableElement::class.java), emptyList()),
+                    constructor = Constructor(mock(XConstructorElement::class.java), emptyList()),
                     shadowTableName = null
                 )
             ),

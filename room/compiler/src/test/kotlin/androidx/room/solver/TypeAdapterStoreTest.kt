@@ -29,11 +29,9 @@ import androidx.room.ext.RoomTypeNames.STRING_UTIL
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.ext.T
-import androidx.room.ext.asDeclaredType
-import androidx.room.ext.requireTypeElement
-import androidx.room.ext.requireTypeMirror
-import androidx.room.ext.typeName
 import androidx.room.parser.SQLTypeAffinity
+import androidx.room.processing.XProcessingEnv
+import androidx.room.processing.asDeclaredType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.binderprovider.DataSourceFactoryQueryResultBinderProvider
@@ -49,7 +47,6 @@ import androidx.room.solver.types.CompositeAdapter
 import androidx.room.solver.types.TypeConverter
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
-import asDeclaredType
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
@@ -65,7 +62,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import simpleRun
 import testCodeGenScope
-import javax.annotation.processing.ProcessingEnvironment
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(JUnit4::class)
@@ -78,7 +74,7 @@ class TypeAdapterStoreTest {
     fun testDirect() {
         singleRun { invocation ->
             val store = TypeAdapterStore.create(Context(invocation.processingEnv))
-            val primitiveType = invocation.processingEnv.requireTypeMirror(TypeName.INT)
+            val primitiveType = invocation.processingEnv.requireType(TypeName.INT)
             val adapter = store.findColumnTypeAdapter(primitiveType, null)
             assertThat(adapter, notNullValue())
         }.compilesWithoutError()
@@ -90,14 +86,14 @@ class TypeAdapterStoreTest {
             val store = TypeAdapterStore.create(Context(invocation.processingEnv))
             val boolean = invocation
                     .processingEnv
-                    .requireTypeMirror("java.lang.Boolean")
+                    .requireType("java.lang.Boolean")
             val adapter = store.findColumnTypeAdapter(boolean, null)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
             val composite = adapter as CompositeAdapter
-            assertThat(composite.intoStatementConverter?.from?.typeName(),
+            assertThat(composite.intoStatementConverter?.from?.typeName,
                     `is`(TypeName.BOOLEAN.box()))
-            assertThat(composite.columnTypeAdapter.out.typeName(),
+            assertThat(composite.columnTypeAdapter.out.typeName,
                     `is`(TypeName.INT.box()))
         }.compilesWithoutError()
     }
@@ -106,7 +102,7 @@ class TypeAdapterStoreTest {
     fun testVia1TypeAdapter() {
         singleRun { invocation ->
             val store = TypeAdapterStore.create(Context(invocation.processingEnv))
-            val booleanType = invocation.processingEnv.requireTypeMirror(TypeName.BOOLEAN)
+            val booleanType = invocation.processingEnv.requireType(TypeName.BOOLEAN)
             val adapter = store.findColumnTypeAdapter(booleanType, null)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
@@ -133,7 +129,7 @@ class TypeAdapterStoreTest {
         singleRun { invocation ->
             val store = TypeAdapterStore.create(Context(invocation.processingEnv),
                     pointTypeConverters(invocation.processingEnv))
-            val pointType = invocation.processingEnv.requireTypeMirror("foo.bar.Point")
+            val pointType = invocation.processingEnv.requireType("foo.bar.Point")
             val adapter = store.findColumnTypeAdapter(pointType, null)
             assertThat(adapter, notNullValue())
             assertThat(adapter, instanceOf(CompositeAdapter::class.java))
@@ -165,7 +161,7 @@ class TypeAdapterStoreTest {
         singleRun { (processingEnv) ->
             val store = TypeAdapterStore.create(Context(processingEnv),
                     dateTypeConverters(processingEnv))
-            val tDate = processingEnv.requireTypeMirror("java.util.Date")
+            val tDate = processingEnv.requireType("java.util.Date")
             val adapter = store.findCursorValueReader(tDate, SQLTypeAffinity.INTEGER)
             assertThat(adapter, notNullValue())
             assertThat(adapter?.typeMirror(), `is`(tDate))
@@ -442,8 +438,8 @@ class TypeAdapterStoreTest {
         simpleRun { invocation ->
             val pagingSourceElement = invocation.processingEnv
                 .requireTypeElement(PagingSource::class)
-            val intType = invocation.processingEnv.requireTypeMirror(Integer::class)
-            val pagingSourceIntIntType = invocation.processingEnv.typeUtils
+            val intType = invocation.processingEnv.requireType(Integer::class)
+            val pagingSourceIntIntType = invocation.processingEnv
                 .getDeclaredType(pagingSourceElement, intType, intType)
 
             assertThat(pagingSourceIntIntType, notNullValue())
@@ -457,8 +453,8 @@ class TypeAdapterStoreTest {
         simpleRun { invocation ->
             val pagingSourceElement = invocation.processingEnv
                 .requireTypeElement(PagingSource::class)
-            val stringType = invocation.processingEnv.requireTypeMirror(String::class)
-            val pagingSourceIntIntType = invocation.processingEnv.typeUtils
+            val stringType = invocation.processingEnv.requireType(String::class)
+            val pagingSourceIntIntType = invocation.processingEnv
                 .getDeclaredType(pagingSourceElement, stringType, stringType)
 
             assertThat(pagingSourceIntIntType, notNullValue())
@@ -504,9 +500,9 @@ class TypeAdapterStoreTest {
     }
 
     private fun createIntListToStringBinders(invocation: TestInvocation): List<TypeConverter> {
-        val intType = invocation.processingEnv.requireTypeMirror(Integer::class)
+        val intType = invocation.processingEnv.requireType(Integer::class)
         val listElement = invocation.processingEnv.requireTypeElement(java.util.List::class)
-        val listOfInts = invocation.processingEnv.typeUtils.getDeclaredType(listElement, intType)
+        val listOfInts = invocation.processingEnv.getDeclaredType(listElement, intType)
 
         val intListConverter = object : TypeConverter(listOfInts,
                 invocation.context.COMMON_TYPES.STRING) {
@@ -576,9 +572,9 @@ class TypeAdapterStoreTest {
                         .build())
     }
 
-    fun pointTypeConverters(env: ProcessingEnvironment): List<TypeConverter> {
-        val tPoint = env.requireTypeMirror("foo.bar.Point")
-        val tBoolean = env.requireTypeMirror(TypeName.BOOLEAN)
+    fun pointTypeConverters(env: XProcessingEnv): List<TypeConverter> {
+        val tPoint = env.requireType("foo.bar.Point")
+        val tBoolean = env.requireType(TypeName.BOOLEAN)
         return listOf(
                 object : TypeConverter(tPoint, tBoolean) {
                     override fun convert(
@@ -587,7 +583,8 @@ class TypeAdapterStoreTest {
                         scope: CodeGenScope
                     ) {
                         scope.builder().apply {
-                            addStatement("$L = $T.toBoolean($L)", outputVarName, from, inputVarName)
+                            addStatement("$L = $T.toBoolean($L)", outputVarName, from.typeName,
+                                inputVarName)
                         }
                     }
                 },
@@ -598,7 +595,7 @@ class TypeAdapterStoreTest {
                         scope: CodeGenScope
                     ) {
                         scope.builder().apply {
-                            addStatement("$L = $T.fromBoolean($L)", outputVarName, tPoint,
+                            addStatement("$L = $T.fromBoolean($L)", outputVarName, tPoint.typeName,
                                     inputVarName)
                         }
                     }
@@ -606,9 +603,9 @@ class TypeAdapterStoreTest {
         )
     }
 
-    fun dateTypeConverters(env: ProcessingEnvironment): List<TypeConverter> {
-        val tDate = env.requireTypeMirror("java.util.Date")
-        val tLong = env.requireTypeMirror("java.lang.Long")
+    fun dateTypeConverters(env: XProcessingEnv): List<TypeConverter> {
+        val tDate = env.requireType("java.util.Date")
+        val tLong = env.requireType("java.lang.Long")
         return listOf(
                 object : TypeConverter(tDate, tLong) {
                     override fun convert(

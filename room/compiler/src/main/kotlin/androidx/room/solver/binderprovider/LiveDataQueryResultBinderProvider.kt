@@ -17,27 +17,24 @@
 package androidx.room.solver.binderprovider
 
 import androidx.room.ext.LifecyclesTypeNames
-import androidx.room.ext.findTypeMirror
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XType
 import androidx.room.processor.Context
 import androidx.room.solver.ObservableQueryResultBinderProvider
 import androidx.room.solver.query.result.LiveDataQueryResultBinder
 import androidx.room.solver.query.result.QueryResultAdapter
 import androidx.room.solver.query.result.QueryResultBinder
-import erasure
-import isAssignableFrom
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeMirror
 
 class LiveDataQueryResultBinderProvider(context: Context) :
     ObservableQueryResultBinderProvider(context) {
-    private val liveDataTypeMirror: TypeMirror? by lazy {
-        context.processingEnv.findTypeMirror(LifecyclesTypeNames.LIVE_DATA)
+    private val liveDataTypeMirror: XType? by lazy {
+        context.processingEnv.findType(LifecyclesTypeNames.LIVE_DATA)
     }
 
-    override fun extractTypeArg(declared: DeclaredType): TypeMirror = declared.typeArguments.first()
+    override fun extractTypeArg(declared: XDeclaredType): XType = declared.typeArguments.first()
 
     override fun create(
-        typeArg: TypeMirror,
+        typeArg: XType,
         resultAdapter: QueryResultAdapter?,
         tableNames: Set<String>
     ): QueryResultBinder {
@@ -47,15 +44,14 @@ class LiveDataQueryResultBinderProvider(context: Context) :
                 adapter = resultAdapter)
     }
 
-    override fun matches(declared: DeclaredType): Boolean =
+    override fun matches(declared: XDeclaredType): Boolean =
             declared.typeArguments.size == 1 && isLiveData(declared)
 
-    private fun isLiveData(declared: DeclaredType): Boolean {
+    private fun isLiveData(declared: XDeclaredType): Boolean {
         if (liveDataTypeMirror == null) {
             return false
         }
-        val typeUtils = context.processingEnv.typeUtils
-        val erasure = declared.erasure(typeUtils)
-        return erasure.isAssignableFrom(typeUtils, liveDataTypeMirror!!)
+        val erasure = declared.erasure()
+        return erasure.isAssignableFrom(liveDataTypeMirror!!)
     }
 }

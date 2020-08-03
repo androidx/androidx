@@ -17,33 +17,26 @@
 package androidx.room.processor
 
 import androidx.room.ColumnInfo
-import androidx.room.ext.asMemberOf
-import androidx.room.ext.name
-import androidx.room.ext.toAnnotationBox
-import androidx.room.ext.typeName
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XVariableElement
 import androidx.room.vo.EmbeddedField
 import androidx.room.vo.Field
 import java.util.Locale
-import javax.lang.model.element.VariableElement
-import javax.lang.model.type.DeclaredType
 
 class FieldProcessor(
     baseContext: Context,
-    val containing: DeclaredType,
-    val element: VariableElement,
+    val containing: XDeclaredType,
+    val element: XVariableElement,
     val bindingScope: BindingScope,
     val fieldParent: EmbeddedField?, // pass only if this is processed as a child of Embedded field
     val onBindingError: (field: Field, errorMsg: String) -> Unit
 ) {
     val context = baseContext.fork(element)
     fun process(): Field {
-        val member = element.asMemberOf(
-            context.processingEnv.typeUtils,
-            containing
-        )
-        val type = member.typeName()
+        val member = element.asMemberOf(containing)
+        val type = member.typeName
         val columnInfo = element.toAnnotationBox(ColumnInfo::class)?.value
         val name = element.name
         val rawCName = if (columnInfo != null && columnInfo.name != ColumnInfo.INHERIT_FIELD_NAME) {

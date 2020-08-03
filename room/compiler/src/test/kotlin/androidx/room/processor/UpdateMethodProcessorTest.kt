@@ -17,6 +17,8 @@ package androidx.room.processor
 
 import androidx.room.OnConflictStrategy
 import androidx.room.Update
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XMethodElement
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_UPDATE_RESULT_ADAPTER
 import androidx.room.processor.ProcessorErrors.UPDATE_MISSING_PARAMS
 import androidx.room.vo.UpdateMethod
@@ -26,8 +28,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import toJFO
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.type.DeclaredType
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @RunWith(JUnit4::class)
@@ -38,8 +38,8 @@ class UpdateMethodProcessorTest : ShortcutMethodProcessorTest<UpdateMethod>(Upda
 
     override fun process(
         baseContext: Context,
-        containing: DeclaredType,
-        executableElement: ExecutableElement
+        containing: XDeclaredType,
+        executableElement: XMethodElement
     ): UpdateMethod {
         return UpdateMethodProcessor(baseContext, containing, executableElement).process()
     }

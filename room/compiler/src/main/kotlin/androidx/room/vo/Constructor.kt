@@ -18,21 +18,17 @@ package androidx.room.vo
 
 import androidx.room.ext.L
 import androidx.room.ext.T
-import androidx.room.ext.asDeclaredType
-import androidx.room.ext.isConstructor
-import androidx.room.ext.isMethod
-import androidx.room.ext.kindName
-import androidx.room.ext.name
-import androidx.room.ext.typeName
+import androidx.room.processing.XExecutableElement
+import androidx.room.processing.isConstructor
+import androidx.room.processing.isMethod
 import com.squareup.javapoet.CodeBlock
-import javax.lang.model.element.ExecutableElement
 
 /**
  * For each Entity / Pojo we process has a constructor. It might be the empty constructor or a
  * constructor with fields. It can also be a static factory method, such as in the case of an
  * AutoValue Pojo.
  */
-data class Constructor(val element: ExecutableElement, val params: List<Param>) {
+data class Constructor(val element: XExecutableElement, val params: List<Param>) {
 
     fun hasField(field: Field): Boolean {
         return params.any {
@@ -48,11 +44,11 @@ data class Constructor(val element: ExecutableElement, val params: List<Param>) 
         when {
             element.isConstructor() -> {
                 builder.addStatement("$L = new $T($L)", outVar,
-                        element.enclosingElement.asDeclaredType().typeName(), args)
+                        element.enclosingElement.asDeclaredType().typeName, args)
             }
             element.isMethod() -> {
                 builder.addStatement("$L = $T.$L($L)", outVar,
-                        element.enclosingElement.asDeclaredType().typeName(),
+                        element.enclosingElement.asDeclaredType().typeName,
                         element.name, args)
             }
             else -> throw IllegalStateException("Invalid constructor kind ${element.kindName()}")

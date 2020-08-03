@@ -16,16 +16,15 @@
 
 package androidx.room.vo
 
-import androidx.room.ext.asTypeElement
-import androidx.room.ext.isType
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XTypeElement
+import androidx.room.processing.isType
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
-import javax.lang.model.element.TypeElement
-import javax.lang.model.type.DeclaredType
 
 data class Dao(
-    val element: TypeElement,
-    val type: DeclaredType,
+    val element: XTypeElement,
+    val type: XDeclaredType,
     val queryMethods: List<QueryMethod>,
     val rawQueryMethods: List<RawQueryMethod>,
     val insertionMethods: List<InsertionMethod>,
@@ -45,7 +44,7 @@ data class Dao(
         this.suffix = if (newSuffix == "") "" else "_$newSuffix"
     }
 
-    val typeName: ClassName by lazy { ClassName.get(element) }
+    val typeName: ClassName by lazy { element.className }
 
     val shortcutMethods: List<ShortcutMethod> by lazy {
         deletionMethods + updateMethods
@@ -57,9 +56,9 @@ data class Dao(
         }
         val path = arrayListOf<String>()
         var enclosing = element.enclosingElement
-        while (enclosing.isType()) {
-            path.add(ClassName.get(enclosing.asTypeElement()).simpleName())
-            enclosing = enclosing.enclosingElement
+        while (enclosing?.isType() == true) {
+            path.add(enclosing!!.name)
+            enclosing = enclosing!!.enclosingElement
         }
         path.reversed().joinToString("_") + "${typeName.simpleName()}${suffix}_Impl"
     }

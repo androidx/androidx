@@ -20,7 +20,6 @@ import androidx.annotation.NonNull
 import androidx.room.Embedded
 import androidx.room.Fts3
 import androidx.room.Fts4
-import androidx.room.ext.asTypeElement
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.FtsEntity

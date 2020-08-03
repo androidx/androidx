@@ -20,41 +20,32 @@ import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
-import androidx.room.ext.findKotlinDefaultImpl
-import androidx.room.ext.findTypeMirror
-import androidx.room.ext.isAbstract
-import androidx.room.ext.isJavaDefault
-import androidx.room.ext.isOverrideableIgnoringContainer
-import androidx.room.ext.name
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XMethodElement
 import androidx.room.vo.TransactionMethod
-import erasure
-import isAssignableFrom
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.type.DeclaredType
 
 class TransactionMethodProcessor(
     baseContext: Context,
-    val containing: DeclaredType,
-    val executableElement: ExecutableElement
+    val containing: XDeclaredType,
+    val executableElement: XMethodElement
 ) {
 
     val context = baseContext.fork(executableElement)
 
     fun process(): TransactionMethod {
         val delegate = MethodProcessorDelegate.createFor(context, containing, executableElement)
-        val typeUtils = context.processingEnv.typeUtils
-        val kotlinDefaultImpl = executableElement.findKotlinDefaultImpl(typeUtils)
+        val kotlinDefaultImpl = executableElement.findKotlinDefaultImpl()
         context.checker.check(
                 executableElement.isOverrideableIgnoringContainer() &&
                         (!executableElement.isAbstract() || kotlinDefaultImpl != null),
                 executableElement, ProcessorErrors.TRANSACTION_METHOD_MODIFIERS)
 
         val returnType = delegate.extractReturnType()
-        val erasureReturnType = returnType.erasure(typeUtils)
+        val erasureReturnType = returnType.erasure()
 
         DEFERRED_TYPES.firstOrNull { className ->
-            context.processingEnv.findTypeMirror(className)?.let {
-                erasureReturnType.isAssignableFrom(typeUtils, it)
+            context.processingEnv.findType(className)?.let {
+                erasureReturnType.isAssignableFrom(it)
             } ?: false
         }?.let { returnTypeName ->
             context.logger.e(

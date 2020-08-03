@@ -209,7 +209,7 @@ class XElementTest {
                 assertThat(method.hasAnnotation(Test::class)).isTrue()
                 assertThat(method.hasAnnotation(Override::class)).isFalse()
                 assertThat(
-                    method.hasAnnotationInPackage(
+                    method.hasAnnotationWithPackage(
                         "org.junit"
                     )
                 ).isTrue()
@@ -219,17 +219,17 @@ class XElementTest {
                 assertThat(field.hasAnnotation(Test::class)).isFalse()
             }
             assertThat(
-                element.hasAnnotationInPackage(
+                element.hasAnnotationWithPackage(
                     "org.junit.runner"
                 )
             ).isTrue()
             assertThat(
-                element.hasAnnotationInPackage(
+                element.hasAnnotationWithPackage(
                     "org.junit"
                 )
             ).isFalse()
             assertThat(
-                element.hasAnnotationInPackage(
+                element.hasAnnotationWithPackage(
                     "foo.bar"
                 )
             ).isFalse()

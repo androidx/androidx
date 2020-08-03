@@ -17,7 +17,6 @@
 package androidx.room.processor
 
 import androidx.room.TypeConverter
-import androidx.room.ext.requireTypeElement
 import androidx.room.ext.typeName
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_EMPTY_CLASS
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR
@@ -92,8 +91,8 @@ class CustomConverterProcessorTest {
 
     @Test
     fun nonNullButNotBoxed() {
-        val string = String::class.typeName()
-        val date = Date::class.typeName()
+        val string = String::class.typeName
+        val date = Date::class.typeName
         singleClass(createConverter(string, date)) { converter, _ ->
             assertThat(converter?.fromTypeName, `is`(string as TypeName))
             assertThat(converter?.toTypeName, `is`(date as TypeName))
@@ -103,9 +102,9 @@ class CustomConverterProcessorTest {
     @Test
     fun parametrizedTypeUnbound() {
         val typeVarT = TypeVariableName.get("T")
-        val list = ParameterizedTypeName.get(List::class.typeName(), typeVarT)
+        val list = ParameterizedTypeName.get(List::class.typeName, typeVarT)
         val typeVarK = TypeVariableName.get("K")
-        val map = ParameterizedTypeName.get(Map::class.typeName(), typeVarK, typeVarT)
+        val map = ParameterizedTypeName.get(Map::class.typeName, typeVarK, typeVarT)
         singleClass(createConverter(list, map, listOf(typeVarK, typeVarT))) {
             _, _ ->
         }.failsToCompile().withErrorContaining(TYPE_CONVERTER_UNBOUND_GENERIC)
@@ -113,10 +112,10 @@ class CustomConverterProcessorTest {
 
     @Test
     fun parametrizedTypeSpecific() {
-        val string = String::class.typeName()
-        val date = Date::class.typeName()
-        val list = ParameterizedTypeName.get(List::class.typeName(), string)
-        val map = ParameterizedTypeName.get(Map::class.typeName(), string, date)
+        val string = String::class.typeName
+        val date = Date::class.typeName
+        val list = ParameterizedTypeName.get(List::class.typeName, string)
+        val map = ParameterizedTypeName.get(Map::class.typeName, string, date)
         singleClass(createConverter(list, map)) { converter, _ ->
             assertThat(converter?.fromTypeName, `is`(list as TypeName))
             assertThat(converter?.toTypeName, `is`(map as TypeName))
@@ -192,9 +191,9 @@ class CustomConverterProcessorTest {
     @Test
     fun parametrizedTypeBoundViaParent() {
         val typeVarT = TypeVariableName.get("T")
-        val list = ParameterizedTypeName.get(List::class.typeName(), typeVarT)
+        val list = ParameterizedTypeName.get(List::class.typeName, typeVarT)
         val typeVarK = TypeVariableName.get("K")
-        val map = ParameterizedTypeName.get(Map::class.typeName(), typeVarK, typeVarT)
+        val map = ParameterizedTypeName.get(Map::class.typeName, typeVarK, typeVarT)
 
         val baseConverter = createConverter(list, map, listOf(typeVarT, typeVarK))
         val extendingQName = "foo.bar.Extending"
@@ -202,8 +201,8 @@ class CustomConverterProcessorTest {
                 "package foo.bar;\n" +
                         TypeSpec.classBuilder(ClassName.bestGuess(extendingQName)).apply {
                             superclass(
-                                    ParameterizedTypeName.get(CONVERTER, String::class.typeName(),
-                                    Integer::class.typeName()))
+                                    ParameterizedTypeName.get(CONVERTER, String::class.typeName,
+                                    Integer::class.typeName))
                         }.build().toString())
 
         simpleRun(baseConverter, extendingClass) { invocation ->
@@ -211,10 +210,10 @@ class CustomConverterProcessorTest {
             val converter = CustomConverterProcessor(invocation.context, element)
                     .process().firstOrNull()
             assertThat(converter?.fromTypeName, `is`(ParameterizedTypeName.get(
-                    List::class.typeName(), String::class.typeName()) as TypeName
+                    List::class.typeName, String::class.typeName) as TypeName
             ))
-            assertThat(converter?.toTypeName, `is`(ParameterizedTypeName.get(Map::class.typeName(),
-                    Integer::class.typeName(), String::class.typeName()) as TypeName
+            assertThat(converter?.toTypeName, `is`(ParameterizedTypeName.get(Map::class.typeName,
+                    Integer::class.typeName, String::class.typeName) as TypeName
             ))
         }.compilesWithoutError()
     }

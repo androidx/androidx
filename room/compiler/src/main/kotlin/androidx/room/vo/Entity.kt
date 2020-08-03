@@ -18,16 +18,16 @@ package androidx.room.vo
 
 import androidx.room.migration.bundle.BundleUtil
 import androidx.room.migration.bundle.EntityBundle
-import javax.lang.model.element.TypeElement
-import javax.lang.model.type.DeclaredType
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XTypeElement
 
 /**
  * A Pojo with a mapping SQLite table.
  */
 open class Entity(
-    element: TypeElement,
+    element: XTypeElement,
     override val tableName: String,
-    type: DeclaredType,
+    type: XDeclaredType,
     fields: List<Field>,
     embeddedFields: List<EmbeddedField>,
     val primaryKey: PrimaryKey,

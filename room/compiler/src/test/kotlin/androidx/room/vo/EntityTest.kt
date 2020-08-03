@@ -16,16 +16,16 @@
 
 package androidx.room.vo
 
+import androidx.room.processing.XConstructorElement
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XElement
+import androidx.room.processing.XTypeElement
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
-import javax.lang.model.element.Element
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.TypeElement
-import javax.lang.model.type.DeclaredType
 
 @RunWith(JUnit4::class)
 class EntityTest {
@@ -72,15 +72,15 @@ class EntityTest {
         foreignKeys: List<ForeignKey> = emptyList()
     ): Entity {
         return Entity(
-                element = mock(TypeElement::class.java),
+                element = mock(XTypeElement::class.java),
                 tableName = tableName,
-                type = mock(DeclaredType::class.java),
+                type = mock(XDeclaredType::class.java),
                 fields = emptyList(),
                 embeddedFields = emptyList(),
-                primaryKey = PrimaryKey(mock(Element::class.java), Fields(), false),
+                primaryKey = PrimaryKey(mock(XElement::class.java), Fields(), false),
                 indices = emptyList(),
                 foreignKeys = foreignKeys,
-                constructor = Constructor(mock(ExecutableElement::class.java), emptyList()),
+                constructor = Constructor(mock(XConstructorElement::class.java), emptyList()),
                 shadowTableName = null)
     }
 

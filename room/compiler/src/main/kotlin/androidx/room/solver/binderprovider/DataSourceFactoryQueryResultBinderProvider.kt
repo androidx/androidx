@@ -17,8 +17,9 @@
 package androidx.room.solver.binderprovider
 
 import androidx.room.ext.PagingTypeNames
-import androidx.room.ext.findTypeMirror
 import androidx.room.parser.ParsedQuery
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.QueryResultBinderProvider
@@ -26,17 +27,13 @@ import androidx.room.solver.query.result.DataSourceFactoryQueryResultBinder
 import androidx.room.solver.query.result.ListQueryResultAdapter
 import androidx.room.solver.query.result.PositionalDataSourceQueryResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
-import erasure
-import isAssignableFrom
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeMirror
 
 class DataSourceFactoryQueryResultBinderProvider(val context: Context) : QueryResultBinderProvider {
-    private val dataSourceFactoryTypeMirror: TypeMirror? by lazy {
-        context.processingEnv.findTypeMirror(PagingTypeNames.DATA_SOURCE_FACTORY)
+    private val dataSourceFactoryTypeMirror: XType? by lazy {
+        context.processingEnv.findType(PagingTypeNames.DATA_SOURCE_FACTORY)
     }
 
-    override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
+    override fun provide(declared: XDeclaredType, query: ParsedQuery): QueryResultBinder {
         if (query.tables.isEmpty()) {
             context.logger.e(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
         }
@@ -51,19 +48,15 @@ class DataSourceFactoryQueryResultBinderProvider(val context: Context) : QueryRe
         return DataSourceFactoryQueryResultBinder(countedBinder)
     }
 
-    override fun matches(declared: DeclaredType): Boolean =
+    override fun matches(declared: XDeclaredType): Boolean =
             declared.typeArguments.size == 2 && isLivePagedList(declared)
 
-    private fun isLivePagedList(declared: DeclaredType): Boolean {
+    private fun isLivePagedList(declared: XDeclaredType): Boolean {
         if (dataSourceFactoryTypeMirror == null) {
             return false
         }
-        val typeUtils = context.processingEnv.typeUtils
-        val erasure = declared.erasure(typeUtils)
+        val erasure = declared.erasure()
         // we don't want to return paged list unless explicitly requested
-        return erasure.isAssignableFrom(
-            typeUtils,
-            dataSourceFactoryTypeMirror!!
-        )
+        return erasure.isAssignableFrom(dataSourceFactoryTypeMirror!!)
     }
 }

@@ -18,8 +18,8 @@ package androidx.room.writer
 
 import androidx.room.RoomProcessor
 import androidx.room.ext.S
-import androidx.room.ext.getGeneratedAnnotation
 import androidx.room.ext.typeName
+import androidx.room.processing.XProcessingEnv
 import androidx.room.solver.CodeGenScope.Companion.CLASS_PROPERTY_PREFIX
 import com.squareup.javapoet.AnnotationSpec
 import com.squareup.javapoet.ClassName
@@ -28,7 +28,6 @@ import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import javax.annotation.processing.ProcessingEnvironment
 
 /**
  * Base class for all writers that can produce a class.
@@ -41,7 +40,7 @@ abstract class ClassWriter(private val className: ClassName) {
 
     abstract fun createTypeSpecBuilder(): TypeSpec.Builder
 
-    fun write(processingEnv: ProcessingEnvironment) {
+    fun write(processingEnv: XProcessingEnv) {
         val builder = createTypeSpecBuilder()
         sharedFieldSpecs.values.forEach { builder.addField(it) }
         sharedMethodSpecs.values.forEach { builder.addMethod(it) }
@@ -53,7 +52,7 @@ abstract class ClassWriter(private val className: ClassName) {
     }
 
     private fun addSuppressWarnings(builder: TypeSpec.Builder) {
-        val suppressSpec = AnnotationSpec.builder(SuppressWarnings::class.typeName())
+        val suppressSpec = AnnotationSpec.builder(SuppressWarnings::class.typeName)
             .addMember(
                 "value",
                 "{$S, $S}",
@@ -64,11 +63,11 @@ abstract class ClassWriter(private val className: ClassName) {
 
     private fun addGeneratedAnnotationIfAvailable(
         adapterTypeSpecBuilder: TypeSpec.Builder,
-        processingEnv: ProcessingEnvironment
+        processingEnv: XProcessingEnv
     ) {
-        processingEnv.getGeneratedAnnotation()?.let {
+        processingEnv.findGeneratedAnnotation()?.let {
             val generatedAnnotationSpec =
-                AnnotationSpec.builder(ClassName.get(it))
+                AnnotationSpec.builder(it.className)
                     .addMember("value", S, RoomProcessor::class.java.canonicalName)
                     .build()
             adapterTypeSpecBuilder.addAnnotation(generatedAnnotationSpec)

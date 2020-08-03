@@ -18,9 +18,7 @@ package androidx.room.solver.query.result
 
 import androidx.room.ext.L
 import androidx.room.ext.T
-import androidx.room.ext.typeName
 import androidx.room.solver.CodeGenScope
-import defaultValue
 
 /**
  * Wraps a row adapter when there is only 1 item in the result
@@ -30,7 +28,7 @@ class SingleEntityQueryResultAdapter(rowAdapter: RowAdapter) : QueryResultAdapte
     override fun convert(outVarName: String, cursorVarName: String, scope: CodeGenScope) {
         scope.builder().apply {
             rowAdapter?.onCursorReady(cursorVarName, scope)
-            addStatement("final $T $L", type.typeName(), outVarName)
+            addStatement("final $T $L", type.typeName, outVarName)
             beginControlFlow("if($L.moveToFirst())", cursorVarName)
                 rowAdapter?.convert(outVarName, cursorVarName, scope)
             nextControlFlow("else").apply {

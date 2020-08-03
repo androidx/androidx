@@ -17,7 +17,6 @@
 package androidx.room.processor
 
 import androidx.annotation.NonNull
-import androidx.room.ext.asTypeElement
 import androidx.room.parser.ParserErrors
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.testing.TestInvocation

@@ -23,17 +23,16 @@ import androidx.room.ext.N
 import androidx.room.ext.RoomCoroutinesTypeNames
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.T
-import androidx.room.ext.typeName
+import androidx.room.processing.XType
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
-import javax.lang.model.type.TypeMirror
 
 /**
  * Binds the result of a of a Kotlin coroutine suspend function.
  */
 class CoroutineResultBinder(
-    val typeArg: TypeMirror,
+    val typeArg: XType,
     private val continuationParamName: String,
     adapter: QueryResultAdapter?
 ) : QueryResultBinder(adapter) {
@@ -53,7 +52,7 @@ class CoroutineResultBinder(
             RoomTypeNames.DB_UTIL
         )
 
-        val callableImpl = CallableTypeSpecBuilder(typeArg.typeName()) {
+        val callableImpl = CallableTypeSpecBuilder(typeArg.typeName) {
             createRunQueryAndReturnStatements(
                 builder = this,
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
