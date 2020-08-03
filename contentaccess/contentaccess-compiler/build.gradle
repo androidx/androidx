@@ -46,6 +46,7 @@ dependencies {
     implementation(KOTLINPOET_METADATA)
     implementation(KOTLINPOET_METADATA_SPECS)
     implementation(KOTLINPOET_CLASSINSPECTOR_ELEMENTS)
+    implementation("androidx.annotation:annotation:1.0.0")
 
     testImplementation(ASSERTJ)
     testImplementation(GOOGLE_COMPILE_TESTING)

@@ -88,14 +88,21 @@ fun TypeElement.getAllConstructorParamsOrPublicFields():
     } else {
         error("${this.qualifiedName} has more than non private non ignored constructor")
     }
-
     // TODO(obenabde): explore ways to warn users if they're unknowingly doing something wrong
     //  e.g if there is a possibility they think we are filling fields instead of constructors
     //  or both etc...
     // This is a class with an empty or no public constructor, check public fields.
-    val publicFields = ElementFilter.fieldsIn(this.enclosedElements)
-        .filter { !it.modifiers.contains(Modifier.PRIVATE) }
-    return publicFields.map { it as VariableElement }
+    return getAllNonPrivateFieldsIncludingSuperclassOnes()
+}
+
+fun TypeElement.getAllNonPrivateFieldsIncludingSuperclassOnes(): List<VariableElement> {
+    var nonPrivateFields = ElementFilter.fieldsIn(this.enclosedElements)
+        .filterNot { it.modifiers.contains(Modifier.PRIVATE) }
+    if (superclass.kind != TypeKind.NONE) {
+        nonPrivateFields = nonPrivateFields + MoreTypes.asTypeElement(superclass)
+            .getAllNonPrivateFieldsIncludingSuperclassOnes()
+    }
+    return nonPrivateFields.map { it as VariableElement }
 }
 
 fun TypeElement.hasNonEmptyNonPrivateNonIgnoredConstructor(): Boolean {

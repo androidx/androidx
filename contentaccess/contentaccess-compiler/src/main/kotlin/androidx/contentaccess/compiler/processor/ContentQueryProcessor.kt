@@ -112,8 +112,8 @@ class ContentQueryProcessor(
                 return null
             }
             val queriedColumnType = resolvedContentEntity.columns.get(queriedColumn)!!.type
-            if (queriedColumnType.boxIfPrimitive(processingEnv)
-                != returnType.boxIfPrimitive(processingEnv) &&
+            if (queriedColumnType.boxIfPrimitive(processingEnv).toString()
+                != returnType.boxIfPrimitive(processingEnv).toString() &&
                 ((!returnType.isSupportedGenericType() ||
                     !processingEnv.typeUtils
                         .isSameType(returnType.extractIntendedReturnType(),

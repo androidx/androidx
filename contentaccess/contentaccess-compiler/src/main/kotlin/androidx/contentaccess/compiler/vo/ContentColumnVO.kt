@@ -23,5 +23,6 @@ data class ContentColumnVO(
     val name: String,
     val type: TypeMirror,
     val columnName: String = name,
-    val isNullable: Boolean
+    val isNullable: Boolean,
+    val requiresApi: Int?
 )

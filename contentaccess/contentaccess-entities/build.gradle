@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,16 +26,15 @@ plugins {
 }
 
 dependencies {
+    implementation(project(":contentaccess:contentaccess-annotations"))
     implementation(KOTLIN_STDLIB)
-    api(KOTLIN_COROUTINES_ANDROID)
-    implementation("androidx.arch.core:core-runtime:2.0.1")
+    api("androidx.annotation:annotation:1.0.0")
 }
 
 androidx {
-    name = "Android ContentAccess - Runtime"
+    name = "Android ContentAccess - Entities"
     publish = Publish.NONE
     mavenGroup = LibraryGroups.CONTENTACCESS
-    inceptionYear = "2019"
-    description = "This library is the runtime component for ContentAccess, a Jetpack library for" +
-            " simplifying ContentProvider usage."
+    inceptionYear = "2020"
+    description = "Contains predefined entities which can be used with ContentAccess."
 }
