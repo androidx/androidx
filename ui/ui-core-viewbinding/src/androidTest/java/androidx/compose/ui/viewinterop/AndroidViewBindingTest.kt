@@ -16,6 +16,7 @@
 
 package androidx.compose.ui.viewinterop
 
+import android.os.Build
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,6 +26,7 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.databinding.TestLayoutBinding
 import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.ui.test.assertPixels
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
@@ -37,6 +39,7 @@ import org.junit.runners.JUnit4
 
 @MediumTest
 @RunWith(JUnit4::class)
+@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class AndroidViewBindingTest {
 
     @get:Rule
