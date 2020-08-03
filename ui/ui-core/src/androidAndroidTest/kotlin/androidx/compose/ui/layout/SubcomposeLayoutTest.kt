@@ -17,6 +17,7 @@
 package androidx.compose.ui.layout
 
 import android.graphics.Bitmap
+import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.Stack
@@ -42,6 +43,7 @@ import androidx.ui.test.runOnIdle
 import androidx.ui.test.waitForIdle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.platform.AndroidOwnerExtraAssertionsRule
+import androidx.test.filters.SdkSuppress
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -309,6 +311,7 @@ class SubcomposeLayoutTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun slotsAreDrawnInTheOrderTheyComposed() {
         val layoutTag = "layout"
 
@@ -335,6 +338,7 @@ class SubcomposeLayoutTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun slotsCouldBeReordered() {
         val layoutTag = "layout"
         val firstSlotIsRed = mutableStateOf(true)
@@ -370,6 +374,7 @@ class SubcomposeLayoutTest {
     }
 
     @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
     fun drawingOrderCouldBeChangedUsingZIndex() {
         val layoutTag = "layout"
 
