@@ -96,7 +96,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class FragmentManager implements FragmentResultOwner {
     private static boolean DEBUG = false;
     static final String TAG = "FragmentManager";
-    static boolean USE_STATE_MANAGER = false;
+    static boolean USE_STATE_MANAGER = true;
 
     /**
      * Control whether FragmentManager uses the new state manager that is responsible for:
@@ -111,6 +111,11 @@ public abstract class FragmentManager implements FragmentResultOwner {
      * in every activity with the same value for all activities). Changing it after that point
      * is <strong>not</strong> supported and can result in fragments not moving to their
      * expected state.
+     * <p>
+     * This is <strong>enabled</strong> by default. Disabling it should only be used in
+     * cases where you are debugging a potential regression and as part of
+     * <a href="https://issuetracker.google.com/issues/new?component=460964">filing
+     * an issue</a> to verify and fix the regression.
      *
      * @param enabled Whether the new state manager should be enabled.
      */

@@ -304,8 +304,10 @@ class SpecialEffectsControllerTest {
             assertThat(controller.getAwaitingCompletionLifecycleImpact(fragmentStateManager))
                 .isEqualTo(SpecialEffectsController.Operation.LifecycleImpact.ADDING)
 
-            // Now force all operations to immediately complete
-            controller.forceCompleteAllOperations()
+            onActivity {
+                // Now force all operations to immediately complete
+                controller.forceCompleteAllOperations()
+            }
 
             assertThat(controller.operationsToExecute)
                 .isEmpty()
@@ -353,11 +355,20 @@ class SpecialEffectsControllerTest {
             assertThat(controller.getAwaitingCompletionLifecycleImpact(fragmentStateManager))
                 .isEqualTo(SpecialEffectsController.Operation.LifecycleImpact.ADDING)
 
-            // Now force all operations to immediately complete
-            controller.forceCompleteAllOperations()
+            var lifecycleImpactOnCompletion:
+                    SpecialEffectsController.Operation.LifecycleImpact? = null
+            firstOperation.addCompletionListener {
+                lifecycleImpactOnCompletion = controller.getAwaitingCompletionLifecycleImpact(
+                    fragmentStateManager)
+            }
+            onActivity {
+                // Now force all operations to immediately complete
+                controller.forceCompleteAllOperations()
+            }
 
             assertThat(firstOperation.cancellationSignal.isCanceled)
                 .isTrue()
+            assertThat(lifecycleImpactOnCompletion).isNull()
             assertThat(controller.operationsToExecute)
                 .isEmpty()
             assertThat(controller.getAwaitingCompletionLifecycleImpact(fragmentStateManager))
