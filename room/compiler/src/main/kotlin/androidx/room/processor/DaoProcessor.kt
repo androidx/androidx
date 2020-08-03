@@ -23,27 +23,17 @@ import androidx.room.RawQuery
 import androidx.room.SkipQueryVerification
 import androidx.room.Transaction
 import androidx.room.Update
-import androidx.room.ext.asDeclaredType
-import androidx.room.ext.findKotlinDefaultImpl
-import androidx.room.ext.getAllMethods
-import androidx.room.ext.getConstructors
-import androidx.room.ext.hasAnnotation
-import androidx.room.ext.isAbstract
-import androidx.room.ext.isInterface
-import androidx.room.ext.type
-import androidx.room.ext.typeName
+import androidx.room.processing.XConstructorElement
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XTypeElement
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.Dao
 import androidx.room.vo.KotlinDefaultMethodDelegate
-import isAssignableFrom
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.TypeElement
-import javax.lang.model.type.DeclaredType
 
 class DaoProcessor(
     baseContext: Context,
-    val element: TypeElement,
-    val dbType: DeclaredType,
+    val element: XTypeElement,
+    val dbType: XDeclaredType,
     val dbVerifier: DatabaseVerifier?
 ) {
     val context = baseContext.fork(element)
@@ -60,11 +50,11 @@ class DaoProcessor(
                 element, ProcessorErrors.DAO_MUST_BE_AN_ABSTRACT_CLASS_OR_AN_INTERFACE)
 
         val declaredType = element.asDeclaredType()
-        val allMethods = element.getAllMethods(context.processingEnv)
+        val allMethods = element.getAllMethods()
         val methods = allMethods
             .filter {
                 it.isAbstract() &&
-                        it.findKotlinDefaultImpl(context.processingEnv.typeUtils) == null
+                        it.findKotlinDefaultImpl() == null
             }.groupBy { method ->
                 context.checker.check(
                         PROCESSED_ANNOTATIONS.count { method.hasAnnotation(it) } == 1, method,
@@ -144,7 +134,7 @@ class DaoProcessor(
             allMethods.filterNot {
                 allProcessedMethods.contains(it)
             }.mapNotNull { method ->
-                method.findKotlinDefaultImpl(context.processingEnv.typeUtils)?.let { delegate ->
+                method.findKotlinDefaultImpl()?.let { delegate ->
                     KotlinDefaultMethodDelegate(
                         element = method,
                         delegateElement = delegate
@@ -156,13 +146,12 @@ class DaoProcessor(
         }
 
         val constructors = element.getConstructors()
-        val typeUtils = context.processingEnv.typeUtils
         val goodConstructor = constructors.firstOrNull {
             it.parameters.size == 1 &&
-                    it.parameters[0].type.isAssignableFrom(typeUtils, dbType)
+                    it.parameters[0].type.isAssignableFrom(dbType)
         }
         val constructorParamType = if (goodConstructor != null) {
-            goodConstructor.parameters[0].type.typeName()
+            goodConstructor.parameters[0].type.typeName
         } else {
             validateEmptyConstructor(constructors)
             null
@@ -171,7 +160,7 @@ class DaoProcessor(
         context.checker.check(methods[Any::class] == null, element,
                 ProcessorErrors.ABSTRACT_METHOD_IN_DAO_MISSING_ANY_ANNOTATION)
 
-        val type = declaredType.typeName()
+        val type = declaredType.typeName
         context.checker.notUnbound(type, element,
                 ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_DAO_CLASSES)
 
@@ -187,7 +176,7 @@ class DaoProcessor(
                 constructorParamType = constructorParamType)
     }
 
-    private fun validateEmptyConstructor(constructors: List<ExecutableElement>) {
+    private fun validateEmptyConstructor(constructors: List<XConstructorElement>) {
         if (constructors.isNotEmpty() && constructors.all { it.parameters.isNotEmpty() }) {
             context.logger.e(element, ProcessorErrors.daoMustHaveMatchingConstructor(
                     element.toString(), dbType.toString()))

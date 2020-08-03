@@ -18,16 +18,12 @@ package androidx.room.solver.shortcut.binderprovider
 
 import androidx.room.ext.L
 import androidx.room.ext.T
-import androidx.room.ext.findTypeMirror
-import androidx.room.ext.typeName
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XType
 import androidx.room.processor.Context
 import androidx.room.solver.RxType
 import androidx.room.solver.shortcut.binder.CallableDeleteOrUpdateMethodBinder.Companion.createDeleteOrUpdateBinder
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
-import erasure
-import isAssignableFrom
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeMirror
 
 /**
  * Provider for Rx Callable binders.
@@ -41,17 +37,17 @@ open class RxCallableDeleteOrUpdateMethodBinderProvider internal constructor(
      * [Single] and [Maybe] are generics but [Completable] is not so each implementation of this
      * class needs to define how to extract the type argument.
      */
-    open fun extractTypeArg(declared: DeclaredType): TypeMirror = declared.typeArguments.first()
+    open fun extractTypeArg(declared: XDeclaredType): XType = declared.typeArguments.first()
 
-    override fun matches(declared: DeclaredType): Boolean =
+    override fun matches(declared: XDeclaredType): Boolean =
             declared.typeArguments.size == 1 && matchesRxType(declared)
 
-    private fun matchesRxType(declared: DeclaredType): Boolean {
-        val erasure = declared.erasure(context.processingEnv.typeUtils)
-        return erasure.typeName() == rxType.className
+    private fun matchesRxType(declared: XDeclaredType): Boolean {
+        val erasure = declared.erasure()
+        return erasure.typeName == rxType.className
     }
 
-    override fun provide(declared: DeclaredType): DeleteOrUpdateMethodBinder {
+    override fun provide(declared: XDeclaredType): DeleteOrUpdateMethodBinder {
         val typeArg = extractTypeArg(declared)
         val adapter = context.typeAdapterStore.findDeleteOrUpdateAdapter(typeArg)
         return createDeleteOrUpdateBinder(typeArg, adapter) { callableImpl, _ ->
@@ -76,25 +72,24 @@ private class RxCompletableDeleteOrUpdateMethodBinderProvider(
     rxType: RxType
 ) : RxCallableDeleteOrUpdateMethodBinderProvider(context, rxType) {
 
-    private val completableTypeMirror: TypeMirror? by lazy {
-        context.processingEnv.findTypeMirror(rxType.className)
+    private val completableTypeMirror: XType? by lazy {
+        context.processingEnv.findType(rxType.className)
     }
 
     /**
      * Since Completable is not a generic, the supported return type should be Void.
      * Like this, the generated Callable.call method will return Void.
      */
-    override fun extractTypeArg(declared: DeclaredType): TypeMirror =
+    override fun extractTypeArg(declared: XDeclaredType): XType =
             context.COMMON_TYPES.VOID
 
-    override fun matches(declared: DeclaredType): Boolean = isCompletable(declared)
+    override fun matches(declared: XDeclaredType): Boolean = isCompletable(declared)
 
-    private fun isCompletable(declared: DeclaredType): Boolean {
+    private fun isCompletable(declared: XDeclaredType): Boolean {
         if (completableTypeMirror == null) {
             return false
         }
-        val typeUtils = context.processingEnv.typeUtils
-        val erasure = declared.erasure(typeUtils)
-        return erasure.isAssignableFrom(typeUtils, completableTypeMirror!!)
+        val erasure = declared.erasure()
+        return erasure.isAssignableFrom(completableTypeMirror!!)
     }
 }

@@ -17,29 +17,26 @@
 package androidx.room.solver.binderprovider
 
 import androidx.room.ext.PagingTypeNames
-import androidx.room.ext.findTypeMirror
 import androidx.room.parser.ParsedQuery
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.QueryResultBinderProvider
 import androidx.room.solver.query.result.ListQueryResultAdapter
 import androidx.room.solver.query.result.PositionalDataSourceQueryResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
-import erasure
-import isAssignableFrom
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeMirror
 
 class DataSourceQueryResultBinderProvider(val context: Context) : QueryResultBinderProvider {
-    private val dataSourceTypeMirror: TypeMirror? by lazy {
-        context.processingEnv.findTypeMirror(PagingTypeNames.DATA_SOURCE)
+    private val dataSourceTypeMirror: XType? by lazy {
+        context.processingEnv.findType(PagingTypeNames.DATA_SOURCE)
     }
 
-    private val positionalDataSourceTypeMirror: TypeMirror? by lazy {
-        context.processingEnv.findTypeMirror(PagingTypeNames.POSITIONAL_DATA_SOURCE)
+    private val positionalDataSourceTypeMirror: XType? by lazy {
+        context.processingEnv.findType(PagingTypeNames.POSITIONAL_DATA_SOURCE)
     }
 
-    override fun provide(declared: DeclaredType, query: ParsedQuery): QueryResultBinder {
+    override fun provide(declared: XDeclaredType, query: ParsedQuery): QueryResultBinder {
         if (query.tables.isEmpty()) {
             context.logger.e(ProcessorErrors.OBSERVABLE_QUERY_NOTHING_TO_OBSERVE)
         }
@@ -52,25 +49,19 @@ class DataSourceQueryResultBinderProvider(val context: Context) : QueryResultBin
         return PositionalDataSourceQueryResultBinder(listAdapter, tableNames)
     }
 
-    override fun matches(declared: DeclaredType): Boolean {
+    override fun matches(declared: XDeclaredType): Boolean {
         if (dataSourceTypeMirror == null || positionalDataSourceTypeMirror == null) {
             return false
         }
         if (declared.typeArguments.isEmpty()) {
             return false
         }
-        val typeUtils = context.processingEnv.typeUtils
-        val erasure = declared.erasure(typeUtils)
-        val isDataSource = dataSourceTypeMirror!!.isAssignableFrom(
-            typeUtils,
-            erasure
-        )
+        val erasure = declared.erasure()
+        val isDataSource = dataSourceTypeMirror!!.isAssignableFrom(erasure)
         if (!isDataSource) {
             return false
         }
-        val isPositional = positionalDataSourceTypeMirror!!.isAssignableFrom(
-            typeUtils, erasure
-        )
+        val isPositional = positionalDataSourceTypeMirror!!.isAssignableFrom(erasure)
         if (!isPositional) {
             context.logger.e(ProcessorErrors.PAGING_SPECIFY_DATA_SOURCE_TYPE)
         }

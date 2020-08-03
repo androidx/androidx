@@ -19,16 +19,16 @@ package androidx.room.vo
 import androidx.room.migration.bundle.BundleUtil
 import androidx.room.migration.bundle.FtsEntityBundle
 import androidx.room.parser.FtsVersion
-import javax.lang.model.element.TypeElement
-import javax.lang.model.type.DeclaredType
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XTypeElement
 
 /**
  * An Entity with a mapping FTS table.
  */
 class FtsEntity(
-    element: TypeElement,
+    element: XTypeElement,
     tableName: String,
-    type: DeclaredType,
+    type: XDeclaredType,
     fields: List<Field>,
     embeddedFields: List<EmbeddedField>,
     primaryKey: PrimaryKey,

@@ -21,9 +21,12 @@ import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.T
-import androidx.room.ext.asDeclaredType
-import androidx.room.ext.isInterface
-import androidx.room.ext.name
+import androidx.room.processing.MethodSpecHelper
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XElement
+import androidx.room.processing.XMethodElement
+import androidx.room.processing.XProcessingEnv
+import androidx.room.processing.addOriginatingElement
 import androidx.room.processor.OnConflictProcessor
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.KotlinDefaultMethodDelegateBinder
@@ -46,21 +49,17 @@ import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import stripNonJava
-import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.element.Element
-import javax.lang.model.element.ExecutableElement
 import javax.lang.model.element.Modifier.FINAL
 import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.PUBLIC
-import javax.lang.model.type.DeclaredType
 
 /**
  * Creates the implementation for a class annotated with Dao.
  */
 class DaoWriter(
     val dao: Dao,
-    private val dbElement: Element,
-    val processingEnv: ProcessingEnvironment
+    private val dbElement: XElement,
+    val processingEnv: XProcessingEnv
 ) :
     ClassWriter(dao.typeName) {
     private val declaredDao = dao.element.asDeclaredType()
@@ -213,7 +212,7 @@ class DaoWriter(
                 addStatement("super($N)", dbParam)
             }
             addStatement("this.$N = $N", dbField, dbParam)
-            shortcutMethods.filterNot {
+            shortcutMethods.asSequence().filterNot {
                 it.fields.isEmpty()
             }.map {
                 it.fields.values
@@ -449,22 +448,10 @@ class DaoWriter(
     }
 
     private fun overrideWithoutAnnotations(
-        elm: ExecutableElement,
-        owner: DeclaredType
+        elm: XMethodElement,
+        owner: XDeclaredType
     ): MethodSpec.Builder {
-        val baseSpec = MethodSpec.overriding(elm, owner, processingEnv.typeUtils)
-                .build()
-
-        // make all the params final
-        val params = baseSpec.parameters.map { it.toBuilder().addModifiers(FINAL).build() }
-
-        return MethodSpec.methodBuilder(baseSpec.name).apply {
-            addAnnotation(Override::class.java)
-            addModifiers(baseSpec.modifiers)
-            addParameters(params)
-            varargs(baseSpec.varargs)
-            returns(baseSpec.returnType)
-        }
+        return MethodSpecHelper.overridingWithFinalParams(elm, owner)
     }
 
     /**

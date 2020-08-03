@@ -16,14 +16,14 @@
 
 package androidx.room.vo
 
+import androidx.room.processing.XMethodElement
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
-import javax.lang.model.element.ExecutableElement
 
 /**
  * Base class for shortcut methods in @DAO.
  */
 abstract class ShortcutMethod(
-    val element: ExecutableElement,
+    val element: XMethodElement,
     val name: String,
     val entities: Map<String, ShortcutEntity>,
     val parameters: List<ShortcutQueryParameter>,

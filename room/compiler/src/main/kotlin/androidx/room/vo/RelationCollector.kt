@@ -21,14 +21,10 @@ import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.T
-import androidx.room.ext.asDeclaredType
-import androidx.room.ext.findTypeElement
-import androidx.room.ext.requireTypeElement
-import androidx.room.ext.requireTypeMirror
-import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SqlParser
+import androidx.room.processing.XType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors.cannotFindQueryResultAdapter
 import androidx.room.processor.ProcessorErrors.relationAffinityMismatch
@@ -49,7 +45,6 @@ import stripNonJava
 import java.nio.ByteBuffer
 import java.util.ArrayList
 import java.util.HashSet
-import javax.lang.model.type.TypeMirror
 
 /**
  * Internal class that is used to manage fetching 1/N to N relationships.
@@ -263,7 +258,7 @@ data class RelationCollector(
                 } else {
                     val keyTypeMirror = keyTypeMirrorFor(context, affinity)
                     val set = context.processingEnv.requireTypeElement("java.util.Set")
-                    val keySet = context.processingEnv.typeUtils.getDeclaredType(set, keyTypeMirror)
+                    val keySet = context.processingEnv.getDeclaredType(set, keyTypeMirror)
                     QueryParameter(
                             name = RelationCollectorMethodWriter.KEY_SET_VARIABLE,
                             sqlName = RelationCollectorMethodWriter.KEY_SET_VARIABLE,
@@ -413,13 +408,13 @@ data class RelationCollector(
         }
 
         // Gets the type mirror of the relationship key.
-        private fun keyTypeMirrorFor(context: Context, affinity: SQLTypeAffinity): TypeMirror {
+        private fun keyTypeMirrorFor(context: Context, affinity: SQLTypeAffinity): XType {
             val processingEnv = context.processingEnv
             return when (affinity) {
-                SQLTypeAffinity.INTEGER -> processingEnv.requireTypeMirror("java.lang.Long")
-                SQLTypeAffinity.REAL -> processingEnv.requireTypeMirror("java.lang.Double")
+                SQLTypeAffinity.INTEGER -> processingEnv.requireType("java.lang.Long")
+                SQLTypeAffinity.REAL -> processingEnv.requireType("java.lang.Double")
                 SQLTypeAffinity.TEXT -> context.COMMON_TYPES.STRING
-                SQLTypeAffinity.BLOB -> processingEnv.requireTypeMirror("java.nio.ByteBuffer")
+                SQLTypeAffinity.BLOB -> processingEnv.requireType("java.nio.ByteBuffer")
                 else -> {
                     context.COMMON_TYPES.STRING
                 }
@@ -435,7 +430,7 @@ data class RelationCollector(
                 SQLTypeAffinity.BLOB -> TypeName.get(ByteBuffer::class.java)
                 else -> {
                     // no affinity select from type
-                    context.COMMON_TYPES.STRING.typeName()
+                    context.COMMON_TYPES.STRING.typeName
                 }
             }
         }

@@ -17,13 +17,12 @@
 package androidx.room.solver.types
 
 import androidx.room.ext.L
-import androidx.room.ext.requireTypeMirror
 import androidx.room.parser.SQLTypeAffinity.TEXT
+import androidx.room.processing.XProcessingEnv
 import androidx.room.solver.CodeGenScope
-import javax.annotation.processing.ProcessingEnvironment
 
-class StringColumnTypeAdapter(processingEnvironment: ProcessingEnvironment) :
-    ColumnTypeAdapter((processingEnvironment.requireTypeMirror(String::class)), TEXT) {
+class StringColumnTypeAdapter(processingEnvironment: XProcessingEnv) :
+    ColumnTypeAdapter((processingEnvironment.requireType(String::class)), TEXT) {
     override fun readFromCursor(
         outVarName: String,
         cursorVarName: String,

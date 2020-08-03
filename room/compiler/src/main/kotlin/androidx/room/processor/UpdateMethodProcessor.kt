@@ -19,16 +19,15 @@ package androidx.room.processor
 import androidx.room.OnConflictStrategy.IGNORE
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Update
-import androidx.room.ext.name
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XMethodElement
 import androidx.room.vo.UpdateMethod
 import androidx.room.vo.findFieldByColumnName
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.type.DeclaredType
 
 class UpdateMethodProcessor(
     baseContext: Context,
-    val containing: DeclaredType,
-    val executableElement: ExecutableElement
+    val containing: XDeclaredType,
+    val executableElement: XMethodElement
 ) {
     val context = baseContext.fork(executableElement)
 
@@ -42,7 +41,7 @@ class UpdateMethodProcessor(
                 executableElement, ProcessorErrors.INVALID_ON_CONFLICT_VALUE)
 
         val (entities, params) = delegate.extractParams(
-            targetEntityType = annotation?.getAsTypeMirror("entity"),
+            targetEntityType = annotation?.getAsType("entity"),
             missingParamError = ProcessorErrors.UPDATE_MISSING_PARAMS,
             onValidatePartialEntity = { entity, pojo ->
                 val missingPrimaryKeys = entity.primaryKey.fields.filter {

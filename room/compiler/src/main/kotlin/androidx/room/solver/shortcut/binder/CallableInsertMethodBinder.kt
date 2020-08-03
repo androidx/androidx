@@ -17,14 +17,13 @@
 package androidx.room.solver.shortcut.binder
 
 import androidx.room.ext.CallableTypeSpecBuilder
-import androidx.room.ext.typeName
+import androidx.room.processing.XType
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.shortcut.result.InsertMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.TypeSpec
-import javax.lang.model.type.TypeMirror
 
 /**
  * Binder for deferred insert methods.
@@ -34,14 +33,14 @@ import javax.lang.model.type.TypeMirror
  * function.
  */
 class CallableInsertMethodBinder(
-    val typeArg: TypeMirror,
+    val typeArg: XType,
     val addStmntBlock: CodeBlock.Builder.(callableImpl: TypeSpec, dbField: FieldSpec) -> Unit,
     adapter: InsertMethodAdapter?
 ) : InsertMethodBinder(adapter) {
 
         companion object {
             fun createInsertBinder(
-                typeArg: TypeMirror,
+                typeArg: XType,
                 adapter: InsertMethodAdapter?,
                 addCodeBlock: CodeBlock.Builder.(callableImpl: TypeSpec, dbField: FieldSpec) -> Unit
             ) = CallableInsertMethodBinder(typeArg, addCodeBlock, adapter)
@@ -54,7 +53,7 @@ class CallableInsertMethodBinder(
             scope: CodeGenScope
         ) {
             val adapterScope = scope.fork()
-            val callableImpl = CallableTypeSpecBuilder(typeArg.typeName()) {
+            val callableImpl = CallableTypeSpecBuilder(typeArg.typeName) {
                 adapter?.createInsertionMethodBody(
                     parameters = parameters,
                     insertionAdapters = insertionAdapters,

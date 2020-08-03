@@ -31,7 +31,6 @@ import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
-import isPrimitive
 import javax.lang.model.element.Modifier.PUBLIC
 
 class EntityInsertionAdapterWriter private constructor(

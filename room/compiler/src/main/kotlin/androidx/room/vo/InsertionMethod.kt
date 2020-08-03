@@ -17,16 +17,16 @@
 package androidx.room.vo
 
 import androidx.room.OnConflictStrategy
+import androidx.room.processing.XMethodElement
+import androidx.room.processing.XType
 import androidx.room.solver.shortcut.binder.InsertMethodBinder
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.type.TypeMirror
 
 data class InsertionMethod(
-    val element: ExecutableElement,
+    val element: XMethodElement,
     val name: String,
     @OnConflictStrategy val onConflict: Int,
     val entities: Map<String, ShortcutEntity>,
-    val returnType: TypeMirror,
+    val returnType: XType,
     val parameters: List<ShortcutQueryParameter>,
     val methodBinder: InsertMethodBinder
 )

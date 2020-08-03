@@ -18,18 +18,13 @@ package androidx.room.solver.prepared.binderprovider
 
 import androidx.room.ext.L
 import androidx.room.ext.T
-import androidx.room.ext.findTypeElement
-import androidx.room.ext.findTypeMirror
-import androidx.room.ext.typeName
 import androidx.room.parser.ParsedQuery
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XType
 import androidx.room.processor.Context
 import androidx.room.solver.RxType
 import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
-import erasure
-import isAssignableFrom
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeMirror
 
 open class RxPreparedQueryResultBinderProvider internal constructor(
     val context: Context,
@@ -40,15 +35,15 @@ open class RxPreparedQueryResultBinderProvider internal constructor(
         context.processingEnv.findTypeElement(rxType.version.rxRoomClassName) != null
     }
 
-    override fun matches(declared: DeclaredType): Boolean =
+    override fun matches(declared: XDeclaredType): Boolean =
         declared.typeArguments.size == 1 && matchesRxType(declared)
 
-    private fun matchesRxType(declared: DeclaredType): Boolean {
-        val erasure = declared.erasure(context.processingEnv.typeUtils)
-        return erasure.typeName() == rxType.className
+    private fun matchesRxType(declared: XDeclaredType): Boolean {
+        val erasure = declared.erasure()
+        return erasure.typeName == rxType.className
     }
 
-    override fun provide(declared: DeclaredType, query: ParsedQuery): PreparedQueryResultBinder {
+    override fun provide(declared: XDeclaredType, query: ParsedQuery): PreparedQueryResultBinder {
         if (!hasRxJavaArtifact) {
             context.logger.e(rxType.version.missingArtifactMessage)
         }
@@ -61,7 +56,7 @@ open class RxPreparedQueryResultBinderProvider internal constructor(
         }
     }
 
-    open fun extractTypeArg(declared: DeclaredType): TypeMirror = declared.typeArguments.first()
+    open fun extractTypeArg(declared: XDeclaredType): XType = declared.typeArguments.first()
 
     companion object {
         fun getAll(context: Context) = listOf(
@@ -80,18 +75,17 @@ private class RxCompletablePreparedQueryResultBinderProvider(
     rxType: RxType
 ) : RxPreparedQueryResultBinderProvider(context, rxType) {
 
-    private val completableType: TypeMirror? by lazy {
-        context.processingEnv.findTypeMirror(rxType.className)
+    private val completableType: XType? by lazy {
+        context.processingEnv.findType(rxType.className)
     }
 
-    override fun matches(declared: DeclaredType): Boolean {
+    override fun matches(declared: XDeclaredType): Boolean {
         if (completableType == null) {
             return false
         }
-        val typeUtils = context.processingEnv.typeUtils
-        val erasure = declared.erasure(typeUtils)
-        return erasure.isAssignableFrom(typeUtils, completableType!!)
+        val erasure = declared.erasure()
+        return erasure.isAssignableFrom(completableType!!)
     }
 
-    override fun extractTypeArg(declared: DeclaredType) = context.COMMON_TYPES.VOID
+    override fun extractTypeArg(declared: XDeclaredType) = context.COMMON_TYPES.VOID
 }

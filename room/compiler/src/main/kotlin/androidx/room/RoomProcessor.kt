@@ -16,6 +16,7 @@
 
 package androidx.room
 
+import androidx.room.processing.XProcessingEnv
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.util.SimpleJavaVersion
@@ -38,19 +39,22 @@ class RoomProcessor : BasicAnnotationProcessor() {
     private var jdkVersionHasBugReported = false
 
     override fun initSteps(): MutableIterable<ProcessingStep>? {
-        return mutableListOf(DatabaseProcessingStep(processingEnv))
+        return mutableListOf(
+            DatabaseProcessingStep().asAutoCommonProcessor(processingEnv)
+        )
     }
 
     override fun getSupportedOptions(): MutableSet<String> {
         val supportedOptions = Context.ARG_OPTIONS.toMutableSet()
-
-        if (Context.BooleanProcessorOptions.INCREMENTAL.getValue(processingEnv)) {
+        // x processing is a cheap wrapper so it is fine to re-create.
+        val xProcessing = XProcessingEnv.create(processingEnv)
+        if (Context.BooleanProcessorOptions.INCREMENTAL.getValue(xProcessing)) {
             if (methodParametersVisibleInClassFiles()) {
                 // Room can be incremental
                 supportedOptions.add(ISOLATING_ANNOTATION_PROCESSORS_INDICATOR)
             } else {
                 if (!jdkVersionHasBugReported) {
-                    Context(processingEnv).logger.w(
+                    Context(xProcessing).logger.w(
                         Warning.JDK_VERSION_HAS_BUG, ProcessorErrors.JDK_VERSION_HAS_BUG
                     )
                     jdkVersionHasBugReported = true

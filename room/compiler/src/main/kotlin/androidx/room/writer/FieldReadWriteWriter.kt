@@ -19,7 +19,6 @@ package androidx.room.writer
 import androidx.room.ext.L
 import androidx.room.ext.T
 import androidx.room.ext.defaultValue
-import androidx.room.ext.typeName
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.CallType
 import androidx.room.vo.Constructor
@@ -191,7 +190,7 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                     }.associateBy { fwi ->
                         FieldReadWriteWriter(fwi).readIntoTmpVar(
                             cursorVar,
-                            fwi.field.setter.type.typeName(),
+                            fwi.field.setter.type.typeName,
                             scope)
                     }
                     // read decomposed fields (e.g. embedded)
@@ -326,7 +325,7 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                         }
                         CallType.METHOD -> {
                             val tmpField = scope.getTmpVar("_tmp${field.name.capitalize()}")
-                            addStatement("final $T $L", field.setter.type.typeName(), tmpField)
+                            addStatement("final $T $L", field.setter.type.typeName, tmpField)
                             reader.readFromCursor(tmpField, cursorVar, indexVar, scope)
                             addStatement("$L.$L($L)", ownerVar, field.setter.name, tmpField)
                         }

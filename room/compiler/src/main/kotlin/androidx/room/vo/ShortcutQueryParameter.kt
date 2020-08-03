@@ -16,17 +16,17 @@
 
 package androidx.room.vo
 
-import javax.lang.model.element.VariableElement
-import javax.lang.model.type.TypeMirror
+import androidx.room.processing.XType
+import androidx.room.processing.XVariableElement
 
 /**
  * Parameters used in DAO methods that are annotated with Insert, Delete, Update.
  */
 data class ShortcutQueryParameter(
-    val element: VariableElement,
+    val element: XVariableElement,
     val name: String,
-    val type: TypeMirror, // actual param type (List<Foo>, Set<Foo>, Foo, etc...)
-    val pojoType: TypeMirror?, // extracted type, never a Collection
+    val type: XType, // actual param type (List<Foo>, Set<Foo>, Foo, etc...)
+    val pojoType: XType?, // extracted type, never a Collection
     val isMultiple: Boolean
 ) {
     /**

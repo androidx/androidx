@@ -17,19 +17,13 @@
 package androidx.room.processor
 
 import androidx.room.Entity
-import androidx.room.ext.asDeclaredType
-import androidx.room.ext.asTypeElement
-import androidx.room.ext.asVariableElement
-import androidx.room.ext.getAllFieldsIncludingPrivateSupers
-import androidx.room.ext.getArrayType
-import androidx.room.ext.requireTypeMirror
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
+import androidx.room.processing.XVariableElement
 import androidx.room.solver.types.ColumnTypeAdapter
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.Field
-import box
 import com.google.common.truth.Truth
 import com.google.testing.compile.CompileTester
 import com.google.testing.compile.JavaFileObjects
@@ -44,7 +38,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
 import simpleRun
-import javax.lang.model.element.VariableElement
 
 @Suppress("HasPlatformType")
 @RunWith(JUnit4::class)
@@ -97,10 +90,10 @@ class FieldProcessorTest {
         }
 
         private fun TypeName.box(invocation: TestInvocation) =
-            typeMirror(invocation).box(invocation.typeUtils)
+            typeMirror(invocation).boxed()
 
         private fun TypeName.typeMirror(invocation: TestInvocation) =
-            invocation.processingEnv.requireTypeMirror(this)
+            invocation.processingEnv.requireType(this)
     }
 
     @Test
@@ -248,7 +241,7 @@ class FieldProcessorTest {
     @Test
     fun nameVariations() {
         simpleRun {
-            val variableElement = mock(VariableElement::class.java)
+            val variableElement = mock(XVariableElement::class.java)
             assertThat(Field(variableElement, "x", TypeName.INT.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("x")))
             assertThat(Field(variableElement, "x", TypeName.BOOLEAN.typeMirror(it),
@@ -261,7 +254,7 @@ class FieldProcessorTest {
 
     @Test
     fun nameVariations_is() {
-        val elm = mock(VariableElement::class.java)
+        val elm = mock(XVariableElement::class.java)
         simpleRun {
             assertThat(Field(elm, "isX", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("isX", "x")))
@@ -277,7 +270,7 @@ class FieldProcessorTest {
 
     @Test
     fun nameVariations_has() {
-        val elm = mock(VariableElement::class.java)
+        val elm = mock(XVariableElement::class.java)
         simpleRun {
             assertThat(Field(elm, "hasX", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("hasX", "x")))
@@ -293,7 +286,7 @@ class FieldProcessorTest {
 
     @Test
     fun nameVariations_m() {
-        val elm = mock(VariableElement::class.java)
+        val elm = mock(XVariableElement::class.java)
         simpleRun {
             assertThat(Field(elm, "mall", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("mall")))
@@ -314,7 +307,7 @@ class FieldProcessorTest {
 
     @Test
     fun nameVariations_underscore() {
-        val elm = mock(VariableElement::class.java)
+        val elm = mock(XVariableElement::class.java)
         simpleRun {
             assertThat(Field(elm, "_all", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("_all", "all")))
@@ -431,9 +424,7 @@ class FieldProcessorTest {
                                     .getElementsAnnotatedWith(Entity::class.java)
                                     .map {
                                         Pair(it, it.asTypeElement()
-                                            .getAllFieldsIncludingPrivateSupers(
-                                                invocation.processingEnv
-                                            ).firstOrNull())
+                                            .getAllFieldsIncludingPrivateSupers().firstOrNull())
                                     }
                                     .first { it.second != null }
                             val entityContext =

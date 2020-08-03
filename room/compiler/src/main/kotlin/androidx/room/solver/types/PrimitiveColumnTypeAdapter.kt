@@ -17,10 +17,10 @@
 package androidx.room.solver.types
 
 import androidx.room.ext.L
-import androidx.room.ext.requireTypeMirror
-import androidx.room.ext.typeName
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SQLTypeAffinity.REAL
+import androidx.room.processing.XProcessingEnv
+import androidx.room.processing.XType
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.TypeName.BYTE
 import com.squareup.javapoet.TypeName.CHAR
@@ -29,26 +29,24 @@ import com.squareup.javapoet.TypeName.FLOAT
 import com.squareup.javapoet.TypeName.INT
 import com.squareup.javapoet.TypeName.LONG
 import com.squareup.javapoet.TypeName.SHORT
-import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.type.TypeMirror
 
 /**
  * Adapters for all primitives that has direct cursor mappings.
  */
 open class PrimitiveColumnTypeAdapter(
-    out: TypeMirror,
+    out: XType,
     val cursorGetter: String,
     val stmtSetter: String,
     typeAffinity: SQLTypeAffinity
 ) : ColumnTypeAdapter(out, typeAffinity) {
-    val cast = if (cursorGetter == "get${out.typeName().toString().capitalize()}")
+    val cast = if (cursorGetter == "get${out.typeName.toString().capitalize()}")
                     ""
                 else
-                    "(${out.typeName()}) "
+                    "(${out.typeName}) "
 
     companion object {
         fun createPrimitiveAdapters(
-            processingEnvironment: ProcessingEnvironment
+            processingEnvironment: XProcessingEnv
         ): List<PrimitiveColumnTypeAdapter> {
             return listOf(
                     Triple(INT, "getInt", "bindLong"),
@@ -60,7 +58,7 @@ open class PrimitiveColumnTypeAdapter(
                     Triple(DOUBLE, "getDouble", "bindDouble")
             ).map {
                 PrimitiveColumnTypeAdapter(
-                        out = processingEnvironment.requireTypeMirror(it.first),
+                        out = processingEnvironment.requireType(it.first),
                         cursorGetter = it.second,
                         stmtSetter = it.third,
                         typeAffinity = when (it.first) {

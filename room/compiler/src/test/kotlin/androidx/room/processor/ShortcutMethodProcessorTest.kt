@@ -22,12 +22,8 @@ import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
-import androidx.room.ext.asDeclaredType
-import androidx.room.ext.asExecutableElement
-import androidx.room.ext.asTypeElement
-import androidx.room.ext.getAllMethods
-import androidx.room.ext.hasAnnotation
-import androidx.room.ext.typeName
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XMethodElement
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.ShortcutMethod
@@ -43,8 +39,6 @@ import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import toJFO
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.type.DeclaredType
 import javax.tools.JavaFileObject
 import kotlin.reflect.KClass
 
@@ -92,8 +86,8 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
             assertThat(shortcut.name, `is`("foo"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
-            assertThat(param.type.typeName(), `is`(USER_TYPE_NAME))
-            assertThat(param.pojoType?.typeName(), `is`(USER_TYPE_NAME))
+            assertThat(param.type.typeName, `is`(USER_TYPE_NAME))
+            assertThat(param.pojoType?.typeName, `is`(USER_TYPE_NAME))
             assertThat(shortcut.entities.size, `is`(1))
             assertThat(shortcut.entities["user"]?.isPartialEntity, `is`(false))
             assertThat(shortcut.entities["user"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
@@ -126,8 +120,8 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
 
             assertThat(shortcut.parameters.size, `is`(2))
             shortcut.parameters.forEach {
-                assertThat(it.type.typeName(), `is`(USER_TYPE_NAME))
-                assertThat(it.pojoType?.typeName(), `is`(USER_TYPE_NAME))
+                assertThat(it.type.typeName, `is`(USER_TYPE_NAME))
+                assertThat(it.pojoType?.typeName, `is`(USER_TYPE_NAME))
             }
             assertThat(shortcut.entities.size, `is`(2))
             assertThat(shortcut.entities["u1"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
@@ -158,10 +152,10 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 assertThat(shortcut.name, `is`("users"))
                 assertThat(shortcut.parameters.size, `is`(1))
                 val param = shortcut.parameters.first()
-                assertThat(param.type.typeName(), `is`(
+                assertThat(param.type.typeName, `is`(
                         ParameterizedTypeName.get(
                                 ClassName.get("java.util", "List"), USER_TYPE_NAME) as TypeName))
-                assertThat(param.pojoType?.typeName(), `is`(USER_TYPE_NAME))
+                assertThat(param.pojoType?.typeName, `is`(USER_TYPE_NAME))
                 assertThat(shortcut.entities.size, `is`(1))
                 assertThat(shortcut.entities["users"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
             }.compilesWithoutError()
@@ -178,7 +172,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
             assertThat(shortcut.name, `is`("users"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
-            assertThat(param.type.typeName(), `is`(
+            assertThat(param.type.typeName, `is`(
                     ArrayTypeName.of(COMMON.USER_TYPE_NAME) as TypeName))
             assertThat(shortcut.entities.size, `is`(1))
             assertThat(shortcut.entities["users"]?.pojo?.typeName, `is`(USER_TYPE_NAME))
@@ -195,7 +189,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
             assertThat(shortcut.name, `is`("modifyUsers"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
-            assertThat(param.type.typeName(), `is`(
+            assertThat(param.type.typeName, `is`(
                     ParameterizedTypeName.get(
                             ClassName.get("java.util", "Set"),
                             COMMON.USER_TYPE_NAME
@@ -215,7 +209,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
             assertThat(shortcut.name, `is`("modifyUsers"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
-            assertThat(param.type.typeName(), `is`(
+            assertThat(param.type.typeName, `is`(
                     ParameterizedTypeName.get(ClassName.get("java.lang", "Iterable"),
                             COMMON.USER_TYPE_NAME) as TypeName))
             assertThat(shortcut.entities.size, `is`(1))
@@ -234,7 +228,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
             assertThat(shortcut.name, `is`("modifyUsers"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
-            assertThat(param.type.typeName(), `is`(
+            assertThat(param.type.typeName, `is`(
                     ParameterizedTypeName.get(ClassName.get("foo.bar", "MyClass.MyList"),
                             CommonTypeNames.STRING, COMMON.USER_TYPE_NAME) as TypeName))
             assertThat(shortcut.entities.size, `is`(1))
@@ -262,9 +256,9 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                 abstract public $type foo(User u1, Book b1);
                 """) { shortcut, _ ->
                 assertThat(shortcut.parameters.size, `is`(2))
-                assertThat(shortcut.parameters[0].type.typeName().toString(),
+                assertThat(shortcut.parameters[0].type.typeName.toString(),
                         `is`("foo.bar.User"))
-                assertThat(shortcut.parameters[1].type.typeName().toString(),
+                assertThat(shortcut.parameters[1].type.typeName.toString(),
                         `is`("foo.bar.Book"))
                 assertThat(shortcut.parameters.map { it.name }, `is`(listOf("u1", "b1")))
                 assertThat(shortcut.entities.size, `is`(2))
@@ -319,8 +313,8 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
             assertThat(shortcut.name, `is`("foo"))
             assertThat(shortcut.parameters.size, `is`(1))
             val param = shortcut.parameters.first()
-            assertThat(param.type.typeName(), `is`(USERNAME_TYPE_NAME))
-            assertThat(param.pojoType?.typeName(), `is`(USERNAME_TYPE_NAME))
+            assertThat(param.type.typeName, `is`(USERNAME_TYPE_NAME))
+            assertThat(param.pojoType?.typeName, `is`(USERNAME_TYPE_NAME))
             assertThat(shortcut.entities.size, `is`(1))
             assertThat(shortcut.entities["username"]?.isPartialEntity, `is`(true))
             assertThat(shortcut.entities["username"]?.entityTypeName, `is`(USER_TYPE_NAME))
@@ -450,8 +444,8 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
 
     abstract fun process(
         baseContext: Context,
-        containing: DeclaredType,
-        executableElement: ExecutableElement
+        containing: XDeclaredType,
+        executableElement: XMethodElement
     ): T
 
     fun singleShortcutMethod(
@@ -474,9 +468,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                                     .getElementsAnnotatedWith(Dao::class.java)
                                     .map {
                                         Pair(it,
-                                            it.asTypeElement().getAllMethods(
-                                                invocation.processingEnv
-                                            ).filter {
+                                            it.asTypeElement().getAllMethods().filter {
                                                 it.hasAnnotation(annotation)
                                             }
                                         )
@@ -484,7 +476,7 @@ abstract class ShortcutMethodProcessorTest<out T : ShortcutMethod>(
                             val processed = process(
                                     baseContext = invocation.context,
                                     containing = owner.asDeclaredType(),
-                                    executableElement = methods.first().asExecutableElement())
+                                    executableElement = methods.first())
                             handler(processed, invocation)
                             true
                         }

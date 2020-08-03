@@ -16,11 +16,15 @@
 
 package androidx.room.verifier
 
-import androidx.room.ext.requireTypeElement
-import androidx.room.ext.requireTypeMirror
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SqlParser
+import androidx.room.processing.XConstructorElement
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XElement
+import androidx.room.processing.XType
+import androidx.room.processing.XTypeElement
+import androidx.room.processing.XVariableElement
 import androidx.room.processor.Context
 import androidx.room.testing.TestInvocation
 import androidx.room.vo.CallType
@@ -48,12 +52,6 @@ import org.mockito.Mockito.doReturn
 import org.mockito.Mockito.mock
 import simpleRun
 import java.sql.Connection
-import javax.lang.model.element.Element
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.element.TypeElement
-import javax.lang.model.element.VariableElement
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeMirror
 
 @RunWith(Parameterized::class)
 class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
@@ -74,7 +72,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
 
     private fun createVerifier(invocation: TestInvocation): DatabaseVerifier {
         val db = userDb(invocation)
-        return DatabaseVerifier.create(invocation.context, mock(Element::class.java),
+        return DatabaseVerifier.create(invocation.context, mock(XElement::class.java),
                 db.entities, db.views)!!
     }
 
@@ -238,7 +236,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                 ),
                 emptyList()
             )
-            val element = mock(Element::class.java)
+            val element = mock(XElement::class.java)
             DatabaseVerifier.create(invocation.context, element, db.entities, db.views)!!
         }.failsToCompile().withErrorContaining("default value of column [name]")
     }
@@ -276,8 +274,8 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
 
     private fun database(entities: List<Entity>, views: List<DatabaseView>): Database {
         return Database(
-                element = mock(TypeElement::class.java),
-                type = mock(TypeMirror::class.java),
+                element = mock(XTypeElement::class.java),
+                type = mock(XType::class.java),
                 entities = entities,
                 views = views,
                 daoMethods = emptyList(),
@@ -295,37 +293,37 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
         return Entity(
             element = element,
             tableName = tableName,
-            type = mock(DeclaredType::class.java),
+            type = mock(XDeclaredType::class.java),
             fields = fields.toList(),
             embeddedFields = emptyList(),
             indices = emptyList(),
             primaryKey = PrimaryKey(null, Fields(fields.take(1)), false),
             foreignKeys = emptyList(),
-            constructor = Constructor(mock(ExecutableElement::class.java), emptyList()),
+            constructor = Constructor(mock(XConstructorElement::class.java), emptyList()),
             shadowTableName = null
         )
     }
 
     private fun view(viewName: String, query: String, vararg fields: Field): DatabaseView {
         return DatabaseView(
-                element = mock(TypeElement::class.java),
+                element = mock(XTypeElement::class.java),
                 viewName = viewName,
-                type = mock(DeclaredType::class.java),
+                type = mock(XDeclaredType::class.java),
                 fields = fields.toList(),
                 embeddedFields = emptyList(),
                 query = SqlParser.parse(query),
-                constructor = Constructor(mock(ExecutableElement::class.java), emptyList())
+                constructor = Constructor(mock(XConstructorElement::class.java), emptyList())
         )
     }
 
     private fun field(
         name: String,
-        type: TypeMirror,
+        type: XType,
         affinity: SQLTypeAffinity,
         defaultValue: String? = null
     ): Field {
-        val element = mock(VariableElement::class.java)
-        doReturn(type).`when`(element).asType()
+        val element = mock(XVariableElement::class.java)
+        doReturn(type).`when`(element).type
         val f = Field(
             element = element,
             name = name,
@@ -343,13 +341,13 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
         return f
     }
 
-    private fun assignGetterSetter(f: Field, name: String, type: TypeMirror) {
+    private fun assignGetterSetter(f: Field, name: String, type: XType) {
         f.getter = FieldGetter(name, type, CallType.FIELD)
         f.setter = FieldSetter(name, type, CallType.FIELD)
     }
 
-    private fun primitive(context: Context, typeName: TypeName): TypeMirror {
-        return context.processingEnv.requireTypeMirror(typeName)
+    private fun primitive(context: Context, typeName: TypeName): XType {
+        return context.processingEnv.requireType(typeName)
     }
 
     private fun getPrimaryKeys(connection: Connection, tableName: String): List<String> {

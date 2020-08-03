@@ -23,16 +23,11 @@ import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.PagingTypeNames
-import androidx.room.ext.asDeclaredType
-import androidx.room.ext.asExecutableElement
-import androidx.room.ext.asTypeElement
-import androidx.room.ext.getAllMethods
-import androidx.room.ext.getArrayType
-import androidx.room.ext.hasAnnotation
-import androidx.room.ext.requireTypeMirror
 import androidx.room.ext.typeName
 import androidx.room.parser.QueryType
 import androidx.room.parser.Table
+import androidx.room.processing.XDeclaredType
+import androidx.room.processing.XType
 import androidx.room.processor.ProcessorErrors.cannotFindQueryResultAdapter
 import androidx.room.solver.query.result.DataSourceFactoryQueryResultBinder
 import androidx.room.solver.query.result.ListQueryResultAdapter
@@ -71,8 +66,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import org.mockito.Mockito
-import javax.lang.model.type.DeclaredType
-import javax.lang.model.type.TypeMirror
 import javax.tools.JavaFileObject
 
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
@@ -113,7 +106,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """) { parsedQuery, _ ->
             assertThat(parsedQuery.name, `is`("foo"))
             assertThat(parsedQuery.parameters.size, `is`(0))
-            assertThat(parsedQuery.returnType.typeName(),
+            assertThat(parsedQuery.returnType.typeName,
                     `is`(ArrayTypeName.of(TypeName.INT) as TypeName))
         }.compilesWithoutError()
     }
@@ -126,13 +119,13 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 abstract public long foo(int x);
                 """) { parsedQuery, invocation ->
             assertThat(parsedQuery.name, `is`("foo"))
-            assertThat(parsedQuery.returnType.typeName(), `is`(TypeName.LONG))
+            assertThat(parsedQuery.returnType.typeName, `is`(TypeName.LONG))
             assertThat(parsedQuery.parameters.size, `is`(1))
             val param = parsedQuery.parameters.first()
             assertThat(param.name, `is`("x"))
             assertThat(param.sqlName, `is`("x"))
             assertThat(param.type,
-                    `is`(invocation.processingEnv.requireTypeMirror(TypeName.INT)))
+                    `is`(invocation.processingEnv.requireType(TypeName.INT)))
         }.compilesWithoutError()
     }
 
@@ -144,14 +137,14 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 abstract public long foo(int... ids);
                 """) { parsedQuery, invocation ->
             assertThat(parsedQuery.name, `is`("foo"))
-            assertThat(parsedQuery.returnType.typeName(), `is`(TypeName.LONG))
+            assertThat(parsedQuery.returnType.typeName, `is`(TypeName.LONG))
             assertThat(parsedQuery.parameters.size, `is`(1))
             val param = parsedQuery.parameters.first()
             assertThat(param.name, `is`("ids"))
             assertThat(param.sqlName, `is`("ids"))
             val env = invocation.processingEnv
             assertThat(param.type,
-                    `is`(env.getArrayType(TypeName.INT) as TypeMirror))
+                    `is`(env.getArrayType(TypeName.INT) as XType))
         }.compilesWithoutError()
     }
 
@@ -286,7 +279,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """) { parsedQuery, _ ->
             val expected: TypeName = ParameterizedTypeName.get(ClassName.get(List::class.java),
                     TypeVariableName.get("T"))
-            assertThat(parsedQuery.returnType.typeName(), `is`(expected))
+            assertThat(parsedQuery.returnType.typeName, `is`(expected))
         }.failsToCompile()
                 .withErrorContaining(ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_QUERY_METHODS)
     }
@@ -357,7 +350,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 static abstract class ExtendingModel extends BaseModel<Integer> {
                 }
                 """) { parsedQuery, _ ->
-            assertThat(parsedQuery.returnType.typeName(),
+            assertThat(parsedQuery.returnType.typeName,
                     `is`(ClassName.get(Integer::class.java) as TypeName))
         }.compilesWithoutError()
     }
@@ -376,7 +369,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """) { parsedQuery, invocation ->
             assertThat(parsedQuery.parameters.first().type,
                     `is`(invocation.processingEnv
-                            .requireTypeMirror("java.lang.Integer")))
+                            .requireType("java.lang.Integer")))
         }.compilesWithoutError()
     }
 
@@ -401,7 +394,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """) { parsedQuery, _ ->
             assertThat(parsedQuery.name, `is`("foo"))
             assertThat(parsedQuery.parameters.size, `is`(1))
-            assertThat(parsedQuery.returnType.typeName(), `is`(TypeName.INT))
+            assertThat(parsedQuery.returnType.typeName, `is`(TypeName.INT))
         }.compilesWithoutError()
     }
 
@@ -414,7 +407,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """) { parsedQuery, _ ->
             assertThat(parsedQuery.name, `is`("foo"))
             assertThat(parsedQuery.parameters.size, `is`(1))
-            assertThat(parsedQuery.returnType.typeName(), `is`(TypeName.VOID))
+            assertThat(parsedQuery.returnType.typeName, `is`(TypeName.VOID))
         }.compilesWithoutError()
     }
 
@@ -427,9 +420,9 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """) { parsedQuery, invocation ->
             assertThat(parsedQuery.name, `is`("updateAllNames"))
             assertThat(parsedQuery.parameters.size, `is`(1))
-            assertThat(parsedQuery.returnType.typeName(), `is`(TypeName.VOID))
-            assertThat(parsedQuery.parameters.first().type.typeName(),
-                    `is`(invocation.context.COMMON_TYPES.STRING.typeName()))
+            assertThat(parsedQuery.returnType.typeName, `is`(TypeName.VOID))
+            assertThat(parsedQuery.parameters.first().type.typeName,
+                    `is`(invocation.context.COMMON_TYPES.STRING.typeName))
         }.compilesWithoutError()
     }
 
@@ -442,9 +435,9 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """) { parsedQuery, invocation ->
             assertThat(parsedQuery.name, `is`("insertUsername"))
             assertThat(parsedQuery.parameters.size, `is`(1))
-            assertThat(parsedQuery.returnType.typeName(), `is`(TypeName.VOID))
-            assertThat(parsedQuery.parameters.first().type.typeName(),
-                `is`(invocation.context.COMMON_TYPES.STRING.typeName()))
+            assertThat(parsedQuery.returnType.typeName, `is`(TypeName.VOID))
+            assertThat(parsedQuery.parameters.first().type.typeName,
+                `is`(invocation.context.COMMON_TYPES.STRING.typeName))
         }.compilesWithoutError()
     }
 
@@ -457,9 +450,9 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """) { parsedQuery, invocation ->
             assertThat(parsedQuery.name, `is`("insertUsername"))
             assertThat(parsedQuery.parameters.size, `is`(1))
-            assertThat(parsedQuery.returnType.typeName(), `is`(TypeName.LONG))
-            assertThat(parsedQuery.parameters.first().type.typeName(),
-                `is`(invocation.context.COMMON_TYPES.STRING.typeName()))
+            assertThat(parsedQuery.returnType.typeName, `is`(TypeName.LONG))
+            assertThat(parsedQuery.parameters.first().type.typeName,
+                `is`(invocation.context.COMMON_TYPES.STRING.typeName))
         }.compilesWithoutError()
     }
 
@@ -470,7 +463,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 @Query("insert into user (name) values (:name)")
                 abstract public int insert(String name);
                 """) { parsedQuery, _ ->
-            assertThat(parsedQuery.returnType.typeName(), `is`(TypeName.INT))
+            assertThat(parsedQuery.returnType.typeName, `is`(TypeName.INT))
         }.failsToCompile().withErrorContaining(
             ProcessorErrors.cannotFindPreparedQueryResultAdapter("int", QueryType.INSERT)
         )
@@ -484,9 +477,9 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 abstract ${LifecyclesTypeNames.LIVE_DATA}<String> nameLiveData(String id);
                 """
         ) { parsedQuery, _ ->
-            assertThat(parsedQuery.returnType.typeName(),
+            assertThat(parsedQuery.returnType.typeName,
                     `is`(ParameterizedTypeName.get(LifecyclesTypeNames.LIVE_DATA,
-                            String::class.typeName()) as TypeName))
+                            String::class.typeName) as TypeName))
             assertThat(parsedQuery.queryResultBinder,
                     instanceOf(LiveDataQueryResultBinder::class.java))
         }.compilesWithoutError()
@@ -527,9 +520,9 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 nameDataSourceFactory();
                 """
         ) { parsedQuery, _ ->
-            assertThat(parsedQuery.returnType.typeName(),
+            assertThat(parsedQuery.returnType.typeName,
                     `is`(ParameterizedTypeName.get(PagingTypeNames.DATA_SOURCE_FACTORY,
-                            Integer::class.typeName(), String::class.typeName()) as TypeName))
+                            Integer::class.typeName, String::class.typeName) as TypeName))
             assertThat(parsedQuery.queryResultBinder,
                     instanceOf(DataSourceFactoryQueryResultBinder::class.java))
             val tableNames =
@@ -548,9 +541,9 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 nameDataSourceFactory();
                 """
         ) { parsedQuery, _ ->
-            assertThat(parsedQuery.returnType.typeName(),
+            assertThat(parsedQuery.returnType.typeName,
                     `is`(ParameterizedTypeName.get(PagingTypeNames.DATA_SOURCE_FACTORY,
-                            Integer::class.typeName(), String::class.typeName()) as TypeName))
+                            Integer::class.typeName, String::class.typeName) as TypeName))
             assertThat(parsedQuery.queryResultBinder,
                     instanceOf(DataSourceFactoryQueryResultBinder::class.java))
             val tableNames =
@@ -637,7 +630,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                 """) { parsedQuery, _ ->
             assertThat(parsedQuery.name, `is`("foo"))
             assertThat(parsedQuery.parameters.size, `is`(0))
-            assertThat(parsedQuery.returnType.typeName(),
+            assertThat(parsedQuery.returnType.typeName,
                     `is`(ArrayTypeName.of(TypeName.INT) as TypeName))
         }.compilesWithoutError()
     }
@@ -652,7 +645,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
             assertThat(
                 QueryMethodProcessor(
                     baseContext = invocation.context,
-                    containing = Mockito.mock(DeclaredType::class.java),
+                    containing = Mockito.mock(XDeclaredType::class.java),
                     executableElement = method.element,
                     dbVerifier = null
                 ).context.logger.suppressedWarnings,
@@ -985,9 +978,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                         .getElementsAnnotatedWith(Dao::class.java)
                         .map {
                             Pair(it,
-                                it.asTypeElement().getAllMethods(
-                                    invocation.processingEnv
-                                ).filter {
+                                it.asTypeElement().getAllMethods().filter {
                                     it.hasAnnotation(Query::class)
                                 }
                             )
@@ -1002,7 +993,7 @@ class QueryMethodProcessorTest(val enableVerification: Boolean) {
                     val parser = QueryMethodProcessor(
                         baseContext = invocation.context,
                         containing = owner.asDeclaredType(),
-                        executableElement = methods.first().asExecutableElement(),
+                        executableElement = methods.first(),
                         dbVerifier = verifier
                     )
                     val parsedQuery = parser.process()

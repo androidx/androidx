@@ -23,20 +23,19 @@ import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
 import androidx.room.ext.T
-import androidx.room.ext.typeName
+import androidx.room.processing.XType
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.RxType
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import javax.lang.model.element.Modifier
-import javax.lang.model.type.TypeMirror
 
 /**
  * Generic Result binder for Rx classes that accept a callable.
  */
 internal class RxCallableQueryResultBinder(
     private val rxType: RxType,
-    val typeArg: TypeMirror,
+    val typeArg: XType,
     adapter: QueryResultAdapter?
 ) : QueryResultBinder(adapter) {
     override fun convertAndReturn(
@@ -46,7 +45,7 @@ internal class RxCallableQueryResultBinder(
         inTransaction: Boolean,
         scope: CodeGenScope
     ) {
-        val callable = CallableTypeSpecBuilder(typeArg.typeName()) {
+        val callable = CallableTypeSpecBuilder(typeArg.typeName) {
             fillInCallMethod(
                 roomSQLiteQueryVar = roomSQLiteQueryVar,
                 dbField = dbField,

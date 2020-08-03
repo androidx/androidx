@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2016 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,11 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.room.vo
+package androidx.room.ext
 
-import androidx.room.processing.XMethodElement
+import androidx.room.processing.XElement
+import androidx.room.processing.XTypeElement
+import kotlin.contracts.contract
+
+fun XElement.isEntityElement(): Boolean {
+    contract {
+        returns(true) implies (this@isEntityElement is XTypeElement)
+    }
+    return this.hasAnnotation(androidx.room.Entity::class)
+}
 
 /**
- * References a method that returns a dao in a Database
+ * Suffix of the Kotlin synthetic class created interface method implementations.
  */
-data class DaoMethod(val element: XMethodElement, val name: String, val dao: Dao)
+const val DEFAULT_IMPLS_CLASS_NAME = "DefaultImpls"

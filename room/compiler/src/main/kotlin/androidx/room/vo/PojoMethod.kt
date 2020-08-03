@@ -16,14 +16,14 @@
 
 package androidx.room.vo
 
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.type.ExecutableType
+import androidx.room.processing.XMethodElement
+import androidx.room.processing.XMethodType
 
 /**
  * An executable element processed as member of a class (pojo or entity)
  */
 class PojoMethod(
-    val element: ExecutableElement,
-    val resolvedType: ExecutableType,
+    val element: XMethodElement,
+    val resolvedType: XMethodType,
     val name: String
 )

@@ -33,7 +33,6 @@
 package androidx.room.processor
 
 import androidx.room.FtsOptions
-import androidx.room.ext.requireTypeMirror
 import androidx.room.parser.FtsVersion
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.vo.CallType
@@ -42,7 +41,6 @@ import androidx.room.vo.FieldGetter
 import androidx.room.vo.FieldSetter
 import androidx.room.vo.Fields
 import com.squareup.javapoet.TypeName
-import org.hamcrest.CoreMatchers
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
@@ -64,16 +62,17 @@ class Fts3TableEntityProcessorTest : BaseFtsEntityParserTest() {
                 public void setRowId(int id) { this.rowId = rowId; }
             """
         ) { entity, invocation ->
-            assertThat(entity.type.toString(), CoreMatchers.`is`("foo.bar.MyEntity"))
-            assertThat(entity.fields.size, CoreMatchers.`is`(1))
+            assertThat(entity.type.toString(), `is`("foo.bar.MyEntity"))
+            assertThat(entity.fields.size, `is`(1))
             val field = entity.fields.first()
-            val intType = invocation.processingEnv.requireTypeMirror(TypeName.INT)
-            assertThat(field, CoreMatchers.`is`(Field(
+            val intType = invocation.processingEnv.requireType(TypeName.INT)
+            assertThat(field, `is`(Field(
                     element = field.element,
                     name = "rowId",
                     type = intType,
                     columnName = "rowid",
-                    affinity = SQLTypeAffinity.INTEGER)))
+                    affinity = SQLTypeAffinity.INTEGER))
+            )
             assertThat(field.setter, `is`(FieldSetter("setRowId", intType, CallType.METHOD)))
             assertThat(field.getter, `is`(FieldGetter("getRowId", intType, CallType.METHOD)))
             assertThat(entity.primaryKey.fields, `is`(Fields(field)))
