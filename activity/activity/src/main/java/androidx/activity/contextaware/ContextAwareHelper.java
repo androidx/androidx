@@ -17,10 +17,8 @@
 package androidx.activity.contextaware;
 
 import android.content.Context;
-import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -31,22 +29,17 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * {@link #removeOnContextAvailableListener(OnContextAvailableListener)} as the respective
  * methods of {@link ContextAware} are called.
  * <p>
- * You must call {@link #dispatchOnContextAvailable(Context, Bundle)} once the
+ * You must call {@link #dispatchOnContextAvailable(Context)} once the
  * {@link Context} is available to dispatch the callbacks to all registered listeners.
  */
 public final class ContextAwareHelper {
 
-    private final ContextAware mContextAware;
-
     private final Set<OnContextAvailableListener> mListeners = new CopyOnWriteArraySet<>();
 
     /**
-     * Construct a new ContextAwareHelper for the given {@link ContextAware} instance.
-     *
-     * @param contextAware The ContextAware instance that listeners are being added to.
+     * Construct a new ContextAwareHelper.
      */
-    public ContextAwareHelper(@NonNull ContextAware contextAware) {
-        mContextAware = contextAware;
+    public ContextAwareHelper() {
     }
 
     /**
@@ -76,12 +69,10 @@ public final class ContextAwareHelper {
      * all currently added listeners in the order they were added.
      *
      * @param context The {@link Context} the {@link ContextAware} object is now associated with.
-     * @param savedInstanceState The saved instance state, if any.
      */
-    public void dispatchOnContextAvailable(@NonNull Context context,
-            @Nullable Bundle savedInstanceState) {
+    public void dispatchOnContextAvailable(@NonNull Context context) {
         for (OnContextAvailableListener listener : mListeners) {
-            listener.onContextAvailable(mContextAware, context, savedInstanceState);
+            listener.onContextAvailable(context);
         }
     }
 }
