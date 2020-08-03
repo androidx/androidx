@@ -98,11 +98,48 @@ public enum WebViewFeatureInternal implements ConditionallySupportedFeature {
             Build.VERSION_CODES.O_MR1),
 
     /**
-     * This feature covers
-     * {@link androidx.webkit.WebViewCompat#setSafeBrowsingWhitelist(List, ValueCallback)}.
+     * This feature covers {@link androidx.webkit.WebViewCompat#setSafeBrowsingWhitelist(Set,
+     * ValueCallback)}, plumbing through the deprecated boundary interface.
+     *
+     * <p>Don't use this value directly. This exists only so {@link WebViewFeature#isSupported}
+     * supports the <b>deprecated</b> public feature when running against <b>old</b> WebView
+     * versions.
+     *
+     * @deprecated use {@link #SAFE_BROWSING_ALLOWLIST_PREFERRED_TO_DEPRECATED} to test for the
+     * <b>old</b> boundary interface
      */
-    SAFE_BROWSING_WHITELIST(WebViewFeature.SAFE_BROWSING_WHITELIST,
+    @Deprecated
+    SAFE_BROWSING_ALLOWLIST_DEPRECATED_TO_DEPRECATED(WebViewFeature.SAFE_BROWSING_WHITELIST,
             Features.SAFE_BROWSING_WHITELIST, Build.VERSION_CODES.O_MR1),
+
+    /**
+     * This feature covers {@link androidx.webkit.WebViewCompat#setSafeBrowsingWhitelist(Set,
+     * ValueCallback)}, plumbing through the new boundary interface.
+     *
+     * <p>Don't use this value directly. This exists only so {@link WebViewFeature#isSupported}
+     * supports the <b>deprecated</b> public feature when running against <b>new</b> WebView
+     * versions.
+     *
+     * @deprecated use {@link #SAFE_BROWSING_ALLOWLIST_PREFERRED_TO_PREFERRED} to test for the
+     * <b>new</b> boundary interface.
+     */
+    @Deprecated
+    SAFE_BROWSING_ALLOWLIST_DEPRECATED_TO_PREFERRED(WebViewFeature.SAFE_BROWSING_WHITELIST,
+            Features.SAFE_BROWSING_ALLOWLIST, Build.VERSION_CODES.O_MR1),
+
+    /**
+     * This feature covers {@link androidx.webkit.WebViewCompat#setSafeBrowsingAllowlist(Set,
+     * ValueCallback)}, plumbing through the deprecated boundary interface.
+     */
+    SAFE_BROWSING_ALLOWLIST_PREFERRED_TO_DEPRECATED(WebViewFeature.SAFE_BROWSING_ALLOWLIST,
+            Features.SAFE_BROWSING_WHITELIST, Build.VERSION_CODES.O_MR1),
+
+    /**
+     * This feature covers {@link androidx.webkit.WebViewCompat#setSafeBrowsingAllowlist(Set,
+     * ValueCallback)}, plumbing through the new boundary interface.
+     */
+    SAFE_BROWSING_ALLOWLIST_PREFERRED_TO_PREFERRED(WebViewFeature.SAFE_BROWSING_ALLOWLIST,
+            Features.SAFE_BROWSING_ALLOWLIST, Build.VERSION_CODES.O_MR1),
 
     /**
      * This feature covers

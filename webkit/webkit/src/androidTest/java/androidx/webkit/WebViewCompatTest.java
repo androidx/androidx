@@ -49,8 +49,8 @@ import org.junit.runner.RunWith;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -191,13 +191,13 @@ public class WebViewCompatTest {
      */
     @Test
     public void testSetSafeBrowsingAllowlistWithMalformedList() throws Exception {
-        WebkitUtils.checkFeature(WebViewFeature.SAFE_BROWSING_WHITELIST);
+        WebkitUtils.checkFeature(WebViewFeature.SAFE_BROWSING_ALLOWLIST);
 
-        List<String> allowlist = new ArrayList<>();
+        Set<String> allowlist = new HashSet<>();
         // Protocols are not supported in the allowlist
         allowlist.add("http://google.com");
         final ResolvableFuture<Boolean> safeBrowsingAllowlistFuture = ResolvableFuture.create();
-        WebViewCompat.setSafeBrowsingWhitelist(allowlist, new ValueCallback<Boolean>() {
+        WebViewCompat.setSafeBrowsingAllowlist(allowlist, new ValueCallback<Boolean>() {
             @Override
             public void onReceiveValue(Boolean success) {
                 safeBrowsingAllowlistFuture.set(success);
@@ -213,14 +213,14 @@ public class WebViewCompatTest {
      */
     @Test
     public void testSetSafeBrowsingAllowlistWithValidList() throws Exception {
-        WebkitUtils.checkFeature(WebViewFeature.SAFE_BROWSING_WHITELIST);
+        WebkitUtils.checkFeature(WebViewFeature.SAFE_BROWSING_ALLOWLIST);
         // This test relies on the onSafeBrowsingHit callback to verify correctness.
         WebkitUtils.checkFeature(WebViewFeature.SAFE_BROWSING_HIT);
 
-        List<String> allowlist = new ArrayList<>();
+        Set<String> allowlist = new HashSet<>();
         allowlist.add("safe-browsing");
         final ResolvableFuture<Boolean> safeBrowsingAllowlistFuture = ResolvableFuture.create();
-        WebViewCompat.setSafeBrowsingWhitelist(allowlist, new ValueCallback<Boolean>() {
+        WebViewCompat.setSafeBrowsingAllowlist(allowlist, new ValueCallback<Boolean>() {
             @Override
             public void onReceiveValue(Boolean success) {
                 safeBrowsingAllowlistFuture.set(success);

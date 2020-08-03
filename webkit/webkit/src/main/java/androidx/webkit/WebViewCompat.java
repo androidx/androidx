@@ -45,6 +45,8 @@ import org.chromium.support_lib_boundary.WebViewProviderBoundaryInterface;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -216,6 +218,61 @@ public class WebViewCompat {
     }
 
     /**
+     * Configures a set of hosts (domain names/IP addresses) that are exempt from SafeBrowsing
+     * checks. The set is global for all the WebViews.
+     * <p>
+     * Each rule should take one of these:
+     * <table>
+     * <tr><th> Rule </th> <th> Example </th> <th> Matches Subdomain</th> </tr>
+     * <tr><td> HOSTNAME </td> <td> example.com </td> <td> Yes </td> </tr>
+     * <tr><td> .HOSTNAME </td> <td> .example.com </td> <td> No </td> </tr>
+     * <tr><td> IPV4_LITERAL </td> <td> 192.168.1.1 </td> <td> No </td></tr>
+     * <tr><td> IPV6_LITERAL_WITH_BRACKETS </td><td>[10:20:30:40:50:60:70:80]</td><td>No</td></tr>
+     * </table>
+     * <p>
+     * All other rules, including wildcards, are invalid.
+     * <p>
+     * The correct syntax for hosts is defined by <a
+     * href="https://tools.ietf.org/html/rfc3986#section-3.2.2">RFC 3986</a>.
+     *
+     * <p>
+     * This method should only be called if
+     * {@link WebViewFeature#isFeatureSupported(String)}
+     * returns true for {@link WebViewFeature#SAFE_BROWSING_ALLOWLIST}.
+     *
+     * @param hosts the set of hosts for which to skip Safe Browsing checks
+     * @param callback will be called with {@code true} if hosts are successfully added to the
+     * allowlist, {@code false} if any hosts are malformed. The callback will be run on the UI
+     * thread
+     *
+     * @hide
+     */
+    // TODO(b/160326030): unhide this API and deprecate setSafeBrowsingWhitelist
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @SuppressLint("NewApi")
+    @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_ALLOWLIST,
+            enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
+    public static void setSafeBrowsingAllowlist(@NonNull Set<String> hosts,
+            @Nullable ValueCallback<Boolean> callback) {
+        WebViewFeatureInternal preferredFeature =
+                WebViewFeatureInternal.SAFE_BROWSING_ALLOWLIST_PREFERRED_TO_PREFERRED;
+        WebViewFeatureInternal deprecatedFeature =
+                WebViewFeatureInternal.SAFE_BROWSING_ALLOWLIST_PREFERRED_TO_DEPRECATED;
+        if (preferredFeature.isSupportedByWebView()) {
+            getFactory().getStatics().setSafeBrowsingAllowlist(hosts, callback);
+            return;
+        }
+        List<String> hostsList = new ArrayList<>(hosts);
+        if (deprecatedFeature.isSupportedByFramework()) {
+            WebView.setSafeBrowsingWhitelist(hostsList, callback);
+        } else if (deprecatedFeature.isSupportedByWebView()) {
+            getFactory().getStatics().setSafeBrowsingWhitelist(hostsList, callback);
+        } else {
+            throw WebViewFeatureInternal.getUnsupportedOperationException();
+        }
+    }
+
+    /**
      * Sets the list of hosts (domain names/IP addresses) that are exempt from SafeBrowsing checks.
      * The list is global for all the WebViews.
      * <p>
@@ -240,22 +297,16 @@ public class WebViewCompat {
      *
      * @param hosts the list of hosts
      * @param callback will be called with {@code true} if hosts are successfully added to the
-     * whitelist. It will be called with {@code false} if any hosts are malformed. The callback
+     * allowlist. It will be called with {@code false} if any hosts are malformed. The callback
      * will be run on the UI thread
      */
+    // TODO(b/160326030): unhide setSafeBrowsingAllowlist and deprecate this API
     @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_WHITELIST,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setSafeBrowsingWhitelist(@NonNull List<String> hosts,
             @Nullable ValueCallback<Boolean> callback) {
-        WebViewFeatureInternal feature = WebViewFeatureInternal.SAFE_BROWSING_WHITELIST;
-        if (feature.isSupportedByFramework()) {
-            WebView.setSafeBrowsingWhitelist(hosts, callback);
-        } else if (feature.isSupportedByWebView()) {
-            getFactory().getStatics().setSafeBrowsingWhitelist(hosts, callback);
-        } else {
-            throw WebViewFeatureInternal.getUnsupportedOperationException();
-        }
+        setSafeBrowsingAllowlist(new HashSet<>(hosts), callback);
     }
 
     /**
