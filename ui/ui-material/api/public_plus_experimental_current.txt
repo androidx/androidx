@@ -77,7 +77,7 @@ package androidx.compose.material {
   }
 
   public final class CardKt {
-    method @androidx.compose.runtime.Composable public static void Card-bO96-ZE(androidx.compose.ui.Modifier modifier = Modifier, androidx.compose.ui.graphics.Shape shape = medium, long color = MaterialTheme.colors.surface, long contentColor = contentColorFor(color), androidx.compose.foundation.Border? border = null, float elevation = 1.dp, kotlin.jvm.functions.Function0<kotlin.Unit> content);
+    method @androidx.compose.runtime.Composable public static void Card-bO96-ZE(androidx.compose.ui.Modifier modifier = Modifier, androidx.compose.ui.graphics.Shape shape = medium, long backgroundColor = MaterialTheme.colors.surface, long contentColor = contentColorFor(backgroundColor), androidx.compose.foundation.Border? border = null, float elevation = 1.dp, kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
   public final class CheckboxKt {
