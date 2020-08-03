@@ -16,8 +16,8 @@
 
 package androidx.room.solver
 
-import androidx.room.processing.XProcessingEnv
-import androidx.room.processing.XType
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XType
 import androidx.room.processor.Context
 import androidx.room.testing.TestInvocation
 import com.squareup.javapoet.ClassName

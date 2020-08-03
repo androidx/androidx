@@ -22,9 +22,9 @@ import androidx.room.FtsOptions.MatchInfo
 import androidx.room.FtsOptions.Order
 import androidx.room.parser.FtsVersion
 import androidx.room.parser.SQLTypeAffinity
-import androidx.room.processing.XAnnotationBox
-import androidx.room.processing.XType
-import androidx.room.processing.XTypeElement
+import androidx.room.compiler.processing.XAnnotationBox
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.processor.EntityProcessor.Companion.extractForeignKeys
 import androidx.room.processor.EntityProcessor.Companion.extractIndices
 import androidx.room.processor.EntityProcessor.Companion.extractTableName

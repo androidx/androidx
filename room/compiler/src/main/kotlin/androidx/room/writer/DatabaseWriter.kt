@@ -25,8 +25,8 @@ import androidx.room.ext.S
 import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.T
 import androidx.room.ext.typeName
-import androidx.room.processing.MethodSpecHelper
-import androidx.room.processing.addOriginatingElement
+import androidx.room.compiler.processing.MethodSpecHelper
+import androidx.room.compiler.processing.addOriginatingElement
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.DaoMethod
 import androidx.room.vo.Database

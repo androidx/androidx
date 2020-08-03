@@ -16,9 +16,9 @@
 
 package androidx.room.testing
 
-import androidx.room.processing.XProcessingEnv
-import androidx.room.processing.XRoundEnv
-import androidx.room.processing.XTypeElement
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XRoundEnv
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.processor.Context
 import javax.annotation.processing.RoundEnvironment
 

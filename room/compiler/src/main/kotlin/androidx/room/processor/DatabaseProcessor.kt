@@ -18,11 +18,11 @@ package androidx.room.processor
 
 import androidx.room.SkipQueryVerification
 import androidx.room.ext.RoomTypeNames
-import androidx.room.processing.XAnnotationBox
-import androidx.room.processing.XElement
-import androidx.room.processing.XType
-import androidx.room.processing.XTypeElement
-import androidx.room.processing.isType
+import androidx.room.compiler.processing.XAnnotationBox
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.isType
 import androidx.room.verifier.DatabaseVerificationErrors
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.Dao

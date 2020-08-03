@@ -22,7 +22,7 @@ import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames.ROOM_DB_KT
 import androidx.room.ext.T
-import androidx.room.processing.XType
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.transaction.result.TransactionMethodAdapter
 import com.squareup.javapoet.ClassName

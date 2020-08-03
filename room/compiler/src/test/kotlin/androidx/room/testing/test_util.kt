@@ -26,9 +26,9 @@ import androidx.room.ext.RoomRxJava2TypeNames
 import androidx.room.ext.RoomRxJava3TypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
-import androidx.room.processing.XElement
-import androidx.room.processing.XType
-import androidx.room.processing.XVariableElement
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XVariableElement
 import androidx.room.processor.DatabaseViewProcessor
 import androidx.room.processor.TableEntityProcessor
 import androidx.room.solver.CodeGenScope

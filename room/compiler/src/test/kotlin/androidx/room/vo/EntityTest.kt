@@ -16,10 +16,10 @@
 
 package androidx.room.vo
 
-import androidx.room.processing.XConstructorElement
-import androidx.room.processing.XDeclaredType
-import androidx.room.processing.XElement
-import androidx.room.processing.XTypeElement
+import androidx.room.compiler.processing.XConstructorElement
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XTypeElement
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test

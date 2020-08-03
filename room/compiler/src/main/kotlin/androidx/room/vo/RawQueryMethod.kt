@@ -18,8 +18,8 @@ package androidx.room.vo
 
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.SupportDbTypeNames
-import androidx.room.processing.XMethodElement
-import androidx.room.processing.XType
+import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.query.result.QueryResultBinder
 import com.squareup.javapoet.TypeName
 

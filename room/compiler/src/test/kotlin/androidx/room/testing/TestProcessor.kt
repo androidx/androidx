@@ -16,9 +16,9 @@
 
 package androidx.room.testing
 
-import androidx.room.processing.JavacTestProcessor
-import androidx.room.processing.XRoundEnv
-import androidx.room.processing.XTypeElement
+import androidx.room.compiler.processing.JavacTestProcessor
+import androidx.room.compiler.processing.XRoundEnv
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.processor.Context
 import javax.lang.model.SourceVersion
 import kotlin.reflect.KClass

@@ -19,8 +19,8 @@ package androidx.room.vo
 import androidx.room.migration.bundle.BundleUtil
 import androidx.room.migration.bundle.DatabaseViewBundle
 import androidx.room.parser.ParsedQuery
-import androidx.room.processing.XDeclaredType
-import androidx.room.processing.XTypeElement
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XTypeElement
 
 class DatabaseView(
     element: XTypeElement,

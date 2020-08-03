@@ -16,8 +16,8 @@
 package androidx.room.processor
 
 import androidx.room.Delete
-import androidx.room.processing.XDeclaredType
-import androidx.room.processing.XMethodElement
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XMethodElement
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_DELETE_RESULT_ADAPTER
 import androidx.room.processor.ProcessorErrors.DELETION_MISSING_PARAMS
 import androidx.room.vo.DeletionMethod

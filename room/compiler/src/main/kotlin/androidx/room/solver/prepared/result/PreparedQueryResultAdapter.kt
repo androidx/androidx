@@ -21,7 +21,7 @@ import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.T
 import androidx.room.parser.QueryType
-import androidx.room.processing.XType
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 import com.squareup.javapoet.FieldSpec

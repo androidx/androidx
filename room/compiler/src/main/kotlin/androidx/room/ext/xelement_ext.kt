@@ -16,9 +16,9 @@
 
 package androidx.room.ext
 
-import androidx.room.processing.XElement
-import androidx.room.processing.XTypeElement
 import kotlin.contracts.contract
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XTypeElement
 
 fun XElement.isEntityElement(): Boolean {
     contract {

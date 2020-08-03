@@ -21,8 +21,8 @@ import androidx.room.RoomProcessor
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.QueryType
 import androidx.room.parser.Table
-import androidx.room.processing.XDeclaredType
-import androidx.room.processing.XTypeElement
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.solver.query.result.EntityRowAdapter
 import androidx.room.solver.query.result.PojoRowAdapter
 import androidx.room.testing.TestInvocation

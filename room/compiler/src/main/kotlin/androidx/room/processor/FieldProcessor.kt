@@ -19,8 +19,8 @@ package androidx.room.processor
 import androidx.room.ColumnInfo
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
-import androidx.room.processing.XDeclaredType
-import androidx.room.processing.XVariableElement
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XVariableElement
 import androidx.room.vo.EmbeddedField
 import androidx.room.vo.Field
 import java.util.Locale

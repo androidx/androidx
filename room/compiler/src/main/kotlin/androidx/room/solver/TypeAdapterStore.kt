@@ -21,10 +21,10 @@ import androidx.room.ext.GuavaBaseTypeNames
 import androidx.room.ext.isEntityElement
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.SQLTypeAffinity
-import androidx.room.processing.XType
-import androidx.room.processing.asDeclaredType
-import androidx.room.processing.isArray
-import androidx.room.processing.isDeclared
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.asDeclaredType
+import androidx.room.compiler.processing.isArray
+import androidx.room.compiler.processing.isDeclared
 import androidx.room.processor.Context
 import androidx.room.processor.EntityProcessor
 import androidx.room.processor.FieldProcessor

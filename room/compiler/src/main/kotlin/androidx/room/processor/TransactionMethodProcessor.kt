@@ -20,8 +20,8 @@ import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
-import androidx.room.processing.XDeclaredType
-import androidx.room.processing.XMethodElement
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XMethodElement
 import androidx.room.vo.TransactionMethod
 
 class TransactionMethodProcessor(

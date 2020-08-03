@@ -21,9 +21,9 @@ import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.T
 import androidx.room.ext.typeName
-import androidx.room.processing.XType
-import androidx.room.processing.asDeclaredType
-import androidx.room.processing.isArray
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.asDeclaredType
+import androidx.room.compiler.processing.isArray
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.ShortcutQueryParameter
 import com.squareup.javapoet.ArrayTypeName

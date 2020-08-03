@@ -17,10 +17,10 @@
 package androidx.room.processor.autovalue
 
 import androidx.room.Ignore
-import androidx.room.processing.XDeclaredType
-import androidx.room.processing.XExecutableElement
-import androidx.room.processing.XTypeElement
-import androidx.room.processing.isType
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XExecutableElement
+import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.isType
 import androidx.room.processor.Context
 import androidx.room.processor.PojoProcessor
 import androidx.room.processor.PojoProcessor.Companion.TARGET_METHOD_ANNOTATIONS

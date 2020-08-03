@@ -16,11 +16,11 @@
 
 package androidx.room.processor
 
-import androidx.room.processing.XDeclaredType
-import androidx.room.processing.XType
-import androidx.room.processing.XVariableElement
-import androidx.room.processing.asDeclaredType
-import androidx.room.processing.isArray
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XVariableElement
+import androidx.room.compiler.processing.asDeclaredType
+import androidx.room.compiler.processing.isArray
 import androidx.room.vo.ShortcutQueryParameter
 
 /**

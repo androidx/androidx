@@ -22,10 +22,10 @@ import androidx.room.ext.N
 import androidx.room.ext.RoomCoroutinesTypeNames
 import androidx.room.ext.T
 import androidx.room.parser.ParsedQuery
-import androidx.room.processing.XDeclaredType
-import androidx.room.processing.XMethodElement
-import androidx.room.processing.XType
-import androidx.room.processing.XVariableElement
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XVariableElement
 import androidx.room.solver.prepared.binder.CallablePreparedQueryResultBinder.Companion.createPreparedBinder
 import androidx.room.solver.prepared.binder.PreparedQueryResultBinder
 import androidx.room.solver.query.result.CoroutineResultBinder

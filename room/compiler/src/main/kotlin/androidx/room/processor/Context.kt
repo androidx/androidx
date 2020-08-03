@@ -21,9 +21,9 @@ import androidx.room.log.RLog
 import androidx.room.parser.expansion.ProjectionExpander
 import androidx.room.parser.optimization.RemoveUnusedColumnQueryRewriter
 import androidx.room.preconditions.Checks
-import androidx.room.processing.XElement
-import androidx.room.processing.XProcessingEnv
-import androidx.room.processing.XType
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XType
 import androidx.room.processor.cache.Cache
 import androidx.room.solver.TypeAdapterStore
 import androidx.room.verifier.DatabaseVerifier

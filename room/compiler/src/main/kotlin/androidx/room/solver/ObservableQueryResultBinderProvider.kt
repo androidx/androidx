@@ -17,8 +17,8 @@
 package androidx.room.solver
 
 import androidx.room.parser.ParsedQuery
-import androidx.room.processing.XDeclaredType
-import androidx.room.processing.XType
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.query.result.QueryResultAdapter

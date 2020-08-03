@@ -16,8 +16,8 @@
 
 package androidx.room.vo
 
-import androidx.room.processing.XMethodElement
-import androidx.room.processing.XType
+import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XType
 import com.squareup.javapoet.TypeName
 
 /**

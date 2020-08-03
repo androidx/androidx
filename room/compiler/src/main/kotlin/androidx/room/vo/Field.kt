@@ -19,9 +19,9 @@ package androidx.room.vo
 import androidx.room.migration.bundle.FieldBundle
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
-import androidx.room.processing.XElement
-import androidx.room.processing.XType
-import androidx.room.processing.XVariableElement
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XVariableElement
 import androidx.room.solver.types.CursorValueReader
 import androidx.room.solver.types.StatementValueBinder
 import com.squareup.javapoet.TypeName

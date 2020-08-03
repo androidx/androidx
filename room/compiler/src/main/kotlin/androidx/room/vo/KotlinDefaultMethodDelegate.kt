@@ -16,7 +16,7 @@
 
 package androidx.room.vo
 
-import androidx.room.processing.XMethodElement
+import androidx.room.compiler.processing.XMethodElement
 
 /**
  * Represents a DAO method that delegates to a concrete implementation, such as a concrete function

@@ -30,8 +30,8 @@ import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
 import androidx.room.ext.T
 import androidx.room.parser.SQLTypeAffinity
-import androidx.room.processing.XProcessingEnv
-import androidx.room.processing.asDeclaredType
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.asDeclaredType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.binderprovider.DataSourceFactoryQueryResultBinderProvider

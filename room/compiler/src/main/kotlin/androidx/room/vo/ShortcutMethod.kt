@@ -16,7 +16,7 @@
 
 package androidx.room.vo
 
-import androidx.room.processing.XMethodElement
+import androidx.room.compiler.processing.XMethodElement
 import androidx.room.solver.shortcut.binder.DeleteOrUpdateMethodBinder
 
 /**

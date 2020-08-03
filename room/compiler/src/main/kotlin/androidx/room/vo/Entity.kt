@@ -18,8 +18,8 @@ package androidx.room.vo
 
 import androidx.room.migration.bundle.BundleUtil
 import androidx.room.migration.bundle.EntityBundle
-import androidx.room.processing.XDeclaredType
-import androidx.room.processing.XTypeElement
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XTypeElement
 
 /**
  * A Pojo with a mapping SQLite table.

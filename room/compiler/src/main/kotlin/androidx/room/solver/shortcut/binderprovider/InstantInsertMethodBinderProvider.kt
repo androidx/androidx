@@ -16,7 +16,7 @@
 
 package androidx.room.solver.shortcut.binderprovider
 
-import androidx.room.processing.XDeclaredType
+import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.processor.Context
 import androidx.room.solver.shortcut.binder.InsertMethodBinder
 import androidx.room.solver.shortcut.binder.InstantInsertMethodBinder

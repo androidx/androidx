@@ -19,8 +19,8 @@ package androidx.room.processor
 import androidx.room.OnConflictStrategy.IGNORE
 import androidx.room.OnConflictStrategy.REPLACE
 import androidx.room.Update
-import androidx.room.processing.XDeclaredType
-import androidx.room.processing.XMethodElement
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XMethodElement
 import androidx.room.vo.UpdateMethod
 import androidx.room.vo.findFieldByColumnName
 
