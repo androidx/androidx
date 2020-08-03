@@ -30,9 +30,9 @@ public interface ContextAware {
      * Add a new {@link OnContextAvailableListener} for receiving a callback for when
      * this class is associated with a {@link android.content.Context}.
      * <p>
-     * This will only receive a callback when associated with a new Context: no callback
-     * will be triggered if this is already associated with a Context. Listeners are
-     * triggered in the order they are added.
+     * Listeners are triggered in the order they are added when added before the Context is
+     * available. Listeners added after the context has been made available will have the Context
+     * synchronously delivered to them as part of this call.
      *
      * @param listener The listener that should be added.
      * @see #removeOnContextAvailableListener(OnContextAvailableListener)

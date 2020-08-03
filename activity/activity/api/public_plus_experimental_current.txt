@@ -57,6 +57,7 @@ package androidx.activity.contextaware {
   public final class ContextAwareHelper {
     ctor public ContextAwareHelper();
     method public void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+    method public void clearAvailableContext();
     method public void dispatchOnContextAvailable(android.content.Context);
     method public void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
   }

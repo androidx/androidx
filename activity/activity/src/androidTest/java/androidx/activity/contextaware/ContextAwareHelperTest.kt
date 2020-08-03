@@ -78,6 +78,31 @@ class ContextAwareHelperTest {
 
         assertThat(callbackCount).isEqualTo(0)
     }
+
+    @Test
+    fun postAvailableAddOnContextAvailableListener() {
+        contextAware.dispatchOnContextAvailable()
+        var callbackCount = 0
+        val listener = OnContextAvailableListener {
+            callbackCount++
+        }
+        contextAware.addOnContextAvailableListener(listener)
+
+        assertThat(callbackCount).isEqualTo(1)
+    }
+
+    @Test
+    fun postClearAddOnContextAvailableListener() {
+        contextAware.dispatchOnContextAvailable()
+        contextAware.clearAvailableContext()
+        var callbackCount = 0
+        val listener = OnContextAvailableListener {
+            callbackCount++
+        }
+        contextAware.addOnContextAvailableListener(listener)
+
+        assertThat(callbackCount).isEqualTo(0)
+    }
 }
 
 class TestContextAware : ContextAware {
@@ -95,5 +120,9 @@ class TestContextAware : ContextAware {
         contextAwareHelper.dispatchOnContextAvailable(
             ApplicationProvider.getApplicationContext()
         )
+    }
+
+    fun clearAvailableContext() {
+        contextAwareHelper.clearAvailableContext()
     }
 }
