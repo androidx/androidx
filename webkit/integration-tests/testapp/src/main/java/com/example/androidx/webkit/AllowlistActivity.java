@@ -16,12 +16,14 @@
 
 package com.example.androidx.webkit;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.widget.CompoundButton;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
@@ -30,8 +32,9 @@ import androidx.webkit.WebViewClientCompat;
 import androidx.webkit.WebViewCompat;
 import androidx.webkit.WebViewFeature;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * An {@link Activity} to demonstrate how to allowlist a set of domains from Safe Browsing checks.
@@ -48,7 +51,7 @@ public class AllowlistActivity extends AppCompatActivity {
         setTitle(R.string.allowlist_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
-        if (!WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_WHITELIST)) {
+        if (!isSafeBrowsingAllowlistSupported()) {
             WebkitHelpers.showMessageInActivity(this, R.string.webkit_api_not_available);
             return;
         }
@@ -99,11 +102,25 @@ public class AllowlistActivity extends AppCompatActivity {
         }
     }
 
+    // TODO(b/160326030): remove SuppressLint and inline when we unhide
+    // WebViewCompat.setSafeBrowsingAllowlist
+    @SuppressLint("RestrictedApi")
+    private void setSafeBrowsingAllowlist(@NonNull Set<String> hosts,
+            @Nullable ValueCallback<Boolean> callback) {
+        WebViewCompat.setSafeBrowsingAllowlist(hosts, callback);
+    }
+
+    // TODO(b/160326030): remove SuppressLint and inline when we unhide
+    // WebViewCompat.setSafeBrowsingAllowlist
+    @SuppressLint("RestrictedApi")
+    private boolean isSafeBrowsingAllowlistSupported() {
+        return WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_ALLOWLIST);
+    }
+
     private void clearAllowlist() {
         // To clear the allowlist (and check all domains with Safe Browsing), pass an empty list.
-        final List<String> emptyAllowlist = new ArrayList<>();
         final Activity activity = this;
-        WebViewCompat.setSafeBrowsingWhitelist(emptyAllowlist, new ValueCallback<Boolean>() {
+        setSafeBrowsingAllowlist(Collections.emptySet(), new ValueCallback<Boolean>() {
             @Override
             public void onReceiveValue(Boolean success) {
                 if (!success) {
@@ -117,10 +134,10 @@ public class AllowlistActivity extends AppCompatActivity {
     private void allowlistSafeBrowsingTestSite(@Nullable Runnable onSuccess) {
         // Configure an allowlist of domains. Pages/resources loaded from these domains will never
         // be checked by Safe Browsing (until a new allowlist is applied).
-        final List<String> allowlist = new ArrayList<>();
+        final Set<String> allowlist = new HashSet<>();
         allowlist.add(SafeBrowsingHelpers.TEST_SAFE_BROWSING_DOMAIN);
         final Activity activity = this;
-        WebViewCompat.setSafeBrowsingWhitelist(allowlist, new ValueCallback<Boolean>() {
+        setSafeBrowsingAllowlist(allowlist, new ValueCallback<Boolean>() {
             @Override
             public void onReceiveValue(Boolean success) {
                 if (success) {
