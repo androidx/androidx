@@ -113,7 +113,7 @@ abstract class SpecialEffectsController {
             @NonNull FragmentStateManager fragmentStateManager) {
         Operation operation = mAwaitingCompletionOperations.get(
                 fragmentStateManager.getFragment());
-        if (operation != null) {
+        if (operation != null && !operation.getCancellationSignal().isCanceled()) {
             return operation.getLifecycleImpact();
         }
         return null;
