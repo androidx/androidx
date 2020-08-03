@@ -40,9 +40,14 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.rememberDismissState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.drawLayer
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 private val items = listOf(
@@ -66,8 +71,20 @@ private val items = listOf(
 @Composable
 @OptIn(ExperimentalMaterialApi::class)
 fun SwipeToDismissListItems() {
+    // This is an example of a list of dismissible items, similar to what you would see in an
+    // email app. Swiping left reveals a 'delete' icon and swiping right reveals a 'done' icon.
+    // The background will start as grey, but once the dismiss threshold is reached, the colour
+    // will animate to red if you're swiping left or green if you're swiping right. When you let
+    // go, the item will animate out of the way if you're swiping left (like deleting an email) or
+    // back to its default position if you're swiping right (like marking an email as read/unread).
     LazyColumnFor(items) { item ->
-        val dismissState = rememberDismissState()
+        var unread by remember { mutableStateOf(false) }
+        val dismissState = rememberDismissState(
+            confirmStateChange = {
+                if (it == DismissedToEnd) unread = !unread
+                it != DismissedToEnd
+            }
+        )
         SwipeToDismiss(
             state = dismissState,
             modifier = Modifier.padding(vertical = 4.dp),
@@ -104,10 +121,10 @@ fun SwipeToDismissListItems() {
             },
             dismissContent = {
                 Card(
-                    elevation = animate(if (dismissState.swipeDirection != 0f) 4.dp else 0.dp)
+                    elevation = animate(if (dismissState.dismissDirection != null) 4.dp else 0.dp)
                 ) {
                     ListItem(
-                        text = { Text(item) },
+                        text = { Text(item, fontWeight = if (unread) FontWeight.Bold else null) },
                         secondaryText = { Text("Swipe me left or right!") }
                     )
                 }
