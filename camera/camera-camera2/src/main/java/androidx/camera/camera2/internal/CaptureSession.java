@@ -220,6 +220,19 @@ final class CaptureSession {
                         public void onFailure(Throwable t) {
                             // Stop the Opener if we get any failure during opening.
                             mSynchronizedCaptureSessionOpener.stop();
+                            synchronized (mStateLock) {
+                                switch (mState) {
+                                    case OPENING:
+                                    case CLOSED:
+                                    case RELEASING:
+                                        if (!(t instanceof CancellationException)) {
+                                            Log.w(TAG, "Opening session with fail " + mState, t);
+                                            finishClose();
+                                        }
+                                        break;
+                                    default:
+                                }
+                            }
                         }
                     }, mSynchronizedCaptureSessionOpener.getExecutor());
 
