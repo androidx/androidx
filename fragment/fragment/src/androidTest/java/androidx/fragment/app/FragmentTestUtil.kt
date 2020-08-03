@@ -30,6 +30,16 @@ import com.google.common.truth.Truth.assertWithMessage
 import java.lang.ref.WeakReference
 import java.util.ArrayList
 
+fun FragmentTransaction.setReorderingAllowed(
+    reorderingAllowed: ReorderingAllowed
+) = setReorderingAllowed(reorderingAllowed is Reordered)
+
+sealed class ReorderingAllowed {
+    override fun toString(): String = this.javaClass.simpleName
+}
+object Reordered : ReorderingAllowed()
+object Ordered : ReorderingAllowed()
+
 @Suppress("DEPRECATION")
 fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.executePendingTransactions(
     fm: FragmentManager = activity.supportFragmentManager
