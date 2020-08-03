@@ -41,7 +41,7 @@ import java.util.concurrent.TimeUnit
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
-class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
+class FragmentTransitionAnimTest(private val reorderingAllowed: ReorderingAllowed) {
     private var onBackStackChangedTimes: Int = 0
 
     @Before
@@ -309,9 +309,9 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters
-        fun data(): Array<Boolean> {
-            return arrayOf(false, true)
+        @Parameterized.Parameters(name = "ordering={0}")
+        fun data(): Array<ReorderingAllowed> {
+            return arrayOf(Ordered, Reordered)
         }
 
         @AnimRes
