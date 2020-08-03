@@ -22,20 +22,6 @@ import androidx.contentaccess.ContentColumn
 import androidx.contentaccess.ContentEntity
 import androidx.contentaccess.ContentPrimaryKey
 
-@ContentEntity("content://media/external/images/media")
-data class Image(
-    @ContentPrimaryKey(MediaStore.Images.Media._ID)
-    var iD: Long,
-    @ContentColumn(MediaStore.Images.Media.TITLE)
-    var title: String?,
-    @ContentColumn(MediaStore.Images.Media.DESCRIPTION)
-    var description: String?,
-    @ContentColumn(MediaStore.Images.Media.MIME_TYPE)
-    var mimeType: String?,
-    @ContentColumn(MediaStore.Images.Media.DATE_TAKEN)
-    var dateTaken: Long?
-)
-
 @ContentEntity
 data class ImageNoUri(
     @ContentPrimaryKey(MediaStore.Images.Media._ID)
@@ -50,14 +36,6 @@ data class ImageNoUri(
     var dateAdded: Long?,
     @ContentColumn(MediaStore.Images.Media.DATE_TAKEN)
     var dateTaken: Long?
-)
-
-@ContentEntity("content://media/external/video/media")
-data class Video(
-    @ContentPrimaryKey(MediaStore.Video.VideoColumns._ID)
-    var iD: Long,
-    @ContentColumn(MediaStore.Video.VideoColumns.TITLE)
-    var title: String?
 )
 
 @ContentEntity("content://com.android.contacts/raw_contacts")
