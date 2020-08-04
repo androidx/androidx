@@ -16,8 +16,8 @@
 package androidx.room.processor
 
 import androidx.room.Delete
-import androidx.room.processing.XDeclaredType
-import androidx.room.processing.XMethodElement
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XMethodElement
 import androidx.room.vo.DeletionMethod
 
 class DeletionMethodProcessor(

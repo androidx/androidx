@@ -17,8 +17,8 @@
 package androidx.room.parser
 
 import androidx.room.ColumnInfo
-import androidx.room.processing.XProcessingEnv
-import androidx.room.processing.XType
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XType
 import com.squareup.javapoet.TypeName
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.TerminalNode

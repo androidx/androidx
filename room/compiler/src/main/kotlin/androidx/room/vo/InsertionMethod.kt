@@ -17,8 +17,8 @@
 package androidx.room.vo
 
 import androidx.room.OnConflictStrategy
-import androidx.room.processing.XMethodElement
-import androidx.room.processing.XType
+import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.shortcut.binder.InsertMethodBinder
 
 data class InsertionMethod(

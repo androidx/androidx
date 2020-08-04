@@ -18,8 +18,8 @@
 
 package androidx.room.processor.cache
 
-import androidx.room.processing.XElement
-import androidx.room.processing.XType
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XType
 import androidx.room.processor.FieldProcessor
 import androidx.room.vo.EmbeddedField
 import androidx.room.vo.Entity

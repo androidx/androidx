@@ -16,7 +16,7 @@
 
 package androidx.room.verifier
 
-import androidx.room.processing.XElement
+import androidx.room.compiler.processing.XElement
 import androidx.room.processor.Context
 import androidx.room.vo.DatabaseView
 import androidx.room.vo.Entity

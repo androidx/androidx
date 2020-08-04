@@ -16,11 +16,11 @@
 package androidx.room.processor
 
 import androidx.room.ext.isEntityElement
-import androidx.room.processing.XAnnotationBox
-import androidx.room.processing.XDeclaredType
-import androidx.room.processing.XMethodElement
-import androidx.room.processing.XType
-import androidx.room.processing.XTypeElement
+import androidx.room.compiler.processing.XAnnotationBox
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.vo.Entity
 import androidx.room.vo.Pojo
 import androidx.room.vo.ShortcutEntity

@@ -18,7 +18,7 @@ package androidx.room.solver.types
 
 import androidx.room.ext.L
 import androidx.room.parser.SQLTypeAffinity.TEXT
-import androidx.room.processing.XProcessingEnv
+import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.solver.CodeGenScope
 
 class StringColumnTypeAdapter(processingEnvironment: XProcessingEnv) :

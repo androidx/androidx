@@ -19,7 +19,7 @@ package androidx.room.solver.binderprovider
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.RoomCoroutinesTypeNames
 import androidx.room.parser.ParsedQuery
-import androidx.room.processing.XDeclaredType
+import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.QueryResultBinderProvider

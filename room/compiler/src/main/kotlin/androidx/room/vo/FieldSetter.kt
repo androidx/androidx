@@ -17,7 +17,7 @@
 package androidx.room.vo
 
 import androidx.room.ext.L
-import androidx.room.processing.XType
+import androidx.room.compiler.processing.XType
 import com.squareup.javapoet.CodeBlock
 
 data class FieldSetter(val name: String, val type: XType, val callType: CallType) {

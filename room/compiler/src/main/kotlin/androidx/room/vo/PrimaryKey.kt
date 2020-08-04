@@ -16,7 +16,7 @@
 package androidx.room.vo
 
 import androidx.room.migration.bundle.PrimaryKeyBundle
-import androidx.room.processing.XElement
+import androidx.room.compiler.processing.XElement
 
 /**
  * Represents a PrimaryKey for an Entity.

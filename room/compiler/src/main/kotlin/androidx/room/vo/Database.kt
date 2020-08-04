@@ -19,8 +19,8 @@ package androidx.room.vo
 import androidx.room.RoomMasterTable
 import androidx.room.migration.bundle.DatabaseBundle
 import androidx.room.migration.bundle.SchemaBundle
-import androidx.room.processing.XType
-import androidx.room.processing.XTypeElement
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XTypeElement
 import com.squareup.javapoet.ClassName
 import org.apache.commons.codec.digest.DigestUtils
 import java.io.File

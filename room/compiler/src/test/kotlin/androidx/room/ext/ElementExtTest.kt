@@ -16,7 +16,7 @@
 
 package androidx.room.ext
 
-import androidx.room.processing.XExecutableElement
+import androidx.room.compiler.processing.XExecutableElement
 import com.google.common.truth.Truth.assertThat
 import com.google.testing.compile.JavaFileObjects
 import com.squareup.javapoet.ClassName

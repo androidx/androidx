@@ -16,8 +16,8 @@
 
 package androidx.room.solver
 
-import androidx.room.processing.XTypeElement
-import androidx.room.processing.XVariableElement
+import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.XVariableElement
 import androidx.room.testing.TestInvocation
 import com.google.testing.compile.JavaFileObjects
 import org.hamcrest.CoreMatchers.`is`

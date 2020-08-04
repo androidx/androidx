@@ -18,7 +18,7 @@ package androidx.room.processor
 
 import androidx.room.DatabaseView
 import androidx.room.Entity
-import androidx.room.processing.XTypeElement
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.vo.EntityOrView
 import androidx.room.vo.Fields
 import com.squareup.javapoet.TypeName

@@ -16,7 +16,7 @@
 
 package androidx.room.log
 
-import androidx.room.processing.XMessager
+import androidx.room.compiler.processing.XMessager
 import androidx.room.vo.Warning
 import org.junit.Test
 import org.junit.runner.RunWith
