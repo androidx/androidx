@@ -43,7 +43,12 @@ fun StepsSliderSample() {
         value = sliderPosition,
         onValueChange = { sliderPosition = it },
         valueRange = 0f..100f,
+        onValueChangeEnd = {
+            // launch some business logic update with the state you hold
+            // viewModel.updateSelectedSliderValue(sliderPosition)
+        },
         steps = 5,
-        color = MaterialTheme.colors.secondary
+        thumbColor = MaterialTheme.colors.secondary,
+        activeTrackColor = MaterialTheme.colors.secondary
     )
 }

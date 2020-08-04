@@ -55,6 +55,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeightIn
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.preferredWidthIn
+import androidx.compose.material.SliderConstants.TickColorAlpha
+import androidx.compose.material.SliderConstants.InactiveTrackColorAlpha
 import androidx.compose.material.ripple.RippleIndication
 import androidx.compose.ui.WithConstraints
 import androidx.compose.ui.platform.LayoutDirectionAmbient
@@ -99,7 +101,15 @@ import kotlin.math.roundToInt
  * @param onValueChangeEnd lambda to be invoked when value change has ended. This callback
  * shouldn't be used to update the slider value (use [onValueChange] for that), but rather to
  * know when the user has completed selecting a new value by ending a drag or a click.
- * @param color color of the Slider
+ * @param thumbColor color of thumb of the slider
+ * @param activeTrackColor color of the track in the part that is "active", meaning that the
+ * thumb is ahead of it
+ * @param inactiveTrackColor color of the track in the part that is "inactive", meaning that the
+ * thumb is before it
+ * @param activeTickColor colors to be used to draw tick marks on the active track, if [steps]
+ * is specified
+ * @param inactiveTickColor colors to be used to draw tick marks on the inactive track, if
+ * [steps] is specified
  */
 @Composable
 fun Slider(
@@ -109,7 +119,11 @@ fun Slider(
     valueRange: ClosedFloatingPointRange<Float> = 0f..1f,
     @IntRange(from = 0) steps: Int = 0,
     onValueChangeEnd: () -> Unit = {},
-    color: Color = MaterialTheme.colors.primary
+    thumbColor: Color = MaterialTheme.colors.primary,
+    activeTrackColor: Color = MaterialTheme.colors.primary,
+    inactiveTrackColor: Color = activeTrackColor.copy(alpha = InactiveTrackColorAlpha),
+    activeTickColor: Color = MaterialTheme.colors.onPrimary.copy(alpha = TickColorAlpha),
+    inactiveTickColor: Color = activeTrackColor.copy(alpha = TickColorAlpha)
 ) {
     val clock = AnimationClockAmbient.current.asDisposableClock()
     val position = remember(valueRange, steps) {
@@ -166,7 +180,11 @@ fun Slider(
         SliderImpl(
             fraction,
             position.tickFractions,
-            color,
+            thumbColor,
+            activeTrackColor,
+            inactiveTrackColor,
+            activeTickColor,
+            inactiveTickColor,
             maxPx,
             interactionState,
             modifier = press.then(drag)
@@ -174,11 +192,30 @@ fun Slider(
     }
 }
 
+/**
+ * Object to hold constants used by the [Slider]
+ */
+object SliderConstants {
+    /**
+     * Default alpha of the inactive part of the track
+     */
+    const val InactiveTrackColorAlpha = 0.24f
+
+    /**
+     * Default alpha of the ticks that are drawn on top of the track
+     */
+    const val TickColorAlpha = 0.54f
+}
+
 @Composable
 private fun SliderImpl(
     positionFraction: Float,
     tickFractions: List<Float>,
-    color: Color,
+    thumbColor: Color,
+    trackColor: Color,
+    inactiveTrackColor: Color,
+    activeTickColor: Color,
+    inactiveTickColor: Color,
     width: Float,
     interactionState: InteractionState,
     modifier: Modifier
@@ -199,7 +236,10 @@ private fun SliderImpl(
         }
         Track(
             center.fillMaxSize(),
-            color,
+            trackColor,
+            inactiveTrackColor,
+            activeTickColor,
+            inactiveTickColor,
             positionFraction,
             tickFractions,
             thumbPx,
@@ -215,7 +255,7 @@ private fun SliderImpl(
             }
             Surface(
                 shape = CircleShape,
-                color = color,
+                color = thumbColor,
                 elevation = elevation,
                 modifier = Modifier.indication(
                     interactionState = interactionState,
@@ -235,13 +275,14 @@ private fun SliderImpl(
 private fun Track(
     modifier: Modifier,
     color: Color,
+    inactiveColor: Color,
+    activeTickColor: Color,
+    inactiveTickColor: Color,
     positionFraction: Float,
     tickFractions: List<Float>,
     thumbPx: Float,
     trackStrokeWidth: Float
 ) {
-    val activeTickColor = MaterialTheme.colors.onPrimary.copy(alpha = TickColorAlpha)
-    val inactiveTickColor = color.copy(alpha = TickColorAlpha)
     Canvas(modifier) {
         val isRtl = layoutDirection == LayoutDirection.Rtl
         val sliderLeft = Offset(thumbPx, center.y)
@@ -249,7 +290,7 @@ private fun Track(
         val sliderStart = if (isRtl) sliderRight else sliderLeft
         val sliderEnd = if (isRtl) sliderLeft else sliderRight
         drawLine(
-            color.copy(alpha = InactiveTrackColorAlpha),
+            inactiveColor,
             sliderStart,
             sliderEnd,
             trackStrokeWidth,
@@ -464,7 +505,4 @@ private val DefaultSliderConstraints =
     Modifier.preferredWidthIn(minWidth = SliderMinWidth)
         .preferredHeightIn(maxHeight = SliderHeight)
 
-// Internal to be referred to in tests
-internal val InactiveTrackColorAlpha = 0.24f
-private val TickColorAlpha = 0.54f
 private val SliderToTickAnimation = TweenSpec<Float>(durationMillis = 100)
