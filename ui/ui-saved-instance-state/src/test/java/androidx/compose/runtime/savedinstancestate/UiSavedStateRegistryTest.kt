@@ -33,7 +33,7 @@ class UiSavedStateRegistryTest {
         registry.registerProvider("key") { 10 }
 
         registry.performSave().apply {
-            assertThat(get("key")).isEqualTo(10)
+            assertThat(get("key")).isEqualTo(listOf(10))
         }
     }
 
@@ -41,8 +41,9 @@ class UiSavedStateRegistryTest {
     fun unregisteredValuesAreNotSaved() {
         val registry = createRegistry()
 
-        registry.registerProvider("key") { 10 }
-        registry.unregisterProvider("key")
+        val provider = { 10 }
+        registry.registerProvider("key", provider)
+        registry.unregisterProvider("key", provider)
 
         registry.performSave().apply {
             assertThat(containsKey("key")).isFalse()
@@ -53,12 +54,13 @@ class UiSavedStateRegistryTest {
     fun registerAgainAfterUnregister() {
         val registry = createRegistry()
 
-        registry.registerProvider("key") { "value1" }
-        registry.unregisterProvider("key")
+        val provider1 = { "value1" }
+        registry.registerProvider("key", provider1)
+        registry.unregisterProvider("key", provider1)
         registry.registerProvider("key") { "value2" }
 
         registry.performSave().apply {
-            assertThat(get("key")).isEqualTo("value2")
+            assertThat(get("key")).isEqualTo(listOf("value2"))
         }
     }
 
@@ -67,25 +69,18 @@ class UiSavedStateRegistryTest {
         val registry = createRegistry()
 
         registry.registerProvider("key1") { 100L }
-        registry.registerProvider("key2") { 100L }
+        val provider2 = { 100 }
+        registry.registerProvider("key2", provider2)
         registry.registerProvider("key3") { "value" }
         registry.registerProvider("key4") { listOf("item") }
-        registry.unregisterProvider("key2")
+        registry.unregisterProvider("key2", provider2)
 
         registry.performSave().apply {
-            assertThat(get("key1")).isEqualTo(100L)
+            assertThat(get("key1")).isEqualTo(listOf(100L))
             assertThat(containsKey("key2")).isFalse()
-            assertThat(get("key3")).isEqualTo("value")
-            assertThat(get("key4")).isEqualTo(listOf("item"))
+            assertThat(get("key3")).isEqualTo(listOf("value"))
+            assertThat(get("key4")).isEqualTo(listOf(listOf("item")))
         }
-    }
-
-    @Test(expected = IllegalArgumentException::class)
-    fun registeringTheSameKeysTwiceIsNotAllowed() {
-        val registry = createRegistry()
-
-        registry.registerProvider("key") { 100L }
-        registry.registerProvider("key") { 100L }
     }
 
     @Test
@@ -115,7 +110,7 @@ class UiSavedStateRegistryTest {
 
     @Test
     fun restoreSimpleValues() {
-        val restored = mapOf("key1" to "value", "key2" to 2f)
+        val restored = mapOf("key1" to listOf("value"), "key2" to listOf(2f))
         val registry = createRegistry(restored)
 
         assertThat(registry.consumeRestored("key1")).isEqualTo("value")
@@ -124,7 +119,7 @@ class UiSavedStateRegistryTest {
 
     @Test
     fun restoreClearsTheStoredValue() {
-        val restored = mapOf("key" to "value")
+        val restored = mapOf("key" to listOf("value"))
         val registry = createRegistry(restored)
 
         assertThat(registry.consumeRestored("key")).isEqualTo("value")
@@ -133,14 +128,14 @@ class UiSavedStateRegistryTest {
 
     @Test
     fun unusedRestoredValueSavedAgain() {
-        val restored = mapOf("key1" to "value")
+        val restored = mapOf("key1" to listOf("value"))
         val registry = createRegistry(restored)
 
         registry.registerProvider("key2") { 1 }
 
         registry.performSave().apply {
-            assertThat(get("key1")).isEqualTo("value")
-            assertThat(get("key2")).isEqualTo(1)
+            assertThat(get("key1")).isEqualTo(listOf("value"))
+            assertThat(get("key2")).isEqualTo(listOf(1))
         }
     }
 
@@ -169,8 +164,36 @@ class UiSavedStateRegistryTest {
         registry.performSave()
     }
 
+    @Test
+    fun registeringTheSameKeysTwice() {
+        val registry = createRegistry()
+
+        registry.registerProvider("key") { 100L }
+        registry.registerProvider("key") { 200L }
+
+        val restoredRegistry = createRegistry(registry.performSave())
+        assertThat(restoredRegistry.consumeRestored("key")).isEqualTo(100L)
+        assertThat(restoredRegistry.consumeRestored("key")).isEqualTo(200L)
+        assertThat(restoredRegistry.consumeRestored("key")).isNull()
+    }
+
+    @Test
+    fun registeringAndUnregisteringTheSameKeys() {
+        val registry = createRegistry()
+
+        registry.registerProvider("key") { 1L }
+        val provider2 = { 2 }
+        registry.registerProvider("key", provider2)
+        registry.registerProvider("key") { 3 }
+        registry.unregisterProvider("key", provider2)
+
+        val restoredRegistry = createRegistry(registry.performSave())
+        assertThat(restoredRegistry.consumeRestored("key")).isEqualTo(1L)
+        assertThat(restoredRegistry.consumeRestored("key")).isEqualTo(3L)
+    }
+
     private fun createRegistry(
-        restored: Map<String, Any>? = null,
+        restored: Map<String, List<Any?>>? = null,
         canBeSaved: (Any) -> Boolean = { true }
     ) = UiSavedStateRegistry(restored, canBeSaved)
 }

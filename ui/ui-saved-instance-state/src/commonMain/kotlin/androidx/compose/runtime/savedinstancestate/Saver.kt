@@ -85,8 +85,7 @@ interface SaverScope {
 }
 
 /**
- * The default implementation of [Saver] which does not perform any conversion, but asserts that
- * the passed value can be saved.
+ * The default implementation of [Saver] which does not perform any conversion.
  *
  * It is used by [savedInstanceState] and [rememberSavedInstanceState] by default.
  *
@@ -97,16 +96,6 @@ fun <T> autoSaver(): Saver<T, Any> =
     (AutoSaver as Saver<T, Any>)
 
 private val AutoSaver = Saver<Any?, Any>(
-    save = {
-        if (it != null) {
-            require(canBeSaved(it)) {
-                "$it cannot be saved using the current UiSavedInstanceStateRegistry. The default" +
-                        " implementation only supports types which can be stored inside the " +
-                        "Bundle. Please consider implementing a custom Saver for this class " +
-                        "and pass it to savedInstanceState() or rememberSavedInstanceState()."
-            }
-        }
-        it
-    },
+    save = { it },
     restore = { it }
 )
