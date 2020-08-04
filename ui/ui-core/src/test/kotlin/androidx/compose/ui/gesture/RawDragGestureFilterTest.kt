@@ -178,9 +178,7 @@ class RawDragGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(move)
 
         assertThat(log.filter { it.methodName == "onStart" }).hasSize(1)
-        // onDrag get's called twice because it is called during PostUp and PostDown and nothing
-        // consumed the drag distance.
-        assertThat(log.filter { it.methodName == "onDrag" }).hasSize(2)
+        assertThat(log.filter { it.methodName == "onDrag" }).hasSize(1)
     }
 
     @Test
@@ -194,9 +192,7 @@ class RawDragGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(move)
 
         assertThat(log.filter { it.methodName == "onStart" }).hasSize(1)
-        // onDrag get's called twice because it is called during PostUp and PostDown and nothing
-        // consumed the drag distance.
-        assertThat(log.filter { it.methodName == "onDrag" }).hasSize(2)
+        assertThat(log.filter { it.methodName == "onDrag" }).hasSize(1)
     }
 
     @Test
@@ -210,9 +206,7 @@ class RawDragGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(move)
 
         assertThat(log.filter { it.methodName == "onStart" }).hasSize(1)
-        // onDrag get's called twice because it is called during PostUp and PostDown and nothing
-        // consumed the drag distance.
-        assertThat(log.filter { it.methodName == "onDrag" }).hasSize(2)
+        assertThat(log.filter { it.methodName == "onDrag" }).hasSize(1)
     }
 
     // onDrag called with correct values verification.
@@ -227,11 +221,8 @@ class RawDragGestureFilterTest {
         filter::onPointerInput.invokeOverAllPasses(change)
 
         val onDragLog = log.filter { it.methodName == "onDrag" }
-        assertThat(onDragLog).hasSize(2)
-        // OnDrags get's called twice each time because RawDragGestureDetector calls it on both
-        // PostUp and PostDown and the distance is not consumed by PostUp.
+        assertThat(onDragLog).hasSize(1)
         assertThat(onDragLog[0].pxPosition).isEqualTo(Offset(5f, -2f))
-        assertThat(onDragLog[1].pxPosition).isEqualTo(Offset(5f, -2f))
     }
 
     @Test
@@ -259,17 +250,13 @@ class RawDragGestureFilterTest {
         // Assert
 
         val onDragLog = log.filter { it.methodName == "onDrag" }
-        assertThat(onDragLog).hasSize(8)
+        assertThat(onDragLog).hasSize(4)
         // OnDrags get's called twice each time because RawDragGestureDetector calls it on both
         // PostUp and PostDown and the distance is not consumed by PostUp.
         assertThat(onDragLog[0].pxPosition).isEqualTo(Offset(3f, -5f))
-        assertThat(onDragLog[1].pxPosition).isEqualTo(Offset(3f, -5f))
-        assertThat(onDragLog[2].pxPosition).isEqualTo(Offset(-3f, 7f))
-        assertThat(onDragLog[3].pxPosition).isEqualTo(Offset(-3f, 7f))
-        assertThat(onDragLog[4].pxPosition).isEqualTo(Offset(6f, 10f))
-        assertThat(onDragLog[5].pxPosition).isEqualTo(Offset(6f, 10f))
-        assertThat(onDragLog[6].pxPosition).isEqualTo(Offset(-10f, -6f))
-        assertThat(onDragLog[7].pxPosition).isEqualTo(Offset(-10f, -6f))
+        assertThat(onDragLog[1].pxPosition).isEqualTo(Offset(-3f, 7f))
+        assertThat(onDragLog[2].pxPosition).isEqualTo(Offset(6f, 10f))
+        assertThat(onDragLog[3].pxPosition).isEqualTo(Offset(-10f, -6f))
     }
 
     @Test
@@ -294,13 +281,8 @@ class RawDragGestureFilterTest {
         // Assert
 
         val onDragLog = log.filter { it.methodName == "onDrag" }
-        assertThat(onDragLog).hasSize(2)
-        // 2 onDrags because RawDragGestureDetector calls onDrag on both PostUp and PostDown and the
-        // distance is never consumed.
+        assertThat(onDragLog).hasSize(1)
         assertThat(onDragLog[0].pxPosition).isEqualTo(
-            Offset(3f, -4f)
-        )
-        assertThat(onDragLog[1].pxPosition).isEqualTo(
             Offset(3f, -4f)
         )
     }
@@ -427,13 +409,10 @@ class RawDragGestureFilterTest {
         change = change.up(20.milliseconds)
         filter::onPointerInput.invokeOverAllPasses(change)
 
-        assertThat(log).hasSize(4)
+        assertThat(log).hasSize(3)
         assertThat(log[0].methodName).isEqualTo("onStart")
-        // 2 onDrags because RawDragGestureDetector calls onDrag on both PostUp and PostDown and the
-        // distance is never consumed.
         assertThat(log[1].methodName).isEqualTo("onDrag")
-        assertThat(log[2].methodName).isEqualTo("onDrag")
-        assertThat(log[3].methodName).isEqualTo("onStop")
+        assertThat(log[2].methodName).isEqualTo("onStop")
     }
 
     // Verification about what events are, or aren't consumed.
@@ -710,9 +689,7 @@ class RawDragGestureFilterTest {
         // Assert
         if (filterOrientation == lockedOrientation) {
             assertThat(log.filter { it.methodName == "onStart" }).hasSize(1)
-            // onDrag get's called twice because it is called during PostUp and PostDown and nothing
-            // consumed the drag distance.
-            assertThat(log.filter { it.methodName == "onDrag" }).hasSize(2)
+            assertThat(log.filter { it.methodName == "onDrag" }).hasSize(1)
         } else {
             assertThat(log.filter { it.methodName == "onStart" }).isEmpty()
             assertThat(log.filter { it.methodName == "onDrag" }).isEmpty()
