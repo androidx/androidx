@@ -81,8 +81,8 @@ package androidx.compose.material {
   }
 
   public final class CheckboxKt {
-    method @androidx.compose.runtime.Composable public static void Checkbox-s5ZZtCg(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, boolean enabled = true, androidx.compose.ui.Modifier modifier = Modifier, long checkedColor = MaterialTheme.colors.secondary, long uncheckedColor = MaterialTheme.colors.onSurface, long disabledColor = MaterialTheme.colors.onSurface, long checkMarkColor = MaterialTheme.colors.surface);
-    method @androidx.compose.runtime.Composable public static void TriStateCheckbox-6H4mBLc(androidx.compose.foundation.selection.ToggleableState state, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, boolean enabled = true, androidx.compose.ui.Modifier modifier = Modifier, long checkedColor = MaterialTheme.colors.secondary, long uncheckedColor = MaterialTheme.colors.onSurface, long disabledColor = MaterialTheme.colors.onSurface, long checkMarkColor = MaterialTheme.colors.surface);
+    method @androidx.compose.runtime.Composable public static void Checkbox-p4uo5cA(boolean checked, kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> onCheckedChange, androidx.compose.ui.Modifier modifier = Modifier, boolean enabled = true, long checkedColor = MaterialTheme.colors.secondary, long uncheckedColor = MaterialTheme.colors.onSurface, long disabledColor = MaterialTheme.colors.onSurface, long checkMarkColor = MaterialTheme.colors.surface);
+    method @androidx.compose.runtime.Composable public static void TriStateCheckbox-mcs78Zg(androidx.compose.foundation.selection.ToggleableState state, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.compose.ui.Modifier modifier = Modifier, boolean enabled = true, long checkedColor = MaterialTheme.colors.secondary, long uncheckedColor = MaterialTheme.colors.onSurface, long disabledColor = MaterialTheme.colors.onSurface, long checkMarkColor = MaterialTheme.colors.surface);
   }
 
   @androidx.compose.runtime.Stable public final class Colors {

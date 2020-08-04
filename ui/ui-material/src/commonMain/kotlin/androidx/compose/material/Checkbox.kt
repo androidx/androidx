@@ -59,9 +59,9 @@ import androidx.compose.ui.util.lerp
  * @param checked whether Checkbox is checked or unchecked
  * @param onCheckedChange callback to be invoked when checkbox is being clicked,
  * therefore the change of checked state in requested.
+ * @param modifier Modifier to be applied to the layout of the checkbox
  * @param enabled enabled whether or not this [Checkbox] will handle input events and appear
  * enabled for semantics purposes
- * @param modifier Modifier to be applied to the layout of the checkbox
  * @param checkedColor color of the box when it is checked
  * @param uncheckedColor color of the box border when it is unchecked
  * @param disabledColor color for the checkbox to appear when disabled
@@ -71,8 +71,8 @@ import androidx.compose.ui.util.lerp
 fun Checkbox(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    enabled: Boolean = true,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     checkedColor: Color = MaterialTheme.colors.secondary,
     uncheckedColor: Color = MaterialTheme.colors.onSurface,
     disabledColor: Color = MaterialTheme.colors.onSurface,
@@ -104,9 +104,9 @@ fun Checkbox(
  * @param state whether TriStateCheckbox is checked, unchecked or in indeterminate state
  * @param onClick callback to be invoked when checkbox is being clicked,
  * therefore the change of ToggleableState state is requested.
+ * @param modifier Modifier to be applied to the layout of the checkbox
  * @param enabled enabled whether or not this [TriStateCheckbox] will handle input events and
  * appear enabled for semantics purposes
- * @param modifier Modifier to be applied to the layout of the checkbox
  * @param checkedColor color of the box when it is in [ToggleableState.On] or [ToggleableState
  * .Indeterminate] states
  * @param uncheckedColor color of the box border when it is in [ToggleableState.Off] state
@@ -117,8 +117,8 @@ fun Checkbox(
 fun TriStateCheckbox(
     state: ToggleableState,
     onClick: () -> Unit,
-    enabled: Boolean = true,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     checkedColor: Color = MaterialTheme.colors.secondary,
     uncheckedColor: Color = MaterialTheme.colors.onSurface,
     disabledColor: Color = MaterialTheme.colors.onSurface,
