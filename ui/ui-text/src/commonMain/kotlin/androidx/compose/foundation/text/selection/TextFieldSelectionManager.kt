@@ -194,6 +194,13 @@ internal class TextFieldSelectionManager() {
         }
     }
 
+    internal fun deselect() {
+        val newValue = TextFieldValue(text = value.text, selection = TextRange.Zero)
+        onValueChange(newValue)
+        setSelectionStatus(false)
+        hideSelectionToolbar()
+    }
+
     /**
      * The method for copying text.
      *
@@ -321,9 +328,7 @@ internal class TextFieldSelectionManager() {
 
     internal fun hideSelectionToolbar() {
         if (textToolbar?.status == TextToolbarStatus.Shown) {
-            if (value.selection.collapsed) {
-                textToolbar?.hide()
-            }
+            textToolbar?.hide()
         }
     }
 

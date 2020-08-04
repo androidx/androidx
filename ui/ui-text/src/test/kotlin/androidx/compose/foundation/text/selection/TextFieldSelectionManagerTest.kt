@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.TextToolbar
+import androidx.compose.ui.platform.TextToolbarStatus
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.text.input.OffsetMap
@@ -208,6 +209,18 @@ class TextFieldSelectionManagerTest {
             hapticFeedback,
             times(0)
         ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
+    }
+
+    @Test
+    fun TextFieldSelectionManager_deselect() {
+        whenever(textToolbar.status).thenReturn(TextToolbarStatus.Shown)
+        manager.value = TextFieldValue(text = text, selection = TextRange(0, "Hello".length))
+
+        manager.deselect()
+
+        verify(textToolbar, times(1)).hide()
+        assertThat(value.selection).isEqualTo(TextRange.Zero)
+        assertThat(state.selectionIsOn).isFalse()
     }
 
     @Test

@@ -299,6 +299,7 @@ fun CoreTextField(
                     hasNextClient,
                     onValueChangeWrapper
                 )
+                manager.deselect()
                 onFocusChanged(false)
             },
             onRelease = {
@@ -391,24 +392,28 @@ fun CoreTextField(
                     ) {}
                 }
             }
-            if (!value.selection.collapsed) {
-                manager.state?.layoutResult?.let {
-                    val startDirection = it.getBidiRunDirection(value.selection.start)
-                    val endDirection = it.getBidiRunDirection(max(value.selection.end - 1, 0))
-                    val directions = Pair(startDirection, endDirection)
-                    SelectionHandle(
-                        isStartHandle = true,
-                        directions = directions,
-                        manager = manager
-                    )
-                    SelectionHandle(
-                        isStartHandle = false,
-                        directions = directions,
-                        manager = manager
-                    )
-                    manager.showSelectionToolbar()
+            if (state.hasFocus) {
+                if (!value.selection.collapsed) {
+                    manager.state?.layoutResult?.let {
+                        val startDirection = it.getBidiRunDirection(value.selection.start)
+                        val endDirection = it.getBidiRunDirection(max(value.selection.end - 1, 0))
+                        val directions = Pair(startDirection, endDirection)
+                        SelectionHandle(
+                            isStartHandle = true,
+                            directions = directions,
+                            manager = manager
+                        )
+                        SelectionHandle(
+                            isStartHandle = false,
+                            directions = directions,
+                            manager = manager
+                        )
+                        manager.state?.let {
+                            if (it.hasFocus) manager.showSelectionToolbar()
+                        }
+                    }
                 }
-            }
+            } else manager.hideSelectionToolbar()
         }
     }
 }
