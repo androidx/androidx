@@ -34,13 +34,13 @@ package androidx.compose.runtime.savedinstancestate {
   public interface UiSavedStateRegistry {
     method public boolean canBeSaved(Object value);
     method public Object? consumeRestored(String key);
-    method public java.util.Map<java.lang.String,java.lang.Object> performSave();
+    method public java.util.Map<java.lang.String,java.util.List<java.lang.Object>> performSave();
     method public void registerProvider(String key, kotlin.jvm.functions.Function0<?> valueProvider);
-    method public void unregisterProvider(String key);
+    method public void unregisterProvider(String key, kotlin.jvm.functions.Function0<?> valueProvider);
   }
 
   public final class UiSavedStateRegistryKt {
-    method public static androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry UiSavedStateRegistry(java.util.Map<java.lang.String,?>? restoredValues, kotlin.jvm.functions.Function1<java.lang.Object,java.lang.Boolean> canBeSaved);
+    method public static androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry UiSavedStateRegistry(java.util.Map<java.lang.String,? extends java.util.List<?>>? restoredValues, kotlin.jvm.functions.Function1<java.lang.Object,java.lang.Boolean> canBeSaved);
     method public static androidx.compose.runtime.ProvidableAmbient<androidx.compose.runtime.savedinstancestate.UiSavedStateRegistry> getUiSavedStateRegistryAmbient();
   }
 

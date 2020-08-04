@@ -166,9 +166,9 @@ class RememberSavedInstanceStateTest {
         var registryFactory by mutableStateOf<(UiSavedStateRegistry) -> UiSavedStateRegistry>(
             value = {
                 object : DelegateRegistry(it) {
-                    override fun unregisterProvider(key: String) {
+                    override fun unregisterProvider(key: String, valueProvider: () -> Any?) {
                         unregisterCalledForKey = key
-                        super.unregisterProvider(key)
+                        super.unregisterProvider(key, valueProvider)
                     }
                 }
             }
@@ -219,8 +219,8 @@ class RememberSavedInstanceStateTest {
                             registerLatch.countDown()
                         }
 
-                        override fun unregisterProvider(key: String) {
-                            super.unregisterProvider(key)
+                        override fun unregisterProvider(key: String, valueProvider: () -> Any?) {
+                            super.unregisterProvider(key, valueProvider)
                             registeredKeys.remove(key)
                         }
                     }
@@ -277,9 +277,9 @@ class RememberSavedInstanceStateTest {
             WrapRegistry(
                 wrap = {
                     object : DelegateRegistry(it) {
-                        override fun unregisterProvider(key: String) {
+                        override fun unregisterProvider(key: String, valueProvider: () -> Any?) {
                             latch.countDown()
-                            super.unregisterProvider(key)
+                            super.unregisterProvider(key, valueProvider)
                         }
                     }
                 }
