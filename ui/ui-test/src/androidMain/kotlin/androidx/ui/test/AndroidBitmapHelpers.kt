@@ -19,6 +19,7 @@ package androidx.ui.test
 import android.graphics.Bitmap
 import android.os.Build
 import android.view.View
+import android.view.Window
 import androidx.annotation.RequiresApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -31,11 +32,13 @@ import androidx.compose.ui.graphics.addOutline
 import androidx.compose.ui.graphics.asAndroidPath
 import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.platform.AndroidOwner
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.ui.test.android.captureRegionToBitmap
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.window.DialogWindowProvider
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import kotlin.math.roundToInt
@@ -45,20 +48,50 @@ import kotlin.math.roundToInt
  *
  * This has a limitation that if there is another window covering part of this node, such a
  * window won't occur in this bitmap.
+ *
+ * @throws IllegalArgumentException if a bitmap is taken inside of a popup.
 */
 @RequiresApi(Build.VERSION_CODES.O)
 fun SemanticsNodeInteraction.captureToBitmap(): Bitmap {
     val node = fetchSemanticsNode("Failed to capture a node to bitmap.")
     // TODO(pavlis): Consider doing assertIsDisplayed here. Will need to move things around.
+    var windowToUse: Window? = null
+
+    // Validate we are not in popup
+    val popupParentMaybe = node.findClosestParentNode(includeSelf = true) {
+        it.config.contains(SemanticsProperties.IsPopup)
+    }
+    if (popupParentMaybe != null) {
+        // We do not support capturing popups to bitmap
+        throw IllegalArgumentException("The node that is being captured to bitmap is in " +
+                "a popup or is a popup itself. Popups currently cannot be captured to bitmap.")
+    }
+
+    @OptIn(ExperimentalLayoutNodeApi::class)
+    val view = (node.componentNode.owner as AndroidOwner).view
+
+    // If we are in dialog use its window to capture the bitmap
+    val dialogParentNodeMaybe = node.findClosestParentNode(includeSelf = true) {
+        it.config.contains(SemanticsProperties.IsDialog)
+    }
+    if (dialogParentNodeMaybe != null) {
+        val dialogProvider = findDialogWindowProviderInParent(view)
+            ?: throw IllegalArgumentException("Could not find a dialog window provider to capture" +
+                    " its bitmap")
+        windowToUse = dialogProvider.window
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            // b/163023027
+            throw IllegalArgumentException("Cannot currently capture dialogs on API lower than 28!")
+        }
+    }
+
     val nodeBounds = node.boundsInRoot
     val nodeBoundsRect = android.graphics.Rect(
         nodeBounds.left.roundToInt(),
         nodeBounds.top.roundToInt(),
         nodeBounds.right.roundToInt(),
         nodeBounds.bottom.roundToInt())
-
-    @OptIn(ExperimentalLayoutNodeApi::class)
-    val view = (node.componentNode.owner as AndroidOwner).view
 
     val locationInWindow = intArrayOf(0, 0)
     view.getLocationInWindow(locationInWindow)
@@ -68,7 +101,18 @@ fun SemanticsNodeInteraction.captureToBitmap(): Bitmap {
     // Now these are bounds in window
     nodeBoundsRect.offset(x, y)
 
-    return captureRegionToBitmap(nodeBoundsRect, view)
+    return captureRegionToBitmap(nodeBoundsRect, view, windowToUse)
+}
+
+private fun findDialogWindowProviderInParent(view: View): DialogWindowProvider? {
+    if (view is DialogWindowProvider) {
+        return view
+    }
+    val parent = view.parent ?: return null
+    if (parent is View) {
+        return findDialogWindowProviderInParent(parent)
+    }
+    return null
 }
 
 /**
@@ -136,6 +180,35 @@ fun Bitmap.assertPixelColor(
     assertEquals(errorString, expected.green, color.green, 0.02f)
     assertEquals(errorString, expected.blue, color.blue, 0.02f)
     assertEquals(errorString, expected.alpha, color.alpha, 0.02f)
+}
+
+/**
+ * Asserts that the expected color is present in this bitmap.
+ *
+ * @throws AssertionError if the expected color is not present.
+ */
+fun Bitmap.assertContainsColor(
+    expectedColor: Color
+): Bitmap {
+    if (!containsColor(expectedColor)) {
+        throw AssertionError("The given color $expectedColor was not found in the bitmap.")
+    }
+    return this
+}
+
+private fun Bitmap.containsColor(expectedColor: Color): Boolean {
+    val pixels = IntArray(width * height).apply {
+        getPixels(this, 0, width, 0, 0, width, height)
+    }
+    for (x in 0 until width) {
+        for (y in 0 until height) {
+            val color = Color(pixels[x + y * width])
+            if (color == expectedColor) {
+                return true
+            }
+        }
+    }
+    return false
 }
 
 /**

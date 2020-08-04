@@ -1,16 +1,9 @@
 // Signature format: 3.0
 package androidx.compose.material {
 
-  public enum AlertDialogButtonLayout {
-    method public static androidx.compose.material.AlertDialogButtonLayout valueOf(String name) throws java.lang.IllegalArgumentException;
-    method public static androidx.compose.material.AlertDialogButtonLayout[] values();
-    enum_constant public static final androidx.compose.material.AlertDialogButtonLayout SideBySide;
-    enum_constant public static final androidx.compose.material.AlertDialogButtonLayout Stacked;
-  }
-
   public final class AlertDialogKt {
-    method @androidx.compose.runtime.Composable public static void AlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit>? title = null, kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit> confirmButton, kotlin.jvm.functions.Function0<kotlin.Unit>? dismissButton = null, androidx.compose.material.AlertDialogButtonLayout buttonLayout = androidx.compose.material.AlertDialogButtonLayout.SideBySide, androidx.compose.ui.graphics.Shape shape = medium);
-    method @androidx.compose.runtime.Composable public static void AlertDialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit>? title = null, kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit> buttons, androidx.compose.ui.graphics.Shape shape = medium);
+    method @androidx.compose.runtime.Composable public static void AlertDialog-LmAHq_E(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, kotlin.jvm.functions.Function0<kotlin.Unit> confirmButton, androidx.compose.ui.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>? dismissButton = null, kotlin.jvm.functions.Function0<kotlin.Unit>? title = null, kotlin.jvm.functions.Function0<kotlin.Unit>? text = null, androidx.compose.ui.graphics.Shape shape = medium, long backgroundColor = MaterialTheme.colors.surface, long contentColor = contentColorFor(backgroundColor));
+    method @androidx.compose.runtime.Composable public static void AlertDialog-xwHmQkQ(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, kotlin.jvm.functions.Function0<kotlin.Unit> buttons, androidx.compose.ui.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>? title = null, kotlin.jvm.functions.Function0<kotlin.Unit>? text = null, androidx.compose.ui.graphics.Shape shape = medium, long backgroundColor = MaterialTheme.colors.surface, long contentColor = contentColorFor(backgroundColor));
   }
 
   public final class AppBarKt {

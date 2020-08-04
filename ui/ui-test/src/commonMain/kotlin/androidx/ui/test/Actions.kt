@@ -16,7 +16,6 @@
 
 package androidx.ui.test
 
-import androidx.compose.ui.semantics.findClosestParentNode
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.semantics.AccessibilityAction

@@ -23,16 +23,21 @@ import androidx.test.filters.SdkSuppress
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Box
+import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.material.AlertDialog
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.window.Popup
 import androidx.ui.test.android.createAndroidComposeRule
+import androidx.ui.test.util.expectError
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -135,6 +140,38 @@ class BitmapCapturingTest(val config: TestConfig) {
             .assertPixels(expectedSize = IntSize(10, 10)) {
                 color21
             }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // b/163023027
+    fun captureDialog_verifyBackground() {
+        // Test that we are really able to capture dialogs to bitmap.
+        composeTestRule.setContent {
+            AlertDialog(onDismissRequest = {}, confirmButton = {}, backgroundColor = Color.Red)
+        }
+
+        onNode(isDialog())
+            .captureToBitmap()
+            .assertContainsColor(Color.Red)
+    }
+
+    @Test
+    fun capturePopup_shouldFail() {
+        // Test that we throw an error when trying to capture a popup.
+        composeTestRule.setContent {
+            Stack {
+                Popup() {
+                    Text("Hello")
+                }
+            }
+        }
+
+        expectError<IllegalArgumentException>(
+            expectedMessage = ".*Popups currently cannot be captured to bitmap.*"
+        ) {
+            onNode(isPopup())
+                .captureToBitmap()
+        }
     }
 
     private fun expectedColorProvider(pos: IntOffset): Color {

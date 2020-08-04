@@ -2433,7 +2433,6 @@ package androidx.compose.ui.semantics {
   }
 
   public final class SemanticsNodeKt {
-    method public static androidx.compose.ui.semantics.SemanticsNode? findClosestParentNode(androidx.compose.ui.semantics.SemanticsNode, kotlin.jvm.functions.Function1<? super androidx.compose.ui.semantics.SemanticsNode,java.lang.Boolean> selector);
   }
 
   public final class SemanticsOwner {
@@ -2568,11 +2567,16 @@ package androidx.compose.ui.viewinterop {
 package androidx.compose.ui.window {
 
   public final class AndroidDialogKt {
-    method @androidx.compose.runtime.Composable public static void Dialog(kotlin.jvm.functions.Function0<kotlin.Unit> onCloseRequest, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.runtime.Composable public static void Dialog(kotlin.jvm.functions.Function0<kotlin.Unit> onDismissRequest, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class AndroidPopupKt {
     method @org.jetbrains.annotations.TestOnly public static boolean isPopupLayout(android.view.View view, String? testTag = null);
+  }
+
+  public interface DialogWindowProvider {
+    method public android.view.Window getWindow();
+    property public abstract android.view.Window window;
   }
 
   public final class PopupKt {
