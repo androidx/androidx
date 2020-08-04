@@ -31,10 +31,16 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * <p>
  * You must call {@link #dispatchOnContextAvailable(Context)} once the
  * {@link Context} is available to dispatch the callbacks to all registered listeners.
+ * <p>
+ * Listeners added after the context has been made available via
+ * {@link #dispatchOnContextAvailable(Context)} will have the Context synchronously
+ * delivered to them up until {@link #clearAvailableContext()} is called.
  */
 public final class ContextAwareHelper {
 
     private final Set<OnContextAvailableListener> mListeners = new CopyOnWriteArraySet<>();
+
+    private Context mContext;
 
     /**
      * Construct a new ContextAwareHelper.
@@ -50,6 +56,9 @@ public final class ContextAwareHelper {
      * @see #removeOnContextAvailableListener(OnContextAvailableListener)
      */
     public void addOnContextAvailableListener(@NonNull OnContextAvailableListener listener) {
+        if (mContext != null) {
+            listener.onContextAvailable(mContext);
+        }
         mListeners.add(listener);
     }
 
@@ -71,8 +80,17 @@ public final class ContextAwareHelper {
      * @param context The {@link Context} the {@link ContextAware} object is now associated with.
      */
     public void dispatchOnContextAvailable(@NonNull Context context) {
+        mContext = context;
         for (OnContextAvailableListener listener : mListeners) {
             listener.onContextAvailable(context);
         }
+    }
+
+    /**
+     * Clear any {@link Context} previously made available via
+     * {@link #dispatchOnContextAvailable(Context)}.
+     */
+    public void clearAvailableContext() {
+        mContext = null;
     }
 }

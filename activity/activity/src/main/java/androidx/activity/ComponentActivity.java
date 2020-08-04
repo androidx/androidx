@@ -104,7 +104,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         ViewModelStore viewModelStore;
     }
 
-    private final ContextAwareHelper mContextAwareHelper = new ContextAwareHelper();
+    final ContextAwareHelper mContextAwareHelper = new ContextAwareHelper();
     private final LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final SavedStateRegistryController mSavedStateRegistryController =
@@ -249,6 +249,9 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             public void onStateChanged(@NonNull LifecycleOwner source,
                     @NonNull Lifecycle.Event event) {
                 if (event == Lifecycle.Event.ON_DESTROY) {
+                    // Clear out the available context
+                    mContextAwareHelper.clearAvailableContext();
+                    // And clear the ViewModelStore
                     if (!isChangingConfigurations()) {
                         getViewModelStore().clear();
                     }
