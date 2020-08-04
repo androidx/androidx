@@ -19,6 +19,7 @@ package androidx.compose.material
 import androidx.compose.runtime.staticAmbientOf
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.unit.dp
 
 /**
@@ -29,14 +30,15 @@ import androidx.compose.ui.unit.dp
  * - Medium components
  * - Large components
  *
- * See [Material shape specification](https://material.io/design/shape/applying-shape-to-ui
- * .html#)
+ * See [Material shape specification](https://material.io/design/shape/applying-shape-to-ui.html)
  */
+@Immutable
 data class Shapes(
     /**
      * Shape used by small components like [Button] or [Snackbar]. Components like
      * [FloatingActionButton], [ExtendedFloatingActionButton] use this shape, but override
-     * the corner size to be 50%.
+     * the corner size to be 50%. [TextField] uses this shape with overriding the bottom corners
+     * to zero.
      */
     val small: CornerBasedShape = RoundedCornerShape(4.dp),
     /**
