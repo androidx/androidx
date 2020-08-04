@@ -16,6 +16,7 @@
 
 package androidx.ui.integration.test
 
+import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.MutableState
@@ -29,11 +30,13 @@ import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.graphics.Color
 import androidx.test.filters.MediumTest
 import androidx.ui.test.ComposeTestCase
+import androidx.ui.test.ToggleableTestCase
 import androidx.ui.test.ExperimentalTesting
+import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.assertNoPendingChanges
-import androidx.ui.test.createComposeRule
 import androidx.ui.test.doFramesUntilNoChangesPending
-import org.junit.Assert
+import androidx.ui.test.forGivenTestCase
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,7 +52,7 @@ import org.junit.runners.JUnit4
 @OptIn(ExperimentalTesting::class)
 class ObservableThemeTest {
     @get:Rule
-    val composeTestRule = createComposeRule(disableTransitions = true)
+    val composeTestRule = createAndroidComposeRule<ComponentActivity>(disableTransitions = true)
 
     @Test
     fun testObservableTheme() {
@@ -60,8 +63,8 @@ class ObservableThemeTest {
                 doFrame()
                 assertNoPendingChanges()
 
-                Assert.assertEquals(2, testCase.primaryCompositions)
-                Assert.assertEquals(1, testCase.secondaryCompositions)
+                assertEquals(2, testCase.primaryCompositions)
+                assertEquals(1, testCase.secondaryCompositions)
 
                 doFrame()
                 assertNoPendingChanges()
@@ -70,8 +73,8 @@ class ObservableThemeTest {
 
                 doFramesUntilNoChangesPending(maxAmountOfFrames = 1)
 
-                Assert.assertEquals(4, testCase.primaryCompositions)
-                Assert.assertEquals(1, testCase.secondaryCompositions)
+                assertEquals(4, testCase.primaryCompositions)
+                assertEquals(1, testCase.secondaryCompositions)
             }
     }
 
@@ -84,8 +87,8 @@ class ObservableThemeTest {
                 doFrame()
                 assertNoPendingChanges()
 
-                Assert.assertEquals(2, testCase.primaryCompositions)
-                Assert.assertEquals(1, testCase.secondaryCompositions)
+                assertEquals(2, testCase.primaryCompositions)
+                assertEquals(1, testCase.secondaryCompositions)
 
                 doFrame()
                 assertNoPendingChanges()
@@ -94,8 +97,8 @@ class ObservableThemeTest {
 
                 doFramesUntilNoChangesPending(maxAmountOfFrames = 1)
 
-                Assert.assertEquals(4, testCase.primaryCompositions)
-                Assert.assertEquals(2, testCase.secondaryCompositions)
+                assertEquals(4, testCase.primaryCompositions)
+                assertEquals(2, testCase.secondaryCompositions)
             }
     }
 }

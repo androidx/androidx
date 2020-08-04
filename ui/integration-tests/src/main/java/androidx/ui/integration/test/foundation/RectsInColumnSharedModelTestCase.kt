@@ -26,7 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.MaterialTheme
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.integration.test.ToggleableTestCase
+import androidx.ui.test.ToggleableTestCase
 import androidx.compose.foundation.layout.preferredSize
 
 /**

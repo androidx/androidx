@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.integration.test
+package androidx.ui.test
 
 /**
  * Test case that allows to trigger a change of state. This is run multiple times by the benchmarks.

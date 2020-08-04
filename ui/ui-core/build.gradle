@@ -90,6 +90,7 @@ kotlin {
             }
             implementation(ROBOLECTRIC)
             implementation project(":ui:ui-test")
+            implementation project(":compose:test-utils")
         }
 
         androidAndroidTest.dependencies {
@@ -107,6 +108,7 @@ kotlin {
                 exclude group: 'org.mockito' // to keep control on the mockito version
             }
             implementation project(":ui:ui-test")
+            implementation project(":compose:test-utils")
             implementation project(":compose:ui:ui-test-font")
             implementation project(":compose:foundation:foundation-layout")
             implementation project(":compose:foundation:foundation")

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.test.android
+package androidx.ui.test
 
 import android.annotation.TargetApi
 import android.app.Activity
@@ -35,9 +35,6 @@ import androidx.compose.runtime.dispatch.MonotonicFrameClock
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.platform.AndroidOwner
 import androidx.compose.ui.platform.setContent
-import androidx.ui.test.ComposeBenchmarkScope
-import androidx.ui.test.ComposeTestCase
-import androidx.ui.test.setupContent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch

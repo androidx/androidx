@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.ui.test.android.fake
+package androidx.ui.test.fake
 
 import android.graphics.Matrix
 import android.graphics.Rect
