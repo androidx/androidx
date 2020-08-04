@@ -35,6 +35,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.View;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.accessibility.AccessibilityNodeInfo.ExtraRenderingInfo;
 import android.view.accessibility.AccessibilityNodeInfo.TouchDelegateInfo;
 
 import androidx.annotation.IntRange;
@@ -1668,6 +1669,64 @@ public class AccessibilityNodeInfoCompat {
      */
     public static final int MOVEMENT_GRANULARITY_PAGE = 0x00000010;
 
+    /**
+     * Key used to request and locate extra data for text character location. This key requests that
+     * an array of {@link android.graphics.RectF}s be added to the extras. This request is made with
+     * {@link #refreshWithExtraData(String, Bundle)}. The arguments taken by this request are two
+     * integers: {@link #EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX} and
+     * {@link #EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH}. The starting index must be valid
+     * inside the CharSequence returned by {@link #getText()}, and the length must be positive.
+     * <p>
+     * The data can be retrieved from the {@code Bundle} returned by {@link #getExtras()} using this
+     * string as a key for {@link Bundle#getParcelableArray(String)}. The
+     * {@link android.graphics.RectF} will be null for characters that either do not exist or are
+     * off the screen.
+     *
+     * {@see #refreshWithExtraData(String, Bundle)}
+     */
+    @SuppressLint("ActionValue")
+    public static final String EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY =
+            "android.view.accessibility.extra.DATA_TEXT_CHARACTER_LOCATION_KEY";
+
+    /**
+     * Integer argument specifying the start index of the requested text location data. Must be
+     * valid inside the CharSequence returned by {@link #getText()}.
+     *
+     * @see #EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
+     */
+    @SuppressLint("ActionValue")
+    public static final String EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX =
+            "android.view.accessibility.extra.DATA_TEXT_CHARACTER_LOCATION_ARG_START_INDEX";
+
+    /**
+     * Integer argument specifying the end index of the requested text location data. Must be
+     * positive.
+     *
+     * @see #EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
+     */
+    @SuppressLint("ActionValue")
+    public static final String EXTRA_DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH =
+            "android.view.accessibility.extra.DATA_TEXT_CHARACTER_LOCATION_ARG_LENGTH";
+
+    /**
+     * Key used to request extra data for the rendering information.
+     * The key requests that a {@link AccessibilityNodeInfo.ExtraRenderingInfo} be added to this
+     * info. This request is made with {@link #refreshWithExtraData(String, Bundle)} without
+     * argument.
+     * <p>
+     * The data can be retrieved from the {@link ExtraRenderingInfo} returned by
+     * {@link #getExtraRenderingInfo()} using {@link ExtraRenderingInfo#getLayoutSize},
+     * {@link ExtraRenderingInfo#getTextSizeInPx()} and
+     * {@link ExtraRenderingInfo#getTextSizeUnit()}. For layout params, it is supported by both
+     * {@link android.widget.TextView} and {@link android.view.ViewGroup}. For text size and
+     * unit, it is only supported by {@link android.widget.TextView}.
+     *
+     * @see #refreshWithExtraData(String, Bundle)
+     */
+    @SuppressLint("ActionValue")
+    public static final String EXTRA_DATA_RENDERING_INFO_KEY =
+            "android.view.accessibility.extra.DATA_RENDERING_INFO_KEY";
+
     private static int sClickableSpanId = 0;
 
     /**
@@ -3060,6 +3119,23 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
+     * Gets the {@link ExtraRenderingInfo extra rendering info} if the node is meant to be
+     * refreshed with extra data to examine rendering related accessibility issues.
+     *
+     * @return The {@link ExtraRenderingInfo extra rendering info}.
+     *
+     * @see #EXTRA_DATA_RENDERING_INFO_KEY
+     * @see #refreshWithExtraData(String, Bundle)
+     */
+    @Nullable
+    public ExtraRenderingInfo getExtraRenderingInfo() {
+        if (Build.VERSION.SDK_INT >= 30) {
+            return mInfo.getExtraRenderingInfo();
+        }
+        return null;
+    }
+
+    /**
      * Gets the actions that can be performed on the node.
      *
      * @return A list of AccessibilityActions.
@@ -3649,6 +3725,47 @@ public class AccessibilityNodeInfoCompat {
     }
 
     /**
+     * Get the extra data available for this node.
+     * <p>
+     * Some data that is useful for some accessibility services is expensive to compute, and would
+     * place undue overhead on apps to compute all the time. That data can be requested with
+     * {@link #refreshWithExtraData(String, Bundle)}.
+     *
+     * @return An unmodifiable list of keys corresponding to extra data that can be requested.
+     * @see #EXTRA_DATA_RENDERING_INFO_KEY
+     * @see #EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY
+     */
+    @Nullable
+    public List<String> getAvailableExtraData() {
+        if (Build.VERSION.SDK_INT >= 26) {
+            return mInfo.getAvailableExtraData();
+        }
+        return Collections.emptyList();
+    }
+
+    /**
+     * Set the extra data available for this node.
+     * <p>
+     * <strong>Note:</strong> When a {@code View} passes in a non-empty list, it promises that
+     * it will populate the node's extras with corresponding pieces of information in
+     * {@link View#addExtraDataToAccessibilityNodeInfo(AccessibilityNodeInfo, String, Bundle)}.
+     * <p>
+     * <strong>Note:</strong> Cannot be called from an
+     * {@link android.accessibilityservice.AccessibilityService}.
+     * This class is made immutable before being delivered to an AccessibilityService.
+     *
+     * @param extraDataKeys A list of types of extra data that are available.
+     * @see #getAvailableExtraData()
+     *
+     * @throws IllegalStateException If called from an AccessibilityService.
+     */
+    public void setAvailableExtraData(@NonNull List<String> extraDataKeys) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            mInfo.setAvailableExtraData(extraDataKeys);
+        }
+    }
+
+    /**
      * Gets the window to which this node belongs.
      *
      * @return The window.
@@ -3975,6 +4092,30 @@ public class AccessibilityNodeInfoCompat {
     public boolean refresh() {
         if (Build.VERSION.SDK_INT >= 18) {
             return mInfo.refresh();
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Refreshes this info with the latest state of the view it represents, and request new
+     * data be added by the View.
+     *
+     * @param extraDataKey The extra data requested. Data that must be requested
+     *                     with this mechanism is generally expensive to retrieve, so should only be
+     *                     requested when needed. See
+     *                     {@link #EXTRA_DATA_RENDERING_INFO_KEY},
+     *                     {@link #EXTRA_DATA_TEXT_CHARACTER_LOCATION_KEY},
+     *                     {@link #getAvailableExtraData()} and {@link #getExtraRenderingInfo()}.
+     * @param args A bundle of arguments for the request. These depend on the particular request.
+     *
+     * @return {@code true} if the refresh succeeded. {@code false} if the {@link View} represented
+     * by this node is no longer in the view tree (and thus this node is obsolete and should be
+     * recycled).
+     */
+    public boolean refreshWithExtraData(@Nullable String extraDataKey, @NonNull Bundle args) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            return mInfo.refreshWithExtraData(extraDataKey, args);
         } else {
             return false;
         }
