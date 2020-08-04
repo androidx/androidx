@@ -14,10 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.input.key
+package androidx.compose.ui.node
 
-import androidx.compose.ui.node.DelegatingLayoutNodeWrapper
-import androidx.compose.ui.node.LayoutNodeWrapper
+import androidx.compose.ui.input.key.ExperimentalKeyInput
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.input.key.KeyInputModifier
 
 @OptIn(ExperimentalKeyInput::class)
 internal class ModifiedKeyInputNode(wrapped: LayoutNodeWrapper, modifier: KeyInputModifier) :
