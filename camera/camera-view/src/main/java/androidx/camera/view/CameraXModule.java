@@ -30,8 +30,8 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Camera;
+import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
@@ -363,8 +363,15 @@ final class CameraXModule {
 
     @RequiresPermission(permission.CAMERA)
     public boolean hasCameraWithLensFacing(@CameraSelector.LensFacing int lensFacing) {
-        return CameraX.hasCamera(
-                new CameraSelector.Builder().requireLensFacing(lensFacing).build());
+        if (mCameraProvider == null) {
+            return false;
+        }
+        try {
+            return mCameraProvider.hasCamera(
+                    new CameraSelector.Builder().requireLensFacing(lensFacing).build());
+        } catch (CameraInfoUnavailableException e) {
+            return false;
+        }
     }
 
     @Nullable
