@@ -145,6 +145,21 @@ public final class PreviewViewFragmentTest {
     }
 
     @Test
+    public void checkPreviewUpdatesAfterToggleCameraMultipleTimes() {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT));
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
+
+        final FragmentScenario<PreviewViewFragment> scenario = createScenario();
+        assertPreviewUpdating(scenario);
+
+        for (int i = 0; i <= 10; i++) {
+            onView(withId(R.id.toggle_camera)).perform(click());
+        }
+
+        assertPreviewUpdating(scenario);
+    }
+
+    @Test
     public void checkPreviewNotUpdatedAfterPreviewUnbound() {
         final FragmentScenario<PreviewViewFragment> scenario = createScenario();
         assertPreviewUpdating(scenario);
