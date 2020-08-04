@@ -32,6 +32,9 @@ internal inline class KeyEventAndroid(val keyEvent: AndroidKeyEvent) : KeyEvent 
     override val key: Key
         get() = Key(keyEvent.keyCode)
 
+    override val utf16CodePoint: Int
+        get() = keyEvent.unicodeChar
+
     override val type: KeyEventType
         get() = when (keyEvent.action) {
             ACTION_DOWN -> KeyDown

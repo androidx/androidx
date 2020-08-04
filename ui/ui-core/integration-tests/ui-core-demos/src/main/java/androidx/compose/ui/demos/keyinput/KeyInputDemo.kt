@@ -37,9 +37,7 @@ import androidx.compose.ui.focusRequester
 import androidx.compose.ui.gesture.tapGestureFilter
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.key.ExperimentalKeyInput
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.KeyEvent
-import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.KeyEventType.KeyDown
 import androidx.compose.ui.input.key.keyInputFilter
 
 @Composable
@@ -78,7 +76,16 @@ private fun FocusableText(text: MutableState<String>) {
             .focusObserver { color = if (it.isFocused) Color.Green else Color.Black }
             .focus()
             .tapGestureFilter { focusRequester.requestFocus() }
-            .keyInputFilter { it.value?.let { text.value += it; true } ?: false },
+            .keyInputFilter {
+                if (it.type == KeyDown) {
+                    text.value = StringBuilder(text.value)
+                        .appendCodePoint(it.utf16CodePoint)
+                        .toString()
+                    true
+                } else {
+                    false
+                }
+            },
         text = text.value,
         color = color
     )
@@ -92,39 +99,3 @@ private fun CenteredRow(children: @Composable RowScope.() -> Unit) {
         children = children
     )
 }
-
-@OptIn(ExperimentalKeyInput::class)
-private val KeyEvent.value: String?
-    get() {
-        if (type != KeyEventType.KeyUp) return null
-        return when (key) {
-            Key.A -> "a"
-            Key.B -> "b"
-            Key.C -> "c"
-            Key.D -> "d"
-            Key.E -> "e"
-            Key.F -> "f"
-            Key.G -> "g"
-            Key.H -> "h"
-            Key.I -> "i"
-            Key.J -> "j"
-            Key.K -> "k"
-            Key.L -> "l"
-            Key.M -> "m"
-            Key.N -> "n"
-            Key.O -> "o"
-            Key.P -> "p"
-            Key.Q -> "q"
-            Key.R -> "r"
-            Key.S -> "s"
-            Key.T -> "t"
-            Key.U -> "u"
-            Key.V -> "v"
-            Key.W -> "w"
-            Key.X -> "x"
-            Key.Y -> "y"
-            Key.Z -> "z"
-            Key.Spacebar -> " "
-            else -> null
-        }
-    }
