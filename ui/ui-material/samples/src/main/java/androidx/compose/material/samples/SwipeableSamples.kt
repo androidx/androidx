@@ -25,8 +25,8 @@ import androidx.compose.foundation.layout.offsetPx
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.FractionalThreshold
 import androidx.compose.material.SwipeableState
-import androidx.compose.material.fractionalThresholds
 import androidx.compose.material.swipeable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -61,7 +61,7 @@ fun SwipeableSample() {
             .swipeable(
                 state = swipeableState,
                 anchors = anchors,
-                thresholds = fractionalThresholds(0.5f),
+                thresholds = { _, _ -> FractionalThreshold(0.5f) },
                 orientation = Orientation.Horizontal
             ),
         backgroundColor = Color.Black

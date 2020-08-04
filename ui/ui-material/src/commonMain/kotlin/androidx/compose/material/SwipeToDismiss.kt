@@ -90,26 +90,7 @@ class DismissState(
      * change the background of the [SwipeToDismiss] if you want different actions on each side.
      */
     val dismissDirection: DismissDirection?
-        get() {
-            val (from, to, _) = swipeProgress
-            return when {
-                // settled at the default state
-                from == to && from == Default -> null
-                // has been dismissed to the end
-                from == to && from == DismissedToEnd -> StartToEnd
-                // has been dismissed to the start
-                from == to && from == DismissedToStart -> EndToStart
-                // is currently being dismissed to the end
-                from == Default && to == DismissedToEnd -> StartToEnd
-                // is currently being dismissed to the start
-                from == Default && to == DismissedToStart -> EndToStart
-                // has been dismissed to the end but is now animated back to default
-                from == DismissedToEnd && to == Default -> StartToEnd
-                // has been dismissed to the start but is now animated back to default
-                from == DismissedToStart && to == Default -> EndToStart
-                else -> null
-            }
-        }
+        get() = getDismissDirection(swipeProgress.from, swipeProgress.to)
 
     /**
      * Whether the component has been dismissed in the given [direction].
@@ -173,6 +154,7 @@ fun rememberDismissState(
  * @param state The state of this component.
  * @param modifier Optional [Modifier] for this component.
  * @param directions The set of directions in which the component can be dismissed.
+ * @param dismissThresholds The thresholds the item needs to be swiped in order to be dismissed.
  * @param background A composable that is stacked behind the content and is exposed when the
  * content is swiped. You can/should use the [state] to have different backgrounds on each side.
  * @param dismissContent The content that can be dismissed.
@@ -183,6 +165,7 @@ fun SwipeToDismiss(
     state: DismissState,
     modifier: Modifier = Modifier,
     directions: Set<DismissDirection> = setOf(EndToStart, StartToEnd),
+    dismissThresholds: (DismissDirection) -> ThresholdConfig = { FractionalThreshold(0.5f) },
     background: @Composable RowScope.() -> Unit,
     dismissContent: @Composable RowScope.() -> Unit
 ) = WithConstraints(modifier) {
@@ -193,10 +176,14 @@ fun SwipeToDismiss(
     if (StartToEnd in directions) anchors += width to DismissedToEnd
     if (EndToStart in directions) anchors += -width to DismissedToStart
 
+    val thresholds = { from: DismissValue, to: DismissValue ->
+        dismissThresholds(getDismissDirection(from, to)!!)
+    }
+
     Stack(Modifier.swipeable(
         state = state,
         anchors = anchors,
-        thresholds = fractionalThresholds(0.25f),
+        thresholds = thresholds,
         orientation = Orientation.Horizontal,
         enabled = state.value == Default,
         reverseDirection = isRtl
@@ -209,5 +196,25 @@ fun SwipeToDismiss(
             children = dismissContent,
             modifier = Modifier.offsetPx(x = state.offset)
         )
+    }
+}
+
+private fun getDismissDirection(from: DismissValue, to: DismissValue): DismissDirection? {
+    return when {
+        // settled at the default state
+        from == to && from == Default -> null
+        // has been dismissed to the end
+        from == to && from == DismissedToEnd -> StartToEnd
+        // has been dismissed to the start
+        from == to && from == DismissedToStart -> EndToStart
+        // is currently being dismissed to the end
+        from == Default && to == DismissedToEnd -> StartToEnd
+        // is currently being dismissed to the start
+        from == Default && to == DismissedToStart -> EndToStart
+        // has been dismissed to the end but is now animated back to default
+        from == DismissedToEnd && to == Default -> StartToEnd
+        // has been dismissed to the start but is now animated back to default
+        from == DismissedToStart && to == Default -> EndToStart
+        else -> null
     }
 }

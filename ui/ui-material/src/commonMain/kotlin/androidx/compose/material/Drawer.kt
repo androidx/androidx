@@ -306,7 +306,7 @@ fun ModalDrawerLayout(
             Modifier.swipeable(
                 state = drawerState,
                 anchors = anchors,
-                thresholds = fractionalThresholds(0.5f),
+                thresholds = { _, _ -> FractionalThreshold(0.5f) },
                 orientation = Orientation.Horizontal,
                 enabled = gesturesEnabled,
                 reverseDirection = isRtl
@@ -417,7 +417,7 @@ fun BottomDrawerLayout(
             Modifier.swipeable(
                 state = drawerState,
                 anchors = anchors,
-                thresholds = fixedThresholds(BottomDrawerThreshold),
+                thresholds = { _, _ -> FixedThreshold(BottomDrawerThreshold) },
                 orientation = Orientation.Vertical,
                 enabled = gesturesEnabled
             )
