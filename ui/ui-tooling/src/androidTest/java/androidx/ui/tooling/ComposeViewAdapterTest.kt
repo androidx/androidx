@@ -18,10 +18,15 @@ package androidx.ui.tooling
 
 import android.app.Activity
 import android.os.Bundle
+import androidx.compose.animation.core.InternalAnimationApi
+import androidx.compose.animation.core.TransitionAnimation
 import androidx.ui.tooling.preview.ComposeViewAdapter
 import androidx.ui.tooling.preview.ViewInfo
+import androidx.ui.tooling.preview.animation.PreviewAnimationClock
 import androidx.ui.tooling.test.R
 import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -71,6 +76,29 @@ class ComposeViewAdapterTest {
             // Verify that valid line numbers are being recorded
             assertTrue(viewInfos.map { it.lineNumber }.all { it > 0 })
             // Verify that method names are being captured
+        }
+    }
+
+    @OptIn(InternalAnimationApi::class)
+    @Test
+    fun transitionAnimationsAreSubscribedToTheClock() {
+        val clock = PreviewAnimationClock()
+
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.init(
+                "androidx.ui.tooling.TestAnimationPreviewKt",
+                "PressStateAnimation"
+            )
+            composeViewAdapter.clock = clock
+            assertTrue(clock.observersToAnimations.isEmpty())
+
+            composeViewAdapter.findAndSubscribeTransitions()
+            assertFalse(clock.observersToAnimations.isEmpty())
+
+            val observer = clock.observersToAnimations.keys.single()
+            val transitionAnimation =
+                (observer as TransitionAnimation<*>.TransitionAnimationClockObserver).animation
+            assertEquals("colorAnim", transitionAnimation.label)
         }
     }
 
