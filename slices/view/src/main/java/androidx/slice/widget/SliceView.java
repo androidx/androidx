@@ -395,7 +395,10 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
                     childrenHeight = requiredHeight;
                 } else {
                     // Not enough space available for slice in current mode
-                    if (getMode() == MODE_LARGE
+                    if (mSliceStyle.getExpandToAvailableHeight()) {
+                        // Don't request more space than we're allowed to have.
+                        requiredHeight = childrenHeight;
+                    } else if (getMode() == MODE_LARGE
                             && childrenHeight >= mLargeHeight + actionHeight) {
                         childrenHeight = mLargeHeight + actionHeight;
                     } else if (childrenHeight <= mMinTemplateHeight) {
