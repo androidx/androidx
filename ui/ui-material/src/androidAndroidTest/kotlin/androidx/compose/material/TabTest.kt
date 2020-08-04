@@ -21,6 +21,7 @@ import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.material.TabConstants.defaultTabIndicatorOffset
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.samples.ScrollingTextTabs
@@ -70,7 +71,7 @@ class TabTest {
     fun textTab_height() {
         composeTestRule
             .setMaterialContentForSizeAssertions {
-                Tab(text = { Text("Text") }, selected = true, onSelected = {})
+                Tab(text = { Text("Text") }, selected = true, onClick = {})
             }
             .assertHeightIsEqualTo(ExpectedSmallTabHeight)
     }
@@ -79,7 +80,7 @@ class TabTest {
     fun iconTab_height() {
         composeTestRule
             .setMaterialContentForSizeAssertions {
-                Tab(icon = { Icon(icon) }, selected = true, onSelected = {})
+                Tab(icon = { Icon(icon) }, selected = true, onClick = {})
             }
             .assertHeightIsEqualTo(ExpectedSmallTabHeight)
     }
@@ -93,7 +94,7 @@ class TabTest {
                         text = { Text("Text and Icon") },
                         icon = { Icon(icon) },
                         selected = true,
-                        onSelected = {}
+                        onClick = {}
                     )
                 }
             }
@@ -108,29 +109,29 @@ class TabTest {
             var state by remember { mutableStateOf(0) }
             val titles = listOf("TAB 1", "TAB 2")
 
-            val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
-                TabRow.IndicatorContainer(tabPositions, state) {
-                    Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .preferredHeight(indicatorHeight)
-                            .background(color = Color.Red)
+            val indicator = @Composable { tabPositions: List<TabPosition> ->
+                Box(
+                    Modifier
+                        .defaultTabIndicatorOffset(tabPositions[state])
+                        .fillMaxWidth()
+                        .preferredHeight(indicatorHeight)
+                        .background(color = Color.Red)
                         .testTag("indicator")
-                    )
-                }
+                )
             }
 
             Box(Modifier.testTag("tabRow")) {
                 TabRow(
-                    items = titles,
-                    selectedIndex = state,
-                    indicatorContainer = indicatorContainer
-                ) { index, text ->
-                    Tab(
-                        text = { Text(text) },
-                        selected = state == index,
-                        onSelected = { state = index }
-                    )
+                    selectedTabIndex = state,
+                    indicator = indicator
+                ) {
+                    titles.forEachIndexed { index, title ->
+                        Tab(
+                            text = { Text(title) },
+                            selected = state == index,
+                            onClick = { state = index }
+                        )
+                    }
                 }
             }
         }
@@ -164,16 +165,17 @@ class TabTest {
             Box {
                 TabRow(
                     modifier = Modifier.testTag("tabRow"),
-                    items = titles,
-                    selectedIndex = state
-                ) { index, text ->
-                    Tab(
-                        text = {
-                            Text(text, Modifier.testTag("text"))
-                        },
-                        selected = state == index,
-                        onSelected = { state = index }
-                    )
+                    selectedTabIndex = state
+                ) {
+                    titles.forEachIndexed { index, title ->
+                        Tab(
+                            text = {
+                                Text(title, Modifier.testTag("text"))
+                            },
+                            selected = state == index,
+                            onClick = { state = index }
+                        )
+                    }
                 }
             }
         }
@@ -200,17 +202,18 @@ class TabTest {
             Box {
                 TabRow(
                     modifier = Modifier.testTag("tabRow"),
-                    items = titles,
-                    selectedIndex = state
-                ) { index, text ->
-                    Tab(
-                        text = {
-                            Text(text, Modifier.testTag("text"))
-                        },
-                        icon = { Icon(Icons.Filled.Favorite) },
-                        selected = state == index,
-                        onSelected = { state = index }
-                    )
+                    selectedTabIndex = state
+                ) {
+                    titles.forEachIndexed { index, title ->
+                        Tab(
+                            text = {
+                                Text(title, Modifier.testTag("text"))
+                            },
+                            icon = { Icon(Icons.Filled.Favorite) },
+                            selected = state == index,
+                            onClick = { state = index }
+                        )
+                    }
                 }
             }
         }
@@ -237,16 +240,17 @@ class TabTest {
             Box {
                 TabRow(
                     modifier = Modifier.testTag("tabRow"),
-                    items = titles,
-                    selectedIndex = state
-                ) { index, text ->
-                    Tab(
-                        text = {
-                            Text(text, Modifier.testTag("text"), maxLines = 2)
-                        },
-                        selected = state == index,
-                        onSelected = { state = index }
-                    )
+                    selectedTabIndex = state
+                ) {
+                    titles.forEachIndexed { index, title ->
+                        Tab(
+                            text = {
+                                Text(title, Modifier.testTag("text"), maxLines = 2)
+                            },
+                            selected = state == index,
+                            onClick = { state = index }
+                        )
+                    }
                 }
             }
         }
@@ -268,38 +272,36 @@ class TabTest {
     @Test
     fun scrollableTabRow_indicatorPosition() {
         val indicatorHeight = 1.dp
-        val scrollableTabRowOffset = 52.dp
         val minimumTabWidth = 90.dp
 
         composeTestRule.setMaterialContent {
             var state by remember { mutableStateOf(0) }
             val titles = listOf("TAB 1", "TAB 2")
 
-            val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
-                TabRow.IndicatorContainer(tabPositions, state) {
-                    Box(
-                        Modifier
-                            .fillMaxWidth()
-                            .preferredHeight(indicatorHeight)
-                            .background(color = Color.Red)
-                        .testTag("indicator")
-                    )
-                }
+            val indicator = @Composable { tabPositions: List<TabPosition> ->
+                Box(
+                    Modifier
+                        .defaultTabIndicatorOffset(tabPositions[state])
+                        .fillMaxWidth()
+                        .preferredHeight(indicatorHeight)
+                        .background(color = Color.Red)
+                    .testTag("indicator")
+                )
             }
 
             Box {
-                TabRow(
+                ScrollableTabRow(
                     modifier = Modifier.testTag("tabRow"),
-                    items = titles,
-                    scrollable = true,
-                    selectedIndex = state,
-                    indicatorContainer = indicatorContainer
-                ) { index, text ->
-                    Tab(
-                        text = { Text(text) },
-                        selected = state == index,
-                        onSelected = { state = index }
-                    )
+                    selectedTabIndex = state,
+                    indicator = indicator
+                ) {
+                    titles.forEachIndexed { index, title ->
+                        Tab(
+                            text = { Text(title) },
+                            selected = state == index,
+                            onClick = { state = index }
+                        )
+                    }
                 }
             }
         }
@@ -310,7 +312,7 @@ class TabTest {
         onNodeWithTag("indicator")
             .assertPositionInRootIsEqualTo(
                 // Tabs in a scrollable tab row are offset 52.dp from each end
-                expectedLeft = scrollableTabRowOffset,
+                expectedLeft = TabConstants.DefaultScrollableTabRowPadding,
                 expectedTop = tabRowBounds.height - indicatorHeight
             )
 
@@ -321,7 +323,7 @@ class TabTest {
         // should be in the middle of the TabRow
         onNodeWithTag("indicator")
             .assertPositionInRootIsEqualTo(
-                expectedLeft = scrollableTabRowOffset + minimumTabWidth,
+                expectedLeft = TabConstants.DefaultScrollableTabRowPadding + minimumTabWidth,
                 expectedTop = tabRowBounds.height - indicatorHeight
             )
     }
