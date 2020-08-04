@@ -20,8 +20,9 @@ import androidx.compose.animation.asDisposableClock
 import androidx.compose.animation.core.AnimationClockObservable
 import androidx.compose.animation.core.AnimationEndReason
 import androidx.compose.animation.core.SpringSpec
-import androidx.compose.foundation.Box
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.DpConstraints
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxSize
@@ -29,12 +30,12 @@ import androidx.compose.foundation.layout.offsetPx
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSizeIn
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.WithConstraints
 import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.ui.gesture.tapGestureFilter
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.AnimationClockAmbient
 import androidx.compose.ui.platform.DensityAmbient
@@ -52,6 +53,7 @@ enum class DrawerValue {
      * The state of the drawer when it is closed.
      */
     Closed,
+
     /**
      * The state of the drawer when it is open.
      */
@@ -66,10 +68,12 @@ enum class BottomDrawerValue {
      * The state of the bottom drawer when it is closed.
      */
     Closed,
+
     /**
      * The state of the bottom drawer when it is open (i.e. at 50% height).
      */
     Open,
+
     /**
      * The state of the bottom drawer when it is expanded (i.e. at 100% height).
      */
@@ -254,12 +258,18 @@ fun rememberBottomDrawerState(
  *
  * @sample androidx.compose.material.samples.ModalDrawerSample
  *
+ * @param drawerContent composable that represents content inside the drawer
+ * @param modifier optional modifier for the drawer
  * @param drawerState state of the drawer
  * @param gesturesEnabled whether or not drawer can be interacted by gestures
  * @param drawerShape shape of the drawer sheet
  * @param drawerElevation drawer sheet elevation. This controls the size of the shadow below the
  * drawer sheet
- * @param drawerContent composable that represents content inside the drawer
+ * @param drawerBackgroundColor background color to be used for the drawer sheet
+ * @param drawerContentColor color of the content to use inside the drawer sheet. Defaults to
+ * either the matching `onFoo` color for [drawerBackgroundColor], or, if it is not a color from
+ * the theme, this will keep the same value set above this Surface.
+ * @param scrimColor color of the scrim that obscures content when the drawer is open
  * @param bodyContent content of the rest of the UI
  *
  * @throws IllegalStateException when parent has [Float.POSITIVE_INFINITY] width
@@ -267,14 +277,19 @@ fun rememberBottomDrawerState(
 @Composable
 @OptIn(ExperimentalMaterialApi::class)
 fun ModalDrawerLayout(
+    drawerContent: @Composable ColumnScope.() -> Unit,
+    modifier: Modifier = Modifier,
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
     gesturesEnabled: Boolean = true,
     drawerShape: Shape = MaterialTheme.shapes.large,
     drawerElevation: Dp = DrawerConstants.DefaultElevation,
-    drawerContent: @Composable () -> Unit,
+    drawerBackgroundColor: Color = MaterialTheme.colors.surface,
+    drawerContentColor: Color = contentColorFor(drawerBackgroundColor),
+    scrimColor: Color = MaterialTheme.colors.onSurface
+        .copy(alpha = DrawerConstants.ScrimDefaultOpacity),
     bodyContent: @Composable () -> Unit
 ) {
-    WithConstraints(Modifier.fillMaxSize()) {
+    WithConstraints(modifier.fillMaxSize()) {
         // TODO : think about Infinite max bounds case
         if (!constraints.hasBoundedWidth) {
             throw IllegalStateException("Drawer shouldn't have infinite width")
@@ -287,25 +302,37 @@ fun ModalDrawerLayout(
 
         val anchors = mapOf(minValue to DrawerValue.Closed, maxValue to DrawerValue.Open)
         val isRtl = LayoutDirectionAmbient.current == LayoutDirection.Rtl
-        Stack(Modifier.swipeable(
-            state = drawerState,
-            anchors = anchors,
-            thresholds = fractionalThresholds(0.5f),
-            orientation = Orientation.Horizontal,
-            enabled = gesturesEnabled,
-            reverseDirection = isRtl
-        )) {
+        Stack(
+            Modifier.swipeable(
+                state = drawerState,
+                anchors = anchors,
+                thresholds = fractionalThresholds(0.5f),
+                orientation = Orientation.Horizontal,
+                enabled = gesturesEnabled,
+                reverseDirection = isRtl
+            )
+        ) {
             Stack {
                 bodyContent()
             }
             Scrim(
                 open = drawerState.isOpen,
                 onClose = { drawerState.close() },
-                fraction = { calculateFraction(minValue, maxValue, drawerState.offset.value) }
+                fraction = { calculateFraction(minValue, maxValue, drawerState.offset.value) },
+                color = scrimColor
             )
-            DrawerContent(
-                drawerState.offset, dpConstraints, drawerShape, drawerElevation, drawerContent
-            )
+            Surface(
+                modifier = Modifier
+                    .preferredSizeIn(dpConstraints)
+                    .offsetPx(x = drawerState.offset)
+                    .padding(end = VerticalDrawerPadding),
+                shape = drawerShape,
+                color = drawerBackgroundColor,
+                contentColor = drawerContentColor,
+                elevation = drawerElevation
+            ) {
+                Column(Modifier.fillMaxSize(), children = drawerContent)
+            }
         }
     }
 }
@@ -325,11 +352,17 @@ fun ModalDrawerLayout(
  * @sample androidx.compose.material.samples.BottomDrawerSample
  *
  * @param drawerState state of the drawer
+ * @param modifier optional modifier for the drawer
  * @param gesturesEnabled whether or not drawer can be interacted by gestures
  * @param drawerShape shape of the drawer sheet
  * @param drawerElevation drawer sheet elevation. This controls the size of the shadow below the
  * drawer sheet
  * @param drawerContent composable that represents content inside the drawer
+ * @param drawerBackgroundColor background color to be used for the drawer sheet
+ * @param drawerContentColor color of the content to use inside the drawer sheet. Defaults to
+ * either the matching `onFoo` color for [drawerBackgroundColor], or, if it is not a color from
+ * the theme, this will keep the same value set above this Surface.
+ * @param scrimColor color of the scrim that obscures content when the drawer is open
  * @param bodyContent content of the rest of the UI
  *
  * @throws IllegalStateException when parent has [Float.POSITIVE_INFINITY] height
@@ -337,14 +370,19 @@ fun ModalDrawerLayout(
 @Composable
 @OptIn(ExperimentalMaterialApi::class)
 fun BottomDrawerLayout(
+    drawerContent: @Composable ColumnScope.() -> Unit,
+    modifier: Modifier = Modifier,
     drawerState: BottomDrawerState = rememberBottomDrawerState(BottomDrawerValue.Closed),
     gesturesEnabled: Boolean = true,
     drawerShape: Shape = MaterialTheme.shapes.large,
     drawerElevation: Dp = DrawerConstants.DefaultElevation,
-    drawerContent: @Composable () -> Unit,
+    drawerBackgroundColor: Color = MaterialTheme.colors.surface,
+    drawerContentColor: Color = contentColorFor(drawerBackgroundColor),
+    scrimColor: Color = MaterialTheme.colors.onSurface
+        .copy(alpha = DrawerConstants.ScrimDefaultOpacity),
     bodyContent: @Composable () -> Unit
 ) {
-    WithConstraints(Modifier.fillMaxSize()) {
+    WithConstraints(modifier.fillMaxSize()) {
         // TODO : think about Infinite max bounds case
         if (!constraints.hasBoundedHeight) {
             throw IllegalStateException("Drawer shouldn't have infinite height")
@@ -375,13 +413,15 @@ fun BottomDrawerLayout(
                     minValue to BottomDrawerValue.Expanded
                 )
             }
-        Stack(Modifier.swipeable(
-            state = drawerState,
-            anchors = anchors,
-            thresholds = fixedThresholds(BottomDrawerThreshold),
-            orientation = Orientation.Vertical,
-            enabled = gesturesEnabled
-        )) {
+        Stack(
+            Modifier.swipeable(
+                state = drawerState,
+                anchors = anchors,
+                thresholds = fixedThresholds(BottomDrawerThreshold),
+                orientation = Orientation.Vertical,
+                enabled = gesturesEnabled
+            )
+        ) {
             Stack {
                 bodyContent()
             }
@@ -391,11 +431,20 @@ fun BottomDrawerLayout(
                 fraction = {
                     // as we scroll "from height to 0" , need to reverse fraction
                     1 - calculateFraction(openValue, maxValue, drawerState.offset.value)
-                }
+                },
+                color = scrimColor
             )
-            BottomDrawerContent(
-                drawerState.offset, dpConstraints, drawerShape, drawerElevation, drawerContent
-            )
+            Surface(
+                modifier = Modifier
+                    .preferredSizeIn(dpConstraints)
+                    .offsetPx(y = drawerState.offset),
+                shape = drawerShape,
+                color = drawerBackgroundColor,
+                contentColor = drawerContentColor,
+                elevation = drawerElevation
+                ) {
+                Column(Modifier.fillMaxSize(), children = drawerContent)
+            }
         }
     }
 }
@@ -409,46 +458,11 @@ object DrawerConstants {
      * Default Elevation for drawer sheet as specified in material specs
      */
     val DefaultElevation = 16.dp
-}
 
-@Composable
-private fun DrawerContent(
-    xOffset: State<Float>,
-    constraints: DpConstraints,
-    shape: Shape,
-    elevation: Dp,
-    content: @Composable () -> Unit
-) {
-    Surface(
-        modifier =
-        Modifier
-            .preferredSizeIn(constraints)
-            .offsetPx(x = xOffset)
-            .padding(end = VerticalDrawerPadding),
-        shape = shape,
-        elevation = elevation
-    ) {
-        Box(Modifier.fillMaxSize(), children = content)
-    }
-}
-
-@Composable
-private fun BottomDrawerContent(
-    yOffset: State<Float>,
-    constraints: DpConstraints,
-    shape: Shape,
-    elevation: Dp,
-    content: @Composable () -> Unit
-) {
-    Surface(
-        modifier = Modifier
-            .preferredSizeIn(constraints)
-            .offsetPx(y = yOffset),
-        shape = shape,
-        elevation = elevation
-    ) {
-        Box(Modifier.fillMaxSize(), children = content)
-    }
+    /**
+     * Default alpha for scrim color
+     */
+    const val ScrimDefaultOpacity = 0.32f
 }
 
 private fun calculateFraction(a: Float, b: Float, pos: Float) =
@@ -458,9 +472,9 @@ private fun calculateFraction(a: Float, b: Float, pos: Float) =
 private fun Scrim(
     open: Boolean,
     onClose: () -> Unit,
-    fraction: () -> Float
+    fraction: () -> Float,
+    color: Color
 ) {
-    val color = MaterialTheme.colors.onSurface
     val dismissDrawer = if (open) {
         Modifier.tapGestureFilter { onClose() }
     } else {
@@ -472,11 +486,10 @@ private fun Scrim(
             .fillMaxSize()
             .then(dismissDrawer)
     ) {
-        drawRect(color, alpha = fraction() * ScrimDefaultOpacity)
+        drawRect(color, alpha = fraction())
     }
 }
 
-private const val ScrimDefaultOpacity = 0.32f
 private val VerticalDrawerPadding = 56.dp
 
 private const val DrawerStiffness = 1000f

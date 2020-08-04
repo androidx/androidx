@@ -129,6 +129,7 @@ object Scaffold {
          * exists)
          */
         Center,
+
         /**
          * Position FAB at the bottom of the screen at the end, above the [BottomAppBar] (if it
          * exists)
@@ -169,6 +170,11 @@ object Scaffold {
  * @param drawerShape shape of the drawer sheet (if set)
  * @param drawerElevation drawer sheet elevation. This controls the size of the shadow
  * below the drawer sheet (if set)
+ * @param drawerBackgroundColor background color to be used for the drawer sheet
+ * @param drawerContentColor color of the content to use inside the drawer sheet. Defaults to
+ * either the matching `onFoo` color for [drawerBackgroundColor], or, if it is not a color from
+ * the theme, this will keep the same value set above this Surface.
+ * @param drawerScrimColor color of the scrim that obscures content when the drawer is open
  * @param bodyContent content of your screen. The lambda receives an [InnerPadding] that should be
  * applied to the content root via [Modifier.padding] to properly offset top and bottom bars. If
  * you're using VerticalScroller, apply this modifier to the child of the scroller, and not on
@@ -185,6 +191,10 @@ fun Scaffold(
     drawerContent: @Composable (() -> Unit)? = null,
     drawerShape: Shape = MaterialTheme.shapes.large,
     drawerElevation: Dp = DrawerConstants.DefaultElevation,
+    drawerBackgroundColor: Color = MaterialTheme.colors.surface,
+    drawerContentColor: Color = contentColorFor(drawerBackgroundColor),
+    drawerScrimColor: Color = MaterialTheme.colors.onSurface
+        .copy(alpha = DrawerConstants.ScrimDefaultOpacity),
     backgroundColor: Color = MaterialTheme.colors.background,
     bodyContent: @Composable (InnerPadding) -> Unit
 ) {
@@ -217,6 +227,9 @@ fun Scaffold(
             drawerContent = { ScaffoldSlot(content = drawerContent) },
             drawerShape = drawerShape,
             drawerElevation = drawerElevation,
+            drawerBackgroundColor = drawerBackgroundColor,
+            drawerContentColor = drawerContentColor,
+            scrimColor = drawerScrimColor,
             bodyContent = child
         )
     } else {
