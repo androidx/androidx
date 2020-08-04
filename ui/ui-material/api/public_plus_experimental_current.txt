@@ -321,9 +321,16 @@ package androidx.compose.material {
     method @androidx.compose.runtime.Composable public static void Slider-HFaW-Xw(float value, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueChange, androidx.compose.ui.Modifier modifier = Modifier, kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange = 0.0 .. 1.0, @IntRange(from=0) int steps = 0, kotlin.jvm.functions.Function0<kotlin.Unit> onValueChangeEnd = {}, long color = MaterialTheme.colors.primary);
   }
 
+  public final class SnackbarConstants {
+    method public long getDefaultActionPrimaryColor();
+    method public long getDefaultBackgroundColor();
+    property public final long defaultActionPrimaryColor;
+    property public final long defaultBackgroundColor;
+    field public static final androidx.compose.material.SnackbarConstants INSTANCE;
+  }
+
   public final class SnackbarKt {
-    method @androidx.compose.runtime.Composable public static void Snackbar-qFjctQw(kotlin.jvm.functions.Function0<kotlin.Unit> text, kotlin.jvm.functions.Function0<kotlin.Unit>? action = null, androidx.compose.ui.Modifier modifier = Modifier, boolean actionOnNewLine = false, androidx.compose.ui.graphics.Shape shape = small, float elevation = 6.dp);
-    method public static long snackbarPrimaryColorFor(androidx.compose.material.Colors colors);
+    method @androidx.compose.runtime.Composable public static void Snackbar-GiTsVJ0(androidx.compose.ui.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>? action = null, boolean actionOnNewLine = false, androidx.compose.ui.graphics.Shape shape = small, long backgroundColor = SnackbarConstants.defaultBackgroundColor, long contentColor = MaterialTheme.colors.surface, float elevation = 6.dp, kotlin.jvm.functions.Function0<kotlin.Unit> text);
   }
 
   public final class SurfaceKt {

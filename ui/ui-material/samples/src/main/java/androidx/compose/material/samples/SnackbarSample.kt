@@ -17,12 +17,11 @@
 package androidx.compose.material.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Text
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Snackbar
+import androidx.compose.material.SnackbarConstants
 import androidx.compose.material.TextButton
-import androidx.compose.material.snackbarPrimaryColorFor
+import androidx.compose.runtime.Composable
 
 @Sampled
 @Composable
@@ -31,7 +30,7 @@ fun SimpleSnackbar() {
         text = { Text("Action has been done") },
         action = {
             TextButton(
-                contentColor = snackbarPrimaryColorFor(MaterialTheme.colors),
+                contentColor = SnackbarConstants.defaultActionPrimaryColor,
                 onClick = { /* perform undo */ }
             ) {
                 Text("UNDO")
