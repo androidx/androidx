@@ -16,8 +16,8 @@
 
 package androidx.camera.view;
 
-import static androidx.camera.view.PreviewView.ImplementationMode.SURFACE_VIEW;
-import static androidx.camera.view.PreviewView.ImplementationMode.TEXTURE_VIEW;
+import static androidx.camera.view.PreviewView.ImplementationMode.COMPATIBLE;
+import static androidx.camera.view.PreviewView.ImplementationMode.PERFORMANCE;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -163,7 +163,7 @@ public class PreviewViewTest {
                 createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY);
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
-        previewView.setPreferredImplementationMode(SURFACE_VIEW);
+        previewView.setImplementationMode(PERFORMANCE);
         Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
@@ -179,7 +179,7 @@ public class PreviewViewTest {
 
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
-        previewView.setPreferredImplementationMode(SURFACE_VIEW);
+        previewView.setImplementationMode(PERFORMANCE);
         Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
@@ -195,7 +195,7 @@ public class PreviewViewTest {
 
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
-        previewView.setPreferredImplementationMode(SURFACE_VIEW);
+        previewView.setImplementationMode(PERFORMANCE);
         Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
@@ -205,12 +205,12 @@ public class PreviewViewTest {
 
     @Test
     @UiThreadTest
-    public void usesTextureView_whenNonLegacyDevice_andPreferredImplModeTextureView() {
+    public void usesTextureView_whenNonLegacyDevice_andImplModeIsTextureView() {
         final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
 
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
-        previewView.setPreferredImplementationMode(TEXTURE_VIEW);
+        previewView.setImplementationMode(COMPATIBLE);
         Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
@@ -274,11 +274,11 @@ public class PreviewViewTest {
 
     @Test
     @UiThreadTest
-    public void getsPreferredImplementationMode() {
+    public void getsImplementationMode() {
         final PreviewView previewView = new PreviewView(mContext);
-        previewView.setPreferredImplementationMode(SURFACE_VIEW);
+        previewView.setImplementationMode(PERFORMANCE);
 
-        assertThat(previewView.getPreferredImplementationMode()).isEqualTo(SURFACE_VIEW);
+        assertThat(previewView.getImplementationMode()).isEqualTo(PERFORMANCE);
     }
 
     @Test
@@ -401,7 +401,7 @@ public class PreviewViewTest {
             setContentView(container.get());
             // Sets as TEXTURE_VIEW mode so that we can verify the TextureView result
             // transformation.
-            previewView.get().setPreferredImplementationMode(TEXTURE_VIEW);
+            previewView.get().setImplementationMode(COMPATIBLE);
             previewView.get().setScaleType(PreviewView.ScaleType.FILL_CENTER);
 
             // Sets container size as 640x480

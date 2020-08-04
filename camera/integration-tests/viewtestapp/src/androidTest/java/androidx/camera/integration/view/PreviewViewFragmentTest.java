@@ -201,15 +201,15 @@ public final class PreviewViewFragmentTest {
         final FragmentScenario<PreviewViewFragment> scenario = createScenario();
         assertPreviewUpdating(scenario);
 
-        getPreviewView(scenario).setPreferredImplementationMode(
-                PreviewView.ImplementationMode.TEXTURE_VIEW);
+        getPreviewView(scenario).setImplementationMode(
+                PreviewView.ImplementationMode.COMPATIBLE);
 
         // Stop the fragment
         scenario.moveToState(Lifecycle.State.CREATED);
         // Resume the fragment
         scenario.moveToState(Lifecycle.State.RESUMED);
-        assertThat(getPreviewView(scenario).getPreferredImplementationMode()).isEqualTo(
-                PreviewView.ImplementationMode.TEXTURE_VIEW);
+        assertThat(getPreviewView(scenario).getImplementationMode()).isEqualTo(
+                PreviewView.ImplementationMode.COMPATIBLE);
     }
 
     @NonNull
