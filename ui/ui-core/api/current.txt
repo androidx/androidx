@@ -1503,9 +1503,6 @@ package androidx.compose.ui.input.key {
     property public abstract androidx.compose.ui.input.key.KeyEventType type;
   }
 
-  @Deprecated public interface KeyEvent2 {
-  }
-
   @androidx.compose.ui.input.key.ExperimentalKeyInput public enum KeyEventType {
     method public static androidx.compose.ui.input.key.KeyEventType valueOf(String name) throws java.lang.IllegalArgumentException;
     method public static androidx.compose.ui.input.key.KeyEventType[] values();
