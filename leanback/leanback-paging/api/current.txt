@@ -13,7 +13,7 @@ package androidx.leanback.paging {
     ctor public PagingDataAdapter(androidx.leanback.widget.PresenterSelector presenterSelector, androidx.recyclerview.widget.DiffUtil.ItemCallback<T> diffCallback);
     method @androidx.paging.ExperimentalPagingApi public void addDataRefreshListener(kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> listener);
     method public void addLoadStateListener(kotlin.jvm.functions.Function1<? super androidx.paging.CombinedLoadStates,kotlin.Unit> listener);
-    method public Object? get(int position);
+    method public T? get(int position);
     method public kotlinx.coroutines.flow.Flow<java.lang.Boolean> getDataRefreshFlow();
     method public kotlinx.coroutines.flow.Flow<androidx.paging.CombinedLoadStates> getLoadStateFlow();
     method public void refresh();
