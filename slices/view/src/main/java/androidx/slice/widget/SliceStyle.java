@@ -78,6 +78,8 @@ public class SliceStyle {
     private int mListMinScrollHeight;
     private int mListLargeHeight;
 
+    private boolean mExpandToAvailableHeight;
+
     private RowStyle mRowStyle;
 
     public SliceStyle(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
@@ -142,6 +144,9 @@ public class SliceStyle {
                     R.dimen.abc_slice_row_range_inline_height);
             mRowInlineRangeHeight = (int) a.getDimension(
                     R.styleable.SliceView_rowInlineRangeHeight, defaultRowInlineRangeHeight);
+
+            mExpandToAvailableHeight = a.getBoolean(
+                    R.styleable.SliceView_expandToAvailableHeight, false);
         } finally {
             a.recycle();
         }
@@ -253,6 +258,10 @@ public class SliceStyle {
         return mRowSelectionHeight;
     }
 
+    public boolean getExpandToAvailableHeight() {
+        return mExpandToAvailableHeight;
+    }
+
     public int getRowHeight(RowContent row, SliceViewPolicy policy) {
         int maxHeight = policy.getMaxSmallHeight() > 0 ? policy.getMaxSmallHeight() : mRowMaxHeight;
 
@@ -335,7 +344,7 @@ public class SliceStyle {
         boolean bigEnoughToScroll = desiredHeight - maxLargeHeight >= mListMinScrollHeight;
 
         // Adjust for scrolling
-        int height = bigEnoughToScroll ? maxLargeHeight
+        int height = bigEnoughToScroll && !getExpandToAvailableHeight() ? maxLargeHeight
                 : maxHeight <= 0 ? desiredHeight
                 : Math.min(maxLargeHeight, desiredHeight);
         if (!scrollable) {

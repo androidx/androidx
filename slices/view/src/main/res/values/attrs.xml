@@ -69,6 +69,14 @@
         <attr name="rowRangeSingleTextHeight" format="dimension" />
         <!-- Size of row view when range is inline -->
         <attr name="rowInlineRangeHeight" format="dimension" />
+
+        <!-- Removes the height restriction of slices in MODE_LARGE. If the slice
+         is smaller than the available height, wrap_content decides whether the slice takes
+         up the entire height or only the required height. If the slice is bigger than
+         the available height, the height mode decides whether the slice fills the height
+         (height mode AT_MOST/EXACTLY), or expands to fit all items (height mode UNSPECIFIED).
+         -->
+        <attr name="expandToAvailableHeight" format="boolean" />
     </declare-styleable>
 
     <!-- To apply a style for all slices shown within an activity or app you
