@@ -1544,9 +1544,11 @@ package androidx.compose.ui.input.key {
     method public androidx.compose.ui.input.key.Alt getAlt();
     method public int getKey();
     method public androidx.compose.ui.input.key.KeyEventType getType();
+    method public int getUtf16CodePoint();
     property public abstract androidx.compose.ui.input.key.Alt alt;
     property public abstract int key;
     property public abstract androidx.compose.ui.input.key.KeyEventType type;
+    property public abstract int utf16CodePoint;
   }
 
   @Deprecated public interface KeyEvent2 {
