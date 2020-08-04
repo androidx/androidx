@@ -216,8 +216,7 @@ class LongPressDragGestureFilterTest {
         inOrder(longPressDragObserver) {
             verify(longPressDragObserver).onLongPress(any())
             verify(longPressDragObserver).onDragStart()
-            // Twice because DragGestureDetector dispatches onDrag during 2 passes.
-            verify(longPressDragObserver, times(2)).onDrag(any())
+            verify(longPressDragObserver).onDrag(any())
         }
         verifyNoMoreInteractions(longPressDragObserver)
     }
@@ -295,8 +294,7 @@ class LongPressDragGestureFilterTest {
         inOrder(longPressDragObserver) {
             verify(longPressDragObserver).onLongPress(any())
             verify(longPressDragObserver).onDragStart()
-            // Twice because DragGestureDetector dispatches onDrag during 2 passes.
-            verify(longPressDragObserver, times(2)).onDrag(any())
+            verify(longPressDragObserver).onDrag(any())
             verify(longPressDragObserver).onStop(any())
         }
         verifyNoMoreInteractions(longPressDragObserver)
@@ -374,8 +372,7 @@ class LongPressDragGestureFilterTest {
         inOrder(longPressDragObserver) {
             verify(longPressDragObserver).onLongPress(any())
             verify(longPressDragObserver).onDragStart()
-            // Twice because DragGestureDetector dispatches onDrag during 2 passes.
-            verify(longPressDragObserver, times(2)).onDrag(any())
+            verify(longPressDragObserver).onDrag(any())
             verify(longPressDragObserver).onCancel()
         }
         verifyNoMoreInteractions(longPressDragObserver)

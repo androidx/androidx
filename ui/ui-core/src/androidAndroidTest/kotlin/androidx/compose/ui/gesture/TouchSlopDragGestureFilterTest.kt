@@ -138,9 +138,7 @@ class TouchSlopDragGestureFilterTest {
 
         dragObserver.inOrder {
             verify().onStart(Offset(50f, 50f))
-            // Twice because RawDragGestureDetector calls the callback on both postUp and postDown
-            // and nothing consumes the drag distance.
-            verify(dragObserver, times(2)).onDrag(any())
+            verify(dragObserver).onDrag(any())
             verify().onStop(any())
         }
         verifyNoMoreInteractions(dragObserver)
@@ -188,9 +186,7 @@ class TouchSlopDragGestureFilterTest {
 
         dragObserver.inOrder {
             verify().onStart(Offset(50f, 50f))
-            // Twice because RawDragGestureDetector calls the callback on both postUp and postDown
-            // and nothing consumes the drag distance.
-            verify(dragObserver, times(2)).onDrag(any())
+            verify(dragObserver).onDrag(any())
             verify().onCancel()
         }
         verifyNoMoreInteractions(dragObserver)
@@ -251,7 +247,7 @@ class TouchSlopDragGestureFilterTest {
             view.dispatchTouchEvent(move)
         }
 
-        verify(dragObserver, times(2)).onDrag(Offset(movement.toFloat(), 0.0f))
+        verify(dragObserver).onDrag(Offset(movement.toFloat(), 0.0f))
     }
 
     private fun setup(startDragImmediately: Boolean) {
