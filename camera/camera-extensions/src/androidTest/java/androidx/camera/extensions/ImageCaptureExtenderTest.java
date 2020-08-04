@@ -47,12 +47,14 @@ import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.impl.CameraRepository;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.util.ExtensionsTestUtil;
+import androidx.camera.testing.CameraAvailabilityUtil;
 import androidx.camera.testing.CameraUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -85,12 +87,15 @@ public class ImageCaptureExtenderTest {
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private final Context mContext = ApplicationProvider.getApplicationContext();
+    private CameraRepository mCameraRepository;
 
     @Before
     public void setUp() throws InterruptedException, ExecutionException, TimeoutException {
         assumeTrue(CameraUtil.deviceHasCamera());
 
-        CameraX.initialize(mContext, Camera2Config.defaultConfig());
+        CameraX.initialize(mContext, Camera2Config.defaultConfig()).get();
+        CameraX cameraX = CameraX.getOrCreateInstance(mContext).get();
+        mCameraRepository = cameraX.getCameraRepository();
 
         assumeTrue(ExtensionsTestUtil.initExtensions(mContext));
     }
@@ -120,7 +125,8 @@ public class ImageCaptureExtenderTest {
 
         ImageCapture useCase = builder.build();
 
-        @CameraSelector.LensFacing int lensFacing = CameraX.getDefaultLensFacing();
+        @CameraSelector.LensFacing int lensFacing =
+                CameraAvailabilityUtil.getDefaultLensFacing(mCameraRepository);
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(lensFacing).build();
         CameraUseCaseAdapter cameraUseCaseAdapter =
@@ -175,7 +181,9 @@ public class ImageCaptureExtenderTest {
 
         ImageCapture useCase = configBuilder.build();
 
-        @CameraSelector.LensFacing int lensFacing = CameraX.getDefaultLensFacing();
+        @CameraSelector.LensFacing int lensFacing =
+                CameraAvailabilityUtil.getDefaultLensFacing(mCameraRepository);
+
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(lensFacing).build();
         CameraUseCaseAdapter cameraUseCaseAdapter =
@@ -222,7 +230,9 @@ public class ImageCaptureExtenderTest {
         // getSupportedResolutions supported since version 1.1
         assumeTrue(ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) >= 0);
 
-        @CameraSelector.LensFacing int lensFacing = CameraX.getDefaultLensFacing();
+        @CameraSelector.LensFacing int lensFacing =
+                CameraAvailabilityUtil.getDefaultLensFacing(mCameraRepository);
+
         ImageCapture.Builder builder = new ImageCapture.Builder();
 
         ImageCaptureExtenderImpl mockImageCaptureExtenderImpl = mock(
