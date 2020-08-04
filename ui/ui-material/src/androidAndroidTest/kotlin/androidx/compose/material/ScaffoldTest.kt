@@ -43,7 +43,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import androidx.compose.ui.unit.width
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.ui.test.assertHeightIsEqualTo
@@ -282,7 +281,7 @@ class ScaffoldTest {
                         Icon(Icons.Filled.Favorite)
                     }
                 },
-                floatingActionButtonPosition = Scaffold.FabPosition.Center,
+                floatingActionButtonPosition = FabPosition.Center,
                 isFloatingActionButtonDocked = true,
                 bottomBar = {
                     Box(Modifier
@@ -321,7 +320,7 @@ class ScaffoldTest {
                         Icon(Icons.Filled.Favorite)
                     }
                 },
-                floatingActionButtonPosition = Scaffold.FabPosition.End,
+                floatingActionButtonPosition = FabPosition.End,
                 isFloatingActionButtonDocked = true,
                 bottomBar = {
                     Box(Modifier
@@ -403,18 +402,19 @@ class ScaffoldTest {
             Scaffold(
                 scaffoldState = scaffoldState,
                 floatingActionButton = fab,
-                floatingActionButtonPosition = Scaffold.FabPosition.End
+                floatingActionButtonPosition = FabPosition.End
             ) {
                 Text("body")
             }
         }
         runOnIdle {
-            assertThat(scaffoldState.floatingActionButtonSize).isEqualTo(fabSize.toSize())
+            assertThat(scaffoldState.scaffoldGeometry.fabBounds?.size)
+                .isEqualTo(fabSize.toSize())
             showFab.value = false
         }
 
         runOnIdle {
-            assertThat(scaffoldState.floatingActionButtonSize).isEqualTo(null)
+            assertThat(scaffoldState.scaffoldGeometry.fabBounds?.size).isEqualTo(null)
         }
     }
 
@@ -447,12 +447,14 @@ class ScaffoldTest {
             }
         }
         runOnIdle {
-            assertThat(scaffoldState.bottomBarSize).isEqualTo(bottomBarSize.toSize())
+            assertThat(scaffoldState.scaffoldGeometry.bottomBarBounds?.size)
+                .isEqualTo(bottomBarSize.toSize())
             showBottom.value = false
         }
 
         runOnIdle {
-            assertThat(scaffoldState.bottomBarSize).isEqualTo(null)
+            assertThat(scaffoldState.scaffoldGeometry.bottomBarBounds?.size)
+                .isEqualTo(null)
         }
     }
 
@@ -485,12 +487,14 @@ class ScaffoldTest {
             }
         }
         runOnIdle {
-            assertThat(scaffoldState.topBarSize).isEqualTo(topBarSize.toSize())
+            assertThat(scaffoldState.scaffoldGeometry.topBarBounds?.size)
+                .isEqualTo(topBarSize.toSize())
             showTop.value = false
         }
 
         runOnIdle {
-            assertThat(scaffoldState.topBarSize).isEqualTo(null)
+            assertThat(scaffoldState.scaffoldGeometry.topBarBounds?.size)
+                .isEqualTo(null)
         }
     }
 

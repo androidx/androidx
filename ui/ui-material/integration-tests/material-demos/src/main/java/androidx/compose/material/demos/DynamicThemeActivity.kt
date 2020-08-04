@@ -19,33 +19,34 @@ package androidx.compose.material.demos
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.ContentGravity
+import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.BottomAppBar
+import androidx.compose.material.Colors
+import androidx.compose.material.ExtendedFloatingActionButton
+import androidx.compose.material.FabPosition
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.setContent
-import androidx.compose.foundation.Box
-import androidx.compose.foundation.ContentGravity
-import androidx.compose.foundation.ScrollableColumn
-import androidx.compose.foundation.Text
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.preferredHeight
-import androidx.compose.material.BottomAppBar
-import androidx.compose.material.Colors
-import androidx.compose.material.ExtendedFloatingActionButton
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.TopAppBar
-import androidx.compose.material.lightColors
+import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.unit.dp
 import kotlin.math.round
 
@@ -93,7 +94,7 @@ private fun DynamicThemeApp(scrollFraction: ScrollFraction, palette: Colors) {
             topBar = { TopAppBar({ Text("Scroll down!") }) },
             bottomBar = { BottomAppBar(cutoutShape = CircleShape) {} },
             floatingActionButton = { Fab(scrollFraction) },
-            floatingActionButtonPosition = Scaffold.FabPosition.Center,
+            floatingActionButtonPosition = FabPosition.Center,
             isFloatingActionButtonDocked = true,
             bodyContent = { innerPadding ->
                 ScrollableColumn(scrollState = scrollState, children = {

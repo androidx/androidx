@@ -17,12 +17,12 @@
 package androidx.compose.material
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Scaffold.FabPosition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Providers
 import androidx.compose.runtime.Stable
@@ -37,7 +37,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Layout
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.layout.boundsInParent
@@ -68,27 +67,6 @@ class ScaffoldState(
     var isDrawerGesturesEnabled by mutableStateOf(isDrawerGesturesEnabled)
     // TODO: add showSnackbar() method here
 
-    /**
-     * Get current size of the topBar in [Scaffold], if known. `null` if this unknown or topBar
-     * parameter in scaffold is not set
-     */
-    val topBarSize: Size?
-        get() = scaffoldGeometry.topBarBounds?.size
-
-    /**
-     * Get current size of the bottomBar in [Scaffold], if known. `null` if this unknown or
-     * bottomBar parameter in scaffold is not set
-     */
-    val bottomBarSize: Size?
-        get() = scaffoldGeometry.bottomBarBounds?.size
-
-    /**
-     * Get current size of the floatingActionButton in [Scaffold], if known. `null` if this unknown
-     * or floatingActionButton parameter in scaffold is not set
-     */
-    val floatingActionButtonSize: Size?
-        get() = scaffoldGeometry.fabBounds?.size
-
     internal val scaffoldGeometry = ScaffoldGeometry()
 }
 
@@ -117,23 +95,22 @@ internal class ScaffoldGeometry {
 
 internal val ScaffoldGeometryAmbient = staticAmbientOf { ScaffoldGeometry() }
 
-object Scaffold {
+/**
+ * The possible positions for a [FloatingActionButton] attached to a [Scaffold].
+ */
+enum class FabPosition {
     /**
-     * The possible positions for a [FloatingActionButton] attached to a [Scaffold].
+     * Position FAB at the bottom of the screen in the center, above the [BottomAppBar] (if it
+     * exists)
      */
-    enum class FabPosition {
-        /**
-         * Position FAB at the bottom of the screen in the center, above the [BottomAppBar] (if it
-         * exists)
-         */
-        Center,
 
-        /**
-         * Position FAB at the bottom of the screen at the end, above the [BottomAppBar] (if it
-         * exists)
-         */
-        End
-    }
+    Center,
+
+    /**
+     * Position FAB at the bottom of the screen at the end, above the [BottomAppBar] (if it
+     * exists)
+     */
+    End
 }
 
 /**
@@ -152,6 +129,7 @@ object Scaffold {
  *
  * @sample androidx.compose.material.samples.ScaffoldWithBottomBarAndCutout
  *
+ * @param modifier optional Modifier for the root of the [Scaffold]
  * @param scaffoldState state of this scaffold widget. It contains the state of the screen, e.g.
  * variables to provide manual control over the drawer behavior, sizes of components, etc
  * @param topBar top app bar of the screen. Consider using [TopAppBar].
@@ -173,6 +151,10 @@ object Scaffold {
  * either the matching `onFoo` color for [drawerBackgroundColor], or, if it is not a color from
  * the theme, this will keep the same value set above this Surface.
  * @param drawerScrimColor color of the scrim that obscures content when the drawer is open
+ * @param backgroundColor background of the scaffold body
+ * @param contentColor color of the content in scaffold body. Defaults to either the matching
+ * `onFoo` color for [backgroundColor], or, if it is not a color from the theme, this will keep
+ * the same value set above this Surface.
  * @param bodyContent content of your screen. The lambda receives an [InnerPadding] that should be
  * applied to the content root via [Modifier.padding] to properly offset top and bottom bars. If
  * you're using VerticalScroller, apply this modifier to the child of the scroller, and not on
@@ -180,13 +162,14 @@ object Scaffold {
  */
 @Composable
 fun Scaffold(
+    modifier: Modifier = Modifier,
     scaffoldState: ScaffoldState = rememberScaffoldState(),
     topBar: @Composable (() -> Unit)? = null,
     bottomBar: @Composable (() -> Unit)? = null,
     floatingActionButton: @Composable (() -> Unit)? = null,
     floatingActionButtonPosition: FabPosition = FabPosition.End,
     isFloatingActionButtonDocked: Boolean = false,
-    drawerContent: @Composable (() -> Unit)? = null,
+    drawerContent: @Composable (ColumnScope.() -> Unit)? = null,
     drawerShape: Shape = MaterialTheme.shapes.large,
     drawerElevation: Dp = DrawerConstants.DefaultElevation,
     drawerBackgroundColor: Color = MaterialTheme.colors.surface,
@@ -194,11 +177,12 @@ fun Scaffold(
     drawerScrimColor: Color = MaterialTheme.colors.onSurface
         .copy(alpha = DrawerConstants.ScrimDefaultOpacity),
     backgroundColor: Color = MaterialTheme.colors.background,
+    contentColor: Color = contentColorFor(backgroundColor),
     bodyContent: @Composable (InnerPadding) -> Unit
 ) {
     scaffoldState.scaffoldGeometry.isFabDocked = isFloatingActionButtonDocked
-    val child = @Composable {
-        Surface(color = backgroundColor) {
+    val child = @Composable { childModifier: Modifier ->
+        Surface(modifier = childModifier, color = backgroundColor, contentColor = contentColor) {
             Column(Modifier.fillMaxSize()) {
                 if (topBar != null) {
                     TopBarContainer(Modifier.zIndex(TopAppBarZIndex), scaffoldState, topBar)
@@ -220,18 +204,19 @@ fun Scaffold(
 
     if (drawerContent != null) {
         ModalDrawerLayout(
+            modifier = modifier,
             drawerState = scaffoldState.drawerState,
             gesturesEnabled = scaffoldState.isDrawerGesturesEnabled,
-            drawerContent = { ScaffoldSlot(content = drawerContent) },
+            drawerContent = drawerContent,
             drawerShape = drawerShape,
             drawerElevation = drawerElevation,
             drawerBackgroundColor = drawerBackgroundColor,
             drawerContentColor = drawerContentColor,
             scrimColor = drawerScrimColor,
-            bodyContent = child
+            bodyContent = { child(Modifier) }
         )
     } else {
-        child()
+        child(modifier)
     }
 }
 
