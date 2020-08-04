@@ -488,14 +488,14 @@ public abstract class FragmentManager implements FragmentResultOwner {
                 }
             };
 
-    // Key to retrieve the request code from any intents that are started
-    private static final String EXTRA_KEY_REQUEST_CODE = "activity.result.requestCode";
-
     private ActivityResultLauncher<Intent> mStartActivityForResult;
     private ActivityResultLauncher<IntentSenderRequest> mStartIntentSenderForResult;
     private ActivityResultLauncher<String[]> mRequestPermissions;
 
     ArrayDeque<LaunchedFragmentInfo> mLaunchedFragments = new ArrayDeque<>();
+
+    private static final String EXTRA_CREATED_FILLIN_INTENT = "androidx.fragment"
+            + ".extra.ACTIVITY_OPTIONS_BUNDLE";
 
     private boolean mNeedMenuInvalidate;
     private boolean mStateSaved;
@@ -2901,8 +2901,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                             // fragment transactions was committed immediately after the for
                             // result call
                             if (fragment == null) {
-                                Log.w(TAG,
-                                        "Intent Sender result delivered for unknown Fragment "
+                                Log.w(TAG, "Intent Sender result delivered for unknown Fragment "
                                                 + fragmentWho);
                                 return;
                             }
@@ -2971,7 +2970,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         if (mStartActivityForResult != null) {
             LaunchedFragmentInfo info = new LaunchedFragmentInfo(f.mWho, requestCode);
             mLaunchedFragments.addLast(info);
-            if (options != null) {
+            if (intent != null && options != null) {
                 intent.putExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE, options);
             }
             mStartActivityForResult.launch(intent);
@@ -2989,6 +2988,11 @@ public abstract class FragmentManager implements FragmentResultOwner {
             if (options != null) {
                 if (fillInIntent == null) {
                     fillInIntent = new Intent();
+                    fillInIntent.putExtra(EXTRA_CREATED_FILLIN_INTENT, true);
+                }
+                if (isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(TAG, "ActivityOptions " + options + " were added to fillInIntent "
+                            + fillInIntent + " for fragment " + f);
                 }
                 fillInIntent.putExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE, options);
             }
@@ -2997,6 +3001,9 @@ public abstract class FragmentManager implements FragmentResultOwner {
                             .setFlags(flagsValues, flagsMask).build();
             LaunchedFragmentInfo info = new LaunchedFragmentInfo(f.mWho, requestCode);
             mLaunchedFragments.addLast(info);
+            if (isLoggingEnabled(Log.VERBOSE)) {
+                Log.v(TAG, "Fragment " + f + "is launching an IntentSender for result ");
+            }
             mStartIntentSenderForResult.launch(request);
         } else {
             mHost.onStartIntentSenderFromFragment(f, intent, requestCode, fillInIntent,
@@ -3623,17 +3630,24 @@ public abstract class FragmentManager implements FragmentResultOwner {
         @Override
         public Intent createIntent(@NonNull Context context, IntentSenderRequest input) {
             Intent result = new Intent(ACTION_INTENT_SENDER_REQUEST);
-            if (input.getFillInIntent() != null) {
-                Bundle activityOptions =
-                        input.getFillInIntent().getBundleExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE);
-                int requestCode =
-                        input.getFillInIntent().getIntExtra(EXTRA_KEY_REQUEST_CODE, -1);
+            Intent fillInIntent = input.getFillInIntent();
+            if (fillInIntent != null) {
+                Bundle activityOptions = fillInIntent.getBundleExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE);
                 if (activityOptions != null) {
-                    result.putExtra(EXTRA_KEY_REQUEST_CODE, requestCode);
                     result.putExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE, activityOptions);
+                    fillInIntent.removeExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE);
+                    if (fillInIntent.getBooleanExtra(EXTRA_CREATED_FILLIN_INTENT, false)) {
+                        input = new IntentSenderRequest.Builder(input.getIntentSender())
+                                .setFillInIntent(null)
+                                .setFlags(input.getFlagsValues(), input.getFlagsMask())
+                                .build();
+                    }
                 }
             }
             result.putExtra(EXTRA_INTENT_SENDER_REQUEST, input);
+            if (isLoggingEnabled(Log.VERBOSE)) {
+                Log.v(TAG, "CreateIntent created the following intent: " + result);
+            }
             return result;
         }
 

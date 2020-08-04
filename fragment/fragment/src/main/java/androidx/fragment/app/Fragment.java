@@ -1440,6 +1440,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (mHost == null) {
             throw new IllegalStateException("Fragment " + this + " not attached to Activity");
         }
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(FragmentManager.TAG, "Fragment " + this + " received the following in "
+                    + "startIntentSenderForResult() requestCode: " + requestCode + " IntentSender: "
+                    + intent + " fillInIntent: " + fillInIntent + " options: " + options);
+        }
         getParentFragmentManager().launchStartIntentSenderForResult(this, intent, requestCode,
                 fillInIntent, flagsMask, flagsValues, extraFlags, options);
     }
@@ -1466,6 +1471,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(FragmentManager.TAG, "Fragment " + this + " received the following in "
+                    + "onActivityResult(): requestCode: " + requestCode + " resultCode: "
+                    + resultCode + " data: " + data);
+        }
     }
 
     /**
