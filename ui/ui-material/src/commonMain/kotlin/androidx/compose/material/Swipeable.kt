@@ -291,10 +291,10 @@ internal fun <T> swipeableStateFor(
  * @param T The type of the state.
  * @param state The state of the [swipeable].
  * @param anchors Pairs of anchors and states, used to map anchors to states and vice versa.
- * @param thresholds The thresholds between anchors that determine which anchor to animate to
- * when the user stops swiping, represented as a lambda that takes a pair of anchors and returns
- * a value between them. Note the order of the anchors matters as it indicates the swipe direction.
- * An easy way to define these thresholds is using [fixedThresholds] or [fractionalThresholds].
+ * @param thresholds Specifies where the thresholds between the states are. The thresholds will be
+ * used to determine which state to animate to when swiping stops. This is represented as a lambda
+ * that takes two states and returns the threshold between them in the form of a [ThresholdConfig].
+ * Note that the order of the states corresponds to the swipe direction.
  * @param orientation The orientation in which the [swipeable] can be swiped.
  * @param enabled Whether this [swipeable] is enabled and should react to the user's input.
  * @param reverseDirection Whether to reverse the direction of the swipe, so a top to bottom
@@ -308,7 +308,7 @@ internal fun <T> swipeableStateFor(
 fun <T> Modifier.swipeable(
     state: SwipeableState<T>,
     anchors: Map<Float, T>,
-    thresholds: SwipeableThresholds,
+    thresholds: (from: T, to: T) -> ThresholdConfig,
     orientation: Orientation,
     enabled: Boolean = true,
     reverseDirection: Boolean = false,
@@ -324,7 +324,11 @@ fun <T> Modifier.swipeable(
     }
     val density = DensityAmbient.current
     state.anchors = anchors
-    state.thresholds = { a, b -> density.thresholds(a, b) }
+    state.thresholds = { a, b ->
+        val from = anchors.getValue(a)
+        val to = anchors.getValue(b)
+        with(thresholds(from, to)) { density.computeThreshold(a, b) }
+    }
     state.animatedFloat.setBounds(minValue, maxValue)
 
     val lastAnchor = anchors.getOffset(state.value)!!
@@ -343,7 +347,7 @@ fun <T> Modifier.swipeable(
         adjustTarget = { target ->
             val adjusted = adjustTarget(
                 anchors = anchors.keys,
-                thresholds = { a, b -> density.thresholds(a, b) },
+                thresholds = state.thresholds,
                 target = target,
                 lastAnchor = lastAnchor
             )
@@ -366,29 +370,46 @@ fun <T> Modifier.swipeable(
 }
 
 /**
- * Type alias for the lambda that will be invoked to compute the thresholds between anchors in
- * [Modifier.swipeable]. This takes two anchors, whose the order indicates the swipe direction.
+ * Interface to compute a threshold between two anchors/states in a [swipeable].
+ *
+ * To define a [ThresholdConfig], consider using [FixedThreshold] and [FractionalThreshold].
  */
-typealias SwipeableThresholds = Density.(fromAnchor: Float, toAnchor: Float) -> Float
+@Stable
+@ExperimentalMaterialApi
+interface ThresholdConfig {
+    /**
+     * Compute the value of the threshold (in pixels), once the values of the anchors are known.
+     */
+    fun Density.computeThreshold(fromValue: Float, toValue: Float): Float
+}
 
 /**
- * Constructor for fixed thresholds between anchors.
+ * A fixed threshold will be at an [offset] away from the first anchor.
  *
- * @param offset Each threshold will be at this offset (in dp) away from the first anchor.
+ * @param offset The offset (in dp) that the threshold will be at.
  */
+@Immutable
 @ExperimentalMaterialApi
-fun fixedThresholds(offset: Dp): SwipeableThresholds =
-    { fromAnchor, toAnchor -> fromAnchor + offset.toPx() * sign(toAnchor - fromAnchor) }
+data class FixedThreshold(private val offset: Dp) : ThresholdConfig {
+    override fun Density.computeThreshold(fromValue: Float, toValue: Float): Float {
+        return fromValue + offset.toPx() * sign(toValue - fromValue)
+    }
+}
 
 /**
- * Constructor for fractional thresholds between anchors.
+ * A fractional threshold will be at a [fraction] of the way between the two anchors.
  *
- * @param fraction Each threshold will be at this fraction of the way between the two anchors.
+ * @param fraction The fraction (between 0 and 1) that the threshold will be at.
  */
+@Immutable
 @ExperimentalMaterialApi
-fun fractionalThresholds(
-    @FloatRange(from = 0.0, to = 1.0) fraction: Float
-): SwipeableThresholds = { fromAnchor, toAnchor -> lerp(fromAnchor, toAnchor, fraction) }
+data class FractionalThreshold(
+    @FloatRange(from = 0.0, to = 1.0) private val fraction: Float
+) : ThresholdConfig {
+    override fun Density.computeThreshold(fromValue: Float, toValue: Float): Float {
+        return lerp(fromValue, toValue, fraction)
+    }
+}
 
 @Stable
 private class AnimatedFloatByState(
