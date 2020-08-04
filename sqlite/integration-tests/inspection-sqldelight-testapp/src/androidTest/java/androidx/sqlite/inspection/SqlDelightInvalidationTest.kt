@@ -17,9 +17,7 @@
 package androidx.sqlite.inspection
 
 import android.database.sqlite.SQLiteDatabase
-import androidx.inspection.Connection
 import androidx.inspection.InspectorEnvironment
-import androidx.inspection.InspectorFactory
 import androidx.inspection.testing.DefaultTestInspectorEnvironment
 import androidx.inspection.testing.InspectorTester
 import androidx.inspection.testing.TestInspectorExecutors
@@ -48,7 +46,6 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import java.util.concurrent.Executors
 
 @ExperimentalCoroutinesApi
 @RunWith(AndroidJUnit4::class)
@@ -79,8 +76,11 @@ class SqlDelightInvalidationTest {
             val sqliteDb = openedDb.getSqliteDb()
             val query = dao.selectAll()
             val job = this.coroutineContext[Job]!!
-            val tester = sqliteInspectorTester(TestInspectorEnvironment(sqliteDb, listOf(query),
-                job))
+            val tester = InspectorTester(
+                inspectorId = "androidx.sqlite.inspection",
+                environment = TestInspectorEnvironment(sqliteDb, listOf(query),
+                            job)
+            )
             val updates = query.asFlow().mapToList().take(2).produceIn(this)
 
             val firstExpected = TestEntity.Impl(1, "one")
@@ -132,24 +132,6 @@ private fun SupportSQLiteDatabase.getSqliteDb(): SQLiteDatabase {
         it.get(this)
     } as SQLiteDatabase
 }
-
-suspend fun sqliteInspectorTester(environment: InspectorEnvironment) = InspectorTester(
-    inspectorId = "test",
-    environment = environment,
-    factoryOverride = object : InspectorFactory<SqliteInspector>("test") {
-        override fun createInspector(
-            connection: Connection,
-            environment: InspectorEnvironment
-        ): SqliteInspector {
-            return SqliteInspector(
-                connection,
-                environment,
-                Executors.newSingleThreadExecutor(),
-                Executors.newSingleThreadScheduledExecutor()
-            )
-        }
-    }
-)
 
 @Suppress("UNCHECKED_CAST")
 class TestInspectorEnvironment(

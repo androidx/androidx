@@ -16,65 +16,12 @@
 
 package androidx.sqlite.inspection;
 
-import androidx.annotation.NonNull;
-
-import java.util.Locale;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicLong;
 
 class SqliteInspectionExecutors {
     private SqliteInspectionExecutors() {
-    }
-
-    private static final ThreadFactory sThreadFactory = new ThreadFactory() {
-        AtomicLong mNextId = new AtomicLong(0);
-
-        @Override
-        public Thread newThread(@NonNull Runnable target) {
-            Thread thread = new Thread(target, generateThreadName());
-            thread.setDaemon(true); // Don't prevent JVM from exiting
-            return thread;
-        }
-
-        private String generateThreadName() {
-            return String.format(Locale.ROOT, "Studio:SqlIns%d",
-                    mNextId.getAndIncrement());
-        }
-    };
-
-    private static final Executor sDirectExecutor = new Executor() {
-        @Override
-        public void execute(@NonNull Runnable command) {
-            command.run();
-        }
-    };
-
-    private static final Executor sIOExecutor = Executors.newCachedThreadPool(sThreadFactory);
-
-    private static final ScheduledExecutorService sScheduledExecutorService =
-            Executors.newSingleThreadScheduledExecutor(sThreadFactory);
-
-    static Executor directExecutor() {
-        return sDirectExecutor;
-    }
-
-    static Executor ioExecutor() {
-        return sIOExecutor;
-    }
-
-    /**
-     * Single threaded ScheduledExecutor.
-     * <p>
-     * Since single threaded, only use for short tasks, e.g.
-     * scheduling tasks to be executed on another thread.
-     */
-    static ScheduledExecutorService scheduledExecutor() {
-        return sScheduledExecutorService;
     }
 
     static Future<Void> submit(Executor executor, Runnable runnable) {
