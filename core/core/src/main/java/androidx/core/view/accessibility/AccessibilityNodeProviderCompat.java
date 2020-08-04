@@ -240,7 +240,7 @@ public class AccessibilityNodeProviderCompat {
      *                     the info's {@link AccessibilityNodeInfoCompat#getExtras} method.
      * @param arguments A {@link Bundle} holding any arguments relevant for this request.
      *
-     * @see AccessibilityNodeInfo#setAvailableExtraData(List)
+     * @see AccessibilityNodeInfoCompat#setAvailableExtraData(List)
      */
     public void addExtraDataToAccessibilityNodeInfo(int virtualViewId,
             @NonNull AccessibilityNodeInfoCompat info, @NonNull String extraDataKey,
