@@ -17,6 +17,8 @@ rm -rf gradlew
 ln -s "${PLAYGROUND_REL_PATH}/gradlew" gradlew
 rm -rf gradlew.bat
 ln -s "${PLAYGROUND_REL_PATH}/gradlew.bat" gradlew.bat
+rm -rf gradle.properties
+ln -s "${PLAYGROUND_REL_PATH}/androidx-shared.properties" gradle.properties
 
 ANDROIDX_IDEA_DIR="${PLAYGROUND_REL_PATH}/../.idea"
 
