@@ -18,8 +18,8 @@ package androidx.compose.ui.layout
 
 import androidx.compose.ui.AlignmentLine
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.PxBounds
 
 /**
  * A holder of the measured bounds for the layout (MeasureBox).
@@ -69,7 +69,7 @@ interface LayoutCoordinates {
     /**
      * Returns the child bounding box, discarding clipped rectangles, in local coordinates.
      */
-    fun childBoundingBox(child: LayoutCoordinates): PxBounds
+    fun childBoundingBox(child: LayoutCoordinates): Rect
 
     /**
      * Returns the position of an [alignment line][AlignmentLine],
@@ -91,7 +91,7 @@ inline val LayoutCoordinates.positionInRoot: Offset get() = localToRoot(Offset.Z
 /**
  * The boundaries of this layout inside the root composable.
  */
-val LayoutCoordinates.boundsInRoot: PxBounds
+val LayoutCoordinates.boundsInRoot: Rect
     get() {
         return findRoot(this).childBoundingBox(this)
     }
@@ -108,19 +108,19 @@ val LayoutCoordinates.positionInParent: Offset
  * done with respect to the parent. For the root, the bounds is positioned at (0, 0) and sized
  * to the size of the root.
  */
-val LayoutCoordinates.boundsInParent: PxBounds
+val LayoutCoordinates.boundsInParent: Rect
     get() = parentCoordinates?.childBoundingBox(this)
-        ?: PxBounds(0f, 0f, size.width.toFloat(), size.height.toFloat())
+        ?: Rect(0f, 0f, size.width.toFloat(), size.height.toFloat())
 
 /**
  * The global boundaries of this layout inside.
  */
-val LayoutCoordinates.globalBounds: PxBounds
+val LayoutCoordinates.globalBounds: Rect
     get() {
         val root = findRoot(this)
         val rootPosition = root.localToGlobal(Offset.Zero)
         val bounds = root.childBoundingBox(this)
-        return PxBounds(
+        return Rect(
             left = bounds.left + rootPosition.x,
             top = bounds.top + rootPosition.y,
             right = bounds.right + rootPosition.x,

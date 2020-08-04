@@ -16,10 +16,10 @@
 
 package androidx.ui.test
 
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.PxBounds
 
 internal expect fun getAllSemanticsNodes(mergingEnabled: Boolean): List<SemanticsNode>
 
@@ -223,7 +223,7 @@ internal actual fun <R> SemanticsNodeInteraction.withDensity(
 }
 
 internal actual fun SemanticsNodeInteraction.withUnclippedBoundsInRoot(
-    assertion: Density.(PxBounds) -> Unit
+    assertion: Density.(Rect) -> Unit
 ): SemanticsNodeInteraction {
     val node = fetchSemanticsNode("Failed to retrieve bounds of the node.")
     @OptIn(ExperimentalLayoutNodeApi::class)

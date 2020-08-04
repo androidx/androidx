@@ -1631,7 +1631,7 @@ package androidx.compose.ui.layout {
   }
 
   public interface LayoutCoordinates {
-    method public androidx.compose.ui.unit.PxBounds childBoundingBox(androidx.compose.ui.layout.LayoutCoordinates child);
+    method public androidx.compose.ui.geometry.Rect childBoundingBox(androidx.compose.ui.layout.LayoutCoordinates child);
     method public androidx.compose.ui.geometry.Offset childToLocal(androidx.compose.ui.layout.LayoutCoordinates child, androidx.compose.ui.geometry.Offset childLocal);
     method public operator int get(androidx.compose.ui.AlignmentLine line);
     method public androidx.compose.ui.layout.LayoutCoordinates? getParentCoordinates();
@@ -1648,9 +1648,9 @@ package androidx.compose.ui.layout {
   }
 
   public final class LayoutCoordinatesKt {
-    method public static androidx.compose.ui.unit.PxBounds getBoundsInParent(androidx.compose.ui.layout.LayoutCoordinates);
-    method public static androidx.compose.ui.unit.PxBounds getBoundsInRoot(androidx.compose.ui.layout.LayoutCoordinates);
-    method public static androidx.compose.ui.unit.PxBounds getGlobalBounds(androidx.compose.ui.layout.LayoutCoordinates);
+    method public static androidx.compose.ui.geometry.Rect getBoundsInParent(androidx.compose.ui.layout.LayoutCoordinates);
+    method public static androidx.compose.ui.geometry.Rect getBoundsInRoot(androidx.compose.ui.layout.LayoutCoordinates);
+    method public static androidx.compose.ui.geometry.Rect getGlobalBounds(androidx.compose.ui.layout.LayoutCoordinates);
     method public static inline androidx.compose.ui.geometry.Offset getGlobalPosition(androidx.compose.ui.layout.LayoutCoordinates);
     method public static androidx.compose.ui.geometry.Offset getPositionInParent(androidx.compose.ui.layout.LayoutCoordinates);
     method public static inline androidx.compose.ui.geometry.Offset getPositionInRoot(androidx.compose.ui.layout.LayoutCoordinates);
@@ -2333,11 +2333,11 @@ package androidx.compose.ui.semantics {
 
   public final class SemanticsNode {
     method public int getAlignmentLinePosition(androidx.compose.ui.AlignmentLine line);
-    method public androidx.compose.ui.unit.PxBounds getBoundsInRoot();
+    method public androidx.compose.ui.geometry.Rect getBoundsInRoot();
     method public java.util.List<androidx.compose.ui.semantics.SemanticsNode> getChildren();
     method public androidx.compose.ui.node.LayoutNode getComponentNode();
     method public androidx.compose.ui.semantics.SemanticsConfiguration getConfig();
-    method public androidx.compose.ui.unit.PxBounds getGlobalBounds();
+    method public androidx.compose.ui.geometry.Rect getGlobalBounds();
     method public androidx.compose.ui.geometry.Offset getGlobalPosition();
     method public int getId();
     method public boolean getMergingEnabled();
@@ -2345,11 +2345,11 @@ package androidx.compose.ui.semantics {
     method public androidx.compose.ui.geometry.Offset getPositionInRoot();
     method public androidx.compose.ui.unit.IntSize getSize();
     method public boolean isRoot();
-    property public final androidx.compose.ui.unit.PxBounds boundsInRoot;
+    property public final androidx.compose.ui.geometry.Rect boundsInRoot;
     property public final java.util.List<androidx.compose.ui.semantics.SemanticsNode> children;
     property public final androidx.compose.ui.node.LayoutNode componentNode;
     property public final androidx.compose.ui.semantics.SemanticsConfiguration config;
-    property public final androidx.compose.ui.unit.PxBounds globalBounds;
+    property public final androidx.compose.ui.geometry.Rect globalBounds;
     property public final androidx.compose.ui.geometry.Offset globalPosition;
     property public final int id;
     property public final boolean isRoot;

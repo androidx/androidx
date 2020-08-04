@@ -36,6 +36,7 @@ import androidx.compose.runtime.structuralEqualityPolicy
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Layout
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -43,10 +44,7 @@ import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.onPositioned
 import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.PxBounds
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.height
-import androidx.compose.ui.unit.toSize
 import androidx.compose.ui.zIndex
 
 /**
@@ -75,21 +73,21 @@ class ScaffoldState(
      * parameter in scaffold is not set
      */
     val topBarSize: Size?
-        get() = scaffoldGeometry.topBarBounds?.toSize()
+        get() = scaffoldGeometry.topBarBounds?.size
 
     /**
      * Get current size of the bottomBar in [Scaffold], if known. `null` if this unknown or
      * bottomBar parameter in scaffold is not set
      */
     val bottomBarSize: Size?
-        get() = scaffoldGeometry.bottomBarBounds?.toSize()
+        get() = scaffoldGeometry.bottomBarBounds?.size
 
     /**
      * Get current size of the floatingActionButton in [Scaffold], if known. `null` if this unknown
      * or floatingActionButton parameter in scaffold is not set
      */
     val floatingActionButtonSize: Size?
-        get() = scaffoldGeometry.fabBounds?.toSize()
+        get() = scaffoldGeometry.fabBounds?.size
 
     internal val scaffoldGeometry = ScaffoldGeometry()
 }
@@ -110,9 +108,9 @@ fun rememberScaffoldState(
 
 @Stable
 internal class ScaffoldGeometry {
-    var topBarBounds by mutableStateOf<PxBounds?>(null, structuralEqualityPolicy())
-    var bottomBarBounds by mutableStateOf<PxBounds?>(null, structuralEqualityPolicy())
-    var fabBounds by mutableStateOf<PxBounds?>(null, structuralEqualityPolicy())
+    var topBarBounds by mutableStateOf<Rect?>(null, structuralEqualityPolicy())
+    var bottomBarBounds by mutableStateOf<Rect?>(null, structuralEqualityPolicy())
+    var fabBounds by mutableStateOf<Rect?>(null, structuralEqualityPolicy())
 
     var isFabDocked by mutableStateOf(false)
 }
@@ -355,7 +353,7 @@ private fun TopBarContainer(
 @Composable
 private fun BoundsAwareScaffoldSlot(
     modifier: Modifier,
-    onBoundsKnown: (PxBounds?) -> Unit,
+    onBoundsKnown: (Rect?) -> Unit,
     slotContent: @Composable () -> Unit
 ) {
     onDispose {
