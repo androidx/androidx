@@ -17,22 +17,6 @@
 package androidx.compose.ui.input.key
 
 /**
- * When a user presses a key on a hardware keyboard, a [KeyEvent][KeyEvent2] is sent to the
- * [KeyInputModifier] that is currently active.
- *
- * TODO(b/162097587): Remove this interface after Dev 16.
- */
-@Deprecated(
-    "use KeyEvent instead",
-    ReplaceWith(
-        "KeyEvent",
-        "androidx.compose.ui.input.KeyEvent"
-    ),
-    level = DeprecationLevel.ERROR
-)
-interface KeyEvent2
-
-/**
  * When a user presses a key on a hardware keyboard, a [KeyEvent] is sent to the
  * [KeyInputModifier] that is currently active.
  *
