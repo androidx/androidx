@@ -30,7 +30,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 
-import androidx.activity.contextaware.ContextAware;
 import androidx.activity.contextaware.OnContextAvailableListener;
 import androidx.annotation.CallSuper;
 import androidx.annotation.ContentView;
@@ -49,6 +48,7 @@ import androidx.core.app.TaskStackBuilder;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewTreeLifecycleOwner;
 import androidx.lifecycle.ViewTreeViewModelStoreOwner;
+import androidx.savedstate.SavedStateRegistry;
 import androidx.savedstate.ViewTreeSavedStateRegistryOwner;
 
 /**
@@ -80,6 +80,8 @@ import androidx.savedstate.ViewTreeSavedStateRegistryOwner;
 public class AppCompatActivity extends FragmentActivity implements AppCompatCallback,
         TaskStackBuilder.SupportParentable, ActionBarDrawerToggle.DelegateProvider {
 
+    private static final String DELEGATE_TAG = "androidx:appcompat";
+
     private AppCompatDelegate mDelegate;
     private Resources mResources;
 
@@ -110,13 +112,24 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     }
 
     private void initDelegate() {
+        // TODO: Directly connect AppCompatDelegate to SavedStateRegistry
+        getSavedStateRegistry().registerSavedStateProvider(DELEGATE_TAG,
+                new SavedStateRegistry.SavedStateProvider() {
+                    @NonNull
+                    @Override
+                    public Bundle saveState() {
+                        Bundle outState = new Bundle();
+                        getDelegate().onSaveInstanceState(outState);
+                        return outState;
+                    }
+                });
         addOnContextAvailableListener(new OnContextAvailableListener() {
             @Override
-            public void onContextAvailable(@NonNull ContextAware contextAware,
-                    @NonNull Context context, @Nullable Bundle savedInstanceState) {
+            public void onContextAvailable(@NonNull Context context) {
                 final AppCompatDelegate delegate = getDelegate();
                 delegate.installViewFactory();
-                delegate.onCreate(savedInstanceState);
+                delegate.onCreate(getSavedStateRegistry()
+                        .consumeRestoredStateForKey(DELEGATE_TAG));
             }
         });
     }
@@ -560,12 +573,6 @@ public class AppCompatActivity extends FragmentActivity implements AppCompatCall
     @Override
     public void onPanelClosed(int featureId, @NonNull Menu menu) {
         super.onPanelClosed(featureId, menu);
-    }
-
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        getDelegate().onSaveInstanceState(outState);
     }
 
     /**
