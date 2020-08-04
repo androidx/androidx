@@ -18,7 +18,7 @@ package androidx.room.processor
 
 import COMMON
 import androidx.room.ext.RoomTypeNames
-import androidx.room.processing.asDeclaredType
+import androidx.room.compiler.processing.asDeclaredType
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.Dao

@@ -23,9 +23,9 @@ import androidx.room.RawQuery
 import androidx.room.SkipQueryVerification
 import androidx.room.Transaction
 import androidx.room.Update
-import androidx.room.processing.XConstructorElement
-import androidx.room.processing.XDeclaredType
-import androidx.room.processing.XTypeElement
+import androidx.room.compiler.processing.XConstructorElement
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.verifier.DatabaseVerifier
 import androidx.room.vo.Dao
 import androidx.room.vo.KotlinDefaultMethodDelegate

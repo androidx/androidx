@@ -24,7 +24,7 @@ import androidx.room.ext.T
 import androidx.room.parser.ParsedQuery
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SqlParser
-import androidx.room.processing.XType
+import androidx.room.compiler.processing.XType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors.cannotFindQueryResultAdapter
 import androidx.room.processor.ProcessorErrors.relationAffinityMismatch

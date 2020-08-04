@@ -23,7 +23,7 @@ import androidx.room.ext.N
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
 import androidx.room.ext.T
-import androidx.room.processing.XType
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.RxType
 import com.squareup.javapoet.FieldSpec

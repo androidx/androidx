@@ -20,7 +20,7 @@ import androidx.room.ext.DEFAULT_IMPLS_CLASS_NAME
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.T
-import androidx.room.processing.XType
+import androidx.room.compiler.processing.XType
 import com.squareup.javapoet.ClassName
 
 /**

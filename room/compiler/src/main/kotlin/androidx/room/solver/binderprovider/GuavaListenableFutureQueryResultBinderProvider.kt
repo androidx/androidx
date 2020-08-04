@@ -19,7 +19,7 @@ package androidx.room.solver.binderprovider
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.RoomGuavaTypeNames
 import androidx.room.parser.ParsedQuery
-import androidx.room.processing.XDeclaredType
+import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.QueryResultBinderProvider

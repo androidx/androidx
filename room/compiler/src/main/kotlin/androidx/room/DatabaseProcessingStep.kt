@@ -16,9 +16,9 @@
 
 package androidx.room
 
-import androidx.room.processing.XProcessingEnv
-import androidx.room.processing.XProcessingStep
-import androidx.room.processing.XTypeElement
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XProcessingStep
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.processor.Context
 import androidx.room.processor.DatabaseProcessor
 import androidx.room.processor.MissingTypeException

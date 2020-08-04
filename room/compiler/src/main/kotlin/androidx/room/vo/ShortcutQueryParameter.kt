@@ -16,8 +16,8 @@
 
 package androidx.room.vo
 
-import androidx.room.processing.XType
-import androidx.room.processing.XVariableElement
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XVariableElement
 
 /**
  * Parameters used in DAO methods that are annotated with Insert, Delete, Update.

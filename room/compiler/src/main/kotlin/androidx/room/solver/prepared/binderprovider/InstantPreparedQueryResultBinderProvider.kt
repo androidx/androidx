@@ -17,7 +17,7 @@
 package androidx.room.solver.prepared.binderprovider
 
 import androidx.room.parser.ParsedQuery
-import androidx.room.processing.XDeclaredType
+import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.processor.Context
 import androidx.room.solver.prepared.binder.InstantPreparedQueryResultBinder
 

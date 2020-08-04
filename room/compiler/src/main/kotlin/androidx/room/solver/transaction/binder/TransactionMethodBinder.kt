@@ -16,7 +16,7 @@
 
 package androidx.room.solver.transaction.binder
 
-import androidx.room.processing.XType
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.transaction.result.TransactionMethodAdapter
 import com.squareup.javapoet.ClassName

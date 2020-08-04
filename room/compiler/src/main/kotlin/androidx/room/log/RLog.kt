@@ -18,8 +18,8 @@
 
 package androidx.room.log
 
-import androidx.room.processing.XElement
-import androidx.room.processing.XMessager
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XMessager
 import androidx.room.processor.Context
 import androidx.room.vo.Warning
 import javax.tools.Diagnostic

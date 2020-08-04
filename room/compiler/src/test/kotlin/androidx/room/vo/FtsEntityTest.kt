@@ -17,9 +17,9 @@
 package androidx.room.vo
 
 import androidx.room.parser.FtsVersion
-import androidx.room.processing.XDeclaredType
-import androidx.room.processing.XElement
-import androidx.room.processing.XTypeElement
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XTypeElement
 import mockElementAndType
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.MatcherAssert.assertThat

@@ -16,7 +16,7 @@
 
 package androidx.room.processor
 
-import androidx.room.processing.XElement
+import androidx.room.compiler.processing.XElement
 import androidx.room.vo.Warning
 
 /**

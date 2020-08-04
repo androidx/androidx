@@ -16,7 +16,7 @@
 
 package androidx.room.vo
 
-import androidx.room.processing.XElement
+import androidx.room.compiler.processing.XElement
 
 /**
  * Represents the 'languageid' column of an FTS entity.

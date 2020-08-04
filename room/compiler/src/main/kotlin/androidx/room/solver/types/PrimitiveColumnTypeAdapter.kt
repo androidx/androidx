@@ -19,8 +19,8 @@ package androidx.room.solver.types
 import androidx.room.ext.L
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SQLTypeAffinity.REAL
-import androidx.room.processing.XProcessingEnv
-import androidx.room.processing.XType
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.TypeName.BYTE
 import com.squareup.javapoet.TypeName.CHAR

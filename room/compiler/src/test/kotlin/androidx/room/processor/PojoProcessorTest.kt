@@ -19,7 +19,7 @@ package androidx.room.processor
 import COMMON
 import androidx.room.Embedded
 import androidx.room.parser.SQLTypeAffinity
-import androidx.room.processing.XVariableElement
+import androidx.room.compiler.processing.XVariableElement
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_TYPE
 import androidx.room.processor.ProcessorErrors.POJO_FIELD_HAS_DUPLICATE_COLUMN_NAME

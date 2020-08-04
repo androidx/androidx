@@ -17,7 +17,7 @@
 package androidx.room.solver.binderprovider
 
 import androidx.room.parser.ParsedQuery
-import androidx.room.processing.XDeclaredType
+import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.processor.Context
 import androidx.room.solver.QueryResultBinderProvider
 import androidx.room.solver.RxType

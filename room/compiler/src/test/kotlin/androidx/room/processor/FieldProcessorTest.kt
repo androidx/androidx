@@ -19,7 +19,7 @@ package androidx.room.processor
 import androidx.room.Entity
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
-import androidx.room.processing.XVariableElement
+import androidx.room.compiler.processing.XVariableElement
 import androidx.room.solver.types.ColumnTypeAdapter
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor

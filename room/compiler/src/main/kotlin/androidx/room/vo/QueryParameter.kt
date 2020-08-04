@@ -16,7 +16,7 @@
 
 package androidx.room.vo
 
-import androidx.room.processing.XType
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.query.parameter.QueryParameterAdapter
 
 /**

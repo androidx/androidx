@@ -16,8 +16,8 @@
 
 package androidx.room.processor
 
-import androidx.room.processing.XDeclaredType
-import androidx.room.processing.XVariableElement
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XVariableElement
 import androidx.room.vo.QueryParameter
 
 class QueryParameterProcessor(

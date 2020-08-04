@@ -16,7 +16,7 @@
 
 package androidx.room.vo
 
-import androidx.room.processing.XType
+import androidx.room.compiler.processing.XType
 
 /**
  * Value object created from processing a @Relation annotation.

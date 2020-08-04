@@ -16,8 +16,8 @@
 
 package androidx.room.vo
 
-import androidx.room.processing.XMethodElement
-import androidx.room.processing.XMethodType
+import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XMethodType
 
 /**
  * An executable element processed as member of a class (pojo or entity)

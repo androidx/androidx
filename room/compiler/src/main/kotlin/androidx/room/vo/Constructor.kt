@@ -18,9 +18,9 @@ package androidx.room.vo
 
 import androidx.room.ext.L
 import androidx.room.ext.T
-import androidx.room.processing.XExecutableElement
-import androidx.room.processing.isConstructor
-import androidx.room.processing.isMethod
+import androidx.room.compiler.processing.XExecutableElement
+import androidx.room.compiler.processing.isConstructor
+import androidx.room.compiler.processing.isMethod
 import com.squareup.javapoet.CodeBlock
 
 /**

@@ -17,7 +17,7 @@
 package androidx.room.solver.shortcut.binder
 
 import androidx.room.ext.CallableTypeSpecBuilder
-import androidx.room.processing.XType
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.shortcut.result.DeleteOrUpdateMethodAdapter
 import androidx.room.vo.ShortcutQueryParameter

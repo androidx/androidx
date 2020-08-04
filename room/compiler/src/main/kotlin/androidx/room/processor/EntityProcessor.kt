@@ -20,9 +20,9 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Fts3
 import androidx.room.Fts4
-import androidx.room.processing.XAnnotationBox
-import androidx.room.processing.XType
-import androidx.room.processing.XTypeElement
+import androidx.room.compiler.processing.XAnnotationBox
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.vo.ForeignKeyAction
 import androidx.room.vo.Index
 
