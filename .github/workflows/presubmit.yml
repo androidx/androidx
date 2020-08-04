@@ -1,5 +1,6 @@
 name: AndroidX Presubmits
 on:
+  push:
   pull_request:
     types: [opened, synchronize, reopened]
   pull_request_review:
