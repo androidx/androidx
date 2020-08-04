@@ -59,4 +59,5 @@
     <public type="attr" name="imageSize" />
     <public type="attr" name="disableRecyclerViewItemAnimator" />
     <public type="attr" name="expandToAvailableHeight" />
+    <public type="attr" name="hideHeaderRow" />
 </resources>
