@@ -32,10 +32,10 @@ import androidx.compose.ui.unit.dp
  * @param modifier Modifier to be applied to the layout of the card.
  * @param shape Defines the surface's shape as well its shadow. A shadow is only
  *  displayed if the [elevation] is greater than zero.
- * @param color The background color.
+ * @param backgroundColor The background color.
  * @param contentColor The preferred content color provided by this Surface to its children.
- * Defaults to either the matching `onFoo` color for [color], or if [color] is not a color from
- * the theme, this will keep the same value set above this Surface.
+ * Defaults to either the matching `onFoo` color for [backgroundColor], or if [backgroundColor]
+ * is not a color from the theme, this will keep the same value set above this Surface.
  * @param border Optional border to draw on top of the card
  * @param elevation The z-coordinate at which to place this surface. This controls
  *  the size of the shadow below the surface.
@@ -44,8 +44,8 @@ import androidx.compose.ui.unit.dp
 fun Card(
     modifier: Modifier = Modifier,
     shape: Shape = MaterialTheme.shapes.medium,
-    color: Color = MaterialTheme.colors.surface,
-    contentColor: Color = contentColorFor(color),
+    backgroundColor: Color = MaterialTheme.colors.surface,
+    contentColor: Color = contentColorFor(backgroundColor),
     border: Border? = null,
     elevation: Dp = 1.dp,
     content: @Composable () -> Unit
@@ -53,7 +53,7 @@ fun Card(
     Surface(
         modifier = modifier,
         shape = shape,
-        color = color,
+        color = backgroundColor,
         contentColor = contentColor,
         elevation = elevation,
         border = border,
