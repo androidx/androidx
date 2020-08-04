@@ -71,8 +71,7 @@ internal class InnerPlaceable(
 
     @OptIn(ExperimentalFocus::class)
     override fun propagateFocusStateChange(focusState: FocusState2) {
-        // TODO(b/160922058): Propagate focus controllers across layout nodes.
-        // wrappedBy?.propagateFocusStateChange(focusState)
+        wrappedBy?.propagateFocusStateChange(focusState)
     }
 
     override fun findPreviousKeyInputWrapper() = wrappedBy?.findPreviousKeyInputWrapper()
