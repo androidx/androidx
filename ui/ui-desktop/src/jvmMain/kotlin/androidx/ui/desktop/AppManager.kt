@@ -15,8 +15,6 @@
  */
 package androidx.ui.desktop
 
-import androidx.compose.ui.window.AppDialog
-
 object AppManager {
 
     val defaultActionOnWindowsEmpty: () -> Unit = { System.exit(0) }
@@ -46,14 +44,8 @@ object AppManager {
 
     fun getCurrentFocusedWindow(): AppFrame? {
         for (current in windows) {
-            if (current is AppWindow) {
-                if (current.window!!.isFocused) {
-                    return current
-                }
-            } else if (current is AppDialog) {
-                if (current.window!!.isFocused) {
-                    return current
-                }
+            if (current.window!!.isFocused) {
+                return current
             }
         }
         return null

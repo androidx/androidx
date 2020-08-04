@@ -22,17 +22,8 @@ import androidx.compose.runtime.onDispose
 import androidx.compose.runtime.remember
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.ui.desktop.AppFrame
-import androidx.ui.desktop.AppManager
+import androidx.ui.desktop.AppWindow
 import androidx.ui.desktop.AppWindowAmbient
-import androidx.ui.desktop.Dialog
-import androidx.ui.desktop.setContent
-import java.awt.Dimension
-import java.awt.Toolkit
-import java.awt.event.WindowAdapter
-import java.awt.event.WindowEvent
-import javax.swing.JFrame
-import javax.swing.WindowConstants
 
 @Composable
 fun Dialog(
@@ -43,9 +34,9 @@ fun Dialog(
     onDismissEvent: (() -> Unit)? = null,
     content: @Composable () -> Unit = emptyContent()
 ) {
-    val attached = AppWindowAmbient.current?.window
+    val attached = AppWindowAmbient.current
     val dialog = remember {
-        AppDialog(
+        AppWindow(
             attached = attached,
             title = title,
             size = size,
@@ -63,99 +54,5 @@ fun Dialog(
 
     onDispose {
         dialog.close()
-    }
-}
-
-class AppDialog : AppFrame {
-
-    constructor(
-        attached: JFrame? = null,
-        title: String = "JetpackDesktopDialog",
-        size: IntSize = IntSize(1024, 768),
-        position: IntOffset = IntOffset(0, 0),
-        onDismissEvent: (() -> Unit)? = null,
-        centered: Boolean = true
-    ) {
-        this.attached = attached
-        this.title = title
-        this.width = size.width
-        this.height = size.height
-        this.x = position.x
-        this.y = position.y
-        if (onDismissEvent != null) {
-            onDismissEvents.add(onDismissEvent)
-        }
-        isCentered = centered
-
-        AppManager.addWindow(this)
-    }
-
-    var attached: JFrame? = null
-        private set
-
-    override fun setSize(width: Int, height: Int) {
-        // better check min/max values of current window size
-        var w = width
-        if (w <= 0) {
-            w = this.width
-        }
-
-        var h = height
-        if (h <= 0) {
-            h = this.height
-        }
-        this.width = w
-        this.height = h
-        window?.setSize(w, h)
-    }
-
-    override fun setPosition(x: Int, y: Int) {
-        this.x = x
-        this.y = y
-        window?.setLocation(x, y)
-    }
-
-    override fun setWindowCentered() {
-        val dim: Dimension = Toolkit.getDefaultToolkit().getScreenSize()
-        this.x = dim.width / 2 - width / 2
-        this.y = dim.height / 2 - height / 2
-        window?.setLocation(x, y)
-    }
-
-    var window: Dialog? = null
-        private set
-
-    private fun onCreate(content: @Composable () -> Unit) {
-
-        window = Dialog(attached, width = width, height = height, parent = this)
-
-        window!!.defaultCloseOperation = WindowConstants.DISPOSE_ON_CLOSE
-
-        window!!.addWindowListener(object : WindowAdapter() {
-            override fun windowClosing(windowevent: WindowEvent) {
-                onDismissEvents.forEach { it.invoke() }
-            }
-        })
-
-        window!!.title = title
-
-        window!!.setContent {
-            content()
-        }
-
-        if (isCentered)
-            setWindowCentered()
-        window!!.setVisible(true)
-    }
-
-    override fun show(content: @Composable () -> Unit) {
-        onCreate {
-            content()
-        }
-    }
-
-    override fun close() {
-        window?.dispose()
-        AppManager.removeWindow(this)
     }
 }

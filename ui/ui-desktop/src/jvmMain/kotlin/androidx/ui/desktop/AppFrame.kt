@@ -19,6 +19,12 @@ import androidx.compose.runtime.Composable
 
 abstract class AppFrame {
 
+    var window: ComposeWindow? = null
+        protected set
+
+    var invoker: AppFrame? = null
+        protected set
+
     var locked = false
 
     var title = ""
@@ -50,4 +56,8 @@ abstract class AppFrame {
     abstract fun show(content: @Composable () -> Unit)
 
     abstract fun close()
+
+    internal abstract fun connectPair(window: AppFrame)
+
+    internal abstract fun disconnectPair()
 }

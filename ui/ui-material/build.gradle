@@ -58,7 +58,7 @@ kotlin {
 
         desktopMain.dependencies {
             implementation(KOTLIN_STDLIB)
-            implementation(SKIJA)
+            implementation(SKIKO)
         }
 
         test.dependencies {
