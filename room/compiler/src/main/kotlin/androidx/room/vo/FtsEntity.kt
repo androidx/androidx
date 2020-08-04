@@ -129,7 +129,7 @@ class FtsEntity(
     override fun toBundle() = FtsEntityBundle(
             tableName,
             createTableQuery(BundleUtil.TABLE_NAME_PLACEHOLDER),
-            fields.map { it.toBundle() },
+            nonHiddenFields.map { it.toBundle() },
             primaryKey.toBundle(),
             ftsVersion.name,
             ftsOptions.toBundle(),
