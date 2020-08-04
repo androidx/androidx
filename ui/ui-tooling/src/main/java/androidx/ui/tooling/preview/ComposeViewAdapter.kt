@@ -25,6 +25,8 @@ import android.util.AttributeSet
 import android.util.Log
 import android.widget.FrameLayout
 import androidx.annotation.VisibleForTesting
+import androidx.compose.animation.TransitionModel
+import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.runtime.AtomicReference
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Composition
@@ -120,6 +122,11 @@ internal class ComposeViewAdapter : FrameLayout {
     private val slotTableRecord = SlotTableRecord.create()
 
     /**
+     * Simple function name of the Composable being previewed.
+     */
+    private var composableName = ""
+
+    /**
      * Saved exception from the last composition. Since we can not handle the exception during the
      * composition, we save it and throw it during onLayout, this allows Studio to catch it and
      * display it to the user.
@@ -204,6 +211,72 @@ internal class ComposeViewAdapter : FrameLayout {
                 walkTable(it)
             }
         }
+
+        if (::clock.isInitialized && composableName.isNotEmpty()) {
+            // TODO(b/160126628): support other APIs, e.g. animate
+            findAndSubscribeTransitions()
+        }
+    }
+
+    /**
+     * Finds all the transition animations defined in the Compose tree where the root is the
+     * `@Composable` being previewed. We only return animations defined in the user code, i.e.
+     * the ones we've got source information for.
+     */
+    @OptIn(InternalAnimationApi::class)
+    @VisibleForTesting
+    internal fun findAndSubscribeTransitions() {
+        val slotTrees = slotTableRecord.store.map { it.asTree() }
+        slotTrees.map { tree -> tree.firstOrNull { it.name == composableName } }
+            .firstOrNull()?.let { composable ->
+                // Find all the AnimationClockObservers corresponding to transition animations
+                val observers = composable.findAll {
+                    // Find `transition` calls in the user code, i.e. when source location is known
+                    it.name == "transition" && it.location != null
+                }.mapNotNull {
+                    val rememberCall =
+                        it.firstOrNull { it.name == "remember" } ?: return@mapNotNull null
+                    val transitionModel = rememberCall.data.firstOrNull { data ->
+                        data is TransitionModel<*>
+                    } as? TransitionModel<*>
+                    transitionModel?.anim?.animationClockObserver
+                }
+                // Subscribe all the observers found to the `PreviewAnimationClock`
+                observers.forEach { clock.subscribe(it) }
+            }
+    }
+
+    private fun Group.firstOrNull(predicate: (Group) -> Boolean): Group? {
+        return findGroupsThatMatchPredicate(this, predicate, true).firstOrNull()
+    }
+
+    private fun Group.findAll(predicate: (Group) -> Boolean): List<Group> {
+        return findGroupsThatMatchPredicate(this, predicate)
+    }
+
+    /**
+     * Search [Group]s that match a given [predicate], starting from a given [root]. An optional
+     * boolean parameter can be set if we're interested in a single occurrence. If it's set, we
+     * return early after finding the first matching [Group].
+     */
+    private fun findGroupsThatMatchPredicate(
+        root: Group,
+        predicate: (Group) -> Boolean,
+        findOnlyFirst: Boolean = false
+    ): List<Group> {
+        val result = mutableListOf<Group>()
+        val stack = mutableListOf(root)
+        while (stack.isNotEmpty()) {
+            val current = stack.removeLast()
+            if (predicate(current)) {
+                if (findOnlyFirst) {
+                    return listOf(current)
+                }
+                result.add(current)
+            }
+            stack.addAll(current.children)
+        }
+        return result
     }
 
     override fun dispatchDraw(canvas: Canvas?) {
@@ -235,7 +308,8 @@ internal class ComposeViewAdapter : FrameLayout {
      *
      * @suppress
      */
-    private lateinit var clock: PreviewAnimationClock
+    @VisibleForTesting
+    internal lateinit var clock: PreviewAnimationClock
 
     /**
      * Wraps a given [Preview] method an does any necessary setup.
@@ -279,6 +353,7 @@ internal class ComposeViewAdapter : FrameLayout {
         ViewTreeViewModelStoreOwner.set(this, FakeViewModelStoreOwner)
         this.debugPaintBounds = debugPaintBounds
         this.debugViewInfos = debugViewInfos
+        this.composableName = methodName
 
         composition = setContent(Recomposer.current()) {
             WrapPreview {
