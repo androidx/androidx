@@ -24,14 +24,12 @@ import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.transition
 import androidx.compose.foundation.Border
 import androidx.compose.foundation.Box
-import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.drawBorder
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.offset
@@ -39,9 +37,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.preferredWidth
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.MaterialTheme
+import androidx.compose.material.ScrollableTabRow
 import androidx.compose.material.Tab
+import androidx.compose.material.TabConstants.defaultTabIndicatorOffset
+import androidx.compose.material.TabPosition
 import androidx.compose.material.TabRow
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -62,8 +64,14 @@ fun TextTabs() {
     var state by remember { mutableStateOf(0) }
     val titles = listOf("TAB 1", "TAB 2", "TAB 3 WITH LOTS OF TEXT")
     Column {
-        TabRow(items = titles, selectedIndex = state) { index, text ->
-            Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
+        TabRow(selectedTabIndex = state) {
+            titles.forEachIndexed { index, title ->
+                Tab(
+                    text = { Text(title) },
+                    selected = state == index,
+                    onClick = { state = index }
+                )
+            }
         }
         Text(
             modifier = Modifier.gravity(Alignment.CenterHorizontally),
@@ -78,8 +86,14 @@ fun IconTabs() {
     var state by remember { mutableStateOf(0) }
     val icons = listOf(Icons.Filled.Favorite, Icons.Filled.Favorite, Icons.Filled.Favorite)
     Column {
-        TabRow(items = icons, selectedIndex = state) { index, icon ->
-            Tab(icon = { Icon(icon) }, selected = state == index, onSelected = { state = index })
+        TabRow(selectedTabIndex = state) {
+            icons.forEachIndexed { index, icon ->
+                Tab(
+                    icon = { Icon(icon) },
+                    selected = state == index,
+                    onClick = { state = index }
+                )
+            }
         }
         Text(
             modifier = Modifier.gravity(Alignment.CenterHorizontally),
@@ -98,13 +112,15 @@ fun TextAndIconTabs() {
         "TAB 3 WITH LOTS OF TEXT" to Icons.Filled.Favorite
     )
     Column {
-        TabRow(items = titlesAndIcons, selectedIndex = state) { index, (title, icon) ->
-            Tab(
-                text = { Text(title) },
-                icon = { Icon(icon) },
-                selected = state == index,
-                onSelected = { state = index }
-            )
+        TabRow(selectedTabIndex = state) {
+            titlesAndIcons.forEachIndexed { index, (title, icon) ->
+                Tab(
+                    text = { Text(title) },
+                    icon = { Icon(icon) },
+                    selected = state == index,
+                    onClick = { state = index }
+                )
+            }
         }
         Text(
             modifier = Modifier.gravity(Alignment.CenterHorizontally),
@@ -130,8 +146,14 @@ fun ScrollingTextTabs() {
         "TAB 10"
     )
     Column {
-        TabRow(items = titles, selectedIndex = state, scrollable = true) { index, text ->
-            Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
+        ScrollableTabRow(selectedTabIndex = state) {
+            titles.forEachIndexed { index, title ->
+                Tab(
+                    text = { Text(title) },
+                    selected = state == index,
+                    onClick = { state = index }
+                )
+            }
         }
         Text(
             modifier = Modifier.gravity(Alignment.CenterHorizontally),
@@ -147,8 +169,10 @@ fun FancyTabs() {
     var state by remember { mutableStateOf(0) }
     val titles = listOf("TAB 1", "TAB 2", "TAB 3")
     Column {
-        TabRow(items = titles, selectedIndex = state) { index, title ->
-            FancyTab(title = title, onClick = { state = index }, selected = (index == state))
+        TabRow(selectedTabIndex = state) {
+            titles.forEachIndexed { index, title ->
+                FancyTab(title = title, onClick = { state = index }, selected = (index == state))
+            }
         }
         Text(
             modifier = Modifier.gravity(Alignment.CenterHorizontally),
@@ -164,20 +188,23 @@ fun FancyIndicatorTabs() {
     var state by remember { mutableStateOf(0) }
     val titles = listOf("TAB 1", "TAB 2", "TAB 3")
 
-    // Reuse the default transition, and provide our custom indicator as its child
-    val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
-        TabRow.IndicatorContainer(tabPositions = tabPositions, selectedIndex = state) {
-            FancyIndicator(Color.White)
-        }
+    // Reuse the default offset animation modifier, but use our own indicator
+    val indicator = @Composable { tabPositions: List<TabPosition> ->
+        FancyIndicator(Color.White, Modifier.defaultTabIndicatorOffset(tabPositions[state]))
     }
 
     Column {
         TabRow(
-            items = titles,
-            selectedIndex = state,
-            indicatorContainer = indicatorContainer
-        ) { index, text ->
-            Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
+            selectedTabIndex = state,
+            indicator = indicator
+        ) {
+            titles.forEachIndexed { index, title ->
+                Tab(
+                    text = { Text(title) },
+                    selected = state == index,
+                    onClick = { state = index }
+                )
+            }
         }
         Text(
             modifier = Modifier.gravity(Alignment.CenterHorizontally),
@@ -193,17 +220,22 @@ fun FancyIndicatorContainerTabs() {
     var state by remember { mutableStateOf(0) }
     val titles = listOf("TAB 1", "TAB 2", "TAB 3")
 
-    val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
-        FancyIndicatorContainer(tabPositions = tabPositions, selectedIndex = state)
+    val indicator = @Composable { tabPositions: List<TabPosition> ->
+        FancyAnimatedIndicator(tabPositions = tabPositions, selectedTabIndex = state)
     }
 
     Column {
         TabRow(
-            items = titles,
-            selectedIndex = state,
-            indicatorContainer = indicatorContainer
-        ) { index, text ->
-            Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
+            selectedTabIndex = state,
+            indicator = indicator
+        ) {
+            titles.forEachIndexed { index, title ->
+                Tab(
+                    text = { Text(title) },
+                    selected = state == index,
+                    onClick = { state = index }
+                )
+            }
         }
         Text(
             modifier = Modifier.gravity(Alignment.CenterHorizontally),
@@ -228,18 +260,22 @@ fun ScrollingFancyIndicatorContainerTabs() {
         "TAB 9 WITH LOTS OF TEXT",
         "TAB 10"
     )
-    val indicatorContainer = @Composable { tabPositions: List<TabRow.TabPosition> ->
-        FancyIndicatorContainer(tabPositions = tabPositions, selectedIndex = state)
+    val indicator = @Composable { tabPositions: List<TabPosition> ->
+        FancyAnimatedIndicator(tabPositions = tabPositions, selectedTabIndex = state)
     }
 
     Column {
-        TabRow(
-            items = titles,
-            selectedIndex = state,
-            indicatorContainer = indicatorContainer,
-            scrollable = true
-        ) { index, text ->
-            Tab(text = { Text(text) }, selected = state == index, onSelected = { state = index })
+        ScrollableTabRow(
+            selectedTabIndex = state,
+            indicator = indicator
+        ) {
+            titles.forEachIndexed { index, title ->
+                Tab(
+                    text = { Text(title) },
+                    selected = state == index,
+                    onClick = { state = index }
+                )
+            }
         }
         Text(
             modifier = Modifier.gravity(Alignment.CenterHorizontally),
@@ -274,70 +310,71 @@ fun FancyTab(title: String, onClick: () -> Unit, selected: Boolean) {
 
 @Sampled
 @Composable
-fun FancyIndicator(color: Color) {
+fun FancyIndicator(color: Color, modifier: Modifier = Modifier) {
     // Draws a rounded rectangular with border around the Tab, with a 5.dp padding from the edges
     // Color is passed in as a parameter [color]
-    Stack(
-        Modifier.padding(5.dp)
-            .fillMaxSize()
-            .drawBorder(Border(2.dp, color), RoundedCornerShape(5.dp))
-    ) {}
+    Box(modifier
+        .padding(5.dp)
+        .fillMaxSize()
+        .drawBorder(Border(2.dp, color), RoundedCornerShape(5.dp))
+    )
 }
 
 @Sampled
 @Composable
-fun FancyIndicatorContainer(tabPositions: List<TabRow.TabPosition>, selectedIndex: Int) {
+fun FancyAnimatedIndicator(tabPositions: List<TabPosition>, selectedTabIndex: Int) {
     val indicatorStart = remember { DpPropKey() }
     val indicatorEnd = remember { DpPropKey() }
     val indicatorColor = remember { ColorPropKey() }
 
     val colors = listOf(Color.Yellow, Color.Red, Color.Green)
-    val transitionDefinition =
-        remember(tabPositions) {
-            transitionDefinition<Int> {
-                tabPositions.forEachIndexed { index, position ->
-                    state(index) {
-                        this[indicatorStart] = position.left
-                        this[indicatorEnd] = position.right
-                        this[indicatorColor] = colors[index % colors.size]
-                    }
+    val transitionDefinition = remember(tabPositions) {
+        transitionDefinition<Int> {
+            tabPositions.forEachIndexed { index, position ->
+                state(index) {
+                    this[indicatorStart] = position.left
+                    this[indicatorEnd] = position.right
+                    this[indicatorColor] = colors[index % colors.size]
                 }
-                repeat(tabPositions.size) { from ->
-                    repeat(tabPositions.size) { to ->
-                        if (from != to) {
-                            transition(fromState = from, toState = to) {
-                                // Handle directionality here, if we are moving to the right, we
-                                // want the right side of the indicator to move faster, if we are
-                                // moving to the left, we want the left side to move faster.
-                                val startStiffness = if (from < to) 50f else 1000f
-                                val endStiffness = if (from < to) 1000f else 50f
-                                indicatorStart using spring(
-                                    dampingRatio = 1f,
-                                    stiffness = startStiffness
-                                )
-                                indicatorEnd using spring(
-                                    dampingRatio = 1f,
-                                    stiffness = endStiffness
-                                )
-                            }
+            }
+            repeat(tabPositions.size) { from ->
+                repeat(tabPositions.size) { to ->
+                    if (from != to) {
+                        transition(fromState = from, toState = to) {
+                            // Handle directionality here, if we are moving to the right, we
+                            // want the right side of the indicator to move faster, if we are
+                            // moving to the left, we want the left side to move faster.
+                            val startStiffness = if (from < to) 50f else 1000f
+                            val endStiffness = if (from < to) 1000f else 50f
+                            indicatorStart using spring(
+                                dampingRatio = 1f,
+                                stiffness = startStiffness
+                            )
+                            indicatorEnd using spring(
+                                dampingRatio = 1f,
+                                stiffness = endStiffness
+                            )
                         }
                     }
                 }
             }
         }
-
-    // Fill up the entire TabRow with this container, and place children at the left so we can use
-    // Padding to set the 'offset'
-    Box(Modifier.fillMaxSize(), gravity = ContentGravity.BottomStart) {
-        val state = transition(transitionDefinition, selectedIndex)
-        val offset = state[indicatorStart]
-        val width = state[indicatorEnd] - state[indicatorStart]
-        Box(
-            Modifier.offset(x = offset, y = 0.dp).preferredWidth(width),
-            gravity = ContentGravity.Center
-        ) {
-            // Pass the current color to the indicator
-            FancyIndicator(state[indicatorColor])
-        }
     }
+
+    val state = transition(transitionDefinition, selectedTabIndex)
+    val offset = state[indicatorStart]
+    val width = state[indicatorEnd] - state[indicatorStart]
+
+    FancyIndicator(
+        // Pass the current color to the indicator
+        state[indicatorColor],
+        modifier = Modifier
+            // Fill up the entire TabRow, and place the indicator at the start
+            .fillMaxSize()
+            .wrapContentSize(align = Alignment.BottomStart)
+            // Apply an offset from the start to correctly position the indicator around the tab
+            .offset(x = offset)
+            // Make the width of the indicator follow the animated width as we move between tabs
+            .preferredWidth(width)
+    )
 }
