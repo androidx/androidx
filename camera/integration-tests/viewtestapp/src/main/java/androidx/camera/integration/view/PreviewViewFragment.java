@@ -252,7 +252,7 @@ public class PreviewViewFragment extends Fragment {
         final Preview preview = new Preview.Builder()
                 .setTargetName("Preview")
                 .build();
-        mPreviewView.setPreferredImplementationMode(PreviewView.ImplementationMode.TEXTURE_VIEW);
+        mPreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
         preview.setSurfaceProvider(mPreviewView.createSurfaceProvider());
         final CameraSelector cameraSelector = getCurrentCameraSelector();
         final Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview);
