@@ -165,6 +165,7 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             Bundle optionsBundle = null;
             if (intent.hasExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE)) {
                 optionsBundle = intent.getBundleExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE);
+                intent.removeExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE);
             } else if (options != null) {
                 optionsBundle = options.toBundle();
             }
