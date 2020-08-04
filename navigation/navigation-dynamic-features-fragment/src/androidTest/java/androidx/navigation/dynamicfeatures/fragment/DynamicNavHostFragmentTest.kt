@@ -23,7 +23,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import androidx.testutils.withActivity
-import org.junit.Assert.assertNotEquals
+import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -47,7 +47,7 @@ class DynamicNavHostFragmentTest {
                     .commitNow()
             }
         }
-        assertNotEquals(fragment.createSplitInstallManager(), fragment.createSplitInstallManager())
+        assertEquals(fragment.createSplitInstallManager(), fragment.createSplitInstallManager())
     }
 }
 
