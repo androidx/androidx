@@ -36,7 +36,6 @@ package androidx.compose.foundation.layout {
   }
 
   public final class AlignmentLineKt {
-    method @Deprecated @androidx.compose.runtime.Composable public static void AlignmentLineOffset-2dGHNN8(androidx.compose.ui.AlignmentLine alignmentLine, androidx.compose.ui.Modifier modifier = Modifier, float before = 0.dp, float after = 0.dp, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier relativePaddingFrom-7P-br3g(androidx.compose.ui.Modifier, androidx.compose.ui.AlignmentLine alignmentLine, float before = Dp.Unspecified, float after = Dp.Unspecified);
   }
 
