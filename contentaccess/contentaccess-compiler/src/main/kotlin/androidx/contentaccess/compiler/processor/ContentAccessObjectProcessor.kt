@@ -17,6 +17,7 @@
 package androidx.contentaccess.compiler.processor
 
 import androidx.contentaccess.ContentAccessObject
+import androidx.contentaccess.ContentDelete
 import androidx.contentaccess.ContentQuery
 import androidx.contentaccess.ContentUpdate
 import androidx.contentaccess.compiler.utils.ErrorReporter
@@ -83,6 +84,19 @@ class ContentAccessObjectProcessor(
                     errorReporter = errorReporter
                 ).process()
             }
+
+        val deleteMethods = element.getAllMethodsIncludingSupers()
+            .filter { it.hasAnnotation(ContentDelete::class) }
+            .map {
+                ContentDeleteProcessor(
+                    contentEntity = entity,
+                    method = it,
+                    contentDeleteAnnotation = it.getAnnotation(ContentDelete::class.java),
+                    processingEnv = processingEnv,
+                    errorReporter = errorReporter
+                ).process()
+            }
+
         // Return if there was an error.
         if (errorReporter.errorReported) {
             return
@@ -94,7 +108,8 @@ class ContentAccessObjectProcessor(
                 packageName = processingEnv.elementUtils.getPackageOf(element).toString(),
                 interfaceType = element.asType(),
                 queries = queryMethods.mapNotNull { it },
-                updates = updateMethods.mapNotNull { it }
+                updates = updateMethods.mapNotNull { it },
+                deletes = deleteMethods.filterNotNull()
             ),
             processingEnv
         ).generateFile()
