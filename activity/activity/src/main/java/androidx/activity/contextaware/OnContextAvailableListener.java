@@ -16,12 +16,9 @@
 
 package androidx.activity.contextaware;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
-import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 /**
  * Listener for receiving a callback at the first moment a {@link Context} is made
@@ -32,14 +29,10 @@ import androidx.annotation.Nullable;
 public interface OnContextAvailableListener {
 
     /**
-     * Called when the given {@link ContextAware} object is associated to a {@link Context}.
+     * Called when the {@link ContextAware} object this listener was added to is associated to a
+     * {@link Context}.
      *
-     * @param contextAware The object that this listener for added to.
      * @param context The {@link Context} the {@link ContextAware} object is now associated with.
-     * @param savedInstanceState The saved instance state, if any.
      */
-    void onContextAvailable(@NonNull ContextAware contextAware,
-            @SuppressLint("ContextFirst") /* The object being operated on should be first */
-            @NonNull Context context,
-            @Nullable Bundle savedInstanceState);
+    void onContextAvailable(@NonNull Context context);
 }

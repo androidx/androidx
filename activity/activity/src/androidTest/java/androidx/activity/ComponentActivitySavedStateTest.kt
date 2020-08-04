@@ -109,7 +109,7 @@ private fun checkDefaultSavedState(store: SavedStateRegistry) {
 class SavedStateActivity : ComponentActivity() {
 
     init {
-        addOnContextAvailableListener { _, _, _ ->
+        addOnContextAvailableListener {
             if (checkEnabledInOnContextAvailable) {
                 checkDefaultSavedState(savedStateRegistry)
                 checkEnabledInOnContextAvailable = false

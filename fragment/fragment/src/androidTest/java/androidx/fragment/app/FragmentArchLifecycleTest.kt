@@ -56,9 +56,7 @@ class FragmentArchLifecycleTest {
                     }
                 })
             }
-            onActivity {
-                it.onSaveInstanceState(Bundle())
-            }
+            moveToState(Lifecycle.State.CREATED)
             assertThat(first.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
             assertThat(second.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
             assertThat(activityLifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
@@ -85,9 +83,7 @@ class FragmentArchLifecycleTest {
                     }
                 })
             }
-            onActivity {
-                it.onSaveInstanceState(Bundle())
-            }
+            moveToState(Lifecycle.State.CREATED)
             assertThat(first.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
             assertThat(first.viewLifecycleOwner.lifecycle.currentState)
                 .isEqualTo(Lifecycle.State.CREATED)

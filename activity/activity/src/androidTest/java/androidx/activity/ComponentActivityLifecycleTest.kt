@@ -71,7 +71,7 @@ class LifecycleComponentActivity : ComponentActivity() {
     internal val events = mutableListOf<Pair<LifecycleSource, Lifecycle.Event>>()
 
     init {
-        addOnContextAvailableListener { _, _, _ ->
+        addOnContextAvailableListener {
             events.add(LifecycleSource.CONTEXT_AWARE to Lifecycle.Event.ON_CREATE)
         }
         lifecycle.addObserver(LifecycleEventObserver { _, event ->

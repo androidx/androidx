@@ -17,7 +17,6 @@
 package androidx.activity.contextaware
 
 import android.content.Context
-import android.os.Bundle
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -32,20 +31,20 @@ class ContextAwareHelperTest {
 
     @Test
     fun addOnContextAvailableListener() {
-        var receivedContextAware: ContextAware? = null
-        val listener = OnContextAvailableListener { contextAware, _, _ ->
-            receivedContextAware = contextAware
+        var callbackCount = 0
+        val listener = OnContextAvailableListener {
+            callbackCount++
         }
         contextAware.addOnContextAvailableListener(listener)
         contextAware.dispatchOnContextAvailable()
 
-        assertThat(receivedContextAware).isSameInstanceAs(contextAware)
+        assertThat(callbackCount).isEqualTo(1)
     }
 
     @Test
     fun removeOnContextAvailableListener() {
         var callbackCount = 0
-        val listener = OnContextAvailableListener { _, _, _ ->
+        val listener = OnContextAvailableListener {
             callbackCount++
         }
         contextAware.addOnContextAvailableListener(listener)
@@ -64,11 +63,7 @@ class ContextAwareHelperTest {
     fun reentrantRemove() {
         var callbackCount = 0
         val listener = object : OnContextAvailableListener {
-            override fun onContextAvailable(
-                contextAware: ContextAware,
-                context: Context,
-                savedInstanceState: Bundle?
-            ) {
+            override fun onContextAvailable(context: Context) {
                 callbackCount++
                 contextAware.removeOnContextAvailableListener(this)
             }
@@ -86,7 +81,7 @@ class ContextAwareHelperTest {
 }
 
 class TestContextAware : ContextAware {
-    private val contextAwareHelper = ContextAwareHelper(this)
+    private val contextAwareHelper = ContextAwareHelper()
 
     override fun addOnContextAvailableListener(listener: OnContextAvailableListener) {
         contextAwareHelper.addOnContextAvailableListener(listener)
@@ -96,8 +91,9 @@ class TestContextAware : ContextAware {
         contextAwareHelper.removeOnContextAvailableListener(listener)
     }
 
-    fun dispatchOnContextAvailable(savedInstanceState: Bundle? = null) {
+    fun dispatchOnContextAvailable() {
         contextAwareHelper.dispatchOnContextAvailable(
-            ApplicationProvider.getApplicationContext(), savedInstanceState)
+            ApplicationProvider.getApplicationContext()
+        )
     }
 }

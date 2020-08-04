@@ -56,14 +56,14 @@ package androidx.activity.contextaware {
   }
 
   public final class ContextAwareHelper {
-    ctor public ContextAwareHelper(androidx.activity.contextaware.ContextAware);
+    ctor public ContextAwareHelper();
     method public void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
-    method public void dispatchOnContextAvailable(android.content.Context, android.os.Bundle?);
+    method public void dispatchOnContextAvailable(android.content.Context);
     method public void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
   }
 
   public interface OnContextAvailableListener {
-    method public void onContextAvailable(androidx.activity.contextaware.ContextAware, android.content.Context, android.os.Bundle?);
+    method public void onContextAvailable(android.content.Context);
   }
 
 }
