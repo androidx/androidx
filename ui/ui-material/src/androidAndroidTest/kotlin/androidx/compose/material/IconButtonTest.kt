@@ -35,6 +35,7 @@ import androidx.ui.test.onNode
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.isToggleable
 import androidx.compose.ui.unit.dp
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -154,6 +155,7 @@ class IconButtonTest {
             .assertTopPositionInRootIsEqualTo((48.dp - height) / 2)
     }
 
+    @Ignore("b/162824105")
     @Test
     fun iconToggleButton_semantics() {
         composeTestRule.setMaterialContent {

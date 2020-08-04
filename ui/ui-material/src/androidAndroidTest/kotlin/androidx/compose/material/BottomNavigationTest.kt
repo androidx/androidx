@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
 import com.google.common.truth.Truth
+import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -222,6 +223,7 @@ class BottomNavigationTest {
     }
 
     @Test
+    @Ignore("b/162824105")
     fun bottomNavigation_selectNewItem() {
         composeTestRule.setMaterialContent {
             BottomNavigationSample()
