@@ -17,9 +17,7 @@
 package androidx.sqlite.inspection
 
 import android.database.sqlite.SQLiteDatabase
-import androidx.inspection.Connection
 import androidx.inspection.InspectorEnvironment
-import androidx.inspection.InspectorFactory
 import androidx.inspection.testing.DefaultTestInspectorEnvironment
 import androidx.inspection.testing.InspectorTester
 import androidx.inspection.testing.TestInspectorExecutors
@@ -45,8 +43,10 @@ import java.util.concurrent.TimeUnit
 @RunWith(AndroidJUnit4::class)
 class RoomInvalidationHookTest {
     private lateinit var db: TestDatabase
-    private val inspectionExecutors =
-        Pair(Executors.newSingleThreadExecutor(), Executors.newSingleThreadScheduledExecutor())
+
+    private val testJob = Job()
+    private val ioExecutor = Executors.newSingleThreadExecutor()
+    private val testInspectorExecutors = TestInspectorExecutors(testJob, ioExecutor)
 
     @Before
     fun initDb() {
@@ -62,14 +62,14 @@ class RoomInvalidationHookTest {
 
     @After
     fun closeDb() {
-        listOf(inspectionExecutors.first, inspectionExecutors.second)
-            .forEach { inspectionExecutor ->
-                inspectionExecutor.shutdown()
-                assertWithMessage("inspector should not have any leaking tasks")
-                    .that(inspectionExecutor.awaitTermination(10, TimeUnit.SECONDS))
-                    .isTrue()
-                db.close()
-            }
+        testJob.complete()
+        ioExecutor.shutdown()
+        assertWithMessage("inspector should not have any leaking tasks")
+            .that(ioExecutor.awaitTermination(10, TimeUnit.SECONDS))
+            .isTrue()
+
+        testInspectorExecutors.handler().looper.thread.join(10_000)
+        db.close()
     }
 
     /**
@@ -77,28 +77,15 @@ class RoomInvalidationHookTest {
      * invalidation observer on the Room side is invoked.
      */
     @Test
-    fun invalidationHook() = runBlocking<Unit> {
+    fun invalidationHook() = runBlocking<Unit>(testJob) {
         val testEnv = TestInspectorEnvironment(
             roomDatabase = db,
             sqliteDb = db.getSqliteDb(),
-            parentJob = this.coroutineContext[Job]!!
+            inspectorExecutors = testInspectorExecutors
         )
         val tester = InspectorTester(
-            inspectorId = "test",
-            environment = testEnv,
-            factoryOverride = object : InspectorFactory<SqliteInspector>("test") {
-                override fun createInspector(
-                    connection: Connection,
-                    environment: InspectorEnvironment
-                ): SqliteInspector {
-                    return SqliteInspector(
-                        connection,
-                        environment,
-                        inspectionExecutors.first,
-                        inspectionExecutors.second
-                    )
-                }
-            }
+            inspectorId = "androidx.sqlite.inspection",
+            environment = testEnv
         )
         val invalidatedTables = CompletableDeferred<List<String>>()
         db.invalidationTracker.addObserver(object : InvalidationTracker.Observer("TestEntity") {
@@ -151,8 +138,8 @@ private fun RoomDatabase.getSqliteDb(): SQLiteDatabase {
 class TestInspectorEnvironment(
     private val roomDatabase: RoomDatabase,
     private val sqliteDb: SQLiteDatabase,
-    parentJob: Job
-) : DefaultTestInspectorEnvironment(TestInspectorExecutors(parentJob)) {
+    inspectorExecutors: TestInspectorExecutors
+) : DefaultTestInspectorEnvironment(inspectorExecutors) {
     override fun registerEntryHook(
         originClass: Class<*>,
         originMethod: String,
