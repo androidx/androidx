@@ -16,24 +16,24 @@
 
 package androidx.compose.material
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.AlignmentLine
-import androidx.compose.ui.Layout
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.id
-import androidx.compose.ui.layout.layoutId
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ProvideTextStyle
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.relativePaddingFrom
 import androidx.compose.foundation.text.FirstBaseline
 import androidx.compose.foundation.text.LastBaseline
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.AlignmentLine
+import androidx.compose.ui.Layout
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.layout.id
+import androidx.compose.ui.layout.layoutId
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlin.math.max
@@ -45,42 +45,44 @@ import kotlin.math.max
  * temporarily, towards the bottom of the screen. They shouldn’t interrupt the user experience,
  * and they don’t require user input to disappear.
  *
- * A Snackbar can contain a single action. Because they disappear automatically, the action
+ * A Snackbar can contain a single action. Because Snackbar disappears automatically, the action
  * shouldn't be "Dismiss" or "Cancel".
  *
  * @sample androidx.compose.material.samples.SimpleSnackbar
  *
- * @param text text component to show information about a process that an app has performed or
- * will perform
- * @param action action / button component to add as an action to the snackbar. Consider using
- * [snackbarPrimaryColorFor] as the color for the action, if you do not have a predefined color
- * you wish to use instead.
  * @param modifier modifiers for the the Snackbar layout
+ * @param action action / button component to add as an action to the snackbar. Consider using
+ * [SnackbarConstants.defaultActionPrimaryColor] as the color for the action, if you do not
+ * have a predefined color you wish to use instead.
  * @param actionOnNewLine whether or not action should be put on the separate line. Recommended
  * for action with long action text
  * @param shape Defines the Snackbar's shape as well as its shadow
+ * @param backgroundColor background color of the Snackbar
+ * @param contentColor color of the content to use inside the snackbar. Defaults to
+ * either the matching `onFoo` color for [backgroundColor], or, if it is not a color from
+ * the theme, this will keep the same value set above this Surface.
  * @param elevation The z-coordinate at which to place the SnackBar. This controls the size
  * of the shadow below the SnackBar
+ * @param text text component to show information about a process that an app has performed or
+ * will perform
  */
 @Composable
 fun Snackbar(
-    text: @Composable () -> Unit,
-    action: @Composable (() -> Unit)? = null,
     modifier: Modifier = Modifier,
+    action: @Composable (() -> Unit)? = null,
     actionOnNewLine: Boolean = false,
     shape: Shape = MaterialTheme.shapes.small,
-    elevation: Dp = 6.dp
+    backgroundColor: Color = SnackbarConstants.defaultBackgroundColor,
+    contentColor: Color = MaterialTheme.colors.surface,
+    elevation: Dp = 6.dp,
+    text: @Composable () -> Unit
 ) {
-    val colors = MaterialTheme.colors
-    // Snackbar has a background color of onSurface with an alpha applied blended on top of surface
-    val snackbarOverlayColor = colors.onSurface.copy(alpha = SnackbarOverlayAlpha)
-    val snackbarColor = snackbarOverlayColor.compositeOver(colors.surface)
     Surface(
         modifier = modifier,
         shape = shape,
         elevation = elevation,
-        color = snackbarColor,
-        contentColor = colors.surface
+        color = backgroundColor,
+        contentColor = contentColor
     ) {
         ProvideEmphasis(EmphasisAmbient.current.high) {
             val textStyle = MaterialTheme.typography.body2
@@ -93,6 +95,55 @@ fun Snackbar(
             }
         }
     }
+}
+
+/**
+ * Object to hold constants used by the [Snackbar]
+ */
+object SnackbarConstants {
+
+    /**
+     * Default alpha of the overlay in the [defaultBackgroundColor]
+     */
+    private const val SnackbarOverlayAlpha = 0.8f
+
+    /**
+     * Default background color of the [Snackbar]
+     */
+    @Composable
+    val defaultBackgroundColor: Color
+        get() =
+            MaterialTheme.colors.onSurface
+                .copy(alpha = SnackbarOverlayAlpha)
+                .compositeOver(MaterialTheme.colors.surface)
+
+    /**
+     * Provides a best-effort 'primary' color to be used as the primary color inside a [Snackbar].
+     * Given that [Snackbar]s have an 'inverted' theme, i.e in a light theme they appear dark, and
+     * in a dark theme they appear light, just using [Colors.primary] will not work, and has
+     * incorrect contrast.
+     *
+     * If your light theme has a corresponding dark theme, you should instead directly use
+     * [Colors.primary] from the dark theme when in a light theme, and use
+     * [Colors.primaryVariant] from the dark theme when in a dark theme.
+     *
+     * When in a light theme, this function applies a color overlay to [Colors.primary] from
+     * [MaterialTheme.colors] to attempt to reduce the contrast, and when in a dark theme this
+     * function uses [Colors.primaryVariant].
+     */
+    @Composable
+    val defaultActionPrimaryColor: Color
+        get() {
+            val colors = MaterialTheme.colors
+            return if (colors.isLight) {
+                val primary = colors.primary
+                val overlayColor = colors.surface.copy(alpha = 0.6f)
+
+                overlayColor.compositeOver(primary)
+            } else {
+                colors.primaryVariant
+            }
+        }
 }
 
 @Composable
@@ -218,35 +269,6 @@ private fun OneRowSnackbar(
         }
     }
 }
-
-/**
- * Provides a best-effort 'primary' color to be used as the primary color inside a [Snackbar].
- * Given that [Snackbar]s have an 'inverted' theme, i.e in a light theme they appear dark, and
- * in a dark theme they appear light, just using [Colors.primary] will not work, and has
- * incorrect contrast.
- *
- * If your light theme has a corresponding dark theme, you should instead directly use
- * [Colors.primary] from the dark theme when in a light theme, and use
- * [Colors.primaryVariant] from the dark theme when in a dark theme.
- *
- * When in a light theme, this function applies a color overlay to [Colors.primary] from
- * [colors] to attempt to reduce the contrast, and when in a dark theme this function uses
- * [Colors.primaryVariant].
- *
- * @param colors the [Colors] to calculate the Snackbar primary color for
- */
-fun snackbarPrimaryColorFor(colors: Colors): Color {
-    return if (colors.isLight) {
-        val primary = colors.primary
-        val overlayColor = colors.surface.copy(alpha = 0.6f)
-
-        overlayColor.compositeOver(primary)
-    } else {
-        colors.primaryVariant
-    }
-}
-
-private const val SnackbarOverlayAlpha = 0.8f
 
 private val HeightToFirstLine = 30.dp
 private val HorizontalSpacing = 16.dp

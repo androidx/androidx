@@ -16,17 +16,16 @@
 
 package androidx.compose.material.demos
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Snackbar
+import androidx.compose.material.SnackbarConstants
 import androidx.compose.material.TextButton
 import androidx.compose.material.samples.SimpleSnackbar
-import androidx.compose.material.snackbarPrimaryColorFor
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -40,7 +39,7 @@ fun SnackbarDemo() {
             text = { Text("This song already exists in the current playlist") },
             action = {
                 TextButton(
-                    contentColor = snackbarPrimaryColorFor(MaterialTheme.colors),
+                    contentColor = SnackbarConstants.defaultActionPrimaryColor,
                     onClick = { /* perform undo */ }
                 ) {
                     Text("ADD THIS SONG ANYWAY")
