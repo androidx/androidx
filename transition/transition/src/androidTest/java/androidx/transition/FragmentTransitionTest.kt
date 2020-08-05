@@ -711,6 +711,57 @@ class FragmentTransitionTest(
         verifyNoOtherTransitions(fragment2)
     }
 
+    // Test that setting allowEnterTransitionOverlap to false correctly delays
+    // the enter transition until after the exit transition finishes
+    @Test
+    fun disallowEnterOverlap() {
+        val fragment = setupInitialFragment()
+        val blue = activityRule.findBlue()
+        val green = activityRule.findGreen()
+
+        val fragment2 = TransitionFragment(R.layout.fragment_scene2)
+        fragment2.allowEnterTransitionOverlap = false
+        fragment2.enterTransition.setRealTransition(true)
+        var enterTransitionStarted = false
+        fragment2.enterTransition.addListener(object : TransitionListenerAdapter() {
+            override fun onTransitionStart(transition: Transition) {
+                enterTransitionStarted = true
+            }
+        })
+        var enterTransitionStartedOnEnd = true
+        fragment.exitTransition.setRealTransition(true)
+        fragment.exitTransition.addListener(object : TransitionListenerAdapter() {
+            override fun onTransitionEnd(transition: Transition) {
+                enterTransitionStartedOnEnd = enterTransitionStarted
+            }
+        })
+
+        fragmentManager.beginTransaction()
+            .setReorderingAllowed(reorderingAllowed)
+            .replace(R.id.fragmentContainer, fragment2)
+            .addToBackStack(null)
+            .commit()
+
+        fragment.waitForTransition()
+        fragment2.waitForTransition()
+        fragment.exitTransition.verifyAndClearTransition {
+            exitingViews += listOf(green, blue)
+        }
+        verifyNoOtherTransitions(fragment)
+
+        val endBlue = activityRule.findBlue()
+        val endGreen = activityRule.findGreen()
+        fragment2.enterTransition.verifyAndClearTransition {
+            enteringViews += listOf(endGreen, endBlue)
+        }
+        verifyNoOtherTransitions(fragment2)
+        assertThat(onBackStackChangedTimes).isEqualTo(2)
+
+        assertWithMessage("Enter transition did not wait for exit transition")
+            .that(enterTransitionStartedOnEnd)
+            .isFalse()
+    }
+
     // Ensure that transitions are done when a fragment is attached and detached
     @Test
     fun attachDetachTransition() {
