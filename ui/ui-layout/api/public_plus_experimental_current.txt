@@ -413,9 +413,9 @@ package androidx.compose.foundation.layout {
 
   public final class LayoutSizeKt {
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier defaultMinSizeConstraints-S2lCeAQ(androidx.compose.ui.Modifier, float minWidth = Dp.Unspecified, float minHeight = Dp.Unspecified);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier fillMaxHeight(androidx.compose.ui.Modifier);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier fillMaxSize(androidx.compose.ui.Modifier);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier fillMaxWidth(androidx.compose.ui.Modifier);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier fillMaxHeight(androidx.compose.ui.Modifier, @FloatRange(from=0.0, to=1.0) float fraction = 1f);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier fillMaxSize(androidx.compose.ui.Modifier, @FloatRange(from=0.0, to=1.0) float fraction = 1f);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier fillMaxWidth(androidx.compose.ui.Modifier, @FloatRange(from=0.0, to=1.0) float fraction = 1f);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier height-wxomhCo(androidx.compose.ui.Modifier, float height);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier heightIn-S2lCeAQ(androidx.compose.ui.Modifier, float minHeight = Dp.Unspecified, float maxHeight = Dp.Unspecified);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.Modifier preferredHeight-wxomhCo(androidx.compose.ui.Modifier, float height);

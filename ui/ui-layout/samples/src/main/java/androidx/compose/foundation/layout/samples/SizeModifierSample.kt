@@ -121,6 +121,19 @@ fun SimpleFillWidthModifier() {
 
 @Sampled
 @Composable
+fun FillHalfWidthModifier() {
+    Box(Modifier.size(100.dp), backgroundColor = Color.Red, gravity = ContentGravity.Center) {
+        // The inner Box will be (50.dp x 30.dp).
+        Box(
+            Modifier.fillMaxWidth(fraction = 0.5f)
+                .height(30.dp)
+                .background(color = Color.Magenta)
+        )
+    }
+}
+
+@Sampled
+@Composable
 fun SimpleFillHeightModifier() {
     Box(Modifier.fillMaxHeight(), backgroundColor = Color.Red, gravity = ContentGravity.Center) {
         Box(Modifier.preferredSize(100.dp).background(color = Color.Magenta))
@@ -129,9 +142,35 @@ fun SimpleFillHeightModifier() {
 
 @Sampled
 @Composable
+fun FillHalfHeightModifier() {
+    Box(Modifier.size(100.dp), backgroundColor = Color.Red, gravity = ContentGravity.Center) {
+        // The inner Box will be (30.dp x 50.dp).
+        Box(
+            Modifier.width(30.dp)
+                .fillMaxHeight(0.5f)
+                .background(color = Color.Magenta)
+        )
+    }
+}
+
+@Sampled
+@Composable
 fun SimpleFillModifier() {
     Box(Modifier.fillMaxSize(), backgroundColor = Color.Red, gravity = ContentGravity.Center) {
         Box(Modifier.preferredSize(100.dp).background(color = Color.Magenta))
+    }
+}
+
+@Sampled
+@Composable
+fun FillHalfSizeModifier() {
+    Box(Modifier.size(100.dp), backgroundColor = Color.Red, gravity = ContentGravity.Center) {
+        // The inner Box will be (50.dp x 50.dp).
+        Box(
+            Modifier.width(30.dp)
+                .fillMaxSize(0.5f)
+                .background(color = Color.Magenta)
+        )
     }
 }
 

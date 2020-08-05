@@ -16,7 +16,6 @@
 
 package androidx.compose.foundation.layout
 
-import android.content.res.Resources
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.Box
 import androidx.compose.ui.geometry.Offset
@@ -42,7 +41,6 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlin.math.min
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -946,18 +944,110 @@ class LayoutSizeTest : LayoutTest() {
 
     @Test
     fun testFillModifier_correctSize() = with(density) {
-        val width = 100.toDp()
-        val height = 80.toDp()
+        val parentWidth = 100
+        val parentHeight = 80
+        val parentModifier = Modifier.size(parentWidth.toDp(), parentHeight.toDp())
+        val childWidth = 40
+        val childHeight = 30
+        val childModifier = Modifier.preferredSize(childWidth.toDp(), childHeight.toDp())
 
-        val displayMetrics = Resources.getSystem().displayMetrics
-        val screenWidth = displayMetrics.widthPixels
-        val screenHeight = displayMetrics.heightPixels
+        assertEquals(
+            IntSize(childWidth, childHeight),
+            calculateSizeFor(parentModifier, childModifier)
+        )
+        assertEquals(
+            IntSize(parentWidth, childHeight),
+            calculateSizeFor(parentModifier, Modifier.fillMaxWidth().then(childModifier))
+        )
+        assertEquals(
+            IntSize(childWidth, parentHeight),
+            calculateSizeFor(parentModifier, Modifier.fillMaxHeight().then(childModifier))
+        )
+        assertEquals(
+            IntSize(parentWidth, parentHeight),
+            calculateSizeFor(parentModifier, Modifier.fillMaxSize().then(childModifier))
+        )
+    }
 
-        assertEquals(IntSize(width.toIntPx(), height.toIntPx()), getSize())
-        assertEquals(IntSize(screenWidth, height.toIntPx()), getSize(Modifier.fillMaxWidth()))
-        assertEquals(IntSize(width.toIntPx(), screenHeight),
-            getSize(Modifier.fillMaxHeight()))
-        assertEquals(IntSize(screenWidth, screenHeight), getSize(Modifier.fillMaxSize()))
+    @Test
+    fun testFractionalFillModifier_correctSize_whenSmallerChild() = with(density) {
+        val parentWidth = 100
+        val parentHeight = 80
+        val parentModifier = Modifier.size(parentWidth.toDp(), parentHeight.toDp())
+        val childWidth = 40
+        val childHeight = 30
+        val childModifier = Modifier.preferredSize(childWidth.toDp(), childHeight.toDp())
+
+        assertEquals(
+            IntSize(childWidth, childHeight),
+            calculateSizeFor(parentModifier, childModifier)
+        )
+        assertEquals(
+            IntSize(parentWidth / 2, childHeight),
+            calculateSizeFor(parentModifier, Modifier.fillMaxWidth(0.5f).then(childModifier))
+        )
+        assertEquals(
+            IntSize(childWidth, parentHeight / 2),
+            calculateSizeFor(parentModifier, Modifier.fillMaxHeight(0.5f).then(childModifier))
+        )
+        assertEquals(
+            IntSize(parentWidth / 2, parentHeight / 2),
+            calculateSizeFor(parentModifier, Modifier.fillMaxSize(0.5f).then(childModifier))
+        )
+    }
+
+    @Test
+    fun testFractionalFillModifier_correctSize_whenLargerChild() = with(density) {
+        val parentWidth = 100
+        val parentHeight = 80
+        val parentModifier = Modifier.size(parentWidth.toDp(), parentHeight.toDp())
+        val childWidth = 70
+        val childHeight = 50
+        val childModifier = Modifier.preferredSize(childWidth.toDp(), childHeight.toDp())
+
+        assertEquals(
+            IntSize(childWidth, childHeight),
+            calculateSizeFor(parentModifier, childModifier)
+        )
+        assertEquals(
+            IntSize(parentWidth / 2, childHeight),
+            calculateSizeFor(parentModifier, Modifier.fillMaxWidth(0.5f).then(childModifier))
+        )
+        assertEquals(
+            IntSize(childWidth, parentHeight / 2),
+            calculateSizeFor(parentModifier, Modifier.fillMaxHeight(0.5f).then(childModifier))
+        )
+        assertEquals(
+            IntSize(parentWidth / 2, parentHeight / 2),
+            calculateSizeFor(parentModifier, Modifier.fillMaxSize(0.5f).then(childModifier))
+        )
+    }
+
+    @Test
+    fun testFractionalFillModifier_coerced() = with(density) {
+        val childMinWidth = 40
+        val childMinHeight = 30
+        val childMaxWidth = 60
+        val childMaxHeight = 50
+        val childModifier = Modifier.sizeIn(
+            childMinWidth.toDp(),
+            childMinHeight.toDp(),
+            childMaxWidth.toDp(),
+            childMaxHeight.toDp()
+        )
+
+        assertEquals(
+            IntSize(childMinWidth, childMinHeight),
+            calculateSizeFor(Modifier, childModifier.then(Modifier.fillMaxSize(-0.1f)))
+        )
+        assertEquals(
+            IntSize(childMinWidth, childMinHeight),
+            calculateSizeFor(Modifier, childModifier.then(Modifier.fillMaxSize(0.1f)))
+        )
+        assertEquals(
+            IntSize(childMaxWidth, childMaxHeight),
+            calculateSizeFor(Modifier, childModifier.then(Modifier.fillMaxSize(1.2f)))
+        )
     }
 
     @Test
@@ -1099,29 +1189,13 @@ class LayoutSizeTest : LayoutTest() {
         assertThat(parameter.inspectableElements.toList()).isEqualTo(expectedElements)
     }
 
-    private fun getSize(modifier: Modifier = Modifier): IntSize = with(density) {
-        val width = 100.toDp()
-        val height = 80.toDp()
-
+    private fun calculateSizeFor(parentModifier: Modifier, modifier: Modifier): IntSize {
         val positionedLatch = CountDownLatch(1)
         val size = Ref<IntSize>()
         val position = Ref<Offset>()
         show {
-            Layout(@Composable {
-                Stack {
-                    Container(modifier.saveLayoutInfo(size, position, positionedLatch)) {
-                        Container(width = width, height = height) { }
-                    }
-                }
-            }) { measurables, incomingConstraints ->
-                require(measurables.isNotEmpty())
-                val placeable = measurables.first().measure(incomingConstraints)
-                layout(
-                    min(placeable.width, incomingConstraints.maxWidth),
-                    min(placeable.height, incomingConstraints.maxHeight)
-                ) {
-                    placeable.place(0, 0)
-                }
+            Box(parentModifier) {
+                Box(modifier.saveLayoutInfo(size, position, positionedLatch))
             }
         }
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
