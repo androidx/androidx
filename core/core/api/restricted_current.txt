@@ -1766,7 +1766,9 @@ package androidx.core.net {
     method public String? getSubject();
     method public String? getTo();
     method public static boolean isMailTo(String?);
+    method public static boolean isMailTo(android.net.Uri?);
     method public static androidx.core.net.MailTo parse(String) throws androidx.core.net.ParseException;
+    method public static androidx.core.net.MailTo parse(android.net.Uri) throws androidx.core.net.ParseException;
     field public static final String MAILTO_SCHEME = "mailto:";
   }
 
