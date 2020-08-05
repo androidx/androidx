@@ -46,6 +46,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.compositeOver
@@ -56,12 +57,8 @@ import androidx.compose.ui.onPositioned
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.PxBounds
-import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.unit.width
 import androidx.test.filters.FlakyTest
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
@@ -553,7 +550,7 @@ class ButtonTest {
                 assertThat(contentBounds.width).isEqualTo(2.dp.toIntPx().toFloat())
                 assertThat(contentBounds.height).isEqualTo(2.dp.toIntPx().toFloat())
             }
-            assertWithinOnePixel(buttonBounds.center(), contentBounds.center())
+            assertWithinOnePixel(buttonBounds.center, contentBounds.center)
         }
     }
 
@@ -611,8 +608,8 @@ class ButtonTest {
 
     @Test
     fun weightModifierOnButton() {
-        var item1Bounds = PxBounds(0f, 0f, 0f, 0f)
-        var buttonBounds = PxBounds(0f, 0f, 0f, 0f)
+        var item1Bounds = Rect(0f, 0f, 0f, 0f)
+        var buttonBounds = Rect(0f, 0f, 0f, 0f)
         composeTestRule.setMaterialContent {
             Column {
                 Spacer(Modifier.size(10.dp).weight(1f).onPositioned {
@@ -635,9 +632,9 @@ class ButtonTest {
 
     @Test
     fun buttonContentIsRow() {
-        var buttonBounds = PxBounds(0f, 0f, 0f, 0f)
-        var item1Bounds = PxBounds(0f, 0f, 0f, 0f)
-        var item2Bounds = PxBounds(0f, 0f, 0f, 0f)
+        var buttonBounds = Rect(0f, 0f, 0f, 0f)
+        var item1Bounds = Rect(0f, 0f, 0f, 0f)
+        var item2Bounds = Rect(0f, 0f, 0f, 0f)
         composeTestRule.setMaterialContent {
             Button(onClick = {}, modifier = Modifier.onPositioned {
                 buttonBounds = it.boundsInRoot
@@ -651,10 +648,10 @@ class ButtonTest {
             }
         }
 
-        assertThat(item1Bounds.center().y).isWithin(1f).of(buttonBounds.center().y)
-        assertThat(item2Bounds.center().y).isWithin(1f).of(buttonBounds.center().y)
-        assertThat(item1Bounds.right).isWithin(1f).of(buttonBounds.center().x)
-        assertThat(item2Bounds.left).isWithin(1f).of(buttonBounds.center().x)
+        assertThat(item1Bounds.center.y).isWithin(1f).of(buttonBounds.center.y)
+        assertThat(item2Bounds.center.y).isWithin(1f).of(buttonBounds.center.y)
+        assertThat(item1Bounds.right).isWithin(1f).of(buttonBounds.center.x)
+        assertThat(item2Bounds.left).isWithin(1f).of(buttonBounds.center.x)
     }
 
     private fun assertLeftPaddingIs(

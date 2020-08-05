@@ -33,7 +33,6 @@ import androidx.compose.ui.platform.NativeRectF
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.PxBounds
 import androidx.compose.ui.unit.minus
 import androidx.compose.ui.unit.plus
 import androidx.compose.ui.unit.toOffset
@@ -255,11 +254,11 @@ internal abstract class LayoutNodeWrapper(
         bounds.bottom += y
     }
 
-    override fun childBoundingBox(child: LayoutCoordinates): PxBounds {
+    override fun childBoundingBox(child: LayoutCoordinates): Rect {
         check(isAttached) { ExpectAttachedLayoutCoordinates }
         check(child.isAttached) { "Child $child is not attached!" }
-        val bounds = rectCache ?: NativeRectF().also { rectCache = it }
-        bounds.set(
+        val rectF = rectCache ?: NativeRectF().also { rectCache = it }
+        rectF.set(
             0f,
             0f,
             child.size.width.toFloat(),
@@ -267,7 +266,7 @@ internal abstract class LayoutNodeWrapper(
         )
         var wrapper = child as LayoutNodeWrapper
         while (wrapper !== this) {
-            wrapper.rectInParent(bounds)
+            wrapper.rectInParent(rectF)
 
             val parent = wrapper.wrappedBy
             check(parent != null) {
@@ -275,11 +274,11 @@ internal abstract class LayoutNodeWrapper(
             }
             wrapper = parent
         }
-        return PxBounds(
-            left = bounds.left,
-            top = bounds.top,
-            right = bounds.right,
-            bottom = bounds.bottom
+        return Rect(
+            left = rectF.left,
+            top = rectF.top,
+            right = rectF.right,
+            bottom = rectF.bottom
         )
     }
 

@@ -17,14 +17,12 @@
 package androidx.ui.test
 
 import androidx.compose.ui.AlignmentLine
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.unit.Bounds
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.PxBounds
-import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.toSize
-import androidx.compose.ui.unit.width
 import kotlin.math.absoluteValue
 
 private const val floatTolerance = 0.5f
@@ -215,9 +213,9 @@ fun Dp.assertIsNotEqualTo(unexpected: Dp, subject: String = "", tolerance: Dp = 
     }
 }
 
-internal val SemanticsNode.unclippedBoundsInRoot: PxBounds
+internal val SemanticsNode.unclippedBoundsInRoot: Rect
     get() {
-        return PxBounds(positionInRoot, size.toSize())
+        return Rect(positionInRoot, size.toSize())
     }
 
 internal expect fun <R> SemanticsNodeInteraction.withDensity(
@@ -225,7 +223,7 @@ internal expect fun <R> SemanticsNodeInteraction.withDensity(
 ): R
 
 internal expect fun SemanticsNodeInteraction.withUnclippedBoundsInRoot(
-    assertion: Density.(PxBounds) -> Unit
+    assertion: Density.(Rect) -> Unit
 ): SemanticsNodeInteraction
 
 private fun Density.isAtLeastOrThrow(

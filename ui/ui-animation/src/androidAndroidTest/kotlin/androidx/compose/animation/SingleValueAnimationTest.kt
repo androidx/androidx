@@ -29,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
@@ -170,6 +171,66 @@ class SingleValueAnimationTest {
         animateTest(children, verify)
     }
 
+    @Test
+    fun animate4DRectTest() {
+        val startVal = AnimationVector(30f, -76f, 280f, 35f)
+        val endVal = AnimationVector(-42f, 89f, 77f, 100f)
+
+        var vectorValue = startVal
+        var boundsValue = Bounds.VectorConverter.convertFromVector(startVal)
+        var pxBoundsValue = Rect.VectorConverter.convertFromVector(startVal)
+
+        fun <V> tween(): TweenSpec<V> =
+            TweenSpec(
+                easing = LinearOutSlowInEasing,
+                durationMillis = 100
+            )
+
+        val children: @Composable() (Boolean) -> Unit = { enabled ->
+            vectorValue = animate(
+                if (enabled) endVal else startVal,
+                tween()
+            )
+
+            boundsValue = animate(
+                if (enabled)
+                    Bounds.VectorConverter.convertFromVector(endVal)
+                else
+                    Bounds.VectorConverter.convertFromVector(startVal),
+                tween()
+            )
+
+            pxBoundsValue = animate(
+                if (enabled)
+                    Rect.VectorConverter.convertFromVector(endVal)
+                else
+                    Rect.VectorConverter.convertFromVector(startVal),
+                tween()
+            )
+        }
+
+        val verify: () -> Unit = {
+            for (i in 0..100 step 50) {
+                val fraction = LinearOutSlowInEasing.invoke(i / 100f)
+                val expect = AnimationVector(
+                    lerp(startVal.v1, endVal.v1, fraction),
+                    lerp(startVal.v2, endVal.v2, fraction),
+                    lerp(startVal.v3, endVal.v3, fraction),
+                    lerp(startVal.v4, endVal.v4, fraction)
+                )
+
+                assertEquals(expect, vectorValue)
+                assertEquals(Bounds.VectorConverter.convertFromVector(expect), boundsValue)
+                assertEquals(Rect.VectorConverter.convertFromVector(expect), pxBoundsValue)
+                composeTestRule.clockTestRule.advanceClock(50)
+                waitForIdle()
+            }
+        }
+
+        animateTest(children, verify)
+    }
+
+    @Suppress("DEPRECATION")
     @Test
     fun animate4DTest() {
         val startVal = AnimationVector(30f, -76f, 280f, 35f)

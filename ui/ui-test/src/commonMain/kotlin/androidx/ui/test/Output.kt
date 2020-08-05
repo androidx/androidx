@@ -16,12 +16,12 @@
 
 package androidx.ui.test
 
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.semantics.SemanticsConfiguration
 import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.util.annotation.IntRange
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.unit.PxBounds
 import androidx.compose.ui.unit.toSize
 
 internal expect fun printToLog(tag: String, message: String)
@@ -156,7 +156,7 @@ private fun SemanticsNode.printToStringInner(
         sb.append("$nestingIndent |-")
     }
     sb.append("Node #$id at ")
-    sb.append(pxBoundsToShortString(unclippedGlobalBounds))
+    sb.append(rectToShortString(unclippedGlobalBounds))
 
     if (config.contains(SemanticsProperties.TestTag)) {
         sb.append(", Tag: '")
@@ -203,13 +203,13 @@ private fun SemanticsNode.printToStringInner(
     }
 }
 
-private val SemanticsNode.unclippedGlobalBounds: PxBounds
+private val SemanticsNode.unclippedGlobalBounds: Rect
     get() {
-        return PxBounds(globalPosition, size.toSize())
+        return Rect(globalPosition, size.toSize())
     }
 
-private fun pxBoundsToShortString(bounds: PxBounds): String {
-    return "(${bounds.left}, ${bounds.top}, ${bounds.right}, ${bounds.bottom})px"
+private fun rectToShortString(rect: Rect): String {
+    return "(${rect.left}, ${rect.top}, ${rect.right}, ${rect.bottom})px"
 }
 
 private fun StringBuilder.appendConfigInfo(config: SemanticsConfiguration, indent: String = "") {

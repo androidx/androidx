@@ -28,8 +28,8 @@ import androidx.compose.ui.platform.consumeDownChange
 import androidx.compose.ui.platform.consumePositionChange
 import androidx.compose.ui.platform.positionChange
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.PxBounds
 import androidx.compose.ui.unit.milliseconds
 import androidx.compose.ui.platform.CustomEvent
 import androidx.compose.ui.platform.CustomEventDispatcher
@@ -3354,7 +3354,7 @@ class LayoutCoordinatesStub(
         TODO("not implemented")
     }
 
-    override fun childBoundingBox(child: LayoutCoordinates): PxBounds {
+    override fun childBoundingBox(child: LayoutCoordinates): Rect {
         TODO("not implemented")
     }
 

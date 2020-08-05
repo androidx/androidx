@@ -26,8 +26,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.onPositioned
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.setContent
-import androidx.compose.ui.unit.PxBounds
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotEquals
 import org.junit.Assert.assertNotNull
@@ -92,7 +92,8 @@ class RootNodeLayoutTest {
 
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertNotNull(coordinates)
-        assertEquals(PxBounds(left = 0f, top = 0f, right = 10f, bottom = 10f),
+        assertEquals(
+            Rect(left = 0f, top = 0f, right = 10f, bottom = 10f),
             coordinates!!.boundsInRoot)
     }
 

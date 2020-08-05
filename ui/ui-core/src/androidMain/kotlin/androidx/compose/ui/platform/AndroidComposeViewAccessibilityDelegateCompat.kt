@@ -52,7 +52,6 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.length
-import androidx.compose.ui.unit.toRect
 import androidx.compose.ui.util.fastForEach
 
 internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidComposeView) :
@@ -682,7 +681,7 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
 
     private fun toScreenCoords(textNode: SemanticsNode, bounds: Rect): Rect? {
         val screenBounds = bounds.shift(textNode.globalPosition)
-        val globalBounds = textNode.globalBounds.toRect()
+        val globalBounds = textNode.globalBounds
         if (screenBounds.overlaps(globalBounds)) {
             return screenBounds.intersect(globalBounds)
         }
