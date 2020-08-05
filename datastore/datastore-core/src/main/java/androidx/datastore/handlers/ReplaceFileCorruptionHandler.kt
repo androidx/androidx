@@ -26,13 +26,12 @@ import java.io.IOException
  * If the handler successfully replaces the data, the original exception is swallowed.
  * If the handler encounters an exception when attempting to replace data, the new exception is
  * added as a suppressed exception to the original exception and the original exception is thrown.
+ *
+ * @param produceNewData The provided callback returns the data to be written to disk. If the
+ * callback fails, nothing will be written to disk. Since the exception will be swallowed after
+ * writing the data, this is a good place to log the exception.
  */
 class ReplaceFileCorruptionHandler<T>(
-    /**
-     * The provided callback returns the data to be written to disk. If the callback
-     * fails, nothing will be written to disk. Since the exception will be swallowed after
-     * writing the data, this is a good place to log the exception.
-     */
     private val produceNewData: (CorruptionException) -> T
 ) : CorruptionHandler<T> {
 
