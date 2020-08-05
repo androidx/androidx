@@ -142,7 +142,14 @@ internal class TextFieldSelectionManager() {
                     wordBasedSelection = true
                 )
             }
+            state?.updatingSelection = true
             return dragDistance
+        }
+
+        override fun onStop(velocity: Offset) {
+            super.onStop(velocity)
+            state?.updatingSelection = false
+            showSelectionToolbar()
         }
     }
 
@@ -184,12 +191,15 @@ internal class TextFieldSelectionManager() {
                         wordBasedSelection = false
                     )
                 }
+                state?.updatingSelection = true
                 return dragDistance
             }
 
             override fun onStop(velocity: Offset) {
                 super.onStop(velocity)
                 state?.draggingHandle = false
+                state?.updatingSelection = false
+                showSelectionToolbar()
             }
         }
     }
