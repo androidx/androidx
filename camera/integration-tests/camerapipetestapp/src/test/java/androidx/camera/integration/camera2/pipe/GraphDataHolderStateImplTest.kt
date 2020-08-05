@@ -16,8 +16,8 @@
 
 package androidx.camera.integration.camera2.pipe
 
-import androidx.camera.integration.camera2.pipe.visualization_data.graph.GraphDataHolderStateImpl
-import androidx.camera.integration.camera2.pipe.visualization_data.graph.GraphDataSortedRingBuffer
+import androidx.camera.integration.camera2.pipe.dataholders.GraphDataHolderStateImpl
+import androidx.camera.integration.camera2.pipe.dataholders.GraphDataSortedRingBuffer
 import com.google.common.truth.Truth
 import org.junit.Test
 
@@ -25,28 +25,38 @@ class GraphDataHolderStateImplTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun inputParams_emptyMap() {
-        GraphDataHolderStateImpl(hashMapOf(), GraphDataSortedRingBuffer())
+        GraphDataHolderStateImpl(
+            hashMapOf(),
+            GraphDataSortedRingBuffer()
+        )
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun inputParams_emptyStringStateName() {
-        GraphDataHolderStateImpl( hashMapOf(1 to "one", 2 to ""), GraphDataSortedRingBuffer())
+        GraphDataHolderStateImpl(
+            hashMapOf(1 to "one", 2 to ""),
+            GraphDataSortedRingBuffer()
+        )
     }
 
     @Test
     fun getNumStates() {
-        val graphDataHolderStateImpl = GraphDataHolderStateImpl(
-            hashMapOf(1 to "one", 2 to "two", 3 to "three"), GraphDataSortedRingBuffer()
-        )
+        val graphDataHolderStateImpl =
+            GraphDataHolderStateImpl(
+                hashMapOf(1 to "one", 2 to "two", 3 to "three"),
+                GraphDataSortedRingBuffer()
+            )
 
         Truth.assertThat(graphDataHolderStateImpl.getNumStates()).isEqualTo(3)
     }
 
     @Test
     fun getStateName() {
-        val graphDataHolderStateImpl = GraphDataHolderStateImpl(
-            hashMapOf(1 to "one", 2 to "two", 3 to "three"), GraphDataSortedRingBuffer()
-        )
+        val graphDataHolderStateImpl =
+            GraphDataHolderStateImpl(
+                hashMapOf(1 to "one", 2 to "two", 3 to "three"),
+                GraphDataSortedRingBuffer()
+            )
 
         Truth.assertThat(graphDataHolderStateImpl.getStrings()).isEqualTo(listOf("one", "two",
             "three"))

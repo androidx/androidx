@@ -14,8 +14,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
-    <color name="purple200">#BB86FC</color>
-    <color name="purple500">#6200EE</color>
-    <color name="purple700">#3700B3</color>
-    <color name="teal200">#03DAC5</color>
+    <color name="colorPrimary">#6200EE</color>
+    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="colorAccent">#03DAC5</color>
+    <color name="blackTransparent">#C0000000</color>
+    <color name="graphDataColor">#FFFFFF</color>
+    <color name="graphBackground">#F0291E29</color>
+    <color name="transparent">#00000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="whiteTransparent">#70FFFFFF</color>
+    <color name="gray">#978082</color>
+    <color name="latencyDataColor">#CEB180</color>
+    <color name="missingDataColor">#FF6666</color>
 </resources>

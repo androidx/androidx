@@ -16,31 +16,47 @@
 
 package androidx.camera.integration.camera2.pipe
 
-import androidx.camera.integration.camera2.pipe.visualization_data.graph.GraphDataHolderValueImpl
-import androidx.camera.integration.camera2.pipe.visualization_data.graph.GraphDataSortedRingBuffer
+import androidx.camera.integration.camera2.pipe.dataholders.GraphDataHolderValueImpl
+import androidx.camera.integration.camera2.pipe.dataholders.GraphDataSortedRingBuffer
 import org.junit.Test
 import com.google.common.truth.Truth.assertThat
 
 class GraphDataHolderValueImplTest {
     @Test(expected = IllegalArgumentException::class)
     fun inputParams_minMaxDifferentTypes() {
-        GraphDataHolderValueImpl(20f, 900, GraphDataSortedRingBuffer())
+        GraphDataHolderValueImpl(
+            20f,
+            900,
+            GraphDataSortedRingBuffer()
+        )
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun inputParams_maxLessThanMin() {
-        GraphDataHolderValueImpl(20f, 3f, GraphDataSortedRingBuffer())
+        GraphDataHolderValueImpl(
+            20f,
+            3f,
+            GraphDataSortedRingBuffer()
+        )
     }
 
     @Test(expected = IllegalArgumentException::class)
     fun inputParams_maxEqualsMin() {
-        GraphDataHolderValueImpl(700L, 700, GraphDataSortedRingBuffer())
+        GraphDataHolderValueImpl(
+            700L,
+            700,
+            GraphDataSortedRingBuffer()
+        )
     }
 
     @Test
     fun inputParams_positiveRange() {
-        val graphDataHolderValueImpl = GraphDataHolderValueImpl(33,
-            1000, GraphDataSortedRingBuffer())
+        val graphDataHolderValueImpl =
+            GraphDataHolderValueImpl(
+                33,
+                1000,
+                GraphDataSortedRingBuffer()
+            )
         assertThat(graphDataHolderValueImpl.getRange()).isEqualTo(967)
     }
 }

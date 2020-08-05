@@ -16,16 +16,17 @@
 
 package androidx.camera.integration.camera2.pipe
 
-import androidx.camera.integration.camera2.pipe.visualization_data.graph.GraphDataPoint
-import androidx.camera.integration.camera2.pipe.visualization_data.graph.GraphDataSortedRingBuffer
-import androidx.camera.integration.camera2.pipe.visualization_data.graph.GraphDataSortedRingBuffer.Companion.CAPACITY
+import androidx.camera.integration.camera2.pipe.dataholders.GraphDataPoint
+import androidx.camera.integration.camera2.pipe.dataholders.GraphDataSortedRingBuffer
+import androidx.camera.integration.camera2.pipe.dataholders.GraphDataSortedRingBuffer.Companion.CAPACITY
 import com.google.common.truth.Truth
 import org.junit.Test
 
 class GraphDataSortedRingBufferTest {
     @Test(expected = IllegalArgumentException::class)
     fun getPoints_timeWindowLengthZero() {
-        val graphData = GraphDataSortedRingBuffer()
+        val graphData =
+            GraphDataSortedRingBuffer()
 
         graphData.getPointsInTimeWindow(0, 90)
     }
@@ -33,16 +34,32 @@ class GraphDataSortedRingBufferTest {
     @Test(expected = IllegalArgumentException::class)
     fun getPoints_windowEndBeforeFirstPoint() {
 
-        val graphData = GraphDataSortedRingBuffer()
-        graphData.addPoint(GraphDataPoint(1, 9, 0, 2))
-        graphData.addPoint(GraphDataPoint(2, 13, 0, 4))
+        val graphData =
+            GraphDataSortedRingBuffer()
+        graphData.addPoint(
+            GraphDataPoint(
+                1,
+                9,
+                0,
+                2
+            )
+        )
+        graphData.addPoint(
+            GraphDataPoint(
+                2,
+                13,
+                0,
+                4
+            )
+        )
 
         graphData.getPointsInTimeWindow(2, 5)
     }
 
     @Test
     fun getPoints_emptyList() {
-        val graphData = GraphDataSortedRingBuffer()
+        val graphData =
+            GraphDataSortedRingBuffer()
 
         Truth.assertThat(
             graphData
@@ -54,9 +71,24 @@ class GraphDataSortedRingBufferTest {
     @Test
     fun getPoints_windowStartBeforeFirstPoint() {
 
-        val graphData = GraphDataSortedRingBuffer()
-        graphData.addPoint(GraphDataPoint(1, 1, 0, 2))
-        graphData.addPoint(GraphDataPoint(2, 13, 0, 4))
+        val graphData =
+            GraphDataSortedRingBuffer()
+        graphData.addPoint(
+            GraphDataPoint(
+                1,
+                1,
+                0,
+                2
+            )
+        )
+        graphData.addPoint(
+            GraphDataPoint(
+                2,
+                13,
+                0,
+                4
+            )
+        )
 
         Truth.assertThat(
             graphData
@@ -68,11 +100,40 @@ class GraphDataSortedRingBufferTest {
     @Test
     fun getPoints_windowStartAtFirstPoint() {
 
-        val graphData = GraphDataSortedRingBuffer()
-        graphData.addPoint(GraphDataPoint(1, 1, 0, 2))
-        graphData.addPoint(GraphDataPoint(2, 3, 0, 4))
-        graphData.addPoint(GraphDataPoint(3, 5, 0, 6))
-        graphData.addPoint(GraphDataPoint(4, 7, 0, 8))
+        val graphData =
+            GraphDataSortedRingBuffer()
+        graphData.addPoint(
+            GraphDataPoint(
+                1,
+                1,
+                0,
+                2
+            )
+        )
+        graphData.addPoint(
+            GraphDataPoint(
+                2,
+                3,
+                0,
+                4
+            )
+        )
+        graphData.addPoint(
+            GraphDataPoint(
+                3,
+                5,
+                0,
+                6
+            )
+        )
+        graphData.addPoint(
+            GraphDataPoint(
+                4,
+                7,
+                0,
+                8
+            )
+        )
 
         Truth.assertThat(
             graphData
@@ -84,11 +145,40 @@ class GraphDataSortedRingBufferTest {
     @Test
     fun getPoints_windowStartInMiddle() {
 
-        val graphData = GraphDataSortedRingBuffer()
-        graphData.addPoint(GraphDataPoint(1, 1, 0, 2))
-        graphData.addPoint(GraphDataPoint(2, 13, 0, 4))
-        graphData.addPoint(GraphDataPoint(3, 25, 0, 6))
-        graphData.addPoint(GraphDataPoint(4, 77, 0, 8))
+        val graphData =
+            GraphDataSortedRingBuffer()
+        graphData.addPoint(
+            GraphDataPoint(
+                1,
+                1,
+                0,
+                2
+            )
+        )
+        graphData.addPoint(
+            GraphDataPoint(
+                2,
+                13,
+                0,
+                4
+            )
+        )
+        graphData.addPoint(
+            GraphDataPoint(
+                3,
+                25,
+                0,
+                6
+            )
+        )
+        graphData.addPoint(
+            GraphDataPoint(
+                4,
+                77,
+                0,
+                8
+            )
+        )
 
         Truth.assertThat(
             graphData
@@ -99,9 +189,24 @@ class GraphDataSortedRingBufferTest {
 
     @Test
     fun getPoints_windowStartAtLastPoint() {
-        val graphData = GraphDataSortedRingBuffer()
-        graphData.addPoint(GraphDataPoint(1, 1, 0, 2))
-        graphData.addPoint(GraphDataPoint(2, 13, 0, 4))
+        val graphData =
+            GraphDataSortedRingBuffer()
+        graphData.addPoint(
+            GraphDataPoint(
+                1,
+                1,
+                0,
+                2
+            )
+        )
+        graphData.addPoint(
+            GraphDataPoint(
+                2,
+                13,
+                0,
+                4
+            )
+        )
 
         Truth.assertThat(
             graphData
@@ -112,9 +217,24 @@ class GraphDataSortedRingBufferTest {
 
     @Test
     fun getPoints_windowStartAfterLastPoint() {
-        val graphData = GraphDataSortedRingBuffer()
-        graphData.addPoint(GraphDataPoint(1, 1, 0, 2))
-        graphData.addPoint(GraphDataPoint(2, 13, 0, 4))
+        val graphData =
+            GraphDataSortedRingBuffer()
+        graphData.addPoint(
+            GraphDataPoint(
+                1,
+                1,
+                0,
+                2
+            )
+        )
+        graphData.addPoint(
+            GraphDataPoint(
+                2,
+                13,
+                0,
+                4
+            )
+        )
 
         Truth.assertThat(
             graphData
@@ -126,8 +246,16 @@ class GraphDataSortedRingBufferTest {
     @Test
     fun add_toEmptyList() {
 
-        val graphData = GraphDataSortedRingBuffer()
-        graphData.addPoint(GraphDataPoint(0, 1, 0, 2))
+        val graphData =
+            GraphDataSortedRingBuffer()
+        graphData.addPoint(
+            GraphDataPoint(
+                0,
+                1,
+                0,
+                2
+            )
+        )
 
         Truth.assertThat(
             graphData.size()
@@ -136,15 +264,36 @@ class GraphDataSortedRingBufferTest {
 
     @Test
     fun add_toAtCapacityList() {
-        var graphData = GraphDataSortedRingBuffer()
-        graphData.addPoint(GraphDataPoint(1, 0, 0, 0))
+        var graphData =
+            GraphDataSortedRingBuffer()
+        graphData.addPoint(
+            GraphDataPoint(
+                1,
+                0,
+                0,
+                0
+            )
+        )
         (2..CAPACITY).forEach {
-            val point = GraphDataPoint(it.toLong(), 1, 0, 2)
+            val point =
+                GraphDataPoint(
+                    it.toLong(),
+                    1,
+                    0,
+                    2
+                )
             graphData.addPoint(point)
         }
         Truth.assertThat(graphData.size()).isEqualTo(CAPACITY)
 
-        graphData.addPoint(GraphDataPoint((CAPACITY + 1).toLong(), 10, 10, 10))
+        graphData.addPoint(
+            GraphDataPoint(
+                (CAPACITY + 1).toLong(),
+                10,
+                10,
+                10
+            )
+        )
         Truth.assertThat(graphData.size()).isEqualTo(2000)
         Truth.assertThat(graphData.toList().first().frameNumber).isEqualTo(2)
         Truth.assertThat(graphData.toList().last().frameNumber).isEqualTo(2001)
@@ -152,13 +301,44 @@ class GraphDataSortedRingBufferTest {
 
     @Test
     fun add_outOfOrder() {
-        var graphData = GraphDataSortedRingBuffer()
+        var graphData =
+            GraphDataSortedRingBuffer()
 
-        val p1 = GraphDataPoint(1, 48, 0, 1)
-        val p2 = GraphDataPoint(2, 49, 0, 2)
-        val p3 = GraphDataPoint(3, 50, 0, 2)
-        val p4 = GraphDataPoint(4, 55, 0, 2)
-        val p5 = GraphDataPoint(5, 60, 0, 5)
+        val p1 =
+            GraphDataPoint(
+                1,
+                48,
+                0,
+                1
+            )
+        val p2 =
+            GraphDataPoint(
+                2,
+                49,
+                0,
+                2
+            )
+        val p3 =
+            GraphDataPoint(
+                3,
+                50,
+                0,
+                2
+            )
+        val p4 =
+            GraphDataPoint(
+                4,
+                55,
+                0,
+                2
+            )
+        val p5 =
+            GraphDataPoint(
+                5,
+                60,
+                0,
+                5
+            )
 
         graphData.addPoint(p5)
         graphData.addPoint(p1)
@@ -171,12 +351,43 @@ class GraphDataSortedRingBufferTest {
 
     @Test
     fun addOutOfOrderAndGetPoints_slidingTimeWindow() {
-        var graphData = GraphDataSortedRingBuffer()
-        val p1 = GraphDataPoint(1, 43, 0, 2)
-        val p2 = GraphDataPoint(2, 44, 0, 2)
-        val p3 = GraphDataPoint(3, 45, 0, 1)
-        val p4 = GraphDataPoint(4, 47, 0, 2)
-        val p5 = GraphDataPoint(5, 48, 0, 5)
+        var graphData =
+            GraphDataSortedRingBuffer()
+        val p1 =
+            GraphDataPoint(
+                1,
+                43,
+                0,
+                2
+            )
+        val p2 =
+            GraphDataPoint(
+                2,
+                44,
+                0,
+                2
+            )
+        val p3 =
+            GraphDataPoint(
+                3,
+                45,
+                0,
+                1
+            )
+        val p4 =
+            GraphDataPoint(
+                4,
+                47,
+                0,
+                2
+            )
+        val p5 =
+            GraphDataPoint(
+                5,
+                48,
+                0,
+                5
+            )
 
         val timeWindowlengthNanos = 10L
         graphData.addPoint(p5)

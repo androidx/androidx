@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.camera.integration.camera2.pipe.mappings
+package androidx.camera.integration.camera2.pipe.transformations
 
 import android.hardware.camera2.params.Face
-import androidx.camera.integration.camera2.pipe.mappings.CameraMetadataKey.CONTROL_AE_MODE
-import androidx.camera.integration.camera2.pipe.mappings.CameraMetadataKey.LENS_FOCUS_DISTANCE
-import androidx.camera.integration.camera2.pipe.mappings.CameraMetadataKey.STATISTICS_FACES
+import androidx.camera.integration.camera2.pipe.CameraMetadataKey
+import androidx.camera.integration.camera2.pipe.CameraMetadataKey.CONTROL_AE_MODE
+import androidx.camera.integration.camera2.pipe.CameraMetadataKey.LENS_FOCUS_DISTANCE
+import androidx.camera.integration.camera2.pipe.CameraMetadataKey.STATISTICS_FACES
 
 /**
  * Transforms camera metadata into numbers to be visualized as 1D graphics

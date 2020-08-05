@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.integration.camera2.pipe.utils
+package androidx.camera.integration.camera2.pipe.extensions
 
 /** Necessary for calculations */
 operator fun Number.minus(otherNum: Number): Number {

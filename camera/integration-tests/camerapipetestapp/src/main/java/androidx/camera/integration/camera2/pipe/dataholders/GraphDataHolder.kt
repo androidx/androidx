@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.integration.camera2.pipe.visualization_data.graph
+package androidx.camera.integration.camera2.pipe.dataholders
 
 /**
  * Data source for 1D graph visualizations. Implemented for both graphing state over time and
