@@ -57,6 +57,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import kotlin.Suppress;
+
 /**
  * Base class for all Room databases. All classes that are annotated with {@link Database} must
  * extend this class.
@@ -646,6 +648,7 @@ public abstract class RoomDatabase {
          *
          * @return This {@link Builder} instance.
          */
+        @SuppressLint("BuilderSetStyle")
         @NonNull
         public Builder<T> createFromInputStream(
                 @NonNull Callable<InputStream> inputStreamCallable) {
