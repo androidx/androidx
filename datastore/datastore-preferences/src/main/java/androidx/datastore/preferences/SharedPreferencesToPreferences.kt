@@ -24,30 +24,25 @@ import androidx.datastore.migrations.SharedPreferencesMigration
 
 /**
  * Creates a SharedPreferencesMigration for DataStore<Preferences>.
+ *
+ * @param context Context used for getting SharedPreferences.
+ * @param sharedPreferencesName The name of the SharedPreferences.
+ * @param keysToMigrate The list of keys to migrate. The keys will be mapped to datastore.Preferences with
+ * their same values. If the key is already present in the new Preferences, the key
+ * will not be migrated again. If the key is not present in the SharedPreferences it
+ * will not be migrated. If keysToMigrate is not set, all keys will be migrated from the existing
+ * SharedPreferences.
+ * @param deleteEmptyPreferences If enabled and the SharedPreferences are empty (i.e. no remaining
+ * keys) after this migration runs, the leftover SharedPreferences file is deleted. Note that
+ * this cleanup runs only if the migration itself runs, i.e., if the keys were never in
+ * SharedPreferences to begin with then the (potentially) empty SharedPreferences
+ * won't be cleaned up by this option. This functionality is best effort - if there
+ * is an issue deleting the SharedPreferences file it will be silently ignored.
  */
 fun SharedPreferencesMigration(
-    /** Context used for getting SharedPreferences. */
     context: Context,
-    /** The name of the SharedPreferences. */
     sharedPreferencesName: String,
-    /**
-     * The list of keys to migrate. The keys will be mapped to datastore.Preferences with
-     * their same values. If the key is already present in the new Preferences, the key
-     * will not be migrated again. If the key is not present in the SharedPreferences it
-     * will not be migrated.
-     *
-     * If keysToMigrate is not set, all keys will be migrated from the existing
-     * SharedPreferences.
-     */
     keysToMigrate: Set<String>? = SharedPreferencesToPreferences.MIGRATE_ALL_KEYS,
-    /**
-     * If enabled and the SharedPreferences are empty (i.e. no remaining keys) after this
-     * migration runs, the leftover SharedPreferences file is deleted. Note that this
-     * cleanup runs only if the migration itself runs, i.e., if the keys were never in
-     * SharedPreferences to begin with then the (potentially) empty SharedPreferences
-     * won't be cleaned up by this option. This functionality is best effort - if there
-     * is an issue deleting the SharedPreferences file it will be silently ignored.
-     */
     deleteEmptyPreferences: Boolean = true
 ): () -> DataMigration<Preferences> {
     return SharedPreferencesMigration(
