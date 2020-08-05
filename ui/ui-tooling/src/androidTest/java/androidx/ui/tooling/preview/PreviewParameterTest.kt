@@ -50,7 +50,7 @@ class PreviewParameterTest {
             composeViewAdapter.init(
                 "androidx.ui.tooling.preview.ParameterProviderComposableKt",
                 "OneStringParameter",
-                parameterProvider = LoremIpsum::class,
+                parameterProvider = LoremIpsum::class.java,
                 debugViewInfos = true
             )
         }
@@ -68,7 +68,7 @@ class PreviewParameterTest {
             composeViewAdapter.init(
                 "androidx.ui.tooling.preview.ParameterProviderComposableKt",
                 "OneIntParameter",
-                parameterProvider = MyListProvider::class,
+                parameterProvider = MyListProvider::class.java,
                 debugViewInfos = true
             )
         }
@@ -84,7 +84,7 @@ class PreviewParameterTest {
             composeViewAdapter.init(
                 "androidx.ui.tooling.preview.ParameterProviderComposableKt",
                 "ColorsParameter",
-                parameterProvider = MyColorsProvider::class,
+                parameterProvider = MyColorsProvider::class.java,
                 debugViewInfos = true
             )
         }
