@@ -112,6 +112,7 @@ package androidx.room {
     method public T build();
     method public androidx.room.RoomDatabase.Builder<T!> createFromAsset(String);
     method public androidx.room.RoomDatabase.Builder<T!> createFromFile(java.io.File);
+    method public androidx.room.RoomDatabase.Builder<T!> createFromInputStream(java.util.concurrent.Callable<java.io.InputStream!>);
     method public androidx.room.RoomDatabase.Builder<T!> enableMultiInstanceInvalidation();
     method public androidx.room.RoomDatabase.Builder<T!> fallbackToDestructiveMigration();
     method public androidx.room.RoomDatabase.Builder<T!> fallbackToDestructiveMigrationFrom(int...);

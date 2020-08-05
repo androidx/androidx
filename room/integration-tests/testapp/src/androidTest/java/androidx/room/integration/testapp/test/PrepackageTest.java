@@ -42,11 +42,17 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.Callable;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -59,6 +65,30 @@ public class PrepackageTest {
         ProductsDatabase database = Room.databaseBuilder(
                 context, ProductsDatabase.class, "products.db")
                 .createFromAsset("databases/products_v1.db")
+                .build();
+
+        ProductDao dao = database.getProductDao();
+        assertThat(dao.countProducts(), is(2));
+
+        database.close();
+    }
+
+    @Test
+    public void createFromZippedAsset() {
+        Context context = ApplicationProvider.getApplicationContext();
+        context.deleteDatabase("products.db");
+
+        final Callable<InputStream> inputStreamCallable = () -> {
+            final ZipInputStream zipInputStream =
+                    new ZipInputStream(
+                            context.getAssets().open("databases/products_v1.db.zip"));
+            zipInputStream.getNextEntry();
+            return zipInputStream;
+        };
+
+        ProductsDatabase database = Room.databaseBuilder(
+                context, ProductsDatabase.class, "products.db")
+                .createFromInputStream(inputStreamCallable)
                 .build();
 
         ProductDao dao = database.getProductDao();
@@ -418,6 +448,31 @@ public class PrepackageTest {
     }
 
     @Test
+    public void createFromInputStream() throws IOException {
+        Context context = ApplicationProvider.getApplicationContext();
+        context.deleteDatabase("products_external.db");
+        File dataDbFile = new File(ContextCompat.getDataDir(context), "products_external.db.gz");
+        context.deleteDatabase(dataDbFile.getAbsolutePath());
+
+        InputStream toCopyInput = context.getAssets().open("databases/products_v1.db");
+
+        // gzip the file while copying it - note that gzipping files in assets doesn't work because
+        // aapt drops the gz extension and makes them available without requiring a GZip stream.
+        final OutputStream output = new GZIPOutputStream(new FileOutputStream(dataDbFile));
+        copyStream(toCopyInput, output);
+
+        ProductsDatabase database = Room.databaseBuilder(
+                context, ProductsDatabase.class, "products_external.db")
+                .createFromInputStream(() -> new GZIPInputStream(new FileInputStream(dataDbFile)))
+                .build();
+
+        ProductDao dao = database.getProductDao();
+        assertThat(dao.countProducts(), is(2));
+
+        database.close();
+    }
+
+    @Test
     public void openDataDirDatabase() throws IOException {
         Context context = ApplicationProvider.getApplicationContext();
 
@@ -525,6 +580,10 @@ public class PrepackageTest {
 
     private static void copyAsset(InputStream input, File outputFile) throws IOException {
         OutputStream output = new FileOutputStream(outputFile);
+        copyStream(input, output);
+    }
+
+    private static void copyStream(InputStream input, OutputStream output) throws IOException {
         try {
             int length;
             byte[] buffer = new byte[1024 * 4];
