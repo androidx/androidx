@@ -183,6 +183,17 @@ public class WebViewCompatTest {
         assertTrue(WebkitUtils.waitForFuture(startSafeBrowsingFuture));
     }
 
+    private static boolean setSafeBrowsingAllowlistSync(Set<String> allowlist) {
+        final ResolvableFuture<Boolean> safeBrowsingAllowlistFuture = ResolvableFuture.create();
+        WebViewCompat.setSafeBrowsingAllowlist(allowlist, new ValueCallback<Boolean>() {
+            @Override
+            public void onReceiveValue(Boolean success) {
+                safeBrowsingAllowlistFuture.set(success);
+            }
+        });
+        return WebkitUtils.waitForFuture(safeBrowsingAllowlistFuture);
+    }
+
     /**
      * This should remain functionally equivalent to
      * android.webkit.cts.WebViewTest#testSetSafeBrowsingAllowlistWithMalformedList. Modifications
@@ -196,14 +207,7 @@ public class WebViewCompatTest {
         Set<String> allowlist = new HashSet<>();
         // Protocols are not supported in the allowlist
         allowlist.add("http://google.com");
-        final ResolvableFuture<Boolean> safeBrowsingAllowlistFuture = ResolvableFuture.create();
-        WebViewCompat.setSafeBrowsingAllowlist(allowlist, new ValueCallback<Boolean>() {
-            @Override
-            public void onReceiveValue(Boolean success) {
-                safeBrowsingAllowlistFuture.set(success);
-            }
-        });
-        assertFalse(WebkitUtils.waitForFuture(safeBrowsingAllowlistFuture));
+        assertFalse("Malformed list entry should fail", setSafeBrowsingAllowlistSync(allowlist));
     }
 
     /**
@@ -219,14 +223,7 @@ public class WebViewCompatTest {
 
         Set<String> allowlist = new HashSet<>();
         allowlist.add("safe-browsing");
-        final ResolvableFuture<Boolean> safeBrowsingAllowlistFuture = ResolvableFuture.create();
-        WebViewCompat.setSafeBrowsingAllowlist(allowlist, new ValueCallback<Boolean>() {
-            @Override
-            public void onReceiveValue(Boolean success) {
-                safeBrowsingAllowlistFuture.set(success);
-            }
-        });
-        assertTrue(WebkitUtils.waitForFuture(safeBrowsingAllowlistFuture));
+        assertTrue("Valid allowlist should be successful", setSafeBrowsingAllowlistSync(allowlist));
 
         final ResolvableFuture<Void> pageFinishedFuture = ResolvableFuture.create();
         mWebViewOnUiThread.setWebViewClient(new WebViewClientCompat() {
