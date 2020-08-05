@@ -138,7 +138,7 @@ class FileContent(object):
   def apply(self, filePath):
     pass
 
-  def equals(self, other):
+  def equals(self, other, checkWithFileSystem=False):
     pass
 
 # A FileContent that refers to the content of a specific file
@@ -151,11 +151,13 @@ class FileBacked_FileContent(FileContent):
   def apply(self, filePath):
     fileIo.copyFile(self.referencePath, filePath)
 
-  def equals(self, other):
+  def equals(self, other, checkWithFileSystem=False):
     if not isinstance(other, FileBacked_FileContent):
       return False
     if self.referencePath == other.referencePath:
       return True
+    if not checkWithFileSystem:
+      return False
     if self.isLink and other.isLink:
       return os.readlink(self.referencePath) == os.readlink(other.referencePath)
     if self.isLink != other.isLink:
@@ -173,7 +175,7 @@ class MissingFile_FileContent(FileContent):
   def apply(self, filePath):
     fileIo.removePath(filePath)
 
-  def equals(self, other):
+  def equals(self, other, checkWithFileSystem=False):
     return isinstance(other, MissingFile_FileContent)
 
   def __str__(self):
@@ -187,7 +189,7 @@ class Directory_FileContent(FileContent):
   def apply(self, filePath):
     fileIo.ensureDirExists(filePath)
 
-  def equals(self, other):
+  def equals(self, other, checkWithFileSystem=False):
     return isinstance(other, Directory_FileContent)
 
   def __str__(self):
@@ -214,18 +216,12 @@ class FilesState(object):
       return self.fileStates[filePath]
     return None
 
-  def hasContentAt(self, filePath, content):
-    ourContent = self.getContent(filePath)
-    if ourContent is None:
-      return (content is None)
-    return ourContent.equals(content)
-
   # returns a FilesState resembling <self> but without the keys for which other[key] == self[key]
-  def withoutDuplicatesFrom(self, other):
+  def withoutDuplicatesFrom(self, other, checkWithFileSystem=False):
     result = FilesState()
     for filePath, fileState in self.fileStates.iteritems():
       otherContent = other.getContent(filePath)
-      if not fileState.equals(otherContent):
+      if not fileState.equals(otherContent, checkWithFileSystem):
         result.add(filePath, fileState)
     return result
 
@@ -711,8 +707,8 @@ class DiffRunner(object):
     # list of the files in the state to reset to after each test
     self.full_resetTo_state = self.originalPassingState
     # minimal description of only the files that are supposed to need to be reset after each test
-    self.resetTo_state = self.originalPassingState.expandedWithEmptyEntriesFor(self.originalFailingState).withoutDuplicatesFrom(self.originalFailingState)
-    self.targetState = self.originalFailingState.expandedWithEmptyEntriesFor(self.originalPassingState).withoutDuplicatesFrom(self.originalPassingState)
+    self.resetTo_state = self.originalPassingState.expandedWithEmptyEntriesFor(self.originalFailingState).withoutDuplicatesFrom(self.originalFailingState, True)
+    self.targetState = self.originalFailingState.expandedWithEmptyEntriesFor(self.originalPassingState).withoutDuplicatesFrom(self.originalPassingState, True)
     self.originalNumDifferences = self.resetTo_state.size()
     print("Processing " + str(self.originalNumDifferences) + " file differences")
     self.maxNumJobsAtOnce = maxNumJobsAtOnce
