@@ -110,6 +110,10 @@ message WorkInfo {
     bool is_periodic = 7;
     Constraints constraints = 8;
     CallStack call_stack = 9;
+    int64 schedule_requested_at = 10;
+    repeated string prerequisites = 11;
+    repeated string dependents = 12;
+    repeated string names = 13;
 }
 
 // A list of key/value pairs which are used as inputs and outputs for Workers
