@@ -309,9 +309,9 @@ fun ModalDrawerLayout(
                 thresholds = { _, _ -> FractionalThreshold(0.5f) },
                 orientation = Orientation.Horizontal,
                 enabled = gesturesEnabled,
-                reverseDirection = isRtl
-            )
-        ) {
+                reverseDirection = isRtl,
+                velocityThreshold = DrawerVelocityThreshold
+        )) {
             Stack {
                 bodyContent()
             }
@@ -491,6 +491,7 @@ private fun Scrim(
 }
 
 private val VerticalDrawerPadding = 56.dp
+private val DrawerVelocityThreshold = 400.dp
 
 private const val DrawerStiffness = 1000f
 

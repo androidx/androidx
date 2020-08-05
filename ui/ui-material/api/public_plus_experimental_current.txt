@@ -362,14 +362,20 @@ package androidx.compose.material {
     method @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static androidx.compose.material.DismissState rememberDismissState(androidx.compose.material.DismissValue initialValue = androidx.compose.material.DismissValue.Default, kotlin.jvm.functions.Function1<? super androidx.compose.material.DismissValue,java.lang.Boolean> confirmStateChange = { return true });
   }
 
+  public final class SwipeableConstants {
+    method public float getDefaultVelocityThreshold();
+    property public final float DefaultVelocityThreshold;
+    field public static final androidx.compose.material.SwipeableConstants INSTANCE;
+  }
+
   public final class SwipeableKt {
-    method @androidx.compose.material.ExperimentalMaterialApi public static <T> androidx.compose.ui.Modifier swipeable(androidx.compose.ui.Modifier, androidx.compose.material.SwipeableState<T> state, java.util.Map<java.lang.Float,? extends T> anchors, kotlin.jvm.functions.Function2<? super T,? super T,? extends androidx.compose.material.ThresholdConfig> thresholds, androidx.compose.ui.gesture.scrollorientationlocking.Orientation orientation, boolean enabled = true, boolean reverseDirection = false, float minValue = elvis {
-    var varf5a37bc5: <ErrorType> = anchors.keys.<anonymous class>()
-    if (varf5a37bc5 != null) varf5a37bc5 else Float.NEGATIVE_INFINITY
+    method @androidx.compose.material.ExperimentalMaterialApi public static <T> androidx.compose.ui.Modifier swipeable-twLdIbk(androidx.compose.ui.Modifier, androidx.compose.material.SwipeableState<T> state, java.util.Map<java.lang.Float,? extends T> anchors, kotlin.jvm.functions.Function2<? super T,? super T,? extends androidx.compose.material.ThresholdConfig> thresholds, androidx.compose.ui.gesture.scrollorientationlocking.Orientation orientation, boolean enabled = true, boolean reverseDirection = false, float minValue = elvis {
+    var varf5a39bcd: <ErrorType> = anchors.keys.<anonymous class>()
+    if (varf5a39bcd != null) varf5a39bcd else Float.NEGATIVE_INFINITY
 }, float maxValue = elvis {
-    var var1e0454da: <ErrorType> = anchors.keys.<anonymous class>()
-    if (var1e0454da != null) var1e0454da else Float.POSITIVE_INFINITY
-}, androidx.compose.foundation.InteractionState? interactionState = null);
+    var var1e0474e2: <ErrorType> = anchors.keys.<anonymous class>()
+    if (var1e0474e2 != null) var1e0474e2 else Float.POSITIVE_INFINITY
+}, androidx.compose.foundation.InteractionState? interactionState = null, float velocityThreshold = SwipeableConstants.DefaultVelocityThreshold);
   }
 
   @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Stable public class SwipeableState<T> {

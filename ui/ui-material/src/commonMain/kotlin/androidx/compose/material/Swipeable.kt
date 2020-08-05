@@ -22,13 +22,8 @@ import androidx.compose.animation.core.AnimationClockObservable
 import androidx.compose.animation.core.AnimationClockObserver
 import androidx.compose.animation.core.AnimationEndReason
 import androidx.compose.animation.core.AnimationSpec
-import androidx.compose.animation.core.ExponentialDecay
-import androidx.compose.animation.core.OnAnimationEnd
 import androidx.compose.animation.core.SpringSpec
-import androidx.compose.animation.core.TargetAnimation
 import androidx.compose.foundation.InteractionState
-import androidx.compose.foundation.animation.FlingConfig
-import androidx.compose.foundation.animation.fling
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
@@ -47,6 +42,7 @@ import androidx.compose.ui.platform.AnimationClockAmbient
 import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.annotation.FloatRange
 import androidx.compose.ui.util.lerp
 import kotlin.math.sign
@@ -124,11 +120,14 @@ open class SwipeableState<T>(
     @ExperimentalMaterialApi
     val swipeTarget: T
         get() {
+            // TODO(calintat): Track current velocity (b/149549482) and use that here.
             val target = adjustTarget(
                 anchors = anchors.keys,
                 thresholds = thresholds,
                 target = animatedFloat.value,
-                lastAnchor = anchors.getOffset(value) ?: animatedFloat.value
+                lastAnchor = anchors.getOffset(value) ?: animatedFloat.value,
+                velocity = 0f,
+                velocityThreshold = Float.POSITIVE_INFINITY
             )
             return anchors[target] ?: value
         }
@@ -214,6 +213,7 @@ open class SwipeableState<T>(
             "The target value must have an associated anchor."
         }
         animatedFloat.animateTo(targetOffset, anim) { endReason, endOffset ->
+            // TODO(calintat): What to do if anchors[endOffset] is null?
             anchors[endOffset]?.let {
                 value = it
                 onEnd?.invoke(endReason, it)
@@ -299,10 +299,11 @@ internal fun <T> swipeableStateFor(
  * @param enabled Whether this [swipeable] is enabled and should react to the user's input.
  * @param reverseDirection Whether to reverse the direction of the swipe, so a top to bottom
  * swipe will behave like bottom to top, and a left to right swipe will behave like right to left.
- * @param minValue The lower bound in pixels of the range that swipe gestures will be constrained
- * to.
+ * @param minValue The lower bound in pixels that the swipe gestures will be constrained to.
  * @param maxValue The upper bound in pixels that the swipe gestures will be constrained to.
  * @param interactionState Optional [InteractionState] that will passed on to [Modifier.draggable].
+ * @param velocityThreshold The threshold (in dp per second) that the end velocity has to exceed
+ * in order to animate to the next state, even if the positional [thresholds] have not been reached.
  */
 @ExperimentalMaterialApi
 fun <T> Modifier.swipeable(
@@ -314,7 +315,8 @@ fun <T> Modifier.swipeable(
     reverseDirection: Boolean = false,
     minValue: Float = anchors.keys.minOrNull() ?: Float.NEGATIVE_INFINITY,
     maxValue: Float = anchors.keys.maxOrNull() ?: Float.POSITIVE_INFINITY,
-    interactionState: InteractionState? = null
+    interactionState: InteractionState? = null,
+    velocityThreshold: Dp = SwipeableConstants.DefaultVelocityThreshold
 ) = composed {
     require(anchors.isNotEmpty()) {
         "You must have at least one anchor."
@@ -331,38 +333,29 @@ fun <T> Modifier.swipeable(
     }
     state.animatedFloat.setBounds(minValue, maxValue)
 
-    val lastAnchor = anchors.getOffset(state.value)!!
-    val onAnimationEnd: OnAnimationEnd = { endReason, endValue, _ ->
-        if (endReason != AnimationEndReason.Interrupted) {
-            val newState = anchors[endValue]
-            if (newState != null && state.confirmStateChange(newState)) {
-                state.value = newState
-            } else {
-                state.animatedFloat.animateTo(lastAnchor, state.animationSpec)
-            }
-        }
-    }
-    val flingConfig = FlingConfig(
-        decayAnimation = ExponentialDecay(),
-        adjustTarget = { target ->
-            val adjusted = adjustTarget(
-                anchors = anchors.keys,
-                thresholds = state.thresholds,
-                target = target,
-                lastAnchor = lastAnchor
-            )
-            TargetAnimation(adjusted, state.animationSpec)
-        }
-    )
-
     Modifier.draggable(
         orientation = orientation,
         enabled = enabled,
         reverseDirection = reverseDirection,
         interactionState = interactionState,
         startDragImmediately = state.isAnimationRunning,
-        onDragStopped = {
-            state.animatedFloat.fling(it, flingConfig, onAnimationEnd)
+        onDragStopped = { velocity ->
+            val lastAnchor = anchors.getOffset(state.value)!!
+            val targetValue = adjustTarget(
+                anchors = anchors.keys,
+                thresholds = state.thresholds,
+                target = state.offset.value,
+                lastAnchor = lastAnchor,
+                velocity = velocity,
+                velocityThreshold = with(density) { velocityThreshold.toPx() }
+            )
+            val targetState = anchors[targetValue]
+            if (targetState != null && state.confirmStateChange(targetState)) {
+                state.animateTo(targetState)
+            } else {
+                // If the user vetoed the state change, rollback to the previous state.
+                state.animatedFloat.animateTo(lastAnchor, state.animationSpec)
+            }
         }
     ) { delta ->
         state.animatedFloat.snapTo(state.animatedFloat.value + delta)
@@ -455,7 +448,9 @@ private fun adjustTarget(
     target: Float,
     lastAnchor: Float,
     anchors: Set<Float>,
-    thresholds: (Float, Float) -> Float
+    thresholds: (Float, Float) -> Float,
+    velocity: Float,
+    velocityThreshold: Float
 ): Float {
     val bounds = findBounds(target, anchors)
     return when (bounds.size) {
@@ -464,17 +459,37 @@ private fun adjustTarget(
         else -> {
             val lower = bounds[0]
             val upper = bounds[1]
-            val threshold =
-                if (lastAnchor <= target) {
-                    thresholds(lower, upper)
+            if (lastAnchor <= target) {
+                // Swiping from lower to upper (positive).
+                if (velocity >= velocityThreshold) {
+                    return upper
                 } else {
-                    thresholds(upper, lower)
+                    val threshold = thresholds(lower, upper)
+                    if (target < threshold) lower else upper
                 }
-            if (target < threshold) lower else upper
+            } else {
+                // Swiping from upper to lower (negative).
+                if (velocity <= -velocityThreshold) {
+                    return lower
+                } else {
+                    val threshold = thresholds(upper, lower)
+                    if (target > threshold) upper else lower
+                }
+            }
         }
     }
 }
 
 private fun <T> Map<Float, T>.getOffset(state: T): Float? {
     return entries.firstOrNull { it.value == state }?.key
+}
+
+/**
+ * Contains the default values used by [swipeable].
+ */
+object SwipeableConstants {
+    /**
+     * The default velocity threshold used by [swipeable].
+     */
+    val DefaultVelocityThreshold = 125.dp // 1/8 dp per millisecond
 }

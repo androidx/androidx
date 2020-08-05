@@ -31,12 +31,10 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import androidx.test.filters.MediumTest
-import androidx.ui.test.GestureScope
 import androidx.ui.test.assertLeftPositionInRootIsEqualTo
 import androidx.ui.test.assertTopPositionInRootIsEqualTo
 import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.bottomCenter
-import androidx.ui.test.center
 import androidx.ui.test.centerLeft
 import androidx.ui.test.click
 import androidx.ui.test.createComposeRule
@@ -44,7 +42,6 @@ import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.performGesture
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.runOnUiThread
-import androidx.ui.test.swipe
 import androidx.ui.test.swipeDown
 import androidx.ui.test.swipeLeft
 import androidx.ui.test.swipeRight
@@ -390,91 +387,5 @@ class DrawerTest {
         runOnIdle {
             assertThat(drawerState.value).isEqualTo(BottomDrawerValue.Closed)
         }
-    }
-
-    @Test
-    fun bottomDrawer_openBySwipe_thresholds() {
-        lateinit var drawerState: BottomDrawerState
-        composeTestRule.setMaterialContent {
-            drawerState = rememberBottomDrawerState(BottomDrawerValue.Closed)
-            // emulate click on the screen
-            Box(Modifier.testTag("Drawer")) {
-                BottomDrawerLayout(drawerState = drawerState,
-                    drawerContent = {
-                        Box(Modifier.fillMaxSize().background(Color.Magenta))
-                    },
-                    bodyContent = {
-                        Box(Modifier.fillMaxSize().background(Color.Red))
-                    })
-            }
-        }
-        val threshold = with(composeTestRule.density) { BottomDrawerThreshold.toPx() }
-        val isLandscape = rootWidth() > rootHeight()
-
-        onNodeWithTag("Drawer")
-            .performGesture { swipeUpBy(threshold / 2) }
-
-        runOnIdle {
-            assertThat(drawerState.value).isEqualTo(BottomDrawerValue.Closed)
-        }
-
-        onNodeWithTag("Drawer")
-            .performGesture { swipeUpBy(threshold) }
-
-        runOnIdle {
-            assertThat(drawerState.value).isEqualTo(BottomDrawerValue.Open)
-        }
-
-        if (!isLandscape) {
-            onNodeWithTag("Drawer")
-                .performGesture { swipeUpBy(threshold / 2) }
-
-            runOnIdle {
-                assertThat(drawerState.value).isEqualTo(BottomDrawerValue.Open)
-            }
-
-            onNodeWithTag("Drawer")
-                .performGesture { swipeUpBy(threshold) }
-
-            runOnIdle {
-                assertThat(drawerState.value).isEqualTo(BottomDrawerValue.Expanded)
-            }
-
-            onNodeWithTag("Drawer")
-                .performGesture { swipeDownBy(threshold / 2) }
-
-            runOnIdle {
-                assertThat(drawerState.value).isEqualTo(BottomDrawerValue.Expanded)
-            }
-
-            onNodeWithTag("Drawer")
-                .performGesture { swipeDownBy(threshold) }
-
-            runOnIdle {
-                assertThat(drawerState.value).isEqualTo(BottomDrawerValue.Open)
-            }
-        }
-
-        onNodeWithTag("Drawer")
-            .performGesture { swipeDownBy(threshold / 2) }
-
-        runOnIdle {
-            assertThat(drawerState.value).isEqualTo(BottomDrawerValue.Open)
-        }
-
-        onNodeWithTag("Drawer")
-            .performGesture { swipeDownBy(threshold) }
-
-        runOnIdle {
-            assertThat(drawerState.value).isEqualTo(BottomDrawerValue.Closed)
-        }
-    }
-
-    private fun GestureScope.swipeUpBy(offset: Float) {
-        swipe(center, center.copy(y = center.y - offset))
-    }
-
-    private fun GestureScope.swipeDownBy(offset: Float) {
-        swipe(center, center.copy(y = center.y + offset))
     }
 }
