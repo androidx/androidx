@@ -75,26 +75,6 @@ public final class WindowManager {
     }
 
     /**
-     * Gets current window layout information for the associated {@link Context}. Must be called
-     * only after the it is attached to the window and the layout pass has happened.
-     * @see Activity#onAttachedToWindow()
-     * @see WindowLayoutInfo
-     */
-    @NonNull
-    public WindowLayoutInfo getWindowLayoutInfo() {
-        return mWindowBackend.getWindowLayoutInfo(mContext);
-    }
-
-    /**
-     * Gets the current device state.
-     * @see DeviceState
-     */
-    @NonNull
-    public DeviceState getDeviceState() {
-        return mWindowBackend.getDeviceState();
-    }
-
-    /**
      * Registers a callback for layout changes of the window of the current visual {@link Context}.
      * Must be called only after the it is attached to the window.
      * @see Activity#onAttachedToWindow()
@@ -139,5 +119,22 @@ public final class WindowManager {
             context = ((ContextWrapper) context).getBaseContext();
         }
         return null;
+    }
+
+    /**
+     * Unwraps the hierarchy of {@link ContextWrapper}-s until {@link Activity} is reached.
+     * @return Base {@link Activity} context or throws {@link IllegalArgumentException} if not
+     * available.
+     */
+    @NonNull
+    static Activity assertActivityFromContext(Context context) throws IllegalArgumentException {
+        while (context instanceof ContextWrapper) {
+            if (context instanceof Activity) {
+                return (Activity) context;
+            }
+            context = ((ContextWrapper) context).getBaseContext();
+        }
+        throw new IllegalArgumentException("Used non-visual Context with WindowManager. "
+                + "Please use an Activity or a ContextWrapper around an Activity instead.");
     }
 }

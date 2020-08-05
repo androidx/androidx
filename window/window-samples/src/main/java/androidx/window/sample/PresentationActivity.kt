@@ -52,8 +52,6 @@ class PresentationActivity : BaseSampleActivity() {
             mainThreadExecutor,
             deviceStateChangeCallback
         )
-
-        updateCurrentState(windowManager.deviceState)
     }
 
     override fun onDestroy() {
