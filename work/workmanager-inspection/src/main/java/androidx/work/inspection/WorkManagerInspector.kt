@@ -30,6 +30,7 @@ import androidx.lifecycle.Observer
 import androidx.work.WorkManager
 import androidx.work.impl.WorkContinuationImpl
 import androidx.work.impl.WorkManagerImpl
+import androidx.work.impl.model.WorkSpec
 import androidx.work.inspection.WorkManagerInspectorProtocol.Command
 import androidx.work.inspection.WorkManagerInspectorProtocol.Command.OneOfCase.TRACK_WORK_MANAGER
 import androidx.work.inspection.WorkManagerInspectorProtocol.ErrorResponse
@@ -157,6 +158,19 @@ class WorkManagerInspector(
             workStackBuilder.addAllFrames(stack.map { it.toProto() })
         }
         workInfoBuilder.callStack = workStackBuilder.build()
+
+        workInfoBuilder.scheduleRequestedAt = WorkSpec.SCHEDULE_NOT_REQUESTED_YET
+        workManager.workDatabase.dependencyDao().getPrerequisites(id).let {
+            workInfoBuilder.addAllPrerequisites(it)
+        }
+
+        workManager.workDatabase.dependencyDao().getDependentWorkIds(id).let {
+            workInfoBuilder.addAllDependents(it)
+        }
+
+        workManager.workDatabase.workNameDao().getNamesForWorkSpecId(id).let {
+            workInfoBuilder.addAllNames(it)
+        }
 
         return workInfoBuilder.build()
     }

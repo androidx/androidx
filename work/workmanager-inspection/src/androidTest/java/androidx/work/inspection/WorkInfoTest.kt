@@ -18,6 +18,7 @@ package androidx.work.inspection
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.await
 import androidx.work.impl.model.WorkSpec
@@ -156,6 +157,33 @@ class WorkInfoTest {
             val workInfo = event.workAdded.work
             assertThat(workInfo.callStack.framesList[0].fileName)
                 .isEqualTo("ContinuationImpl.kt")
+        }
+    }
+
+    @Test
+    fun addChainingWorkWithUniqueName() = runBlocking {
+        inspectWorkManager()
+        val work1 = OneTimeWorkRequestBuilder<EmptyWorker>().build()
+        val work2 = OneTimeWorkRequestBuilder<EmptyWorker>().build()
+        val name = "myName"
+        testEnvironment.workManager.beginUniqueWork(name, ExistingWorkPolicy.REPLACE, work1)
+            .then(work2)
+            .enqueue()
+        for (count in 1..2) {
+            testEnvironment.receiveEvent().let { event ->
+                assertThat(event.hasWorkAdded()).isTrue()
+                val workInfo = event.workAdded.work
+                assertThat(workInfo.namesCount).isEqualTo(1)
+                assertThat(workInfo.getNames(0)).isEqualTo(name)
+                if (workInfo.id == work1.stringId) {
+                    assertThat(workInfo.dependentsCount).isEqualTo(1)
+                    assertThat(workInfo.getDependents(0)).isEqualTo(work2.stringId)
+                }
+                if (workInfo.id == work2.stringId) {
+                    assertThat(workInfo.prerequisitesCount).isEqualTo(1)
+                    assertThat(workInfo.getPrerequisites(0)).isEqualTo(work1.stringId)
+                }
+            }
         }
     }
 }
