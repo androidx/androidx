@@ -104,7 +104,6 @@ This helps the AndroidX project keep track of API changes and avoid inadvertentl
 
 **Note:** In case you make a valid violation of Lint, you can use `@Suppress("Rule")` in Kotlin, or `@SuppressLint("Rule")` in Java to suppress the rule. This is now the recommended approach, as opposed to updating the lint baseline (i.e. via `./gradlew updateApiLintBaseline`).
 
-
 **Note: CI build will already check for these but it is best to run them locally to speedup the process.**
 
 ### Making a Pull Request
