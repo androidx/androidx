@@ -42,6 +42,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -103,6 +104,7 @@ public final class HeifWriter implements AutoCloseable {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     int mOutputIndex;
     private boolean mStarted;
+    private final CountDownLatch mStoppedLatch;
 
     private final List<Pair<Integer, ByteBuffer>> mExifList = new ArrayList<>();
 
@@ -351,6 +353,8 @@ public final class HeifWriter implements AutoCloseable {
 
         mHeifEncoder = new HeifEncoder(width, height, gridEnabled, quality,
                 mInputMode, mHandler, new HeifCallback());
+
+        mStoppedLatch = new CountDownLatch(1);
     }
 
     /**
@@ -546,6 +550,8 @@ public final class HeifWriter implements AutoCloseable {
                 mHeifEncoder = null;
             }
         }
+
+        mStoppedLatch.countDown();
     }
 
     /**
@@ -706,5 +712,8 @@ public final class HeifWriter implements AutoCloseable {
                 }
             }
         });
+        try {
+            mStoppedLatch.await();
+        } catch (InterruptedException e) {}
     }
 }
