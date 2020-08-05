@@ -738,8 +738,8 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 // Entering transitions can choose to run after all exit
                 // transitions complete, rather than overlapping with them
                 mOverlapAllowed = isPop
-                        ? operation.getFragment().getAllowEnterTransitionOverlap()
-                        : operation.getFragment().getAllowReturnTransitionOverlap();
+                        ? operation.getFragment().getAllowReturnTransitionOverlap()
+                        : operation.getFragment().getAllowEnterTransitionOverlap();
             } else {
                 mTransition = isPop
                         ? operation.getFragment().getReturnTransition()
