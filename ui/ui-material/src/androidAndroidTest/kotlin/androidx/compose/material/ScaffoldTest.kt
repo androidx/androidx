@@ -552,7 +552,7 @@ class ScaffoldTest {
             }
         }
         runOnIdle {
-            assertThat(geometry.bottomBarBounds?.toSize()).isEqualTo(bottomBarSize.toSize())
+            assertThat(geometry.bottomBarBounds?.size).isEqualTo(bottomBarSize.toSize())
             assertThat(geometry.bottomBarBounds?.width).isNotEqualTo(0f)
         }
     }

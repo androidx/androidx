@@ -39,6 +39,7 @@ import androidx.compose.ui.PaddingModifier
 import androidx.compose.ui.SimpleRow
 import androidx.compose.ui.Wrap
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.onChildPositioned
 import androidx.compose.ui.onPositioned
 import androidx.compose.ui.platform.DensityAmbient
@@ -46,7 +47,6 @@ import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.runOnUiThreadIR
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.unit.PxBounds
 import androidx.test.filters.SmallTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
@@ -302,14 +302,14 @@ class OnPositionedTest {
         assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
 
         rule.runOnUiThread {
-            assertEquals(PxBounds(5f, 5f, 15f, 15f), coordinates!!.boundsInParent)
+            assertEquals(Rect(5f, 5f, 15f, 15f), coordinates!!.boundsInParent)
 
             var root = coordinates!!
             while (root.parentCoordinates != null) {
                 root = root.parentCoordinates!!
             }
 
-            assertEquals(PxBounds(0f, 0f, 20f, 20f), root.boundsInParent)
+            assertEquals(Rect(0f, 0f, 20f, 20f), root.boundsInParent)
         }
     }
 

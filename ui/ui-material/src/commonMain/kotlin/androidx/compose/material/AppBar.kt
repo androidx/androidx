@@ -42,10 +42,7 @@ import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.PxBounds
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.height
-import androidx.compose.ui.unit.width
 import kotlin.math.sqrt
 
 /**
@@ -202,7 +199,7 @@ fun BottomAppBar(
  */
 private data class BottomAppBarCutoutShape(
     val cutoutShape: Shape,
-    val fabBounds: PxBounds
+    val fabBounds: Rect
 ) : Shape {
 
     override fun createOutline(size: Size, density: Density): Outline {

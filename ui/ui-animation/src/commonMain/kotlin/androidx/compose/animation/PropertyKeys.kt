@@ -177,6 +177,7 @@ private val OffsetToVector: TwoWayConverter<Offset, AnimationVector2D> =
 /**
  * A type converter that converts a [PxBounds] to a [AnimationVector4D], and vice versa.
  */
+@Suppress("DEPRECATION")
 private val PxBoundsToVector: TwoWayConverter<PxBounds, AnimationVector4D> =
     TwoWayConverter(
         convertToVector = {
@@ -299,6 +300,9 @@ val OffsetToVectorConverter: TwoWayConverter<Offset, AnimationVector2D> =
 /**
  * A type converter that converts a [PxBounds] to a [AnimationVector4D], and vice versa.
  */
+@Deprecated("Use Rect and RectToVectorConverter instead",
+    ReplaceWith("Rect.VectorConverter"))
+@Suppress("DEPRECATION")
 val PxBounds.Companion.VectorConverter: TwoWayConverter<PxBounds, AnimationVector4D>
     get() = PxBoundsToVector
 
@@ -306,6 +310,7 @@ val PxBounds.Companion.VectorConverter: TwoWayConverter<PxBounds, AnimationVecto
  * A type converter that converts a [PxBounds] to a [AnimationVector4D], and vice versa.
  */
 @Deprecated("", ReplaceWith("PxBounds.VectorConverter"))
+@Suppress("DEPRECATION")
 val PxBoundsToVectorConverter: TwoWayConverter<PxBounds, AnimationVector4D> =
     PxBounds.VectorConverter
 

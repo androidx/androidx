@@ -40,7 +40,6 @@ import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.compose.ui.platform.AnimationClockAmbient
 import androidx.compose.ui.platform.setContent
-import androidx.compose.ui.graphics.toAndroidRect
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.FontLoaderAmbient
@@ -51,8 +50,6 @@ import androidx.ui.tooling.SourceLocation
 import androidx.ui.tooling.asTree
 import androidx.ui.tooling.preview.animation.PreviewAnimationClock
 import androidx.compose.ui.unit.IntBounds
-import androidx.compose.ui.unit.PxBounds
-import androidx.compose.ui.unit.toRect
 import androidx.savedstate.SavedStateRegistry
 import androidx.savedstate.SavedStateRegistryController
 import androidx.savedstate.SavedStateRegistryOwner
@@ -291,13 +288,13 @@ internal class ComposeViewAdapter : FrameLayout {
             .forEach {
                 if (it.hasBounds()) {
                     canvas?.apply {
-                        val pxBounds = PxBounds(
-                            it.bounds.left.toFloat(),
-                            it.bounds.top.toFloat(),
-                            it.bounds.right.toFloat(),
-                            it.bounds.bottom.toFloat()
+                        val pxBounds = android.graphics.Rect(
+                            it.bounds.left,
+                            it.bounds.top,
+                            it.bounds.right,
+                            it.bounds.bottom
                         )
-                        drawRect(pxBounds.toRect().toAndroidRect(), debugBoundsPaint)
+                        drawRect(pxBounds, debugBoundsPaint)
                     }
                 }
             }

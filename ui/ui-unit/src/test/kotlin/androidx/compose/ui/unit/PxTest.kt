@@ -105,18 +105,21 @@ class PxTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun boundsWidth() {
         val bounds = PxBounds(10f, 5f, 25f, 15f)
         assertEquals(15f, bounds.width)
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun boundsHeight() {
         val bounds = PxBounds(10f, 5f, 25f, 15f)
         assertEquals(10f, bounds.height)
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun toBounds() {
         val size = Size(15f, 10f)
         val bounds = PxBounds(0f, 0f, 15f, 10f)
@@ -124,6 +127,7 @@ class PxTest {
     }
 
     @Test
+    @Suppress("DEPRECATION")
     fun toSize() {
         val size = Size(15f, 10f)
         val bounds = PxBounds(10f, 5f, 25f, 15f)

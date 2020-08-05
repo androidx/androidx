@@ -37,6 +37,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.ui.geometry.Rect
 import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertIsEnabled
 import androidx.ui.test.assertShape
@@ -48,11 +49,7 @@ import androidx.ui.test.performClick
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.onNodeWithText
 import androidx.ui.test.runOnIdle
-import androidx.compose.ui.unit.PxBounds
-import androidx.compose.ui.unit.center
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.height
-import androidx.compose.ui.unit.width
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -144,8 +141,8 @@ class FloatingActionButtonTest {
 
     @Test
     fun fab_weightModifier() {
-        var item1Bounds = PxBounds(0f, 0f, 0f, 0f)
-        var buttonBounds = PxBounds(0f, 0f, 0f, 0f)
+        var item1Bounds = Rect(0f, 0f, 0f, 0f)
+        var buttonBounds = Rect(0f, 0f, 0f, 0f)
         composeTestRule.setMaterialContent {
             Column {
                 Spacer(Modifier.size(10.dp).weight(1f).onPositioned {
@@ -256,7 +253,7 @@ class FloatingActionButtonTest {
                 assertThat(contentBounds.width).isEqualTo(2.dp.toIntPx().toFloat())
                 assertThat(contentBounds.height).isEqualTo(2.dp.toIntPx().toFloat())
             }
-            assertWithinOnePixel(buttonBounds.center(), contentBounds.center())
+            assertWithinOnePixel(buttonBounds.center, contentBounds.center)
         }
     }
 
@@ -287,7 +284,7 @@ class FloatingActionButtonTest {
                 assertThat(contentBounds.width).isEqualTo(2.dp.toIntPx().toFloat())
                 assertThat(contentBounds.height).isEqualTo(2.dp.toIntPx().toFloat())
             }
-            assertWithinOnePixel(buttonBounds.center(), contentBounds.center())
+            assertWithinOnePixel(buttonBounds.center, contentBounds.center)
         }
     }
 
@@ -325,12 +322,12 @@ class FloatingActionButtonTest {
                 assertThat(iconBounds.width).isEqualTo(10.dp.toIntPx().toFloat())
                 assertThat(iconBounds.height).isEqualTo(10.dp.toIntPx().toFloat())
 
-                assertWithinOnePixel(buttonBounds.center().y, iconBounds.center().y)
-                assertWithinOnePixel(buttonBounds.center().y, textBounds.center().y)
+                assertWithinOnePixel(buttonBounds.center.y, iconBounds.center.y)
+                assertWithinOnePixel(buttonBounds.center.y, textBounds.center.y)
                 val halfPadding = 6.dp.toIntPx().toFloat()
                 assertWithinOnePixel(
-                    iconBounds.center().x + iconBounds.width / 2 + halfPadding,
-                    textBounds.center().x - textBounds.width / 2 - halfPadding
+                    iconBounds.center.x + iconBounds.width / 2 + halfPadding,
+                    textBounds.center.x - textBounds.width / 2 - halfPadding
                 )
             }
         }

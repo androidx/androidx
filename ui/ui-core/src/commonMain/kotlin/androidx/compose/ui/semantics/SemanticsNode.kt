@@ -18,6 +18,7 @@ package androidx.compose.ui.semantics
 
 import androidx.compose.ui.AlignmentLine
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.globalBounds
 import androidx.compose.ui.layout.globalPosition
@@ -27,7 +28,6 @@ import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.LayoutNodeWrapper
 import androidx.compose.ui.node.findClosestParentNode
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.PxBounds
 import androidx.compose.ui.util.fastForEach
 
 /**
@@ -83,9 +83,9 @@ class SemanticsNode internal constructor(
     /**
      * The bounding box for this node relative to the root of this Compose hierarchy, with
      * clipping applied. To get the bounds with no clipping applied, use
-     * PxBounds([positionInRoot], [size].toSize())
+     * Rect([positionInRoot], [size].toSize())
      */
-    val boundsInRoot: PxBounds
+    val boundsInRoot: Rect
         get() {
             return componentNode.coordinates.boundsInRoot
         }
@@ -103,7 +103,7 @@ class SemanticsNode internal constructor(
      * The bounding box for this node relative to the screen, with clipping applied. To get the
      * bounds with no clipping applied, use PxBounds([globalPosition], [size].toSize())
      */
-    val globalBounds: PxBounds
+    val globalBounds: Rect
         get() {
             return componentNode.coordinates.globalBounds
         }

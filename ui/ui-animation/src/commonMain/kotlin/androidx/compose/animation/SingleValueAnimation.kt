@@ -28,6 +28,7 @@ import androidx.compose.runtime.onCommit
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.AnimationClockAmbient
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Bounds
@@ -283,6 +284,38 @@ fun animate(
 }
 
 /**
+ * Fire-and-forget animation [Composable] for [Rect]. Once such an animation is created, it will
+ * be positionally memoized, like other @[Composable]s. To trigger the animation, or alter the
+ * course of the animation, simply supply a different [target] to the [Composable].
+ *
+ * Note, [animate] is for simple animations that cannot be canceled. For cancellable animations
+ * see [animatedValue].
+ *
+ *    val bounds : Rect = animate(
+ *        if (enabled) Rect(0f, 0f, 100f, 100f) else Rect(8f, 8f, 80f, 80f))
+ *
+ * @param target Target value of the animation
+ * @param animSpec The animation that will be used to change the value through time. Physics
+ *                    animation will be used by default.
+ * @param endListener An optional end listener to get notified when the animation is finished.
+ */
+@Composable
+fun animate(
+    target: Rect,
+    animSpec: AnimationSpec<Rect> = remember {
+        SpringSpec(
+            visibilityThreshold =
+            Rect.VectorConverter.convertFromVector(PxVisibilityThreshold4D)
+        )
+    },
+    endListener: ((Rect) -> Unit)? = null
+): Rect {
+    return animate(
+        target, Rect.VectorConverter, animSpec, endListener = endListener
+    )
+}
+
+/**
  * Fire-and-forget animation [Composable] for [PxBounds]. Once such an animation is created, it will
  * be positionally memoized, like other @[Composable]s. To trigger the animation, or alter the
  * course of the animation, simply supply a different [target] to the [Composable].
@@ -298,6 +331,11 @@ fun animate(
  *                    animation will be used by default.
  * @param endListener An optional end listener to get notified when the animation is finished.
  */
+@Deprecated("Consider usage of Rect instead",
+    ReplaceWith("animate(target: Rect, animSpec: AnimationSpec<Rect>, " +
+            "endListener: ((Rect) -> " +
+            "Unit)?", "androidx.compose.animation.animation"))
+@Suppress("DEPRECATION")
 @Composable
 fun animate(
     target: PxBounds,

@@ -24,9 +24,6 @@ import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.findClosestParentNode
 import androidx.compose.ui.platform.AndroidOwner
 import androidx.compose.ui.semantics.SemanticsNode
-import androidx.compose.ui.unit.height
-import androidx.compose.ui.unit.toRect
-import androidx.compose.ui.unit.width
 
 @OptIn(ExperimentalLayoutNodeApi::class)
 internal actual fun SemanticsNodeInteraction.checkIsDisplayed(): Boolean {
@@ -65,7 +62,7 @@ internal actual fun SemanticsNode.clippedNodeBoundsInWindow(): Rect {
         composeView.getLocationInWindow(it)
         Offset(it[0].toFloat(), it[1].toFloat())
     }
-    return boundsInRoot.toRect().shift(rootLocationInWindow)
+    return boundsInRoot.shift(rootLocationInWindow)
 }
 
 @OptIn(ExperimentalLayoutNodeApi::class)
