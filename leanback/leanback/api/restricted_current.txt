@@ -1808,6 +1808,7 @@ package androidx.leanback.widget {
     method public void setOnTouchInterceptListener(androidx.leanback.widget.BaseGridView.OnTouchInterceptListener!);
     method public void setOnUnhandledKeyListener(androidx.leanback.widget.BaseGridView.OnUnhandledKeyListener!);
     method public void setPruneChild(boolean);
+    method public void setRecyclerListener(androidx.recyclerview.widget.RecyclerView.RecyclerListener!);
     method public final void setSaveChildrenLimitNumber(int);
     method public final void setSaveChildrenPolicy(int);
     method public void setScrollEnabled(boolean);
