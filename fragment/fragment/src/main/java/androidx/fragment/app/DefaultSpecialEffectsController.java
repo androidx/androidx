@@ -482,6 +482,12 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                     // transition is started
                     transitionImpl.setSharedElementTargets(sharedElementTransition,
                             nonExistentView, sharedElementFirstOutViews);
+                    // After the swap to the lastIn Fragment's view (done below), we
+                    // need to clean up those targets. We schedule this here so that it
+                    // runs directly after the swap
+                    transitionImpl.scheduleRemoveTargets(sharedElementTransition,
+                            null, null, null, null,
+                            sharedElementTransition, sharedElementLastInViews);
                 }
             }
         }
@@ -613,9 +619,6 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         FragmentTransition.setViewVisibility(enteringViews, View.VISIBLE);
         transitionImpl.swapSharedElementTargets(sharedElementTransition,
                 sharedElementFirstOutViews, sharedElementLastInViews);
-        transitionImpl.scheduleRemoveTargets(mergedTransition,
-                null, null, null, null,
-                sharedElementTransition, sharedElementLastInViews);
     }
 
     /**
