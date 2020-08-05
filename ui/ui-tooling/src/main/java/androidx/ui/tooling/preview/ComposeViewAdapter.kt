@@ -33,28 +33,27 @@ import androidx.compose.runtime.Composition
 import androidx.compose.runtime.Providers
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.currentComposer
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.AnimationClockAmbient
+import androidx.compose.ui.platform.FontLoaderAmbient
+import androidx.compose.ui.platform.setContent
+import androidx.compose.ui.unit.IntBounds
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
-import androidx.compose.ui.platform.AnimationClockAmbient
-import androidx.compose.ui.platform.setContent
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.FontLoaderAmbient
+import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistryController
+import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.ViewTreeSavedStateRegistryOwner
 import androidx.ui.tooling.Group
 import androidx.ui.tooling.Inspectable
 import androidx.ui.tooling.SlotTableRecord
 import androidx.ui.tooling.SourceLocation
 import androidx.ui.tooling.asTree
 import androidx.ui.tooling.preview.animation.PreviewAnimationClock
-import androidx.compose.ui.unit.IntBounds
-import androidx.savedstate.SavedStateRegistry
-import androidx.savedstate.SavedStateRegistryController
-import androidx.savedstate.SavedStateRegistryOwner
-import androidx.savedstate.ViewTreeSavedStateRegistryOwner
-import kotlin.reflect.KClass
 
 const val TOOLS_NS_URI = "http://schemas.android.com/tools"
 
@@ -325,7 +324,7 @@ internal class ComposeViewAdapter : FrameLayout {
      * Initializes the adapter and populates it with the given [Preview] composable.
      * @param className name of the class containing the preview function
      * @param methodName `@Preview` method name
-     * @param parameterProvider [KClass] for the [PreviewParameterProvider] to be used as
+     * @param parameterProvider [Class] for the [PreviewParameterProvider] to be used as
      * parameter input for this call. If null, no parameters will be passed to the composable.
      * @param parameterProviderIndex when [parameterProvider] is not null, this index will
      * reference the element in the [Sequence] to be used as parameter.
@@ -339,7 +338,7 @@ internal class ComposeViewAdapter : FrameLayout {
     internal fun init(
         className: String,
         methodName: String,
-        parameterProvider: KClass<out PreviewParameterProvider<*>>? = null,
+        parameterProvider: Class<out PreviewParameterProvider<*>>? = null,
         parameterProviderIndex: Int = 0,
         debugPaintBounds: Boolean = false,
         debugViewInfos: Boolean = false,
