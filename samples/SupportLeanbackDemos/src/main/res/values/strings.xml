@@ -113,4 +113,6 @@
     <string name="time_picker_description">Show time picker</string>
     <string name="pin_picker">Pin picker</string>
     <string name="pin_picker_description">Show pin picker</string>
+    <string name="tab_layout">Tab layout</string>
+    <string name="tab_layout_description">Tab layout test</string>
 </resources>
