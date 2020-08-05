@@ -21,9 +21,6 @@ import androidx.compose.runtime.Composer
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 import kotlin.math.ceil
-import kotlin.reflect.KClass
-import kotlin.reflect.KParameter
-import kotlin.reflect.jvm.isAccessible
 
 /**
  * Returns true if the [methodTypes] and [actualTypes] are compatible. This means that every
@@ -197,12 +194,12 @@ internal fun invokeComposableViaReflection(
 }
 
 /**
- * Tries to find the [KClass] of the [PreviewParameterProvider] corresponding to the given FQN.
+ * Tries to find the [Class] of the [PreviewParameterProvider] corresponding to the given FQN.
  */
-internal fun String.asPreviewProviderClass(): KClass<out PreviewParameterProvider<*>>? {
+internal fun String.asPreviewProviderClass(): Class<out PreviewParameterProvider<*>>? {
     try {
         @Suppress("UNCHECKED_CAST")
-        return Class.forName(this).kotlin as? KClass<out PreviewParameterProvider<*>>
+        return Class.forName(this) as? Class<out PreviewParameterProvider<*>>
     } catch (e: ClassNotFoundException) {
         Log.e("PreviewProvider", "Unable to find provider '$this'", e)
         return null
@@ -217,13 +214,13 @@ internal fun String.asPreviewProviderClass(): KClass<out PreviewParameterProvide
  * provider's sequence if `parameterProviderIndex` is invalid, e.g. negative.
  */
 internal fun getPreviewProviderParameters(
-    parameterProviderClass: KClass<out PreviewParameterProvider<*>>?,
+    parameterProviderClass: Class<out PreviewParameterProvider<*>>?,
     parameterProviderIndex: Int
 ): Array<Any?> {
     if (parameterProviderClass != null) {
         try {
             val constructor = parameterProviderClass.constructors
-                .singleOrNull { it.parameters.all(KParameter::isOptional) }
+                .singleOrNull { it.parameterTypes.isEmpty() }
                 ?.apply {
                     isAccessible = true
                 }
@@ -231,7 +228,7 @@ internal fun getPreviewProviderParameters(
                     "PreviewParameterProvider constructor can not" +
                             " have parameters"
                 )
-            val params = constructor.callBy(emptyMap())
+            val params = constructor.newInstance() as PreviewParameterProvider<*>
             if (parameterProviderIndex < 0) {
                 return params.values.toArray(params.count)
             }
