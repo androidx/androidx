@@ -15,10 +15,12 @@
  */
 package androidx.paging.multicast
 
+import androidx.paging.multicast.ChannelManager.Message.Dispatch.Error
 import androidx.paging.multicast.ChannelManager.Message.Dispatch.UpstreamFinished
+import androidx.paging.multicast.ChannelManager.Message.Dispatch.Value
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.channels.ClosedSendChannelException
@@ -42,37 +44,34 @@ internal class SharedFlowProducer<T>(
     private val src: Flow<T>,
     private val sendUpsteamMessage: suspend (ChannelManager.Message.Dispatch<T>) -> Unit
 ) {
-    private lateinit var collectionJob: Job
+    private val collectionJob: Job = scope.launch(start = CoroutineStart.LAZY) {
+        try {
+            src.catch {
+                sendUpsteamMessage(Error(it))
+            }.collect {
+                val ack = CompletableDeferred<Unit>()
+                sendUpsteamMessage(
+                    Value(
+                        it,
+                        ack
+                    )
+                )
+                // suspend until at least 1 receives the new value
+                ack.await()
+            }
+        } catch (closed: ClosedSendChannelException) {
+            // ignore. if consumers are gone, it might close itself.
+        }
+    }
 
     /**
      * Starts the collection of the upstream flow.
      */
-    @OptIn(ExperimentalCoroutinesApi::class)
     fun start() {
         scope.launch {
             try {
-                // launch again to track the collection job
-                collectionJob = scope.launch {
-                    try {
-                        src.catch {
-                            sendUpsteamMessage(ChannelManager.Message.Dispatch.Error(it))
-                        }.collect {
-                            val ack = CompletableDeferred<Unit>()
-                            sendUpsteamMessage(
-                                ChannelManager.Message.Dispatch.Value(
-                                    it,
-                                    ack
-                                )
-                            )
-                            // suspend until at least 1 receives the new value
-                            ack.await()
-                        }
-                    } catch (closed: ClosedSendChannelException) {
-                        // ignore. if consumers are gone, it might close itself.
-                    }
-                }
-                // wait until collection ends, either due to an error or ordered by the channel
-                // manager
+                // trigger start of the collection and wait until collection ends, either due to an
+                // error or ordered by the channel manager
                 collectionJob.join()
             } finally {
                 // cleanup the channel manager so that downstreams can be closed if they are not
