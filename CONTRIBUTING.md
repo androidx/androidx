@@ -102,6 +102,8 @@ If you are adding new APIs, then you might **additionally need to update** [Libr
 
 This helps the AndroidX project keep track of API changes and avoid inadvertently adding APIs or introduce backwards incompatible changes.
 
+**Note:** In case you make a valid violation of Lint, you can use `@Suppress("Rule")` in Kotlin, or `@SuppressLint("Rule")` in Java to suppress the rule.
+
 **Note: CI build will already check for these but it is best to run them locally to speedup the process.**
 
 ### Making a Pull Request
