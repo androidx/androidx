@@ -30,6 +30,7 @@ import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomAppBar
 import androidx.compose.material.ExtendedFloatingActionButton
+import androidx.compose.material.FabPosition
 import androidx.compose.material.IconButton
 import androidx.compose.material.Scaffold
 import androidx.compose.material.TopAppBar
@@ -70,7 +71,7 @@ fun SimpleScaffoldWithTopBar() {
                 }
             )
         },
-        floatingActionButtonPosition = Scaffold.FabPosition.End,
+        floatingActionButtonPosition = FabPosition.End,
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 text = { Text("Inc") },
@@ -142,7 +143,7 @@ fun ScaffoldWithBottomBarAndCutout() {
                 shape = fabShape
             )
         },
-        floatingActionButtonPosition = Scaffold.FabPosition.Center,
+        floatingActionButtonPosition = FabPosition.Center,
         isFloatingActionButtonDocked = true,
         bodyContent = { innerPadding ->
             ScrollableColumn(contentPadding = innerPadding) {
