@@ -43,6 +43,7 @@ class NavDeepLinkDslBuilder {
      * @throws IllegalArgumentException if attempting to set to empty.
      */
     var action: String? = null
+        @Suppress("DocumentExceptions")
         set(p) {
             if (p != null && p.isEmpty()) {
                 throw IllegalArgumentException("The NavDeepLink cannot have an empty action.")

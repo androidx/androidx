@@ -28,6 +28,7 @@ package androidx.compose.animation.core {
   }
 
   public final class AnimationClockKt {
+    method public static void setRootAnimationClockFactory(kotlin.jvm.functions.Function0<? extends androidx.compose.animation.core.AnimationClockObservable> p);
   }
 
   public interface AnimationClockObservable {
@@ -68,25 +69,25 @@ package androidx.compose.animation.core {
 
   public final class AnimationVector1D extends androidx.compose.animation.core.AnimationVector {
     ctor public AnimationVector1D(float initVal);
-    method public float get$lintWithKotlin(int index);
-    method public int getSize$lintWithKotlin();
+    method public float get$metalava_module(int index);
+    method public int getSize$metalava_module();
     method public float getValue();
-    method public androidx.compose.animation.core.AnimationVector1D newVector$lintWithKotlin();
-    method public void reset$lintWithKotlin();
-    method public void set$lintWithKotlin(int index, float value);
+    method public androidx.compose.animation.core.AnimationVector1D newVector$metalava_module();
+    method public void reset$metalava_module();
+    method public void set$metalava_module(int index, float value);
     property public int size;
     property public final float value;
   }
 
   public final class AnimationVector2D extends androidx.compose.animation.core.AnimationVector {
     ctor public AnimationVector2D(float v1, float v2);
-    method public float get$lintWithKotlin(int index);
-    method public int getSize$lintWithKotlin();
+    method public float get$metalava_module(int index);
+    method public int getSize$metalava_module();
     method public float getV1();
     method public float getV2();
-    method public androidx.compose.animation.core.AnimationVector2D newVector$lintWithKotlin();
-    method public void reset$lintWithKotlin();
-    method public void set$lintWithKotlin(int index, float value);
+    method public androidx.compose.animation.core.AnimationVector2D newVector$metalava_module();
+    method public void reset$metalava_module();
+    method public void set$metalava_module(int index, float value);
     property public int size;
     property public final float v1;
     property public final float v2;
@@ -94,14 +95,14 @@ package androidx.compose.animation.core {
 
   public final class AnimationVector3D extends androidx.compose.animation.core.AnimationVector {
     ctor public AnimationVector3D(float v1, float v2, float v3);
-    method public float get$lintWithKotlin(int index);
-    method public int getSize$lintWithKotlin();
+    method public float get$metalava_module(int index);
+    method public int getSize$metalava_module();
     method public float getV1();
     method public float getV2();
     method public float getV3();
-    method public androidx.compose.animation.core.AnimationVector3D newVector$lintWithKotlin();
-    method public void reset$lintWithKotlin();
-    method public void set$lintWithKotlin(int index, float value);
+    method public androidx.compose.animation.core.AnimationVector3D newVector$metalava_module();
+    method public void reset$metalava_module();
+    method public void set$metalava_module(int index, float value);
     property public int size;
     property public final float v1;
     property public final float v2;
@@ -110,15 +111,15 @@ package androidx.compose.animation.core {
 
   public final class AnimationVector4D extends androidx.compose.animation.core.AnimationVector {
     ctor public AnimationVector4D(float v1, float v2, float v3, float v4);
-    method public float get$lintWithKotlin(int index);
-    method public int getSize$lintWithKotlin();
+    method public float get$metalava_module(int index);
+    method public int getSize$metalava_module();
     method public float getV1();
     method public float getV2();
     method public float getV3();
     method public float getV4();
-    method public androidx.compose.animation.core.AnimationVector4D newVector$lintWithKotlin();
-    method public void reset$lintWithKotlin();
-    method public void set$lintWithKotlin(int index, float value);
+    method public androidx.compose.animation.core.AnimationVector4D newVector$metalava_module();
+    method public void reset$metalava_module();
+    method public void set$metalava_module(int index, float value);
     property public int size;
     property public final float v1;
     property public final float v2;
@@ -164,7 +165,7 @@ package androidx.compose.animation.core {
 
   public final class DefaultAnimationClock extends androidx.compose.animation.core.BaseAnimationClock {
     ctor public DefaultAnimationClock();
-    method public void dispatchTime$lintWithKotlin(long frameTimeMillis);
+    method public void dispatchTime$metalava_module(long frameTimeMillis);
   }
 
   public interface DurationBasedAnimationSpec<T> extends androidx.compose.animation.core.AnimationSpec<T> {
@@ -179,7 +180,7 @@ package androidx.compose.animation.core {
   }
 
   public final class ExponentialDecay implements androidx.compose.animation.core.FloatDecayAnimationSpec {
-    ctor public ExponentialDecay(@FloatRange(from=null, to=null, fromInclusive=null) float frictionMultiplier, @FloatRange(from=null, to=null, fromInclusive=null) float absVelocityThreshold);
+    ctor public ExponentialDecay(@FloatRange(from=0.0, to=3.4E38, fromInclusive=false) float frictionMultiplier, @FloatRange(from=0.0, to=3.4E38, fromInclusive=false) float absVelocityThreshold);
     ctor public ExponentialDecay();
     method public float getAbsVelocityThreshold();
     method public long getDurationMillis(float start, float startVelocity);
@@ -392,6 +393,7 @@ package androidx.compose.animation.core {
     method public kotlin.jvm.functions.Function1<T,kotlin.Unit>? getOnStateChangeFinished();
     method public kotlin.jvm.functions.Function0<kotlin.Unit>? getOnUpdate();
     method public boolean isRunning();
+    method public void setMonotonic(boolean value);
     method public void setOnStateChangeFinished(kotlin.jvm.functions.Function1<? super T,kotlin.Unit>? p);
     method public void setOnUpdate(kotlin.jvm.functions.Function0<kotlin.Unit>? p);
     method public void toState(T? name);

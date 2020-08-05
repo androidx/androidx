@@ -15,7 +15,7 @@ package androidx.compose.animation {
   }
 
   @androidx.compose.runtime.Stable public final class AnimatedValueModel<T, V extends androidx.compose.animation.core.AnimationVector> extends androidx.compose.animation.core.AnimatedValue<T,V> {
-    ctor public AnimatedValueModel(T! initialValue, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, androidx.compose.animation.core.AnimationClockObservable clock, T? visibilityThreshold);
+    ctor public AnimatedValueModel(T? initialValue, androidx.compose.animation.core.TwoWayConverter<T,V> typeConverter, androidx.compose.animation.core.AnimationClockObservable clock, T? visibilityThreshold);
     method public T! getValue();
     method protected void setValue(T! p);
     property public T! value;

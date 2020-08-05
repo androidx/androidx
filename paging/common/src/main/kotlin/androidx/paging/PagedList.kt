@@ -949,6 +949,7 @@ abstract class PagedList<T : Any> internal constructor(
                 "you should not need to access the DataSource/PagingSource."
     )
     val dataSource: DataSource<*, T>
+        @Suppress("DocumentExceptions")
         get() {
             val pagingSource = pagingSource
             @Suppress("UNCHECKED_CAST")

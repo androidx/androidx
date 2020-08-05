@@ -48,7 +48,9 @@ interface ComposeAnimation {
      *
      * @throws UnsupportedOperationException if [type] does not return `TRANSITION_ANIMATION`.
      */
-    val states: Set<Any> get() =
+    val states: Set<Any>
+        @Suppress("DocumentExceptions")
+        get() =
         throw UnsupportedOperationException(
             "Only available when getType() is TRANSITION_ANIMATION"
         )

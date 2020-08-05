@@ -220,7 +220,7 @@ package androidx.compose.material {
   }
 
   @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Immutable public final class FractionalThreshold implements androidx.compose.material.ThresholdConfig {
-    ctor public FractionalThreshold(@FloatRange(from=null, to=null) float fraction);
+    ctor public FractionalThreshold(@FloatRange(from=0.0, to=1.0) float fraction);
     method public float computeThreshold(androidx.compose.ui.unit.Density, float fromValue, float toValue);
     method @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Immutable public androidx.compose.material.FractionalThreshold copy(float fraction);
   }
@@ -350,7 +350,7 @@ package androidx.compose.material {
   }
 
   @androidx.compose.runtime.Immutable public final class SwipeProgress<T> {
-    ctor public SwipeProgress(T! from, T! to, @FloatRange(from=null, to=null) float progress);
+    ctor public SwipeProgress(T? from, T? to, @FloatRange(from=0.0, to=1.0) float progress);
     method public T! component1();
     method public T! component2();
     method public float component3();
@@ -382,7 +382,7 @@ package androidx.compose.material {
   }
 
   @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Stable public class SwipeableState<T> {
-    ctor public SwipeableState(T! initialValue, androidx.compose.animation.core.AnimationClockObservable clock, internal kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmStateChange, internal androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec);
+    ctor public SwipeableState(T? initialValue, androidx.compose.animation.core.AnimationClockObservable clock, internal kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmStateChange, internal androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec);
     method @androidx.compose.material.ExperimentalMaterialApi public final void animateTo(T? targetValue, androidx.compose.animation.core.AnimationSpec<java.lang.Float> anim = animationSpec, kotlin.jvm.functions.Function2<? super androidx.compose.animation.core.AnimationEndReason,? super T,kotlin.Unit>? onEnd = null);
     method public final androidx.compose.runtime.State<java.lang.Float> getOffset();
     method public final float getSwipeDirection();

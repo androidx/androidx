@@ -2,7 +2,7 @@
 package androidx.compose.ui.geometry {
 
   @androidx.compose.runtime.Immutable public final class Offset {
-    ctor public Offset(internal long packedValue);
+    ctor public Offset(@kotlin.PublishedApi internal long packedValue);
     method @androidx.compose.runtime.Stable public operator float component1();
     method @androidx.compose.runtime.Stable public operator float component2();
     method public androidx.compose.ui.geometry.Offset copy(float x = this.x, float y = this.y);
@@ -65,7 +65,7 @@ package androidx.compose.ui.geometry {
   }
 
   @androidx.compose.runtime.Immutable public final class Rect {
-    ctor public Rect(float left, float top, float right, float bottom);
+    ctor public Rect(@androidx.compose.runtime.Stable float left, @androidx.compose.runtime.Stable float top, @androidx.compose.runtime.Stable float right, @androidx.compose.runtime.Stable float bottom);
     method public float component1();
     method public float component2();
     method public float component3();
