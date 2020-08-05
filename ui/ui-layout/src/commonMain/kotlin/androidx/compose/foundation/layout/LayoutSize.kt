@@ -35,7 +35,9 @@ import androidx.compose.ui.layout.IntrinsicMeasurable
 import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.platform.InspectableParameter
 import androidx.compose.ui.platform.ParameterElement
+import androidx.compose.ui.util.annotation.FloatRange
 import kotlin.math.max
+import kotlin.math.roundToInt
 
 /**
  * Declare the preferred width of the content to be exactly [width]dp. The incoming measurement
@@ -286,41 +288,56 @@ fun Modifier.sizeIn(
 ) = this.then(SizeModifier(minWidth, minHeight, maxWidth, maxHeight, false))
 
 /**
- * Have the content fill the [Constraints.maxWidth] of the incoming measurement constraints
- * by setting the [minimum width][Constraints.minWidth] to be equal to the
- * [maximum width][Constraints.maxWidth]. If the incoming maximum width is [Constraints.Infinity] this
- * modifier will have no effect.
+ * Have the content fill (possibly only partially) the [Constraints.maxWidth] of the incoming
+ * measurement constraints, by setting the [minimum width][Constraints.minWidth] and the
+ * [maximum width][Constraints.maxWidth] to be equal to the [maximum width][Constraints.maxWidth]
+ * multiplied by [fraction]. Note that, by default, the [fraction] is 1, so the modifier will
+ * make the content fill the whole available width. If the incoming maximum width is
+ * [Constraints.Infinity] this modifier will have no effect.
  *
  * Example usage:
  * @sample androidx.compose.foundation.layout.samples.SimpleFillWidthModifier
+ * @sample androidx.compose.foundation.layout.samples.FillHalfWidthModifier
  */
 @Stable
-fun Modifier.fillMaxWidth() = this.then(FillModifier(Direction.Horizontal))
+fun Modifier.fillMaxWidth(@FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f) =
+    this.then(FillModifier(Direction.Horizontal, fraction))
 
 /**
- * Have the content fill the [Constraints.maxHeight] of the incoming measurement constraints
- * by setting the [minimum height][Constraints.minHeight] to be equal to the
- * [maximum height][Constraints.maxHeight]. If the incoming maximum height is [Constraints.Infinity] this
- * modifier will have no effect.
+ * Have the content fill (possibly only partially) the [Constraints.maxHeight] of the incoming
+ * measurement constraints, by setting the [minimum height][Constraints.minHeight] and the
+ * [maximum height][Constraints.maxHeight] to be equal to the
+ * [maximum height][Constraints.maxHeight] multiplied by [fraction]. Note that, by default,
+ * the [fraction] is 1, so the modifier will make the content fill the whole available height.
+ * If the incoming maximum height is [Constraints.Infinity] this modifier will have no effect.
  *
  * Example usage:
  * @sample androidx.compose.foundation.layout.samples.SimpleFillHeightModifier
+ * @sample androidx.compose.foundation.layout.samples.FillHalfHeightModifier
  */
 @Stable
-fun Modifier.fillMaxHeight() = this.then(FillModifier(Direction.Vertical))
+fun Modifier.fillMaxHeight(@FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f) =
+    this.then(FillModifier(Direction.Vertical, fraction))
 
 /**
- * Have the content fill the [Constraints.maxWidth] and [Constraints.maxHeight] of the incoming
- * measurement constraints by setting the [minimum width][Constraints.minWidth] to be equal to the
- * [maximum width][Constraints.maxWidth] and the [minimum height][Constraints.minHeight] to be
- * equal to the [maximum height][Constraints.maxHeight]. If the incoming maximum width or height
- * is [Constraints.Infinity] this modifier will have no effect in that dimension.
+ * Have the content fill (possibly only partially) the [Constraints.maxWidth] and
+ * [Constraints.maxHeight] of the incoming measurement constraints, by setting the
+ * [minimum width][Constraints.minWidth] and the [maximum width][Constraints.maxWidth] to be
+ * equal to the [maximum width][Constraints.maxWidth] multiplied by [fraction], as well as
+ * the [minimum height][Constraints.minHeight] and the [maximum height][Constraints.minHeight]
+ * to be equal to the [maximum height][Constraints.maxHeight] multiplied by [fraction].
+ * Note that, by default, the [fraction] is 1, so the modifier will make the content fill
+ * the whole available space.
+ * If the incoming maximum width or height is [Constraints.Infinity] this modifier will have no
+ * effect in that dimension.
  *
  * Example usage:
  * @sample androidx.compose.foundation.layout.samples.SimpleFillModifier
+ * @sample androidx.compose.foundation.layout.samples.FillHalfSizeModifier
  */
 @Stable
-fun Modifier.fillMaxSize() = this.then(FillModifier(Direction.Both))
+fun Modifier.fillMaxSize(@FloatRange(from = 0.0, to = 1.0) fraction: Float = 1f) =
+    this.then(FillModifier(Direction.Both, fraction))
 
 /**
  * Allow the content to measure at its desired width without regard for the incoming measurement
@@ -384,27 +401,38 @@ fun Modifier.defaultMinSizeConstraints(
 ) = this.then(UnspecifiedConstraintsModifier(minWidth, minHeight))
 
 private data class FillModifier(
-    private val direction: Direction
+    private val direction: Direction,
+    private val scale: Float
 ) : LayoutModifier, InspectableParameter {
     override fun MeasureScope.measure(
         measurable: Measurable,
         constraints: Constraints
     ): MeasureScope.MeasureResult {
-        val wrappedConstraints = Constraints(
-            minWidth = if (constraints.hasBoundedWidth && direction != Direction.Vertical) {
-                constraints.maxWidth
-            } else {
-                constraints.minWidth
-            },
-            maxWidth = constraints.maxWidth,
-            minHeight = if (constraints.hasBoundedHeight && direction != Direction.Horizontal) {
-                constraints.maxHeight
-            } else {
-                constraints.minHeight
-            },
+        val minWidth: Int
+        val maxWidth: Int
+        if (constraints.hasBoundedWidth && direction != Direction.Vertical) {
+            val width = (constraints.maxWidth * scale).roundToInt()
+                .coerceIn(constraints.minWidth, constraints.maxWidth)
+            minWidth = width
+            maxWidth = width
+        } else {
+            minWidth = constraints.minWidth
+            maxWidth = constraints.maxWidth
+        }
+        val minHeight: Int
+        val maxHeight: Int
+        if (constraints.hasBoundedHeight && direction != Direction.Horizontal) {
+            val height = (constraints.maxHeight * scale).roundToInt()
+                .coerceIn(constraints.minHeight, constraints.maxHeight)
+            minHeight = height
+            maxHeight = height
+        } else {
+            minHeight = constraints.minHeight
             maxHeight = constraints.maxHeight
+        }
+        val placeable = measurable.measure(
+            Constraints(minWidth, maxWidth, minHeight, maxHeight)
         )
-        val placeable = measurable.measure(wrappedConstraints)
 
         return layout(placeable.width, placeable.height) {
             placeable.place(0, 0)
