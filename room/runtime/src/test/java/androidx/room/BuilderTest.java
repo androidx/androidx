@@ -442,8 +442,9 @@ public class BuilderTest {
         }
         assertThat(exception, instanceOf(IllegalArgumentException.class));
         assertThat(exception.getMessage(),
-                containsString("Both createFromAsset() and createFromFile() was called on "
-                        + "this Builder"));
+                containsString(
+                        "More than one of createFromAsset(), createFromInputStream(), and "
+                                + "createFromFile() were called on this Builder"));
     }
 
     @Test
