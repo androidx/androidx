@@ -36,8 +36,24 @@ export LINT_PRINT_STACKTRACE=true
 
 LOG_SIMPLIFIER="$SCRIPT_DIR/../development/build_log_simplifier.sh"
 
-"$LOG_SIMPLIFIER" $gw -p frameworks/support --no-daemon listTaskOutputs
-"$LOG_SIMPLIFIER" $gw -p frameworks/support --no-daemon bOS --stacktrace -Pandroidx.allWarningsAsErrors -PverifyUpToDate
-"$LOG_SIMPLIFIER" DIST_SUBDIR="/ui" $gw -p frameworks/support/ui --no-daemon bOS --stacktrace -Pandroidx.allWarningsAsErrors -PverifyUpToDate
+function buildAndroidx() {
+  "$LOG_SIMPLIFIER" $gw -p frameworks/support --no-daemon listTaskOutputs && \
+  "$LOG_SIMPLIFIER" $gw -p frameworks/support --no-daemon bOS --stacktrace -Pandroidx.allWarningsAsErrors -PverifyUpToDate && \
+  "$LOG_SIMPLIFIER" DIST_SUBDIR="/ui" $gw -p frameworks/support/ui --no-daemon bOS --stacktrace -Pandroidx.allWarningsAsErrors -PverifyUpToDate
+}
 
+function exportTransformsDir() {
+  echo exporting transforms directory
+  destDir="$DIST_DIR/transforms-2/files-2.1"
+  mkdir -p "$destDir"
+  cp -rT "$OUT_DIR/.gradle/caches/transforms-2/files-2.1" "$DIST_DIR/transforms-2/files-2.1"
+}
+
+if buildAndroidx; then
+  echo build succeeded
+else
+  # b/162260809 export transforms directory to help identify cause of corrupt/missing files
+  exportTransformsDir
+  exit 1
+fi
 echo "Completing $0 at $(date)"
