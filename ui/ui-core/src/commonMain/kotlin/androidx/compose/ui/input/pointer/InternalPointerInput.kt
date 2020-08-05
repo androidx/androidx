@@ -16,8 +16,6 @@
 
 package androidx.compose.ui.input.pointer
 
-import androidx.compose.ui.platform.PointerId
-import androidx.compose.ui.platform.PointerInputData
 import androidx.compose.ui.unit.Uptime
 
 /**
@@ -40,3 +38,17 @@ internal data class PointerInputEventData(
     val id: PointerId,
     val pointerInputData: PointerInputData
 )
+
+/**
+ * Represents a pointer input event internally.
+ *
+ * [PointerInputChange]s are stored in a map so that as this internal event traverses the tree,
+ * it is efficient to split the changes between those that are relevant to the sub tree and those
+ * that are not.
+ */
+internal expect class InternalPointerEvent(
+    changes: MutableMap<PointerId, PointerInputChange>,
+    pointerInputEvent: PointerInputEvent
+) {
+    var changes: MutableMap<PointerId, PointerInputChange>
+}

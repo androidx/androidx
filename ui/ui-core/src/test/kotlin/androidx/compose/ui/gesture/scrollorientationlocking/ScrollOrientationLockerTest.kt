@@ -18,9 +18,9 @@
 
 package androidx.compose.ui.gesture.scrollorientationlocking
 
-import androidx.compose.ui.platform.CustomEventDispatcher
-import androidx.compose.ui.platform.PointerEventPass
-import androidx.compose.ui.platform.PointerInputChange
+import androidx.compose.ui.input.pointer.CustomEventDispatcher
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.gesture.ExperimentalPointerInput
 import androidx.compose.ui.input.pointer.down
 import androidx.compose.ui.unit.milliseconds

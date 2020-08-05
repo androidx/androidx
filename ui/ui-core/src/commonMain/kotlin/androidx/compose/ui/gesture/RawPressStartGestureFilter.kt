@@ -21,11 +21,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.input.pointer.PointerInputFilter
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.PointerEventPass
-import androidx.compose.ui.platform.PointerInputChange
-import androidx.compose.ui.platform.changedToDown
-import androidx.compose.ui.platform.changedToUp
-import androidx.compose.ui.platform.consumeDownChange
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.changedToDown
+import androidx.compose.ui.input.pointer.changedToUp
+import androidx.compose.ui.input.pointer.consumeDownChange
 import androidx.compose.ui.unit.IntSize
 
 /**

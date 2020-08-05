@@ -14,10 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.platform
+package androidx.compose.ui.input.pointer
 
 import android.view.MotionEvent
-import androidx.compose.ui.input.pointer.PointerInputEvent
 
 internal actual class InternalPointerEvent constructor(
     actual var changes: MutableMap<PointerId, PointerInputChange>,
@@ -27,25 +26,4 @@ internal actual class InternalPointerEvent constructor(
         changes: MutableMap<PointerId, PointerInputChange>,
         pointerInputEvent: PointerInputEvent
     ) : this(changes, pointerInputEvent.motionEvent)
-}
-
-/**
- * Describes a pointer input change event that has occurred at a particular point in time.
- */
-actual class PointerEvent internal constructor(
-    /**
-     * The changes.
-     */
-    actual val changes: List<PointerInputChange>,
-    internal val motionEvent: MotionEvent?
-) {
-    internal actual constructor(
-        changes: List<PointerInputChange>,
-        internalPointerEvent: InternalPointerEvent?
-    ) : this(changes, internalPointerEvent?.motionEvent)
-
-    /**
-     * @param changes The changes.
-     */
-    actual constructor(changes: List<PointerInputChange>) : this(changes, motionEvent = null)
 }

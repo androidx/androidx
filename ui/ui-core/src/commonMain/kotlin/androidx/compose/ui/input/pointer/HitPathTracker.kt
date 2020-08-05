@@ -16,12 +16,6 @@
 
 package androidx.compose.ui.input.pointer
 
-import androidx.compose.ui.platform.CustomEvent
-import androidx.compose.ui.platform.CustomEventDispatcher
-import androidx.compose.ui.platform.InternalPointerEvent
-import androidx.compose.ui.platform.PointerEvent
-import androidx.compose.ui.platform.PointerEventPass
-import androidx.compose.ui.platform.PointerId
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.plus

@@ -14,14 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.gesture.customevents
+package androidx.compose.ui.input.pointer
 
-import androidx.compose.ui.input.pointer.PointerInputFilter
-import androidx.compose.ui.input.pointer.CustomEvent
-
-/**
- * Dispatched to indicate that a [PointerInputFilter] that responds to a pointer touching a
- * region of the UI for a period of time has fired it's associated callback such that any other
- * [PointerInputFilter] that may be waiting to fire, should no longer do so.
- */
-object LongPressFiredEvent : CustomEvent
+internal actual class InternalPointerEvent actual constructor(
+    actual var changes: MutableMap<PointerId, PointerInputChange>,
+    pointerInputEvent: PointerInputEvent
+)

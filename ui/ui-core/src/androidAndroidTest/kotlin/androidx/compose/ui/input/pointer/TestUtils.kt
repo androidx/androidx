@@ -23,15 +23,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.CustomEvent
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Uptime
-import androidx.compose.ui.platform.InternalPointerEvent
-import androidx.compose.ui.platform.PointerEventPass
-import androidx.compose.ui.platform.PointerId
-import androidx.compose.ui.platform.PointerInputChange
-import androidx.compose.ui.platform.PointerInputData
-import androidx.compose.ui.platform.PointerInputHandler
 
 /**
  * This class enables Mockito to spy.
@@ -57,7 +50,11 @@ internal fun PointerInputEventData(
     position: Offset?,
     down: Boolean
 ): PointerInputEventData {
-    val pointerInputData = PointerInputData(uptime, position, down)
+    val pointerInputData = PointerInputData(
+        uptime,
+        position,
+        down
+    )
     return PointerInputEventData(PointerId(id.toLong()), pointerInputData)
 }
 

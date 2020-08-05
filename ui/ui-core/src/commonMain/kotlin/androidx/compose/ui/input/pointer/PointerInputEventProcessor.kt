@@ -18,14 +18,6 @@ package androidx.compose.ui.input.pointer
 
 import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.node.LayoutNode
-import androidx.compose.ui.platform.ConsumedData
-import androidx.compose.ui.platform.InternalPointerEvent
-import androidx.compose.ui.platform.PointerId
-import androidx.compose.ui.platform.PointerInputChange
-import androidx.compose.ui.platform.PointerInputData
-import androidx.compose.ui.platform.anyPositionChangeConsumed
-import androidx.compose.ui.platform.changedToDownIgnoreConsumed
-import androidx.compose.ui.platform.changedToUpIgnoreConsumed
 import androidx.compose.ui.util.fastForEach
 
 /**

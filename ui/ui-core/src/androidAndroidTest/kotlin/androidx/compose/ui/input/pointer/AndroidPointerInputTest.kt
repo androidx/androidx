@@ -41,12 +41,6 @@ import androidx.compose.ui.gesture.PointerCoords
 import androidx.compose.ui.gesture.PointerProperties
 import androidx.compose.ui.onPositioned
 import androidx.compose.ui.platform.AndroidComposeView
-import androidx.compose.ui.platform.PointerEventPass
-import androidx.compose.ui.platform.PointerInputChange
-import androidx.compose.ui.platform.changedToDown
-import androidx.compose.ui.platform.consumeDownChange
-import androidx.compose.ui.platform.consumePositionChange
-import androidx.compose.ui.platform.positionChange
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.viewinterop.AndroidView
 import com.google.common.truth.Truth.assertThat

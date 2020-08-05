@@ -25,8 +25,6 @@ import android.view.MotionEvent.ACTION_UP
 import androidx.annotation.VisibleForTesting
 import androidx.compose.ui.unit.NanosecondsPerMillisecond
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.PointerId
-import androidx.compose.ui.platform.PointerInputData
 import androidx.compose.ui.unit.Uptime
 
 /**

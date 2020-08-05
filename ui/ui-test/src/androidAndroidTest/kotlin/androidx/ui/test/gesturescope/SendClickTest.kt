@@ -24,7 +24,7 @@ import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
-import androidx.compose.ui.platform.changedToUp
+import androidx.compose.ui.input.pointer.changedToUp
 import androidx.ui.test.ActivityWithActionBar
 import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.performGesture

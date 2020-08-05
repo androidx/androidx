@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.gesture
 
-import androidx.compose.ui.platform.PointerEventPass
-import androidx.compose.ui.platform.consumeDownChange
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.consumeDownChange
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.down
 import androidx.compose.ui.input.pointer.invokeOverAllPasses

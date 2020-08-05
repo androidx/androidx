@@ -20,23 +20,6 @@ import androidx.test.filters.SmallTest
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Uptime
 import androidx.compose.ui.unit.milliseconds
-import androidx.compose.ui.platform.ConsumedData
-import androidx.compose.ui.platform.PointerId
-import androidx.compose.ui.platform.PointerInputChange
-import androidx.compose.ui.platform.PointerInputData
-import androidx.compose.ui.platform.anyChangeConsumed
-import androidx.compose.ui.platform.anyPositionChangeConsumed
-import androidx.compose.ui.platform.changedToDown
-import androidx.compose.ui.platform.changedToDownIgnoreConsumed
-import androidx.compose.ui.platform.changedToUp
-import androidx.compose.ui.platform.changedToUpIgnoreConsumed
-import androidx.compose.ui.platform.consumeAllChanges
-import androidx.compose.ui.platform.consumeDownChange
-import androidx.compose.ui.platform.consumePositionChange
-import androidx.compose.ui.platform.positionChange
-import androidx.compose.ui.platform.positionChangeIgnoreConsumed
-import androidx.compose.ui.platform.positionChanged
-import androidx.compose.ui.platform.positionChangedIgnoreConsumed
 import org.hamcrest.CoreMatchers.`is`
 import org.hamcrest.core.IsEqual.equalTo
 import org.junit.Assert.assertThat
@@ -608,7 +591,12 @@ class PointerInputTest {
                 Offset(previousX, previousY),
                 previousDown
             ),
-            ConsumedData(Offset(consumedX, consumedY), consumedDown)
+            ConsumedData(
+                Offset(
+                    consumedX,
+                    consumedY
+                ), consumedDown
+            )
         )
     }
 }
