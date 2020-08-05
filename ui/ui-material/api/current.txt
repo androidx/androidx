@@ -329,8 +329,14 @@ package androidx.compose.material {
   public final class ShapesKt {
   }
 
+  public final class SliderConstants {
+    field public static final androidx.compose.material.SliderConstants INSTANCE;
+    field public static final float InactiveTrackColorAlpha = 0.24f;
+    field public static final float TickColorAlpha = 0.54f;
+  }
+
   public final class SliderKt {
-    method @androidx.compose.runtime.Composable public static void Slider-HFaW-Xw(float value, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueChange, androidx.compose.ui.Modifier modifier = Modifier, kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange = 0.0 .. 1.0, @IntRange(from=0) int steps = 0, kotlin.jvm.functions.Function0<kotlin.Unit> onValueChangeEnd = {}, long color = MaterialTheme.colors.primary);
+    method @androidx.compose.runtime.Composable public static void Slider-OaNVCSA(float value, kotlin.jvm.functions.Function1<? super java.lang.Float,kotlin.Unit> onValueChange, androidx.compose.ui.Modifier modifier = Modifier, kotlin.ranges.ClosedFloatingPointRange<java.lang.Float> valueRange = 0.0 .. 1.0, @IntRange(from=0) int steps = 0, kotlin.jvm.functions.Function0<kotlin.Unit> onValueChangeEnd = {}, long thumbColor = MaterialTheme.colors.primary, long activeTrackColor = MaterialTheme.colors.primary, long inactiveTrackColor = activeTrackColor.copy(InactiveTrackColorAlpha), long activeTickColor = MaterialTheme.colors.onPrimary.copy(TickColorAlpha), long inactiveTickColor = activeTrackColor.copy(TickColorAlpha));
   }
 
   public final class SnackbarConstants {
