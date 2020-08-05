@@ -339,7 +339,10 @@ fun CoreTextField(
         val onPositionedModifier = Modifier.onPositioned {
             if (textInputService != null) {
                 state.layoutCoordinates = it
-                if (state.selectionIsOn) manager.showSelectionToolbar()
+                if (state.selectionIsOn) {
+                    if (state.updatingSelection) manager.hideSelectionToolbar()
+                    else manager.showSelectionToolbar()
+                }
                 state.layoutResult?.let { layoutResult ->
                     TextFieldDelegate.notifyFocusedRect(
                         value,
@@ -392,6 +395,7 @@ fun CoreTextField(
                     ) {}
                 }
             }
+
             if (state.hasFocus) {
                 if (!value.selection.collapsed) {
                     manager.state?.layoutResult?.let {
@@ -409,7 +413,10 @@ fun CoreTextField(
                             manager = manager
                         )
                         manager.state?.let {
-                            if (it.hasFocus) manager.showSelectionToolbar()
+                            if (it.hasFocus) {
+                                if (it.updatingSelection) manager.hideSelectionToolbar()
+                                else manager.showSelectionToolbar()
+                            }
                         }
                     }
                 }
@@ -451,6 +458,12 @@ internal class TextFieldState(
      * when the dragging is stopped.
      */
     var draggingHandle = false
+    /**
+     * A flag to check if the selection is being updated at this moment.
+     * This value will be set to true during long press and dragging, and dragging the
+     * selection handles.
+     */
+    var updatingSelection = false
 }
 
 // TODO(b/161297615): Replace the deprecated FocusModifier with the new Focus API.
