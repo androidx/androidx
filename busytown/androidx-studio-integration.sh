@@ -36,7 +36,8 @@ export LINT_PRINT_STACKTRACE=true
 
 LOG_SIMPLIFIER="$SCRIPT_DIR/../development/build_log_simplifier.sh"
 
-"$LOG_SIMPLIFIER" $gw -p frameworks/support --no-daemon bOS --stacktrace -Pandroidx.allWarningsAsErrors
-"$LOG_SIMPLIFIER" DIST_SUBDIR="/ui" $gw -p frameworks/support/ui --no-daemon bOS --stacktrace -Pandroidx.allWarningsAsErrors
+"$LOG_SIMPLIFIER" $gw -p frameworks/support --no-daemon listTaskOutputs
+"$LOG_SIMPLIFIER" $gw -p frameworks/support --no-daemon bOS --stacktrace -Pandroidx.allWarningsAsErrors -PverifyUpToDate
+"$LOG_SIMPLIFIER" DIST_SUBDIR="/ui" $gw -p frameworks/support/ui --no-daemon bOS --stacktrace -Pandroidx.allWarningsAsErrors -PverifyUpToDate
 
 echo "Completing $0 at $(date)"
