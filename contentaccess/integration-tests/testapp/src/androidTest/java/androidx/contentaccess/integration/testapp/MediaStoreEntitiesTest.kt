@@ -22,8 +22,7 @@ import android.provider.MediaStore
 import androidx.contentaccess.ContentAccess
 import androidx.contentaccess.ContentAccessObject
 import androidx.contentaccess.ContentQuery
-import androidx.contentaccess.entities.MediaStore.Image
-import androidx.contentaccess.entities.MediaStore.Video
+import androidx.contentaccess.entities.ContentAccessMediaStore
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
@@ -53,41 +52,38 @@ class MediaStoreEntitiesTest {
     @ContentAccessObject
     @Suppress("deprecation")
     interface MediaStoreAccessor {
-        @ContentQuery(contentEntity = androidx.contentaccess.entities.MediaStore.Image::class)
-        fun getImage(): androidx.contentaccess.entities.MediaStore.Image?
+        @ContentQuery(contentEntity = ContentAccessMediaStore.Image::class)
+        fun getImage(): ContentAccessMediaStore.Image?
 
-        @ContentQuery(contentEntity = androidx.contentaccess.entities.MediaStore.Video::class)
-        fun getVideo(): androidx.contentaccess.entities.MediaStore.Video?
+        @ContentQuery(contentEntity = ContentAccessMediaStore.Video::class)
+        fun getVideo(): ContentAccessMediaStore.Video?
 
-        @ContentQuery(contentEntity = androidx.contentaccess.entities.MediaStore.Audio::class)
-        fun getAudio(): androidx.contentaccess.entities.MediaStore.Audio?
+        @ContentQuery(contentEntity = ContentAccessMediaStore.Audio::class)
+        fun getAudio(): ContentAccessMediaStore.Audio?
 
-        @ContentQuery(contentEntity = androidx.contentaccess.entities.MediaStore.Download::class)
-        fun getDownload(): androidx.contentaccess.entities.MediaStore.Download?
+        @ContentQuery(contentEntity = ContentAccessMediaStore.Download::class)
+        fun getDownload(): ContentAccessMediaStore.Download?
 
-        @ContentQuery(contentEntity = androidx.contentaccess.entities.MediaStore.Artist::class)
-        fun getArtist(): androidx.contentaccess.entities.MediaStore.Artist?
+        @ContentQuery(contentEntity = ContentAccessMediaStore.Artist::class)
+        fun getArtist(): ContentAccessMediaStore.Artist?
 
-        @ContentQuery(contentEntity = androidx.contentaccess.entities.MediaStore.Album::class)
-        fun getAlbum(): androidx.contentaccess.entities.MediaStore.Album?
+        @ContentQuery(contentEntity = ContentAccessMediaStore.Album::class)
+        fun getAlbum(): ContentAccessMediaStore.Album?
 
-        @ContentQuery(contentEntity = androidx.contentaccess.entities.MediaStore.Genre::class)
-        fun getGenre(): androidx.contentaccess.entities.MediaStore.Genre?
+        @ContentQuery(contentEntity = ContentAccessMediaStore.Genre::class)
+        fun getGenre(): ContentAccessMediaStore.Genre?
 
-        @ContentQuery(contentEntity =
-            androidx.contentaccess.entities.MediaStore.ImageThumbnail::class)
-        fun getImageThumbnail(): androidx.contentaccess.entities.MediaStore.ImageThumbnail?
+        @ContentQuery(contentEntity = ContentAccessMediaStore.ImageThumbnail::class)
+        fun getImageThumbnail(): ContentAccessMediaStore.ImageThumbnail?
 
-        @ContentQuery(contentEntity =
-            androidx.contentaccess.entities.MediaStore.VideoThumbnail::class)
-        fun getVideoThumbnail(): androidx.contentaccess.entities.MediaStore.VideoThumbnail?
+        @ContentQuery(contentEntity = ContentAccessMediaStore.VideoThumbnail::class)
+        fun getVideoThumbnail(): ContentAccessMediaStore.VideoThumbnail?
 
-        @ContentQuery(contentEntity = androidx.contentaccess.entities.MediaStore.Playlist::class)
-        fun getPlaylist(): androidx.contentaccess.entities.MediaStore.Playlist?
+        @ContentQuery(contentEntity = ContentAccessMediaStore.Playlist::class)
+        fun getPlaylist(): ContentAccessMediaStore.Playlist?
 
-        @ContentQuery(contentEntity = androidx.contentaccess.entities.MediaStore.File::class,
-            uri = ":uri")
-        fun getFile(uri: String): androidx.contentaccess.entities.MediaStore.File?
+        @ContentQuery(contentEntity = ContentAccessMediaStore.File::class, uri = ":uri")
+        fun getFile(uri: String): ContentAccessMediaStore.File?
     }
 
     @Test

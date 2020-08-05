@@ -23,8 +23,8 @@ import android.provider.MediaStore
 import android.provider.MediaStore.Images.Media.MIME_TYPE
 import android.provider.MediaStore.Images.Media.DATE_TAKEN
 import androidx.contentaccess.ContentAccess
-import androidx.contentaccess.entities.MediaStore.Image
-import androidx.contentaccess.entities.MediaStore.Video
+import androidx.contentaccess.entities.ContentAccessMediaStore.Image
+import androidx.contentaccess.entities.ContentAccessMediaStore.Video
 import androidx.contentaccess.ContentAccessObject
 import androidx.contentaccess.ContentDelete
 import androidx.test.filters.MediumTest

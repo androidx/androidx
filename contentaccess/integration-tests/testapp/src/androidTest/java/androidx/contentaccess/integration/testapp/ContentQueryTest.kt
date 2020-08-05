@@ -26,8 +26,8 @@ import android.provider.MediaStore.Images.Media.DESCRIPTION
 import android.provider.MediaStore.Images.Media.TITLE
 import androidx.contentaccess.ContentAccess
 import androidx.contentaccess.ContentAccessObject
-import androidx.contentaccess.entities.MediaStore.Image
-import androidx.contentaccess.entities.MediaStore.Video
+import androidx.contentaccess.entities.ContentAccessMediaStore.Image
+import androidx.contentaccess.entities.ContentAccessMediaStore.Video
 import androidx.contentaccess.ContentColumn
 import androidx.contentaccess.ContentQuery
 import androidx.test.filters.MediumTest
