@@ -18,6 +18,7 @@ package androidx.contentaccess.compiler.processor
 
 import androidx.contentaccess.ContentAccessObject
 import androidx.contentaccess.ContentDelete
+import androidx.contentaccess.ContentInsert
 import androidx.contentaccess.ContentQuery
 import androidx.contentaccess.ContentUpdate
 import androidx.contentaccess.compiler.utils.ErrorReporter
@@ -97,6 +98,17 @@ class ContentAccessObjectProcessor(
                 ).process()
             }
 
+        val insertMethods = element.getAllMethodsIncludingSupers()
+            .filter { it.hasAnnotation(ContentInsert::class) }
+            .map {
+                ContentInsertProcessor(
+                    method = it,
+                    contentInsertAnnotation = it.getAnnotation(ContentInsert::class.java),
+                    processingEnv = processingEnv,
+                    errorReporter = errorReporter
+                ).process()
+            }
+
         // Return if there was an error.
         if (errorReporter.errorReported) {
             return
@@ -109,7 +121,8 @@ class ContentAccessObjectProcessor(
                 interfaceType = element.asType(),
                 queries = queryMethods.mapNotNull { it },
                 updates = updateMethods.mapNotNull { it },
-                deletes = deleteMethods.filterNotNull()
+                deletes = deleteMethods.filterNotNull(),
+                inserts = insertMethods.filterNotNull()
             ),
             processingEnv
         ).generateFile()

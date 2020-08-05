@@ -74,6 +74,13 @@ class ContentAccessObjectWriter(
             )
         }
 
+        for (contentInsert in contentAccessObject.inserts) {
+            generatedClassBuilder.addFunction(
+                ContentInsertMethodWriter(processingEnv, contentInsert)
+                    .createContentDeleteMethod()
+            )
+        }
+
         val accessorFile = fileSpecBuilder.addType(generatedClassBuilder.build()).build()
         accessorFile.writeTo(processingEnv.filer)
     }

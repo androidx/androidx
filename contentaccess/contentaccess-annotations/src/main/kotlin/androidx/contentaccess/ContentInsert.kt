@@ -24,4 +24,4 @@ package androidx.contentaccess
  */
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.FUNCTION)
-annotation class ContentInsert(val uri: String)
+annotation class ContentInsert(val uri: String = "")
