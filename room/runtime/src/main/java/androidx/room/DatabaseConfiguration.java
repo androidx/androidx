@@ -61,6 +61,9 @@ public class DatabaseConfiguration {
     @Nullable
     public final List<RoomDatabase.Callback> callbacks;
 
+    @Nullable
+    public final List<RoomDatabase.PrepackagedCallback> prepackagedCallbacks;
+
     /**
      * Whether Room should throw an exception for queries run on the main thread.
      */
@@ -130,7 +133,7 @@ public class DatabaseConfiguration {
      * Creates a database configuration with the given values.
      *
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
-     * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
+     * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, List, boolean,
      * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
      * Callable)}
      *
@@ -160,7 +163,7 @@ public class DatabaseConfiguration {
             @NonNull Executor queryExecutor,
             boolean requireMigration,
             @Nullable Set<Integer> migrationNotRequiredFrom) {
-        this(context, name, sqliteOpenHelperFactory, migrationContainer, callbacks,
+        this(context, name, sqliteOpenHelperFactory, migrationContainer, callbacks, null,
                 allowMainThreadQueries, journalMode, queryExecutor, queryExecutor, false,
                 requireMigration, false, migrationNotRequiredFrom, null, null, null);
     }
@@ -169,7 +172,7 @@ public class DatabaseConfiguration {
      * Creates a database configuration with the given values.
      *
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
-     * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
+     * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, List, boolean,
      * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
      * Callable)}
      *
@@ -205,7 +208,7 @@ public class DatabaseConfiguration {
             boolean requireMigration,
             boolean allowDestructiveMigrationOnDowngrade,
             @Nullable Set<Integer> migrationNotRequiredFrom) {
-        this(context, name, sqliteOpenHelperFactory, migrationContainer, callbacks,
+        this(context, name, sqliteOpenHelperFactory, migrationContainer, callbacks, null,
                 allowMainThreadQueries, journalMode, queryExecutor, transactionExecutor,
                 multiInstanceInvalidation, requireMigration, allowDestructiveMigrationOnDowngrade,
                 migrationNotRequiredFrom, null, null, null);
@@ -215,7 +218,7 @@ public class DatabaseConfiguration {
      * Creates a database configuration with the given values.
      *
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
-     * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
+     * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, List, boolean,
      * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
      * Callable)}
      *
@@ -255,7 +258,7 @@ public class DatabaseConfiguration {
             @Nullable Set<Integer> migrationNotRequiredFrom,
             @Nullable String copyFromAssetPath,
             @Nullable File copyFromFile) {
-        this(context, name, sqliteOpenHelperFactory, migrationContainer, callbacks,
+        this(context, name, sqliteOpenHelperFactory, migrationContainer, callbacks, null,
                 allowMainThreadQueries, journalMode, queryExecutor, transactionExecutor,
                 multiInstanceInvalidation, requireMigration, allowDestructiveMigrationOnDowngrade,
                 migrationNotRequiredFrom, copyFromAssetPath, copyFromFile, null);
@@ -269,6 +272,7 @@ public class DatabaseConfiguration {
      * @param sqliteOpenHelperFactory The open helper factory to use.
      * @param migrationContainer The migration container for migrations.
      * @param callbacks The list of callbacks for database events.
+     * @param prepackagedCallbacks The list of pre-packaged callbacks.
      * @param allowMainThreadQueries Whether to allow main thread reads/writes or not.
      * @param journalMode The journal mode. This has to be either TRUNCATE or WRITE_AHEAD_LOGGING.
      * @param queryExecutor The Executor used to execute asynchronous queries.
@@ -291,6 +295,7 @@ public class DatabaseConfiguration {
             @NonNull SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory,
             @NonNull RoomDatabase.MigrationContainer migrationContainer,
             @Nullable List<RoomDatabase.Callback> callbacks,
+            @Nullable List<RoomDatabase.PrepackagedCallback> prepackagedCallbacks,
             boolean allowMainThreadQueries,
             @NonNull RoomDatabase.JournalMode journalMode,
             @NonNull Executor queryExecutor,
@@ -307,6 +312,7 @@ public class DatabaseConfiguration {
         this.name = name;
         this.migrationContainer = migrationContainer;
         this.callbacks = callbacks;
+        this.prepackagedCallbacks = prepackagedCallbacks;
         this.allowMainThreadQueries = allowMainThreadQueries;
         this.journalMode = journalMode;
         this.queryExecutor = queryExecutor;

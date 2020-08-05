@@ -7,8 +7,14 @@ BuilderSetStyle: androidx.room.RoomDatabase.Builder#allowMainThreadQueries():
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.room.RoomDatabase.Builder.allowMainThreadQueries()
 BuilderSetStyle: androidx.room.RoomDatabase.Builder#createFromAsset(String):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.room.RoomDatabase.Builder.createFromAsset(String)
+BuilderSetStyle: androidx.room.RoomDatabase.Builder#createFromAsset(String, androidx.room.RoomDatabase.PrepackagedCallback):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.room
+    .RoomDatabase.Builder.createFromAsset(String, androidx.room.RoomDatabase.PrepackagedCallback)
 BuilderSetStyle: androidx.room.RoomDatabase.Builder#createFromFile(java.io.File):
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.room.RoomDatabase.Builder.createFromFile(java.io.File)
+BuilderSetStyle: androidx.room.RoomDatabase.Builder#createFromFile(java.io.File, androidx.room.RoomDatabase.PrepackagedCallback):
+    Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.room
+    .RoomDatabase.Builder.createFromFile(java.io.File, androidx.room.RoomDatabase.PrepackagedCallback)
 BuilderSetStyle: androidx.room.RoomDatabase.Builder#enableMultiInstanceInvalidation():
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.room.RoomDatabase.Builder.enableMultiInstanceInvalidation()
 BuilderSetStyle: androidx.room.RoomDatabase.Builder#fallbackToDestructiveMigration():
@@ -43,3 +49,6 @@ RegistrationName: androidx.room.RoomDatabase.Builder#addCallback(androidx.room.R
 
 StreamFiles: androidx.room.RoomDatabase.Builder#createFromFile(java.io.File):
     Methods accepting `File` should also accept `FileDescriptor` or streams: method androidx.room.RoomDatabase.Builder.createFromFile(java.io.File)
+StreamFiles: androidx.room.RoomDatabase.Builder#createFromFile(java.io.File, androidx.room.RoomDatabase.PrepackagedCallback):
+    Methods accepting `File` should also accept `FileDescriptor` or streams: method androidx.room
+    .RoomDatabase.Builder.createFromFile(java.io.File, androidx.room.RoomDatabase.PrepackagedCallback)

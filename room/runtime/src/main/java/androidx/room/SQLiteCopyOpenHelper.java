@@ -17,8 +17,10 @@
 package androidx.room;
 
 import android.content.Context;
+import android.database.sqlite.SQLiteException;
 import android.os.Build;
 import android.util.Log;
+import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -28,6 +30,7 @@ import androidx.room.util.DBUtil;
 import androidx.room.util.FileUtil;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
+import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -37,6 +40,7 @@ import java.io.InputStream;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.util.List;
 import java.util.concurrent.Callable;
 
 /**
@@ -92,6 +96,21 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
         if (!mVerified) {
             verifyDatabaseFile();
             mVerified = true;
+            if(mDatabaseConfiguration.prepackagedCallbacks != null) {
+                // Temporarily open database using FrameworkSQLiteOpenHelper
+                SupportSQLiteOpenHelper helper = createFrameworkOpenHelper();
+                if (helper != null) {
+                    SupportSQLiteDatabase db = helper.getWritableDatabase();
+                    // Invoke callbacks passing db as a param
+                    callOnOpenPrepackagedDatabaseCallbacks(db);
+                    // Close the db and let Room re-open it through a normal path
+                    try {
+                        db.close();
+                    } catch (IOException e) {
+                        /* ignore */
+                    }
+                }
+            }
         }
         return mDelegate.getWritableDatabase();
     }
@@ -101,6 +120,21 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
         if (!mVerified) {
             verifyDatabaseFile();
             mVerified = true;
+            if(mDatabaseConfiguration.prepackagedCallbacks != null) {
+                // Temporarily open database using FrameworkSQLiteOpenHelper
+                SupportSQLiteOpenHelper helper = createFrameworkOpenHelper();
+                if (helper != null) {
+                    SupportSQLiteDatabase db = helper.getReadableDatabase();
+                    // Invoke callbacks passing db as a param
+                    callOnOpenPrepackagedDatabaseCallbacks(db);
+                    // Close the db and let Room re-open it through a normal path
+                    try {
+                        db.close();
+                    } catch (IOException e) {
+                        /* ignore */
+                    }
+                }
+            }
         }
         return mDelegate.getReadableDatabase();
     }
@@ -215,6 +249,37 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
             throw new IOException("Failed to move intermediate file ("
                     + intermediateFile.getAbsolutePath() + ") to destination ("
                     + destinationFile.getAbsolutePath() + ").");
+        }
+    }
+
+    private SupportSQLiteOpenHelper createFrameworkOpenHelper() {
+        SupportSQLiteOpenHelper frameworkOpenHelper = null;
+        try {
+            FrameworkSQLiteOpenHelperFactory factory = new FrameworkSQLiteOpenHelperFactory();
+            Configuration configuration = Configuration.builder(mContext)
+                    .name(mDatabaseConfiguration.name)
+                    .callback(new Callback(mDatabaseVersion){
+                        @Override
+                        public void onCreate(@NonNull SupportSQLiteDatabase db) {
+                        }
+
+                        @Override
+                        public void onUpgrade(@NonNull SupportSQLiteDatabase db, int oldVersion,
+                                int newVersion) {
+                        }
+                    })
+                    .build();
+                frameworkOpenHelper = factory.create(configuration);
+        } catch (SQLiteException e) {
+            /* ignore */
+        }
+        return frameworkOpenHelper;
+    }
+
+    private void callOnOpenPrepackagedDatabaseCallbacks(SupportSQLiteDatabase db) {
+        for (RoomDatabase.PrepackagedCallback callback :
+                mDatabaseConfiguration.prepackagedCallbacks) {
+            callback.onOpenPrepackagedDatabase(db);
         }
     }
 }

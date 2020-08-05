@@ -541,6 +541,7 @@ public abstract class RoomDatabase {
         private final String mName;
         private final Context mContext;
         private ArrayList<Callback> mCallbacks;
+        private ArrayList<PrepackagedCallback> mPrepackagedCallbacks;
 
         /** The Executor used to run database queries. This should be background-threaded. */
         private Executor mQueryExecutor;
@@ -604,6 +605,39 @@ public abstract class RoomDatabase {
         }
 
         /**
+         * Configures Room to create and open the database using a pre-packaged database located in
+         * the application 'assets/' folder.
+         * <p>
+         * Room does not open the pre-packaged database, instead it copies it into the internal
+         * app database folder and then opens it. The pre-packaged database file must be located in
+         * the "assets/" folder of your application. For example, the path for a file located in
+         * "assets/databases/products.db" would be "databases/products.db".
+         * <p>
+         * The pre-packaged database schema will be validated. It might be best to create your
+         * pre-packaged database schema utilizing the exported schema files generated when
+         * {@link Database#exportSchema()} is enabled.
+         * <p>
+         * This method is not supported for an in memory database {@link Builder}.
+         *
+         * @param databaseFilePath The file path within the 'assets/' directory of where the
+         *                         database file is located.
+         * @param callback The pre-packaged callback.
+         *
+         * @return This {@link Builder} instance.
+         */
+        @NonNull
+        public Builder<T> createFromAsset(
+                @NonNull String databaseFilePath,
+                @NonNull PrepackagedCallback callback) {
+            if (mPrepackagedCallbacks == null) {
+                mPrepackagedCallbacks = new ArrayList<>();
+            }
+            mPrepackagedCallbacks.add(callback);
+            mCopyFromAssetPath = databaseFilePath;
+            return this;
+        }
+
+        /**
          * Configures Room to create and open the database using a pre-packaged database file.
          * <p>
          * Room does not open the pre-packaged database, instead it copies it into the internal
@@ -622,6 +656,36 @@ public abstract class RoomDatabase {
          */
         @NonNull
         public Builder<T> createFromFile(@NonNull File databaseFile) {
+            mCopyFromFile = databaseFile;
+            return this;
+        }
+
+        /**
+         * Configures Room to create and open the database using a pre-packaged database file.
+         * <p>
+         * Room does not open the pre-packaged database, instead it copies it into the internal
+         * app database folder and then opens it. The given file must be accessible and the right
+         * permissions must be granted for Room to copy the file.
+         * <p>
+         * The pre-packaged database schema will be validated. It might be best to create your
+         * pre-packaged database schema utilizing the exported schema files generated when
+         * {@link Database#exportSchema()} is enabled.
+         * <p>
+         * This method is not supported for an in memory database {@link Builder}.
+         *
+         * @param databaseFile The database file.
+         * @param callback The pre-packaged callback.
+         *
+         * @return This {@link Builder} instance.
+         */
+        @NonNull
+        public Builder<T> createFromFile(
+                @NonNull File databaseFile,
+                @NonNull PrepackagedCallback callback) {
+            if (mPrepackagedCallbacks == null) {
+                mPrepackagedCallbacks = new ArrayList<>();
+            }
+            mPrepackagedCallbacks.add(callback);
             mCopyFromFile = databaseFile;
             return this;
         }
@@ -650,6 +714,40 @@ public abstract class RoomDatabase {
         @SuppressLint("BuilderSetStyle") // To keep naming consistency, methods pre-dates rule.
         public Builder<T> createFromInputStream(
                 @NonNull Callable<InputStream> inputStreamCallable) {
+            mCopyFromInputStream = inputStreamCallable;
+            return this;
+        }
+
+        /**
+         * Configures Room to create and open the database using a pre-packaged database via an
+         * {@link InputStream}.
+         * <p>
+         * This is useful for processing compressed database files. Room does not open the
+         * pre-packaged database, instead it copies it into the internal app database folder, and
+         * then open it.
+         * <p>
+         * The pre-packaged database schema will be validated. It might be best to create your
+         * pre-packaged database schema utilizing the exported schema files generated when
+         * {@link Database#exportSchema()} is enabled.
+         * <p>
+         * This method is not supported for an in memory database {@link Builder}. The underlying
+         * {@link InputStream} will be closed.
+         *
+         * @param inputStreamCallable A callable that returns an InputStream from which to copy
+         *                            the database.
+         * @param callback The pre-packaged callback.
+         *
+         * @return This {@link Builder} instance.
+         */
+        @NonNull
+        @SuppressLint("BuilderSetStyle, LambdaLast") // To keep naming consistency, methods pre-dates rule.
+        public Builder<T> createFromInputStream(
+                @NonNull Callable<InputStream> inputStreamCallable,
+                @NonNull PrepackagedCallback callback) {
+            if (mPrepackagedCallbacks == null) {
+                mPrepackagedCallbacks = new ArrayList<>();
+            }
+            mPrepackagedCallbacks.add(callback);
             mCopyFromInputStream = inputStreamCallable;
             return this;
         }
@@ -976,6 +1074,7 @@ public abstract class RoomDatabase {
                             mFactory,
                             mMigrationContainer,
                             mCallbacks,
+                            mPrepackagedCallbacks,
                             mAllowMainThreadQueries,
                             mJournalMode.resolve(mContext),
                             mQueryExecutor,
@@ -1117,6 +1216,21 @@ public abstract class RoomDatabase {
          * @param db The database.
          */
         public void onDestructiveMigration(@NonNull SupportSQLiteDatabase db){
+        }
+    }
+
+    /**
+     * Callback for {@link Builder#createFromAsset(String)}, {@link Builder#createFromFile(File)}
+     * and {@link Builder#createFromInputStream(Callable)}
+     */
+    public abstract static class PrepackagedCallback {
+
+        /**
+         * Called when the pre-packaged database has been copied.
+         *
+         * @param db The database.
+         */
+        public void onOpenPrepackagedDatabase(@NonNull SupportSQLiteDatabase db) {
         }
     }
 }
