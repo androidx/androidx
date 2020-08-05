@@ -42,6 +42,7 @@ import androidx.sqlite.db.SupportSQLiteStatement;
 import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -565,6 +566,7 @@ public abstract class RoomDatabase {
 
         private String mCopyFromAssetPath;
         private File mCopyFromFile;
+        private Callable<InputStream> mCopyFromInputStream;
 
         Builder(@NonNull Context context, @NonNull Class<T> klass, @Nullable String name) {
             mContext = context;
@@ -621,6 +623,34 @@ public abstract class RoomDatabase {
         @NonNull
         public Builder<T> createFromFile(@NonNull File databaseFile) {
             mCopyFromFile = databaseFile;
+            return this;
+        }
+
+        /**
+         * Configures Room to create and open the database using a pre-packaged database via an
+         * {@link InputStream}.
+         * <p>
+         * This is useful for processing compressed database files. Room does not open the
+         * pre-packaged database, instead it copies it into the internal app database folder, and
+         * then open it.
+         * <p>
+         * The pre-packaged database schema will be validated. It might be best to create your
+         * pre-packaged database schema utilizing the exported schema files generated when
+         * {@link Database#exportSchema()} is enabled.
+         * <p>
+         * This method is not supported for an in memory database {@link Builder}. The underlying
+         * {@link InputStream} will be closed.
+         *
+         * @param inputStreamCallable A callable that returns an InputStream from which to copy
+         *                            the database.
+         *
+         * @return This {@link Builder} instance.
+         */
+        @NonNull
+        @SuppressLint("BuilderSetStyle") // To keep naming consistency, methods pre-dates rule.
+        public Builder<T> createFromInputStream(
+                @NonNull Callable<InputStream> inputStreamCallable) {
+            mCopyFromInputStream = inputStreamCallable;
             return this;
         }
 
@@ -919,18 +949,25 @@ public abstract class RoomDatabase {
                 mFactory = new FrameworkSQLiteOpenHelperFactory();
             }
 
-            if (mCopyFromAssetPath != null || mCopyFromFile != null) {
+            if (mCopyFromAssetPath != null
+                    || mCopyFromFile != null
+                    || mCopyFromInputStream != null) {
                 if (mName == null) {
                     throw new IllegalArgumentException("Cannot create from asset or file for an "
                             + "in-memory database.");
                 }
-                if (mCopyFromAssetPath != null && mCopyFromFile != null) {
-                    throw new IllegalArgumentException("Both createFromAsset() and "
-                            + "createFromFile() was called on this Builder but the database can "
-                            + "only be created using one of the two configurations.");
+
+                final int copyConfigurations = (mCopyFromAssetPath == null ? 0 : 1) +
+                        (mCopyFromFile == null ? 0 : 1) +
+                        (mCopyFromInputStream == null ? 0 : 1);
+                if (copyConfigurations != 1) {
+                    throw new IllegalArgumentException("More than one of createFromAsset(), "
+                            + "createFromInputStream(), and createFromFile() were called on this "
+                            + "Builder, but the database can only be created using one of the "
+                            + "three configurations.");
                 }
                 mFactory = new SQLiteCopyOpenHelperFactory(mCopyFromAssetPath, mCopyFromFile,
-                        mFactory);
+                        mCopyFromInputStream, mFactory);
             }
             DatabaseConfiguration configuration =
                     new DatabaseConfiguration(
@@ -948,7 +985,8 @@ public abstract class RoomDatabase {
                             mAllowDestructiveMigrationOnDowngrade,
                             mMigrationsNotRequiredFrom,
                             mCopyFromAssetPath,
-                            mCopyFromFile);
+                            mCopyFromFile,
+                            mCopyFromInputStream);
             T db = Room.getGeneratedImplementation(mDatabaseClass, DB_IMPL_SUFFIX);
             db.init(configuration);
             return db;

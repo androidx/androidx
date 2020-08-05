@@ -33,9 +33,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
+import java.util.concurrent.Callable;
 
 /**
  * An open helper that will copy & open a pre-populated database if it doesn't exists in internal
@@ -49,6 +51,8 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
     private final String mCopyFromAssetPath;
     @Nullable
     private final File mCopyFromFile;
+    @Nullable
+    private final Callable<InputStream> mCopyFromInputStream;
     private final int mDatabaseVersion;
     @NonNull
     private final SupportSQLiteOpenHelper mDelegate;
@@ -61,11 +65,13 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
             @NonNull Context context,
             @Nullable String copyFromAssetPath,
             @Nullable File copyFromFile,
+            @Nullable Callable<InputStream> copyFromInputStream,
             int databaseVersion,
             @NonNull SupportSQLiteOpenHelper supportSQLiteOpenHelper) {
         mContext = context;
         mCopyFromAssetPath = copyFromAssetPath;
         mCopyFromFile = copyFromFile;
+        mCopyFromInputStream = copyFromInputStream;
         mDatabaseVersion = databaseVersion;
         mDelegate = supportSQLiteOpenHelper;
     }
@@ -178,8 +184,17 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
             input = Channels.newChannel(mContext.getAssets().open(mCopyFromAssetPath));
         } else if (mCopyFromFile != null) {
             input = new FileInputStream(mCopyFromFile).getChannel();
+        } else if (mCopyFromInputStream != null) {
+            final InputStream inputStream;
+            try {
+                inputStream = mCopyFromInputStream.call();
+            } catch (Exception e) {
+                throw new IOException("inputStreamCallable exception on call", e);
+            }
+            input = Channels.newChannel(inputStream);
         } else {
-            throw new IllegalStateException("copyFromAssetPath and copyFromFile == null!");
+            throw new IllegalStateException("copyFromAssetPath, copyFromFile and "
+                    + "copyFromInputStream are all null!");
         }
 
         // An intermediate file is used so that we never end up with a half-copied database file
