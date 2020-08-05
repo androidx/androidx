@@ -97,9 +97,23 @@ class ProcessingImageReader implements ImageReaderProxy {
                 public void onSuccess(@Nullable List<ImageProxy> imageProxyList) {
                     SettableImageProxyBundle settableImageProxyBundle;
                     synchronized (mLock) {
+                        if (mClosed) {
+                            return;
+                        }
+                        mProcessing = true;
                         settableImageProxyBundle = mSettableImageProxyBundle;
                     }
                     mCaptureProcessor.process(settableImageProxyBundle);
+                    synchronized (mLock) {
+                        mProcessing = false;
+                        // If the ProcessingImageReader has been closed then the input
+                        // ImageReaderProxy and bundle needs to be now closed since it was deferred.
+                        if (mClosed) {
+                            mInputImageReader.close();
+                            mSettableImageProxyBundle.close();
+                            mOutputImageReader.close();
+                        }
+                    }
                 }
 
                 @Override
@@ -109,13 +123,16 @@ class ProcessingImageReader implements ImageReaderProxy {
             };
 
     @GuardedBy("mLock")
-    private boolean mClosed = false;
+    boolean mClosed = false;
 
     @GuardedBy("mLock")
-    private final ImageReaderProxy mInputImageReader;
+    boolean mProcessing = false;
 
     @GuardedBy("mLock")
-    private final ImageReaderProxy mOutputImageReader;
+    final MetadataImageReader mInputImageReader;
+
+    @GuardedBy("mLock")
+    final ImageReaderProxy mOutputImageReader;
 
     @GuardedBy("mLock")
     @Nullable
@@ -162,7 +179,7 @@ class ProcessingImageReader implements ImageReaderProxy {
                 captureBundle, captureProcessor);
     }
 
-    ProcessingImageReader(@NonNull ImageReaderProxy imageReader,
+    ProcessingImageReader(@NonNull MetadataImageReader imageReader,
             @NonNull Executor postProcessExecutor,
             @NonNull CaptureBundle captureBundle,
             @NonNull CaptureProcessor captureProcessor) {
@@ -170,6 +187,7 @@ class ProcessingImageReader implements ImageReaderProxy {
             throw new IllegalArgumentException(
                     "MetadataImageReader is smaller than CaptureBundle.");
         }
+
         mInputImageReader = imageReader;
         mOutputImageReader = new AndroidImageReaderProxy(
                 ImageReader.newInstance(imageReader.getWidth(),
@@ -208,9 +226,17 @@ class ProcessingImageReader implements ImageReaderProxy {
                 return;
             }
 
-            mInputImageReader.close();
-            mOutputImageReader.close();
-            mSettableImageProxyBundle.close();
+            // Prevent the output ImageAvailableListener from being triggered
+            mOutputImageReader.clearOnImageAvailableListener();
+
+            // If the CaptureProcessor is in the middle of processing then don't close the
+            // ImageReaderProxys and associated ImageProxy. Let the processing complete before
+            // closing them.
+            if (!mProcessing) {
+                mInputImageReader.close();
+                mSettableImageProxyBundle.close();
+                mOutputImageReader.close();
+            }
 
             mClosed = true;
         }
@@ -271,8 +297,9 @@ class ProcessingImageReader implements ImageReaderProxy {
             mInputImageReader.clearOnImageAvailableListener();
             mOutputImageReader.clearOnImageAvailableListener();
 
-            mSettableImageProxyBundle.close();
-
+            if (!mProcessing) {
+                mSettableImageProxyBundle.close();
+            }
         }
     }
 
@@ -282,7 +309,7 @@ class ProcessingImageReader implements ImageReaderProxy {
             if (captureBundle.getCaptureStages() != null) {
                 if (mInputImageReader.getMaxImages() < captureBundle.getCaptureStages().size()) {
                     throw new IllegalArgumentException(
-                            "CaptureBundle is lager than InputImageReader.");
+                            "CaptureBundle is larger than InputImageReader.");
                 }
 
                 mCaptureIdList.clear();
@@ -311,11 +338,7 @@ class ProcessingImageReader implements ImageReaderProxy {
     @Nullable
     CameraCaptureCallback getCameraCaptureCallback() {
         synchronized (mLock) {
-            if (mInputImageReader instanceof MetadataImageReader) {
-                return ((MetadataImageReader) mInputImageReader).getCameraCaptureCallback();
-            } else {
-                return null;
-            }
+            return mInputImageReader.getCameraCaptureCallback();
         }
     }
 
