@@ -22,7 +22,7 @@ import androidx.contentaccess.ContentEntity
 import androidx.contentaccess.ContentPrimaryKey
 import androidx.annotation.RequiresApi
 
-class MediaStore {
+class ContentAccessMediaStore {
 
     // TODO(obenabde): Investigate whether some of the columns marked as nullable here
     // actually have any default values.

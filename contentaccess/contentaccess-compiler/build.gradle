@@ -61,7 +61,7 @@ dependencies {
 
 androidx {
     name = "AndroidX ContentAccess Annotation Compiler"
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_ONLY
     mavenVersion = LibraryVersions.CONTENTACCESS
     mavenGroup = LibraryGroups.CONTENTACCESS
     inceptionYear = "2020"
