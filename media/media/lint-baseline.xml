@@ -2,6 +2,1172 @@
 <issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
 
     <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.media.AudioAttributesImplApi21.Builder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            mFwkBuilder = new AudioAttributes.Builder();"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesImplApi21.java"
+            line="133"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.media.AudioAttributesImplApi21.Builder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            mFwkBuilder = new AudioAttributes.Builder((AudioAttributes) aa);"
+        errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesImplApi21.java"
+            line="137"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.media.AudioAttributesImplApi21.Builder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            return new AudioAttributesImplApi21(mFwkBuilder.build());"
+        errorLine2="                                                            ~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesImplApi21.java"
+            line="143"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.media.AudioAttributesImplApi21.Builder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            mFwkBuilder.setUsage(usage);"
+        errorLine2="                        ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesImplApi21.java"
+            line="153"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.media.AudioAttributesImplApi21.Builder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            mFwkBuilder.setContentType(contentType);"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesImplApi21.java"
+            line="160"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.media.AudioAttributesImplApi21.Builder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            mFwkBuilder.setFlags(flags);"
+        errorLine2="                        ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesImplApi21.java"
+            line="167"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.media.AudioAttributesImplApi21.Builder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            mFwkBuilder.setLegacyStreamType(streamType);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesImplApi21.java"
+            line="174"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.media.AudioAttributesImplApi26.Builder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            return new AudioAttributesImplApi26(mFwkBuilder.build());"
+        errorLine2="                                                            ~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesImplApi26.java"
+            line="65"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.media.AudioAttributesImplApi26.Builder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            mFwkBuilder.setUsage(usage);"
+        errorLine2="                        ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioAttributesImplApi26.java"
+            line="71"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.media.AudioFocusRequestCompat is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="                    new AudioFocusRequest.Builder(mFocusGain)"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioFocusRequestCompat.java"
+            line="84"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.media.AudioFocusRequestCompat is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="                            .setAudioAttributes(getAudioAttributes())"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioFocusRequestCompat.java"
+            line="85"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.media.AudioFocusRequestCompat is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="                            .setWillPauseWhenDucked(mPauseOnDuck)"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioFocusRequestCompat.java"
+            line="86"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.media.AudioFocusRequestCompat is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="                            .setOnAudioFocusChangeListener("
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioFocusRequestCompat.java"
+            line="87"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.media.AudioFocusRequestCompat is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="                            .build();"
+        errorLine2="                             ~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioFocusRequestCompat.java"
+            line="89"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.media.AudioManagerCompat is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="            return audioManager.requestAudioFocus(focusRequest.getAudioFocusRequest());"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioManagerCompat.java"
+            line="91"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.media.AudioManagerCompat is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="            return audioManager.abandonAudioFocusRequest(focusRequest.getAudioFocusRequest());"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioManagerCompat.java"
+            line="120"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.media.AudioManagerCompat is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="            return audioManager.getStreamMinVolume(streamType);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/AudioManagerCompat.java"
+            line="148"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaBrowserCompat.MediaItem is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            int flags = itemFwk.getFlags();"
+        errorLine2="                                ~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
+            line="499"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaBrowserCompat.MediaItem is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                    MediaDescriptionCompat.fromMediaDescription(itemFwk.getDescription());"
+        errorLine2="                                                                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaBrowserCompat.java"
+            line="501"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                    mServiceFwk.setSessionToken((MediaSession.Token) token.getToken());"
+        errorLine2="                                ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
+            line="335"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.media.MediaBrowserServiceCompat.MediaBrowserServiceImplApi21.MediaBrowserServiceApi21 is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                return browserRootCompat == null ? null : new MediaBrowserService.BrowserRoot("
+        errorLine2="                                                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/MediaBrowserServiceCompat.java"
+            line="506"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.media.session.MediaButtonReceiver is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="            context.startForegroundService(intent);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/session/MediaButtonReceiver.java"
+            line="294"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.MediaControllerCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                controllerFwk = new MediaController(activity, (MediaSession.Token) sessionTokenObj);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
+            line="168"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.MediaControllerCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            activity.setMediaController(controllerFwk);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
+            line="170"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.MediaControllerCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            MediaController controllerFwk = activity.getMediaController();"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
+            line="191"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.MediaControllerCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            MediaSession.Token sessionTokenFwk = controllerFwk.getSessionToken();"
+        errorLine2="                                                               ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
+            line="195"
+            column="64"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 29, the call containing class android.support.v4.media.session.MediaControllerCompat.MediaControllerImplApi21 is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        errorLine1="                mSessionInfo = mControllerFwk.getSessionInfo();"
+        errorLine2="                                              ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
+            line="2263"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class android.support.v4.media.session.MediaControllerCompat.TransportControlsApi21 is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="                mControlsFwk.prepare();"
+        errorLine2="                             ~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
+            line="2387"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class android.support.v4.media.session.MediaControllerCompat.TransportControlsApi21 is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="                mControlsFwk.prepareFromMediaId(mediaId, extras);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
+            line="2396"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class android.support.v4.media.session.MediaControllerCompat.TransportControlsApi21 is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="                mControlsFwk.prepareFromSearch(query, extras);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
+            line="2408"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class android.support.v4.media.session.MediaControllerCompat.TransportControlsApi21 is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="                mControlsFwk.prepareFromUri(uri, extras);"
+        errorLine2="                             ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
+            line="2420"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 29, the call containing class android.support.v4.media.session.MediaControllerCompat.TransportControlsApi21 is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        errorLine1="                mControlsFwk.setPlaybackSpeed(speed);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
+            line="2488"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class android.support.v4.media.session.MediaControllerCompat.TransportControlsApi21 is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                mControlsFwk.playFromUri(uri, extras);"
+        errorLine2="                             ~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/MediaControllerCompat.java"
+            line="2530"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="        MediaDescription.Builder bob = new MediaDescription.Builder();"
+        errorLine2="                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
+            line="339"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="        bob.setMediaId(mMediaId);"
+        errorLine2="            ~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
+            line="340"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="        bob.setTitle(mTitle);"
+        errorLine2="            ~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
+            line="341"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="        bob.setSubtitle(mSubtitle);"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
+            line="342"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="        bob.setDescription(mDescription);"
+        errorLine2="            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
+            line="343"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="        bob.setIconBitmap(mIcon);"
+        errorLine2="            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
+            line="344"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="        bob.setIconUri(mIconUri);"
+        errorLine2="            ~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
+            line="345"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="        bob.setExtras(extras);"
+        errorLine2="            ~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
+            line="358"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="            bob.setMediaUri(mMediaUri);"
+        errorLine2="                ~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
+            line="360"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="        mDescriptionFwk = bob.build();"
+        errorLine2="                              ~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
+            line="362"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            bob.setMediaId(description.getMediaId());"
+        errorLine2="                                       ~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
+            line="383"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            bob.setTitle(description.getTitle());"
+        errorLine2="                                     ~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
+            line="384"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            bob.setSubtitle(description.getSubtitle());"
+        errorLine2="                                        ~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
+            line="385"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            bob.setDescription(description.getDescription());"
+        errorLine2="                                           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
+            line="386"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            bob.setIconBitmap(description.getIconBitmap());"
+        errorLine2="                                          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
+            line="387"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            bob.setIconUri(description.getIconUri());"
+        errorLine2="                                       ~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
+            line="388"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            Bundle extras = description.getExtras();"
+        errorLine2="                                        ~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
+            line="389"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class android.support.v4.media.MediaDescriptionCompat is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                bob.setMediaUri(description.getMediaUri());"
+        errorLine2="                                            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/MediaDescriptionCompat.java"
+            line="415"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 29, the call containing class android.support.v4.media.session.MediaSessionCompat is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        errorLine1="            return new MediaSession(context, tag, sessionInfo);"
+        errorLine2="                   ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
+            line="602"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.MediaSessionCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            return new MediaSession(context, tag);"
+        errorLine2="                   ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
+            line="604"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.MediaSessionCompat.QueueItem is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            mItemFwk = new MediaSession.QueueItem("
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
+            line="2219"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.MediaSessionCompat.QueueItem is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            Object descriptionObj = queueItemObj.getDescription();"
+        errorLine2="                                                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
+            line="2240"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.MediaSessionCompat.QueueItem is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            long id = queueItemObj.getQueueId();"
+        errorLine2="                                   ~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
+            line="2243"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 22, the call containing class android.support.v4.media.session.MediaSessionCompat.MediaSessionImplApi21 is not annotated with @RequiresApi(x) where x is at least 22. Either annotate the containing class with at least @RequiresApi(22) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(22)."
+        errorLine1="                mSessionFwk.setRatingType(type);"
+        errorLine2="                            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/MediaSessionCompat.java"
+            line="3948"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.media.MediaSessionManagerImplApi28.RemoteUserInfoImplApi28 is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="            mObject = new android.media.session.MediaSessionManager.RemoteUserInfo("
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/MediaSessionManagerImplApi28.java"
+            line="68"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.media.MediaSessionManagerImplApi28.RemoteUserInfoImplApi28 is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="            super(remoteUserInfo.getPackageName(), remoteUserInfo.getPid(),"
+        errorLine2="                                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/MediaSessionManagerImplApi28.java"
+            line="74"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.media.MediaSessionManagerImplApi28.RemoteUserInfoImplApi28 is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="            super(remoteUserInfo.getPackageName(), remoteUserInfo.getPid(),"
+        errorLine2="                                                                  ~~~~~~">
+        <location
+            file="src/main/java/androidx/media/MediaSessionManagerImplApi28.java"
+            line="74"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.media.MediaSessionManagerImplApi28.RemoteUserInfoImplApi28 is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                    remoteUserInfo.getUid());"
+        errorLine2="                                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/media/MediaSessionManagerImplApi28.java"
+            line="75"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.media.app.NotificationCompat.MediaStyle is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="                builder.getBuilder().setStyle("
+        errorLine2="                                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"
+            line="211"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.media.app.NotificationCompat.MediaStyle is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                        fillInMediaStyle(new Notification.MediaStyle()));"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"
+            line="212"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.media.app.NotificationCompat.MediaStyle is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                style.setShowActionsInCompactView(mActionsToShowInCompact);"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"
+            line="221"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.media.app.NotificationCompat.MediaStyle is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                style.setMediaSession((MediaSession.Token) mToken.getToken());"
+        errorLine2="                      ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"
+            line="224"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 15, the call containing class androidx.media.app.NotificationCompat.MediaStyle is not annotated with @RequiresApi(x) where x is at least 15. Either annotate the containing class with at least @RequiresApi(15) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(15)."
+        errorLine1="                button.setContentDescription(R.id.action0, action.getTitle());"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"
+            line="288"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.media.app.NotificationCompat.DecoratedMediaCustomViewStyle is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="                builder.getBuilder().setStyle("
+        errorLine2="                                     ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"
+            line="389"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.media.app.NotificationCompat.DecoratedMediaCustomViewStyle is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="                        fillInMediaStyle(new Notification.DecoratedMediaCustomViewStyle()));"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/app/NotificationCompat.java"
+            line="390"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            List&lt;PlaybackState.CustomAction> customActionFwks = stateFwk.getCustomActions();"
+        errorLine2="                                                                         ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="800"
+            column="74"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 22, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 22. Either annotate the containing class with at least @RequiresApi(22) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(22)."
+        errorLine1="                extras = stateFwk.getExtras();"
+        errorLine2="                                  ~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="810"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                    stateFwk.getState(),"
+        errorLine2="                             ~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="816"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                    stateFwk.getPosition(),"
+        errorLine2="                             ~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="817"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                    stateFwk.getBufferedPosition(),"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="818"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                    stateFwk.getPlaybackSpeed(),"
+        errorLine2="                             ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="819"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                    stateFwk.getActions(),"
+        errorLine2="                             ~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="820"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                    stateFwk.getErrorMessage(),"
+        errorLine2="                             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="822"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                    stateFwk.getLastPositionUpdateTime(),"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="823"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                    stateFwk.getActiveQueueItemId(),"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="825"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            PlaybackState.Builder builder = new PlaybackState.Builder();"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="844"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            builder.setState(mState, mPosition, mSpeed, mUpdateTime);"
+        errorLine2="                    ~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="845"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            builder.setBufferedPosition(mBufferedPosition);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="846"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            builder.setActions(mActions);"
+        errorLine2="                    ~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="847"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            builder.setErrorMessage(mErrorMessage);"
+        errorLine2="                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="848"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                builder.addCustomAction("
+        errorLine2="                        ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="850"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            builder.setActiveQueueItemId(mActiveItemId);"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="853"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 22, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 22. Either annotate the containing class with at least @RequiresApi(22) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(22)."
+        errorLine1="                builder.setExtras(mExtras);"
+        errorLine2="                        ~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="855"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            mStateFwk = builder.build();"
+        errorLine2="                                ~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="857"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            Bundle extras = customActionFwk.getExtras();"
+        errorLine2="                                            ~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="936"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                            customActionFwk.getAction(),"
+        errorLine2="                                            ~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="940"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                            customActionFwk.getName(),"
+        errorLine2="                                            ~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="941"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                            customActionFwk.getIcon(),"
+        errorLine2="                                            ~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="942"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            PlaybackState.CustomAction.Builder builder = new PlaybackState.CustomAction.Builder("
+        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="963"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            builder.setExtras(mExtras);"
+        errorLine2="                    ~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="965"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class android.support.v4.media.session.PlaybackStateCompat.CustomAction is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            return builder.build();"
+        errorLine2="                           ~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/session/PlaybackStateCompat.java"
+            line="966"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class android.support.v4.media.RatingCompat is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="            final int ratingStyle = ((Rating) ratingObj).getRatingStyle();"
+        errorLine2="                                                         ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/RatingCompat.java"
+            line="334"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class android.support.v4.media.RatingCompat is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="            if (((Rating) ratingObj).isRated()) {"
+        errorLine2="                                     ~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/RatingCompat.java"
+            line="336"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class android.support.v4.media.RatingCompat is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="                        rating = newHeartRating(((Rating) ratingObj).hasHeart());"
+        errorLine2="                                                                     ~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/RatingCompat.java"
+            line="339"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class android.support.v4.media.RatingCompat is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="                        rating = newThumbRating(((Rating) ratingObj).isThumbUp());"
+        errorLine2="                                                                     ~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/RatingCompat.java"
+            line="342"
+            column="70"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class android.support.v4.media.RatingCompat is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="                                ((Rating) ratingObj).getStarRating());"
+        errorLine2="                                                     ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/RatingCompat.java"
+            line="348"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class android.support.v4.media.RatingCompat is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="                                ((Rating) ratingObj).getPercentRating());"
+        errorLine2="                                                     ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/RatingCompat.java"
+            line="352"
+            column="54"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class android.support.v4.media.RatingCompat is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="                        mRatingObj = Rating.newHeartRating(hasHeart());"
+        errorLine2="                                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/RatingCompat.java"
+            line="380"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class android.support.v4.media.RatingCompat is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="                        mRatingObj = Rating.newThumbRating(isThumbUp());"
+        errorLine2="                                            ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/RatingCompat.java"
+            line="383"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class android.support.v4.media.RatingCompat is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="                        mRatingObj = Rating.newStarRating(mRatingStyle,"
+        errorLine2="                                            ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/RatingCompat.java"
+            line="388"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class android.support.v4.media.RatingCompat is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="                        mRatingObj = Rating.newPercentageRating(getPercentRating());"
+        errorLine2="                                            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/RatingCompat.java"
+            line="392"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class android.support.v4.media.RatingCompat is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="                mRatingObj = Rating.newUnratedRating(mRatingStyle);"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/android/support/v4/media/RatingCompat.java"
+            line="398"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.media.VolumeProviderCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            volumeProviderFwk.setCurrentVolume(currentVolume);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media/VolumeProviderCompat.java"
+            line="146"
+            column="31"/>
+    </issue>
+
+    <issue
         id="LambdaLast"
         message="Functional interface parameters (such as parameter 1, &quot;listener&quot;, in androidx.media.AudioFocusRequestCompat.Builder.setOnAudioFocusChangeListener) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
         errorLine1="                @NonNull OnAudioFocusChangeListener listener, @NonNull Handler handler) {"

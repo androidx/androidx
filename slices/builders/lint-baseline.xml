@@ -2,6 +2,28 @@
 <issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
 
     <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.slice.builders.impl.ListBuilderBasicImpl is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="        setTtl(ttl == null ? INFINITY : ttl.toMillis());"
+        errorLine2="                                            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
+            line="227"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.slice.builders.impl.ListBuilderImpl is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="        setTtl(ttl == null ? INFINITY : ttl.toMillis());"
+        errorLine2="                                            ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
+            line="281"
+            column="45"/>
+    </issue>
+
+    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public SliceAction getPrimaryAction() {"

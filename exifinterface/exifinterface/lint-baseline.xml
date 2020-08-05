@@ -13,6 +13,94 @@
     </issue>
 
     <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                fileDescriptor = Os.dup(fileDescriptor);"
+        errorLine2="                                    ~~~">
+        <location
+            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
+            line="3950"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                Os.lseek(fd, 0, OsConstants.SEEK_CUR);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
+            line="4610"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                Os.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
+            line="4687"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                Os.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
+            line="4709"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                newFileDescriptor = Os.dup(mSeekableFileDescriptor);"
+        errorLine2="                                       ~~~">
+        <location
+            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
+            line="4797"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                Os.lseek(newFileDescriptor, 0, OsConstants.SEEK_SET);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
+            line="4798"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                retriever.setDataSource(new MediaDataSource() {"
+        errorLine2="                          ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
+            line="5748"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.exifinterface.media.ExifInterface is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                Os.close(fd);"
+        errorLine2="                   ~~~~~">
+        <location
+            file="src/main/java/androidx/exifinterface/media/ExifInterface.java"
+            line="7989"
+            column="20"/>
+    </issue>
+
+    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public boolean getLatLong(float output[]) {"

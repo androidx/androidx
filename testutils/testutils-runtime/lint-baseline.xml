@@ -2,6 +2,39 @@
 <issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
 
     <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.testutils.LocaleTestUtils is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="                newConfig.setLocales(locales.unwrap() as LocaleList)"
+        errorLine2="                          ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/testutils/LocaleTestUtils.kt"
+            line="200"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class androidx.testutils.LocaleTestUtils is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="                newConfig.setLocale(locales.get(0))"
+        errorLine2="                          ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/testutils/LocaleTestUtils.kt"
+            line="202"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class androidx.fragment.app.StrictFragment is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="            check(!requireActivity().isDestroyed)"
+        errorLine2="                                     ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/fragment/app/StrictFragment.kt"
+            line="57"
+            column="38"/>
+    </issue>
+
+    <issue
         id="LambdaLast"
         message="Functional interface parameters (such as parameter 1, &quot;owner&quot;, in androidx.testutils.LifecycleOwnerUtils.waitUntilState) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
         errorLine1="            final @NonNull Lifecycle.State state) throws Throwable {"
