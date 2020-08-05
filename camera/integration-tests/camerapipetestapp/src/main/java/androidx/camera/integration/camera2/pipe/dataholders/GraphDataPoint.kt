@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.integration.camera2.pipe.visualization_data.graph
+package androidx.camera.integration.camera2.pipe.dataholders
 
 /** Represents single point to be graphed - timestampNanos is used for x, value is used for y */
 data class GraphDataPoint(
