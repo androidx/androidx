@@ -26,6 +26,7 @@ import androidx.compose.ui.focus.FocusState2.Captured
 import androidx.compose.ui.focus.FocusState2.Disabled
 import androidx.compose.ui.focus.FocusState2.Inactive
 import androidx.compose.ui.focus.focusableChildren2
+import androidx.compose.ui.focus.searchChildrenForFocusNode
 
 @OptIn(
     ExperimentalFocus::class,
@@ -264,9 +265,49 @@ internal class ModifiedFocusNode2(
         return owner.requestFocus()
     }
 
+    override fun onModifierChanged() {
+        super.onModifierChanged()
+        wrappedBy?.propagateFocusStateChange(modifier.focusState)
+    }
+
+    override fun attach() {
+        super.attach()
+        wrappedBy?.propagateFocusStateChange(modifier.focusState)
+    }
+
     override fun detach() {
-        // TODO(b/160924457): Find the next focus node and propagate it's foucus state to all the
-        //  focus observers observing this focus node.
+        // Find the next focus node.
+        val nextFocusNode = wrapped.findNextFocusWrapper2()
+            ?: layoutNode.searchChildrenForFocusNode()
+
+        when (modifier.focusState) {
+            // If this node is focused, set the focus on the root layoutNode before removing it.
+            Active, Captured -> {
+                layoutNode
+                    .owner
+                    ?.root
+                    ?.outerLayoutNodeWrapper
+                    ?.findNextFocusWrapper2()
+                    ?.requestFocus(propagateFocus = false)
+
+                wrappedBy?.propagateFocusStateChange(
+                    nextFocusNode?.modifier?.focusState ?: Inactive
+                )
+            }
+            // Propagate the state of the next focus node to any focus observers in the hierarchy.
+            ActiveParent -> {
+                if (nextFocusNode != null) {
+                    wrappedBy?.propagateFocusStateChange(nextFocusNode.modifier.focusState)
+                } else {
+                    wrappedBy?.propagateFocusStateChange(Inactive)
+                }
+            }
+            // TODO(b/155212782): Implement this after adding support for disabling focus modifiers.
+            Disabled -> {}
+            // Do nothing, as the nextFocusNode is also Inactive.
+            Inactive -> {}
+        }
+
         super.detach()
     }
 
