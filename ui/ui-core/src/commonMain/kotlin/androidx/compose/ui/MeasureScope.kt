@@ -28,7 +28,7 @@ abstract class MeasureScope : IntrinsicMeasureScope() {
     /**
      * Interface holding the size and alignment lines of the measured layout, as well as the
      * children positioning logic.
-     * [placeChildren] is the function used for positioning children. [Placeable.place] should
+     * [placeChildren] is the function used for positioning children. [Placeable.placeAt] should
      * be called on children inside [placeChildren].
      * The alignment lines can be used by the parent layouts to decide layout, and can be queried
      * using the [Placeable.get] operator. Note that alignment lines will be inherited by parent
@@ -44,7 +44,7 @@ abstract class MeasureScope : IntrinsicMeasureScope() {
     /**
      * Sets the size and alignment lines of the measured layout, as well as
      * the positioning block that defines the children positioning logic.
-     * The [placementBlock] is a lambda used for positioning children. [Placeable.place] should
+     * The [placementBlock] is a lambda used for positioning children. [Placeable.placeAt] should
      * be called on children inside placementBlock.
      * The [alignmentLines] can be used by the parent layouts to decide layout, and can be queried
      * using the [Placeable.get] operator. Note that alignment lines will be inherited by parent

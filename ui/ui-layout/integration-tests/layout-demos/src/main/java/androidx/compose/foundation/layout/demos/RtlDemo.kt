@@ -160,11 +160,11 @@ private fun CustomLayout(rtlSupport: Boolean) {
         layout(w, h) {
             var xPosition = 0
             for (child in p) {
-                child.placeAbsolute(IntOffset(xPosition, 0))
+                child.place(IntOffset(xPosition, 0))
                 if (rtlSupport) {
-                    child.place(IntOffset(xPosition, 0))
+                    child.placeRelative(IntOffset(xPosition, 0))
                 } else {
-                    child.placeAbsolute(IntOffset(xPosition, 0))
+                    child.place(IntOffset(xPosition, 0))
                 }
                 xPosition += child.width
             }

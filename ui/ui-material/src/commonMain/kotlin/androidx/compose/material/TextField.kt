@@ -560,11 +560,11 @@ private fun Placeable.PlacementScope.place(
     textPosition: Int,
     animationProgress: Float
 ) {
-    leadingPlaceable?.place(
+    leadingPlaceable?.placeRelative(
         0,
         Alignment.CenterVertically.align(height - leadingPlaceable.height)
     )
-    trailingPlaceable?.place(
+    trailingPlaceable?.placeRelative(
         width - trailingPlaceable.width,
         Alignment.CenterVertically.align(height - trailingPlaceable.height)
     )
@@ -577,10 +577,10 @@ private fun Placeable.PlacementScope.place(
     val labelDistance = labelCenterPosition.y - labelEndPosition
     val labelPositionY =
         labelCenterPosition.y - (labelDistance * animationProgress).roundToInt()
-    labelPlaceable.place(widthOrZero(leadingPlaceable), labelPositionY)
+    labelPlaceable.placeRelative(widthOrZero(leadingPlaceable), labelPositionY)
 
-    textfieldPlaceable.place(widthOrZero(leadingPlaceable), textPosition)
-    placeholderPlaceable?.place(widthOrZero(leadingPlaceable), textPosition)
+    textfieldPlaceable.placeRelative(widthOrZero(leadingPlaceable), textPosition)
+    placeholderPlaceable?.placeRelative(widthOrZero(leadingPlaceable), textPosition)
 }
 
 /**
@@ -594,19 +594,19 @@ private fun Placeable.PlacementScope.placeWithoutLabel(
     leadingPlaceable: Placeable?,
     trailingPlaceable: Placeable?
 ) {
-    leadingPlaceable?.place(
+    leadingPlaceable?.placeRelative(
         0,
         Alignment.CenterVertically.align(height - leadingPlaceable.height)
     )
-    trailingPlaceable?.place(
+    trailingPlaceable?.placeRelative(
         width - trailingPlaceable.width,
         Alignment.CenterVertically.align(height - trailingPlaceable.height)
     )
-    textPlaceable.place(
+    textPlaceable.placeRelative(
         widthOrZero(leadingPlaceable),
         Alignment.CenterVertically.align(height - textPlaceable.height)
     )
-    placeholderPlaceable?.place(
+    placeholderPlaceable?.placeRelative(
         widthOrZero(leadingPlaceable),
         Alignment.CenterVertically.align(height - placeholderPlaceable.height)
     )

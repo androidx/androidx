@@ -51,7 +51,7 @@ fun NestedScalingDemo() {
             val placeable = measurables.first().measure(constraints)
 
             layout(constraints.maxWidth, constraints.maxHeight) {
-                placeable.place(
+                placeable.placeRelative(
                     (constraints.maxWidth - placeable.width) / 2,
                     (constraints.maxHeight - placeable.height) / 2
                 )
@@ -103,7 +103,7 @@ private fun Scalable(
             }
 
             layout(newConstraints.maxWidth, newConstraints.maxHeight) {
-                placeable?.place(
+                placeable?.placeRelative(
                     (newConstraints.maxWidth - placeable.width) / 2,
                     (newConstraints.maxHeight - placeable.height) / 2
                 )

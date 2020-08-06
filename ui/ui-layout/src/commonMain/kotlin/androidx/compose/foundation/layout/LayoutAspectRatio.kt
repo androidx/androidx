@@ -63,7 +63,7 @@ private data class AspectRatioModifier(val aspectRatio: Float) : LayoutModifier 
         }
         val placeable = measurable.measure(wrappedConstraints)
         return layout(placeable.width, placeable.height) {
-            placeable.place(0, 0)
+            placeable.placeRelative(0, 0)
         }
     }
 

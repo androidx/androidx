@@ -293,8 +293,8 @@ private fun DockedBottomBar(
         }
 
         layout(layoutWidth, layoutHeight) {
-            appBarPlaceable.place(0, appBarVerticalOffset)
-            fabPlaceable.place(fabPosX, 0)
+            appBarPlaceable.placeRelative(0, appBarVerticalOffset)
+            fabPlaceable.placeRelative(fabPosX, 0)
         }
     }
 }

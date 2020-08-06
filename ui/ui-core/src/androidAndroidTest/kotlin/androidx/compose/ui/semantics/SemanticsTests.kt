@@ -376,7 +376,7 @@ private fun SimpleTestLayout(modifier: Modifier = Modifier, children: @Composabl
             }
             layout(width, height) {
                 for (placeable in placeables) {
-                    placeable.place(0, 0)
+                    placeable.placeRelative(0, 0)
                 }
             }
         }

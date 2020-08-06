@@ -35,7 +35,7 @@ internal object RootMeasureBlocks : LayoutNode.NoIntrinsicsMeasureBlocks(
             measurables.size == 1 -> {
                 val placeable = measurables[0].measure(constraints)
                 measureScope.layout(placeable.width, placeable.height) {
-                    placeable.place(0, 0)
+                    placeable.placeRelative(0, 0)
                 }
             }
             else -> {
@@ -50,7 +50,7 @@ internal object RootMeasureBlocks : LayoutNode.NoIntrinsicsMeasureBlocks(
                 }
                 measureScope.layout(maxWidth, maxHeight) {
                     placeables.fastForEach { placeable ->
-                        placeable.place(0, 0)
+                        placeable.placeRelative(0, 0)
                     }
                 }
             }

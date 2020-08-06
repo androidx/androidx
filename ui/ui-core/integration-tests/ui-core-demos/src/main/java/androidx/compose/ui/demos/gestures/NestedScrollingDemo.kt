@@ -121,7 +121,7 @@ private fun Scrollable(children: @Composable () -> Unit) {
             maxOffset.value = (constraints.maxHeight - placeable.height).toFloat()
 
             layout(constraints.maxWidth, constraints.maxHeight) {
-                placeable.place(0, offset.value.roundToInt())
+                placeable.placeRelative(0, offset.value.roundToInt())
             }
         })
 }

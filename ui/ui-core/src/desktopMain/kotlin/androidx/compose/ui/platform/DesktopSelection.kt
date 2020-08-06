@@ -50,7 +50,7 @@ private fun Wrap(modifier: Modifier = Modifier, children: @Composable () -> Unit
 
         layout(width, height) {
             placeables.forEach { placeable ->
-                placeable.placeAbsolute(0, 0)
+                placeable.place(0, 0)
             }
         }
     }

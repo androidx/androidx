@@ -156,7 +156,7 @@ fun SimpleLayout(modifier: Modifier, children: @Composable () -> Unit = emptyCon
         }
         layout(containerWidth, containerHeight) {
             placeables.forEach {
-                it.place(0, 0)
+                it.placeRelative(0, 0)
             }
         }
     }

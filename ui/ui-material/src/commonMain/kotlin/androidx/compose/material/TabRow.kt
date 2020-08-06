@@ -139,18 +139,18 @@ fun TabRow(
 
             layout(tabRowWidth, tabRowHeight) {
                 tabPlaceables.fastForEachIndexed { index, placeable ->
-                    placeable.place(index * tabWidth, 0)
+                    placeable.placeRelative(index * tabWidth, 0)
                 }
 
                 subcompose(TabSlots.Divider, divider).fastForEach {
                     val placeable = it.measure(constraints)
-                    placeable.place(0, tabRowHeight - placeable.height)
+                    placeable.placeRelative(0, tabRowHeight - placeable.height)
                 }
 
                 subcompose(TabSlots.Indicator) {
                     indicator(tabPositions)
                 }.fastForEach {
-                    it.measure(Constraints.fixed(tabRowWidth, tabRowHeight)).place(0, 0)
+                    it.measure(Constraints.fixed(tabRowWidth, tabRowHeight)).placeRelative(0, 0)
                 }
             }
         }
@@ -237,7 +237,7 @@ fun ScrollableTabRow(
                 val tabPositions = mutableListOf<TabPosition>()
                 var left = padding
                 tabPlaceables.fastForEach {
-                    it.place(left, 0)
+                    it.placeRelative(left, 0)
                     tabPositions.add(TabPosition(left = left.toDp(), width = it.width.toDp()))
                     left += it.width
                 }
@@ -248,7 +248,7 @@ fun ScrollableTabRow(
                     val placeable = it.measure(
                         constraints.copy(minWidth = layoutWidth, maxWidth = layoutWidth)
                     )
-                    placeable.place(0, layoutHeight - placeable.height)
+                    placeable.placeRelative(0, layoutHeight - placeable.height)
                 }
 
                 // The indicator container is measured to fill the entire space occupied by the tab
@@ -256,7 +256,7 @@ fun ScrollableTabRow(
                 subcompose(TabSlots.Indicator) {
                     indicator(tabPositions)
                 }.fastForEach {
-                    it.measure(Constraints.fixed(layoutWidth, layoutHeight)).place(0, 0)
+                    it.measure(Constraints.fixed(layoutWidth, layoutHeight)).placeRelative(0, 0)
                 }
 
                 scrollableTabData.onLaidOut(

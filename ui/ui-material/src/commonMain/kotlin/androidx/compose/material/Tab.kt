@@ -342,7 +342,7 @@ private fun Placeable.PlacementScope.placeIcon(
     tabHeight: Int
 ) {
     val iconY = (tabHeight - iconPlaceable.height) / 2
-    iconPlaceable.place(0, iconY)
+    iconPlaceable.placeRelative(0, iconY)
 }
 
 /**
@@ -368,7 +368,7 @@ private fun Placeable.PlacementScope.placeText(
     }
 
     val textPlaceableY = tabHeight - lastBaseline - totalOffset
-    textPlaceable.place(0, textPlaceableY)
+    textPlaceable.placeRelative(0, textPlaceableY)
 }
 
 /**
@@ -404,11 +404,11 @@ private fun Placeable.PlacementScope.placeTextAndIcon(
 
     val textPlaceableX = (tabWidth - textPlaceable.width) / 2
     val textPlaceableY = tabHeight - lastBaseline - textOffset
-    textPlaceable.place(textPlaceableX, textPlaceableY)
+    textPlaceable.placeRelative(textPlaceableX, textPlaceableY)
 
     val iconPlaceableX = (tabWidth - iconPlaceable.width) / 2
     val iconPlaceableY = textPlaceableY - iconOffset
-    iconPlaceable.place(iconPlaceableX, iconPlaceableY)
+    iconPlaceable.placeRelative(iconPlaceableX, iconPlaceableY)
 }
 
 // Tab specifications

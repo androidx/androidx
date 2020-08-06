@@ -312,8 +312,8 @@ private fun HintEditText(hintText: @Composable () -> Unit) {
                 measurable.first { it.id == "inputField" }.measure(constraints)
             val hintTextPlacable = measurable.first { it.id == "hintText" }.measure(constraints)
             layout(inputFieldPlacable.width, inputFieldPlacable.height) {
-                inputFieldPlacable.place(0, 0)
-                hintTextPlacable.place(0, 0)
+                inputFieldPlacable.placeRelative(0, 0)
+                hintTextPlacable.placeRelative(0, 0)
             }
         }
     }
@@ -343,7 +343,7 @@ private fun CustomCursorTextField(cursor: @Composable () -> Unit) {
         val cursorPlacable = measurable.first { it.id == "cursor" }.measure(cursorConstraints)
 
         layout(inputFieldPlacable.width, inputFieldPlacable.height) {
-            inputFieldPlacable.place(0, 0)
+            inputFieldPlacable.placeRelative(0, 0)
             if (state.value.selection.collapsed) {
                 // Getting original cursor rectangle.
                 val cursorRect = layoutResult.value?.getCursorRect(state.value.selection.start)
@@ -354,7 +354,7 @@ private fun CustomCursorTextField(cursor: @Composable () -> Unit) {
                 // Place the custom cursor aligned with center of the original cursor.
                 val cursorX = (cursorRect.left + cursorRect.right) / 2 -
                         (cursorPlacable.width / 2)
-                cursorPlacable.place(cursorX.roundToInt(), cursorRect.top.roundToInt())
+                cursorPlacable.placeRelative(cursorX.roundToInt(), cursorRect.top.roundToInt())
             }
         }
     }

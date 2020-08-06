@@ -72,7 +72,9 @@ fun LayoutWithProvidedIntrinsicsUsage(children: @Composable () -> Unit) {
         // We call layout to set the size of the current layout and to provide the positioning
         // of the children. The children are placed relative to the current layout place.
         layout(layoutWidth, layoutHeight) {
-            placeables.forEach { it.place(layoutWidth - it.width, layoutHeight - it.height) }
+            placeables.forEach {
+                it.placeRelative(layoutWidth - it.width, layoutHeight - it.height)
+            }
         }
     }
 }
@@ -114,7 +116,9 @@ fun LayoutWithMeasureBlocksWithIntrinsicUsage(children: @Composable () -> Unit) 
         // We call layout to set the size of the current layout and to provide the positioning
         // of the children. The children are placed relative to the current layout place.
         layout(layoutWidth, layoutHeight) {
-            placeables.forEach { it.place(layoutWidth - it.width, layoutHeight - it.height) }
+            placeables.forEach {
+                it.placeRelative(layoutWidth - it.width, layoutHeight - it.height)
+            }
         }
     }
     Layout(children = children, measureBlocks = measureBlocks)
@@ -142,7 +146,9 @@ fun LayoutUsage(children: @Composable () -> Unit) {
         // We call layout to set the size of the current layout and to provide the positioning
         // of the children. The children are placed relative to the current layout place.
         layout(layoutWidth, layoutHeight) {
-            placeables.forEach { it.place(layoutWidth - it.width, layoutHeight - it.height) }
+            placeables.forEach {
+                it.placeRelative(layoutWidth - it.width, layoutHeight - it.height)
+            }
         }
     }
 }
@@ -167,7 +173,7 @@ fun LayoutTagChildrenUsage(header: @Composable () -> Unit, footer: @Composable (
         // Size should be derived from children measured sizes on placeables,
         // but this is simplified for the purposes of the example.
         layout(100, 100) {
-            placeables.forEach { it.place(0, 0) }
+            placeables.forEach { it.placeRelative(0, 0) }
         }
     }
 }
@@ -183,7 +189,7 @@ fun ConvenienceLayoutModifierSample() {
             val padding = 50
             val placeable = measurable.measure(constraints.offset(vertical = -padding))
             this.layout(placeable.width, placeable.height + padding) {
-                placeable.place(0, padding)
+                placeable.placeRelative(0, padding)
             }
         }
     ) {

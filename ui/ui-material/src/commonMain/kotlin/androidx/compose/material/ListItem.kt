@@ -432,7 +432,7 @@ private fun BaselinesOffsetColumn(
 
         layout(containerWidth, containerHeight) {
             placeables.fastForEachIndexed { index, placeable ->
-                placeable.place(0, y[index])
+                placeable.placeRelative(0, y[index])
             }
         }
     }
@@ -465,7 +465,7 @@ private fun OffsetToBaselineOrCenter(
                 .align(IntSize(0, containerHeight - placeable.height)).y
         }
         layout(placeable.width, containerHeight) {
-            placeable.place(0, y)
+            placeable.placeRelative(0, y)
         }
     }
 }

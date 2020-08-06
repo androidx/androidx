@@ -295,7 +295,7 @@ internal fun TextFieldScroller(
                 if (scrollerPosition.current > diff) scrollerPosition.current = diff
 
                 val yOffset = scrollerPosition.current - diff
-                placeable.place(0, yOffset.roundToInt())
+                placeable.placeRelative(0, yOffset.roundToInt())
             }
         }
     )
@@ -368,7 +368,7 @@ internal fun Modifier.iconPadding(start: Dp = 0.dp, end: Dp = 0.dp) =
                 0
             }
             return layout(width, placeable.height) {
-                placeable.place(start.toIntPx(), 0)
+                placeable.placeRelative(start.toIntPx(), 0)
             }
         }
     })

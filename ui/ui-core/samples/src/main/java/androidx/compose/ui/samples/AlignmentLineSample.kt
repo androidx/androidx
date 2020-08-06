@@ -49,8 +49,8 @@ fun AlignmentLineSample() {
         // placeables[0][line] will be 5
         // placeables[1][line] will be 10
         layout(constraints.maxWidth, constraints.maxHeight) {
-            placeables[0].placeAbsolute(0, 3)
-            placeables[1].placeAbsolute(constraints.maxWidth / 2, 0)
+            placeables[0].place(0, 3)
+            placeables[1].place(constraints.maxWidth / 2, 0)
         }
     }
     // Note that if the parent of this Layout (the parent of AlignmentLineSample) was able to

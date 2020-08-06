@@ -90,7 +90,7 @@ fun AlignmentLineOffset(
         layout(containerWidth, containerHeight) {
             val x = if (alignmentLine.horizontal) 0 else paddingBefore
             val y = if (alignmentLine.horizontal) paddingBefore else 0
-            placeable.placeAbsolute(x, y)
+            placeable.place(x, y)
         }
     }
 }
@@ -183,7 +183,7 @@ private data class AlignmentLineOffset(
                 before != Dp.Unspecified -> paddingBefore
                 else -> height - paddingAfter - placeable.height
             }
-            placeable.place(x, y)
+            placeable.placeRelative(x, y)
         }
     }
 }

@@ -253,7 +253,7 @@ fun CoreText(
             )
         ) {
             placeables.fastForEach { placeable ->
-                placeable.first.place(placeable.second)
+                placeable.first.placeRelative(placeable.second)
             }
         }
     }
@@ -289,7 +289,7 @@ internal fun InlineChildren(
         ) { children, constrains ->
             val placeables = children.map { it.measure(constrains) }
             layout(width = constrains.maxWidth, height = constrains.maxHeight) {
-                placeables.fastForEach { it.place(0, 0) }
+                placeables.fastForEach { it.placeRelative(0, 0) }
             }
         }
     }

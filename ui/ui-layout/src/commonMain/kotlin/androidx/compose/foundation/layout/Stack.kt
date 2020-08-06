@@ -86,7 +86,7 @@ fun Stack(
                     ),
                     layoutDirection
                 )
-                placeable.placeAbsolute(position.x, position.y)
+                placeable.place(position.x, position.y)
             }
         }
     }

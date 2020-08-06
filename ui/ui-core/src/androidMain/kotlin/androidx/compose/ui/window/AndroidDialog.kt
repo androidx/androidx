@@ -175,7 +175,7 @@ private fun DialogLayout(
         val width = placeables.fastMaxBy { it.width }?.width ?: constraints.minWidth
         val height = placeables.fastMaxBy { it.height }?.height ?: constraints.minHeight
         layout(width, height) {
-            placeables.fastForEach { it.place(0, 0) }
+            placeables.fastForEach { it.placeRelative(0, 0) }
         }
     }
 }

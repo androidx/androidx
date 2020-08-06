@@ -277,7 +277,7 @@ private class DummyPlaceable(width: Int, height: Int) : Placeable() {
         measuredSize = IntSize(width, height)
     }
     override fun get(line: AlignmentLine): Int = AlignmentLine.Unspecified
-    override fun place(position: IntOffset) { }
+    override fun placeAt(position: IntOffset) { }
 }
 
 /**
@@ -526,7 +526,7 @@ fun WithConstraints(
         }
 
         layout(maxWidth, maxHeight) {
-            placeables.fastForEach { it.place(0, 0) }
+            placeables.fastForEach { it.placeRelative(0, 0) }
         }
     }
 }

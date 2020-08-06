@@ -92,7 +92,7 @@ fun SelectionLayout(modifier: Modifier = Modifier, children: @Composable () -> U
 
         layout(width, height) {
             placeables.forEach { placeable ->
-                placeable.placeAbsolute(0, 0)
+                placeable.place(0, 0)
             }
         }
     }
@@ -146,7 +146,7 @@ internal fun SimpleContainer(
                         containerHeight - it.height
                     )
                 )
-                it.place(
+                it.placeRelative(
                     position.x,
                     position.y
                 )
@@ -186,7 +186,7 @@ private object AllowZeroSize : LayoutModifier {
             max(constraints.minWidth, placeable.width),
             max(constraints.minHeight, placeable.height)
         ) {
-            placeable.place(0, 0)
+            placeable.placeRelative(0, 0)
         }
     }
 }

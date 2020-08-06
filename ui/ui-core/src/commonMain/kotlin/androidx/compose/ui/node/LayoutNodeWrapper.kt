@@ -123,7 +123,7 @@ internal abstract class LayoutNodeWrapper(
     /**
      * Places the modified child.
      */
-    abstract override fun place(position: IntOffset)
+    abstract override fun placeAt(position: IntOffset)
 
     /**
      * Draws the content of the LayoutNode

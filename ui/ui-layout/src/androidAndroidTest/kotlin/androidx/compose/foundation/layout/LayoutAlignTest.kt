@@ -222,7 +222,7 @@ class LayoutAlignTest : LayoutTest() {
                 measureBlock = { measurables, constraints ->
                     val placeable = measurables.first().measure(Constraints())
                     layout(constraints.maxWidth, constraints.maxHeight) {
-                        placeable.place(0, 0)
+                        placeable.placeRelative(0, 0)
                     }
                 }
             )
@@ -272,7 +272,7 @@ class LayoutAlignTest : LayoutTest() {
                         ).enforce(incomingConstraints)
                         val placeable = measurable.measure(constraints)
                         layout(placeable.width, placeable.height) {
-                            placeable.place(Offset.Zero)
+                            placeable.placeRelative(Offset.Zero)
                         }
                     }
                 )
@@ -413,7 +413,7 @@ class LayoutAlignTest : LayoutTest() {
                 }, measureBlock = { measurables, constraints ->
                     val placeable = measurables.first().measure(Constraints())
                     layout(constraints.maxWidth, constraints.maxHeight) {
-                        placeable.place(0, 0)
+                        placeable.placeRelative(0, 0)
                     }
                 }
             )

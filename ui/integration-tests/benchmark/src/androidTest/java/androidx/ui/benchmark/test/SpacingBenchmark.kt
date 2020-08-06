@@ -202,7 +202,7 @@ fun FillerContainer(modifier: Modifier = Modifier, children: @Composable () -> U
                 placeable?.height ?: 0
             }
         layout(width, height) {
-            placeable?.place(0, 0)
+            placeable?.placeRelative(0, 0)
         }
     }
 }
@@ -251,7 +251,7 @@ private fun Padding(
             val height = (placeable.height + verticalPadding).coerceAtMost(constraints.maxHeight)
 
             layout(width, height) {
-                placeable.place(paddingLeft, paddingTop)
+                placeable.placeRelative(paddingLeft, paddingTop)
             }
         }
     }
