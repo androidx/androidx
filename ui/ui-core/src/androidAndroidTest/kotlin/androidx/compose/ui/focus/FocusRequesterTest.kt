@@ -65,6 +65,29 @@ class FocusRequesterTest {
     }
 
     @Test
+    fun requestFocus_focusModifierInLayoutNode_butBeforeFocusRequester() {
+        // Arrange.
+        var focusState = Inactive
+        val focusRequester = FocusRequester()
+        composeTestRule.setFocusableContent {
+            Box(
+                modifier = Modifier
+                    .focusObserver { focusState = it }
+                    .focus()
+                    .focusRequester(focusRequester)
+            )
+        }
+
+        runOnIdle {
+            // Act.
+            focusRequester.requestFocus()
+
+            // Assert.
+            assertThat(focusState).isEqualTo(Inactive)
+        }
+    }
+
+    @Test
     fun requestFocus_focusModifierInLayoutNode() {
         // Arrange.
         var focusState = Inactive
