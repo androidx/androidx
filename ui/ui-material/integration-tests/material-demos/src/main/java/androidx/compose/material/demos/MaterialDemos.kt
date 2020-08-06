@@ -46,10 +46,6 @@ val MaterialDemos = DemoCategory("Material", listOf(
         ComposableDemo("ListItems") { ListItemDemo() },
         ComposableDemo("Mixing RTL and LTR") { MixedRtlLtrListItemDemo() }
     )),
-    DemoCategory("TextFields", listOf(
-        ComposableDemo("FilledTextField/OutlinedTextField") { MaterialTextFieldDemo() },
-        ComposableDemo("Multiple text fields") { TextFieldsDemo() }
-    )),
     ComposableDemo("Material Theme") { MaterialThemeDemo() },
     ComposableDemo("Menus") { MenuDemo() },
     DemoCategory("Playground", listOf(
@@ -62,5 +58,9 @@ val MaterialDemos = DemoCategory("Material", listOf(
     ComposableDemo("Slider") { SliderDemo() },
     ComposableDemo("Snackbar") { SnackbarDemo() },
     ComposableDemo("Swipe to dismiss") { SwipeToDismissDemo() },
-    ComposableDemo("Tabs") { TabDemo() }
+    ComposableDemo("Tabs") { TabDemo() },
+    DemoCategory("TextFields", listOf(
+        ComposableDemo("FilledTextField/OutlinedTextField") { MaterialTextFieldDemo() },
+        ComposableDemo("Multiple text fields") { TextFieldsDemo() }
+    ))
 ))
