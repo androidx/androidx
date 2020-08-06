@@ -20,7 +20,7 @@ import androidx.compose.runtime.collection.ExperimentalCollectionApi
 import androidx.compose.ui.FocusRequesterModifier
 import androidx.compose.ui.focus.ExperimentalFocus
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusableChildren2
+import androidx.compose.ui.focus.searchChildrenForFocusNode
 
 @OptIn(
     ExperimentalCollectionApi::class,
@@ -40,17 +40,9 @@ internal class ModifiedFocusRequesterNode(
         }
 
     // Searches for the focus node associated with this focus requester node.
+    @OptIn(ExperimentalLayoutNodeApi::class)
     internal fun findFocusNode(): ModifiedFocusNode2? {
-        // TODO(b/157597560): If there is no focus node in this modifier chain, check for a focus
-        //  modifier in the layout node's children.
-        return findNextFocusWrapper2()
-        // TODO(b/144126759): For now we always return the first focusable child. We might want to
-        //  provide some API that allows the developers flexibility to specify which focusable
-        //  child they need, or provide a priority among children.
-        // TODO(b/152051577): focusableChildren2() fetches all the focusable children, even though
-        //  we only need the first focusable child. Measure the performance and add a separate
-        //  function to find the first focusable Child.
-            ?: layoutNode.focusableChildren2().firstOrNull()
+        return findNextFocusWrapper2() ?: layoutNode.searchChildrenForFocusNode()
     }
 
     override fun onModifierChanged() {

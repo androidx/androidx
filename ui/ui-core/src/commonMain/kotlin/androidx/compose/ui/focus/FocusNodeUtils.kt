@@ -16,6 +16,9 @@
 
 package androidx.compose.ui.focus
 
+import androidx.compose.runtime.collection.ExperimentalCollectionApi
+import androidx.compose.runtime.collection.MutableVector
+import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.ModifiedFocusNode
@@ -29,7 +32,7 @@ internal fun LayoutNode.focusableChildren(): List<ModifiedFocusNode> {
     val focusableChildren = mutableListOf<ModifiedFocusNode>()
     // TODO(b/152529395): Write a test for LayoutNode.focusableChildren(). We were calling the wrong
     //  function on [LayoutNodeWrapper] but no test caught this.
-    this.outerLayoutNodeWrapper.findNextFocusWrapper()?.let { focusableChildren.add(it) }
+    outerLayoutNodeWrapper.findNextFocusWrapper()?.let { focusableChildren.add(it) }
         ?: children.fastForEach { layout -> focusableChildren.addAll(layout.focusableChildren()) }
     return focusableChildren
 }
@@ -39,7 +42,43 @@ internal fun LayoutNode.focusableChildren2(): List<ModifiedFocusNode2> {
     val focusableChildren = mutableListOf<ModifiedFocusNode2>()
     // TODO(b/152529395): Write a test for LayoutNode.focusableChildren(). We were calling the wrong
     //  function on [LayoutNodeWrapper] but no test caught this.
-    this.outerLayoutNodeWrapper.findNextFocusWrapper2()?.let { focusableChildren.add(it) }
+    outerLayoutNodeWrapper.findNextFocusWrapper2()?.let { focusableChildren.add(it) }
         ?: children.fastForEach { layout -> focusableChildren.addAll(layout.focusableChildren2()) }
     return focusableChildren
+}
+
+// TODO(b/144126759): For now we always return the first focusable child. We might want to
+//  provide some API that allows the developers flexibility to specify which focusable
+//  child they need, or provide a priority among children.
+/**
+ * Searches (Breadth-first) through all the children and returns the first focus wrapper found.
+ *
+ * @param queue a mutable list used as a queue for breadth-first search.
+ */
+@OptIn(
+    ExperimentalCollectionApi::class,
+    ExperimentalLayoutNodeApi::class
+)
+internal fun LayoutNode.searchChildrenForFocusNode(
+    queue: MutableVector<LayoutNode> = mutableVectorOf()
+): ModifiedFocusNode2? {
+    // Check if any child has a focus Wrapper.
+    _children.forEach { layoutNode ->
+        val focusNode = layoutNode.outerLayoutNodeWrapper.findNextFocusWrapper2()
+        if (focusNode != null) {
+            return focusNode
+        } else {
+            queue.add(layoutNode)
+        }
+    }
+
+    // Perform a breadth-first search through the children.
+    while (queue.isNotEmpty()) {
+        val focusNode = queue.removeAt(0).searchChildrenForFocusNode(queue)
+        if (focusNode != null) {
+            return focusNode
+        }
+    }
+
+    return null
 }

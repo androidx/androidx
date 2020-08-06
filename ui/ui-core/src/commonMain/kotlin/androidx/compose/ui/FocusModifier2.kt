@@ -22,14 +22,10 @@ import androidx.compose.ui.focus.ExperimentalFocus
 import androidx.compose.ui.focus.FocusState2
 import androidx.compose.ui.node.ModifiedFocusNode2
 
+// TODO(b/160923332): Rename FocusModifier2 to FocusModifier
 /**
  * A [Modifier.Element] that wraps makes the modifiers on the right into a Focusable. Use a
  * different instance of [FocusModifier2] for each focusable component.
- *
- * TODO(b/160923332): Rename FocusModifier2 to FocusModifier
- *
- * TODO(b/152528891): Write tests for [FocusModifier2] after we finalize on the api (API
- *  review tracked by b/152529882).
  */
 @OptIn(ExperimentalFocus::class)
 internal class FocusModifier2(
