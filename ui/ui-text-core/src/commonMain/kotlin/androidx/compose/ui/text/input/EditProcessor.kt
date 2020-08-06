@@ -37,7 +37,8 @@ class EditProcessor {
         private set
 
     // The editing buffer used for applying editor commands from IME.
-    private var mBuffer: EditingBuffer =
+    @VisibleForTesting
+    internal var mBuffer: EditingBuffer =
         EditingBuffer(initialText = "", initialSelection = TextRange.Zero)
 
     /**
@@ -51,7 +52,7 @@ class EditProcessor {
         textInputService: TextInputService?,
         token: InputSessionToken
     ) {
-        if (mPreviousState !== model) {
+        if (mPreviousState != model) {
             mBuffer = EditingBuffer(
                 initialText = model.text,
                 initialSelection = model.selection)

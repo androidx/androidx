@@ -26,7 +26,6 @@ import androidx.compose.foundation.text.CoreTextField
 import androidx.compose.foundation.text.TextFieldDelegate
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.onCommit
@@ -45,7 +44,6 @@ import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.SoftwareKeyboardController
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.constrain
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -137,24 +135,14 @@ fun BaseTextField(
     onTextInputStarted: (SoftwareKeyboardController) -> Unit = {},
     cursorColor: Color = contentColor()
 ) {
-    val fullModel = remember { mutableStateOf(TextFieldValue()) }
-    if (fullModel.value != value) {
-        @OptIn(InternalTextApi::class)
-        fullModel.value = TextFieldValue(
-            text = value.text,
-            selection = value.selection.constrain(0, value.text.length),
-            composition = value.composition?.constrain(0, value.text.length)
-        )
-    }
-
     val color = textColor.useOrElse { textStyle.color.useOrElse { contentColor() } }
     val mergedStyle = textStyle.merge(TextStyle(color = color))
 
     // cursor with blinking animation
     val cursorState: CursorState = remember { CursorState() }
-    val cursorNeeded = cursorState.focused && fullModel.value.selection.collapsed
+    val cursorNeeded = cursorState.focused && value.selection.collapsed
     val animColor = animatedColor(cursorColor)
-    onCommit(cursorColor, cursorState.focused, fullModel.value) {
+    onCommit(cursorColor, cursorState.focused, value) {
         if (cursorNeeded) {
             // TODO(b/151940543): Disable blinking in tests until we handle idling animations
             @OptIn(InternalFoundationApi::class)
@@ -180,13 +168,17 @@ fun BaseTextField(
         }
     }
 
+    val cursorModifier = if (cursorNeeded) {
+        Modifier.cursorModifier(animColor, cursorState, value, visualTransformation)
+    } else {
+        Modifier
+    }
     CoreTextField(
-        value = fullModel.value,
+        value = value,
         modifier = modifier
             .defaultMinSizeConstraints(minWidth = DefaultTextFieldWidth)
-            .cursorModifier(animColor, cursorState, fullModel, visualTransformation),
+            .then(cursorModifier),
         onValueChange = {
-            fullModel.value = it
             onValueChange(it)
         },
         textStyle = mergedStyle,
@@ -215,40 +207,35 @@ private class CursorState {
 private fun Modifier.cursorModifier(
     color: AnimatedValue<Color, *>,
     cursorState: CursorState,
-    textFieldValue: State<TextFieldValue>,
+    textFieldValue: TextFieldValue,
     visualTransformation: VisualTransformation
-): Modifier {
-    return if (cursorState.focused && textFieldValue.value.selection.collapsed) {
-        composed {
-            remember(cursorState, textFieldValue, visualTransformation) {
-                CursorModifier(color, cursorState, textFieldValue, visualTransformation)
-            }
-        }
-    } else {
-        this
+) = composed {
+    remember(cursorState, textFieldValue, visualTransformation) {
+        CursorModifier(color, cursorState, textFieldValue, visualTransformation)
     }
 }
 
 private data class CursorModifier(
     val color: AnimatedValue<Color, *>,
     val cursorState: CursorState,
-    val textFieldValue: State<TextFieldValue>,
+    val textFieldValue: TextFieldValue,
     val visualTransformation: VisualTransformation
 ) : DrawModifier {
     override fun ContentDrawScope.draw() {
         if (color.value.alpha != 0f) {
             val transformed = visualTransformation.filter(
-                AnnotatedString(textFieldValue.value.text)
+                AnnotatedString(textFieldValue.text)
             )
+
             @OptIn(InternalTextApi::class)
-            val transformedText = textFieldValue.value.composition?.let {
+            val transformedText = textFieldValue.composition?.let {
                 TextFieldDelegate.applyCompositionDecoration(it, transformed)
             } ?: transformed
             val cursorWidth = CursorThickness.value * density
             val cursorHeight = cursorState.layoutResult?.size?.height?.toFloat() ?: 0f
 
             val cursorRect = cursorState.layoutResult?.getCursorRect(
-                transformedText.offsetMap.originalToTransformed(textFieldValue.value.selection.min)
+                transformedText.offsetMap.originalToTransformed(textFieldValue.selection.start)
             ) ?: Rect(
                 0f, 0f,
                 cursorWidth, cursorHeight
