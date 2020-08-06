@@ -20,7 +20,6 @@ import android.hardware.camera2.CaptureRequest
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.impl.Log.warn
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -70,8 +69,8 @@ interface GraphProcessor {
  */
 @CameraGraphScope
 class GraphProcessorImpl @Inject constructor(
+    private val threads: Threads,
     @ForCameraGraph private val graphScope: CoroutineScope,
-    @ForCameraGraph private val graphDispatcher: CoroutineDispatcher,
     @ForCameraGraph private val graphListeners: java.util.ArrayList<Request.Listener>
 ) : GraphProcessor {
     private val lock = Any()
@@ -228,7 +227,7 @@ class GraphProcessorImpl @Inject constructor(
      * Submit a request to the camera using only the current repeating request.
      */
     suspend fun submit(parameters: Map<CaptureRequest.Key<*>, Any>): Boolean =
-        withContext(graphDispatcher) {
+        withContext(threads.ioDispatcher) {
             val processor: RequestProcessor?
             val request: Request?
 
