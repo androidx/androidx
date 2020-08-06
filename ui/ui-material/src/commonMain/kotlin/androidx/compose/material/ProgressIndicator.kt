@@ -21,15 +21,17 @@ import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.FloatPropKey
 import androidx.compose.animation.core.IntPropKey
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.SpringSpec
 import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.repeatable
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.transition
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.progressSemantics
+import androidx.compose.material.ProgressIndicatorConstants.DefaultIndicatorBackgroundOpacity
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -50,17 +52,25 @@ import kotlin.math.max
 /**
  * A determinate linear progress indicator that represents progress by drawing a horizontal line.
  *
+ * By default there is no animation between [progress] values. You can use
+ * [ProgressIndicatorConstants.DefaultProgressAnimationSpec] as the default recommended
+ * [AnimationSpec] when animating progress, such as in the following example:
+ *
+ * @sample androidx.compose.material.samples.LinearProgressIndicatorSample
+ *
  * @param progress The progress of this progress indicator, where 0.0 represents no progress and 1.0
- * represents full progress
+ * represents full progress. Values outside of this range are coerced into the range.
  * @param color The color of the progress indicator.
+ * @param backgroundColor The color of the background behind the indicator, visible when the
+ * progress has not reached that area of the overall indicator yet.
  */
 @Composable
 fun LinearProgressIndicator(
     @FloatRange(from = 0.0, to = 1.0) progress: Float,
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colors.primary
+    color: Color = MaterialTheme.colors.primary,
+    backgroundColor: Color = color.copy(alpha = DefaultIndicatorBackgroundOpacity)
 ) {
-    val backgroundColor = color.copy(alpha = BackgroundOpacity)
     Canvas(
         modifier
             .progressSemantics(progress)
@@ -77,11 +87,14 @@ fun LinearProgressIndicator(
  * start or end point.
  *
  * @param color The color of the progress indicator.
+ * @param backgroundColor The color of the background behind the indicator, visible when the
+ * progress has not reached that area of the overall indicator yet.
  */
 @Composable
 fun LinearProgressIndicator(
     modifier: Modifier = Modifier,
-    color: Color = MaterialTheme.colors.primary
+    color: Color = MaterialTheme.colors.primary,
+    backgroundColor: Color = color.copy(alpha = DefaultIndicatorBackgroundOpacity)
 ) {
     val state = transition(
         definition = LinearIndeterminateTransition,
@@ -92,7 +105,6 @@ fun LinearProgressIndicator(
     val firstLineTail = state[FirstLineTailProp]
     val secondLineHead = state[SecondLineHeadProp]
     val secondLineTail = state[SecondLineTailProp]
-    val backgroundColor = color.copy(alpha = BackgroundOpacity)
     Canvas(
         modifier
             .progressSemantics()
@@ -147,8 +159,14 @@ private fun DrawScope.drawLinearIndicatorBackground(
  * A determinate circular progress indicator that represents progress by drawing an arc ranging from
  * 0 to 360 degrees.
  *
+ * By default there is no animation between [progress] values. You can use
+ * [ProgressIndicatorConstants.DefaultProgressAnimationSpec] as the default recommended
+ * [AnimationSpec] when animating progress, such as in the following example:
+ *
+ * @sample androidx.compose.material.samples.CircularProgressIndicatorSample
+ *
  * @param progress The progress of this progress indicator, where 0.0 represents no progress and 1.0
- * represents full progress
+ * represents full progress. Values outside of this range are coerced into the range.
  * @param color The color of the progress indicator.
  * @param strokeWidth The stroke width for the progress indicator.
  */
@@ -165,7 +183,6 @@ fun CircularProgressIndicator(
     Canvas(
         modifier
             .progressSemantics(progress)
-            .padding(CircularIndicatorPadding)
             .preferredSize(CircularIndicatorDiameter)
     ) {
         // Start at 12 O'clock
@@ -213,7 +230,6 @@ fun CircularProgressIndicator(
     Canvas(
         modifier
             .progressSemantics()
-            .padding(CircularIndicatorPadding)
             .preferredSize(CircularIndicatorDiameter)
     ) {
         drawIndeterminateCircularIndicator(startAngle, strokeWidth, sweep, color, stroke)
@@ -253,6 +269,24 @@ object ProgressIndicatorConstants {
      * and by passing a layout modifier setting the height for [LinearProgressIndicator].
      */
     val DefaultStrokeWidth = 4.dp
+
+    /**
+     * The default opacity applied to the indicator color to create the background color in a
+     * [LinearProgressIndicator].
+     */
+    const val DefaultIndicatorBackgroundOpacity = 0.24f
+
+    /**
+     * The default [AnimationSpec] that should be used when animating between progress in a
+     * determinate progress indicator.
+     */
+    val DefaultProgressAnimationSpec = SpringSpec(
+        dampingRatio = Spring.DampingRatioNoBouncy,
+        stiffness = Spring.StiffnessVeryLow,
+        // The default threshold is 0.01, or 1% of the overall progress range, which is quite
+        // large and noticeable.
+        visibilityThreshold = 1 / 1000f
+    )
 }
 
 private fun DrawScope.drawDeterminateCircularIndicator(
@@ -291,14 +325,9 @@ private fun DrawScope.drawIndeterminateCircularIndicator(
 private val LinearIndicatorHeight = ProgressIndicatorConstants.DefaultStrokeWidth
 private val LinearIndicatorWidth = 240.dp
 
-// The opacity applied to the primary color to create the background color
-private const val BackgroundOpacity = 0.24f
-
 // CircularProgressIndicator Material specs
 // Diameter of the indicator circle
 private val CircularIndicatorDiameter = 40.dp
-// We should reserve this amount on both sides of the indicator to allow space between components
-private val CircularIndicatorPadding = 4.dp
 
 // Indeterminate linear indicator transition specs
 // Total duration for one cycle
