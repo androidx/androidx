@@ -52,6 +52,7 @@ class SelectionManagerTest {
 
     private val containerLayoutCoordinates = mock<LayoutCoordinates> {
         on { isAttached } doReturn true
+        on { childToLocal(any(), Offset(any())) } doAnswer Offset.Zero
     }
     private val startSelectable = mock<Selectable>()
     private val endSelectable = mock<Selectable>()
@@ -90,9 +91,6 @@ class SelectionManagerTest {
 
     @Test
     fun mergeSelections_sorting() {
-        whenever((containerLayoutCoordinates.childToLocal(any(), any())))
-            .thenReturn(Offset.Zero)
-
         selectionManager.mergeSelections(
             startPosition = startCoordinates,
             endPosition = endCoordinates
@@ -111,7 +109,7 @@ class SelectionManagerTest {
 
         val fakeNewSelection = mock<Selection>()
 
-        whenever(selectable.getSelection(any(), any(), any(), any(), any(), any()))
+        whenever(selectable.getSelection(Offset(any()), Offset(any()), any(), any(), any(), any()))
             .thenReturn(fakeNewSelection)
 
         verify(selectable, times(1))
@@ -132,8 +130,6 @@ class SelectionManagerTest {
     fun mergeSelections_multiple_selectables_calls_getSelection_multiple_times() {
         val selectable_another = mock<Selectable>()
         selectionRegistrar.subscribe(selectable_another)
-        whenever((containerLayoutCoordinates.childToLocal(any(), any())))
-            .thenReturn(Offset.Zero)
 
         selectionManager.mergeSelections(
             startPosition = startCoordinates,
@@ -166,7 +162,7 @@ class SelectionManagerTest {
     @Test
     fun mergeSelections_selection_does_not_change_hapticFeedBack_Not_triggered() {
         val selection: Selection? = mock()
-        whenever(selectable.getSelection(any(), any(), any(), any(), any(), any()))
+        whenever(selectable.getSelection(Offset(any()), Offset(any()), any(), any(), any(), any()))
             .thenReturn(selection)
 
         selectionManager.mergeSelections(

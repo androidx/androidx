@@ -80,15 +80,12 @@ class SelectionRegistrarImplTest {
         val relativeCoordinates2 = Offset(20f, 24f)
         val relativeCoordinates3 = Offset(5f, 24f)
 
-        val containerLayoutCoordinates = mock<LayoutCoordinates>()
-        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates0, Offset.Zero))
-            .thenReturn(relativeCoordinates0)
-        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates1, Offset.Zero))
-            .thenReturn(relativeCoordinates1)
-        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates2, Offset.Zero))
-            .thenReturn(relativeCoordinates2)
-        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates3, Offset.Zero))
-            .thenReturn(relativeCoordinates3)
+        val containerLayoutCoordinates = mock<LayoutCoordinates> {
+            on { childToLocal(layoutCoordinates0, Offset.Zero) } doAnswer relativeCoordinates0
+            on { childToLocal(layoutCoordinates1, Offset.Zero) } doAnswer relativeCoordinates1
+            on { childToLocal(layoutCoordinates2, Offset.Zero) } doAnswer relativeCoordinates2
+            on { childToLocal(layoutCoordinates3, Offset.Zero) } doAnswer relativeCoordinates3
+        }
 
         val selectionRegistrar = SelectionRegistrarImpl()
         selectionRegistrar.subscribe(handler0)
@@ -131,15 +128,12 @@ class SelectionRegistrarImplTest {
         val relativeCoordinates2 = Offset(20f, 24f)
         val relativeCoordinates3 = Offset(5f, 24f)
 
-        val containerLayoutCoordinates = mock<LayoutCoordinates>()
-        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates0, Offset.Zero))
-            .thenReturn(relativeCoordinates0)
-        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates1, Offset.Zero))
-            .thenReturn(relativeCoordinates1)
-        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates2, Offset.Zero))
-            .thenReturn(relativeCoordinates2)
-        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates3, Offset.Zero))
-            .thenReturn(relativeCoordinates3)
+        val containerLayoutCoordinates = mock<LayoutCoordinates> {
+            on { childToLocal(layoutCoordinates0, Offset.Zero) } doAnswer relativeCoordinates0
+            on { childToLocal(layoutCoordinates1, Offset.Zero) } doAnswer relativeCoordinates1
+            on { childToLocal(layoutCoordinates2, Offset.Zero) } doAnswer relativeCoordinates2
+            on { childToLocal(layoutCoordinates3, Offset.Zero) } doAnswer relativeCoordinates3
+        }
 
         val selectionRegistrar = SelectionRegistrarImpl()
         selectionRegistrar.subscribe(handler0)
@@ -164,9 +158,9 @@ class SelectionRegistrarImplTest {
         val handler0 = mock<Selectable>()
         val layoutCoordinates0 = mock<LayoutCoordinates>()
         whenever(handler0.getLayoutCoordinates()).thenReturn(layoutCoordinates0)
-        val containerLayoutCoordinates = mock<LayoutCoordinates>()
-        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates0, Offset.Zero))
-            .thenReturn(Offset.Zero)
+        val containerLayoutCoordinates = mock<LayoutCoordinates> {
+            on { childToLocal(layoutCoordinates0, Offset.Zero) } doAnswer Offset.Zero
+        }
 
         val selectionRegistrar = SelectionRegistrarImpl()
         selectionRegistrar.subscribe(handler0)
@@ -186,9 +180,9 @@ class SelectionRegistrarImplTest {
         val handler0 = mock<Selectable>()
         val layoutCoordinates0 = mock<LayoutCoordinates>()
         whenever(handler0.getLayoutCoordinates()).thenReturn(layoutCoordinates0)
-        val containerLayoutCoordinates = mock<LayoutCoordinates>()
-        whenever(containerLayoutCoordinates.childToLocal(layoutCoordinates0, Offset.Zero))
-            .thenReturn(Offset.Zero)
+        val containerLayoutCoordinates = mock<LayoutCoordinates> {
+            on { childToLocal(layoutCoordinates0, Offset.Zero) } doAnswer Offset.Zero
+        }
 
         val selectionRegistrar = SelectionRegistrarImpl()
         selectionRegistrar.subscribe(handler0)

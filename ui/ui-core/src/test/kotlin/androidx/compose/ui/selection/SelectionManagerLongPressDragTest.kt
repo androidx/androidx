@@ -84,8 +84,8 @@ class SelectionManagerLongPressDragTest {
 
         whenever(
             selectable.getSelection(
-                startPosition = any(),
-                endPosition = any(),
+                startPosition = Offset(any()),
+                endPosition = Offset(any()),
                 containerLayoutCoordinates = any(),
                 longPress = any(),
                 previousSelection = anyOrNull(),

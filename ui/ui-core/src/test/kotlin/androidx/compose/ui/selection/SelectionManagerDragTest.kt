@@ -40,13 +40,20 @@ class SelectionManagerDragTest {
     private val selectable = mock<Selectable>()
     private val selectionManager = SelectionManager(selectionRegistrar)
 
-    private val containerLayoutCoordinates = mock<LayoutCoordinates> {
-        on { isAttached } doReturn true
-    }
     private val childToLocal_result = Offset(300f, 400f)
 
-    private val startSelectable = mock<Selectable>()
-    private val endSelectable = mock<Selectable>()
+    private val containerLayoutCoordinates = mock<LayoutCoordinates> {
+        on { isAttached } doReturn true
+        on { childToLocal(child = any(), childLocal = Offset(any())) } doAnswer
+                childToLocal_result
+    }
+
+    private val startSelectable = mock<Selectable> {
+        on { getHandlePosition(any(), any()) } doAnswer Offset.Zero
+    }
+    private val endSelectable = mock<Selectable> {
+        on { getHandlePosition(any(), any()) } doAnswer Offset.Zero
+    }
     private val startLayoutCoordinates = mock<LayoutCoordinates>()
     private val endLayoutCoordinates = mock<LayoutCoordinates>()
     private val fakeInitialSelection: Selection = Selection(
@@ -82,16 +89,9 @@ class SelectionManagerDragTest {
         selectionRegistrar.subscribe(selectable)
 
         whenever(
-            containerLayoutCoordinates.childToLocal(
-                child = any(),
-                childLocal = any()
-            )
-        ).thenReturn(childToLocal_result)
-
-        whenever(
             selectable.getSelection(
-                startPosition = any(),
-                endPosition = any(),
+                startPosition = Offset(any()),
+                endPosition = Offset(any()),
                 containerLayoutCoordinates = any(),
                 longPress = any(),
                 previousSelection = any(),
@@ -101,9 +101,6 @@ class SelectionManagerDragTest {
 
         whenever(startSelectable.getLayoutCoordinates()).thenReturn(startLayoutCoordinates)
         whenever(endSelectable.getLayoutCoordinates()).thenReturn(endLayoutCoordinates)
-
-        whenever(startSelectable.getHandlePosition(any(), any())).thenReturn(Offset.Zero)
-        whenever(endSelectable.getHandlePosition(any(), any())).thenReturn(Offset.Zero)
 
         selectionManager.containerLayoutCoordinates = containerLayoutCoordinates
         selectionManager.onSelectionChange = spyLambda
