@@ -32,7 +32,7 @@ import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.camera2.pipe.impl.Debug
 import androidx.camera.camera2.pipe.impl.Log
 import androidx.camera.camera2.pipe.impl.Metrics
-import androidx.camera.camera2.pipe.impl.formatMilliTime
+import androidx.camera.camera2.pipe.impl.formatNanoTime
 import androidx.camera.camera2.pipe.writeParameter
 
 /** Interface around a [CameraDevice] with minor modifications.
@@ -113,11 +113,11 @@ fun CameraDevice?.closeWithTrace() {
     this?.let {
         val start = Metrics.monotonicNanos()
         Log.info { "Closing Camera ${it.id}" }
-        Debug.trace("Camera ${it.id}#close") {
+        Debug.trace("$it#close") {
             it.close()
         }
-        val duration = Metrics.nanosToMillisDouble(Metrics.monotonicNanos() - start)
-        Log.info { "Closed Camera ${it.id} in ${duration.formatMilliTime()}" }
+        val duration = Metrics.monotonicNanos() - start
+        Log.info { "Closed Camera ${it.id} in ${duration.formatNanoTime()}" }
     }
 }
 

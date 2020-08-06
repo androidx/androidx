@@ -19,6 +19,8 @@ package androidx.camera.camera2.pipe.impl
 import android.hardware.camera2.CaptureRequest
 import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.formatForLogs
+import androidx.camera.camera2.pipe.impl.Log.debug
 import androidx.camera.camera2.pipe.impl.Log.warn
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -31,22 +33,6 @@ import javax.inject.Inject
  * instances.
  */
 interface GraphProcessor {
-    var requestProcessor: RequestProcessor?
-
-    /**
-     * This method puts the [GraphProcessor] into a started state. Starting the [GraphProcessor]
-     * will cause it to attempt to submit all requests to the current [RequestProcessor] instance,
-     * and any subsequent requests will be immediately submitted to the current [RequestProcessor].
-     */
-    fun start()
-
-    /**
-     * This method puts the [GraphProcessor] into a stopped state and clears the current
-     * [RequestProcessor] instance. While the graph processor is stopped, all requests are
-     * buffered.
-     */
-    fun stop()
-
     fun setRepeating(request: Request)
     fun submit(request: Request)
     fun submit(requests: List<Request>)
@@ -62,6 +48,10 @@ interface GraphProcessor {
      * [GraphProcessor] is closed will be immediately aborted.
      */
     fun close()
+
+    fun attach(requestProcessor: RequestProcessor)
+    fun detach(requestProcessor: RequestProcessor)
+    fun retry()
 }
 
 /**
@@ -96,106 +86,65 @@ class GraphProcessorImpl @Inject constructor(
     @GuardedBy("lock")
     private var closed = false
 
-    @GuardedBy("lock")
-    private var active = false
-
-    override var requestProcessor: RequestProcessor?
-        get() = synchronized(lock) {
-            _requestProcessor
-        }
-        set(value) {
-            val processorToClose: RequestProcessor?
-            val processorToDisconnect: RequestProcessor?
-            synchronized(lock) {
-                processorToDisconnect = _requestProcessor
-                if (closed) {
-                    processorToClose = value
-                } else {
-                    processorToClose = null
-                    _requestProcessor = value
-                }
-            }
-
-            if (value === processorToDisconnect) {
-                warn { "RequestProcessor was set more than once." }
-                return
-            }
-
-            // Setting the request processor to null will disconnect the old processor.
-            if (processorToDisconnect != null) {
-                synchronized(processorToDisconnect) {
-                    processorToDisconnect.disconnect()
-                }
-            }
-
-            if (processorToClose != null) {
-                synchronized(processorToClose) {
-                    processorToClose.stop()
-                }
-                return
-            }
-
-            if (value != null) {
-                graphScope.launch {
-                    trySetRepeating()
-                    submitLoop()
-                }
-            }
-        }
-
-    override fun start() {
+    override fun attach(requestProcessor: RequestProcessor) {
+        var oldRequestProcessor: RequestProcessor? = null
         synchronized(lock) {
-            active = true
+            if (closed) {
+                requestProcessor.close()
+                return
+            }
+
+            if (_requestProcessor != null && _requestProcessor !== requestProcessor) {
+                oldRequestProcessor = _requestProcessor
+            }
+            _requestProcessor = requestProcessor
         }
 
-        Log.debug { "Starting GraphProcessor" }
-        // TODO: Start the camera and configure the capture session.
+        val processorToClose = oldRequestProcessor
+        if (processorToClose != null) {
+            synchronized(processorToClose) {
+                processorToClose.close()
+            }
+        }
+
+        resubmit()
     }
 
-    /**
-     * This method puts the [GraphProcessorImpl] into a stopped state. While the graph processor is
-     * in this state, all requests are buffered in the RequestQueue.
-     */
-    override fun stop() {
-        val processor = synchronized(lock) {
-            active = false
-            _requestProcessor.also { _requestProcessor = null }
+    override fun detach(requestProcessor: RequestProcessor) {
+        var oldRequestProcessor: RequestProcessor? = null
+        synchronized(lock) {
+            if (closed) {
+                return
+            }
+
+            if (requestProcessor === _requestProcessor) {
+                oldRequestProcessor = _requestProcessor
+                _requestProcessor = null
+            } else {
+                warn {
+                    "Refusing to detach $requestProcessor. " +
+                            "It is different from $_requestProcessor"
+                }
+            }
         }
 
-        Log.debug { "Stopping GraphProcessor" }
-
-        if (processor == null) {
-            return
+        val processorToClose = oldRequestProcessor
+        if (processorToClose != null) {
+            synchronized(processorToClose) {
+                processorToClose.close()
+            }
         }
+    }
 
-        // There are about ~3 main ways a Camera2 CameraCaptureSession can be shut down and closed,
-        // and the behavior will be different depending on the circumstances.
-        //
-        // A session can be replaced by another session by simply calling createCaptureSession on
-        // the CameraDevice. Internally this will reconfigure the camera capture session, and there
-        // are optimizations present in the CameraFramework and Camera HAL that can optimize how
-        // fast the new session is created and started. The most obvious example of this is
-        // replacing a surface with a new one after recording a video, which can effectively cause
-        // the new session to be created and replaced without dropping a frame.
-        //
-        // Second, a session can be _stopped_ by calling stopRepeating and/or abortCaptures. This
-        // keeps the session alive but may abort pending requests. In some cases it's faster to
-        // switch sessions if these methods are invoked before creating a new session on the
-        // device because requests that are in-flight can be explicitly aborted.
-        //
-        // Finally, a session may be closed as a result of the underlying CameraDevice being closed
-        // or disconnected. This can happen if a higher priority process steals the camera, or
-        // during switches from one camera to another.
-
-        graphScope.launch {
-            processor.stop()
-        }
+    override fun retry() {
+        resubmit()
     }
 
     override fun setRepeating(request: Request) {
         synchronized(lock) {
             if (closed) return
             nextRepeatingRequest = request
+            debug { "Set repeating request to ${request.formatForLogs()}" }
         }
 
         graphScope.launch {
@@ -261,7 +210,7 @@ class GraphProcessorImpl @Inject constructor(
             // Start with requests that have already been submitted
             if (processor != null) {
                 synchronized(processor) {
-                    processor.abort()
+                    processor.abortCaptures()
                 }
             }
 
@@ -273,15 +222,25 @@ class GraphProcessorImpl @Inject constructor(
     }
 
     override fun close() {
+        val processor: RequestProcessor?
         synchronized(lock) {
             if (closed) {
                 return
             }
             closed = true
+            processor = _requestProcessor
+            _requestProcessor = null
         }
 
+        processor?.close()
         abort()
-        stop()
+    }
+
+    private fun resubmit() {
+        graphScope.launch {
+            trySetRepeating()
+            submitLoop()
+        }
     }
 
     private fun read3AState(): Map<CaptureRequest.Key<*>, Any> {
@@ -310,27 +269,29 @@ class GraphProcessorImpl @Inject constructor(
         val request: Request?
 
         synchronized(lock) {
-            if (closed || !active) return
+            if (closed) return
 
             processor = _requestProcessor
             request = nextRepeatingRequest ?: currentRepeatingRequest
         }
 
         if (processor != null && request != null) {
+
             val extras: Map<CaptureRequest.Key<*>, Any> = read3AState()
 
             synchronized(processor) {
                 if (processor.setRepeating(request, extras, requireSurfacesForAllStreams = true)) {
-
                     // ONLY update the current repeating request if the update succeeds
                     synchronized(lock) {
-                        currentRepeatingRequest = request
+                        if (processor === _requestProcessor) {
+                            currentRepeatingRequest = request
 
-                        // There is a race condition where the nextRepeating request might be changed
-                        // while trying to update the current repeating request. If this happens, do no
-                        // overwrite the pending request.
-                        if (nextRepeatingRequest == request) {
-                            nextRepeatingRequest = null
+                            // There is a race condition where the nextRepeating request might be changed
+                            // while trying to update the current repeating request. If this happens, do no
+                            // overwrite the pending request.
+                            if (nextRepeatingRequest == request) {
+                                nextRepeatingRequest = null
+                            }
                         }
                     }
                 }
@@ -343,7 +304,7 @@ class GraphProcessorImpl @Inject constructor(
         var processor: RequestProcessor
 
         synchronized(lock) {
-            if (closed || !active) return
+            if (closed) return
 
             if (submitting) {
                 dirty = true

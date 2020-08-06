@@ -18,12 +18,15 @@ package androidx.camera.camera2.pipe.impl
 
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.Request
+import kotlinx.atomicfu.atomic
 
+internal val cameraGraphSessionIds = atomic(0)
 class CameraGraphSessionImpl(
     private val token: TokenLock.Token,
     private val graphProcessor: GraphProcessor
 ) : CameraGraph.Session {
-    private val debugId = Debug.debugIdsForGraphSession.incrementAndGet()
+    private val debugId = cameraGraphSessionIds.incrementAndGet()
+
     override fun submit(request: Request) {
         graphProcessor.submit(request)
     }
@@ -44,5 +47,6 @@ class CameraGraphSessionImpl(
         // Release the token so that a new instance of session can be created.
         token.release()
     }
+
     override fun toString(): String = "CameraGraph.Session-$debugId"
 }

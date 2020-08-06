@@ -24,6 +24,8 @@ import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
 import androidx.camera.camera2.pipe.testing.FakeCameras
+import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
+import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -41,7 +43,6 @@ import javax.inject.Singleton
 @CameraGraphScope
 @Component(
     modules = [
-
         FakeCameras.FakeCameraGraphModule::class
     ]
 )
@@ -69,7 +70,7 @@ class SessionFactoryTest {
 
     @Test
     fun canCreateSessionFactoryTestComponent() = runBlockingTest {
-        val component = DaggerCameraSessionTestComponent.builder()
+        val component: CameraSessionTestComponent = DaggerCameraSessionTestComponent.builder()
             .fakeCameraGraphModule(
                 FakeCameras.FakeCameraGraphModule(context, testCamera)
             )
@@ -81,7 +82,7 @@ class SessionFactoryTest {
 
     @Test
     fun createCameraCaptureSession() = runBlockingTest {
-        val component = DaggerCameraSessionTestComponent.builder()
+        val component: CameraSessionTestComponent = DaggerCameraSessionTestComponent.builder()
             .fakeCameraGraphModule(
                 FakeCameras.FakeCameraGraphModule(context, testCamera)
             )
@@ -102,7 +103,12 @@ class SessionFactoryTest {
         val pendingOutputs = sessionFactory.create(
             testCamera.cameraDeviceWrapper,
             mapOf(stream1.id to surface),
-            virtualSessionState = VirtualSessionState()
+            virtualSessionState = VirtualSessionState(
+                FakeGraphProcessor(),
+                sessionFactory,
+                FakeRequestProcessor(),
+                this
+            )
         )
 
         assertThat(pendingOutputs).isNotNull()

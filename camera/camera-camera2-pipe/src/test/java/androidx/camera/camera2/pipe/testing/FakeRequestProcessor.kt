@@ -17,17 +17,20 @@
 package androidx.camera.camera2.pipe.testing
 
 import android.hardware.camera2.CaptureRequest
+import android.view.Surface
 import androidx.camera.camera2.pipe.Request
+import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.impl.RequestProcessor
 import androidx.camera.camera2.pipe.impl.TokenLock
 import androidx.camera.camera2.pipe.impl.TokenLockImpl
+import androidx.camera.camera2.pipe.wrapper.CameraCaptureSessionWrapper
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.withTimeout
 
 /**
  * Fake implementation of a [RequestProcessor] for tests.
  */
-class FakeRequestProcessor : RequestProcessor {
+class FakeRequestProcessor : RequestProcessor, RequestProcessor.Factory {
     private val eventChannel = Channel<Event>(Channel.UNLIMITED)
 
     val requestQueue: MutableList<FakeRequest> = mutableListOf()
@@ -36,10 +39,13 @@ class FakeRequestProcessor : RequestProcessor {
     var rejectRequests = false
     var abortInvoked = false
         private set
-    var disconnectInvoked = false
+    var closeInvoked = false
         private set
     var stopInvoked = false
         private set
+
+    var captureSession: CameraCaptureSessionWrapper? = null
+    var surfaceMap: Map<StreamId, Surface>? = null
 
     private val tokenLock = TokenLockImpl(1)
     private var token: TokenLock.Token? = null
@@ -50,6 +56,15 @@ class FakeRequestProcessor : RequestProcessor {
         val requireStreams: Boolean = false
     )
 
+    override fun create(
+        session: CameraCaptureSessionWrapper,
+        surfaceMap: Map<StreamId, Surface>
+    ): RequestProcessor {
+        captureSession = session
+        this.surfaceMap = surfaceMap
+        return this
+    }
+
     override fun submit(
         request: Request,
         extraRequestParameters: Map<CaptureRequest.Key<*>, Any>,
@@ -58,7 +73,7 @@ class FakeRequestProcessor : RequestProcessor {
         val fakeRequest =
             FakeRequest(listOf(request), extraRequestParameters, requireSurfacesForAllStreams)
 
-        if (rejectRequests || disconnectInvoked || stopInvoked) {
+        if (rejectRequests || closeInvoked) {
             eventChannel.offer(Event(request = fakeRequest, rejected = true))
             return false
         }
@@ -76,7 +91,7 @@ class FakeRequestProcessor : RequestProcessor {
     ): Boolean {
         val fakeRequest =
             FakeRequest(requests, extraRequestParameters, requireSurfacesForAllStreams)
-        if (rejectRequests || disconnectInvoked || stopInvoked) {
+        if (rejectRequests || closeInvoked) {
             eventChannel.offer(Event(request = fakeRequest, rejected = true))
             return false
         }
@@ -94,7 +109,7 @@ class FakeRequestProcessor : RequestProcessor {
     ): Boolean {
         val fakeRequest =
             FakeRequest(listOf(request), extraRequestParameters, requireSurfacesForAllStreams)
-        if (rejectRequests || disconnectInvoked || stopInvoked) {
+        if (rejectRequests || closeInvoked) {
             eventChannel.offer(Event(request = fakeRequest, rejected = true))
             return false
         }
@@ -104,19 +119,19 @@ class FakeRequestProcessor : RequestProcessor {
         return true
     }
 
-    override fun abort() {
+    override fun abortCaptures() {
         abortInvoked = true
         eventChannel.offer(Event(abort = true))
     }
 
-    override fun disconnect() {
-        disconnectInvoked = true
-        eventChannel.offer(Event(disconnect = true))
-    }
-
-    override fun stop() {
+    override fun stopRepeating() {
         stopInvoked = true
         eventChannel.offer(Event(stop = true))
+    }
+
+    override fun close() {
+        closeInvoked = true
+        eventChannel.offer(Event(close = true))
     }
 
     /**
@@ -131,7 +146,7 @@ data class Event(
     val request: FakeRequestProcessor.FakeRequest? = null,
     val rejected: Boolean = false,
     val abort: Boolean = false,
-    val disconnect: Boolean = false,
+    val close: Boolean = false,
     val stop: Boolean = false,
     val submit: Boolean = false,
     val setRepeating: Boolean = false

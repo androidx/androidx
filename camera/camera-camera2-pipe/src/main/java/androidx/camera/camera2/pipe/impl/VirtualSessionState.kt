@@ -17,14 +17,106 @@
 package androidx.camera.camera2.pipe.impl
 
 import android.view.Surface
+
+import androidx.annotation.GuardedBy
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.wrapper.CameraCaptureSessionWrapper
+import androidx.camera.camera2.pipe.wrapper.CameraDeviceWrapper
+import androidx.camera.camera2.pipe.wrapper.OutputConfigurationWrapper
 import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import java.util.Collections.synchronizedMap
+
+interface SurfaceListener {
+    fun setSurfaceMap(surfaces: Map<StreamId, Surface>)
+}
 
 internal val virtualSessionDebugIds = atomic(0)
-class VirtualSessionState : CameraCaptureSessionWrapper.StateCallback, SurfaceMap {
+
+/**
+ * This class encapsulates the state and logic required to create and start a CaptureSession.
+ *
+ * After being created, it will wait for a valid CameraDevice and Surfaces that it will use
+ * to create and start the capture session. Calling shutdown or disconnect will release the current
+ * session (if one has been configured), and prevent / close any session that was in the process of
+ * being created when shutdown / disconnect was called.
+ */
+class VirtualSessionState(
+    private val graphProcessor: GraphProcessor,
+    private val sessionFactory: SessionFactory,
+    private val requestProcessorFactory: RequestProcessor.Factory,
+    private val scope: CoroutineScope
+) : CameraCaptureSessionWrapper.StateCallback, SurfaceListener {
     private val debugId = virtualSessionDebugIds.incrementAndGet()
-    var surfaceMap: Map<StreamId, Surface>? = null
+    private val lock = Any()
+
+    private val activeSurfaceMap = synchronizedMap(HashMap<StreamId, Surface>())
+
+    private var sessionCreatingTimestamp: Long? = null
+
+    @GuardedBy("lock")
+    private var _cameraDevice: CameraDeviceWrapper? = null
+    var cameraDevice: CameraDeviceWrapper?
+        get() = synchronized(lock) { _cameraDevice }
+        set(value) = synchronized(lock) {
+            if (state == State.CLOSING || state == State.CLOSED) {
+                return
+            }
+
+            _cameraDevice = value
+            if (value != null) {
+                scope.launch { tryCreateCaptureSession() }
+            }
+        }
+
+    @GuardedBy("lock")
+    private var cameraCaptureSession: ConfiguredCameraCaptureSession? = null
+
+    @GuardedBy("lock")
+    private var pendingOutputMap: Map<StreamId, OutputConfigurationWrapper>? = null
+
+    @GuardedBy("lock")
+    private var pendingSurfaceMap: Map<StreamId, Surface>? = null
+
+    @GuardedBy("lock")
+    private var state = State.PENDING
+
+    private enum class State {
+        PENDING,
+        CREATING,
+        CREATED,
+        CLOSING,
+        CLOSED
+    }
+
+    @GuardedBy("lock")
+    private var _surfaceMap: Map<StreamId, Surface>? = null
+    override fun setSurfaceMap(surfaces: Map<StreamId, Surface>) {
+        synchronized(lock) {
+            if (state == State.CLOSING || state == State.CLOSED) {
+                return@synchronized
+            }
+
+            _surfaceMap = surfaces
+
+            val pendingOutputs = pendingOutputMap
+            if (pendingOutputs != null && pendingSurfaceMap == null) {
+
+                // Filter the list of current surfaces down ones that are present in the set of
+                // deferred outputs.
+                val pendingSurfaces = surfaces.filter { pendingOutputs.containsKey(it.key) }
+
+                // We can only invoke finishDeferredOutputs after we have a surface for ALL
+                // of the deferred outputs.
+                if (pendingSurfaces.size == pendingOutputs.size) {
+                    pendingSurfaceMap = pendingSurfaces
+                    scope.launch { finalizeOutputsIfAvailable() }
+                }
+            }
+            scope.launch { tryCreateCaptureSession() }
+        }
+    }
 
     override fun onActive(session: CameraCaptureSessionWrapper) {
         Log.debug { "$this Active" }
@@ -32,14 +124,17 @@ class VirtualSessionState : CameraCaptureSessionWrapper.StateCallback, SurfaceMa
 
     override fun onClosed(session: CameraCaptureSessionWrapper) {
         Log.debug { "$this Closed" }
+        shutdown()
     }
 
     override fun onConfigureFailed(session: CameraCaptureSessionWrapper) {
-        Log.debug { "$this ConfigureFailed" }
+        Log.warn { "Failed to configure $this" }
+        shutdown()
     }
 
     override fun onConfigured(session: CameraCaptureSessionWrapper) {
-        Log.info { "$this Configured" }
+        Log.debug { "$this Configured" }
+        configure(session)
     }
 
     override fun onReady(session: CameraCaptureSessionWrapper) {
@@ -50,9 +145,53 @@ class VirtualSessionState : CameraCaptureSessionWrapper.StateCallback, SurfaceMa
         Log.debug { "$this Active" }
     }
 
-    /** Return a Surface that should be used for a specific stream */
-    override fun get(streamId: StreamId): Surface? {
-        TODO("Implemented in a future change.")
+    private fun configure(session: CameraCaptureSessionWrapper?) {
+        val captureSession: ConfiguredCameraCaptureSession?
+        var tryConfigureDeferred = false
+
+        // This block is designed to do two things:
+        // 1. Get or create a RequestProcessor instance.
+        // 2. Pass the requestProcessor to the graphProcessor after the session is fully created and
+        //    the onConfigured callback has been invoked.
+        synchronized(lock) {
+            if (state == State.CLOSING || state == State.CLOSED) {
+                return
+            }
+
+            if (cameraCaptureSession == null && session != null) {
+                captureSession = ConfiguredCameraCaptureSession(
+                    session,
+                    requestProcessorFactory.create(session, activeSurfaceMap)
+                )
+                cameraCaptureSession = captureSession
+            } else {
+                captureSession = cameraCaptureSession
+            }
+
+            if (state != State.CREATED || captureSession == null) {
+                return
+            }
+
+            // Finalize deferredConfigs if finalizeOutputConfigurations was previously invoked.
+            if (pendingOutputMap != null && pendingSurfaceMap != null) {
+                tryConfigureDeferred = true
+            }
+        }
+
+        if (tryConfigureDeferred) {
+            finalizeOutputsIfAvailable(retryAllowed = false)
+        }
+
+        synchronized(lock) {
+            captureSession?.let {
+                Log.info {
+                    val duration = Metrics.monotonicNanos() - sessionCreatingTimestamp!!
+                    "Configured $this in ${duration.formatNanoTime()}"
+                }
+
+                graphProcessor.attach(it.processor)
+            }
+        }
     }
 
     /**
@@ -60,14 +199,162 @@ class VirtualSessionState : CameraCaptureSessionWrapper.StateCallback, SurfaceMa
      * a closed state. This will not cancel repeating requests or abort captures.
      */
     fun disconnect() {
+        val captureSession = synchronized(lock) {
+            if (state == State.CLOSING || state == State.CLOSED) {
+                return@synchronized null
+            }
+
+            cameraCaptureSession.also {
+                cameraCaptureSession = null
+                state = State.CLOSING
+            }
+        }
+
+        if (captureSession != null) {
+            graphProcessor.detach(captureSession.processor)
+        }
+
+        synchronized(this) {
+            _cameraDevice = null
+            state = State.CLOSED
+        }
     }
 
     /**
      * This is used to disconnect the cached [CameraCaptureSessionWrapper] and put this object into
      * a closed state. This may stop the repeating request and abort captures.
      */
-    fun shutdown() {
+    private fun shutdown() {
+        val captureSession = synchronized(lock) {
+            if (state == State.CLOSING || state == State.CLOSED) {
+                return@synchronized null
+            }
+
+            cameraCaptureSession.also {
+                cameraCaptureSession = null
+                state = State.CLOSING
+            }
+        }
+
+        if (captureSession != null) {
+            graphProcessor.detach(captureSession.processor)
+            captureSession.processor.stopRepeating()
+            captureSession.processor.abortCaptures()
+        }
+
+        synchronized(this) {
+            _cameraDevice = null
+            state = State.CLOSED
+        }
+    }
+
+    private fun finalizeOutputsIfAvailable(retryAllowed: Boolean = true) {
+        val captureSession: ConfiguredCameraCaptureSession?
+        val pendingOutputs: Map<StreamId, OutputConfigurationWrapper>?
+        val pendingSurfaces: Map<StreamId, Surface>?
+        synchronized(lock) {
+            captureSession = cameraCaptureSession
+            pendingOutputs = pendingOutputMap
+            pendingSurfaces = pendingSurfaceMap
+        }
+
+        if (captureSession != null && pendingOutputs != null && pendingSurfaces != null) {
+            val finalizedStartTime = Metrics.monotonicNanos()
+            for ((streamId, outputConfig) in pendingOutputs) {
+                // TODO: Consider adding support for experimental libraries on older devices.
+
+                val surface = checkNotNull(pendingSurfaces[streamId])
+                outputConfig.addSurface(surface)
+            }
+
+            // It's possible that more than one stream maps to the same output configuration since
+            // output configurations support multiple surfaces. If this happens, we may have more
+            // deferred outputs than outputConfiguration objects.
+            val distinctOutputs = pendingOutputs.mapTo(mutableSetOf()) { it.value }.toList()
+            captureSession.session.finalizeOutputConfigurations(distinctOutputs)
+
+            var tryResubmit = false
+            synchronized(lock) {
+                if (state == State.CREATED) {
+                    activeSurfaceMap.putAll(pendingSurfaces)
+                    Log.info {
+                        val finalizationTime = Metrics.monotonicNanos() - finalizedStartTime
+                        "Finalized ${pendingOutputs.map { it.key }} for $this in " +
+                                finalizationTime.formatNanoTime()
+                    }
+                    tryResubmit = true
+                }
+            }
+
+            if (tryResubmit && retryAllowed) {
+                graphProcessor.retry()
+            }
+        }
+    }
+
+    private fun tryCreateCaptureSession() {
+        val surfaces: Map<StreamId, Surface>?
+        val device: CameraDeviceWrapper?
+        synchronized(lock) {
+            if (state != State.PENDING) {
+                return
+            }
+
+            surfaces = _surfaceMap
+            device = _cameraDevice
+            if (surfaces == null || device == null) {
+                return
+            }
+
+            state = State.CREATING
+            sessionCreatingTimestamp = Metrics.monotonicNanos()
+        }
+
+        // Create the capture session and return a Map of StreamId -> OutputConfiguration for any
+        // outputs that were not initially available. These will be configured later.
+        Log.info {
+            "Creating CameraCaptureSession from ${device?.cameraId} using $this with $surfaces"
+        }
+        val deferred = sessionFactory.create(device!!, surfaces!!, this)
+
+        synchronized(lock) {
+            if (state == State.CLOSING || state == State.CLOSED) {
+                Log.info { "Warning: $this was $state while configuration was in progress." }
+                return
+            }
+            check(state == State.CREATING) { "Unexpected state: $state" }
+            state = State.CREATED
+
+            activeSurfaceMap.putAll(surfaces)
+            if (deferred.isNotEmpty()) {
+                Log.info {
+                    "Created $this with ${surfaces.keys.toList()}. " +
+                            "Waiting to finalize ${deferred.keys.toList()}"
+                }
+                pendingOutputMap = deferred
+
+                val availableDeferredSurfaces = _surfaceMap?.filter {
+                    deferred.containsKey(it.key)
+                }
+
+                if (availableDeferredSurfaces != null &&
+                    availableDeferredSurfaces.size == deferred.size
+                ) {
+                    pendingSurfaceMap = availableDeferredSurfaces
+                }
+            }
+        }
+
+        // There are rare cases where the onConfigured call may be invoked synchronously. If this
+        // happens, we need to invoke configure here to make sure the session ends up in a valid
+        // state.
+        configure(session = null)
     }
 
     override fun toString(): String = "VirtualSessionState-$debugId"
+
+    private data class ConfiguredCameraCaptureSession(
+        val session: CameraCaptureSessionWrapper,
+        val processor: RequestProcessor
+    )
 }

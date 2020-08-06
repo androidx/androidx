@@ -89,18 +89,24 @@ class StreamMap @Inject constructor(
         streamConfigMap = streamBuilder
     }
 
-    private var _virtualSession: VirtualSessionState? = null
-    var virtualSession: VirtualSessionState?
-        get() = _virtualSession
+    private var _listener: SurfaceListener? = null
+    var listener: SurfaceListener?
+        get() = _listener
         set(value) {
-            _virtualSession = value
+            _listener = value
             if (value != null) {
                 maybeUpdateSurfaces()
             }
         }
 
     operator fun set(stream: StreamId, surface: Surface?) {
-        Log.info { "Configured $stream to use $surface" }
+        Log.info {
+            if (surface != null) {
+                "Configured $stream to use $surface"
+            } else {
+                "Removed surface for $stream"
+            }
+        }
         if (surface == null) {
             // TODO: Tell the graph processor that it should resubmit the repeating request or
             //  reconfigure the camera2 captureSession
@@ -112,7 +118,7 @@ class StreamMap @Inject constructor(
     }
 
     private fun maybeUpdateSurfaces() {
-        val session = _virtualSession ?: return
+        val surfaceListener = _listener ?: return
 
         // Rules:
         // 1. In order to tell the captureSession that we have surfaces, we should wait until we
@@ -137,7 +143,7 @@ class StreamMap @Inject constructor(
             return
         }
 
-        session.surfaceMap = surfaces
+        surfaceListener.setSurfaceMap(surfaces)
     }
 
     // Using an inline class generates a synthetic constructor

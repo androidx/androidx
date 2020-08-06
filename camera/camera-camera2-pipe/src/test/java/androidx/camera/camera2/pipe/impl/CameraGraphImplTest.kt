@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.impl
 
-import android.content.Context
 import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
 import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
 import android.os.Build
@@ -27,7 +26,7 @@ import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
 import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
 import androidx.camera.camera2.pipe.testing.FakeCameras
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
-import androidx.test.core.app.ApplicationProvider
+import androidx.camera.camera2.pipe.testing.FakeGraphState
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
@@ -47,7 +46,8 @@ class CameraGraphImplTest {
         mapOf(INFO_SUPPORTED_HARDWARE_LEVEL to INFO_SUPPORTED_HARDWARE_LEVEL_FULL),
         cameraId = fakeCameraId
     )
-    private val graphProcessor = FakeGraphProcessor()
+    private val fakeGraphProcessor = FakeGraphProcessor()
+    private val fakeGraphState = FakeGraphState()
     private lateinit var impl: CameraGraphImpl
 
     @Before
@@ -57,8 +57,16 @@ class CameraGraphImplTest {
             streams = listOf(),
             template = RequestTemplate(0)
         )
-        val context = ApplicationProvider.getApplicationContext() as Context
-        impl = CameraGraphImpl(context, config, graphProcessor, StreamMap(fakeMetadata, config))
+        impl = CameraGraphImpl(
+            config,
+            fakeMetadata,
+            fakeGraphProcessor,
+            StreamMap(
+                fakeMetadata,
+                config
+            ),
+            fakeGraphState
+        )
     }
 
     @Test
@@ -100,7 +108,7 @@ class CameraGraphImplTest {
         val request = Request(listOf())
         session.submit(request)
 
-        assertThat(graphProcessor.requestQueue).contains(listOf(request))
+        assertThat(fakeGraphProcessor.requestQueue).contains(listOf(request))
     }
 
     @Test
@@ -109,7 +117,7 @@ class CameraGraphImplTest {
         val request = Request(listOf())
         session.setRepeating(request)
 
-        assertThat(graphProcessor.repeatingRequest).isSameInstanceAs(request)
+        assertThat(fakeGraphProcessor.repeatingRequest).isSameInstanceAs(request)
     }
 
     @Test
@@ -119,7 +127,7 @@ class CameraGraphImplTest {
         session.submit(request)
         session.abort()
 
-        assertThat(graphProcessor.requestQueue).isEmpty()
+        assertThat(fakeGraphProcessor.requestQueue).isEmpty()
     }
 
     @Test
@@ -127,26 +135,26 @@ class CameraGraphImplTest {
         val session = impl.acquireSessionOrNull()
         checkNotNull(session).close()
 
-        assertThat(graphProcessor.closed).isFalse()
+        assertThat(fakeGraphProcessor.closed).isFalse()
     }
 
     @Test
     fun closingCameraGraphClosesGraphProcessor() {
         impl.close()
-        assertThat(graphProcessor.closed).isTrue()
+        assertThat(fakeGraphProcessor.closed).isTrue()
     }
 
     @Test
     fun stoppingCameraGraphStopsGraphProcessor() {
-        assertThat(graphProcessor.active).isFalse()
+        assertThat(fakeGraphState.active).isFalse()
         impl.start()
-        assertThat(graphProcessor.active).isTrue()
+        assertThat(fakeGraphState.active).isTrue()
         impl.stop()
-        assertThat(graphProcessor.active).isFalse()
+        assertThat(fakeGraphState.active).isFalse()
         impl.start()
-        assertThat(graphProcessor.active).isTrue()
+        assertThat(fakeGraphState.active).isTrue()
         impl.close()
-        assertThat(graphProcessor.closed).isTrue()
-        assertThat(graphProcessor.active).isFalse()
+        assertThat(fakeGraphProcessor.closed).isTrue()
+        assertThat(fakeGraphState.active).isFalse()
     }
 }

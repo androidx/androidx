@@ -134,6 +134,11 @@ class CameraMetadataImpl constructor(
 
     private val _streamMap: Lazy<StreamConfigurationMap> =
         lazy(LazyThreadSafetyMode.PUBLICATION) {
-            get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
+            val start = Metrics.monotonicNanos()
+            val result = get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP)!!
+            val duration = Metrics.nanosToMillisDouble(Metrics.monotonicNanos() - start)
+            Log.info { "Loaded stream map for ($camera) in ${duration.formatMilliTime()}" }
+
+            result
         }
 }

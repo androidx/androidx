@@ -274,10 +274,10 @@ internal fun buildOutputConfigurations(
     val outputs = arrayListOf<OutputConfigurationWrapper>()
     val deferredOutputs = mutableMapOf<StreamId, OutputConfigurationWrapper>()
 
-    for (stream in graphConfig.streams) {
-        val streamId = streamMap.streamConfigMap[stream]!!.id
-        val physicalCameraId = if (stream.camera != graphConfig.camera) {
-            stream.camera
+    for (streamConfig in graphConfig.streams) {
+        val streamId = streamMap.streamConfigMap[streamConfig]!!.id
+        val physicalCameraId = if (streamConfig.camera != graphConfig.camera) {
+            streamConfig.camera
         } else {
             null
         }
@@ -286,8 +286,8 @@ internal fun buildOutputConfigurations(
 
         val config = AndroidOutputConfiguration.create(
             surface,
-            streamType = stream.type,
-            size = stream.size,
+            streamType = streamConfig.type,
+            size = streamConfig.size,
             physicalCameraId = physicalCameraId
         )
 

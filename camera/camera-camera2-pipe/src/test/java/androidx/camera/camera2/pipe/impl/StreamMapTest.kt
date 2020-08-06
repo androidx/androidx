@@ -152,14 +152,14 @@ class StreamMapTest {
         streamMap[stream2.id] = fakeSurface2
         streamMap[stream3.id] = fakeSurface3
 
-        val session = VirtualSessionState()
+        val session = FakeSurfaceListener()
 
-        streamMap.virtualSession = session
+        streamMap.listener = session
 
-        assertThat(session.surfaceMap).isNotNull()
-        assertThat(session.surfaceMap?.get(stream1.id)).isEqualTo(fakeSurface1)
-        assertThat(session.surfaceMap?.get(stream2.id)).isEqualTo(fakeSurface2)
-        assertThat(session.surfaceMap?.get(stream3.id)).isEqualTo(fakeSurface3)
+        assertThat(session.surfaces).isNotNull()
+        assertThat(session.surfaces?.get(stream1.id)).isEqualTo(fakeSurface1)
+        assertThat(session.surfaces?.get(stream2.id)).isEqualTo(fakeSurface2)
+        assertThat(session.surfaces?.get(stream3.id)).isEqualTo(fakeSurface3)
     }
 
     @Test
@@ -173,20 +173,20 @@ class StreamMapTest {
         val fakeSurface2 = Surface(SurfaceTexture(2))
         val fakeSurface3 = Surface(SurfaceTexture(3))
 
-        val session = VirtualSessionState()
-        streamMap.virtualSession = session
-        assertThat(session.surfaceMap).isNull()
+        val session = FakeSurfaceListener()
+        streamMap.listener = session
+        assertThat(session.surfaces).isNull()
 
         streamMap[stream1.id] = fakeSurface1
-        assertThat(session.surfaceMap).isNull()
+        assertThat(session.surfaces).isNull()
 
         streamMap[stream2.id] = fakeSurface2
         streamMap[stream3.id] = fakeSurface3
 
-        assertThat(session.surfaceMap).isNotNull()
-        assertThat(session.surfaceMap?.get(stream1.id)).isEqualTo(fakeSurface1)
-        assertThat(session.surfaceMap?.get(stream2.id)).isEqualTo(fakeSurface2)
-        assertThat(session.surfaceMap?.get(stream3.id)).isEqualTo(fakeSurface3)
+        assertThat(session.surfaces).isNotNull()
+        assertThat(session.surfaces?.get(stream1.id)).isEqualTo(fakeSurface1)
+        assertThat(session.surfaces?.get(stream2.id)).isEqualTo(fakeSurface2)
+        assertThat(session.surfaces?.get(stream3.id)).isEqualTo(fakeSurface3)
     }
 
     @Test
@@ -201,19 +201,19 @@ class StreamMapTest {
         val fakeSurface3 = Surface(SurfaceTexture(3))
         val fakeSurface4 = Surface(SurfaceTexture(4))
 
-        val session = VirtualSessionState()
-        streamMap.virtualSession = session
+        val session = FakeSurfaceListener()
+        streamMap.listener = session
         streamMap[stream1.id] = fakeSurface1
         streamMap[stream1.id] = fakeSurface2
-        assertThat(session.surfaceMap).isNull()
+        assertThat(session.surfaces).isNull()
 
         streamMap[stream2.id] = fakeSurface3
         streamMap[stream3.id] = fakeSurface4
 
-        assertThat(session.surfaceMap).isNotNull()
-        assertThat(session.surfaceMap?.get(stream1.id)).isEqualTo(fakeSurface2)
-        assertThat(session.surfaceMap?.get(stream2.id)).isEqualTo(fakeSurface3)
-        assertThat(session.surfaceMap?.get(stream3.id)).isEqualTo(fakeSurface4)
+        assertThat(session.surfaces).isNotNull()
+        assertThat(session.surfaces?.get(stream1.id)).isEqualTo(fakeSurface2)
+        assertThat(session.surfaces?.get(stream2.id)).isEqualTo(fakeSurface3)
+        assertThat(session.surfaces?.get(stream3.id)).isEqualTo(fakeSurface4)
     }
 
     @Test
@@ -227,15 +227,15 @@ class StreamMapTest {
         val fakeSurface2 = Surface(SurfaceTexture(2))
         val fakeSurface3 = Surface(SurfaceTexture(3))
 
-        val session = VirtualSessionState()
-        streamMap.virtualSession = session
+        val session = FakeSurfaceListener()
+        streamMap.listener = session
         streamMap[stream1.id] = fakeSurface1
-        streamMap.virtualSession = null
+        streamMap.listener = null
 
         streamMap[stream2.id] = fakeSurface2
         streamMap[stream3.id] = fakeSurface3
 
-        assertThat(session.surfaceMap).isNull()
+        assertThat(session.surfaces).isNull()
     }
 
     @Test
@@ -253,15 +253,23 @@ class StreamMapTest {
         streamMap[stream2.id] = fakeSurface2
         streamMap[stream3.id] = fakeSurface3
 
-        val session1 = VirtualSessionState()
-        streamMap.virtualSession = session1
+        val session1 = FakeSurfaceListener()
+        streamMap.listener = session1
 
-        val session2 = VirtualSessionState()
-        streamMap.virtualSession = session2
+        val session2 = FakeSurfaceListener()
+        streamMap.listener = session2
 
-        assertThat(session2.surfaceMap).isNotNull()
-        assertThat(session2.surfaceMap?.get(stream1.id)).isEqualTo(fakeSurface1)
-        assertThat(session2.surfaceMap?.get(stream2.id)).isEqualTo(fakeSurface2)
-        assertThat(session2.surfaceMap?.get(stream3.id)).isEqualTo(fakeSurface3)
+        assertThat(session2.surfaces).isNotNull()
+        assertThat(session2.surfaces?.get(stream1.id)).isEqualTo(fakeSurface1)
+        assertThat(session2.surfaces?.get(stream2.id)).isEqualTo(fakeSurface2)
+        assertThat(session2.surfaces?.get(stream3.id)).isEqualTo(fakeSurface3)
+    }
+
+    class FakeSurfaceListener : SurfaceListener {
+        var surfaces: Map<StreamId, Surface>? = null
+
+        override fun setSurfaceMap(surfaces: Map<StreamId, Surface>) {
+            this.surfaces = surfaces
+        }
     }
 }

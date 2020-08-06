@@ -108,7 +108,16 @@ class CameraPipeActivity : Activity() {
                     frameNumber: FrameNumber,
                     timestamp: CameraTimestamp
                 ) {
+//                    Log.i("PJR", "OnStart:   $frameNumber")
                     // TODO: Implement the onStarted event to get frameNumber(s) and timestamps
+                }
+
+                override fun onTotalCaptureResult(
+                    requestMetadata: RequestMetadata,
+                    frameNumber: FrameNumber,
+                    totalCaptureResult: FrameInfo
+                ) {
+//                    Log.i("PJR", "onTotalCaptureResult: $frameNumber")
                 }
 
                 override fun onComplete(
@@ -116,6 +125,7 @@ class CameraPipeActivity : Activity() {
                     frameNumber: FrameNumber,
                     result: FrameInfo
                 ) {
+                    Log.i("PJR", "onComplete: $frameNumber")
                     // TODO: Implement the onComplete event to write out Metadata
                 }
             }))

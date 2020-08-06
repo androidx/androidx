@@ -68,6 +68,14 @@ abstract class CameraGraphModules {
     @Binds
     abstract fun bindGraphProcessor(graphProcessor: GraphProcessorImpl): GraphProcessor
 
+    @Binds
+    abstract fun bindRequestProcessorFactory(
+        factory: StandardRequestProcessorFactory
+    ): RequestProcessor.Factory
+
+    @Binds
+    abstract fun bindGraphState(graphState: GraphStateImpl): GraphState
+
     companion object {
         @CameraGraphScope
         @Provides
