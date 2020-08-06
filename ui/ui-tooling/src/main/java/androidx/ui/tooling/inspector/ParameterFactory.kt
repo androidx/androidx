@@ -333,10 +333,9 @@ internal class ParameterFactory {
 
     private fun loadFromInterface(interfaceClass: Class<*>) {
         // REDO: If we decide to add a kotlin reflection dependency
-        interfaceClass.classes
-            .flatMap { it.fields.asIterable() }
-            .filter { it.name == "INSTANCE" }
-            .associateByTo(valueLookup, { it[null]!! }, { it.declaringClass.simpleName })
+        interfaceClass.declaredFields
+            .filter { it.name != "INSTANCE" }
+            .associateByTo(valueLookup, { it.isAccessible = true; it[null]!! }, { it.name })
     }
 
     private fun loadFromCompanion(companionInstance: Any, ignore: String? = null) {
