@@ -52,6 +52,7 @@ import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.length
+import androidx.compose.ui.util.annotation.VisibleForTesting
 import androidx.compose.ui.util.fastForEach
 
 internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidComposeView) :
@@ -480,7 +481,8 @@ internal class AndroidComposeViewAccessibilityDelegateCompat(val view: AndroidCo
      * @return An {@link AccessibilityEvent} populated with information about
      *         the specified item.
      */
-    private fun createEvent(virtualViewId: Int, eventType: Int): AccessibilityEvent {
+    @VisibleForTesting
+    internal fun createEvent(virtualViewId: Int, eventType: Int): AccessibilityEvent {
         val event: AccessibilityEvent = AccessibilityEvent.obtain(eventType)
         event.isEnabled = true
         event.className = ClassName
