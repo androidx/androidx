@@ -18,7 +18,7 @@ package androidx.compose.ui.gesture
 
 import androidx.compose.ui.input.pointer.PointerInputFilter
 import androidx.compose.ui.input.pointer.PointerInputModifier
-import androidx.compose.ui.platform.PointerInputChange
+import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastAny
 

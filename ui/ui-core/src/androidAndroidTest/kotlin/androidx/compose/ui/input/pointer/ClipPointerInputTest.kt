@@ -32,8 +32,6 @@ import androidx.compose.ui.gesture.MotionEvent
 import androidx.compose.ui.gesture.PointerCoords
 import androidx.compose.ui.gesture.PointerProperties
 import androidx.compose.ui.platform.DensityAmbient
-import androidx.compose.ui.platform.PointerEventPass
-import androidx.compose.ui.platform.PointerInputChange
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.runOnUiThreadIR
 import androidx.compose.ui.unit.IntSize

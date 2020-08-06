@@ -25,13 +25,13 @@ import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.ui.gesture.scrollorientationlocking.ScrollOrientationLocker
 import androidx.compose.ui.input.pointer.PointerInputFilter
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.CustomEvent
-import androidx.compose.ui.platform.CustomEventDispatcher
+import androidx.compose.ui.input.pointer.CustomEvent
+import androidx.compose.ui.input.pointer.CustomEventDispatcher
 import androidx.compose.ui.platform.DensityAmbient
-import androidx.compose.ui.platform.PointerEventPass
-import androidx.compose.ui.platform.PointerInputChange
-import androidx.compose.ui.platform.changedToUpIgnoreConsumed
-import androidx.compose.ui.platform.positionChange
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
+import androidx.compose.ui.input.pointer.positionChange
 import androidx.compose.ui.unit.IntSize
 import kotlin.math.abs
 

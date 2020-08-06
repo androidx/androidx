@@ -22,7 +22,6 @@ import androidx.test.filters.SmallTest
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.gesture.PointerCoords
 import androidx.compose.ui.gesture.PointerProperties
-import androidx.compose.ui.platform.PointerEvent
 import androidx.compose.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -35,7 +34,10 @@ class PointerInteropUtilsTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun toMotionEventScope_noPlatformEvent_throws() {
-        val pointerEvent = PointerEvent(listOf(), motionEvent = null)
+        val pointerEvent = PointerEvent(
+            listOf(),
+            motionEvent = null
+        )
         pointerEvent.toMotionEventScope(Offset.Zero) {}
     }
 
@@ -50,7 +52,16 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(1)),
                 arrayOf(PointerCoords(3f, 4f))
             )
-        val pointerEvent = PointerEvent(listOf(down(1, 2.milliseconds, 3f, 4f)), expected)
+        val pointerEvent = PointerEvent(
+            listOf(
+                down(
+                    1,
+                    2.milliseconds,
+                    3f,
+                    4f
+                )
+            ), expected
+        )
 
         lateinit var actual: MotionEvent
         pointerEvent.toMotionEventScope(Offset.Zero) {
@@ -97,7 +108,12 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(1), PointerProperties(8)),
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(10f, 11f))
             )
-        val pointerEvent = PointerEvent(listOf(pointer1, pointer2), expected)
+        val pointerEvent = PointerEvent(
+            listOf(
+                pointer1,
+                pointer2
+            ), expected
+        )
 
         lateinit var actual: MotionEvent
         pointerEvent.toMotionEventScope(Offset.Zero) {
@@ -120,7 +136,12 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(8), PointerProperties(1)),
                 arrayOf(PointerCoords(10f, 11f), PointerCoords(3f, 4f))
             )
-        val pointerEvent = PointerEvent(listOf(pointer2, pointer1), expected)
+        val pointerEvent = PointerEvent(
+            listOf(
+                pointer2,
+                pointer1
+            ), expected
+        )
 
         lateinit var actual: MotionEvent
         pointerEvent.toMotionEventScope(Offset.Zero) {
@@ -143,7 +164,12 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(1), PointerProperties(8)),
                 arrayOf(PointerCoords(3f, 4f), PointerCoords(10f, 11f))
             )
-        val pointerEvent = PointerEvent(listOf(pointer1, pointer2), expected)
+        val pointerEvent = PointerEvent(
+            listOf(
+                pointer1,
+                pointer2
+            ), expected
+        )
 
         lateinit var actual: MotionEvent
         pointerEvent.toMotionEventScope(Offset.Zero) {
@@ -166,7 +192,12 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(8), PointerProperties(1)),
                 arrayOf(PointerCoords(10f, 11f), PointerCoords(3f, 4f))
             )
-        val pointerEvent = PointerEvent(listOf(pointer2, pointer1), expected)
+        val pointerEvent = PointerEvent(
+            listOf(
+                pointer2,
+                pointer1
+            ), expected
+        )
 
         lateinit var actual: MotionEvent
         pointerEvent.toMotionEventScope(Offset.Zero) {
@@ -188,7 +219,10 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(1)),
                 arrayOf(PointerCoords(8f, 9f))
             )
-        val pointerEvent = PointerEvent(listOf(pointer1), expected)
+        val pointerEvent = PointerEvent(
+            listOf(pointer1),
+            expected
+        )
 
         lateinit var actual: MotionEvent
         pointerEvent.toMotionEventScope(Offset.Zero) {
@@ -211,7 +245,12 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(1), PointerProperties(11)),
                 arrayOf(PointerCoords(8f, 9f), PointerCoords(18f, 19f))
             )
-        val pointerEvent = PointerEvent(listOf(pointer1, pointer2), expected)
+        val pointerEvent = PointerEvent(
+            listOf(
+                pointer1,
+                pointer2
+            ), expected
+        )
 
         lateinit var actual: MotionEvent
         pointerEvent.toMotionEventScope(Offset.Zero) {
@@ -233,7 +272,10 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(1)),
                 arrayOf(PointerCoords(13f, 104f))
             ).apply { offsetLocation(-10f, -100f) }
-        val pointerEvent = PointerEvent(listOf(pointer1), expected)
+        val pointerEvent = PointerEvent(
+            listOf(pointer1),
+            expected
+        )
 
         lateinit var actual: MotionEvent
         pointerEvent.toMotionEventScope(Offset(10f, 100f)) {
@@ -256,7 +298,12 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(8), PointerProperties(1)),
                 arrayOf(PointerCoords(110f, 1011f), PointerCoords(103f, 1004f))
             ).apply { offsetLocation(-100f, -1000f) }
-        val pointerEvent = PointerEvent(listOf(pointer2, pointer1), expected)
+        val pointerEvent = PointerEvent(
+            listOf(
+                pointer2,
+                pointer1
+            ), expected
+        )
 
         lateinit var actual: MotionEvent
         pointerEvent.toMotionEventScope(Offset(100f, 1000f)) {
@@ -268,7 +315,10 @@ class PointerInteropUtilsTest {
 
     @Test(expected = IllegalArgumentException::class)
     fun toCancelMotionEventScope_noPlatformEvent_throws() {
-        val pointerEvent = PointerEvent(listOf(), motionEvent = null)
+        val pointerEvent = PointerEvent(
+            listOf(),
+            motionEvent = null
+        )
         pointerEvent.toCancelMotionEventScope(Offset.Zero) {}
     }
 
@@ -284,7 +334,10 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(1)),
                 arrayOf(PointerCoords(8f, 9f))
             )
-        val pointerEvent = PointerEvent(listOf(pointer1), expected)
+        val pointerEvent = PointerEvent(
+            listOf(pointer1),
+            expected
+        )
 
         lateinit var actual: MotionEvent
         pointerEvent.toCancelMotionEventScope(Offset.Zero) {
@@ -307,7 +360,12 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(1), PointerProperties(11)),
                 arrayOf(PointerCoords(8f, 9f), PointerCoords(18f, 19f))
             )
-        val pointerEvent = PointerEvent(listOf(pointer1, pointer2), expected)
+        val pointerEvent = PointerEvent(
+            listOf(
+                pointer1,
+                pointer2
+            ), expected
+        )
 
         lateinit var actual: MotionEvent
         pointerEvent.toCancelMotionEventScope(Offset.Zero) {
@@ -330,7 +388,12 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(11), PointerProperties(1)),
                 arrayOf(PointerCoords(18f, 19f), PointerCoords(8f, 9f))
             )
-        val pointerEvent = PointerEvent(listOf(pointer2, pointer1), expected)
+        val pointerEvent = PointerEvent(
+            listOf(
+                pointer2,
+                pointer1
+            ), expected
+        )
 
         lateinit var actual: MotionEvent
         pointerEvent.toCancelMotionEventScope(Offset.Zero) {
@@ -352,7 +415,10 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(1)),
                 arrayOf(PointerCoords(13f, 104f))
             ).apply { offsetLocation(-10f, -100f) }
-        val pointerEvent = PointerEvent(listOf(pointer1), expected)
+        val pointerEvent = PointerEvent(
+            listOf(pointer1),
+            expected
+        )
 
         lateinit var actual: MotionEvent
         pointerEvent.toCancelMotionEventScope(Offset(10f, 100f)) {
@@ -375,7 +441,12 @@ class PointerInteropUtilsTest {
                 arrayOf(PointerProperties(8), PointerProperties(1)),
                 arrayOf(PointerCoords(110f, 1011f), PointerCoords(103f, 1004f))
             ).apply { offsetLocation(-100f, -1000f) }
-        val pointerEvent = PointerEvent(listOf(pointer2, pointer1), expected)
+        val pointerEvent = PointerEvent(
+            listOf(
+                pointer2,
+                pointer1
+            ), expected
+        )
 
         lateinit var actual: MotionEvent
         pointerEvent.toCancelMotionEventScope(Offset(100f, 1000f)) {

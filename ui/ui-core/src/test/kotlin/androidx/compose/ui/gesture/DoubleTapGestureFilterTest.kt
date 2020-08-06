@@ -26,9 +26,9 @@ import androidx.compose.ui.input.pointer.down
 import androidx.compose.ui.input.pointer.invokeOverAllPasses
 import androidx.compose.ui.input.pointer.moveTo
 import androidx.compose.ui.input.pointer.up
-import androidx.compose.ui.platform.CustomEventDispatcher
-import androidx.compose.ui.platform.PointerId
-import androidx.compose.ui.platform.consumeDownChange
+import androidx.compose.ui.input.pointer.CustomEventDispatcher
+import androidx.compose.ui.input.pointer.PointerId
+import androidx.compose.ui.input.pointer.consumeDownChange
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat

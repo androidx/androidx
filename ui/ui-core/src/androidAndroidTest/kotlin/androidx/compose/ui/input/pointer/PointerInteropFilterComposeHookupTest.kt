@@ -28,7 +28,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.DensityAmbient
-import androidx.compose.ui.platform.PointerEventPass
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.test.TestActivity
 import androidx.test.filters.MediumTest

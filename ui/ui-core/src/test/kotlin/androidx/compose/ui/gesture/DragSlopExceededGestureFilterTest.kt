@@ -19,8 +19,8 @@
 
 package androidx.compose.ui.gesture
 
-import androidx.compose.ui.platform.PointerEventPass
-import androidx.compose.ui.platform.consumeDownChange
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.consumeDownChange
 import androidx.compose.ui.gesture.scrollorientationlocking.InternalScrollOrientationLocker
 import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.ui.gesture.scrollorientationlocking.ScrollOrientationLocker

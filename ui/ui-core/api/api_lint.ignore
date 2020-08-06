@@ -1,10 +1,10 @@
 // Baseline format: 1.0
-ArrayReturn: androidx.compose.ui.input.pointer.PointerInputTestUtilKt#invokeOverAllPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.compose.ui.platform.PointerInputChange>,? super androidx.compose.ui.platform.PointerEventPass,? super androidx.compose.ui.unit.IntSize,? extends java.util.List<androidx.compose.ui.platform.PointerInputChange>>, androidx.compose.ui.platform.PointerInputChange[], androidx.compose.ui.unit.IntSize) parameter #1:
-    Method parameter should be Collection<PointerInputChange> (or subclass) instead of raw array; was `androidx.compose.ui.platform.PointerInputChange[]`
-ArrayReturn: androidx.compose.ui.input.pointer.PointerInputTestUtilKt#invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.compose.ui.platform.PointerInputChange>,? super androidx.compose.ui.platform.PointerEventPass,? super androidx.compose.ui.unit.IntSize,? extends java.util.List<androidx.compose.ui.platform.PointerInputChange>>, androidx.compose.ui.platform.PointerInputChange, androidx.compose.ui.platform.PointerEventPass[], androidx.compose.ui.unit.IntSize) parameter #2:
-    Method parameter should be Collection<PointerEventPass> (or subclass) instead of raw array; was `androidx.compose.ui.platform.PointerEventPass[]`
-ArrayReturn: androidx.compose.ui.input.pointer.PointerInputTestUtilKt#invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.compose.ui.platform.PointerInputChange>,? super androidx.compose.ui.platform.PointerEventPass,? super androidx.compose.ui.unit.IntSize,? extends java.util.List<androidx.compose.ui.platform.PointerInputChange>>, androidx.compose.ui.platform.PointerInputChange[], androidx.compose.ui.platform.PointerEventPass, androidx.compose.ui.unit.IntSize) parameter #1:
-    Method parameter should be Collection<PointerInputChange> (or subclass) instead of raw array; was `androidx.compose.ui.platform.PointerInputChange[]`
+ArrayReturn: androidx.compose.ui.input.pointer.PointerInputTestUtilKt#invokeOverAllPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.compose.ui.input.pointer.PointerInputChange>,? super androidx.compose.ui.input.pointer.PointerEventPass,? super androidx.compose.ui.unit.IntSize,? extends java.util.List<androidx.compose.ui.input.pointer.PointerInputChange>>, androidx.compose.ui.input.pointer.PointerInputChange[], androidx.compose.ui.unit.IntSize) parameter #1:
+    Method parameter should be Collection<PointerInputChange> (or subclass) instead of raw array; was `androidx.compose.ui.input.pointer.PointerInputChange[]`
+ArrayReturn: androidx.compose.ui.input.pointer.PointerInputTestUtilKt#invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.compose.ui.input.pointer.PointerInputChange>,? super androidx.compose.ui.input.pointer.PointerEventPass,? super androidx.compose.ui.unit.IntSize,? extends java.util.List<androidx.compose.ui.input.pointer.PointerInputChange>>, androidx.compose.ui.input.pointer.PointerInputChange, androidx.compose.ui.input.pointer.PointerEventPass[], androidx.compose.ui.unit.IntSize) parameter #2:
+    Method parameter should be Collection<PointerEventPass> (or subclass) instead of raw array; was `androidx.compose.ui.input.pointer.PointerEventPass[]`
+ArrayReturn: androidx.compose.ui.input.pointer.PointerInputTestUtilKt#invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.compose.ui.input.pointer.PointerInputChange>,? super androidx.compose.ui.input.pointer.PointerEventPass,? super androidx.compose.ui.unit.IntSize,? extends java.util.List<androidx.compose.ui.input.pointer.PointerInputChange>>, androidx.compose.ui.input.pointer.PointerInputChange[], androidx.compose.ui.input.pointer.PointerEventPass, androidx.compose.ui.unit.IntSize) parameter #1:
+    Method parameter should be Collection<PointerInputChange> (or subclass) instead of raw array; was `androidx.compose.ui.input.pointer.PointerInputChange[]`
 
 
 AutoBoxing: androidx.compose.ui.node.LayoutNode#getAlignmentLine(androidx.compose.ui.AlignmentLine):
@@ -37,6 +37,8 @@ ListenerLast: androidx.compose.ui.gesture.ScrollGestureFilterKt#scrollGestureFil
 
 MissingNullability: androidx.compose.ui.TransformOrigin#toString-impl(long):
     Missing nullability on method `toString-impl` return
+MissingNullability: androidx.compose.ui.input.pointer.PointerId#toString-impl(long):
+    Missing nullability on method `toString-impl` return
 MissingNullability: androidx.compose.ui.layout.Measured#constructor-impl(androidx.compose.ui.Placeable):
     Missing nullability on method `constructor-impl` return
 MissingNullability: androidx.compose.ui.layout.Measured#equals-impl(androidx.compose.ui.Placeable, Object) parameter #0:
@@ -51,8 +53,6 @@ MissingNullability: androidx.compose.ui.layout.Measured#toString-impl(androidx.c
     Missing nullability on method `toString-impl` return
 MissingNullability: androidx.compose.ui.layout.Measured#toString-impl(androidx.compose.ui.Placeable) parameter #0:
     Missing nullability on parameter `p` in method `toString-impl`
-MissingNullability: androidx.compose.ui.platform.PointerId#toString-impl(long):
-    Missing nullability on method `toString-impl` return
 
 
 NotCloseable: androidx.compose.ui.node.OwnedLayer:

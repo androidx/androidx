@@ -20,7 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventPass
 
 // TODO(b/146133703): Likely rename to PanGestureDetector as per b/146133703
 /**

@@ -17,13 +17,6 @@
 package androidx.compose.ui.input.pointer
 
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.ConsumedData
-import androidx.compose.ui.platform.CustomEvent
-import androidx.compose.ui.platform.PointerEventPass
-import androidx.compose.ui.platform.PointerId
-import androidx.compose.ui.platform.PointerInputChange
-import androidx.compose.ui.platform.PointerInputData
-import androidx.compose.ui.platform.PointerInputHandler
 import androidx.compose.ui.unit.Duration
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Uptime
@@ -38,7 +31,11 @@ fun down(
 ): PointerInputChange =
     PointerInputChange(
         PointerId(id),
-        PointerInputData(Uptime.Boot + duration, Offset(x, y), true),
+        PointerInputData(
+            Uptime.Boot + duration,
+            Offset(x, y),
+            true
+        ),
         PointerInputData(null, null, false),
         ConsumedData(Offset.Zero, false)
     )
@@ -46,7 +43,11 @@ fun down(
 fun PointerInputChange.moveTo(duration: Duration, x: Float = 0f, y: Float = 0f) =
     copy(
         previous = current,
-        current = PointerInputData(Uptime.Boot + duration, Offset(x, y), true),
+        current = PointerInputData(
+            Uptime.Boot + duration,
+            Offset(x, y),
+            true
+        ),
         consumed = ConsumedData()
     )
 
@@ -64,7 +65,11 @@ fun PointerInputChange.moveBy(duration: Duration, dx: Float = 0f, dy: Float = 0f
 fun PointerInputChange.up(duration: Duration) =
     copy(
         previous = current,
-        current = PointerInputData(Uptime.Boot + duration, null, false),
+        current = PointerInputData(
+            Uptime.Boot + duration,
+            null,
+            false
+        ),
         consumed = ConsumedData()
     )
 

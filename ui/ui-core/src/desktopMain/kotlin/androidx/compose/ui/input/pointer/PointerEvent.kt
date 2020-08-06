@@ -14,14 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.platform
-
-import androidx.compose.ui.input.pointer.PointerInputEvent
-
-internal actual class InternalPointerEvent actual constructor(
-    actual var changes: MutableMap<PointerId, PointerInputChange>,
-    pointerInputEvent: PointerInputEvent
-)
+package androidx.compose.ui.input.pointer
 
 /**
  * Describes a pointer input change event that has occurred at a particular point in time.

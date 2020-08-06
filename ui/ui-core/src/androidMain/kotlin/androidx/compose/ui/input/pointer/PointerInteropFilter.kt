@@ -28,13 +28,6 @@ import androidx.compose.ui.unit.milliseconds
 import androidx.compose.ui.util.fastAny
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
-import androidx.compose.ui.platform.PointerEvent
-import androidx.compose.ui.platform.PointerEventPass
-import androidx.compose.ui.platform.PointerInputChange
-import androidx.compose.ui.platform.anyChangeConsumed
-import androidx.compose.ui.platform.changedToDownIgnoreConsumed
-import androidx.compose.ui.platform.changedToUpIgnoreConsumed
-import androidx.compose.ui.platform.consumeAllChanges
 import androidx.compose.ui.viewinterop.AndroidViewHolder
 import androidx.compose.ui.viewinterop.InternalInteropApi
 
