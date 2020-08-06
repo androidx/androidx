@@ -34,7 +34,6 @@ import androidx.versionedparcelable.VersionedParcelize;
 @RestrictTo(LIBRARY)
 @RequiresApi(21)
 public class AudioAttributesImplApi21 implements AudioAttributesImpl {
-    private static final String TAG = "AudioAttributesCompat21";
 
     /** @hide */
     // It should be public to allow Parcelizers which never be de/jetified can access the field.
