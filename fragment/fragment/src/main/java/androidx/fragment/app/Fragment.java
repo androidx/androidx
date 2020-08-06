@@ -2721,19 +2721,22 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             mHost.getHandler().postAtFrontOfQueue(new Runnable() {
                 @Override
                 public void run() {
-                    callStartTransitionListener();
+                    callStartTransitionListener(false);
                 }
             });
         } else {
-            callStartTransitionListener();
+            callStartTransitionListener(true);
         }
     }
 
     /**
      * Calls the start transition listener. This must be called on the UI thread.
+     *
+     * @param calledDirectly Whether this was called directly or if it was already posted
+     *                       to the UI thread
      */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void callStartTransitionListener() {
+    void callStartTransitionListener(boolean calledDirectly) {
         final OnStartEnterTransitionListener listener;
         if (mAnimationInfo == null) {
             listener = null;
@@ -2746,10 +2749,24 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             listener.onStartEnterTransition();
         } else if (FragmentManager.USE_STATE_MANAGER && mView != null
                 && mContainer != null && mFragmentManager != null) {
-            SpecialEffectsController controller = SpecialEffectsController.getOrCreateController(
-                    mContainer, mFragmentManager);
+            // Mark the updated postponed state with the SpecialEffectsController immediately
+            final SpecialEffectsController controller = SpecialEffectsController
+                    .getOrCreateController(mContainer, mFragmentManager);
             controller.markPostponedState();
-            controller.executePendingOperations();
+            if (calledDirectly) {
+                // But if this call was called directly, we need to post the
+                // executePendingOperations() to avoid re-entrant calls
+                // and avoid calling execute during layout / draw calls
+                mHost.getHandler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        controller.executePendingOperations();
+                    }
+                });
+            } else {
+                // We've already posted our call, so we can execute directly
+                controller.executePendingOperations();
+            }
         }
     }
 

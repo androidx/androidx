@@ -427,6 +427,11 @@ class SpecialEffectsControllerTest {
 
             onActivity {
                 fragment.startPostponedEnterTransition()
+            }
+            onActivity {
+                // When USE_STATE_MANAGER is true, this second onActivity is enough
+                // to handle the post() that startPostponedEnterTransition() does.
+                // Otherwise, we need to do a little more work at this point
                 if (!FragmentManager.USE_STATE_MANAGER) {
                     // These are called automatically when USE_STATE_MANAGER is true
                     // but we need to call them manually if it is false
