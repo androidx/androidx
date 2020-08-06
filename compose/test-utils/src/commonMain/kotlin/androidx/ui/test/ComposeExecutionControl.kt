@@ -104,6 +104,19 @@ interface ComposeExecutionControl {
     fun launchRecomposeIn(coroutineScope: CoroutineScope): Job
 }
 
+/**
+ * Helper interface to run execution-controlled test via [ComposeTestRule].
+ */
+interface ComposeTestCaseSetup {
+    /**
+     * Takes the content provided via [ComposeTestRule#setContent] and runs the given test
+     * instruction. The test is executed on the main thread and prevents interference from Activity
+     * so the frames can be controlled manually. See [ComposeExecutionControl] for available
+     * methods.
+     */
+    fun performTestWithEventsControl(block: androidx.ui.test.ComposeExecutionControl.() -> Unit)
+}
+
 // Assertions
 
 /**

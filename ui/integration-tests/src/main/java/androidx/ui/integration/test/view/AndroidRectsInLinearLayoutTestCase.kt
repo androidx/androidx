@@ -27,9 +27,7 @@ import androidx.ui.integration.test.material.CheckboxesInRowsTestCase
 /**
  * Version of [CheckboxesInRowsTestCase] using Android views.
  */
-class AndroidRectsInLinearLayoutTestCase(
-    private val numberOfRectangles: Int
-) : AndroidTestCase {
+class AndroidRectsInLinearLayoutTestCase(private val numberOfRectangles: Int) : AndroidTestCase {
 
     private val rectangles = mutableListOf<View>()
     var isBlue = true

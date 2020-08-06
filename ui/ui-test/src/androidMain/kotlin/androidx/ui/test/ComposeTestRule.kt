@@ -52,28 +52,8 @@ interface ComposeTestRule : TestRule {
      */
     fun setContent(composable: @Composable () -> Unit)
 
-    /**
-     * Takes the given test case and prepares it for execution-controlled test via
-     * [ComposeTestCaseSetup].
-     */
-    @ExperimentalTesting
-    fun forGivenTestCase(testCase: ComposeTestCase): ComposeTestCaseSetup
-
     // TODO(pavlis): Provide better abstraction for host side reusability
     val displayMetrics: DisplayMetrics get
-}
-
-/**
- * Helper interface to run execution-controlled test via [ComposeTestRule].
- */
-interface ComposeTestCaseSetup {
-    /**
-     * Takes the content provided via [ComposeTestRule#setContent] and runs the given test
-     * instruction. The test is executed on the main thread and prevents interference from Activity
-     * so the frames can be controlled manually. See [ComposeExecutionControl] for available
-     * methods.
-     */
-    fun performTestWithEventsControl(block: ComposeExecutionControl.() -> Unit)
 }
 
 /**

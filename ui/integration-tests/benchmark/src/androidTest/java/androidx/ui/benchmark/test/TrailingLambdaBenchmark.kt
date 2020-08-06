@@ -29,7 +29,7 @@ import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.benchmarkFirstCompose
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
-import androidx.ui.integration.test.ToggleableTestCase
+import androidx.ui.test.ToggleableTestCase
 import androidx.ui.test.ComposeTestCase
 import org.junit.Rule
 import org.junit.Test
@@ -63,8 +63,7 @@ class TrailingLambdaBenchmark {
     }
 }
 
-private sealed class TrailingLambdaTestCase() : ComposeTestCase,
-    ToggleableTestCase {
+private sealed class TrailingLambdaTestCase() : ComposeTestCase, ToggleableTestCase {
 
     var numberState: MutableState<Int>? = null
 

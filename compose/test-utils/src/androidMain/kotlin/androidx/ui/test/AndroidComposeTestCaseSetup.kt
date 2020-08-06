@@ -14,14 +14,9 @@
  * limitations under the License.
  */
 
-package androidx.ui.test.android
+package androidx.ui.test
 
 import androidx.activity.ComponentActivity
-import androidx.ui.test.ComposeExecutionControl
-import androidx.ui.test.ComposeTestCase
-import androidx.ui.test.ComposeTestCaseSetup
-import androidx.ui.test.runOnUiThread
-import androidx.ui.test.setupContent
 
 class AndroidComposeTestCaseSetup(
     private val testCase: ComposeTestCase,

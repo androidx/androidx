@@ -27,10 +27,7 @@ import androidx.compose.foundation.InternalFoundationApi
 import androidx.compose.foundation.blinkingCursorEnabled
 import androidx.compose.ui.text.input.textInputServiceFactory
 import androidx.ui.test.AnimationClockTestRule
-import androidx.ui.test.ComposeTestCase
-import androidx.ui.test.ComposeTestCaseSetup
 import androidx.ui.test.ComposeTestRule
-import androidx.ui.test.ExperimentalTesting
 import androidx.ui.test.TextInputServiceForTests
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.isOnUiThread
@@ -170,14 +167,6 @@ class AndroidComposeTestRule<T : ComponentActivity>(
             // executing future tasks on the main thread.
             waitForIdle()
         }
-    }
-
-    @ExperimentalTesting
-    override fun forGivenTestCase(testCase: ComposeTestCase): ComposeTestCaseSetup {
-        return AndroidComposeTestCaseSetup(
-            testCase,
-            getActivity()
-        )
     }
 
     inner class AndroidComposeStatement(
