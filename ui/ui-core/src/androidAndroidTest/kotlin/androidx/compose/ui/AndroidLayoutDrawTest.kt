@@ -29,7 +29,6 @@ import android.view.ViewTreeObserver
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.drawBackground
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -2619,10 +2618,10 @@ class AndroidLayoutDrawTest {
             activity.setContent {
                 FixedSize(
                     size = 10,
-                    modifier = Modifier.drawBackground(color = color).drawLatchModifier().then(
+                    modifier = Modifier.background(color = color).drawLatchModifier().then(
                         PaddingModifier(10)
                             .drawLayer()
-                            .drawBackground(Color.White)
+                            .background(Color.White)
                     )
                 )
             }
@@ -2645,7 +2644,7 @@ class AndroidLayoutDrawTest {
                 with(DensityAmbient.current) {
                     FixedSize(
                         size = 30,
-                        modifier = Modifier.drawBackground(color = Color.Blue).drawLatchModifier()
+                        modifier = Modifier.background(color = Color.Blue).drawLatchModifier()
                     ) {
                         FixedSize(
                             size = 10,
@@ -2653,7 +2652,7 @@ class AndroidLayoutDrawTest {
                                 .drawLayer()
                                 .zIndex(zIndex)
                                 .padding(10.toDp())
-                                .drawBackground(Color.White)
+                                .background(Color.White)
                         )
                         FixedSize(
                             size = 10,
@@ -2661,7 +2660,7 @@ class AndroidLayoutDrawTest {
                                 .drawLayer()
                                 .zIndex(0f)
                                 .padding(10.toDp())
-                                .drawBackground(Color.Yellow)
+                                .background(Color.Yellow)
                         )
                     }
                 }

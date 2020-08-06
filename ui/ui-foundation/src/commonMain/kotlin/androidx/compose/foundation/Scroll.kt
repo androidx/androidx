@@ -17,28 +17,11 @@
 
 package androidx.compose.foundation
 
+import androidx.compose.animation.asDisposableClock
 import androidx.compose.animation.core.AnimationClockObservable
 import androidx.compose.animation.core.AnimationEndReason
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.SpringSpec
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.structuralEqualityPolicy
-import androidx.compose.animation.asDisposableClock
-import androidx.compose.ui.platform.AnimationClockAmbient
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.LayoutModifier
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.MeasureScope
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.composed
-import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.animation.FlingConfig
 import androidx.compose.foundation.animation.defaultFlingConfig
 import androidx.compose.foundation.gestures.ScrollableController
@@ -46,15 +29,31 @@ import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.Constraints
 import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.savedinstancestate.Saver
 import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.structuralEqualityPolicy
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.LayoutModifier
 import androidx.compose.ui.Measurable
+import androidx.compose.ui.MeasureScope
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
+import androidx.compose.ui.platform.AnimationClockAmbient
 import androidx.compose.ui.semantics.scrollBy
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
@@ -409,211 +408,4 @@ private data class ScrollingLayoutModifier(
             placeable.place(xOffset, yOffset)
         }
     }
-}
-
-/**
- * Create and [remember] the state for a [VerticalScroller] or [HorizontalScroller] based on the
- * currently appropriate scroll configuration to allow changing scroll position or observing
- * scroll behavior.
- *
- * @param initial initial scroller position to start with
- * @param isReversed whether position will be reversed, e.g. 0 will mean bottom for
- * [VerticalScroller] and end for [HorizontalScroller]
- */
-@Deprecated(
-    "Use rememberScrollState instead", replaceWith = ReplaceWith(
-        "rememberScrollState(initial = initial",
-        "androidx.compose.foundation.rememberScrollState"
-    )
-)
-@Composable
-fun ScrollerPosition(
-    initial: Float = 0f,
-    isReversed: Boolean = false
-): ScrollerPosition {
-    val clock = AnimationClockAmbient.current.asDisposableClock()
-    val config = defaultFlingConfig()
-    return rememberSavedInstanceState(
-        clock, config,
-        saver = ScrollerPosition.Saver(config, isReversed, clock)
-    ) {
-        ScrollerPosition(
-            flingConfig = config,
-            initial = initial,
-            animationClock = clock,
-            isReversed = isReversed
-        )
-    }
-}
-
-/**
- * This is the state of a [VerticalScroller] and [HorizontalScroller] that
- * allows the developer to change the scroll position by calling methods on this object.
- *
- * @param flingConfig configuration that specifies fling logic when scrolling ends with velocity
- * @param initial initial scroller position in pixels to start with
- * @param isReversed whether position will be reversed, e.g. 0 will mean bottom for
- * [VerticalScroller] and end for [HorizontalScroller]
- * @param animationClock clock observable to run animation on. Consider querying
- * [AnimationClockAmbient] to get current composition value
- */
-@Stable
-@Deprecated(
-    "Use ScrollState instead", replaceWith = ReplaceWith(
-        "ScrollState(" +
-                "initial = initial," +
-                " flingConfig = flingConfig, " +
-                "animationClock = animationClock)", "androidx.compose.foundation.ScrollState"
-    )
-)
-class ScrollerPosition(
-    /** Configuration that specifies fling logic when scrolling ends with velocity. */
-    internal val flingConfig: FlingConfig,
-    initial: Float = 0f,
-    internal val isReversed: Boolean = false,
-    internal val animationClock: AnimationClockObservable
-) {
-
-    private fun directionalValue(value: Float) = if (isReversed) value else -value
-
-    internal val state = ScrollState(initial, flingConfig, animationClock)
-
-    /**
-     * current scroller position value in pixels
-     */
-    var value: Float
-        get() = state.value
-        set(value) {
-            state.scrollTo(value)
-        }
-
-    /**
-     * maxPosition this scroller that consume this ScrollerPosition can reach in pixels, or
-     * [Float.POSITIVE_INFINITY] if still unknown
-     */
-    var maxPosition: Float
-        get() = state.maxValue
-        set(newMax) {
-            state.maxValue = newMax
-        }
-
-    /**
-     * Smooth scroll to position in pixels
-     *
-     * @param value target value in pixels to smooth scroll to, value will be coerced to
-     * 0..maxPosition
-     */
-    // TODO (malkov/tianliu) : think about allowing to scroll with custom animation timings/curves
-    fun smoothScrollTo(
-        value: Float,
-        onEnd: (endReason: AnimationEndReason, finishValue: Float) -> Unit = { _, _ -> }
-    ) {
-        smoothScrollBy(value - this.value, onEnd)
-    }
-
-    /**
-     * Smooth scroll by some amount of pixels
-     *
-     * @param value delta in pixels to scroll by, total value will be coerced to 0..maxPosition
-     */
-    fun smoothScrollBy(
-        value: Float,
-        onEnd: (endReason: AnimationEndReason, finishValue: Float) -> Unit = { _, _ -> }
-    ) {
-        state.smoothScrollBy(
-            value = directionalValue(value),
-            onEnd = onEnd
-        )
-    }
-
-    /**
-     * Instantly jump to position in pixels
-     *
-     * @param value target value in pixels to jump to, value will be coerced to 0..maxPosition
-     */
-    fun scrollTo(value: Float) {
-        this.value = value.coerceIn(0f, maxPosition)
-    }
-
-    /**
-     * Instantly jump by some amount of pixels
-     *
-     * @param value delta in pixels to jump by, total value will be coerced to 0..maxPosition
-     */
-    fun scrollBy(value: Float) {
-        scrollTo(this.value + value)
-    }
-
-    companion object {
-        /**
-         * The default [Saver] implementation for [ScrollerPosition].
-         */
-        @Composable
-        fun Saver(
-            flingConfig: FlingConfig,
-            isReversed: Boolean,
-            animationClock: AnimationClockObservable
-        ): Saver<ScrollerPosition, *> = Saver<ScrollerPosition, Float>(
-            save = { it.value },
-            restore = { ScrollerPosition(flingConfig, it, isReversed, animationClock) }
-        )
-    }
-}
-
-@Deprecated(
-    "Use ScrollableColumn instead", replaceWith = ReplaceWith(
-        "ScrollableColumn(modifier = modifier, children = children)",
-        "androidx.compose.foundation.ScrollableColumn"
-    )
-)
-@Composable
-fun VerticalScroller(
-    scrollerPosition: ScrollerPosition = ScrollerPosition(),
-    modifier: Modifier = Modifier,
-    isScrollable: Boolean = true,
-    children: @Composable ColumnScope.() -> Unit
-) {
-    Column(
-        modifier = modifier
-            .verticalScroll(scrollerPosition.state, isScrollable)
-            .clipToBounds(),
-        children = children
-    )
-}
-
-/**
- * A container that composes all of its contents and lays it out, fitting the height of the child.
- * If the child's width is less than the [Constraints.maxWidth], the child's width is used,
- * or the [Constraints.maxWidth] otherwise. If the contents don't fit the width, the drag gesture
- * allows scrolling its content horizontally. The contents of the HorizontalScroller are clipped to
- * the HorizontalScroller's bounds.
- *
- * If you want to control scrolling position from the code, e.g smooth scroll to position,
- * you must own memorized instance of [ScrollerPosition] and then use it to call `scrollTo...`
- * functions on it. Same tactic can be applied to the [VerticalScroller]
- *
- * @param scrollerPosition state of this Scroller that holds current scroll position and provides
- * user with useful methods like smooth scrolling
- * @param modifier Modifier to be applied to the Scroller content layout
- * @param isScrollable param to enabled or disable touch input scrolling, default is true
- */
-@Deprecated(
-    "Use ScrollableRow instead", replaceWith = ReplaceWith(
-        "ScrollableRow(modifier = modifier, children = children)",
-        "androidx.compose.foundation.ScrollableRow"
-    )
-)
-@Composable
-fun HorizontalScroller(
-    scrollerPosition: ScrollerPosition = ScrollerPosition(),
-    modifier: Modifier = Modifier,
-    isScrollable: Boolean = true,
-    children: @Composable RowScope.() -> Unit
-) {
-    Row(
-        modifier = modifier
-            .horizontalScroll(scrollerPosition.state, isScrollable)
-            .clipToBounds(),
-        children = children
-    )
 }
