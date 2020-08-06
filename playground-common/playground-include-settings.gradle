@@ -64,6 +64,8 @@ def setupPlayground(settings, String relativePathToRoot) {
         }
     }
     settings.includeBuild(new File(supportRoot, "androidx-plugin"))
+    settings.includeProject(":annotation:annotation-sampled",
+            new File(supportRoot, "annotation/annotation-sampled"))
     settings.includeProject(":lint-checks", new File(supportRoot, "lint-checks"))
     settings.includeProject(":fakeannotations", new File(supportRoot,"fakeannotations"))
     settings.includeProject(":internal-testutils-common",
