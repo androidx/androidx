@@ -16,6 +16,8 @@
 
 package androidx.enterprise.feedback;
 
+import static android.os.Looper.getMainLooper;
+
 import static androidx.enterprise.feedback.KeyedAppStatesReporter.ACTION_APP_STATES;
 import static androidx.enterprise.feedback.KeyedAppStatesReporter.APP_STATES;
 import static androidx.enterprise.feedback.KeyedAppStatesReporter.APP_STATE_DATA;
@@ -125,6 +127,7 @@ public class DefaultKeyedAppStatesReporterTest {
 
         KeyedAppStatesReporter reporter = getReporter(mContext);
         reporter.setStates(singletonList(mState));
+        shadowOf(getMainLooper()).idle();
 
         Bundle appStatesBundle = buildStatesBundle(singleton(mState));
         assertAppStateBundlesEqual(appStatesBundle, (Bundle) mTestHandler.latestMessage().obj);
@@ -183,6 +186,7 @@ public class DefaultKeyedAppStatesReporterTest {
 
         KeyedAppStatesReporter reporter = getReporter(mContext);
         reporter.setStates(singletonList(mState));
+        shadowOf(getMainLooper()).idle();
 
         assertThat(mTestHandler.latestMessage().what).isEqualTo(WHAT_STATE);
     }
@@ -194,6 +198,7 @@ public class DefaultKeyedAppStatesReporterTest {
 
         KeyedAppStatesReporter reporter = getReporter(mContext);
         reporter.setStatesImmediate(singletonList(mState));
+        shadowOf(getMainLooper()).idle();
 
         assertThat(mTestHandler.latestMessage().what).isEqualTo(WHAT_IMMEDIATE_STATE);
     }
@@ -219,6 +224,7 @@ public class DefaultKeyedAppStatesReporterTest {
 
         KeyedAppStatesReporter reporter = getReporter(mContext);
         reporter.setStates(singletonList(mState));
+        shadowOf(getMainLooper()).idle();
 
         assertThat(mTestHandler.latestMessage()).isNotNull();
     }
@@ -232,6 +238,7 @@ public class DefaultKeyedAppStatesReporterTest {
 
         KeyedAppStatesReporter reporter = getReporter(mContext);
         reporter.setStates(singletonList(mState));
+        shadowOf(getMainLooper()).idle();
 
         assertThat(mTestHandler.latestMessage()).isNotNull();
     }
@@ -245,6 +252,7 @@ public class DefaultKeyedAppStatesReporterTest {
 
         KeyedAppStatesReporter reporter = getReporter(mContext);
         reporter.setStates(singletonList(mState));
+        shadowOf(getMainLooper()).idle();
 
         assertThat(mTestHandler.latestMessage()).isNotNull();
     }
@@ -265,6 +273,8 @@ public class DefaultKeyedAppStatesReporterTest {
         // Act
         KeyedAppStatesReporter reporter = getReporter(mContext);
         reporter.setStates(singletonList(mState));
+        shadowOf(getMainLooper()).idle();
+
 
         // Assert
         assertThat(mTestHandler.latestMessage()).isNotNull();
@@ -290,6 +300,7 @@ public class DefaultKeyedAppStatesReporterTest {
 
         // Act
         reporter.setStates(singletonList(mState));
+        shadowOf(getMainLooper()).idle();
 
         // Assert
         assertThat(mTestHandler.latestMessage()).isNull();
@@ -315,6 +326,7 @@ public class DefaultKeyedAppStatesReporterTest {
 
         // Act
         reporter.setStates(singletonList(mState));
+        shadowOf(getMainLooper()).idle();
 
         // Assert
         assertThat(mTestHandler.latestMessage()).isNull();
@@ -332,6 +344,7 @@ public class DefaultKeyedAppStatesReporterTest {
 
         KeyedAppStatesReporter reporter = getReporter(mContext);
         reporter.setStates(singletonList(mState));
+        shadowOf(getMainLooper()).idle();
         mTestHandler.reset();
 
         // Set the binding to a different handler - as if the app has restarted.
@@ -342,6 +355,7 @@ public class DefaultKeyedAppStatesReporterTest {
 
         // Act
         reporter.setStates(singletonList(mState));
+        shadowOf(getMainLooper()).idle();
 
         // Assert
         assertThat(mTestHandler.latestMessage()).isNull();
@@ -359,6 +373,7 @@ public class DefaultKeyedAppStatesReporterTest {
 
         KeyedAppStatesReporter reporter = getReporter(mContext);
         reporter.setStates(singletonList(mState));
+        shadowOf(getMainLooper()).idle();
         mTestHandler.reset();
 
         // Set the binding to a different handler - as if the app has restarted.
@@ -369,6 +384,7 @@ public class DefaultKeyedAppStatesReporterTest {
 
         // Act
         reporter.setStates(singletonList(mState));
+        shadowOf(getMainLooper()).idle();
 
         // Assert
         assertThat(mTestHandler.latestMessage()).isNull();
@@ -386,12 +402,14 @@ public class DefaultKeyedAppStatesReporterTest {
 
         KeyedAppStatesReporter reporter = getReporter(mContext);
         reporter.setStates(singletonList(mState));
+        shadowOf(getMainLooper()).idle();
         mTestHandler.reset();
 
         simulateDisconnectingServiceConnection();
 
         // Act
         reporter.setStates(singletonList(mState));
+        shadowOf(getMainLooper()).idle();
 
         // Assert
         assertThat(mTestHandler.latestMessage()).isNull();
@@ -415,6 +433,7 @@ public class DefaultKeyedAppStatesReporterTest {
 
         // Act
         simulateReconnectingServiceConnection();
+        shadowOf(getMainLooper()).idle();
 
         // Assert
         assertThat(mTestHandler.latestMessage()).isNotNull();
@@ -440,6 +459,7 @@ public class DefaultKeyedAppStatesReporterTest {
 
         // Act
         reporter.setStates(singletonList(mState));
+        shadowOf(getMainLooper()).idle();
 
         // Assert
         assertThat(mTestHandler.latestMessage()).isNotNull();

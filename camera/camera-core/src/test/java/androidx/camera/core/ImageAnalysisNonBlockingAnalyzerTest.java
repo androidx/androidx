@@ -16,6 +16,8 @@
 
 package androidx.camera.core;
 
+import static android.os.Looper.getMainLooper;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertEquals;
@@ -26,6 +28,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.robolectric.Shadows.shadowOf;
 
 import android.os.Build;
 
@@ -111,6 +114,8 @@ public class ImageAnalysisNonBlockingAnalyzerTest {
         mImageAnalysisNonBlockingAnalyzer.open();
 
         mImageAnalysisNonBlockingAnalyzer.onImageAvailable(mImageReaderProxy);
+
+        shadowOf(getMainLooper()).idle();
 
         ArgumentCaptor<ImageProxy> imageProxyArgumentCaptor =
                 ArgumentCaptor.forClass(ImageProxy.class);

@@ -1804,6 +1804,7 @@ package androidx.core.util {
     method public static boolean equals(Object?, Object?);
     method public static int hash(java.lang.Object!...);
     method public static int hashCode(Object?);
+    method public static String? toString(Object?, String?);
   }
 
   public class Pair<F, S> {

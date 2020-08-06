@@ -22,6 +22,7 @@ import android.graphics.Rect
 import android.os.Build
 import android.os.Handler
 import android.os.HandlerThread
+import android.os.Looper.getMainLooper
 import android.util.Pair
 import android.util.Rational
 import android.view.Surface
@@ -46,7 +47,6 @@ import androidx.camera.testing.fakes.FakeImageReaderProxy
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
-import com.google.common.truth.Truth
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
@@ -60,6 +60,7 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
 import org.robolectric.shadow.api.Shadow
@@ -115,6 +116,8 @@ class ImageCaptureTest {
         CameraX.initialize(context, cameraXConfig).get()
         callbackThread = HandlerThread("Callback")
         callbackThread.start()
+        // Explicitly pause callback thread since we will control execution manually in tests
+        shadowOf(callbackThread.looper).pause()
         callbackHandler = Handler(callbackThread.looper)
         executor = CameraXExecutors.newHandlerExecutor(callbackHandler)
     }
@@ -138,6 +141,7 @@ class ImageCaptureTest {
         imageCapture.takePicture(executor, onImageCapturedCallback)
         // Send fake image.
         fakeImageReaderProxy?.triggerImageAvailable(TagBundle.create(Pair("TagBundleKey", 0)), 0)
+        shadowOf(getMainLooper()).idle()
         flushHandler(callbackHandler)
 
         // Assert.
@@ -182,11 +186,12 @@ class ImageCaptureTest {
         imageCapture.takePicture(executor, onImageCapturedCallback)
         // Send fake image.
         fakeImageReaderProxy?.triggerImageAvailable(TagBundle.create(Pair("TagBundleKey", 0)), 0)
+        shadowOf(getMainLooper()).idle()
         flushHandler(callbackHandler)
 
         // Assert.
-        Truth.assertThat(capturedImage!!.width).isEqualTo(fakeImageReaderProxy?.width)
-        Truth.assertThat(capturedImage!!.height).isEqualTo(fakeImageReaderProxy?.height)
+        assertThat(capturedImage!!.width).isEqualTo(fakeImageReaderProxy?.width)
+        assertThat(capturedImage!!.height).isEqualTo(fakeImageReaderProxy?.height)
     }
 
     @Test

@@ -3977,7 +3977,7 @@ public class ExifInterface {
      * @throws NullPointerException if the input stream is null
      */
     public ExifInterface(@NonNull InputStream inputStream) throws IOException {
-        this(inputStream, false);
+        this(inputStream, STREAM_TYPE_FULL_IMAGE_DATA);
     }
 
     /**
@@ -3994,16 +3994,12 @@ public class ExifInterface {
      */
     public ExifInterface(@NonNull InputStream inputStream, @ExifStreamType int streamType)
             throws IOException {
-        this(inputStream, (streamType == STREAM_TYPE_EXIF_DATA_ONLY) ? true : false);
-    }
-
-    private ExifInterface(@NonNull InputStream inputStream, boolean shouldBeExifDataOnly)
-            throws IOException {
         if (inputStream == null) {
             throw new NullPointerException("inputStream cannot be null");
         }
         mFilename = null;
 
+        boolean shouldBeExifDataOnly = (streamType == STREAM_TYPE_EXIF_DATA_ONLY);
         if (shouldBeExifDataOnly) {
             inputStream = new BufferedInputStream(inputStream, SIGNATURE_CHECK_SIZE);
             if (!isExifDataOnly((BufferedInputStream) inputStream)) {
