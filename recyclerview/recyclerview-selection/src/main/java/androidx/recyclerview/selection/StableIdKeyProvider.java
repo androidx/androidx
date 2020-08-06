@@ -33,24 +33,26 @@ import androidx.recyclerview.widget.RecyclerView.RecyclerListener;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 /**
- * An {@link ItemKeyProvider} that provides stable ids by way of cached
- * {@link RecyclerView.Adapter} stable ids. Items enter the cache as they are
- * attached by RecyclerView and are removed when they are recycled.
+ * An {@link ItemKeyProvider} that provides item keys by way of native
+ * {@link RecyclerView.Adapter} stable ids.
+ *
+ * <p>The corresponding RecyclerView.Adapter instance must:
+ * <ol>
+ *     <li> Enable stable ids using {@link RecyclerView.Adapter#setHasStableIds(boolean)}
+ *     <li> Override {@link RecyclerView.Adapter#getItemId(int)} with a real implementation.
+ * </ol>
  *
  * <p>
- * There are trade-offs with this implementation as it necessarily auto-boxes {@code long}
- * stable id values into {@code Long} values for use as selection keys. The core Selection API
- * uses a parameterized key type to permit other keys (such as Strings or URIs).
+ * There are trade-offs with this implementation:
+ * <ul>
+ *     <li>It necessarily auto-boxes {@code long} stable id values into {@code Long} values for
+ *     use as selection keys.
+ *     <li>It deprives Chromebook users (actually, any device with an attached pointer) of support
+ *     for band-selection.
+ * </ul>
  *
- * <p>
- * FYI: Use of StableIdKeyProvider limits the availability of some features
- * such as mouse-driven band selection that may otherwise provide an enhanced
- * experience for users of ChromeOS or other devices with attached pointing devices.
- * For that reason,  consider implementing your own {@link ItemKeyProvider}
- * that can provide item keys based on your item data, such as a stable
- * {@link android.net.Uri} or other unique identifier. For an example of
- * such a provider see com.example.android.supportv7.widget.selection.fancy.DemoAdapter.KeyProvider
- * in the SupportV7 Demos package.
+ * <p>See com.example.android.supportv7.widget.selection.fancy.DemoAdapter.KeyProvider in the
+ * SupportV7 Demos package for an example of how to implement a better ItemKeyProvider.
  */
 public final class StableIdKeyProvider extends ItemKeyProvider<Long> {
 

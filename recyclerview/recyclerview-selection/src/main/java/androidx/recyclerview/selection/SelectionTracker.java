@@ -391,12 +391,12 @@ public abstract class SelectionTracker<K> {
      * and mouse lasso.
      *
      * <p>
-     * Example usage:
+     * Building a bare-bones instance:
      * <pre>SelectionTracker<Uri> tracker = new SelectionTracker.Builder<>(
      *        "my-uri-selection",
      *        recyclerView,
-     *        new DemoStableIdProvider(recyclerView.getAdapter()),
-     *        new MyDetailsLookup(recyclerView),
+     *        new YourItemKeyProvider(recyclerView.getAdapter()),
+     *        new YourItemDetailsLookup(recyclerView),
      *        StorageStrategy.createParcelableStorage(Uri.class))
      *        .build();
      * </pre>
@@ -414,30 +414,33 @@ public abstract class SelectionTracker<K> {
      * by supplying {@link SelectionPredicates#createSelectSingleAnything()}.
      *
      * SelectionTracker<String> tracker = new SelectionTracker.Builder<>(
-     * "my-string-selection",
-     * recyclerView,
-     * new DemoStableIdProvider(recyclerView.getAdapter()),
-     * new MyDetailsLookup(recyclerView),
-     * StorageStrategy.createStringStorage())
-     * .withSelectionPredicate(SelectionPredicates#createSelectSingleAnything())
-     * .build();
+     *               "my-string-selection",
+     *               recyclerView,
+     *               new YourItemKeyProvider(recyclerView.getAdapter()),
+     *               new YourItemDetailsLookup(recyclerView),
+     *               StorageStrategy.createStringStorage())
+     *        .withSelectionPredicate(SelectionPredicates#createSelectSingleAnything())
+     *        .build();
      * </pre>
+     *
      * <p>
      * <b>Retaining state across Android lifecycle events</b>
      *
      * <p>
      * Support for storage/persistence of selection must be configured and invoked manually
      * owing to its reliance on Activity lifecycle events.
-     * Failure to include support for selection storage will result in the active selection
+     * Failure to include support for selection storage would result in the active selection
      * being lost when the Activity receives a configuration change (e.g. rotation)
      * or when the application process is destroyed by the OS to reclaim resources.
+     * For this reason {@link StorageStrategy} is a required argument to obtain a {@link Builder}
+     * instance.
      *
      * <p>
      * <b>Key Type</b>
      *
      * <p>
-     * Developers must decide on the key type used to identify selected items. Support
-     * is provided for three types: {@link Parcelable}, {@link String}, and {@link Long}.
+     * Developers must decide on the key type used to identify selected items.
+     * Support is provided for three types: {@link Parcelable}, {@link String}, and {@link Long}.
      *
      * <p>
      * {@link Parcelable}: Any Parcelable type can be used as the selection key. This is especially
@@ -450,10 +453,13 @@ public abstract class SelectionTracker<K> {
      * {@link String}: Use String when a string based stable identifier is available.
      *
      * <p>
-     * {@link Long}: Use Long when RecyclerView's long stable ids are
-     * already in use. It comes with some limitations, however, as access to stable ids
-     * at runtime is limited. Band selection support is not available when using the default
-     * long key storage implementation. See {@link StableIdKeyProvider} for details.
+     * {@link Long}: Use Long when a project is already employing RecyclerView's built-in
+     * support for stable ids. In this case you may choose to use {@link StableIdKeyProvider}
+     * to supply selection keys to the SelectionTracker based on data already accessible
+     * in RecyclerView and it's Adapter.
+     *
+     * See {@link StableIdKeyProvider} for important details and limitations (<i>and a suggestion
+     * that you might just want to write your own {@link ItemKeyProvider}. It's easy!</i>)
      *
      * <p>
      * Usage:
