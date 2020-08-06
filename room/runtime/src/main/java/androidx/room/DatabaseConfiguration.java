@@ -16,6 +16,7 @@
 
 package androidx.room;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
@@ -62,7 +63,7 @@ public class DatabaseConfiguration {
     public final List<RoomDatabase.Callback> callbacks;
 
     @Nullable
-    public final List<RoomDatabase.PrepackagedCallback> prepackagedCallbacks;
+    public final RoomDatabase.PrepackagedCallback prepackagedCallback;
 
     /**
      * Whether Room should throw an exception for queries run on the main thread.
@@ -133,7 +134,7 @@ public class DatabaseConfiguration {
      * Creates a database configuration with the given values.
      *
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
-     * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, List, boolean,
+     * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
      * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
      * Callable)}
      *
@@ -163,16 +164,16 @@ public class DatabaseConfiguration {
             @NonNull Executor queryExecutor,
             boolean requireMigration,
             @Nullable Set<Integer> migrationNotRequiredFrom) {
-        this(context, name, sqliteOpenHelperFactory, migrationContainer, callbacks, null,
+        this(context, name, sqliteOpenHelperFactory, migrationContainer, callbacks,
                 allowMainThreadQueries, journalMode, queryExecutor, queryExecutor, false,
-                requireMigration, false, migrationNotRequiredFrom, null, null, null);
+                requireMigration, false, migrationNotRequiredFrom, null, null, null, null);
     }
 
     /**
      * Creates a database configuration with the given values.
      *
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
-     * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, List, boolean,
+     * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
      * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
      * Callable)}
      *
@@ -208,17 +209,17 @@ public class DatabaseConfiguration {
             boolean requireMigration,
             boolean allowDestructiveMigrationOnDowngrade,
             @Nullable Set<Integer> migrationNotRequiredFrom) {
-        this(context, name, sqliteOpenHelperFactory, migrationContainer, callbacks, null,
+        this(context, name, sqliteOpenHelperFactory, migrationContainer, callbacks,
                 allowMainThreadQueries, journalMode, queryExecutor, transactionExecutor,
                 multiInstanceInvalidation, requireMigration, allowDestructiveMigrationOnDowngrade,
-                migrationNotRequiredFrom, null, null, null);
+                migrationNotRequiredFrom, null, null, null, null);
     }
 
     /**
      * Creates a database configuration with the given values.
      *
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
-     * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, List, boolean,
+     * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
      * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
      * Callable)}
      *
@@ -258,21 +259,25 @@ public class DatabaseConfiguration {
             @Nullable Set<Integer> migrationNotRequiredFrom,
             @Nullable String copyFromAssetPath,
             @Nullable File copyFromFile) {
-        this(context, name, sqliteOpenHelperFactory, migrationContainer, callbacks, null,
+        this(context, name, sqliteOpenHelperFactory, migrationContainer, callbacks,
                 allowMainThreadQueries, journalMode, queryExecutor, transactionExecutor,
                 multiInstanceInvalidation, requireMigration, allowDestructiveMigrationOnDowngrade,
-                migrationNotRequiredFrom, copyFromAssetPath, copyFromFile, null);
+                migrationNotRequiredFrom, copyFromAssetPath, copyFromFile, null, null);
     }
 
     /**
      * Creates a database configuration with the given values.
+     *
+     * @deprecated Use {@link #DatabaseConfiguration(Context, String,
+     * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
+     * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
+     * Callable, RoomDatabase.PrepackagedCallback)}
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
      * @param sqliteOpenHelperFactory The open helper factory to use.
      * @param migrationContainer The migration container for migrations.
      * @param callbacks The list of callbacks for database events.
-     * @param prepackagedCallbacks The list of pre-packaged callbacks.
      * @param allowMainThreadQueries Whether to allow main thread reads/writes or not.
      * @param journalMode The journal mode. This has to be either TRUNCATE or WRITE_AHEAD_LOGGING.
      * @param queryExecutor The Executor used to execute asynchronous queries.
@@ -290,12 +295,12 @@ public class DatabaseConfiguration {
      *
      * @hide
      */
+    @Deprecated
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public DatabaseConfiguration(@NonNull Context context, @Nullable String name,
             @NonNull SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory,
             @NonNull RoomDatabase.MigrationContainer migrationContainer,
             @Nullable List<RoomDatabase.Callback> callbacks,
-            @Nullable List<RoomDatabase.PrepackagedCallback> prepackagedCallbacks,
             boolean allowMainThreadQueries,
             @NonNull RoomDatabase.JournalMode journalMode,
             @NonNull Executor queryExecutor,
@@ -307,12 +312,62 @@ public class DatabaseConfiguration {
             @Nullable String copyFromAssetPath,
             @Nullable File copyFromFile,
             @Nullable Callable<InputStream> copyFromInputStream) {
+        this(context, name, sqliteOpenHelperFactory, migrationContainer, callbacks,
+                allowMainThreadQueries, journalMode, queryExecutor, transactionExecutor,
+                multiInstanceInvalidation, requireMigration, allowDestructiveMigrationOnDowngrade,
+                migrationNotRequiredFrom, copyFromAssetPath, copyFromFile, copyFromInputStream,
+                null);
+    }
+
+    /**
+     * Creates a database configuration with the given values.
+     *
+     * @param context The application context.
+     * @param name Name of the database, can be null if it is in memory.
+     * @param sqliteOpenHelperFactory The open helper factory to use.
+     * @param migrationContainer The migration container for migrations.
+     * @param callbacks The list of callbacks for database events.
+     * @param allowMainThreadQueries Whether to allow main thread reads/writes or not.
+     * @param journalMode The journal mode. This has to be either TRUNCATE or WRITE_AHEAD_LOGGING.
+     * @param queryExecutor The Executor used to execute asynchronous queries.
+     * @param transactionExecutor The Executor used to execute asynchronous transactions.
+     * @param multiInstanceInvalidation True if Room should perform multi-instance invalidation.
+     * @param requireMigration True if Room should require a valid migration if version changes,
+     * @param allowDestructiveMigrationOnDowngrade True if Room should recreate tables if no
+     *                                             migration is supplied during a downgrade.
+     * @param migrationNotRequiredFrom The collection of schema versions from which migrations
+     *                                 aren't required.
+     * @param copyFromAssetPath The assets path to the pre-packaged database.
+     * @param copyFromFile The pre-packaged database file.
+     * @param copyFromInputStream The callable to get the input stream from which a
+     *                            pre-package database file will be copied from.
+     * @param prepackagedCallback The pre-packaged callback.
+     *
+     * @hide
+     */
+    @SuppressLint("LambdaLast")
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    public DatabaseConfiguration(@NonNull Context context, @Nullable String name,
+            @NonNull SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory,
+            @NonNull RoomDatabase.MigrationContainer migrationContainer,
+            @Nullable List<RoomDatabase.Callback> callbacks,
+            boolean allowMainThreadQueries,
+            @NonNull RoomDatabase.JournalMode journalMode,
+            @NonNull Executor queryExecutor,
+            @NonNull Executor transactionExecutor,
+            boolean multiInstanceInvalidation,
+            boolean requireMigration,
+            boolean allowDestructiveMigrationOnDowngrade,
+            @Nullable Set<Integer> migrationNotRequiredFrom,
+            @Nullable String copyFromAssetPath,
+            @Nullable File copyFromFile,
+            @Nullable Callable<InputStream> copyFromInputStream,
+            @Nullable RoomDatabase.PrepackagedCallback prepackagedCallback) {
         this.sqliteOpenHelperFactory = sqliteOpenHelperFactory;
         this.context = context;
         this.name = name;
         this.migrationContainer = migrationContainer;
         this.callbacks = callbacks;
-        this.prepackagedCallbacks = prepackagedCallbacks;
         this.allowMainThreadQueries = allowMainThreadQueries;
         this.journalMode = journalMode;
         this.queryExecutor = queryExecutor;
@@ -324,6 +379,7 @@ public class DatabaseConfiguration {
         this.copyFromAssetPath = copyFromAssetPath;
         this.copyFromFile = copyFromFile;
         this.copyFromInputStream = copyFromInputStream;
+        this.prepackagedCallback = prepackagedCallback;
     }
 
     /**

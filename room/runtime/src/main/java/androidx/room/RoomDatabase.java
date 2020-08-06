@@ -541,7 +541,7 @@ public abstract class RoomDatabase {
         private final String mName;
         private final Context mContext;
         private ArrayList<Callback> mCallbacks;
-        private ArrayList<PrepackagedCallback> mPrepackagedCallbacks;
+        private PrepackagedCallback mPrepackagedCallback;
 
         /** The Executor used to run database queries. This should be background-threaded. */
         private Executor mQueryExecutor;
@@ -626,13 +626,11 @@ public abstract class RoomDatabase {
          * @return This {@link Builder} instance.
          */
         @NonNull
+        @SuppressLint("BuilderSetStyle")
         public Builder<T> createFromAsset(
                 @NonNull String databaseFilePath,
                 @NonNull PrepackagedCallback callback) {
-            if (mPrepackagedCallbacks == null) {
-                mPrepackagedCallbacks = new ArrayList<>();
-            }
-            mPrepackagedCallbacks.add(callback);
+            mPrepackagedCallback = callback;
             mCopyFromAssetPath = databaseFilePath;
             return this;
         }
@@ -679,13 +677,11 @@ public abstract class RoomDatabase {
          * @return This {@link Builder} instance.
          */
         @NonNull
+        @SuppressLint({"BuilderSetStyle", "StreamFiles"})
         public Builder<T> createFromFile(
                 @NonNull File databaseFile,
                 @NonNull PrepackagedCallback callback) {
-            if (mPrepackagedCallbacks == null) {
-                mPrepackagedCallbacks = new ArrayList<>();
-            }
-            mPrepackagedCallbacks.add(callback);
+            mPrepackagedCallback = callback;
             mCopyFromFile = databaseFile;
             return this;
         }
@@ -740,14 +736,12 @@ public abstract class RoomDatabase {
          * @return This {@link Builder} instance.
          */
         @NonNull
-        @SuppressLint("BuilderSetStyle, LambdaLast") // To keep naming consistency, methods pre-dates rule.
+        @SuppressLint("BuilderSetStyle") // To keep naming consistency, methods
+        // pre-dates rule.
         public Builder<T> createFromInputStream(
                 @NonNull Callable<InputStream> inputStreamCallable,
                 @NonNull PrepackagedCallback callback) {
-            if (mPrepackagedCallbacks == null) {
-                mPrepackagedCallbacks = new ArrayList<>();
-            }
-            mPrepackagedCallbacks.add(callback);
+            mPrepackagedCallback = callback;
             mCopyFromInputStream = inputStreamCallable;
             return this;
         }
@@ -1074,7 +1068,6 @@ public abstract class RoomDatabase {
                             mFactory,
                             mMigrationContainer,
                             mCallbacks,
-                            mPrepackagedCallbacks,
                             mAllowMainThreadQueries,
                             mJournalMode.resolve(mContext),
                             mQueryExecutor,
@@ -1085,7 +1078,8 @@ public abstract class RoomDatabase {
                             mMigrationsNotRequiredFrom,
                             mCopyFromAssetPath,
                             mCopyFromFile,
-                            mCopyFromInputStream);
+                            mCopyFromInputStream,
+                            mPrepackagedCallback);
             T db = Room.getGeneratedImplementation(mDatabaseClass, DB_IMPL_SUFFIX);
             db.init(configuration);
             return db;
@@ -1222,6 +1216,11 @@ public abstract class RoomDatabase {
     /**
      * Callback for {@link Builder#createFromAsset(String)}, {@link Builder#createFromFile(File)}
      * and {@link Builder#createFromInputStream(Callable)}
+     *
+     * This callback will be invoked after the pre-package DB is copied but before Room had
+     * a chance to open it and therefore before the {@link RoomDatabase.Callback} methods are
+     * invoked. This callback can be useful for updating the pre-package DB schema to satisfy
+     * Room's schema validation.
      */
     public abstract static class PrepackagedCallback {
 

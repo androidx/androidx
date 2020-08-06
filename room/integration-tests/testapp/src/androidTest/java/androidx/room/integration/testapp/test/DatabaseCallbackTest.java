@@ -30,7 +30,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
@@ -47,15 +46,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.zip.ZipInputStream;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -211,82 +205,6 @@ public class DatabaseCallbackTest {
         database.close();
     }
 
-    @Test
-    public void onCreateFromAsset_calledOnOpenPrepackagedDatabase() {
-        Context context = ApplicationProvider.getApplicationContext();
-        context.deleteDatabase("products.db");
-        TestPrepackagedCallback callback = new TestPrepackagedCallback();
-        PrepackageTest.ProductsDatabase database = Room.databaseBuilder(
-                context, PrepackageTest.ProductsDatabase.class, "products.db")
-                .createFromAsset("databases/products_v1.db", callback)
-                .build();
-
-        assertFalse(callback.mOpenPrepackagedDatabase);
-
-        // Use the database to trigger the opening of the database
-        ProductDao dao = database.getProductDao();
-        dao.countProducts();
-
-        assertTrue(callback.mOpenPrepackagedDatabase);
-        database.close();
-    }
-
-    @Test
-    public void onCreateFromFile_calledOnOpenPrepackagedDatabase() throws IOException {
-        Context context = ApplicationProvider.getApplicationContext();
-        context.deleteDatabase("products_external.db");
-        File dataDbFile = new File(ContextCompat.getDataDir(context), "products_external.db");
-        context.deleteDatabase(dataDbFile.getAbsolutePath());
-
-        InputStream toCopyInput = context.getAssets().open("databases/products_v1.db");
-        copyAsset(toCopyInput, dataDbFile);
-
-        TestPrepackagedCallback callback = new TestPrepackagedCallback();
-        PrepackageTest.ProductsDatabase database = Room.databaseBuilder(
-                context, PrepackageTest.ProductsDatabase.class, "products_external.db")
-                .createFromFile(dataDbFile, callback)
-                .build();
-
-        assertFalse(callback.mOpenPrepackagedDatabase);
-
-        // Use the database to trigger the opening of the database
-        ProductDao dao = database.getProductDao();
-        dao.countProducts();
-
-        assertTrue(callback.mOpenPrepackagedDatabase);
-
-        database.close();
-    }
-
-    @Test
-    public void createFromZippedAsset() {
-        Context context = ApplicationProvider.getApplicationContext();
-        context.deleteDatabase("products.db");
-
-        final Callable<InputStream> inputStreamCallable = () -> {
-            ZipInputStream zipInputStream =
-                    new ZipInputStream(context.getAssets().open("databases/products_v1.db.zip"));
-            zipInputStream.getNextEntry();
-            return zipInputStream;
-        };
-
-        TestPrepackagedCallback callback = new TestPrepackagedCallback();
-        PrepackageTest.ProductsDatabase database = Room.databaseBuilder(
-                context, PrepackageTest.ProductsDatabase.class, "products.db")
-                .createFromInputStream(inputStreamCallable, callback)
-                .build();
-
-        assertFalse(callback.mOpenPrepackagedDatabase);
-
-        // Use the database to trigger the opening of the database
-        ProductDao dao = database.getProductDao();
-        dao.countProducts();
-
-        assertTrue(callback.mOpenPrepackagedDatabase);
-
-        database.close();
-    }
-
     @Database(entities = Product.class, version = 2, exportSchema = false)
     abstract static class ProductsDatabase_v2 extends RoomDatabase {
         abstract ProductDao getProductDao();
@@ -311,30 +229,6 @@ public class DatabaseCallbackTest {
         @Override
         public void onDestructiveMigration(@NonNull SupportSQLiteDatabase db) {
             mDestructivelyMigrated = true;
-        }
-    }
-
-    public static class TestPrepackagedCallback extends RoomDatabase.PrepackagedCallback {
-
-        boolean mOpenPrepackagedDatabase;
-
-        @Override
-        public void onOpenPrepackagedDatabase(@NonNull SupportSQLiteDatabase db) {
-            mOpenPrepackagedDatabase = true;
-        }
-    }
-
-    private static void copyAsset(InputStream input, File outputFile) throws IOException {
-        OutputStream output = new FileOutputStream(outputFile);
-        try {
-            int length;
-            byte[] buffer = new byte[1024 * 4];
-            while ((length = input.read(buffer)) > 0) {
-                output.write(buffer, 0, length);
-            }
-        } finally {
-            input.close();
-            output.close();
         }
     }
 }

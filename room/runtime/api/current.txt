@@ -15,7 +15,7 @@ package androidx.room {
     field public final androidx.room.RoomDatabase.MigrationContainer migrationContainer;
     field public final boolean multiInstanceInvalidation;
     field public final String? name;
-    field public final java.util.List<androidx.room.RoomDatabase.PrepackagedCallback!>? prepackagedCallbacks;
+    field public final androidx.room.RoomDatabase.PrepackagedCallback? prepackagedCallback;
     field public final java.util.concurrent.Executor queryExecutor;
     field public final boolean requireMigration;
     field public final androidx.sqlite.db.SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory;

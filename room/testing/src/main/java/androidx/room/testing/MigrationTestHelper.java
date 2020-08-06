@@ -157,7 +157,6 @@ public class MigrationTestHelper extends TestWatcher {
                 mOpenFactory,
                 container,
                 null,
-                null,
                 true,
                 RoomDatabase.JournalMode.TRUNCATE,
                 ArchTaskExecutor.getIOThreadExecutor(),
@@ -166,6 +165,7 @@ public class MigrationTestHelper extends TestWatcher {
                 true,
                 false,
                 Collections.<Integer>emptySet(),
+                null,
                 null,
                 null,
                 null);
@@ -219,7 +219,6 @@ public class MigrationTestHelper extends TestWatcher {
                 mOpenFactory,
                 container,
                 null,
-                null,
                 true,
                 RoomDatabase.JournalMode.TRUNCATE,
                 ArchTaskExecutor.getIOThreadExecutor(),
@@ -228,6 +227,7 @@ public class MigrationTestHelper extends TestWatcher {
                 true,
                 false,
                 Collections.<Integer>emptySet(),
+                null,
                 null,
                 null,
                 null);
