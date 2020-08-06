@@ -28,21 +28,21 @@ import kotlin.math.roundToInt
 
 /**
  * Contains the [semantics] required for a determinate progress indicator, that represents progress
- * ranging from 0.0 to 1.0.
+ * ranging from 0.0 to 1.0. Values for [progress] outside of this range will be coerced into this
+ * range.
  *
  * @sample androidx.compose.foundation.samples.DeterminateProgressSemanticsSample
  *
  * @param progress The progress of this progress indicator, where 0.0 represents no progress and 1.0
- * represents full progress
- * @throws IllegalArgumentException when the progress is not within range
+ * represents full progress. If the value is outside of this range, it will be coerced into the
+ * range.
  */
 @Stable
 fun Modifier.progressSemantics(
     @FloatRange(from = 0.0, to = 1.0) progress: Float
 ): Modifier {
-    if (progress !in 0f..1f) {
-        throw IllegalArgumentException("Progress must be between 0.0 and 1.0")
-    }
+    @Suppress("NAME_SHADOWING")
+    val progress = progress.coerceIn(0f, 1f)
 
     // We only display 0% or 100% when it is exactly 0% or 100%.
     val percent = when (progress) {

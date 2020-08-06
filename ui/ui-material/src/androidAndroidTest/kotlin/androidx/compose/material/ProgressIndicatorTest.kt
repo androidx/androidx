@@ -137,7 +137,7 @@ class ProgressIndicatorTest {
             .setMaterialContentForSizeAssertions {
                 CircularProgressIndicator(progress = 0f)
             }
-            .assertIsSquareWithSize(4.dp * 2 + 40.dp)
+            .assertIsSquareWithSize(40.dp)
     }
 
     @Test
@@ -159,6 +159,6 @@ class ProgressIndicatorTest {
             .setMaterialContentForSizeAssertions {
                 CircularProgressIndicator()
             }
-            .assertIsSquareWithSize(4.dp * 2 + 40.dp)
+            .assertIsSquareWithSize(40.dp)
     }
 }
