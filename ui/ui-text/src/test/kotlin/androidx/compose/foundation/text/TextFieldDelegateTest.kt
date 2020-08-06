@@ -23,6 +23,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.createTextLayoutResult
 import androidx.compose.ui.text.input.CommitTextEditOp
 import androidx.compose.ui.text.input.EditOperation
 import androidx.compose.ui.text.input.EditProcessor
@@ -302,12 +303,15 @@ class TextFieldDelegateTest {
         )
 
         val dummyText = AnnotatedString(text = "Hello, World")
+        textLayoutResult = createTextLayoutResult(
+            multiParagraph = mock(),
+            size = IntSize(1024, 512)
+        )
         whenever(mDelegate.text).thenReturn(dummyText)
         whenever(mDelegate.style).thenReturn(TextStyle())
         whenever(mDelegate.density).thenReturn(Density(1.0f))
         whenever(mDelegate.resourceLoader).thenReturn(mock())
         whenever(mDelegate.layout(any(), any(), eq(null))).thenReturn(textLayoutResult)
-        whenever(textLayoutResult.size).thenReturn(IntSize(1024, 512))
 
         val (width, height, layoutResult) = TextFieldDelegate.layout(
             mDelegate,
