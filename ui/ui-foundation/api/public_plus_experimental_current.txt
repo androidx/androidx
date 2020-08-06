@@ -4,8 +4,6 @@ package androidx.compose.foundation {
   public final class BackgroundKt {
     method public static androidx.compose.ui.Modifier background(androidx.compose.ui.Modifier, androidx.compose.ui.graphics.Brush brush, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f);
     method public static androidx.compose.ui.Modifier background-1xq40Q0(androidx.compose.ui.Modifier, long color, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape);
-    method @Deprecated public static androidx.compose.ui.Modifier drawBackground(androidx.compose.ui.Modifier, androidx.compose.ui.graphics.Brush brush, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.compose.ui.graphics.drawscope.DrawStyle style = Fill, androidx.compose.ui.graphics.ColorFilter? colorFilter = null, androidx.compose.ui.graphics.BlendMode blendMode = DrawScope.DefaultBlendMode);
-    method @Deprecated public static androidx.compose.ui.Modifier drawBackground-IXuahVo(androidx.compose.ui.Modifier, long color, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape, @FloatRange(from=0.0, to=1.0) float alpha = 1.0f, androidx.compose.ui.graphics.drawscope.DrawStyle style = Fill, androidx.compose.ui.graphics.ColorFilter? colorFilter = null, androidx.compose.ui.graphics.BlendMode blendMode = DrawScope.DefaultBlendMode);
   }
 
   public final class BaseTextFieldKt {
@@ -126,11 +124,8 @@ package androidx.compose.foundation {
   }
 
   public final class ScrollKt {
-    method @Deprecated @androidx.compose.runtime.Composable public static void HorizontalScroller(androidx.compose.foundation.ScrollerPosition scrollerPosition = ScrollerPosition(), androidx.compose.ui.Modifier modifier = Modifier, boolean isScrollable = true, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> children);
     method @androidx.compose.runtime.Composable public static void ScrollableColumn(androidx.compose.ui.Modifier modifier = Modifier, androidx.compose.foundation.ScrollState scrollState = rememberScrollState(0.0), androidx.compose.foundation.layout.Arrangement.Vertical verticalArrangement = Arrangement.Top, androidx.compose.ui.Alignment.Horizontal horizontalGravity = Alignment.Start, boolean reverseScrollDirection = false, boolean isScrollEnabled = true, androidx.compose.foundation.layout.InnerPadding contentPadding = androidx.compose.foundation.layout.InnerPadding(0.dp), kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> children);
     method @androidx.compose.runtime.Composable public static void ScrollableRow(androidx.compose.ui.Modifier modifier = Modifier, androidx.compose.foundation.ScrollState scrollState = rememberScrollState(0.0), androidx.compose.foundation.layout.Arrangement.Horizontal horizontalArrangement = Arrangement.Start, androidx.compose.ui.Alignment.Vertical verticalGravity = Alignment.Top, boolean reverseScrollDirection = false, boolean isScrollEnabled = true, androidx.compose.foundation.layout.InnerPadding contentPadding = androidx.compose.foundation.layout.InnerPadding(0.dp), kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.RowScope,kotlin.Unit> children);
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.foundation.ScrollerPosition ScrollerPosition(float initial = 0f, boolean isReversed = false);
-    method @Deprecated @androidx.compose.runtime.Composable public static void VerticalScroller(androidx.compose.foundation.ScrollerPosition scrollerPosition = ScrollerPosition(), androidx.compose.ui.Modifier modifier = Modifier, boolean isScrollable = true, kotlin.jvm.functions.Function1<? super androidx.compose.foundation.layout.ColumnScope,kotlin.Unit> children);
     method public static androidx.compose.ui.Modifier horizontalScroll(androidx.compose.ui.Modifier, androidx.compose.foundation.ScrollState state, boolean enabled = true, boolean reverseScrolling = false);
     method @androidx.compose.runtime.Composable public static androidx.compose.foundation.ScrollState rememberScrollState(float initial = 0f);
     method public static androidx.compose.ui.Modifier verticalScroll(androidx.compose.ui.Modifier, androidx.compose.foundation.ScrollState state, boolean enabled = true, boolean reverseScrolling = false);
@@ -154,25 +149,6 @@ package androidx.compose.foundation {
 
   public static final class ScrollState.Companion {
     method public androidx.compose.runtime.savedinstancestate.Saver<androidx.compose.foundation.ScrollState,?> Saver(androidx.compose.foundation.animation.FlingConfig flingConfig, androidx.compose.animation.core.AnimationClockObservable animationClock);
-  }
-
-  @Deprecated @androidx.compose.runtime.Stable public final class ScrollerPosition {
-    ctor @Deprecated public ScrollerPosition(internal androidx.compose.foundation.animation.FlingConfig flingConfig, float initial, internal boolean isReversed, internal androidx.compose.animation.core.AnimationClockObservable animationClock);
-    method @Deprecated public float getMaxPosition();
-    method @Deprecated public float getValue();
-    method @Deprecated public void scrollBy(float value);
-    method @Deprecated public void scrollTo(float value);
-    method @Deprecated public void setMaxPosition(float newMax);
-    method @Deprecated public void setValue(float value);
-    method @Deprecated public void smoothScrollBy(float value, kotlin.jvm.functions.Function2<? super androidx.compose.animation.core.AnimationEndReason,? super java.lang.Float,kotlin.Unit> onEnd = { _, _ ->  });
-    method @Deprecated public void smoothScrollTo(float value, kotlin.jvm.functions.Function2<? super androidx.compose.animation.core.AnimationEndReason,? super java.lang.Float,kotlin.Unit> onEnd = { _, _ ->  });
-    property public final float maxPosition;
-    property public final float value;
-    field @Deprecated public static final androidx.compose.foundation.ScrollerPosition.Companion Companion;
-  }
-
-  @Deprecated public static final class ScrollerPosition.Companion {
-    method @Deprecated @androidx.compose.runtime.Composable public androidx.compose.runtime.savedinstancestate.Saver<androidx.compose.foundation.ScrollerPosition,?> Saver(androidx.compose.foundation.animation.FlingConfig flingConfig, boolean isReversed, androidx.compose.animation.core.AnimationClockObservable animationClock);
   }
 
   public final class Strings {
