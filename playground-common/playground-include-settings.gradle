@@ -68,6 +68,10 @@ def setupPlayground(settings, String relativePathToRoot) {
     settings.includeProject(":fakeannotations", new File(supportRoot,"fakeannotations"))
     settings.includeProject(":internal-testutils-common",
             new File(supportRoot, "testutils/testutils-common"))
+    settings.includeProject(":internal-testutils-ktx",
+            new File(supportRoot, "testutils/testutils-ktx"))
+    settings.includeProject(":internal-testutils-paging",
+            new File(supportRoot, "testutils/testutils-paging"))
     settings.includeProject(":internal-testutils-gradle-plugin",
             new File(supportRoot, "testutils/testutils-gradle-plugin"))
 }
