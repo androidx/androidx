@@ -1,6 +1,4 @@
 // Baseline format: 1.0
-// See tools/metalava/API-LINT.md for how to update this file.
-
 RemovedClass: androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.SelectionState:
     Removed class androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor.SelectionState
 
