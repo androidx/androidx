@@ -591,18 +591,14 @@ public final class CameraView extends FrameLayout {
         final float y = (mUpEvent != null) ? mUpEvent.getY() : getY() + getHeight() / 2f;
         mUpEvent = null;
 
-        CameraSelector cameraSelector =
-                new CameraSelector.Builder().requireLensFacing(
-                        mCameraModule.getLensFacing()).build();
-
-        MeteringPointFactory pointFactory = mPreviewView.createMeteringPointFactory(cameraSelector);
-        float afPointWidth = 1.0f / 6.0f;  // 1/6 total area
-        float aePointWidth = afPointWidth * 1.5f;
-        MeteringPoint afPoint = pointFactory.createPoint(x, y, afPointWidth);
-        MeteringPoint aePoint = pointFactory.createPoint(x, y, aePointWidth);
-
         Camera camera = mCameraModule.getCamera();
         if (camera != null) {
+            MeteringPointFactory pointFactory = mPreviewView.getMeteringPointFactory();
+            float afPointWidth = 1.0f / 6.0f;  // 1/6 total area
+            float aePointWidth = afPointWidth * 1.5f;
+            MeteringPoint afPoint = pointFactory.createPoint(x, y, afPointWidth);
+            MeteringPoint aePoint = pointFactory.createPoint(x, y, aePointWidth);
+
             ListenableFuture<FocusMeteringResult> future =
                     camera.getCameraControl().startFocusAndMetering(
                             new FocusMeteringAction.Builder(afPoint,

@@ -39,7 +39,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraInfo;
-import androidx.camera.core.CameraSelector;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
@@ -101,6 +100,10 @@ public class PreviewView extends FrameLayout {
     private AtomicReference<PreviewStreamStateObserver> mActiveStreamStateObserver =
             new AtomicReference<>();
 
+    @NonNull
+    PreviewViewMeteringPointFactory mPreviewViewMeteringPointFactory =
+            new PreviewViewMeteringPointFactory();
+
     private final OnLayoutChangeListener mOnLayoutChangeListener = new OnLayoutChangeListener() {
         @Override
         public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
@@ -108,6 +111,8 @@ public class PreviewView extends FrameLayout {
             if (mImplementation != null) {
                 mImplementation.redrawPreview();
             }
+
+            mPreviewViewMeteringPointFactory.setViewSize(right - left, top - bottom);
         }
     };
 
@@ -156,6 +161,7 @@ public class PreviewView extends FrameLayout {
         if (mImplementation != null) {
             mImplementation.onAttachedToWindow();
         }
+        mPreviewViewMeteringPointFactory.setDisplay(getDisplay());
     }
 
     @Override
@@ -165,6 +171,7 @@ public class PreviewView extends FrameLayout {
         if (mImplementation != null) {
             mImplementation.onDetachedFromWindow();
         }
+        mPreviewViewMeteringPointFactory.setDisplay(getDisplay());
     }
 
     /**
@@ -225,6 +232,10 @@ public class PreviewView extends FrameLayout {
             camera.getCameraState().addObserver(
                     ContextCompat.getMainExecutor(getContext()), streamStateObserver);
 
+            mPreviewViewMeteringPointFactory.setViewImplementationResolution(
+                    mImplementation.getResolution());
+            mPreviewViewMeteringPointFactory.setCameraInfo(camera.getCameraInfo());
+
             mImplementation.onSurfaceRequested(surfaceRequest, () -> {
                 // We've no longer needed this observer, if there is no new StreamStateObserver
                 // (another SurfaceRequest), reset the streamState to IDLE.
@@ -248,6 +259,7 @@ public class PreviewView extends FrameLayout {
      */
     public void setScaleType(@NonNull final ScaleType scaleType) {
         mPreviewTransform.setScaleType(scaleType);
+        mPreviewViewMeteringPointFactory.setScaleType(scaleType);
         if (mImplementation != null) {
             mImplementation.redrawPreview();
         }
@@ -314,12 +326,11 @@ public class PreviewView extends FrameLayout {
     }
 
     /**
-     * Creates a {@link MeteringPointFactory} by a given {@link CameraSelector}
+     * Gets the {@link MeteringPointFactory} for the Camera currently connected to the PreviewView.
      *
      * <p>The returned {@link MeteringPointFactory} is capable of creating {@link MeteringPoint}s
      * from (x, y) coordinates in the {@link PreviewView}. This conversion takes into account its
-     * {@link ScaleType}. It is recommended to call this method to create a new factory every
-     * time you start a focus and metering action, instead of caching the factory instance.
+     * {@link ScaleType}.
      *
      * <p>When the PreviewView has a width and/or height equal to zero, or when a preview
      * {@link Surface} is not yet requested, the returned factory will always create invalid
@@ -327,14 +338,11 @@ public class PreviewView extends FrameLayout {
      * {@link androidx.camera.core.CameraControl#startFocusAndMetering(FocusMeteringAction)} but it
      * won't cause any crash.
      *
-     * @param cameraSelector the CameraSelector which the {@link Preview} is bound to.
      * @return a {@link MeteringPointFactory}
      */
     @NonNull
-    public MeteringPointFactory createMeteringPointFactory(@NonNull CameraSelector cameraSelector) {
-        return new PreviewViewMeteringPointFactory(getDisplay(), cameraSelector,
-                mImplementation == null ? null : mImplementation.getResolution(),
-                mPreviewTransform.getScaleType(), getWidth(), getHeight());
+    public MeteringPointFactory getMeteringPointFactory() {
+        return mPreviewViewMeteringPointFactory;
     }
 
     /**

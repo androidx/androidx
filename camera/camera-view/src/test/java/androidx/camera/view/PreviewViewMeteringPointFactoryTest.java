@@ -22,29 +22,18 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.when;
 
-import android.content.Context;
 import android.graphics.Point;
 import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
-import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.DisplayOrientedMeteringPointFactory;
 import androidx.camera.core.MeteringPoint;
-import androidx.camera.core.impl.CameraDeviceSurfaceManager;
-import androidx.camera.core.impl.ExtendableUseCaseConfigFactory;
-import androidx.camera.core.impl.UseCaseConfigFactory;
-import androidx.camera.testing.fakes.FakeCamera;
-import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
-import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
-import androidx.camera.testing.fakes.FakeUseCaseConfig;
-import androidx.test.core.app.ApplicationProvider;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,9 +44,6 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 @RunWith(ParameterizedRobolectricTestRunner.class)
 @DoNotInstrument
@@ -65,12 +51,9 @@ public class PreviewViewMeteringPointFactoryTest {
     private static final Size RESOLUTION = new Size(2000, 1000);
     private static final int VIEW_WIDTH = 100;
     private static final int VIEW_HEIGHT = 100;
-    private static final String FRONT_CAMERA_ID = "1";
-    private static final String BACK_CAMERA_ID = "0";
-    private static final String BACK_CAMERA_FOR_TABLET_ID = "2";
 
     @ParameterizedRobolectricTestRunner.Parameter(0)
-    public CameraSelector mCameraSelector;
+    public CameraInfo mCameraInfo;
 
     // Useless, just for showing parameter name during test.
     @ParameterizedRobolectricTestRunner.Parameter(1)
@@ -79,56 +62,20 @@ public class PreviewViewMeteringPointFactoryTest {
     @ParameterizedRobolectricTestRunner.Parameters(name = "{1}")
     public static Collection<Object[]> getParameters() {
         List<Object[]> result = new ArrayList<>();
-        result.add(new Object[]{CameraSelector.DEFAULT_BACK_CAMERA, "Back camera"});
-        result.add(new Object[]{CameraSelector.DEFAULT_FRONT_CAMERA, "Front camera"});
+        result.add(new Object[]{new FakeCameraInfoInternal(90, CameraSelector.LENS_FACING_BACK),
+                "Back camera"});
+        result.add(new Object[]{new FakeCameraInfoInternal(270, CameraSelector.LENS_FACING_FRONT),
+                "Front camera"});
         return result;
     }
 
     private Display mDisplay;
 
     @Before
-    public void setUp() throws Exception {
-        Context context = ApplicationProvider.getApplicationContext();
-
-        // Init CameraX to inject our FakeCamera with FakeCameraInfo.
-        FakeCameraFactory fakeCameraFactory = new FakeCameraFactory();
-        fakeCameraFactory.insertDefaultBackCamera(BACK_CAMERA_ID,
-                () -> new FakeCamera(null,
-                        new FakeCameraInfoInternal(90, CameraSelector.LENS_FACING_BACK)));
-        fakeCameraFactory.insertDefaultFrontCamera(FRONT_CAMERA_ID,
-                () -> new FakeCamera(null,
-                        new FakeCameraInfoInternal(270, CameraSelector.LENS_FACING_FRONT)));
-
-        fakeCameraFactory.insertDefaultFrontCamera(BACK_CAMERA_FOR_TABLET_ID,
-                () -> new FakeCamera(null,
-                        new FakeCameraInfoInternal(270, CameraSelector.LENS_FACING_FRONT)));
-
-        CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
-                ignored -> new FakeCameraDeviceSurfaceManager();
-        UseCaseConfigFactory.Provider configFactoryProvider = ignored -> {
-            ExtendableUseCaseConfigFactory defaultConfigFactory =
-                    new ExtendableUseCaseConfigFactory();
-            defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
-                    cameraInfo -> new FakeUseCaseConfig.Builder().getUseCaseConfig());
-            return defaultConfigFactory;
-        };
-
-        CameraXConfig cameraXConfig =
-                new CameraXConfig.Builder()
-                        .setCameraFactoryProvider((ignored0, ignored1) -> fakeCameraFactory)
-                        .setDeviceSurfaceManagerProvider(surfaceManagerProvider)
-                        .setUseCaseConfigFactoryProvider(configFactoryProvider)
-                        .build();
-        CameraX.initialize(context, cameraXConfig).get();
-
+    public void setUp() {
         mDisplay = Mockito.mock(Display.class);
 
         mockDisplay(Surface.ROTATION_0, 1080, 1920);
-    }
-
-    @After
-    public void tearDown() throws InterruptedException, ExecutionException, TimeoutException {
-        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
     @Test
@@ -136,11 +83,11 @@ public class PreviewViewMeteringPointFactoryTest {
         final int adjustedViewWidth = 100;
         final int adjustedViewHeight = 200;
         PreviewViewMeteringPointFactory factory = new PreviewViewMeteringPointFactory(mDisplay,
-                mCameraSelector, RESOLUTION, PreviewView.ScaleType.FILL_CENTER, VIEW_WIDTH,
+                mCameraInfo, RESOLUTION, PreviewView.ScaleType.FILL_CENTER, VIEW_WIDTH,
                 VIEW_HEIGHT);
 
         DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraSelector,
+                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraInfo,
                         adjustedViewWidth,
                         adjustedViewHeight);
 
@@ -163,11 +110,11 @@ public class PreviewViewMeteringPointFactoryTest {
         final int adjustedViewWidth = 100;
         final int adjustedViewHeight = 200;
         PreviewViewMeteringPointFactory factory = new PreviewViewMeteringPointFactory(mDisplay,
-                mCameraSelector, RESOLUTION, PreviewView.ScaleType.FILL_START, VIEW_WIDTH,
+                mCameraInfo, RESOLUTION, PreviewView.ScaleType.FILL_START, VIEW_WIDTH,
                 VIEW_HEIGHT);
 
         DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraSelector,
+                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraInfo,
                         adjustedViewWidth,
                         adjustedViewHeight);
 
@@ -190,11 +137,11 @@ public class PreviewViewMeteringPointFactoryTest {
         final int adjustedViewWidth = 100;
         final int adjustedViewHeight = 200;
         PreviewViewMeteringPointFactory factory = new PreviewViewMeteringPointFactory(mDisplay,
-                mCameraSelector, RESOLUTION, PreviewView.ScaleType.FILL_END, VIEW_WIDTH,
+                mCameraInfo, RESOLUTION, PreviewView.ScaleType.FILL_END, VIEW_WIDTH,
                 VIEW_HEIGHT);
 
         DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraSelector,
+                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraInfo,
                         adjustedViewWidth,
                         adjustedViewHeight);
 
@@ -219,11 +166,11 @@ public class PreviewViewMeteringPointFactoryTest {
         final int adjustedViewWidth = 200;
         final int adjustedViewHeight = 100;
         PreviewViewMeteringPointFactory factory = new PreviewViewMeteringPointFactory(mDisplay,
-                mCameraSelector, RESOLUTION, PreviewView.ScaleType.FILL_CENTER, VIEW_WIDTH,
+                mCameraInfo, RESOLUTION, PreviewView.ScaleType.FILL_CENTER, VIEW_WIDTH,
                 VIEW_HEIGHT);
 
         DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraSelector,
+                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraInfo,
                         adjustedViewWidth,
                         adjustedViewHeight);
 
@@ -248,11 +195,11 @@ public class PreviewViewMeteringPointFactoryTest {
         final int adjustedViewWidth = 200;
         final int adjustedViewHeight = 100;
         PreviewViewMeteringPointFactory factory = new PreviewViewMeteringPointFactory(mDisplay,
-                mCameraSelector, RESOLUTION, PreviewView.ScaleType.FILL_START, VIEW_WIDTH,
+                mCameraInfo, RESOLUTION, PreviewView.ScaleType.FILL_START, VIEW_WIDTH,
                 VIEW_HEIGHT);
 
         DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraSelector,
+                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraInfo,
                         adjustedViewWidth,
                         adjustedViewHeight);
 
@@ -277,11 +224,11 @@ public class PreviewViewMeteringPointFactoryTest {
         final int adjustedViewWidth = 200;
         final int adjustedViewHeight = 100;
         PreviewViewMeteringPointFactory factory = new PreviewViewMeteringPointFactory(mDisplay,
-                mCameraSelector, RESOLUTION, PreviewView.ScaleType.FILL_END, VIEW_WIDTH,
+                mCameraInfo, RESOLUTION, PreviewView.ScaleType.FILL_END, VIEW_WIDTH,
                 VIEW_HEIGHT);
 
         DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraSelector,
+                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraInfo,
                         adjustedViewWidth,
                         adjustedViewHeight);
 
@@ -304,11 +251,11 @@ public class PreviewViewMeteringPointFactoryTest {
         final int adjustedViewWidth = 50;
         final int adjustedViewHeight = 100;
         PreviewViewMeteringPointFactory factory = new PreviewViewMeteringPointFactory(mDisplay,
-                mCameraSelector, RESOLUTION, PreviewView.ScaleType.FIT_CENTER, VIEW_WIDTH,
+                mCameraInfo, RESOLUTION, PreviewView.ScaleType.FIT_CENTER, VIEW_WIDTH,
                 VIEW_HEIGHT);
 
         DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraSelector,
+                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraInfo,
                         adjustedViewWidth,
                         adjustedViewHeight);
 
@@ -332,11 +279,11 @@ public class PreviewViewMeteringPointFactoryTest {
         final int adjustedViewWidth = 50;
         final int adjustedViewHeight = 100;
         PreviewViewMeteringPointFactory factory = new PreviewViewMeteringPointFactory(mDisplay,
-                mCameraSelector, RESOLUTION, PreviewView.ScaleType.FIT_START, VIEW_WIDTH,
+                mCameraInfo, RESOLUTION, PreviewView.ScaleType.FIT_START, VIEW_WIDTH,
                 VIEW_HEIGHT);
 
         DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraSelector,
+                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraInfo,
                         adjustedViewWidth,
                         adjustedViewHeight);
 
@@ -359,11 +306,11 @@ public class PreviewViewMeteringPointFactoryTest {
         final int adjustedViewWidth = 50;
         final int adjustedViewHeight = 100;
         PreviewViewMeteringPointFactory factory = new PreviewViewMeteringPointFactory(mDisplay,
-                mCameraSelector, RESOLUTION, PreviewView.ScaleType.FIT_END, VIEW_WIDTH,
+                mCameraInfo, RESOLUTION, PreviewView.ScaleType.FIT_END, VIEW_WIDTH,
                 VIEW_HEIGHT);
 
         DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraSelector,
+                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraInfo,
                         adjustedViewWidth,
                         adjustedViewHeight);
 
@@ -388,11 +335,11 @@ public class PreviewViewMeteringPointFactoryTest {
         final int adjustedViewWidth = 100;
         final int adjustedViewHeight = 50;
         PreviewViewMeteringPointFactory factory = new PreviewViewMeteringPointFactory(mDisplay,
-                mCameraSelector, RESOLUTION, PreviewView.ScaleType.FIT_CENTER, VIEW_WIDTH,
+                mCameraInfo, RESOLUTION, PreviewView.ScaleType.FIT_CENTER, VIEW_WIDTH,
                 VIEW_HEIGHT);
 
         DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraSelector,
+                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraInfo,
                         adjustedViewWidth,
                         adjustedViewHeight);
 
@@ -418,11 +365,11 @@ public class PreviewViewMeteringPointFactoryTest {
         final int adjustedViewWidth = 100;
         final int adjustedViewHeight = 50;
         PreviewViewMeteringPointFactory factory = new PreviewViewMeteringPointFactory(mDisplay,
-                mCameraSelector, RESOLUTION, PreviewView.ScaleType.FIT_START, VIEW_WIDTH,
+                mCameraInfo, RESOLUTION, PreviewView.ScaleType.FIT_START, VIEW_WIDTH,
                 VIEW_HEIGHT);
 
         DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraSelector,
+                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraInfo,
                         adjustedViewWidth,
                         adjustedViewHeight);
 
@@ -448,11 +395,11 @@ public class PreviewViewMeteringPointFactoryTest {
         final int adjustedViewWidth = 100;
         final int adjustedViewHeight = 50;
         PreviewViewMeteringPointFactory factory = new PreviewViewMeteringPointFactory(mDisplay,
-                mCameraSelector, RESOLUTION, PreviewView.ScaleType.FIT_END, VIEW_WIDTH,
+                mCameraInfo, RESOLUTION, PreviewView.ScaleType.FIT_END, VIEW_WIDTH,
                 VIEW_HEIGHT);
 
         DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraSelector,
+                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraInfo,
                         adjustedViewWidth,
                         adjustedViewHeight);
 

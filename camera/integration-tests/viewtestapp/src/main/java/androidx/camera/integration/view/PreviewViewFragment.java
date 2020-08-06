@@ -37,7 +37,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Camera;
-import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.FocusMeteringAction;
@@ -254,26 +253,24 @@ public class PreviewViewFragment extends Fragment {
                 .build();
         mPreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
         preview.setSurfaceProvider(mPreviewView.createSurfaceProvider());
-        final CameraSelector cameraSelector = getCurrentCameraSelector();
-        final Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview);
-        setUpFocusAndMetering(camera.getCameraControl(), cameraSelector);
+        final Camera camera = cameraProvider.bindToLifecycle(this, getCurrentCameraSelector(),
+                preview);
+        setUpFocusAndMetering(camera);
     }
 
-    private void setUpFocusAndMetering(@NonNull final CameraControl cameraControl,
-            @NonNull final CameraSelector cameraSelector) {
+    private void setUpFocusAndMetering(@NonNull final Camera camera) {
         mPreviewView.setOnTouchListener((view, motionEvent) -> {
             switch (motionEvent.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     return true;
                 case MotionEvent.ACTION_UP:
-                    final MeteringPointFactory factory = mPreviewView.createMeteringPointFactory(
-                            cameraSelector);
+                    final MeteringPointFactory factory = mPreviewView.getMeteringPointFactory();
                     final MeteringPoint point = factory.createPoint(motionEvent.getX(),
                             motionEvent.getY());
                     final FocusMeteringAction action = new FocusMeteringAction.Builder(
                             point).build();
                     Futures.addCallback(
-                            cameraControl.startFocusAndMetering(action),
+                            camera.getCameraControl().startFocusAndMetering(action),
                             new FutureCallback<FocusMeteringResult>() {
                                 @Override
                                 public void onSuccess(FocusMeteringResult result) {
