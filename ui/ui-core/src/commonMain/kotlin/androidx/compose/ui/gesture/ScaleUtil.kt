@@ -16,8 +16,8 @@
 
 package androidx.compose.ui.gesture
 
-import androidx.compose.ui.platform.PointerInputChange
-import androidx.compose.ui.platform.positionChange
+import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.positionChange
 import kotlin.math.abs
 import kotlin.math.hypot
 

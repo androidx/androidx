@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.gesture.util
 
-import androidx.compose.ui.platform.PointerInputData
+import androidx.compose.ui.input.pointer.PointerInputData
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Uptime
 import androidx.compose.ui.unit.Velocity

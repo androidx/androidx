@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,27 +14,110 @@
  * limitations under the License.
  */
 
-package androidx.compose.ui.platform
+@file:Suppress("EXPERIMENTAL_FEATURE_WARNING")
+
+package androidx.compose.ui.input.pointer
 
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
-import androidx.compose.ui.input.pointer.PointerInputEvent
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.Uptime
+import androidx.compose.ui.unit.round
 
 /**
- * Represents a pointer input event internally.
- *
- * [PointerInputChange]s are stored in a map so that as this internal event traverses the tree,
- * it is efficient to split the changes between those that are relevant to the sub tree and those
- * that are not.
+ * A [Modifier.Element] that can interact with pointer input.
  */
-internal expect class InternalPointerEvent(
-    changes: MutableMap<PointerId, PointerInputChange>,
-    pointerInputEvent: PointerInputEvent
-) {
-    var changes: MutableMap<PointerId, PointerInputChange>
+interface PointerInputModifier : Modifier.Element {
+    val pointerInputFilter: PointerInputFilter
+}
+
+/**
+ * A PointerInputFilter represents a single entity that receives [PointerInputChange]s),
+ * interprets them, and consumes the aspects of the changes that it is react to such that other
+ * PointerInputFilters don't also react to them.
+ */
+abstract class PointerInputFilter {
+
+    /**
+     * Invoked when pointers that previously hit this [PointerInputFilter] have changed.
+     *
+     * @param pointerEvent The list of [PointerInputChange]s with positions relative to this
+     * [PointerInputFilter].
+     * @param pass The [PointerEventPass] in which this function is being called.
+     * @param bounds The width and height associated with this [PointerInputFilter].
+     * @return The list of [PointerInputChange]s after any aspect of the changes have been consumed.
+     *
+     * @see PointerInputChange
+     * @see PointerEventPass
+     */
+    open fun onPointerEvent(
+        pointerEvent: PointerEvent,
+        pass: PointerEventPass,
+        bounds: IntSize
+    ): List<PointerInputChange> = onPointerInput(pointerEvent.changes, pass, bounds)
+
+    /**
+     * Invoked when pointers that previously hit this [PointerInputFilter] have changed.
+     *
+     * @param changes The list of [PointerInputChange]s with positions relative to this
+     * [PointerInputFilter].
+     * @param pass The [PointerEventPass] in which this function is being called.
+     * @param bounds The width and height associated with this [PointerInputFilter].
+     * @return The list of [PointerInputChange]s after any aspect of the changes have been consumed.
+     *
+     * @see PointerInputChange
+     * @see PointerEventPass
+     */
+    abstract fun onPointerInput(
+        changes: List<PointerInputChange>,
+        pass: PointerEventPass,
+        bounds: IntSize
+    ): List<PointerInputChange>
+
+    /**
+     * Invoked to notify the handler that no more calls to [PointerInputFilter] will be made, until
+     * at least new pointers exist.  This can occur for a few reasons:
+     * 1. Android dispatches ACTION_CANCEL to Compose.
+     * 2. This [PointerInputFilter] is no longer associated with a LayoutNode.
+     * 3. This [PointerInputFilter]'s associated LayoutNode is no longer in the composition tree.
+     */
+    abstract fun onCancel()
+
+    /**
+     * Invoked right after this [PointerInputFilter] is hit by a pointer during hit testing.
+     *
+     * @param customEventDispatcher The [CustomEventDispatcher] that can be used to dispatch
+     * [CustomEvent] across the tree of hit [PointerInputFilter]s.
+     *
+     * @See CustomEventDispatcher
+     */
+    open fun onInit(customEventDispatcher: CustomEventDispatcher) {}
+
+    /**
+     * Invoked when a [CustomEvent] is dispatched by a [PointerInputFilter].
+     *
+     * Dispatch occurs over all passes of [PointerEventPass].
+     *
+     * @param customEvent The [CustomEvent] is the event being dispatched.
+     * @param pass The [PointerEventPass] in which this function is being called.
+     *
+     * @see CustomEvent
+     * @see PointerEventPass
+     */
+    open fun onCustomEvent(customEvent: CustomEvent, pass: PointerEventPass) {}
+
+    internal lateinit var layoutCoordinates: LayoutCoordinates
+
+    internal val size: IntSize
+        get() = layoutCoordinates.size
+    internal val position: IntOffset
+        get() = layoutCoordinates.localToGlobal(Offset.Zero).round()
+    internal val isAttached: Boolean
+        get() = layoutCoordinates.isAttached
 }
 
 /**
@@ -93,8 +176,6 @@ data class PointerInputChange(
  */
 inline class PointerId(val value: Long)
 
-// TODO(shepshapard): Uptime should be removed for each pointer, because each pointer has the
-//  same uptime for a given event.
 /**
  * Data associated with a pointer.
  *
@@ -121,7 +202,7 @@ data class PointerInputData(
  */
 @Immutable
 data class ConsumedData(
-    val positionChange: Offset = Offset.Zero,
+    val positionChange: Offset = Offset.Companion.Zero,
     val downChange: Boolean = false
 )
 
@@ -138,15 +219,11 @@ enum class PointerEventPass {
 typealias PointerInputHandler =
             (List<PointerInputChange>, PointerEventPass, IntSize) -> List<PointerInputChange>
 
-// This CustomEvent interface primarily exists exists to provide a base type other than Any.  If it
-// were Any, then Unit would be sufficient, which is not a valid type, or value, to send as a
-// custom event.
 /**
  * The base type for all custom events.
  */
 interface CustomEvent
 
-// TODO(b/149030989): Provide sample for usage of CustomEventDispatcher.
 /**
  * Defines the interface that is used to dispatch CustomEvents to pointer input nodes across the
  * compose tree.
@@ -187,10 +264,6 @@ interface CustomEventDispatcher {
     fun releaseHitPaths(pointerIds: Set<PointerId>)
 }
 
-// PointerInputChange extension functions
-
-// Change querying functions
-
 /**
  * True if this [PointerInputChange] represents a pointer coming in contact with the screen and
  * that change has not been consumed.
@@ -219,14 +292,15 @@ fun PointerInputChange.changedToUpIgnoreConsumed() = previous.down && !current.d
  * True if this [PointerInputChange] represents a pointer moving on the screen and some of that
  * movement has not been consumed.
  */
-fun PointerInputChange.positionChanged() = this.positionChangeInternal(false) != Offset.Zero
+fun PointerInputChange.positionChanged() =
+    this.positionChangeInternal(false) != Offset.Companion.Zero
 
 /**
  * True if this [PointerInputChange] represents a pointer moving on the screen ignoring how much
  * of that movement may have been consumed.
  */
 fun PointerInputChange.positionChangedIgnoreConsumed() =
-    this.positionChangeInternal(true) != Offset.Zero
+    this.positionChangeInternal(true) != Offset.Companion.Zero
 
 /**
  * The distance that the pointer has moved on the screen minus any distance that has been consumed.
@@ -238,7 +312,6 @@ fun PointerInputChange.positionChange() = this.positionChangeInternal(false)
  * consumed.
  */
 fun PointerInputChange.positionChangeIgnoreConsumed() = this.positionChangeInternal(true)
-
 private fun PointerInputChange.positionChangeInternal(ignoreConsumed: Boolean = false): Offset {
     val previousPosition = previous.position
     val currentPosition = current.position
@@ -257,8 +330,6 @@ private fun PointerInputChange.positionChangeInternal(ignoreConsumed: Boolean = 
     }
 }
 
-// Consumption querying functions
-
 /**
  * True if any of this [PointerInputChange]'s movement has been consumed.
  */
@@ -269,8 +340,6 @@ fun PointerInputChange.anyPositionChangeConsumed() =
  * True if any aspect of this [PointerInputChange] has been consumed.
  */
 fun PointerInputChange.anyChangeConsumed() = anyPositionChangeConsumed() || consumed.downChange
-
-// Consume functions
 
 /**
  * Consume the up or down change of this [PointerInputChange] if there is an up or down change to

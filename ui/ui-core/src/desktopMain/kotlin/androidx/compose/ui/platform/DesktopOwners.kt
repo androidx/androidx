@@ -19,10 +19,12 @@ import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.dispatch.DesktopUiDispatcher
 import androidx.compose.runtime.staticAmbientOf
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.unit.Uptime
+import androidx.compose.ui.input.pointer.PointerId
+import androidx.compose.ui.input.pointer.PointerInputData
 import androidx.compose.ui.input.pointer.PointerInputEvent
 import androidx.compose.ui.input.pointer.PointerInputEventData
 import androidx.compose.ui.node.InternalCoreApi
+import androidx.compose.ui.unit.Uptime
 import org.jetbrains.skija.Canvas
 import java.awt.Component
 import java.awt.event.InputMethodEvent

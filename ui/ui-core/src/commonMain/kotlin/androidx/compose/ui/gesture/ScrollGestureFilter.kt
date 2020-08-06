@@ -22,7 +22,7 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.ui.gesture.scrollorientationlocking.ScrollOrientationLocker
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.platform.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventPass
 
 /**
  * Defines the callbacks associated with scrolling.

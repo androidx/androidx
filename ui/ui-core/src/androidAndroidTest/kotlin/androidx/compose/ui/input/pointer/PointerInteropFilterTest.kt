@@ -29,11 +29,6 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.gesture.PointerCoords
 import androidx.compose.ui.gesture.PointerProperties
 import androidx.test.filters.SmallTest
-import androidx.compose.ui.platform.PointerEvent
-import androidx.compose.ui.platform.PointerEventPass
-import androidx.compose.ui.platform.PointerInputChange
-import androidx.compose.ui.platform.consumeAllChanges
-import androidx.compose.ui.platform.consumeDownChange
 import androidx.ui.test.android.createAndroidComposeRule
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.milliseconds
@@ -4421,10 +4416,17 @@ private fun PointerEventHandler.invokeOverPasses(
     require(pointerEventPasses.isNotEmpty())
     var localChanges: List<PointerInputChange> = pointerEvent.changes
     pointerEventPasses.forEach {
-        localChanges = this.invoke(PointerEvent(localChanges, pointerEvent.motionEvent), it, size)
+        localChanges = this.invoke(
+            PointerEvent(
+                localChanges,
+                pointerEvent.motionEvent
+            ), it, size)
     }
     return localChanges
 }
 
 private fun pointerEventOf(vararg changes: PointerInputChange, motionEvent: MotionEvent? = null) =
-    PointerEvent(changes.toList(), motionEvent = motionEvent)
+    PointerEvent(
+        changes.toList(),
+        motionEvent = motionEvent
+    )

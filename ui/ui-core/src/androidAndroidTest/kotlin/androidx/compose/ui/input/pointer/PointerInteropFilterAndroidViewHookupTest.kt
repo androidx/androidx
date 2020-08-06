@@ -27,7 +27,6 @@ import android.widget.FrameLayout
 import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.gesture.PointerProperties
-import androidx.compose.ui.platform.PointerEventPass
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.test.filters.MediumTest

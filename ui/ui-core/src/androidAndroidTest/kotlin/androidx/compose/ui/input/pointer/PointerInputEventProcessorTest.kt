@@ -31,13 +31,6 @@ import androidx.compose.ui.unit.milliseconds
 import androidx.compose.ui.unit.minus
 import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.node.Owner
-import androidx.compose.ui.platform.ConsumedData
-import androidx.compose.ui.platform.PointerEventPass
-import androidx.compose.ui.platform.PointerId
-import androidx.compose.ui.platform.PointerInputChange
-import androidx.compose.ui.platform.PointerInputData
-import androidx.compose.ui.platform.PointerInputHandler
-import androidx.compose.ui.platform.consumePositionChange
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.doAnswer
@@ -124,20 +117,44 @@ class PointerInputEventProcessorTest {
         val expectedChanges = arrayOf(
             PointerInputChange(
                 id = PointerId(8712),
-                current = PointerInputData(Uptime.Boot + 3.milliseconds, offset, true),
-                previous = PointerInputData(null, null, false),
+                current = PointerInputData(
+                    Uptime.Boot + 3.milliseconds,
+                    offset,
+                    true
+                ),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
                 consumed = ConsumedData()
             ),
             PointerInputChange(
                 id = PointerId(8712),
-                current = PointerInputData(Uptime.Boot + 11.milliseconds, offset2, true),
-                previous = PointerInputData(Uptime.Boot + 3.milliseconds, offset, true),
+                current = PointerInputData(
+                    Uptime.Boot + 11.milliseconds,
+                    offset2,
+                    true
+                ),
+                previous = PointerInputData(
+                    Uptime.Boot + 3.milliseconds,
+                    offset,
+                    true
+                ),
                 consumed = ConsumedData()
             ),
             PointerInputChange(
                 id = PointerId(8712),
-                current = PointerInputData(Uptime.Boot + 13.milliseconds, offset2, false),
-                previous = PointerInputData(Uptime.Boot + 11.milliseconds, offset2, true),
+                current = PointerInputData(
+                    Uptime.Boot + 13.milliseconds,
+                    offset2,
+                    false
+                ),
+                previous = PointerInputData(
+                    Uptime.Boot + 11.milliseconds,
+                    offset2,
+                    true
+                ),
                 consumed = ConsumedData()
             )
         )
@@ -203,7 +220,11 @@ class PointerInputEventProcessorTest {
                     offsets[index] - childOffset,
                     true
                 ),
-                previous = PointerInputData(null, null, false),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
                 consumed = ConsumedData()
             )
         }
@@ -405,8 +426,14 @@ class PointerInputEventProcessorTest {
                 Offset(100f, 0f),
                 true
             ),
-            previous = PointerInputData(Uptime.Boot + 3.milliseconds, Offset(0f, 0f), true),
-            consumed = ConsumedData(positionChange = Offset(0f, 0f))
+            previous = PointerInputData(
+                Uptime.Boot + 3.milliseconds,
+                Offset(0f, 0f),
+                true
+            ),
+            consumed = ConsumedData(
+                positionChange = Offset(0f, 0f)
+            )
         )
         val output = PointerInputChange(
             id = PointerId(0),
@@ -415,8 +442,14 @@ class PointerInputEventProcessorTest {
                 Offset(100f, 0f),
                 true
             ),
-            previous = PointerInputData(Uptime.Boot + 3.milliseconds, Offset(0f, 0f), true),
-            consumed = ConsumedData(positionChange = Offset(13f, 0f))
+            previous = PointerInputData(
+                Uptime.Boot + 3.milliseconds,
+                Offset(0f, 0f),
+                true
+            ),
+            consumed = ConsumedData(
+                positionChange = Offset(13f, 0f)
+            )
         )
 
         val pointerInputFilter: PointerInputFilter =
@@ -576,7 +609,11 @@ class PointerInputEventProcessorTest {
                     offset - additionalOffset,
                     true
                 ),
-                previous = PointerInputData(null, null, false),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
                 consumed = ConsumedData()
             ),
             PointerInputChange(
@@ -586,7 +623,11 @@ class PointerInputEventProcessorTest {
                     offset - middleOffset - additionalOffset,
                     true
                 ),
-                previous = PointerInputData(null, null, false),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
                 consumed = ConsumedData()
             ),
             PointerInputChange(
@@ -596,7 +637,11 @@ class PointerInputEventProcessorTest {
                     offset - middleOffset - childOffset - additionalOffset,
                     true
                 ),
-                previous = PointerInputData(null, null, false),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
                 consumed = ConsumedData()
             )
         )
@@ -689,22 +734,36 @@ class PointerInputEventProcessorTest {
             )
         )
 
-        val expectedChange1 = PointerInputChange(
-            id = PointerId(0),
-            current = PointerInputData(Uptime.Boot + 5.milliseconds, offset1, true),
-            previous = PointerInputData(null, null, false),
-            consumed = ConsumedData()
-        )
-        val expectedChange2 = PointerInputChange(
-            id = PointerId(1),
-            current = PointerInputData(
-                Uptime.Boot + 5.milliseconds,
-                offset2 - Offset(50f, 50f),
-                true
-            ),
-            previous = PointerInputData(null, null, false),
-            consumed = ConsumedData()
-        )
+        val expectedChange1 =
+            PointerInputChange(
+                id = PointerId(0),
+                current = PointerInputData(
+                    Uptime.Boot + 5.milliseconds,
+                    offset1,
+                    true
+                ),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
+                consumed = ConsumedData()
+            )
+        val expectedChange2 =
+            PointerInputChange(
+                id = PointerId(1),
+                current = PointerInputData(
+                    Uptime.Boot + 5.milliseconds,
+                    offset2 - Offset(50f, 50f),
+                    true
+                ),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
+                consumed = ConsumedData()
+            )
 
         // Act
 
@@ -802,32 +861,51 @@ class PointerInputEventProcessorTest {
             )
         )
 
-        val expectedChange1 = PointerInputChange(
-            id = PointerId(0),
-            current = PointerInputData(Uptime.Boot + 5.milliseconds, offset1, true),
-            previous = PointerInputData(null, null, false),
-            consumed = ConsumedData()
-        )
-        val expectedChange2 = PointerInputChange(
-            id = PointerId(1),
-            current = PointerInputData(
-                Uptime.Boot + 5.milliseconds,
-                offset2 - Offset(50f, 50f),
-                true
-            ),
-            previous = PointerInputData(null, null, false),
-            consumed = ConsumedData()
-        )
-        val expectedChange3 = PointerInputChange(
-            id = PointerId(2),
-            current = PointerInputData(
-                Uptime.Boot + 5.milliseconds,
-                offset3 - Offset(100f, 100f),
-                true
-            ),
-            previous = PointerInputData(null, null, false),
-            consumed = ConsumedData()
-        )
+        val expectedChange1 =
+            PointerInputChange(
+                id = PointerId(0),
+                current = PointerInputData(
+                    Uptime.Boot + 5.milliseconds,
+                    offset1,
+                    true
+                ),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
+                consumed = ConsumedData()
+            )
+        val expectedChange2 =
+            PointerInputChange(
+                id = PointerId(1),
+                current = PointerInputData(
+                    Uptime.Boot + 5.milliseconds,
+                    offset2 - Offset(50f, 50f),
+                    true
+                ),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
+                consumed = ConsumedData()
+            )
+        val expectedChange3 =
+            PointerInputChange(
+                id = PointerId(2),
+                current = PointerInputData(
+                    Uptime.Boot + 5.milliseconds,
+                    offset3 - Offset(100f, 100f),
+                    true
+                ),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
+                consumed = ConsumedData()
+            )
 
         // Act
 
@@ -924,28 +1002,51 @@ class PointerInputEventProcessorTest {
             )
         )
 
-        val expectedChange1 = PointerInputChange(
-            id = PointerId(0),
-            current = PointerInputData(Uptime.Boot + 7.milliseconds, offset1, true),
-            previous = PointerInputData(null, null, false),
-            consumed = ConsumedData()
-        )
-        val expectedChange2 = PointerInputChange(
-            id = PointerId(1),
-            current = PointerInputData(
-                Uptime.Boot + 7.milliseconds,
-                offset2 - Offset(25f, 50f),
-                true
-            ),
-            previous = PointerInputData(null, null, false),
-            consumed = ConsumedData()
-        )
-        val expectedChange3 = PointerInputChange(
-            id = PointerId(2),
-            current = PointerInputData(Uptime.Boot + 7.milliseconds, offset3, true),
-            previous = PointerInputData(null, null, false),
-            consumed = ConsumedData()
-        )
+        val expectedChange1 =
+            PointerInputChange(
+                id = PointerId(0),
+                current = PointerInputData(
+                    Uptime.Boot + 7.milliseconds,
+                    offset1,
+                    true
+                ),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
+                consumed = ConsumedData()
+            )
+        val expectedChange2 =
+            PointerInputChange(
+                id = PointerId(1),
+                current = PointerInputData(
+                    Uptime.Boot + 7.milliseconds,
+                    offset2 - Offset(25f, 50f),
+                    true
+                ),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
+                consumed = ConsumedData()
+            )
+        val expectedChange3 =
+            PointerInputChange(
+                id = PointerId(2),
+                current = PointerInputData(
+                    Uptime.Boot + 7.milliseconds,
+                    offset3,
+                    true
+                ),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
+                consumed = ConsumedData()
+            )
 
         // Act
 
@@ -1029,28 +1130,51 @@ class PointerInputEventProcessorTest {
             )
         )
 
-        val expectedChange1 = PointerInputChange(
-            id = PointerId(0),
-            current = PointerInputData(Uptime.Boot + 11.milliseconds, offset1, true),
-            previous = PointerInputData(null, null, false),
-            consumed = ConsumedData()
-        )
-        val expectedChange2 = PointerInputChange(
-            id = PointerId(1),
-            current = PointerInputData(
-                Uptime.Boot + 11.milliseconds,
-                offset2 - Offset(50f, 25f),
-                true
-            ),
-            previous = PointerInputData(null, null, false),
-            consumed = ConsumedData()
-        )
-        val expectedChange3 = PointerInputChange(
-            id = PointerId(2),
-            current = PointerInputData(Uptime.Boot + 11.milliseconds, offset3, true),
-            previous = PointerInputData(null, null, false),
-            consumed = ConsumedData()
-        )
+        val expectedChange1 =
+            PointerInputChange(
+                id = PointerId(0),
+                current = PointerInputData(
+                    Uptime.Boot + 11.milliseconds,
+                    offset1,
+                    true
+                ),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
+                consumed = ConsumedData()
+            )
+        val expectedChange2 =
+            PointerInputChange(
+                id = PointerId(1),
+                current = PointerInputData(
+                    Uptime.Boot + 11.milliseconds,
+                    offset2 - Offset(50f, 25f),
+                    true
+                ),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
+                consumed = ConsumedData()
+            )
+        val expectedChange3 =
+            PointerInputChange(
+                id = PointerId(2),
+                current = PointerInputData(
+                    Uptime.Boot + 11.milliseconds,
+                    offset3,
+                    true
+                ),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
+                consumed = ConsumedData()
+            )
 
         // Act
 
@@ -1203,7 +1327,11 @@ class PointerInputEventProcessorTest {
                         ),
                         true
                     ),
-                    previous = PointerInputData(null, null, false),
+                    previous = PointerInputData(
+                        null,
+                        null,
+                        false
+                    ),
                     consumed = ConsumedData()
                 )
             }
@@ -1220,7 +1348,11 @@ class PointerInputEventProcessorTest {
                         ),
                         true
                     ),
-                    previous = PointerInputData(null, null, false),
+                    previous = PointerInputData(
+                        null,
+                        null,
+                        false
+                    ),
                     consumed = ConsumedData()
                 )
             }
@@ -1237,7 +1369,11 @@ class PointerInputEventProcessorTest {
                         ),
                         true
                     ),
-                    previous = PointerInputData(null, null, false),
+                    previous = PointerInputData(
+                        null,
+                        null,
+                        false
+                    ),
                     consumed = ConsumedData()
                 )
             }
@@ -1254,7 +1390,11 @@ class PointerInputEventProcessorTest {
                         ),
                         true
                     ),
-                    previous = PointerInputData(null, null, false),
+                    previous = PointerInputData(
+                        null,
+                        null,
+                        false
+                    ),
                     consumed = ConsumedData()
                 )
             }
@@ -1355,7 +1495,11 @@ class PointerInputEventProcessorTest {
                         offsetsThatHit[it] - Offset(1f, 1f),
                         true
                     ),
-                    previous = PointerInputData(null, null, false),
+                    previous = PointerInputData(
+                        null,
+                        null,
+                        false
+                    ),
                     consumed = ConsumedData()
                 )
             }
@@ -1403,16 +1547,21 @@ class PointerInputEventProcessorTest {
             )
         )
 
-        val expectedChange = PointerInputChange(
-            id = PointerId(0),
-            current = PointerInputData(
-                Uptime.Boot + 7.milliseconds,
-                offset1 - Offset(25f, 50f),
-                true
-            ),
-            previous = PointerInputData(null, null, false),
-            consumed = ConsumedData()
-        )
+        val expectedChange =
+            PointerInputChange(
+                id = PointerId(0),
+                current = PointerInputData(
+                    Uptime.Boot + 7.milliseconds,
+                    offset1 - Offset(25f, 50f),
+                    true
+                ),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
+                consumed = ConsumedData()
+            )
 
         // Act
 
@@ -1483,16 +1632,21 @@ class PointerInputEventProcessorTest {
             )
         )
 
-        val expectedChange = PointerInputChange(
-            id = PointerId(0),
-            current = PointerInputData(
-                Uptime.Boot + 7.milliseconds,
-                offset1 - Offset(1f + 2f + 3f + 4f, 5f + 6f + 7f + 8f),
-                true
-            ),
-            previous = PointerInputData(null, null, false),
-            consumed = ConsumedData()
-        )
+        val expectedChange =
+            PointerInputChange(
+                id = PointerId(0),
+                current = PointerInputData(
+                    Uptime.Boot + 7.milliseconds,
+                    offset1 - Offset(1f + 2f + 3f + 4f, 5f + 6f + 7f + 8f),
+                    true
+                ),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
+                consumed = ConsumedData()
+            )
 
         // Act
 
@@ -1559,30 +1713,40 @@ class PointerInputEventProcessorTest {
             )
         )
 
-        val expectedChange1 = PointerInputChange(
-            id = PointerId(0),
-            current = PointerInputData(
-                Uptime.Boot + 3.milliseconds,
-                offset1 - Offset(
-                    1f + 2f + 3f + 4f + 5f,
-                    6f + 7f + 8f + 9f + 10f
+        val expectedChange1 =
+            PointerInputChange(
+                id = PointerId(0),
+                current = PointerInputData(
+                    Uptime.Boot + 3.milliseconds,
+                    offset1 - Offset(
+                        1f + 2f + 3f + 4f + 5f,
+                        6f + 7f + 8f + 9f + 10f
+                    ),
+                    true
                 ),
-                true
-            ),
-            previous = PointerInputData(null, null, false),
-            consumed = ConsumedData()
-        )
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
+                consumed = ConsumedData()
+            )
 
-        val expectedChange2 = PointerInputChange(
-            id = PointerId(0),
-            current = PointerInputData(
-                Uptime.Boot + 3.milliseconds,
-                offset1 - Offset(3f + 4f + 5f, 8f + 9f + 10f),
-                true
-            ),
-            previous = PointerInputData(null, null, false),
-            consumed = ConsumedData()
-        )
+        val expectedChange2 =
+            PointerInputChange(
+                id = PointerId(0),
+                current = PointerInputData(
+                    Uptime.Boot + 3.milliseconds,
+                    offset1 - Offset(3f + 4f + 5f, 8f + 9f + 10f),
+                    true
+                ),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
+                consumed = ConsumedData()
+            )
 
         // Act
 
@@ -1729,7 +1893,11 @@ class PointerInputEventProcessorTest {
                     Offset(250f, 250f),
                     true
                 ),
-                previous = PointerInputData(null, null, false),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
                 consumed = ConsumedData()
             )
 
@@ -1809,7 +1977,11 @@ class PointerInputEventProcessorTest {
                         Offset(200f, 200f),
                         true
                     ),
-                    previous = PointerInputData(null, null, false),
+                    previous = PointerInputData(
+                        null,
+                        null,
+                        false
+                    ),
                     consumed = ConsumedData()
                 )
             )
@@ -1837,7 +2009,11 @@ class PointerInputEventProcessorTest {
                         Offset(300f, 300f),
                         true
                     ),
-                    previous = PointerInputData(null, null, false),
+                    previous = PointerInputData(
+                        null,
+                        null,
+                        false
+                    ),
                     consumed = ConsumedData()
                 )
             )
@@ -1923,7 +2099,11 @@ class PointerInputEventProcessorTest {
                     Offset(100f, 100f),
                     true
                 ),
-                previous = PointerInputData(null, null, false),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
                 consumed = ConsumedData()
             )
 
@@ -1935,7 +2115,11 @@ class PointerInputEventProcessorTest {
                     Offset(100f, 100f),
                     true
                 ),
-                previous = PointerInputData(null, null, false),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
                 consumed = ConsumedData()
             )
 
@@ -2012,7 +2196,11 @@ class PointerInputEventProcessorTest {
                     Offset(200f, 200f),
                     true
                 ),
-                previous = PointerInputData(null, null, false),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
                 consumed = ConsumedData()
             )
 
@@ -2093,7 +2281,11 @@ class PointerInputEventProcessorTest {
                     Offset(200f, 200f),
                     true
                 ),
-                previous = PointerInputData(null, null, false),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
                 consumed = ConsumedData()
             )
 
@@ -2160,7 +2352,11 @@ class PointerInputEventProcessorTest {
                     Offset(200f, 200f),
                     true
                 ),
-                previous = PointerInputData(null, null, false),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
                 consumed = ConsumedData()
             )
 
@@ -2172,7 +2368,11 @@ class PointerInputEventProcessorTest {
                     Offset(200f, 200f),
                     true
                 ),
-                previous = PointerInputData(null, null, false),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
                 consumed = ConsumedData()
             )
 
@@ -2234,19 +2434,37 @@ class PointerInputEventProcessorTest {
         val down = PointerInputEvent(0, Uptime.Boot + 7.milliseconds, offset, true)
         val up = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, null, false)
 
-        val expectedDownChange = PointerInputChange(
-            id = PointerId(0),
-            current = PointerInputData(Uptime.Boot + 7.milliseconds, offset, true),
-            previous = PointerInputData(null, null, false),
-            consumed = ConsumedData()
-        )
+        val expectedDownChange =
+            PointerInputChange(
+                id = PointerId(0),
+                current = PointerInputData(
+                    Uptime.Boot + 7.milliseconds,
+                    offset,
+                    true
+                ),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
+                consumed = ConsumedData()
+            )
 
-        val expectedUpChange = PointerInputChange(
-            id = PointerId(0),
-            current = PointerInputData(Uptime.Boot + 11.milliseconds, null, false),
-            previous = PointerInputData(Uptime.Boot + 7.milliseconds, offset, true),
-            consumed = ConsumedData()
-        )
+        val expectedUpChange =
+            PointerInputChange(
+                id = PointerId(0),
+                current = PointerInputData(
+                    Uptime.Boot + 11.milliseconds,
+                    null,
+                    false
+                ),
+                previous = PointerInputData(
+                    Uptime.Boot + 7.milliseconds,
+                    offset,
+                    true
+                ),
+                consumed = ConsumedData()
+            )
 
         // Act
 
@@ -2340,19 +2558,37 @@ class PointerInputEventProcessorTest {
         val down = PointerInputEvent(0, Uptime.Boot + 7.milliseconds, offset, true)
         val up = PointerInputEvent(0, Uptime.Boot + 11.milliseconds, null, false)
 
-        val expectedDownChange = PointerInputChange(
-            id = PointerId(0),
-            current = PointerInputData(Uptime.Boot + 7.milliseconds, offset, true),
-            previous = PointerInputData(null, null, false),
-            consumed = ConsumedData()
-        )
+        val expectedDownChange =
+            PointerInputChange(
+                id = PointerId(0),
+                current = PointerInputData(
+                    Uptime.Boot + 7.milliseconds,
+                    offset,
+                    true
+                ),
+                previous = PointerInputData(
+                    null,
+                    null,
+                    false
+                ),
+                consumed = ConsumedData()
+            )
 
-        val expectedUpChange = PointerInputChange(
-            id = PointerId(0),
-            current = PointerInputData(Uptime.Boot + 11.milliseconds, null, false),
-            previous = PointerInputData(Uptime.Boot + 7.milliseconds, offset, true),
-            consumed = ConsumedData()
-        )
+        val expectedUpChange =
+            PointerInputChange(
+                id = PointerId(0),
+                current = PointerInputData(
+                    Uptime.Boot + 11.milliseconds,
+                    null,
+                    false
+                ),
+                previous = PointerInputData(
+                    Uptime.Boot + 7.milliseconds,
+                    offset,
+                    true
+                ),
+                consumed = ConsumedData()
+            )
 
         // Act
 

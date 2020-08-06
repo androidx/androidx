@@ -628,7 +628,7 @@ package androidx.compose.ui.gesture {
   }
 
   public final class GestureUtilsKt {
-    method public static boolean anyPointersInBounds(java.util.List<androidx.compose.ui.platform.PointerInputChange>, androidx.compose.ui.unit.IntSize bounds);
+    method public static boolean anyPointersInBounds(java.util.List<androidx.compose.ui.input.pointer.PointerInputChange>, androidx.compose.ui.unit.IntSize bounds);
   }
 
   public final class LongPressDragGestureFilterKt {
@@ -656,7 +656,7 @@ package androidx.compose.ui.gesture {
   }
 
   public final class RawPressStartGestureFilterKt {
-    method public static androidx.compose.ui.Modifier rawPressStartGestureFilter(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit> onPressStart, boolean enabled = false, androidx.compose.ui.platform.PointerEventPass executionPass = androidx.compose.ui.platform.PointerEventPass.PostUp);
+    method public static androidx.compose.ui.Modifier rawPressStartGestureFilter(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit> onPressStart, boolean enabled = false, androidx.compose.ui.input.pointer.PointerEventPass executionPass = androidx.compose.ui.input.pointer.PointerEventPass.PostUp);
   }
 
   public final class RawScaleGestureFilterKt {
@@ -707,13 +707,13 @@ package androidx.compose.ui.gesture {
 
 package androidx.compose.ui.gesture.customevents {
 
-  @androidx.compose.ui.gesture.ExperimentalPointerInput public final class DelayUpEvent implements androidx.compose.ui.platform.CustomEvent {
-    ctor public DelayUpEvent(androidx.compose.ui.gesture.customevents.DelayUpMessage message, java.util.Set<androidx.compose.ui.platform.PointerId> pointers);
+  @androidx.compose.ui.gesture.ExperimentalPointerInput public final class DelayUpEvent implements androidx.compose.ui.input.pointer.CustomEvent {
+    ctor public DelayUpEvent(androidx.compose.ui.gesture.customevents.DelayUpMessage message, java.util.Set<androidx.compose.ui.input.pointer.PointerId> pointers);
     method public androidx.compose.ui.gesture.customevents.DelayUpMessage component1();
-    method public java.util.Set<androidx.compose.ui.platform.PointerId> component2();
-    method @androidx.compose.ui.gesture.ExperimentalPointerInput public androidx.compose.ui.gesture.customevents.DelayUpEvent copy(androidx.compose.ui.gesture.customevents.DelayUpMessage message, java.util.Set<androidx.compose.ui.platform.PointerId> pointers);
+    method public java.util.Set<androidx.compose.ui.input.pointer.PointerId> component2();
+    method @androidx.compose.ui.gesture.ExperimentalPointerInput public androidx.compose.ui.gesture.customevents.DelayUpEvent copy(androidx.compose.ui.gesture.customevents.DelayUpMessage message, java.util.Set<androidx.compose.ui.input.pointer.PointerId> pointers);
     method public androidx.compose.ui.gesture.customevents.DelayUpMessage getMessage();
-    method public java.util.Set<androidx.compose.ui.platform.PointerId> getPointers();
+    method public java.util.Set<androidx.compose.ui.input.pointer.PointerId> getPointers();
     method public void setMessage(androidx.compose.ui.gesture.customevents.DelayUpMessage p);
   }
 
@@ -725,7 +725,7 @@ package androidx.compose.ui.gesture.customevents {
     enum_constant public static final androidx.compose.ui.gesture.customevents.DelayUpMessage DelayedUpNotConsumed;
   }
 
-  public final class LongPressFiredEvent implements androidx.compose.ui.platform.CustomEvent {
+  public final class LongPressFiredEvent implements androidx.compose.ui.input.pointer.CustomEvent {
     field public static final androidx.compose.ui.gesture.customevents.LongPressFiredEvent INSTANCE;
   }
 
@@ -741,13 +741,13 @@ package androidx.compose.ui.gesture.scrollorientationlocking {
   }
 
   @androidx.compose.ui.gesture.ExperimentalPointerInput public final class ScrollOrientationLocker {
-    ctor public ScrollOrientationLocker(androidx.compose.ui.platform.CustomEventDispatcher customEventDispatcher);
-    method public void attemptToLockPointers(java.util.List<androidx.compose.ui.platform.PointerInputChange> changes, androidx.compose.ui.gesture.scrollorientationlocking.Orientation orientation);
-    method public java.util.List<androidx.compose.ui.platform.PointerInputChange> getPointersFor(java.util.List<androidx.compose.ui.platform.PointerInputChange> changes, androidx.compose.ui.gesture.scrollorientationlocking.Orientation orientation);
+    ctor public ScrollOrientationLocker(androidx.compose.ui.input.pointer.CustomEventDispatcher customEventDispatcher);
+    method public void attemptToLockPointers(java.util.List<androidx.compose.ui.input.pointer.PointerInputChange> changes, androidx.compose.ui.gesture.scrollorientationlocking.Orientation orientation);
+    method public java.util.List<androidx.compose.ui.input.pointer.PointerInputChange> getPointersFor(java.util.List<androidx.compose.ui.input.pointer.PointerInputChange> changes, androidx.compose.ui.gesture.scrollorientationlocking.Orientation orientation);
     method public void onCancel();
-    method public void onCustomEvent(androidx.compose.ui.platform.CustomEvent customEvent, androidx.compose.ui.platform.PointerEventPass pass);
-    method public void onPointerInputSetup(java.util.List<androidx.compose.ui.platform.PointerInputChange> changes, androidx.compose.ui.platform.PointerEventPass pass);
-    method public void onPointerInputTearDown(java.util.List<androidx.compose.ui.platform.PointerInputChange> changes, androidx.compose.ui.platform.PointerEventPass pass);
+    method public void onCustomEvent(androidx.compose.ui.input.pointer.CustomEvent customEvent, androidx.compose.ui.input.pointer.PointerEventPass pass);
+    method public void onPointerInputSetup(java.util.List<androidx.compose.ui.input.pointer.PointerInputChange> changes, androidx.compose.ui.input.pointer.PointerEventPass pass);
+    method public void onPointerInputTearDown(java.util.List<androidx.compose.ui.input.pointer.PointerInputChange> changes, androidx.compose.ui.input.pointer.PointerEventPass pass);
   }
 
 }
@@ -1568,10 +1568,92 @@ package androidx.compose.ui.input.key {
 
 package androidx.compose.ui.input.pointer {
 
+  @androidx.compose.runtime.Immutable public final class ConsumedData {
+    ctor public ConsumedData(androidx.compose.ui.geometry.Offset positionChange, boolean downChange);
+    ctor public ConsumedData();
+    method public androidx.compose.ui.geometry.Offset component1();
+    method public boolean component2();
+    method @androidx.compose.runtime.Immutable public androidx.compose.ui.input.pointer.ConsumedData copy(androidx.compose.ui.geometry.Offset positionChange, boolean downChange);
+    method public boolean getDownChange();
+    method public androidx.compose.ui.geometry.Offset getPositionChange();
+  }
+
+  public interface CustomEvent {
+  }
+
+  public interface CustomEventDispatcher {
+    method public void dispatchCustomEvent(androidx.compose.ui.input.pointer.CustomEvent event);
+    method public void releaseHitPaths(java.util.Set<androidx.compose.ui.input.pointer.PointerId> pointerIds);
+    method public void retainHitPaths(java.util.Set<androidx.compose.ui.input.pointer.PointerId> pointerIds);
+  }
+
   public final class HitPathTrackerKt {
   }
 
   public final class MotionEventAdapterKt {
+  }
+
+  public final class PointerEvent {
+    ctor public PointerEvent(java.util.List<androidx.compose.ui.input.pointer.PointerInputChange> changes);
+    method public java.util.List<androidx.compose.ui.input.pointer.PointerInputChange> getChanges();
+  }
+
+  public final class PointerEventKt {
+    method public static boolean anyChangeConsumed(androidx.compose.ui.input.pointer.PointerInputChange);
+    method public static boolean anyPositionChangeConsumed(androidx.compose.ui.input.pointer.PointerInputChange);
+    method public static boolean changedToDown(androidx.compose.ui.input.pointer.PointerInputChange);
+    method public static boolean changedToDownIgnoreConsumed(androidx.compose.ui.input.pointer.PointerInputChange);
+    method public static boolean changedToUp(androidx.compose.ui.input.pointer.PointerInputChange);
+    method public static boolean changedToUpIgnoreConsumed(androidx.compose.ui.input.pointer.PointerInputChange);
+    method public static androidx.compose.ui.input.pointer.PointerInputChange consumeAllChanges(androidx.compose.ui.input.pointer.PointerInputChange);
+    method public static androidx.compose.ui.input.pointer.PointerInputChange consumeDownChange(androidx.compose.ui.input.pointer.PointerInputChange);
+    method public static androidx.compose.ui.input.pointer.PointerInputChange consumePositionChange(androidx.compose.ui.input.pointer.PointerInputChange, float consumedDx, float consumedDy);
+    method public static androidx.compose.ui.geometry.Offset positionChange(androidx.compose.ui.input.pointer.PointerInputChange);
+    method public static androidx.compose.ui.geometry.Offset positionChangeIgnoreConsumed(androidx.compose.ui.input.pointer.PointerInputChange);
+    method public static boolean positionChanged(androidx.compose.ui.input.pointer.PointerInputChange);
+    method public static boolean positionChangedIgnoreConsumed(androidx.compose.ui.input.pointer.PointerInputChange);
+  }
+
+  public enum PointerEventPass {
+    method public static androidx.compose.ui.input.pointer.PointerEventPass valueOf(String name) throws java.lang.IllegalArgumentException;
+    method public static androidx.compose.ui.input.pointer.PointerEventPass[] values();
+    enum_constant public static final androidx.compose.ui.input.pointer.PointerEventPass InitialDown;
+    enum_constant public static final androidx.compose.ui.input.pointer.PointerEventPass PostDown;
+    enum_constant public static final androidx.compose.ui.input.pointer.PointerEventPass PostUp;
+  }
+
+  public final inline class PointerId {
+    ctor public PointerId();
+    method public static long constructor-impl(long value);
+    method public static inline boolean equals-impl(long p, Object? p1);
+    method public static boolean equals-impl0(long p1, long p2);
+    method public long getValue();
+    method public static inline int hashCode-impl(long p);
+    method public static inline String! toString-impl(long p);
+  }
+
+  @androidx.compose.runtime.Immutable public final class PointerInputChange {
+    method public long component1();
+    method public androidx.compose.ui.input.pointer.PointerInputData component2();
+    method public androidx.compose.ui.input.pointer.PointerInputData component3();
+    method public androidx.compose.ui.input.pointer.ConsumedData component4();
+    method @androidx.compose.runtime.Immutable public androidx.compose.ui.input.pointer.PointerInputChange copy-FzBznnU(long id, androidx.compose.ui.input.pointer.PointerInputData current, androidx.compose.ui.input.pointer.PointerInputData previous, androidx.compose.ui.input.pointer.ConsumedData consumed);
+    method public androidx.compose.ui.input.pointer.ConsumedData getConsumed();
+    method public androidx.compose.ui.input.pointer.PointerInputData getCurrent();
+    method public long getId();
+    method public androidx.compose.ui.input.pointer.PointerInputData getPrevious();
+  }
+
+  @androidx.compose.runtime.Immutable public final class PointerInputData {
+    ctor public PointerInputData(androidx.compose.ui.unit.Uptime? uptime, androidx.compose.ui.geometry.Offset? position, boolean down);
+    ctor public PointerInputData();
+    method public androidx.compose.ui.unit.Uptime? component1();
+    method public androidx.compose.ui.geometry.Offset? component2();
+    method public boolean component3();
+    method @androidx.compose.runtime.Immutable public androidx.compose.ui.input.pointer.PointerInputData copy(androidx.compose.ui.unit.Uptime? uptime, androidx.compose.ui.geometry.Offset? position, boolean down);
+    method public boolean getDown();
+    method public androidx.compose.ui.geometry.Offset? getPosition();
+    method public androidx.compose.ui.unit.Uptime? getUptime();
   }
 
   public final class PointerInputEventProcessorKt {
@@ -1580,10 +1662,10 @@ package androidx.compose.ui.input.pointer {
   public abstract class PointerInputFilter {
     ctor public PointerInputFilter();
     method public abstract void onCancel();
-    method public void onCustomEvent(androidx.compose.ui.platform.CustomEvent customEvent, androidx.compose.ui.platform.PointerEventPass pass);
-    method public void onInit(androidx.compose.ui.platform.CustomEventDispatcher customEventDispatcher);
-    method public java.util.List<androidx.compose.ui.platform.PointerInputChange> onPointerEvent(androidx.compose.ui.platform.PointerEvent pointerEvent, androidx.compose.ui.platform.PointerEventPass pass, androidx.compose.ui.unit.IntSize bounds);
-    method public abstract java.util.List<androidx.compose.ui.platform.PointerInputChange> onPointerInput(java.util.List<androidx.compose.ui.platform.PointerInputChange> changes, androidx.compose.ui.platform.PointerEventPass pass, androidx.compose.ui.unit.IntSize bounds);
+    method public void onCustomEvent(androidx.compose.ui.input.pointer.CustomEvent customEvent, androidx.compose.ui.input.pointer.PointerEventPass pass);
+    method public void onInit(androidx.compose.ui.input.pointer.CustomEventDispatcher customEventDispatcher);
+    method public java.util.List<androidx.compose.ui.input.pointer.PointerInputChange> onPointerEvent(androidx.compose.ui.input.pointer.PointerEvent pointerEvent, androidx.compose.ui.input.pointer.PointerEventPass pass, androidx.compose.ui.unit.IntSize bounds);
+    method public abstract java.util.List<androidx.compose.ui.input.pointer.PointerInputChange> onPointerInput(java.util.List<androidx.compose.ui.input.pointer.PointerInputChange> changes, androidx.compose.ui.input.pointer.PointerEventPass pass, androidx.compose.ui.unit.IntSize bounds);
   }
 
   public interface PointerInputModifier extends androidx.compose.ui.Modifier.Element {
@@ -1592,19 +1674,19 @@ package androidx.compose.ui.input.pointer {
   }
 
   public final class PointerInputTestUtilKt {
-    method public static androidx.compose.ui.platform.PointerInputChange consume(androidx.compose.ui.platform.PointerInputChange, float dx = 0f, float dy = 0f, boolean downChange = false);
-    method public static androidx.compose.ui.platform.PointerInputChange down(long id, androidx.compose.ui.unit.Duration duration = Duration.Zero, float x = 0f, float y = 0f);
-    method public static androidx.compose.ui.platform.PointerInputChange invokeOverAllPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.compose.ui.platform.PointerInputChange>,? super androidx.compose.ui.platform.PointerEventPass,? super androidx.compose.ui.unit.IntSize,? extends java.util.List<androidx.compose.ui.platform.PointerInputChange>>, androidx.compose.ui.platform.PointerInputChange pointerInputChanges, androidx.compose.ui.unit.IntSize size = IntSize(Int.MAX_VALUE, Int.MAX_VALUE));
-    method public static java.util.List<androidx.compose.ui.platform.PointerInputChange> invokeOverAllPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.compose.ui.platform.PointerInputChange>,? super androidx.compose.ui.platform.PointerEventPass,? super androidx.compose.ui.unit.IntSize,? extends java.util.List<androidx.compose.ui.platform.PointerInputChange>>, androidx.compose.ui.platform.PointerInputChange![] pointerInputChanges, androidx.compose.ui.unit.IntSize size = IntSize(Int.MAX_VALUE, Int.MAX_VALUE));
-    method public static void invokeOverAllPasses(kotlin.jvm.functions.Function2<? super androidx.compose.ui.platform.CustomEvent,? super androidx.compose.ui.platform.PointerEventPass,kotlin.Unit>, androidx.compose.ui.platform.CustomEvent event);
-    method public static androidx.compose.ui.platform.PointerInputChange invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.compose.ui.platform.PointerInputChange>,? super androidx.compose.ui.platform.PointerEventPass,? super androidx.compose.ui.unit.IntSize,? extends java.util.List<androidx.compose.ui.platform.PointerInputChange>>, androidx.compose.ui.platform.PointerInputChange pointerInputChange, androidx.compose.ui.platform.PointerEventPass pointerEventPass, androidx.compose.ui.unit.IntSize size = IntSize(Int.MAX_VALUE, Int.MAX_VALUE));
-    method public static java.util.List<androidx.compose.ui.platform.PointerInputChange> invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.compose.ui.platform.PointerInputChange>,? super androidx.compose.ui.platform.PointerEventPass,? super androidx.compose.ui.unit.IntSize,? extends java.util.List<androidx.compose.ui.platform.PointerInputChange>>, androidx.compose.ui.platform.PointerInputChange![] pointerInputChanges, androidx.compose.ui.platform.PointerEventPass pointerEventPass, androidx.compose.ui.unit.IntSize size = IntSize(Int.MAX_VALUE, Int.MAX_VALUE));
-    method public static androidx.compose.ui.platform.PointerInputChange invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.compose.ui.platform.PointerInputChange>,? super androidx.compose.ui.platform.PointerEventPass,? super androidx.compose.ui.unit.IntSize,? extends java.util.List<androidx.compose.ui.platform.PointerInputChange>>, androidx.compose.ui.platform.PointerInputChange pointerInputChange, androidx.compose.ui.platform.PointerEventPass![] pointerEventPasses, androidx.compose.ui.unit.IntSize size = IntSize(Int.MAX_VALUE, Int.MAX_VALUE));
-    method public static java.util.List<androidx.compose.ui.platform.PointerInputChange> invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.compose.ui.platform.PointerInputChange>,? super androidx.compose.ui.platform.PointerEventPass,? super androidx.compose.ui.unit.IntSize,? extends java.util.List<androidx.compose.ui.platform.PointerInputChange>>, java.util.List<androidx.compose.ui.platform.PointerInputChange> pointerInputChanges, java.util.List<? extends androidx.compose.ui.platform.PointerEventPass> pointerEventPasses, androidx.compose.ui.unit.IntSize size = IntSize(Int.MAX_VALUE, Int.MAX_VALUE));
-    method public static void invokeOverPasses(kotlin.jvm.functions.Function2<? super androidx.compose.ui.platform.CustomEvent,? super androidx.compose.ui.platform.PointerEventPass,kotlin.Unit>, androidx.compose.ui.platform.CustomEvent event, java.util.List<? extends androidx.compose.ui.platform.PointerEventPass> pointerEventPasses);
-    method public static androidx.compose.ui.platform.PointerInputChange moveBy(androidx.compose.ui.platform.PointerInputChange, androidx.compose.ui.unit.Duration duration, float dx = 0f, float dy = 0f);
-    method public static androidx.compose.ui.platform.PointerInputChange moveTo(androidx.compose.ui.platform.PointerInputChange, androidx.compose.ui.unit.Duration duration, float x = 0f, float y = 0f);
-    method public static androidx.compose.ui.platform.PointerInputChange up(androidx.compose.ui.platform.PointerInputChange, androidx.compose.ui.unit.Duration duration);
+    method public static androidx.compose.ui.input.pointer.PointerInputChange consume(androidx.compose.ui.input.pointer.PointerInputChange, float dx = 0f, float dy = 0f, boolean downChange = false);
+    method public static androidx.compose.ui.input.pointer.PointerInputChange down(long id, androidx.compose.ui.unit.Duration duration = Duration.Zero, float x = 0f, float y = 0f);
+    method public static androidx.compose.ui.input.pointer.PointerInputChange invokeOverAllPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.compose.ui.input.pointer.PointerInputChange>,? super androidx.compose.ui.input.pointer.PointerEventPass,? super androidx.compose.ui.unit.IntSize,? extends java.util.List<androidx.compose.ui.input.pointer.PointerInputChange>>, androidx.compose.ui.input.pointer.PointerInputChange pointerInputChanges, androidx.compose.ui.unit.IntSize size = IntSize(Int.MAX_VALUE, Int.MAX_VALUE));
+    method public static java.util.List<androidx.compose.ui.input.pointer.PointerInputChange> invokeOverAllPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.compose.ui.input.pointer.PointerInputChange>,? super androidx.compose.ui.input.pointer.PointerEventPass,? super androidx.compose.ui.unit.IntSize,? extends java.util.List<androidx.compose.ui.input.pointer.PointerInputChange>>, androidx.compose.ui.input.pointer.PointerInputChange![] pointerInputChanges, androidx.compose.ui.unit.IntSize size = IntSize(Int.MAX_VALUE, Int.MAX_VALUE));
+    method public static void invokeOverAllPasses(kotlin.jvm.functions.Function2<? super androidx.compose.ui.input.pointer.CustomEvent,? super androidx.compose.ui.input.pointer.PointerEventPass,kotlin.Unit>, androidx.compose.ui.input.pointer.CustomEvent event);
+    method public static androidx.compose.ui.input.pointer.PointerInputChange invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.compose.ui.input.pointer.PointerInputChange>,? super androidx.compose.ui.input.pointer.PointerEventPass,? super androidx.compose.ui.unit.IntSize,? extends java.util.List<androidx.compose.ui.input.pointer.PointerInputChange>>, androidx.compose.ui.input.pointer.PointerInputChange pointerInputChange, androidx.compose.ui.input.pointer.PointerEventPass pointerEventPass, androidx.compose.ui.unit.IntSize size = IntSize(Int.MAX_VALUE, Int.MAX_VALUE));
+    method public static java.util.List<androidx.compose.ui.input.pointer.PointerInputChange> invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.compose.ui.input.pointer.PointerInputChange>,? super androidx.compose.ui.input.pointer.PointerEventPass,? super androidx.compose.ui.unit.IntSize,? extends java.util.List<androidx.compose.ui.input.pointer.PointerInputChange>>, androidx.compose.ui.input.pointer.PointerInputChange![] pointerInputChanges, androidx.compose.ui.input.pointer.PointerEventPass pointerEventPass, androidx.compose.ui.unit.IntSize size = IntSize(Int.MAX_VALUE, Int.MAX_VALUE));
+    method public static androidx.compose.ui.input.pointer.PointerInputChange invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.compose.ui.input.pointer.PointerInputChange>,? super androidx.compose.ui.input.pointer.PointerEventPass,? super androidx.compose.ui.unit.IntSize,? extends java.util.List<androidx.compose.ui.input.pointer.PointerInputChange>>, androidx.compose.ui.input.pointer.PointerInputChange pointerInputChange, androidx.compose.ui.input.pointer.PointerEventPass![] pointerEventPasses, androidx.compose.ui.unit.IntSize size = IntSize(Int.MAX_VALUE, Int.MAX_VALUE));
+    method public static java.util.List<androidx.compose.ui.input.pointer.PointerInputChange> invokeOverPasses(kotlin.jvm.functions.Function3<? super java.util.List<androidx.compose.ui.input.pointer.PointerInputChange>,? super androidx.compose.ui.input.pointer.PointerEventPass,? super androidx.compose.ui.unit.IntSize,? extends java.util.List<androidx.compose.ui.input.pointer.PointerInputChange>>, java.util.List<androidx.compose.ui.input.pointer.PointerInputChange> pointerInputChanges, java.util.List<? extends androidx.compose.ui.input.pointer.PointerEventPass> pointerEventPasses, androidx.compose.ui.unit.IntSize size = IntSize(Int.MAX_VALUE, Int.MAX_VALUE));
+    method public static void invokeOverPasses(kotlin.jvm.functions.Function2<? super androidx.compose.ui.input.pointer.CustomEvent,? super androidx.compose.ui.input.pointer.PointerEventPass,kotlin.Unit>, androidx.compose.ui.input.pointer.CustomEvent event, java.util.List<? extends androidx.compose.ui.input.pointer.PointerEventPass> pointerEventPasses);
+    method public static androidx.compose.ui.input.pointer.PointerInputChange moveBy(androidx.compose.ui.input.pointer.PointerInputChange, androidx.compose.ui.unit.Duration duration, float dx = 0f, float dy = 0f);
+    method public static androidx.compose.ui.input.pointer.PointerInputChange moveTo(androidx.compose.ui.input.pointer.PointerInputChange, androidx.compose.ui.unit.Duration duration, float x = 0f, float y = 0f);
+    method public static androidx.compose.ui.input.pointer.PointerInputChange up(androidx.compose.ui.input.pointer.PointerInputChange, androidx.compose.ui.unit.Duration duration);
   }
 
   public final class PointerInteropFilterKt {
@@ -2041,25 +2123,6 @@ package androidx.compose.ui.platform {
     method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> content);
   }
 
-  @androidx.compose.runtime.Immutable public final class ConsumedData {
-    ctor public ConsumedData(androidx.compose.ui.geometry.Offset positionChange, boolean downChange);
-    ctor public ConsumedData();
-    method public androidx.compose.ui.geometry.Offset component1();
-    method public boolean component2();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.platform.ConsumedData copy(androidx.compose.ui.geometry.Offset positionChange, boolean downChange);
-    method public boolean getDownChange();
-    method public androidx.compose.ui.geometry.Offset getPositionChange();
-  }
-
-  public interface CustomEvent {
-  }
-
-  public interface CustomEventDispatcher {
-    method public void dispatchCustomEvent(androidx.compose.ui.platform.CustomEvent event);
-    method public void releaseHitPaths(java.util.Set<androidx.compose.ui.platform.PointerId> pointerIds);
-    method public void retainHitPaths(java.util.Set<androidx.compose.ui.platform.PointerId> pointerIds);
-  }
-
   public final class DebugUtilsKt {
   }
 
@@ -2089,69 +2152,6 @@ package androidx.compose.ui.platform {
     method public androidx.compose.ui.platform.ParameterElement copy(String name, Object? value);
     method public String getName();
     method public Object? getValue();
-  }
-
-  public final class PointerEvent {
-    ctor public PointerEvent(java.util.List<androidx.compose.ui.platform.PointerInputChange> changes);
-    method public java.util.List<androidx.compose.ui.platform.PointerInputChange> getChanges();
-  }
-
-  public enum PointerEventPass {
-    method public static androidx.compose.ui.platform.PointerEventPass valueOf(String name) throws java.lang.IllegalArgumentException;
-    method public static androidx.compose.ui.platform.PointerEventPass[] values();
-    enum_constant public static final androidx.compose.ui.platform.PointerEventPass InitialDown;
-    enum_constant public static final androidx.compose.ui.platform.PointerEventPass PostDown;
-    enum_constant public static final androidx.compose.ui.platform.PointerEventPass PostUp;
-  }
-
-  public final inline class PointerId {
-    ctor public PointerId();
-    method public static long constructor-impl(long value);
-    method public static inline boolean equals-impl(long p, Object? p1);
-    method public static boolean equals-impl0(long p1, long p2);
-    method public long getValue();
-    method public static inline int hashCode-impl(long p);
-    method public static inline String! toString-impl(long p);
-  }
-
-  @androidx.compose.runtime.Immutable public final class PointerInputChange {
-    method public long component1();
-    method public androidx.compose.ui.platform.PointerInputData component2();
-    method public androidx.compose.ui.platform.PointerInputData component3();
-    method public androidx.compose.ui.platform.ConsumedData component4();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.platform.PointerInputChange copy-fitgqKQ(long id, androidx.compose.ui.platform.PointerInputData current, androidx.compose.ui.platform.PointerInputData previous, androidx.compose.ui.platform.ConsumedData consumed);
-    method public androidx.compose.ui.platform.ConsumedData getConsumed();
-    method public androidx.compose.ui.platform.PointerInputData getCurrent();
-    method public long getId();
-    method public androidx.compose.ui.platform.PointerInputData getPrevious();
-  }
-
-  @androidx.compose.runtime.Immutable public final class PointerInputData {
-    ctor public PointerInputData(androidx.compose.ui.unit.Uptime? uptime, androidx.compose.ui.geometry.Offset? position, boolean down);
-    ctor public PointerInputData();
-    method public androidx.compose.ui.unit.Uptime? component1();
-    method public androidx.compose.ui.geometry.Offset? component2();
-    method public boolean component3();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.platform.PointerInputData copy(androidx.compose.ui.unit.Uptime? uptime, androidx.compose.ui.geometry.Offset? position, boolean down);
-    method public boolean getDown();
-    method public androidx.compose.ui.geometry.Offset? getPosition();
-    method public androidx.compose.ui.unit.Uptime? getUptime();
-  }
-
-  public final class PointerInputKt {
-    method public static boolean anyChangeConsumed(androidx.compose.ui.platform.PointerInputChange);
-    method public static boolean anyPositionChangeConsumed(androidx.compose.ui.platform.PointerInputChange);
-    method public static boolean changedToDown(androidx.compose.ui.platform.PointerInputChange);
-    method public static boolean changedToDownIgnoreConsumed(androidx.compose.ui.platform.PointerInputChange);
-    method public static boolean changedToUp(androidx.compose.ui.platform.PointerInputChange);
-    method public static boolean changedToUpIgnoreConsumed(androidx.compose.ui.platform.PointerInputChange);
-    method public static androidx.compose.ui.platform.PointerInputChange consumeAllChanges(androidx.compose.ui.platform.PointerInputChange);
-    method public static androidx.compose.ui.platform.PointerInputChange consumeDownChange(androidx.compose.ui.platform.PointerInputChange);
-    method public static androidx.compose.ui.platform.PointerInputChange consumePositionChange(androidx.compose.ui.platform.PointerInputChange, float consumedDx, float consumedDy);
-    method public static androidx.compose.ui.geometry.Offset positionChange(androidx.compose.ui.platform.PointerInputChange);
-    method public static androidx.compose.ui.geometry.Offset positionChangeIgnoreConsumed(androidx.compose.ui.platform.PointerInputChange);
-    method public static boolean positionChanged(androidx.compose.ui.platform.PointerInputChange);
-    method public static boolean positionChangedIgnoreConsumed(androidx.compose.ui.platform.PointerInputChange);
   }
 
   public final class SubcompositionKt {
