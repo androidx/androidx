@@ -59,13 +59,13 @@ import androidx.compose.ui.onPositioned
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.foundation.Box
-import androidx.compose.foundation.drawBackground
 import androidx.compose.ui.test.TestActivity
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.Align
+import androidx.compose.ui.background
 import androidx.compose.ui.layout.globalPosition
 import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.node.LayoutEmitHelper
@@ -510,10 +510,10 @@ class AndroidViewCompatTest {
             Box(Modifier.onPositioned { outer = it.globalPosition }) {
                 Box(paddingStart = paddingDp, paddingTop = paddingDp) {
                     emitView(::LinearLayout, {}) {
-                        Box(Modifier.size(sizeDp).drawBackground(Color.Blue).onPositioned {
+                        Box(Modifier.size(sizeDp).background(Color.Blue).onPositioned {
                             inner1 = it.globalPosition
                         })
-                        Box(Modifier.size(sizeDp).drawBackground(Color.Gray).onPositioned {
+                        Box(Modifier.size(sizeDp).background(Color.Gray).onPositioned {
                             inner2 = it.globalPosition
                         })
                     }
@@ -539,8 +539,8 @@ class AndroidViewCompatTest {
             Box(Modifier.testTag("box")) {
                 Box(padding = paddingDp, backgroundColor = Color.Blue) {
                     emitView(::LinearLayout, {}) {
-                        Box(Modifier.size(sizeDp).drawBackground(Color.White))
-                        Box(Modifier.size(sizeDp).drawBackground(Color.Gray))
+                        Box(Modifier.size(sizeDp).background(Color.White))
+                        Box(Modifier.size(sizeDp).background(Color.Gray))
                     }
                 }
             }

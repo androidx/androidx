@@ -18,22 +18,17 @@ package androidx.compose.foundation
 
 import androidx.compose.ui.ContentDrawScope
 import androidx.compose.ui.DrawModifier
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.Outline
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.drawOutline
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import androidx.compose.ui.graphics.drawscope.DrawStyle
-import androidx.compose.ui.graphics.drawscope.Fill
-import androidx.compose.ui.util.annotation.FloatRange
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.InspectableParameter
 import androidx.compose.ui.platform.ParameterElement
+import androidx.compose.ui.util.annotation.FloatRange
 
 /**
  * Draws [shape] with a solid [color] behind the content.
@@ -46,10 +41,12 @@ import androidx.compose.ui.platform.ParameterElement
 fun Modifier.background(
     color: Color,
     shape: Shape = RectangleShape
-) = this.then(Background(
-    color = color,
-    shape = shape
-))
+) = this.then(
+    Background(
+        color = color,
+        shape = shape
+    )
+)
 
 /**
  * Draws [shape] with [brush] behind the content.
@@ -64,59 +61,13 @@ fun Modifier.background(
     brush: Brush,
     shape: Shape = RectangleShape,
     @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f
-) = this.then(Background(
-    brush = brush,
-    alpha = alpha,
-    shape = shape
-))
-
-/**
- * Draws [shape] with a solid [color] behind the content.
- *
- * @sample androidx.compose.foundation.samples.DrawBackgroundColor
- *
- * @param color color to paint background with
- * @param shape desired shape of the background
- */
-@Deprecated(
-    "Use Modifier.background instead", replaceWith = ReplaceWith(
-        "this.background(color = color, shape = shape)",
-        "androidx.compose.foundation.background"
+) = this.then(
+    Background(
+        brush = brush,
+        alpha = alpha,
+        shape = shape
     )
 )
-@Suppress("UNUSED_PARAMETER")
-fun Modifier.drawBackground(
-    color: Color,
-    shape: Shape = RectangleShape,
-    @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
-    style: DrawStyle = Fill,
-    colorFilter: ColorFilter? = null,
-    blendMode: BlendMode = DrawScope.DefaultBlendMode
-) = background(color, shape)
-
-/**
- * Draws [shape] with [brush] behind the content.
- *
- * @sample androidx.compose.foundation.samples.DrawBackgroundShapedBrush
- *
- * @param brush brush to paint background with
- * @param shape desired shape of the background
- */
-@Deprecated(
-    "Use Modifier.background instead", replaceWith = ReplaceWith(
-        "this.background(brush = brush, shape = shape)",
-        "androidx.compose.foundation.background"
-    )
-)
-@Suppress("UNUSED_PARAMETER")
-fun Modifier.drawBackground(
-    brush: Brush,
-    shape: Shape = RectangleShape,
-    @FloatRange(from = 0.0, to = 1.0) alpha: Float = 1.0f,
-    style: DrawStyle = Fill,
-    colorFilter: ColorFilter? = null,
-    blendMode: BlendMode = DrawScope.DefaultBlendMode
-) = background(brush, shape, alpha)
 
 private data class Background internal constructor(
     private val color: Color? = null,
