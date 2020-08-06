@@ -17,12 +17,14 @@
 package androidx.camera.camera2.pipe
 
 import android.view.Surface
+import androidx.camera.camera2.pipe.wrapper.InputConfigData
 import java.io.Closeable
 
 /**
  * A CameraGraph represents the combined configuration and state of a camera.
  */
 interface CameraGraph : Closeable {
+    val streams: Map<StreamConfig, Stream>
 
     /**
      * This will cause the CameraGraph to start opening the camera and configuring the Camera2
@@ -63,7 +65,10 @@ interface CameraGraph : Closeable {
     data class Config(
         val camera: CameraId,
         val streams: List<StreamConfig>,
-        val defaultTemplate: RequestTemplate,
+        val template: RequestTemplate,
+        val defaultParameters: Map<Any?, Any> = emptyMap(),
+        val inputStream: InputConfigData? = null,
+        val operatingMode: OperatingMode = OperatingMode.NORMAL,
         val listeners: List<Request.Listener> = listOf(),
         val metadataTransform: MetadataTransform = MetadataTransform(),
         val flags: Flags = Flags()
@@ -76,8 +81,14 @@ interface CameraGraph : Closeable {
      */
     data class Flags(
         val configureBlankSessionOnStop: Boolean = false,
-        val abortCapturesOnStop: Boolean = false
+        val abortCapturesOnStop: Boolean = false,
+        val allowMultipleActiveCameras: Boolean = false
     )
+
+    enum class OperatingMode {
+        NORMAL,
+        HIGH_SPEED,
+    }
 
     /**
      * A lock on CameraGraph. It facilitates an exclusive access to the managed camera device. Once

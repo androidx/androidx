@@ -52,8 +52,8 @@ class StreamTest {
     )
 
     @Test
-    fun equivalentStreamConfigsAreEqual() {
-        assertThat(streamConfig1).isEqualTo(streamConfig2)
+    fun equivalentStreamConfigsAreNotEqual() {
+        assertThat(streamConfig1).isNotEqualTo(streamConfig2)
         assertThat(streamConfig1).isNotSameInstanceAs(streamConfig2)
     }
 
@@ -61,17 +61,5 @@ class StreamTest {
     fun differentStreamConfigsAreNotEqual() {
         assertThat(streamConfig1).isNotEqualTo(streamConfig3)
         assertThat(streamConfig2).isNotEqualTo(streamConfig3)
-    }
-
-    @Test
-    fun streamsFromSameConfigAreDifferent() {
-        val stream1 = Stream(streamConfig1, StreamId(1))
-        val stream2 = Stream(streamConfig1, StreamId(2))
-
-        assertThat(stream1).isNotEqualTo(stream2)
-        assertThat(stream1).isNotEqualTo(streamConfig1)
-        assertThat(stream2).isNotEqualTo(streamConfig1)
-
-        assertThat(stream1.config).isEqualTo(stream2.config)
     }
 }

@@ -16,20 +16,10 @@
 
 @file:Suppress("NOTHING_TO_INLINE")
 
-package androidx.camera.camera2.pipe
+package androidx.camera.integration.camera2.pipe
 
-@Suppress("EXPERIMENTAL_FEATURE_WARNING")
-inline class CameraId(val value: String) {
-    companion object {
-        inline fun fromCamera2Id(value: String): CameraId = CameraId(value)
-        inline fun fromCamera1Id(value: Int): CameraId = CameraId("$value")
-    }
+import java.util.Locale
 
-    /**
-     * Attempt to parse an camera1 id from a camera2 id.
-     *
-     * @return The parsed Camera1 id, or null if the value cannot be parsed as a Camera1 id.
-     */
-    inline fun toCamera1Id(): Int? = value.toIntOrNull()
-    override fun toString() = "Camera $value"
-}
+inline fun Double.formatMilliTime(decimals: Int = 4) = "%.${decimals}f ms".format(Locale.ROOT, this)
+inline fun Long.formatNanoTime(decimals: Int = 4) =
+    (this / 1_000_000.0).formatMilliTime(decimals)
