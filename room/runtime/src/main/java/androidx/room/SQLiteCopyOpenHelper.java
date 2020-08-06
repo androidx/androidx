@@ -229,23 +229,16 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
         if(mDatabaseConfiguration.prepackagedCallback != null) {
             // Temporarily open database using FrameworkSQLiteOpenHelper
             SupportSQLiteOpenHelper helper = createFrameworkOpenHelper();
-            SupportSQLiteDatabase db = null;
             try {
-                db = writable ? helper.getWritableDatabase() : helper.getReadableDatabase();
+                SupportSQLiteDatabase db = writable ? helper.getWritableDatabase() :
+                        helper.getReadableDatabase();
                 // Invoke callbacks passing db as a param
                 mDatabaseConfiguration.prepackagedCallback.onOpenPrepackagedDatabase(db);
             } catch (SQLiteException e) {
                 throw new RuntimeException("Unable to invoke pre-packaged callback.", e);
             } finally {
                 // Close the db and let Room re-open it through a normal path
-                if(db != null) {
-                    try {
-                        db.close();
-                    } catch (IOException e) {
-                        Log.w(Room.LOG_TAG, "Unable to close the database after invoking "
-                                + "pre-packaged callback", e);
-                    }
-                }
+                helper.close();
             }
         }
     }
