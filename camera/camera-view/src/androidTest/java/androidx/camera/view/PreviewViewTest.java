@@ -51,10 +51,10 @@ import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceRequest;
-import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.fakes.FakeActivity;
 import androidx.camera.testing.fakes.FakeCamera;
+import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.view.preview.transform.transformation.Transformation;
 import androidx.camera.view.test.R;
 import androidx.core.content.ContextCompat;
@@ -144,16 +144,24 @@ public class PreviewViewTest {
     }
 
     private CameraInfo createCameraInfo(String implementationType) {
-        final CameraInfo cameraInfo = mock(CameraInfoInternal.class);
-        when(cameraInfo.getImplementationType()).thenReturn(implementationType);
-        return cameraInfo;
+        FakeCameraInfoInternal cameraInfoInternal = new FakeCameraInfoInternal();
+        cameraInfoInternal.setImplementationType(implementationType);
+        return cameraInfoInternal;
     }
 
     private CameraInfo createCameraInfo(int rotationDegrees, String implementationType) {
-        final CameraInfo cameraInfo = mock(CameraInfoInternal.class);
-        when(cameraInfo.getImplementationType()).thenReturn(implementationType);
-        when(cameraInfo.getSensorRotationDegrees()).thenReturn(rotationDegrees);
-        return cameraInfo;
+        FakeCameraInfoInternal cameraInfoInternal = new FakeCameraInfoInternal(rotationDegrees,
+                CameraSelector.LENS_FACING_BACK);
+        cameraInfoInternal.setImplementationType(implementationType);
+        return cameraInfoInternal;
+    }
+
+    private CameraInfo createCameraInfo(int rotationDegrees, String implementationType,
+            @CameraSelector.LensFacing int lensFacing) {
+        FakeCameraInfoInternal cameraInfoInternal = new FakeCameraInfoInternal(rotationDegrees,
+                lensFacing);
+        cameraInfoInternal.setImplementationType(implementationType);
+        return cameraInfoInternal;
     }
 
     @Test
@@ -221,7 +229,8 @@ public class PreviewViewTest {
     @Test
     @UiThreadTest
     public void canCreateMeteringPointFactory() {
-        final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+        final CameraInfo cameraInfo = createCameraInfo(90,
+                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, CameraSelector.LENS_FACING_BACK);
 
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
@@ -229,8 +238,7 @@ public class PreviewViewTest {
         Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
-        MeteringPointFactory factory =
-                previewView.createMeteringPointFactory(CameraSelector.DEFAULT_BACK_CAMERA);
+        MeteringPointFactory factory = previewView.getMeteringPointFactory();
 
         MeteringPoint point = factory.createPoint(100, 100);
         assertThat(point.getX() >= 0f || point.getX() <= 1.0f);
@@ -240,15 +248,15 @@ public class PreviewViewTest {
     @Test
     @UiThreadTest
     public void createMeteringPointFactory_previewViewWidthOrHeightIs0() {
-        final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+        final CameraInfo cameraInfo = createCameraInfo(90,
+                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, CameraSelector.LENS_FACING_BACK);
 
         final PreviewView previewView = new PreviewView(mContext);
         Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
 
-        MeteringPointFactory factory =
-                previewView.createMeteringPointFactory(CameraSelector.DEFAULT_BACK_CAMERA);
+        MeteringPointFactory factory = previewView.getMeteringPointFactory();
 
         //Width and height is 0,  but surface is requested,
         //verifying the factory only creates invalid points.
@@ -263,8 +271,7 @@ public class PreviewViewTest {
         final PreviewView previewView = new PreviewView(mContext);
         // make PreviewView.getWidth() getHeight not 0.
         setContentView(previewView);
-        MeteringPointFactory factory =
-                previewView.createMeteringPointFactory(CameraSelector.DEFAULT_BACK_CAMERA);
+        MeteringPointFactory factory = previewView.getMeteringPointFactory();
 
         //verifying the factory only creates invalid points.
         MeteringPoint point = factory.createPoint(100, 100);
