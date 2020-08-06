@@ -820,6 +820,125 @@ class SwipeableTest {
     }
 
     /**
+     * Tests that the overflow is updated when swiping past the bounds.
+     */
+    @Test
+    fun swipeable_overflow() {
+        val state = SwipeableState("A", clock)
+        setSwipeableContent {
+            Modifier.swipeable(
+                state = state,
+                anchors = mapOf(0f to "A"),
+                thresholds = { _, _ -> FractionalThreshold(0.5f) },
+                orientation = Orientation.Horizontal,
+                resistanceFactorAtMin = 0f,
+                resistanceFactorAtMax = 0f
+            )
+        }
+
+        runOnIdle {
+            assertThat(state.offset.value).isEqualTo(0f)
+            assertThat(state.overflow.value).isEqualTo(0f)
+        }
+
+        swipeRight()
+
+        runOnIdle {
+            assertThat(state.offset.value).isZero()
+            assertThat(state.overflow.value).isGreaterThan(0f)
+        }
+
+        advanceClock()
+
+        runOnIdle {
+            assertThat(state.offset.value).isEqualTo(0f)
+            assertThat(state.overflow.value).isEqualTo(0f)
+        }
+
+        swipeLeft()
+
+        runOnIdle {
+            assertThat(state.offset.value).isZero()
+            assertThat(state.overflow.value).isLessThan(0f)
+        }
+
+        advanceClock()
+
+        runOnIdle {
+            assertThat(state.offset.value).isEqualTo(0f)
+            assertThat(state.overflow.value).isEqualTo(0f)
+        }
+    }
+
+    /**
+     * Tests that resistance is applied correctly when swiping past the min bound.
+     */
+    @Test
+    fun swipeable_resistance_atMinBound() {
+        val state = SwipeableState("A", clock)
+        setSwipeableContent {
+            Modifier.swipeable(
+                state = state,
+                anchors = mapOf(0f to "A"),
+                thresholds = { _, _ -> FractionalThreshold(0.5f) },
+                orientation = Orientation.Horizontal,
+                resistanceFactorAtMin = 5f,
+                resistanceFactorAtMax = 0f
+            )
+        }
+
+        val width = with(composeTestRule.density) { rootWidth().toPx() }
+
+        swipeLeft()
+
+        runOnIdle {
+            assertThat(state.offset.value).isEqualTo(
+                computeResistance(width, 5f, state.overflow.value)
+            )
+        }
+
+        advanceClock()
+
+        runOnIdle {
+            assertThat(state.offset.value).isEqualTo(0f)
+        }
+    }
+
+    /**
+     * Tests that resistance is applied correctly when swiping past the max bound.
+     */
+    @Test
+    fun swipeable_resistance_atMaxBound() {
+        val state = SwipeableState("A", clock)
+        setSwipeableContent {
+            Modifier.swipeable(
+                state = state,
+                anchors = mapOf(0f to "A"),
+                thresholds = { _, _ -> FractionalThreshold(0.5f) },
+                orientation = Orientation.Horizontal,
+                resistanceFactorAtMin = 0f,
+                resistanceFactorAtMax = 5f
+            )
+        }
+
+        val width = with(composeTestRule.density) { rootWidth().toPx() }
+
+        swipeRight()
+
+        runOnIdle {
+            assertThat(state.offset.value).isEqualTo(
+                computeResistance(width, 5f, state.overflow.value)
+            )
+        }
+
+        advanceClock()
+
+        runOnIdle {
+            assertThat(state.offset.value).isEqualTo(0f)
+        }
+    }
+
+    /**
      * Tests that 'swipeTarget' works correctly.
      */
     @Test

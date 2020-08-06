@@ -28,6 +28,8 @@ import androidx.compose.material.DismissDirection.StartToEnd
 import androidx.compose.material.DismissValue.Default
 import androidx.compose.material.DismissValue.DismissedToEnd
 import androidx.compose.material.DismissValue.DismissedToStart
+import androidx.compose.material.SwipeableConstants.StandardResistanceFactor
+import androidx.compose.material.SwipeableConstants.StiffResistanceFactor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -186,7 +188,11 @@ fun SwipeToDismiss(
         thresholds = thresholds,
         orientation = Orientation.Horizontal,
         enabled = state.value == Default,
-        reverseDirection = isRtl
+        reverseDirection = isRtl,
+        resistanceFactorAtMin =
+            if (EndToStart in directions) StandardResistanceFactor else StiffResistanceFactor,
+        resistanceFactorAtMax =
+            if (StartToEnd in directions) StandardResistanceFactor else StiffResistanceFactor
     )) {
         Row(
             children = background,
