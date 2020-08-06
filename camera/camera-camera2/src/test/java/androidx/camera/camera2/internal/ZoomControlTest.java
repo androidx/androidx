@@ -16,14 +16,15 @@
 
 package androidx.camera.camera2.internal;
 
+import static android.os.Looper.getMainLooper;
+
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.robolectric.Shadows.shadowOf;
 
 import android.content.Context;
 import android.graphics.Rect;
@@ -35,12 +36,9 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.core.impl.utils.futures.FutureCallback;
-import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.SmallTest;
 
@@ -57,9 +55,8 @@ import org.robolectric.shadow.api.Shadow;
 import org.robolectric.shadows.ShadowCameraCharacteristics;
 import org.robolectric.shadows.ShadowCameraManager;
 
-import java.util.concurrent.CountDownLatch;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
@@ -75,6 +72,10 @@ public class ZoomControlTest {
     private Camera2CameraControl mCamera2CameraControl;
     private ZoomControl mZoomControl;
     private Camera2CameraControl.CaptureResultListener mCaptureResultListener;
+
+    private static Rect getCropRectByRatio(float ratio) {
+        return ZoomControl.getCropRectByRatio(SENSOR_RECT, ratio);
+    }
 
     @Before
     public void setUp() throws CameraAccessException {
@@ -133,32 +134,20 @@ public class ZoomControlTest {
                 .addCamera(CAMERA1_ID, characteristics1);
     }
 
-    private static Rect getCropRectByRatio(float ratio) {
-        return ZoomControl.getCropRectByRatio(SENSOR_RECT, ratio);
-    }
-
     @Test
     public void setZoomRatio1_whenResultCropRegionIsAlive_ListenableFutureSucceeded()
-            throws InterruptedException {
-        CountDownLatch latch = new CountDownLatch(1);
+            throws InterruptedException, ExecutionException {
         ListenableFuture<Void> listenableFuture = mZoomControl.setZoomRatio(1.0f);
+        // setZoomRatio can be called from any thread and posts to executor, so idle our executor.
+        shadowOf(getMainLooper()).idle();
 
         TotalCaptureResult result = mockCaptureResult(getCropRectByRatio(1.0f));
+        // Calling onCaptureResult directly from executor thread (main thread). No need to idle.
         mCaptureResultListener.onCaptureResult(result);
 
-        Futures.addCallback(listenableFuture, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable Void result) {
-                latch.countDown();
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-
-            }
-        }, CameraXExecutors.mainThreadExecutor());
-
-        assertTrue(latch.await(500, TimeUnit.MILLISECONDS));
+        assertThat(listenableFuture.isDone()).isTrue();
+        // Future should have succeeded. Should not throw.
+        listenableFuture.get();
     }
 
     @NonNull
@@ -172,295 +161,227 @@ public class ZoomControlTest {
 
     @Test
     public void setZoomRatioOtherThan1_whenResultCropRegionIsAlive_ListenableFutureSucceeded()
-            throws InterruptedException {
-        CountDownLatch latch = new CountDownLatch(1);
+            throws InterruptedException, ExecutionException {
         ListenableFuture<Void> listenableFuture = mZoomControl.setZoomRatio(2.0f);
+        // setZoomRatio can be called from any thread and posts to executor, so idle our executor.
+        shadowOf(getMainLooper()).idle();
 
         TotalCaptureResult result2 = mockCaptureResult(getCropRectByRatio(2.0f));
+        // Calling onCaptureResult directly from executor thread (main thread). No need to idle.
         mCaptureResultListener.onCaptureResult(result2);
 
-        Futures.addCallback(listenableFuture, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable Void result) {
-                latch.countDown();
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-
-            }
-        }, CameraXExecutors.mainThreadExecutor());
-
-        assertTrue(latch.await(500, TimeUnit.MILLISECONDS));
+        assertThat(listenableFuture.isDone()).isTrue();
+        // Future should have succeeded. Should not throw.
+        listenableFuture.get();
     }
 
     @Test
     public void setLinearZoom_valueIsAlive_ListenableFutureSucceeded()
-            throws InterruptedException {
-        CountDownLatch latch = new CountDownLatch(1);
+            throws ExecutionException, InterruptedException {
         ListenableFuture<Void> listenableFuture = mZoomControl.setLinearZoom(0.1f);
+        // setLinearZoom can be called from any thread and posts to executor, so idle our executor.
+        shadowOf(getMainLooper()).idle();
 
-        float targetRatio = mZoomControl.getZoomState().getValue().getZoomRatio();
+        float targetRatio = Objects.requireNonNull(
+                mZoomControl.getZoomState().getValue()).getZoomRatio();
         TotalCaptureResult result = mockCaptureResult(getCropRectByRatio(targetRatio));
+        // Calling onCaptureResult directly from executor thread (main thread). No need to idle.
         mCaptureResultListener.onCaptureResult(result);
 
-        Futures.addCallback(listenableFuture, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable Void result) {
-                latch.countDown();
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-
-            }
-        }, CameraXExecutors.mainThreadExecutor());
-
-        assertTrue(latch.await(500, TimeUnit.MILLISECONDS));
+        assertThat(listenableFuture.isDone()).isTrue();
+        // Future should have succeeded. Should not throw.
+        listenableFuture.get();
     }
 
     @Test
-    public void setZoomRatio_newRatioIsSet_operationCanceled() throws InterruptedException {
-        CountDownLatch latchForOp1Canceled = new CountDownLatch(1);
-        CountDownLatch latchForOp2Canceled = new CountDownLatch(1);
-        CountDownLatch latchForOp3Succeeded = new CountDownLatch(1);
+    public void setZoomRatio_newRatioIsSet_operationCanceled()
+            throws InterruptedException, ExecutionException {
         ListenableFuture<Void> listenableFuture = mZoomControl.setZoomRatio(2.0f);
         ListenableFuture<Void> listenableFuture2 = mZoomControl.setZoomRatio(3.0f);
         ListenableFuture<Void> listenableFuture3 = mZoomControl.setZoomRatio(4.0f);
+        // setZoomRatio can be called from any thread and posts to executor, so idle our executor.
+        // Since multiple calls to setZoomRatio are posted in order, we only need to idle once to
+        // run all of them.
+        shadowOf(getMainLooper()).idle();
 
         TotalCaptureResult result = mockCaptureResult(getCropRectByRatio(4.0f));
+        // Calling onCaptureResult directly from executor thread (main thread). No need to idle.
         mCaptureResultListener.onCaptureResult(result);
 
-        Futures.addCallback(listenableFuture, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable Void result) {
-            }
+        assertThat(listenableFuture.isDone()).isTrue();
+        assertThat(listenableFuture2.isDone()).isTrue();
+        assertThat(listenableFuture3.isDone()).isTrue();
+        // Futures 1 and 2 should have failed.
+        Throwable t = null;
+        try {
+            listenableFuture.get();
+        } catch (ExecutionException e) {
+            t = e.getCause();
+        }
+        assertThat(t).isInstanceOf(CameraControl.OperationCanceledException.class);
 
-            @Override
-            public void onFailure(Throwable t) {
-                if (t instanceof CameraControl.OperationCanceledException) {
-                    latchForOp1Canceled.countDown();
-                }
-            }
-        }, CameraXExecutors.mainThreadExecutor());
+        t = null;
+        try {
+            listenableFuture2.get();
+        } catch (ExecutionException e) {
+            t = e.getCause();
+        }
+        assertThat(t).isInstanceOf(CameraControl.OperationCanceledException.class);
 
-        Futures.addCallback(listenableFuture2, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable Void result) {
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                if (t instanceof CameraControl.OperationCanceledException) {
-                    latchForOp2Canceled.countDown();
-                }
-            }
-        }, CameraXExecutors.mainThreadExecutor());
-
-        Futures.addCallback(listenableFuture3, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable Void result) {
-                latchForOp3Succeeded.countDown();
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-            }
-        }, CameraXExecutors.mainThreadExecutor());
-
-        assertTrue(latchForOp1Canceled.await(500, TimeUnit.MILLISECONDS));
-        assertTrue(latchForOp2Canceled.await(500, TimeUnit.MILLISECONDS));
-        assertTrue(latchForOp3Succeeded.await(500, TimeUnit.MILLISECONDS));
+        // Future 3 should have succeeded. Should not throw.
+        listenableFuture3.get();
     }
 
     @Test
     public void setLinearZoom_newPercentageIsSet_operationCanceled()
-            throws InterruptedException {
-        CountDownLatch latchForOp1Canceled = new CountDownLatch(1);
-        CountDownLatch latchForOp2Canceled = new CountDownLatch(1);
-        CountDownLatch latchForOp3Succeeded = new CountDownLatch(1);
+            throws InterruptedException, ExecutionException {
         ListenableFuture<Void> listenableFuture = mZoomControl.setLinearZoom(0.1f);
         ListenableFuture<Void> listenableFuture2 = mZoomControl.setLinearZoom(0.2f);
         ListenableFuture<Void> listenableFuture3 = mZoomControl.setLinearZoom(0.3f);
-        float ratioForPercentage = mZoomControl.getZoomState().getValue().getZoomRatio();
+        // setZoomRatio can be called from any thread and posts to executor, so idle our executor.
+        // Since multiple calls to setZoomRatio are posted in order, we only need to idle once to
+        // run all of them.
+        shadowOf(getMainLooper()).idle();
+        float ratioForPercentage = Objects.requireNonNull(
+                mZoomControl.getZoomState().getValue()).getZoomRatio();
 
         TotalCaptureResult result = mockCaptureResult(getCropRectByRatio(ratioForPercentage));
+        // Calling onCaptureResult directly from executor thread (main thread). No need to idle.
         mCaptureResultListener.onCaptureResult(result);
 
-        Futures.addCallback(listenableFuture, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable Void result) {
-            }
+        assertThat(listenableFuture.isDone()).isTrue();
+        assertThat(listenableFuture2.isDone()).isTrue();
+        assertThat(listenableFuture3.isDone()).isTrue();
+        // Futures 1 and 2 should have failed.
+        Throwable t = null;
+        try {
+            listenableFuture.get();
+        } catch (ExecutionException e) {
+            t = e.getCause();
+        }
+        assertThat(t).isInstanceOf(CameraControl.OperationCanceledException.class);
 
-            @Override
-            public void onFailure(Throwable t) {
-                if (t instanceof CameraControl.OperationCanceledException) {
-                    latchForOp1Canceled.countDown();
-                }
-            }
-        }, CameraXExecutors.mainThreadExecutor());
+        t = null;
+        try {
+            listenableFuture2.get();
+        } catch (ExecutionException e) {
+            t = e.getCause();
+        }
+        assertThat(t).isInstanceOf(CameraControl.OperationCanceledException.class);
 
-        Futures.addCallback(listenableFuture2, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable Void result) {
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                if (t instanceof CameraControl.OperationCanceledException) {
-                    latchForOp2Canceled.countDown();
-                }
-            }
-        }, CameraXExecutors.mainThreadExecutor());
-
-        Futures.addCallback(listenableFuture3, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable Void result) {
-                latchForOp3Succeeded.countDown();
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-            }
-        }, CameraXExecutors.mainThreadExecutor());
-
-        assertTrue(latchForOp1Canceled.await(500, TimeUnit.MILLISECONDS));
-        assertTrue(latchForOp2Canceled.await(500, TimeUnit.MILLISECONDS));
-        assertTrue(latchForOp3Succeeded.await(500, TimeUnit.MILLISECONDS));
+        // Future 3 should have succeeded. Should not throw.
+        listenableFuture3.get();
     }
 
     @Test
-    public void setZoomRatioAndPercentage_mixedOperation() throws InterruptedException {
-        CountDownLatch latchForOp1Canceled = new CountDownLatch(1);
-        CountDownLatch latchForOp2Canceled = new CountDownLatch(1);
-        CountDownLatch latchForOp3Succeeded = new CountDownLatch(1);
+    public void setZoomRatioAndPercentage_mixedOperation()
+            throws InterruptedException, ExecutionException {
         ListenableFuture<Void> listenableFuture = mZoomControl.setZoomRatio(2f);
         ListenableFuture<Void> listenableFuture2 = mZoomControl.setLinearZoom(0.1f);
         ListenableFuture<Void> listenableFuture3 = mZoomControl.setZoomRatio(4f);
+        // setZoomRatio/setLinearZoom can be called from any thread and posts to executor, so idle
+        // our executor. Since multiple calls to setZoomRatio/setLinearZoom  are posted in order,
+        // we only need to idle once to run all of them.
+        shadowOf(getMainLooper()).idle();
 
         TotalCaptureResult result = mockCaptureResult(getCropRectByRatio(4.0f));
+        // Calling onCaptureResult directly from executor thread (main thread). No need to idle.
         mCaptureResultListener.onCaptureResult(result);
 
-        Futures.addCallback(listenableFuture, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable Void result) {
-            }
+        assertThat(listenableFuture.isDone()).isTrue();
+        assertThat(listenableFuture2.isDone()).isTrue();
+        assertThat(listenableFuture3.isDone()).isTrue();
+        // Futures 1 and 2 should have failed.
+        Throwable t = null;
+        try {
+            listenableFuture.get();
+        } catch (ExecutionException e) {
+            t = e.getCause();
+        }
+        assertThat(t).isInstanceOf(CameraControl.OperationCanceledException.class);
 
-            @Override
-            public void onFailure(Throwable t) {
-                if (t instanceof CameraControl.OperationCanceledException) {
-                    latchForOp1Canceled.countDown();
-                }
-            }
-        }, CameraXExecutors.mainThreadExecutor());
+        t = null;
+        try {
+            listenableFuture2.get();
+        } catch (ExecutionException e) {
+            t = e.getCause();
+        }
+        assertThat(t).isInstanceOf(CameraControl.OperationCanceledException.class);
 
-        Futures.addCallback(listenableFuture2, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable Void result) {
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                if (t instanceof CameraControl.OperationCanceledException) {
-                    latchForOp2Canceled.countDown();
-                }
-            }
-        }, CameraXExecutors.mainThreadExecutor());
-
-        Futures.addCallback(listenableFuture3, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable Void result) {
-                latchForOp3Succeeded.countDown();
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-            }
-        }, CameraXExecutors.mainThreadExecutor());
-
-        assertTrue(latchForOp1Canceled.await(500, TimeUnit.MILLISECONDS));
-        assertTrue(latchForOp2Canceled.await(500, TimeUnit.MILLISECONDS));
-        assertTrue(latchForOp3Succeeded.await(500, TimeUnit.MILLISECONDS));
+        // Future 3 should have succeeded. Should not throw.
+        listenableFuture3.get();
     }
 
     @Test
-    public void setZoomRatio_whenInActive_operationCanceled() {
+    public void setZoomRatio_whenInActive_operationCanceled() throws InterruptedException {
+        // setActive() is called from executor thread (main thread in this case). No need to idle.
         mZoomControl.setActive(false);
         ListenableFuture<Void> listenableFuture = mZoomControl.setZoomRatio(1.0f);
+        // setZoomRatio can be called from any thread and posts to executor, so idle our executor.
+        shadowOf(getMainLooper()).idle();
 
+        assertThat(listenableFuture.isDone()).isTrue();
+        Throwable t = null;
         try {
-            listenableFuture.get(1000, TimeUnit.MILLISECONDS);
+            listenableFuture.get();
         } catch (ExecutionException e) {
-            if (e.getCause() instanceof CameraControl.OperationCanceledException) {
-                assertTrue(true);
-                return;
-            }
-        } catch (Exception e) {
+            t = e.getCause();
         }
-
-        fail();
+        assertThat(t).isInstanceOf(CameraControl.OperationCanceledException.class);
     }
 
     @Test
-    public void setLinearZoom_whenInActive_operationCanceled() {
+    public void setLinearZoom_whenInActive_operationCanceled() throws InterruptedException {
+        // setActive() is called from executor thread (main thread in this case). No need to idle.
         mZoomControl.setActive(false);
         ListenableFuture<Void> listenableFuture = mZoomControl.setLinearZoom(0f);
+        // setZoomRatio can be called from any thread and posts to executor, so idle our executor.
+        shadowOf(getMainLooper()).idle();
 
+        assertThat(listenableFuture.isDone()).isTrue();
+        Throwable t = null;
         try {
-            listenableFuture.get(1000, TimeUnit.MILLISECONDS);
+            listenableFuture.get();
         } catch (ExecutionException e) {
-            if (e.getCause() instanceof CameraControl.OperationCanceledException) {
-                assertTrue(true);
-                return;
-            }
-        } catch (Exception e) {
+            t = e.getCause();
         }
-
-        fail();
+        assertThat(t).isInstanceOf(CameraControl.OperationCanceledException.class);
     }
 
     @Test
     public void setZoomRatio_afterInActive_operationCanceled() throws InterruptedException {
-        CountDownLatch latch = new CountDownLatch(1);
         ListenableFuture<Void> listenableFuture = mZoomControl.setZoomRatio(2.0f);
-        Futures.addCallback(listenableFuture, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable Void result) {
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                if (t instanceof CameraControl.OperationCanceledException) {
-                    latch.countDown();
-                }
-            }
-        }, CameraXExecutors.mainThreadExecutor());
-
+        // setZoomRatio can be called from any thread and posts to executor, so idle our executor.
+        shadowOf(getMainLooper()).idle();
+        // setActive() is called from executor thread (main thread in this case). No need to idle.
         mZoomControl.setActive(false);
 
-        assertTrue(latch.await(500, TimeUnit.MILLISECONDS));
+        assertThat(listenableFuture.isDone()).isTrue();
+        Throwable t = null;
+        try {
+            listenableFuture.get();
+        } catch (ExecutionException e) {
+            t = e.getCause();
+        }
+        assertThat(t).isInstanceOf(CameraControl.OperationCanceledException.class);
     }
 
     @Test
     public void setLinearZoom_afterInActive_operationCanceled() throws InterruptedException {
-        CountDownLatch latch = new CountDownLatch(1);
         ListenableFuture<Void> listenableFuture = mZoomControl.setLinearZoom(0.3f);
-        Futures.addCallback(listenableFuture, new FutureCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable Void result) {
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                if (t instanceof CameraControl.OperationCanceledException) {
-                    latch.countDown();
-                }
-            }
-        }, CameraXExecutors.mainThreadExecutor());
-
+        // setZoomRatio can be called from any thread and posts to executor, so idle our executor.
+        shadowOf(getMainLooper()).idle();
+        // setActive() is called from executor thread (main thread in this case). No need to idle.
         mZoomControl.setActive(false);
 
-        assertTrue(latch.await(500, TimeUnit.MILLISECONDS));
+        assertThat(listenableFuture.isDone()).isTrue();
+        Throwable t = null;
+        try {
+            listenableFuture.get();
+        } catch (ExecutionException e) {
+            t = e.getCause();
+        }
+        assertThat(t).isInstanceOf(CameraControl.OperationCanceledException.class);
     }
 
     @Test
@@ -478,10 +399,13 @@ public class ZoomControlTest {
                 mock(CameraControlInternal.ControlUpdateCallback.class));
         ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor());
+        // setActive() is called from executor thread (main thread in this case). No need to idle.
         zoomControl.setActive(true);
 
+        // LiveData is updated synchronously. No need to idle.
         zoomControl.setZoomRatio(3.0f);
-        assertThat(zoomControl.getZoomState().getValue().getZoomRatio()).isEqualTo(1.0f);
+        assertThat(Objects.requireNonNull(
+                zoomControl.getZoomState().getValue()).getZoomRatio()).isEqualTo(1.0f);
         assertThat(zoomControl.getZoomState().getValue().getLinearZoom()).isEqualTo(0.0f);
     }
 
@@ -500,10 +424,13 @@ public class ZoomControlTest {
                 mock(CameraControlInternal.ControlUpdateCallback.class));
         ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor());
+        // setActive() is called from executor thread (main thread in this case). No need to idle.
         zoomControl.setActive(true);
 
+        // LiveData is updated synchronously. No need to idle.
         zoomControl.setZoomRatio(0.2f);
-        assertThat(zoomControl.getZoomState().getValue().getZoomRatio()).isEqualTo(1.0f);
+        assertThat(Objects.requireNonNull(
+                zoomControl.getZoomState().getValue()).getZoomRatio()).isEqualTo(1.0f);
         assertThat(zoomControl.getZoomState().getValue().getLinearZoom()).isEqualTo(0.0f);
     }
 
@@ -523,10 +450,13 @@ public class ZoomControlTest {
                 mock(CameraControlInternal.ControlUpdateCallback.class));
         ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor());
+        // setActive() is called from executor thread (main thread in this case). No need to idle.
         zoomControl.setActive(true);
 
+        // LiveData is updated synchronously. No need to idle.
         zoomControl.setLinearZoom(0.4f);
-        assertThat(zoomControl.getZoomState().getValue().getZoomRatio()).isEqualTo(1.0f);
+        assertThat(Objects.requireNonNull(
+                zoomControl.getZoomState().getValue()).getZoomRatio()).isEqualTo(1.0f);
         // percentage is updated correctly but the zoomRatio is always 1.0f if zoom not supported.
         assertThat(zoomControl.getZoomState().getValue().getLinearZoom()).isEqualTo(0.4f);
     }
@@ -546,11 +476,14 @@ public class ZoomControlTest {
                 mock(CameraControlInternal.ControlUpdateCallback.class));
         ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor());
+        // setActive() is called from executor thread (main thread in this case). No need to idle.
         zoomControl.setActive(true);
 
+        // LiveData is updated synchronously. No need to idle.
         zoomControl.setLinearZoom(0.3f);
         zoomControl.setLinearZoom(-0.2f);
-        assertThat(zoomControl.getZoomState().getValue().getZoomRatio()).isEqualTo(1.0f);
+        assertThat(Objects.requireNonNull(
+                zoomControl.getZoomState().getValue()).getZoomRatio()).isEqualTo(1.0f);
         // percentage not changed but the zoomRatio is always 1.0f if zoom not supported.
         assertThat(zoomControl.getZoomState().getValue().getLinearZoom()).isEqualTo(0.3f);
     }
@@ -570,11 +503,14 @@ public class ZoomControlTest {
                 mock(CameraControlInternal.ControlUpdateCallback.class));
         ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor());
+        // setActive() is called from executor thread (main thread in this case). No need to idle.
         zoomControl.setActive(true);
 
+        // LiveData is updated synchronously. No need to idle.
         zoomControl.setLinearZoom(0.3f);
         zoomControl.setLinearZoom(1.2f);
-        assertThat(zoomControl.getZoomState().getValue().getZoomRatio()).isEqualTo(1.0f);
+        assertThat(Objects.requireNonNull(
+                zoomControl.getZoomState().getValue()).getZoomRatio()).isEqualTo(1.0f);
         // percentage not changed but the zoomRatio is always 1.0f if zoom not supported.
         assertThat(zoomControl.getZoomState().getValue().getLinearZoom()).isEqualTo(0.3f);
     }

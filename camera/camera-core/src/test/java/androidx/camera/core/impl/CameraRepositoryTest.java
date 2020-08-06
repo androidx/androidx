@@ -16,7 +16,11 @@
 
 package androidx.camera.core.impl;
 
+import static android.os.Looper.getMainLooper;
+
 import static com.google.common.truth.Truth.assertThat;
+
+import static org.robolectric.Shadows.shadowOf;
 
 import android.os.Build;
 
@@ -35,7 +39,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
-import org.robolectric.shadows.ShadowLooper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -118,12 +121,15 @@ public final class CameraRepositoryTest {
         ListenableFuture<Void> deinitFuture = mCameraRepository.deinit();
 
         // Needed since FakeCamera uses LiveDataObservable
-        ShadowLooper.runUiThreadTasks();
+        shadowOf(getMainLooper()).idle();
 
         assertThat(deinitFuture.isDone()).isTrue();
         for (CameraInternal cameraInternal : cameraInternals) {
-            assertThat(cameraInternal.getCameraState().fetchData().get()).isEqualTo(
-                    CameraInternal.State.RELEASED);
+            ListenableFuture<CameraInternal.State> stateFuture =
+                    cameraInternal.getCameraState().fetchData();
+            // Needed since FakeCamera uses LiveDataObservable
+            shadowOf(getMainLooper()).idle();
+            assertThat(stateFuture.get()).isEqualTo(CameraInternal.State.RELEASED);
         }
     }
 }

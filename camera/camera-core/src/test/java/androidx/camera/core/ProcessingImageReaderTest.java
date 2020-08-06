@@ -16,11 +16,14 @@
 
 package androidx.camera.core;
 
+import static android.os.Looper.getMainLooper;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.robolectric.Shadows.shadowOf;
 
 import android.graphics.ImageFormat;
 import android.os.AsyncTask;
@@ -41,15 +44,18 @@ import androidx.camera.testing.fakes.FakeCaptureStage;
 import androidx.camera.testing.fakes.FakeImageReaderProxy;
 import androidx.test.filters.SmallTest;
 
+import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.robolectric.RobolectricTestRunner;
+import org.robolectric.android.util.concurrent.PausedExecutorService;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
-import org.robolectric.shadows.ShadowLooper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -58,6 +64,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+@SuppressWarnings("UnstableApiUsage") // Needed because PausedExecutorService is marked @Beta
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
@@ -87,7 +94,7 @@ public final class ProcessingImageReaderTest {
 
         }
     };
-
+    private static PausedExecutorService sPausedExecutor;
     private final CaptureStage mCaptureStage0 = new FakeCaptureStage(CAPTURE_ID_0, null);
     private final CaptureStage mCaptureStage1 = new FakeCaptureStage(CAPTURE_ID_1, null);
     private final CaptureStage mCaptureStage2 = new FakeCaptureStage(CAPTURE_ID_2, null);
@@ -97,11 +104,27 @@ public final class ProcessingImageReaderTest {
     private CaptureBundle mCaptureBundle;
     private String mTagBundleKey;
 
+    @BeforeClass
+    public static void setUpClass() {
+        sPausedExecutor = new PausedExecutorService();
+    }
+
+    @AfterClass
+    public static void tearDownClass() {
+        sPausedExecutor.shutdown();
+    }
+
     @Before
     public void setUp() {
         mCaptureBundle = CaptureBundles.createCaptureBundle(mCaptureStage0, mCaptureStage1);
         mTagBundleKey = Integer.toString(mCaptureBundle.hashCode());
         mMetadataImageReader = new MetadataImageReader(mImageReaderProxy);
+    }
+
+    @After
+    public void cleanUp() {
+        // Ensure the PausedExecutorService is drained
+        sPausedExecutor.runAll();
     }
 
     @Test
@@ -110,7 +133,7 @@ public final class ProcessingImageReaderTest {
         // Sets the callback from ProcessingImageReader to start processing
         CaptureProcessor captureProcessor = mock(CaptureProcessor.class);
         ProcessingImageReader processingImageReader = new ProcessingImageReader(
-                mMetadataImageReader, AsyncTask.THREAD_POOL_EXECUTOR, mCaptureBundle,
+                mMetadataImageReader, sPausedExecutor, mCaptureBundle,
                 captureProcessor);
         processingImageReader.setOnImageAvailableListener(mock(
                 ImageReaderProxy.OnImageAvailableListener.class),
@@ -145,12 +168,15 @@ public final class ProcessingImageReaderTest {
             triggerImageAvailable(id, captureIdToTime.get(id));
         }
 
-        // Ensure all posted tasks finish running
-        ShadowLooper.runUiThreadTasks();
+        // Ensure tasks are posted to the processing executor
+        shadowOf(getMainLooper()).idle();
+
+        // Run processing
+        sPausedExecutor.runAll();
 
         ArgumentCaptor<ImageProxyBundle> imageProxyBundleCaptor =
                 ArgumentCaptor.forClass(ImageProxyBundle.class);
-        verify(captureProcessor, timeout(3000).times(1)).process(imageProxyBundleCaptor.capture());
+        verify(captureProcessor, times(1)).process(imageProxyBundleCaptor.capture());
         assertThat(imageProxyBundleCaptor.getValue()).isNotNull();
 
         // CaptureProcessor.process should be called once all ImageProxies on the
@@ -187,6 +213,9 @@ public final class ProcessingImageReaderTest {
             triggerImageAvailable(idTimestamp.getKey(), idTimestamp.getValue());
         }
 
+        // Ensure tasks are posted to the processing executor
+        shadowOf(getMainLooper()).idle();
+
         // Wait for CaptureProcessor.process() to start so that it is in the middle of processing
         assertThat(waitingCaptureProcessor.waitForProcessingToStart(3000)).isTrue();
 
@@ -194,7 +223,7 @@ public final class ProcessingImageReaderTest {
 
         // Allow the CaptureProcessor to continue processing. Calling finishProcessing() will
         // cause the CaptureProcessor to start accessing the ImageProxy. If the ImageProxy has
-        // already been closed then
+        // already been closed then we will time out at waitForProcessingToComplete().
         waitingCaptureProcessor.finishProcessing();
 
         // The processing will only complete if no exception was thrown during the processing
@@ -202,11 +231,13 @@ public final class ProcessingImageReaderTest {
         assertThat(waitingCaptureProcessor.waitForProcessingToComplete(3000)).isTrue();
     }
 
+    // Tests that a ProcessingImageReader can be closed while in the process of receiving
+    // ImageProxies for an ImageProxyBundle.
     @Test
     public void closeImageHalfway() throws InterruptedException {
         // Sets the callback from ProcessingImageReader to start processing
         ProcessingImageReader processingImageReader = new ProcessingImageReader(
-                mMetadataImageReader, AsyncTask.THREAD_POOL_EXECUTOR, mCaptureBundle,
+                mMetadataImageReader, sPausedExecutor, mCaptureBundle,
                 NOOP_PROCESSOR);
         processingImageReader.setOnImageAvailableListener(mock(
                 ImageReaderProxy.OnImageAvailableListener.class),
@@ -216,9 +247,12 @@ public final class ProcessingImageReaderTest {
         mTagBundleKey = processingImageReader.getTagBundleKey();
         triggerImageAvailable(CAPTURE_ID_0, TIMESTAMP_0);
 
-        processingImageReader.close();
+        // Ensure the first image is received by the ProcessingImageReader
+        shadowOf(getMainLooper()).idle();
 
-        triggerImageAvailable(CAPTURE_ID_1, TIMESTAMP_1);
+        // The ProcessingImageReader is closed after receiving the first image, but before
+        // receiving enough images for the entire ImageProxyBundle.
+        processingImageReader.close();
 
         assertThat(mImageReaderProxy.isClosed()).isTrue();
     }
@@ -263,15 +297,15 @@ public final class ProcessingImageReaderTest {
     private static class WaitingCaptureProcessor implements CaptureProcessor {
         // Block processing so that the ProcessingImageReader can be closed before the
         // CaptureProcessor has finished accessing the ImageProxy and ImageProxyBundle
-        private CountDownLatch mProcessingLatch = new CountDownLatch(1);
+        private final CountDownLatch mProcessingLatch = new CountDownLatch(1);
 
         // To wait for processing to start. This makes sure that the ProcessingImageReader can be
         // closed after processing has started
-        private CountDownLatch mProcessingStartLatch = new CountDownLatch(1);
+        private final CountDownLatch mProcessingStartLatch = new CountDownLatch(1);
 
         // Block processing from completing. This ensures that the CaptureProcessor has finished
         // accessing the ImageProxy and ImageProxyBundle successfully.
-        private CountDownLatch mProcessingComplete = new CountDownLatch(1);
+        private final CountDownLatch mProcessingComplete = new CountDownLatch(1);
 
         WaitingCaptureProcessor() {
         }
