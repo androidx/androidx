@@ -23,7 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.ui.graphics.Color
-import androidx.ui.integration.test.ToggleableTestCase
+import androidx.ui.test.ToggleableTestCase
 import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.ui.unit.Dp

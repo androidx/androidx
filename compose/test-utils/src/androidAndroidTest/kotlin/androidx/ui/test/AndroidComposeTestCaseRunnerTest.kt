@@ -16,6 +16,7 @@
 
 package androidx.ui.test
 
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.runtime.Composable
@@ -23,6 +24,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.onPreCommit
 import androidx.compose.runtime.remember
 import androidx.test.filters.SmallTest
+import androidx.ui.test.android.AndroidComposeTestRule
+import androidx.ui.test.android.createAndroidComposeRule
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -33,14 +36,13 @@ import org.junit.runners.JUnit4
 class AndroidComposeTestCaseRunnerTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule(
+    val composeTestRule = createAndroidComposeRule<ComponentActivity>(
         disableTransitions = true
     )
 
-    internal fun ComposeTestRule.forGivenContent(
+    internal fun <T : ComponentActivity> AndroidComposeTestRule<T>.forGivenContent(
         composable: @Composable () -> Unit
     ): ComposeTestCaseSetup {
-        @OptIn(ExperimentalTesting::class)
         return forGivenTestCase(object : ComposeTestCase {
             @Composable
             override fun emitContent() {

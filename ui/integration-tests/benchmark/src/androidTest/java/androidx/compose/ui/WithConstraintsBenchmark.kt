@@ -34,7 +34,7 @@ import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.toggleStateBenchmarkComposeMeasureLayout
 import androidx.ui.benchmark.toggleStateBenchmarkMeasureLayout
-import androidx.ui.integration.test.ToggleableTestCase
+import androidx.ui.test.ToggleableTestCase
 import androidx.ui.test.ComposeTestCase
 import org.junit.Rule
 import org.junit.Test

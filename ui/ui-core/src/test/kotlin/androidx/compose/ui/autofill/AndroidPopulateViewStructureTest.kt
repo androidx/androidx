@@ -23,7 +23,7 @@ import androidx.autofill.HintConstants.AUTOFILL_HINT_PERSON_NAME
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.test.ComposeUiRobolectricTestRunner
 import androidx.compose.ui.geometry.Rect
-import androidx.ui.test.android.fake.FakeViewStructure
+import androidx.ui.test.fake.FakeViewStructure
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test

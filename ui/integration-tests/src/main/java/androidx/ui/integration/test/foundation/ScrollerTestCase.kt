@@ -23,7 +23,7 @@ import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.ui.graphics.Color
-import androidx.ui.integration.test.ToggleableTestCase
+import androidx.ui.test.ToggleableTestCase
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.preferredSize

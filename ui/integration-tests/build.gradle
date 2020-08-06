@@ -44,6 +44,7 @@ dependencies {
     implementation project(":compose:foundation:foundation-layout")
     implementation project(":compose:material:material")
     implementation project(":ui:ui-test")
+    implementation project(":compose:test-utils")
 }
 
 androidx {

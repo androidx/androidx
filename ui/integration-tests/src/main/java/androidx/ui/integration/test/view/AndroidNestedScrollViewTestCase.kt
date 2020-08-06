@@ -22,7 +22,7 @@ import android.view.ViewGroup
 import android.widget.HorizontalScrollView
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
-import androidx.ui.integration.test.ToggleableTestCase
+import androidx.ui.test.ToggleableTestCase
 import androidx.ui.benchmark.android.AndroidTestCase
 import androidx.ui.integration.test.foundation.NestedScrollerTestCase
 import kotlin.random.Random
@@ -30,8 +30,7 @@ import kotlin.random.Random
 /**
  * Version of [NestedScrollerTestCase] using Android views.
  */
-class AndroidNestedScrollViewTestCase : AndroidTestCase,
-    ToggleableTestCase {
+class AndroidNestedScrollViewTestCase : AndroidTestCase, ToggleableTestCase {
     lateinit var firstScrollView: HorizontalScrollView
 
     override fun getContent(activity: Activity): ViewGroup {

@@ -23,7 +23,7 @@ import androidx.ui.benchmark.android.AndroidTestCase
 import androidx.ui.test.ComposeBenchmarkScope
 import androidx.ui.test.ComposeTestCase
 import androidx.ui.test.DisableTransitions
-import androidx.ui.test.android.createAndroidComposeBenchmarkRunner
+import androidx.ui.test.createAndroidComposeBenchmarkRunner
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -31,7 +31,6 @@ import org.junit.runners.model.Statement
 /**
  * Rule to be used to run Compose / Android benchmarks.
  */
-// TODO(pavlis): Move this to a separate module, something like androidx.ui.test-benchmark
 class ComposeBenchmarkRule(
     private val enableTransitions: Boolean = false
 ) : TestRule {
@@ -71,8 +70,10 @@ class ComposeBenchmarkRule(
 
         activityTestRule.runOnUiThread {
             // TODO(pavlis): Assert that there is no existing composition before we run benchmark
-            val runner = createAndroidComposeBenchmarkRunner(givenTestCase,
-                activityTestRule.activity)
+            val runner = createAndroidComposeBenchmarkRunner(
+                givenTestCase,
+                activityTestRule.activity
+            )
             try {
                 block(runner)
             } finally {

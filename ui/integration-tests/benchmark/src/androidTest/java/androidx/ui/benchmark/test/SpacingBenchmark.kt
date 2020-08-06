@@ -39,7 +39,7 @@ import androidx.ui.benchmark.toggleStateBenchmarkDraw
 import androidx.ui.benchmark.toggleStateBenchmarkLayout
 import androidx.ui.benchmark.toggleStateBenchmarkMeasure
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
-import androidx.ui.integration.test.ToggleableTestCase
+import androidx.ui.test.ToggleableTestCase
 import androidx.ui.test.ComposeTestCase
 import org.junit.Rule
 import org.junit.Test
@@ -156,8 +156,7 @@ class PaddingBenchmark {
     }
 }
 
-private sealed class PaddingTestCase : ComposeTestCase,
-    ToggleableTestCase {
+private sealed class PaddingTestCase : ComposeTestCase, ToggleableTestCase {
 
     var paddingState: MutableState<Dp>? = null
 

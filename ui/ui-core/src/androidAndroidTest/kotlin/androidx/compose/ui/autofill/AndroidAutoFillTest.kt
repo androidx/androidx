@@ -27,7 +27,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.AutofillAmbient
 import androidx.compose.ui.platform.AutofillTreeAmbient
 import androidx.compose.ui.platform.ViewAmbient
-import androidx.ui.test.android.fake.FakeViewStructure
+import androidx.ui.test.fake.FakeViewStructure
 import androidx.ui.test.createComposeRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before

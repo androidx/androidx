@@ -26,7 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.ui.integration.test.RandomTextGenerator
-import androidx.ui.integration.test.ToggleableTestCase
+import androidx.ui.test.ToggleableTestCase
 import androidx.ui.test.ComposeTestCase
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit

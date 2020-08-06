@@ -94,61 +94,7 @@ package androidx.ui.test {
     method public static androidx.compose.ui.unit.Bounds getUnclippedBoundsInRoot(androidx.ui.test.SemanticsNodeInteraction);
   }
 
-  public interface ComposeBenchmarkScope<T> extends androidx.ui.test.ComposeExecutionControl {
-    method public void createTestCase();
-    method public void disposeContent();
-    method public void draw();
-    method public void drawFinish();
-    method public void drawPrepare();
-    method public void emitContent();
-    method public T! getTestCase();
-    method public void invalidateViews();
-    method public void measureWithSpec(int widthSpec, int heightSpec);
-    method public void requestLayout();
-  }
-
-  public final class ComposeBenchmarkScopeKt {
-    method public static <T> void setupContent(androidx.ui.test.ComposeBenchmarkScope<T>);
-  }
-
-  public interface ComposeExecutionControl {
-    method public void capturePreviewPictureToActivity();
-    method public void doFrame();
-    method public void drawToBitmap();
-    method public boolean getDidLastRecomposeHaveChanges();
-    method public int getMeasuredHeight();
-    method public int getMeasuredWidth();
-    method public boolean hasPendingChanges();
-    method public kotlinx.coroutines.Job launchRecomposeIn(kotlinx.coroutines.CoroutineScope coroutineScope);
-    method public void layout();
-    method public void measure();
-    method public void recompose();
-    property public abstract boolean didLastRecomposeHaveChanges;
-    property public abstract int measuredHeight;
-    property public abstract int measuredWidth;
-  }
-
-  public final class ComposeExecutionControlKt {
-    method public static void assertHasPendingChanges(androidx.ui.test.ComposeExecutionControl);
-    method public static void assertLastRecomposeHadChanges(androidx.ui.test.ComposeExecutionControl);
-    method public static void assertLastRecomposeHadNoChanges(androidx.ui.test.ComposeExecutionControl);
-    method public static void assertMeasureSizeIsPositive(androidx.ui.test.ComposeExecutionControl);
-    method public static void assertNoPendingChanges(androidx.ui.test.ComposeExecutionControl);
-    method public static void doFramesAssertAllHadChangesExceptLastOne(androidx.ui.test.ComposeExecutionControl, int numberOfFramesToBeStable);
-    method public static int doFramesUntilNoChangesPending(androidx.ui.test.ComposeExecutionControl, int maxAmountOfFrames = 10);
-    method public static void recomposeAssertHadChanges(androidx.ui.test.ComposeExecutionControl);
-  }
-
-  public interface ComposeTestCase {
-    method @androidx.compose.runtime.Composable public void emitContent();
-  }
-
-  public interface ComposeTestCaseSetup {
-    method public void performTestWithEventsControl(kotlin.jvm.functions.Function1<? super androidx.ui.test.ComposeExecutionControl,kotlin.Unit> block);
-  }
-
   public interface ComposeTestRule extends org.junit.rules.TestRule {
-    method @androidx.ui.test.ExperimentalTesting public androidx.ui.test.ComposeTestCaseSetup forGivenTestCase(androidx.ui.test.ComposeTestCase testCase);
     method public androidx.ui.test.AnimationClockTestRule getClockTestRule();
     method public androidx.compose.ui.unit.Density getDensity();
     method public android.util.DisplayMetrics getDisplayMetrics();
@@ -308,12 +254,6 @@ package androidx.ui.test {
     method public static boolean performKeyPress(androidx.ui.test.SemanticsNodeInteraction, androidx.compose.ui.input.key.KeyEvent keyEvent);
   }
 
-  public interface LayeredComposeTestCase extends androidx.ui.test.ComposeTestCase {
-    method @androidx.compose.runtime.Composable public default void emitContent();
-    method @androidx.compose.runtime.Composable public void emitContentWrappers(kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @androidx.compose.runtime.Composable public void emitMeasuredContent();
-  }
-
   public final class OutputKt {
     method public static void printToLog(androidx.ui.test.SemanticsNodeInteraction, String tag, @IntRange(from=0) int maxDepth = 2147483647);
     method public static void printToLog(androidx.ui.test.SemanticsNodeInteractionCollection, String tag, @IntRange(from=0) int maxDepth = 0);
@@ -420,19 +360,9 @@ package androidx.ui.test {
 
 package androidx.ui.test.android {
 
-  public final class AndroidComposeTestCaseRunnerKt {
-    method public static <T extends androidx.ui.test.ComposeTestCase> androidx.ui.test.ComposeBenchmarkScope<T> createAndroidComposeBenchmarkRunner(kotlin.jvm.functions.Function0<? extends T> testCaseFactory, androidx.activity.ComponentActivity activity);
-  }
-
-  public final class AndroidComposeTestCaseSetup implements androidx.ui.test.ComposeTestCaseSetup {
-    ctor public AndroidComposeTestCaseSetup(androidx.ui.test.ComposeTestCase testCase, androidx.activity.ComponentActivity activity);
-    method public void performTestWithEventsControl(kotlin.jvm.functions.Function1<? super androidx.ui.test.ComposeExecutionControl,kotlin.Unit> block);
-  }
-
   public final class AndroidComposeTestRule<T extends androidx.activity.ComponentActivity> implements androidx.ui.test.ComposeTestRule {
     ctor public AndroidComposeTestRule(androidx.test.ext.junit.rules.ActivityScenarioRule<T> activityRule, boolean disableTransitions, boolean disableBlinkingCursor);
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
-    method @androidx.ui.test.ExperimentalTesting public androidx.ui.test.ComposeTestCaseSetup forGivenTestCase(androidx.ui.test.ComposeTestCase testCase);
     method public androidx.test.ext.junit.rules.ActivityScenarioRule<T> getActivityRule();
     method public androidx.ui.test.AnimationClockTestRule getClockTestRule();
     method public androidx.compose.ui.unit.Density getDensity();
@@ -466,13 +396,6 @@ package androidx.ui.test.android {
   }
 
   public final class WindowCaptureKt {
-  }
-
-}
-
-package androidx.ui.test.android.fake {
-
-  public final class FakeViewStructureKt {
   }
 
 }
