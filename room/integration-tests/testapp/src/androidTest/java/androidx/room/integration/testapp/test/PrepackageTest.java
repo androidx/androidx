@@ -19,7 +19,9 @@ package androidx.room.integration.testapp.test;
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import android.content.Context;
@@ -29,14 +31,17 @@ import androidx.core.content.ContextCompat;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.room.integration.testapp.TestDatabase;
 import androidx.room.integration.testapp.dao.ProductDao;
 import androidx.room.integration.testapp.vo.Product;
+import androidx.room.integration.testapp.vo.User;
 import androidx.room.migration.Migration;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
+import org.hamcrest.MatcherAssert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -571,8 +576,8 @@ public class PrepackageTest {
         Context context = ApplicationProvider.getApplicationContext();
         context.deleteDatabase("products.db");
         TestPrepackagedCallback callback = new TestPrepackagedCallback();
-        PrepackageTest.ProductsDatabase database = Room.databaseBuilder(
-                context, PrepackageTest.ProductsDatabase.class, "products.db")
+        ProductsDatabase database = Room.databaseBuilder(
+                context, ProductsDatabase.class, "products.db")
                 .createFromAsset("databases/products_v1.db", callback)
                 .build();
 
@@ -595,8 +600,8 @@ public class PrepackageTest {
         copyAsset(toCopyInput, dataDbFile);
 
         TestPrepackagedCallback callback = new TestPrepackagedCallback();
-        PrepackageTest.ProductsDatabase database = Room.databaseBuilder(
-                context, PrepackageTest.ProductsDatabase.class, "products_external.db")
+        ProductsDatabase database = Room.databaseBuilder(
+                context, ProductsDatabase.class, "products_external.db")
                 .createFromFile(dataDbFile, callback)
                 .build();
 
@@ -622,8 +627,8 @@ public class PrepackageTest {
         };
 
         TestPrepackagedCallback callback = new TestPrepackagedCallback();
-        PrepackageTest.ProductsDatabase database = Room.databaseBuilder(
-                context, PrepackageTest.ProductsDatabase.class, "products.db")
+        ProductsDatabase database = Room.databaseBuilder(
+                context, ProductsDatabase.class, "products.db")
                 .createFromInputStream(inputStreamCallable, callback)
                 .build();
 
@@ -634,6 +639,86 @@ public class PrepackageTest {
         assertThat(callback.mOpenPrepackagedDatabase, is(true));
 
         database.close();
+    }
+
+    @Test
+    public void onOpenedDbTwice_calledOnPrepackagedCallbackOnce() {
+        Context context = ApplicationProvider.getApplicationContext();
+        context.deleteDatabase("products.db");
+
+        ProductsDatabase db1 = null;
+        ProductsDatabase db2 = null;
+        try {
+            TestPrepackagedCallback callback1 = new TestPrepackagedCallback();
+            db1 = Room.databaseBuilder(
+                    context, ProductsDatabase.class, "products.db")
+                    .createFromAsset("databases/products_v1.db", callback1)
+                    .build();
+
+            assertThat(callback1.mOpenPrepackagedDatabase, is(false));
+            db1.getProductDao().countProducts();
+            assertThat(callback1.mOpenPrepackagedDatabase, is(true));
+
+            TestPrepackagedCallback callback2 = new TestPrepackagedCallback();
+            db2 = Room.databaseBuilder(
+                    context, ProductsDatabase.class, "products.db")
+                    .createFromAsset("databases/products_v1.db", callback2)
+                    .build();
+
+            assertThat(callback2.mOpenPrepackagedDatabase, is(false));
+            db2.getProductDao().countProducts();
+            // Not called this time; db file was already copied and callback was called by db1
+            assertThat(callback2.mOpenPrepackagedDatabase, is(false));
+        } finally {
+            if (db1 != null) {
+                db1.close();
+            }
+            if (db2 != null) {
+                db2.close();
+            }
+        }
+    }
+
+    @Test
+    public void onPrepackagedCallbackException_calledOnPrepackagedCallbackWhenOpenedAgain() {
+        Context context = ApplicationProvider.getApplicationContext();
+        context.deleteDatabase("products.db");
+        TestPrepackagedCallback throwingCallback = new TestPrepackagedCallback() {
+            @Override
+            public void onOpenPrepackagedDatabase(@NonNull SupportSQLiteDatabase db) {
+                throw new RuntimeException("Something went wrong!");
+            }
+        };
+
+        TestPrepackagedCallback callback = new TestPrepackagedCallback();
+
+        ProductsDatabase db1 = null;
+        ProductsDatabase db2 = null;
+        try {
+            db1 = Room.databaseBuilder(
+                    context, ProductsDatabase.class, "products.db")
+                    .createFromAsset("databases/products_v1.db", throwingCallback)
+                    .build();
+            db1.getProductDao().countProducts();
+        } catch (Exception e) {
+            assertThat(throwingCallback.mOpenPrepackagedDatabase, is(false));
+
+            db2 = Room.databaseBuilder(
+                    context, ProductsDatabase.class, "products.db")
+                    .createFromAsset("databases/products_v1.db", callback)
+                    .build();
+
+            assertThat(callback.mOpenPrepackagedDatabase, is(false));
+            db2.getProductDao().countProducts();
+            assertThat(callback.mOpenPrepackagedDatabase, is(true));
+        } finally {
+            if (db1 != null) {
+                db1.close();
+            }
+            if (db2 != null) {
+                db2.close();
+            }
+        }
     }
 
     @Database(entities = Product.class, version = 1, exportSchema = false)
