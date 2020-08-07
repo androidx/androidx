@@ -581,11 +581,11 @@ public class PrepackageTest {
                 .createFromAsset("databases/products_v1.db", callback)
                 .build();
 
-        assertThat(callback.mOpenPrepackagedDatabase, is(false));
+        assertThat(callback.mOpenPrepackagedDatabaseCount, is(0));
 
         database.getProductDao().countProducts();
 
-        assertThat(callback.mOpenPrepackagedDatabase, is(true));
+        assertThat(callback.mOpenPrepackagedDatabaseCount, is(1));
         database.close();
     }
 
@@ -605,11 +605,11 @@ public class PrepackageTest {
                 .createFromFile(dataDbFile, callback)
                 .build();
 
-        assertThat(callback.mOpenPrepackagedDatabase, is(false));
+        assertThat(callback.mOpenPrepackagedDatabaseCount, is(0));
 
         database.getProductDao().countProducts();
 
-        assertThat(callback.mOpenPrepackagedDatabase, is(true));
+        assertThat(callback.mOpenPrepackagedDatabaseCount, is(1));
 
         database.close();
     }
@@ -632,11 +632,11 @@ public class PrepackageTest {
                 .createFromInputStream(inputStreamCallable, callback)
                 .build();
 
-        assertThat(callback.mOpenPrepackagedDatabase, is(false));
+        assertThat(callback.mOpenPrepackagedDatabaseCount, is(0));
 
         database.getProductDao().countProducts();
 
-        assertThat(callback.mOpenPrepackagedDatabase, is(true));
+        assertThat(callback.mOpenPrepackagedDatabaseCount, is(1));
 
         database.close();
     }
@@ -649,26 +649,25 @@ public class PrepackageTest {
         ProductsDatabase db1 = null;
         ProductsDatabase db2 = null;
         try {
-            TestPrepackagedCallback callback1 = new TestPrepackagedCallback();
+            TestPrepackagedCallback callback = new TestPrepackagedCallback();
             db1 = Room.databaseBuilder(
                     context, ProductsDatabase.class, "products.db")
-                    .createFromAsset("databases/products_v1.db", callback1)
+                    .createFromAsset("databases/products_v1.db", callback)
                     .build();
 
-            assertThat(callback1.mOpenPrepackagedDatabase, is(false));
+            assertThat(callback.mOpenPrepackagedDatabaseCount, is(0));
             db1.getProductDao().countProducts();
-            assertThat(callback1.mOpenPrepackagedDatabase, is(true));
+            assertThat(callback.mOpenPrepackagedDatabaseCount, is(1));
 
-            TestPrepackagedCallback callback2 = new TestPrepackagedCallback();
             db2 = Room.databaseBuilder(
                     context, ProductsDatabase.class, "products.db")
-                    .createFromAsset("databases/products_v1.db", callback2)
+                    .createFromAsset("databases/products_v1.db", callback)
                     .build();
 
-            assertThat(callback2.mOpenPrepackagedDatabase, is(false));
+            assertThat(callback.mOpenPrepackagedDatabaseCount, is(1));
             db2.getProductDao().countProducts();
             // Not called this time; db file was already copied and callback was called by db1
-            assertThat(callback2.mOpenPrepackagedDatabase, is(false));
+            assertThat(callback.mOpenPrepackagedDatabaseCount, is(1));
         } finally {
             if (db1 != null) {
                 db1.close();
@@ -701,16 +700,16 @@ public class PrepackageTest {
                     .build();
             db1.getProductDao().countProducts();
         } catch (Exception e) {
-            assertThat(throwingCallback.mOpenPrepackagedDatabase, is(false));
+            assertThat(throwingCallback.mOpenPrepackagedDatabaseCount, is(0));
 
             db2 = Room.databaseBuilder(
                     context, ProductsDatabase.class, "products.db")
                     .createFromAsset("databases/products_v1.db", callback)
                     .build();
 
-            assertThat(callback.mOpenPrepackagedDatabase, is(false));
+            assertThat(callback.mOpenPrepackagedDatabaseCount, is(0));
             db2.getProductDao().countProducts();
-            assertThat(callback.mOpenPrepackagedDatabase, is(true));
+            assertThat(callback.mOpenPrepackagedDatabaseCount, is(1));
         } finally {
             if (db1 != null) {
                 db1.close();
@@ -751,11 +750,11 @@ public class PrepackageTest {
 
     public static class TestPrepackagedCallback extends RoomDatabase.PrepackagedCallback {
 
-        boolean mOpenPrepackagedDatabase;
+        int mOpenPrepackagedDatabaseCount;
 
         @Override
         public void onOpenPrepackagedDatabase(@NonNull SupportSQLiteDatabase db) {
-            mOpenPrepackagedDatabase = true;
+            mOpenPrepackagedDatabaseCount++;
         }
     }
 }

@@ -145,9 +145,15 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
             }
 
             // A database file is present, check if we need to re-copy it.
-            Integer currentVersion = readDatabaseVersion(databaseFile);
+            int currentVersion;
+            try {
+                currentVersion = DBUtil.readVersion(databaseFile);
+            } catch (IOException e) {
+                Log.w(Room.LOG_TAG, "Unable to read database version.", e);
+                return;
+            }
 
-            if (currentVersion == null || currentVersion == mDatabaseVersion) {
+            if (currentVersion == mDatabaseVersion) {
                 return;
             }
 
@@ -210,7 +216,7 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
         // Temporarily open intermediate file database using FrameworkSQLiteOpenHelper and call
         // open pre-packaged callback. If it fails then intermediate file won't be copied making
         // invoking pre-packaged callback a transactional operation.
-        callOnOpenPrepackagedDatabaseCallbacks(intermediateFile, writable);
+        dispatchOnOpenPrepackagedDatabase(intermediateFile, writable);
 
         if (!intermediateFile.renameTo(destinationFile)) {
             throw new IOException("Failed to move intermediate file ("
@@ -219,38 +225,30 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
         }
     }
 
-    private Integer readDatabaseVersion(File databaseFile) {
-        try {
-            return DBUtil.readVersion(databaseFile);
-        } catch (IOException e) {
-            Log.w(Room.LOG_TAG, "Unable to read database version.", e);
-            return null;
+    private void dispatchOnOpenPrepackagedDatabase(File databaseFile, boolean writable) {
+        if (mDatabaseConfiguration.prepackagedCallback == null) {
+            return;
         }
-    }
 
-    private void callOnOpenPrepackagedDatabaseCallbacks(File databaseFile, boolean writable) {
-        if(mDatabaseConfiguration.prepackagedCallback != null) {
+        SupportSQLiteOpenHelper helper = createFrameworkOpenHelper(databaseFile);
+        try {
+            SupportSQLiteDatabase db = writable ? helper.getWritableDatabase() :
+                    helper.getReadableDatabase();
 
-            SupportSQLiteOpenHelper helper = createFrameworkOpenHelper(databaseFile);
-            try {
-                SupportSQLiteDatabase db = writable ? helper.getWritableDatabase() :
-                        helper.getReadableDatabase();
-
-                mDatabaseConfiguration.prepackagedCallback.onOpenPrepackagedDatabase(db);
-            } catch (SQLiteException e) {
-                throw new RuntimeException("Unable to invoke pre-packaged callback.", e);
-            } finally {
-                // Close the db and let Room re-open it through a normal path
-                helper.close();
-            }
+            mDatabaseConfiguration.prepackagedCallback.onOpenPrepackagedDatabase(db);
+        } finally {
+            // Close the db and let Room re-open it through a normal path
+            helper.close();
         }
     }
 
     private SupportSQLiteOpenHelper createFrameworkOpenHelper(File databaseFile) {
         String databaseName = databaseFile.getName();
-        Integer version = readDatabaseVersion(databaseFile);
-        if(version == null) {
-            throw new RuntimeException("Unable to invoke pre-packaged callback.");
+        int version;
+        try {
+            version = DBUtil.readVersion(databaseFile);
+        } catch (IOException e) {
+            throw new RuntimeException("Malformed database file, unable to read version.", e);
         }
 
         FrameworkSQLiteOpenHelperFactory factory = new FrameworkSQLiteOpenHelperFactory();
