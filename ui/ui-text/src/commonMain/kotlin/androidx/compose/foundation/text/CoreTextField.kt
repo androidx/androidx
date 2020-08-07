@@ -319,7 +319,8 @@ fun CoreTextField(
                 }
             },
             state = state,
-            longPressDragObserver = manager.longPressDragObserver
+            longPressDragObserver = manager.longPressDragObserver,
+            manager = manager
         )
 
         val drawModifier = Modifier.drawBehind {
@@ -397,7 +398,7 @@ fun CoreTextField(
             }
 
             if (state.hasFocus) {
-                if (!value.selection.collapsed) {
+                if (state.selectionIsOn) {
                     manager.state?.layoutResult?.let {
                         val startDirection = it.getBidiRunDirection(value.selection.start)
                         val endDirection = it.getBidiRunDirection(max(value.selection.end - 1, 0))
@@ -493,7 +494,8 @@ private fun textInputEventObserver(
     state: TextFieldState,
     longPressDragObserver: LongPressDragObserver,
     onBlur: (hasNextClient: Boolean) -> Unit,
-    focusModifier: FocusModifier
+    focusModifier: FocusModifier,
+    manager: TextFieldSelectionManager
 ): Modifier {
     val prevState = remember { mutableStateOf(FocusState.NotFocused) }
     if (focusModifier.focusState == FocusState.Focused &&
@@ -523,6 +525,7 @@ private fun textInputEventObserver(
     return Modifier.dragPositionGestureFilter(
         onPress = {
             state.selectionIsOn = false
+            manager.hideSelectionToolbar()
             if (focusModifier.focusState == FocusState.Focused) {
                 onPress(it)
             } else {
