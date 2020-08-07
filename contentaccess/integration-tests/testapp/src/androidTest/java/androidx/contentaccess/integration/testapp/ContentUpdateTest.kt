@@ -26,6 +26,7 @@ import androidx.contentaccess.ContentAccessObject
 import androidx.contentaccess.ContentColumn
 import androidx.contentaccess.ContentUpdate
 import androidx.test.filters.MediumTest
+import kotlinx.coroutines.runBlocking
 import org.junit.Test
 
 @MediumTest
@@ -38,6 +39,12 @@ class ContentUpdateTest : ContactsBasedTest() {
 
         @ContentUpdate
         fun updateDisplayNamesAndDisplayNamesPrimary(
+            @ContentColumn(DISPLAY_NAME) displayName: String,
+            @ContentColumn(DISPLAY_NAME_SOURCE) displayNameSource: String
+        ): Int
+
+        @ContentUpdate
+        fun suspendingUpdateDisplayNamesAndDisplayNamesPrimary(
             @ContentColumn(DISPLAY_NAME) displayName: String,
             @ContentColumn(DISPLAY_NAME_SOURCE) displayNameSource: String
         ): Int
@@ -124,6 +131,21 @@ class ContentUpdateTest : ContactsBasedTest() {
         cursor.moveToFirst()
         assertThat(cursor.getString(0)).isEqualTo("updated-display-name")
         assertThat(cursor.getString(1)).isEqualTo("updated-display-name-source")
+    }
+
+    @Test
+    fun testSuspendingUpdatesAllColumns() {
+        runBlocking {
+            assertThat(contactsAccessor.suspendingUpdateDisplayNamesAndDisplayNamesPrimary
+                ("updated-display-name",
+                "updated-display-name-source"))
+                .isEqualTo(2)
+            val cursor = contentResolver.query(CONTENT_URI, arrayOf(
+                DISPLAY_NAME, DISPLAY_NAME_SOURCE), null, null, null)!!
+            cursor.moveToFirst()
+            assertThat(cursor.getString(0)).isEqualTo("updated-display-name")
+            assertThat(cursor.getString(1)).isEqualTo("updated-display-name-source")
+        }
     }
 
     @Test

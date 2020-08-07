@@ -20,9 +20,11 @@ import androidx.contentaccess.ContentDelete
 import androidx.contentaccess.compiler.utils.ErrorReporter
 import androidx.contentaccess.compiler.vo.ContentDeleteVO
 import androidx.contentaccess.compiler.vo.ContentEntityVO
+import androidx.contentaccess.ext.getSuspendFunctionReturnType
 import androidx.contentaccess.ext.isSuspendFunction
 import androidx.contentaccess.ext.toAnnotationBox
 import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
+import isInt
 import isVoidObject
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.ExecutableElement
@@ -38,10 +40,16 @@ class ContentDeleteProcessor(
     @KotlinPoetMetadataPreview
     fun process(): ContentDeleteVO? {
         val isSuspendFunction = method.isSuspendFunction(processingEnv)
-
+        val returnType = if (isSuspendFunction) {
+            method.getSuspendFunctionReturnType()
+        } else {
+            method.returnType
+        }
+        if (!returnType.isInt()) {
+            errorReporter.reportError(contentDeleteAnnotatedMethodNotReturningAnInteger(), method)
+        }
         val potentialContentEntity = method.toAnnotationBox(ContentDelete::class)!!
             .getAsTypeMirror("contentEntity")!!
-
         val resolvedContentEntity = if (!potentialContentEntity.isVoidObject()) {
             ContentEntityProcessor(
                 potentialContentEntity,
@@ -50,20 +58,16 @@ class ContentDeleteProcessor(
         } else {
             contentEntity
         }
-
         if (resolvedContentEntity == null) {
             errorReporter.reportError(missingEntityOnMethod(method.simpleName.toString()), method)
-
             return null
         }
-
         val toBeUsedUri = determineToBeUsedUri(
             resolvedContentEntity = resolvedContentEntity,
             uriInAnnotation = contentDeleteAnnotation.uri,
             errorReporter = errorReporter,
             method = method
         )
-
         if (toBeUsedUri.isEmpty()) {
             errorReporter.reportError(missingUriOnMethod(), method)
         }

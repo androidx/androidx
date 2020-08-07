@@ -175,7 +175,8 @@ fun selectionParameterNotInMethodParameters(param: String): String {
 }
 
 fun columnInSelectionMissingFromEntity(columnName: String, entity: String): String {
-    return "Column $columnName in selection parameter does not exist in content entity $entity"
+    return "Column $columnName in selection/where parameter" +
+            " does not exist in content entity $entity"
 }
 
 fun columnInContentUpdateParametersNotInEntity(
@@ -215,6 +216,26 @@ fun updatingMultipleEntitiesAtTheSameType(entityType: String, methodName: String
 
 fun contentUpdateAnnotatedMethodNotReturningAnInteger(): String {
     return "Methods annotated with @ContentUpdate should return an integer."
+}
+
+fun contentDeleteAnnotatedMethodNotReturningAnInteger(): String {
+    return "Methods annotated with @ContentDelete should return an integer."
+}
+
+fun contentInsertAnnotatedMethodNotReturningAUri(): String {
+    return "Methods annotated with @ContentInsert should return a Uri."
+}
+
+fun insertMethodHasMoreThanOneEntity(): String {
+    return "@ContentInsert annotated method has more than one content entity in its parameters." +
+            " @ContentInsert annotated methods parameters should include one and only one " +
+            "content entity parameter (@ContentEntity annotated object)."
+}
+
+fun insertMethodHasNoEntityInParameters(): String {
+    return "@ContentInsert annotated method has no entity parameters. @ContentInsert annotated " +
+            "methods parameters should include one and only one content entity parameter " +
+            "(@ContentEntity annotated object)."
 }
 
 fun unsureWhatToUpdate(): String {

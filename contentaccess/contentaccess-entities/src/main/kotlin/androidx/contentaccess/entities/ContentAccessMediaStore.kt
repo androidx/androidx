@@ -51,7 +51,7 @@ class ContentAccessMediaStore {
         // HEIGHT
         @JvmField
         @ContentPrimaryKey("_id")
-        public var _id: Int = 0
+        public var _id: Int? = null
 
         @JvmField
         @Deprecated("Apps may not have filesystem permissions to directly access this path. " +
@@ -249,7 +249,7 @@ class ContentAccessMediaStore {
 
         @JvmField
         @ContentPrimaryKey("_id")
-        public var _id: Int = 0
+        public var _id: Int? = null
 
         @JvmField
         @Deprecated("Deprecated in API 29. Apps may not have filesystem permissions to directly " +
@@ -284,7 +284,7 @@ class ContentAccessMediaStore {
 
         @JvmField
         @ContentPrimaryKey("_id")
-        public var _id: Int = 0
+        public var _id: Int? = null
 
         @JvmField
         @Deprecated("Deprecated in API 29. Apps may not have filesystem permissions to directly " +
@@ -574,7 +574,7 @@ class ContentAccessMediaStore {
 
         @JvmField
         @ContentPrimaryKey("_id")
-        public var _id: Int = 0
+        public var _id: Int? = null
 
         @JvmField
         @ContentColumn(android.provider.MediaStore.Audio.AlbumColumns.ALBUM)
@@ -645,7 +645,7 @@ class ContentAccessMediaStore {
 
         @JvmField
         @ContentPrimaryKey("_id")
-        public var _id: Int = 0
+        public var _id: Int? = null
 
         @JvmField
         @Deprecated("This constant was deprecated in API level 30. These keys are generated using" +
@@ -676,7 +676,7 @@ class ContentAccessMediaStore {
 
         @JvmField
         @ContentPrimaryKey("_id")
-        public var _id: Int = 0
+        public var _id: Int? = null
 
         @JvmField
         @ContentColumn(android.provider.MediaStore.Audio.GenresColumns.NAME)
@@ -690,7 +690,7 @@ class ContentAccessMediaStore {
 
         @JvmField
         @ContentPrimaryKey("_id")
-        public var _id: Int = 0
+        public var _id: Int? = null
 
         @JvmField
         @Deprecated("This constant was deprecated in API level 29. Apps may not have filesystem " +
