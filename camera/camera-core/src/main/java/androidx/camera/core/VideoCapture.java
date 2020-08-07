@@ -41,6 +41,8 @@ import static androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECUTOR;
 import static androidx.camera.core.internal.UseCaseEventConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.location.Location;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
@@ -52,8 +54,12 @@ import android.media.MediaCodecInfo.CodecCapabilities;
 import android.media.MediaFormat;
 import android.media.MediaMuxer;
 import android.media.MediaRecorder.AudioSource;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.ParcelFileDescriptor;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.util.Pair;
 import android.util.Size;
@@ -82,6 +88,8 @@ import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.VideoCaptureConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.ThreadConfig;
+import androidx.camera.core.internal.utils.VideoUtil;
+import androidx.core.util.Preconditions;
 
 import java.io.File;
 import java.io.IOException;
@@ -100,10 +108,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>This class is designed for simple video capturing. It gives basic configuration of the
  * recorded video such as resolution and file format.
  *
- * @hide In the earlier stage, the VideoCapture is deprioritized.
+ * @hide
  */
 @RestrictTo(Scope.LIBRARY_GROUP)
-public class VideoCapture extends UseCase {
+public final class VideoCapture extends UseCase {
 
     /**
      * An unknown error occurred.
@@ -122,6 +130,10 @@ public class VideoCapture extends UseCase {
      * An error indicating start recording was called when video recording is still in progress.
      */
     public static final int ERROR_RECORDING_IN_PROGRESS = 3;
+    /**
+     * An error indicating the file saving operations.
+     */
+    public static final int ERROR_FILE_IO = 4;
 
     /**
      * Provides a static configuration with implementation-agnostic options.
@@ -130,7 +142,6 @@ public class VideoCapture extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final Defaults DEFAULT_CONFIG = new Defaults();
-    private static final Metadata EMPTY_METADATA = new Metadata();
     private static final String TAG = "VideoCapture";
     /** Amount of time to wait for dequeuing a buffer from the videoEncoder. */
     private static final int DEQUE_TIMEOUT_USEC = 10000;
@@ -171,7 +182,9 @@ public class VideoCapture extends UseCase {
     /** For record the first sample written time. */
     private final AtomicBoolean mIsFirstVideoSampleWrite = new AtomicBoolean(false);
     private final AtomicBoolean mIsFirstAudioSampleWrite = new AtomicBoolean(false);
-
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    Uri mSavedVideoUri;
+    private ParcelFileDescriptor mParcelFileDescriptor;
     @NonNull
     MediaCodec mVideoEncoder;
     @NonNull
@@ -281,35 +294,19 @@ public class VideoCapture extends UseCase {
      * <p>StartRecording() is asynchronous. User needs to check if any error occurs by setting the
      * {@link OnVideoSavedCallback#onError(int, String, Throwable)}.
      *
-     * @param saveLocation Location to save the video capture
-     * @param executor     The executor in which the callback methods will be run.
-     * @param callback     Callback for when the recorded video saving completion or failure.
-     */
-    public void startRecording(@NonNull File saveLocation,
-            @NonNull Executor executor, @NonNull OnVideoSavedCallback callback) {
-        mIsFirstVideoSampleWrite.set(false);
-        mIsFirstAudioSampleWrite.set(false);
-        startRecording(saveLocation, EMPTY_METADATA, executor, callback);
-    }
-
-    /**
-     * Starts recording video, which continues until {@link VideoCapture#stopRecording()} is
-     * called.
-     *
-     * <p>StartRecording() is asynchronous. User needs to check if any error occurs by setting the
-     * {@link OnVideoSavedCallback#onError(int, String, Throwable)}.
-     *
-     * @param saveLocation Location to save the video capture
-     * @param metadata     Metadata to save with the recorded video
-     * @param executor     The executor in which the callback methods will be run.
-     * @param callback     Callback for when the recorded video saving completion or failure.
+     * @param outputFileOptions Location to save the video capture
+     * @param executor          The executor in which the callback methods will be run.
+     * @param callback          Callback for when the recorded video saving completion or failure.
      */
     public void startRecording(
-            @NonNull File saveLocation, @NonNull Metadata metadata,
-            @NonNull Executor executor,
+            @NonNull OutputFileOptions outputFileOptions, @NonNull Executor executor,
             @NonNull OnVideoSavedCallback callback) {
         Log.i(TAG, "startRecording");
+        mIsFirstVideoSampleWrite.set(false);
+        mIsFirstAudioSampleWrite.set(false);
+
         OnVideoSavedCallback postListener = new VideoSavedListenerWrapper(executor, callback);
+        Metadata metadata = outputFileOptions.getMetadata();
 
         if (!mEndOfAudioVideoSignal.get()) {
             postListener.onError(
@@ -346,13 +343,11 @@ public class VideoCapture extends UseCase {
 
         try {
             synchronized (mMuxerLock) {
-                mMuxer =
-                        new MediaMuxer(
-                                saveLocation.getAbsolutePath(),
-                                MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
-
+                mMuxer = initMediaMuxer(outputFileOptions, postListener);
+                Preconditions.checkNotNull(mMuxer);
                 mMuxer.setOrientationHint(getRelativeRotation(attachedCamera));
-                if (metadata.location != null) {
+
+                if (metadata != null && metadata.location != null) {
                     mMuxer.setLocation(
                             (float) metadata.location.getLatitude(),
                             (float) metadata.location.getLongitude());
@@ -385,7 +380,7 @@ public class VideoCapture extends UseCase {
                         boolean errorOccurred = VideoCapture.this.videoEncode(postListener,
                                 cameraId, resolution);
                         if (!errorOccurred) {
-                            postListener.onVideoSaved(saveLocation);
+                            postListener.onVideoSaved(new OutputFileResults(mSavedVideoUri));
                         }
                     }
                 });
@@ -393,10 +388,11 @@ public class VideoCapture extends UseCase {
 
     /**
      * Stops recording video, this must be called after {@link
-     * VideoCapture#startRecording(File, Metadata, Executor, OnVideoSavedCallback)} is called.
+     * VideoCapture#startRecording(OutputFileOptions, Executor, OnVideoSavedCallback)} is
+     * called.
      *
      * <p>stopRecording() is asynchronous API. User need to check if {@link
-     * OnVideoSavedCallback#onVideoSaved(File)} or
+     * OnVideoSavedCallback#onVideoSaved(OutputFileResults)} or
      * {@link OnVideoSavedCallback#onError(int, String, Throwable)} be called
      * before startRecording.
      */
@@ -711,6 +707,16 @@ public class VideoCapture extends UseCase {
             errorOccurred = true;
         }
 
+        if (mParcelFileDescriptor != null) {
+            try {
+                mParcelFileDescriptor.close();
+                mParcelFileDescriptor = null;
+            } catch (IOException e) {
+                videoSavedCallback.onError(ERROR_MUXER, "File descriptor close failed!", e);
+                errorOccurred = true;
+            }
+        }
+
         mMuxerStarted = false;
         // Do the setup of the videoEncoder at the end of video recording instead of at the start of
         // recording because it requires attaching a new Surface. This causes a glitch so we don't
@@ -899,6 +905,63 @@ public class VideoCapture extends UseCase {
         }
     }
 
+    @NonNull
+    private MediaMuxer initMediaMuxer(@NonNull OutputFileOptions outputFileOptions,
+            OnVideoSavedCallback postListener) throws IOException {
+        MediaMuxer mediaMuxer;
+        File savedVideoFile;
+
+        if (outputFileOptions.isSavingToFile()) {
+            savedVideoFile = outputFileOptions.getFile();
+            mSavedVideoUri = Uri.fromFile(outputFileOptions.getFile());
+
+            mediaMuxer = new MediaMuxer(savedVideoFile.getAbsolutePath(),
+                    MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+        } else if (outputFileOptions.isSavingToMediaStore()) {
+            ContentValues values = outputFileOptions.getContentValues() != null
+                    ? new ContentValues(outputFileOptions.getContentValues())
+                    : new ContentValues();
+
+            mSavedVideoUri = outputFileOptions.getContentResolver().insert(
+                    outputFileOptions.getSaveCollection(), values);
+
+            if (mSavedVideoUri == null) {
+                postListener.onError(
+                        ERROR_FILE_IO, "Invalid Uri!",
+                        null);
+                return null;
+            }
+
+            // Sine API 26, media muxer could be initiated by a FileDescriptor.
+            try {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                    String savedLocationPath = VideoUtil.getAbsolutePathFromUri(
+                            outputFileOptions.getContentResolver(), mSavedVideoUri);
+
+                    Log.i(TAG, "Saved Location Path: " + savedLocationPath);
+                    mediaMuxer = new MediaMuxer(savedLocationPath,
+                            MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+                } else {
+                    mParcelFileDescriptor =
+                            outputFileOptions.getContentResolver().openFileDescriptor(
+                                    mSavedVideoUri, "rw");
+                    mediaMuxer = new MediaMuxer(mParcelFileDescriptor.getFileDescriptor(),
+                            MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+                }
+            } catch (IOException e) {
+                postListener.onError(
+                        ERROR_FILE_IO, "Open file descriptor failed!",
+                        null);
+                return null;
+            }
+        } else {
+            throw new IllegalArgumentException(
+                    "The OutputFileOptions should assign before recording");
+        }
+
+        return mediaMuxer;
+    }
+
     /**
      * Describes the error that occurred during video capture operations.
      *
@@ -909,7 +972,8 @@ public class VideoCapture extends UseCase {
      *
      * @hide
      */
-    @IntDef({ERROR_UNKNOWN, ERROR_ENCODER, ERROR_MUXER, ERROR_RECORDING_IN_PROGRESS})
+    @IntDef({ERROR_UNKNOWN, ERROR_ENCODER, ERROR_MUXER, ERROR_RECORDING_IN_PROGRESS,
+            ERROR_FILE_IO})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(Scope.LIBRARY_GROUP)
     public @interface VideoCaptureError {
@@ -918,9 +982,7 @@ public class VideoCapture extends UseCase {
     /** Listener containing callbacks for video file I/O events. */
     public interface OnVideoSavedCallback {
         /** Called when the video has been successfully saved. */
-        // TODO: Should remove file argument to match ImageCapture.OnImageSavedCallback
-        //  #onImageSaved()
-        void onVideoSaved(@NonNull File file);
+        void onVideoSaved(@NonNull OutputFileResults outputFileResults);
 
         /** Called when an error occurs while attempting to save the video. */
         void onError(@VideoCaptureError int videoCaptureError, @NonNull String message,
@@ -1004,9 +1066,9 @@ public class VideoCapture extends UseCase {
         }
 
         @Override
-        public void onVideoSaved(@NonNull File file) {
+        public void onVideoSaved(@NonNull OutputFileResults outputFileResults) {
             try {
-                mExecutor.execute(() -> mOnVideoSavedCallback.onVideoSaved(file));
+                mExecutor.execute(() -> mOnVideoSavedCallback.onVideoSaved(outputFileResults));
             } catch (RejectedExecutionException e) {
                 Log.e(TAG, "Unable to post to the supplied executor.");
             }
@@ -1456,6 +1518,183 @@ public class VideoCapture extends UseCase {
                 @NonNull UseCase.EventCallback useCaseEventCallback) {
             getMutableConfig().insertOption(OPTION_USE_CASE_EVENT_CALLBACK, useCaseEventCallback);
             return this;
+        }
+    }
+
+    /**
+     * Info about the saved video file.
+     */
+    public static class OutputFileResults {
+        @Nullable
+        private Uri mSavedUri;
+
+        OutputFileResults(@Nullable Uri savedUri) {
+            mSavedUri = savedUri;
+        }
+
+        /**
+         * Returns the {@link Uri} of the saved video file.
+         *
+         * <p> This field is only returned if the {@link VideoCapture.OutputFileOptions} is
+         * backed by {@link MediaStore} constructed with
+         * {@link androidx.camera.core.VideoCapture.OutputFileOptions}.
+         */
+        @Nullable
+        public Uri getSavedUri() {
+            return mSavedUri;
+        }
+    }
+
+    /**
+     * Options for saving newly captured video.
+     *
+     * <p> this class is used to configure save location and metadata. Save location can be
+     * either a {@link File}, {@link MediaStore}. The metadata will be
+     * stored with the saved video.
+     */
+    public static final class OutputFileOptions {
+
+        // Empty metadata object used as a placeholder for no user-supplied metadata.
+        // Should be initialized to all default values.
+        private static final Metadata EMPTY_METADATA = new Metadata();
+
+        @Nullable
+        private final File mFile;
+        @Nullable
+        private final ContentResolver mContentResolver;
+        @Nullable
+        private final Uri mSaveCollection;
+        @Nullable
+        private final ContentValues mContentValues;
+        @Nullable
+        private final Metadata mMetadata;
+
+        OutputFileOptions(@Nullable File file,
+                @Nullable ContentResolver contentResolver,
+                @Nullable Uri saveCollection,
+                @Nullable ContentValues contentValues,
+                @Nullable Metadata metadata) {
+            mFile = file;
+            mContentResolver = contentResolver;
+            mSaveCollection = saveCollection;
+            mContentValues = contentValues;
+            mMetadata = metadata == null ? EMPTY_METADATA : metadata;
+        }
+
+        /** Returns the File object which is set by the {@link OutputFileOptions.Builder}. */
+        @Nullable
+        File getFile() {
+            return mFile;
+        }
+
+        /** Returns the content resolver which is set by the {@link OutputFileOptions.Builder}. */
+        @Nullable
+        ContentResolver getContentResolver() {
+            return mContentResolver;
+        }
+
+        /** Returns the URI which is set by the {@link OutputFileOptions.Builder}. */
+        @Nullable
+        Uri getSaveCollection() {
+            return mSaveCollection;
+        }
+
+        /** Returns the content values which is set by the {@link OutputFileOptions.Builder}. */
+        @Nullable
+        ContentValues getContentValues() {
+            return mContentValues;
+        }
+
+        /** Return the metadata which is set by the {@link OutputFileOptions.Builder}.. */
+        @Nullable
+        Metadata getMetadata() {
+            return mMetadata;
+        }
+
+        /** Checking the caller wants to save video to MediaStore. */
+        boolean isSavingToMediaStore() {
+            return getSaveCollection() != null && getContentResolver() != null
+                    && getContentValues() != null;
+        }
+
+        /** Checking the caller wants to save video to a File. */
+        boolean isSavingToFile() {
+            return getFile() != null;
+        }
+
+        /**
+         * Builder class for {@link OutputFileOptions}.
+         */
+        public static final class Builder {
+            @Nullable
+            private File mFile;
+            @Nullable
+            private ContentResolver mContentResolver;
+            @Nullable
+            private Uri mSaveCollection;
+            @Nullable
+            private ContentValues mContentValues;
+            @Nullable
+            private Metadata mMetadata;
+
+            /**
+             * Creates options to write captured video to a {@link File}.
+             *
+             * @param file save location of the video.
+             */
+            public Builder(@NonNull File file) {
+                mFile = file;
+            }
+
+            /**
+             * Creates options to write captured video to {@link MediaStore}.
+             *
+             * Example:
+             *
+             * <pre>{@code
+             *
+             * ContentValues contentValues = new ContentValues();
+             * contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, "NEW_VIDEO");
+             * contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4");
+             *
+             * OutputFileOptions options = new OutputFileOptions.Builder(
+             *         getContentResolver(),
+             *         MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
+             *         contentValues).build();
+             *
+             * }</pre>
+             *
+             * @param contentResolver to access {@link MediaStore}
+             * @param saveCollection  The URL of the table to insert into.
+             * @param contentValues   to be included in the created video file.
+             */
+            public Builder(@NonNull ContentResolver contentResolver,
+                    @NonNull Uri saveCollection,
+                    @NonNull ContentValues contentValues) {
+                mContentResolver = contentResolver;
+                mSaveCollection = saveCollection;
+                mContentValues = contentValues;
+            }
+
+            /**
+             * Sets the metadata to be stored with the saved video.
+             *
+             * @param metadata Metadata to be stored with the saved video.
+             */
+            @NonNull
+            public Builder setMetadata(@NonNull Metadata metadata) {
+                mMetadata = metadata;
+                return this;
+            }
+
+            /**
+             * Builds {@link OutputFileOptions}.
+             */
+            @NonNull
+            public OutputFileOptions build() {
+                return new OutputFileOptions(mFile, mContentResolver, mSaveCollection,
+                        mContentValues, mMetadata);
+            }
         }
     }
 }
