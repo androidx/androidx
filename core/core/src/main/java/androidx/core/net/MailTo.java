@@ -30,10 +30,16 @@ import java.util.Map;
  * MailTo URI parser. Replacement for {@link android.net.MailTo}.
  *
  * <p>This class parses a mailto scheme URI and then can be queried for the parsed parameters.
- * This implements RFC 6068.
+ * This implements RFC 6068.</p>
+ *
+ * <p><em>Note: scheme name matching is case-sensitive, unlike the formal RFC. As a result,
+ * you should always ensure that you write your URI with the scheme using lower case letters,
+ * and normalize any URIs you receive from outside of Android to ensure the scheme is lower case.
+ * </em></p>
  */
 public final class MailTo {
     public static final String MAILTO_SCHEME = "mailto:";
+    private static final String MAILTO = "mailto";
 
     // Well known headers
     private static final String TO = "to";
@@ -55,6 +61,12 @@ public final class MailTo {
 
     /**
      * Test to see if the given string is a mailto URI
+     *
+     * <p><em>Note: scheme name matching is case-sensitive, unlike the formal RFC. As a result,
+     * you should always ensure that you write your URI string with the scheme using lower case
+     * letters, and normalize any URIs you receive from outside of Android to ensure the scheme is
+     * lower case.</em></p>
+     *
      * @param uri string to be tested
      * @return true if the string is a mailto URI
      */
@@ -63,8 +75,29 @@ public final class MailTo {
     }
 
     /**
+     * Test to see if the given Uri is a mailto URI
+     *
+     * <p><em>Note: scheme name matching is case-sensitive, unlike the formal RFC. As a result,
+     * you should always ensure that you write your Uri with the scheme using lower case letters,
+     * and normalize any Uris you receive from outside of Android to ensure the scheme is lower
+     * case.</em></p>
+     *
+     * @param uri Uri to be tested
+     * @return true if the Uri is a mailto URI
+     */
+    public static boolean isMailTo(@Nullable Uri uri) {
+        return uri != null && MAILTO.equals(uri.getScheme());
+    }
+
+    /**
      * Parse and decode a mailto scheme string. This parser implements
      * RFC 6068. The returned object can be queried for the parsed parameters.
+     *
+     * <p><em>Note: scheme name matching is case-sensitive, unlike the formal RFC. As a result,
+     * you should always ensure that you write your URI string with the scheme using lower case
+     * letters, and normalize any URIs you receive from outside of Android to ensure the scheme is
+     * lower case.</em></p>
+     *
      * @param uri String containing a mailto URI
      * @return MailTo object
      * @exception ParseException if the scheme is not a mailto URI
@@ -125,6 +158,24 @@ public final class MailTo {
         mailTo.mHeaders.put(TO, address);
 
         return mailTo;
+    }
+
+    /**
+     * Parse and decode a mailto scheme Uri. This parser implements
+     * RFC 6068. The returned object can be queried for the parsed parameters.
+     *
+     * <p><em>Note: scheme name matching is case-sensitive, unlike the formal RFC. As a result,
+     * you should always ensure that you write your Uri with the scheme using lower case letters,
+     * and normalize any Uris you receive from outside of Android to ensure the scheme is lower
+     * case.</em></p>
+     *
+     * @param uri Uri containing a mailto URI
+     * @return MailTo object
+     * @exception ParseException if the scheme is not a mailto URI
+     */
+    @NonNull
+    public static MailTo parse(@NonNull Uri uri) throws ParseException {
+        return parse(uri.toString());
     }
 
     /**
