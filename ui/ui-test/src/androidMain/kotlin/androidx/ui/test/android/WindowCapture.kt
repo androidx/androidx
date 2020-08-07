@@ -27,6 +27,7 @@ import android.os.Looper
 import android.view.PixelCopy
 import android.view.View
 import android.view.ViewTreeObserver
+import android.view.Window
 import androidx.annotation.RequiresApi
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -34,7 +35,8 @@ import java.util.concurrent.TimeUnit
 @RequiresApi(Build.VERSION_CODES.O)
 internal fun captureRegionToBitmap(
     captureRectInWindow: Rect,
-    view: View
+    view: View,
+    window: Window? = null
 ): Bitmap {
     fun Context.getActivity(): Activity? {
         return when (this) {
@@ -44,12 +46,12 @@ internal fun captureRegionToBitmap(
         }
     }
 
-    val window = view.context.getActivity()!!.window
+    val windowToCapture = window ?: (view.context.getActivity()!!.window)
     val handler = Handler(Looper.getMainLooper())
 
     // first we wait for the drawing to happen
     val drawLatch = CountDownLatch(1)
-    val decorView = window.decorView
+    val decorView = windowToCapture.decorView
     handler.post {
         if (Build.VERSION.SDK_INT >= 29) {
             decorView.viewTreeObserver.registerFrameCommitCallback {
@@ -88,7 +90,7 @@ internal fun captureRegionToBitmap(
         copyResult = result
         latch.countDown()
     }
-    PixelCopy.request(window, captureRectInWindow, destBitmap, onCopyFinished, handler)
+    PixelCopy.request(windowToCapture, captureRectInWindow, destBitmap, onCopyFinished, handler)
 
     if (!latch.await(1, TimeUnit.SECONDS)) {
         throw AssertionError("Failed waiting for PixelCopy!")
