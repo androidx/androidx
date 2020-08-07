@@ -58,7 +58,7 @@ class CameraPipeComponentTest {
         val config = CameraGraph.Config(
             camera = cameraId,
             streams = listOf(),
-            defaultTemplate = RequestTemplate(0)
+            template = RequestTemplate(0)
         )
         val module = CameraGraphModule(config)
         val builder = component.cameraGraphComponentBuilder()
@@ -80,7 +80,7 @@ class CameraPipeComponentTest {
                     CameraGraph.Config(
                         camera = CameraId("0"),
                         streams = listOf(),
-                        defaultTemplate = RequestTemplate(0)
+                        template = RequestTemplate(0)
                     )
                 )
             )

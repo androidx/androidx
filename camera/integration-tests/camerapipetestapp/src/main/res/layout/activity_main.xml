@@ -15,12 +15,13 @@ limitations under the License.
 -->
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/content"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@color/cameraPipeThemeBgDark100"
+    android:keepScreenOn="true"
+    tools:context=".CameraPipeActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -51,3 +52,4 @@ limitations under the License.
 
     </LinearLayout>
 </FrameLayout>
+

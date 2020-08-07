@@ -48,7 +48,7 @@ class CameraPipeTest {
             CameraGraph.Config(
                 camera = CameraId("0"),
                 streams = listOf(),
-                defaultTemplate = RequestTemplate(0)
+                template = RequestTemplate(0)
             )
         )
         assertThat(cameraGraph).isNotNull()

@@ -19,6 +19,8 @@ package androidx.camera.camera2.pipe.impl
 import android.content.Context
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.Stream
+import androidx.camera.camera2.pipe.StreamConfig
 import androidx.camera.camera2.pipe.StreamId
 import javax.inject.Inject
 
@@ -31,6 +33,8 @@ class CameraGraphImpl @Inject constructor(
 ) : CameraGraph {
     // Only one session can be active at a time.
     private val sessionLock = TokenLockImpl(1)
+    override val streams: Map<StreamConfig, Stream>
+        get() = streamMap.streamConfigMap
 
     override fun start() {
         graphProcessor.start()
