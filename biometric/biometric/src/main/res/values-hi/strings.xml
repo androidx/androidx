@@ -28,6 +28,6 @@
     <string name="default_error_msg" msgid="4776854077120974966">"अनजान गड़बड़ी"</string>
     <string name="generic_error_user_canceled" msgid="7309881387583143581">"उपयोगकर्ता ने पुष्टि करने की प्रक्रिया रद्द की."</string>
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"पासवर्ड का इस्तेमाल करें"</string>
-    <!-- no translation found for generic_error_no_device_credential (3791785319221634505) -->
-    <skip />
+    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"पिन, पैटर्न या पासवर्ड सेट नहीं है."</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"इस डिवाइस को पिन, पैटर्न या पासवर्ड की मदद से लॉक/अनलॉक नहीं किया जा सकता."</string>
 </resources>

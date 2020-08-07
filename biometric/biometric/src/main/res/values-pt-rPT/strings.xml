@@ -28,6 +28,6 @@
     <string name="default_error_msg" msgid="4776854077120974966">"Erro desconhecido."</string>
     <string name="generic_error_user_canceled" msgid="7309881387583143581">"Autenticação cancelada pelo utilizador."</string>
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"Utilizar palavra-passe"</string>
-    <!-- no translation found for generic_error_no_device_credential (3791785319221634505) -->
-    <skip />
+    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Nenhum PIN, padrão ou palavra-passe definidos."</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Este dispositivo não suporta o PIN, o padrão ou a palavra-passe."</string>
 </resources>

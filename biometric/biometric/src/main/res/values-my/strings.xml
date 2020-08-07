@@ -28,6 +28,6 @@
     <string name="default_error_msg" msgid="4776854077120974966">"အမျိုးအမည်မသိ အမှား"</string>
     <string name="generic_error_user_canceled" msgid="7309881387583143581">"အသုံးပြုသူက အထောက်အထားစိစစ်ခြင်းကို ပယ်ဖျက်ထားသည်။"</string>
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"စကားဝှက်သုံးရန်"</string>
-    <!-- no translation found for generic_error_no_device_credential (3791785319221634505) -->
-    <skip />
+    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"ပင်နံပါတ်၊ လော့ခ်ပုံစံ သို့မဟုတ် စကားဝှက် သတ်မှတ်မထားပါ။"</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"ဤစက်သည် ပင်နံပါတ်၊ ပုံစံ သို့မဟုတ် စကားဝှက်ကို မပံ့ပိုးပါ။"</string>
 </resources>
