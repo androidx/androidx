@@ -55,7 +55,6 @@ import androidx.lifecycle.OnLifecycleEvent;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -297,7 +296,8 @@ final class CameraXModule {
         mImageCapture.takePicture(outputFileOptions, executor, callback);
     }
 
-    public void startRecording(File file, Executor executor, final OnVideoSavedCallback callback) {
+    public void startRecording(VideoCapture.OutputFileOptions outputFileOptions,
+            Executor executor, final OnVideoSavedCallback callback) {
         if (mVideoCapture == null) {
             return;
         }
@@ -312,13 +312,14 @@ final class CameraXModule {
 
         mVideoIsRecording.set(true);
         mVideoCapture.startRecording(
-                file,
+                outputFileOptions,
                 executor,
                 new VideoCapture.OnVideoSavedCallback() {
                     @Override
-                    public void onVideoSaved(@NonNull File savedFile) {
+                    public void onVideoSaved(
+                            @NonNull VideoCapture.OutputFileResults outputFileResults) {
                         mVideoIsRecording.set(false);
-                        callback.onVideoSaved(savedFile);
+                        callback.onVideoSaved(outputFileResults);
                     }
 
                     @Override
