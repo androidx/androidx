@@ -37,8 +37,7 @@
     <string name="mr_controller_no_media_selected" msgid="5495452265246139458">"ບໍ່ໄດ້ເລືອກສື່ໃດ"</string>
     <string name="mr_controller_no_info_available" msgid="855271725131981086">"ບໍ່ມີຂໍ້ມູນ"</string>
     <string name="mr_controller_casting_screen" msgid="9171231064758955152">"ກຳລັງສົ່ງສັນຍານພາບ"</string>
-    <!-- no translation found for mr_dialog_default_group_name (4115858704575247342) -->
-    <skip />
+    <string name="mr_dialog_default_group_name" msgid="4115858704575247342">"ກຸ່ມ"</string>
     <string name="mr_dialog_groupable_header" msgid="4307018456678388936">"ເພີ່ມ​ອຸ​ປະ​ກອນ"</string>
     <string name="mr_dialog_transferable_header" msgid="6068257520605505468">"ຫຼິ້ນຢູ່ກຸ່ມ"</string>
     <string name="mr_cast_dialog_title_view_placeholder" msgid="2175930138959078155">"ບໍ່ມີຂໍ້ມູນ"</string>
