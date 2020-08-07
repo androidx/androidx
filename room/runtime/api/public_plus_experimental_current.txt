@@ -15,6 +15,7 @@ package androidx.room {
     field public final androidx.room.RoomDatabase.MigrationContainer migrationContainer;
     field public final boolean multiInstanceInvalidation;
     field public final String? name;
+    field public final androidx.room.RoomDatabase.PrepackagedCallback? prepackagedCallback;
     field public final java.util.concurrent.Executor queryExecutor;
     field public final boolean requireMigration;
     field public final androidx.sqlite.db.SupportSQLiteOpenHelper.Factory sqliteOpenHelperFactory;
@@ -73,8 +74,11 @@ package androidx.room {
     method public androidx.room.RoomDatabase.Builder<T!> allowMainThreadQueries();
     method public T build();
     method public androidx.room.RoomDatabase.Builder<T!> createFromAsset(String);
+    method public androidx.room.RoomDatabase.Builder<T!> createFromAsset(String, androidx.room.RoomDatabase.PrepackagedCallback);
     method public androidx.room.RoomDatabase.Builder<T!> createFromFile(java.io.File);
+    method public androidx.room.RoomDatabase.Builder<T!> createFromFile(java.io.File, androidx.room.RoomDatabase.PrepackagedCallback);
     method public androidx.room.RoomDatabase.Builder<T!> createFromInputStream(java.util.concurrent.Callable<java.io.InputStream!>);
+    method public androidx.room.RoomDatabase.Builder<T!> createFromInputStream(java.util.concurrent.Callable<java.io.InputStream!>, androidx.room.RoomDatabase.PrepackagedCallback);
     method public androidx.room.RoomDatabase.Builder<T!> enableMultiInstanceInvalidation();
     method public androidx.room.RoomDatabase.Builder<T!> fallbackToDestructiveMigration();
     method public androidx.room.RoomDatabase.Builder<T!> fallbackToDestructiveMigrationFrom(int...);
@@ -102,6 +106,11 @@ package androidx.room {
     ctor public RoomDatabase.MigrationContainer();
     method public void addMigrations(androidx.room.migration.Migration!...);
     method public java.util.List<androidx.room.migration.Migration!>? findMigrationPath(int, int);
+  }
+
+  public abstract static class RoomDatabase.PrepackagedCallback {
+    ctor public RoomDatabase.PrepackagedCallback();
+    method public void onOpenPrepackagedDatabase(androidx.sqlite.db.SupportSQLiteDatabase);
   }
 
 }

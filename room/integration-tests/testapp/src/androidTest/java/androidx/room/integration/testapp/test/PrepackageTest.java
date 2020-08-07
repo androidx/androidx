@@ -566,6 +566,155 @@ public class PrepackageTest {
         database.close();
     }
 
+    @Test
+    public void onCreateFromAsset_calledOnOpenPrepackagedDatabase() {
+        Context context = ApplicationProvider.getApplicationContext();
+        context.deleteDatabase("products.db");
+        TestPrepackagedCallback callback = new TestPrepackagedCallback();
+        ProductsDatabase database = Room.databaseBuilder(
+                context, ProductsDatabase.class, "products.db")
+                .createFromAsset("databases/products_v1.db", callback)
+                .build();
+
+        assertThat(callback.mOpenPrepackagedDatabaseCount, is(0));
+
+        database.getProductDao().countProducts();
+
+        assertThat(callback.mOpenPrepackagedDatabaseCount, is(1));
+        database.close();
+    }
+
+    @Test
+    public void onCreateFromFile_calledOnOpenPrepackagedDatabase() throws IOException {
+        Context context = ApplicationProvider.getApplicationContext();
+        context.deleteDatabase("products_external.db");
+        File dataDbFile = new File(ContextCompat.getDataDir(context), "products_external.db");
+        context.deleteDatabase(dataDbFile.getAbsolutePath());
+
+        InputStream toCopyInput = context.getAssets().open("databases/products_v1.db");
+        copyAsset(toCopyInput, dataDbFile);
+
+        TestPrepackagedCallback callback = new TestPrepackagedCallback();
+        ProductsDatabase database = Room.databaseBuilder(
+                context, ProductsDatabase.class, "products_external.db")
+                .createFromFile(dataDbFile, callback)
+                .build();
+
+        assertThat(callback.mOpenPrepackagedDatabaseCount, is(0));
+
+        database.getProductDao().countProducts();
+
+        assertThat(callback.mOpenPrepackagedDatabaseCount, is(1));
+
+        database.close();
+    }
+
+    @Test
+    public void onCreateFromZippedAsset_calledOnOpenPrepackagedDatabase() {
+        Context context = ApplicationProvider.getApplicationContext();
+        context.deleteDatabase("products.db");
+
+        final Callable<InputStream> inputStreamCallable = () -> {
+            ZipInputStream zipInputStream =
+                    new ZipInputStream(context.getAssets().open("databases/products_v1.db.zip"));
+            zipInputStream.getNextEntry();
+            return zipInputStream;
+        };
+
+        TestPrepackagedCallback callback = new TestPrepackagedCallback();
+        ProductsDatabase database = Room.databaseBuilder(
+                context, ProductsDatabase.class, "products.db")
+                .createFromInputStream(inputStreamCallable, callback)
+                .build();
+
+        assertThat(callback.mOpenPrepackagedDatabaseCount, is(0));
+
+        database.getProductDao().countProducts();
+
+        assertThat(callback.mOpenPrepackagedDatabaseCount, is(1));
+
+        database.close();
+    }
+
+    @Test
+    public void onOpenedDbTwice_calledOnPrepackagedCallbackOnce() {
+        Context context = ApplicationProvider.getApplicationContext();
+        context.deleteDatabase("products.db");
+
+        ProductsDatabase db1 = null;
+        ProductsDatabase db2 = null;
+        try {
+            TestPrepackagedCallback callback = new TestPrepackagedCallback();
+            db1 = Room.databaseBuilder(
+                    context, ProductsDatabase.class, "products.db")
+                    .createFromAsset("databases/products_v1.db", callback)
+                    .build();
+
+            assertThat(callback.mOpenPrepackagedDatabaseCount, is(0));
+            db1.getProductDao().countProducts();
+            assertThat(callback.mOpenPrepackagedDatabaseCount, is(1));
+
+            db2 = Room.databaseBuilder(
+                    context, ProductsDatabase.class, "products.db")
+                    .createFromAsset("databases/products_v1.db", callback)
+                    .build();
+
+            assertThat(callback.mOpenPrepackagedDatabaseCount, is(1));
+            db2.getProductDao().countProducts();
+            // Not called this time; db file was already copied and callback was called by db1
+            assertThat(callback.mOpenPrepackagedDatabaseCount, is(1));
+        } finally {
+            if (db1 != null) {
+                db1.close();
+            }
+            if (db2 != null) {
+                db2.close();
+            }
+        }
+    }
+
+    @Test
+    public void onPrepackagedCallbackException_calledOnPrepackagedCallbackWhenOpenedAgain() {
+        Context context = ApplicationProvider.getApplicationContext();
+        context.deleteDatabase("products.db");
+        TestPrepackagedCallback throwingCallback = new TestPrepackagedCallback() {
+            @Override
+            public void onOpenPrepackagedDatabase(@NonNull SupportSQLiteDatabase db) {
+                throw new RuntimeException("Something went wrong!");
+            }
+        };
+
+        TestPrepackagedCallback callback = new TestPrepackagedCallback();
+
+        ProductsDatabase db1 = null;
+        ProductsDatabase db2 = null;
+        try {
+            db1 = Room.databaseBuilder(
+                    context, ProductsDatabase.class, "products.db")
+                    .createFromAsset("databases/products_v1.db", throwingCallback)
+                    .build();
+            db1.getProductDao().countProducts();
+        } catch (Exception e) {
+            assertThat(throwingCallback.mOpenPrepackagedDatabaseCount, is(0));
+
+            db2 = Room.databaseBuilder(
+                    context, ProductsDatabase.class, "products.db")
+                    .createFromAsset("databases/products_v1.db", callback)
+                    .build();
+
+            assertThat(callback.mOpenPrepackagedDatabaseCount, is(0));
+            db2.getProductDao().countProducts();
+            assertThat(callback.mOpenPrepackagedDatabaseCount, is(1));
+        } finally {
+            if (db1 != null) {
+                db1.close();
+            }
+            if (db2 != null) {
+                db2.close();
+            }
+        }
+    }
+
     @Database(entities = Product.class, version = 1, exportSchema = false)
     abstract static class ProductsDatabase extends RoomDatabase {
         abstract ProductDao getProductDao();
@@ -591,6 +740,16 @@ public class PrepackageTest {
         } finally {
             input.close();
             output.close();
+        }
+    }
+
+    public static class TestPrepackagedCallback extends RoomDatabase.PrepackagedCallback {
+
+        int mOpenPrepackagedDatabaseCount;
+
+        @Override
+        public void onOpenPrepackagedDatabase(@NonNull SupportSQLiteDatabase db) {
+            mOpenPrepackagedDatabaseCount++;
         }
     }
 }
