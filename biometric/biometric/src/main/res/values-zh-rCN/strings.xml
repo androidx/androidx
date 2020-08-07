@@ -28,6 +28,6 @@
     <string name="default_error_msg" msgid="4776854077120974966">"未知错误"</string>
     <string name="generic_error_user_canceled" msgid="7309881387583143581">"用户已取消身份验证。"</string>
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"使用密码"</string>
-    <!-- no translation found for generic_error_no_device_credential (3791785319221634505) -->
-    <skip />
+    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"未设置 PIN 码、解锁图案或密码。"</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"此设备不支持 PIN 码、解锁图案或密码。"</string>
 </resources>
