@@ -20,6 +20,7 @@ import androidx.annotation.Sampled
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.Text
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.contentColor
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Checkbox
@@ -30,6 +31,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ImageAsset
 import androidx.compose.ui.graphics.vector.VectorAsset
@@ -63,7 +65,7 @@ fun OneLineListItems(
         ListItem(
             text = { Text("One line clickable list item") },
             icon = { Image(icon56x56, colorFilter = ColorFilter.tint(contentColor())) },
-            onClick = {}
+            modifier = Modifier.clickable { }
         )
         Divider()
         ListItem(
@@ -221,9 +223,9 @@ fun TwoLineRtlLtrListItems(icon40x40: ImageAsset) {
             secondaryText = { Text("نص ثانوي") })
         Divider()
         ListItem(
+            modifier = Modifier.clickable { },
             text = { Text("Clickable") },
-            secondaryText = { Text("Short item") },
-            onClick = {}
+            secondaryText = { Text("Short item") }
         )
         Divider()
         ListItem(
@@ -240,14 +242,14 @@ fun TwoLineRtlLtrListItems(icon40x40: ImageAsset) {
                 var checked by remember { mutableStateOf(false) }
                 Checkbox(checked, onCheckedChange = { checked = !checked })
             },
-            onClick = {}
+            modifier = Modifier.clickable { }
         )
         Divider()
         ListItem(
             text = { Text("بندان قابلان للنقر") },
             secondaryText = { Text("نص ثانوي") },
             icon = { Image(icon40x40, colorFilter = ColorFilter.tint(contentColor())) },
-            onClick = {}
+            modifier = Modifier.clickable { }
         )
         Divider()
     }

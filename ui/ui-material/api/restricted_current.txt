@@ -224,8 +224,7 @@ package androidx.compose.material {
   }
 
   public final class ListItemKt {
-    method @androidx.compose.runtime.Composable public static void ListItem(String text, androidx.compose.ui.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, androidx.compose.ui.graphics.ImageAsset? icon = null, String? secondaryText = null, boolean singleLineSecondaryText = true, String? overlineText = null, String? metaText = null);
-    method @androidx.compose.runtime.Composable public static void ListItem(androidx.compose.ui.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>? onClick = null, kotlin.jvm.functions.Function0<kotlin.Unit>? icon = null, kotlin.jvm.functions.Function0<kotlin.Unit>? secondaryText = null, boolean singleLineSecondaryText = true, kotlin.jvm.functions.Function0<kotlin.Unit>? overlineText = null, kotlin.jvm.functions.Function0<kotlin.Unit>? trailing = null, kotlin.jvm.functions.Function0<kotlin.Unit> text);
+    method @androidx.compose.runtime.Composable public static void ListItem(androidx.compose.ui.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit>? icon = null, kotlin.jvm.functions.Function0<kotlin.Unit>? secondaryText = null, boolean singleLineSecondaryText = true, kotlin.jvm.functions.Function0<kotlin.Unit>? overlineText = null, kotlin.jvm.functions.Function0<kotlin.Unit>? trailing = null, kotlin.jvm.functions.Function0<kotlin.Unit> text);
   }
 
   public final class MaterialTheme {

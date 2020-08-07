@@ -27,6 +27,7 @@ import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.BaseTextField
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -155,7 +156,7 @@ private fun FilteredDemoListItem(
                     text = annotatedString
                 )
             },
-            onClick = { onNavigate(demo) }
+            modifier = Modifier.clickable { onNavigate(demo) }
         )
     }
 }

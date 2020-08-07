@@ -16,29 +16,24 @@
 
 package androidx.compose.material
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.AlignmentLine
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.Layout
-import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.ProvideTextStyle
 import androidx.compose.foundation.Text
-import androidx.compose.foundation.clickable
-import androidx.compose.ui.graphics.ImageAsset
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeightIn
 import androidx.compose.foundation.layout.preferredSizeIn
 import androidx.compose.foundation.layout.preferredWidthIn
-import androidx.compose.material.ripple.RippleIndication
 import androidx.compose.foundation.text.FirstBaseline
 import androidx.compose.foundation.text.LastBaseline
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.AlignmentLine
+import androidx.compose.ui.Layout
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -48,67 +43,8 @@ import kotlin.math.max
 /**
  * Material Design implementation of [list items](https://material.io/components/lists).
  *
- * This component can be used to achieve the list item templates existing in the spec. For example:
- * - one-line items
- * @sample androidx.compose.material.samples.OneLineListItems
- * - two-line items
- * @sample androidx.compose.material.samples.TwoLineListItems
- * - three-line items
- * @sample androidx.compose.material.samples.ThreeLineListItems
- *
- * @param text The primary text of the list item
- * @param modifier Modifier to be applied to the list item
- * @param onClick Callback to be invoked when the list item is clicked
- * @param icon The leading supporting visual of the list item
- * @param secondaryText The secondary text of the list item
- * @param singleLineSecondaryText Whether the secondary text is single line
- * @param overlineText The text displayed above the primary text
- * @param metaText The meta text to be displayed in the trailing position
- */
-@Composable
-fun ListItem(
-    text: String,
-    modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null,
-    icon: ImageAsset? = null,
-    secondaryText: String? = null,
-    // TODO(popam): find a way to remove this
-    singleLineSecondaryText: Boolean = true,
-    overlineText: String? = null,
-    metaText: String? = null
-) {
-    val iconComposable: @Composable (() -> Unit)? = icon?.let {
-        { Image(it) }
-    }
-    val textComposable: @Composable () -> Unit = text.let {
-        { Text(it, maxLines = 1, overflow = TextOverflow.Ellipsis) }
-    }
-    val secondaryTextComposable: @Composable (() -> Unit)? = secondaryText?.let {
-        {
-            val maxLines = if (!singleLineSecondaryText && overlineText == null) 2 else 1
-            Text(it, maxLines = maxLines, overflow = TextOverflow.Ellipsis)
-        }
-    }
-    val overlineTextComposable: @Composable (() -> Unit)? = overlineText?.let {
-        { Text(it, maxLines = 1, overflow = TextOverflow.Ellipsis) }
-    }
-    val metaTextComposable: @Composable (() -> Unit)? = metaText?.let {
-        { Text(it, maxLines = 1, overflow = TextOverflow.Ellipsis) }
-    }
-    ListItem(
-        modifier,
-        onClick,
-        iconComposable,
-        secondaryTextComposable,
-        singleLineSecondaryText,
-        overlineTextComposable,
-        metaTextComposable,
-        textComposable
-    )
-}
-
-/**
- * Material Design implementation of [list items](https://material.io/components/lists).
+ * To make this [ListItem] clickable, use [Modifier.clickable].
+ * To add a background to the [ListItem], wrap it with a [Surface].
  *
  * This component can be used to achieve the list item templates existing in the spec. For example:
  * - one-line items
@@ -119,7 +55,6 @@ fun ListItem(
  * @sample androidx.compose.material.samples.ThreeLineListItems
  *
  * @param modifier Modifier to be applied to the list item
- * @param onClick Callback to be invoked when the list item is clicked
  * @param icon The leading supporting visual of the list item
  * @param secondaryText The secondary text of the list item
  * @param singleLineSecondaryText Whether the secondary text is single line
@@ -130,13 +65,12 @@ fun ListItem(
 @Composable
 fun ListItem(
     modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null,
     icon: @Composable (() -> Unit)? = null,
     secondaryText: @Composable (() -> Unit)? = null,
     singleLineSecondaryText: Boolean = true,
     overlineText: @Composable (() -> Unit)? = null,
     trailing: @Composable (() -> Unit)? = null,
-    text: @Composable (() -> Unit)
+    text: @Composable () -> Unit
 ) {
     val emphasisLevels = EmphasisAmbient.current
     val typography = MaterialTheme.typography
@@ -145,42 +79,28 @@ fun ListItem(
     val styledSecondaryText = applyTextStyle(typography.body2, emphasisLevels.medium, secondaryText)
     val styledOverlineText = applyTextStyle(typography.overline, emphasisLevels.high, overlineText)
     val styledTrailing = applyTextStyle(typography.caption, emphasisLevels.high, trailing)
-
-    val item = @Composable {
-        if (styledSecondaryText == null && styledOverlineText == null) {
-            OneLine.ListItem(modifier, icon, styledText, styledTrailing)
-        } else if ((styledOverlineText == null && singleLineSecondaryText) ||
-            styledSecondaryText == null
-        ) {
-            TwoLine.ListItem(
-                modifier,
-                icon,
-                styledText,
-                styledSecondaryText,
-                styledOverlineText,
-                styledTrailing
-            )
-        } else {
-            ThreeLine.ListItem(
-                modifier,
-                icon,
-                styledText,
-                styledSecondaryText,
-                styledOverlineText,
-                styledTrailing
-            )
-        }
-    }
-
-    if (onClick != null) {
-        val indication = RippleIndication(
-            // TODO: should this be defined here? Should we just use the default here instead?
-            color = MaterialTheme.colors.onSurface
+    if (styledSecondaryText == null && styledOverlineText == null) {
+        OneLine.ListItem(modifier, icon, styledText, styledTrailing)
+    } else if (
+        (styledOverlineText == null && singleLineSecondaryText) || styledSecondaryText == null
+    ) {
+        TwoLine.ListItem(
+            modifier,
+            icon,
+            styledText,
+            styledSecondaryText,
+            styledOverlineText,
+            styledTrailing
         )
-        Box(Modifier
-            .clickable(onClick = onClick, indication = indication), children = item)
     } else {
-        item()
+        ThreeLine.ListItem(
+            modifier,
+            icon,
+            styledText,
+            styledSecondaryText,
+            styledOverlineText,
+            styledTrailing
+        )
     }
 }
 
@@ -190,13 +110,16 @@ private object OneLine {
     // List item related constants.
     private val MinHeight = 48.dp
     private val MinHeightWithIcon = 56.dp
+
     // Icon related constants.
     private val IconMinPaddedWidth = 40.dp
     private val IconLeftPadding = 16.dp
     private val IconVerticalPadding = 8.dp
+
     // Content related constants.
     private val ContentLeftPadding = 16.dp
     private val ContentRightPadding = 16.dp
+
     // Trailing related constants.
     private val TrailingRightPadding = 16.dp
 
@@ -242,10 +165,12 @@ private object TwoLine {
     // List item related constants.
     private val MinHeight = 64.dp
     private val MinHeightWithIcon = 72.dp
+
     // Icon related constants.
     private val IconMinPaddedWidth = 40.dp
     private val IconLeftPadding = 16.dp
     private val IconVerticalPadding = 16.dp
+
     // Content related constants.
     private val ContentLeftPadding = 16.dp
     private val ContentRightPadding = 16.dp
@@ -255,6 +180,7 @@ private object TwoLine {
     private val PrimaryBaselineOffsetWithIcon = 32.dp
     private val PrimaryToSecondaryBaselineOffsetNoIcon = 20.dp
     private val PrimaryToSecondaryBaselineOffsetWithIcon = 20.dp
+
     // Trailing related constants.
     private val TrailingRightPadding = 16.dp
 
@@ -338,10 +264,12 @@ private object TwoLine {
 private object ThreeLine {
     // List item related constants.
     private val MinHeight = 88.dp
+
     // Icon related constants.
     private val IconMinPaddedWidth = 40.dp
     private val IconLeftPadding = 16.dp
     private val IconThreeLineVerticalPadding = 16.dp
+
     // Content related constants.
     private val ContentLeftPadding = 16.dp
     private val ContentRightPadding = 16.dp
@@ -349,6 +277,7 @@ private object ThreeLine {
     private val ThreeLineBaselineSecondOffset = 20.dp
     private val ThreeLineBaselineThirdOffset = 20.dp
     private val ThreeLineTrailingTopPadding = 16.dp
+
     // Trailing related constants.
     private val TrailingRightPadding = 16.dp
 
