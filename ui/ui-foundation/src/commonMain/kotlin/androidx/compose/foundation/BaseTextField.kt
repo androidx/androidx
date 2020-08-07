@@ -76,7 +76,7 @@ var blinkingCursorEnabled: Boolean = true
  *
  * This composable provides basic text editing functionality, however does not include any
  * decorations such as borders, hints/placeholder. A design system based implementation such as
- * Material `FilledTextField` is typically what is needed to cover most of the needs. This
+ * Material Design Filled text field is typically what is needed to cover most of the needs. This
  * composable is designed to be used when a custom implementation for different design system is
  * needed.
  *

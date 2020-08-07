@@ -46,11 +46,11 @@ import androidx.compose.material.TextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.samples.FilledTextFieldSample
-import androidx.compose.material.samples.FilledTextFieldWithErrorState
-import androidx.compose.material.samples.FilledTextFieldWithIcons
-import androidx.compose.material.samples.FilledTextFieldWithPlaceholder
-import androidx.compose.material.samples.PasswordFilledTextField
+import androidx.compose.material.samples.TextFieldSample
+import androidx.compose.material.samples.TextFieldWithErrorState
+import androidx.compose.material.samples.TextFieldWithIcons
+import androidx.compose.material.samples.TextFieldWithPlaceholder
+import androidx.compose.material.samples.PasswordTextField
 import androidx.compose.material.samples.SimpleOutlinedTextFieldSample
 import androidx.compose.material.samples.TextFieldWithHelperMessage
 import androidx.compose.material.samples.TextFieldWithHideKeyboardOnImeAction
@@ -64,21 +64,21 @@ fun TextFieldsDemo() {
         contentPadding = InnerPadding(10.dp)
     ) {
         Text("Password text field")
-        PasswordFilledTextField()
+        PasswordTextField()
         Text("Text field with leading and trailing icons")
-        FilledTextFieldWithIcons()
+        TextFieldWithIcons()
         Text("Outlined text field")
         SimpleOutlinedTextFieldSample()
         Text("Text field with placeholder")
-        FilledTextFieldWithPlaceholder()
+        TextFieldWithPlaceholder()
         Text("Text field with error state handling")
-        FilledTextFieldWithErrorState()
+        TextFieldWithErrorState()
         Text("Text field with helper/error message")
         TextFieldWithHelperMessage()
         Text("Hide keyboard on IME action")
         TextFieldWithHideKeyboardOnImeAction()
         Text("TextFieldValue overload")
-        FilledTextFieldSample()
+        TextFieldSample()
     }
 }
 
