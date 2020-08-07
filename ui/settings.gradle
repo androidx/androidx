@@ -101,6 +101,7 @@ includeProject(":compose:material:material-icons-core", "ui-material/icons/core"
 includeProject(":compose:material:material-icons-core:samples", "ui-material/icons/core/samples")
 includeProject(":compose:material:material-icons-extended", "ui-material/icons/extended")
 includeProject(":compose:material:material:icons:generator", "ui-material/icons/generator")
+includeProject(":compose:navigation:navigation", "../compose/navigation/navigation")
 includeProject(":ui:ui-test", "ui-test")
 includeProject(":compose:ui:ui-test-font", "ui-test-font")
 includeProject(":compose:foundation:foundation-text", "ui-text")
