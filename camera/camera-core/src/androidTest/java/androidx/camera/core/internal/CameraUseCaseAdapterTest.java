@@ -19,7 +19,6 @@ package androidx.camera.core.internal;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
@@ -201,7 +200,6 @@ public class CameraUseCaseAdapterTest {
                 fakeUseCase.getViewPortCropRect().height())).isEqualTo(aspectRatio1);
 
         // Act: set aspect ratio 2 and attach the same use case.
-        reset(fakeUseCase);
         cameraUseCaseAdapter.setViewPort(
                 new ViewPort.Builder(aspectRatio2, Surface.ROTATION_0).build());
         cameraUseCaseAdapter.addUseCases(Collections.singleton(fakeUseCase));

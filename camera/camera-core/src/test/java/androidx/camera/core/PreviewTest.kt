@@ -23,6 +23,7 @@ import android.os.Looper.getMainLooper
 import android.util.Rational
 import android.util.Size
 import android.view.Surface
+import android.view.Surface.ROTATION_0
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -31,6 +32,7 @@ import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.fakes.FakeCameraFactory
+import androidx.camera.testing.fakes.FakeUseCase
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -136,6 +138,46 @@ class PreviewTest {
 
         // Assert: target rotation is updated.
         assertThat(preview.targetRotation).isEqualTo(Surface.ROTATION_180)
+    }
+
+    @Test
+    fun attachUseCase_transformationInfoUpdates() {
+        // Arrange: attach Preview without a SurfaceProvider.
+        // Build and bind use case.
+        val preview = Preview.Builder().setTargetRotation(ROTATION_0).build()
+        val cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(
+            ApplicationProvider
+                .getApplicationContext<Context>(), CameraSelector.DEFAULT_BACK_CAMERA
+        )
+        val rational1 = Rational(1, 1)
+        cameraUseCaseAdapter.setViewPort(ViewPort.Builder(rational1, ROTATION_0).build())
+        cameraUseCaseAdapter.addUseCases(Collections.singleton<UseCase>(preview))
+
+        // Set SurfaceProvider
+        var receivedTransformationInfo: SurfaceRequest.TransformationInfo? = null
+        preview.setSurfaceProvider { request ->
+            request.setTransformationInfoListener(
+                CameraXExecutors.directExecutor(),
+                SurfaceRequest.TransformationInfoListener {
+                    receivedTransformationInfo = it
+                })
+        }
+        shadowOf(getMainLooper()).idle()
+        assertThat(receivedTransformationInfo!!.cropRect.getAspectRatio()).isEqualTo(rational1)
+
+        // Act: bind another use case with a different viewport.
+        val fakeUseCase = FakeUseCase()
+        val rational2 = Rational(2, 1)
+        cameraUseCaseAdapter.setViewPort(ViewPort.Builder(rational2, ROTATION_0).build())
+        cameraUseCaseAdapter.addUseCases(listOf(preview, fakeUseCase))
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: received viewport's aspect ratio is the latest one.
+        assertThat(receivedTransformationInfo!!.cropRect.getAspectRatio()).isEqualTo(rational2)
+    }
+
+    private fun Rect.getAspectRatio(): Rational {
+        return Rational(width(), height())
     }
 
     @Test
