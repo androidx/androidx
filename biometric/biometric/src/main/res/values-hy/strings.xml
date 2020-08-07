@@ -28,6 +28,6 @@
     <string name="default_error_msg" msgid="4776854077120974966">"Անհայտ սխալ"</string>
     <string name="generic_error_user_canceled" msgid="7309881387583143581">"Օգտատերը չեղարկել է նույնականացումը։"</string>
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"Օգտագործել գաղտնաբառ"</string>
-    <!-- no translation found for generic_error_no_device_credential (3791785319221634505) -->
-    <skip />
+    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Ավելացրեք PIN կոդ, նախշ կամ գաղտնաբառ։"</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Այս սարքը չի աջակցում PIN կոդ, նախշ կամ գաղտնաբառ։"</string>
 </resources>

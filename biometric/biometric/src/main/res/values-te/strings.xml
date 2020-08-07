@@ -28,6 +28,6 @@
     <string name="default_error_msg" msgid="4776854077120974966">"తెలియని ఎర్రర్"</string>
     <string name="generic_error_user_canceled" msgid="7309881387583143581">"వినియోగదారు ద్వారా ప్రామాణీకరణ రద్దు చేయబడింది"</string>
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"పాస్‌వర్డ్‌ను ఉపయోగించు"</string>
-    <!-- no translation found for generic_error_no_device_credential (3791785319221634505) -->
-    <skip />
+    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"పిన్‌ను గానీ, ఆకృతిని గానీ, పాస్‌వర్డ్‌ను గానీ‌ సెట్ చేయలేదు."</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"ఈ పరికరం పిన్, ఆకృతి లేదా పాస్‌వర్డ్‌‌ను సపోర్ట్ చేయదు."</string>
 </resources>

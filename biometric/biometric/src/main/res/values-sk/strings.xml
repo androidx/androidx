@@ -28,6 +28,6 @@
     <string name="default_error_msg" msgid="4776854077120974966">"Neznáma chyba"</string>
     <string name="generic_error_user_canceled" msgid="7309881387583143581">"Overenie zrušil používateľ."</string>
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"Použiť heslo"</string>
-    <!-- no translation found for generic_error_no_device_credential (3791785319221634505) -->
-    <skip />
+    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Nie je nastavený kód PIN, vzor ani heslo."</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"Toto zariadenie nepodporuje PIN, vzor ani heslo."</string>
 </resources>
