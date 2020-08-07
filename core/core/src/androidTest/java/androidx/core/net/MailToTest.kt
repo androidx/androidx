@@ -15,43 +15,78 @@
  */
 package androidx.core.net
 
-import androidx.test.ext.junit.runners.AndroidJUnit4
+import android.net.Uri
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.junit.runners.Parameterized
 
-@RunWith(AndroidJUnit4::class)
+/**
+ * Class representing the different ways of parsing a mailto URI
+ */
+sealed class MailToParser {
+    abstract fun isMailTo(uri: String): Boolean
+    abstract fun parse(uri: String): MailTo
+    override fun toString(): String = this.javaClass.simpleName
+}
+
+object StringMailToParser : MailToParser() {
+    override fun isMailTo(uri: String) = MailTo.isMailTo(uri)
+    override fun parse(uri: String) = MailTo.parse(uri)
+}
+
+object UriMailToParser : MailToParser() {
+    override fun isMailTo(uri: String) = MailTo.isMailTo(Uri.parse(uri))
+    override fun parse(uri: String) = MailTo.parse(Uri.parse(uri))
+}
+
+@RunWith(Parameterized::class)
 @SmallTest
-class MailToTest {
+class MailToTest(private val parser: MailToParser) {
+    companion object {
+        @JvmStatic
+        @Parameterized.Parameters(name = "parser={0}")
+        fun data() = arrayOf(StringMailToParser, UriMailToParser)
+
+        private const val MAILTOURI_1 = "mailto:chris@example.com"
+        private const val MAILTOURI_2 = "mailto:infobot@example.com?subject=current-issue"
+        private const val MAILTOURI_3 = "mailto:infobot@example.com?body=send%20current-issue"
+        private const val MAILTOURI_4 = "mailto:infobot@example.com?body=send%20current-" +
+                "issue%0D%0Asend%20index" // NOTYPO
+        private const val MAILTOURI_5 = "mailto:joe@example.com?cc=bob@example.com&body=hello"
+        private const val MAILTOURI_6 = "mailto:?to=joe@example.com&cc=bob@example.com&body=hello"
+    }
+
     @Test
     fun isMailTo_withNullArgument_shouldReturnFalse() {
-        assertThat(MailTo.isMailTo(null)).isFalse()
+        assertThat(MailTo.isMailTo(null as String?)).isFalse()
+        assertThat(MailTo.isMailTo(null as Uri?)).isFalse()
     }
 
     @Test
     fun isMailTo_withEmptyString_shouldReturnFalse() {
-        assertThat(MailTo.isMailTo("")).isFalse()
+        assertThat(parser.isMailTo("")).isFalse()
     }
 
     @Test
     fun isMailTo_withHttpUrl_shouldReturnFalse() {
-        assertThat(MailTo.isMailTo("http://www.google.com")).isFalse()
+        assertThat(parser.isMailTo("http://www.google.com")).isFalse()
     }
 
     @Test
     fun isMailTo_withValidMailtoUris_shouldReturnTrue() {
-        assertThat(MailTo.isMailTo(MAILTOURI_1)).isTrue()
-        assertThat(MailTo.isMailTo(MAILTOURI_2)).isTrue()
-        assertThat(MailTo.isMailTo(MAILTOURI_3)).isTrue()
-        assertThat(MailTo.isMailTo(MAILTOURI_4)).isTrue()
-        assertThat(MailTo.isMailTo(MAILTOURI_5)).isTrue()
-        assertThat(MailTo.isMailTo(MAILTOURI_6)).isTrue()
+        assertThat(parser.isMailTo(MAILTOURI_1)).isTrue()
+        assertThat(parser.isMailTo(MAILTOURI_2)).isTrue()
+        assertThat(parser.isMailTo(MAILTOURI_3)).isTrue()
+        assertThat(parser.isMailTo(MAILTOURI_4)).isTrue()
+        assertThat(parser.isMailTo(MAILTOURI_5)).isTrue()
+        assertThat(parser.isMailTo(MAILTOURI_6)).isTrue()
     }
 
     @Test
     fun simpleMailtoUri() {
-        val mailTo = MailTo.parse(MAILTOURI_1)
+        val mailTo = parser.parse(MAILTOURI_1)
 
         assertThat(mailTo.to).isEqualTo("chris@example.com")
         assertThat(mailTo.headers).hasSize(1)
@@ -63,7 +98,7 @@ class MailToTest {
 
     @Test
     fun subjectQueryParameter() {
-        val mailTo = MailTo.parse(MAILTOURI_2)
+        val mailTo = parser.parse(MAILTOURI_2)
 
         assertThat(mailTo.headers).hasSize(2)
         assertThat(mailTo.to).isEqualTo("infobot@example.com")
@@ -78,7 +113,7 @@ class MailToTest {
 
     @Test
     fun bodyQueryParameter() {
-        val mailTo = MailTo.parse(MAILTOURI_3)
+        val mailTo = parser.parse(MAILTOURI_3)
 
         assertThat(mailTo.headers).hasSize(2)
         assertThat(mailTo.to).isEqualTo("infobot@example.com")
@@ -93,7 +128,7 @@ class MailToTest {
 
     @Test
     fun bodyQueryParameterWithLineBreak() {
-        val mailTo = MailTo.parse(MAILTOURI_4)
+        val mailTo = parser.parse(MAILTOURI_4)
 
         assertThat(mailTo.headers).hasSize(2)
         assertThat(mailTo.to).isEqualTo("infobot@example.com")
@@ -108,7 +143,7 @@ class MailToTest {
 
     @Test
     fun ccAndBodyQueryParameters() {
-        val mailTo = MailTo.parse(MAILTOURI_5)
+        val mailTo = parser.parse(MAILTOURI_5)
 
         assertThat(mailTo.headers).hasSize(3)
         assertThat(mailTo.to).isEqualTo("joe@example.com")
@@ -124,7 +159,7 @@ class MailToTest {
 
     @Test
     fun toAndCcQueryParameters() {
-        val mailTo = MailTo.parse(MAILTOURI_6)
+        val mailTo = parser.parse(MAILTOURI_6)
 
         assertThat(mailTo.headers).hasSize(3)
         assertThat(mailTo.to).isEqualTo(", joe@example.com")
@@ -140,14 +175,14 @@ class MailToTest {
 
     @Test
     fun encodedAmpersandInBody() {
-        val mailTo = MailTo.parse("mailto:alice@example.com?body=a%26b")
+        val mailTo = parser.parse("mailto:alice@example.com?body=a%26b")
 
         assertThat(mailTo.body).isEqualTo("a&b")
     }
 
     @Test
     fun encodedEqualSignInBody() {
-        val mailTo = MailTo.parse("mailto:alice@example.com?body=a%3Db")
+        val mailTo = parser.parse("mailto:alice@example.com?body=a%3Db")
 
         assertThat(mailTo.body).isEqualTo("a=b")
     }
@@ -156,7 +191,7 @@ class MailToTest {
     fun unencodedEqualsSignInBody() {
         // This is not a properly encoded mailto URI. But there's no good reason to drop everything
         // after the equals sign in the 'body' query parameter value.
-        val mailTo = MailTo.parse("mailto:alice@example.com?body=foo=bar&subject=test")
+        val mailTo = parser.parse("mailto:alice@example.com?body=foo=bar&subject=test")
 
         assertThat(mailTo.body).isEqualTo("foo=bar")
         assertThat(mailTo.subject).isEqualTo("test")
@@ -164,28 +199,28 @@ class MailToTest {
 
     @Test
     fun encodedPercentValueInBody() {
-        val mailTo = MailTo.parse("mailto:alice@example.com?body=%2525")
+        val mailTo = parser.parse("mailto:alice@example.com?body=%2525")
 
         assertThat(mailTo.body).isEqualTo("%25")
     }
 
     @Test
     fun colonInBody() {
-        val mailTo = MailTo.parse("mailto:alice@example.com?body=one:two")
+        val mailTo = parser.parse("mailto:alice@example.com?body=one:two")
 
         assertThat(mailTo.body).isEqualTo("one:two")
     }
 
     @Test
     fun emailAddressAndFragment() {
-        val mailTo = MailTo.parse("mailto:alice@example.com#fragment")
+        val mailTo = parser.parse("mailto:alice@example.com#fragment")
 
         assertThat(mailTo.to).isEqualTo("alice@example.com")
     }
 
     @Test
     fun emailAddressAndQueryAndFragment() {
-        val mailTo = MailTo.parse("mailto:alice@example.com?cc=bob@example.com#fragment")
+        val mailTo = parser.parse("mailto:alice@example.com?cc=bob@example.com#fragment")
 
         assertThat(mailTo.to).isEqualTo("alice@example.com")
         assertThat(mailTo.cc).isEqualTo("bob@example.com")
@@ -193,25 +228,15 @@ class MailToTest {
 
     @Test
     fun fragmentWithValueThatLooksLikeQueryPart() {
-        val mailTo = MailTo.parse("mailto:#?to=alice@example.com")
+        val mailTo = parser.parse("mailto:#?to=alice@example.com")
 
         assertThat(mailTo.to).isEqualTo("")
     }
 
     @Test
     fun bccRecipient() {
-        val mailTo = MailTo.parse("mailto:alice@example.com?BCC=joe@example.com")
+        val mailTo = parser.parse("mailto:alice@example.com?BCC=joe@example.com")
 
         assertThat(mailTo.bcc).isEqualTo("joe@example.com")
-    }
-
-    companion object {
-        private const val MAILTOURI_1 = "mailto:chris@example.com"
-        private const val MAILTOURI_2 = "mailto:infobot@example.com?subject=current-issue"
-        private const val MAILTOURI_3 = "mailto:infobot@example.com?body=send%20current-issue"
-        private const val MAILTOURI_4 = "mailto:infobot@example.com?body=send%20current-" +
-                "issue%0D%0Asend%20index" // NOTYPO
-        private const val MAILTOURI_5 = "mailto:joe@example.com?cc=bob@example.com&body=hello"
-        private const val MAILTOURI_6 = "mailto:?to=joe@example.com&cc=bob@example.com&body=hello"
     }
 }
