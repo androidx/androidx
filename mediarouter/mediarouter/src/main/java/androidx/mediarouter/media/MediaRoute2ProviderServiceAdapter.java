@@ -155,6 +155,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
             }
             controller = new DynamicGroupRouteControllerProxy(routeId, routeController);
         }
+        controller.onSelect();
 
         SessionRecord sessionRecord = new SessionRecord(controller, requestId, sessionFlags);
         String sessionId = assignSessionId(sessionRecord);
