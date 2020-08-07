@@ -283,6 +283,10 @@ internal class ModifiedFocusNode2(
         when (modifier.focusState) {
             // If this node is focused, set the focus on the root layoutNode before removing it.
             Active, Captured -> {
+                if (modifier.focusState == Captured) {
+                    freeFocus()
+                }
+
                 layoutNode
                     .owner
                     ?.root
@@ -290,6 +294,11 @@ internal class ModifiedFocusNode2(
                     ?.findNextFocusWrapper2()
                     ?.requestFocus(propagateFocus = false)
 
+                // TODO(b/163150504): The current logic in LayoutNode detaches layoutwrappers by
+                //  iterating through a list of unused layoutWrappers. This might lead us to a
+                //  state where we detach a wrapper before detaching layoutWrappers that is wraps.
+                //  We need to change this so that we are able to propagate FocusStateChanges to
+                //  the observers before detaching a focus node.
                 wrappedBy?.propagateFocusStateChange(
                     nextFocusNode?.modifier?.focusState ?: Inactive
                 )
