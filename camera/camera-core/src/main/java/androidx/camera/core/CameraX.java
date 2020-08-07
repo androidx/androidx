@@ -23,6 +23,7 @@ import android.content.res.Resources;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
+import android.os.SystemClock;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
@@ -58,13 +59,16 @@ import java.util.concurrent.TimeoutException;
  * Main interface for accessing CameraX library.
  *
  * <p>This is a singleton class responsible for managing the set of camera instances.
+ *
  * @hide
  */
 @MainThread
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class CameraX {
     private static final String TAG = "CameraX";
-    private static final long WAIT_INITIALIZED_TIMEOUT = 3L;
+    private static final String RETRY_TOKEN = "retry_token";
+    private static final long WAIT_INITIALIZED_TIMEOUT_MILLIS = 3000L;
+    private static final long RETRY_SLEEP_MILLIS = 500L;
 
     static final Object INSTANCE_LOCK = new Object();
 
@@ -305,8 +309,9 @@ public final class CameraX {
 
     /**
      * Returns the context used for CameraX.
-     * @deprecated This method will be removed. New code should not rely on it. See b/161302102.
+     *
      * @hide
+     * @deprecated This method will be removed. New code should not rely on it. See b/161302102.
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -495,11 +500,10 @@ public final class CameraX {
     private static CameraX waitInitialized() {
         ListenableFuture<CameraX> future = getInstance();
         try {
-            return future.get(WAIT_INITIALIZED_TIMEOUT, TimeUnit.SECONDS);
+            return future.get(WAIT_INITIALIZED_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
         } catch (ExecutionException | InterruptedException | TimeoutException e) {
             throw new IllegalStateException(e);
         }
-
     }
 
     /**
@@ -507,7 +511,6 @@ public final class CameraX {
      *
      * @throws IllegalStateException if the {@link CameraDeviceSurfaceManager} has not been set, due
      *                               to being uninitialized.
-     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -522,6 +525,7 @@ public final class CameraX {
 
     /**
      * Returns the {@link CameraRepository} instance.
+     *
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -543,83 +547,105 @@ public final class CameraX {
             Preconditions.checkState(mInitState == InternalInitState.UNINITIALIZED,
                     "CameraX.initInternal() should only be called once per instance");
             mInitState = InternalInitState.INITIALIZING;
-
-            final Executor cameraExecutor = mCameraExecutor;
             return CallbackToFutureAdapter.getFuture(
                     completer -> {
-                        cameraExecutor.execute(() -> {
-                            InitializationException initException = null;
-                            try {
-                                // TODO(b/161302102): Remove the stored context. Only make use of
-                                //  the context within the called method.
-                                mAppContext = getApplicationFromContext(context);
-                                if (mAppContext == null) {
-                                    mAppContext = context.getApplicationContext();
-                                }
-                                CameraFactory.Provider cameraFactoryProvider =
-                                        mCameraXConfig.getCameraFactoryProvider(null);
-                                if (cameraFactoryProvider == null) {
-                                    throw new InitializationException(new IllegalArgumentException(
-                                            "Invalid app configuration provided. Missing "
-                                                    + "CameraFactory."));
-                                }
-
-                                CameraThreadConfig cameraThreadConfig =
-                                        CameraThreadConfig.create(mCameraExecutor,
-                                                mSchedulerHandler);
-
-                                mCameraFactory = cameraFactoryProvider.newInstance(context,
-                                        cameraThreadConfig);
-
-                                CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
-                                        mCameraXConfig.getDeviceSurfaceManagerProvider(null);
-                                if (surfaceManagerProvider == null) {
-                                    throw new InitializationException(new IllegalArgumentException(
-                                            "Invalid app configuration provided. Missing "
-                                                    + "CameraDeviceSurfaceManager."));
-                                }
-                                mSurfaceManager = surfaceManagerProvider.newInstance(context);
-
-                                UseCaseConfigFactory.Provider configFactoryProvider =
-                                        mCameraXConfig.getUseCaseConfigFactoryProvider(null);
-                                if (configFactoryProvider == null) {
-                                    throw new InitializationException(new IllegalArgumentException(
-                                            "Invalid app configuration provided. Missing "
-                                                    + "UseCaseConfigFactory."));
-                                }
-                                mDefaultConfigFactory = configFactoryProvider.newInstance(context);
-
-                                if (cameraExecutor instanceof CameraExecutor) {
-                                    CameraExecutor executor = (CameraExecutor) cameraExecutor;
-                                    executor.init(mCameraFactory);
-                                }
-
-                                mCameraRepository.init(mCameraFactory);
-                            } catch (InitializationException e) {
-                                initException = e;
-                            } catch (RuntimeException e) {
-                                // For any unexpected RuntimeException, catch it instead of
-                                // crashing.
-                                initException = new InitializationException(e);
-                            } finally {
-                                synchronized (mInitializeLock) {
-                                    mInitState = InternalInitState.INITIALIZED;
-                                }
-                                if (initException != null) {
-                                    completer.setException(initException);
-                                } else {
-                                    completer.set(null);
-                                }
-                            }
-                        });
+                        initAndRetryRecursively(mCameraExecutor, SystemClock.elapsedRealtime(),
+                                context, completer);
                         return "CameraX initInternal";
                     });
+        }
+    }
+
+    /**
+     * Initializes camera stack on the given thread and retry recursively until timeout.
+     */
+    private void initAndRetryRecursively(
+            @NonNull Executor cameraExecutor,
+            long startMs,
+            @NonNull Context context,
+            @NonNull CallbackToFutureAdapter.Completer<Void> completer) {
+        cameraExecutor.execute(() -> {
+            try {
+                // TODO(b/161302102): Remove the stored context. Only make use of
+                //  the context within the called method.
+                mAppContext = getApplicationFromContext(context);
+                if (mAppContext == null) {
+                    mAppContext = context.getApplicationContext();
+                }
+                CameraFactory.Provider cameraFactoryProvider =
+                        mCameraXConfig.getCameraFactoryProvider(null);
+                if (cameraFactoryProvider == null) {
+                    throw new InitializationException(new IllegalArgumentException(
+                            "Invalid app configuration provided. Missing "
+                                    + "CameraFactory."));
+                }
+
+                CameraThreadConfig cameraThreadConfig = CameraThreadConfig.create(mCameraExecutor,
+                        mSchedulerHandler);
+
+                mCameraFactory = cameraFactoryProvider.newInstance(context,
+                        cameraThreadConfig);
+                CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
+                        mCameraXConfig.getDeviceSurfaceManagerProvider(null);
+                if (surfaceManagerProvider == null) {
+                    throw new InitializationException(new IllegalArgumentException(
+                            "Invalid app configuration provided. Missing "
+                                    + "CameraDeviceSurfaceManager."));
+                }
+                mSurfaceManager = surfaceManagerProvider.newInstance(context);
+
+                UseCaseConfigFactory.Provider configFactoryProvider =
+                        mCameraXConfig.getUseCaseConfigFactoryProvider(null);
+                if (configFactoryProvider == null) {
+                    throw new InitializationException(new IllegalArgumentException(
+                            "Invalid app configuration provided. Missing "
+                                    + "UseCaseConfigFactory."));
+                }
+                mDefaultConfigFactory = configFactoryProvider.newInstance(context);
+
+                if (cameraExecutor instanceof CameraExecutor) {
+                    CameraExecutor executor = (CameraExecutor) cameraExecutor;
+                    executor.init(mCameraFactory);
+                }
+
+                mCameraRepository.init(mCameraFactory);
+
+                // Set completer to null if the init was successful.
+                setStateToInitialized();
+                completer.set(null);
+            } catch (InitializationException | RuntimeException e) {
+                if (SystemClock.elapsedRealtime() - startMs
+                        < WAIT_INITIALIZED_TIMEOUT_MILLIS - RETRY_SLEEP_MILLIS) {
+                    Log.w(TAG, "Retry init. Start time " + startMs + " current time "
+                            + SystemClock.elapsedRealtime(), e);
+                    HandlerCompat.postDelayed(mSchedulerHandler, () -> initAndRetryRecursively(
+                            cameraExecutor, startMs, context, completer), RETRY_TOKEN,
+                            RETRY_SLEEP_MILLIS);
+
+                } else {
+                    // Set the state to initialized so it can be shut down properly.
+                    setStateToInitialized();
+                    if (e instanceof InitializationException) {
+                        completer.setException(e);
+                    } else {
+                        // For any unexpected RuntimeException, catch it instead of crashing.
+                        completer.setException(new InitializationException(e));
+                    }
+                }
+            }
+        });
+    }
+
+    private void setStateToInitialized() {
+        synchronized (mInitializeLock) {
+            mInitState = InternalInitState.INITIALIZED;
         }
     }
 
     @NonNull
     private ListenableFuture<Void> shutdownInternal() {
         synchronized (mInitializeLock) {
+            mSchedulerHandler.removeCallbacksAndMessages(RETRY_TOKEN);
             switch (mInitState) {
                 case UNINITIALIZED:
                     mInitState = InternalInitState.SHUTDOWN;
@@ -631,7 +657,6 @@ public final class CameraX {
 
                 case INITIALIZED:
                     mInitState = InternalInitState.SHUTDOWN;
-
                     mShutdownInternalFuture = CallbackToFutureAdapter.getFuture(
                             completer -> {
                                 ListenableFuture<Void> future = mCameraRepository.deinit();
