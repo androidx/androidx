@@ -29,7 +29,10 @@ internal open class JavacVariableElement(
 ) : JavacElement(env, element), XVariableElement {
     override val type: JavacType by lazy {
         MoreTypes.asMemberOf(env.typeUtils, containing.type.typeMirror, element).let {
-            env.wrap<JavacType>(it)
+            env.wrap<JavacType>(
+                typeMirror = it,
+                nullability = element.nullability
+            )
         }
     }
 
@@ -39,7 +42,10 @@ internal open class JavacVariableElement(
         } else {
             check(other is JavacDeclaredType)
             val asMember = MoreTypes.asMemberOf(env.typeUtils, other.typeMirror, element)
-            env.wrap<JavacType>(asMember)
+            env.wrap<JavacType>(
+                typeMirror = asMember,
+                nullability = element.nullability
+            )
         }
     }
 

@@ -49,6 +49,7 @@ internal class JavacMethodElement(
         val asMemberOf = env.typeUtils.asMemberOf(containing.type.typeMirror, element)
         JavacMethodType(
             env = env,
+            element = element,
             executableType = MoreTypes.asExecutable(asMemberOf)
         )
     }
@@ -56,7 +57,10 @@ internal class JavacMethodElement(
     override val returnType: JavacType by lazy {
         val asMember = env.typeUtils.asMemberOf(containing.type.typeMirror, element)
         val asExec = MoreTypes.asExecutable(asMember)
-        env.wrap<JavacType>(asExec.returnType)
+        env.wrap<JavacType>(
+            typeMirror = asExec.returnType,
+            nullability = element.nullability
+        )
     }
 
     override fun asMemberOf(other: XDeclaredType): XMethodType {
@@ -67,6 +71,7 @@ internal class JavacMethodElement(
             val asMemberOf = env.typeUtils.asMemberOf(other.typeMirror, element)
             JavacMethodType(
                 env = env,
+                element = element,
                 executableType = MoreTypes.asExecutable(asMemberOf)
             )
         }

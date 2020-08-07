@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XEquality
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.safeTypeName
@@ -60,7 +61,9 @@ internal abstract class JavacType(
     override fun boxed(): XType {
         return if (typeMirror.kind.isPrimitive) {
             env.wrap(
-                env.typeUtils.boxedClass(MoreTypes.asPrimitiveType(typeMirror)).asType()
+                typeMirror = env.typeUtils.boxedClass(MoreTypes.asPrimitiveType(typeMirror))
+                    .asType(),
+                nullability = XNullability.NULLABLE
             )
         } else {
             this
@@ -81,7 +84,10 @@ internal abstract class JavacType(
 
     override fun extendsBound(): XType? {
         return typeMirror.extendsBound()?.let {
-            env.wrap<JavacType>(it)
+            env.wrap<JavacType>(
+                typeMirror = it,
+                nullability = nullability
+            )
         }
     }
 
@@ -101,7 +107,10 @@ internal abstract class JavacType(
     }
 
     override fun erasure(): JavacType {
-        return env.wrap(env.typeUtils.erasure(typeMirror))
+        return env.wrap(
+            typeMirror = env.typeUtils.erasure(typeMirror),
+            nullability = nullability
+        )
     }
 
     override fun isTypeOf(other: KClass<*>): Boolean {

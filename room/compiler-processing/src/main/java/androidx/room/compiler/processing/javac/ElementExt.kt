@@ -16,18 +16,30 @@
 
 package androidx.room.compiler.processing.javac
 
+import androidx.room.compiler.processing.XNullability
+import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
+import javax.lang.model.element.Element
 import javax.lang.model.element.TypeElement
 import javax.lang.model.element.VariableElement
 import javax.lang.model.type.TypeKind
 import javax.lang.model.util.ElementFilter
 import javax.lang.model.util.Elements
 
+private val NONNULL_ANNOTATIONS = arrayOf(
+    androidx.annotation.NonNull::class.java,
+    org.jetbrains.annotations.NotNull::class.java
+)
+
+private val NULLABLE_ANNOTATIONS = arrayOf(
+    androidx.annotation.Nullable::class.java,
+    org.jetbrains.annotations.Nullable::class.java
+)
 /**
  * gets all members including super privates. does not handle duplicate field names!!!
  */
 // TODO handle conflicts with super: b/35568142
-fun TypeElement.getAllFieldsIncludingPrivateSupers(
+internal fun TypeElement.getAllFieldsIncludingPrivateSupers(
     elementUtils: Elements
 ): Set<VariableElement> {
     val myMembers = ElementFilter.fieldsIn(elementUtils.getAllMembers(this))
@@ -40,3 +52,17 @@ fun TypeElement.getAllFieldsIncludingPrivateSupers(
         return myMembers
     }
 }
+
+@Suppress("UnstableApiUsage")
+private fun Element.hasAnyOf(annotations: Array<Class<out Annotation>>) = annotations.any {
+    MoreElements.isAnnotationPresent(this, it)
+}
+
+internal val Element.nullability: XNullability
+    get() = if (asType().kind.isPrimitive || hasAnyOf(NONNULL_ANNOTATIONS)) {
+        XNullability.NONNULL
+    } else if (hasAnyOf(NULLABLE_ANNOTATIONS)) {
+        XNullability.NULLABLE
+    } else {
+        XNullability.UNKNOWN
+    }

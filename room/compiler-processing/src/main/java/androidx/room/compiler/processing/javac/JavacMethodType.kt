@@ -20,14 +20,19 @@ import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XType
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeVariableName
+import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.ExecutableType
 
 internal class JavacMethodType(
     val env: JavacProcessingEnv,
+    val element: ExecutableElement,
     val executableType: ExecutableType
 ) : XMethodType {
     override val returnType: JavacType by lazy {
-        env.wrap<JavacType>(executableType.returnType)
+        env.wrap<JavacType>(
+            typeMirror = executableType.returnType,
+            nullability = element.nullability
+        )
     }
 
     override val typeVariableNames by lazy {
@@ -37,8 +42,11 @@ internal class JavacMethodType(
     }
 
     override val parameterTypes: List<JavacType> by lazy {
-        executableType.parameterTypes.map {
-            env.wrap<JavacType>(it)
+        executableType.parameterTypes.mapIndexed { index, typeMirror ->
+            env.wrap<JavacType>(
+                typeMirror = typeMirror,
+                nullability = element.parameters[index].nullability
+            )
         }
     }
 
@@ -56,7 +64,10 @@ internal class JavacMethodType(
         // has one type parameter, e.g Continuation<? super T>
         val typeParam =
             MoreTypes.asDeclared(executableType.parameterTypes.last()).typeArguments.first()
-        return env.wrap<JavacType>(typeParam).extendsBoundOrSelf() // reduce the type param
+        return env.wrap<JavacType>(
+            typeMirror = typeParam,
+            nullability = element.nullability
+        ).extendsBoundOrSelf() // reduce the type param
     }
 
     override fun toString(): String {

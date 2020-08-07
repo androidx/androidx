@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XAnnotationBox
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import com.google.auto.common.AnnotationMirrors
 import java.lang.reflect.Proxy
@@ -209,13 +210,19 @@ private val TO_TYPE = object : SimpleAnnotationValueVisitor6<TypeMirror, Void>()
 
 private fun AnnotationValue.toListOfClassTypes(env: JavacProcessingEnv): List<XType> {
     return TO_LIST_OF_TYPES.visit(this).map {
-        env.wrap<JavacType>(it)
+        env.wrap<JavacType>(
+            typeMirror = it,
+            nullability = XNullability.UNKNOWN
+        )
     }
 }
 
 private fun AnnotationValue.toClassType(env: JavacProcessingEnv): XType? {
     return TO_TYPE.visit(this)?.let {
-        env.wrap(it)
+        env.wrap(
+            typeMirror = it,
+            nullability = XNullability.UNKNOWN
+        )
     }
 }
 

@@ -41,20 +41,6 @@ interface XElement {
     val packageName: String
 
     /**
-     * Nullability of an Element as declared in code via its type or annotations (e.g.
-     * [androidx.annotation.Nullable].
-     * This will be moved into [XType].
-     *
-     * TODO:
-     *  Nullability is normally a property of Type not Element but currently Room relies on
-     *  Annotations to resolve nullability which exists only on Elements, not Types.
-     *  Once we implement KSP version, we might be able to move this to the type by making sure
-     *  we carry over nullability when type is resolved from an Element. We also need nullability
-     *  on Types to properly handle DAO return types (e.g. Flow<T> vs Flow<T?>)
-     */
-    val nullability: XNullability
-
-    /**
      * The [XElement] that contains this element.
      *
      * For inner classes, this will be another [XTypeElement].
@@ -132,14 +118,6 @@ interface XElement {
      * Returns `true` if this element has one of the [annotations].
      */
     fun hasAnyOf(vararg annotations: KClass<out Annotation>) = annotations.any(this::hasAnnotation)
-
-    /**
-     * Returns `true` if and only if this element can never be null.
-     * For Java source code, this means the element is either primitive or annotated with one of
-     * the non-nullability annotations.
-     * For Kotlin source code, this means element's type is specified as non-null.
-     */
-    fun isNonNull() = nullability == XNullability.NONNULL
 
     /**
      * Casts current element to [XTypeElement].
