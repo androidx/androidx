@@ -35,6 +35,7 @@ dependencies {
     implementation(JAVAPOET)
     implementation(KOTLIN_METADATA_JVM)
     implementation(INTELLIJ_ANNOTATIONS)
+    implementation(KOTLIN_KSP_API)
 
     testImplementation(GOOGLE_COMPILE_TESTING)
     testImplementation(JUNIT)
