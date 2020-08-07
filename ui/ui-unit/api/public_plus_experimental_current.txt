@@ -266,8 +266,8 @@ package androidx.compose.ui.unit {
   }
 
   public final class IntBoundsKt {
-    method @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.IntBounds IntBounds-TtQJ-B4(androidx.compose.ui.unit.IntOffset topLeft, long size);
-    method @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.IntOffset center(androidx.compose.ui.unit.IntBounds);
+    method @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.IntBounds IntBounds-TtQJ-B4(long topLeft, long size);
+    method @androidx.compose.runtime.Stable public static inline long center(androidx.compose.ui.unit.IntBounds);
     method public static inline int getHeight(androidx.compose.ui.unit.IntBounds);
     method public static inline int getWidth(androidx.compose.ui.unit.IntBounds);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntBounds toBounds-ozmzZPI(long);
@@ -275,39 +275,42 @@ package androidx.compose.ui.unit {
     method @androidx.compose.runtime.Stable public static long toSize(androidx.compose.ui.unit.IntBounds);
   }
 
-  @androidx.compose.runtime.Immutable public final class IntOffset {
-    ctor public IntOffset(@kotlin.PublishedApi internal long packedValue);
-    method @androidx.compose.runtime.Stable public operator int component1();
-    method @androidx.compose.runtime.Stable public operator int component2();
-    method public androidx.compose.ui.unit.IntOffset copy(int x = this.x, int y = this.y);
-    method @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.IntOffset div(float operand);
-    method public int getX();
-    method public int getY();
-    method @androidx.compose.runtime.Stable public inline operator androidx.compose.ui.unit.IntOffset minus(androidx.compose.ui.unit.IntOffset other);
-    method @androidx.compose.runtime.Stable public inline operator androidx.compose.ui.unit.IntOffset plus(androidx.compose.ui.unit.IntOffset other);
-    method @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.IntOffset rem(int operand);
-    method @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.IntOffset times(float operand);
-    method @androidx.compose.runtime.Stable public inline operator androidx.compose.ui.unit.IntOffset unaryMinus();
-    property public final int x;
-    property public final int y;
+  @androidx.compose.runtime.Immutable public final inline class IntOffset {
+    ctor public IntOffset();
+    method @androidx.compose.runtime.Stable public static operator int component1-impl(long $this);
+    method @androidx.compose.runtime.Stable public static operator int component2-impl(long $this);
+    method public static long constructor-impl(internal long packedValue);
+    method public static long copy-impl(long $this, int x = this.x, int y = this.y);
+    method @androidx.compose.runtime.Stable public static operator long div-impl(long $this, float operand);
+    method @androidx.compose.runtime.Immutable public static inline boolean equals-impl(long p, Object? p1);
+    method public static boolean equals-impl0(long p1, long p2);
+    method public static int getX-impl(long $this);
+    method public static int getY-impl(long $this);
+    method @androidx.compose.runtime.Immutable public static inline int hashCode-impl(long p);
+    method @androidx.compose.runtime.Stable public static inline operator long minus--gyyYBs(long $this, long other);
+    method @androidx.compose.runtime.Stable public static inline operator long plus--gyyYBs(long $this, long other);
+    method @androidx.compose.runtime.Stable public static operator long rem-impl(long $this, int operand);
+    method @androidx.compose.runtime.Stable public static operator long times-impl(long $this, float operand);
+    method @androidx.compose.runtime.Stable public static String toString-impl(long $this);
+    method @androidx.compose.runtime.Stable public static inline operator long unaryMinus-impl(long $this);
     field public static final androidx.compose.ui.unit.IntOffset.Companion Companion;
   }
 
   public static final class IntOffset.Companion {
-    method @Deprecated public androidx.compose.ui.unit.IntOffset getOrigin();
-    method public androidx.compose.ui.unit.IntOffset getZero();
-    property @Deprecated public final androidx.compose.ui.unit.IntOffset Origin;
-    property public final androidx.compose.ui.unit.IntOffset Zero;
+    method @Deprecated public long getOrigin();
+    method public long getZero();
+    property @Deprecated public final long Origin;
+    property public final long Zero;
   }
 
   public final class IntOffsetKt {
-    method @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.IntOffset IntOffset(int x, int y);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntOffset lerp(androidx.compose.ui.unit.IntOffset start, androidx.compose.ui.unit.IntOffset stop, float fraction);
-    method @androidx.compose.runtime.Stable public static operator androidx.compose.ui.geometry.Offset minus(androidx.compose.ui.geometry.Offset, androidx.compose.ui.unit.IntOffset offset);
-    method @androidx.compose.runtime.Stable public static operator androidx.compose.ui.geometry.Offset minus(androidx.compose.ui.unit.IntOffset, androidx.compose.ui.geometry.Offset offset);
-    method @androidx.compose.runtime.Stable public static operator androidx.compose.ui.geometry.Offset plus(androidx.compose.ui.geometry.Offset, androidx.compose.ui.unit.IntOffset offset);
-    method @androidx.compose.runtime.Stable public static operator androidx.compose.ui.geometry.Offset plus(androidx.compose.ui.unit.IntOffset, androidx.compose.ui.geometry.Offset offset);
-    method @androidx.compose.runtime.Stable public static inline androidx.compose.ui.geometry.Offset toOffset(androidx.compose.ui.unit.IntOffset);
+    method @androidx.compose.runtime.Stable public static inline long IntOffset(int x, int y);
+    method @androidx.compose.runtime.Stable public static long lerp-t0UgTr0(long start, long stop, float fraction);
+    method @androidx.compose.runtime.Stable public static operator androidx.compose.ui.geometry.Offset minus-k5bmQ1s(long, androidx.compose.ui.geometry.Offset offset);
+    method @androidx.compose.runtime.Stable public static operator androidx.compose.ui.geometry.Offset minus-tRj9Ofw(androidx.compose.ui.geometry.Offset, long offset);
+    method @androidx.compose.runtime.Stable public static operator androidx.compose.ui.geometry.Offset plus-k5bmQ1s(long, androidx.compose.ui.geometry.Offset offset);
+    method @androidx.compose.runtime.Stable public static operator androidx.compose.ui.geometry.Offset plus-tRj9Ofw(androidx.compose.ui.geometry.Offset, long offset);
+    method @androidx.compose.runtime.Stable public static inline androidx.compose.ui.geometry.Offset toOffset--gyyYBs(long);
   }
 
   @androidx.compose.runtime.Immutable public final inline class IntSize {
@@ -333,7 +336,7 @@ package androidx.compose.ui.unit {
 
   public final class IntSizeKt {
     method @androidx.compose.runtime.Stable public static long IntSize(int width, int height);
-    method public static androidx.compose.ui.unit.IntOffset getCenter-ozmzZPI(long);
+    method public static long getCenter-ozmzZPI(long);
     method @androidx.compose.runtime.Stable public static operator long times-U1E2UwY(int, long size);
     method @androidx.compose.runtime.Stable public static long toSize-ozmzZPI(long);
   }
@@ -420,7 +423,7 @@ package androidx.compose.ui.unit {
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Offset center-uvyYCjk(long);
     method @Deprecated public static inline float getHeight(androidx.compose.ui.unit.PxBounds);
     method @Deprecated public static inline float getWidth(androidx.compose.ui.unit.PxBounds);
-    method @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.IntOffset round(androidx.compose.ui.geometry.Offset);
+    method @androidx.compose.runtime.Stable public static inline long round(androidx.compose.ui.geometry.Offset);
     method @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.PxBounds toBounds-uvyYCjk(long);
     method @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Rect toRect(androidx.compose.ui.unit.PxBounds);
     method @Deprecated @androidx.compose.runtime.Stable public static long toSize(androidx.compose.ui.unit.PxBounds);
