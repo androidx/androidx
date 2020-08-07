@@ -25,6 +25,9 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.SpringSpec
 import androidx.compose.foundation.InteractionState
 import androidx.compose.foundation.gestures.draggable
+import androidx.compose.material.SwipeableConstants.DefaultVelocityThreshold
+import androidx.compose.material.SwipeableConstants.StandardResistanceFactor
+import androidx.compose.material.SwipeableConstants.StiffResistanceFactor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.MutableState
@@ -38,6 +41,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
+import androidx.compose.ui.onPositioned
 import androidx.compose.ui.platform.AnimationClockAmbient
 import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.Density
@@ -45,7 +49,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.annotation.FloatRange
 import androidx.compose.ui.util.lerp
+import kotlin.math.PI
 import kotlin.math.sign
+import kotlin.math.sin
 
 /**
  * State of the [swipeable] composable.
@@ -80,6 +86,7 @@ open class SwipeableState<T>(
         internal set
 
     private val _offset: MutableState<Float> = mutableStateOf(0f)
+    private val _overflow: MutableState<Float> = mutableStateOf(0f)
     private val _anchors: MutableState<Map<Float, T>> = mutableStateOf(emptyMap())
 
     private val clockProxy: AnimationClockObservable = object : AnimationClockObservable {
@@ -99,7 +106,22 @@ open class SwipeableState<T>(
      */
     val offset: State<Float> get() = _offset
 
-    internal val animatedFloat: AnimatedFloat = AnimatedFloatByState(_offset, clockProxy)
+    /**
+     * The current amount by which the [swipeable] has been swiped past the bounds.
+     */
+    val overflow: State<Float> get() = _overflow
+
+    internal val animatedFloat: AnimatedFloat = NotificationBasedAnimatedFloat(0f, clockProxy) {
+        val clamped = it.coerceIn(minBound, maxBound)
+        val overflow = it - clamped
+        val resistance = computeResistance(
+            basis = resistanceBasis,
+            factor = if (overflow < 0f) resistanceAtMinBound else resistanceAtMaxBound,
+            overflow = overflow
+        )
+        _offset.value = clamped + resistance
+        _overflow.value = overflow
+    }
 
     internal var anchors: Map<Float, T>
         get() = _anchors.value
@@ -109,9 +131,18 @@ open class SwipeableState<T>(
                 anchors.getOffset(value)?.let {
                     animatedFloat.snapTo(it)
                 }
+                minBound = anchors.keys.minOrNull()!!
+                maxBound = anchors.keys.maxOrNull()!!
             }
         }
     internal var thresholds: (Float, Float) -> Float by mutableStateOf(value = { _, _ -> 0f })
+
+    private var minBound: Float = Float.NEGATIVE_INFINITY
+    private var maxBound: Float = Float.POSITIVE_INFINITY
+
+    internal var resistanceBasis: Float = 0f
+    internal var resistanceAtMinBound: Float = 0f
+    internal var resistanceAtMaxBound: Float = 0f
 
     /**
      * If a swipe is in progress, this is the state the [swipeable] would animate to
@@ -124,8 +155,8 @@ open class SwipeableState<T>(
             val target = adjustTarget(
                 anchors = anchors.keys,
                 thresholds = thresholds,
-                target = animatedFloat.value,
-                lastAnchor = anchors.getOffset(value) ?: animatedFloat.value,
+                target = offset.value,
+                lastAnchor = anchors.getOffset(value) ?: offset.value,
                 velocity = 0f,
                 velocityThreshold = Float.POSITIVE_INFINITY
             )
@@ -178,7 +209,7 @@ open class SwipeableState<T>(
      */
     @ExperimentalMaterialApi
     val swipeDirection: Float
-        get() = anchors.getOffset(value)?.let { sign(animatedFloat.value - it) } ?: 0f
+        get() = anchors.getOffset(value)?.let { sign(offset.value - it) } ?: 0f
 
     /**
      * Set the state to the target value immediately, without any animation.
@@ -284,6 +315,13 @@ internal fun <T> swipeableStateFor(
  * reached, the value of the [SwipeableState] will also be updated to the state corresponding to
  * the new anchor. The target anchor is calculated based on the provided positional [thresholds].
  *
+ * Swiping is constrained between the min and max anchors. If the user attempts to swipe past
+ * those bounds, a resistance effect will be applied. The amount of resistance at each edge can
+ * be customised using the two resistance factor parameters, and you can disable resistance by
+ * setting them to zero. Two default resistance factors are provided in [SwipeableConstants]:
+ * - [StiffResistanceFactor] which conveys to the user that swiping is not available right now, and
+ * - [StandardResistanceFactor] which conveys to the user that they have run out of things to see.
+ *
  * For an example of a swipeable with three states, see:
  *
  * @sample androidx.compose.material.samples.SwipeableSample
@@ -299,11 +337,11 @@ internal fun <T> swipeableStateFor(
  * @param enabled Whether this [swipeable] is enabled and should react to the user's input.
  * @param reverseDirection Whether to reverse the direction of the swipe, so a top to bottom
  * swipe will behave like bottom to top, and a left to right swipe will behave like right to left.
- * @param minValue The lower bound in pixels that the swipe gestures will be constrained to.
- * @param maxValue The upper bound in pixels that the swipe gestures will be constrained to.
  * @param interactionState Optional [InteractionState] that will passed on to [Modifier.draggable].
  * @param velocityThreshold The threshold (in dp per second) that the end velocity has to exceed
  * in order to animate to the next state, even if the positional [thresholds] have not been reached.
+ * @param resistanceFactorAtMin The resistance factor applied when swiping past the min bound.
+ * @param resistanceFactorAtMax The resistance factor applied when swiping past the max bound.
  */
 @ExperimentalMaterialApi
 fun <T> Modifier.swipeable(
@@ -313,10 +351,10 @@ fun <T> Modifier.swipeable(
     orientation: Orientation,
     enabled: Boolean = true,
     reverseDirection: Boolean = false,
-    minValue: Float = anchors.keys.minOrNull() ?: Float.NEGATIVE_INFINITY,
-    maxValue: Float = anchors.keys.maxOrNull() ?: Float.POSITIVE_INFINITY,
     interactionState: InteractionState? = null,
-    velocityThreshold: Dp = SwipeableConstants.DefaultVelocityThreshold
+    velocityThreshold: Dp = DefaultVelocityThreshold,
+    resistanceFactorAtMin: Float = StandardResistanceFactor,
+    resistanceFactorAtMax: Float = StandardResistanceFactor
 ) = composed {
     require(anchors.isNotEmpty()) {
         "You must have at least one anchor."
@@ -331,9 +369,10 @@ fun <T> Modifier.swipeable(
         val to = anchors.getValue(b)
         with(thresholds(from, to)) { density.computeThreshold(a, b) }
     }
-    state.animatedFloat.setBounds(minValue, maxValue)
+    state.resistanceAtMinBound = resistanceFactorAtMin
+    state.resistanceAtMaxBound = resistanceFactorAtMax
 
-    Modifier.draggable(
+    val draggable = Modifier.draggable(
         orientation = orientation,
         enabled = enabled,
         reverseDirection = reverseDirection,
@@ -359,6 +398,12 @@ fun <T> Modifier.swipeable(
         }
     ) { delta ->
         state.animatedFloat.snapTo(state.animatedFloat.value + delta)
+    }
+    draggable.onPositioned {
+        state.resistanceBasis = when (orientation) {
+            Orientation.Vertical -> it.size.height.toFloat()
+            Orientation.Horizontal -> it.size.width.toFloat()
+        }
     }
 }
 
@@ -404,12 +449,16 @@ data class FractionalThreshold(
     }
 }
 
-@Stable
-private class AnimatedFloatByState(
-    mutableState: MutableState<Float>,
-    clock: AnimationClockObservable
+private class NotificationBasedAnimatedFloat(
+    initialValue: Float,
+    clock: AnimationClockObservable,
+    val onNewValue: (Float) -> Unit
 ) : AnimatedFloat(clock) {
-    override var value: Float by mutableState
+    override var value = initialValue
+        set(value) {
+            field = value
+            onNewValue(value)
+        }
 }
 
 /**
@@ -480,6 +529,16 @@ private fun adjustTarget(
     }
 }
 
+internal fun computeResistance(
+    basis: Float,
+    factor: Float,
+    overflow: Float
+): Float {
+    val progress = (overflow / basis).coerceIn(-1f, 1f)
+    val resistance = basis / factor * sin(progress * PI.toFloat() / 2)
+    return if (resistance.isFinite()) resistance else 0f
+}
+
 private fun <T> Map<Float, T>.getOffset(state: T): Float? {
     return entries.firstOrNull { it.value == state }?.key
 }
@@ -492,4 +551,14 @@ object SwipeableConstants {
      * The default velocity threshold used by [swipeable].
      */
     val DefaultVelocityThreshold = 125.dp // 1/8 dp per millisecond
+
+    /**
+     * A stiff resistance factor which indicates that swiping isn't available right now.
+     */
+    const val StiffResistanceFactor = 20f
+
+    /**
+     * A standard resistance factor which indicates that the user has run out of things to see.
+     */
+    const val StandardResistanceFactor = 10f
 }

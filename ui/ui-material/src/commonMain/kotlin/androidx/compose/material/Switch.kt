@@ -87,7 +87,9 @@ fun Switch(
                 orientation = Orientation.Horizontal,
                 enabled = enabled,
                 reverseDirection = isRtl,
-                interactionState = interactionState
+                interactionState = interactionState,
+                resistanceFactorAtMin = 0f,
+                resistanceFactorAtMax = 0f
             )
             .padding(DefaultSwitchPadding)
     ) {
