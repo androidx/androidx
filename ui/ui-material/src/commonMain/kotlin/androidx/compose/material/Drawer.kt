@@ -310,7 +310,9 @@ fun ModalDrawerLayout(
                 orientation = Orientation.Horizontal,
                 enabled = gesturesEnabled,
                 reverseDirection = isRtl,
-                velocityThreshold = DrawerVelocityThreshold
+                velocityThreshold = DrawerVelocityThreshold,
+                resistanceFactorAtMin = 0f,
+                resistanceFactorAtMax = 0f
         )) {
             Stack {
                 bodyContent()
@@ -419,7 +421,9 @@ fun BottomDrawerLayout(
                 anchors = anchors,
                 thresholds = { _, _ -> FixedThreshold(BottomDrawerThreshold) },
                 orientation = Orientation.Vertical,
-                enabled = gesturesEnabled
+                enabled = gesturesEnabled,
+                resistanceFactorAtMin = 0f,
+                resistanceFactorAtMax = 0f
             )
         ) {
             Stack {
