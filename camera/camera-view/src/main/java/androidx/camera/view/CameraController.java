@@ -28,14 +28,21 @@ import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExperimentalUseCaseGroup;
+import androidx.camera.core.ImageCapture;
+import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
+import androidx.camera.core.VideoCapture;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.core.util.Preconditions;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * The abstract base camera controller class.
@@ -48,21 +55,48 @@ abstract class CameraController {
 
     private static final String TAG = "CameraController";
 
-    // TODO(b/148791439): Temporary. Remove once camera selection is implemented.
-    static final CameraSelector CAMERA_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA;
+    CameraSelector mCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
 
-    // Synthetic access
-    @SuppressWarnings("WeakerAccess")
+    private static final String IMAGE_CAPTURE_DISABLED_ERR_MSG = "ImageCapture disabled.";
+    private static final String VIDEO_CAPTURE_DISABLED_ERR_MSG = "VideoCapture disabled.";
+
     // CameraController and PreviewView hold reference to each other. The 2-way link is managed
     // by PreviewView.
     @Nullable
-    Preview mPreview;
+    private Preview mPreview;
 
     // Size of the PreviewView. Used for creating ViewPort.
     @Nullable
     private Size mPreviewSize;
 
+    // SurfaceProvider form the latest attachPreviewSurface() call. This is needed to recreate
+    // Preview.
+    // TODO(b/148791439): remove after use cases are reusable.
+    private Preview.SurfaceProvider mSurfaceProvider;
+
+    @ImageCapture.FlashMode
+    private int mFlashMode = ImageCapture.FLASH_MODE_OFF;
+
+    @Nullable
+    private ImageCapture mImageCapture;
+
+    // ImageCapture is enabled by default.
+    private boolean mImageCaptureEnabled = true;
+
+    @Nullable
+    private VideoCapture mVideoCapture;
+
+    // VideoCapture is disabled by default.
+    private boolean mVideoCaptureEnabled = false;
+
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    @NonNull
+    final AtomicBoolean mVideoIsRecording = new AtomicBoolean(false);
+
     // The latest bound camera.
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
     @Nullable
     Camera mCamera;
 
@@ -99,10 +133,27 @@ abstract class CameraController {
     @Nullable
     abstract Camera startCamera();
 
+    /**
+     * Unbinds use cases and clear internal states.
+     */
+    void clear() {
+        if (mCameraProvider != null) {
+            // Preview is required. Unbind everything if Preview is down.
+            mCameraProvider.unbindAll();
+        }
+        mPreviewSize = null;
+        mPreview = null;
+        mCamera = null;
+        mImageCapture = null;
+        mSurfaceProvider = null;
+    }
+
+    // ------------------
     // Preview use case.
+    // ------------------
 
     /**
-     * Internal API used by {@link PreviewView} notify changes.
+     * Internal API used by {@link PreviewView} to notify changes.
      *
      * TODO(b/148791439): add LayoutDirection
      */
@@ -113,6 +164,8 @@ abstract class CameraController {
         if (width == 0 || height == 0) {
             return;
         }
+        // Keep a copy of SurfaceProvider so Preview can be recreated after switching camera.
+        mSurfaceProvider = surfaceProvider;
         Size newPreviewSize = new Size(width, height);
         if (newPreviewSize.equals(mPreviewSize) && mPreview != null) {
             // If the Surface size hasn't changed, reuse the UseCase with the new SurfaceProvider.
@@ -133,17 +186,11 @@ abstract class CameraController {
     @MainThread
     void clearPreviewSurface() {
         Threads.checkMainThread();
-        if (mCameraProvider != null) {
-            // Preview is required. Unbind everything if Preview is down.
-            mCameraProvider.unbindAll();
-        }
-        mPreviewSize = null;
-        mPreview = null;
-        mCamera = null;
+        clear();
     }
 
     @MainThread
-    Preview createPreview(Preview.SurfaceProvider surfaceProvider, Size previewSize) {
+    private Preview createPreview(Preview.SurfaceProvider surfaceProvider, Size previewSize) {
         Threads.checkMainThread();
         Preview preview = new Preview.Builder()
                 .setTargetResolution(previewSize)
@@ -152,11 +199,285 @@ abstract class CameraController {
         return preview;
     }
 
-    // TODO(b/148791439): Support ImageCapture.
+    // ----------------------
+    // ImageCapture UseCase.
+    // ----------------------
 
-    // TODO(b/148791439): Support VideoCapture as @Experimental.
+    /**
+     * Checks if {@link ImageCapture} is enabled.
+     *
+     * @see ImageCapture
+     */
+    @MainThread
+    public boolean isImageCaptureEnabled() {
+        Threads.checkMainThread();
+        return mImageCaptureEnabled;
+    }
 
-    // TODO(b/148791439): Allow user to select camera.
+    /**
+     * Enables or disables {@link ImageCapture}.
+     *
+     * @see ImageCapture
+     */
+    @MainThread
+    public void setImageCaptureEnabled(boolean imageCaptureEnabled) {
+        Threads.checkMainThread();
+        mImageCaptureEnabled = imageCaptureEnabled;
+        invalidateImageCapture();
+        mCamera = startCamera();
+    }
+
+    /**
+     * Gets the flash mode for {@link ImageCapture}.
+     *
+     * @return the flashMode. Value is {@link ImageCapture.FlashMode##FLASH_MODE_AUTO},
+     * {@link ImageCapture.FlashMode##FLASH_MODE_ON}, or
+     * {@link ImageCapture.FlashMode##FLASH_MODE_OFF}.
+     * @see ImageCapture.FlashMode
+     */
+    @ImageCapture.FlashMode
+    public int getImageCaptureFlashMode() {
+        return mFlashMode;
+    }
+
+    /**
+     * Sets the flash mode for {@link ImageCapture}.
+     *
+     * <p>If not set, the flash mode will default to {@link ImageCapture.FlashMode#FLASH_MODE_OFF}.
+     *
+     * @param flashMode the {@link ImageCapture.FlashMode} for {@link ImageCapture}.
+     * @see ImageCapture.FlashMode
+     */
+    public void setImageCaptureFlashMode(@ImageCapture.FlashMode int flashMode) {
+        Threads.checkMainThread();
+        mFlashMode = flashMode;
+        invalidateImageCapture();
+        mCamera = startCamera();
+    }
+
+    /**
+     * Captures a new still image and saves to a file along with application specified metadata.
+     *
+     * <p>The callback will be called only once for every invocation of this method.
+     *
+     * @param outputFileOptions  Options to store the newly captured image.
+     * @param executor           The executor in which the callback methods will be run.
+     * @param imageSavedCallback Callback to be called for the newly captured image.
+     * @see ImageCapture#takePicture(
+     *ImageCapture.OutputFileOptions, Executor, ImageCapture.OnImageSavedCallback)
+     */
+    @MainThread
+    public void takePicture(
+            ImageCapture.OutputFileOptions outputFileOptions,
+            Executor executor,
+            ImageCapture.OnImageSavedCallback imageSavedCallback) {
+        Threads.checkMainThread();
+        if (mCamera == null) {
+            // No-op if camera is not ready.
+            return;
+        }
+        Preconditions.checkState(mImageCaptureEnabled, IMAGE_CAPTURE_DISABLED_ERR_MSG);
+        Preconditions.checkNotNull(mImageCapture);
+
+        // Mirror the image for front camera.
+        if (mCameraSelector.getLensFacing() != null) {
+            outputFileOptions.getMetadata().setReversedHorizontal(
+                    mCameraSelector.getLensFacing() == CameraSelector.LENS_FACING_FRONT);
+        }
+        mImageCapture.takePicture(outputFileOptions, executor, imageSavedCallback);
+    }
+
+    /**
+     * Captures a new still image for in memory access.
+     *
+     * <p>The listener is responsible for calling {@link ImageProxy#close()} on the returned image.
+     *
+     * @param executor The executor in which the callback methods will be run.
+     * @param callback Callback to be invoked for the newly captured image
+     * @see ImageCapture#takePicture(Executor, ImageCapture.OnImageCapturedCallback)
+     */
+    @MainThread
+    public void takePicture(
+            Executor executor,
+            ImageCapture.OnImageCapturedCallback callback) {
+        Threads.checkMainThread();
+        if (mCamera == null) {
+            // No-op if camera is not ready.
+            return;
+        }
+        Preconditions.checkState(mImageCaptureEnabled, IMAGE_CAPTURE_DISABLED_ERR_MSG);
+        Preconditions.checkNotNull(mImageCapture);
+        mImageCapture.takePicture(executor, callback);
+    }
+
+    /**
+     * Invalidates and unbinds {@link ImageCapture} so it will be rebuilt and bound later.
+     */
+    private void invalidateImageCapture() {
+        if (mCameraProvider != null && mImageCapture != null) {
+            mCameraProvider.unbind(mImageCapture);
+        }
+        mImageCapture = null;
+        mCamera = null;
+    }
+
+    /**
+     * Creates {@link ImageCapture} object based on the current user settings.
+     */
+    @Nullable
+    private ImageCapture createImageCapture() {
+        if (!mImageCaptureEnabled) {
+            return null;
+        }
+        return new ImageCapture.Builder().setFlashMode(mFlashMode).build();
+    }
+
+    // -----------------
+    // Video capture
+    // -----------------
+
+    /**
+     * Checks if {@link VideoCapture} is use case.
+     *
+     * @see ImageCapture
+     */
+    @MainThread
+    public boolean isVideoCaptureEnabled() {
+        Threads.checkMainThread();
+        return mVideoCaptureEnabled;
+    }
+
+    /**
+     * Enables or disables {@link VideoCapture} use case.
+     *
+     * <p> Note that using both {@link #setVideoCaptureEnabled} and
+     * {@link #setImageCaptureEnabled} simultaneously true may not work on lower end devices.
+     *
+     * @see ImageCapture
+     */
+    @MainThread
+    public void setVideoCaptureEnabled(boolean videoCaptureEnabled) {
+        Threads.checkMainThread();
+        if (mVideoCaptureEnabled && !videoCaptureEnabled) {
+            stopRecording();
+        }
+        mVideoCaptureEnabled = videoCaptureEnabled;
+        invalidateVideoCapture();
+        mCamera = startCamera();
+    }
+
+    /**
+     * Takes a video and calls the OnVideoSavedCallback when done.
+     *
+     * @param outputFileOptions Options to store the newly captured video.
+     * @param executor          The executor in which the callback methods will be run.
+     * @param callback          Callback which will receive success or failure.
+     */
+    @MainThread
+    public void startRecording(VideoCapture.OutputFileOptions outputFileOptions,
+            Executor executor, final VideoCapture.OnVideoSavedCallback callback) {
+        Threads.checkMainThread();
+        Preconditions.checkState(mVideoCaptureEnabled, VIDEO_CAPTURE_DISABLED_ERR_MSG);
+        Preconditions.checkNotNull(mVideoCapture);
+        mVideoCapture.startRecording(outputFileOptions, executor,
+                new VideoCapture.OnVideoSavedCallback() {
+                    @Override
+                    public void onVideoSaved(
+                            @NonNull VideoCapture.OutputFileResults outputFileResults) {
+                        mVideoIsRecording.set(false);
+                        callback.onVideoSaved(outputFileResults);
+                    }
+
+                    @Override
+                    public void onError(int videoCaptureError, @NonNull String message,
+                            @Nullable Throwable cause) {
+                        mVideoIsRecording.set(false);
+                        callback.onError(videoCaptureError, message, cause);
+                    }
+                });
+        mVideoIsRecording.set(true);
+    }
+
+    /**
+     * Stops a in progress video recording.
+     */
+    @MainThread
+    public void stopRecording() {
+        Threads.checkMainThread();
+        if (mVideoIsRecording.get() && mVideoCapture != null) {
+            mVideoCapture.stopRecording();
+        }
+    }
+
+    /**
+     * Returns whether there is a in progress video recording.
+     */
+    @MainThread
+    public boolean isRecording() {
+        Threads.checkMainThread();
+        return mVideoIsRecording.get();
+    }
+
+    /**
+     * Creates {@link VideoCapture} object based on the current user settings.
+     */
+    @Nullable
+    private VideoCapture createVideoCapture() {
+        if (!mVideoCaptureEnabled) {
+            return null;
+        }
+        return new VideoCapture.Builder().build();
+    }
+
+    /**
+     * Invalidates and unbinds {@link ImageCapture} so it will be rebuilt and bound later.
+     */
+    private void invalidateVideoCapture() {
+        if (mCameraProvider != null && mImageCapture != null) {
+            mCameraProvider.unbind(mVideoCapture);
+        }
+        mVideoCapture = null;
+        mCamera = null;
+    }
+
+    // -----------------
+    // Camera control
+    // -----------------
+
+    /**
+     * Sets the {@link CameraSelector}. The default value is
+     * {@link CameraSelector#DEFAULT_BACK_CAMERA}.
+     *
+     * @see CameraSelector
+     */
+    public void setCameraSelector(@NonNull CameraSelector cameraSelector) {
+        mCameraSelector = cameraSelector;
+        if (mCameraProvider != null) {
+            // Preview is required. Unbind everything if Preview is down.
+            mCameraProvider.unbindAll();
+        }
+
+        // Recreate preview and nullify other use cases. This is necessary because use cases are
+        // not yet reusable.
+        // TODO(b/148791439): remove once use cases are reusable.
+        if (mPreview != null) {
+            Preconditions.checkNotNull(mSurfaceProvider);
+            Preconditions.checkNotNull(mPreviewSize);
+            mPreview = createPreview(mSurfaceProvider, mPreviewSize);
+        }
+        mImageCapture = null;
+
+        mCamera = startCamera();
+    }
+
+    /**
+     * Gets the {@link CameraSelector}.
+     *
+     * @see CameraSelector
+     */
+    public CameraSelector getCameraSelector() {
+        return mCameraSelector;
+    }
 
     // TODO(b/148791439): Handle rotation so the output is always in gravity orientation.
 
@@ -177,7 +498,22 @@ abstract class CameraController {
         }
         builder.addUseCase(mPreview);
 
-        // TODO(b/148791439): add all the use cases.
+        // Add ImageCapture.
+        if (mImageCapture == null) {
+            mImageCapture = createImageCapture();
+        }
+        if (mImageCapture != null) {
+            builder.addUseCase(mImageCapture);
+        }
+
+        // Add VideoCapture.
+        if (mVideoCapture == null) {
+            mVideoCapture = createVideoCapture();
+        }
+        if (mVideoCapture != null) {
+            builder.addUseCase(mVideoCapture);
+        }
+
         // TODO(b/148791439): set ViewPort if mPreviewSize/ LayoutDirection is not null.
         return builder.build();
     }
