@@ -17,7 +17,7 @@
 package androidx.work.inspection
 
 import android.app.Application
-import androidx.inspection.InspectorEnvironment
+import androidx.inspection.ArtToolInterface
 import androidx.inspection.testing.DefaultTestInspectorEnvironment
 import androidx.inspection.testing.InspectorTester
 import androidx.inspection.testing.TestInspectorExecutors
@@ -132,7 +132,7 @@ private class FakeInspectorEnvironment(
     override fun registerEntryHook(
         originClass: Class<*>,
         originMethod: String,
-        entryHook: InspectorEnvironment.EntryHook
+        entryHook: ArtToolInterface.EntryHook
     ) {
         // TODO: implement actual registerEntryHook behaviour
         registeredHooks.add(Hook.EntryHook(originClass, originMethod, entryHook))
@@ -148,7 +148,7 @@ sealed class Hook(val originClass: Class<*>, val originMethod: String) {
     class EntryHook(
         originClass: Class<*>,
         originMethod: String,
-        val entryHook: InspectorEnvironment.EntryHook
+        val entryHook: ArtToolInterface.EntryHook
     ) : Hook(originClass, originMethod)
 }
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.1.0-alpha08" client="gradle" version="4.1.0-alpha08">
+<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
 
     <issue
         id="UnknownNullness"
@@ -7,8 +7,8 @@
         errorLine1="        T onExit(T result);"
         errorLine2="        ~">
         <location
-            file="src/main/java/androidx/inspection/InspectorEnvironment.java"
-            line="84"
+            file="src/main/java/androidx/inspection/ArtToolInterface.java"
+            line="86"
             column="9"/>
     </issue>
 
@@ -18,8 +18,8 @@
         errorLine1="        T onExit(T result);"
         errorLine2="                 ~">
         <location
-            file="src/main/java/androidx/inspection/InspectorEnvironment.java"
-            line="84"
+            file="src/main/java/androidx/inspection/ArtToolInterface.java"
+            line="86"
             column="18"/>
     </issue>
 

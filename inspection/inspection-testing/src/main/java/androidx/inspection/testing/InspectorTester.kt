@@ -16,6 +16,7 @@
 
 package androidx.inspection.testing
 
+import androidx.inspection.ArtToolInterface
 import androidx.inspection.Connection
 import androidx.inspection.Inspector
 import androidx.inspection.InspectorEnvironment
@@ -143,7 +144,7 @@ open class DefaultTestInspectorEnvironment(
     override fun registerEntryHook(
         originClass: Class<*>,
         originMethod: String,
-        entryHook: InspectorEnvironment.EntryHook
+        entryHook: ArtToolInterface.EntryHook
     ) {
         throw UnsupportedOperationException()
     }
@@ -155,7 +156,7 @@ open class DefaultTestInspectorEnvironment(
     override fun <T : Any?> registerExitHook(
         originClass: Class<*>,
         originMethod: String,
-        exitHook: InspectorEnvironment.ExitHook<T>
+        exitHook: ArtToolInterface.ExitHook<T>
     ) {
         throw UnsupportedOperationException()
     }
