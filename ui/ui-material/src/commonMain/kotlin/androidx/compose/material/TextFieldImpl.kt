@@ -207,7 +207,7 @@ internal fun TextFieldImpl(
 
         when (type) {
             TextFieldType.Filled -> {
-                FilledTextFieldLayout(
+                TextFieldLayout(
                     textFieldModifier = Modifier
                         .preferredSizeIn(
                             minWidth = TextFieldMinWidth,
