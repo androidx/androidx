@@ -20,60 +20,61 @@ import androidx.compose.foundation.BaseTextField
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
-import androidx.compose.ui.FocusModifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.ExperimentalFocus
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.isFocused
+import androidx.compose.ui.focusObserver
+import androidx.compose.ui.focusRequester
+import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.sp
 
 @Composable
+@OptIn(ExperimentalFocus::class)
 fun TextFieldFocusTransition() {
-    val focusModifiers = List(6) {
-        // TODO(b/161297615): Replace FocusModifier with Modifier.focus()
-        @Suppress("DEPRECATION")
-        (FocusModifier())
-    }
+    val focusRequesters = List(6) { FocusRequester() }
 
     ScrollableColumn {
-        TextFieldWithFocusId(focusModifiers[0], focusModifiers[1])
-        TextFieldWithFocusId(focusModifiers[1], focusModifiers[2])
-        TextFieldWithFocusId(focusModifiers[2], focusModifiers[3])
-        TextFieldWithFocusId(focusModifiers[3], focusModifiers[4])
-        TextFieldWithFocusId(focusModifiers[4], focusModifiers[5])
-        TextFieldWithFocusId(focusModifiers[5], focusModifiers[0])
+        TextFieldWithFocusRequesters(focusRequesters[0], focusRequesters[1])
+        TextFieldWithFocusRequesters(focusRequesters[1], focusRequesters[2])
+        TextFieldWithFocusRequesters(focusRequesters[2], focusRequesters[3])
+        TextFieldWithFocusRequesters(focusRequesters[3], focusRequesters[4])
+        TextFieldWithFocusRequesters(focusRequesters[4], focusRequesters[5])
+        TextFieldWithFocusRequesters(focusRequesters[5], focusRequesters[0])
     }
 }
 
-// TODO(b/161297615): Replace the deprecated FocusModifier with the new Focus API.
-@Suppress("DEPRECATION")
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalFocus::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
-private fun TextFieldWithFocusId(focusModifier: FocusModifier, nextFocusModifier: FocusModifier) {
+private fun TextFieldWithFocusRequesters(
+    focusRequester: FocusRequester,
+    nextFocusRequester: FocusRequester
+) {
     val state = savedInstanceState(saver = TextFieldValue.Saver) {
         TextFieldValue("Focus Transition Test")
     }
-    val focused = remember { mutableStateOf(false) }
-    val color = if (focused.value) {
-        Color.Red
-    } else {
-        Color.Black
-    }
+    var color by remember { mutableStateOf(Black) }
+
     BaseTextField(
         value = state.value,
-        modifier = focusModifier,
+        modifier = Modifier
+            .focusObserver { color = if (it.isFocused) Red else Black }
+            .focusRequester(focusRequester),
         textStyle = TextStyle(color = color, fontSize = 32.sp),
-        onValueChange = {
-            state.value = it
-        },
-        onFocusChanged = { focused.value = it },
+        onValueChange = { state.value = it },
         imeAction = ImeAction.Next,
-        onImeActionPerformed = {
-            if (it == ImeAction.Next)
-                nextFocusModifier.requestFocus()
-        }
+        onImeActionPerformed = { if (it == ImeAction.Next) nextFocusRequester.requestFocus() }
     )
 }

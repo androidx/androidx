@@ -37,6 +37,9 @@ import androidx.compose.runtime.Providers
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.ExperimentalFocus
+import androidx.compose.ui.focus.isFocused
+import androidx.compose.ui.focusObserver
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -84,6 +87,7 @@ import kotlin.math.roundToInt
 
 @MediumTest
 @RunWith(JUnit4::class)
+@OptIn(ExperimentalFocus::class)
 class TextFieldTest {
 
     private val ExpectedMinimumTextFieldHeight = 56.dp
@@ -121,18 +125,20 @@ class TextFieldTest {
         testRule.setMaterialContent {
             Column {
                 TextField(
-                    modifier = Modifier.testTag(textField1Tag),
+                    modifier = Modifier
+                        .focusObserver { textField1Focused = it.isFocused }
+                        .testTag(textField1Tag),
                     value = "input1",
                     onValueChange = {},
-                    label = {},
-                    onFocusChanged = { textField1Focused = it }
+                    label = {}
                 )
                 TextField(
-                    modifier = Modifier.testTag(textField2Tag),
+                    modifier = Modifier
+                        .focusObserver { textField2Focused = it.isFocused }
+                        .testTag(textField2Tag),
                     value = "input2",
                     onValueChange = {},
-                    label = {},
-                    onFocusChanged = { textField2Focused = it }
+                    label = {}
                 )
             }
         }
@@ -158,11 +164,12 @@ class TextFieldTest {
         testRule.setMaterialContent {
             Box {
                 TextField(
-                    modifier = Modifier.testTag(TextfieldTag),
+                    modifier = Modifier
+                        .focusObserver { focused = it.isFocused }
+                        .testTag(TextfieldTag),
                     value = "input",
                     onValueChange = {},
-                    label = {},
-                    onFocusChanged = { focused = it }
+                    label = {}
                 )
             }
         }
@@ -698,17 +705,16 @@ class TextFieldTest {
         testRule.setMaterialContent {
             Stack(Modifier.background(color = Color.White)) {
                 TextField(
-                    modifier = Modifier.testTag(TextfieldTag),
+                    modifier = Modifier
+                        .focusObserver { if (it.isFocused) latch.countDown() }
+                        .testTag(TextfieldTag),
                     value = "",
                     onValueChange = {},
                     label = {},
                     shape = RectangleShape,
                     backgroundColor = Color.Blue,
                     activeColor = Color.Transparent,
-                    inactiveColor = Color.Transparent,
-                    onFocusChanged = { focused ->
-                        if (focused) latch.countDown()
-                    }
+                    inactiveColor = Color.Transparent
                 )
             }
         }

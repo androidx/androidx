@@ -45,7 +45,6 @@ import androidx.compose.runtime.savedinstancestate.Saver
 import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.structuralEqualityPolicy
-import androidx.compose.ui.FocusModifier
 import androidx.compose.ui.Layout
 import androidx.compose.ui.LayoutModifier
 import androidx.compose.ui.Measurable
@@ -53,8 +52,11 @@ import androidx.compose.ui.MeasureScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Placeable
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.focus.FocusState
-import androidx.compose.ui.focusState
+import androidx.compose.ui.focus.ExperimentalFocus
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.isFocused
+import androidx.compose.ui.focusObserver
+import androidx.compose.ui.focusRequester
 import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -83,7 +85,10 @@ internal enum class TextFieldType {
  * Implementation of the [TextField] and [OutlinedTextField]
  */
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalFocus::class,
+    ExperimentalFoundationApi::class
+)
 internal fun TextFieldImpl(
     type: TextFieldType,
     value: TextFieldValue,
@@ -99,7 +104,6 @@ internal fun TextFieldImpl(
     keyboardType: KeyboardType,
     imeAction: ImeAction,
     onImeActionPerformed: (ImeAction, SoftwareKeyboardController?) -> Unit,
-    onFocusChanged: (Boolean) -> Unit,
     onTextInputStarted: (SoftwareKeyboardController) -> Unit,
     activeColor: Color,
     inactiveColor: Color,
@@ -107,22 +111,21 @@ internal fun TextFieldImpl(
     backgroundColor: Color,
     shape: Shape
 ) {
-    @Suppress("DEPRECATION")
-    val focusModifier = FocusModifier()
     val keyboardController: Ref<SoftwareKeyboardController> = remember { Ref() }
 
-    val inputState = remember(value.text, focusModifier.focusState) {
-        mutableStateOf(
-            when {
-                focusModifier.focusState == FocusState.Focused -> InputPhase.Focused
-                value.text.isEmpty() -> InputPhase.UnfocusedEmpty
-                else -> InputPhase.UnfocusedNotEmpty
-            }
+    var isFocused by remember { mutableStateOf(false) }
+    val inputState by remember(value.text, isFocused) {
+    mutableStateOf(
+        when {
+            isFocused -> InputPhase.Focused
+            value.text.isEmpty() -> InputPhase.UnfocusedEmpty
+            else -> InputPhase.UnfocusedNotEmpty
+        }
         )
     }
 
     val decoratedPlaceholder: @Composable (() -> Unit)? =
-        if (placeholder != null && inputState.value == InputPhase.Focused && value.text.isEmpty()) {
+        if (placeholder != null && inputState == InputPhase.Focused && value.text.isEmpty()) {
             {
                 Decoration(
                     contentColor = inactiveColor,
@@ -149,10 +152,8 @@ internal fun TextFieldImpl(
             ) {
                 BaseTextField(
                     value = value,
-                    modifier = focusModifier,
                     textStyle = textStyle,
                     onValueChange = onValueChange,
-                    onFocusChanged = onFocusChanged,
                     cursorColor = if (isErrorValue) errorColor else activeColor,
                     visualTransformation = visualTransformation,
                     keyboardType = keyboardType,
@@ -169,16 +170,24 @@ internal fun TextFieldImpl(
         }
     }
 
+    val focusRequester = FocusRequester()
     val textFieldModifier = modifier
+        .focusRequester(focusRequester)
+        .focusObserver { isFocused = it.isFocused }
         .clickable(indication = null) {
-            focusModifier.requestFocus()
+            focusRequester.requestFocus()
+            // TODO(b/163109449): Showing and hiding keyboard should be handled by BaseTextField.
+            //  The requestFocus() call here should be enough to trigger the software keyboard.
+            //  Investiate why this is needed here. If it is really needed, instead of doing
+            //  this in the onClick callback, we should move this logic to the focusObserver
+            //  so that it can show or hide the keyboard based on the focus state.
             keyboardController.value?.showSoftwareKeyboard()
         }
 
     val emphasisLevels = EmphasisAmbient.current
 
     TextFieldTransitionScope.transition(
-        inputState = inputState.value,
+        inputState = inputState,
         activeColor = if (isErrorValue) {
             errorColor
         } else {
@@ -208,7 +217,7 @@ internal fun TextFieldImpl(
         when (type) {
             TextFieldType.Filled -> {
                 TextFieldLayout(
-                    textFieldModifier = Modifier
+                    modifier = Modifier
                         .preferredSizeIn(
                             minWidth = TextFieldMinWidth,
                             minHeight = TextFieldMinHeight
@@ -230,7 +239,7 @@ internal fun TextFieldImpl(
             }
             TextFieldType.Outlined -> {
                 OutlinedTextFieldLayout(
-                    textFieldModifier = Modifier
+                    modifier = Modifier
                         .preferredSizeIn(
                             minWidth = TextFieldMinWidth,
                             minHeight = TextFieldMinHeight + OutlinedTextFieldTopPadding
@@ -246,9 +255,7 @@ internal fun TextFieldImpl(
                     trailingColor = trailingColor,
                     labelProgress = labelProgress,
                     indicatorWidth = indicatorWidth,
-                    indicatorColor = animatedIndicatorColor,
-                    focusModifier = focusModifier,
-                    emptyInput = value.text.isEmpty()
+                    indicatorColor = animatedIndicatorColor
                 )
             }
         }

@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-// TODO(b/160821157): Replace FocusDetailedState with FocusState2 DEPRECATION
-@file:Suppress("DEPRECATION")
-
 package androidx.compose.material
 
 import androidx.compose.foundation.Box
@@ -30,13 +27,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.FocusModifier
 import androidx.compose.ui.Layout
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Placeable
 import androidx.compose.ui.drawBehind
-import androidx.compose.ui.focus.FocusState
-import androidx.compose.ui.focusState
+import androidx.compose.ui.focus.ExperimentalFocus
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.RectangleShape
@@ -102,8 +97,6 @@ import kotlin.math.roundToInt
  * Note that the emitted IME action may be different from what you specified through the
  * [imeAction] field. The callback also exposes a [SoftwareKeyboardController] instance as a
  * parameter that can be used to request to hide the software keyboard
- * @param onFocusChanged a callback to be invoked when the text field receives or loses focus
- * If the boolean parameter value is `true`, it means the text field has focus, and vice versa
  * @param onTextInputStarted a callback to be invoked when the connection with the platform's text
  * input service (e.g. software keyboard on Android) has been established. Called with the
  * [SoftwareKeyboardController] instance that can be used to request to show or hide the software
@@ -130,7 +123,6 @@ fun OutlinedTextField(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onImeActionPerformed: (ImeAction, SoftwareKeyboardController?) -> Unit = { _, _ -> },
-    onFocusChanged: (Boolean) -> Unit = {},
     onTextInputStarted: (SoftwareKeyboardController) -> Unit = {},
     activeColor: Color = MaterialTheme.colors.primary,
     inactiveColor: Color = MaterialTheme.colors.onSurface,
@@ -166,7 +158,6 @@ fun OutlinedTextField(
         keyboardType = keyboardType,
         imeAction = imeAction,
         onImeActionPerformed = onImeActionPerformed,
-        onFocusChanged = onFocusChanged,
         onTextInputStarted = onTextInputStarted,
         activeColor = activeColor,
         inactiveColor = inactiveColor,
@@ -218,8 +209,6 @@ fun OutlinedTextField(
  * Note that the emitted IME action may be different from what you specified through the
  * [imeAction] field. The callback also exposes a [SoftwareKeyboardController] instance as a
  * parameter that can be used to request to hide the software keyboard
- * @param onFocusChanged a callback to be invoked when the text field receives or loses focus
- * If the boolean parameter value is `true`, it means the text field has focus, and vice versa
  * @param onTextInputStarted a callback to be invoked when the connection with the platform's text
  * input service (e.g. software keyboard on Android) has been established. Called with the
  * [SoftwareKeyboardController] instance that can be used to request to show or hide the software
@@ -246,7 +235,6 @@ fun OutlinedTextField(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onImeActionPerformed: (ImeAction, SoftwareKeyboardController?) -> Unit = { _, _ -> },
-    onFocusChanged: (Boolean) -> Unit = {},
     onTextInputStarted: (SoftwareKeyboardController) -> Unit = {},
     activeColor: Color = MaterialTheme.colors.primary,
     inactiveColor: Color = MaterialTheme.colors.onSurface,
@@ -267,7 +255,6 @@ fun OutlinedTextField(
         keyboardType = keyboardType,
         imeAction = imeAction,
         onImeActionPerformed = onImeActionPerformed,
-        onFocusChanged = onFocusChanged,
         onTextInputStarted = onTextInputStarted,
         activeColor = activeColor,
         inactiveColor = inactiveColor,
@@ -277,11 +264,10 @@ fun OutlinedTextField(
     )
 }
 
-// TODO(b/161297615): Replace the deprecated FocusModifier with the new Focus API.
-@Suppress("DEPRECATION")
+@OptIn(ExperimentalFocus::class)
 @Composable
 internal fun OutlinedTextFieldLayout(
-    textFieldModifier: Modifier = Modifier,
+    modifier: Modifier = Modifier,
     decoratedTextField: @Composable (Modifier) -> Unit,
     decoratedPlaceholder: @Composable (() -> Unit)?,
     decoratedLabel: @Composable () -> Unit,
@@ -291,9 +277,7 @@ internal fun OutlinedTextFieldLayout(
     trailingColor: Color,
     labelProgress: Float,
     indicatorWidth: Dp,
-    indicatorColor: Color,
-    focusModifier: FocusModifier,
-    emptyInput: Boolean
+    indicatorColor: Color
 ) {
     val outlinedBorderParams = remember {
         OutlinedBorderParams(
@@ -310,24 +294,14 @@ internal fun OutlinedTextFieldLayout(
 
     // places leading icon, input field, label, placeholder, trailing icon
     IconsWithTextFieldLayout(
-        modifier = textFieldModifier.drawOutlinedBorder(outlinedBorderParams),
+        modifier = modifier.drawOutlinedBorder(outlinedBorderParams),
         textField = decoratedTextField,
         leading = leading,
         trailing = trailing,
         leadingColor = leadingColor,
         trailingColor = trailingColor,
         onLabelMeasured = {
-            val newLabelWidth = it * labelProgress
-
-            // TODO(b/160822875): Replace FocusState.Focused with FocusState2.isFocused.
-            @Suppress("DEPRECATION")
-            val labelWidth = when {
-                focusModifier.focusState == FocusState.Focused -> newLabelWidth
-                !emptyInput -> newLabelWidth
-                focusModifier.focusState == FocusState.NotFocused && emptyInput -> newLabelWidth
-                else -> 0f
-            }
-
+            val labelWidth = it * labelProgress
             if (outlinedBorderParams.labelWidth.value != labelWidth) {
                 outlinedBorderParams.labelWidth.value = labelWidth
             }

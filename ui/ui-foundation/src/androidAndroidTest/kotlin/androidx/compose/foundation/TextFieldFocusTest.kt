@@ -21,8 +21,12 @@ import androidx.compose.foundation.text.CoreTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.FocusModifier
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.ExperimentalFocus
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.isFocused
+import androidx.compose.ui.focusObserver
+import androidx.compose.ui.focusRequester
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.test.annotation.UiThreadTest
@@ -36,9 +40,8 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-// TODO(b/161297615): Replace the deprecated FocusModifier with the new Focus API.
-@Suppress("DEPRECATION")
 @LargeTest
+@OptIn(ExperimentalFocus::class)
 @RunWith(JUnit4::class)
 class TextFieldFocusTest {
     @get:Rule
@@ -50,19 +53,18 @@ class TextFieldFocusTest {
             val editor = remember { mutableStateOf(TextFieldValue()) }
             CoreTextField(
                 value = editor.value,
-                modifier = Modifier.width(10.dp).then(data.id),
+                modifier = Modifier
+                    .focusRequester(data.focusRequester)
+                    .focusObserver { data.focused = it.isFocused }
+                    .width(10.dp),
                 onValueChange = {
                     editor.value = it
-                },
-                onFocusChanged = {
-                    data.focused = it
                 }
             )
         }
     }
 
-    // TODO(b/161297615): Replace FocusModifier with Modifier.focus()
-    data class FocusTestData(val id: FocusModifier, var focused: Boolean = false)
+    data class FocusTestData(val focusRequester: FocusRequester, var focused: Boolean = false)
 
     @Test
     @UiThreadTest
@@ -72,17 +74,16 @@ class TextFieldFocusTest {
         runOnUiThread {
             composeTestRule.setContent {
                 testDataList = listOf(
-                    // TODO(b/161297615): Replace FocusModifier with Modifier.focus()
-                    FocusTestData(FocusModifier()),
-                    FocusTestData(FocusModifier()),
-                    FocusTestData(FocusModifier())
+                    FocusTestData(FocusRequester()),
+                    FocusTestData(FocusRequester()),
+                    FocusTestData(FocusRequester())
                 )
 
                 TextFieldApp(testDataList)
             }
         }
 
-        runOnIdle { testDataList[0].id.requestFocus() }
+        runOnIdle { testDataList[0].focusRequester.requestFocus() }
 
         runOnIdle {
             assertThat(testDataList[0].focused).isTrue()
@@ -90,14 +91,14 @@ class TextFieldFocusTest {
             assertThat(testDataList[2].focused).isFalse()
         }
 
-        runOnIdle { testDataList[1].id.requestFocus() }
+        runOnIdle { testDataList[1].focusRequester.requestFocus() }
         runOnIdle {
             assertThat(testDataList[0].focused).isFalse()
             assertThat(testDataList[1].focused).isTrue()
             assertThat(testDataList[2].focused).isFalse()
         }
 
-        runOnIdle { testDataList[2].id.requestFocus() }
+        runOnIdle { testDataList[2].focusRequester.requestFocus() }
         runOnIdle {
             assertThat(testDataList[0].focused).isFalse()
             assertThat(testDataList[1].focused).isFalse()

@@ -32,10 +32,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.savedinstancestate.savedInstanceState
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.FocusModifier
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusState
-import androidx.compose.ui.focusState
+import androidx.compose.ui.focus.ExperimentalFocus
+import androidx.compose.ui.focus.isFocused
+import androidx.compose.ui.focusObserver
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.onPositioned
@@ -89,30 +89,29 @@ import org.junit.runners.JUnit4
 
 @SmallTest
 @RunWith(JUnit4::class)
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalFocus::class,
+    ExperimentalFoundationApi::class
+)
 class TextFieldTest {
     @get:Rule
     val composeTestRule = createComposeRule()
 
     private val DefaultTextFieldWidth = 280.dp
 
-    // TODO(b/161297615): Replace the deprecated FocusModifier with the new Focus API.
-    @Suppress("DEPRECATION")
     @Test
     fun textField_focusInSemantics() {
         val inputService = mock<TextInputService>()
 
-        lateinit var focusModifier: FocusModifier
+        var isFocused = false
         composeTestRule.setContent {
             val state = remember { mutableStateOf(TextFieldValue("")) }
             Providers(
                 TextInputServiceAmbient provides inputService
             ) {
-                // TODO(b/161297615): Replace FocusModifier with Modifier.focus()
-                focusModifier = FocusModifier()
                 BaseTextField(
                     value = state.value,
-                    modifier = Modifier.fillMaxSize().then(focusModifier),
+                    modifier = Modifier.fillMaxSize().focusObserver { isFocused = it.isFocused },
                     onValueChange = { state.value = it }
                 )
             }
@@ -121,7 +120,7 @@ class TextFieldTest {
         onNode(hasInputMethodsSupport()).performClick()
 
         runOnIdle {
-            assertThat(focusModifier.focusState).isEqualTo(FocusState.Focused)
+            assertThat(isFocused).isTrue()
         }
     }
 
