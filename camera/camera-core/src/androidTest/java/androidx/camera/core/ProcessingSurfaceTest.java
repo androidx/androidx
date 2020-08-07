@@ -135,6 +135,14 @@ public final class ProcessingSurfaceTest {
             InterruptedException {
         // Arrange.
         final Semaphore frameReceivedSemaphore = new Semaphore(0);
+        ImageReaderProxy imageReaderProxy =
+                ImageReaderProxys.createIsolatedReader(
+                        RESOLUTION.getWidth(), RESOLUTION.getHeight(),
+                        ImageFormat.YUV_420_888, 2);
+
+        imageReaderProxy.setOnImageAvailableListener(
+                (imageReader) -> frameReceivedSemaphore.release(),
+                CameraXExecutors.directExecutor());
 
         // Create ProcessingSurface with user Surface.
         ProcessingSurface processingSurface = createProcessingSurface(
@@ -142,19 +150,6 @@ public final class ProcessingSurfaceTest {
                     @NonNull
                     @Override
                     protected ListenableFuture<Surface> provideSurface() {
-                        ImageReaderProxy imageReaderProxy =
-                                ImageReaderProxys.createIsolatedReader(
-                                        RESOLUTION.getWidth(), RESOLUTION.getHeight(),
-                                        ImageFormat.YUV_420_888, 2);
-
-                        imageReaderProxy.setOnImageAvailableListener(
-                                new ImageReaderProxy.OnImageAvailableListener() {
-                                    @Override
-                                    public void onImageAvailable(
-                                            @NonNull ImageReaderProxy imageReader) {
-                                        frameReceivedSemaphore.release();
-                                    }
-                                }, CameraXExecutors.directExecutor());
                         return Futures.immediateFuture(imageReaderProxy.getSurface());
                     }
                 });
