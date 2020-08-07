@@ -63,6 +63,128 @@ import java.util.List;
  *
  * <p>A default theme will be applied on the UI. The client can use {@link Style} to customize
  * the style for individual widgets as well as the overall UI background.
+ *
+ * <p>For Autofill provider developer, to build a content {@link Slice} that can be used as input to
+ * the {@link android.service.autofill.InlinePresentation}, you may use the
+ * {@link InlineSuggestionUi.Content.Builder}. For example:
+ *
+ * <pre class="prettyprint">
+ *   public Slice createSlice(
+ *       InlinePresentationSpec imeSpec,
+ *       CharSequence title,
+ *       CharSequence subtitle,
+ *       Icon startIcon,
+ *       Icon endIcon,
+ *       CharSequence contentDescription,
+ *       PendingIntent attribution) {
+ *     // Make sure that the IME spec claims support for v1 UI template.
+ *     Bundle imeStyle = imeSpec.getStyle();
+ *     if (!UiVersions.getVersions(imeStyle).contains(UiVersions.INLINE_UI_VERSION_1)) {
+ *       return null;
+ *     }
+ *
+ *     // Build the content for the v1 UI.
+ *     Content.Builder builder =
+ *         InlineSuggestionUi.newContentBuilder(attribution)
+ *           .setContentDescription(contentDescription);
+ *     if(!TextUtils.isEmpty(title)) {
+ *       builder.setTitle(title);
+ *     }
+ *     if (!TextUtils.isEmpty(subtitle)) {
+ *       builder.setSubtitle(subtitle);
+ *     }
+ *     if (startIcon != null) {
+ *       startIcon.setTintBlendMode(BlendMode.DST)
+ *       builder.setStartIcon(startIcon);
+ *     }
+ *     if (endIcon != null) {
+ *       builder.setEndIcon(endIcon);
+ *     }
+ *     return builder.build().getSlice();
+ *   }
+ * </pre>
+ *
+ * <p>For IME developer, to build a styles {@link Bundle} that can be used as input to the
+ * {@link android.widget.inline.InlinePresentationSpec}, you may use the
+ * {@link UiVersions.StylesBuilder}. For example:
+ *
+ * <pre class="prettyprint">
+ *   public Bundle createBundle(Bundle uiExtras) {
+ *     // We have styles builder, because it's possible that the IME can support multiple UI
+ *     // templates in the future.
+ *     StylesBuilder stylesBuilder = UiVersions.newStylesBuilder();
+ *
+ *     // Assuming we only want to support v1 UI template. If the provided uiExtras doesn't contain
+ *     // v1, then return null.
+ *     if (!UiVersions.getVersions(uiExtras).contains(UiVersions.INLINE_UI_VERSION_1)) {
+ *       return null;
+ *     }
+ *
+ *     // Create the style for v1 template.
+ *     Style style = InlineSuggestionUi.newStyleBuilder()
+ *         .setSingleIconChipStyle(
+ *             new ViewStyle.Builder()
+ *                 .setBackgroundColor(Color.TRANSPARENT)
+ *                 .setPadding(0, 0, 0, 0)
+ *                 .setLayoutMargin(0, 0, 0, 0)
+ *                 .build())
+ *         .setSingleIconChipIconStyle(
+ *             new ImageViewStyle.Builder()
+ *                 .setMaxWidth(actionIconSize)
+ *                 .setMaxHeight(actionIconSize)
+ *                 .setScaleType(ScaleType.FIT_CENTER)
+ *                 .setLayoutMargin(0, 0, pinnedActionMarginEnd, 0)
+ *                 .setTintList(actionIconColor)
+ *                 .build())
+ *         .setChipStyle(
+ *             new ViewStyle.Builder()
+ *                 .setBackground(
+ *                     Icon.createWithResource(this, R.drawable.chip_background))
+ *                 .setPadding(toPixel(13), 0, toPixel(13), 0)
+ *                 .build())
+ *         .setStartIconStyle(
+ *             new ImageViewStyle.Builder()
+ *                 .setLayoutMargin(0, 0, 0, 0)
+ *                 .setTintList(chipIconColor)
+ *                 .build())
+ *         .setTitleStyle(
+ *             new TextViewStyle.Builder()
+ *                 .setLayoutMargin(toPixel(4), 0, toPixel(4), 0)
+ *                 .setTextColor(Color.parseColor("#FF202124"))
+ *                 .setTextSize(16)
+ *                 .build())
+ *         .setSubtitleStyle(
+ *             new TextViewStyle.Builder()
+ *                 .setLayoutMargin(0, 0, toPixel(4), 0)
+ *                 .setTextColor(Color.parseColor("#99202124")) // 60% opacity
+ *                 .setTextSize(14)
+ *                 .build())
+ *         .setEndIconStyle(
+ *             new ImageViewStyle.Builder()
+ *                 .setLayoutMargin(0, 0, 0, 0)
+ *                 .setTintList(chipIconColor)
+ *                 .build())
+ *         .build();
+ *
+ *     // Add v1 UI style to the supported styles and return.
+ *     stylesBuilder.addStyle(style);
+ *     Bundle stylesBundle = stylesBuilder.build();
+ *     return stylesBundle;
+ *   }
+ * </pre>
+ *
+ * <p>Alternatively, if the IME wants to use the default style, then:
+ *
+ * <pre class="prettyprint">
+ *   public Bundle createBundle(Bundle uiExtras) {
+ *     if (!UiVersions.getVersions(uiExtras).contains(UiVersions.INLINE_UI_VERSION_1)) {
+ *       return null;
+ *     }
+ *     StylesBuilder stylesBuilder = UiVersions.newStylesBuilder();
+ *     stylesBuilder.addStyle(InlineSuggestionUi.newStyleBuilder().build());
+ *     return stylesBuilder.build();
+ *   }
+ * </pre>
  */
 @RequiresApi(api = Build.VERSION_CODES.R)
 public final class InlineSuggestionUi {
@@ -739,6 +861,10 @@ public final class InlineSuggestionUi {
             /**
              * Sets the start icon of the suggestion UI.
              *
+             * <p>Note that the {@link ImageViewStyle} style may specify the tint list to be
+             * applied on the icon. If you don't want that, you may disable it by calling {@code
+             * Icon#setTintBlendMode(BlendMode.DST)}.
+             *
              * @param startIcon {@link Icon} resource displayed at start of slice.
              */
             @NonNull
@@ -749,6 +875,10 @@ public final class InlineSuggestionUi {
 
             /**
              * Sets the end icon of the suggestion UI.
+             *
+             * <p>Note that the {@link ImageViewStyle} style may specify the tint list to be
+             * applied on the icon. If you don't want that, you may disable it by calling {@code
+             * Icon#setTintBlendMode(BlendMode.DST)}.
              *
              * @param endIcon {@link Icon} resource displayed at end of slice.
              */
