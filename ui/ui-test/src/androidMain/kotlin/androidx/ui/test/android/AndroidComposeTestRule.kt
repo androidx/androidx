@@ -203,6 +203,7 @@ class AndroidComposeTestRule<T : ComponentActivity>(
             blinkingCursorEnabled = true
             AndroidOwnerRegistry.tearDownRegistry()
             FirstDrawRegistry.tearDownRegistry()
+            unregisterComposeFromEspresso()
             // Dispose the content
             if (disposeContentHook != null) {
                 runOnUiThread {

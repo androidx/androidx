@@ -26,6 +26,7 @@ import androidx.test.espresso.IdlingResource
 import androidx.ui.test.TestAnimationClock
 import androidx.ui.test.runOnUiThread
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.concurrent.atomic.AtomicInteger
 
 /**
  * In case Espresso times out, implementing this interface enables our resources to explain why
@@ -92,6 +93,9 @@ internal object ComposeIdlingResource : BaseIdlingResource(), IdlingResourceWith
     private var hadAnimationClocksIdle = true
     private var hadNoSnapshotChanges = true
     private var hadNoRecomposerChanges = true
+    private var lastCompositionAwaiters = 0
+
+    private var compositionAwaiters = AtomicInteger(0)
 
     /**
      * Returns whether or not Compose is idle, without starting to poll if it is not.
@@ -102,8 +106,14 @@ internal object ComposeIdlingResource : BaseIdlingResource(), IdlingResourceWith
             hadNoSnapshotChanges = !Snapshot.current.hasPendingChanges()
             hadNoRecomposerChanges = !Recomposer.current().hasPendingChanges()
             hadAnimationClocksIdle = areAllClocksIdle()
+            lastCompositionAwaiters = compositionAwaiters.get()
 
-            hadNoSnapshotChanges && hadNoRecomposerChanges && hadAnimationClocksIdle
+            check(lastCompositionAwaiters >= 0) {
+                "More CompositionAwaiters were removed then added ($lastCompositionAwaiters)"
+            }
+
+            hadNoSnapshotChanges && hadNoRecomposerChanges && hadAnimationClocksIdle &&
+                    lastCompositionAwaiters == 0
         }
     }
 
@@ -134,6 +144,22 @@ internal object ComposeIdlingResource : BaseIdlingResource(), IdlingResourceWith
         }
     }
 
+    /**
+     * Called by [CompositionAwaiter] to indicate that this [ComposeIdlingResource] should report
+     * busy to Espresso while that [CompositionAwaiter] is checking idleness.
+     */
+    internal fun addCompositionAwaiter() {
+        compositionAwaiters.incrementAndGet()
+    }
+
+    /**
+     * Called by [CompositionAwaiter] to indicate that this [ComposeIdlingResource] can report
+     * idle as far as the calling [CompositionAwaiter] is concerned.
+     */
+    internal fun removeCompositionAwaiter() {
+        compositionAwaiters.decrementAndGet()
+    }
+
     internal fun registerTestClock(clock: TestAnimationClock) {
         synchronized(clocks) {
             clocks.add(clock)
@@ -153,17 +179,24 @@ internal object ComposeIdlingResource : BaseIdlingResource(), IdlingResourceWith
     }
 
     override fun getDiagnosticMessageIfBusy(): String? {
-        val wasIdle = hadNoSnapshotChanges && hadNoRecomposerChanges && hadAnimationClocksIdle
+        val hadSnapshotChanges = !hadNoSnapshotChanges
+        val hadRecomposerChanges = !hadNoRecomposerChanges
+        val hadRunningAnimations = !hadAnimationClocksIdle
+        val numCompositionAwaiters = lastCompositionAwaiters
+        val wasAwaitingCompositions = numCompositionAwaiters > 0
+
+        val wasIdle = !hadSnapshotChanges && !hadRecomposerChanges &&
+                !hadRunningAnimations && !wasAwaitingCompositions
 
         if (wasIdle) {
             return null
         }
 
         val busyReasons = mutableListOf<String>()
-        if (!hadAnimationClocksIdle) {
+        if (hadRunningAnimations) {
             busyReasons.add("animations")
         }
-        val busyRecomposing = !(hadNoRecomposerChanges && hadNoSnapshotChanges)
+        val busyRecomposing = hadSnapshotChanges || hadRecomposerChanges || wasAwaitingCompositions
         if (busyRecomposing) {
             busyReasons.add("pending recompositions")
         }
@@ -172,8 +205,9 @@ internal object ComposeIdlingResource : BaseIdlingResource(), IdlingResourceWith
         if (busyRecomposing) {
             message += "- Note: Timeout on pending recomposition means that there are most likely" +
                     " infinite re-compositions happening in the tested code.\n"
-            message += "- Debug: hadRecomposerChanges = ${!hadNoRecomposerChanges}, "
-            message += "hadSnapshotChanges = ${!hadNoSnapshotChanges} "
+            message += "- Debug: hadRecomposerChanges = $hadRecomposerChanges, "
+            message += "hadSnapshotChanges = $hadSnapshotChanges, "
+            message += "numCompositionAwaiters = $numCompositionAwaiters"
         }
         return message
     }
