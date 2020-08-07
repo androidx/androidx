@@ -736,7 +736,8 @@ public abstract class RoomDatabase {
          * @return This {@link Builder} instance.
          */
         @NonNull
-        @SuppressLint("BuilderSetStyle") // To keep naming consistency, methods pre-dates rule.
+        @SuppressLint({"BuilderSetStyle", "LambdaLast"}) // To keep naming consistency,
+        // methods pre-dates rule.
         public Builder<T> createFromInputStream(
                 @NonNull Callable<InputStream> inputStreamCallable,
                 @NonNull PrepackagedCallback callback) {
