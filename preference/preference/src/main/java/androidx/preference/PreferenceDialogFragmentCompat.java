@@ -25,10 +25,12 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
+import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.widget.TextView;
 
@@ -203,10 +205,21 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
 
     /**
      * Sets the required flags on the dialog window to enable input method window to show up.
+     * <p>
+     * Note that starting from Android R, the new WindowInsets API supports showing soft-input
+     * on-demand, so there is no longer a need to rely on the
+     * {@link WindowManager.LayoutParams#SOFT_INPUT_STATE_ALWAYS_VISIBLE} flag to show the
+     * soft-input when there is no focused editor.</p>
      */
     private void requestInputMethod(Dialog dialog) {
-        Window window = dialog.getWindow();
-        window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+            // TODO:(b/163914595) Remove the dependency of STATE_ALWAYS_VISIBLE for pre-R.
+            Window window = dialog.getWindow();
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        } else {
+            dialog.getWindow().getDecorView().getWindowInsetsController()
+                    .show(WindowInsets.Type.ime());
+        }
     }
 
     /**
