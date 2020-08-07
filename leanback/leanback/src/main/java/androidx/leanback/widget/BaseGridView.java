@@ -249,7 +249,6 @@ public abstract class BaseGridView extends RecyclerView {
     private OnTouchInterceptListener mOnTouchInterceptListener;
     private OnMotionInterceptListener mOnMotionInterceptListener;
     private OnKeyInterceptListener mOnKeyInterceptListener;
-    RecyclerView.RecyclerListener mChainedRecyclerListener;
     private OnUnhandledKeyListener mOnUnhandledKeyListener;
 
     /**
@@ -274,13 +273,10 @@ public abstract class BaseGridView extends RecyclerView {
         // Change animation will create a new view and cause undesired
         // focus animation between the old view and new view.
         ((SimpleItemAnimator)getItemAnimator()).setSupportsChangeAnimations(false);
-        super.setRecyclerListener(new RecyclerView.RecyclerListener() {
+        super.addRecyclerListener(new RecyclerView.RecyclerListener() {
             @Override
-            public void onViewRecycled(RecyclerView.ViewHolder holder) {
+            public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
                 mLayoutManager.onChildRecycled(holder);
-                if (mChainedRecyclerListener != null) {
-                    mChainedRecyclerListener.onViewRecycled(holder);
-                }
             }
         });
     }
@@ -1156,11 +1152,6 @@ public abstract class BaseGridView extends RecyclerView {
     @Override
     public void onRtlPropertiesChanged(int layoutDirection) {
         mLayoutManager.onRtlPropertiesChanged(layoutDirection);
-    }
-
-    @Override
-    public void setRecyclerListener(RecyclerView.RecyclerListener listener) {
-        mChainedRecyclerListener = listener;
     }
 
     /**

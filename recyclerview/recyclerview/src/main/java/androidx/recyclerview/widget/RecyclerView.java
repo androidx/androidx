@@ -1294,7 +1294,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     }
 
     /**
-     * Removes the provided listener from RecylerListener list.
+     * Removes the provided listener from RecyclerListener list.
      *
      * @param listener Listener to unregister.
      */
