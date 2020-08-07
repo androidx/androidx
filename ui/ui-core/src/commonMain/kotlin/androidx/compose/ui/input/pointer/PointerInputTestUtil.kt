@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.Uptime
 
 // TODO(shepshapard): Document.
 
-fun down(
+internal fun down(
     id: Long,
     duration: Duration = Duration.Zero,
     x: Float = 0f,
@@ -40,7 +40,7 @@ fun down(
         ConsumedData(Offset.Zero, false)
     )
 
-fun PointerInputChange.moveTo(duration: Duration, x: Float = 0f, y: Float = 0f) =
+internal fun PointerInputChange.moveTo(duration: Duration, x: Float = 0f, y: Float = 0f) =
     copy(
         previous = current,
         current = PointerInputData(
@@ -51,7 +51,7 @@ fun PointerInputChange.moveTo(duration: Duration, x: Float = 0f, y: Float = 0f) 
         consumed = ConsumedData()
     )
 
-fun PointerInputChange.moveBy(duration: Duration, dx: Float = 0f, dy: Float = 0f) =
+internal fun PointerInputChange.moveBy(duration: Duration, dx: Float = 0f, dy: Float = 0f) =
     copy(
         previous = current,
         current = PointerInputData(
@@ -62,7 +62,7 @@ fun PointerInputChange.moveBy(duration: Duration, dx: Float = 0f, dy: Float = 0f
         consumed = ConsumedData()
     )
 
-fun PointerInputChange.up(duration: Duration) =
+internal fun PointerInputChange.up(duration: Duration) =
     copy(
         previous = current,
         current = PointerInputData(
@@ -73,7 +73,11 @@ fun PointerInputChange.up(duration: Duration) =
         consumed = ConsumedData()
     )
 
-fun PointerInputChange.consume(dx: Float = 0f, dy: Float = 0f, downChange: Boolean = false) =
+internal fun PointerInputChange.consume(
+    dx: Float = 0f,
+    dy: Float = 0f,
+    downChange: Boolean = false
+) =
     copy(
         consumed = consumed.copy(
             positionChange = Offset(
@@ -83,7 +87,7 @@ fun PointerInputChange.consume(dx: Float = 0f, dy: Float = 0f, downChange: Boole
         )
     )
 
-fun PointerInputHandler.invokeOverAllPasses(
+internal fun PointerInputHandler.invokeOverAllPasses(
     pointerInputChanges: PointerInputChange,
     size: IntSize = IntSize(Int.MAX_VALUE, Int.MAX_VALUE)
 ) = invokeOverPasses(
@@ -96,7 +100,7 @@ fun PointerInputHandler.invokeOverAllPasses(
     size = size
 ).first()
 
-fun PointerInputHandler.invokeOverAllPasses(
+internal fun PointerInputHandler.invokeOverAllPasses(
     vararg pointerInputChanges: PointerInputChange,
     size: IntSize = IntSize(Int.MAX_VALUE, Int.MAX_VALUE)
 ) = invokeOverPasses(
@@ -110,26 +114,26 @@ fun PointerInputHandler.invokeOverAllPasses(
 )
 
 // TODO(shepshapard): Rename to invokeOverPass
-fun PointerInputHandler.invokeOverPasses(
+internal fun PointerInputHandler.invokeOverPasses(
     pointerInputChange: PointerInputChange,
     pointerEventPass: PointerEventPass,
     size: IntSize = IntSize(Int.MAX_VALUE, Int.MAX_VALUE)
 ) = invokeOverPasses(listOf(pointerInputChange), listOf(pointerEventPass), size).first()
 
 // TODO(shepshapard): Rename to invokeOverPass
-fun PointerInputHandler.invokeOverPasses(
+internal fun PointerInputHandler.invokeOverPasses(
     vararg pointerInputChanges: PointerInputChange,
     pointerEventPass: PointerEventPass,
     size: IntSize = IntSize(Int.MAX_VALUE, Int.MAX_VALUE)
 ) = invokeOverPasses(pointerInputChanges.toList(), listOf(pointerEventPass), size)
 
-fun PointerInputHandler.invokeOverPasses(
+internal fun PointerInputHandler.invokeOverPasses(
     pointerInputChange: PointerInputChange,
     vararg pointerEventPasses: PointerEventPass,
     size: IntSize = IntSize(Int.MAX_VALUE, Int.MAX_VALUE)
 ) = invokeOverPasses(listOf(pointerInputChange), pointerEventPasses.toList(), size).first()
 
-fun PointerInputHandler.invokeOverPasses(
+internal fun PointerInputHandler.invokeOverPasses(
     pointerInputChanges: List<PointerInputChange>,
     pointerEventPasses: List<PointerEventPass>,
     size: IntSize = IntSize(Int.MAX_VALUE, Int.MAX_VALUE)
@@ -149,7 +153,7 @@ fun PointerInputHandler.invokeOverPasses(
  *
  * @param event The event to dispatch.
  */
-fun ((CustomEvent, PointerEventPass) -> Unit).invokeOverAllPasses(
+internal fun ((CustomEvent, PointerEventPass) -> Unit).invokeOverAllPasses(
     event: CustomEvent
 ) {
     invokeOverPasses(
@@ -169,7 +173,7 @@ fun ((CustomEvent, PointerEventPass) -> Unit).invokeOverAllPasses(
  * @param event The event to dispatch.
  * @param pointerEventPasses The [PointerEventPass]es to pass to each call to [this].
  */
-fun ((CustomEvent, PointerEventPass) -> Unit).invokeOverPasses(
+internal fun ((CustomEvent, PointerEventPass) -> Unit).invokeOverPasses(
     event: CustomEvent,
     pointerEventPasses: List<PointerEventPass>
 ) {
