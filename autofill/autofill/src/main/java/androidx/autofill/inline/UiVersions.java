@@ -122,6 +122,8 @@ public final class UiVersions {
 
     /**
      * Returns a new styles builder.
+     *
+     * <p>See {@link androidx.autofill.inline.v1.InlineSuggestionUi} for example usage.
      */
     @NonNull
     public static StylesBuilder newStylesBuilder() {
