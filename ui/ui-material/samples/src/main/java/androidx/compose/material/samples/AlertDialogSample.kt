@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.AlertDialog
-import androidx.compose.material.AlertDialogButtonLayout
 import androidx.compose.material.Button
 import androidx.compose.material.TextButton
 import androidx.compose.runtime.Composable
@@ -34,12 +33,12 @@ import androidx.compose.ui.unit.dp
 
 @Sampled
 @Composable
-fun SideBySideAlertDialogSample() {
+fun AlertDialogSample() {
     val openDialog = remember { mutableStateOf(true) }
 
     if (openDialog.value) {
         AlertDialog(
-            onCloseRequest = {
+            onDismissRequest = {
                 // Dismiss the dialog when the user clicks outside the dialog or on the back
                 // button. If you want to disable that functionality, simply use an empty
                 // onCloseRequest.
@@ -67,48 +66,7 @@ fun SideBySideAlertDialogSample() {
                 }) {
                     Text("Dismiss")
                 }
-            },
-            buttonLayout = AlertDialogButtonLayout.SideBySide
-        )
-    }
-}
-
-@Sampled
-@Composable
-fun StackedAlertDialogSample() {
-    val openDialog = remember { mutableStateOf(true) }
-
-    if (openDialog.value) {
-        AlertDialog(
-            onCloseRequest = {
-                // In this example we allow the dialog to be closed by other actions
-                // such as taping outside or pressing the back button.
-                openDialog.value = false
-            },
-            title = {
-                Text(text = "Title")
-            },
-            text = {
-                Text(
-                    "This area typically contains the supportive text " +
-                            "which presents the details regarding the Dialog's purpose."
-                )
-            },
-            confirmButton = {
-                TextButton(onClick = {
-                    openDialog.value = false
-                }) {
-                    Text("Long Confirm Button")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = {
-                    openDialog.value = false
-                }) {
-                    Text("Long Dismiss Button")
-                }
-            },
-            buttonLayout = AlertDialogButtonLayout.Stacked
+            }
         )
     }
 }
@@ -120,7 +78,7 @@ fun CustomAlertDialogSample() {
 
     if (openDialog.value) {
         AlertDialog(
-            onCloseRequest = {
+            onDismissRequest = {
                 openDialog.value = false
             },
             title = {

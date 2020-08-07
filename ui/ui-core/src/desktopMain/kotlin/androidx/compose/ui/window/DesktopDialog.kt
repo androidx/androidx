@@ -20,6 +20,6 @@ import androidx.compose.runtime.Composable
 
 // TODO(demin): move Dialog from ui-desktop module
 @Composable
-actual fun Dialog(onCloseRequest: () -> Unit, children: @Composable () -> Unit) {
+actual fun Dialog(onDismissRequest: () -> Unit, children: @Composable () -> Unit) {
     TODO("not implemented")
 }

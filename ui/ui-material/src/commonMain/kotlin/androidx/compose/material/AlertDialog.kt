@@ -20,72 +20,86 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Box
-import androidx.compose.foundation.ContentGravity
 import androidx.compose.ui.window.Dialog
 import androidx.compose.foundation.ProvideTextStyle
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ExperimentalLayout
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.MainAxisAlignment
+import androidx.compose.foundation.layout.SizeMode
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeight
-import androidx.compose.foundation.layout.preferredWidth
-import androidx.compose.material.AlertDialogButtonLayout.SideBySide
-import androidx.compose.material.AlertDialogButtonLayout.Stacked
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 /**
  * Alert dialog is a [Dialog] which interrupts the user with urgent information, details or actions.
  *
- * There are two different layouts for showing the buttons inside the Alert dialog provided by
- * [AlertDialogButtonLayout].
+ * The dialog will position its buttons based on the available space. By default it will try to
+ * place them horizontally next to each other and fallback to horizontal placement if not enough
+ * space is available. There is also another version of this composable that has a slot for buttons
+ * to provide custom buttons layout.
  *
- * Sample of dialog with side by side buttons:
+ * Sample of dialog:
+ * @sample androidx.compose.material.samples.AlertDialogSample
  *
- * @sample androidx.compose.material.samples.SideBySideAlertDialogSample
- *
- * Sample of dialog with stacked buttons:
- *
- * @sample androidx.compose.material.samples.StackedAlertDialogSample
- *
- * @param onCloseRequest Executes when the user tries to dismiss the Dialog by clicking outside
- * or pressing the back button.
+ * @param onDismissRequest Executes when the user tries to dismiss the Dialog by clicking outside
+ * or pressing the back button. This is not called when the dismiss button is clicked.
+ * @param confirmButton A button which is meant to confirm a proposed action, thus resolving
+ * what triggered the dialog. The dialog does not set up any events for this button so they need
+ * to be set up by the caller.
+ * @param modifier Modifier to be applied to the layout of the dialog.
+ * @param dismissButton A button which is meant to dismiss the dialog. The dialog does not set up
+ * any events for this button so they need to be set up by the caller.
  * @param title The title of the Dialog which should specify the purpose of the Dialog. The title
  * is not mandatory, because there may be sufficient information inside the [text]. Provided text
  * style will be [Typography.h6].
  * @param text The text which presents the details regarding the Dialog's purpose. Provided text
  * style will be [Typography.body1].
- * @param confirmButton A button which is meant to confirm a proposed action, thus resolving
- * what triggered the dialog.
- * @param dismissButton A button which is meant to dismiss the dialog.
- * @param buttonLayout An enum which specifies how the buttons are positioned inside the dialog:
- * SideBySide or Stacked.
  * @param shape Defines the Dialog's shape
+ * @param backgroundColor The background color of the dialog.
+ * @param contentColor The preferred content color provided by this dialog to its children.
  */
 @Composable
 fun AlertDialog(
-    onCloseRequest: () -> Unit,
-    title: @Composable (() -> Unit)? = null,
-    text: @Composable () -> Unit,
+    onDismissRequest: () -> Unit,
     confirmButton: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
     dismissButton: @Composable (() -> Unit)? = null,
-    buttonLayout: AlertDialogButtonLayout = SideBySide,
-    shape: Shape = MaterialTheme.shapes.medium
+    title: @Composable (() -> Unit)? = null,
+    text: @Composable (() -> Unit)? = null,
+    shape: Shape = MaterialTheme.shapes.medium,
+    backgroundColor: Color = MaterialTheme.colors.surface,
+    contentColor: Color = contentColorFor(backgroundColor)
 ) {
     AlertDialog(
-        onCloseRequest = onCloseRequest,
+        onDismissRequest = onDismissRequest,
+        buttons = {
+            @OptIn(ExperimentalLayout::class)
+            Stack(Modifier.fillMaxWidth().padding(all = 8.dp)) {
+                FlowRow(
+                    mainAxisSize = SizeMode.Expand,
+                    mainAxisAlignment = MainAxisAlignment.End,
+                    mainAxisSpacing = 8.dp,
+                    crossAxisSpacing = 12.dp
+                ) {
+                    if (dismissButton != null) {
+                        dismissButton()
+                    }
+                    confirmButton()
+                }
+            }
+        },
+        modifier = modifier,
         title = title,
         text = text,
-        buttons = {
-            AlertDialogButtonLayout(
-                confirmButton = confirmButton,
-                dismissButton = dismissButton,
-                buttonLayout = buttonLayout
-            )
-        },
-        shape = shape
+        shape = shape,
+        backgroundColor = backgroundColor,
+        contentColor = contentColor
     )
 }
 
@@ -96,28 +110,36 @@ fun AlertDialog(
  *
  * @sample androidx.compose.material.samples.CustomAlertDialogSample
  *
- * @param onCloseRequest Executes when the user tries to dismiss the Dialog by clicking outside
- * or pressing the back button.
+ * @param onDismissRequest Executes when the user tries to dismiss the Dialog by clicking outside
+ * or pressing the back button. This is not called when the dismiss button is clicked.
+ * @param buttons Function that emits the layout with the buttons.
+ * @param modifier Modifier to be applied to the layout of the dialog.
  * @param title The title of the Dialog which should specify the purpose of the Dialog. The title
  * is not mandatory, because there may be sufficient information inside the [text]. Provided text
  * style will be [Typography.h6].
  * @param text The text which presents the details regarding the Dialog's purpose. Provided text
  * style will be [Typography.body1].
- * @param buttons Function that emits the layout with the buttons
- * @param shape Defines the Dialog's shape
+ * @param shape Defines the Dialog's shape.
+ * @param backgroundColor The background color of the dialog.
+ * @param contentColor The preferred content color provided by this dialog to its children.
  */
 @Composable
 fun AlertDialog(
-    onCloseRequest: () -> Unit,
-    title: (@Composable () -> Unit)? = null,
-    text: @Composable () -> Unit,
+    onDismissRequest: () -> Unit,
     buttons: @Composable () -> Unit,
-    shape: Shape = MaterialTheme.shapes.medium
+    modifier: Modifier = Modifier,
+    title: (@Composable () -> Unit)? = null,
+    text: @Composable (() -> Unit)? = null,
+    shape: Shape = MaterialTheme.shapes.medium,
+    backgroundColor: Color = MaterialTheme.colors.surface,
+    contentColor: Color = contentColorFor(backgroundColor)
 ) {
-    Dialog(onCloseRequest = onCloseRequest) {
+    Dialog(onDismissRequest = onDismissRequest) {
         Surface(
-            modifier = AlertDialogWidth,
-            shape = shape
+            modifier = modifier,
+            shape = shape,
+            color = backgroundColor,
+            contentColor = contentColor
         ) {
             val emphasisLevels = EmphasisAmbient.current
             Column {
@@ -134,65 +156,21 @@ fun AlertDialog(
                     Spacer(NoTitleExtraHeight)
                 }
 
-                Box(TextPadding.gravity(Alignment.Start)) {
-                    ProvideEmphasis(emphasisLevels.medium) {
-                        val textStyle = MaterialTheme.typography.body2
-                        ProvideTextStyle(textStyle, text)
+                if (text != null) {
+                    Box(TextPadding.gravity(Alignment.Start)) {
+                        ProvideEmphasis(emphasisLevels.medium) {
+                            val textStyle = MaterialTheme.typography.body2
+                            ProvideTextStyle(textStyle, text)
+                        }
                     }
+                    Spacer(TextToButtonsHeight)
                 }
-                Spacer(TextToButtonsHeight)
                 buttons()
             }
         }
     }
 }
 
-// TODO(b/138925106): Add Auto mode when the flow layout is implemented
-/**
- * An enum which specifies how the buttons are positioned inside the [AlertDialog]:
- *
- * [SideBySide] - positions the dismiss button to the left side of the confirm button in LTR
- * layout direction contexts, and to the right otherwise.
- * [Stacked] - positions the dismiss button below the confirm button.
- */
-enum class AlertDialogButtonLayout {
-    SideBySide,
-    Stacked
-}
-
-@Composable
-private fun AlertDialogButtonLayout(
-    confirmButton: @Composable () -> Unit,
-    dismissButton: @Composable (() -> Unit)?,
-    buttonLayout: AlertDialogButtonLayout
-) {
-    Box(ButtonsBoxModifier, gravity = ContentGravity.CenterEnd) {
-        if (buttonLayout == SideBySide) {
-            Row(horizontalArrangement = Arrangement.End) {
-                if (dismissButton != null) {
-                    dismissButton()
-                    Spacer(ButtonsWidthSpace)
-                }
-
-                confirmButton()
-            }
-        } else {
-            Column {
-                confirmButton()
-
-                if (dismissButton != null) {
-                    Spacer(ButtonsHeightSpace)
-                    dismissButton()
-                }
-            }
-        }
-    }
-}
-
-private val AlertDialogWidth = Modifier.preferredWidth(312.dp)
-private val ButtonsBoxModifier = Modifier.fillMaxWidth().padding(all = 8.dp)
-private val ButtonsWidthSpace = Modifier.preferredWidth(8.dp)
-private val ButtonsHeightSpace = Modifier.preferredHeight(12.dp)
 // TODO(b/138924683): Top padding should be actually be a distance between the Text baseline and
 //  the Title baseline
 private val TextPadding = Modifier.padding(start = 24.dp, top = 20.dp, end = 24.dp, bottom = 0.dp)

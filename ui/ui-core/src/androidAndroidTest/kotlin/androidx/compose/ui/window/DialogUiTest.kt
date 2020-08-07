@@ -53,7 +53,7 @@ class DialogUiTest {
             val showDialog = remember { mutableStateOf(true) }
 
             if (showDialog.value) {
-                Dialog(onCloseRequest = {}) {
+                Dialog(onDismissRequest = {}) {
                     Text(defaultText)
                 }
             }
@@ -73,7 +73,7 @@ class DialogUiTest {
             val text = remember { mutableStateOf(textBeforeClick) }
 
             if (showDialog.value) {
-                Dialog(onCloseRequest = {
+                Dialog(onDismissRequest = {
                     showDialog.value = false
                 }) {
                     Text(
@@ -103,7 +103,7 @@ class DialogUiTest {
             val showDialog = remember { mutableStateOf(true) }
 
             if (showDialog.value) {
-                Dialog(onCloseRequest = {
+                Dialog(onDismissRequest = {
                     showDialog.value = false
                 }) {
                     Text(defaultText)
@@ -127,7 +127,7 @@ class DialogUiTest {
             val showDialog = remember { mutableStateOf(true) }
 
             if (showDialog.value) {
-                Dialog(onCloseRequest = {}) {
+                Dialog(onDismissRequest = {}) {
                     Text(defaultText)
                 }
             }
@@ -150,7 +150,7 @@ class DialogUiTest {
             val showDialog = remember { mutableStateOf(true) }
 
             if (showDialog.value) {
-                Dialog(onCloseRequest = {
+                Dialog(onDismissRequest = {
                     showDialog.value = false
                 }) {
                     Text(defaultText)
@@ -175,7 +175,7 @@ class DialogUiTest {
             val showDialog = remember { mutableStateOf(true) }
 
             if (showDialog.value) {
-                Dialog(onCloseRequest = {}) {
+                Dialog(onDismissRequest = {}) {
                     Text(defaultText)
                 }
             }
@@ -196,7 +196,7 @@ class DialogUiTest {
         var value = 0f
         composeTestRule.setContent {
             Providers(ambient provides 1f) {
-                Dialog(onCloseRequest = {}) {
+                Dialog(onDismissRequest = {}) {
                     value = ambient.current
                 }
             }

@@ -35,7 +35,7 @@ fun DialogSample() {
     val dialogHeight = 50.dp
 
     if (openDialog.value) {
-        Dialog(onCloseRequest = { openDialog.value = false }) {
+        Dialog(onDismissRequest = { openDialog.value = false }) {
             // Draw a rectangle shape with rounded corners inside the dialog
             Box(Modifier.preferredSize(dialogWidth, dialogHeight), backgroundColor = Color.White)
         }

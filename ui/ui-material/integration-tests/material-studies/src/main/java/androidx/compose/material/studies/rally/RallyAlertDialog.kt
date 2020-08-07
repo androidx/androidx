@@ -38,7 +38,7 @@ fun RallyAlertDialog(
 ) {
     RallyDialogThemeOverlay {
         AlertDialog(
-            onCloseRequest = onDismiss,
+            onDismissRequest = onDismiss,
             text = { Text(bodyText) },
             buttons = {
                 Column {

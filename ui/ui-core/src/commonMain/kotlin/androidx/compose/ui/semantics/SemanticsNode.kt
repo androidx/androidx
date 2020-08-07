@@ -284,24 +284,6 @@ internal val LayoutNodeWrapper.nearestSemantics: SemanticsWrapper?
         return null
     }
 
-/**
- * Executes [selector] on every parent of this [SemanticsNode] and returns the closest
- * [SemanticsNode] to return `true` from [selector] or null if [selector] returns false
- * for all ancestors.
- */
-fun SemanticsNode.findClosestParentNode(selector: (SemanticsNode) -> Boolean): SemanticsNode? {
-    var currentParent = parent
-    while (currentParent != null) {
-        if (selector(currentParent)) {
-            return currentParent
-        } else {
-            currentParent = currentParent.parent
-        }
-    }
-
-    return null
-}
-
 internal fun SemanticsNode.findChildById(id: Int): SemanticsNode? {
     if (this.id == id) return this
     children.fastForEach {

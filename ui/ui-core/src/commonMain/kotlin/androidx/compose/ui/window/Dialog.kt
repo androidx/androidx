@@ -22,15 +22,15 @@ import androidx.compose.runtime.Composable
  * Opens a dialog with the given content.
  *
  * The dialog is visible as long as it is part of the composition hierarchy.
- * In order to let the user dismiss the Dialog, the implementation of [onCloseRequest] should
+ * In order to let the user dismiss the Dialog, the implementation of [onDismissRequest] should
  * contain a way to remove to remove the dialog from the composition hierarchy.
  *
  * Example usage:
  *
  * @sample androidx.compose.ui.samples.DialogSample
  *
- * @param onCloseRequest Executes when the user tries to dismiss the Dialog.
+ * @param onDismissRequest Executes when the user tries to dismiss the Dialog.
  * @param children The content to be displayed inside the dialog.
  */
 @Composable
-expect fun Dialog(onCloseRequest: () -> Unit, children: @Composable () -> Unit)
+expect fun Dialog(onDismissRequest: () -> Unit, children: @Composable () -> Unit)
