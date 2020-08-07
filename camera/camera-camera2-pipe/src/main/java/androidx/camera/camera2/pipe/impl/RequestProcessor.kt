@@ -233,7 +233,7 @@ class StandardRequestProcessor(
         val streamToSurfaceMap = ArrayMap<StreamId, Surface>()
 
         for (request in requests) {
-            val requestTemplate = request.template ?: graphConfig.defaultTemplate
+            val requestTemplate = request.template ?: graphConfig.template
 
             // Check to see if there is at least one valid surface for each stream.
             var hasSurface = false

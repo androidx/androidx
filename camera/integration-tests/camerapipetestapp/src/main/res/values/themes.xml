@@ -14,9 +14,16 @@ limitations under the License.
 -->
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="CameraPipeTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="colorPrimary">@color/cameraPipeThemeBgDark100</item>
+        <item name="colorPrimaryDark">@color/cameraPipeThemeBgDark050</item>
+    </style>
 
+    <!-- The launcher theme. It sets the main window background to the launch_screen drawable -->
+    <style name="CameraPipeTheme.Launcher">
+        <item name="android:windowBackground">@drawable/theme_launch_screen</item>
+        <item name="colorPrimaryDark">@color/cameraPipeThemeBgDark050</item>
     </style>
 
 </resources>
