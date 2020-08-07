@@ -61,9 +61,9 @@ buildscript {
         classpath "com.github.jengelman.gradle.plugins:shadow:5.2.0"
     }
 }
-apply from: "../buildSrc/dependencies.gradle"
 
-apply from: "../buildSrc/out.gradle"
+apply from: "../buildSrc/dependencies.gradle"
+apply from: "../playground-common/out.gradle"
 init.chooseOutDir("/${rootProject.name}")
 
 apply plugin: AndroidXRootPlugin
