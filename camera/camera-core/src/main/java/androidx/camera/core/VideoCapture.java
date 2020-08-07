@@ -66,6 +66,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.annotation.UiThread;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.ConfigProvider;
@@ -445,6 +446,18 @@ public class VideoCapture extends UseCase {
     @Override
     public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder() {
         return Builder.fromConfig((VideoCaptureConfig) getUseCaseConfig());
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @UiThread
+    @Override
+    public void onStateDetached() {
+        stopRecording();
     }
 
     private void releaseCameraSurface(final boolean releaseVideoEncoder) {
