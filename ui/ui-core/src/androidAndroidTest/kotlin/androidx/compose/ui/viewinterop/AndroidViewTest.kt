@@ -45,6 +45,7 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.size
+import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.setContent
 import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.assertPixels
@@ -149,6 +150,42 @@ class AndroidViewTest {
 
         runOnIdle {
             assertThat(frameLayout.parent).isNull()
+        }
+    }
+
+    @Test
+    fun androidView_attachedAfterDetached_addsViewBack() {
+        lateinit var root: FrameLayout
+        lateinit var composeView: ComposeView
+        lateinit var viewInsideCompose: View
+        composeTestRule.activityRule.scenario.onActivity { activity ->
+            root = FrameLayout(activity)
+            composeView = ComposeView(activity)
+            viewInsideCompose = View(activity)
+
+            activity.setContentView(root)
+            root.addView(composeView)
+            composeView.setContent {
+                AndroidView({ viewInsideCompose })
+            }
+        }
+
+        var viewInsideComposeHolder: ViewGroup? = null
+        runOnUiThread {
+            assertThat(viewInsideCompose.parent).isNotNull()
+            viewInsideComposeHolder = viewInsideCompose.parent as ViewGroup
+            root.removeView(composeView)
+        }
+
+        runOnIdle {
+            assertThat(viewInsideCompose.parent).isNull()
+            assertThat(viewInsideComposeHolder?.childCount).isEqualTo(0)
+            root.addView(composeView)
+        }
+
+        runOnIdle {
+            assertThat(viewInsideCompose.parent).isEqualTo(viewInsideComposeHolder)
+            assertThat(viewInsideComposeHolder?.childCount).isEqualTo(1)
         }
     }
 
