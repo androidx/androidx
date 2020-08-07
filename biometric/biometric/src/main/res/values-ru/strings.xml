@@ -28,6 +28,6 @@
     <string name="default_error_msg" msgid="4776854077120974966">"Неизвестная ошибка"</string>
     <string name="generic_error_user_canceled" msgid="7309881387583143581">"Аутентификация отменена пользователем."</string>
     <string name="confirm_device_credential_password" msgid="5912733858573823945">"Ввести пароль"</string>
-    <!-- no translation found for generic_error_no_device_credential (3791785319221634505) -->
-    <skip />
+    <string name="generic_error_no_device_credential" msgid="3791785319221634505">"Не заданы PIN-код, пароль или графический ключ."</string>
+    <string name="generic_error_no_keyguard" msgid="1807436368654974044">"На этом устройстве не поддерживаются PIN-код, графический ключ и пароль."</string>
 </resources>
