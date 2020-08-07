@@ -18,9 +18,6 @@ def init = new Properties()
 ext.init = init
 
 def chooseOutDir(subdir = "") {
-    /*
-     * The OUT_DIR is a temporary directory you can use to put things during the build.
-     */
     def outDir = new File("${buildscript.getSourceFile().parent}/../out${subdir}")
     project.ext.outDir = outDir
     buildDir = new File(outDir, "$project.name/build").getCanonicalFile()
