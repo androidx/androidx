@@ -42,7 +42,7 @@ import androidx.compose.ui.unit.dp
 
 @Sampled
 @Composable
-fun SimpleFilledTextFieldSample() {
+fun SimpleTextFieldSample() {
     var text by savedInstanceState { "" }
 
     TextField(value = text,
@@ -65,7 +65,7 @@ fun SimpleOutlinedTextFieldSample() {
 
 @Sampled
 @Composable
-fun FilledTextFieldWithIcons() {
+fun TextFieldWithIcons() {
     var text by savedInstanceState { "" }
 
     TextField(value = text,
@@ -78,7 +78,7 @@ fun FilledTextFieldWithIcons() {
 
 @Sampled
 @Composable
-fun FilledTextFieldWithPlaceholder() {
+fun TextFieldWithPlaceholder() {
     var text by savedInstanceState { "" }
 
     TextField(value = text,
@@ -90,7 +90,7 @@ fun FilledTextFieldWithPlaceholder() {
 
 @Sampled
 @Composable
-fun FilledTextFieldWithErrorState() {
+fun TextFieldWithErrorState() {
     var text by savedInstanceState { "" }
     val isValid = text.count() > 5 && '@' in text
 
@@ -136,7 +136,7 @@ fun TextFieldWithHelperMessage() {
 
 @Sampled
 @Composable
-fun PasswordFilledTextField() {
+fun PasswordTextField() {
     var password by savedInstanceState { "" }
     TextField(
         value = password,
@@ -149,7 +149,7 @@ fun PasswordFilledTextField() {
 
 @Sampled
 @Composable
-fun FilledTextFieldSample() {
+fun TextFieldSample() {
     var text by savedInstanceState(saver = TextFieldValue.Saver) {
         TextFieldValue("example", TextRange(0, 7))
     }
