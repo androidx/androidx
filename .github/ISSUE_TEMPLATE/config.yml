@@ -1,5 +1,8 @@
 blank_issues_enabled: false
 contact_links:
+  - name: Paging
+    url: https://issuetracker.google.com/issues/new?component=413106&template=1096385
+    about: File a bug or feature request for Paging
   - name: Room
     url: https://issuetracker.google.com/issues/new?component=413107&template=1096568
     about: File a bug or feature request for Room
