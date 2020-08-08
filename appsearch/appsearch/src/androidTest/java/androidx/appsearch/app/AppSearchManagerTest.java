@@ -23,6 +23,8 @@ import static androidx.appsearch.app.AppSearchManager.SetSchemaRequest;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+
 import android.content.Context;
 
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
@@ -704,6 +706,22 @@ public class AppSearchManagerTest {
                 new GetDocumentsRequest.Builder().addUris("uri2").build()).get();
         assertThat(getResult.isSuccess()).isTrue();
         assertThat(getResult.getSuccesses().get("uri2")).isEqualTo(email2);
+    }
+
+    @Test
+    public void testDatabaseName() throws Exception {
+        // Test special character can present in AppSearchManager's name. When a special
+        // character is banned in instance'name, add checker in AppSearchManager.builder and
+        // reflect it in java doc.
+        AppSearchManager.Builder appSearchBuilder =
+                new AppSearchManager.Builder(ApplicationProvider.getApplicationContext());
+
+        IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
+                () -> appSearchBuilder.setDatabaseName("testDatabaseNameEndWith/"));
+        assertThat(e).hasMessageThat().isEqualTo("Database name cannot contain '/'");
+        e = assertThrows(IllegalArgumentException.class,
+                () -> appSearchBuilder.setDatabaseName("/testDatabaseNameStartWith"));
+        assertThat(e).hasMessageThat().isEqualTo("Database name cannot contain '/'");
     }
 
     private static List<GenericDocument> doGet(
