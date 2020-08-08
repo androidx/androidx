@@ -18,6 +18,7 @@ package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XMessager
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
@@ -61,7 +62,8 @@ internal class JavacProcessingEnv(
         // check for primitives first
         PRIMITIVE_TYPES[qName]?.let {
             return wrap(
-                typeUtils.getPrimitiveType(it)
+                typeMirror = typeUtils.getPrimitiveType(it),
+                nullability = XNullability.NONNULL
             )
         }
         return findTypeElement(qName)?.type
@@ -80,8 +82,11 @@ internal class JavacProcessingEnv(
         check(type is JavacType) {
             "given type must be from java, $type is not"
         }
-        return wrap<JavacArrayType>(
-            typeUtils.getArrayType(type.typeMirror)
+        return JavacArrayType(
+            env = this,
+            typeMirror = typeUtils.getArrayType(type.typeMirror),
+            nullability = XNullability.UNKNOWN,
+            knownComponentNullability = type.nullability
         )
     }
 
@@ -95,30 +100,35 @@ internal class JavacProcessingEnv(
             it is JavacType
         })
         return wrap<JavacDeclaredType>(
-            typeUtils.getDeclaredType(type.element, *args)
+            typeMirror = typeUtils.getDeclaredType(type.element, *args),
+            nullability = type.element.nullability
         )
     }
 
     // maybe cache here ?
     fun wrapTypeElement(element: TypeElement) = JavacTypeElement(this, element)
 
-    inline fun <reified T : JavacType> wrapTypes(types: Iterable<TypeMirror>): List<T> {
-        return types.map {
-            wrap<T>(it)
-        }
-    }
-
-    inline fun <reified T : JavacType> wrap(typeMirror: TypeMirror): T {
+    inline fun <reified T : JavacType> wrap(
+        typeMirror: TypeMirror,
+        nullability: XNullability
+    ): T {
         return when (typeMirror.kind) {
             TypeKind.ARRAY -> JavacArrayType(
                 env = this,
-                typeMirror = MoreTypes.asArray(typeMirror)
+                typeMirror = MoreTypes.asArray(typeMirror),
+                nullability = nullability,
+                knownComponentNullability = null
             )
             TypeKind.DECLARED -> JavacDeclaredType(
                 env = this,
-                typeMirror = MoreTypes.asDeclared(typeMirror)
+                typeMirror = MoreTypes.asDeclared(typeMirror),
+                nullability = nullability
             )
-            else -> DefaultJavacType(this, typeMirror)
+            else -> DefaultJavacType(
+                env = this,
+                typeMirror = typeMirror,
+                nullability = nullability
+            )
         } as T
     }
 

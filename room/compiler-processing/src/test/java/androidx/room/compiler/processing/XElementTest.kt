@@ -340,16 +340,16 @@ class XElementTest {
         ) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             element.getField("primitiveInt").let { field ->
-                assertThat(field.nullability).isEqualTo(XNullability.NONNULL)
+                assertThat(field.type.nullability).isEqualTo(XNullability.NONNULL)
             }
             element.getField("boxedInt").let { field ->
-                assertThat(field.nullability).isEqualTo(XNullability.UNKNOWN)
+                assertThat(field.type.nullability).isEqualTo(XNullability.UNKNOWN)
             }
             element.getField("nonNullAnnotated").let { field ->
-                assertThat(field.nullability).isEqualTo(XNullability.NONNULL)
+                assertThat(field.type.nullability).isEqualTo(XNullability.NONNULL)
             }
             element.getField("nullableAnnotated").let { field ->
-                assertThat(field.nullability).isEqualTo(XNullability.NULLABLE)
+                assertThat(field.type.nullability).isEqualTo(XNullability.NULLABLE)
             }
         }
     }

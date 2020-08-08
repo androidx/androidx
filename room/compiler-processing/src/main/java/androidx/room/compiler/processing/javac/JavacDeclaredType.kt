@@ -17,11 +17,13 @@
 package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XNullability
 import javax.lang.model.type.DeclaredType
 
 internal class JavacDeclaredType(
     env: JavacProcessingEnv,
-    override val typeMirror: DeclaredType
+    override val typeMirror: DeclaredType,
+    override val nullability: XNullability
 ) : JavacType(
     env, typeMirror
 ), XDeclaredType {
@@ -30,6 +32,11 @@ internal class JavacDeclaredType(
     }
 
     override val typeArguments: List<JavacType> by lazy {
-        env.wrapTypes<JavacType>(typeMirror.typeArguments)
+        typeMirror.typeArguments.map {
+            env.wrap<JavacType>(
+                typeMirror = it,
+                nullability = XNullability.UNKNOWN
+            )
+        }
     }
 }

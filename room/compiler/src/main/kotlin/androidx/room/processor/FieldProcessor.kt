@@ -58,7 +58,7 @@ class FieldProcessor(
 
         val adapter = context.typeAdapterStore.findColumnTypeAdapter(member, affinity)
         val adapterAffinity = adapter?.typeAffinity ?: affinity
-        val nonNull = Field.calcNonNull(element, fieldParent)
+        val nonNull = Field.calcNonNull(member, fieldParent)
 
         val field = Field(
             name = name,
