@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-
-import org.gradle.kotlin.dsl.KotlinClosure1
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 import static androidx.build.dependencies.DependenciesKt.*
