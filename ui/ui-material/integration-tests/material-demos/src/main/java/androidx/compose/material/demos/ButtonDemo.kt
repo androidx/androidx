@@ -24,6 +24,7 @@ import androidx.compose.foundation.Text
 import androidx.compose.foundation.shape.GenericShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -126,12 +127,15 @@ private fun CustomShapeButton() {
     Spacer(Modifier.preferredHeight(DefaultSpace))
     OutlinedButton(
         onClick = {},
-        modifier = Modifier.preferredSize(100.dp),
+        modifier = Modifier.preferredSize(110.dp),
         shape = TriangleShape,
         backgroundColor = Color.Yellow,
         border = Border(size = 2.dp, color = Color.Black)
     ) {
-        Text("Ok")
+        Column {
+            Text("Click")
+            Text("here")
+        }
     }
 }
 

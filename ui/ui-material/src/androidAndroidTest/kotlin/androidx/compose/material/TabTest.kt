@@ -185,8 +185,10 @@ class TabTest {
         val expectedBaselineDistance = expectedBaseline + indicatorHeight
 
         val tabRowBounds = onNodeWithTag("tabRow").getUnclippedBoundsInRoot()
-        val textBounds = onNodeWithTag("text").getUnclippedBoundsInRoot()
-        val textBaselinePos = onNodeWithTag("text").getLastBaselinePosition()
+        val textBounds =
+            onNodeWithTag("text", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val textBaselinePos =
+            onNodeWithTag("text", useUnmergedTree = true).getLastBaselinePosition()
 
         val baselinePositionY = textBounds.top + textBaselinePos
         val expectedPositionY = tabRowBounds.height - expectedBaselineDistance
@@ -223,8 +225,10 @@ class TabTest {
         val expectedBaselineDistance = expectedBaseline + indicatorHeight
 
         val tabRowBounds = onNodeWithTag("tabRow").getUnclippedBoundsInRoot()
-        val textBounds = onNodeWithTag("text").getUnclippedBoundsInRoot()
-        val textBaselinePos = onNodeWithTag("text").getLastBaselinePosition()
+        val textBounds =
+            onNodeWithTag("text", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val textBaselinePos =
+            onNodeWithTag("text", useUnmergedTree = true).getLastBaselinePosition()
 
         val baselinePositionY = textBounds.top + textBaselinePos
         val expectedPositionY = tabRowBounds.height - expectedBaselineDistance
@@ -259,8 +263,10 @@ class TabTest {
         val indicatorHeight = 2.dp
 
         val tabRowBounds = onNodeWithTag("tabRow").getUnclippedBoundsInRoot()
-        val textBounds = onNodeWithTag("text").getUnclippedBoundsInRoot()
-        val textBaselinePos = onNodeWithTag("text").getLastBaselinePosition()
+        val textBounds =
+            onNodeWithTag("text", useUnmergedTree = true).getUnclippedBoundsInRoot()
+        val textBaselinePos =
+            onNodeWithTag("text", useUnmergedTree = true).getLastBaselinePosition()
 
         val expectedBaselineDistance = expectedBaseline + indicatorHeight
 
