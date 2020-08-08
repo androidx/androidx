@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.javac.kotlin
 import kotlinx.metadata.jvm.KotlinClassHeader
 import kotlinx.metadata.jvm.KotlinClassMetadata
 import javax.lang.model.element.Element
+import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 
 /**
@@ -31,6 +32,7 @@ internal class KotlinMetadataElement(
 
     private val functionList: List<KmFunction> by lazy { classMetadata.readFunctions() }
     private val constructorList: List<KmConstructor> by lazy { classMetadata.readConstructors() }
+    private val propertyList: List<KmProperty> by lazy { classMetadata.readProperties() }
 
     private val ExecutableElement.descriptor: String
         get() = descriptor()
@@ -47,19 +49,31 @@ internal class KotlinMetadataElement(
         return paramList?.map { it.name }
     }
 
-    /**
-     * Finds the primary constructor descriptor of the class.
-     */
-    fun findPrimaryConstructorSignature() = constructorList.first { it.isPrimary() }.descriptor
-
-    /**
-     * Checks if a method is a suspend function.
-     */
-    fun isSuspendFunction(method: ExecutableElement) = functionList.firstOrNull {
-        it.descriptor == method.descriptor
-    }?.isSuspend() ?: false
+    fun findPrimaryConstructorSignature() = constructorList.first {
+        it.isPrimary()
+    }.descriptor
 
     fun isObject(): Boolean = classMetadata.isObject()
+
+    fun getFunctionMetadata(method: ExecutableElement): KmFunction? {
+        check(method.kind == ElementKind.METHOD) {
+            "must pass an element type of method"
+        }
+        val methodSignature = method.descriptor
+        return functionList.firstOrNull { it.descriptor == methodSignature }
+    }
+
+    fun getConstructorMetadata(method: ExecutableElement): KmConstructor? {
+        check(method.kind == ElementKind.CONSTRUCTOR) {
+            "must pass an element type of constructor"
+        }
+        val methodSignature = method.descriptor
+        return constructorList.firstOrNull { it.descriptor == methodSignature }
+    }
+
+    fun getPropertyMetadata(propertyName: String) = propertyList.firstOrNull {
+        it.name == propertyName
+    }
 
     companion object {
         /**
