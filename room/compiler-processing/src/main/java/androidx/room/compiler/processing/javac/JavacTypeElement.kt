@@ -115,7 +115,10 @@ internal class JavacTypeElement(
     }
 
     override val type: JavacDeclaredType by lazy {
-        env.wrap<JavacDeclaredType>(element.asType())
+        env.wrap<JavacDeclaredType>(
+            typeMirror = element.asType(),
+            nullability = element.nullability
+        )
     }
 
     override val superType: JavacType? by lazy {
@@ -128,7 +131,10 @@ internal class JavacTypeElement(
         if (superClass.kind == TypeKind.NONE) {
             null
         } else {
-            env.wrap<JavacType>(superClass)
+            env.wrap<JavacType>(
+                typeMirror = superClass,
+                nullability = element.nullability
+            )
         }
     }
 

@@ -19,7 +19,7 @@ package androidx.room.vo
 import androidx.room.migration.bundle.FieldBundle
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
-import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XVariableElement
 import androidx.room.solver.types.CursorValueReader
@@ -41,7 +41,7 @@ data class Field(
     // index might be removed when being merged into an Entity
     var indexed: Boolean = false,
     /** Whether the table column for this field should be NOT NULL */
-    val nonNull: Boolean = calcNonNull(element, parent)
+    val nonNull: Boolean = calcNonNull(type, parent)
 ) : HasSchemaIdentity {
     lateinit var getter: FieldGetter
     lateinit var setter: FieldSetter
@@ -148,8 +148,9 @@ data class Field(
     )
 
     companion object {
-        fun calcNonNull(element: XElement, parent: EmbeddedField?): Boolean {
-            return element.isNonNull() && (parent == null || parent.isNonNullRecursively())
+        fun calcNonNull(type: XType, parent: EmbeddedField?): Boolean {
+            return XNullability.NONNULL == type.nullability &&
+                    (parent == null || parent.isNonNullRecursively())
         }
     }
 }

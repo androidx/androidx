@@ -16,12 +16,9 @@
 
 package androidx.room.compiler.processing.javac
 
-import androidx.annotation.NonNull
-import androidx.annotation.Nullable
 import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XEquality
-import androidx.room.compiler.processing.XNullability
 import com.google.auto.common.MoreElements
 import java.util.Locale
 import javax.lang.model.element.Element
@@ -39,20 +36,6 @@ internal abstract class JavacElement(
 
     override val packageName: String
         get() = MoreElements.getPackage(element).qualifiedName.toString()
-
-    override val nullability: XNullability
-        get() = if (element.asType().kind.isPrimitive ||
-            hasAnnotation(NonNull::class) ||
-            hasAnnotation(org.jetbrains.annotations.NotNull::class)
-        ) {
-            XNullability.NONNULL
-        } else if (hasAnnotation(Nullable::class) ||
-            hasAnnotation(org.jetbrains.annotations.Nullable::class)
-        ) {
-            XNullability.NULLABLE
-        } else {
-            XNullability.UNKNOWN
-        }
 
     override val enclosingElement: XElement? by lazy {
         val enclosing = element.enclosingElement

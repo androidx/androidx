@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.javac
 
+import androidx.room.compiler.processing.XNullability
 import javax.lang.model.type.TypeMirror
 
 /**
@@ -23,7 +24,8 @@ import javax.lang.model.type.TypeMirror
  */
 internal class DefaultJavacType(
     env: JavacProcessingEnv,
-    typeMirror: TypeMirror
+    typeMirror: TypeMirror,
+    override val nullability: XNullability
 ) : JavacType(
     env, typeMirror
 ) {

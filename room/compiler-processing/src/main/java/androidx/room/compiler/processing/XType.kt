@@ -34,6 +34,13 @@ interface XType {
     val typeName: TypeName
 
     /**
+     * Nullability declared in the code.
+     * For Kotlin types, it will be inferred from type declaration.
+     * For Java types, it will be inferred from annotations.
+     */
+    val nullability: XNullability
+
+    /**
      * Casts the current type to [XTypeElement].
      *
      * @see isType

@@ -17,12 +17,15 @@
 package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XArrayType
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
 import javax.lang.model.type.ArrayType
 
 internal class JavacArrayType(
     env: JavacProcessingEnv,
-    override val typeMirror: ArrayType
+    override val typeMirror: ArrayType,
+    override val nullability: XNullability,
+    private val knownComponentNullability: XNullability?
 ) : JavacType(
     env,
     typeMirror
@@ -32,6 +35,13 @@ internal class JavacArrayType(
         arrayOf(typeMirror)
     }
     override val componentType: XType by lazy {
-        env.wrap<JavacType>(typeMirror.componentType)
+        val componentType = typeMirror.componentType
+        val componentTypeNullability =
+            knownComponentNullability ?: if (componentType.kind.isPrimitive) {
+                XNullability.NONNULL
+            } else {
+                XNullability.UNKNOWN
+            }
+        env.wrap<JavacType>(componentType, componentTypeNullability)
     }
 }
