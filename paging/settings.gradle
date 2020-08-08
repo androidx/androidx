@@ -22,3 +22,9 @@ selectProjectsFromAndroidX({ name ->
     if (name.startsWith(":paging")) return true
     return false
 })
+includeProject(":annotation:annotation-sampled",
+    new File(supportRootDir, "annotation/annotation-sampled"))
+includeProject(":internal-testutils-ktx",
+    new File(supportRootDir, "testutils/testutils-ktx"))
+includeProject(":internal-testutils-paging",
+    new File(supportRootDir, "testutils/testutils-paging"))
