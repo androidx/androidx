@@ -259,12 +259,28 @@ class LegacyPageFetcherTest {
 
         pager.trySchedulePrepend()
         testDispatcher.executeAll()
+
+        assertEquals(
+            listOf(
+                Result(PREPEND, rangeResult(2, 4))
+            ), consumer.takeResults()
+        )
+
+        assertEquals(
+            listOf(
+                StateChange(PREPEND, Loading),
+                StateChange(
+                    PREPEND, NotLoading(endOfPaginationReached = false)
+                )
+            ),
+            consumer.takeStateChanges()
+        )
+
         pager.trySchedulePrepend()
         testDispatcher.executeAll()
 
         assertEquals(
             listOf(
-                Result(PREPEND, rangeResult(2, 4)),
                 Result(PREPEND, rangeResult(0, 2))
             ), consumer.takeResults()
         )
@@ -273,11 +289,6 @@ class LegacyPageFetcherTest {
                 StateChange(PREPEND, Loading),
                 StateChange(
                     PREPEND, NotLoading(endOfPaginationReached = false)
-                ),
-                StateChange(PREPEND, Loading),
-                StateChange(
-                    PREPEND,
-                    NotLoading(endOfPaginationReached = false)
                 )
             ),
             consumer.takeStateChanges()
