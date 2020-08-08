@@ -333,8 +333,8 @@ package androidx.compose.foundation.layout {
   }
 
   public final class DpConstraintsKt {
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Constraints Constraints(androidx.compose.ui.unit.Density, androidx.compose.foundation.layout.DpConstraints dpConstraints);
-    method @androidx.compose.runtime.Stable public static androidx.compose.foundation.layout.DpConstraints DpConstraints(androidx.compose.ui.unit.Density, androidx.compose.ui.unit.Constraints constraints);
+    method @androidx.compose.runtime.Stable public static long Constraints(androidx.compose.ui.unit.Density, androidx.compose.foundation.layout.DpConstraints dpConstraints);
+    method @androidx.compose.runtime.Stable public static androidx.compose.foundation.layout.DpConstraints DpConstraints-qRtEn08(androidx.compose.ui.unit.Density, long constraints);
     method @androidx.compose.runtime.Stable public static androidx.compose.foundation.layout.DpConstraints enforce(androidx.compose.foundation.layout.DpConstraints, androidx.compose.foundation.layout.DpConstraints otherConstraints);
     method public static boolean getHasBoundedHeight(androidx.compose.foundation.layout.DpConstraints);
     method public static boolean getHasBoundedWidth(androidx.compose.foundation.layout.DpConstraints);
@@ -488,13 +488,12 @@ package androidx.compose.foundation.layout {
     ctor public State(androidx.compose.ui.unit.Density density);
     method public androidx.compose.ui.unit.Density getDensity();
     method public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
-    method public androidx.compose.ui.unit.Constraints getRootIncomingConstraints();
+    method public long getRootIncomingConstraints();
     method public void setLayoutDirection(androidx.compose.ui.unit.LayoutDirection p);
-    method public void setRootIncomingConstraints(androidx.compose.ui.unit.Constraints p);
+    method public void setRootIncomingConstraints-BRTryo0(long p);
     property public final androidx.compose.ui.unit.LayoutDirection layoutDirection;
-    property public final androidx.compose.ui.unit.Constraints rootIncomingConstraints;
+    property public final long rootIncomingConstraints;
     field public androidx.compose.ui.unit.LayoutDirection layoutDirection;
-    field public androidx.compose.ui.unit.Constraints rootIncomingConstraints;
   }
 
 }

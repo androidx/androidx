@@ -21,43 +21,41 @@ package androidx.compose.ui.unit {
   public static final class Bounds.Companion {
   }
 
-  @androidx.compose.runtime.Immutable public final class Constraints {
-    ctor public Constraints(@kotlin.PublishedApi internal long value);
-    method public androidx.compose.ui.unit.Constraints copy(int minWidth = this.minWidth, int maxWidth = this.maxWidth, int minHeight = this.minHeight, int maxHeight = this.maxHeight);
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.unit.Constraints copy(long value);
-    method public boolean getHasBoundedHeight();
-    method public boolean getHasBoundedWidth();
-    method public int getMaxHeight();
-    method public int getMaxWidth();
-    method public int getMinHeight();
-    method public int getMinWidth();
-    property public final boolean hasBoundedHeight;
-    property public final boolean hasBoundedWidth;
-    property public final int maxHeight;
-    property public final int maxWidth;
-    property public final int minHeight;
-    property public final int minWidth;
+  @androidx.compose.runtime.Immutable public final inline class Constraints {
+    ctor public Constraints();
+    method public static long constructor-impl(internal long value);
+    method public static long copy-impl(long $this, int minWidth = this.minWidth, int maxWidth = this.maxWidth, int minHeight = this.minHeight, int maxHeight = this.maxHeight);
+    method @androidx.compose.runtime.Immutable public static inline boolean equals-impl(long p, Object? p1);
+    method public static boolean equals-impl0(long p1, long p2);
+    method public static boolean getHasBoundedHeight-impl(long $this);
+    method public static boolean getHasBoundedWidth-impl(long $this);
+    method public static int getMaxHeight-impl(long $this);
+    method public static int getMaxWidth-impl(long $this);
+    method public static int getMinHeight-impl(long $this);
+    method public static int getMinWidth-impl(long $this);
+    method @androidx.compose.runtime.Immutable public static inline int hashCode-impl(long p);
+    method public static String toString-impl(long $this);
     field public static final androidx.compose.ui.unit.Constraints.Companion Companion;
     field public static final int Infinity = 2147483647; // 0x7fffffff
   }
 
   public static final class Constraints.Companion {
-    method @androidx.compose.runtime.Stable public androidx.compose.ui.unit.Constraints fixed(int width, int height);
-    method @androidx.compose.runtime.Stable public androidx.compose.ui.unit.Constraints fixedHeight(int height);
-    method @androidx.compose.runtime.Stable public androidx.compose.ui.unit.Constraints fixedWidth(int width);
+    method @androidx.compose.runtime.Stable public long fixed(int width, int height);
+    method @androidx.compose.runtime.Stable public long fixedHeight(int height);
+    method @androidx.compose.runtime.Stable public long fixedWidth(int width);
   }
 
   public final class ConstraintsKt {
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Constraints Constraints(int minWidth = 0, int maxWidth = 2147483647, int minHeight = 0, int maxHeight = 2147483647);
-    method @androidx.compose.runtime.Stable public static long constrain-m9CmiCs(androidx.compose.ui.unit.Constraints, long size);
-    method @androidx.compose.runtime.Stable public static int constrainHeight(androidx.compose.ui.unit.Constraints, int height);
-    method @androidx.compose.runtime.Stable public static int constrainWidth(androidx.compose.ui.unit.Constraints, int width);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Constraints enforce(androidx.compose.ui.unit.Constraints, androidx.compose.ui.unit.Constraints otherConstraints);
-    method public static boolean getHasFixedHeight(androidx.compose.ui.unit.Constraints);
-    method public static boolean getHasFixedWidth(androidx.compose.ui.unit.Constraints);
-    method public static boolean isZero(androidx.compose.ui.unit.Constraints);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Constraints offset(androidx.compose.ui.unit.Constraints, int horizontal = 0, int vertical = 0);
-    method @androidx.compose.runtime.Stable public static boolean satisfiedBy-m9CmiCs(androidx.compose.ui.unit.Constraints, long size);
+    method @androidx.compose.runtime.Stable public static long Constraints(int minWidth = 0, int maxWidth = 2147483647, int minHeight = 0, int maxHeight = 2147483647);
+    method @androidx.compose.runtime.Stable public static long constrain-m9CmiCs(long, long size);
+    method @androidx.compose.runtime.Stable public static int constrainHeight-4A1wEdY(long, int height);
+    method @androidx.compose.runtime.Stable public static int constrainWidth-4A1wEdY(long, int width);
+    method @androidx.compose.runtime.Stable public static long enforce-WVSBfsc(long, long otherConstraints);
+    method public static boolean getHasFixedHeight-BRTryo0(long);
+    method public static boolean getHasFixedWidth-BRTryo0(long);
+    method public static boolean isZero-BRTryo0(long);
+    method @androidx.compose.runtime.Stable public static long offset-dAqVMF8(long, int horizontal = 0, int vertical = 0);
+    method @androidx.compose.runtime.Stable public static boolean satisfiedBy-m9CmiCs(long, long size);
   }
 
   @androidx.compose.runtime.Immutable public interface Density {

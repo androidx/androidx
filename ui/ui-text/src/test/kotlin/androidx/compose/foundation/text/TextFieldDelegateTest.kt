@@ -62,6 +62,8 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import org.mockito.ArgumentMatchers.anyLong
+import kotlin.text.Typography.times
 
 @OptIn(InternalTextApi::class)
 @RunWith(JUnit4::class)
@@ -311,7 +313,8 @@ class TextFieldDelegateTest {
         whenever(mDelegate.style).thenReturn(TextStyle())
         whenever(mDelegate.density).thenReturn(Density(1.0f))
         whenever(mDelegate.resourceLoader).thenReturn(mock())
-        whenever(mDelegate.layout(any(), any(), eq(null))).thenReturn(textLayoutResult)
+        whenever(mDelegate.layout(Constraints(anyLong()), any(), eq(null)))
+            .thenReturn(textLayoutResult)
 
         val (width, height, layoutResult) = TextFieldDelegate.layout(
             mDelegate,
