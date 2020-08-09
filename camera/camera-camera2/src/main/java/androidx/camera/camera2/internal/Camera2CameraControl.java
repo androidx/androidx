@@ -238,7 +238,8 @@ final class Camera2CameraControl implements CameraControlInternal {
             return Futures.immediateFailedFuture(
                     new OperationCanceledException("Camera is not active."));
         }
-        return mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio);
+        return Futures.nonCancellationPropagating(
+                mFocusMeteringControl.startFocusAndMetering(action, mPreviewAspectRatio));
     }
 
     @NonNull
@@ -248,7 +249,7 @@ final class Camera2CameraControl implements CameraControlInternal {
             return Futures.immediateFailedFuture(
                     new OperationCanceledException("Camera is not active."));
         }
-        return mFocusMeteringControl.cancelFocusAndMetering();
+        return Futures.nonCancellationPropagating(mFocusMeteringControl.cancelFocusAndMetering());
     }
 
     @NonNull
@@ -258,7 +259,7 @@ final class Camera2CameraControl implements CameraControlInternal {
             return Futures.immediateFailedFuture(
                     new OperationCanceledException("Camera is not active."));
         }
-        return mZoomControl.setZoomRatio(ratio);
+        return Futures.nonCancellationPropagating(mZoomControl.setZoomRatio(ratio));
     }
 
     @NonNull
@@ -268,7 +269,7 @@ final class Camera2CameraControl implements CameraControlInternal {
             return Futures.immediateFailedFuture(
                     new OperationCanceledException("Camera is not active."));
         }
-        return mZoomControl.setLinearZoom(linearZoom);
+        return Futures.nonCancellationPropagating(mZoomControl.setLinearZoom(linearZoom));
     }
 
     /** {@inheritDoc} */
@@ -308,7 +309,7 @@ final class Camera2CameraControl implements CameraControlInternal {
             return Futures.immediateFailedFuture(
                     new OperationCanceledException("Camera is not active."));
         }
-        return mTorchControl.enableTorch(torch);
+        return Futures.nonCancellationPropagating(mTorchControl.enableTorch(torch));
     }
 
     /**
