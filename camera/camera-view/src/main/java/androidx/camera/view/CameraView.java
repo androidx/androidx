@@ -28,7 +28,6 @@ import android.os.Looper;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -52,6 +51,7 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.Logger;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.VideoCapture;
@@ -80,8 +80,7 @@ import java.util.concurrent.Executor;
  * LifecycleOwner}. Use {@link #bindToLifecycle(LifecycleOwner)} to start the camera.
  */
 public final class CameraView extends FrameLayout {
-    static final String TAG = androidx.camera.view.CameraView.class.getSimpleName();
-    static final boolean DEBUG = false;
+    static final String TAG = CameraView.class.getSimpleName();
 
     static final int INDEFINITE_VIDEO_DURATION = -1;
     static final int INDEFINITE_VIDEO_SIZE = -1;
@@ -640,7 +639,7 @@ public final class CameraView extends FrameLayout {
             }, CameraXExecutors.directExecutor());
 
         } else {
-            Log.d(TAG, "cannot access camera");
+            Logger.d(TAG, "cannot access camera");
         }
 
         return true;

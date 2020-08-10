@@ -16,13 +16,12 @@
 
 package androidx.camera.view;
 
-import android.util.Log;
-
 import androidx.annotation.GuardedBy;
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraInfo;
+import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraInfoInternal;
@@ -163,7 +162,7 @@ final class PreviewStreamStateObserver implements Observable.Observer<CameraInte
             mPreviewStreamState = streamState;
         }
 
-        Log.d(TAG, "Update Preview stream state to " + streamState);
+        Logger.d(TAG, "Update Preview stream state to " + streamState);
         mPreviewStreamStateLiveData.postValue(streamState);
     }
 
