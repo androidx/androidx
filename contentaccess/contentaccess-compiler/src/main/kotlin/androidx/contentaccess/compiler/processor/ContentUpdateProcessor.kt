@@ -23,6 +23,7 @@ import androidx.contentaccess.compiler.vo.ContentEntityVO
 import androidx.contentaccess.compiler.vo.ContentUpdateVO
 import androidx.contentaccess.compiler.vo.SelectionVO
 import androidx.contentaccess.ext.hasAnnotation
+import androidx.contentaccess.ext.getSuspendFunctionReturnType
 import androidx.contentaccess.ext.isSuspendFunction
 import androidx.contentaccess.ext.toAnnotationBox
 import boxIfPrimitive
@@ -43,6 +44,11 @@ class ContentUpdateProcessor(
     @KotlinPoetMetadataPreview
     fun process(): ContentUpdateVO? {
         val isSuspendFunction = method.isSuspendFunction(processingEnv)
+        val returnType = if (isSuspendFunction) {
+            method.getSuspendFunctionReturnType()
+        } else {
+            method.returnType
+        }
         val types = processingEnv.typeUtils
         val potentialContentEntity = method.toAnnotationBox(ContentUpdate::class)!!
             .getAsTypeMirror("contentEntity")!!
@@ -61,7 +67,7 @@ class ContentUpdateProcessor(
         if (toBeUsedUri.isEmpty()) {
             errorReporter.reportError(missingUriOnMethod(), method)
         }
-        if (!method.returnType.isInt()) {
+        if (!returnType.isInt()) {
             errorReporter.reportError(contentUpdateAnnotatedMethodNotReturningAnInteger(), method)
         }
         val entitiesInParams = mutableListOf<String>()
@@ -71,7 +77,7 @@ class ContentUpdateProcessor(
             }
         }
         if (entitiesInParams.size > 1) {
-            // TODO(obenabde) we could in theory also support updating a list of entities
+            // TODO(obenabde): we could in theory also support updating a list of entities
             //  but that would mean multiple operations through the content resolver and may not
             //  happen atomically. Anyhow it would be easier to do the other way through
             //  parameters annotated with @ContentColumn. Explore this further later on, although I

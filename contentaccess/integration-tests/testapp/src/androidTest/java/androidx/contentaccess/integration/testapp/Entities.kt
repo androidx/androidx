@@ -25,7 +25,7 @@ import androidx.contentaccess.ContentPrimaryKey
 @ContentEntity
 data class ImageNoUri(
     @ContentPrimaryKey(MediaStore.Images.Media._ID)
-    var iD: Long,
+    var iD: Long?,
     @ContentColumn(MediaStore.Images.Media.TITLE)
     var title: String?,
     @ContentColumn(MediaStore.Images.Media.DESCRIPTION)

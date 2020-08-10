@@ -20,12 +20,14 @@ import androidx.contentaccess.ContentEntity
 import androidx.contentaccess.ContentInsert
 import androidx.contentaccess.compiler.utils.ErrorReporter
 import androidx.contentaccess.compiler.vo.ContentInsertVO
+import androidx.contentaccess.ext.getSuspendFunctionReturnType
 import androidx.contentaccess.ext.hasAnnotation
 import androidx.contentaccess.ext.isSuspendFunction
 import asTypeElement
 import com.squareup.kotlinpoet.metadata.KotlinPoetMetadataPreview
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.ExecutableElement
+import javax.lang.model.element.VariableElement
 
 class ContentInsertProcessor(
     private val method: ExecutableElement,
@@ -36,52 +38,51 @@ class ContentInsertProcessor(
     @KotlinPoetMetadataPreview
     fun process(): ContentInsertVO? {
         val isSuspendFunction = method.isSuspendFunction(processingEnv)
-        val methodParameter = method.parameters.first()
-
-        if (methodParameter == null) {
-            // TODO(yrezgui): Improve error messaging
+        val returnType = if (isSuspendFunction) {
+            method.getSuspendFunctionReturnType()
+        } else {
+            method.returnType
+        }
+        val entitiesInParams = mutableListOf<VariableElement>()
+        for (param in method.parameters) {
+            if (param.asType().asTypeElement().hasAnnotation(ContentEntity::class)) {
+                entitiesInParams.add(param)
+            }
+        }
+        if (entitiesInParams.size > 1) {
             errorReporter.reportError(
-                """
-                    Method ${method.simpleName} has no parameter.
-                """.trimIndent(), method
+                insertMethodHasMoreThanOneEntity(), method
             )
-
+            return null
+        } else if (entitiesInParams.isEmpty()) {
+            errorReporter.reportError(
+                insertMethodHasNoEntityInParameters(), method)
             return null
         }
 
-        if (!methodParameter.asType().asTypeElement().hasAnnotation(ContentEntity::class)) {
-            // TODO(yrezgui): Improve error messaging
-            errorReporter.reportError(missingEntityOnMethod(method.simpleName.toString()), method)
+        val entity = entitiesInParams.first()
+        val entityParameterName = entity.simpleName.toString()
 
-            return null
-        }
-
-        val parameterName = methodParameter.simpleName.toString()
         val contentEntity = ContentEntityProcessor(
-            methodParameter.asType(),
+            entity.asType(),
             processingEnv,
             errorReporter
         ).processEntity()
-
         if (contentEntity == null) {
-            errorReporter.reportError(
-                """
-                    Method ${method.simpleName} has no parameter annotated with @ContentEntity.
-                """.trimIndent(), method
-            )
-
             return null
         }
-
         val toBeUsedUri = determineToBeUsedUri(
             resolvedContentEntity = contentEntity,
             uriInAnnotation = contentInsertAnnotation.uri,
             errorReporter = errorReporter,
             method = method
         )
-
         if (toBeUsedUri.isEmpty()) {
             errorReporter.reportError(missingUriOnMethod(), method)
+        }
+
+        if (!returnType.toString().equals("android.net.Uri")) {
+            errorReporter.reportError(contentInsertAnnotatedMethodNotReturningAUri(), method)
         }
 
         return ContentInsertVO(
@@ -89,7 +90,7 @@ class ContentInsertProcessor(
             uri = toBeUsedUri,
             method = method,
             isSuspend = isSuspendFunction,
-            parameterName = parameterName,
+            parameterName = entityParameterName,
             columns = contentEntity.columns.values.toList()
         )
     }

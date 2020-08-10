@@ -17,6 +17,7 @@
 package androidx.contentaccess.compiler.writer
 
 import androidx.contentaccess.compiler.vo.ContentInsertVO
+import com.squareup.kotlinpoet.AnnotationSpec
 import com.squareup.kotlinpoet.ClassName
 import com.squareup.kotlinpoet.FunSpec
 import com.squareup.kotlinpoet.MemberName
@@ -34,7 +35,8 @@ class ContentInsertMethodWriter(
     @KotlinPoetMetadataPreview
     fun createContentDeleteMethod(): FunSpec {
         val methodBuilder = funSpecOverriding(contentInsert.method, processingEnv)
-
+        methodBuilder.annotations.add(
+            AnnotationSpec.builder(Suppress::class).addMember("%S", "DEPRECATION").build())
         if (contentInsert.isSuspend) {
             val withContext = MemberName("kotlinx.coroutines", "withContext")
             methodBuilder.beginControlFlow("return %M(_coroutineDispatcher)", withContext)
@@ -55,7 +57,7 @@ class ContentInsertMethodWriter(
                 )
             } else {
                 methodBuilder.addStatement(
-                    "if (%1N.%3N != null) put(%2S, %1N.%3N) else putNull(%2S)\n",
+                    "if (%1N.%3N != null) put(%2S, %1N.%3N)",
                     contentInsert.parameterName,
                     column.columnName,
                     column.name
