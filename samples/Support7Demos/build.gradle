@@ -7,19 +7,17 @@ plugins {
 }
 
 dependencies {
-    api 'com.google.android.material:material:1.0.0'
+    api(KOTLIN_STDLIB)
     implementation(project(":appcompat:appcompat"))
     implementation(project(":cardview:cardview"))
-    implementation(project(":core:core"))
+    implementation project(":drawerlayout:drawerlayout")
     implementation(project(":gridlayout:gridlayout"))
     implementation(project(":mediarouter:mediarouter"))
     implementation(project(":palette:palette"))
     implementation(project(":recyclerview:recyclerview"))
     implementation project(":recyclerview:recyclerview-selection")
-    implementation(project(":core:core"))
-    implementation project(':drawerlayout:drawerlayout')
-    api(KOTLIN_STDLIB)
     implementation 'androidx.concurrent:concurrent-futures:1.0.0'
+    api 'com.google.android.material:material:1.0.0'
 }
 
 android {
