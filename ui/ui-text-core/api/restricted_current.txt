@@ -324,8 +324,8 @@ package androidx.compose.ui.text {
 
   public final class TextLayoutResult {
     method public androidx.compose.ui.text.TextLayoutInput component1();
-    method public androidx.compose.ui.unit.IntSize component3();
-    method public androidx.compose.ui.text.TextLayoutResult copy(androidx.compose.ui.text.TextLayoutInput layoutInput, androidx.compose.ui.text.MultiParagraph multiParagraph, androidx.compose.ui.unit.IntSize size);
+    method public long component3();
+    method public androidx.compose.ui.text.TextLayoutResult copy-2H_Vf2E(androidx.compose.ui.text.TextLayoutInput layoutInput, androidx.compose.ui.text.MultiParagraph multiParagraph, long size);
     method public androidx.compose.ui.text.style.ResolvedTextDirection getBidiRunDirection(int offset);
     method public androidx.compose.ui.geometry.Rect getBoundingBox(int offset);
     method public androidx.compose.ui.geometry.Rect getCursorRect(int offset);
@@ -350,7 +350,7 @@ package androidx.compose.ui.text {
     method public androidx.compose.ui.text.style.ResolvedTextDirection getParagraphDirection(int offset);
     method public androidx.compose.ui.graphics.Path getPathForRange(int start, int end);
     method public java.util.List<androidx.compose.ui.geometry.Rect> getPlaceholderRects();
-    method public androidx.compose.ui.unit.IntSize getSize();
+    method public long getSize();
     method public androidx.compose.ui.text.TextRange getWordBoundary(int offset);
     method public boolean isLineEllipsized(int lineIndex);
     property public final boolean didOverflowHeight;
@@ -360,6 +360,10 @@ package androidx.compose.ui.text {
     property public final float lastBaseline;
     property public final int lineCount;
     property public final java.util.List<androidx.compose.ui.geometry.Rect> placeholderRects;
+  }
+
+  public final class TextLayoutResultKt {
+    method @VisibleForTesting public static androidx.compose.ui.text.TextLayoutResult createTextLayoutResult-2H_Vf2E(androidx.compose.ui.text.TextLayoutInput layoutInput = androidx.compose.ui.text.TextLayoutInput(androidx.compose.ui.text.AnnotatedString(""), androidx.compose.ui.text.TextStyle(), emptyList(), 1, false, androidx.compose.ui.text.style.TextOverflow.Clip, Density(1.0), LayoutDirection.Ltr, null(), Constraints()), androidx.compose.ui.text.MultiParagraph multiParagraph = androidx.compose.ui.text.MultiParagraph(text, style, androidx.compose.ui.text.ParagraphConstraints(0.0), density, resourceLoader), long size = IntSize.Zero);
   }
 
   public final class TextPainter {

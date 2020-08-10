@@ -260,7 +260,7 @@ class AndroidViewTest {
     @Test
     fun androidView_updateObservesStateChanges() {
         var size by mutableStateOf(20)
-        lateinit var obtainedSize: IntSize
+        var obtainedSize: IntSize = IntSize.Zero
         composeTestRule.setContent {
             Box {
                 AndroidView(::View, Modifier.onPositioned { obtainedSize = it.size }) { view ->

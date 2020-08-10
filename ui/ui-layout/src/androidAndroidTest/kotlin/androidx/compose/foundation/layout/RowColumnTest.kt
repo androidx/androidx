@@ -1232,7 +1232,7 @@ class RowColumnTest : LayoutTest() {
         val sizeDp = 50.toDp()
 
         val drawLatch = CountDownLatch(1)
-        lateinit var rowSize: IntSize
+        var rowSize: IntSize = IntSize.Zero
         show {
             Center {
                 Row(Modifier.fillMaxWidth().onPositioned { coordinates: LayoutCoordinates ->
@@ -1260,7 +1260,7 @@ class RowColumnTest : LayoutTest() {
         val sizeDp = 50.toDp()
 
         val drawLatch = CountDownLatch(1)
-        lateinit var rowSize: IntSize
+        var rowSize: IntSize = IntSize.Zero
         show {
             Center {
                 Row(Modifier.onPositioned { coordinates: LayoutCoordinates ->
@@ -1288,7 +1288,7 @@ class RowColumnTest : LayoutTest() {
         val sizeDp = 50.toDp()
 
         val drawLatch = CountDownLatch(1)
-        lateinit var rowSize: IntSize
+        var rowSize: IntSize = IntSize.Zero
         show {
             Center {
                 Row(Modifier.onPositioned { coordinates: LayoutCoordinates ->
@@ -1325,7 +1325,7 @@ class RowColumnTest : LayoutTest() {
         val sizeDp = 50.toDp()
 
         val drawLatch = CountDownLatch(1)
-        lateinit var rowSize: IntSize
+        var rowSize: IntSize = IntSize.Zero
         show {
             Center {
                 Row(Modifier.fillMaxHeight().onPositioned { coordinates: LayoutCoordinates ->
@@ -1353,7 +1353,7 @@ class RowColumnTest : LayoutTest() {
         val sizeDp = 50.toDp()
 
         val drawLatch = CountDownLatch(1)
-        lateinit var rowSize: IntSize
+        var rowSize: IntSize = IntSize.Zero
         show {
             Center {
                 Row(Modifier.onPositioned { coordinates: LayoutCoordinates ->
@@ -1382,7 +1382,7 @@ class RowColumnTest : LayoutTest() {
         val rowWidthDp = 250.toDp()
 
         val drawLatch = CountDownLatch(1)
-        lateinit var rowSize: IntSize
+        var rowSize: IntSize = IntSize.Zero
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = rowWidthDp)) {
@@ -1413,7 +1413,7 @@ class RowColumnTest : LayoutTest() {
         val rowWidthDp = 250.toDp()
 
         val drawLatch = CountDownLatch(1)
-        lateinit var rowSize: IntSize
+        var rowSize: IntSize = IntSize.Zero
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = rowWidthDp)) {
@@ -1453,7 +1453,7 @@ class RowColumnTest : LayoutTest() {
         val rowWidthDp = 250.toDp()
 
         val drawLatch = CountDownLatch(1)
-        lateinit var rowSize: IntSize
+        var rowSize: IntSize = IntSize.Zero
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minWidth = rowWidthDp)) {
@@ -1484,7 +1484,7 @@ class RowColumnTest : LayoutTest() {
         val rowHeightDp = 250.toDp()
 
         val drawLatch = CountDownLatch(1)
-        lateinit var rowSize: IntSize
+        var rowSize: IntSize = IntSize.Zero
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = rowHeightDp)) {
@@ -1515,7 +1515,7 @@ class RowColumnTest : LayoutTest() {
         val rowHeightDp = 150.toDp()
 
         val drawLatch = CountDownLatch(1)
-        lateinit var rowSize: IntSize
+        var rowSize: IntSize = IntSize.Zero
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minHeight = rowHeightDp)) {
@@ -1552,8 +1552,8 @@ class RowColumnTest : LayoutTest() {
         val rowWidth = rowWidthDp.toIntPx()
 
         val drawLatch = CountDownLatch(2)
-        lateinit var rowSize: IntSize
-        lateinit var expandedChildSize: IntSize
+        var rowSize: IntSize = IntSize.Zero
+        var expandedChildSize: IntSize = IntSize.Zero
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minWidth = rowWidthDp)) {
@@ -1680,7 +1680,7 @@ class RowColumnTest : LayoutTest() {
         val sizeDp = 50.toDp()
 
         val drawLatch = CountDownLatch(1)
-        lateinit var columnSize: IntSize
+        var columnSize: IntSize = IntSize.Zero
         show {
             Center {
                 Column(Modifier.fillMaxHeight().onPositioned { coordinates: LayoutCoordinates ->
@@ -1708,7 +1708,7 @@ class RowColumnTest : LayoutTest() {
         val sizeDp = 50.toDp()
 
         val drawLatch = CountDownLatch(1)
-        lateinit var columnSize: IntSize
+        var columnSize: IntSize = IntSize.Zero
         show {
             Center {
                 Column(Modifier.onPositioned { coordinates: LayoutCoordinates ->
@@ -1736,7 +1736,7 @@ class RowColumnTest : LayoutTest() {
         val sizeDp = 50.toDp()
 
         val drawLatch = CountDownLatch(1)
-        lateinit var columnSize: IntSize
+        var columnSize: IntSize = IntSize.Zero
         show {
             Center {
                 Column(Modifier.onPositioned { coordinates: LayoutCoordinates ->
@@ -1773,7 +1773,7 @@ class RowColumnTest : LayoutTest() {
         val sizeDp = 50.toDp()
 
         val drawLatch = CountDownLatch(1)
-        lateinit var columnSize: IntSize
+        var columnSize: IntSize = IntSize.Zero
         show {
             Center {
                 Column(Modifier.fillMaxWidth().onPositioned { coordinates: LayoutCoordinates ->
@@ -1801,7 +1801,7 @@ class RowColumnTest : LayoutTest() {
         val sizeDp = 50.toDp()
 
         val drawLatch = CountDownLatch(1)
-        lateinit var columnSize: IntSize
+        var columnSize: IntSize = IntSize.Zero
         show {
             Center {
                 Column(Modifier.onPositioned { coordinates: LayoutCoordinates ->
@@ -1830,7 +1830,7 @@ class RowColumnTest : LayoutTest() {
         val columnHeightDp = 250.toDp()
 
         val drawLatch = CountDownLatch(1)
-        lateinit var columnSize: IntSize
+        var columnSize: IntSize = IntSize.Zero
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = columnHeightDp)) {
@@ -1861,7 +1861,7 @@ class RowColumnTest : LayoutTest() {
         val columnHeightDp = 250.toDp()
 
         val drawLatch = CountDownLatch(1)
-        lateinit var columnSize: IntSize
+        var columnSize: IntSize = IntSize.Zero
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxHeight = columnHeightDp)) {
@@ -1901,7 +1901,7 @@ class RowColumnTest : LayoutTest() {
         val columnHeightDp = 250.toDp()
 
         val drawLatch = CountDownLatch(1)
-        lateinit var columnSize: IntSize
+        var columnSize: IntSize = IntSize.Zero
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minHeight = columnHeightDp)) {
@@ -1932,7 +1932,7 @@ class RowColumnTest : LayoutTest() {
         val columnWidthDp = 250.toDp()
 
         val drawLatch = CountDownLatch(1)
-        lateinit var columnSize: IntSize
+        var columnSize: IntSize = IntSize.Zero
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(maxWidth = columnWidthDp)) {
@@ -1963,7 +1963,7 @@ class RowColumnTest : LayoutTest() {
         val columnWidthDp = 150.toDp()
 
         val drawLatch = CountDownLatch(1)
-        lateinit var columnSize: IntSize
+        var columnSize: IntSize = IntSize.Zero
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minWidth = columnWidthDp)) {
@@ -2000,8 +2000,8 @@ class RowColumnTest : LayoutTest() {
         val columnHeight = columnHeightDp.toIntPx()
 
         val drawLatch = CountDownLatch(2)
-        lateinit var columnSize: IntSize
-        lateinit var expandedChildSize: IntSize
+        var columnSize: IntSize = IntSize.Zero
+        var expandedChildSize: IntSize = IntSize.Zero
         show {
             Center {
                 ConstrainedBox(constraints = DpConstraints(minHeight = columnHeightDp)) {

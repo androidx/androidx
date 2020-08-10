@@ -49,7 +49,7 @@ package androidx.compose.ui.unit {
 
   public final class ConstraintsKt {
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Constraints Constraints(int minWidth = 0, int maxWidth = 2147483647, int minHeight = 0, int maxHeight = 2147483647);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntSize constrain(androidx.compose.ui.unit.Constraints, androidx.compose.ui.unit.IntSize size);
+    method @androidx.compose.runtime.Stable public static long constrain-m9CmiCs(androidx.compose.ui.unit.Constraints, long size);
     method @androidx.compose.runtime.Stable public static int constrainHeight(androidx.compose.ui.unit.Constraints, int height);
     method @androidx.compose.runtime.Stable public static int constrainWidth(androidx.compose.ui.unit.Constraints, int width);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Constraints enforce(androidx.compose.ui.unit.Constraints, androidx.compose.ui.unit.Constraints otherConstraints);
@@ -57,7 +57,7 @@ package androidx.compose.ui.unit {
     method public static boolean getHasFixedWidth(androidx.compose.ui.unit.Constraints);
     method public static boolean isZero(androidx.compose.ui.unit.Constraints);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.Constraints offset(androidx.compose.ui.unit.Constraints, int horizontal = 0, int vertical = 0);
-    method @androidx.compose.runtime.Stable public static boolean satisfiedBy(androidx.compose.ui.unit.Constraints, androidx.compose.ui.unit.IntSize size);
+    method @androidx.compose.runtime.Stable public static boolean satisfiedBy-m9CmiCs(androidx.compose.ui.unit.Constraints, long size);
   }
 
   @androidx.compose.runtime.Immutable public interface Density {
@@ -266,13 +266,13 @@ package androidx.compose.ui.unit {
   }
 
   public final class IntBoundsKt {
-    method @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.IntBounds IntBounds(androidx.compose.ui.unit.IntOffset topLeft, androidx.compose.ui.unit.IntSize size);
+    method @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.IntBounds IntBounds-TtQJ-B4(androidx.compose.ui.unit.IntOffset topLeft, long size);
     method @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.IntOffset center(androidx.compose.ui.unit.IntBounds);
     method public static inline int getHeight(androidx.compose.ui.unit.IntBounds);
     method public static inline int getWidth(androidx.compose.ui.unit.IntBounds);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntBounds toBounds(androidx.compose.ui.unit.IntSize);
+    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntBounds toBounds-ozmzZPI(long);
     method @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Rect toRect(androidx.compose.ui.unit.IntBounds);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntSize toSize(androidx.compose.ui.unit.IntBounds);
+    method @androidx.compose.runtime.Stable public static long toSize(androidx.compose.ui.unit.IntBounds);
   }
 
   @androidx.compose.runtime.Immutable public final class IntOffset {
@@ -310,29 +310,32 @@ package androidx.compose.ui.unit {
     method @androidx.compose.runtime.Stable public static inline androidx.compose.ui.geometry.Offset toOffset(androidx.compose.ui.unit.IntOffset);
   }
 
-  @androidx.compose.runtime.Immutable public final class IntSize {
-    ctor public IntSize(@kotlin.PublishedApi internal long packedValue);
-    method @androidx.compose.runtime.Stable public inline operator int component1();
-    method @androidx.compose.runtime.Stable public inline operator int component2();
-    method @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.IntSize div(int other);
-    method public int getHeight();
-    method public int getWidth();
-    method @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.IntSize times(int other);
-    property public final int height;
-    property public final int width;
+  @androidx.compose.runtime.Immutable public final inline class IntSize {
+    ctor public IntSize();
+    method @androidx.compose.runtime.Stable public static inline operator int component1-impl(long $this);
+    method @androidx.compose.runtime.Stable public static inline operator int component2-impl(long $this);
+    method public static long constructor-impl(internal long packedValue);
+    method @androidx.compose.runtime.Stable public static operator long div-impl(long $this, int other);
+    method @androidx.compose.runtime.Immutable public static inline boolean equals-impl(long p, Object? p1);
+    method public static boolean equals-impl0(long p1, long p2);
+    method public static int getHeight-impl(long $this);
+    method public static int getWidth-impl(long $this);
+    method @androidx.compose.runtime.Immutable public static inline int hashCode-impl(long p);
+    method @androidx.compose.runtime.Stable public static operator long times-impl(long $this, int other);
+    method @androidx.compose.runtime.Stable public static String toString-impl(long $this);
     field public static final androidx.compose.ui.unit.IntSize.Companion Companion;
   }
 
   public static final class IntSize.Companion {
-    method public androidx.compose.ui.unit.IntSize getZero();
-    property public final androidx.compose.ui.unit.IntSize Zero;
+    method public long getZero();
+    property public final long Zero;
   }
 
   public final class IntSizeKt {
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.IntSize IntSize(int width, int height);
-    method public static androidx.compose.ui.unit.IntOffset getCenter(androidx.compose.ui.unit.IntSize);
-    method @androidx.compose.runtime.Stable public static operator androidx.compose.ui.unit.IntSize times(int, androidx.compose.ui.unit.IntSize size);
-    method @androidx.compose.runtime.Stable public static long toSize(androidx.compose.ui.unit.IntSize);
+    method @androidx.compose.runtime.Stable public static long IntSize(int width, int height);
+    method public static androidx.compose.ui.unit.IntOffset getCenter-ozmzZPI(long);
+    method @androidx.compose.runtime.Stable public static operator long times-U1E2UwY(int, long size);
+    method @androidx.compose.runtime.Stable public static long toSize-ozmzZPI(long);
   }
 
   public enum LayoutDirection {
