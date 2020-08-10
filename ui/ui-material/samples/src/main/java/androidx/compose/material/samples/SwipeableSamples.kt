@@ -17,7 +17,6 @@
 package androidx.compose.material.samples
 
 import androidx.annotation.Sampled
-import androidx.compose.animation.asDisposableClock
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.Text
@@ -26,14 +25,12 @@ import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.FractionalThreshold
-import androidx.compose.material.SwipeableState
+import androidx.compose.material.rememberSwipeableState
 import androidx.compose.material.swipeable
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.AnimationClockAmbient
 import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,13 +44,9 @@ fun SwipeableSample() {
     val width = 350.dp
     val squareSize = 50.dp
 
-    val clock = AnimationClockAmbient.current.asDisposableClock()
-    val swipeableState = remember(clock) {
-        SwipeableState(initialValue = "A", clock = clock)
-    }
-    val minPx = 0f
-    val maxPx = with(DensityAmbient.current) { (width - squareSize).toPx() }
-    val anchors = mapOf(minPx to "A", maxPx / 2 to "B", maxPx to "C")
+    val swipeableState = rememberSwipeableState("A")
+    val sizePx = with(DensityAmbient.current) { (width - squareSize).toPx() }
+    val anchors = mapOf(0f to "A", sizePx / 2 to "B", sizePx to "C")
 
     Box(
         modifier = Modifier

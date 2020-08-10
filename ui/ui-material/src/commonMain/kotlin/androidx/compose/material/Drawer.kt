@@ -31,6 +31,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSizeIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.savedinstancestate.Saver
+import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.WithConstraints
 import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
@@ -84,7 +86,7 @@ enum class BottomDrawerValue {
  * State of the [ModalDrawerLayout] composable.
  *
  * @param initialValue The initial value of the state.
- * @param clock The animation clock that will be used to drive the animation.
+ * @param clock The animation clock that will be used to drive the animations.
  * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
  */
 @Suppress("NotCloseable")
@@ -93,8 +95,12 @@ class DrawerState(
     initialValue: DrawerValue,
     clock: AnimationClockObservable,
     confirmStateChange: (DrawerValue) -> Boolean = { true }
-) : SwipeableState<DrawerValue>(initialValue, clock, confirmStateChange, AnimationSpec) {
-
+) : SwipeableState<DrawerValue>(
+    initialValue = initialValue,
+    clock = clock,
+    animationSpec = AnimationSpec,
+    confirmStateChange = confirmStateChange
+) {
     /**
      * Whether the drawer is open.
      */
@@ -132,13 +138,26 @@ class DrawerState(
             }
         })
     }
+
+    companion object {
+        /**
+         * The default [Saver] implementation for [DrawerState].
+         */
+        fun Saver(
+            clock: AnimationClockObservable,
+            confirmStateChange: (DrawerValue) -> Boolean
+        ) = Saver<DrawerState, DrawerValue>(
+            save = { it.value },
+            restore = { DrawerState(it, clock, confirmStateChange) }
+        )
+    }
 }
 
 /**
  * State of the [BottomDrawerLayout] composable.
  *
  * @param initialValue The initial value of the state.
- * @param clock The animation clock that will be used to drive the animation.
+ * @param clock The animation clock that will be used to drive the animations.
  * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
  */
 @Suppress("NotCloseable")
@@ -147,8 +166,12 @@ class BottomDrawerState(
     initialValue: BottomDrawerValue,
     clock: AnimationClockObservable,
     confirmStateChange: (BottomDrawerValue) -> Boolean = { true }
-) : SwipeableState<BottomDrawerValue>(initialValue, clock, confirmStateChange, AnimationSpec) {
-
+) : SwipeableState<BottomDrawerValue>(
+    initialValue = initialValue,
+    clock = clock,
+    animationSpec = AnimationSpec,
+    confirmStateChange = confirmStateChange
+) {
     /**
      * Whether the drawer is open.
      */
@@ -211,6 +234,19 @@ class BottomDrawerState(
             }
         })
     }
+
+    companion object {
+        /**
+         * The default [Saver] implementation for [BottomDrawerState].
+         */
+        fun Saver(
+            clock: AnimationClockObservable,
+            confirmStateChange: (BottomDrawerValue) -> Boolean
+        ) = Saver<BottomDrawerState, BottomDrawerValue>(
+            save = { it.value },
+            restore = { BottomDrawerState(it, clock, confirmStateChange) }
+        )
+    }
 }
 
 /**
@@ -225,7 +261,10 @@ fun rememberDrawerState(
     confirmStateChange: (DrawerValue) -> Boolean = { true }
 ): DrawerState {
     val clock = AnimationClockAmbient.current.asDisposableClock()
-    return remember(clock, confirmStateChange) {
+    return rememberSavedInstanceState(
+        clock,
+        saver = DrawerState.Saver(clock, confirmStateChange)
+    ) {
         DrawerState(initialValue, clock, confirmStateChange)
     }
 }
@@ -242,7 +281,10 @@ fun rememberBottomDrawerState(
     confirmStateChange: (BottomDrawerValue) -> Boolean = { true }
 ): BottomDrawerState {
     val clock = AnimationClockAmbient.current.asDisposableClock()
-    return remember(clock, confirmStateChange) {
+    return rememberSavedInstanceState(
+        clock,
+        saver = BottomDrawerState.Saver(clock, confirmStateChange)
+    ) {
         BottomDrawerState(initialValue, clock, confirmStateChange)
     }
 }

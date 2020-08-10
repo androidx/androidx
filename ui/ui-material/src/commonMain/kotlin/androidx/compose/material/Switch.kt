@@ -68,7 +68,7 @@ fun Switch(
 ) {
     val minBound = 0f
     val maxBound = with(DensityAmbient.current) { ThumbPathLength.toPx() }
-    val swipeableState = swipeableStateFor(checked, onCheckedChange, AnimationSpec)
+    val swipeableState = rememberSwipeableStateFor(checked, onCheckedChange, AnimationSpec)
     val interactionState = remember { InteractionState() }
     val isRtl = LayoutDirectionAmbient.current == LayoutDirection.Rtl
     Stack(

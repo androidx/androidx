@@ -23,6 +23,11 @@ package androidx.compose.material {
     property public final boolean isClosed;
     property public final boolean isExpanded;
     property public final boolean isOpen;
+    field public static final androidx.compose.material.BottomDrawerState.Companion Companion;
+  }
+
+  public static final class BottomDrawerState.Companion {
+    method public androidx.compose.runtime.savedinstancestate.Saver<androidx.compose.material.BottomDrawerState,androidx.compose.material.BottomDrawerValue> Saver(androidx.compose.animation.core.AnimationClockObservable clock, kotlin.jvm.functions.Function1<? super androidx.compose.material.BottomDrawerValue,java.lang.Boolean> confirmStateChange);
   }
 
   public enum BottomDrawerValue {
@@ -129,6 +134,11 @@ package androidx.compose.material {
     method public boolean isDismissed(androidx.compose.material.DismissDirection direction);
     method public void reset(kotlin.jvm.functions.Function0<kotlin.Unit>? onReset = null);
     property public final androidx.compose.material.DismissDirection? dismissDirection;
+    field public static final androidx.compose.material.DismissState.Companion Companion;
+  }
+
+  public static final class DismissState.Companion {
+    method public androidx.compose.runtime.savedinstancestate.Saver<androidx.compose.material.DismissState,androidx.compose.material.DismissValue> Saver(androidx.compose.animation.core.AnimationClockObservable clock, kotlin.jvm.functions.Function1<? super androidx.compose.material.DismissValue,java.lang.Boolean> confirmStateChange);
   }
 
   public enum DismissValue {
@@ -165,6 +175,11 @@ package androidx.compose.material {
     method public void open(kotlin.jvm.functions.Function0<kotlin.Unit>? onOpened = null);
     property public final boolean isClosed;
     property public final boolean isOpen;
+    field public static final androidx.compose.material.DrawerState.Companion Companion;
+  }
+
+  public static final class DrawerState.Companion {
+    method public androidx.compose.runtime.savedinstancestate.Saver<androidx.compose.material.DrawerState,androidx.compose.material.DrawerValue> Saver(androidx.compose.animation.core.AnimationClockObservable clock, kotlin.jvm.functions.Function1<? super androidx.compose.material.DrawerValue,java.lang.Boolean> confirmStateChange);
   }
 
   public enum DrawerValue {
@@ -380,14 +395,14 @@ package androidx.compose.material {
     method public static long getPrimarySurface(androidx.compose.material.Colors);
   }
 
-  @androidx.compose.runtime.Immutable public final class SwipeProgress<T> {
-    ctor public SwipeProgress(T? from, T? to, @FloatRange(from=0.0, to=1.0) float progress);
+  @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Immutable public final class SwipeProgress<T> {
+    ctor public SwipeProgress(T? from, T? to, @FloatRange(from=0.0, to=1.0) float fraction);
     method public T! component1();
     method public T! component2();
     method public float component3();
-    method @androidx.compose.runtime.Immutable public androidx.compose.material.SwipeProgress<T> copy(T! from, T! to, float progress);
+    method @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Immutable public androidx.compose.material.SwipeProgress<T> copy(T! from, T! to, float fraction);
+    method public float getFraction();
     method public T! getFrom();
-    method public float getProgress();
     method public T! getTo();
   }
 
@@ -397,7 +412,9 @@ package androidx.compose.material {
   }
 
   public final class SwipeableConstants {
+    method public androidx.compose.animation.core.SpringSpec<java.lang.Float> getDefaultAnimationSpec();
     method public float getDefaultVelocityThreshold();
+    property public final androidx.compose.animation.core.SpringSpec<java.lang.Float> DefaultAnimationSpec;
     property public final float DefaultVelocityThreshold;
     field public static final androidx.compose.material.SwipeableConstants INSTANCE;
     field public static final float StandardResistanceFactor = 10.0f;
@@ -405,27 +422,33 @@ package androidx.compose.material {
   }
 
   public final class SwipeableKt {
+    method @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Composable public static <T> androidx.compose.material.SwipeableState<T> rememberSwipeableState(T initialValue, androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec = DefaultAnimationSpec, kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmStateChange = { return true });
     method @androidx.compose.material.ExperimentalMaterialApi public static <T> androidx.compose.ui.Modifier swipeable-gqDAvWg(androidx.compose.ui.Modifier, androidx.compose.material.SwipeableState<T> state, java.util.Map<java.lang.Float,? extends T> anchors, kotlin.jvm.functions.Function2<? super T,? super T,? extends androidx.compose.material.ThresholdConfig> thresholds, androidx.compose.ui.gesture.scrollorientationlocking.Orientation orientation, boolean enabled = true, boolean reverseDirection = false, androidx.compose.foundation.InteractionState? interactionState = null, float velocityThreshold = DefaultVelocityThreshold, float resistanceFactorAtMin = 10.0f, float resistanceFactorAtMax = 10.0f);
   }
 
   @androidx.compose.material.ExperimentalMaterialApi @androidx.compose.runtime.Stable public class SwipeableState<T> {
-    ctor public SwipeableState(T? initialValue, androidx.compose.animation.core.AnimationClockObservable clock, internal kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmStateChange, internal androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec);
+    ctor public SwipeableState(T? initialValue, androidx.compose.animation.core.AnimationClockObservable clock, internal androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, internal kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmStateChange);
     method @androidx.compose.material.ExperimentalMaterialApi public final void animateTo(T? targetValue, androidx.compose.animation.core.AnimationSpec<java.lang.Float> anim = animationSpec, kotlin.jvm.functions.Function2<? super androidx.compose.animation.core.AnimationEndReason,? super T,kotlin.Unit>? onEnd = null);
+    method public final float getDirection();
     method public final androidx.compose.runtime.State<java.lang.Float> getOffset();
     method public final androidx.compose.runtime.State<java.lang.Float> getOverflow();
-    method public final float getSwipeDirection();
-    method public final androidx.compose.material.SwipeProgress<T> getSwipeProgress();
-    method public final T! getSwipeTarget();
+    method public final androidx.compose.material.SwipeProgress<T> getProgress();
+    method public final T! getTargetValue();
     method public final T! getValue();
     method public final boolean isAnimationRunning();
     method @androidx.compose.material.ExperimentalMaterialApi public final void snapTo(T? targetValue);
+    property public final float direction;
     property public final boolean isAnimationRunning;
     property public final androidx.compose.runtime.State<java.lang.Float> offset;
     property public final androidx.compose.runtime.State<java.lang.Float> overflow;
-    property public final float swipeDirection;
-    property public final androidx.compose.material.SwipeProgress<T> swipeProgress;
-    property public final T! swipeTarget;
+    property public final androidx.compose.material.SwipeProgress<T> progress;
+    property public final T! targetValue;
     property public final T! value;
+    field public static final androidx.compose.material.SwipeableState.Companion Companion;
+  }
+
+  public static final class SwipeableState.Companion {
+    method public <T> androidx.compose.runtime.savedinstancestate.Saver<androidx.compose.material.SwipeableState<T>,T> Saver(androidx.compose.animation.core.AnimationClockObservable clock, androidx.compose.animation.core.AnimationSpec<java.lang.Float> animationSpec, kotlin.jvm.functions.Function1<? super T,java.lang.Boolean> confirmStateChange);
   }
 
   public final class SwitchKt {

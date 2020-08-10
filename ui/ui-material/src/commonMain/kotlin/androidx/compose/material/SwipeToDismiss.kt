@@ -32,6 +32,8 @@ import androidx.compose.material.SwipeableConstants.StandardResistanceFactor
 import androidx.compose.material.SwipeableConstants.StiffResistanceFactor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.savedinstancestate.Saver
+import androidx.compose.runtime.savedinstancestate.rememberSavedInstanceState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.WithConstraints
 import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
@@ -47,6 +49,7 @@ enum class DismissDirection {
      * Can be dismissed by swiping in the reading direction.
      */
     StartToEnd,
+
     /**
      * Can be dismissed by swiping in the reverse of the reading direction.
      */
@@ -61,10 +64,12 @@ enum class DismissValue {
      * Indicates the component has not been dismissed yet.
      */
     Default,
+
     /**
      * Indicates the component has been dismissed in the reading direction.
      */
     DismissedToEnd,
+
     /**
      * Indicates the component has been dismissed in the reverse of the reading direction.
      */
@@ -75,7 +80,7 @@ enum class DismissValue {
  * State of the [SwipeToDismiss] composable.
  *
  * @param initialValue The initial value of the state.
- * @param clock The animation clock that will be used to drive the animation.
+ * @param clock The animation clock that will be used to drive the animations.
  * @param confirmStateChange Optional callback invoked to confirm or veto a pending state change.
  */
 @ExperimentalMaterialApi
@@ -83,8 +88,7 @@ class DismissState(
     initialValue: DismissValue,
     clock: AnimationClockObservable,
     confirmStateChange: (DismissValue) -> Boolean = { true }
-) : SwipeableState<DismissValue>(initialValue, clock, confirmStateChange) {
-
+) : SwipeableState<DismissValue>(initialValue, clock, confirmStateChange = confirmStateChange) {
     /**
      * The direction (if any) in which the composable has been or is being dismissed.
      *
@@ -92,7 +96,7 @@ class DismissState(
      * change the background of the [SwipeToDismiss] if you want different actions on each side.
      */
     val dismissDirection: DismissDirection?
-        get() = getDismissDirection(swipeProgress.from, swipeProgress.to)
+        get() = if (offset.value == 0f) null else if (offset.value > 0f) StartToEnd else EndToStart
 
     /**
      * Whether the component has been dismissed in the given [direction].
@@ -130,6 +134,19 @@ class DismissState(
             }
         })
     }
+
+    companion object {
+        /**
+         * The default [Saver] implementation for [DismissState].
+         */
+        fun Saver(
+            clock: AnimationClockObservable,
+            confirmStateChange: (DismissValue) -> Boolean
+        ) = Saver<DismissState, DismissValue>(
+            save = { it.value },
+            restore = { DismissState(it, clock, confirmStateChange) }
+        )
+    }
 }
 
 /**
@@ -145,7 +162,12 @@ fun rememberDismissState(
     confirmStateChange: (DismissValue) -> Boolean = { true }
 ): DismissState {
     val clock = AnimationClockAmbient.current.asDisposableClock()
-    return remember(clock) { DismissState(initialValue, clock, confirmStateChange) }
+    return rememberSavedInstanceState(
+        clock,
+        saver = DismissState.Saver(clock, confirmStateChange)
+    ) {
+        DismissState(initialValue, clock, confirmStateChange)
+    }
 }
 
 /**
