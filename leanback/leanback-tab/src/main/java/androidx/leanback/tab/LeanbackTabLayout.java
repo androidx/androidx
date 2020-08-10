@@ -32,16 +32,23 @@ import com.google.android.material.tabs.TabLayout;
 import java.util.ArrayList;
 
 /**
- * TabLayout with some specific customizations related to focus navigation for TV to be used as
- * top navigation bar. The following modifications have been done on the TabLayout:
- * 1. When the focused tab changes the viewpager is also update accordingly. With the default
- *    behavior the viewpager is updated only when tab is clicked.
- * 2. Default behaviour is that focus moves to the tab closest to the last focused item inside
- *    viewpager on DPAD_UP. With the current change the selected tab gets the focus.
- * 3. Allowing change of current tab only when focus changes from an adjacent tab to current tab or
- *    focus changes from an element outside viewpager/tablayout to the viewpager/tablayout. This
- *    prevents change of tabs on DPAD_LEFT on the leftmost element inside viewpager and DPAD_RIGHT
- *    on the rightmost element inside viewpager.
+ * {@link TabLayout} with some specific customizations related to focus navigation for TV to be
+ * used as
+ * top navigation bar. The following modifications have been done on the {@link TabLayout}:
+ * <ul>
+ * <li> When the focused tab changes the viewpager is also update accordingly. With the default
+ *      behavior the viewpager is updated only when tab is clicked. </li>
+ * <li> Default behaviour is that focus moves to the tab closest to the last focused item inside
+ *      viewpager on DPAD_UP. With the current change the selected tab gets the focus. </li>
+ * <li> Allowing change of current tab only when focus changes from an adjacent tab to current
+ *      tab or focus changes from an element outside viewpager/tablayout to the
+ *      viewpager/tablayout. This prevents change of tabs on DPAD_LEFT on the leftmost element
+ *      inside viewpager and DPAD_RIGHT on the rightmost element inside viewpager. </li>
+ * </ul>
+ *
+ * <p> {@link ViewPager} can be used with this class but some of the behaviour of {@link ViewPager}
+ * might not be suitable for TV usage. Refer {@link LeanbackViewPager} for the modifications done
+ * on {@link ViewPager}.
  */
 public class LeanbackTabLayout extends TabLayout {
 
@@ -99,10 +106,7 @@ public class LeanbackTabLayout extends TabLayout {
     public void addFocusables(@SuppressLint("ConcreteCollection") @NonNull ArrayList<View> views,
             int direction, int focusableMode) {
 
-        boolean isViewPagerFocused = false;
-        if (this.mViewPager != null) {
-            isViewPagerFocused = this.mViewPager.hasFocus();
-        }
+        boolean isViewPagerFocused = this.mViewPager != null && this.mViewPager.hasFocus();
         boolean isCurrentlyFocused = this.hasFocus();
         LinearLayout tabStrip = (LinearLayout) this.getChildAt(0);
         if ((direction == View.FOCUS_DOWN || direction == View.FOCUS_UP)

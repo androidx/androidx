@@ -42,15 +42,15 @@ import org.junit.runner.RunWith;
 public class LeanbackTabLayoutTest {
 
     @Rule
-    public AnimationActivityTestRule<TabLayoutTestActivity> mActivityTestRuleKt =
+    public AnimationActivityTestRule<TabLayoutTestActivity> mActivityTestRule =
             new AnimationActivityTestRule<TabLayoutTestActivity>(TabLayoutTestActivity.class,
-            false, false);
+                    false, false);
 
     Activity mActivity;
 
     @Before
     public void setUp() {
-        mActivity = mActivityTestRuleKt.launchActivity(new Intent());
+        mActivity = mActivityTestRule.launchActivity(new Intent());
     }
 
     /**
@@ -67,14 +67,14 @@ public class LeanbackTabLayoutTest {
 
         int numberOfTabs = TabLayoutTestActivity.getTabCount();
 
-        mActivityTestRuleKt.runOnUiThread(
+        mActivityTestRule.runOnUiThread(
                 new Runnable() {
                     @Override
                     public void run() {
                         for (int i = 0; i < numberOfTabs; ++i) {
                             tabStrip.getChildAt(i).requestFocus();
                             int index = leanbackViewPager.getCurrentItem();
-                            assert (index == i);
+                            assertEquals(i, index);
                         }
                     }
                 }
@@ -100,11 +100,11 @@ public class LeanbackTabLayoutTest {
 
         InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_LEFT);
         int index = leanbackViewPager.getCurrentItem();
-        assert (index == 0);
+        assertEquals(0, index);
 
         InstrumentationRegistry.getInstrumentation().sendKeyDownUpSync(KeyEvent.KEYCODE_DPAD_RIGHT);
         index = leanbackViewPager.getCurrentItem();
-        assert (index == 1);
+        assertEquals(1, index);
 
         focusOnTab(numberOfTabs - 1, tabStrip);
 
