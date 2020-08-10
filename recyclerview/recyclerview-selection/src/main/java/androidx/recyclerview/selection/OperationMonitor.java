@@ -52,7 +52,7 @@ public final class OperationMonitor {
     // Ideally OperationMonitor would implement Resettable
     // directly, but Metalava couldn't understand that
     // `OperationMonitor` was public API while `Resettable` was
-    // not. This is our klunkuy workaround.
+    // not. This is our clever workaround :)
     private final Resettable mResettable = new Resettable() {
 
         @Override

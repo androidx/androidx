@@ -33,7 +33,7 @@ import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
  * {@link RecyclerView#addOnItemTouchListener(OnItemTouchListener)}. Despite "Touch"
  * being in the name, it receives MotionEvents for all types of tools.
  */
-final class EventRouter implements OnItemTouchListener {
+final class EventRouter implements OnItemTouchListener, Resettable {
 
     private final ToolHandlerRegistry<OnItemTouchListener> mDelegates;
     private boolean mDisallowIntercept;
@@ -55,10 +55,8 @@ final class EventRouter implements OnItemTouchListener {
 
     @Override
     public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
-        // Reset disallow intercept when the event is Up or Cancel as described
-        // in https://developer.android.com/reference/android/widget/HorizontalScrollView
-        // #requestDisallowInterceptTouchEvent(boolean)
-        if (MotionEvents.isActionUp(e) || MotionEvents.isActionCancel(e)) {
+        // Reset disallow when the event is down as advised in http://b/139141511#comment20.
+        if (mDisallowIntercept && MotionEvents.isActionDown(e)) {
             mDisallowIntercept = false;
         }
         return !mDisallowIntercept && mDelegates.get(e).onInterceptTouchEvent(rv, e);
@@ -73,10 +71,25 @@ final class EventRouter implements OnItemTouchListener {
 
     @Override
     public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+        if (!disallowIntercept) {
+            return;  // Ignore as advised in http://b/139141511#comment20
+        }
+
         // Some types of views, such as HorizontalScrollView, may want
         // to take over the input stream. In this case they'll call this method
         // with disallowIntercept=true. mDisallowIntercept is reset on UP or CANCEL
         // events in onInterceptTouchEvent.
         mDisallowIntercept = disallowIntercept;
+    }
+
+
+    @Override
+    public boolean isResetRequired() {
+        return mDisallowIntercept;
+    }
+
+    @Override
+    public void reset() {
+        mDisallowIntercept = false;
     }
 }

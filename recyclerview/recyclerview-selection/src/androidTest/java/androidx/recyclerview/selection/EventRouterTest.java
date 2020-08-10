@@ -17,6 +17,8 @@
 package androidx.recyclerview.selection;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import android.view.MotionEvent;
 
@@ -64,38 +66,37 @@ public class EventRouterTest {
     public void testDropsEventAfterDisallowCalled() {
         mRouter.onRequestDisallowInterceptTouchEvent(true);
 
-        mRouter.onInterceptTouchEvent(mRecyclerView, TestEvents.Touch.DOWN);
-        mRouter.onTouchEvent(mRecyclerView, TestEvents.Touch.DOWN);
+        mRouter.onInterceptTouchEvent(mRecyclerView, TestEvents.Touch.MOVE);
+        mRouter.onTouchEvent(mRecyclerView, TestEvents.Touch.MOVE);
 
         mListener.assertOnInterceptTouchEventCalled(0);
         mListener.assertOnTouchEventCalled(0);
     }
 
     @Test
-    public void testResetsDisallowOnUplEvents() {
+    public void testResetsDisallowOnDownEvents() {
         mRouter.onRequestDisallowInterceptTouchEvent(true);
-        mRouter.onInterceptTouchEvent(mRecyclerView, TestEvents.Touch.UP);
         mRouter.onInterceptTouchEvent(mRecyclerView, TestEvents.Touch.DOWN);
-        mRouter.onTouchEvent(mRecyclerView, TestEvents.Touch.DOWN);
+        mRouter.onInterceptTouchEvent(mRecyclerView, TestEvents.Touch.UP);
+        mRouter.onTouchEvent(mRecyclerView, TestEvents.Touch.UP);
 
-        // The FINGER/UP event that resets "disallow" is also dispatched to touch-event
+        // The FINGER/DOWN event that resets "disallow" is also dispatched to touch-event
         // listeners. So expect 2 calls.
         mListener.assertOnInterceptTouchEventCalled(2);
         mListener.assertOnTouchEventCalled(1);
     }
 
     @Test
-    public void testResetsDisallowOnCancelEvents() {
+    public void testResettable() {
+        // Only resettable when disallowIntercept has been requested.
         mRouter.onRequestDisallowInterceptTouchEvent(true);
-        mRouter.onInterceptTouchEvent(mRecyclerView,
-                TestEvents.builder().action(MotionEvent.ACTION_CANCEL).build());
-        mRouter.onInterceptTouchEvent(mRecyclerView, TestEvents.Touch.DOWN);
-        mRouter.onTouchEvent(mRecyclerView, TestEvents.Touch.DOWN);
+        assertTrue(mRouter.isResetRequired());
 
-        // The UNKNOWN/CANCEL event that resets "disallow" is not dispatched to any listeners
-        // (because there are no listeners registered for "UNKNOWN" tooltype. So expect 1 call.
-        mListener.assertOnInterceptTouchEventCalled(1);
-        mListener.assertOnTouchEventCalled(1);
+        ResetManager<?> mgr = new ResetManager<>();
+        mgr.addResetHandler(mRouter);
+        mgr.getSelectionObserver().onSelectionCleared();  // Results in reset.
+
+        assertFalse(mRouter.isResetRequired());
     }
 
     private static final class TestOnItemTouchListener implements OnItemTouchListener {

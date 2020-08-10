@@ -734,19 +734,20 @@ public abstract class SelectionTracker<K> {
             GestureDetector gestureDetector = new GestureDetector(mContext, gestureRouter);
 
             // GestureSelectionHelper provides logic that interprets a combination
-            // of motions and gestures in order to provide gesture driven selection support
-            // when used in conjunction with RecyclerView.
-            final GestureSelectionHelper gestureHelper = GestureSelectionHelper.create(
+            // of motions and gestures in order to provide fluid "long-press and drag"
+            // finger driven selection support.
+            final GestureSelectionHelper gestureSelectionHelper = GestureSelectionHelper.create(
                     tracker, mSelectionPredicate, mRecyclerView, scroller, mMonitor);
 
             // EventRouter receives events for RecyclerView, dispatching to handlers
             // registered by tool-type.
             EventRouter eventRouter = new EventRouter();
+            GestureDetectorWrapper gestureDetectorWrapper =
+                    new GestureDetectorWrapper(gestureDetector);
 
             // Finally hook the framework up to listening to RecycleView events.
             mRecyclerView.addOnItemTouchListener(eventRouter);
-            mRecyclerView.addOnItemTouchListener(
-                    new GestureDetectorOnItemTouchListenerAdapter(gestureDetector));
+            mRecyclerView.addOnItemTouchListener(gestureDetectorWrapper);
 
             // Reset manager listens for cancel events from RecyclerView. In response to that it
             // advises other classes it is time to reset state.
@@ -756,20 +757,23 @@ public abstract class SelectionTracker<K> {
             //
             // 1. Monitor selection reset which can be invoked by clients in response
             //    to back key press and some application lifecycle events.
-            //
-            // 2. Monitor ACTION_CANCEL events (which arrive exclusively
-            // via TOOL_TYPE_UNKNOWN).
             tracker.addObserver(resetMgr.getSelectionObserver());
 
+            // ...and  2. Monitor ACTION_CANCEL events (which arrive exclusively
+            // via TOOL_TYPE_UNKNOWN).
+            //
             // CAUTION! Registering resetMgr directly with RecyclerView#addOnItemTouchListener
             // will not work as expected. Once EventRouter returns true, RecyclerView will
             // no longer dispatch any events to other listeners for the duration of the
             // stream, not even ACTION_CANCEL events.
             eventRouter.set(MotionEvent.TOOL_TYPE_UNKNOWN, resetMgr.getInputListener());
 
+            // Finally register all of the Resettables.
             resetMgr.addResetHandler(tracker);
             resetMgr.addResetHandler(mMonitor.asResettable());
-            resetMgr.addResetHandler(gestureHelper);
+            resetMgr.addResetHandler(gestureSelectionHelper);
+            resetMgr.addResetHandler(gestureDetectorWrapper);
+            resetMgr.addResetHandler(eventRouter);
 
             // But before you move on, there's more work to do. Event plumbing has been
             // installed, but we haven't registered any of our helpers or callbacks.
@@ -821,7 +825,7 @@ public abstract class SelectionTracker<K> {
                         @Override
                         public void run() {
                             if (mSelectionPredicate.canSelectMultiple()) {
-                                gestureHelper.start();
+                                gestureSelectionHelper.start();
                             }
                         }
                     },
@@ -837,7 +841,7 @@ public abstract class SelectionTracker<K> {
 
             for (int toolType : mGestureToolTypes) {
                 gestureRouter.register(toolType, touchHandler);
-                eventRouter.set(toolType, gestureHelper);
+                eventRouter.set(toolType, gestureSelectionHelper);
             }
 
             // Provides high level glue for binding mouse events and gestures
