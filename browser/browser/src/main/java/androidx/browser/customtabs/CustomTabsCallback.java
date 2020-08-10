@@ -95,11 +95,15 @@ public class CustomTabsCallback {
 
     /**
      * The same as {@link #extraCallback}, except that this method allows the custom tabs provider
-     * to return a result
+     * to return a result.
+     *
+     * The return bundle should contain a boolean value {@code true} with key
+     * {@link CustomTabsService#KEY_SUCCESS} to signify that the client knows how to handle the
+     * request.
      */
-    @Nullable
+    @NonNull
     public Bundle extraCallbackWithResult(@NonNull String callbackName, @Nullable Bundle args) {
-        return null;
+        return Bundle.EMPTY;
     }
 
     /**
