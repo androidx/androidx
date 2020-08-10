@@ -102,26 +102,26 @@ private fun DrawScope.drawItems(
         startingPos -= width
     }
     var startingColorIndex =
-        ((scrollPosition - startingPos) / width).roundToInt().rem(colors.size)
+        ((scrollPosition - startingPos) / width).roundToInt().rem(pastelColors.size)
     if (startingColorIndex < 0) {
-        startingColorIndex += colors.size
+        startingColorIndex += pastelColors.size
     }
 
     val size = Size(width - 20, height)
     drawRect(
-        colors[startingColorIndex],
+        pastelColors[startingColorIndex],
         topLeft = Offset(startingPos + 10, 0f),
         size = size
     )
 
     drawRect(
-        colors[(startingColorIndex + colors.size - 1) % colors.size],
+        pastelColors[(startingColorIndex + pastelColors.size - 1) % pastelColors.size],
         topLeft = Offset(startingPos + width + 10, 0.0f),
         size = size
     )
 
     drawRect(
-        colors[(startingColorIndex + colors.size - 2) % colors.size],
+        pastelColors[(startingColorIndex + pastelColors.size - 2) % pastelColors.size],
         topLeft = Offset(startingPos + width * 2 + 10, 0.0f),
         size = size
     )
