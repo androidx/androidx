@@ -36,23 +36,32 @@ kotlin {
     android()
     sourceSets {
         commonMain.dependencies {
+            api project(":compose:ui:ui")
+            api project(":compose:ui:ui-geometry")
+            api project(":compose:ui:ui-text")
+            api project(":compose:ui:ui-unit")
+            api project(":compose:ui:ui-util")
+            api project(":compose:animation:animation-core")
+
             implementation(KOTLIN_STDLIB_COMMON)
             implementation project(":compose:runtime:runtime")
             implementation project(":compose:animation:animation")
             implementation project(":compose:foundation:foundation")
             implementation project(":compose:foundation:foundation-layout")
-            implementation project(":compose:ui:ui-util")
             implementation project(":compose:foundation:foundation-text")
             implementation project(":compose:runtime:runtime-saved-instance-state")
         }
 
         androidMain.dependencies {
+            api(JUNIT)
+            api(ANDROIDX_TEST_EXT_JUNIT)
             api "androidx.activity:activity:1.2.0-alpha02"
+            api project(":compose:ui:ui-graphics")
+            api project(":compose:runtime:runtime")
+
             implementation(ANDROIDX_TEST_RULES)
             implementation(ANDROIDX_TEST_RUNNER)
-            api(ANDROIDX_TEST_EXT_JUNIT)
             implementation(ESPRESSO_CORE)
-            implementation(JUNIT)
         }
 
         test.dependencies {
