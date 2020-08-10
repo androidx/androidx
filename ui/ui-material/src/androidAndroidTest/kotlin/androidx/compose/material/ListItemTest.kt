@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.onPositioned
 import androidx.compose.foundation.Box
+import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.Text
 import androidx.compose.ui.geometry.Offset
@@ -55,7 +56,7 @@ class ListItemTest {
         val expectedHeightNoIcon = 48.dp
         composeTestRule
             .setMaterialContentForSizeAssertions {
-                ListItem(text = "Primary text")
+                ListItem(text = { Text("Primary text") })
             }
             .assertHeightIsEqualTo(expectedHeightNoIcon)
             .assertWidthFillsRoot()
@@ -66,7 +67,10 @@ class ListItemTest {
         val expectedHeightSmallIcon = 56.dp
         composeTestRule
             .setMaterialContentForSizeAssertions {
-                ListItem(text = "Primary text", icon = icon24x24)
+                ListItem(
+                    text = { Text("Primary text") },
+                    icon = { Icon(icon24x24) }
+                )
             }
             .assertHeightIsEqualTo(expectedHeightSmallIcon)
             .assertWidthFillsRoot()
@@ -77,7 +81,10 @@ class ListItemTest {
         val expectedHeightLargeIcon = 72.dp
         composeTestRule
             .setMaterialContentForSizeAssertions {
-                ListItem(text = "Primary text", icon = icon56x56)
+                ListItem(
+                    text = { Text("Primary text") },
+                    icon = { Icon(icon56x56) }
+                )
             }
             .assertHeightIsEqualTo(expectedHeightLargeIcon)
             .assertWidthFillsRoot()
@@ -88,7 +95,10 @@ class ListItemTest {
         val expectedHeightNoIcon = 64.dp
         composeTestRule
             .setMaterialContentForSizeAssertions {
-                ListItem(text = "Primary text", secondaryText = "Secondary text")
+                ListItem(
+                    text = { Text("Primary text") },
+                    secondaryText = { Text("Secondary text") }
+                )
             }
             .assertHeightIsEqualTo(expectedHeightNoIcon)
             .assertWidthFillsRoot()
@@ -101,9 +111,9 @@ class ListItemTest {
         composeTestRule
             .setMaterialContentForSizeAssertions {
                 ListItem(
-                    text = "Primary text",
-                    secondaryText = "Secondary text",
-                    icon = icon24x24
+                    text = { Text("Primary text") },
+                    secondaryText = { Text("Secondary text") },
+                    icon = { Icon(icon24x24) }
                 )
             }
             .assertHeightIsEqualTo(expectedHeightWithIcon)
@@ -116,9 +126,9 @@ class ListItemTest {
         composeTestRule
             .setMaterialContentForSizeAssertions {
                 ListItem(
-                    overlineText = "OVERLINE",
-                    text = "Primary text",
-                    secondaryText = "Secondary text"
+                    overlineText = { Text("OVERLINE") },
+                    text = { Text("Primary text") },
+                    secondaryText = { Text("Secondary text") }
                 )
             }
             .assertHeightIsEqualTo(expectedHeight)
@@ -131,8 +141,8 @@ class ListItemTest {
         composeTestRule
             .setMaterialContentForSizeAssertions {
                 ListItem(
-                    text = "Primary text",
-                    secondaryText = "Secondary text with long text",
+                    text = { Text("Primary text") },
+                    secondaryText = { Text("Secondary text with long text") },
                     singleLineSecondaryText = false
                 )
             }
@@ -146,10 +156,10 @@ class ListItemTest {
         composeTestRule
             .setMaterialContentForSizeAssertions {
                 ListItem(
-                    overlineText = "OVERLINE",
-                    text = "Primary text",
-                    secondaryText = "Secondary text",
-                    metaText = "meta"
+                    overlineText = { Text("OVERLINE") },
+                    text = { Text("Primary text") },
+                    secondaryText = { Text("Secondary text") },
+                    trailing = { Text("meta") }
                 )
             }
             .assertHeightIsEqualTo(expectedHeight)
@@ -162,10 +172,10 @@ class ListItemTest {
         composeTestRule
             .setMaterialContentForSizeAssertions {
                 ListItem(
-                    text = "Primary text",
-                    secondaryText = "Secondary text with long text",
+                    text = { Text("Primary text") },
+                    secondaryText = { Text("Secondary text with long text") },
                     singleLineSecondaryText = false,
-                    metaText = "meta"
+                    trailing = { Text("meta") }
                 )
             }
             .assertHeightIsEqualTo(expectedHeight)
@@ -193,8 +203,10 @@ class ListItemTest {
             }
         }
         composeTestRule.runOnIdleWithDensity {
-            assertThat(textPosition.value!!.x).isEqualTo(expectedLeftPadding.toIntPx()
-                .toFloat())
+            assertThat(textPosition.value!!.x).isEqualTo(
+                expectedLeftPadding.toIntPx()
+                    .toFloat()
+            )
             assertThat(textPosition.value!!.y).isEqualTo(
                 ((listItemHeight.toIntPx() - textSize.value!!.height) / 2f).roundToInt().toFloat()
             )
