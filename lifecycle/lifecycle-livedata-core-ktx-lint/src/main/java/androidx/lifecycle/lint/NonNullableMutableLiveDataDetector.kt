@@ -102,8 +102,8 @@ class NonNullableMutableLiveDataDetector : Detector(), SourceCodeScanner {
             if (receiverType.hasParameters()) {
                 val receiver =
                     (node.receiver as? KotlinUSimpleReferenceExpression)?.resolve() ?: return
-                val assignment = UastLintUtils.findLastAssignment(receiver as PsiVariable, node)
-                    ?: return
+                val variable = (receiver as? PsiVariable) ?: return
+                val assignment = UastLintUtils.findLastAssignment(variable, node) ?: return
                 val constructorExpression = assignment.sourcePsi as? KtCallExpression
                 constructorExpression?.typeArguments?.singleOrNull()?.typeReference
             } else {
