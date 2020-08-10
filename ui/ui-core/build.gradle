@@ -73,7 +73,7 @@ kotlin {
         }
 
         desktopMain.dependencies {
-            implementation(SKIJA)
+            implementation(SKIKO)
         }
 
         androidMain.dependsOn jvmMain

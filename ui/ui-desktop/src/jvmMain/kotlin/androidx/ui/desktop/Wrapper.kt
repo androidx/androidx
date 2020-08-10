@@ -20,79 +20,15 @@ import androidx.compose.runtime.Composition
 import androidx.compose.ui.platform.DesktopOwner
 import androidx.compose.ui.platform.DesktopOwners
 import androidx.compose.ui.platform.setContent
-import org.jetbrains.skija.Canvas
-import java.awt.event.InputMethodEvent
-import java.awt.im.InputMethodRequests
 
-fun Window.setContent(content: @Composable () -> Unit): Composition {
-    val owners = DesktopOwners(glCanvas, glCanvas::display)
+fun ComposeWindow.setContent(content: @Composable () -> Unit): Composition {
+    val owners = DesktopOwners(this, this::redrawLayer)
     val owner = DesktopOwner(owners)
     val composition = owner.setContent(content)
 
-    this.renderer = SkiaRenderer(owners)
+    this.owners = owners
 
     parent.onDismissEvents.add(owner::dispose)
 
     return composition
-}
-
-fun Dialog.setContent(content: @Composable () -> Unit): Composition {
-    val owners = DesktopOwners(glCanvas, glCanvas::display)
-    val owner = DesktopOwner(owners)
-    val composition = owner.setContent(content)
-
-    this.renderer = SkiaRenderer(owners)
-
-    parent.onDismissEvents.add(owner::dispose)
-
-    return composition
-}
-
-fun SkiaRenderer(owners: DesktopOwners) = object : SkiaRenderer {
-    override fun onInit() {
-    }
-
-    override fun onDispose() {
-    }
-
-    override fun onRender(canvas: Canvas, width: Int, height: Int) {
-        owners.onRender(canvas, width, height)
-    }
-
-    override fun onReshape(canvas: Canvas, width: Int, height: Int) {
-    }
-
-    override fun onMouseClicked(x: Int, y: Int, modifiers: Int) {}
-
-    override fun onMousePressed(x: Int, y: Int, modifiers: Int) {
-        owners.onMousePressed(x, y)
-    }
-
-    override fun onMouseReleased(x: Int, y: Int, modifiers: Int) {
-        owners.onMouseReleased(x, y)
-    }
-
-    override fun onMouseDragged(x: Int, y: Int, modifiers: Int) {
-        owners.onMouseDragged(x, y)
-    }
-
-    override fun onKeyPressed(code: Int, char: Char) {
-        owners.onKeyPressed(code, char)
-    }
-
-    override fun onKeyReleased(code: Int, char: Char) {
-        owners.onKeyReleased(code, char)
-    }
-
-    override fun inputMethodRequests(): InputMethodRequests? {
-        return owners.getInputMethodRequests()
-    }
-
-    override fun onInputMethodTextChanged(event: InputMethodEvent) {
-        owners.onInputMethodTextChanged(event)
-    }
-
-    override fun onKeyTyped(char: Char) {
-        owners.onKeyTyped(char)
-    }
 }

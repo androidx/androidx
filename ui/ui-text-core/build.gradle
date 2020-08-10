@@ -49,7 +49,7 @@ kotlin {
         }
 
         desktopMain.dependencies {
-            implementation(SKIJA)
+            implementation(SKIKO)
         }
 
         desktopMain.dependsOn jvmMain

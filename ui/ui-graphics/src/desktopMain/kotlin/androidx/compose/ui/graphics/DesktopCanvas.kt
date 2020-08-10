@@ -25,7 +25,6 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.util.fastForEach
 import org.jetbrains.skija.ClipMode as SkijaClipMode
-import org.jetbrains.skija.IRect as SkijaIRect
 import org.jetbrains.skija.Matrix33 as SkijaMatrix33
 import org.jetbrains.skija.RRect as SkijaRRect
 import org.jetbrains.skija.Rect as SkijaRect
@@ -186,11 +185,11 @@ class DesktopCanvas(val skija: org.jetbrains.skija.Canvas) : Canvas {
     override fun drawImage(image: ImageAsset, topLeftOffset: Offset, paint: Paint) {
         skija.drawImageRect(
             image.asDesktopImage(),
-            SkijaIRect.makeXYWH(
-                0,
-                0,
-                image.width,
-                image.height
+            SkijaRect.makeXYWH(
+                0f,
+                0f,
+                image.width.toFloat(),
+                image.height.toFloat()
             ),
             SkijaRect.makeXYWH(
                 topLeftOffset.x,
@@ -212,11 +211,11 @@ class DesktopCanvas(val skija: org.jetbrains.skija.Canvas) : Canvas {
     ) {
         skija.drawImageRect(
             image.asDesktopImage(),
-            SkijaIRect.makeXYWH(
-                srcOffset.x,
-                srcOffset.y,
-                srcSize.width,
-                srcSize.height
+            SkijaRect.makeXYWH(
+                srcOffset.x.toFloat(),
+                srcOffset.y.toFloat(),
+                srcSize.width.toFloat(),
+                srcSize.height.toFloat()
             ),
             SkijaRect.makeXYWH(
                 dstOffset.x.toFloat(),
