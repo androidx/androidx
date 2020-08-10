@@ -24,7 +24,6 @@ import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
 import android.view.SurfaceView;
@@ -40,6 +39,7 @@ import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.Logger;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
@@ -216,7 +216,7 @@ public class PreviewView extends FrameLayout {
     public Preview.SurfaceProvider createSurfaceProvider() {
         Threads.checkMainThread();
         return surfaceRequest -> {
-            Log.d(TAG, "Surface requested by Preview.");
+            Logger.d(TAG, "Surface requested by Preview.");
             CameraInternal camera = (CameraInternal) surfaceRequest.getCamera();
             mPreviewTransform.setSensorDimensionFlipNeeded(
                     isSensorDimensionFlipNeeded(camera.getCameraInfo()));

@@ -18,7 +18,6 @@ package androidx.camera.view;
 
 import android.annotation.TargetApi;
 import android.graphics.Bitmap;
-import android.util.Log;
 import android.util.Size;
 import android.view.PixelCopy;
 import android.view.Surface;
@@ -30,6 +29,7 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
+import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.core.content.ContextCompat;
@@ -124,9 +124,9 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
                 Bitmap.Config.ARGB_8888);
         PixelCopy.request(mSurfaceView, bitmap, copyResult -> {
             if (copyResult == PixelCopy.SUCCESS) {
-                Log.d(TAG, "PreviewView.SurfaceViewImplementation.getBitmap() succeeded");
+                Logger.d(TAG, "PreviewView.SurfaceViewImplementation.getBitmap() succeeded");
             } else {
-                Log.e(TAG, "PreviewView.SurfaceViewImplementation.getBitmap() failed with error "
+                Logger.e(TAG, "PreviewView.SurfaceViewImplementation.getBitmap() failed with error "
                         + copyResult);
             }
         }, mSurfaceView.getHandler());
@@ -177,7 +177,7 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
 
             if (!tryToComplete()) {
                 // The current size is incorrect. Wait for it to change.
-                Log.d(TAG, "Wait for new Surface creation.");
+                Logger.d(TAG, "Wait for new Surface creation.");
                 mSurfaceView.getHolder().setFixedSize(targetSize.getWidth(),
                         targetSize.getHeight());
             }
@@ -192,11 +192,11 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         private boolean tryToComplete() {
             final Surface surface = mSurfaceView.getHolder().getSurface();
             if (canProvideSurface()) {
-                Log.d(TAG, "Surface set on Preview.");
+                Logger.d(TAG, "Surface set on Preview.");
                 mSurfaceRequest.provideSurface(surface,
                         ContextCompat.getMainExecutor(mSurfaceView.getContext()),
                         (result) -> {
-                            Log.d(TAG, "Safe to release surface.");
+                            Logger.d(TAG, "Safe to release surface.");
                             notifySurfaceNotInUse();
                         });
                 mWasSurfaceProvided = true;
@@ -214,7 +214,7 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         @UiThread
         private void cancelPreviousRequest() {
             if (mSurfaceRequest != null) {
-                Log.d(TAG, "Request canceled: " + mSurfaceRequest);
+                Logger.d(TAG, "Request canceled: " + mSurfaceRequest);
                 mSurfaceRequest.willNotProvideSurface();
             }
         }
@@ -222,28 +222,28 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
         @UiThread
         private void invalidateSurface() {
             if (mSurfaceRequest != null) {
-                Log.d(TAG, "Surface invalidated " + mSurfaceRequest);
+                Logger.d(TAG, "Surface invalidated " + mSurfaceRequest);
                 mSurfaceRequest.getDeferrableSurface().close();
             }
         }
 
         @Override
         public void surfaceCreated(@NonNull SurfaceHolder surfaceHolder) {
-            Log.d(TAG, "Surface created.");
+            Logger.d(TAG, "Surface created.");
             // No-op. Handling surfaceChanged() is enough because it's always called afterwards.
         }
 
         @Override
         public void surfaceChanged(@NonNull SurfaceHolder surfaceHolder, int format, int width,
                 int height) {
-            Log.d(TAG, "Surface changed. Size: " + width + "x" + height);
+            Logger.d(TAG, "Surface changed. Size: " + width + "x" + height);
             mCurrentSurfaceSize = new Size(width, height);
             tryToComplete();
         }
 
         @Override
         public void surfaceDestroyed(@NonNull SurfaceHolder surfaceHolder) {
-            Log.d(TAG, "Surface destroyed.");
+            Logger.d(TAG, "Surface destroyed.");
 
             // If a surface was already provided to the camera, invalidate it so that it requests
             // a new valid one. Otherwise, cancel the surface request.

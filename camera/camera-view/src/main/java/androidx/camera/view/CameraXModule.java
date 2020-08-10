@@ -21,7 +21,6 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import android.Manifest.permission;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.util.Log;
 import android.util.Rational;
 import android.util.Size;
 
@@ -35,6 +34,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
+import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.UseCase;
@@ -179,18 +179,18 @@ final class CameraXModule {
         Set<Integer> available = getAvailableCameraLensFacing();
 
         if (available.isEmpty()) {
-            Log.w(TAG, "Unable to bindToLifeCycle since no cameras available");
+            Logger.w(TAG, "Unable to bindToLifeCycle since no cameras available");
             mCameraLensFacing = null;
         }
 
         // Ensure the current camera exists, or default to another camera
         if (mCameraLensFacing != null && !available.contains(mCameraLensFacing)) {
-            Log.w(TAG, "Camera does not exist with direction " + mCameraLensFacing);
+            Logger.w(TAG, "Camera does not exist with direction " + mCameraLensFacing);
 
             // Default to the first available camera direction
             mCameraLensFacing = available.iterator().next();
 
-            Log.w(TAG, "Defaulting to primary camera with direction " + mCameraLensFacing);
+            Logger.w(TAG, "Defaulting to primary camera with direction " + mCameraLensFacing);
         }
 
         // Do not attempt to create use cases for a null cameraLensFacing. This could occur if
@@ -328,7 +328,7 @@ final class CameraXModule {
                             @NonNull String message,
                             @Nullable Throwable cause) {
                         mVideoIsRecording.set(false);
-                        Log.e(TAG, message, cause);
+                        Logger.e(TAG, message, cause);
                         callback.onError(videoCaptureError, message, cause);
                     }
                 });
@@ -431,7 +431,7 @@ final class CameraXModule {
                 }
             }, CameraXExecutors.directExecutor());
         } else {
-            Log.e(TAG, "Failed to set zoom ratio");
+            Logger.e(TAG, "Failed to set zoom ratio");
         }
     }
 

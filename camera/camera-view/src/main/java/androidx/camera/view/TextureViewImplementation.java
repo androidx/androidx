@@ -20,7 +20,6 @@ import static androidx.camera.core.SurfaceRequest.Result;
 
 import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
-import android.util.Log;
 import android.view.Surface;
 import android.view.TextureView;
 import android.view.View;
@@ -28,6 +27,7 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.Logger;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
@@ -119,7 +119,7 @@ final class TextureViewImplementation extends PreviewViewImplementation {
             @Override
             public void onSurfaceTextureAvailable(@NonNull final SurfaceTexture surfaceTexture,
                     final int width, final int height) {
-                Log.d(TAG, "SurfaceTexture available. Size: " + width + "x" + height);
+                Logger.d(TAG, "SurfaceTexture available. Size: " + width + "x" + height);
                 mSurfaceTexture = surfaceTexture;
 
                 // If a new SurfaceTexture becomes available yet the camera is still using a
@@ -127,7 +127,7 @@ final class TextureViewImplementation extends PreviewViewImplementation {
                 // request a new surface.
                 if (mSurfaceReleaseFuture != null) {
                     Preconditions.checkNotNull(mSurfaceRequest);
-                    Log.d(TAG, "Surface invalidated " + mSurfaceRequest);
+                    Logger.d(TAG, "Surface invalidated " + mSurfaceRequest);
                     mSurfaceRequest.getDeferrableSurface().close();
                 } else {
                     tryToProvidePreviewSurface();
@@ -137,7 +137,7 @@ final class TextureViewImplementation extends PreviewViewImplementation {
             @Override
             public void onSurfaceTextureSizeChanged(@NonNull final SurfaceTexture surfaceTexture,
                     final int width, final int height) {
-                Log.d(TAG, "SurfaceTexture size changed: " + width + "x" + height);
+                Logger.d(TAG, "SurfaceTexture size changed: " + width + "x" + height);
             }
 
             @Override
@@ -157,7 +157,7 @@ final class TextureViewImplementation extends PreviewViewImplementation {
                                             "Unexpected result from SurfaceRequest. Surface was "
                                                     + "provided twice.");
 
-                                    Log.d(TAG, "SurfaceTexture about to manually be destroyed");
+                                    Logger.d(TAG, "SurfaceTexture about to manually be destroyed");
                                     surfaceTexture.release();
 
                                     if (mDetachedSurfaceTexture != null) {
@@ -175,7 +175,7 @@ final class TextureViewImplementation extends PreviewViewImplementation {
                     mDetachedSurfaceTexture = surfaceTexture;
                     return false;
                 } else {
-                    Log.d(TAG, "SurfaceTexture about to be destroyed");
+                    Logger.d(TAG, "SurfaceTexture about to be destroyed");
                     return true;
                 }
             }
@@ -212,7 +212,7 @@ final class TextureViewImplementation extends PreviewViewImplementation {
         final SurfaceRequest surfaceRequest = mSurfaceRequest;
         final ListenableFuture<Result> surfaceReleaseFuture = CallbackToFutureAdapter.getFuture(
                 completer -> {
-                    Log.d(TAG, "Surface set on Preview.");
+                    Logger.d(TAG, "Surface set on Preview.");
                     mSurfaceRequest.provideSurface(surface,
                             CameraXExecutors.directExecutor(), completer::set);
                     return "provideSurface[request=" + mSurfaceRequest + " surface=" + surface
@@ -221,7 +221,7 @@ final class TextureViewImplementation extends PreviewViewImplementation {
 
         mSurfaceReleaseFuture = surfaceReleaseFuture;
         mSurfaceReleaseFuture.addListener(() -> {
-            Log.d(TAG, "Safe to release surface.");
+            Logger.d(TAG, "Safe to release surface.");
             notifySurfaceNotInUse();
             surface.release();
             if (mSurfaceReleaseFuture == surfaceReleaseFuture) {
