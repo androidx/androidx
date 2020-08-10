@@ -51,9 +51,11 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
 import androidx.compose.ui.platform.AnimationClockAmbient
+import androidx.compose.ui.platform.LayoutDirectionAmbient
 import androidx.compose.ui.semantics.scrollBy
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import kotlin.math.roundToInt
 
@@ -370,9 +372,12 @@ private fun Modifier.scroll(
             })
         }
     }
+    val isRtl = LayoutDirectionAmbient.current == LayoutDirection.Rtl
     val scrolling = Modifier.scrollable(
         orientation = if (isVertical) Orientation.Vertical else Orientation.Horizontal,
-        reverseDirection = !reverseScrolling,
+        // reverse scroll by default, to have "natural" gesture that goes reversed to layout
+        // if rtl and horizontal, do not reverse to make it right-to-left
+        reverseDirection = if (!isVertical && isRtl) reverseScrolling else !reverseScrolling,
         enabled = isScrollable,
         controller = state.scrollableController
     )
