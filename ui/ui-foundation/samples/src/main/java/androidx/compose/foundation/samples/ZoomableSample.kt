@@ -20,8 +20,8 @@ import androidx.annotation.Sampled
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.Text
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.drawBorder
 import androidx.compose.foundation.gestures.rememberZoomableController
 import androidx.compose.foundation.gestures.zoomable
 import androidx.compose.foundation.layout.fillMaxSize
@@ -56,7 +56,7 @@ fun ZoomableSample() {
                     onClick = {}
                 )
                 .fillMaxSize()
-                .drawBorder(1.dp, Color.Green),
+                .border(1.dp, Color.Green),
             gravity = ContentGravity.Center
         ) {
             Text(

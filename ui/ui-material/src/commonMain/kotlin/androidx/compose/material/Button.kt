@@ -18,26 +18,26 @@
 
 package androidx.compose.material
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.runtime.remember
-import androidx.compose.foundation.Border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.IndicationAmbient
 import androidx.compose.foundation.InteractionState
 import androidx.compose.foundation.ProvideTextStyle
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.indication
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.defaultMinSizeConstraints
 import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -86,7 +86,7 @@ fun Button(
     elevation: Dp = 2.dp,
     disabledElevation: Dp = 0.dp,
     shape: Shape = MaterialTheme.shapes.small,
-    border: Border? = null,
+    border: BorderStroke? = null,
     backgroundColor: Color = MaterialTheme.colors.primary,
     disabledBackgroundColor: Color = ButtonConstants.defaultDisabledBackgroundColor,
     contentColor: Color = contentColorFor(backgroundColor),
@@ -170,7 +170,7 @@ inline fun OutlinedButton(
     enabled: Boolean = true,
     elevation: Dp = 0.dp,
     shape: Shape = MaterialTheme.shapes.small,
-    border: Border? = ButtonConstants.defaultOutlinedBorder,
+    border: BorderStroke? = ButtonConstants.defaultOutlinedBorder,
     backgroundColor: Color = MaterialTheme.colors.surface,
     contentColor: Color = MaterialTheme.colors.primary,
     disabledContentColor: Color = ButtonConstants.defaultDisabledContentColor,
@@ -229,7 +229,7 @@ inline fun TextButton(
     enabled: Boolean = true,
     elevation: Dp = 0.dp,
     shape: Shape = MaterialTheme.shapes.small,
-    border: Border? = null,
+    border: BorderStroke? = null,
     backgroundColor: Color = Color.Transparent,
     contentColor: Color = MaterialTheme.colors.primary,
     disabledContentColor: Color = ButtonConstants.defaultDisabledContentColor,
@@ -329,8 +329,8 @@ object ButtonConstants {
      * The default disabled content color used by all types of [Button]s
      */
     @Composable
-    val defaultOutlinedBorder: Border
-        get() = Border(
+    val defaultOutlinedBorder: BorderStroke
+        get() = BorderStroke(
             OutlinedBorderSize, MaterialTheme.colors.onSurface.copy(alpha = OutlinedBorderOpacity)
         )
 

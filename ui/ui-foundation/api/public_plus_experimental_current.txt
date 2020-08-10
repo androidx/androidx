@@ -11,22 +11,40 @@ package androidx.compose.foundation {
     method public static void setBlinkingCursorEnabled(boolean p);
   }
 
-  @androidx.compose.runtime.Immutable public final class Border {
-    method public float component1();
-    method public androidx.compose.ui.graphics.Brush component2();
-    method @androidx.compose.runtime.Immutable public androidx.compose.foundation.Border copy-v_fYJzc(float size, androidx.compose.ui.graphics.Brush brush);
-    method public androidx.compose.ui.graphics.Brush getBrush();
-    method public float getSize();
+  @Deprecated @androidx.compose.runtime.Immutable public final class Border {
+    method @Deprecated public float component1();
+    method @Deprecated public androidx.compose.ui.graphics.Brush component2();
+    method @Deprecated @androidx.compose.runtime.Immutable public androidx.compose.foundation.Border copy-v_fYJzc(float size, androidx.compose.ui.graphics.Brush brush);
+    method @Deprecated public androidx.compose.ui.graphics.Brush getBrush();
+    method @Deprecated public float getSize();
   }
 
   public final class BorderKt {
-    method @androidx.compose.runtime.Stable public static androidx.compose.foundation.Border Border-Qek64HU(float size, long color);
+    method public static androidx.compose.ui.Modifier border(androidx.compose.ui.Modifier, androidx.compose.foundation.BorderStroke border, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape);
+    method public static androidx.compose.ui.Modifier border-bMj1UE0(androidx.compose.ui.Modifier, float width, androidx.compose.ui.graphics.Brush brush, androidx.compose.ui.graphics.Shape shape);
+    method public static androidx.compose.ui.Modifier border-zRMYNwQ(androidx.compose.ui.Modifier, float width, long color, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape);
+    method @Deprecated public static androidx.compose.ui.Modifier drawBorder(androidx.compose.ui.Modifier, androidx.compose.foundation.Border border, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape);
+    method @Deprecated public static androidx.compose.ui.Modifier drawBorder-bMj1UE0(androidx.compose.ui.Modifier, float size, androidx.compose.ui.graphics.Brush brush, androidx.compose.ui.graphics.Shape shape);
+    method @Deprecated public static androidx.compose.ui.Modifier drawBorder-zRMYNwQ(androidx.compose.ui.Modifier, float size, long color, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape);
+  }
+
+  @androidx.compose.runtime.Immutable public final class BorderStroke {
+    method public float component1();
+    method public androidx.compose.ui.graphics.Brush component2();
+    method @androidx.compose.runtime.Immutable public androidx.compose.foundation.BorderStroke copy-v_fYJzc(float width, androidx.compose.ui.graphics.Brush brush);
+    method public androidx.compose.ui.graphics.Brush getBrush();
+    method public float getWidth();
+  }
+
+  public final class BorderStrokeKt {
+    method @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.foundation.Border Border-Qek64HU(float size, long color);
+    method @androidx.compose.runtime.Stable public static androidx.compose.foundation.BorderStroke BorderStroke-Qek64HU(float width, long color);
   }
 
   public final class BoxKt {
-    method @androidx.compose.runtime.Composable public static void Box-qeZOqCs(androidx.compose.ui.Modifier modifier = Modifier, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape, long backgroundColor = Color.Transparent, androidx.compose.foundation.Border? border = null, float padding = elvis {
-    var var41192b72: androidx.compose.ui.unit.Dp = border?.size
-    if (var41192b72 != null) var41192b72 else 0.dp
+    method @androidx.compose.runtime.Composable public static void Box-0SX22z8(androidx.compose.ui.Modifier modifier = Modifier, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape, long backgroundColor = Color.Transparent, androidx.compose.foundation.BorderStroke? border = null, float padding = elvis {
+    var var8dc494ac: androidx.compose.ui.unit.Dp = border?.width
+    if (var8dc494ac != null) var8dc494ac else 0.dp
 }, float paddingStart = Dp.Unspecified, float paddingTop = Dp.Unspecified, float paddingEnd = Dp.Unspecified, float paddingBottom = Dp.Unspecified, androidx.compose.ui.Alignment gravity = ContentGravity.TopStart, kotlin.jvm.functions.Function0<kotlin.Unit> children = emptyContent());
   }
 
@@ -51,19 +69,6 @@ package androidx.compose.foundation {
 
   public final class DarkThemeKt {
     method @androidx.compose.runtime.Composable public static boolean isSystemInDarkTheme();
-  }
-
-  public final class DrawBorder implements androidx.compose.ui.DrawModifier {
-    method public void draw(androidx.compose.ui.ContentDrawScope);
-  }
-
-  public final class DrawBorderKt {
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.ui.Modifier DrawBorder(androidx.compose.foundation.Border border, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape);
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.ui.Modifier DrawBorder-P9kTT0c(float size, long color, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape);
-    method @Deprecated @androidx.compose.runtime.Composable public static androidx.compose.foundation.DrawBorder DrawBorder-TpnEqK8(float size, androidx.compose.ui.graphics.Brush brush, androidx.compose.ui.graphics.Shape shape);
-    method public static androidx.compose.ui.Modifier drawBorder(androidx.compose.ui.Modifier, androidx.compose.foundation.Border border, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape);
-    method public static androidx.compose.ui.Modifier drawBorder-bMj1UE0(androidx.compose.ui.Modifier, float size, androidx.compose.ui.graphics.Brush brush, androidx.compose.ui.graphics.Shape shape);
-    method public static androidx.compose.ui.Modifier drawBorder-zRMYNwQ(androidx.compose.ui.Modifier, float size, long color, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape);
   }
 
   @kotlin.RequiresOptIn(message="This foundation API is experimental and is likely to change or be removed in the " + "future.") public @interface ExperimentalFoundationApi {

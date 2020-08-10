@@ -16,9 +16,9 @@
 
 package androidx.compose.material
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.Border
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
@@ -46,7 +46,7 @@ fun Card(
     shape: Shape = MaterialTheme.shapes.medium,
     backgroundColor: Color = MaterialTheme.colors.surface,
     contentColor: Color = contentColorFor(backgroundColor),
-    border: Border? = null,
+    border: BorderStroke? = null,
     elevation: Dp = 1.dp,
     content: @Composable () -> Unit
 ) {

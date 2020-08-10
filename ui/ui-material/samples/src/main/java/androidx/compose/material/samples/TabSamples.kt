@@ -22,12 +22,12 @@ import androidx.compose.animation.DpPropKey
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.transition
-import androidx.compose.foundation.Border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
-import androidx.compose.foundation.drawBorder
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -316,7 +316,7 @@ fun FancyIndicator(color: Color, modifier: Modifier = Modifier) {
     Box(modifier
         .padding(5.dp)
         .fillMaxSize()
-        .drawBorder(Border(2.dp, color), RoundedCornerShape(5.dp))
+        .border(BorderStroke(2.dp, color), RoundedCornerShape(5.dp))
     )
 }
 

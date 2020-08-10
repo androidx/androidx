@@ -17,25 +17,25 @@
 package androidx.compose.foundation
 
 import android.os.Build
-import androidx.compose.runtime.Composable
-import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
-import androidx.compose.ui.platform.DensityAmbient
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
+import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.foundation.layout.Stack
-import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.ui.platform.DensityAmbient
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.Density
+import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.onNodeWithTag
-import androidx.compose.ui.unit.Density
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -66,7 +66,7 @@ class BorderTest(val shape: Shape) {
                 Stack(
                     Modifier.preferredSize(40.0f.toDp(), 40.0f.toDp())
                         .background(color = Color.Blue)
-                        .drawBorder(Border(10.0f.toDp(), Color.Red), shape)
+                        .border(BorderStroke(10.0f.toDp(), Color.Red), shape)
 
                 ) {}
             }
@@ -91,8 +91,8 @@ class BorderTest(val shape: Shape) {
                 Stack(
                     Modifier.preferredSize(40.0f.toDp(), 40.0f.toDp())
                         .background(color = Color.Blue)
-                        .drawBorder(
-                            Border(10.0f.toDp(), SolidColor(Color.Red)),
+                        .border(
+                            BorderStroke(10.0f.toDp(), SolidColor(Color.Red)),
                             shape
                         )
                 ) {}
@@ -118,7 +118,7 @@ class BorderTest(val shape: Shape) {
                 Stack(
                     Modifier.preferredSize(40.0f.toDp(), 40.0f.toDp())
                         .background(color = Color.Blue)
-                        .drawBorder(Border(1500.0f.toDp(), Color.Red), shape)
+                        .border(BorderStroke(1500.0f.toDp(), Color.Red), shape)
                 ) {}
             }
         }
@@ -140,7 +140,7 @@ class BorderTest(val shape: Shape) {
                 Stack(
                     Modifier.preferredSize(40.0f.toDp(), 40.0f.toDp())
                         .background(color = Color.Blue)
-                        .drawBorder(Border(-5.0f.toDp(), Color.Red), shape)
+                        .border(BorderStroke(-5.0f.toDp(), Color.Red), shape)
                 ) {}
             }
         }
@@ -165,7 +165,7 @@ class BorderTest(val shape: Shape) {
                 ) {
                     Stack(
                         Modifier.preferredSize(0.0f.toDp(), 40.0f.toDp())
-                            .drawBorder(Border(4.0f.toDp(), Color.Red), shape)
+                            .border(BorderStroke(4.0f.toDp(), Color.Red), shape)
                     ) {}
                 }
             }
