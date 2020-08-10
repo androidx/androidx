@@ -37,8 +37,8 @@ package androidx.compose.ui.text {
   }
 
   @androidx.compose.runtime.Immutable public static final class AnnotatedString.Range<T> {
-    ctor public AnnotatedString.Range(T! item, int start, int end, String tag);
-    ctor public AnnotatedString.Range(T! item, int start, int end);
+    ctor public AnnotatedString.Range(T? item, int start, int end, String tag);
+    ctor public AnnotatedString.Range(T? item, int start, int end);
     method public T! component1();
     method public int component2();
     method public int component3();
@@ -368,7 +368,7 @@ package androidx.compose.ui.text {
   }
 
   @androidx.compose.runtime.Immutable public final class TextRange {
-    ctor public TextRange(@IntRange(from=null) int start, @IntRange(from=null) int end);
+    ctor public TextRange(@IntRange(from=0) int start, @IntRange(from=0) int end);
     method public int component1();
     method public int component2();
     method public operator boolean contains(androidx.compose.ui.text.TextRange other);
@@ -797,7 +797,7 @@ package androidx.compose.ui.text.input {
   }
 
   @androidx.compose.runtime.Immutable public final class TextFieldValue {
-    ctor public TextFieldValue(String text, androidx.compose.ui.text.TextRange selection, androidx.compose.ui.text.TextRange? composition);
+    ctor public TextFieldValue(@androidx.compose.runtime.Stable String text, @androidx.compose.runtime.Stable androidx.compose.ui.text.TextRange selection, @androidx.compose.runtime.Stable androidx.compose.ui.text.TextRange? composition);
     ctor public TextFieldValue();
     method public String component1();
     method public androidx.compose.ui.text.TextRange component2();
