@@ -22,7 +22,7 @@ package androidx.compose.ui.unit {
   }
 
   @androidx.compose.runtime.Immutable public final class Constraints {
-    ctor public Constraints(internal long value);
+    ctor public Constraints(@kotlin.PublishedApi internal long value);
     method public androidx.compose.ui.unit.Constraints copy(int minWidth = this.minWidth, int maxWidth = this.maxWidth, int minHeight = this.minHeight, int maxHeight = this.maxHeight);
     method @androidx.compose.runtime.Immutable public androidx.compose.ui.unit.Constraints copy(long value);
     method public boolean getHasBoundedHeight();
@@ -276,7 +276,7 @@ package androidx.compose.ui.unit {
   }
 
   @androidx.compose.runtime.Immutable public final class IntOffset {
-    ctor public IntOffset(internal long packedValue);
+    ctor public IntOffset(@kotlin.PublishedApi internal long packedValue);
     method @androidx.compose.runtime.Stable public operator int component1();
     method @androidx.compose.runtime.Stable public operator int component2();
     method public androidx.compose.ui.unit.IntOffset copy(int x = this.x, int y = this.y);
@@ -311,7 +311,7 @@ package androidx.compose.ui.unit {
   }
 
   @androidx.compose.runtime.Immutable public final class IntSize {
-    ctor public IntSize(internal long packedValue);
+    ctor public IntSize(@kotlin.PublishedApi internal long packedValue);
     method @androidx.compose.runtime.Stable public inline operator int component1();
     method @androidx.compose.runtime.Stable public inline operator int component2();
     method @androidx.compose.runtime.Stable public operator androidx.compose.ui.unit.IntSize div(int other);

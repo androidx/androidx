@@ -1599,7 +1599,7 @@ package androidx.compose.ui.input.pointer {
   }
 
   @androidx.compose.runtime.Immutable public final class PointerInputData {
-    ctor public PointerInputData(androidx.compose.ui.unit.Uptime? uptime, androidx.compose.ui.geometry.Offset? position, boolean down);
+    ctor public PointerInputData(@androidx.compose.runtime.Stable androidx.compose.ui.unit.Uptime? uptime, @androidx.compose.runtime.Stable androidx.compose.ui.geometry.Offset? position, @androidx.compose.runtime.Stable boolean down);
     ctor public PointerInputData();
     method public androidx.compose.ui.unit.Uptime? component1();
     method public androidx.compose.ui.geometry.Offset? component2();
@@ -1850,8 +1850,10 @@ package androidx.compose.ui.node {
     ctor @Deprecated public ModelObserver(kotlin.jvm.functions.Function1<? super kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> commitExecutor);
     method @Deprecated public void clear(Object target);
     method @Deprecated public void enableModelUpdatesObserving(boolean enabled);
+    method @Deprecated @androidx.compose.ui.node.InternalCoreApi public kotlin.jvm.functions.Function2<java.util.Set<?>,androidx.compose.runtime.frames.Frame,kotlin.Unit> getFrameCommitObserver();
     method @Deprecated public <T> void observeReads(T target, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> onCommit, kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method @Deprecated public void pauseObservingReads(kotlin.jvm.functions.Function0<kotlin.Unit> block);
+    property @androidx.compose.ui.node.InternalCoreApi public final kotlin.jvm.functions.Function2<java.util.Set<?>,androidx.compose.runtime.frames.Frame,kotlin.Unit> frameCommitObserver;
   }
 
   public final class ModifierInfo {
@@ -1905,7 +1907,6 @@ package androidx.compose.ui.node {
     method public void pauseModelReadObserveration(kotlin.jvm.functions.Function0<kotlin.Unit> block);
     method public boolean requestFocus();
     method @androidx.compose.ui.input.key.ExperimentalKeyInput public boolean sendKeyEvent(androidx.compose.ui.input.key.KeyEvent keyEvent);
-    method @androidx.compose.ui.node.InternalCoreApi public void setShowLayoutBounds(boolean p);
     property public abstract androidx.compose.ui.autofill.Autofill? autofill;
     property public abstract androidx.compose.ui.autofill.AutofillTree autofillTree;
     property public abstract androidx.compose.ui.platform.ClipboardManager clipboardManager;
@@ -2142,7 +2143,7 @@ package androidx.compose.ui.res {
   }
 
   public final class LoadedResource<T> extends androidx.compose.ui.res.Resource<T> {
-    ctor public LoadedResource(T! resource);
+    ctor public LoadedResource(T? resource);
   }
 
   public final class PendingResource<T> extends androidx.compose.ui.res.Resource<T> {

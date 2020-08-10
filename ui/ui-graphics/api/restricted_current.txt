@@ -773,12 +773,12 @@ package androidx.compose.ui.graphics.colorspace {
   }
 
   public final class Rgb extends androidx.compose.ui.graphics.colorspace.ColorSpace {
-    ctor public Rgb(@Size(min=null) String name, @Size(null) float[] toXYZ, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> oetf, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> eotf);
-    ctor public Rgb(@Size(min=null) String name, @Size(min=null, max=null) float[] primaries, androidx.compose.ui.graphics.colorspace.WhitePoint whitePoint, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> oetf, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> eotf, float min, float max);
-    ctor public Rgb(@Size(min=null) String name, @Size(null) float[] toXYZ, androidx.compose.ui.graphics.colorspace.TransferParameters function);
-    ctor public Rgb(@Size(min=null) String name, @Size(min=null, max=null) float[] primaries, androidx.compose.ui.graphics.colorspace.WhitePoint whitePoint, androidx.compose.ui.graphics.colorspace.TransferParameters function);
-    ctor public Rgb(@Size(min=null) String name, @Size(null) float[] toXYZ, double gamma);
-    ctor public Rgb(@Size(min=null) String name, @Size(min=null, max=null) float[] primaries, androidx.compose.ui.graphics.colorspace.WhitePoint whitePoint, double gamma);
+    ctor public Rgb(@Size(min=1) String name, @Size(9) float[] toXYZ, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> oetf, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> eotf);
+    ctor public Rgb(@Size(min=1) String name, @Size(min=6, max=9) float[] primaries, androidx.compose.ui.graphics.colorspace.WhitePoint whitePoint, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> oetf, kotlin.jvm.functions.Function1<? super java.lang.Double,java.lang.Double> eotf, float min, float max);
+    ctor public Rgb(@Size(min=1) String name, @Size(9) float[] toXYZ, androidx.compose.ui.graphics.colorspace.TransferParameters function);
+    ctor public Rgb(@Size(min=1) String name, @Size(min=6, max=9) float[] primaries, androidx.compose.ui.graphics.colorspace.WhitePoint whitePoint, androidx.compose.ui.graphics.colorspace.TransferParameters function);
+    ctor public Rgb(@Size(min=1) String name, @Size(9) float[] toXYZ, double gamma);
+    ctor public Rgb(@Size(min=1) String name, @Size(min=6, max=9) float[] primaries, androidx.compose.ui.graphics.colorspace.WhitePoint whitePoint, double gamma);
     method @Size(3) public float[] fromLinear(float r, float g, float b);
     method @Size(min=3) public float[] fromLinear(@Size(min=3) float[] v);
     method @Size(min=3) public float[] fromXyz(@Size(min=3) float[] v);
