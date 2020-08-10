@@ -119,7 +119,7 @@ class AnimationModifierTest {
     }
 }
 
-private class TestModifier : LayoutModifier {
+internal class TestModifier : LayoutModifier {
     var width: Int = 0
     var height: Int = 0
     override fun MeasureScope.measure(

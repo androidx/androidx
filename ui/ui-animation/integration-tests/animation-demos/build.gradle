@@ -22,6 +22,7 @@ dependencies {
     implementation project(':compose:animation:animation')
     implementation project(':compose:foundation:foundation')
     implementation project(':compose:material:material')
+    implementation project(':compose:animation:animation:samples')
 }
 
 tasks.withType(KotlinCompile).configureEach {
