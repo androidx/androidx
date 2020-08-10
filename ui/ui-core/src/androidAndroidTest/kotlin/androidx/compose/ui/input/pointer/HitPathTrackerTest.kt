@@ -201,49 +201,49 @@ class HitPathTrackerTest {
 
     @Test
     fun dispatchChanges_hitResultHasSingleMatch_pointerInputHandlerCalled() {
-        val pif: PointerInputFilter = PointerInputFilterMock()
+        val pif = PointerInputFilterMock()
         hitPathTracker.addHitPath(PointerId(13), listOf(pif))
 
         hitPathTracker.dispatchChanges(internalPointerEventOf(down(13)))
 
         // Verify call count
-        verify(pif, times(3)).onPointerEvent(any(), any(), any())
+        verify(pif, times(3)).onPointerEventMock(any(), any(), any())
         // Verify call values
         PointerEventPass.values().forEach {
-            verify(pif).onPointerInput(
+            verify(pif).onPointerInputMock(
                 eq(listOf(down(13))),
                 eq(it),
-                any()
+                any() as Any
             )
         }
     }
 
     @Test
     fun dispatchChanges_hitResultHasMultipleMatches_pointerInputHandlersCalledInCorrectOrder() {
-        val pif1: PointerInputFilter = PointerInputFilterMock()
-        val pif2: PointerInputFilter = PointerInputFilterMock()
-        val pif3: PointerInputFilter = PointerInputFilterMock()
+        val pif1 = PointerInputFilterMock()
+        val pif2 = PointerInputFilterMock()
+        val pif3 = PointerInputFilterMock()
         hitPathTracker.addHitPath(PointerId(13), listOf(pif1, pif2, pif3))
 
         hitPathTracker.dispatchChanges(internalPointerEventOf(down(13)))
 
         // Verify call count
-        verify(pif1, times(3)).onPointerEvent(any(), any(), any())
-        verify(pif2, times(3)).onPointerEvent(any(), any(), any())
-        verify(pif3, times(3)).onPointerEvent(any(), any(), any())
+        verify(pif1, times(3)).onPointerEventMock(any(), any(), any())
+        verify(pif2, times(3)).onPointerEventMock(any(), any(), any())
+        verify(pif3, times(3)).onPointerEventMock(any(), any(), any())
         // Verify call order and values
         inOrder(pif1, pif2, pif3) {
-            verify(pif1).onPointerInput(
+            verify(pif1).onPointerInputMock(
                 eq(listOf(down(13))),
                 eq(PointerEventPass.InitialDown),
                 any()
             )
-            verify(pif2).onPointerInput(
+            verify(pif2).onPointerInputMock(
                 eq(listOf(down(13))),
                 eq(PointerEventPass.InitialDown),
                 any()
             )
-            verify(pif3).onPointerInput(
+            verify(pif3).onPointerInputMock(
                 eq(listOf(down(13))),
                 eq(PointerEventPass.InitialDown),
                 any()
@@ -253,45 +253,45 @@ class HitPathTrackerTest {
 
     @Test
     fun dispatchChanges_hasDownAndUpPath_pointerInputHandlersCalledInCorrectOrder() {
-        val pif1: PointerInputFilter = PointerInputFilterMock()
-        val pif2: PointerInputFilter = PointerInputFilterMock()
-        val pif3: PointerInputFilter = PointerInputFilterMock()
+        val pif1 = PointerInputFilterMock()
+        val pif2 = PointerInputFilterMock()
+        val pif3 = PointerInputFilterMock()
         hitPathTracker.addHitPath(PointerId(13), listOf(pif1, pif2, pif3))
 
         hitPathTracker.dispatchChanges(internalPointerEventOf(down(13)))
 
         // Verify call count
-        verify(pif1, times(3)).onPointerEvent(any(), any(), any())
-        verify(pif2, times(3)).onPointerEvent(any(), any(), any())
-        verify(pif3, times(3)).onPointerEvent(any(), any(), any())
+        verify(pif1, times(3)).onPointerEventMock(any(), any(), any())
+        verify(pif2, times(3)).onPointerEventMock(any(), any(), any())
+        verify(pif3, times(3)).onPointerEventMock(any(), any(), any())
         // Verify call order and values
         inOrder(pif1, pif2, pif3) {
-            verify(pif1).onPointerInput(
+            verify(pif1).onPointerInputMock(
                 eq(listOf(down(13))),
                 eq(PointerEventPass.InitialDown),
                 any()
             )
-            verify(pif2).onPointerInput(
+            verify(pif2).onPointerInputMock(
                 eq(listOf(down(13))),
                 eq(PointerEventPass.InitialDown),
                 any()
             )
-            verify(pif3).onPointerInput(
+            verify(pif3).onPointerInputMock(
                 eq(listOf(down(13))),
                 eq(PointerEventPass.InitialDown),
                 any()
             )
-            verify(pif3).onPointerInput(
+            verify(pif3).onPointerInputMock(
                 eq(listOf(down(13))),
                 eq(PointerEventPass.PostUp),
                 any()
             )
-            verify(pif2).onPointerInput(
+            verify(pif2).onPointerInputMock(
                 eq(listOf(down(13))),
                 eq(PointerEventPass.PostUp),
                 any()
             )
-            verify(pif1).onPointerInput(
+            verify(pif1).onPointerInputMock(
                 eq(listOf(down(13))),
                 eq(PointerEventPass.PostUp),
                 any()
@@ -301,10 +301,10 @@ class HitPathTrackerTest {
 
     @Test
     fun dispatchChanges_2IndependentBranchesFromRoot_eventsSplitCorrectlyAndCallOrderCorrect() {
-        val pif1: PointerInputFilter = PointerInputFilterMock()
-        val pif2: PointerInputFilter = PointerInputFilterMock()
-        val pif3: PointerInputFilter = PointerInputFilterMock()
-        val pif4: PointerInputFilter = PointerInputFilterMock()
+        val pif1 = PointerInputFilterMock()
+        val pif2 = PointerInputFilterMock()
+        val pif3 = PointerInputFilterMock()
+        val pif4 = PointerInputFilterMock()
         hitPathTracker.addHitPath(PointerId(3), listOf(pif1, pif2))
         hitPathTracker.addHitPath(PointerId(5), listOf(pif3, pif4))
         val event1 = down(3)
@@ -315,50 +315,50 @@ class HitPathTrackerTest {
         )
 
         // Verify call count
-        verify(pif1, times(3)).onPointerEvent(any(), any(), any())
-        verify(pif2, times(3)).onPointerEvent(any(), any(), any())
-        verify(pif3, times(3)).onPointerEvent(any(), any(), any())
-        verify(pif4, times(3)).onPointerEvent(any(), any(), any())
+        verify(pif1, times(3)).onPointerEventMock(any(), any(), any())
+        verify(pif2, times(3)).onPointerEventMock(any(), any(), any())
+        verify(pif3, times(3)).onPointerEventMock(any(), any(), any())
+        verify(pif4, times(3)).onPointerEventMock(any(), any(), any())
         // Verify call order and values
         inOrder(pif1, pif2) {
-            verify(pif1).onPointerInput(
+            verify(pif1).onPointerInputMock(
                 eq(listOf(event1)),
                 eq(PointerEventPass.InitialDown),
                 any()
             )
-            verify(pif2).onPointerInput(
+            verify(pif2).onPointerInputMock(
                 eq(listOf(event1)),
                 eq(PointerEventPass.InitialDown),
                 any()
             )
-            verify(pif2).onPointerInput(
+            verify(pif2).onPointerInputMock(
                 eq(listOf(event1)),
                 eq(PointerEventPass.PostUp),
                 any()
             )
-            verify(pif1).onPointerInput(
+            verify(pif1).onPointerInputMock(
                 eq(listOf(event1)),
                 eq(PointerEventPass.PostUp),
                 any()
             )
         }
         inOrder(pif3, pif4) {
-            verify(pif3).onPointerInput(
+            verify(pif3).onPointerInputMock(
                 eq(listOf(event2)),
                 eq(PointerEventPass.InitialDown),
                 any()
             )
-            verify(pif4).onPointerInput(
+            verify(pif4).onPointerInputMock(
                 eq(listOf(event2)),
                 eq(PointerEventPass.InitialDown),
                 any()
             )
-            verify(pif4).onPointerInput(
+            verify(pif4).onPointerInputMock(
                 eq(listOf(event2)),
                 eq(PointerEventPass.PostUp),
                 any()
             )
-            verify(pif3).onPointerInput(
+            verify(pif3).onPointerInputMock(
                 eq(listOf(event2)),
                 eq(PointerEventPass.PostUp),
                 any()
@@ -368,9 +368,9 @@ class HitPathTrackerTest {
 
     @Test
     fun dispatchChanges_2BranchesWithSharedParent_eventsSplitCorrectlyAndCallOrderCorrect() {
-        val parent: PointerInputFilter = PointerInputFilterMock()
-        val child1: PointerInputFilter = PointerInputFilterMock()
-        val child2: PointerInputFilter = PointerInputFilterMock()
+        val parent = PointerInputFilterMock()
+        val child1 = PointerInputFilterMock()
+        val child2 = PointerInputFilterMock()
         hitPathTracker.addHitPath(PointerId(3), listOf(parent, child1))
         hitPathTracker.addHitPath(PointerId(5), listOf(parent, child2))
         val event1 = down(3)
@@ -381,31 +381,31 @@ class HitPathTrackerTest {
         )
 
         // Verify call count
-        verify(parent, times(3)).onPointerEvent(any(), any(), any())
-        verify(child1, times(3)).onPointerEvent(any(), any(), any())
-        verify(child2, times(3)).onPointerEvent(any(), any(), any())
+        verify(parent, times(3)).onPointerEventMock(any(), any(), any())
+        verify(child1, times(3)).onPointerEventMock(any(), any(), any())
+        verify(child2, times(3)).onPointerEventMock(any(), any(), any())
 
         // Verifies that the events traverse between parent and child1 in the correct order.
         inOrder(
             parent,
             child1
         ) {
-            verify(parent).onPointerInput(
+            verify(parent).onPointerInputMock(
                 eq(listOf(event1, event2)),
                 eq(PointerEventPass.InitialDown),
                 any()
             )
-            verify(child1).onPointerInput(
+            verify(child1).onPointerInputMock(
                 eq(listOf(event1)),
                 eq(PointerEventPass.InitialDown),
                 any()
             )
-            verify(child1).onPointerInput(
+            verify(child1).onPointerInputMock(
                 eq(listOf(event1)),
                 eq(PointerEventPass.PostUp),
                 any()
             )
-            verify(parent).onPointerInput(
+            verify(parent).onPointerInputMock(
                 eq(listOf(event1, event2)),
                 eq(PointerEventPass.PostUp),
                 any()
@@ -417,22 +417,22 @@ class HitPathTrackerTest {
             parent,
             child2
         ) {
-            verify(parent).onPointerInput(
+            verify(parent).onPointerInputMock(
                 eq(listOf(event1, event2)),
                 eq(PointerEventPass.InitialDown),
                 any()
             )
-            verify(child2).onPointerInput(
+            verify(child2).onPointerInputMock(
                 eq(listOf(event2)),
                 eq(PointerEventPass.InitialDown),
                 any()
             )
-            verify(child2).onPointerInput(
+            verify(child2).onPointerInputMock(
                 eq(listOf(event2)),
                 eq(PointerEventPass.PostUp),
                 any()
             )
-            verify(parent).onPointerInput(
+            verify(parent).onPointerInputMock(
                 eq(listOf(event1, event2)),
                 eq(PointerEventPass.PostUp),
                 any()
@@ -442,8 +442,8 @@ class HitPathTrackerTest {
 
     @Test
     fun dispatchChanges_2PointersShareCompletePath_eventsDoNotSplitAndCallOrderCorrect() {
-        val child1: PointerInputFilter = PointerInputFilterMock()
-        val child2: PointerInputFilter = PointerInputFilterMock()
+        val child1 = PointerInputFilterMock()
+        val child2 = PointerInputFilterMock()
         hitPathTracker.addHitPath(PointerId(3), listOf(child1, child2))
         hitPathTracker.addHitPath(PointerId(5), listOf(child1, child2))
         val event1 = down(3)
@@ -454,19 +454,19 @@ class HitPathTrackerTest {
         )
 
         // Verify call count
-        verify(child1, times(3)).onPointerEvent(any(), any(), any())
-        verify(child2, times(3)).onPointerEvent(any(), any(), any())
+        verify(child1, times(3)).onPointerEventMock(any(), any(), any())
+        verify(child2, times(3)).onPointerEventMock(any(), any(), any())
 
         // Verify that order is correct for child1.
         inOrder(
             child1
         ) {
-            verify(child1).onPointerInput(
+            verify(child1).onPointerInputMock(
                 eq(listOf(event1, event2)),
                 eq(PointerEventPass.InitialDown),
                 any()
             )
-            verify(child1).onPointerInput(
+            verify(child1).onPointerInputMock(
                 eq(listOf(event1, event2)),
                 eq(PointerEventPass.PostUp),
                 any()
@@ -477,12 +477,12 @@ class HitPathTrackerTest {
         inOrder(
             child2
         ) {
-            verify(child2).onPointerInput(
+            verify(child2).onPointerInputMock(
                 eq(listOf(event1, event2)),
                 eq(PointerEventPass.InitialDown),
                 any()
             )
-            verify(child2).onPointerInput(
+            verify(child2).onPointerInputMock(
                 eq(listOf(event1, event2)),
                 eq(PointerEventPass.PostUp),
                 any()
@@ -494,12 +494,12 @@ class HitPathTrackerTest {
             child1,
             child2
         ) {
-            verify(child1).onPointerInput(
+            verify(child1).onPointerInputMock(
                 eq(listOf(event1, event2)),
                 eq(PointerEventPass.InitialDown),
                 any()
             )
-            verify(child2).onPointerInput(
+            verify(child2).onPointerInputMock(
                 eq(listOf(event1, event2)),
                 eq(PointerEventPass.PostUp),
                 any()
@@ -511,12 +511,12 @@ class HitPathTrackerTest {
             child1,
             child2
         ) {
-            verify(child2).onPointerInput(
+            verify(child2).onPointerInputMock(
                 eq(listOf(event1, event2)),
                 eq(PointerEventPass.InitialDown),
                 any()
             )
-            verify(child1).onPointerInput(
+            verify(child1).onPointerInputMock(
                 eq(listOf(event1, event2)),
                 eq(PointerEventPass.PostUp),
                 any()
@@ -533,7 +533,7 @@ class HitPathTrackerTest {
 
     @Test
     fun dispatchChanges_hitResultHasSingleMatch_changesAreUpdatedCorrectly() {
-        val pif1: PointerInputFilter = PointerInputFilterMock(
+        val pif1 = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, _, _ ->
                 changes.map { it.consumeDownChange() }
@@ -548,7 +548,7 @@ class HitPathTrackerTest {
 
     @Test
     fun dispatchChanges_hitResultHasMultipleMatchesAndDownAndUpPaths_changesAreUpdatedCorrectly() {
-        val pif1: PointerInputFilter = PointerInputFilterMock(
+        val pif1 = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
                 changes.map {
@@ -562,7 +562,7 @@ class HitPathTrackerTest {
                 }
             })
         )
-        val pif2: PointerInputFilter = PointerInputFilterMock(
+        val pif2 = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
                 changes.map {
@@ -576,7 +576,7 @@ class HitPathTrackerTest {
                 }
             })
         )
-        val pif3: PointerInputFilter = PointerInputFilterMock(
+        val pif3 = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
                 changes.map {
@@ -595,30 +595,30 @@ class HitPathTrackerTest {
 
         val (result, _) = hitPathTracker.dispatchChanges(internalPointerEventOf(change))
 
-        verify(pif1).onPointerInput(
+        verify(pif1).onPointerInputMock(
             eq(listOf(change)), eq(PointerEventPass.InitialDown), any()
         )
-        verify(pif2).onPointerInput(
+        verify(pif2).onPointerInputMock(
             eq(listOf(change.consumePositionChange(0f, 2f))),
             eq(PointerEventPass.InitialDown),
             any()
         )
-        verify(pif3).onPointerInput(
+        verify(pif3).onPointerInputMock(
             eq(listOf(change.consumePositionChange(0f, 6f))), // 2 + 4
             eq(PointerEventPass.InitialDown),
             any()
         )
-        verify(pif3).onPointerInput(
+        verify(pif3).onPointerInputMock(
             eq(listOf(change.consumePositionChange(0f, 14f))), // 2 + 4 + 8
             eq(PointerEventPass.PostUp),
             any()
         )
-        verify(pif2).onPointerInput(
+        verify(pif2).onPointerInputMock(
             eq(listOf(change.consumePositionChange(0f, 30f))), // 2 + 4 + 8 + 16
             eq(PointerEventPass.PostUp),
             any()
         )
-        verify(pif1).onPointerInput(
+        verify(pif1).onPointerInputMock(
             eq(listOf(change.consumePositionChange(0f, 62f))), // 2 + 4 + 8 + 16 + 32
             eq(PointerEventPass.PostUp),
             any()
@@ -629,7 +629,7 @@ class HitPathTrackerTest {
 
     @Test
     fun dispatchChanges_2IndependentBranchesFromRoot_changesAreUpdatedCorrectly() {
-        val pif1: PointerInputFilter = PointerInputFilterMock(
+        val pif1 = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
                 changes.map {
@@ -643,7 +643,7 @@ class HitPathTrackerTest {
                 }
             })
         )
-        val pif2: PointerInputFilter = PointerInputFilterMock(
+        val pif2 = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
                 changes.map {
@@ -657,7 +657,7 @@ class HitPathTrackerTest {
                 }
             })
         )
-        val pif3: PointerInputFilter = PointerInputFilterMock(
+        val pif3 = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
                 changes.map {
@@ -671,7 +671,7 @@ class HitPathTrackerTest {
                 }
             })
         )
-        val pif4: PointerInputFilter = PointerInputFilterMock(
+        val pif4 = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
                 changes.map {
@@ -694,43 +694,43 @@ class HitPathTrackerTest {
             internalPointerEventOf(event1, event2)
         )
 
-        verify(pif1).onPointerInput(
+        verify(pif1).onPointerInputMock(
             eq(listOf(event1)),
             eq(PointerEventPass.InitialDown),
             any()
         )
-        verify(pif2).onPointerInput(
+        verify(pif2).onPointerInputMock(
             eq(listOf(event1.consumePositionChange(0f, 2f))),
             eq(PointerEventPass.InitialDown),
             any()
         )
-        verify(pif2).onPointerInput(
+        verify(pif2).onPointerInputMock(
             eq(listOf(event1.consumePositionChange(0f, 5f))),
             eq(PointerEventPass.PostUp),
             any()
         )
-        verify(pif1).onPointerInput(
+        verify(pif1).onPointerInputMock(
             eq(listOf(event1.consumePositionChange(0f, 11f))),
             eq(PointerEventPass.PostUp),
             any()
         )
 
-        verify(pif3).onPointerInput(
+        verify(pif3).onPointerInputMock(
             eq(listOf(event2)),
             eq(PointerEventPass.InitialDown),
             any()
         )
-        verify(pif4).onPointerInput(
+        verify(pif4).onPointerInputMock(
             eq(listOf(event2.consumePositionChange(0f, -2f))),
             eq(PointerEventPass.InitialDown),
             any()
         )
-        verify(pif4).onPointerInput(
+        verify(pif4).onPointerInputMock(
             eq(listOf(event2.consumePositionChange(0f, -5f))),
             eq(PointerEventPass.PostUp),
             any()
         )
-        verify(pif3).onPointerInput(
+        verify(pif3).onPointerInputMock(
             eq(listOf(event2.consumePositionChange(0f, -11f))),
             eq(PointerEventPass.PostUp),
             any()
@@ -760,7 +760,7 @@ class HitPathTrackerTest {
                 }
             })
         )
-        val child1: PointerInputFilter = PointerInputFilterMock(
+        val child1 = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
                 changes.map {
@@ -777,7 +777,7 @@ class HitPathTrackerTest {
                 }
             })
         )
-        val child2: PointerInputFilter = PointerInputFilterMock(
+        val child2 = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
                 changes.map {
@@ -803,32 +803,32 @@ class HitPathTrackerTest {
             internalPointerEventOf(event1, event2)
         )
 
-        verify(parent).onPointerInput(
+        verify(parent).onPointerInputMock(
             eq(listOf(event1, event2)),
             eq(PointerEventPass.InitialDown),
             any()
         )
-        verify(child1).onPointerInput(
+        verify(child1).onPointerInputMock(
             eq(listOf(event1.consumePositionChange(0f, 500f))),
             eq(PointerEventPass.InitialDown),
             any()
         )
-        verify(child2).onPointerInput(
+        verify(child2).onPointerInputMock(
             eq(listOf(event2.consumePositionChange(0f, -500f))),
             eq(PointerEventPass.InitialDown),
             any()
         )
-        verify(child1).onPointerInput(
+        verify(child1).onPointerInputMock(
             eq(listOf(event1.consumePositionChange(0f, 600f))),
             eq(PointerEventPass.PostUp),
             any()
         )
-        verify(child2).onPointerInput(
+        verify(child2).onPointerInputMock(
             eq(listOf(event2.consumePositionChange(0f, -545f))),
             eq(PointerEventPass.PostUp),
             any()
         )
-        verify(parent).onPointerInput(
+        verify(parent).onPointerInputMock(
             eq(
                 listOf(
                     event1.consumePositionChange(0f, 657f),
@@ -846,7 +846,7 @@ class HitPathTrackerTest {
 
     @Test
     fun dispatchChanges_2PointersShareCompletePath_changesAreUpdatedCorrectly() {
-        val child1: PointerInputFilter = PointerInputFilterMock(
+        val child1 = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
                 changes.map {
@@ -863,7 +863,7 @@ class HitPathTrackerTest {
                 }
             })
         )
-        val child2: PointerInputFilter = PointerInputFilterMock(
+        val child2 = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
                 changes.map {
@@ -889,12 +889,12 @@ class HitPathTrackerTest {
             internalPointerEventOf(event1, event2)
         )
 
-        verify(child1).onPointerInput(
+        verify(child1).onPointerInputMock(
             eq(listOf(event1, event2)),
             eq(PointerEventPass.InitialDown),
             any()
         )
-        verify(child2).onPointerInput(
+        verify(child2).onPointerInputMock(
             eq(
                 listOf(
                     event1.consumePositionChange(0f, 500f),
@@ -905,7 +905,7 @@ class HitPathTrackerTest {
             any()
         )
 
-        verify(child2).onPointerInput(
+        verify(child2).onPointerInputMock(
             eq(
                 listOf(
                     event1.consumePositionChange(0f, 600f),
@@ -915,7 +915,7 @@ class HitPathTrackerTest {
             eq(PointerEventPass.PostUp),
             any()
         )
-        verify(child1).onPointerInput(
+        verify(child1).onPointerInputMock(
             eq(
                 listOf(
                     event1.consumePositionChange(0f, 657f),
@@ -2297,7 +2297,7 @@ class HitPathTrackerTest {
     // Pin -> Ln
     @Test
     fun processCancel_singlePin_cancelHandlerIsCalled() {
-        val pif: PointerInputFilter = PointerInputFilterMock()
+        val pif = PointerInputFilterMock()
         hitPathTracker.addHitPath(PointerId(3), listOf(pif))
 
         hitPathTracker.processCancel()
@@ -2308,9 +2308,9 @@ class HitPathTrackerTest {
     // Pin -> Pin -> Pin
     @Test
     fun processCancel_3Pins_cancelHandlersCalledOnceInOrder() {
-        val childPif: PointerInputFilter = PointerInputFilterMock()
-        val middlePif: PointerInputFilter = PointerInputFilterMock()
-        val parentPif: PointerInputFilter = PointerInputFilterMock()
+        val childPif = PointerInputFilterMock()
+        val middlePif = PointerInputFilterMock()
+        val parentPif = PointerInputFilterMock()
         hitPathTracker.addHitPath(
             PointerId(3),
             listOf(parentPif, middlePif, childPif)
@@ -2333,10 +2333,10 @@ class HitPathTrackerTest {
     // PIN -> PIN
     @Test
     fun processCancel_2IndependentPathsFromRoot_cancelHandlersCalledOnceInOrder() {
-        val pifParent1: PointerInputFilter = PointerInputFilterMock()
-        val pifChild1: PointerInputFilter = PointerInputFilterMock()
-        val pifParent2: PointerInputFilter = PointerInputFilterMock()
-        val pifChild2: PointerInputFilter = PointerInputFilterMock()
+        val pifParent1 = PointerInputFilterMock()
+        val pifChild1 = PointerInputFilterMock()
+        val pifParent2 = PointerInputFilterMock()
+        val pifChild2 = PointerInputFilterMock()
 
         hitPathTracker.addHitPath(PointerId(3), listOf(pifParent1, pifChild1))
         hitPathTracker.addHitPath(PointerId(5), listOf(pifParent2, pifChild2))
@@ -2357,9 +2357,9 @@ class HitPathTrackerTest {
     //     -> PIN
     @Test
     fun processCancel_2BranchingPaths_cancelHandlersCalledOnceInOrder() {
-        val pifParent: PointerInputFilter = PointerInputFilterMock()
-        val pifChild1: PointerInputFilter = PointerInputFilterMock()
-        val pifChild2: PointerInputFilter = PointerInputFilterMock()
+        val pifParent = PointerInputFilterMock()
+        val pifChild1 = PointerInputFilterMock()
+        val pifChild2 = PointerInputFilterMock()
         hitPathTracker.addHitPath(PointerId(3), listOf(pifParent, pifChild1))
         hitPathTracker.addHitPath(PointerId(5), listOf(pifParent, pifChild2))
 
@@ -2378,7 +2378,7 @@ class HitPathTrackerTest {
     // Pin -> Ln
     @Test
     fun processCancel_singlePin_cleared() {
-        val pif: PointerInputFilter = PointerInputFilterMock()
+        val pif = PointerInputFilterMock()
         hitPathTracker.addHitPath(PointerId(3), listOf(pif))
 
         hitPathTracker.processCancel()
@@ -2389,9 +2389,9 @@ class HitPathTrackerTest {
     // Pin -> Pin -> Pin
     @Test
     fun processCancel_3Pins_cleared() {
-        val childPif: PointerInputFilter = PointerInputFilterMock()
-        val middlePif: PointerInputFilter = PointerInputFilterMock()
-        val parentPif: PointerInputFilter = PointerInputFilterMock()
+        val childPif = PointerInputFilterMock()
+        val middlePif = PointerInputFilterMock()
+        val parentPif = PointerInputFilterMock()
         hitPathTracker.addHitPath(
             PointerId(3),
             listOf(parentPif, middlePif, childPif)
@@ -2406,10 +2406,10 @@ class HitPathTrackerTest {
     // PIN -> PIN
     @Test
     fun processCancel_2IndependentPathsFromRoot_cleared() {
-        val pifParent1: PointerInputFilter = PointerInputFilterMock()
-        val pifChild1: PointerInputFilter = PointerInputFilterMock()
-        val pifParent2: PointerInputFilter = PointerInputFilterMock()
-        val pifChild2: PointerInputFilter = PointerInputFilterMock()
+        val pifParent1 = PointerInputFilterMock()
+        val pifChild1 = PointerInputFilterMock()
+        val pifParent2 = PointerInputFilterMock()
+        val pifChild2 = PointerInputFilterMock()
         hitPathTracker.addHitPath(PointerId(3), listOf(pifParent1, pifChild1))
         hitPathTracker.addHitPath(PointerId(5), listOf(pifParent2, pifChild2))
 
@@ -2422,9 +2422,9 @@ class HitPathTrackerTest {
     //     -> PIN
     @Test
     fun processCancel_2BranchingPaths_cleared() {
-        val pifParent: PointerInputFilter = PointerInputFilterMock()
-        val pifChild1: PointerInputFilter = PointerInputFilterMock()
-        val pifChild2: PointerInputFilter = PointerInputFilterMock()
+        val pifParent = PointerInputFilterMock()
+        val pifChild1 = PointerInputFilterMock()
+        val pifChild2 = PointerInputFilterMock()
         hitPathTracker.addHitPath(PointerId(3), listOf(pifParent, pifChild1))
         hitPathTracker.addHitPath(PointerId(5), listOf(pifParent, pifChild2))
 
@@ -2440,7 +2440,7 @@ class HitPathTrackerTest {
 
         lateinit var dispatcher: CustomEventDispatcher
 
-        val pif: PointerInputFilter = PointerInputFilterMock(
+        val pif = PointerInputFilterMock(
             initHandler = { dispatcher = it }
         )
 
@@ -2646,7 +2646,7 @@ class HitPathTrackerTest {
 
     @Test
     fun dispatchChanges_1NodeDispatchToNode_reportsWasDispatchedToSomething() {
-        val pif: PointerInputFilter = PointerInputFilterMock()
+        val pif = PointerInputFilterMock()
         hitPathTracker.addHitPath(PointerId(13), listOf(pif))
 
         val (_, hitSomething) = hitPathTracker.dispatchChanges(internalPointerEventOf(down(13)))
@@ -2656,7 +2656,7 @@ class HitPathTrackerTest {
 
     @Test
     fun dispatchChanges_1NodeDispatchToDifferentNode_reportsWasDispatchedToNothing() {
-        val pif: PointerInputFilter = PointerInputFilterMock()
+        val pif = PointerInputFilterMock()
         hitPathTracker.addHitPath(PointerId(13), listOf(pif))
 
         val (_, hitSomething) = hitPathTracker.dispatchChanges(internalPointerEventOf(down(69)))
@@ -2673,7 +2673,7 @@ class HitPathTrackerTest {
     @Test
     fun removeHitPath_idRetained_nodeIsRetained() {
         lateinit var dispatcher: CustomEventDispatcher
-        val pif: PointerInputFilter = PointerInputFilterMock(
+        val pif = PointerInputFilterMock(
             initHandler = { dispatcher = it }
         )
         hitPathTracker.addHitPath(PointerId(13), listOf(pif))
@@ -2697,9 +2697,9 @@ class HitPathTrackerTest {
     @Test
     fun removeHitPath_2Branches1RetainedBothRemoved_retainedBranchRemains() {
         lateinit var dispatcher: CustomEventDispatcher
-        val parentPif: PointerInputFilter = PointerInputFilterMock()
-        val childPif1: PointerInputFilter = PointerInputFilterMock()
-        val childPif2: PointerInputFilter = PointerInputFilterMock(
+        val parentPif = PointerInputFilterMock()
+        val childPif1 = PointerInputFilterMock()
+        val childPif2 = PointerInputFilterMock(
             initHandler = { dispatcher = it }
         )
 
@@ -2729,11 +2729,11 @@ class HitPathTrackerTest {
     @Test
     fun removeHitPath_2Branches2RetainedBothRemoved_bothBranchesRemain() {
         lateinit var dispatcher: CustomEventDispatcher
-        val parentPif: PointerInputFilter = PointerInputFilterMock(
+        val parentPif = PointerInputFilterMock(
             initHandler = { dispatcher = it }
         )
-        val childPif1: PointerInputFilter = PointerInputFilterMock()
-        val childPif2: PointerInputFilter = PointerInputFilterMock()
+        val childPif1 = PointerInputFilterMock()
+        val childPif2 = PointerInputFilterMock()
 
         hitPathTracker.addHitPath(PointerId(1), listOf(parentPif, childPif1))
         hitPathTracker.addHitPath(PointerId(2), listOf(parentPif, childPif2))
@@ -2763,7 +2763,7 @@ class HitPathTrackerTest {
     @Test
     fun releasePointerId_idRetainedAndPathRemoved_nodeIsRemoved() {
         lateinit var dispatcher: CustomEventDispatcher
-        val pif: PointerInputFilter = PointerInputFilterMock(
+        val pif = PointerInputFilterMock(
             initHandler = { dispatcher = it }
         )
         hitPathTracker.addHitPath(PointerId(13), listOf(pif))
@@ -2782,11 +2782,11 @@ class HitPathTrackerTest {
     @Test
     fun releasePointerId_2Branches2RetainedBothRemoved1Released_correctBranchRemains() {
         lateinit var dispatcher: CustomEventDispatcher
-        val parentPif: PointerInputFilter = PointerInputFilterMock(
+        val parentPif = PointerInputFilterMock(
             initHandler = { dispatcher = it }
         )
-        val childPif1: PointerInputFilter = PointerInputFilterMock()
-        val childPif2: PointerInputFilter = PointerInputFilterMock()
+        val childPif1 = PointerInputFilterMock()
+        val childPif2 = PointerInputFilterMock()
 
         hitPathTracker.addHitPath(PointerId(1), listOf(parentPif, childPif1))
         hitPathTracker.addHitPath(PointerId(2), listOf(parentPif, childPif2))
@@ -2816,11 +2816,11 @@ class HitPathTrackerTest {
     @Test
     fun releasePointerId_2Branches1RetainedBothRemoved1Released_noBranchesRemain() {
         lateinit var dispatcher: CustomEventDispatcher
-        val parentPif: PointerInputFilter = PointerInputFilterMock()
-        val childPif1: PointerInputFilter = PointerInputFilterMock(
+        val parentPif = PointerInputFilterMock()
+        val childPif1 = PointerInputFilterMock(
             initHandler = { dispatcher = it }
         )
-        val childPif2: PointerInputFilter = PointerInputFilterMock()
+        val childPif2 = PointerInputFilterMock()
 
         hitPathTracker.addHitPath(PointerId(1), listOf(parentPif, childPif1))
         hitPathTracker.addHitPath(PointerId(2), listOf(parentPif, childPif2))
@@ -2841,7 +2841,7 @@ class HitPathTrackerTest {
     @Test
     fun releasePointerId_idRetainedButPathNotRemoved_pathNotRemoved() {
         lateinit var dispatcher: CustomEventDispatcher
-        val pif: PointerInputFilter = PointerInputFilterMock(
+        val pif = PointerInputFilterMock(
             initHandler = { dispatcher = it }
         )
         hitPathTracker.addHitPath(PointerId(13), listOf(pif))
@@ -2865,10 +2865,10 @@ class HitPathTrackerTest {
     @Test
     fun dispatchCustomEvent_idRetainedAndPathRemoved_customEventReachesNode() {
         lateinit var dispatcher: CustomEventDispatcher
-        val pif: PointerInputFilter = PointerInputFilterMock(
+        val pif = PointerInputFilterMock(
             initHandler = { dispatcher = it }
         )
-        val pif2: PointerInputFilter = PointerInputFilterMock()
+        val pif2 = PointerInputFilterMock()
         hitPathTracker.addHitPath(PointerId(13), listOf(pif, pif2))
         dispatcher.retainHitPaths(setOf(PointerId(13)))
         hitPathTracker.removeHitPath(PointerId(13))
@@ -2908,7 +2908,7 @@ class HitPathTrackerTest {
         removalPass: PointerEventPass
     ) {
         val layoutCoordinates = LayoutCoordinatesStub(true)
-        val pif: PointerInputFilter = PointerInputFilterMock(
+        val pif = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
                 if (pass == removalPass) {
@@ -2925,10 +2925,10 @@ class HitPathTrackerTest {
         var passedRemovalPass = false
         PointerEventPass.values().forEach {
             if (!passedRemovalPass) {
-                verify(pif).onPointerEvent(any(), eq(it), any())
+                verify(pif).onPointerEventMock(any(), eq(it), any())
                 passedRemovalPass = it == removalPass
             } else {
-                verify(pif, never()).onPointerEvent(any(), eq(it), any())
+                verify(pif, never()).onPointerEventMock(any(), eq(it), any())
             }
         }
     }
@@ -2958,7 +2958,7 @@ class HitPathTrackerTest {
         removalPass: PointerEventPass
     ) {
         val childLayoutCoordinates = LayoutCoordinatesStub(true)
-        val parentPif: PointerInputFilter = PointerInputFilterMock(
+        val parentPif = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
                 if (pass == removalPass) {
@@ -2967,7 +2967,7 @@ class HitPathTrackerTest {
                 changes
             })
         )
-        val childPif: PointerInputFilter = PointerInputFilterMock(
+        val childPif = PointerInputFilterMock(
             layoutCoordinates = childLayoutCoordinates
         )
         hitPathTracker.addHitPath(PointerId(13), listOf(parentPif, childPif))
@@ -2984,9 +2984,9 @@ class HitPathTrackerTest {
         PointerEventPass.values().forEach {
             passedRemovalPass = passedRemovalPass || removalPassIsDown && it == removalPass
             if (!passedRemovalPass) {
-                verify(childPif).onPointerEvent(any(), eq(it), any())
+                verify(childPif).onPointerEventMock(any(), eq(it), any())
             } else {
-                verify(childPif, never()).onPointerEvent(any(), eq(it), any())
+                verify(childPif, never()).onPointerEventMock(any(), eq(it), any())
             }
             passedRemovalPass = passedRemovalPass || !removalPassIsDown && it == removalPass
         }
@@ -3017,10 +3017,10 @@ class HitPathTrackerTest {
         removalPass: PointerEventPass
     ) {
         val parentLayoutCoordinates = LayoutCoordinatesStub(true)
-        val parentPif: PointerInputFilter = PointerInputFilterMock(
+        val parentPif = PointerInputFilterMock(
             layoutCoordinates = parentLayoutCoordinates
         )
-        val childPif: PointerInputFilter = PointerInputFilterMock(
+        val childPif = PointerInputFilterMock(
             pointerInputHandler =
             spy(StubPointerInputHandler { changes, pass, _ ->
                 if (pass == removalPass) {
@@ -3043,9 +3043,9 @@ class HitPathTrackerTest {
         PointerEventPass.values().forEach {
             passedRemovalPass = passedRemovalPass || !removalPassIsDown && it == removalPass
             if (!passedRemovalPass) {
-                verify(parentPif).onPointerEvent(any(), eq(it), any())
+                verify(parentPif).onPointerEventMock(any(), eq(it), any())
             } else {
-                verify(parentPif, never()).onPointerEvent(any(), eq(it), any())
+                verify(parentPif, never()).onPointerEventMock(any(), eq(it), any())
             }
             passedRemovalPass = passedRemovalPass || removalPassIsDown && it == removalPass
         }
@@ -3278,7 +3278,7 @@ fun PointerInputFilterMock(
     pointerInputHandler: PointerInputHandler = spy(StubPointerInputHandler()),
     layoutCoordinates: LayoutCoordinates = LayoutCoordinatesStub(true),
     onCustomEvent: (CustomEvent, PointerEventPass) -> Unit = mock()
-): PointerInputFilter =
+): PointerInputFilterStub =
     spy(
         PointerInputFilterStub(
             pointerInputHandler,
@@ -3300,7 +3300,31 @@ open class PointerInputFilterStub(
         pass: PointerEventPass,
         bounds: IntSize
     ): List<PointerInputChange> {
-        return pointerInputHandler(changes, pass, bounds)
+        return onPointerInputMock(changes, pass, bounds as Any)
+    }
+
+    open fun onPointerInputMock(
+        changes: List<PointerInputChange>,
+        pass: PointerEventPass,
+        bounds: Any
+    ): List<PointerInputChange> {
+        return pointerInputHandler(changes, pass, bounds as IntSize)
+    }
+
+    override fun onPointerEvent(
+        pointerEvent: PointerEvent,
+        pass: PointerEventPass,
+        bounds: IntSize
+    ): List<PointerInputChange> {
+        return onPointerEventMock(pointerEvent, pass, bounds as Any)
+    }
+
+    open fun onPointerEventMock(
+        pointerEvent: PointerEvent,
+        pass: PointerEventPass,
+        bounds: Any
+    ): List<PointerInputChange> {
+        return onPointerInput(pointerEvent.changes, pass, bounds as IntSize)
     }
 
     override fun onCancel() {}

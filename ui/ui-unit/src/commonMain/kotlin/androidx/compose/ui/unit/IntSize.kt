@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE")
+@file:Suppress("NOTHING_TO_INLINE", "EXPERIMENTAL_FEATURE_WARNING")
 
 package androidx.compose.ui.unit
 
@@ -29,7 +29,7 @@ import androidx.compose.ui.util.unpackInt2
  * A two-dimensional size class used for measuring in [Int] pixels.
  */
 @Immutable
-/*inline*/ class IntSize(@PublishedApi internal val packedValue: Long) {
+inline class IntSize(@PublishedApi internal val packedValue: Long) {
     /**
      * The horizontal aspect of the size in [Int] pixels.
      */
@@ -66,18 +66,6 @@ import androidx.compose.ui.util.unpackInt2
 
     @Stable
     override fun toString(): String = "$width x $height"
-
-    override fun equals(other: Any?): Boolean {
-        if (other !is IntSize) {
-            return false
-        }
-        return other.packedValue == packedValue
-    }
-
-    @Stable
-    override fun hashCode(): Int {
-        return packedValue.hashCode()
-    }
 
     companion object {
         /**

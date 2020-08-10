@@ -2,7 +2,7 @@
 package androidx.compose.ui {
 
   @androidx.compose.runtime.Immutable public final class AbsoluteAlignment implements androidx.compose.ui.Alignment {
-    method public androidx.compose.ui.unit.IntOffset align(androidx.compose.ui.unit.IntSize size, androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    method public androidx.compose.ui.unit.IntOffset align-rlJ4snA(long size, androidx.compose.ui.unit.LayoutDirection layoutDirection);
     method @androidx.compose.runtime.Immutable public androidx.compose.ui.AbsoluteAlignment copy(float verticalBias, float horizontalBias);
     field public static final androidx.compose.ui.AbsoluteAlignment.Companion Companion;
   }
@@ -32,7 +32,7 @@ package androidx.compose.ui {
   }
 
   @androidx.compose.runtime.Immutable public interface Alignment {
-    method public androidx.compose.ui.unit.IntOffset align(androidx.compose.ui.unit.IntSize size, androidx.compose.ui.unit.LayoutDirection layoutDirection = LayoutDirection.Ltr);
+    method public androidx.compose.ui.unit.IntOffset align-rlJ4snA(long size, androidx.compose.ui.unit.LayoutDirection layoutDirection = LayoutDirection.Ltr);
     field public static final androidx.compose.ui.Alignment.Companion Companion;
   }
 
@@ -281,15 +281,15 @@ package androidx.compose.ui {
     method public abstract operator int get(androidx.compose.ui.AlignmentLine line);
     method protected final androidx.compose.ui.unit.IntOffset getApparentToRealOffset();
     method public final int getHeight();
-    method protected final androidx.compose.ui.unit.IntSize getMeasuredSize();
+    method protected final long getMeasuredSize();
     method protected final androidx.compose.ui.unit.Constraints getMeasurementConstraints();
     method public final int getWidth();
     method protected abstract void placeAt(androidx.compose.ui.unit.IntOffset position);
-    method protected final void setMeasuredSize(androidx.compose.ui.unit.IntSize value);
+    method protected final void setMeasuredSize-ozmzZPI(long value);
     method protected final void setMeasurementConstraints(androidx.compose.ui.unit.Constraints p);
     property protected final androidx.compose.ui.unit.IntOffset apparentToRealOffset;
     property public final int height;
-    property protected final androidx.compose.ui.unit.IntSize measuredSize;
+    property protected final long measuredSize;
     property protected final androidx.compose.ui.unit.Constraints measurementConstraints;
     property public final int width;
   }
@@ -582,7 +582,7 @@ package androidx.compose.ui.gesture {
   }
 
   public final class GestureUtilsKt {
-    method public static boolean anyPointersInBounds(java.util.List<androidx.compose.ui.input.pointer.PointerInputChange>, androidx.compose.ui.unit.IntSize bounds);
+    method public static boolean anyPointersInBounds-5eFHUEc(java.util.List<androidx.compose.ui.input.pointer.PointerInputChange>, long bounds);
   }
 
   public final class LongPressDragGestureFilterKt {
@@ -1618,8 +1618,8 @@ package androidx.compose.ui.input.pointer {
     method public abstract void onCancel();
     method public void onCustomEvent(androidx.compose.ui.input.pointer.CustomEvent customEvent, androidx.compose.ui.input.pointer.PointerEventPass pass);
     method public void onInit(androidx.compose.ui.input.pointer.CustomEventDispatcher customEventDispatcher);
-    method public java.util.List<androidx.compose.ui.input.pointer.PointerInputChange> onPointerEvent(androidx.compose.ui.input.pointer.PointerEvent pointerEvent, androidx.compose.ui.input.pointer.PointerEventPass pass, androidx.compose.ui.unit.IntSize bounds);
-    method public abstract java.util.List<androidx.compose.ui.input.pointer.PointerInputChange> onPointerInput(java.util.List<androidx.compose.ui.input.pointer.PointerInputChange> changes, androidx.compose.ui.input.pointer.PointerEventPass pass, androidx.compose.ui.unit.IntSize bounds);
+    method public java.util.List<androidx.compose.ui.input.pointer.PointerInputChange> onPointerEvent-d1fqKvQ(androidx.compose.ui.input.pointer.PointerEvent pointerEvent, androidx.compose.ui.input.pointer.PointerEventPass pass, long bounds);
+    method public abstract java.util.List<androidx.compose.ui.input.pointer.PointerInputChange> onPointerInput-e3WT7_U(java.util.List<androidx.compose.ui.input.pointer.PointerInputChange> changes, androidx.compose.ui.input.pointer.PointerEventPass pass, long bounds);
   }
 
   public interface PointerInputModifier extends androidx.compose.ui.Modifier.Element {
@@ -1704,7 +1704,7 @@ package androidx.compose.ui.layout {
     method public operator int get(androidx.compose.ui.AlignmentLine line);
     method public androidx.compose.ui.layout.LayoutCoordinates? getParentCoordinates();
     method public java.util.Set<androidx.compose.ui.AlignmentLine> getProvidedAlignmentLines();
-    method public androidx.compose.ui.unit.IntSize getSize();
+    method public long getSize();
     method public androidx.compose.ui.geometry.Offset globalToLocal(androidx.compose.ui.geometry.Offset global);
     method public boolean isAttached();
     method public androidx.compose.ui.geometry.Offset localToGlobal(androidx.compose.ui.geometry.Offset local);
@@ -1712,7 +1712,7 @@ package androidx.compose.ui.layout {
     property public abstract boolean isAttached;
     property public abstract androidx.compose.ui.layout.LayoutCoordinates? parentCoordinates;
     property public abstract java.util.Set<androidx.compose.ui.AlignmentLine> providedAlignmentLines;
-    property public abstract androidx.compose.ui.unit.IntSize size;
+    property public abstract long size;
   }
 
   public final class LayoutCoordinatesKt {
@@ -1871,7 +1871,7 @@ package androidx.compose.ui.node {
     method public androidx.compose.ui.DrawLayerModifier getModifier();
     method public void invalidate();
     method public void move(androidx.compose.ui.unit.IntOffset position);
-    method public void resize(androidx.compose.ui.unit.IntSize size);
+    method public void resize-ozmzZPI(long size);
     method public void setModifier(androidx.compose.ui.DrawLayerModifier p);
     method public void updateDisplayList();
     method public void updateLayerProperties();
@@ -2330,7 +2330,7 @@ package androidx.compose.ui.semantics {
     method public boolean getMergingEnabled();
     method public androidx.compose.ui.semantics.SemanticsNode? getParent();
     method public androidx.compose.ui.geometry.Offset getPositionInRoot();
-    method public androidx.compose.ui.unit.IntSize getSize();
+    method public long getSize();
     method public boolean isRoot();
     property public final androidx.compose.ui.geometry.Rect boundsInRoot;
     property public final java.util.List<androidx.compose.ui.semantics.SemanticsNode> children;
@@ -2342,7 +2342,7 @@ package androidx.compose.ui.semantics {
     property public final boolean isRoot;
     property public final androidx.compose.ui.semantics.SemanticsNode? parent;
     property public final androidx.compose.ui.geometry.Offset positionInRoot;
-    property public final androidx.compose.ui.unit.IntSize size;
+    property public final long size;
   }
 
   public final class SemanticsNodeKt {
@@ -2498,7 +2498,7 @@ package androidx.compose.ui.window {
   }
 
   @androidx.compose.runtime.Immutable public interface PopupPositionProvider {
-    method public androidx.compose.ui.unit.IntOffset calculatePosition(androidx.compose.ui.unit.IntBounds parentGlobalBounds, androidx.compose.ui.unit.IntBounds windowGlobalBounds, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.compose.ui.unit.IntSize popupContentSize);
+    method public androidx.compose.ui.unit.IntOffset calculatePosition-pcJl1fs(androidx.compose.ui.unit.IntBounds parentGlobalBounds, androidx.compose.ui.unit.IntBounds windowGlobalBounds, androidx.compose.ui.unit.LayoutDirection layoutDirection, long popupContentSize);
   }
 
 }

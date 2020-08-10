@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.util.annotation.VisibleForTesting
 
 /**
  * The data class which holds the set of parameters of the text layout computation.
@@ -334,3 +335,34 @@ data class TextLayoutResult internal constructor(
      */
     fun getPathForRange(start: Int, end: Int): Path = multiParagraph.getPathForRange(start, end)
 }
+
+@VisibleForTesting
+fun createTextLayoutResult(
+    layoutInput: TextLayoutInput =
+        TextLayoutInput(
+            text = AnnotatedString(""),
+            style = TextStyle(),
+            placeholders = emptyList(),
+            maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Clip,
+            density = Density(1f),
+            layoutDirection = LayoutDirection.Ltr,
+            resourceLoader = object : Font.ResourceLoader {
+                override fun load(font: Font): Any {
+                    return false
+                }
+            },
+            constraints = Constraints()
+        ),
+    multiParagraph: MultiParagraph = MultiParagraph(
+        annotatedString = layoutInput.text,
+        style = layoutInput.style,
+        constraints = ParagraphConstraints(width = 0f),
+        density = layoutInput.density,
+        resourceLoader = layoutInput.resourceLoader
+    ),
+    size: IntSize = IntSize.Zero
+): TextLayoutResult = TextLayoutResult(
+    layoutInput, multiParagraph, size
+)

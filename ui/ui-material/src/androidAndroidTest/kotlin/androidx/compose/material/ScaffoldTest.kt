@@ -105,7 +105,7 @@ class ScaffoldTest {
     @Test
     fun scaffold_AppbarAndContent_inColumn() {
         var appbarPosition: Offset = Offset.Zero
-        lateinit var appbarSize: IntSize
+        var appbarSize: IntSize = IntSize.Zero
         var contentPosition: Offset = Offset.Zero
         composeTestRule.setMaterialContent {
             Scaffold(
@@ -136,9 +136,9 @@ class ScaffoldTest {
     @Test
     fun scaffold_bottomBarAndContent_inStack() {
         var appbarPosition: Offset = Offset.Zero
-        lateinit var appbarSize: IntSize
+        var appbarSize: IntSize = IntSize.Zero
         var contentPosition: Offset = Offset.Zero
-        lateinit var contentSize: IntSize
+        var contentSize: IntSize = IntSize.Zero
         composeTestRule.setMaterialContent {
             Scaffold(
                 bottomBar = {
@@ -267,7 +267,7 @@ class ScaffoldTest {
     @Test
     fun scaffold_centerDockedFab_position() {
         var fabPosition: Offset = Offset.Zero
-        lateinit var fabSize: IntSize
+        var fabSize: IntSize = IntSize.Zero
         var bottomBarPosition: Offset = Offset.Zero
         composeTestRule.setContent {
             Scaffold(
@@ -305,7 +305,7 @@ class ScaffoldTest {
     @Test
     fun scaffold_endDockedFab_position() {
         var fabPosition: Offset = Offset.Zero
-        lateinit var fabSize: IntSize
+        var fabSize: IntSize = IntSize.Zero
         var bottomBarPosition: Offset = Offset.Zero
         composeTestRule.setContent {
             Scaffold(
@@ -380,7 +380,7 @@ class ScaffoldTest {
 
     @Test
     fun scaffold_geometry_fabSize() {
-        lateinit var fabSize: IntSize
+        var fabSize: IntSize = IntSize.Zero
         val showFab = mutableStateOf(true)
         lateinit var scaffoldState: ScaffoldState
         composeTestRule.setContent {
@@ -420,7 +420,7 @@ class ScaffoldTest {
 
     @Test
     fun scaffold_geometry_bottomBarSize() {
-        lateinit var bottomBarSize: IntSize
+        var bottomBarSize: IntSize = IntSize.Zero
         val showBottom = mutableStateOf(true)
         lateinit var scaffoldState: ScaffoldState
         composeTestRule.setContent {
@@ -460,7 +460,7 @@ class ScaffoldTest {
 
     @Test
     fun scaffold_geometry_topBarSize() {
-        lateinit var topBarSize: IntSize
+        var topBarSize: IntSize = IntSize.Zero
         val showTop = mutableStateOf(true)
         lateinit var scaffoldState: ScaffoldState
         composeTestRule.setContent {
@@ -500,7 +500,7 @@ class ScaffoldTest {
 
     @Test
     fun scaffold_innerPadding_lambdaParam() {
-        lateinit var bottomBarSize: IntSize
+        var bottomBarSize: IntSize = IntSize.Zero
         lateinit var innerPadding: InnerPadding
 
         lateinit var scaffoldState: ScaffoldState
@@ -532,7 +532,7 @@ class ScaffoldTest {
 
     @Test
     fun scaffold_bottomBar_geometryPropagation() {
-        lateinit var bottomBarSize: IntSize
+        var bottomBarSize: IntSize = IntSize.Zero
         lateinit var geometry: ScaffoldGeometry
 
         lateinit var scaffoldState: ScaffoldState
