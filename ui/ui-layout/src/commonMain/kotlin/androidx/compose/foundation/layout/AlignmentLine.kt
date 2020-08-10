@@ -28,6 +28,8 @@ import androidx.compose.ui.MeasureScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import kotlin.math.max
+
 /**
  * Note: This composable is on the deprecation path and will be soon replaced with a [Modifier].
  *
@@ -94,19 +96,26 @@ fun AlignmentLineOffset(
 }
 
 /**
- * Allow the content to be positioned according to the specified offset relative to the
- * [alignment line][AlignmentLine], subject to the incoming layout constraints.
+ * A [Modifier] that can add padding to position the content according to specified distances
+ * from its bounds to an [alignment line][AlignmentLine]. Whether the positioning is vertical
+ * or horizontal is defined by the orientation of the given [alignmentLine] (if the line is
+ * horizontal, [before] and [after] will refer to distances from top and bottom, otherwise they
+ * will refer to distances from start and end). The opposite axis sizing and positioning will
+ * remain unaffected.
+ * The modified layout will try to include the required padding, subject to the incoming max
+ * layout constraints, such that the distance from its bounds to the [alignmentLine] of the
+ * content will be [before] and [after], respectively. When the max constraints do not allow
+ * this, satisfying the [before] requirement will have priority over [after]. When the modified
+ * layout is min constrained in the affected layout direction and the padded layout is smaller
+ * than the constraint, the modified layout will satisfy the min constraint and the content will
+ * be positioned to satisfy the [before] requirement if specified, or the [after] requirement
+ * otherwise.
  *
- * The modified layout will include the needed padding, such that the distance from its borders
- * to the [alignmentLine] of the content box will be [before] and [after], respectively.
- * The [before] and [after] values will be interpreted as offsets on the axis corresponding to
- * the alignment line.
- *
- * @param alignmentLine the alignment line to be used for positioning the content
- * @param before the offset between the container's top edge and the horizontal alignment line, or
+ * @param alignmentLine the alignment line relative to which the padding is defined
+ * @param before the distance between the container's top edge and the horizontal alignment line, or
  * the container's start edge and the vertical alignment line
- * @param after the offset between the container's bottom edge and the horizontal alignment line, or
- * the container's end edge and the vertical alignment line
+ * @param after the distance between the container's bottom edge and the horizontal alignment line,
+ * or the container's end edge and the vertical alignment line
  *
  * Example usage:
  * @sample androidx.compose.foundation.layout.samples.RelativePaddingFromSample
@@ -114,18 +123,21 @@ fun AlignmentLineOffset(
 @Stable
 fun Modifier.relativePaddingFrom(
     alignmentLine: AlignmentLine,
-    before: Dp = 0.dp,
-    after: Dp = 0.dp
+    before: Dp = Dp.Unspecified,
+    after: Dp = Dp.Unspecified
 ): Modifier = this.then(AlignmentLineOffset(alignmentLine, before, after))
 
 private data class AlignmentLineOffset(
     val alignmentLine: AlignmentLine,
-    val before: Dp = 0.dp,
-    val after: Dp = 0.dp
+    val before: Dp,
+    val after: Dp
 ) : LayoutModifier {
     init {
-        require(before.value >= 0f && after.value >= 0f) {
-            "Padding from alignment line must be non-negative"
+        require(
+            (before.value >= 0f || before == Dp.Unspecified) &&
+                    (after.value >= 0f || after == Dp.Unspecified)
+        ) {
+            "Padding from alignment line must be a non-negative number"
         }
     }
     override fun MeasureScope.measure(
@@ -143,21 +155,34 @@ private data class AlignmentLineOffset(
         val axis = if (alignmentLine.horizontal) placeable.height else placeable.width
         val axisMax = if (alignmentLine.horizontal) constraints.maxHeight else constraints.maxWidth
         // Compute padding required to satisfy the total before and after offsets.
-        val paddingBefore = (before.toIntPx() - linePosition).coerceIn(0, axisMax - axis)
-        val paddingAfter = (after.toIntPx() - axis + linePosition).coerceIn(
-            0,
-            axisMax - axis - paddingBefore
-        )
+        val paddingBefore =
+            ((if (before != Dp.Unspecified) before.toIntPx() else 0) - linePosition)
+                .coerceIn(0, axisMax - axis)
+        val paddingAfter =
+            ((if (after != Dp.Unspecified) after.toIntPx() else 0) - axis + linePosition)
+                .coerceIn(0, axisMax - axis - paddingBefore)
 
-        val width =
-            if (alignmentLine.horizontal) placeable.width
-            else paddingBefore + placeable.width + paddingAfter
-        val height =
-            if (alignmentLine.horizontal) paddingBefore + placeable.height + paddingAfter
-            else placeable.height
+        val width = if (alignmentLine.horizontal) {
+            placeable.width
+        } else {
+            max(paddingBefore + placeable.width + paddingAfter, constraints.minWidth)
+        }
+        val height = if (alignmentLine.horizontal) {
+            max(paddingBefore + placeable.height + paddingAfter, constraints.minHeight)
+        } else {
+            placeable.height
+        }
         return layout(width, height) {
-            val x = if (alignmentLine.horizontal) 0 else paddingBefore
-            val y = if (alignmentLine.horizontal) paddingBefore else 0
+            val x = when {
+                alignmentLine.horizontal -> 0
+                before != Dp.Unspecified -> paddingBefore
+                else -> width - paddingAfter - placeable.width
+            }
+            val y = when {
+                !alignmentLine.horizontal -> 0
+                before != Dp.Unspecified -> paddingBefore
+                else -> height - paddingAfter - placeable.height
+            }
             placeable.place(x, y)
         }
     }
