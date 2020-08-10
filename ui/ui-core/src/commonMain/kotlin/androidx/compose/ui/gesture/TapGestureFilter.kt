@@ -44,10 +44,10 @@ import androidx.compose.ui.util.fastAny
  * [onTap] is called with the position of the last pointer to go "up".
  *
  * More specifically, it will call [onTap] if:
- * - All of the first [PointerInputChange]s it receives during the [PointerEventPass.PostUp] pass
+ * - All of the first [PointerInputChange]s it receives during the [PointerEventPass.Main] pass
  *   have unconsumed down changes, thus representing new set of pointers, none of which have had
  *   their down events consumed.
- * - The last [PointerInputChange] it receives during the [PointerEventPass.PostUp] pass has
+ * - The last [PointerInputChange] it receives during the [PointerEventPass.Main] pass has
  *   an unconsumed up change.
  * - While it has at least one pointer touching it, no [PointerInputChange] has had any
  *   movement consumed (as that would indicate that something in the heirarchy moved and this a
@@ -92,7 +92,7 @@ internal class TapGestureFilter : PointerInputFilter() {
         bounds: IntSize
     ): List<PointerInputChange> {
 
-        if (pass == PointerEventPass.PostUp) {
+        if (pass == PointerEventPass.Main) {
 
             if (primed &&
                 changes.all { it.changedToUp() }
@@ -128,7 +128,7 @@ internal class TapGestureFilter : PointerInputFilter() {
             }
         }
 
-        if (pass == PointerEventPass.PostDown && primed) {
+        if (pass == PointerEventPass.Final && primed) {
 
             val anyPositionChangeConsumed = changes.fastAny { it.anyPositionChangeConsumed() }
 
@@ -150,7 +150,7 @@ internal class TapGestureFilter : PointerInputFilter() {
     }
 
     override fun onCustomEvent(customEvent: CustomEvent, pass: PointerEventPass) {
-        if (!primed || pass != PointerEventPass.PostUp || customEvent !is DelayUpEvent) {
+        if (!primed || pass != PointerEventPass.Main || customEvent !is DelayUpEvent) {
             return
         }
 

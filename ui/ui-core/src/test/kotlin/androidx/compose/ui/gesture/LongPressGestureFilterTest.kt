@@ -422,7 +422,7 @@ class LongPressGestureFilterTest {
     }
 
     @Test
-    fun onPointerInput_1DownOverTimeUp_upConsumedOnInitialDown() {
+    fun onPointerInput_1DownOverTimeUp_upConsumedOnInitial() {
 
         // Arrange
 
@@ -437,7 +437,7 @@ class LongPressGestureFilterTest {
         val up0 = down0.up(100.milliseconds)
         val result = filter.onPointerInput(
             listOf(up0),
-            PointerEventPass.InitialDown,
+            PointerEventPass.Initial,
             IntSize(0, 0)
         )
 

@@ -45,7 +45,7 @@ import org.junit.runners.JUnit4
 // Verify correct shape of slop area (should it be a square or circle)?
 // Test for cases with more than one pointer
 // Test for cases where things are reset when last pointer goes up
-// Verify all methods called during onPostUp
+// Verify all methods called during onMain
 // Verify default behavior when no callback provided for filter or canDrag
 
 // Changing this value will break tests that expect the value to be 10.
@@ -115,7 +115,7 @@ class DragSlopExceededGestureFilterTest {
         val move = down.moveBy(Duration(milliseconds = 10), 3f, 0f)
         filter::onPointerInput.invokeOverAllPasses(move)
 
-        // Twice because while under touch slop, TouchSlopExceededGestureDetector checks during PostUp and PostDown
+        // Twice because while under touch slop, TouchSlopExceededGestureDetector checks during Main and Final
         assertThat(canDragDirections).hasSize(2)
     }
 
@@ -126,8 +126,8 @@ class DragSlopExceededGestureFilterTest {
         val move = down.moveBy(Duration(milliseconds = 10), 3f, 5f)
         filter::onPointerInput.invokeOverAllPasses(move)
 
-        // 4 times because while under touch slop, TouchSlopExceededGestureDetector checks during PostUp and
-        // PostDown
+        // 4 times because while under touch slop, TouchSlopExceededGestureDetector checks during Main and
+        // Final
         assertThat(canDragDirections).hasSize(4)
     }
 
@@ -138,8 +138,8 @@ class DragSlopExceededGestureFilterTest {
         val move = down.moveBy(Duration(milliseconds = 10), 0f, 5f).consume(0f, 4f)
         filter::onPointerInput.invokeOverAllPasses(move)
 
-        // Twice because while under touch slop, DragGestureDetector checks during PostUp and
-        // PostDown
+        // Twice because while under touch slop, DragGestureDetector checks during Main and
+        // Final
         assertThat(canDragDirections).hasSize(2)
     }
 
@@ -150,8 +150,8 @@ class DragSlopExceededGestureFilterTest {
         val move = down.moveBy(Duration(milliseconds = 10), 3f, 5f).consume(2f, 4f)
         filter::onPointerInput.invokeOverAllPasses(move)
 
-        // 4 times because while under touch slop, DragGestureDetector checks during PostUp and
-        // PostDown
+        // 4 times because while under touch slop, DragGestureDetector checks during Main and
+        // Final
         assertThat(canDragDirections).hasSize(4)
     }
 
@@ -168,8 +168,8 @@ class DragSlopExceededGestureFilterTest {
             filter::onPointerInput.invokeOverAllPasses(move)
         }
 
-        // Once because although DragGestureDetector checks during PostUp and PostDown, slop is
-        // surpassed during PostUp, and thus isn't checked again.
+        // Once because although DragGestureDetector checks during Main and Final, slop is
+        // surpassed during Main, and thus isn't checked again.
         assertThat(canDragDirections).hasSize(1)
     }
 
@@ -185,8 +185,8 @@ class DragSlopExceededGestureFilterTest {
             filter::onPointerInput.invokeOverAllPasses(move)
         }
 
-        // 6 times because while under touch slop, DragGestureDetector checks during PostUp and
-        // PostDown
+        // 6 times because while under touch slop, DragGestureDetector checks during Main and
+        // Final
         assertThat(canDragDirections).hasSize(6)
     }
 
@@ -206,8 +206,8 @@ class DragSlopExceededGestureFilterTest {
         event = event.moveBy(Duration(milliseconds = 10), 0f, beyondSlop)
         filter::onPointerInput.invokeOverAllPasses(event)
 
-        // Once because although DragGestureDetector checks during PostUp and PostDown, slop is
-        // surpassed during PostUp, and thus isn't checked again.
+        // Once because although DragGestureDetector checks during Main and Final, slop is
+        // surpassed during Main, and thus isn't checked again.
         assertThat(canDragDirections).hasSize(1)
     }
 
@@ -252,7 +252,7 @@ class DragSlopExceededGestureFilterTest {
         val move = down.moveBy(Duration(milliseconds = 10), dx, dy)
         filter::onPointerInput.invokeOverAllPasses(move)
 
-        // Everything here is twice because DragGestureDetector checks during PostUp and PostDown.
+        // Everything here is twice because DragGestureDetector checks during Main and Final.
         assertThat(canDragDirections).hasSize(expectedDirections.size * 2)
         expectedDirections.forEach { direction ->
             assertThat(canDragDirections.count { it == direction })
@@ -311,7 +311,7 @@ class DragSlopExceededGestureFilterTest {
     }
 
     @Test
-    fun onPointerInputChanges_moveUnderToPostUpThenModOverInOppDir_onTouchSlopExceededNotCalled() {
+    fun onPointerInputChanges_moveUnderToMainThenModOverInOppDir_onTouchSlopExceededNotCalled() {
 
         val down = down(0)
         filter::onPointerInput.invokeOverAllPasses(down)
@@ -320,14 +320,14 @@ class DragSlopExceededGestureFilterTest {
         filter::onPointerInput.invokeOverPasses(
             listOf(move),
             listOf(
-                PointerEventPass.InitialDown,
-                PointerEventPass.PostUp
+                PointerEventPass.Initial,
+                PointerEventPass.Main
             )
         )
         val move2 = move.consume(dx = (TestTouchSlop * 2f + TinyNum))
         filter::onPointerInput.invokeOverPasses(
             move2,
-            PointerEventPass.PostDown
+            PointerEventPass.Final
         )
 
         // Assert
@@ -677,7 +677,7 @@ class DragSlopExceededGestureFilterTest {
     }
 
     @Test
-    fun onPointerInputChanges_1ModifiedToMoveBeyondSlopBeforePostUp_onDragSlopExceededCallOnce() {
+    fun onPointerInputChanges_1ModifiedToMoveBeyondSlopBeforeMain_onDragSlopExceededCallOnce() {
         val beyondSlop = TestTouchSlop + TinyNum
 
         val down = down(0)
@@ -687,8 +687,8 @@ class DragSlopExceededGestureFilterTest {
         filter::onPointerInput.invokeOverPasses(
             listOf(move),
             listOf(
-                PointerEventPass.InitialDown,
-                PointerEventPass.PostUp
+                PointerEventPass.Initial,
+                PointerEventPass.Main
             )
         )
 
@@ -698,7 +698,7 @@ class DragSlopExceededGestureFilterTest {
     }
 
     @Test
-    fun onPointerInputChanges_1ModedToMoveBeyondSlopBeforePostDown_onDragSlopExceededCallOnce() {
+    fun onPointerInputChanges_1ModedToMoveBeyondSlopBeforeFinal_onDragSlopExceededCallOnce() {
         val beyondSlop = TestTouchSlop + TinyNum
 
         val down = down(0)
@@ -708,15 +708,15 @@ class DragSlopExceededGestureFilterTest {
         filter::onPointerInput.invokeOverPasses(
             listOf(move),
             listOf(
-                PointerEventPass.InitialDown,
-                PointerEventPass.PostUp
+                PointerEventPass.Initial,
+                PointerEventPass.Main
             )
         )
 
         val moveConsumed = move.consume(dx = beyondSlop)
         filter::onPointerInput.invokeOverPasses(
             moveConsumed,
-            PointerEventPass.PostDown
+            PointerEventPass.Final
         )
 
         // Assert
@@ -725,7 +725,7 @@ class DragSlopExceededGestureFilterTest {
     }
 
     @Test
-    fun onPointerInputChanges_moveUnderToPostUpThenModOverToPostDown_onDragSlopExceededCallOnce() {
+    fun onPointerInputChanges_moveUnderToMainThenModOverToFinal_onDragSlopExceededCallOnce() {
         val halfSlop = TestTouchSlop / 2
         val restOfSlopAndBeyond = TestTouchSlop - halfSlop + TinyNum
 
@@ -736,15 +736,15 @@ class DragSlopExceededGestureFilterTest {
         filter::onPointerInput.invokeOverPasses(
             listOf(move),
             listOf(
-                PointerEventPass.InitialDown,
-                PointerEventPass.PostUp
+                PointerEventPass.Initial,
+                PointerEventPass.Main
             )
         )
 
         val moveConsumed = move.consume(dx = -restOfSlopAndBeyond)
         filter::onPointerInput.invokeOverPasses(
             moveConsumed,
-            PointerEventPass.PostDown
+            PointerEventPass.Final
         )
 
         // Assert
@@ -753,7 +753,7 @@ class DragSlopExceededGestureFilterTest {
     }
 
     @Test
-    fun onPointerInputChanges_moveBeyondSlopAllPassesUpToPostUp_onDragSlopExceededCallOnce() {
+    fun onPointerInputChanges_moveBeyondSlopAllPassesUpToMain_onDragSlopExceededCallOnce() {
         val beyondSlop = TestTouchSlop + TinyNum
 
         val down = down(0)
@@ -763,8 +763,8 @@ class DragSlopExceededGestureFilterTest {
         filter::onPointerInput.invokeOverPasses(
             listOf(move),
             listOf(
-                PointerEventPass.InitialDown,
-                PointerEventPass.PostUp
+                PointerEventPass.Initial,
+                PointerEventPass.Main
             )
         )
 
@@ -922,7 +922,7 @@ class DragSlopExceededGestureFilterTest {
         val move2 = down.moveBy(Duration(milliseconds = 10), -1f, 0f)
         filter::onPointerInput.invokeOverAllPasses(move2)
 
-        // 2 for each because canDrag is currently checked on both postUp and postDown
+        // 2 for each because canDrag is currently checked on both main and final
         assertThat(canDragDirections.filter { it == Direction.LEFT }).hasSize(2)
         assertThat(canDragDirections.filter { it == Direction.RIGHT }).hasSize(2)
     }
@@ -938,7 +938,7 @@ class DragSlopExceededGestureFilterTest {
         val move2 = down.moveBy(Duration(milliseconds = 10), 0f, -1f)
         filter::onPointerInput.invokeOverAllPasses(move2)
 
-        // 2 for each because canDrag is currently checked on both postUp and postDown
+        // 2 for each because canDrag is currently checked on both main and final
         assertThat(canDragDirections.filter { it == Direction.UP }).hasSize(2)
         assertThat(canDragDirections.filter { it == Direction.DOWN }).hasSize(2)
     }

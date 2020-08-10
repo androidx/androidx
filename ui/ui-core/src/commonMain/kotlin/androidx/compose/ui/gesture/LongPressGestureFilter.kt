@@ -91,7 +91,7 @@ internal class LongPressGestureFilter(
 
             var changesToReturn = changes
 
-            if (pass == PointerEventPass.InitialDown && state == State.Fired) {
+            if (pass == PointerEventPass.Initial && state == State.Fired) {
                 // If we fired and have not reset, we should prevent other pointer input nodes from
                 // responding to up, so consume it early on.
                 changesToReturn = changesToReturn.map {
@@ -103,7 +103,7 @@ internal class LongPressGestureFilter(
                 }
             }
 
-            if (pass == PointerEventPass.PostUp) {
+            if (pass == PointerEventPass.Main) {
                 if (state == State.Idle && changes.all { it.changedToDown() }) {
                     // If we are idle and all of the changes changed to down, we are prime to fire
                     // the event.
@@ -130,7 +130,7 @@ internal class LongPressGestureFilter(
             }
 
             if (
-                pass == PointerEventPass.PostDown &&
+                pass == PointerEventPass.Final &&
                 state != State.Idle &&
                 changes.fastAny { it.anyPositionChangeConsumed() }
             ) {
@@ -145,7 +145,7 @@ internal class LongPressGestureFilter(
         if (
             state == State.Primed &&
             customEvent is LongPressFiredEvent &&
-            pass == PointerEventPass.InitialDown
+            pass == PointerEventPass.Initial
         ) {
             // If we are primed but something else fired long press, we should reset.
             // Doesn't matter what pass we are on, just choosing one so we only reset once.

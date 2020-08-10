@@ -67,7 +67,7 @@ class ScrollOrientationLocker(private val customEventDispatcher: CustomEventDisp
      * @see onCustomEvent
      */
     fun onPointerInputSetup(changes: List<PointerInputChange>, pass: PointerEventPass) {
-        if (pass != PointerEventPass.InitialDown) {
+        if (pass != PointerEventPass.Initial) {
             return
         }
 
@@ -101,7 +101,7 @@ class ScrollOrientationLocker(private val customEventDispatcher: CustomEventDisp
      * @see onCustomEvent
      */
     fun onPointerInputTearDown(changes: List<PointerInputChange>, pass: PointerEventPass) {
-        if (pass == PointerEventPass.PostDown && changes.all { it.changedToUpIgnoreConsumed() }) {
+        if (pass == PointerEventPass.Final && changes.all { it.changedToUpIgnoreConsumed() }) {
             reset()
         }
     }
@@ -132,7 +132,7 @@ class ScrollOrientationLocker(private val customEventDispatcher: CustomEventDisp
      */
     fun onCustomEvent(customEvent: CustomEvent, pass: PointerEventPass) {
 
-        if (pass == PointerEventPass.InitialDown &&
+        if (pass == PointerEventPass.Initial &&
             customEvent is ShareScrollOrientationLockerEvent) {
             if (lockerOwner) {
                 throw IllegalStateException("This instance of ScrollOrientationLocker should " +

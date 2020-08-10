@@ -107,7 +107,7 @@ internal class PointerCounterGestureFilter : PointerInputFilter() {
         pass: PointerEventPass,
         bounds: IntSize
     ): List<PointerInputChange> {
-        if (pass == PointerEventPass.PostUp) {
+        if (pass == PointerEventPass.Main) {
             if (changes.any {
                     it.changedToDownIgnoreConsumed() || it.changedToUpIgnoreConsumed()
                 }) {

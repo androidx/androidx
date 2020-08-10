@@ -170,7 +170,7 @@ private class LongPressDragGestureDetectorGlue : PointerInputFilter() {
         bounds: IntSize
     ): List<PointerInputChange> {
 
-        if (pass == PointerEventPass.PostUp &&
+        if (pass == PointerEventPass.Main &&
             dragEnabled &&
             !dragStarted &&
             changes.all { it.changedToUpIgnoreConsumed() }

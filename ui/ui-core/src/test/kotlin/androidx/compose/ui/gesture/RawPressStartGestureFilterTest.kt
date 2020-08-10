@@ -176,12 +176,12 @@ class RawPressStartGestureFilterTest {
     // Verification of correct execution pass behavior
 
     @Test
-    fun onPointerInput_initialDown_behaviorOccursAtCorrectTime() {
-        filter.setExecutionPass(PointerEventPass.InitialDown)
+    fun onPointerInput_initial_behaviorOccursAtCorrectTime() {
+        filter.setExecutionPass(PointerEventPass.Initial)
 
         val pointer = filter::onPointerInput.invokeOverPasses(
             down(0),
-            PointerEventPass.InitialDown
+            PointerEventPass.Initial
         )
 
         verify(filter.onPressStart).invoke(any())
@@ -189,12 +189,12 @@ class RawPressStartGestureFilterTest {
     }
 
     @Test
-    fun onPointerInput_PostUp_behaviorOccursAtCorrectTime() {
-        filter.setExecutionPass(PointerEventPass.PostUp)
+    fun onPointerInput_Main_behaviorOccursAtCorrectTime() {
+        filter.setExecutionPass(PointerEventPass.Main)
 
         var pointer = filter::onPointerInput.invokeOverPasses(
             down(0),
-            PointerEventPass.InitialDown
+            PointerEventPass.Initial
         )
 
         verify(filter.onPressStart, never()).invoke(any())
@@ -202,7 +202,7 @@ class RawPressStartGestureFilterTest {
 
         pointer = filter::onPointerInput.invokeOverPasses(
             down(1),
-            PointerEventPass.PostUp
+            PointerEventPass.Main
         )
 
         verify(filter.onPressStart).invoke(any())
@@ -210,13 +210,13 @@ class RawPressStartGestureFilterTest {
     }
 
     @Test
-    fun onPointerInput_postDown_behaviorOccursAtCorrectTime() {
-        filter.setExecutionPass(PointerEventPass.PostDown)
+    fun onPointerInput_final_behaviorOccursAtCorrectTime() {
+        filter.setExecutionPass(PointerEventPass.Final)
 
         var pointer = filter::onPointerInput.invokeOverPasses(
             down(0),
-            PointerEventPass.InitialDown,
-            PointerEventPass.PostUp
+            PointerEventPass.Initial,
+            PointerEventPass.Main
         )
 
         verify(filter.onPressStart, never()).invoke(any())
@@ -224,7 +224,7 @@ class RawPressStartGestureFilterTest {
 
         pointer = filter::onPointerInput.invokeOverPasses(
             down(1),
-            PointerEventPass.PostDown
+            PointerEventPass.Final
         )
 
         verify(filter.onPressStart).invoke(any())

@@ -414,19 +414,19 @@ class TapGestureFilterTest {
     // Verification for during what pass the changes are consumed.
 
     @Test
-    fun pointerInputHandler_upChangeConsumedDuringPostUp() {
+    fun pointerInputHandler_upChangeConsumedDuringMain() {
         val pointer = down(0, 0.milliseconds)
         filter::onPointerInput.invokeOverAllPasses(pointer)
         var pointerEventChange = pointer.up(100.milliseconds)
         pointerEventChange = filter::onPointerInput.invokeOverPasses(
             pointerEventChange,
-            PointerEventPass.InitialDown
+            PointerEventPass.Initial
         )
         assertThat(pointerEventChange.consumed.downChange, `is`(false))
 
         pointerEventChange = filter::onPointerInput.invokeOverPasses(
             pointerEventChange,
-            PointerEventPass.PostUp,
+            PointerEventPass.Main,
             IntSize(0, 0)
         )
         assertThat(pointerEventChange.consumed.downChange, `is`(true))

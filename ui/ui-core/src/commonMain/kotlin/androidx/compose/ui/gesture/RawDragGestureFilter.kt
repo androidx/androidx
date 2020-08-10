@@ -183,7 +183,7 @@ internal class RawDragGestureFilter : PointerInputFilter() {
 
         var changesToReturn = changes
 
-        if (pass == PointerEventPass.InitialDown) {
+        if (pass == PointerEventPass.Initial) {
 
             if (started) {
                 // If we are have started we want to prevent any descendants from reacting to
@@ -198,7 +198,7 @@ internal class RawDragGestureFilter : PointerInputFilter() {
             }
         }
 
-        if (pass == PointerEventPass.PostUp) {
+        if (pass == PointerEventPass.Main) {
 
             // Get the changes for pointers that are relevant to us due to orientation locking.
             val applicableChanges =

@@ -453,17 +453,17 @@ class PressIndicatorGestureFilterTest {
     // Verification of correct consumption behavior.
 
     @Test
-    fun onPointerInput_down_downChangeConsumedDuringPostUp() {
+    fun onPointerInput_down_downChangeConsumedDuringMain() {
         var pointer = down(0, 0.milliseconds)
         pointer = filter::onPointerInput.invokeOverPasses(
             pointer,
-            PointerEventPass.InitialDown
+            PointerEventPass.Initial
         )
         assertThat(pointer.consumed.downChange, `is`(false))
 
         pointer = filter::onPointerInput.invoke(
             listOf(pointer),
-            PointerEventPass.PostUp,
+            PointerEventPass.Main,
             IntSize(0, 0)
         ).first()
         assertThat(pointer.consumed.downChange, `is`(true))

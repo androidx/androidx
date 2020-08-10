@@ -235,7 +235,7 @@ class ScrollOrientationLockerTest(
 
         val customEventDispatcher: CustomEventDispatcher = mock()
         val scrollOrientationLocker = ScrollOrientationLocker(customEventDispatcher)
-        scrollOrientationLocker.onPointerInputSetup(inputChanges, PointerEventPass.InitialDown)
+        scrollOrientationLocker.onPointerInputSetup(inputChanges, PointerEventPass.Initial)
         lockingConfigs.forEach {
             scrollOrientationLocker.attemptToLockPointers(it.changes, it.orientation)
         }

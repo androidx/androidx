@@ -70,7 +70,7 @@ fun Modifier.dragGestureFilter(
         .rawPressStartGestureFilter(
             glue::startDrag,
             startDragImmediately,
-            PointerEventPass.InitialDown
+            PointerEventPass.Initial
         )
 }
 

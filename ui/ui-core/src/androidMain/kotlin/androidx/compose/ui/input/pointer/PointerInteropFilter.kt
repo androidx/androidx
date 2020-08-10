@@ -101,11 +101,11 @@ internal fun Modifier.pointerInteropFilter(view: AndroidViewHolder): Modifier {
  * for how the interop is accomplished.
  *
  * When the type of event is not a movement event, we dispatch to the Android View as soon as
- * possible (during [PointerEventPass.InitialDown]) so that the Android View can react to down
+ * possible (during [PointerEventPass.Initial]) so that the Android View can react to down
  * and up events before Compose PointerInputModifiers normally would.
  *
  * When the type of event is a movement event, we dispatch to the Android View during
- * [PointerEventPass.PostDown] to allow Compose PointerInputModifiers to react to movement first,
+ * [PointerEventPass.Final] to allow Compose PointerInputModifiers to react to movement first,
  * which mimics a parent [ViewGroup] intercepting the event stream.
  *
  * Whenever we are about to call [onTouchEvent], we check to see if anything in Compose
@@ -117,10 +117,10 @@ internal fun Modifier.pointerInteropFilter(view: AndroidViewHolder): Modifier {
  * nothing in Compose also responds.
  *
  * If the [requestDisallowInterceptTouchEvent] is provided and called with true, we simply dispatch move
- * events during [PointerEventPass.InitialDown] so that normal PointerInputModifiers don't get a
+ * events during [PointerEventPass.Initial] so that normal PointerInputModifiers don't get a
  * chance to consume first.  Note:  This does mean that it is possible for a Compose
  * PointerInputModifier to "intercept" even after requestDisallowInterceptTouchEvent has been
- * called because consumption can occur during [PointerEventPass.InitialDown].  This may seem
+ * called because consumption can occur during [PointerEventPass.Initial].  This may seem
  * like a flaw, but in reality, any PointerInputModifier that consumes that aggressively would
  * likely only do so after some consumption already occurred on a later pass, and this ability to
  * do so is on par with a [ViewGroup]'s ability to override [ViewGroup.dispatchTouchEvent]
@@ -200,14 +200,14 @@ internal class PointerInteropFilter : PointerInputModifier {
                         }
 
                 if (state !== DispatchToViewState.NotDispatching) {
-                    if (pass == PointerEventPass.InitialDown && dispatchDuringInitialTunnel) {
+                    if (pass == PointerEventPass.Initial && dispatchDuringInitialTunnel) {
                         changes = dispatchToView(pointerEvent)
                     }
-                    if (pass == PointerEventPass.PostDown && !dispatchDuringInitialTunnel) {
+                    if (pass == PointerEventPass.Final && !dispatchDuringInitialTunnel) {
                         changes = dispatchToView(pointerEvent)
                     }
                 }
-                if (pass == PointerEventPass.PostDown) {
+                if (pass == PointerEventPass.Final) {
                     // If all of the changes were up changes, then the "event stream" has ended
                     // and we reset.
                     if (changes.all { it.changedToUpIgnoreConsumed() }) {

@@ -47,7 +47,7 @@ import org.junit.runners.JUnit4
 
 // TODO(shepshapard): Write the following tests.
 // Test for cases where things are reset when last pointer goes up
-// Verify methods called during PostUp and PostDown
+// Verify methods called during Main and Final
 // Verify correct behavior when distance is consumed at different moments between passes.
 // Verify correct behavior with no DragBlocker
 
@@ -252,7 +252,7 @@ class RawDragGestureFilterTest {
         val onDragLog = log.filter { it.methodName == "onDrag" }
         assertThat(onDragLog).hasSize(4)
         // OnDrags get's called twice each time because RawDragGestureDetector calls it on both
-        // PostUp and PostDown and the distance is not consumed by PostUp.
+        // Main and Final and the distance is not consumed by Main.
         assertThat(onDragLog[0].pxPosition).isEqualTo(Offset(3f, -5f))
         assertThat(onDragLog[1].pxPosition).isEqualTo(Offset(-3f, 7f))
         assertThat(onDragLog[2].pxPosition).isEqualTo(Offset(6f, 10f))
@@ -436,14 +436,14 @@ class RawDragGestureFilterTest {
         dragObserver.dragConsume = Offset(7f, -11f)
         var result = filter::onPointerInput.invokeOverPasses(
             change,
-            PointerEventPass.InitialDown,
-            PointerEventPass.PostUp
+            PointerEventPass.Initial,
+            PointerEventPass.Main
         )
         dragObserver.dragConsume = Offset.Zero
         result = filter::onPointerInput.invokeOverPasses(
             result,
-            PointerEventPass.InitialDown,
-            PointerEventPass.PostUp
+            PointerEventPass.Initial,
+            PointerEventPass.Main
         )
 
         assertThat(result.anyPositionChangeConsumed()).isFalse()
@@ -499,13 +499,13 @@ class RawDragGestureFilterTest {
         dragObserver.dragConsume = Offset(7f, -11f)
         var result = filter::onPointerInput.invokeOverPasses(
             change,
-            PointerEventPass.InitialDown,
-            PointerEventPass.PostUp
+            PointerEventPass.Initial,
+            PointerEventPass.Main
         )
         dragObserver.dragConsume = Offset.Zero
         result = filter::onPointerInput.invokeOverPasses(
             result,
-            PointerEventPass.PostDown
+            PointerEventPass.Final
         )
 
         assertThat(result.consumed.positionChange.x).isEqualTo(7f)
@@ -565,7 +565,7 @@ class RawDragGestureFilterTest {
     }
 
     @Test
-    fun onPointerInput_hasOrientationDownEvent_customEventDispatchedOnceDuringInitialDown() {
+    fun onPointerInput_hasOrientationDownEvent_customEventDispatchedOnceDuringInitial() {
 
         // Arrange
 
@@ -575,7 +575,7 @@ class RawDragGestureFilterTest {
 
         // Act / Verify 1
 
-        filter::onPointerInput.invokeOverPasses(down, PointerEventPass.InitialDown)
+        filter::onPointerInput.invokeOverPasses(down, PointerEventPass.Initial)
         argumentCaptor<ShareScrollOrientationLockerEvent>().run {
             verify(customEventDispatcher).dispatchCustomEvent(capture())
             assertThat(allValues).hasSize(1)
@@ -587,8 +587,8 @@ class RawDragGestureFilterTest {
         // Act / Verify 1
         filter::onPointerInput.invokeOverPasses(
             down,
-            PointerEventPass.PostUp,
-            PointerEventPass.PostDown
+            PointerEventPass.Main,
+            PointerEventPass.Final
         )
         verifyNoMoreInteractions(customEventDispatcher)
     }

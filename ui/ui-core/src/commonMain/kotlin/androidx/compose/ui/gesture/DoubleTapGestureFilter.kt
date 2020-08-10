@@ -92,7 +92,7 @@ internal class DoubleTapGestureFilter(
         bounds: IntSize
     ): List<PointerInputChange> {
 
-        if (pass == PointerEventPass.PostUp) {
+        if (pass == PointerEventPass.Main) {
             if (state == State.Idle && changes.all { it.changedToDown() }) {
                 state = State.Down
                 return changes
@@ -125,7 +125,7 @@ internal class DoubleTapGestureFilter(
             }
         }
 
-        if (pass == PointerEventPass.PostDown) {
+        if (pass == PointerEventPass.Final) {
 
             val noPointersAreInBoundsAndNotUpState =
                 (state != State.Up && !changes.anyPointersInBounds(bounds))

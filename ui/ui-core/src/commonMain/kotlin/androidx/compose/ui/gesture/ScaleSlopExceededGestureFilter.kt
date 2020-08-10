@@ -75,7 +75,7 @@ internal class ScaleSlopExceededGestureFilter(private val scaleSlop: Float) : Po
         bounds: IntSize
     ): List<PointerInputChange> {
 
-            if (pass == PointerEventPass.PostUp) {
+            if (pass == PointerEventPass.Main) {
 
                 if (!passedSlop) {
 
@@ -98,7 +98,7 @@ internal class ScaleSlopExceededGestureFilter(private val scaleSlop: Float) : Po
             }
 
             if (passedSlop &&
-                pass == PointerEventPass.PostDown &&
+                pass == PointerEventPass.Final &&
                 changes.all { it.changedToUpIgnoreConsumed() }
             ) {
                 passedSlop = false
