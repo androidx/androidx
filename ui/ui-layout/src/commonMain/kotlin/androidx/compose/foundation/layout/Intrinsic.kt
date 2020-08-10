@@ -152,7 +152,7 @@ private interface PreferredIntrinsicSizeModifier : LayoutModifier {
             ).enforce(constraints)
         )
         return layout(placeable.width, placeable.height) {
-            placeable.place(IntOffset.Zero)
+            placeable.placeRelative(IntOffset.Zero)
         }
     }
 
@@ -206,7 +206,7 @@ fun MinIntrinsicWidth(children: @Composable () -> Unit) {
             Constraints.fixedWidth(width).enforce(constraints)
         )
         layout(placeable?.width ?: 0, placeable?.height ?: 0) {
-            placeable?.placeAbsolute(0, 0)
+            placeable?.place(0, 0)
         }
     }
 }
@@ -240,7 +240,7 @@ fun MinIntrinsicHeight(children: @Composable () -> Unit) {
             Constraints.fixedHeight(height).enforce(constraints)
         )
         layout(placeable?.width ?: 0, placeable?.height ?: 0) {
-            placeable?.placeAbsolute(0, 0)
+            placeable?.place(0, 0)
         }
     }
 }
@@ -274,7 +274,7 @@ fun MaxIntrinsicWidth(children: @Composable () -> Unit) {
             Constraints.fixedWidth(width).enforce(constraints)
         )
         layout(placeable?.width ?: 0, placeable?.height ?: 0) {
-            placeable?.placeAbsolute(0, 0)
+            placeable?.place(0, 0)
         }
     }
 }
@@ -308,7 +308,7 @@ fun MaxIntrinsicHeight(children: @Composable () -> Unit) {
             Constraints.fixedHeight(height).enforce(constraints)
         )
         layout(placeable?.width ?: 0, placeable?.height ?: 0) {
-            placeable?.placeAbsolute(0, 0)
+            placeable?.place(0, 0)
         }
     }
 }

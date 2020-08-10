@@ -329,7 +329,7 @@ class OnPositionedTest : LayoutTest() {
         Layout(children) { measurables, constraints ->
             layout(constraints.maxWidth, constraints.maxHeight) {
                 measurables.first().measure(constraints)
-                    .place(sizeModel.value.toPx().roundToInt(), 0)
+                    .placeRelative(sizeModel.value.toPx().roundToInt(), 0)
             }
         }
     }

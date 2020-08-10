@@ -77,7 +77,7 @@ abstract class Placeable {
     /**
      * Positions the [Placeable] at [position] in its parent's coordinate system.
      */
-    protected abstract fun place(position: IntOffset)
+    protected abstract fun placeAt(position: IntOffset)
 
     /**
      * The constraints used for the measurement made to obtain this [Placeable].
@@ -101,8 +101,8 @@ abstract class Placeable {
      * a [Placeable] without remeasuring its original [Measurable] if factors contributing to its
      * potential measurement have not changed.
      * The scope also allows automatic mirroring of children positions in RTL layout direction
-     * contexts using the [place] methods available in the scope. If the automatic mirroring is not
-     * desired, [placeAbsolute] should be used instead.
+     * contexts using the [placeRelative] methods available in the scope. If the automatic
+     * mirroring is not desired, [place] should be used instead.
      */
     // TODO(b/150276678): using the PlacementScope to place outside the layout pass is not working.
     abstract class PlacementScope {
@@ -127,9 +127,9 @@ abstract class Placeable {
          * direction contexts.
          * If this method is used outside the [MeasureScope.layout] positioning block, the
          * automatic position mirroring will not happen and the [Placeable] will be placed at the
-         * given [position], similar to the [placeAbsolute] method.
+         * given [position], similar to the [place] method.
          */
-        fun Placeable.place(position: IntOffset) = placeAutoMirrored(position)
+        fun Placeable.placeRelative(position: IntOffset) = placeAutoMirrored(position)
 
         /**
          * Place a [Placeable] at [position] in its parent's coordinate system.
@@ -138,9 +138,9 @@ abstract class Placeable {
          * direction contexts.
          * If this method is used outside the [MeasureScope.layout] positioning block, the
          * automatic position mirroring will not happen and the [Placeable] will be placed at the
-         * given [position], similar to the [placeAbsolute] method.
+         * given [position], similar to the [place] method.
          */
-        fun Placeable.place(position: Offset) = placeAutoMirrored(position.round())
+        fun Placeable.placeRelative(position: Offset) = placeAutoMirrored(position.round())
 
         /**
          * Place a [Placeable] at [x], [y] in its parent's coordinate system.
@@ -149,39 +149,37 @@ abstract class Placeable {
          * direction contexts.
          * If this method is used outside the [MeasureScope.layout] positioning block, the
          * automatic position mirroring will not happen and the [Placeable] will be placed at the
-         * given position, similar to the [placeAbsolute] method.
+         * given position, similar to the [place] method.
          */
-        fun Placeable.place(x: Int, y: Int) = placeAutoMirrored(IntOffset(x, y))
+        fun Placeable.placeRelative(x: Int, y: Int) = placeAutoMirrored(IntOffset(x, y))
 
         /**
          * Place a [Placeable] at [position] in its parent's coordinate system.
-         * Unlike [place], the given [position] will not implicitly react in RTL layout direction
+         * Unlike [placeRelative], the given [position] will not implicitly react in RTL layout direction
          * contexts.
          */
-        fun Placeable.placeAbsolute(position: Offset) = placeAbsolute(position.round())
+        fun Placeable.place(position: Offset) = place(position.round())
 
         /**
          * Place a [Placeable] at [x], [y] in its parent's coordinate system.
-         * Unlike [place], the given position will not implicitly react in RTL layout direction
+         * Unlike [placeRelative], the given position will not implicitly react in RTL layout direction
          * contexts.
          */
-        fun Placeable.placeAbsolute(x: Int, y: Int) = placeAbsolute(IntOffset(x, y))
+        fun Placeable.place(x: Int, y: Int) = place(IntOffset(x, y))
 
         /**
          * Place a [Placeable] at [position] in its parent's coordinate system.
-         * Unlike [place], the given [position] will not implicitly react in RTL layout direction
+         * Unlike [placeRelative], the given [position] will not implicitly react in RTL layout direction
          * contexts.
          */
-        fun Placeable.placeAbsolute(position: IntOffset) =
-            place(position + apparentToRealOffset)
+        fun Placeable.place(position: IntOffset) =
+            placeAt(position + apparentToRealOffset)
 
         private fun Placeable.placeAutoMirrored(position: IntOffset) {
             if (parentLayoutDirection == LayoutDirection.Ltr || parentWidth == 0) {
-                placeAbsolute(position)
+                place(position)
             } else {
-                placeAbsolute(
-                    IntOffset(parentWidth - measuredSize.width - position.x, position.y)
-                )
+                place(IntOffset(parentWidth - measuredSize.width - position.x, position.y))
             }
         }
     }

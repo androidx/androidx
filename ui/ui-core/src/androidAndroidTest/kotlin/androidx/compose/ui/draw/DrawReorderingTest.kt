@@ -667,7 +667,7 @@ private fun FixedSize(
         }
         layout(size.value, size.value) {
             placeables.forEach { child ->
-                child.place(0, 0)
+                child.placeRelative(0, 0)
             }
         }
     }

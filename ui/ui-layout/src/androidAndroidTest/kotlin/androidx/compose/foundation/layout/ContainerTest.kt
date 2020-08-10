@@ -451,7 +451,7 @@ class ContainerTest : LayoutTest() {
                     val placeable = measurables.first().measure(constraints)
                     ++measure
                     layout(placeable.width, placeable.height) {
-                        placeable.place(0, 0)
+                        placeable.placeRelative(0, 0)
                         ++layout
                         layoutLatch.countDown()
                     }

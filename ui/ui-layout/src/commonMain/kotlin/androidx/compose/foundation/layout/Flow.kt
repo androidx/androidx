@@ -257,12 +257,12 @@ private fun Flow(
                             ).y
                     }
                     if (orientation == LayoutOrientation.Horizontal) {
-                        placeable.placeAbsolute(
+                        placeable.place(
                             x = mainAxisPositions[j],
                             y = crossAxisPositions[i] + crossAxis
                         )
                     } else {
-                        placeable.placeAbsolute(
+                        placeable.place(
                             x = crossAxisPositions[i] + crossAxis,
                             y = mainAxisPositions[j]
                         )

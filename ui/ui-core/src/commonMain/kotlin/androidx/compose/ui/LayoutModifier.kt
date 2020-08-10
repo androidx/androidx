@@ -226,7 +226,7 @@ private object MeasuringIntrinsics {
             measuredSize = IntSize(width, height)
         }
         override fun get(line: AlignmentLine): Int = AlignmentLine.Unspecified
-        override fun place(position: IntOffset) { }
+        override fun placeAt(position: IntOffset) { }
     }
 
     private enum class IntrinsicMinMax { Min, Max }

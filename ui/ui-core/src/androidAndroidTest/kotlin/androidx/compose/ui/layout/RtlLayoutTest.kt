@@ -178,7 +178,7 @@ class RtlLayoutTest {
                 Providers(LayoutDirectionAmbient provides direction.value) {
                     Layout(children) { measurables, constraints ->
                         layout(100, 100) {
-                            measurables.first().measure(constraints).place(0, 0)
+                            measurables.first().measure(constraints).placeRelative(0, 0)
                         }
                     }
                 }
@@ -218,9 +218,9 @@ class RtlLayoutTest {
                     var y = 0f
                     for (placeable in placeables) {
                         if (absolutePositioning) {
-                            placeable.placeAbsolute(Offset(x, y))
-                        } else {
                             placeable.place(Offset(x, y))
+                        } else {
+                            placeable.placeRelative(Offset(x, y))
                         }
                         x += placeable.width.toFloat()
                         y += placeable.height.toFloat()

@@ -361,13 +361,13 @@ internal class LazyForState(val isVertical: Boolean) {
                 if (isVertical) {
                     val x = horizontalAlignment.align(layoutWidth - it.width, layoutDirection)
                     if (currentMainAxis + it.height > 0 && currentMainAxis < layoutHeight) {
-                        it.placeAbsolute(x, currentMainAxis)
+                        it.place(x, currentMainAxis)
                     }
                     currentMainAxis += it.height
                 } else {
                     val y = verticalAlignment.align(layoutHeight - it.height)
                     if (currentMainAxis + it.width > 0 && currentMainAxis < layoutWidth) {
-                        it.place(currentMainAxis, y)
+                        it.placeRelative(currentMainAxis, y)
                     }
                     currentMainAxis += it.width
                 }

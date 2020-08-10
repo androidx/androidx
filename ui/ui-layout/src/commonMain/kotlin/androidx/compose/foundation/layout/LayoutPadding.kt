@@ -172,9 +172,9 @@ private data class PaddingModifier(
         val height = constraints.constrainHeight(placeable.height + vertical)
         return layout(width, height) {
             if (rtlAware) {
-                placeable.place(start.toIntPx(), top.toIntPx())
+                placeable.placeRelative(start.toIntPx(), top.toIntPx())
             } else {
-                placeable.placeAbsolute(start.toIntPx(), top.toIntPx())
+                placeable.place(start.toIntPx(), top.toIntPx())
             }
         }
     }

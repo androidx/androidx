@@ -284,7 +284,7 @@ internal class MeasureInMeasureBlock : SmartMeasureBlock() {
             preLayoutCallback?.invoke()
             preLayoutCallback = null
             placeables.forEach { placeable ->
-                placeable.place(0, 0)
+                placeable.placeRelative(0, 0)
             }
         }
     }
@@ -330,7 +330,7 @@ internal class MeasureInLayoutBlock : SmartMeasureBlock() {
             layoutsCount++
             measurables.forEach {
                 it.measure(childConstraints)
-                    .place(0, 0)
+                    .placeRelative(0, 0)
             }
         }
     }
@@ -378,7 +378,7 @@ internal class SpyLayoutModifier : LayoutModifier {
         measuresCount++
         return layout(constraints.maxWidth, constraints.maxHeight) {
             layoutsCount++
-            measurable.measure(constraints).place(0, 0)
+            measurable.measure(constraints).placeRelative(0, 0)
         }
     }
 }

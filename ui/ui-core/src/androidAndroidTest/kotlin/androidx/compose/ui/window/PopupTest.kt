@@ -1089,7 +1089,7 @@ private fun TestAlign(children: @Composable () -> Unit) {
                 val position = Alignment.TopStart.align(
                     IntSize(layoutWidth - placeable.width, layoutHeight - placeable.height)
                 )
-                placeable.place(position.x, position.y)
+                placeable.placeRelative(position.x, position.y)
             }
         }
     }

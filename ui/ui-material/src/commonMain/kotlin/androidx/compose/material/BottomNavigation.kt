@@ -258,7 +258,7 @@ private fun MeasureScope.placeIcon(
     val height = constraints.maxHeight
     val iconY = (height - iconPlaceable.height) / 2
     return layout(iconPlaceable.width, height) {
-        iconPlaceable.place(0, iconY)
+        iconPlaceable.placeRelative(0, iconY)
     }
 }
 
@@ -320,9 +320,9 @@ private fun MeasureScope.placeLabelAndIcon(
 
     return layout(containerWidth, height) {
         if (iconPositionAnimationProgress != 0f) {
-            labelPlaceable.place(labelX, labelY + offset)
+            labelPlaceable.placeRelative(labelX, labelY + offset)
         }
-        iconPlaceable.place(iconX, selectedIconY + offset)
+        iconPlaceable.placeRelative(iconX, selectedIconY + offset)
     }
 }
 

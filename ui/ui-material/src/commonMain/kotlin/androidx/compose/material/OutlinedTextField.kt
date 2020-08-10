@@ -550,13 +550,13 @@ private fun Placeable.PlacementScope.place(
     density: Float
 ) {
     // placed center vertically and to the start edge horizontally
-    leadingPlaceable?.place(
+    leadingPlaceable?.placeRelative(
         0,
         Alignment.CenterVertically.align(height - leadingPlaceable.height)
     )
 
     // placed center vertically and to the end edge horizontally
-    trailingPlaceable?.place(
+    trailingPlaceable?.placeRelative(
         width - trailingPlaceable.width,
         Alignment.CenterVertically.align(height - trailingPlaceable.height)
     )
@@ -569,16 +569,16 @@ private fun Placeable.PlacementScope.place(
                 animationProgress) - (labelPlaceable.height / 2) * animationProgress
     val labelPositionX = (TextFieldPadding.value * density) +
             widthOrZero(leadingPlaceable) * (1 - animationProgress)
-    labelPlaceable.place(labelPositionX.roundToInt(), labelPositionY.roundToInt())
+    labelPlaceable.placeRelative(labelPositionX.roundToInt(), labelPositionY.roundToInt())
 
     // placed center vertically and after the leading icon horizontally
-    textFieldPlaceable.place(
+    textFieldPlaceable.placeRelative(
         widthOrZero(leadingPlaceable),
         Alignment.CenterVertically.align(height - textFieldPlaceable.height)
     )
 
     // placed center vertically and after the leading icon horizontally
-    placeholderPlaceable?.place(
+    placeholderPlaceable?.placeRelative(
         widthOrZero(leadingPlaceable),
         Alignment.CenterVertically.align(height - placeholderPlaceable.height)
     )

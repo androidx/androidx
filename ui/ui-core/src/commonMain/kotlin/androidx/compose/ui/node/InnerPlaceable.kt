@@ -112,7 +112,7 @@ internal class InnerPlaceable(
         )
     }
 
-    override fun place(position: IntOffset) {
+    override fun placeAt(position: IntOffset) {
         this.position = position
 
         // The wrapper only runs their placement block to obtain our position, which allows them

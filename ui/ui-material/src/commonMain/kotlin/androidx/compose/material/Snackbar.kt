@@ -175,7 +175,7 @@ private fun TextOnlySnackbar(text: @Composable () -> Unit) {
         val containerHeight = max(minHeight.toIntPx(), textPlaceable.height)
         layout(constraints.maxWidth, containerHeight) {
             val textPlaceY = (containerHeight - textPlaceable.height) / 2
-            textPlaceable.place(0, textPlaceY)
+            textPlaceable.placeRelative(0, textPlaceY)
         }
     }
 }
@@ -264,8 +264,8 @@ private fun OneRowSnackbar(
         }
 
         layout(constraints.maxWidth, containerHeight) {
-            textPlaceable.place(0, textPlaceY)
-            buttonPlaceable.place(buttonPlaceX, buttonPlaceY)
+            textPlaceable.placeRelative(0, textPlaceY)
+            buttonPlaceable.placeRelative(buttonPlaceX, buttonPlaceY)
         }
     }
 }

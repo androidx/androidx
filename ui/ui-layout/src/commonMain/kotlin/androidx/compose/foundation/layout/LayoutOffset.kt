@@ -85,9 +85,9 @@ private data class OffsetModifier(val x: Dp, val y: Dp, val rtlAware: Boolean) :
         val placeable = measurable.measure(constraints)
         return layout(placeable.width, placeable.height) {
             if (rtlAware) {
-                placeable.place(x.toIntPx(), y.toIntPx())
+                placeable.placeRelative(x.toIntPx(), y.toIntPx())
             } else {
-                placeable.placeAbsolute(x.toIntPx(), y.toIntPx())
+                placeable.place(x.toIntPx(), y.toIntPx())
             }
         }
     }
@@ -105,9 +105,9 @@ private data class OffsetPxModifier(
         val placeable = measurable.measure(constraints)
         return layout(placeable.width, placeable.height) {
             if (rtlAware) {
-                placeable.place(x.value.roundToInt(), y.value.roundToInt())
+                placeable.placeRelative(x.value.roundToInt(), y.value.roundToInt())
             } else {
-                placeable.placeAbsolute(x.value.roundToInt(), y.value.roundToInt())
+                placeable.place(x.value.roundToInt(), y.value.roundToInt())
             }
         }
     }

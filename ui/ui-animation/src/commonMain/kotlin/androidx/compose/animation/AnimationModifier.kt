@@ -101,7 +101,7 @@ private class SizeAnimationModifier(
 
         val (width, height) = animateTo(measuredSize)
         return layout(width, height) {
-            placeable.place(0, 0)
+            placeable.placeRelative(0, 0)
         }
     }
 

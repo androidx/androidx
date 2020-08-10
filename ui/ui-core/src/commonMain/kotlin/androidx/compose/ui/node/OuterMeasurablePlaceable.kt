@@ -108,18 +108,18 @@ internal class OuterMeasurablePlaceable(
 
     override fun get(line: AlignmentLine): Int = outerWrapper[line]
 
-    override fun place(position: IntOffset) {
+    override fun placeAt(position: IntOffset) {
         lastPosition = position
         with(InnerPlacementScope) {
-            outerWrapper.placeAbsolute(position)
+            outerWrapper.place(position)
         }
     }
 
     /**
-     * Calls [place] with the same position used during the last [place] call
+     * Calls [placeAt] with the same position used during the last [placeAt] call
      */
     fun replace() {
-        place(checkNotNull(lastPosition))
+        placeAt(checkNotNull(lastPosition))
     }
 
     override fun minIntrinsicWidth(height: Int): Int = outerWrapper.minIntrinsicWidth(height)

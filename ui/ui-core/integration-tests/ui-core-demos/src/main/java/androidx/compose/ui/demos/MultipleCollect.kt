@@ -56,11 +56,14 @@ fun HeaderFooterLayout(
         }
 
         layout(constraints.maxWidth, constraints.maxHeight) {
-            headerPlaceable.place(0, 0)
-            footerPlaceable.place(footerPadding, constraints.maxHeight - footerPlaceable.height)
+            headerPlaceable.placeRelative(0, 0)
+            footerPlaceable.placeRelative(
+                footerPadding,
+                constraints.maxHeight - footerPlaceable.height
+            )
             var top = headerPlaceable.height
             contentPlaceables.forEach { placeable ->
-                placeable.place(0, top)
+                placeable.placeRelative(0, top)
                 top += itemHeight
             }
         }

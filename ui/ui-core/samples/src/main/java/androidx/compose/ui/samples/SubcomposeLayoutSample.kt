@@ -40,11 +40,11 @@ fun SubcomposeLayoutSample(
             )
         }
         layout(maxSize.width, maxSize.height) {
-            mainPlaceables.forEach { it.place(0, 0) }
+            mainPlaceables.forEach { it.placeRelative(0, 0) }
             subcompose(SlotsEnum.Dependent) {
                 dependentContent(maxSize)
             }.forEach {
-                it.measure(constraints).place(0, 0)
+                it.measure(constraints).placeRelative(0, 0)
             }
         }
     }

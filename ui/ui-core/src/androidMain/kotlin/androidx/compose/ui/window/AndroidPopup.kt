@@ -139,7 +139,7 @@ private inline fun SimpleStack(modifier: Modifier, noinline children: @Composabl
             1 -> {
                 val p = measurables[0].measure(constraints)
                 layout(p.width, p.height) {
-                    p.place(0, 0)
+                    p.placeRelative(0, 0)
                 }
             }
             else -> {
@@ -154,7 +154,7 @@ private inline fun SimpleStack(modifier: Modifier, noinline children: @Composabl
                 layout(width, height) {
                     for (i in 0..placeables.lastIndex) {
                         val p = placeables[i]
-                        p.place(0, 0)
+                        p.placeRelative(0, 0)
                     }
                 }
             }

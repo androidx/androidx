@@ -95,7 +95,7 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
             if (place) {
                 val placeable = measurables[0].measure(constraints)
                 layout(placeable.width, placeable.height) {
-                    placeable.place(0, 0)
+                    placeable.placeRelative(0, 0)
                 }
             } else {
                 layout(0, 0) {}

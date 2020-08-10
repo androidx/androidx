@@ -785,7 +785,7 @@ class LayoutNode : Measurable, Remeasurement {
             val previousParentWidth = parentWidth
             val previousLayoutDirection = parentLayoutDirection
             updateValuesForRtlMirroring(layoutDirection, outerMeasurablePlaceable.measuredWidth)
-            outerMeasurablePlaceable.place(x, y)
+            outerMeasurablePlaceable.placeRelative(x, y)
             updateValuesForRtlMirroring(previousLayoutDirection, previousParentWidth)
         }
     }

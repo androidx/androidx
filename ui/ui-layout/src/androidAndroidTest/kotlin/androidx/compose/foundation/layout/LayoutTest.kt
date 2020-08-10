@@ -193,7 +193,7 @@ open class LayoutTest {
         Layout(children) { measurables, _ ->
             val placeables = measurables.map { it.measure(Constraints()) }
             layout(0, 0) {
-                placeables.forEach { it.place(0, 0) }
+                placeables.forEach { it.placeRelative(0, 0) }
             }
         }
     }
@@ -233,7 +233,7 @@ open class LayoutTest {
                 val layoutWidth = placeable?.width ?: childConstraints.minWidth
                 val layoutHeight = placeable?.height ?: childConstraints.minHeight
                 layout(layoutWidth, layoutHeight) {
-                    placeable?.place(0, 0)
+                    placeable?.placeRelative(0, 0)
                 }
             }
         }
@@ -404,7 +404,7 @@ open class LayoutTest {
                             containerHeight - it.height - totalVertical
                         )
                     )
-                    it.place(
+                    it.placeRelative(
                         padding.start.toIntPx() + position.x,
                         padding.top.toIntPx() + position.y
                     )
