@@ -240,6 +240,7 @@ def checkArtifactContentsTask = tasks.register("checkArtifactTask", CheckArtifac
 BuildOnServerKt.addToBuildOnServer(project, checkArtifactContentsTask)
 
 tasks.findByName("compileKotlin").dependsOn(generateAntlrTask)
+tasks.findByName("sourceJar").dependsOn(generateAntlrTask)
 tasks.findByName("compileKotlin").dependsOn(":room:room-runtime:jarDebug")
 tasks.findByName("compileKotlin").dependsOn(":sqlite:sqlite:jarDebug")
 
