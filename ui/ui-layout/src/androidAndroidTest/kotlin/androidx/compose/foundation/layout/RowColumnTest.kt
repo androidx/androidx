@@ -4895,7 +4895,7 @@ private fun Center(children: @Composable () -> Unit) {
                         layoutHeight - placeable.height
                     )
                 )
-                placeable.place(position.x, position.y)
+                placeable.placeRelative(position.x, position.y)
             }
         }
     }

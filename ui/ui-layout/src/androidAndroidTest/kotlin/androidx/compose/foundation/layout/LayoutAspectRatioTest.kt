@@ -101,7 +101,7 @@ class LayoutAspectRatioTest : LayoutTest() {
                 require(measurables.isNotEmpty())
                 val placeable = measurables.first().measure(childContraints)
                 layout(incomingConstraints.maxWidth, incomingConstraints.maxHeight) {
-                    placeable.place(0, 0)
+                    placeable.placeRelative(0, 0)
                 }
             }
         }

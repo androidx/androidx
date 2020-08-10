@@ -100,7 +100,7 @@ private fun HorizontalTailFollowingTextField(
         val xOffset = min(0, constraints.maxWidth - p.width)
 
         layout(width, p.height) {
-            p.place(xOffset, 0)
+            p.placeRelative(xOffset, 0)
         }
     }
 }
@@ -137,7 +137,7 @@ private fun VerticalTailFollowintTextField(
         val yOffset = min(0, constraints.maxHeight - p.height)
 
         layout(p.width, height) {
-            p.place(0, yOffset)
+            p.placeRelative(0, yOffset)
         }
     }
 }

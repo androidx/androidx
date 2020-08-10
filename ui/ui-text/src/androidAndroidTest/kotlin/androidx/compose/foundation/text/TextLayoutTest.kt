@@ -213,7 +213,7 @@ class TextLayoutTest {
                         layout(constraints.maxWidth, constraints.maxHeight) {
                             var top = 0
                             placeables.forEach {
-                                it.place(0, top)
+                                it.placeRelative(0, top)
                                 top += it.height
                             }
                         }

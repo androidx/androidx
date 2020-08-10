@@ -435,7 +435,7 @@ private data class FillModifier(
         )
 
         return layout(placeable.width, placeable.height) {
-            placeable.place(0, 0)
+            placeable.placeRelative(0, 0)
         }
     }
 
@@ -506,7 +506,7 @@ private data class SizeModifier(
         }
         val placeable = measurable.measure(wrappedConstraints)
         return layout(placeable.width, placeable.height) {
-            placeable.place(0, 0)
+            placeable.placeRelative(0, 0)
         }
     }
 
@@ -624,7 +624,7 @@ private data class AlignmentModifier(
                 IntSize(wrapperWidth - placeable.width, wrapperHeight - placeable.height),
                 layoutDirection
             )
-            placeable.placeAbsolute(position)
+            placeable.place(position)
         }
     }
 
@@ -663,7 +663,7 @@ private data class UnspecifiedConstraintsModifier(
         )
         val placeable = measurable.measure(wrappedConstraints)
         return layout(placeable.width, placeable.height) {
-            placeable.place(0, 0)
+            placeable.placeRelative(0, 0)
         }
     }
 

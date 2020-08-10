@@ -72,8 +72,8 @@ internal class LayerWrapper(
         return placeable
     }
 
-    override fun place(position: IntOffset) {
-        super.place(position)
+    override fun placeAt(position: IntOffset) {
+        super.placeAt(position)
         layer.move(position)
     }
 

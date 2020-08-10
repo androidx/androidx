@@ -233,9 +233,9 @@ internal fun rowColumnMeasureBlocks(
                 )
 
                 if (orientation == LayoutOrientation.Horizontal) {
-                    placeable.placeAbsolute(mainAxisPositions[index], crossAxis)
+                    placeable.place(mainAxisPositions[index], crossAxis)
                 } else {
-                    placeable.placeAbsolute(crossAxis, mainAxisPositions[index])
+                    placeable.place(crossAxis, mainAxisPositions[index])
                 }
             }
         }

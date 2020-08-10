@@ -330,7 +330,7 @@ package androidx.compose.ui {
     method protected final androidx.compose.ui.unit.IntSize getMeasuredSize();
     method protected final androidx.compose.ui.unit.Constraints getMeasurementConstraints();
     method public final int getWidth();
-    method protected abstract void place(androidx.compose.ui.unit.IntOffset position);
+    method protected abstract void placeAt(androidx.compose.ui.unit.IntOffset position);
     method protected final void setMeasuredSize(androidx.compose.ui.unit.IntSize value);
     method protected final void setMeasurementConstraints(androidx.compose.ui.unit.Constraints p);
     property protected final androidx.compose.ui.unit.IntOffset apparentToRealOffset;
@@ -344,12 +344,12 @@ package androidx.compose.ui {
     ctor public Placeable.PlacementScope();
     method public abstract androidx.compose.ui.unit.LayoutDirection getParentLayoutDirection();
     method public abstract int getParentWidth();
-    method public final void place(androidx.compose.ui.Placeable, androidx.compose.ui.unit.IntOffset position);
     method public final void place(androidx.compose.ui.Placeable, androidx.compose.ui.geometry.Offset position);
     method public final void place(androidx.compose.ui.Placeable, int x, int y);
-    method public final void placeAbsolute(androidx.compose.ui.Placeable, androidx.compose.ui.geometry.Offset position);
-    method public final void placeAbsolute(androidx.compose.ui.Placeable, int x, int y);
-    method public final void placeAbsolute(androidx.compose.ui.Placeable, androidx.compose.ui.unit.IntOffset position);
+    method public final void place(androidx.compose.ui.Placeable, androidx.compose.ui.unit.IntOffset position);
+    method public final void placeRelative(androidx.compose.ui.Placeable, androidx.compose.ui.unit.IntOffset position);
+    method public final void placeRelative(androidx.compose.ui.Placeable, androidx.compose.ui.geometry.Offset position);
+    method public final void placeRelative(androidx.compose.ui.Placeable, int x, int y);
     property public abstract androidx.compose.ui.unit.LayoutDirection parentLayoutDirection;
     property public abstract int parentWidth;
   }

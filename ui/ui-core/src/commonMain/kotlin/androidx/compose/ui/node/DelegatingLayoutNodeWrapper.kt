@@ -83,7 +83,7 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
 
     override fun get(line: AlignmentLine): Int = wrapped[line]
 
-    override fun place(position: IntOffset) {
+    override fun placeAt(position: IntOffset) {
         this.position = position
 
         // The wrapper only runs their placement block to obtain our position, which allows them
@@ -110,7 +110,7 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
             override val alignmentLines: Map<AlignmentLine, Int> = emptyMap()
             override fun placeChildren() {
                 with(InnerPlacementScope) {
-                    placeable.placeAbsolute(-apparentToRealOffset)
+                    placeable.place(-apparentToRealOffset)
                 }
             }
         }

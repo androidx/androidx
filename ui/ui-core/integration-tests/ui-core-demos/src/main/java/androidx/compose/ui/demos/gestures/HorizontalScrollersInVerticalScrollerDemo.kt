@@ -157,8 +157,8 @@ private fun Scrollable(orientation: Orientation, children: @Composable () -> Uni
 
             layout(width, height) {
                 when (orientation) {
-                    Orientation.Horizontal -> placeable.place(offset.value.roundToInt(), 0)
-                    Orientation.Vertical -> placeable.place(0, offset.value.roundToInt())
+                    Orientation.Horizontal -> placeable.placeRelative(offset.value.roundToInt(), 0)
+                    Orientation.Vertical -> placeable.placeRelative(0, offset.value.roundToInt())
                 }
             }
         })

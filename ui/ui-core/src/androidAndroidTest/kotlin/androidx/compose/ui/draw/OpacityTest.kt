@@ -248,7 +248,7 @@ fun Row(modifier: Modifier = Modifier, children: @Composable () -> Unit) {
         layout(width, height) {
             var offset = 0
             placeables.forEach {
-                it.place(offset, 0)
+                it.placeRelative(offset, 0)
                 offset += it.width
             }
         }

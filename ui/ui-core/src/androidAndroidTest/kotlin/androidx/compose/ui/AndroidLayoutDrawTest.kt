@@ -2995,7 +2995,7 @@ fun FixedSize(
         }
         layout(size, size) {
             placeables.forEach { child ->
-                child.place(0, 0)
+                child.placeRelative(0, 0)
             }
         }
     }
@@ -3023,7 +3023,7 @@ fun Align(modifier: Modifier = Modifier.None, children: @Composable () -> Unit) 
             }
             layout(maxWidth, maxHeight) {
                 placeables.forEach { child ->
-                    child.place(0, 0)
+                    child.placeRelative(0, 0)
                 }
             }
         }, children = children
@@ -3069,7 +3069,7 @@ internal fun Padding(
             }
             layout(maxWidth, maxHeight) {
                 placeables.forEach { child ->
-                    child.place(size, size)
+                    child.placeRelative(size, size)
                 }
             }
         }, children = children
@@ -3092,7 +3092,7 @@ fun TwoMeasureLayout(
             fail("Measuring twice on the same Measurable should throw an exception")
             layout(size, size) {
                 placeables2.forEach { child ->
-                    child.place(0, 0)
+                    child.placeRelative(0, 0)
                 }
             }
         } catch (_: IllegalStateException) {
@@ -3115,7 +3115,7 @@ fun Wrap(
         val width = max(placeables.maxBy { it.width }?.width ?: 0, minWidth)
         val height = max(placeables.maxBy { it.height }?.height ?: 0, minHeight)
         layout(width, height) {
-            placeables.forEach { it.place(0, 0) }
+            placeables.forEach { it.placeRelative(0, 0) }
         }
     }
 }
@@ -3156,7 +3156,7 @@ private fun ScrollerLayout(
         val width = min(placeable.width, constraints.maxWidth)
         layout(width, placeable.height) {
             onMaxPositionChanged()
-            placeable.place(0, 0)
+            placeable.placeRelative(0, 0)
         }
     }
 }
@@ -3173,7 +3173,7 @@ fun WrapForceRelayout(
         val height = placeables.maxBy { it.height }?.height ?: 0
         layout(width, height) {
             model.value
-            placeables.forEach { it.place(0, 0) }
+            placeables.forEach { it.placeRelative(0, 0) }
         }
     }
 }
@@ -3192,7 +3192,7 @@ fun SimpleRow(modifier: Modifier = Modifier, children: @Composable () -> Unit) {
         layout(width, height) {
             var currentWidth = 0
             placeables.forEach {
-                it.place(currentWidth, 0)
+                it.placeRelative(currentWidth, 0)
                 currentWidth += it.width
             }
         }
@@ -3243,7 +3243,7 @@ data class PaddingModifier(
             constraints.constrainWidth(left + placeable.width + right),
             constraints.constrainHeight(top + placeable.height + bottom)
         ) {
-            placeable.place(left, top)
+            placeable.placeRelative(left, top)
         }
     }
 
@@ -3279,7 +3279,7 @@ internal val AlignTopLeft = object : LayoutModifier {
     ): MeasureScope.MeasureResult {
         val placeable = measurable.measure(constraints.copy(minWidth = 0, minHeight = 0))
         return layout(constraints.maxWidth, constraints.maxHeight) {
-            placeable.place(0, 0)
+            placeable.placeRelative(0, 0)
         }
     }
 }
@@ -3387,7 +3387,7 @@ class LayoutAndDrawModifier(val color: Color) : LayoutModifier, DrawModifier {
     ): MeasureScope.MeasureResult {
         val placeable = measurable.measure(Constraints.fixed(10, 10))
         return layout(constraints.maxWidth, constraints.maxHeight) {
-            placeable.place(
+            placeable.placeRelative(
                 (constraints.maxWidth - placeable.width) / 2,
                 (constraints.maxHeight - placeable.height) / 2
             )
@@ -3419,7 +3419,7 @@ class LayoutScale(val scale: Float) : LayoutModifier {
             (placeable.width * scale).roundToInt(),
             (placeable.height * scale).roundToInt()
         ) {
-            placeable.place(0, 0)
+            placeable.placeRelative(0, 0)
         }
     }
 }
