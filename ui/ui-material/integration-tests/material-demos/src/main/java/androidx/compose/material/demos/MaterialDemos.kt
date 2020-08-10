@@ -17,14 +17,15 @@
 package androidx.compose.material.demos
 
 import androidx.compose.material.samples.AlertDialogSample
-import androidx.ui.demos.common.ActivityDemo
-import androidx.ui.demos.common.ComposableDemo
-import androidx.ui.demos.common.DemoCategory
 import androidx.compose.material.samples.BottomDrawerSample
 import androidx.compose.material.samples.CustomAlertDialogSample
 import androidx.compose.material.samples.EmphasisSample
 import androidx.compose.material.samples.ModalDrawerSample
 import androidx.compose.material.samples.ScaffoldWithBottomBarAndCutout
+import androidx.compose.material.samples.ScaffoldWithCoroutinesSnackbar
+import androidx.ui.demos.common.ActivityDemo
+import androidx.ui.demos.common.ComposableDemo
+import androidx.ui.demos.common.DemoCategory
 
 val MaterialDemos = DemoCategory("Material", listOf(
     DemoCategory("AlertDialog", listOf(
@@ -46,15 +47,17 @@ val MaterialDemos = DemoCategory("Material", listOf(
     )),
     ComposableDemo("Material Theme") { MaterialThemeDemo() },
     ComposableDemo("Menus") { MenuDemo() },
-    DemoCategory("Playground", listOf(
-        ComposableDemo("Color Picker") { ColorPickerDemo() },
-        ActivityDemo("Dynamic Theme", DynamicThemeActivity::class)
-    )),
+    DemoCategory(
+        "Playground", listOf(
+            ComposableDemo("Color Picker") { ColorPickerDemo() },
+            ActivityDemo("Dynamic Theme", DynamicThemeActivity::class)
+        )
+    ),
     ComposableDemo("Progress Indicators") { ProgressIndicatorDemo() },
     ComposableDemo("Scaffold") { ScaffoldWithBottomBarAndCutout() },
     ComposableDemo("Selection Controls") { SelectionControlsDemo() },
     ComposableDemo("Slider") { SliderDemo() },
-    ComposableDemo("Snackbar") { SnackbarDemo() },
+    ComposableDemo("Snackbar") { ScaffoldWithCoroutinesSnackbar() },
     ComposableDemo("Swipe to dismiss") { SwipeToDismissDemo() },
     ComposableDemo("Tabs") { TabDemo() },
     DemoCategory("TextFields", listOf(

@@ -359,4 +359,36 @@ class SnackbarTest {
                 shapeOverlapPixelCount = with(composeTestRule.density) { 2.dp.toPx() }
             )
     }
+
+    @Test
+    @OptIn(ExperimentalMaterialApi::class)
+    fun defaultSnackbar_dataVersion_proxiesParameters() {
+        var clicked = false
+        val snackbarData = object : SnackbarData {
+            override val message: String = "Data message"
+            override val actionLabel: String? = "UNDO"
+            override val duration: SnackbarDuration = SnackbarDuration.Short
+
+            override fun performAction() {
+                clicked = true
+            }
+
+            override fun dismiss() {}
+        }
+        composeTestRule.setMaterialContent {
+            Stack {
+                Snackbar(snackbarData = snackbarData)
+            }
+        }
+
+        onNodeWithText("Data message")
+            .assertExists()
+
+        assertThat(clicked).isFalse()
+
+        onNodeWithText("UNDO")
+            .performClick()
+
+        assertThat(clicked).isTrue()
+    }
 }

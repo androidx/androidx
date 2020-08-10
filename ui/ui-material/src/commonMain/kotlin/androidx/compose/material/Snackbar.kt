@@ -18,6 +18,7 @@ package androidx.compose.material
 
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ProvideTextStyle
+import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -48,7 +49,15 @@ import kotlin.math.max
  * A Snackbar can contain a single action. Because Snackbar disappears automatically, the action
  * shouldn't be "Dismiss" or "Cancel".
  *
- * @sample androidx.compose.material.samples.SimpleSnackbar
+ * This components provides only the visuals of the [Snackbar]. If you need to show a [Snackbar]
+ * with defaults on the screen, use [ScaffoldState.snackbarHostState] and
+ * [SnackbarHostState.showSnackbar]:
+ *
+ * @sample androidx.compose.material.samples.ScaffoldWithSimpleSnackbar
+ *
+ * If you want to customize appearance of the [Snackbar], you can pass your own version as a child
+ * of the [SnackbarHost] to the [Scaffold]:
+ * @sample androidx.compose.material.samples.ScaffoldWithCustomSnackbar
  *
  * @param modifier modifiers for the the Snackbar layout
  * @param action action / button component to add as an action to the snackbar. Consider using
@@ -95,6 +104,78 @@ fun Snackbar(
             }
         }
     }
+}
+
+/**
+ * Snackbars provide brief messages about app processes at the bottom of the screen.
+ *
+ * Snackbars inform users of a process that an app has performed or will perform. They appear
+ * temporarily, towards the bottom of the screen. They shouldn’t interrupt the user experience,
+ * and they don’t require user input to disappear.
+ *
+ * A Snackbar can contain a single action. Because they disappear automatically, the action
+ * shouldn't be "Dismiss" or "Cancel".
+ *
+ * This version of snackbar is designed to work with [SnackbarData] provided by the
+ * [SnackbarHost], which is usually used inside of the [Scaffold].
+ *
+ * This components provides only the visuals of the [Snackbar]. If you need to show a [Snackbar]
+ * with defaults on the screen, use [ScaffoldState.snackbarHostState] and
+ * [SnackbarHostState.showSnackbar]:
+ *
+ * @sample androidx.compose.material.samples.ScaffoldWithSimpleSnackbar
+ *
+ * If you want to customize appearance of the [Snackbar], you can pass your own version as a child
+ * of the [SnackbarHost] to the [Scaffold]:
+ * @sample androidx.compose.material.samples.ScaffoldWithCustomSnackbar
+ *
+ * @param snackbarData data about the current snackbar showing via [SnackbarHostState]
+ * @param modifier modifiers for the Snackbar layout
+ * @param actionOnNewLine whether or not action should be put on the separate line. Recommended
+ * for action with long action text
+ * @param shape Defines the Snackbar's shape as well as its shadow
+ * @param backgroundColor background color of the Snackbar
+ * @param contentColor color of the content to use inside the snackbar. Defaults to
+ * either the matching `onFoo` color for [backgroundColor], or, if it is not a color from
+ * the theme, this will keep the same value set above this Surface.
+ * @param actionColor color of the action
+ * @param elevation The z-coordinate at which to place the SnackBar. This controls the size
+ * of the shadow below the SnackBar
+ */
+@Composable
+@OptIn(ExperimentalMaterialApi::class)
+fun Snackbar(
+    snackbarData: SnackbarData,
+    modifier: Modifier = Modifier,
+    actionOnNewLine: Boolean = false,
+    shape: Shape = MaterialTheme.shapes.small,
+    backgroundColor: Color = SnackbarConstants.defaultBackgroundColor,
+    contentColor: Color = MaterialTheme.colors.surface,
+    actionColor: Color = SnackbarConstants.defaultActionPrimaryColor,
+    elevation: Dp = 6.dp
+) {
+    val actionLabel = snackbarData.actionLabel
+    val actionComposable: (@Composable () -> Unit)? = if (actionLabel != null) {
+        {
+            TextButton(
+                contentColor = actionColor,
+                onClick = { snackbarData.performAction() },
+                content = { Text(actionLabel) }
+            )
+        }
+    } else {
+        null
+    }
+    Snackbar(
+        modifier = modifier.padding(12.dp),
+        text = { Text(snackbarData.message) },
+        action = actionComposable,
+        actionOnNewLine = actionOnNewLine,
+        shape = shape,
+        backgroundColor = backgroundColor,
+        contentColor = contentColor,
+        elevation = elevation
+    )
 }
 
 /**
