@@ -47,7 +47,6 @@ kotlin {
             implementation (KOTLIN_STDLIB)
         }
         desktopMain.dependencies {
-            implementation project(":compose:runtime:runtime-dispatch")
             implementation (KOTLIN_STDLIB)
         }
 
