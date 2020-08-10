@@ -43,6 +43,9 @@ class PreferenceDataStoreFactoryTest {
     private lateinit var dataStoreScope: TestCoroutineScope
     private lateinit var context: Context
 
+    val stringKey = preferencesKey<String>("key")
+    val booleanKey = preferencesKey<Boolean>("key")
+
     @Before
     fun setUp() {
         testFile = tmp.newFile("test_file." + PreferencesSerializer.fileExtension)
@@ -57,12 +60,10 @@ class PreferenceDataStoreFactoryTest {
             scope = dataStoreScope
         )
 
-        val expectedPreferences = Preferences.Builder()
-            .setString("key", "value")
-            .build()
+        val expectedPreferences = preferencesOf(stringKey to "value")
 
-        assertEquals(store.updateData {
-            it.toBuilder().setString("key", "value").build()
+        assertEquals(store.edit { prefs ->
+            prefs[stringKey] = "value"
         }, expectedPreferences)
         assertEquals(expectedPreferences, store.data.first())
     }
@@ -71,7 +72,7 @@ class PreferenceDataStoreFactoryTest {
     fun testCorruptionHandlerInstalled() = runBlockingTest {
         testFile.writeBytes(byteArrayOf(0x00, 0x00, 0x00, 0x03)) // Protos can not start with 0x00.
 
-        val valueToReplace = Preferences.Builder().setBoolean("key", true).build()
+        val valueToReplace = preferencesOf(booleanKey to true)
 
         val store = PreferenceDataStoreFactory.create(
             produceFile = { testFile },
@@ -86,16 +87,13 @@ class PreferenceDataStoreFactoryTest {
     @Test
     fun testMigrationsInstalled() = runBlockingTest {
 
-        val expectedPreferences = Preferences.Builder()
-            .setString("string_key", "value")
-            .setBoolean("boolean_key", true)
-            .build()
+        val expectedPreferences = preferencesOf(stringKey to "value", booleanKey to true)
 
         val migrateTo5 = object : DataMigration<Preferences> {
             override suspend fun shouldMigrate(currentData: Preferences) = true
 
             override suspend fun migrate(currentData: Preferences) =
-                currentData.toBuilder().setString("string_key", "value").build()
+                currentData.toMutablePreferences().apply { set(stringKey, "value") }.toPreferences()
 
             override suspend fun cleanUp() {}
         }
@@ -104,7 +102,7 @@ class PreferenceDataStoreFactoryTest {
             override suspend fun shouldMigrate(currentData: Preferences) = true
 
             override suspend fun migrate(currentData: Preferences) =
-                currentData.toBuilder().setBoolean("boolean_key", true).build()
+                currentData.toMutablePreferences().apply { set(booleanKey, true) }.toPreferences()
 
             override suspend fun cleanUp() {}
         }
@@ -120,7 +118,7 @@ class PreferenceDataStoreFactoryTest {
 
     @Test
     fun testCreateWithContextAndName() = runBlockingTest {
-        val prefs = Preferences.Builder().setInt("int_key", 12345).build()
+        val prefs = preferencesOf(stringKey to "value")
 
         var store = context.createDataStore(
             name = "my_settings",
@@ -137,5 +135,21 @@ class PreferenceDataStoreFactoryTest {
             File(context.filesDir, "datastore/my_settings.preferences_pb")
         }, scope = dataStoreScope)
         assertEquals(prefs, store.data.first())
+    }
+
+    @Test
+    fun testCantMutateInternalState() = runBlockingTest {
+        val store =
+            PreferenceDataStoreFactory.create(produceFile = { testFile }, scope = dataStoreScope)
+
+        var mutableReference: MutablePreferences? = null
+        store.edit {
+            mutableReference = it
+            it[stringKey] = "ABCDEF"
+        }
+
+        assertEquals(store.data.first(), preferencesOf(stringKey to "ABCDEF"))
+        mutableReference!!.clear()
+        assertEquals(store.data.first(), preferencesOf(stringKey to "ABCDEF"))
     }
 }
