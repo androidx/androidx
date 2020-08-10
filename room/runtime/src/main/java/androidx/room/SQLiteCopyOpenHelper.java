@@ -28,6 +28,7 @@ import androidx.room.util.DBUtil;
 import androidx.room.util.FileUtil;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
+import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -90,7 +91,7 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
     @Override
     public synchronized SupportSQLiteDatabase getWritableDatabase() {
         if (!mVerified) {
-            verifyDatabaseFile();
+            verifyDatabaseFile(true);
             mVerified = true;
         }
         return mDelegate.getWritableDatabase();
@@ -99,7 +100,7 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
     @Override
     public synchronized SupportSQLiteDatabase getReadableDatabase() {
         if (!mVerified) {
-            verifyDatabaseFile();
+            verifyDatabaseFile(false);
             mVerified = true;
         }
         return mDelegate.getReadableDatabase();
@@ -117,7 +118,7 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
         mDatabaseConfiguration = databaseConfiguration;
     }
 
-    private void verifyDatabaseFile() {
+    private void verifyDatabaseFile(boolean writable) {
         String databaseName = getDatabaseName();
         File databaseFile = mContext.getDatabasePath(databaseName);
         boolean processLevelLock = mDatabaseConfiguration == null
@@ -131,7 +132,7 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
             if (!databaseFile.exists()) {
                 try {
                     // No database file found, copy and be done.
-                    copyDatabaseFile(databaseFile);
+                    copyDatabaseFile(databaseFile, writable);
                     return;
                 } catch (IOException e) {
                     throw new RuntimeException("Unable to copy database file.", e);
@@ -163,7 +164,7 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
 
             if (mContext.deleteDatabase(databaseName)) {
                 try {
-                    copyDatabaseFile(databaseFile);
+                    copyDatabaseFile(databaseFile, writable);
                 } catch (IOException e) {
                     // We are more forgiving copying a database on a destructive migration since
                     // there is already a database file that can be opened.
@@ -178,7 +179,7 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
         }
     }
 
-    private void copyDatabaseFile(File destinationFile) throws IOException {
+    private void copyDatabaseFile(File destinationFile, boolean writable) throws IOException {
         ReadableByteChannel input;
         if (mCopyFromAssetPath != null) {
             input = Channels.newChannel(mContext.getAssets().open(mCopyFromAssetPath));
@@ -211,10 +212,58 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
                     + destinationFile.getAbsolutePath());
         }
 
+        // Temporarily open intermediate file database using FrameworkSQLiteOpenHelper and call
+        // open pre-packaged callback. If it fails then intermediate file won't be copied making
+        // invoking pre-packaged callback a transactional operation.
+        dispatchOnOpenPrepackagedDatabase(intermediateFile, writable);
+
         if (!intermediateFile.renameTo(destinationFile)) {
             throw new IOException("Failed to move intermediate file ("
                     + intermediateFile.getAbsolutePath() + ") to destination ("
                     + destinationFile.getAbsolutePath() + ").");
         }
+    }
+
+    private void dispatchOnOpenPrepackagedDatabase(File databaseFile, boolean writable) {
+        if (mDatabaseConfiguration.prepackagedCallback == null) {
+            return;
+        }
+
+        SupportSQLiteOpenHelper helper = createFrameworkOpenHelper(databaseFile);
+        try {
+            SupportSQLiteDatabase db = writable ? helper.getWritableDatabase() :
+                    helper.getReadableDatabase();
+
+            mDatabaseConfiguration.prepackagedCallback.onOpenPrepackagedDatabase(db);
+        } finally {
+            // Close the db and let Room re-open it through a normal path
+            helper.close();
+        }
+    }
+
+    private SupportSQLiteOpenHelper createFrameworkOpenHelper(File databaseFile) {
+        String databaseName = databaseFile.getName();
+        int version;
+        try {
+            version = DBUtil.readVersion(databaseFile);
+        } catch (IOException e) {
+            throw new RuntimeException("Malformed database file, unable to read version.", e);
+        }
+
+        FrameworkSQLiteOpenHelperFactory factory = new FrameworkSQLiteOpenHelperFactory();
+        Configuration configuration = Configuration.builder(mContext)
+                .name(databaseName)
+                .callback(new Callback(version){
+                    @Override
+                    public void onCreate(@NonNull SupportSQLiteDatabase db) {
+                    }
+
+                    @Override
+                    public void onUpgrade(@NonNull SupportSQLiteDatabase db, int oldVersion,
+                            int newVersion) {
+                    }
+                })
+                .build();
+        return factory.create(configuration);
     }
 }
