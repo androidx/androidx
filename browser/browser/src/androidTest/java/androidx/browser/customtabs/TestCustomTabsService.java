@@ -75,9 +75,10 @@ public class TestCustomTabsService extends CustomTabsService {
         return false;
     }
 
+    @NonNull
     @Override
     protected Bundle extraCommand(@NonNull String commandName, Bundle args) {
-        return null;
+        return Bundle.EMPTY;
     }
 
     @Override
