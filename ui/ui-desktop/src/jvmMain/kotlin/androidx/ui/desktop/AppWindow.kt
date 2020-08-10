@@ -50,6 +50,26 @@ fun Window(
 
 class AppWindow : AppFrame {
 
+    internal constructor(
+        attached: AppFrame? = null,
+        title: String = "JetpackDesktopWindow",
+        size: IntSize = IntSize(1024, 768),
+        position: IntOffset = IntOffset(0, 0),
+        onDismissEvent: (() -> Unit)? = null,
+        centered: Boolean = true
+    ) : this(title, size, position, onDismissEvent, centered) {
+        this.invoker = attached
+        this.invoker?.connectPair(this)
+    }
+
+    internal var pair: AppFrame? = null
+    internal override fun connectPair(window: AppFrame) {
+        pair = window
+    }
+    internal override fun disconnectPair() {
+        pair = null
+    }
+
     constructor(
         title: String = "JetpackDesktopWindow",
         size: IntSize = IntSize(1024, 768),
@@ -99,19 +119,30 @@ class AppWindow : AppFrame {
         window?.setLocation(x, y)
     }
 
-    var window: Window? = null
-        private set
-
     private fun onCreate(content: @Composable () -> Unit) {
 
-        window = Window(width = width, height = height, parent = this)
+        window = ComposeWindow(parent = this)
 
         window!!.defaultCloseOperation = WindowConstants.DISPOSE_ON_CLOSE
-
+        val appWindow = this
         window!!.addWindowListener(object : WindowAdapter() {
             override fun windowClosing(windowevent: WindowEvent) {
                 onDismissEvents.forEach { it.invoke() }
+                window?.disposeCanvas()
                 window?.dispose()
+                invoker?.locked = false
+                invoker?.window?.toFront()
+                invoker?.window?.requestFocus()
+                invoker?.disconnectPair()
+                AppManager.removeWindow(appWindow)
+            }
+        })
+        window!!.addWindowFocusListener(object : WindowAdapter() {
+            override fun windowGainedFocus(windowEvent: WindowEvent) {
+                if (pair != null) {
+                    pair!!.window?.toFront()
+                    pair!!.window?.requestFocus()
+                }
             }
         })
 
@@ -124,19 +155,26 @@ class AppWindow : AppFrame {
             )
         }
 
-        if (isCentered)
+        if (isCentered) {
             setWindowCentered()
+        }
         window!!.setVisible(true)
+        window!!.setSize(width, height)
+
+        window!!.updateLayer()
     }
 
     override fun show(content: @Composable () -> Unit) {
+        invoker?.locked = true
         onCreate {
             content()
+        }
+        if (invoker != null) {
+            window!!.setAlwaysOnTop(true)
         }
     }
 
     override fun close() {
         window?.dispatchEvent(WindowEvent(window, WindowEvent.WINDOW_CLOSING))
-        AppManager.removeWindow(this)
     }
 }

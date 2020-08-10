@@ -27,11 +27,6 @@ plugins {
     id("kotlin-multiplatform")
 }
 
-repositories {
-    // To allow using local Skija build.
-    // mavenLocal()
-}
-
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
 }
@@ -53,15 +48,9 @@ kotlin {
             api(KOTLIN_STDLIB_JDK8)
             api(KOTLIN_COROUTINES_CORE)
 
-            api(SKIJA)
+            api(SKIKO)
 
             implementation(KOTLIN_COROUTINES_SWING)
-            implementation "org.jogamp.jogl:jogl-all:2.4.0-rc-20200306"
-            implementation "org.jogamp.jogl:jogl-all-natives-linux-amd64:2.4.0-rc-20200306"
-            implementation "org.jogamp.jogl:jogl-all-natives-macosx-universal:2.4.0-rc-20200306"
-            implementation "org.jogamp.gluegen:gluegen-rt:2.4.0-rc-20200306"
-            implementation "org.jogamp.gluegen:gluegen-rt-natives-linux-amd64:2.4.0-rc-20200306"
-            implementation "org.jogamp.gluegen:gluegen-rt-natives-macosx-universal:2.4.0-rc-20200306"
 
             // TODO: move to jvmTest
             implementation(JUNIT)
@@ -71,6 +60,9 @@ kotlin {
             resources.srcDirs += new File(SupportConfigKt.getExternalProjectPath(project), "noto-fonts/other/")
             resources.srcDirs += "src/jvmTest/res"
             dependencies {
+                implementation(SKIKO_WINDOWS)
+                implementation(SKIKO_LINUX)
+                implementation(SKIKO_MACOS)
                 implementation(TRUTH)
             }
         }

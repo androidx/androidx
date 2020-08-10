@@ -18,7 +18,7 @@
 
 package androidx.ui.desktop
 
-import org.jetbrains.skija.Library
+import org.jetbrains.skiko.Library
 
 /**
  * Can be called multiple times.
@@ -42,7 +42,7 @@ fun initCompose() {
 
 private object ComposeInit {
     init {
-        Library.load("/", "skija")
+        Library.load("/", "skiko")
         // Until https://github.com/Kotlin/kotlinx.coroutines/issues/2039 is resolved
         // we have to set this property manually for coroutines to work.
         System.getProperties().setProperty("kotlinx.coroutines.fast.service.loader", "false")
