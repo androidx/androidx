@@ -100,6 +100,7 @@ class DemoTest {
 
     @LargeTest
     @Test
+    @Ignore("b/162824105")
     fun navigateThroughAllDemos() {
         // Keep track of each demo we visit
         val visitedDemos = mutableListOf<Demo>()
