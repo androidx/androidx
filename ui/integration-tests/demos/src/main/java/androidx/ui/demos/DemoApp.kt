@@ -32,6 +32,7 @@ import androidx.ui.demos.common.allLaunchableDemos
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
+import androidx.compose.foundation.clickable
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -131,9 +132,7 @@ private fun DisplayDemoCategory(category: DemoCategory, onNavigate: (Demo) -> Un
                         text = demo.title
                     )
                 },
-                onClick = {
-                    onNavigate(demo)
-                }
+                modifier = Modifier.clickable { onNavigate(demo) }
             )
         }
     }
