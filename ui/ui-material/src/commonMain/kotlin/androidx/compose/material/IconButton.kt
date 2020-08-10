@@ -42,6 +42,8 @@ import androidx.compose.ui.unit.dp
  *
  * @param onClick the lambda to be invoked when this icon is pressed
  * @param modifier optional [Modifier] for this IconButton
+ * @param enabled whether or not this IconButton will handle input events and appear enabled for
+ * semantics purposes
  * @param icon the content (icon) to be drawn inside the IconButton. This is typically an
  * [androidx.compose.foundation.Icon].
  */
@@ -49,12 +51,14 @@ import androidx.compose.ui.unit.dp
 fun IconButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     icon: @Composable () -> Unit
 ) {
     Box(
         modifier = modifier
             .clickable(
                 onClick = onClick,
+                enabled = enabled,
                 indication = RippleIndication(bounded = false, radius = RippleRadius)
             )
             .then(IconButtonSizeModifier),
@@ -71,9 +75,9 @@ fun IconButton(
  *
  * @param checked whether this IconToggleButton is currently checked
  * @param onCheckedChange callback to be invoked when this icon is selected
+ * @param modifier optional [Modifier] for this IconToggleButton
  * @param enabled enabled whether or not this [IconToggleButton] will handle input events and appear
  * enabled for semantics purposes
- * @param modifier optional [Modifier] for this IconToggleButton
  * @param icon the content (icon) to be drawn inside the IconToggleButton. This is typically an
  * [androidx.compose.foundation.Icon].
  */
@@ -81,8 +85,8 @@ fun IconButton(
 fun IconToggleButton(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    enabled: Boolean = true,
     modifier: Modifier = Modifier,
+    enabled: Boolean = true,
     icon: @Composable () -> Unit
 ) {
     Box(
