@@ -70,19 +70,13 @@ internal fun ProvideAndroidAmbients(owner: AndroidOwner, content: @Composable ()
 
     var configuration by remember {
         mutableStateOf(
-            context.applicationContext.resources.configuration,
+            context.resources.configuration,
             @OptIn(ExperimentalComposeApi::class)
             neverEqualPolicy()
         )
     }
-    // onConfigurationChange is the correct hook to update configuration, however it is
-    // possible that the configuration object itself may come from a wrapped
-    // context / themed activity, and may not actually reflect the system. So instead we
-    // use this hook to grab the applicationContext's configuration, which accurately
-    // reflects the state of the application / system.
-    owner.configurationChangeObserver = {
-        configuration = context.applicationContext.resources.configuration
-    }
+
+    owner.configurationChangeObserver = { configuration = it }
 
     val uriHandler = remember { AndroidUriHandler(context) }
     val viewTreeOwners = owner.viewTreeOwners ?: throw IllegalStateException(
