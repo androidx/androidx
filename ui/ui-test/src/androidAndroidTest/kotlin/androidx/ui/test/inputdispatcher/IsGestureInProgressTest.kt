@@ -17,38 +17,29 @@
 package androidx.ui.test.inputdispatcher
 
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.test.AndroidBaseInputDispatcher.InputDispatcherTestRule
-import androidx.ui.test.android.AndroidInputDispatcher
 import com.google.common.truth.Truth.assertThat
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 
-class IsGestureInProgressTest {
+class IsGestureInProgressTest : InputDispatcherTest() {
     companion object {
         private val anyPosition = Offset.Zero
     }
 
-    @get:Rule
-    val inputDispatcherRule: TestRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
-
-    private val subject = AndroidInputDispatcher {}
-
     @Test
     fun downUp() {
         assertThat(subject.isGestureInProgress).isFalse()
-        subject.sendDown(1, anyPosition)
+        subject.enqueueDown(1, anyPosition)
         assertThat(subject.isGestureInProgress).isTrue()
-        subject.sendUp(1)
+        subject.enqueueUp(1)
         assertThat(subject.isGestureInProgress).isFalse()
     }
 
     @Test
     fun downCancel() {
         assertThat(subject.isGestureInProgress).isFalse()
-        subject.sendDown(1, anyPosition)
+        subject.enqueueDown(1, anyPosition)
         assertThat(subject.isGestureInProgress).isTrue()
-        subject.sendCancel()
+        subject.enqueueCancel()
         assertThat(subject.isGestureInProgress).isFalse()
     }
 }

@@ -33,10 +33,11 @@ import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.down
 import androidx.ui.test.isToggleable
+import androidx.ui.test.move
 import androidx.ui.test.onNode
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.performClick
 import androidx.ui.test.performGesture
+import androidx.ui.test.up
 import androidx.ui.test.waitForIdle
 import org.junit.Rule
 import org.junit.Test
@@ -156,7 +157,9 @@ class CheckboxScreenshotTest {
         composeTestRule.clockTestRule.pauseClock()
 
         onNode(isToggleable())
-            .performClick()
+            // split click into (down) and (move, up) to enforce a composition in between
+            .performGesture { down(center) }
+            .performGesture { move(); up() }
 
         waitForIdle()
 
@@ -181,7 +184,9 @@ class CheckboxScreenshotTest {
         composeTestRule.clockTestRule.pauseClock()
 
         onNode(isToggleable())
-            .performClick()
+            // split click into (down) and (move, up) to enforce a composition in between
+            .performGesture { down(center) }
+            .performGesture { move(); up() }
 
         waitForIdle()
 

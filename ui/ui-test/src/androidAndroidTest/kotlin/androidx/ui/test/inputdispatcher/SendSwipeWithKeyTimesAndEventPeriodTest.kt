@@ -18,11 +18,11 @@ package androidx.ui.test.inputdispatcher
 
 import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_UP
-import androidx.test.filters.SmallTest
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.test.AndroidBaseInputDispatcher.InputDispatcherTestRule
+import androidx.compose.ui.unit.Duration
+import androidx.compose.ui.unit.inMilliseconds
+import androidx.test.filters.SmallTest
 import androidx.ui.test.android.AndroidInputDispatcher
-import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
 import androidx.ui.test.util.between
 import androidx.ui.test.util.moveEvents
@@ -30,19 +30,14 @@ import androidx.ui.test.util.relativeEventTimes
 import androidx.ui.test.util.relativeTime
 import androidx.ui.test.util.splitsDurationEquallyInto
 import androidx.ui.test.util.verify
-import androidx.compose.ui.unit.Duration
-import androidx.compose.ui.unit.inMilliseconds
 import com.google.common.truth.Truth.assertThat
-import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * Tests if the [AndroidInputDispatcher.sendSwipe] gesture works when specifying the gesture as a
+ * Tests if the [AndroidInputDispatcher.enqueueSwipe] gesture works when specifying the gesture as a
  * function between two positions. Verifies if the generated MotionEvents for a gesture with a
  * given duration and a set of keyTimes have the expected timestamps, if the event period would
  * be different. This is not a situation that can occur in practice, but is necessary to test to
@@ -57,7 +52,9 @@ import org.junit.runners.Parameterized
  */
 @SmallTest
 @RunWith(Parameterized::class)
-class SendSwipeWithKeyTimesAndEventPeriodTest(private val config: TestConfig) {
+class SendSwipeWithKeyTimesAndEventPeriodTest(
+    private val config: TestConfig
+) : InputDispatcherTest(config.eventPeriod) {
     data class TestConfig(
         val duration: Duration,
         val keyTimes: List<Long>,
@@ -92,18 +89,9 @@ class SendSwipeWithKeyTimesAndEventPeriodTest(private val config: TestConfig) {
         }
     }
 
-    @get:Rule
-    val inputDispatcherRule: TestRule = InputDispatcherTestRule(
-        disableDispatchInRealTime = true,
-        eventPeriodOverride = config.eventPeriod
-    )
-
     private val duration get() = config.duration
     private val keyTimes get() = config.keyTimes
     private val eventPeriod = config.eventPeriod
-
-    private val recorder = MotionEventRecorder()
-    private val subject = AndroidInputDispatcher(recorder::recordEvent)
 
     @Before
     fun setUp() {
@@ -112,15 +100,11 @@ class SendSwipeWithKeyTimesAndEventPeriodTest(private val config: TestConfig) {
         }
     }
 
-    @After
-    fun tearDown() {
-        recorder.disposeEvents()
-    }
-
     @Test
     fun swipeWithKeyTimesAndEventPeriod() {
         // Given a specific eventPeriod and a swipe with a given duration and set of keyTimes
-        subject.sendSwipe(curve = curve, duration = duration, keyTimes = keyTimes)
+        subject.enqueueSwipe(curve = curve, duration = duration, keyTimes = keyTimes)
+        subject.sendAllSynchronous()
 
         // then
         recorder.assertHasValidEventTimes()

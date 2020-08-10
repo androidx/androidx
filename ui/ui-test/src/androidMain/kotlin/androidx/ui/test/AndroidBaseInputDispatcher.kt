@@ -17,15 +17,15 @@
 package androidx.ui.test
 
 import androidx.collection.SparseArrayCompat
-import androidx.compose.ui.node.Owner
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
+import androidx.compose.ui.node.Owner
 import androidx.compose.ui.platform.AndroidOwner
-import androidx.ui.test.android.AndroidInputDispatcher
-import androidx.ui.test.android.AndroidOwnerRegistry
 import androidx.compose.ui.unit.Duration
 import androidx.compose.ui.unit.inMilliseconds
 import androidx.compose.ui.unit.milliseconds
+import androidx.ui.test.android.AndroidInputDispatcher
+import androidx.ui.test.android.AndroidOwnerRegistry
 import org.junit.rules.TestRule
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -37,19 +37,20 @@ import kotlin.math.roundToInt
  * Interface for dispatching full and partial gestures.
  *
  * Full gestures:
- * * [sendClick]
- * * [sendSwipe]
- * * [sendSwipes]
+ * * [enqueueClick]
+ * * [enqueueSwipe]
+ * * [enqueueSwipes]
  *
  * Partial gestures:
- * * [sendDown]
- * * [sendMove]
- * * [sendUp]
- * * [sendCancel]
+ * * [enqueueDown]
+ * * [enqueueMove]
+ * * [enqueueUp]
+ * * [enqueueCancel]
+ * * [movePointer]
  * * [getCurrentPosition]
  *
  * Chaining methods:
- * * [delay]
+ * * [enqueueDelay]
  */
 internal abstract class AndroidBaseInputDispatcher : InputDispatcher() {
     companion object : AndroidOwnerRegistry.OnRegistrationChangedListener {
@@ -75,7 +76,7 @@ internal abstract class AndroidBaseInputDispatcher : InputDispatcher() {
         }
     }
 
-    internal override fun saveState(owner: Owner?) {
+    override fun saveState(owner: Owner?) {
         if (owner != null && AndroidOwnerRegistry.getUnfilteredOwners().contains(owner)) {
             states[owner] = InputDispatcherState(nextDownTime, partialGesture)
         }
@@ -91,16 +92,14 @@ internal abstract class AndroidBaseInputDispatcher : InputDispatcher() {
     val isGestureInProgress: Boolean
         get() = partialGesture != null
 
-    /**
-     * The current time, in the time scale used by gesture events.
-     */
-    protected abstract val now: Long
+    abstract override val now: Long
 
     /**
      * Generates the downTime of the next gesture with the given [duration]. The gesture's
      * [duration] is necessary to facilitate chaining of gestures: if another gesture is made
      * after the next one, it will start exactly [duration] after the start of the next gesture.
-     * Always use this method to determine the downTime of the [down event][down] of a gesture.
+     * Always use this method to determine the downTime of the [down event][enqueueDown] of a
+     * gesture.
      *
      * If the duration is unknown when calling this method, use a duration of zero and update
      * with [moveNextDownTime] when the duration is known, or use [moveNextDownTime]
@@ -126,27 +125,28 @@ internal abstract class AndroidBaseInputDispatcher : InputDispatcher() {
     }
 
     /**
-     * Increases the eventTime with the gi§ven [time]. Also pushes the downTime for the next
+     * Increases the eventTime with the given [time]. Also pushes the downTime for the next
      * chained gesture by the same amount to facilitate chaining.
      */
-    private fun PartialGesture.increaseEventTime(time: Long = InputDispatcher.eventPeriod) {
+    private fun PartialGesture.increaseEventTime(time: Long = eventPeriod) {
         moveNextDownTime(time.milliseconds)
         lastEventTime += time
     }
 
     /**
-     * Delays the next gesture by the given [duration], but does not block. Guarantees that the
-     * first event time of the next gesture will be exactly [duration] later then if that gesture
-     * would be injected without this delay, provided that the next gesture is started using the
-     * same [InputDispatcher] instance as the one used to end the last gesture.
+     * Adds a delay between the end of the last full or current partial gesture of the given
+     * [duration]. Guarantees that the first event time of the next gesture will be exactly
+     * [duration] later then if that gesture would be injected without this delay, provided that
+     * the next gesture is started using the same [InputDispatcher] instance as the one used to
+     * end the last gesture.
      *
      * Note: this does not affect the time of the next event for the _current_ partial gesture,
-     * using [move], [up] and [cancel], but it will affect the time of the _next_
-     * gesture (including partial gestures started with [down]).
+     * using [enqueueMove], [enqueueUp] and [enqueueCancel], but it will affect the time of the
+     * _next_ gesture (including partial gestures started with [enqueueDown]).
      *
      * @param duration The duration of the delay. Must be positive
      */
-    override fun delay(duration: Duration) {
+    override fun enqueueDelay(duration: Duration) {
         require(duration >= Duration.Zero) {
             "duration of a delay can only be positive, not $duration"
         }
@@ -154,77 +154,69 @@ internal abstract class AndroidBaseInputDispatcher : InputDispatcher() {
     }
 
     /**
-     * Blocks until uptime of [time], if [dispatchInRealTime] is `true`.
-     */
-    protected fun sleepUntil(time: Long) {
-        if (InputDispatcher.dispatchInRealTime) {
-            val currTime = now
-            if (currTime < time) {
-                Thread.sleep(time - currTime)
-            }
-        }
-    }
-
-    /**
-     * Sends a click event at [position]. There will be 10ms in between the down and the up
-     * event. This method blocks until all input events have been dispatched.
+     * Generates a click event at [position]. There will be 10ms in between the down and the up
+     * event. The generated events are enqueued in this [InputDispatcher] and will be sent when
+     * [sendAllSynchronous] is called at the end of [performGesture].
      *
      * @param position The coordinate of the click
      */
-    override fun sendClick(position: Offset) {
-        sendDown(0, position)
-        sendMove()
-        sendUp(0)
+    override fun enqueueClick(position: Offset) {
+        enqueueDown(0, position)
+        enqueueMove()
+        enqueueUp(0)
     }
 
     /**
-     * Sends a swipe gesture from [start] to [end] with the given [duration]. This method blocks
-     * until all input events have been dispatched.
+     * Generates a swipe gesture from [start] to [end] with the given [duration]. The generated
+     * events are enqueued in this [InputDispatcher] and will be sent when [sendAllSynchronous]
+     * is called at the end of [performGesture].
      *
      * @param start The start position of the gesture
      * @param end The end position of the gesture
      * @param duration The duration of the gesture
      */
-    override fun sendSwipe(start: Offset, end: Offset, duration: Duration) {
+    override fun enqueueSwipe(start: Offset, end: Offset, duration: Duration) {
         val durationFloat = duration.inMilliseconds().toFloat()
-        sendSwipe(
+        enqueueSwipe(
             curve = { lerp(start, end, it / durationFloat) },
             duration = duration
         )
     }
 
     /**
-     * Sends a swipe gesture from [curve]&#40;0) to [curve]&#40;[duration]), following the route
-     * defined by [curve]. Will force sampling of an event at all times defined in [keyTimes].
-     * The number of events sampled between the key times is implementation dependent. This
-     * method blocks until all input events have been dispatched.
+     * Generates a swipe gesture from [curve]&#40;0) to [curve]&#40;[duration]), following the
+     * route defined by [curve]. Will force sampling of an event at all times defined in
+     * [keyTimes]. The number of events sampled between the key times is implementation
+     * dependent. The generated events are enqueued in this [InputDispatcher] and will be sent
+     * when [sendAllSynchronous] is called at the end of [performGesture].
      *
      * @param curve The function that defines the position of the gesture over time
      * @param duration The duration of the gesture
      * @param keyTimes An optional list of timestamps in milliseconds at which a move event must
      * be sampled
      */
-    override fun sendSwipe(
+    override fun enqueueSwipe(
         curve: (Long) -> Offset,
         duration: Duration,
         keyTimes: List<Long>
     ) {
-        sendSwipes(listOf(curve), duration, keyTimes)
+        enqueueSwipes(listOf(curve), duration, keyTimes)
     }
 
     /**
-     * Sends [curves].size simultaneous swipe gestures, each swipe going from
+     * Generates [curves].size simultaneous swipe gestures, each swipe going from
      * [curves]&#91;i&#93;(0) to [curves]&#91;i&#93;([duration]), following the route defined by
      * [curves]&#91;i&#93;. Will force sampling of an event at all times defined in [keyTimes].
-     * The number of events sampled between the key times is implementation dependent. This
-     * method blocks until all input events have been dispatched.
+     * The number of events sampled between the key times is implementation dependent. The
+     * generated events are enqueued in this [InputDispatcher] and will be sent when
+     * [sendAllSynchronous] is called at the end of [performGesture].
      *
      * @param curves The functions that define the position of the gesture over time
      * @param duration The duration of the gestures
      * @param keyTimes An optional list of timestamps in milliseconds at which a move event must
      * be sampled
      */
-    override fun sendSwipes(
+    override fun enqueueSwipes(
         curves: List<(Long) -> Offset>,
         duration: Duration,
         keyTimes: List<Long>
@@ -246,7 +238,7 @@ internal abstract class AndroidBaseInputDispatcher : InputDispatcher() {
 
         // Send down events
         curves.forEachIndexed { i, curve ->
-            sendDown(i, curve(startTime))
+            enqueueDown(i, curve(startTime))
         }
 
         // Send move events between each consecutive pair in [t0, ..keyTimes, tN]
@@ -265,16 +257,16 @@ internal abstract class AndroidBaseInputDispatcher : InputDispatcher() {
 
         // And end with up events
         repeat(curves.size) {
-            sendUp(it)
+            enqueueUp(it)
         }
     }
 
     /**
-     * Sends move events between `f([t0])` and `f([tN])` during the time window `(downTime + t0,
-     * downTime + tN]`, using [fs] to sample the coordinate of each event. The number of events
-     * sent (#numEvents) is such that the time between each event is as close to [eventPeriod] as
-     * possible, but at least 1. The first event is sent at time `downTime + (tN - t0) /
-     * #numEvents`, the last event is sent at time tN.
+     * Generates move events between `f([t0])` and `f([tN])` during the time window `(downTime +
+     * t0, downTime + tN]`, using [fs] to sample the coordinate of each event. The number of
+     * events sent (#numEvents) is such that the time between each event is as close to
+     * [InputDispatcher.eventPeriod] as possible, but at least 1. The first event is sent at time
+     * `downTime + (tN - t0) / #numEvents`, the last event is sent at time tN.
      *
      * @param fs The functions that define the coordinates of the respective gestures over time
      * @param t0 The start time of this segment of the swipe, in milliseconds relative to downTime
@@ -297,7 +289,7 @@ internal abstract class AndroidBaseInputDispatcher : InputDispatcher() {
             fs.forEachIndexed { i, f ->
                 movePointer(i, f(t))
             }
-            sendMove(t - tPrev)
+            enqueueMove(t - tPrev)
             tPrev = t
         }
     }
@@ -315,26 +307,28 @@ internal abstract class AndroidBaseInputDispatcher : InputDispatcher() {
     }
 
     /**
-     * Sends a down event at [position] for the pointer with the given [pointerId], starting a
-     * new partial gesture. A partial gesture can only be started if none was currently ongoing
-     * for that pointer. Pointer ids may be reused during the same gesture. This method blocks
-     * until the input event has been dispatched.
+     * Generates a down event at [position] for the pointer with the given [pointerId], starting
+     * a new partial gesture. A partial gesture can only be started if none was currently ongoing
+     * for that pointer. Pointer ids may be reused during the same gesture. The generated event
+     * is enqueued in this [InputDispatcher] and will be sent when [sendAllSynchronous] is called
+     * at the end of [performGesture].
      *
-     * It is possible to mix partial gestures with full gestures (e.g. send a [click][click]
-     * during a partial gesture), as long as you make sure that the default pointer id (id=0) is
-     * free to be used by the full gesture.
+     * It is possible to mix partial gestures with full gestures (e.g. generate a [click]
+     * [enqueueClick] during a partial gesture), as long as you make sure that the default
+     * pointer id (id=0) is free to be used by the full gesture.
      *
      * A full gesture starts with a down event at some position (with this method) that indicates
-     * a finger has started touching the screen, followed by zero or more [down][down],
-     * [move][move] and [up][up] events that respectively indicate that another finger
-     * started touching the screen, a finger moved around or a finger was lifted up from the
-     * screen. A gesture is finished when [up][up] lifts the last remaining finger from the
-     * screen, or when a single [cancel][cancel] event is sent.
+     * a finger has started touching the screen, followed by zero or more [down][enqueueDown],
+     * [move][enqueueMove] and [up][enqueueUp] events that respectively indicate that another
+     * finger started touching the screen, a finger moved around or a finger was lifted up from
+     * the screen. A gesture is finished when [up][enqueueUp] lifts the last remaining finger
+     * from the screen, or when a single [cancel][enqueueCancel] event is generated.
      *
      * Partial gestures don't have to be defined all in the same [performGesture] block, but
      * keep in mind that while the gesture is not complete, all code you execute in between
      * blocks that progress the gesture, will be executed while imaginary fingers are actively
-     * touching the screen.
+     * touching the screen. All events generated during a single [performGesture] block are sent
+     * together at the end of that block.
      *
      * In the context of testing, it is not necessary to complete a gesture with an up or cancel
      * event, if the test ends before it expects the finger to be lifted from the screen.
@@ -343,11 +337,11 @@ internal abstract class AndroidBaseInputDispatcher : InputDispatcher() {
      * @param position The coordinate of the down event
      *
      * @see movePointer
-     * @see move
-     * @see up
-     * @see cancel
+     * @see enqueueMove
+     * @see enqueueUp
+     * @see enqueueCancel
      */
-    override fun sendDown(pointerId: Int, position: Offset) {
+    override fun enqueueDown(pointerId: Int, position: Offset) {
         var gesture = partialGesture
 
         // Check if this pointer is not already down
@@ -366,25 +360,25 @@ internal abstract class AndroidBaseInputDispatcher : InputDispatcher() {
         }
 
         // Send the DOWN event
-        gesture.sendDown(pointerId)
+        gesture.enqueueDown(pointerId)
     }
 
     /**
      * Updates the position of the pointer with the given [pointerId] to the given [position],
-     * but does not send a move event. Use this to move multiple pointers simultaneously. To send
-     * the next move event, which will contain the current position of _all_ pointers (not just
-     * the moved ones), call [move] without arguments. If you move one or more pointers and
-     * then call [down] or [up], without calling [move] first, a move event will be
-     * sent right before that down or up event. See [down] for more information on how to make
-     * complete gestures from partial gestures.
+     * but does not generate a move event. Use this to move multiple pointers simultaneously. To
+     * generate the next move event, which will contain the current position of _all_ pointers
+     * (not just the moved ones), call [enqueueMove] without arguments. If you move one or more
+     * pointers and then call [enqueueDown] or [enqueueUp], without calling [enqueueMove] first,
+     * a move event will be generated right before that down or up event. See [enqueueDown] for
+     * more information on how to make complete gestures from partial gestures.
      *
-     * @param pointerId The id of the pointer to move, as supplied in [down]
+     * @param pointerId The id of the pointer to move, as supplied in [enqueueDown]
      * @param position The position to move the pointer to
      *
-     * @see down
-     * @see move
-     * @see up
-     * @see cancel
+     * @see enqueueDown
+     * @see enqueueMove
+     * @see enqueueUp
+     * @see enqueueCancel
      */
     override fun movePointer(pointerId: Int, position: Offset) {
         val gesture = partialGesture
@@ -402,16 +396,18 @@ internal abstract class AndroidBaseInputDispatcher : InputDispatcher() {
     }
 
     /**
-     * Sends a move event [delay] milliseconds after the previous injected event of this gesture,
-     * without moving any of the pointers. The default [delay] is [10][eventPeriod] milliseconds.
-     * Use this to commit all changes in pointer location made with [movePointer]. The sent event
-     * will contain the current position of all pointers. See [down] for more information on
-     * how to make complete gestures from partial gestures.
+     * Generates a move event [delay] milliseconds after the previous injected event of this
+     * gesture, without moving any of the pointers. The default [delay] is [10 milliseconds]
+     * [InputDispatcher.eventPeriod]. Use this to commit all changes in pointer location made
+     * with [movePointer]. The generated event will contain the current position of all pointers.
+     * It is enqueued in this [InputDispatcher] and will be sent when [sendAllSynchronous] is
+     * called at the end of [performGesture]. See [enqueueDown] for more information on how to
+     * make complete gestures from partial gestures.
      *
      * @param delay The time in milliseconds between the previously injected event and the move
-     * event. [10][eventPeriod] milliseconds by default.
+     * event. [10 milliseconds][InputDispatcher.eventPeriod] by default.
      */
-    override fun sendMove(delay: Long) {
+    override fun enqueueMove(delay: Long) {
         val gesture = checkNotNull(partialGesture) {
             "Cannot send MOVE event, no gesture is in progress"
         }
@@ -420,26 +416,27 @@ internal abstract class AndroidBaseInputDispatcher : InputDispatcher() {
         }
 
         gesture.increaseEventTime(delay)
-        gesture.sendMove()
+        gesture.enqueueMove()
         gesture.hasPointerUpdates = false
     }
 
     /**
-     * Sends an up event for the given [pointerId] at the current position of that pointer,
+     * Generates an up event for the given [pointerId] at the current position of that pointer,
      * [delay] milliseconds after the previous injected event of this gesture. The default
-     * [delay] is 0 milliseconds. This method blocks until the input event has been dispatched.
-     * See [down] for more information on how to make complete gestures from partial gestures.
+     * [delay] is 0 milliseconds. The generated event is enqueued in this [InputDispatcher] and
+     * will be sent when [sendAllSynchronous] is called at the end of [performGesture]. See
+     * [enqueueDown] for more information on how to make complete gestures from partial gestures.
      *
-     * @param pointerId The id of the pointer to lift up, as supplied in [down]
+     * @param pointerId The id of the pointer to lift up, as supplied in [enqueueDown]
      * @param delay The time in milliseconds between the previously injected event and the move
      * event. 0 milliseconds by default.
      *
-     * @see down
+     * @see enqueueDown
      * @see movePointer
-     * @see move
-     * @see cancel
+     * @see enqueueMove
+     * @see enqueueCancel
      */
-    override fun sendUp(pointerId: Int, delay: Long) {
+    override fun enqueueUp(pointerId: Int, delay: Long) {
         val gesture = partialGesture
 
         // Check if this pointer is in the gesture
@@ -457,7 +454,7 @@ internal abstract class AndroidBaseInputDispatcher : InputDispatcher() {
         gesture.increaseEventTime(delay)
 
         // First send the UP event
-        gesture.sendUp(pointerId)
+        gesture.enqueueUp(pointerId)
 
         // Then remove the pointer, and end the gesture if no pointers are left
         gesture.lastPositions.remove(pointerId)
@@ -467,20 +464,21 @@ internal abstract class AndroidBaseInputDispatcher : InputDispatcher() {
     }
 
     /**
-     * Sends a cancel event [delay] milliseconds after the previous injected event of this
-     * gesture. The default [delay] is [10][eventPeriod] milliseconds. This method blocks until
-     * the input event has been dispatched. See [down] for more information on how to make
-     * complete gestures from partial gestures.
+     * Generates a cancel event [delay] milliseconds after the previous injected event of this
+     * gesture. The default [delay] is [10 milliseconds][InputDispatcher.eventPeriod]. The
+     * generated event is enqueued in this [InputDispatcher] and will be sent when
+     * [sendAllSynchronous] is called at the end of [performGesture]. See [enqueueDown] for more
+     * information on how to make complete gestures from partial gestures.
      *
      * @param delay The time in milliseconds between the previously injected event and the cancel
-     * event. [10][eventPeriod] milliseconds by default.
+     * event. [10 milliseconds][InputDispatcher.eventPeriod] by default.
      *
-     * @see down
+     * @see enqueueDown
      * @see movePointer
-     * @see move
-     * @see up
+     * @see enqueueMove
+     * @see enqueueUp
      */
-    override fun sendCancel(delay: Long) {
+    override fun enqueueCancel(delay: Long) {
         val gesture = checkNotNull(partialGesture) {
             "Cannot send CANCEL event, no gesture is in progress"
         }
@@ -489,37 +487,37 @@ internal abstract class AndroidBaseInputDispatcher : InputDispatcher() {
         }
 
         gesture.increaseEventTime(delay)
-        gesture.sendCancel()
+        gesture.enqueueCancel()
         partialGesture = null
     }
 
     /**
-     * Sends a MOVE event with all pointer locations, if any of the pointers has been moved by
+     * Generates a MOVE event with all pointer locations, if any of the pointers has been moved by
      * [movePointer] since the last MOVE event.
      */
     private fun PartialGesture.flushPointerUpdates() {
         if (hasPointerUpdates) {
-            sendMove(eventPeriod)
+            enqueueMove(eventPeriod)
         }
     }
 
-    protected abstract fun PartialGesture.sendDown(pointerId: Int)
+    protected abstract fun PartialGesture.enqueueDown(pointerId: Int)
 
-    protected abstract fun PartialGesture.sendMove()
+    protected abstract fun PartialGesture.enqueueMove()
 
-    protected abstract fun PartialGesture.sendUp(pointerId: Int)
+    protected abstract fun PartialGesture.enqueueUp(pointerId: Int)
 
-    protected abstract fun PartialGesture.sendCancel()
+    protected abstract fun PartialGesture.enqueueCancel()
 
     /**
-     * A test rule that modifies [InputDispatcher]s behavior. Can be used to disable
-     * dispatching of MotionEvents in real time (skips the sleep before injection of an event) or
-     * to change the time between consecutive injected events.
+     * A test rule that modifies [InputDispatcher]s behavior. Can be used to disable dispatching
+     * of MotionEvents in real time (skips the suspend before injection of an event) or to change
+     * the time between consecutive injected events.
      *
      * @param disableDispatchInRealTime If set, controls whether or not events with an eventTime
      * in the future will be dispatched as soon as possible or at that exact eventTime. If
-     * `false` or not set, will sleep until the eventTime, if `true`, will send the event
-     * immediately without blocking. See also [dispatchInRealTime].
+     * `false` or not set, will suspend until the eventTime, if `true`, will send the event
+     * immediately without suspending. See also [InputDispatcher.dispatchInRealTime].
      * @param eventPeriodOverride If set, specifies a different period in milliseconds between
      * two consecutive injected motion events injected by this [InputDispatcher]. If not
      * set, the event period of 10 milliseconds is unchanged.
@@ -538,10 +536,10 @@ internal abstract class AndroidBaseInputDispatcher : InputDispatcher() {
         inner class ModifyingStatement(private val base: Statement) : Statement() {
             override fun evaluate() {
                 if (disableDispatchInRealTime) {
-                    InputDispatcher.dispatchInRealTime = false
+                    dispatchInRealTime = false
                 }
                 if (eventPeriodOverride != null) {
-                    InputDispatcher.eventPeriod = eventPeriodOverride
+                    eventPeriod = eventPeriodOverride
                 }
                 try {
                     base.evaluate()
@@ -550,7 +548,7 @@ internal abstract class AndroidBaseInputDispatcher : InputDispatcher() {
                         dispatchInRealTime = true
                     }
                     if (eventPeriodOverride != null) {
-                        InputDispatcher.eventPeriod = 10L
+                        eventPeriod = 10L
                     }
                 }
             }

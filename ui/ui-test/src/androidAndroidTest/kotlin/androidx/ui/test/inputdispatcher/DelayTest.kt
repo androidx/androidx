@@ -18,30 +18,26 @@ package androidx.ui.test.inputdispatcher
 
 import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_UP
-import androidx.test.filters.SmallTest
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.test.InputDispatcher
-import androidx.ui.test.AndroidBaseInputDispatcher.InputDispatcherTestRule
-import androidx.ui.test.android.AndroidInputDispatcher
-import androidx.ui.test.util.MotionEventRecorder
 import androidx.compose.ui.unit.Duration
 import androidx.compose.ui.unit.inMilliseconds
 import androidx.compose.ui.unit.milliseconds
+import androidx.test.filters.SmallTest
+import androidx.ui.test.InputDispatcher
+import androidx.ui.test.android.AndroidInputDispatcher
 import com.google.common.truth.Truth.assertThat
-import org.junit.After
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * Tests if [AndroidInputDispatcher.delay] works by performing three gestures with a delay in
- * between them. By varying the gestures and the delay, we test for lingering state problems.
+ * Tests if [AndroidInputDispatcher.enqueueDelay] works by performing three gestures with a
+ * delay in between them. By varying the gestures and the delay, we test for lingering state
+ * problems.
  */
 @SmallTest
 @RunWith(Parameterized::class)
-class DelayTest(private val config: TestConfig) {
+class DelayTest(private val config: TestConfig) : InputDispatcherTest() {
     data class TestConfig(
         val firstDelay: Duration,
         val secondDelay: Duration,
@@ -51,8 +47,8 @@ class DelayTest(private val config: TestConfig) {
     )
 
     enum class Gesture(internal val function: (InputDispatcher) -> Unit) {
-        Click({ it.sendClick(anyPosition) }),
-        Swipe({ it.sendSwipe(anyPosition, anyPosition, 107.milliseconds) })
+        Click({ it.enqueueClick(anyPosition) }),
+        Swipe({ it.enqueueSwipe(anyPosition, anyPosition, 107.milliseconds) })
     }
 
     companion object {
@@ -85,25 +81,15 @@ class DelayTest(private val config: TestConfig) {
         }
     }
 
-    @get:Rule
-    val inputDispatcherRule: TestRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
-
-    private val recorder = MotionEventRecorder()
-    private val subject = AndroidInputDispatcher(recorder::recordEvent)
-
-    @After
-    fun tearDown() {
-        recorder.disposeEvents()
-    }
-
     @Test
     fun testDelay() {
         // Perform two gestures with a delay in between
         config.firstGesture.function(subject)
-        subject.delay(config.firstDelay)
+        subject.enqueueDelay(config.firstDelay)
         config.secondGesture.function(subject)
-        subject.delay(config.secondDelay)
+        subject.enqueueDelay(config.secondDelay)
         config.thirdGesture.function(subject)
+        subject.sendAllSynchronous()
 
         // Check if the time between the gestures was exactly the delay
         val expectedFirstDelay = config.firstDelay.inMilliseconds()

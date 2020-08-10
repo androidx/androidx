@@ -17,33 +17,28 @@
 package androidx.ui.test.inputdispatcher
 
 import android.view.MotionEvent
-import androidx.test.filters.SmallTest
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.test.AndroidBaseInputDispatcher.InputDispatcherTestRule
+import androidx.compose.ui.unit.milliseconds
+import androidx.test.filters.SmallTest
 import androidx.ui.test.android.AndroidInputDispatcher
-import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
 import androidx.ui.test.util.isMonotonicBetween
 import androidx.ui.test.util.moveEvents
 import androidx.ui.test.util.splitsDurationEquallyInto
 import androidx.ui.test.util.verify
-import androidx.compose.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
-import org.junit.After
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import kotlin.math.max
 
 /**
- * Tests if the [AndroidInputDispatcher.sendSwipe] gesture works when specifying the gesture as a
+ * Tests if the [AndroidInputDispatcher.enqueueSwipe] gesture works when specifying the gesture as a
  * line between two positions
  */
 @SmallTest
 @RunWith(Parameterized::class)
-class SendSwipeLineTest(private val config: TestConfig) {
+class SendSwipeLineTest(private val config: TestConfig) : InputDispatcherTest(config.eventPeriod) {
     data class TestConfig(
         val duration: Long,
         val eventPeriod: Long
@@ -64,26 +59,14 @@ class SendSwipeLineTest(private val config: TestConfig) {
         }
     }
 
-    @get:Rule
-    val inputDispatcherRule: TestRule = InputDispatcherTestRule(
-        disableDispatchInRealTime = true,
-        eventPeriodOverride = config.eventPeriod
-    )
-
     private val duration get() = config.duration
     private val eventPeriod = config.eventPeriod
 
-    private val recorder = MotionEventRecorder()
-    private val subject = AndroidInputDispatcher(recorder::recordEvent)
-
-    @After
-    fun tearDown() {
-        recorder.disposeEvents()
-    }
-
     @Test
     fun swipeByLine() {
-        subject.sendSwipe(start, end, duration.milliseconds)
+        subject.enqueueSwipe(start, end, duration.milliseconds)
+        subject.sendAllSynchronous()
+
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
             val expectedMoveEvents = max(1, duration / eventPeriod).toInt()

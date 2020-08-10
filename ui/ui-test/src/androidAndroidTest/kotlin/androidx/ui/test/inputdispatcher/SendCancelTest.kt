@@ -19,27 +19,22 @@ package androidx.ui.test.inputdispatcher
 import android.view.MotionEvent.ACTION_CANCEL
 import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_POINTER_DOWN
-import androidx.test.filters.SmallTest
 import androidx.compose.ui.geometry.Offset
+import androidx.test.filters.SmallTest
 import androidx.ui.test.InputDispatcher.Companion.eventPeriod
-import androidx.ui.test.AndroidBaseInputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.android.AndroidInputDispatcher
-import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
 import androidx.ui.test.util.expectError
 import androidx.ui.test.util.verifyEvent
 import androidx.ui.test.util.verifyPointer
 import com.google.common.truth.Truth.assertThat
-import org.junit.After
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 
 /**
- * Tests if [AndroidInputDispatcher.sendCancel] works
+ * Tests if [AndroidInputDispatcher.enqueueCancel] works
  */
 @SmallTest
-class SendCancelTest {
+class SendCancelTest : InputDispatcherTest() {
     companion object {
         // pointerIds
         private const val pointer1 = 11
@@ -50,28 +45,18 @@ class SendCancelTest {
         private val position2_1 = Offset(21f, 21f)
     }
 
-    @get:Rule
-    val inputDispatcherRule: TestRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
-
-    private val recorder = MotionEventRecorder()
-    private val subject = AndroidInputDispatcher(recorder::recordEvent)
-
-    @After
-    fun tearDown() {
-        recorder.disposeEvents()
-    }
-
-    private fun AndroidInputDispatcher.sendCancelAndCheckPointers(delay: Long? = null) {
-        sendCancelAndCheck(delay)
+    private fun AndroidInputDispatcher.generateCancelAndCheckPointers(delay: Long? = null) {
+        generateCancelAndCheck(delay)
         assertThat(getCurrentPosition(pointer1)).isNull()
         assertThat(getCurrentPosition(pointer2)).isNull()
     }
 
     @Test
     fun onePointer() {
-        subject.sendDownAndCheck(pointer1, position1_1)
-        subject.sendCancelAndCheckPointers()
+        subject.generateDownAndCheck(pointer1, position1_1)
+        subject.generateCancelAndCheckPointers()
         subject.verifyNoGestureInProgress()
+        subject.sendAllSynchronous()
         recorder.assertHasValidEventTimes()
 
         recorder.events.apply {
@@ -88,9 +73,10 @@ class SendCancelTest {
 
     @Test
     fun onePointerWithDelay() {
-        subject.sendDownAndCheck(pointer1, position1_1)
-        subject.sendCancelAndCheckPointers(2 * eventPeriod)
+        subject.generateDownAndCheck(pointer1, position1_1)
+        subject.generateCancelAndCheckPointers(2 * eventPeriod)
         subject.verifyNoGestureInProgress()
+        subject.sendAllSynchronous()
         recorder.assertHasValidEventTimes()
 
         recorder.events.apply {
@@ -107,10 +93,11 @@ class SendCancelTest {
 
     @Test
     fun multiplePointers() {
-        subject.sendDownAndCheck(pointer1, position1_1)
-        subject.sendDownAndCheck(pointer2, position2_1)
-        subject.sendCancelAndCheckPointers()
+        subject.generateDownAndCheck(pointer1, position1_1)
+        subject.generateDownAndCheck(pointer2, position2_1)
+        subject.generateCancelAndCheckPointers()
         subject.verifyNoGestureInProgress()
+        subject.sendAllSynchronous()
         recorder.assertHasValidEventTimes()
 
         recorder.events.apply {
@@ -133,25 +120,25 @@ class SendCancelTest {
     @Test
     fun cancelWithoutDown() {
         expectError<IllegalStateException> {
-            subject.sendCancel()
+            subject.enqueueCancel()
         }
     }
 
     @Test
     fun cancelAfterUp() {
-        subject.sendDown(pointer1, position1_1)
-        subject.sendUp(pointer1)
+        subject.enqueueDown(pointer1, position1_1)
+        subject.enqueueUp(pointer1)
         expectError<IllegalStateException> {
-            subject.sendCancel()
+            subject.enqueueCancel()
         }
     }
 
     @Test
     fun cancelAfterCancel() {
-        subject.sendDown(pointer1, position1_1)
-        subject.sendCancel()
+        subject.enqueueDown(pointer1, position1_1)
+        subject.enqueueCancel()
         expectError<IllegalStateException> {
-            subject.sendCancel()
+            subject.enqueueCancel()
         }
     }
 }
