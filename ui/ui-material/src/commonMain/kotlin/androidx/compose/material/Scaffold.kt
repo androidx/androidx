@@ -53,11 +53,15 @@ import androidx.compose.ui.zIndex
  * layout has happened
  *
  * @param drawerState the drawer state
+ * @param snackbarHostState instance of [SnackbarHostState] to be used to show [Snackbar]s
+ * inside of the [Scaffold]
  * @param isDrawerGesturesEnabled whether or not drawer can be interacted with via gestures
  */
 @Stable
+@OptIn(ExperimentalMaterialApi::class)
 class ScaffoldState(
     val drawerState: DrawerState,
+    val snackbarHostState: SnackbarHostState,
     isDrawerGesturesEnabled: Boolean = true
 ) {
 
@@ -65,7 +69,6 @@ class ScaffoldState(
      * Whether or not drawer sheet in scaffold (if set) can be interacted by gestures.
      */
     var isDrawerGesturesEnabled by mutableStateOf(isDrawerGesturesEnabled)
-    // TODO: add showSnackbar() method here
 
     internal val scaffoldGeometry = ScaffoldGeometry()
 }
@@ -74,14 +77,18 @@ class ScaffoldState(
  * Creates a [ScaffoldState] with the default animation clock and memoizes it.
  *
  * @param drawerState the drawer state
+ * @param snackbarHostState instance of [SnackbarHostState] to be used to show [Snackbar]s
+ * inside of the [Scaffold]
  * @param isDrawerGesturesEnabled whether or not drawer can be interacted with via gestures
  */
 @Composable
+@OptIn(ExperimentalMaterialApi::class)
 fun rememberScaffoldState(
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
+    snackbarHostState: SnackbarHostState = SnackbarHostState(),
     isDrawerGesturesEnabled: Boolean = true
-): ScaffoldState {
-    return remember { ScaffoldState(drawerState, isDrawerGesturesEnabled) }
+): ScaffoldState = remember {
+    ScaffoldState(drawerState, snackbarHostState, isDrawerGesturesEnabled)
 }
 
 @Stable
@@ -129,11 +136,18 @@ enum class FabPosition {
  *
  * @sample androidx.compose.material.samples.ScaffoldWithBottomBarAndCutout
  *
+ * To show a [Snackbar], use [SnackbarHostState.showSnackbar]. Scaffold state already
+ * have [ScaffoldState.snackbarHostState] when created
+ *
+ * @sample androidx.compose.material.samples.ScaffoldWithSimpleSnackbar
+ *
  * @param modifier optional Modifier for the root of the [Scaffold]
  * @param scaffoldState state of this scaffold widget. It contains the state of the screen, e.g.
  * variables to provide manual control over the drawer behavior, sizes of components, etc
  * @param topBar top app bar of the screen. Consider using [TopAppBar].
  * @param bottomBar bottom bar of the screen. Consider using [BottomAppBar].
+ * @param snackbarHost component to host [Snackbar]s that are pushed to be shown via
+ * [SnackbarHostState.showSnackbar]. Usually it's a [SnackbarHost]
  * @param floatingActionButton Main action button of your screen. Consider using
  * [FloatingActionButton] for this slot.
  * @param floatingActionButtonPosition position of the FAB on the screen. See [FabPosition] for
@@ -161,11 +175,13 @@ enum class FabPosition {
  * the scroller itself.
  */
 @Composable
+@OptIn(ExperimentalMaterialApi::class)
 fun Scaffold(
     modifier: Modifier = Modifier,
     scaffoldState: ScaffoldState = rememberScaffoldState(),
     topBar: @Composable (() -> Unit)? = null,
     bottomBar: @Composable (() -> Unit)? = null,
+    snackbarHost: @Composable (SnackbarHostState) -> Unit = { SnackbarHost(it) },
     floatingActionButton: @Composable (() -> Unit)? = null,
     floatingActionButtonPosition: FabPosition = FabPosition.End,
     isFloatingActionButtonDocked: Boolean = false,
@@ -189,14 +205,16 @@ fun Scaffold(
                 }
                 Stack(Modifier.weight(1f, fill = true)) {
                     ScaffoldContent(Modifier.fillMaxSize(), scaffoldState, bodyContent)
-                    ScaffoldBottom(
-                        Modifier.gravity(Alignment.BottomCenter),
-                        scaffoldState = scaffoldState,
-                        fabPos = floatingActionButtonPosition,
-                        isFabDocked = isFloatingActionButtonDocked,
-                        fab = floatingActionButton,
-                        bottomBar = bottomBar
-                    )
+                    Column(Modifier.gravity(Alignment.BottomCenter)) {
+                        snackbarHost(scaffoldState.snackbarHostState)
+                        ScaffoldBottom(
+                            scaffoldState = scaffoldState,
+                            fabPos = floatingActionButtonPosition,
+                            isFabDocked = isFloatingActionButtonDocked,
+                            fab = floatingActionButton,
+                            bottomBar = bottomBar
+                        )
+                    }
                 }
             }
         }
@@ -228,7 +246,6 @@ private fun FabPosition.toColumnAlign() =
  */
 @Composable
 private fun ScaffoldBottom(
-    modifier: Modifier,
     scaffoldState: ScaffoldState,
     fabPos: FabPosition,
     isFabDocked: Boolean,
@@ -237,13 +254,12 @@ private fun ScaffoldBottom(
 ) {
     if (isFabDocked && bottomBar != null && fab != null) {
         DockedBottomBar(
-            modifier = modifier,
             fabPosition = fabPos,
             fab = { FabContainer(Modifier, scaffoldState, fab) },
             bottomBar = { BottomBarContainer(scaffoldState, bottomBar) }
         )
     } else {
-        Column(modifier.fillMaxWidth()) {
+        Column(Modifier.fillMaxWidth()) {
             if (fab != null) {
                 FabContainer(
                     Modifier.gravity(fabPos.toColumnAlign())
@@ -268,13 +284,11 @@ private fun ScaffoldBottom(
  */
 @Composable
 private fun DockedBottomBar(
-    modifier: Modifier,
     fabPosition: FabPosition,
     fab: @Composable () -> Unit,
     bottomBar: @Composable () -> Unit
 ) {
     Layout(
-        modifier = modifier,
         children = {
             bottomBar()
             fab()
