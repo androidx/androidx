@@ -255,9 +255,8 @@ public final class VideoCapture extends UseCase {
     @Override
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
-        VideoCaptureConfig defaults = CameraX.getDefaultUseCaseConfig(VideoCaptureConfig.class,
-                cameraInfo);
+    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder() {
+        VideoCaptureConfig defaults = CameraX.getDefaultUseCaseConfig(VideoCaptureConfig.class);
         if (defaults != null) {
             return Builder.fromConfig(defaults);
         }
@@ -1066,7 +1065,7 @@ public final class VideoCapture extends UseCase {
 
         @NonNull
         @Override
-        public VideoCaptureConfig getConfig(@Nullable CameraInfo cameraInfo) {
+        public VideoCaptureConfig getConfig() {
             return DEFAULT_CONFIG;
         }
     }

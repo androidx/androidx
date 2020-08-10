@@ -87,7 +87,7 @@ public class VideoCaptureTest {
     @Before
     public void setup() throws ExecutionException, InterruptedException {
         assumeTrue(CameraUtil.deviceHasCamera());
-        mDefaultConfig = VideoCapture.DEFAULT_CONFIG.getConfig(null);
+        mDefaultConfig = VideoCapture.DEFAULT_CONFIG.getConfig();
 
         CameraXConfig cameraXConfig = CameraXConfig.Builder.fromConfig(
                 FakeAppConfig.create()).build();
