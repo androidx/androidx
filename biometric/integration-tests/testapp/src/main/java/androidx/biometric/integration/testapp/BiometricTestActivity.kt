@@ -139,11 +139,11 @@ class BiometricTestActivity : FragmentActivity() {
         )
     }
 
-    override fun onPause() {
-        super.onPause()
+    override fun onStop() {
+        super.onStop()
 
         // If option is selected, dismiss the prompt on rotation.
-        if (cancelOnConfigChangeCheckbox.isChecked) {
+        if (cancelOnConfigChangeCheckbox.isChecked && isChangingConfigurations) {
             biometricPrompt.cancelAuthentication()
         }
     }

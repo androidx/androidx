@@ -62,7 +62,7 @@ public class BiometricViewModel extends ViewModel {
      * {@link #getAuthenticationCallbackProvider()} is called.
      */
     private static final class CallbackListener extends AuthenticationCallbackProvider.Listener {
-        private final WeakReference<BiometricViewModel> mViewModelRef;
+        @NonNull private final WeakReference<BiometricViewModel> mViewModelRef;
 
         /**
          * Creates a callback listener with a weak reference to the given view model.
@@ -70,7 +70,7 @@ public class BiometricViewModel extends ViewModel {
          * @param viewModel The view model instance to hold a weak reference to.
          */
         @SuppressWarnings("WeakerAccess") /* synthetic access */
-        CallbackListener(BiometricViewModel viewModel) {
+        CallbackListener(@Nullable BiometricViewModel viewModel) {
             mViewModelRef = new WeakReference<>(viewModel);
         }
 
@@ -118,7 +118,7 @@ public class BiometricViewModel extends ViewModel {
      * The dialog listener that is returned by {@link #getNegativeButtonListener()}.
      */
     private static class NegativeButtonListener implements DialogInterface.OnClickListener {
-        private final WeakReference<BiometricViewModel> mViewModelRef;
+        @NonNull private final WeakReference<BiometricViewModel> mViewModelRef;
 
         /**
          * Creates a negative button listener with a weak reference to the given view model.
@@ -126,7 +126,7 @@ public class BiometricViewModel extends ViewModel {
          * @param viewModel The view model instance to hold a weak reference to.
          */
         @SuppressWarnings("WeakerAccess") /* synthetic access */
-        NegativeButtonListener(BiometricViewModel viewModel) {
+        NegativeButtonListener(@Nullable BiometricViewModel viewModel) {
             mViewModelRef = new WeakReference<>(viewModel);
         }
 
@@ -187,7 +187,7 @@ public class BiometricViewModel extends ViewModel {
      * An integer indicating where the dialog was last canceled from.
      */
     @BiometricFragment.CanceledFrom
-    private int mCanceledFrom = BiometricFragment.CANCELED_FROM_NONE;
+    private int mCanceledFrom = BiometricFragment.CANCELED_FROM_INTERNAL;
 
     /**
      * Whether the prompt is currently showing.
@@ -203,6 +203,11 @@ public class BiometricViewModel extends ViewModel {
      * Whether the user is currently authenticating with their PIN, pattern, or password.
      */
     private boolean mIsConfirmingDeviceCredential;
+
+    /**
+     * Whether the prompt should ignore cancel requests not initiated by the client.
+     */
+    private boolean mIsIgnoringCancel;
 
     /**
      * Information associated with a successful authentication attempt.
@@ -442,6 +447,14 @@ public class BiometricViewModel extends ViewModel {
 
     void setConfirmingDeviceCredential(boolean confirmingDeviceCredential) {
         mIsConfirmingDeviceCredential = confirmingDeviceCredential;
+    }
+
+    boolean isIgnoringCancel() {
+        return mIsIgnoringCancel;
+    }
+
+    void setIgnoringCancel(boolean ignoringCancel) {
+        mIsIgnoringCancel = ignoringCancel;
     }
 
     @NonNull
