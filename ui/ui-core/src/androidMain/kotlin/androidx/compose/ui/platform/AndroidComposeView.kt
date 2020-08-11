@@ -180,7 +180,7 @@ internal class AndroidComposeView constructor(
     // Used for updating the ConfigurationAmbient when configuration changes - consume the
     // configuration ambient instead of changing this observer if you are writing a component that
     // adapts to configuration changes.
-    override var configurationChangeObserver: () -> Unit = {}
+    override var configurationChangeObserver: (Configuration) -> Unit = {}
 
     private val _autofill = if (autofillSupported()) AndroidAutofill(this, autofillTree) else null
 
@@ -652,11 +652,11 @@ internal class AndroidComposeView constructor(
 
     override fun calculatePosition(): IntOffset = globalPosition
 
-    override fun onConfigurationChanged(newConfig: Configuration?) {
+    override fun onConfigurationChanged(newConfig: Configuration) {
         super.onConfigurationChanged(newConfig)
         density = Density(context)
         layoutDirection = context.resources.configuration.localeLayoutDirection
-        configurationChangeObserver()
+        configurationChangeObserver(newConfig)
     }
 
     private fun autofillSupported() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O
