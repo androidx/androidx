@@ -202,7 +202,7 @@ fun CenterMenu(
             }
             LazyColumnFor(
                 menuText,
-                modifier = Modifier.fillMaxSize().background(Color(0xFFFFe7e7))
+                modifier = Modifier.fillMaxSize().background(Color(0xFFd8c7ff))
             ) {
                 Text(it, Modifier.padding(5.dp))
             }

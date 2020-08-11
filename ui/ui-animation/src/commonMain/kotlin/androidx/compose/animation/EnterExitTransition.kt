@@ -22,6 +22,7 @@ import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationVector2D
 import androidx.compose.animation.core.spring
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.LayoutModifier
 import androidx.compose.ui.Measurable
@@ -76,6 +77,7 @@ sealed class EnterTransition {
      *
      * @param enter another [EnterTransition] to be combined
      */
+    @Stable
     operator fun plus(enter: EnterTransition): EnterTransition {
         return EnterTransitionImpl(
             TransitionData(
@@ -126,6 +128,7 @@ sealed class ExitTransition {
      *
      * @param exit another [ExitTransition] to be combined.
      */
+    @Stable
     operator fun plus(exit: ExitTransition): ExitTransition {
         return ExitTransitionImpl(
             TransitionData(
@@ -148,6 +151,7 @@ sealed class ExitTransition {
  * @param initialAlpha the starting alpha of the enter transition, 0f by default
  * @param animSpec the [AnimationSpec] for this animation, [spring] by default
  */
+@Stable
 @ExperimentalAnimationApi
 fun fadeIn(
     initialAlpha: Float = 0f,
@@ -166,6 +170,7 @@ fun fadeIn(
  * @param targetAlpha the target alpha of the exit transition, 0f by default
  * @param animSpec the [AnimationSpec] for this animation, [spring] by default
  */
+@Stable
 @ExperimentalAnimationApi
 fun fadeOut(targetAlpha: Float = 0f, animSpec: AnimationSpec<Float> = spring()): ExitTransition {
     return ExitTransitionImpl(TransitionData(fade = Fade(targetAlpha, animSpec)))
@@ -190,6 +195,7 @@ fun fadeOut(targetAlpha: Float = 0f, animSpec: AnimationSpec<Float> = spring()):
  *                        offset for the slide-in
  * @param animSpec the animation used for the slide-in, [spring] by default.
  */
+@Stable
 @ExperimentalAnimationApi
 fun slideIn(
     initialOffset: (fullSize: IntSize) -> IntOffset,
@@ -217,6 +223,7 @@ fun slideIn(
  *                     offset for the slide-out
  * @param animSpec the animation used for the slide-out, [spring] by default.
  */
+@Stable
 @ExperimentalAnimationApi
 fun slideOut(
     targetOffset: (fullSize: IntSize) -> IntOffset,
@@ -251,6 +258,7 @@ fun slideOut(
  * @param animSpec the animation used for the expanding animation, [spring] by default.
  * @param clip whether the content outside of the animated bounds should be clipped, true by default
  */
+@Stable
 @ExperimentalAnimationApi
 fun expandIn(
     expandFrom: Alignment = Alignment.BottomEnd,
@@ -290,6 +298,7 @@ fun expandIn(
  * @param animSpec the animation used for the shrinking animation, [spring] by default.
  * @param clip whether the content outside of the animated bounds should be clipped, true by default
  */
+@Stable
 @ExperimentalAnimationApi
 fun shrinkOut(
     shrinkTowards: Alignment = Alignment.BottomEnd,
@@ -327,6 +336,7 @@ fun shrinkOut(
  * @param animSpec the animation used for the expanding animation, [spring] by default.
  * @param clip whether the content outside of the animated bounds should be clipped, true by default
  */
+@Stable
 @ExperimentalAnimationApi
 fun expandHorizontally(
     expandFrom: Alignment.Horizontal = Alignment.End,
@@ -366,6 +376,7 @@ fun expandHorizontally(
  * @param animSpec the animation used for the expanding animation, [spring] by default.
  * @param clip whether the content outside of the animated bounds should be clipped, true by default
  */
+@Stable
 @ExperimentalAnimationApi
 fun expandVertically(
     expandFrom: Alignment.Vertical = Alignment.Bottom,
@@ -404,6 +415,7 @@ fun expandVertically(
  * @param animSpec the animation used for the shrinking animation, [spring] by default.
  * @param clip whether the content outside of the animated bounds should be clipped, true by default
  */
+@Stable
 @ExperimentalAnimationApi
 fun shrinkHorizontally(
     shrinkTowards: Alignment.Horizontal = Alignment.End,
@@ -443,6 +455,7 @@ fun shrinkHorizontally(
  * @param animSpec the animation used for the shrinking animation, [spring] by default.
  * @param clip whether the content outside of the animated bounds should be clipped, true by default
  */
+@Stable
 @ExperimentalAnimationApi
 fun shrinkVertically(
     shrinkTowards: Alignment.Vertical = Alignment.Bottom,
@@ -476,6 +489,7 @@ fun shrinkVertically(
  *                             initial offset for the slide-in, by default it returns `-fullWidth/2`
  * @param animSpec the animation used for the slide-in, [spring] by default.
  */
+@Stable
 @ExperimentalAnimationApi
 fun slideInHorizontally(
     initialOffsetX: (fullWidth: Int) -> Int = { -it / 2 },
@@ -503,6 +517,7 @@ fun slideInHorizontally(
  *                           initial offset for the slide-in, by default it returns `-fullHeight/2`
  * @param animSpec the animation used for the slide-in, [spring] by default.
  */
+@Stable
 @ExperimentalAnimationApi
 fun slideInVertically(
     initialOffsetY: (fullHeight: Int) -> Int = { -it / 2 },
@@ -530,6 +545,7 @@ fun slideInVertically(
  *                             initial offset for the slide-in, by default it returns `fullWidth/2`
  * @param animSpec the animation used for the slide-out, [spring] by default.
  */
+@Stable
 @ExperimentalAnimationApi
 fun slideOutHorizontally(
     targetOffsetX: (fullWidth: Int) -> Int = { -it / 2 },
@@ -555,6 +571,7 @@ fun slideOutHorizontally(
  *                         target offset for the slide-out, by default it returns `fullHeight/2`
  * @param animSpec the animation used for the slide-out, [spring] by default.
  */
+@Stable
 @ExperimentalAnimationApi
 fun slideOutVertically(
     targetOffsetY: (fullHeight: Int) -> Int = { -it / 2 },
