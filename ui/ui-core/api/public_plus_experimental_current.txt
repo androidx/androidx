@@ -610,7 +610,7 @@ package androidx.compose.ui.gesture {
   }
 
   public final class RawPressStartGestureFilterKt {
-    method public static androidx.compose.ui.Modifier rawPressStartGestureFilter(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit> onPressStart, boolean enabled = false, androidx.compose.ui.input.pointer.PointerEventPass executionPass = androidx.compose.ui.input.pointer.PointerEventPass.PostUp);
+    method public static androidx.compose.ui.Modifier rawPressStartGestureFilter(androidx.compose.ui.Modifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit> onPressStart, boolean enabled = false, androidx.compose.ui.input.pointer.PointerEventPass executionPass = androidx.compose.ui.input.pointer.PointerEventPass.Main);
   }
 
   public final class RawScaleGestureFilterKt {
@@ -1571,9 +1571,9 @@ package androidx.compose.ui.input.pointer {
   public enum PointerEventPass {
     method public static androidx.compose.ui.input.pointer.PointerEventPass valueOf(String name) throws java.lang.IllegalArgumentException;
     method public static androidx.compose.ui.input.pointer.PointerEventPass[] values();
-    enum_constant public static final androidx.compose.ui.input.pointer.PointerEventPass InitialDown;
-    enum_constant public static final androidx.compose.ui.input.pointer.PointerEventPass PostDown;
-    enum_constant public static final androidx.compose.ui.input.pointer.PointerEventPass PostUp;
+    enum_constant public static final androidx.compose.ui.input.pointer.PointerEventPass Final;
+    enum_constant public static final androidx.compose.ui.input.pointer.PointerEventPass Initial;
+    enum_constant public static final androidx.compose.ui.input.pointer.PointerEventPass Main;
   }
 
   public final inline class PointerId {

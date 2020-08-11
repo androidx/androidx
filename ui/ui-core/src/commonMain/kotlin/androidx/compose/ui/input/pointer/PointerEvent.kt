@@ -208,9 +208,29 @@ data class ConsumedData(
 
 /**
  * The enumeration of passes where [PointerInputChange] traverses up and down the UI tree.
+ *
+ * PointerInputChanges traverse throw the hierarchy in the following passes:
+ *
+ * 1. [Initial]: Down the tree from ancestor to descendant.
+ * 2. [Main]: Up the tree from descendant to ancestor.
+ * 3. [Final]: Down the tree from ancestor to descendant.
+ *
+ * These passes serve the following purposes:
+ *
+ * 1. Initial: Allows ancestors to consume aspects of [PointerInputChange] before descendants.
+ * This is where, for example, a scroller may block buttons from getting tapped by other fingers
+ * once scrolling has started.
+ * 2. Main: The primary pass where gesture filters should react to and consume aspects of
+ * [PointerInputChange]s. This is the primary path where descendants will interact with
+ * [PointerInputChange]s before parents. This allows for buttons to respond to a tap before a
+ * container of the bottom to respond to a tap.
+ * 3. Final: This pass is where children can learn what aspects of [PointerInputChange]s were
+ * consumed by parents during the [Main] pass. For example, this is how a button determines that
+ * it should no longer respond to fingers lifting off of it because a parent scroller has
+ * consumed movement in a [PointerInputChange].
  */
 enum class PointerEventPass {
-    InitialDown, PostUp, PostDown
+    Initial, Main, Final
 }
 
 /**

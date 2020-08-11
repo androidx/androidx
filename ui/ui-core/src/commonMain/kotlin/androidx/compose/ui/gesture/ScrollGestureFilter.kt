@@ -134,7 +134,7 @@ fun Modifier.scrollGestureFilter(
         .rawPressStartGestureFilter(
             coordinator::startDrag,
             startDragImmediately,
-            PointerEventPass.InitialDown
+            PointerEventPass.Initial
         )
 }
 

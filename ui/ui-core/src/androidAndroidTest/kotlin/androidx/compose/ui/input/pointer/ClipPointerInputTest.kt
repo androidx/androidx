@@ -330,7 +330,7 @@ class ClipPointerInputTest {
                 pass: PointerEventPass,
                 bounds: IntSize
             ): List<PointerInputChange> {
-                if (pass == PointerEventPass.InitialDown) {
+                if (pass == PointerEventPass.Initial) {
                     changes.forEach {
                         println("testtest, bounds: $bounds")
                         log.add(it.current.position!!)

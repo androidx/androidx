@@ -30,7 +30,7 @@ import org.junit.runners.JUnit4
 
 // TODO(shepshapard): Write the following tests.
 // Test for cases where things are reset when last pointer goes up
-// Verify all methods called during onPostUp
+// Verify all methods called during onMain
 
 // Changing this value will break tests that expect the value to be 5.
 private const val TestTouchSlop = 5

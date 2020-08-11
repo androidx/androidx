@@ -93,9 +93,9 @@ internal fun PointerInputHandler.invokeOverAllPasses(
 ) = invokeOverPasses(
     listOf(pointerInputChanges),
     listOf(
-        PointerEventPass.InitialDown,
-        PointerEventPass.PostUp,
-        PointerEventPass.PostDown
+        PointerEventPass.Initial,
+        PointerEventPass.Main,
+        PointerEventPass.Final
     ),
     size = size
 ).first()
@@ -106,9 +106,9 @@ internal fun PointerInputHandler.invokeOverAllPasses(
 ) = invokeOverPasses(
     pointerInputChanges.toList(),
     listOf(
-        PointerEventPass.InitialDown,
-        PointerEventPass.PostUp,
-        PointerEventPass.PostDown
+        PointerEventPass.Initial,
+        PointerEventPass.Main,
+        PointerEventPass.Final
     ),
     size = size
 )
@@ -159,9 +159,9 @@ internal fun ((CustomEvent, PointerEventPass) -> Unit).invokeOverAllPasses(
     invokeOverPasses(
         event,
         listOf(
-            PointerEventPass.InitialDown,
-            PointerEventPass.PostUp,
-            PointerEventPass.PostDown
+            PointerEventPass.Initial,
+            PointerEventPass.Main,
+            PointerEventPass.Final
         )
     )
 }
