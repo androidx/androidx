@@ -27,14 +27,25 @@ import androidx.compose.ui.DrawModifier
 import androidx.compose.ui.Measurable
 import androidx.compose.ui.MeasureScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.Autofill
+import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.drawBehind
 import androidx.compose.ui.drawLayer
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.input.key.ExperimentalKeyInput
+import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.platform.TextToolbar
+import androidx.compose.ui.semantics.SemanticsOwner
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.input.TextInputService
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.zIndex
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.any
 import com.nhaarman.mockitokotlin2.anyOrNull
-import com.nhaarman.mockitokotlin2.doAnswer
 import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.spy
@@ -49,9 +60,7 @@ import org.junit.Test
 import org.junit.rules.ExpectedException
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
-import org.mockito.Mockito.reset
 import org.mockito.Mockito.times
-import org.mockito.Mockito.verify
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -66,17 +75,17 @@ class LayoutNodeTest {
         val node = LayoutNode()
         assertNull(node.owner)
 
-        val owner = mockOwner()
+        val owner = MockOwner()
         node.attach(owner)
         assertEquals(owner, node.owner)
         assertTrue(node.isAttached())
 
-        verify(owner, times(1)).onAttach(node)
+        assertEquals(1, owner.onAttachParams.count { it === node })
 
         node.detach()
         assertNull(node.owner)
         assertFalse(node.isAttached())
-        verify(owner, times(1)).onDetach(node)
+        assertEquals(1, owner.onDetachParams.count { it === node })
     }
 
     // Ensure that LayoutNode's children are ordered properly through add, remove, move
@@ -135,24 +144,24 @@ class LayoutNodeTest {
     fun layoutNodeAttach() {
         val (node, child1, child2) = createSimpleLayout()
 
-        val owner = mockOwner()
+        val owner = MockOwner()
         node.attach(owner)
         assertEquals(owner, node.owner)
         assertEquals(owner, child1.owner)
         assertEquals(owner, child2.owner)
 
-        verify(owner, times(1)).onAttach(node)
-        verify(owner, times(1)).onAttach(child1)
-        verify(owner, times(1)).onAttach(child2)
+        assertEquals(1, owner.onAttachParams.count { it === node })
+        assertEquals(1, owner.onAttachParams.count { it === child1 })
+        assertEquals(1, owner.onAttachParams.count { it === child2 })
     }
 
     // Ensure that detach of a LayoutNode detaches all children
     @Test
     fun layoutNodeDetach() {
         val (node, child1, child2) = createSimpleLayout()
-        val owner = mockOwner()
+        val owner = MockOwner()
         node.attach(owner)
-        reset(owner)
+        owner.onAttachParams.clear()
         node.detach()
 
         assertEquals(node, child1.parent)
@@ -161,16 +170,16 @@ class LayoutNodeTest {
         assertNull(child1.owner)
         assertNull(child2.owner)
 
-        verify(owner, times(1)).onDetach(node)
-        verify(owner, times(1)).onDetach(child1)
-        verify(owner, times(1)).onDetach(child2)
+        assertEquals(1, owner.onDetachParams.count { it === node })
+        assertEquals(1, owner.onDetachParams.count { it === child1 })
+        assertEquals(1, owner.onDetachParams.count { it === child2 })
     }
 
     // Ensure that dropping a child also detaches it
     @Test
     fun layoutNodeDropDetaches() {
         val (node, child1, child2) = createSimpleLayout()
-        val owner = mockOwner()
+        val owner = MockOwner()
         node.attach(owner)
 
         node.removeAt(0, 1)
@@ -178,16 +187,16 @@ class LayoutNodeTest {
         assertNull(child1.owner)
         assertEquals(owner, child2.owner)
 
-        verify(owner, times(0)).onDetach(node)
-        verify(owner, times(1)).onDetach(child1)
-        verify(owner, times(0)).onDetach(child2)
+        assertEquals(0, owner.onDetachParams.count { it === node })
+        assertEquals(1, owner.onDetachParams.count { it === child1 })
+        assertEquals(0, owner.onDetachParams.count { it === child2 })
     }
 
     // Ensure that adopting a child also attaches it
     @Test
     fun layoutNodeAdoptAttaches() {
         val (node, child1, child2) = createSimpleLayout()
-        val owner = mockOwner()
+        val owner = MockOwner()
         node.attach(owner)
 
         node.removeAt(0, 1)
@@ -197,21 +206,21 @@ class LayoutNodeTest {
         assertEquals(owner, child1.owner)
         assertEquals(owner, child2.owner)
 
-        verify(owner, times(1)).onAttach(node)
-        verify(owner, times(2)).onAttach(child1)
-        verify(owner, times(1)).onAttach(child2)
+        assertEquals(1, owner.onAttachParams.count { it === node })
+        assertEquals(2, owner.onAttachParams.count { it === child1 })
+        assertEquals(1, owner.onAttachParams.count { it === child2 })
     }
 
     @Test
     fun childAdd() {
         val node = LayoutNode()
-        val owner = mockOwner()
+        val owner = MockOwner()
         node.attach(owner)
-        verify(owner, times(1)).onAttach(node)
+        assertEquals(1, owner.onAttachParams.count { it === node })
 
         val child = LayoutNode()
         node.insertAt(0, child)
-        verify(owner, times(1)).onAttach(child)
+        assertEquals(1, owner.onAttachParams.count { it === child })
         assertEquals(1, node.children.size)
         assertEquals(node, child.parent)
         assertEquals(owner, child.owner)
@@ -244,12 +253,12 @@ class LayoutNodeTest {
     @Test
     fun childRemove() {
         val node = LayoutNode()
-        val owner = mockOwner()
+        val owner = MockOwner()
         node.attach(owner)
         val child = LayoutNode()
         node.insertAt(0, child)
         node.removeAt(index = 0, count = 1)
-        verify(owner, times(1)).onDetach(child)
+        assertEquals(1, owner.onDetachParams.count { it === child })
         assertEquals(0, node.children.size)
         assertEquals(null, child.parent)
         assertNull(child.owner)
@@ -262,7 +271,7 @@ class LayoutNodeTest {
         val (child, grand1, grand2) = createSimpleLayout()
         root.insertAt(0, child)
 
-        val owner = mockOwner()
+        val owner = MockOwner()
         root.attach(owner)
 
         assertEquals(0, root.depth)
@@ -344,7 +353,7 @@ class LayoutNodeTest {
     @Test
     fun testPxGlobalToLocal() {
         val node0 = ZeroSizedLayoutNode()
-        node0.attach(mockOwner())
+        node0.attach(MockOwner())
         val node1 = ZeroSizedLayoutNode()
         node0.insertAt(0, node1)
 
@@ -369,7 +378,7 @@ class LayoutNodeTest {
     @Test
     fun testIntPxGlobalToLocal() {
         val node0 = ZeroSizedLayoutNode()
-        node0.attach(mockOwner())
+        node0.attach(MockOwner())
         val node1 = ZeroSizedLayoutNode()
         node0.insertAt(0, node1)
 
@@ -394,7 +403,7 @@ class LayoutNodeTest {
     @Test
     fun testPxLocalToGlobal() {
         val node0 = ZeroSizedLayoutNode()
-        node0.attach(mockOwner())
+        node0.attach(MockOwner())
         val node1 = ZeroSizedLayoutNode()
         node0.insertAt(0, node1)
 
@@ -419,7 +428,7 @@ class LayoutNodeTest {
     @Test
     fun testIntPxLocalToGlobal() {
         val node0 = ZeroSizedLayoutNode()
-        node0.attach(mockOwner())
+        node0.attach(MockOwner())
         val node1 = ZeroSizedLayoutNode()
         node0.insertAt(0, node1)
 
@@ -444,7 +453,7 @@ class LayoutNodeTest {
     @Test
     fun testPxLocalToGlobalUsesOwnerPosition() {
         val node = ZeroSizedLayoutNode()
-        node.attach(mockOwner(IntOffset(20, 20)))
+        node.attach(MockOwner(IntOffset(20, 20)))
         node.place(100, 10)
 
         val result = node.coordinates.localToGlobal(Offset.Zero)
@@ -455,7 +464,7 @@ class LayoutNodeTest {
     @Test
     fun testIntPxLocalToGlobalUsesOwnerPosition() {
         val node = ZeroSizedLayoutNode()
-        node.attach(mockOwner(IntOffset(20, 20)))
+        node.attach(MockOwner(IntOffset(20, 20)))
         node.place(100, 10)
 
         val result = node.coordinates.localToGlobal(Offset.Zero)
@@ -466,7 +475,7 @@ class LayoutNodeTest {
     @Test
     fun testChildToLocal() {
         val node0 = ZeroSizedLayoutNode()
-        node0.attach(mockOwner())
+        node0.attach(MockOwner())
         val node1 = ZeroSizedLayoutNode()
         node0.insertAt(0, node1)
 
@@ -489,7 +498,7 @@ class LayoutNodeTest {
     @Test
     fun testChildToLocalFailedWhenNotAncestor() {
         val node0 = LayoutNode()
-        node0.attach(mockOwner())
+        node0.attach(MockOwner())
         val node1 = LayoutNode()
         val node2 = LayoutNode()
         node0.insertAt(0, node1)
@@ -502,7 +511,7 @@ class LayoutNodeTest {
 
     @Test
     fun testChildToLocalFailedWhenNotAncestorNoParent() {
-        val owner = mockOwner()
+        val owner = MockOwner()
         val node0 = LayoutNode()
         node0.attach(owner)
         val node1 = LayoutNode()
@@ -516,7 +525,7 @@ class LayoutNodeTest {
     @Test
     fun testChildToLocalTheSameNode() {
         val node = LayoutNode()
-        node.attach(mockOwner())
+        node.attach(MockOwner())
         val position = Offset(5f, 15f)
 
         val result = node.coordinates.childToLocal(node.coordinates, position)
@@ -527,7 +536,7 @@ class LayoutNodeTest {
     @Test
     fun testPositionRelativeToRoot() {
         val parent = ZeroSizedLayoutNode()
-        parent.attach(mockOwner())
+        parent.attach(MockOwner())
         val child = ZeroSizedLayoutNode()
         parent.insertAt(0, child)
         parent.place(-100, 10)
@@ -541,7 +550,7 @@ class LayoutNodeTest {
     @Test
     fun testPositionRelativeToRootIsNotAffectedByOwnerPosition() {
         val parent = LayoutNode()
-        parent.attach(mockOwner(IntOffset(20, 20)))
+        parent.attach(MockOwner(IntOffset(20, 20)))
         val child = ZeroSizedLayoutNode()
         parent.insertAt(0, child)
         child.place(50, 80)
@@ -554,7 +563,7 @@ class LayoutNodeTest {
     @Test
     fun testPositionRelativeToAncestorWithParent() {
         val parent = ZeroSizedLayoutNode()
-        parent.attach(mockOwner())
+        parent.attach(MockOwner())
         val child = ZeroSizedLayoutNode()
         parent.insertAt(0, child)
         parent.place(-100, 10)
@@ -568,7 +577,7 @@ class LayoutNodeTest {
     @Test
     fun testPositionRelativeToAncestorWithGrandParent() {
         val grandParent = ZeroSizedLayoutNode()
-        grandParent.attach(mockOwner())
+        grandParent.attach(MockOwner())
         val parent = ZeroSizedLayoutNode()
         val child = ZeroSizedLayoutNode()
         grandParent.insertAt(0, parent)
@@ -661,7 +670,7 @@ class LayoutNodeTest {
         layoutNode.modifier = drawModifier
         assertFalse(layoutNode.coordinates.isAttached)
         assertFalse(layoutNode.coordinates.isAttached)
-        layoutNode.attach(mockOwner())
+        layoutNode.attach(MockOwner())
         assertTrue(layoutNode.coordinates.isAttached)
         assertTrue(layoutNode.coordinates.isAttached)
         layoutNode.detach()
@@ -679,7 +688,7 @@ class LayoutNodeTest {
         val oldLayoutNodeWrapper = layoutNode.outerLayoutNodeWrapper
         assertFalse(oldLayoutNodeWrapper.isAttached)
 
-        layoutNode.attach(mockOwner())
+        layoutNode.attach(MockOwner())
         assertTrue(oldLayoutNodeWrapper.isAttached)
 
         layoutNode.modifier = Modifier.drawBehind { }
@@ -718,7 +727,7 @@ class LayoutNodeTest {
         val oldLayoutNodeWrapper = layoutNode.outerLayoutNodeWrapper
         assertFalse(oldLayoutNodeWrapper.isAttached)
 
-        layoutNode.attach(mockOwner())
+        layoutNode.attach(MockOwner())
         assertTrue(oldLayoutNodeWrapper.isAttached)
 
         layoutNode.modifier = Modifier.drawLayer()
@@ -734,7 +743,7 @@ class LayoutNodeTest {
         val drawModifier = Modifier.drawBehind { }
         layoutNode.modifier = drawModifier
         layoutNode2.insertAt(0, layoutNode)
-        layoutNode2.attach(mockOwner())
+        layoutNode2.attach(MockOwner())
 
         assertEquals(
             layoutNode2.innerLayoutNodeWrapper,
@@ -754,7 +763,7 @@ class LayoutNodeTest {
                 0, 0, 1, 1,
                 PointerInputModifierImpl(pointerInputFilter)
             ).apply {
-                attach(mockOwner())
+                attach(MockOwner())
             }
         val hit = mutableListOf<PointerInputFilter>()
 
@@ -771,7 +780,7 @@ class LayoutNodeTest {
                 0, 0, 1, 1,
                 PointerInputModifierImpl(pointerInputFilter)
             ).apply {
-                attach(mockOwner())
+                attach(MockOwner())
             }
         val hit = mutableListOf<PointerInputFilter>()
 
@@ -836,7 +845,7 @@ class LayoutNodeTest {
                 )
             ).apply {
                 insertAt(0, middleLayoutNode)
-                attach(mockOwner())
+                attach(MockOwner())
             }
 
         val offset = when (numberOfChildrenHit) {
@@ -925,7 +934,7 @@ class LayoutNodeTest {
         val parentLayoutNode = LayoutNode(0, 0, 100, 100).apply {
             insertAt(0, childLayoutNode1)
             insertAt(1, childLayoutNode2)
-            attach(mockOwner())
+            attach(MockOwner())
         }
 
         val offset1 = Offset(25f, 25f)
@@ -1002,7 +1011,7 @@ class LayoutNodeTest {
             insertAt(0, childLayoutNode1)
             insertAt(1, childLayoutNode2)
             insertAt(2, childLayoutNode3)
-            attach(mockOwner())
+            attach(MockOwner())
         }
 
         val offset1 = Offset(25f, 25f)
@@ -1064,7 +1073,7 @@ class LayoutNodeTest {
         val parentLayoutNode = LayoutNode(0, 0, 150, 150).apply {
             insertAt(0, childLayoutNode1)
             insertAt(1, childLayoutNode2)
-            attach(mockOwner())
+            attach(MockOwner())
         }
 
         val offset1 = Offset(50f, 25f)
@@ -1126,7 +1135,7 @@ class LayoutNodeTest {
         val parentLayoutNode = LayoutNode(0, 0, 150, 150).apply {
             insertAt(0, childLayoutNode1)
             insertAt(1, childLayoutNode2)
-            attach(mockOwner())
+            attach(MockOwner())
         }
 
         val offset1 = Offset(25f, 50f)
@@ -1212,7 +1221,7 @@ class LayoutNodeTest {
             insertAt(1, layoutNode2)
             insertAt(2, layoutNode3)
             insertAt(3, layoutNode4)
-            attach(mockOwner())
+            attach(MockOwner())
         }
 
         val offsetsThatHit1 =
@@ -1305,7 +1314,7 @@ class LayoutNodeTest {
                 pointerInputFilter
             )
         ).apply {
-            attach(mockOwner(IntOffset(1, 1)))
+            attach(MockOwner(IntOffset(1, 1)))
         }
 
         val offsetThatHits1 = Offset(2f, 2f)
@@ -1364,7 +1373,7 @@ class LayoutNodeTest {
             25, 50, 75, 100,
             modifier
         ).apply {
-            attach(mockOwner())
+            attach(MockOwner())
         }
 
         val offset1 = Offset(50f, 75f)
@@ -1409,7 +1418,7 @@ class LayoutNodeTest {
         val layoutNode4: LayoutNode = LayoutNode(4, 8, 500, 500).apply {
             insertAt(0, layoutNode3)
         }.apply {
-            attach(mockOwner())
+            attach(MockOwner())
         }
         val offset1 = Offset(499f, 499f)
 
@@ -1463,7 +1472,7 @@ class LayoutNodeTest {
         val layoutNode5: LayoutNode = LayoutNode(5, 10, 500, 500).apply {
             insertAt(0, layoutNode4)
         }.apply {
-            attach(mockOwner())
+            attach(MockOwner())
         }
 
         val offset1 = Offset(499f, 499f)
@@ -1508,7 +1517,7 @@ class LayoutNodeTest {
         val parentLayoutNode = LayoutNode(0, 0, 100, 100).apply {
             insertAt(0, layoutNode1)
             insertAt(1, layoutNode2)
-            attach(mockOwner())
+            attach(MockOwner())
         }
 
         val offset = Offset(50f, 50f)
@@ -1535,7 +1544,7 @@ class LayoutNodeTest {
                 pointerInputFilter
             )
         ).apply {
-            attach(mockOwner())
+            attach(MockOwner())
         }
 
         val offset = Offset.Zero
@@ -1560,7 +1569,7 @@ class LayoutNodeTest {
         val parent = LayoutNode(
             0, 0, 2, 2
         ).apply {
-            attach(mockOwner())
+            attach(MockOwner())
         }
         parent.insertAt(
             0, LayoutNode(
@@ -1599,17 +1608,18 @@ class LayoutNodeTest {
         val node2 = LayoutNode()
         node1.add(node2)
 
-        val owner = mockOwner()
+        val owner = MockOwner()
         root.attach(owner)
-        reset(owner)
+        owner.onAttachParams.clear()
+        owner.onRequestMeasureParams.clear()
 
         // Dispose
         root.removeAt(0, 1)
 
         assertFalse(node1.isAttached())
         assertFalse(node2.isAttached())
-        verify(owner, times(0)).onRequestMeasure(node1)
-        verify(owner, times(0)).onRequestMeasure(node2)
+        assertEquals(0, owner.onRequestMeasureParams.count { it === node1 })
+        assertEquals(0, owner.onRequestMeasureParams.count { it === node2 })
     }
 
     @Test
@@ -1643,22 +1653,90 @@ class LayoutNodeTest {
         PointerInputModifier
 }
 
-@ExperimentalLayoutNodeApi
-internal fun mockOwner(
-    position: IntOffset = IntOffset.Zero,
-    targetRoot: LayoutNode = LayoutNode()
-): Owner =
-    @Suppress("UNCHECKED_CAST")
-    mock {
-        on { calculatePosition() } doReturn position
-        on { root } doReturn targetRoot
-        on { observeMeasureModelReads(any(), any()) } doAnswer {
-            (it.arguments[1] as () -> Unit).invoke()
-        }
-        on { observeLayoutModelReads(any(), any()) } doAnswer {
-            (it.arguments[1] as () -> Unit).invoke()
-        }
+@OptIn(InternalCoreApi::class, ExperimentalLayoutNodeApi::class)
+private class MockOwner(
+    val position: IntOffset = IntOffset.Zero,
+    override val root: LayoutNode = LayoutNode()
+) : Owner {
+    val onRequestMeasureParams = mutableListOf<LayoutNode>()
+    val onAttachParams = mutableListOf<LayoutNode>()
+    val onDetachParams = mutableListOf<LayoutNode>()
+
+    override val hapticFeedBack: HapticFeedback
+        get() = TODO("Not yet implemented")
+    override val clipboardManager: ClipboardManager
+        get() = TODO("Not yet implemented")
+    override val textToolbar: TextToolbar
+        get() = TODO("Not yet implemented")
+    override val autofillTree: AutofillTree
+        get() = TODO("Not yet implemented")
+    override val autofill: Autofill?
+        get() = TODO("Not yet implemented")
+    override val density: Density
+        get() = Density(1f)
+    override val semanticsOwner: SemanticsOwner
+        get() = TODO("Not yet implemented")
+    override val textInputService: TextInputService
+        get() = TODO("Not yet implemented")
+    override val fontLoader: Font.ResourceLoader
+        get() = TODO("Not yet implemented")
+    override val layoutDirection: LayoutDirection
+        get() = LayoutDirection.Ltr
+    override var showLayoutBounds: Boolean = false
+
+    override fun onInvalidate(layoutNode: LayoutNode) {
     }
+
+    override fun onRequestMeasure(layoutNode: LayoutNode) {
+        onRequestMeasureParams += layoutNode
+    }
+
+    override fun onRequestRelayout(layoutNode: LayoutNode) {
+    }
+
+    override fun onAttach(node: LayoutNode) {
+        onAttachParams += node
+    }
+
+    override fun onDetach(node: LayoutNode) {
+        onDetachParams += node
+    }
+
+    override fun calculatePosition(): IntOffset = position
+
+    override fun requestFocus(): Boolean = false
+
+    @ExperimentalKeyInput
+    override fun sendKeyEvent(keyEvent: KeyEvent): Boolean = false
+
+    override fun pauseModelReadObserveration(block: () -> Unit) {
+        block()
+    }
+
+    override fun observeLayoutModelReads(node: LayoutNode, block: () -> Unit) {
+        block()
+    }
+
+    override fun observeMeasureModelReads(node: LayoutNode, block: () -> Unit) {
+        block()
+    }
+
+    override fun measureAndLayout() {
+    }
+
+    override fun createLayer(
+        drawLayerModifier: DrawLayerModifier,
+        drawBlock: (Canvas) -> Unit,
+        invalidateParentLayer: () -> Unit
+    ): OwnedLayer {
+        TODO("Not yet implemented")
+    }
+
+    override fun onSemanticsChange() {
+    }
+
+    override val measureIteration: Long = 0
+}
 
 @OptIn(ExperimentalLayoutNodeApi::class)
 internal fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = Modifier) =
@@ -1672,7 +1750,7 @@ internal fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = M
             ): MeasureScope.MeasureResult =
                 measureScope.layout(x2 - x, y2 - y) {}
         }
-        attach(mockOwner())
+        attach(MockOwner())
         layoutState = LayoutNode.LayoutState.NeedsRemeasure
         remeasure(Constraints())
         var wrapper: LayoutNodeWrapper? = outerLayoutNodeWrapper
