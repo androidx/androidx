@@ -403,6 +403,14 @@ internal class ComposeViewAdapter : FrameLayout {
         }
     }
 
+    /**
+     *  Returns whether this `@Composable` has animations. This allows Android Studio to decide if
+     *  the Animation Inspector icon should be displayed for this preview.
+     *
+     *  @suppress
+     */
+    fun hasAnimations() = ::clock.isInitialized && clock.observersToAnimations.isNotEmpty()
+
     private fun init(attrs: AttributeSet) {
         val composableName = attrs.getAttributeValue(TOOLS_NS_URI, "composableName") ?: return
         val className = composableName.substringBeforeLast('.')
