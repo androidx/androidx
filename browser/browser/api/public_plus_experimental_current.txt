@@ -72,7 +72,7 @@ package androidx.browser.customtabs {
   public class CustomTabsCallback {
     ctor public CustomTabsCallback();
     method public void extraCallback(String, android.os.Bundle?);
-    method public android.os.Bundle extraCallbackWithResult(String, android.os.Bundle?);
+    method public android.os.Bundle? extraCallbackWithResult(String, android.os.Bundle?);
     method public void onMessageChannelReady(android.os.Bundle?);
     method public void onNavigationEvent(int, android.os.Bundle?);
     method public void onPostMessage(String, android.os.Bundle?);
@@ -169,7 +169,7 @@ package androidx.browser.customtabs {
   public abstract class CustomTabsService extends android.app.Service {
     ctor public CustomTabsService();
     method protected boolean cleanUpSession(androidx.browser.customtabs.CustomTabsSessionToken);
-    method protected abstract android.os.Bundle extraCommand(String, android.os.Bundle?);
+    method protected abstract android.os.Bundle? extraCommand(String, android.os.Bundle?);
     method protected abstract boolean mayLaunchUrl(androidx.browser.customtabs.CustomTabsSessionToken, android.net.Uri?, android.os.Bundle?, java.util.List<android.os.Bundle!>?);
     method protected abstract boolean newSession(androidx.browser.customtabs.CustomTabsSessionToken);
     method public android.os.IBinder onBind(android.content.Intent?);
@@ -343,7 +343,7 @@ package androidx.browser.trusted {
     method @BinderThread public boolean onAreNotificationsEnabled(String);
     method @MainThread public final android.os.IBinder? onBind(android.content.Intent?);
     method @BinderThread public void onCancelNotification(String, int);
-    method @BinderThread public android.os.Bundle onExtraCommand(String, android.os.Bundle, androidx.browser.trusted.TrustedWebActivityCallbackRemote?);
+    method @BinderThread public android.os.Bundle? onExtraCommand(String, android.os.Bundle, androidx.browser.trusted.TrustedWebActivityCallbackRemote?);
     method @BinderThread public android.os.Bundle onGetSmallIconBitmap();
     method @BinderThread public int onGetSmallIconId();
     method @BinderThread public boolean onNotifyNotificationWithChannel(String, int, android.app.Notification, String);
@@ -362,7 +362,7 @@ package androidx.browser.trusted {
     method public android.graphics.Bitmap? getSmallIconBitmap() throws android.os.RemoteException;
     method public int getSmallIconId() throws android.os.RemoteException;
     method public boolean notify(String, int, android.app.Notification, String) throws android.os.RemoteException;
-    method public android.os.Bundle sendExtraCommand(String, android.os.Bundle, androidx.browser.trusted.TrustedWebActivityCallback?) throws android.os.RemoteException;
+    method public android.os.Bundle? sendExtraCommand(String, android.os.Bundle, androidx.browser.trusted.TrustedWebActivityCallback?) throws android.os.RemoteException;
   }
 
   public final class TrustedWebActivityServiceConnectionPool {
