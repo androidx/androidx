@@ -1169,9 +1169,22 @@ public class NotificationCompat {
         /**
          * Silences this instance of the notification, regardless of the sounds or vibrations set
          * on the notification or notification channel.
+         *
+         * @deprecated use {@link #setSilent(boolean)}
          */
+        @Deprecated
         public @NonNull Builder setNotificationSilent() {
             mSilent = true;
+            return this;
+        }
+
+        /**
+         * If {@code true}, silences this instance of the notification, regardless of the sounds or
+         * vibrations set on the notification or notification channel. If {@code false}, then the
+         * normal sound and vibration logic applies. Defaults to {@code false}.
+         */
+        public @NonNull Builder setSilent(boolean silent) {
+            mSilent = silent;
             return this;
         }
 
