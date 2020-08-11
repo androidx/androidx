@@ -59,24 +59,23 @@ class WorkManagerInspector(
     private val stackTraceMap = mutableMapOf<String, Array<StackTraceElement>>()
 
     init {
-        workManager = environment.findInstances(Application::class.java).first()
+        workManager = environment.artTI().findInstances(Application::class.java).first()
             .let { application -> WorkManager.getInstance(application) as WorkManagerImpl }
         Handler(Looper.getMainLooper()).post {
             lifecycleRegistry.currentState = Lifecycle.State.STARTED
         }
 
-        environment.registerEntryHook(
+        environment.artTI().registerEntryHook(
             WorkContinuationImpl::class.java,
-            "enqueue()Landroidx/work/Operation;",
-            InspectorEnvironment.EntryHook { obj, _ ->
-                    val stackTrace = Throwable().stackTrace
-                    executor.submit {
-                        (obj as? WorkContinuationImpl)?.allIds?.forEach { id ->
-                            stackTraceMap[id] = stackTrace.prune()
-                        }
-                    }
+            "enqueue()Landroidx/work/Operation;"
+        ) { obj, _ ->
+            val stackTrace = Throwable().stackTrace
+            executor.submit {
+                (obj as? WorkContinuationImpl)?.allIds?.forEach { id ->
+                    stackTraceMap[id] = stackTrace.prune()
+                }
             }
-        )
+        }
     }
 
     override fun onReceiveCommand(data: ByteArray, callback: CommandCallback) {
