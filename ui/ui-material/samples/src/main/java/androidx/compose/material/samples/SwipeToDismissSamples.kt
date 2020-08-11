@@ -94,7 +94,7 @@ fun SwipeToDismissListItems() {
             },
             background = {
                 val direction = dismissState.dismissDirection ?: return@SwipeToDismiss
-                val color = animate(when (dismissState.swipeTarget) {
+                val color = animate(when (dismissState.targetValue) {
                     Default -> Color.LightGray
                     DismissedToEnd -> Color.Green
                     DismissedToStart -> Color.Red
@@ -107,7 +107,7 @@ fun SwipeToDismissListItems() {
                     StartToEnd -> Icons.Default.Done
                     EndToStart -> Icons.Default.Delete
                 }
-                val scale = animate(if (dismissState.swipeTarget == Default) 0.75f else 1f)
+                val scale = animate(if (dismissState.targetValue == Default) 0.75f else 1f)
 
                 Box(
                     modifier = Modifier.fillMaxSize(),
