@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-@file:Suppress("NOTHING_TO_INLINE")
+@file:Suppress("NOTHING_TO_INLINE", "EXPERIMENTAL_FEATURE_WARNING")
 
 package androidx.compose.ui.unit
 
@@ -31,7 +31,7 @@ import kotlin.math.roundToInt
  * A two-dimensional position using [Int] pixels for units
  */
 @Immutable
-/*inline*/ class IntOffset(
+inline class IntOffset(
     @PublishedApi internal val packedValue: Long
 ) {
     /**
@@ -118,19 +118,6 @@ import kotlin.math.roundToInt
 
     @Stable
     override fun toString(): String = "($x, $y)"
-
-    @Stable
-    override fun equals(other: Any?): Boolean {
-        if (other !is IntOffset) {
-            return false
-        }
-        return other.packedValue == packedValue
-    }
-
-    @Stable
-    override fun hashCode(): Int {
-        return packedValue.hashCode()
-    }
 
     companion object {
         val Zero = IntOffset(0, 0)

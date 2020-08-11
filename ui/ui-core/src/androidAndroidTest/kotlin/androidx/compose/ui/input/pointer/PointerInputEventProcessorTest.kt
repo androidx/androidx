@@ -16,28 +16,41 @@
 
 package androidx.compose.ui.input.pointer
 
-import androidx.test.filters.SmallTest
-import androidx.compose.ui.unit.Constraints
-import androidx.compose.ui.node.LayoutNode
-import androidx.compose.ui.node.LayoutNodeWrapper
+import androidx.compose.ui.DrawLayerModifier
 import androidx.compose.ui.Measurable
 import androidx.compose.ui.MeasureScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.Autofill
+import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.hapticfeedback.HapticFeedback
+import androidx.compose.ui.input.key.ExperimentalKeyInput
+import androidx.compose.ui.input.key.KeyEvent
+import androidx.compose.ui.node.ExperimentalLayoutNodeApi
+import androidx.compose.ui.node.InternalCoreApi
+import androidx.compose.ui.node.LayoutNode
+import androidx.compose.ui.node.LayoutNodeWrapper
+import androidx.compose.ui.node.OwnedLayer
+import androidx.compose.ui.node.Owner
+import androidx.compose.ui.platform.ClipboardManager
+import androidx.compose.ui.platform.TextToolbar
+import androidx.compose.ui.semantics.SemanticsOwner
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.input.TextInputService
+import androidx.compose.ui.unit.Constraints
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.Uptime
 import androidx.compose.ui.unit.milliseconds
 import androidx.compose.ui.unit.minus
-import androidx.compose.ui.node.ExperimentalLayoutNodeApi
-import androidx.compose.ui.node.Owner
+import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doAnswer
-import com.nhaarman.mockitokotlin2.doReturn
 import com.nhaarman.mockitokotlin2.eq
 import com.nhaarman.mockitokotlin2.inOrder
-import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.never
 import com.nhaarman.mockitokotlin2.reset
 import com.nhaarman.mockitokotlin2.spy
@@ -2953,18 +2966,90 @@ private fun LayoutNode(x: Int, y: Int, x2: Int, y2: Int, modifier: Modifier = Mo
 private fun mockOwner(
     position: IntOffset = IntOffset.Zero,
     targetRoot: LayoutNode = LayoutNode()
-): Owner =
-    @Suppress("UNCHECKED_CAST")
-    mock {
-        on { calculatePosition() } doReturn position
-        on { root } doReturn targetRoot
-        on { observeMeasureModelReads(any(), any()) } doAnswer {
-            (it.arguments[1] as () -> Unit).invoke()
-        }
-        on { observeLayoutModelReads(any(), any()) } doAnswer {
-            (it.arguments[1] as () -> Unit).invoke()
-        }
+): Owner = MockOwner(position, targetRoot)
+
+@ExperimentalLayoutNodeApi
+@OptIn(InternalCoreApi::class)
+private class MockOwner(
+    private val position: IntOffset,
+    private val targetRoot: LayoutNode
+) : Owner {
+    override fun calculatePosition(): IntOffset = position
+    override fun requestFocus(): Boolean = false
+
+    @ExperimentalKeyInput
+    override fun sendKeyEvent(keyEvent: KeyEvent): Boolean = false
+
+    override fun pauseModelReadObserveration(block: () -> Unit) {
+        block()
     }
+
+    override val root: LayoutNode
+        get() = targetRoot
+    override val hapticFeedBack: HapticFeedback
+        get() = TODO("Not yet implemented")
+    override val clipboardManager: ClipboardManager
+        get() = TODO("Not yet implemented")
+    override val textToolbar: TextToolbar
+        get() = TODO("Not yet implemented")
+    override val autofillTree: AutofillTree
+        get() = TODO("Not yet implemented")
+    override val autofill: Autofill?
+        get() = null
+    override val density: Density
+        get() = Density(1f)
+    override val semanticsOwner: SemanticsOwner
+        get() = TODO("Not yet implemented")
+    override val textInputService: TextInputService
+        get() = TODO("Not yet implemented")
+    override val fontLoader: Font.ResourceLoader
+        get() = TODO("Not yet implemented")
+    override val layoutDirection: LayoutDirection
+        get() = LayoutDirection.Ltr
+    override var showLayoutBounds: Boolean
+        get() = false
+        set(@Suppress("UNUSED_PARAMETER") value) {}
+
+    override fun onInvalidate(layoutNode: LayoutNode) {
+    }
+
+    override fun onRequestMeasure(layoutNode: LayoutNode) {
+    }
+
+    override fun onRequestRelayout(layoutNode: LayoutNode) {
+    }
+
+    override fun onAttach(node: LayoutNode) {
+    }
+
+    override fun onDetach(node: LayoutNode) {
+    }
+
+    override fun observeMeasureModelReads(node: LayoutNode, block: () -> Unit) {
+        block()
+    }
+
+    override fun measureAndLayout() {
+    }
+
+    override fun createLayer(
+        drawLayerModifier: DrawLayerModifier,
+        drawBlock: (Canvas) -> Unit,
+        invalidateParentLayer: () -> Unit
+    ): OwnedLayer {
+        TODO("Not yet implemented")
+    }
+
+    override fun onSemanticsChange() {
+    }
+
+    override val measureIteration: Long
+        get() = 0
+
+    override fun observeLayoutModelReads(node: LayoutNode, block: () -> Unit) {
+        block()
+    }
+}
 
 open class DummyPointerInputFilter : PointerInputFilter() {
     override fun onPointerInput(

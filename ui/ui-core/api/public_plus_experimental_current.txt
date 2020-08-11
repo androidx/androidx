@@ -2,7 +2,7 @@
 package androidx.compose.ui {
 
   @androidx.compose.runtime.Immutable public final class AbsoluteAlignment implements androidx.compose.ui.Alignment {
-    method public androidx.compose.ui.unit.IntOffset align-rlJ4snA(long size, androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    method public long align-rlJ4snA(long size, androidx.compose.ui.unit.LayoutDirection layoutDirection);
     method @androidx.compose.runtime.Immutable public androidx.compose.ui.AbsoluteAlignment copy(float verticalBias, float horizontalBias);
     field public static final androidx.compose.ui.AbsoluteAlignment.Companion Companion;
   }
@@ -32,7 +32,7 @@ package androidx.compose.ui {
   }
 
   @androidx.compose.runtime.Immutable public interface Alignment {
-    method public androidx.compose.ui.unit.IntOffset align-rlJ4snA(long size, androidx.compose.ui.unit.LayoutDirection layoutDirection = LayoutDirection.Ltr);
+    method public long align-rlJ4snA(long size, androidx.compose.ui.unit.LayoutDirection layoutDirection = LayoutDirection.Ltr);
     field public static final androidx.compose.ui.Alignment.Companion Companion;
   }
 
@@ -279,15 +279,15 @@ package androidx.compose.ui {
   public abstract class Placeable {
     ctor public Placeable();
     method public abstract operator int get(androidx.compose.ui.AlignmentLine line);
-    method protected final androidx.compose.ui.unit.IntOffset getApparentToRealOffset();
+    method protected final long getApparentToRealOffset();
     method public final int getHeight();
     method protected final long getMeasuredSize();
     method protected final androidx.compose.ui.unit.Constraints getMeasurementConstraints();
     method public final int getWidth();
-    method protected abstract void placeAt(androidx.compose.ui.unit.IntOffset position);
+    method protected abstract void placeAt--gyyYBs(long position);
     method protected final void setMeasuredSize-ozmzZPI(long value);
     method protected final void setMeasurementConstraints(androidx.compose.ui.unit.Constraints p);
-    property protected final androidx.compose.ui.unit.IntOffset apparentToRealOffset;
+    property protected final long apparentToRealOffset;
     property public final int height;
     property protected final long measuredSize;
     property protected final androidx.compose.ui.unit.Constraints measurementConstraints;
@@ -300,10 +300,10 @@ package androidx.compose.ui {
     method public abstract int getParentWidth();
     method public final void place(androidx.compose.ui.Placeable, androidx.compose.ui.geometry.Offset position);
     method public final void place(androidx.compose.ui.Placeable, int x, int y);
-    method public final void place(androidx.compose.ui.Placeable, androidx.compose.ui.unit.IntOffset position);
-    method public final void placeRelative(androidx.compose.ui.Placeable, androidx.compose.ui.unit.IntOffset position);
+    method public final void place-gl1q84w(androidx.compose.ui.Placeable, long position);
     method public final void placeRelative(androidx.compose.ui.Placeable, androidx.compose.ui.geometry.Offset position);
     method public final void placeRelative(androidx.compose.ui.Placeable, int x, int y);
+    method public final void placeRelative-gl1q84w(androidx.compose.ui.Placeable, long position);
     property public abstract androidx.compose.ui.unit.LayoutDirection parentLayoutDirection;
     property public abstract int parentWidth;
   }
@@ -1870,7 +1870,7 @@ package androidx.compose.ui.node {
     method public android.graphics.Matrix getMatrix();
     method public androidx.compose.ui.DrawLayerModifier getModifier();
     method public void invalidate();
-    method public void move(androidx.compose.ui.unit.IntOffset position);
+    method public void move--gyyYBs(long position);
     method public void resize-ozmzZPI(long size);
     method public void setModifier(androidx.compose.ui.DrawLayerModifier p);
     method public void updateDisplayList();
@@ -1880,7 +1880,7 @@ package androidx.compose.ui.node {
   }
 
   public interface Owner {
-    method public androidx.compose.ui.unit.IntOffset calculatePosition();
+    method public long calculatePosition();
     method public androidx.compose.ui.node.OwnedLayer createLayer(androidx.compose.ui.DrawLayerModifier drawLayerModifier, kotlin.jvm.functions.Function1<? super androidx.compose.ui.graphics.Canvas,kotlin.Unit> drawBlock, kotlin.jvm.functions.Function0<kotlin.Unit> invalidateParentLayer);
     method public androidx.compose.ui.autofill.Autofill? getAutofill();
     method public androidx.compose.ui.autofill.AutofillTree getAutofillTree();
@@ -2493,12 +2493,12 @@ package androidx.compose.ui.window {
   }
 
   public final class PopupKt {
-    method @androidx.compose.runtime.Composable public static void Popup(androidx.compose.ui.Alignment alignment = Alignment.TopStart, androidx.compose.ui.unit.IntOffset offset = IntOffset(0, 0), boolean isFocusable = false, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
     method @androidx.compose.runtime.Composable public static void Popup(androidx.compose.ui.window.PopupPositionProvider popupPositionProvider, boolean isFocusable = false, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.runtime.Composable public static void Popup-aPFkGVo(androidx.compose.ui.Alignment alignment = Alignment.TopStart, long offset = IntOffset(0, 0), boolean isFocusable = false, kotlin.jvm.functions.Function0<kotlin.Unit>? onDismissRequest = null, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   @androidx.compose.runtime.Immutable public interface PopupPositionProvider {
-    method public androidx.compose.ui.unit.IntOffset calculatePosition-pcJl1fs(androidx.compose.ui.unit.IntBounds parentGlobalBounds, androidx.compose.ui.unit.IntBounds windowGlobalBounds, androidx.compose.ui.unit.LayoutDirection layoutDirection, long popupContentSize);
+    method public long calculatePosition-pcJl1fs(androidx.compose.ui.unit.IntBounds parentGlobalBounds, androidx.compose.ui.unit.IntBounds windowGlobalBounds, androidx.compose.ui.unit.LayoutDirection layoutDirection, long popupContentSize);
   }
 
 }
