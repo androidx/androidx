@@ -392,10 +392,6 @@ public class SliceStyle {
         }
         final int minItemCountForSeeMore = list.getRowItems() != null ? 2 : 1;
         int visibleHeight = 0;
-        // Need to show see more
-        if (list.getSeeMoreItem() != null) {
-            visibleHeight += list.getSeeMoreItem().getHeight(this, policy);
-        }
         int rowCount = list.getRowItems().size();
         for (int i = 0; i < rowCount; i++) {
             int itemHeight = list.getRowItems().get(i).getHeight(this, policy);
@@ -406,10 +402,30 @@ public class SliceStyle {
                 visibleItems.add(list.getRowItems().get(i));
             }
         }
+
+
+        // Only add see more if we're at least showing one item and it's not the header
         if (list.getSeeMoreItem() != null && visibleItems.size() >= minItemCountForSeeMore
                 && visibleItems.size() != rowCount) {
-            // Only add see more if we're at least showing one item and it's not the header
-            visibleItems.add(list.getSeeMoreItem());
+            // Need to show see more
+            int seeMoreHeight = list.getSeeMoreItem().getHeight(this, policy);
+            visibleHeight += seeMoreHeight;
+
+            // Free enough vertical space to fit the see more item.
+            while (visibleHeight > availableHeight
+                    && visibleItems.size() >= minItemCountForSeeMore) {
+                int lastIndex = visibleItems.size() - 1;
+                SliceContent lastItem = visibleItems.get(lastIndex);
+                visibleHeight -= lastItem.getHeight(this, policy);
+                visibleItems.remove(lastIndex);
+            }
+
+            if (visibleItems.size() >= minItemCountForSeeMore) {
+                visibleItems.add(list.getSeeMoreItem());
+            } else {
+                // Not possible to free enough vertical space. We'll show only the header.
+                visibleHeight -= seeMoreHeight;
+            }
         }
         if (visibleItems.size() == 0) {
             // Didn't have enough space to show anything; should still show something
