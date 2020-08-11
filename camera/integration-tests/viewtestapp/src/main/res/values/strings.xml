@@ -13,17 +13,19 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 -->
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
 
     <string name="app_name">CameraX Views Demo</string>
 
     <string name="preview">Preview</string>
     <string name="btn_capture">Capture</string>
     <string name="btn_remove_or_add">Remove/Add</string>
+    <string name="btn_shrink">Shrink</string>
     <string name="btn_switch">Switch</string>
     <string name="btn_confirm">Confirm</string>
     <string name="btn_cancel">Cancel</string>
     <string name="camera_view">Camera View</string>
     <string name="preview_view">Preview View</string>
+    <string name="camera_controller">Camera Controller</string>
 
 </resources>

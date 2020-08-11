@@ -45,6 +45,7 @@ import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.MeteringPoint;
@@ -73,6 +74,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -163,6 +165,54 @@ public class PreviewViewTest {
         cameraInfoInternal.setImplementationType(implementationType);
         return cameraInfoInternal;
     }
+
+    @Test
+    @UiThreadTest
+    public void clearCameraController_controllerIsNull() {
+        // Arrange.
+        final PreviewView previewView = new PreviewView(mContext);
+        setContentView(previewView);
+        CameraController cameraController = new LifecycleCameraController(mContext);
+        previewView.setController(cameraController);
+        assertThat(previewView.getController()).isEqualTo(cameraController);
+
+        // Act and Assert.
+        previewView.setController(null);
+
+        // Assert
+        assertThat(previewView.getController()).isNull();
+    }
+
+    @Test
+    @UiThreadTest
+    public void setNewCameraController_oldControllerIsCleared() throws InterruptedException {
+        // Arrange.
+        final PreviewView previewView = new PreviewView(mContext);
+        setContentView(previewView);
+        Semaphore previewClearSemaphore = new Semaphore(0);
+        CameraController oldController = new CameraController(mContext) {
+            @Nullable
+            @Override
+            Camera startCamera() {
+                return null;
+            }
+
+            void clearPreviewSurface() {
+                previewClearSemaphore.release();
+            }
+        };
+        previewView.setController(oldController);
+        assertThat(previewView.getController()).isEqualTo(oldController);
+        CameraController newController = new LifecycleCameraController(mContext);
+
+        // Act and Assert.
+        previewView.setController(newController);
+
+        // Assert
+        assertThat(previewView.getController()).isEqualTo(newController);
+        assertThat(previewClearSemaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
+    }
+
 
     @Test
     @UiThreadTest
