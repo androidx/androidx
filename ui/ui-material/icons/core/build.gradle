@@ -48,12 +48,12 @@ kotlin {
 IconGenerationTask.registerCoreIconProject(project)
 
 androidx {
-    name = "AndroidX Core Material Icons"
+    name = "Compose Material Icons Core"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.Compose.MATERIAL
     inceptionYear = "2020"
-    description = "AndroidX Core Material Icons"
+    description = "Compose Material Design core icons. This module contains the most commonly used set of Material icons."
 }
 
 tasks.withType(KotlinCompile).configureEach {

@@ -43,7 +43,7 @@ dependencies {
 }
 
 androidx {
-    name = "Compose RxJava 2"
+    name = "Compose RxJava 2 integration"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.Compose.RUNTIME

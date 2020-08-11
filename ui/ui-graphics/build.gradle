@@ -74,7 +74,7 @@ androidx {
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.Compose.UI
     inceptionYear = "2020"
-    description = "Compose graphics components."
+    description = "Compose graphics"
 }
 
 tasks.withType(KotlinCompile).configureEach {

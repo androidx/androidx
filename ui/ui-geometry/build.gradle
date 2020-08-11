@@ -58,7 +58,7 @@ androidx {
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.Compose.UI
     inceptionYear = "2020"
-    description = "Compose classes related to dimensions without units."
+    description = "Compose classes related to dimensions without units"
 }
 
 tasks.withType(KotlinCompile).configureEach {

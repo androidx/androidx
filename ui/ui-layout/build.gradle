@@ -80,12 +80,12 @@ kotlin {
 }
 
 androidx {
-    name = "Compose Foundation Layout"
+    name = "Compose Layouts"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.Compose.FOUNDATION
     inceptionYear = "2019"
-    description = "Compose layout classes not targeting a specific design system."
+    description = "Compose layout implementations"
 }
 
 tasks.withType(KotlinCompile).configureEach {
