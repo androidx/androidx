@@ -92,7 +92,8 @@ class RoomInvalidationRegistry {
         if (mInvoker == null) {
             cached = Collections.emptyList();
         } else {
-            List<?> instances = mEnvironment.findInstances(mInvoker.invalidationTrackerClass);
+            List<?> instances =
+                    mEnvironment.artTI().findInstances(mInvoker.invalidationTrackerClass);
             cached = new ArrayList<>(instances.size());
             for (Object instance : instances) {
                 cached.add(new WeakReference<>(instance));

@@ -20,6 +20,8 @@ import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.inspection.ArtToolInterface.EntryHook;
+import androidx.inspection.ArtToolInterface.ExitHook;
 import androidx.inspection.InspectorEnvironment;
 
 import java.util.ArrayDeque;
@@ -54,8 +56,8 @@ final class EntryExitMatchingHookRegistry {
 
     void registerHook(Class<?> originClass, final String originMethod,
             final OnExitCallback onExitCallback) {
-        mEnvironment.registerEntryHook(originClass, originMethod,
-                new InspectorEnvironment.EntryHook() {
+        mEnvironment.artTI().registerEntryHook(originClass, originMethod,
+                new EntryHook() {
                     @SuppressLint("SyntheticAccessor")
                     @Override
                     public void onEntry(@Nullable Object thisObject,
@@ -64,8 +66,8 @@ final class EntryExitMatchingHookRegistry {
                     }
                 });
 
-        mEnvironment.registerExitHook(originClass, originMethod,
-                new InspectorEnvironment.ExitHook<Object>() {
+        mEnvironment.artTI().registerExitHook(originClass, originMethod,
+                new ExitHook<Object>() {
                     @SuppressLint("SyntheticAccessor")
                     @Override
                     public Object onExit(Object result) {

@@ -44,6 +44,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.inspection.ArtToolInterface.EntryHook;
+import androidx.inspection.ArtToolInterface.ExitHook;
 import androidx.inspection.Connection;
 import androidx.inspection.Inspector;
 import androidx.inspection.InspectorEnvironment;
@@ -252,7 +254,7 @@ final class SqliteInspector extends Inspector {
         registerDatabaseClosedHooks(hookRegistry);
 
         // Check for database instances in memory
-        for (SQLiteDatabase instance : mEnvironment.findInstances(SQLiteDatabase.class)) {
+        for (SQLiteDatabase instance : mEnvironment.artTI().findInstances(SQLiteDatabase.class)) {
             /** the race condition here will be handled by mDatabaseRegistry */
             if (instance.isOpen()) {
                 onDatabaseOpened(instance);
@@ -262,7 +264,7 @@ final class SqliteInspector extends Inspector {
         }
 
         // Check for database instances on disk
-        for (Application instance : mEnvironment.findInstances(Application.class)) {
+        for (Application instance : mEnvironment.artTI().findInstances(Application.class)) {
             for (String name : instance.databaseList()) {
                 File path = instance.getDatabasePath(name);
                 if (path.exists() && !isHelperSqliteFile(path)) {
@@ -296,8 +298,8 @@ final class SqliteInspector extends Inspector {
                         OPEN_DATABASE_COMMAND_SIGNATURE_API_11,
                         CREATE_IN_MEMORY_DATABASE_COMMAND_SIGNATURE_API_27);
 
-        InspectorEnvironment.ExitHook<SQLiteDatabase> hook =
-                new InspectorEnvironment.ExitHook<SQLiteDatabase>() {
+        ExitHook<SQLiteDatabase> hook =
+                new ExitHook<SQLiteDatabase>() {
                     @SuppressLint("SyntheticAccessor")
                     @Override
                     public SQLiteDatabase onExit(SQLiteDatabase database) {
@@ -316,15 +318,15 @@ final class SqliteInspector extends Inspector {
                     }
                 };
         for (String method : methods) {
-            mEnvironment.registerExitHook(SQLiteDatabase.class, method, hook);
+            mEnvironment.artTI().registerExitHook(SQLiteDatabase.class, method, hook);
         }
     }
 
     private void registerReleaseReferenceHooks() {
-        mEnvironment.registerEntryHook(
+        mEnvironment.artTI().registerEntryHook(
                 SQLiteClosable.class,
                 "releaseReference()V",
-                new InspectorEnvironment.EntryHook() {
+                new EntryHook() {
                     @Override
                     public void onEntry(@Nullable Object thisObject,
                             @NonNull List<Object> args) {
@@ -374,8 +376,8 @@ final class SqliteInspector extends Inspector {
      * {@link SQLiteDatabase#setTransactionSuccessful} was called
      */
     private void registerInvalidationHooksTransaction(final RequestCollapsingThrottler throttler) {
-        mEnvironment.registerExitHook(SQLiteDatabase.class, "endTransaction()V",
-                new InspectorEnvironment.ExitHook<Object>() {
+        mEnvironment.artTI().registerExitHook(SQLiteDatabase.class, "endTransaction()V",
+                new ExitHook<Object>() {
                     @Override
                     public Object onExit(Object result) {
                         throttler.submitRequest();
@@ -395,8 +397,8 @@ final class SqliteInspector extends Inspector {
     private void registerInvalidationHooksSqliteStatement(
             final RequestCollapsingThrottler throttler) {
         for (String method : SQLITE_STATEMENT_EXECUTE_METHODS_SIGNATURES) {
-            mEnvironment.registerExitHook(SQLiteStatement.class, method,
-                    new InspectorEnvironment.ExitHook<Object>() {
+            mEnvironment.artTI().registerExitHook(SQLiteStatement.class, method,
+                    new ExitHook<Object>() {
                         @Override
                         public Object onExit(Object result) {
                             throttler.submitRequest();
