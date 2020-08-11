@@ -16,16 +16,16 @@
 
 package androidx.ui.integration.test.core
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.foundation.Border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
-import androidx.compose.foundation.drawBorder
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 class SimpleRadioButton4TestCase : BaseSimpleRadioButtonTestCase() {
@@ -37,8 +37,8 @@ class SimpleRadioButton4TestCase : BaseSimpleRadioButtonTestCase() {
             Modifier.preferredSize(48.dp)
                 .background(color = Color.Cyan)
                 .padding(innerSize.value)
-                .drawBorder(
-                    border = Border(color = Color.Cyan, size = 1.dp),
+                .border(
+                    border = BorderStroke(color = Color.Cyan, width = 1.dp),
                     shape = CircleShape
                 )
         ) {}

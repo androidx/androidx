@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.demos.gestures
 
-import androidx.compose.foundation.Border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Column
@@ -104,7 +104,8 @@ private fun PressableContainer(
             .longPressGestureFilter(onLongPress)
     Box(
         modifier.then(gestureDetectors),
-        backgroundColor = color, border = Border(2.dp, BorderColor),
+        backgroundColor = color,
+        border = BorderStroke(2.dp, BorderColor),
         children = children
     )
 }

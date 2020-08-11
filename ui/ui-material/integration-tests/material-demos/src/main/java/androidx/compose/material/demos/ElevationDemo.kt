@@ -16,24 +16,24 @@
 
 package androidx.compose.material.demos
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.foundation.Border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Card
 import androidx.compose.material.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -60,7 +60,7 @@ private fun ElevatedCard(elevation: Dp) {
     Card(
         Modifier.padding(start = 10.dp, top = 20.dp, end = 10.dp, bottom = 20.dp),
         shape = RoundedCornerShape(4.dp),
-        border = if (elevation == 0.dp) Border(1.dp, Color.Gray) else null,
+        border = if (elevation == 0.dp) BorderStroke(1.dp, Color.Gray) else null,
         elevation = elevation
     ) {
         Box(

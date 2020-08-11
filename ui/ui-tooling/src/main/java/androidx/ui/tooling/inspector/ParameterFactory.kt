@@ -16,13 +16,15 @@
 
 package androidx.ui.tooling.inspector
 
-import androidx.compose.foundation.Border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.CrossAxisAlignment
 import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.ui.AbsoluteAlignment
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
@@ -31,6 +33,7 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.InspectableParameter
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -48,9 +51,6 @@ import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.InspectableParameter
 import androidx.ui.tooling.inspector.ParameterType.DimensionDp
 import kotlin.math.abs
 
@@ -98,7 +98,7 @@ internal class ParameterFactory {
             is AnnotatedString -> NodeParameter(name, ParameterType.String, value.text)
             is BaselineShift -> createFromBaselineShift(name, value)
             is Boolean -> NodeParameter(name, ParameterType.Boolean, value)
-            is Border -> createFromBorder(node, name, value)
+            is BorderStroke -> createFromBorder(node, name, value)
             is Brush -> createFromBrush(name, value)
             is Color -> NodeParameter(name, ParameterType.Color, value.toArgb())
             is CornerBasedShape -> createFromCornerBasedShape(node, name, value)
@@ -142,11 +142,11 @@ internal class ParameterFactory {
     private fun createFromBorder(
         node: MutableInspectorNode,
         name: String,
-        value: Border
+        value: BorderStroke
     ): NodeParameter {
-        val parameter = NodeParameter(name, ParameterType.String, "Border")
+        val parameter = NodeParameter(name, ParameterType.String, "BorderStroke")
         val elements = parameter.elements
-        create(node, "size", value.size)?.let { elements.add(it) }
+        create(node, "width", value.width)?.let { elements.add(it) }
         create(node, "brush", value.brush)?.let { elements.add(it) }
         return parameter
     }

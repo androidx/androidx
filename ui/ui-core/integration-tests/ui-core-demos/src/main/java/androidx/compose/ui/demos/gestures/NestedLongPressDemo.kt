@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.demos.gestures
 
-import androidx.compose.foundation.Border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.Text
@@ -80,7 +80,7 @@ private fun LongPressableContainer(
         modifier.longPressGestureFilter(onLongPress),
         backgroundColor = color,
         gravity = ContentGravity.Center,
-        border = Border(2.dp, BorderColor),
+        border = BorderStroke(2.dp, BorderColor),
         children = children
     )
 }

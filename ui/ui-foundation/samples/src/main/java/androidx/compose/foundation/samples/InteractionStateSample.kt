@@ -21,7 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
-import androidx.compose.foundation.Border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Interaction
 import androidx.compose.foundation.InteractionState
@@ -65,7 +65,7 @@ fun InteractionStateSample() {
                 .fillMaxSize()
                 .clickable(interactionState = interactionState) { /* do nothing */ }
                 .then(draggable),
-            border = Border(3.dp, color)
+            border = BorderStroke(3.dp, color)
         ) {
             Text(
                 text, style = currentTextStyle().copy(textAlign = TextAlign.Center),
