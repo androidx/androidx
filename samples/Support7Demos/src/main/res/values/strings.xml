@@ -285,6 +285,7 @@
     <string name="popup_group_dividers">Display group dividers</string>
 
     <string name="webview">WebView</string>
+    <string name="editbox">EditText</string>
     <string name="launch_activity">Launch Activity</string>
 
     <string name="custom_drawable">Drawable/Custom drawable</string>
