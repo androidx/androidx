@@ -25,14 +25,19 @@ import static androidx.core.graphics.ColorUtils.compositeColors;
 
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.graphics.Shader;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.util.Log;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.DimenRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -234,7 +239,74 @@ public final class AppCompatDrawableManager {
                                         R.drawable.abc_cab_background_top_mtrl_alpha)
                         });
                     }
+                    if (resId == R.drawable.abc_ratingbar_material) {
+                        return getRatingBarLayerDrawable(resourceManager, context,
+                                R.dimen.abc_star_big);
+                    }
+                    if (resId == R.drawable.abc_ratingbar_indicator_material) {
+                        return getRatingBarLayerDrawable(resourceManager, context,
+                                R.dimen.abc_star_medium);
+                    }
+                    if (resId == R.drawable.abc_ratingbar_small_material) {
+                        return getRatingBarLayerDrawable(resourceManager, context,
+                                R.dimen.abc_star_small);
+                    }
                     return null;
+                }
+
+                private LayerDrawable getRatingBarLayerDrawable(
+                        @NonNull ResourceManagerInternal resourceManager,
+                        @NonNull Context context, @DimenRes int dimenResId) {
+                    int starSize = context.getResources().getDimensionPixelSize(dimenResId);
+
+                    Drawable star = resourceManager.getDrawable(context,
+                            R.drawable.abc_star_black_48dp);
+                    Drawable halfStar = resourceManager.getDrawable(context,
+                            R.drawable.abc_star_half_black_48dp);
+
+                    BitmapDrawable starBitmapDrawable;
+                    BitmapDrawable tiledStarBitmapDrawable;
+                    if ((star instanceof BitmapDrawable) && (star.getIntrinsicWidth() == starSize)
+                            && (star.getIntrinsicHeight() == starSize)) {
+                        // no need for extra conversion
+                        starBitmapDrawable = (BitmapDrawable) star;
+
+                        tiledStarBitmapDrawable =
+                                new BitmapDrawable(starBitmapDrawable.getBitmap());
+                    } else {
+                        Bitmap bitmapStar = Bitmap.createBitmap(starSize, starSize,
+                                Bitmap.Config.ARGB_8888);
+                        Canvas canvasStar = new Canvas(bitmapStar);
+                        star.setBounds(0, 0, starSize, starSize);
+                        star.draw(canvasStar);
+                        starBitmapDrawable = new BitmapDrawable(bitmapStar);
+
+                        tiledStarBitmapDrawable = new BitmapDrawable(bitmapStar);
+                    }
+                    tiledStarBitmapDrawable.setTileModeX(Shader.TileMode.REPEAT);
+
+                    BitmapDrawable halfStarBitmapDrawable;
+                    if ((halfStar instanceof BitmapDrawable)
+                            && (halfStar.getIntrinsicWidth() == starSize)
+                            && (halfStar.getIntrinsicHeight() == starSize)) {
+                        // no need for extra conversion
+                        halfStarBitmapDrawable = (BitmapDrawable) halfStar;
+                    } else {
+                        Bitmap bitmapHalfStar = Bitmap.createBitmap(starSize, starSize,
+                                Bitmap.Config.ARGB_8888);
+                        Canvas canvasHalfStar = new Canvas(bitmapHalfStar);
+                        halfStar.setBounds(0, 0, starSize, starSize);
+                        halfStar.draw(canvasHalfStar);
+                        halfStarBitmapDrawable = new BitmapDrawable(bitmapHalfStar);
+                    }
+
+                    LayerDrawable result = new LayerDrawable(new Drawable[]{
+                            starBitmapDrawable, halfStarBitmapDrawable, tiledStarBitmapDrawable
+                    });
+                    result.setId(0, android.R.id.background);
+                    result.setId(1, android.R.id.secondaryProgress);
+                    result.setId(2, android.R.id.progress);
+                    return result;
                 }
 
                 private void setPorterDuffColorFilter(Drawable d, int color, PorterDuff.Mode mode) {
