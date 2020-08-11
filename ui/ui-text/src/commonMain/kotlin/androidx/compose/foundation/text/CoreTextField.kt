@@ -194,14 +194,23 @@ fun CoreTextField(
         manager.textToolbar = TextToolbarAmbient.current
         manager.hapticFeedBack = HapticFeedBackAmbient.current
 
-        val focusObserver = Modifier.focusObserver {
-            if (state.hasFocus == it.isFocused) {
+        val focusObserver = Modifier.focusObserver { focusState ->
+
+            // No Change in focus state, just make sure the keyboard is shown/hidden.
+            if (state.hasFocus == focusState.isFocused) {
+                textInputService?.run {
+                    if (focusState.isFocused) {
+                        showSoftwareKeyboard(state.inputSession)
+                    } else {
+                        hideSoftwareKeyboard(state.inputSession)
+                    }
+                }
                 return@focusObserver
             }
 
-            state.hasFocus = it.isFocused
+            state.hasFocus = focusState.isFocused
 
-            if (it.isFocused) {
+            if (focusState.isFocused) {
                 state.inputSession = TextFieldDelegate.onFocus(
                     textInputService,
                     value,
@@ -229,7 +238,7 @@ fun CoreTextField(
                                 coords,
                                 textInputService,
                                 state.inputSession,
-                                state.hasFocus,
+                                focusState.isFocused,
                                 offsetMap
                             )
                         }
