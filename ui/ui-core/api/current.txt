@@ -2420,9 +2420,10 @@ package androidx.compose.ui.semantics {
   }
 
   public final class SemanticsPropertyKey<T> {
-    ctor public SemanticsPropertyKey(String name);
+    ctor public SemanticsPropertyKey(String name, internal kotlin.jvm.functions.Function2<? super T,? super T,? extends T> mergePolicy);
     method public String getName();
     method public operator T! getValue(androidx.compose.ui.semantics.SemanticsPropertyReceiver thisRef, kotlin.reflect.KProperty<?> property);
+    method public T? merge(T? parentValue, T? childValue);
     method public operator void setValue(androidx.compose.ui.semantics.SemanticsPropertyReceiver thisRef, kotlin.reflect.KProperty<?> property, T? value);
   }
 

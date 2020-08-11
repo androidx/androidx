@@ -32,6 +32,7 @@ import androidx.ui.test.createComposeRule
 import androidx.ui.test.performClick
 import androidx.ui.test.performGesture
 import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.onNodeWithSubstring
 import androidx.ui.test.runOnIdle
 import androidx.ui.test.click
 import androidx.ui.test.doubleClick
@@ -105,6 +106,34 @@ class ClickableTest {
 
         onNodeWithTag("myClickable")
             .performClick()
+
+        runOnIdle {
+            assertThat(counter).isEqualTo(2)
+        }
+    }
+
+    @Test
+    fun clickableTest_clickOnChildText() {
+        var counter = 0
+        val onClick: () -> Unit = { ++counter }
+
+        composeTestRule.setContent {
+            Stack(modifier = Modifier.clickable(onClick = onClick)) {
+                Text("Foo")
+                Text("Bar")
+            }
+        }
+
+        onNodeWithSubstring("Foo").assertExists()
+        onNodeWithSubstring("Bar").assertExists()
+
+        onNodeWithSubstring("Foo").performClick()
+
+        runOnIdle {
+            assertThat(counter).isEqualTo(1)
+        }
+
+        onNodeWithSubstring("Bar").performClick()
 
         runOnIdle {
             assertThat(counter).isEqualTo(2)
