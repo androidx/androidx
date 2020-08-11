@@ -35,6 +35,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
+import androidx.textclassifier.test.R;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -203,8 +204,7 @@ public final class TextClassificationTest {
                         .setText(TEXT)
                         .setEntityType(TextClassifier.TYPE_ADDRESS, ADDRESS_SCORE)
                         .setEntityType(TextClassifier.TYPE_PHONE, PHONE_SCORE)
-                        .setIcon(mContext.getDrawable(
-                                androidx.appcompat.R.drawable.abc_ic_star_black_16dp))
+                        .setIcon(mContext.getDrawable(R.drawable.ic_star_black_16dp))
                         .setLabel(PRIMARY_LABEL)
                         .setIntent(PRIMARY_INTENT)
                         .build();
