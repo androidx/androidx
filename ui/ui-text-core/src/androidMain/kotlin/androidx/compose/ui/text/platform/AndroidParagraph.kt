@@ -49,6 +49,10 @@ import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.text.platform.extensions.applySpanStyle
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.util.annotation.VisibleForTesting
 import java.util.Locale as JavaLocale
 
@@ -321,7 +325,23 @@ internal class AndroidParagraph constructor(
     internal fun isEllipsisApplied(lineIndex: Int): Boolean =
         layout.isEllipsisApplied(lineIndex)
 
-    override fun paint(canvas: Canvas) {
+    override fun paint(
+        canvas: Canvas,
+        color: Color,
+        shadow: Shadow?,
+        textDecoration: TextDecoration?
+    ) {
+        if (color != Color.Unset || shadow != null || textDecoration != null) {
+            textPaint.applySpanStyle(
+                style = SpanStyle(
+                    color = color,
+                    shadow = shadow,
+                    textDecoration = textDecoration
+                ),
+                typefaceAdapter = paragraphIntrinsics.typefaceAdapter,
+                density = paragraphIntrinsics.density
+            )
+        }
         val nativeCanvas = canvas.nativeCanvas
         if (didExceedMaxLines) {
             nativeCanvas.save()

@@ -23,6 +23,9 @@ import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.style.ResolvedTextDirection
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.util.fastForEach
 import kotlin.math.max
 
@@ -227,10 +230,15 @@ class MultiParagraph(
     }
 
     /** Paint the paragraphs to canvas. */
-    fun paint(canvas: Canvas) {
+    fun paint(
+        canvas: Canvas,
+        color: Color = Color.Unset,
+        shadow: Shadow? = null,
+        decoration: TextDecoration? = null
+    ) {
         canvas.save()
         paragraphInfoList.fastForEach {
-            it.paragraph.paint(canvas)
+            it.paragraph.paint(canvas, color, shadow, decoration)
             canvas.translate(0f, it.paragraph.height)
         }
         canvas.restore()
