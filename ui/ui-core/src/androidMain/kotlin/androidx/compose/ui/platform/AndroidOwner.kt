@@ -15,6 +15,7 @@
  */
 package androidx.compose.ui.platform
 
+import android.content.res.Configuration
 import android.view.View
 import androidx.annotation.RestrictTo
 import androidx.lifecycle.LifecycleOwner
@@ -53,7 +54,7 @@ interface AndroidOwner : Owner {
      * configuration ambient instead of changing this observer if you are writing a component
      * that adapts to configuration changes.
      */
-    var configurationChangeObserver: () -> Unit
+    var configurationChangeObserver: (Configuration) -> Unit
 
     /**
      * Current [ViewTreeOwners]. Use [setOnViewTreeOwnersAvailable] if you want to
