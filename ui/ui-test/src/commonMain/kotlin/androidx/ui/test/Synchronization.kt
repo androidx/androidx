@@ -50,16 +50,3 @@ fun <T> runOnIdle(action: () -> T): T {
 fun waitForIdle() = actualWaitForIdle()
 
 internal expect fun actualWaitForIdle()
-
-// DEPRECATED APIs SECTION
-
-/**
- * Executes the given action in the same way as [runOnUiThread] but also makes sure Compose
- * is idle before executing it. This is great place for doing your assertions on shared
- * variables.
- *
- * This method is blocking until the action is complete.
- */
-@Deprecated("Renamed to runOnIdle",
-    replaceWith = ReplaceWith("runOnIdle(action)"))
-fun <T> runOnIdleCompose(action: () -> T): T = runOnIdle(action)

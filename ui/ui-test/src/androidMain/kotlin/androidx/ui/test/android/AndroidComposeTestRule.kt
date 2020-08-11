@@ -85,24 +85,6 @@ fun <T : ComponentActivity> createAndroidComposeRule(
 )
 
 /**
- * Factory method to provide android specific implementation of [createComposeRule].
- *
- * This method is useful for tests that require a custom Activity. This is usually the case for
- * app tests. Make sure that you add the provided activity into your app's manifest file (usually
- * in main/AndroidManifest.xml).
- *
- * If you don't care about specific activity and just want to test composables in general, see
- * [createComposeRule].
- */
-@Deprecated("Renamed to createAndroidComposeRule",
-    replaceWith = ReplaceWith("createAndroidComposeRule(disableTransitions, " +
-            "disableBlinkingCursor)"))
-inline fun <reified T : ComponentActivity> AndroidComposeTestRule(
-    disableTransitions: Boolean = false,
-    disableBlinkingCursor: Boolean = true
-): AndroidComposeTestRule<T> = createAndroidComposeRule(disableTransitions, disableBlinkingCursor)
-
-/**
  * Android specific implementation of [ComposeTestRule].
  */
 class AndroidComposeTestRule<T : ComponentActivity>(
