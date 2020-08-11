@@ -32,8 +32,8 @@ class ImageViewTintDetector : LayoutDetector() {
     companion object {
         internal val USING_ANDROID_TINT: Issue = Issue.create(
             "UseAppTint",
-            "`app:tint` attribute should be used on `ImageView`",
-            "`ImageView` uses `android:tint` instead of `app:tint`",
+            "`app:tint` attribute should be used on `ImageView` and `ImageButton`",
+            "`ImageView` or `ImageButton` uses `android:tint` instead of `app:tint`",
             Category.CORRECTNESS,
             1,
             Severity.ERROR,
@@ -41,7 +41,7 @@ class ImageViewTintDetector : LayoutDetector() {
         )
     }
 
-    override fun getApplicableElements(): Collection<String>? = listOf("ImageView")
+    override fun getApplicableElements(): Collection<String>? = listOf("ImageView", "ImageButton")
 
     override fun visitElement(context: XmlContext, element: Element) {
         // Only look at items that have android:tint
