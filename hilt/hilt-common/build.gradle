@@ -28,6 +28,7 @@ plugins {
 
 dependencies {
     implementation(HILT_ANDROID)
+    annotationProcessor(HILT_ANDROID_COMPILER)
 }
 
 android.libraryVariants.all { variant ->
