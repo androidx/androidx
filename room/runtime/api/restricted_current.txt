@@ -105,7 +105,7 @@ package androidx.room {
     method public <V> V! runInTransaction(java.util.concurrent.Callable<V!>);
     method @Deprecated public void setTransactionSuccessful();
     field @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static final int MAX_BIND_PARAMETER_CNT = 999; // 0x3e7
-    field @Deprecated protected java.util.List<androidx.room.RoomDatabase.Callback!>? mCallbacks;
+    field @Deprecated @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected java.util.List<androidx.room.RoomDatabase.Callback!>? mCallbacks;
     field @Deprecated protected volatile androidx.sqlite.db.SupportSQLiteDatabase! mDatabase;
   }
 

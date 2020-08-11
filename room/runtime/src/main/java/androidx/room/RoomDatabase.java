@@ -89,8 +89,9 @@ public abstract class RoomDatabase {
     boolean mWriteAheadLoggingEnabled;
 
     /**
-     * @deprecated Will be hidden in the next release.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     @Nullable
     @Deprecated
     protected List<Callback> mCallbacks;
