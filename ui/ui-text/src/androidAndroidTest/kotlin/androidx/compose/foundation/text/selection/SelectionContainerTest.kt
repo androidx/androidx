@@ -20,21 +20,26 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.text.CoreText
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Providers
 import androidx.compose.runtime.mutableStateOf
-import androidx.test.filters.SdkSuppress
-import androidx.test.filters.SmallTest
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Layout
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.PointerInputFilter
+import androidx.compose.ui.input.pointer.PointerInputModifier
+import androidx.compose.ui.input.pointer.changedToUp
+import androidx.compose.ui.platform.HapticFeedBackAmbient
 import androidx.compose.ui.selection.Selection
 import androidx.compose.ui.selection.SelectionContainer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.ui.test.android.createAndroidComposeRule
-import androidx.ui.test.runOnIdle
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.foundation.text.CoreText
-import androidx.compose.ui.platform.HapticFeedBackAmbient
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -42,7 +47,12 @@ import androidx.compose.ui.text.font.ResourceFont
 import androidx.compose.ui.text.font.asFontFamily
 import androidx.compose.ui.text.font.test.R
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.sp
+import androidx.test.filters.SdkSuppress
+import androidx.test.filters.SmallTest
+import androidx.ui.test.android.createAndroidComposeRule
+import androidx.ui.test.runOnIdle
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import com.nhaarman.mockitokotlin2.times
@@ -54,6 +64,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import kotlin.math.max
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -74,6 +85,7 @@ class SelectionContainerTest {
 
     private val selection = mutableStateOf<Selection?>(null)
     private val fontSize = 10.sp
+    private val log = PointerInputChangeLog()
 
     private val hapticFeedback = mock<HapticFeedback>()
 
@@ -83,23 +95,25 @@ class SelectionContainerTest {
             Providers(
                 HapticFeedBackAmbient provides hapticFeedback
             ) {
-                SelectionContainer(
-                    selection = selection.value,
-                    onSelectionChange = {
-                        selection.value = it
-                        gestureCountDownLatch.countDown()
+                TestParent(Modifier.gestureSpy(log)) {
+                    SelectionContainer(
+                        selection = selection.value,
+                        onSelectionChange = {
+                            selection.value = it
+                            gestureCountDownLatch.countDown()
+                        }
+                    ) {
+                        CoreText(
+                            AnnotatedString(textContent),
+                            Modifier.fillMaxSize(),
+                            style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
+                            softWrap = true,
+                            overflow = TextOverflow.Clip,
+                            maxLines = Int.MAX_VALUE,
+                            inlineContent = mapOf(),
+                            onTextLayout = {}
+                        )
                     }
-                ) {
-                    CoreText(
-                        AnnotatedString(textContent),
-                        Modifier.fillMaxSize(),
-                        style = TextStyle(fontFamily = fontFamily, fontSize = fontSize),
-                        softWrap = true,
-                        overflow = TextOverflow.Clip,
-                        maxLines = Int.MAX_VALUE,
-                        inlineContent = mapOf(),
-                        onTextLayout = {}
-                    )
                 }
             }
         }
@@ -129,6 +143,30 @@ class SelectionContainerTest {
                 hapticFeedback,
                 times(2)
             ).performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        }
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 27)
+    fun tapToCancelDoesNotBlockUp() {
+        // Setup. Long press to create a selection.
+        // A reasonable number.
+        val position = 50f
+        longPress(x = position, y = position)
+
+        log.entries.clear()
+
+        // Act.
+        press(x = position, y = position)
+
+        // Assert.
+        runOnIdle {
+            // Press has a down event over 3 passes and then an up event over 3 passes.  We are
+            // interested in looking at the final up event.
+            assertThat(log.entries).hasSize(6)
+            assertThat(log.entries[5].pass).isEqualTo(PointerEventPass.Final)
+            assertThat(log.entries[5].changes).hasSize(1)
+            assertThat(log.entries[5].changes[0].changedToUp()).isTrue()
         }
     }
 
@@ -249,5 +287,70 @@ class SelectionContainerTest {
 
     private fun waitForOtherGesture(block: () -> Unit) {
         runOnIdle(block)
+    }
+}
+
+private class PointerInputChangeLog : (List<PointerInputChange>, PointerEventPass) -> Unit {
+
+    val entries = mutableListOf<PointerInputChangeLogEntry>()
+
+    override fun invoke(p1: List<PointerInputChange>, p2: PointerEventPass) {
+        entries.add(PointerInputChangeLogEntry(p1.map { it }, p2))
+    }
+}
+
+private data class PointerInputChangeLogEntry(
+    val changes: List<PointerInputChange>,
+    val pass: PointerEventPass
+)
+
+private fun Modifier.gestureSpy(
+    onPointerInput: (List<PointerInputChange>, PointerEventPass) -> Unit
+): Modifier = composed {
+    val spy = remember { GestureSpy() }
+    spy.onPointerInput = onPointerInput
+    spy
+}
+
+private class GestureSpy : PointerInputModifier {
+
+    lateinit var onPointerInput: (List<PointerInputChange>, PointerEventPass) -> Unit
+
+    override val pointerInputFilter = object : PointerInputFilter() {
+        override fun onPointerInput(
+            changes: List<PointerInputChange>,
+            pass: PointerEventPass,
+            bounds: IntSize
+        ): List<PointerInputChange> {
+            onPointerInput(changes, pass)
+            return changes
+        }
+
+        override fun onCancel() {
+            // Nothing to implement
+        }
+    }
+}
+
+@Composable
+fun TestParent(modifier: Modifier = Modifier, children: @Composable () -> Unit) {
+    Layout(modifier = modifier, children = children) { measurables, constraints ->
+        val placeables = measurables.map { measurable ->
+            measurable.measure(constraints)
+        }
+
+        val width = placeables.fold(0) { maxWidth, placeable ->
+            max(maxWidth, (placeable.width))
+        }
+
+        val height = placeables.fold(0) { minWidth, placeable ->
+            max(minWidth, (placeable.height))
+        }
+
+        layout(width, height) {
+            placeables.forEach { placeable ->
+                placeable.place(0, 0)
+            }
+        }
     }
 }
