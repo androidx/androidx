@@ -25,6 +25,7 @@ val AnimationDemos = DemoCategory("Animation", listOf(
     ComposableDemo("Animated scrolling") { FancyScrollingDemo() },
     ComposableDemo("Animate Content Size") { AnimateContentSizeDemo() },
     ComposableDemo("Animate Visibility Demo") { AnimatedVisibilityDemo() },
+    ComposableDemo("Animate Visibility Lazy Column Demo") { AnimatedVisibilityLazyColumnDemo() },
     ComposableDemo("Cross Fade") { CrossfadeDemo() },
     ComposableDemo("Enter/Exit Transition Demo") { EnterExitTransitionDemo() },
     ComposableDemo("Gesture based animation") { GestureBasedAnimationDemo() },
