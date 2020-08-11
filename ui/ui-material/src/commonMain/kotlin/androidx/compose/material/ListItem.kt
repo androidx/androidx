@@ -16,6 +16,7 @@
 
 package androidx.compose.material
 
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.ProvideTextStyle
@@ -79,13 +80,16 @@ fun ListItem(
     val styledSecondaryText = applyTextStyle(typography.body2, emphasisLevels.medium, secondaryText)
     val styledOverlineText = applyTextStyle(typography.overline, emphasisLevels.high, overlineText)
     val styledTrailing = applyTextStyle(typography.caption, emphasisLevels.high, trailing)
+
+    val semanticsModifier = modifier.semantics(mergeAllDescendants = true) {}
+
     if (styledSecondaryText == null && styledOverlineText == null) {
-        OneLine.ListItem(modifier, icon, styledText, styledTrailing)
+        OneLine.ListItem(semanticsModifier, icon, styledText, styledTrailing)
     } else if (
         (styledOverlineText == null && singleLineSecondaryText) || styledSecondaryText == null
     ) {
         TwoLine.ListItem(
-            modifier,
+            semanticsModifier,
             icon,
             styledText,
             styledSecondaryText,
@@ -94,7 +98,7 @@ fun ListItem(
         )
     } else {
         ThreeLine.ListItem(
-            modifier,
+            semanticsModifier,
             icon,
             styledText,
             styledSecondaryText,

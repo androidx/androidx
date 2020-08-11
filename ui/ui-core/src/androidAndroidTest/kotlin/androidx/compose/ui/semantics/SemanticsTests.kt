@@ -81,6 +81,29 @@ class SemanticsTests {
     }
 
     @Test
+    fun depthFirstLabelConcat() {
+        val root = "root"
+        val child1 = "child1"
+        val grandchild1 = "grandchild1"
+        val grandchild2 = "grandchild2"
+        val child2 = "grandchild2"
+        composeTestRule.setContent {
+            SimpleTestLayout(Modifier.testTag(TestTag)
+                .semantics(mergeAllDescendants = true) { accessibilityLabel = root }
+            ) {
+                SimpleTestLayout(Modifier.semantics { accessibilityLabel = child1 }) {
+                    SimpleTestLayout(Modifier.semantics { accessibilityLabel = grandchild1 }) { }
+                    SimpleTestLayout(Modifier.semantics { accessibilityLabel = grandchild2 }) { }
+                }
+                SimpleTestLayout(Modifier.semantics { accessibilityLabel = child2 }) { }
+            }
+        }
+
+        onNodeWithTag(TestTag).assertLabelEquals(
+            "$root, $child1, $grandchild1, $grandchild2, $child2")
+    }
+
+    @Test
     fun nestedMergedSubtree() {
         val tag1 = "tag1"
         val tag2 = "tag2"

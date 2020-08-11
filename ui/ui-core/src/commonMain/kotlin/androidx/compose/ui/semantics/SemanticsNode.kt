@@ -66,7 +66,7 @@ class SemanticsNode internal constructor(
     val mergingEnabled: Boolean
 ) {
     internal val unmergedConfig = layoutNodeWrapper.collapsedSemanticsConfiguration()
-    val id: Int = layoutNodeWrapper.semanticsModifier.id
+    val id: Int = layoutNodeWrapper.modifier.id
     // TODO(aelias): Make this internal and expose the Owner instead
     val componentNode: LayoutNode = layoutNodeWrapper.layoutNode
 
@@ -138,24 +138,27 @@ class SemanticsNode internal constructor(
     val config: SemanticsConfiguration
         get() {
             if (isMergingSemanticsOfDescendants) {
-                return buildMergedConfig(SemanticsConfiguration())
+                val mergedConfig = unmergedConfig.copy()
+                unmergedChildren().fastForEach { child ->
+                    child.mergeConfig(mergedConfig)
+                }
+                return mergedConfig
             } else {
                 return unmergedConfig
             }
         }
 
-    private fun buildMergedConfig(
-        mergedConfig: SemanticsConfiguration
-    ): SemanticsConfiguration {
-        mergedConfig.absorb(unmergedConfig)
-
-        unmergedChildren().fastForEach { child ->
-            if (child.isMergingSemanticsOfDescendants == false) {
-                child.buildMergedConfig(mergedConfig)
-            }
+    private fun mergeConfig(mergedConfig: SemanticsConfiguration) {
+        // Don't merge children that themselves merge all their descendants (because that
+        // indicates they're independently screen-reader-focusable).
+        if (isMergingSemanticsOfDescendants) {
+            return
         }
 
-        return mergedConfig
+        mergedConfig.mergeChild(unmergedConfig)
+        unmergedChildren().fastForEach { child ->
+            child.mergeConfig(mergedConfig)
+        }
     }
 
     private val isMergingSemanticsOfDescendants: Boolean

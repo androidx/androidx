@@ -19,6 +19,7 @@ package androidx.compose.ui.semantics
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.annotatedString
 import kotlin.reflect.KProperty
 
 /**
@@ -31,7 +32,16 @@ object SemanticsProperties {
      *
      * @see SemanticsPropertyReceiver.accessibilityLabel
      */
-    val AccessibilityLabel = SemanticsPropertyKey<String>("AccessibilityLabel")
+    val AccessibilityLabel = SemanticsPropertyKey<String>(
+        name = "AccessibilityLabel",
+        mergePolicy = { parentValue, childValue ->
+            if (parentValue == null) {
+                childValue
+            } else {
+                parentValue + ", " + childValue
+            }
+        }
+    )
 
     /**
      * Developer-set state description of the semantics node. For example: on/off. If this not
@@ -71,7 +81,12 @@ object SemanticsProperties {
      *
      * @see SemanticsPropertyReceiver.hidden
      */
-    val Hidden = SemanticsPropertyKey<Unit>("Hidden")
+    val Hidden = SemanticsPropertyKey<Unit>(
+        name = "Hidden",
+        mergePolicy = { parentValue, _ ->
+            parentValue
+        }
+    )
 
     /**
      * Whether this semantics node represents a Popup. Not to be confused with if this node is
@@ -79,13 +94,27 @@ object SemanticsProperties {
      *
      * @see SemanticsPropertyReceiver.popup
      */
-    val IsPopup = SemanticsPropertyKey<Unit>("IsPopup")
+    val IsPopup = SemanticsPropertyKey<Unit>(
+        name = "IsPopup",
+        mergePolicy = { _, _ ->
+            throw IllegalStateException(
+                "merge function called on unmergeable property IsPopup. " +
+                "A popup should not be a child of a clickable/focusable node.")
+        }
+    )
 
     /**
      * Whether this element is a Dialog. Not to be confused with if this element is _part of_ a
      * Dialog.
      */
-    val IsDialog = SemanticsPropertyKey<Unit>("IsDialog")
+    val IsDialog = SemanticsPropertyKey<Unit>(
+        name = "IsDialog",
+        mergePolicy = { _, _ ->
+            throw IllegalStateException(
+                "merge function called on unmergeable property IsDialog. " +
+                "A dialog should not be a child of a clickable/focusable node.")
+        }
+    )
 
     // TODO(b/138172781): Move to FoundationSemanticsProperties
     /**
@@ -93,7 +122,13 @@ object SemanticsProperties {
      *
      * @see SemanticsPropertyReceiver.testTag
      */
-    val TestTag = SemanticsPropertyKey<String>("TestTag")
+    val TestTag = SemanticsPropertyKey<String>(
+        name = "TestTag",
+        mergePolicy = { parentValue, _ ->
+            // Never merge TestTags, to avoid leaking internal test tags to parents.
+            parentValue
+        }
+    )
 
     /**
      * Text of the semantics node. It must be the actual text displayed by this component instead
@@ -101,7 +136,20 @@ object SemanticsProperties {
      *
      * @see SemanticsPropertyReceiver.text
      */
-    val Text = SemanticsPropertyKey<AnnotatedString>("Text")
+    val Text = SemanticsPropertyKey<AnnotatedString>(
+        name = "Text",
+        mergePolicy = { parentValue, childValue ->
+            if (parentValue == null) {
+                childValue
+            } else {
+                annotatedString {
+                    append(parentValue)
+                    append(", ")
+                    append(childValue)
+                }
+            }
+        }
+    )
 
     /**
      * Text selection range for edit text.
@@ -199,8 +247,26 @@ class SemanticsPropertyKey<T>(
     /**
      * The name of the property.  Should be the same as the constant from which it is accessed.
      */
-    val name: String
+    val name: String,
+    internal val mergePolicy: (T?, T) -> T? = { parentValue, childValue ->
+        parentValue ?: childValue
+    }
 ) {
+    /**
+     * Method implementing the semantics merge policy of a particular key.
+     *
+     * When mergeAllDescendants is set on a semantics node, then this function will called for each
+     * descendant node of a given key in depth-first-search order.  The parent
+     * value accumulates the result of merging the values seen so far, similar to reduce().
+     *
+     * The default implementation returns the parent value if one exists, otherwise uses the
+     * child element.  This means by default, a SemanticsNode with mergeAllDescendants = true
+     * winds up with the first value found for each key in its subtree in depth-first-search order.
+     */
+    fun merge(parentValue: T?, childValue: T): T? {
+        return mergePolicy(parentValue, childValue)
+    }
+
     /**
      * Throws [UnsupportedOperationException].  Should not be called.
      */

@@ -87,22 +87,37 @@ class SemanticsConfiguration : SemanticsPropertyReceiver,
     // CONFIGURATION COMBINATION LOGIC
 
     /**
-     * Absorb the semantic information from `other` into this configuration.
+     * Absorb the semantic information from a child SemanticsNode into this configuration.
      *
-     * This adds the semantic information of both configurations and saves the result in this
-     * configuration.
-     *
-     * The [other] configuration must not contain any properties that cannot be
-     * merged into this configuration.
+     * This merges the child's semantic configuration using the `merge()` method defined
+     * on the key.  This is used when mergeAllDescendants is specified (for accessibility focusable
+     * nodes).
      */
-    internal fun absorb(other: SemanticsConfiguration) {
-        if (other.isMergingSemanticsOfDescendants) {
+    @Suppress("UNCHECKED_CAST")
+    internal fun mergeChild(child: SemanticsConfiguration) {
+        for ((key, nextValue) in child.props) {
+            val existingValue = props[key]
+            val mergeResult = (key as SemanticsPropertyKey<Any?>).merge(existingValue, nextValue)
+            if (mergeResult != null) {
+                props[key] = mergeResult
+            }
+        }
+    }
+
+    /**
+     * Absorb the semantic information from a peer modifier into this configuration.
+     *
+     * This is repeatedly called for each semantics {} modifier on one LayoutNode to collapse
+     * them into one SemanticsConfiguration.  Values with a key already seen are ignored
+     * (the semantics value of the outermost modifier with a given semantics key is the one used).
+     */
+    internal fun collapsePeer(peer: SemanticsConfiguration) {
+        if (peer.isMergingSemanticsOfDescendants) {
             isMergingSemanticsOfDescendants = true
         }
-        for (entry in other.props) {
-            val key = entry.key
-            if (!props.containsKey(key)) {
-                props[key] = entry.value
+        for ((key, nextValue) in peer.props) {
+            if (!props.contains(key)) {
+                props[key] = nextValue
             }
         }
     }

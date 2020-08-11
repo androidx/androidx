@@ -23,16 +23,16 @@ import androidx.compose.ui.node.LayoutNodeWrapper
 @OptIn(ExperimentalLayoutNodeApi::class)
 internal class SemanticsWrapper(
     wrapped: LayoutNodeWrapper,
-    val semanticsModifier: SemanticsModifier
+    semanticsModifier: SemanticsModifier
 ) : DelegatingLayoutNodeWrapper<SemanticsModifier>(wrapped, semanticsModifier) {
     fun collapsedSemanticsConfiguration(): SemanticsConfiguration {
-        var config = SemanticsConfiguration()
-        config.absorb(modifier.semanticsConfiguration)
-
-        val innerConfig = wrapped.nearestSemantics?.collapsedSemanticsConfiguration()
-        if (innerConfig != null) {
-            config.absorb(innerConfig)
+        val nextSemantics = wrapped.nearestSemantics
+        if (nextSemantics == null) {
+            return modifier.semanticsConfiguration
         }
+
+        var config = modifier.semanticsConfiguration.copy()
+        config.collapsePeer(nextSemantics.collapsedSemanticsConfiguration())
         return config
     }
 
