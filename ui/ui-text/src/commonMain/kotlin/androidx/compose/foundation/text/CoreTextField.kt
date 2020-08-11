@@ -109,7 +109,7 @@ import kotlin.math.roundToInt
  * on the keyboard. For example, search icon may be shown if [ImeAction.Search] is specified.
  * Then, when user tap that key, the [onImeActionPerformed] callback is called with specified
  * ImeAction.
- *  * @param onImeActionPerformed Called when the input service requested an IME action. When the
+ * @param onImeActionPerformed Called when the input service requested an IME action. When the
  * input service emitted an IME action, this callback is called with the emitted IME action. Note
  * that this IME action may be different from what you specified in [imeAction].
  * @param visualTransformation The visual transformation filter for changing the visual
@@ -290,8 +290,8 @@ fun CoreTextField(
             if (textInputService != null) {
                 state.layoutCoordinates = it
                 if (state.selectionIsOn) {
-                    if (state.updatingSelection) manager.hideSelectionToolbar()
-                    else manager.showSelectionToolbar()
+                    if (state.showFloatingToolbar) manager.showSelectionToolbar()
+                    else manager.hideSelectionToolbar()
                 }
                 state.layoutResult?.let { layoutResult ->
                     TextFieldDelegate.notifyFocusedRect(
@@ -387,23 +387,28 @@ fun CoreTextField(
             if (state.hasFocus) {
                 if (state.selectionIsOn) {
                     manager.state?.layoutResult?.let {
-                        val startDirection = it.getBidiRunDirection(value.selection.start)
-                        val endDirection = it.getBidiRunDirection(max(value.selection.end - 1, 0))
-                        val directions = Pair(startDirection, endDirection)
-                        SelectionHandle(
-                            isStartHandle = true,
-                            directions = directions,
-                            manager = manager
-                        )
-                        SelectionHandle(
-                            isStartHandle = false,
-                            directions = directions,
-                            manager = manager
-                        )
+                        if (!value.selection.collapsed) {
+                            val startDirection = it.getBidiRunDirection(value.selection.start)
+                            val endDirection =
+                                it.getBidiRunDirection(max(value.selection.end - 1, 0))
+                            val directions = Pair(startDirection, endDirection)
+                            SelectionHandle(
+                                isStartHandle = true,
+                                directions = directions,
+                                manager = manager
+                            )
+                            SelectionHandle(
+                                isStartHandle = false,
+                                directions = directions,
+                                manager = manager
+                            )
+                        }
+
                         manager.state?.let {
+                            if (manager.isTextChanged()) it.showFloatingToolbar = false
                             if (it.hasFocus) {
-                                if (it.updatingSelection) manager.hideSelectionToolbar()
-                                else manager.showSelectionToolbar()
+                                if (it.showFloatingToolbar) manager.showSelectionToolbar()
+                                else manager.hideSelectionToolbar()
                             }
                         }
                     }
@@ -453,11 +458,9 @@ internal class TextFieldState(
     var draggingHandle = false
 
     /**
-     * A flag to check if the selection is being updated at this moment.
-     * This value will be set to true during long press and dragging, and dragging the
-     * selection handles.
+     * A flag to check if the floating toolbar should show.
      */
-    var updatingSelection = false
+    var showFloatingToolbar = false
 }
 
 /**
