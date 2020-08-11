@@ -123,6 +123,11 @@ internal class ComposeViewAdapter : FrameLayout {
     private var composableName = ""
 
     /**
+     * Whether the current Composable has animations.
+     */
+    private var hasAnimations = false
+
+    /**
      * Saved exception from the last composition. Since we can not handle the exception during the
      * composition, we save it and throw it during onLayout, this allows Studio to catch it and
      * display it to the user.
@@ -208,7 +213,7 @@ internal class ComposeViewAdapter : FrameLayout {
             }
         }
 
-        if (::clock.isInitialized && composableName.isNotEmpty()) {
+        if (composableName.isNotEmpty()) {
             // TODO(b/160126628): support other APIs, e.g. animate
             findAndSubscribeTransitions()
         }
@@ -237,8 +242,11 @@ internal class ComposeViewAdapter : FrameLayout {
                     } as? TransitionModel<*>
                     transitionModel?.anim?.animationClockObserver
                 }
+                hasAnimations = observers.isNotEmpty()
                 // Subscribe all the observers found to the `PreviewAnimationClock`
-                observers.forEach { clock.subscribe(it) }
+                if (::clock.isInitialized) {
+                    observers.forEach { clock.subscribe(it) }
+                }
             }
     }
 
@@ -405,11 +413,14 @@ internal class ComposeViewAdapter : FrameLayout {
 
     /**
      *  Returns whether this `@Composable` has animations. This allows Android Studio to decide if
-     *  the Animation Inspector icon should be displayed for this preview.
+     *  the Animation Inspector icon should be displayed for this preview. The reason for using a
+     *  method instead of the property directly is we use Java reflection to call it from Android
+     *  Studio, and to find the property we'd need to filter the method names using `contains`
+     *  instead of `equals`.
      *
      *  @suppress
      */
-    fun hasAnimations() = ::clock.isInitialized && clock.observersToAnimations.isNotEmpty()
+    fun hasAnimations() = hasAnimations
 
     private fun init(attrs: AttributeSet) {
         val composableName = attrs.getAttributeValue(TOOLS_NS_URI, "composableName") ?: return
