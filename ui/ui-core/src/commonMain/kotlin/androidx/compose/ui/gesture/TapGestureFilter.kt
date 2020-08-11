@@ -69,20 +69,6 @@ fun Modifier.tapGestureFilter(
     PointerInputModifierImpl(filter)
 }
 
-/**
- * This is a special internal implementation of TapGestureFilter that does not consume changes.  It
- * is used so that root level elements in an instance of Compose can be notified that an unblocked
- * tap has occurred, without blocking other things that are higher up.
- */
-internal fun Modifier.noConsumptionTapGestureFilter(
-    onTap: (Offset) -> Unit
-): Modifier = composed {
-    val filter = remember { TapGestureFilter() }
-    filter.onTap = onTap
-    filter.consumeChanges = false
-    PointerInputModifierImpl(filter)
-}
-
 internal class TapGestureFilter : PointerInputFilter() {
     /**
      * Called to indicate that a press gesture has successfully completed.
@@ -90,11 +76,6 @@ internal class TapGestureFilter : PointerInputFilter() {
      * This should be used to fire a state changing event as if a button was pressed.
      */
     lateinit var onTap: (Offset) -> Unit
-
-    /**
-     * Whether or not to consume changes.
-     */
-    var consumeChanges: Boolean = true
 
     /**
      * True when we are primed to call [onTap] and may be consuming all down changes.
@@ -122,11 +103,7 @@ internal class TapGestureFilter : PointerInputFilter() {
                     // not blocked, we can fire, reset, and consume all of the up events.
                     reset()
                     onTap.invoke(pointerPxPosition)
-                    return if (consumeChanges) {
-                        changes.map { it.consumeDownChange() }
-                    } else {
-                        changes
-                    }
+                    return changes.map { it.consumeDownChange() }
                 } else {
                     lastPxPosition = pointerPxPosition
                 }
