@@ -65,7 +65,7 @@ android.buildTypes.all {
 IconGenerationTask.registerExtendedIconProject(project, android)
 
 androidx {
-    name = "AndroidX Extended Material Icons"
+    name = "Compose Material Icons Extended"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.Compose.MATERIAL
@@ -73,7 +73,7 @@ androidx {
     // API tracking will simply take too long
     toolingProject = true
     inceptionYear = "2020"
-    description = "AndroidX Extended Material Icons"
+    description = "Compose Material Design extended icons. This module contains all Material icons. It is a very large dependency and should not be included directly."
 }
 
 tasks.withType(KotlinCompile).configureEach {

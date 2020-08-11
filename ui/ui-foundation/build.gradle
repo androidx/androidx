@@ -97,7 +97,7 @@ androidx {
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.Compose.FOUNDATION
     inceptionYear = "2018"
-    description = "Compose components that build the foundations from which to build a complete design system. This is for example used by Material to build its set of components."
+    description = "Higher level abstractions of the Compose UI primitives. This library is design system agnostic, providing the high-level building blocks for both application and design-system developers"
 }
 
 tasks.withType(KotlinCompile).configureEach {
