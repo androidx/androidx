@@ -68,15 +68,19 @@ open class CreateLibraryBuildInfoFileTask : DefaultTask() {
         return library?.mavenGroup?.requireSameVersion ?: false
     }
 
-    private fun getCommitShaAtHead(): String {
-        val commitList: List<Commit> = GitClientImpl(project.rootDir).getGitLog(
+    /* For androidx release notes, the most common use case is to track and publish the last sha
+     * of the build that is released.  Thus, we use frameworks/support to get the sha
+     */
+    private fun getFrameworksSupportCommitShaAtHead(): String {
+        val supportRoot = getSupportRoot(project)
+        val commitList: List<Commit> = GitClientImpl(supportRoot, logger).getGitLog(
             GitCommitRange(
                 fromExclusive = "",
                 untilInclusive = "HEAD",
                 n = 1
             ),
             keepMerges = true,
-            fullProjectDir = project.projectDir
+            fullProjectDir = supportRoot
         )
         return commitList.first().sha
     }
@@ -108,7 +112,7 @@ open class CreateLibraryBuildInfoFileTask : DefaultTask() {
         libraryBuildInfoFile.groupId = project.group.toString()
         libraryBuildInfoFile.version = project.version.toString()
         libraryBuildInfoFile.path = getProjectSpecificDirectory()
-        libraryBuildInfoFile.sha = getCommitShaAtHead()
+        libraryBuildInfoFile.sha = getFrameworksSupportCommitShaAtHead()
         libraryBuildInfoFile.groupIdRequiresSameVersion = requiresSameVersion()
         val libraryDependencies = ArrayList<LibraryBuildInfoFile.Dependency>()
         val checks = ArrayList<LibraryBuildInfoFile.Check>()
