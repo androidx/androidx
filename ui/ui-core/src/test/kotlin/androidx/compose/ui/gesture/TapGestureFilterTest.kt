@@ -400,10 +400,30 @@ class TapGestureFilterTest {
         assertThat(result.consumed.downChange, `is`(false))
     }
 
+    @Test
+    fun pointerInputHandler_consumeChangesIsFalse_upChangeNotConsumed() {
+        filter.consumeChanges = false
+        var pointer = down(0, 0.milliseconds)
+        filter::onPointerInput.invokeOverAllPasses(pointer)
+        pointer = pointer.up(100.milliseconds)
+        val pointerEventChange = filter::onPointerInput.invokeOverAllPasses(pointer)
+        assertThat(pointerEventChange.consumed.downChange, `is`(false))
+    }
+
     // Verification for when the up change should be consumed.
 
     @Test
-    fun pointerInputHandler_upChangeConsumed() {
+    fun pointerInputHandler_consumeChangesIsTrue_upChangeConsumed() {
+        filter.consumeChanges = true
+        var pointer = down(0, 0.milliseconds)
+        filter::onPointerInput.invokeOverAllPasses(pointer)
+        pointer = pointer.up(100.milliseconds)
+        val pointerEventChange = filter::onPointerInput.invokeOverAllPasses(pointer)
+        assertThat(pointerEventChange.consumed.downChange, `is`(true))
+    }
+
+    @Test
+    fun pointerInputHandler_consumeChangesIsDefault_upChangeConsumed() {
         var pointer = down(0, 0.milliseconds)
         filter::onPointerInput.invokeOverAllPasses(pointer)
         pointer = pointer.up(100.milliseconds)
