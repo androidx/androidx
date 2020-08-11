@@ -23,7 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.gesture.dragGestureFilter
 import androidx.compose.ui.gesture.longPressDragGestureFilter
-import androidx.compose.ui.gesture.tapGestureFilter
+import androidx.compose.ui.gesture.noConsumptionTapGestureFilter
 import androidx.compose.ui.onPositioned
 import androidx.compose.ui.platform.ClipboardManagerAmbient
 import androidx.compose.ui.platform.HapticFeedBackAmbient
@@ -69,7 +69,7 @@ fun SelectionContainer(
 
     val gestureModifiers =
         Modifier
-            .tapGestureFilter { manager.onRelease() }
+            .noConsumptionTapGestureFilter { manager.onRelease() }
             .longPressDragGestureFilter(manager.longPressDragObserver)
 
     val modifier = remember {
