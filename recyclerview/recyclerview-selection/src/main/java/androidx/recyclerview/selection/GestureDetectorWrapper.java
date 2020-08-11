@@ -25,14 +25,15 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
- * Class allowing GestureDetector to listen directly to RecyclerView touch events.
+ * A wrapper class for GestureDetector allowing it interact with SelectionTracker
+ * and its dependencies (like RecyclerView) on terms more amenable to SelectionTracker.
  */
-final class GestureDetectorOnItemTouchListenerAdapter implements RecyclerView.OnItemTouchListener {
+final class GestureDetectorWrapper implements RecyclerView.OnItemTouchListener, Resettable {
 
     private final GestureDetector mDetector;
     private boolean mDisallowIntercept;
 
-    GestureDetectorOnItemTouchListenerAdapter(@NonNull GestureDetector detector) {
+    GestureDetectorWrapper(@NonNull GestureDetector detector) {
         checkArgument(detector != null);
 
         mDetector = detector;
@@ -40,12 +41,9 @@ final class GestureDetectorOnItemTouchListenerAdapter implements RecyclerView.On
 
     @Override
     public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
-        // Reset disallow intercept when the event is Up or Cancel as described
-        // in https://developer.android.com/reference/android/widget/HorizontalScrollView
-        // #requestDisallowInterceptTouchEvent(boolean)
-        if (MotionEvents.isActionUp(e) || MotionEvents.isActionCancel(e)) {
+        // Reset disallow when the event is down as advised in http://b/139141511#comment20.
+        if (mDisallowIntercept && MotionEvents.isActionDown(e)) {
             mDisallowIntercept = false;
-            return false;
         }
 
         // While the idea of "intercepting" an event stream isn't consistent
@@ -62,10 +60,39 @@ final class GestureDetectorOnItemTouchListenerAdapter implements RecyclerView.On
 
     @Override
     public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+        if (!disallowIntercept) {
+            return;  // Ignore as advised in http://b/139141511#comment20
+        }
+
         // Some types of views, such as HorizontalScrollView, may want
         // to take over the input stream. In this case they'll call this method
         // with disallowIntercept=true. mDisallowIntercept is reset on UP or CANCEL
         // events in onInterceptTouchEvent.
         mDisallowIntercept = disallowIntercept;
+
+
+        // GestureDetector may have internal state (such as timers) that can
+        // result in subsequent event handlers being called, even after
+        // we receive a request to disallow intercept (e.g. LONG_PRESS).
+        // For that reason we proactively reset GestureDetector.
+        sendCancelEvent();
+    }
+
+    @Override
+    public boolean isResetRequired() {
+        // Always resettable as we don't know the specifics of GD's internal state.
+        return true;
+    }
+
+    @Override
+    public void reset() {
+        mDisallowIntercept = false;
+        sendCancelEvent();
+    }
+
+    private void sendCancelEvent() {
+        // GestureDetector does not provide a public affordance for resetting
+        // it's internal state, so we send it a synthetic ACTION_CANCEL event.
+        mDetector.onTouchEvent(MotionEvents.createCancelEvent());
     }
 }
