@@ -42,7 +42,7 @@ internal class JavacMethodElement(
         }
     }
     private val isSuspend by lazy {
-        kotlinMetadata?.isSuspendFunction(element) == true
+        kotlinMetadata?.getFunctionMetadata(element)?.isSuspend() == true
     }
 
     override val executableType: JavacMethodType by lazy {
