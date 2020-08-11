@@ -17,7 +17,7 @@
 package androidx.sqlite.inspection
 
 import android.database.sqlite.SQLiteDatabase
-import androidx.inspection.InspectorEnvironment
+import androidx.inspection.ArtToolInterface
 import androidx.inspection.testing.DefaultTestInspectorEnvironment
 import androidx.inspection.testing.InspectorTester
 import androidx.inspection.testing.TestInspectorExecutors
@@ -143,7 +143,7 @@ class TestInspectorEnvironment(
     override fun registerEntryHook(
         originClass: Class<*>,
         originMethod: String,
-        entryHook: InspectorEnvironment.EntryHook
+        entryHook: ArtToolInterface.EntryHook
     ) {
         // no-op
     }
@@ -160,7 +160,7 @@ class TestInspectorEnvironment(
     override fun <T : Any?> registerExitHook(
         originClass: Class<*>,
         originMethod: String,
-        exitHook: InspectorEnvironment.ExitHook<T>
+        exitHook: ArtToolInterface.ExitHook<T>
     ) {
         // no-op
     }

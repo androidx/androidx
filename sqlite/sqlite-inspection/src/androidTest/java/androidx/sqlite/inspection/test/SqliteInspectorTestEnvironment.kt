@@ -18,7 +18,7 @@ package androidx.sqlite.inspection.test
 
 import android.app.Application
 import android.database.sqlite.SQLiteDatabase
-import androidx.inspection.InspectorEnvironment
+import androidx.inspection.ArtToolInterface
 import androidx.inspection.testing.InspectorTester
 import androidx.inspection.testing.DefaultTestInspectorEnvironment
 import androidx.inspection.testing.TestInspectorExecutors
@@ -153,7 +153,7 @@ private class FakeInspectorEnvironment(
     override fun registerEntryHook(
         originClass: Class<*>,
         originMethod: String,
-        entryHook: InspectorEnvironment.EntryHook
+        entryHook: ArtToolInterface.EntryHook
     ) {
         // TODO: implement actual registerEntryHook behaviour
         registeredHooks.add(Hook.EntryHook(originClass, originMethod, entryHook))
@@ -162,7 +162,7 @@ private class FakeInspectorEnvironment(
     override fun <T : Any?> registerExitHook(
         originClass: Class<*>,
         originMethod: String,
-        exitHook: InspectorEnvironment.ExitHook<T>
+        exitHook: ArtToolInterface.ExitHook<T>
     ) {
         // TODO: implement actual registerExitHook behaviour
         registeredHooks.add(Hook.ExitHook(originClass, originMethod, exitHook))
@@ -178,13 +178,13 @@ sealed class Hook(val originClass: Class<*>, val originMethod: String) {
     class ExitHook(
         originClass: Class<*>,
         originMethod: String,
-        val exitHook: InspectorEnvironment.ExitHook<*>
+        val exitHook: ArtToolInterface.ExitHook<*>
     ) : Hook(originClass, originMethod)
 
     class EntryHook(
         originClass: Class<*>,
         originMethod: String,
-        @Suppress("unused") val entryHook: InspectorEnvironment.EntryHook
+        @Suppress("unused") val entryHook: ArtToolInterface.EntryHook
     ) : Hook(originClass, originMethod)
 }
 
