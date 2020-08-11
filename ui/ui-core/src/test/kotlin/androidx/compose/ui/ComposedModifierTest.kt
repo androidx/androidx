@@ -215,7 +215,7 @@ private fun compose(
         EmptyApplier(),
         recomposer
     ).apply {
-        composeRoot {
+        composeInitial {
             @Suppress("UNCHECKED_CAST")
             val fn = block as (Composer<*>, Int, Int) -> Unit
             fn(this, 0, 0)
