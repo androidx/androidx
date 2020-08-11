@@ -52,7 +52,7 @@ internal class ModifiedFocusNode2(
      */
     fun requestFocus(propagateFocus: Boolean = true) {
         when (modifier.focusState) {
-            Active, Captured, Disabled -> return
+            Active, Captured, Disabled -> wrappedBy?.propagateFocusStateChange(modifier.focusState)
             ActiveParent -> {
                 val focusedChild = modifier.focusedChild
                 requireNotNull(focusedChild)
