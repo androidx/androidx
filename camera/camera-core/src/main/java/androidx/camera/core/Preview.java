@@ -373,7 +373,7 @@ public final class Preview extends UseCase {
             } else {
                 // No pending SurfaceRequest. It could be a previous request has already been
                 // sent, which means the caller wants to replace the Surface. Or, it could be the
-                // pipeline has not started.
+                // pipeline has not started. Or the use case may have been detached from the camera.
                 // Either way, try updating session config and let createPipeline() sends a
                 // new SurfaceRequest.
                 if (getAttachedSurfaceResolution() != null) {
