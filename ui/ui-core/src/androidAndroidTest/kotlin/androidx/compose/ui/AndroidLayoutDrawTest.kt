@@ -32,7 +32,7 @@ import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.FrameManager
+import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.Providers
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
@@ -41,6 +41,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -2211,7 +2212,8 @@ class AndroidLayoutDrawTest {
                     val firstPlaceable = first.measure(constraints)
                     // switch frame, as inside the measure block we changed the model value
                     // this will trigger requestRemeasure on this first layout
-                    FrameManager.nextFrame()
+                    @OptIn(ExperimentalComposeApi::class)
+                    Snapshot.sendApplyNotifications()
                     val secondPlaceable = second.measure(constraints)
                     layout(30, 30) {
                         firstPlaceable.place(0, 0)
