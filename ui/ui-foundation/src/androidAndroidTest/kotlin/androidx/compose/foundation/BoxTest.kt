@@ -334,7 +334,7 @@ class BoxTest {
                 Box(
                     Modifier.preferredSize(size),
                     backgroundColor = Color.Blue,
-                    border = Border(borderSize, Color.Red)
+                    border = BorderStroke(borderSize, Color.Red)
                 )
             }
         }
@@ -366,7 +366,7 @@ class BoxTest {
                         Modifier.fillMaxSize(),
                         backgroundColor = Color.Blue,
                         shape = CircleShape,
-                        border = Border(borderSize, Color.Blue)
+                        border = BorderStroke(borderSize, Color.Blue)
                     )
                 }
             }
@@ -390,7 +390,7 @@ class BoxTest {
         val borderSize = 10.dp
         composeTestRule.setContent {
             SemanticsParent {
-                Box(Modifier.preferredSize(size), border = Border(borderSize, Color.Red)) {
+                Box(Modifier.preferredSize(size), border = BorderStroke(borderSize, Color.Red)) {
                     Box(Modifier.fillMaxSize().onPositioned { childSize = it.size })
                 }
             }

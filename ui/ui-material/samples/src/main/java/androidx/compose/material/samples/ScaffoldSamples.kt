@@ -23,7 +23,7 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.Icon
 import androidx.compose.foundation.ScrollableColumn
 import androidx.compose.foundation.Text
-import androidx.compose.foundation.drawBorder
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -223,7 +223,7 @@ fun ScaffoldWithCustomSnackbar() {
             SnackbarHost(it) { data ->
                 // custom snackbar with the custom border
                 Snackbar(
-                    modifier = Modifier.drawBorder(2.dp, MaterialTheme.colors.secondary),
+                    modifier = Modifier.border(2.dp, MaterialTheme.colors.secondary),
                     snackbarData = data
                 )
             }

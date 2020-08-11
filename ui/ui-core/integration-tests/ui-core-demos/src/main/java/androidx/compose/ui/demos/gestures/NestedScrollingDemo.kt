@@ -16,11 +16,11 @@
 
 package androidx.compose.ui.demos.gestures
 
-import androidx.compose.foundation.Border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
-import androidx.compose.foundation.drawBorder
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.preferredHeight
@@ -181,7 +181,7 @@ private fun Pressable(
  */
 @Composable
 private fun RepeatingColumn(repetitions: Int, row: @Composable () -> Unit) {
-    Column(Modifier.drawBorder(border = Border(2.dp, BorderColor))) {
+    Column(Modifier.border(border = BorderStroke(2.dp, BorderColor))) {
         for (i in 1..repetitions) {
             row()
             if (i != repetitions) {

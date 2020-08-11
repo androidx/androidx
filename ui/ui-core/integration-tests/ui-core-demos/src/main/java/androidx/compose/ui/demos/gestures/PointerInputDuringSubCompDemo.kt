@@ -19,7 +19,7 @@ package androidx.compose.ui.demos.gestures
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
-import androidx.compose.foundation.drawBorder
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -32,10 +32,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.PointerInputFilter
-import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.input.pointer.PointerEventPass
 import androidx.compose.ui.input.pointer.PointerInputChange
+import androidx.compose.ui.input.pointer.PointerInputFilter
+import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.input.pointer.changedToDownIgnoreConsumed
 import androidx.compose.ui.input.pointer.changedToUpIgnoreConsumed
 import androidx.compose.ui.unit.IntSize
@@ -72,7 +72,7 @@ fun PointerInputDuringSubComp() {
 
             Box(
                 Modifier.fillParentMaxSize()
-                    .drawBorder(size = 1.dp, color = Color.Black)
+                    .border(width = 1.dp, color = Color.Black)
                     .pointerCounterGestureFilter { newCount -> pointerCount.value = newCount },
                 gravity = Alignment.Center
             ) {

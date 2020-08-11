@@ -22,7 +22,7 @@ import androidx.compose.animation.core.FloatPropKey
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.transition
-import androidx.compose.foundation.Border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
 import androidx.compose.foundation.Image
@@ -281,7 +281,7 @@ private fun MagnifierSelectionCircle(modifier: Modifier, color: Color) {
         shape = CircleShape,
         elevation = 4.dp,
         color = color,
-        border = Border(2.dp, SolidColor(Color.Black.copy(alpha = 0.75f))),
+        border = BorderStroke(2.dp, SolidColor(Color.Black.copy(alpha = 0.75f))),
         content = emptyContent()
     )
 }

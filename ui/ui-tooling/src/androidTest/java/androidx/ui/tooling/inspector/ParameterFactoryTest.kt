@@ -16,7 +16,7 @@
 
 package androidx.ui.tooling.inspector
 
-import androidx.compose.foundation.Border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.CrossAxisAlignment
@@ -30,6 +30,9 @@ import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.ZeroCornerSize
 import androidx.compose.ui.AbsoluteAlignment
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.paint
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
@@ -62,9 +65,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.em
 import androidx.compose.ui.unit.sp
 import androidx.test.filters.SmallTest
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.paint
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
@@ -167,9 +167,9 @@ class ParameterFactoryTest {
 
     @Test
     fun testBorder() {
-        validate(factory.create(node, "border", Border(2.0.dp, Color.Magenta))!!) {
-            parameter("border", ParameterType.String, "Border") {
-                parameter("size", ParameterType.DimensionDp, 2.0f)
+        validate(factory.create(node, "borderstroke", BorderStroke(2.0.dp, Color.Magenta))!!) {
+            parameter("borderstroke", ParameterType.String, "BorderStroke") {
+                parameter("width", ParameterType.DimensionDp, 2.0f)
                 parameter("brush", ParameterType.Color, Color.Magenta.toArgb())
             }
         }
@@ -346,6 +346,8 @@ class ParameterFactoryTest {
         validate(factory.create(node, "modifier",
             Modifier
                 .background(Color.Blue)
+                // TODO(b/163494569) uncomment this and code below when bug is fixed
+                // .border(width = 5.dp, color = Color.Red)
                 .padding(2.0.dp)
                 .fillMaxWidth()
                 .wrapContentHeight(Alignment.Bottom)
@@ -357,6 +359,12 @@ class ParameterFactoryTest {
                     parameter("alpha", ParameterType.Float, 1.0f)
                     parameter("shape", ParameterType.String, "Shape")
                 }
+                // TODO(b/163494569)
+                /*parameter("border", ParameterType.Color, Color.Red.toArgb()) {
+                    parameter("color", ParameterType.Color, Color.Red.toArgb())
+                    parameter("width", ParameterType.DimensionDp, 5.0f)
+                    parameter("shape", ParameterType.String, "Shape")
+                }*/
                 parameter("padding", ParameterType.DimensionDp, 2.0f) {
                     parameter("start", ParameterType.DimensionDp, 2.0f)
                     parameter("top", ParameterType.DimensionDp, 2.0f)

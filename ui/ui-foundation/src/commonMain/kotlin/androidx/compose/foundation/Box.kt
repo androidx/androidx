@@ -51,10 +51,10 @@ import androidx.compose.ui.util.fastForEach
  * @param shape The shape of the box
  * @param backgroundColor The [Color] for background with. If [Color.Transparent], there will be no
  * background
- * @param border [Border] object that specifies border appearance, such as size and color. If
+ * @param border [BorderStroke] object that specifies border appearance, such as size and color. If
  * `null`, there will be no border
  * @param padding The padding to be applied inside Box, along its edges. Unless otherwise
- * specified, content will be padded by the [Border.size], if [border] is provided
+ * specified, content will be padded by the [BorderStroke.width], if [border] is provided
  * @param paddingStart sets the padding of the start edge. Setting this will override [padding]
  * for the start edge
  * @param paddingTop sets the padding of the top edge. Setting this will override [padding] for
@@ -70,8 +70,8 @@ fun Box(
     modifier: Modifier = Modifier,
     shape: Shape = RectangleShape,
     backgroundColor: Color = Color.Transparent,
-    border: Border? = null,
-    padding: Dp = border?.size ?: 0.dp,
+    border: BorderStroke? = null,
+    padding: Dp = border?.width ?: 0.dp,
     paddingStart: Dp = Dp.Unspecified,
     paddingTop: Dp = Dp.Unspecified,
     paddingEnd: Dp = Dp.Unspecified,
@@ -80,7 +80,7 @@ fun Box(
     children: @Composable () -> Unit = emptyContent()
 ) {
     val borderModifier =
-        if (border != null) Modifier.drawBorder(border, shape) else Modifier
+        if (border != null) Modifier.border(border, shape) else Modifier
     val backgroundModifier =
         if (backgroundColor != Color.Transparent) {
             Modifier.background(color = backgroundColor, shape = shape)

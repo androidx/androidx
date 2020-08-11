@@ -16,7 +16,7 @@
 
 package androidx.compose.ui.demos.gestures
 
-import androidx.compose.foundation.Border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Column
@@ -51,7 +51,7 @@ fun LongPressGestureDetectorDemo() {
                 .preferredSize(192.dp)
                 .longPressGestureFilter(onLongPress),
             backgroundColor = color.value,
-            border = Border(2.dp, BorderColor)
+            border = BorderStroke(2.dp, BorderColor)
         )
     }
 }
