@@ -99,6 +99,11 @@ internal class TextFieldSelectionManager() {
     private var dragTotalDistance = Offset.Zero
 
     /**
+     * The old [TextFieldValue]. Used to compare with the [value].
+     */
+    private var oldValue: TextFieldValue = TextFieldValue()
+
+    /**
      * [LongPressDragObserver] for long press and drag to select in TextField.
      */
     internal val longPressDragObserver = object : LongPressDragObserver {
@@ -106,6 +111,30 @@ internal class TextFieldSelectionManager() {
             state?.let {
                 if (it.draggingHandle) return
             }
+
+            oldValue = value
+
+            // Long Press at the blank area, the cursor should show up at the end of the line.
+            if (!isPositionOnText(pxPosition)) {
+                state?.layoutResult?.let { layoutResult ->
+                    val offset = offsetMap.transformedToOriginal(
+                        layoutResult.getLineEnd(
+                            layoutResult.getLineForVerticalPosition(pxPosition.y)
+                        )
+                    )
+                    hapticFeedBack?.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+
+                    val newValue = TextFieldValue(
+                        text = value.text,
+                        selection = TextRange(offset, offset)
+                    )
+                    onValueChange(newValue)
+                    state?.showFloatingToolbar = true
+                    setSelectionStatus(true)
+                    return
+                }
+            }
+
             // selection never started
             if (value.text == "") return
             setSelectionStatus(true)
@@ -121,6 +150,7 @@ internal class TextFieldSelectionManager() {
                     wordBasedSelection = true
                 )
             }
+            state?.showFloatingToolbar = true
             dragBeginPosition = pxPosition
             dragTotalDistance = Offset.Zero
         }
@@ -142,13 +172,13 @@ internal class TextFieldSelectionManager() {
                     wordBasedSelection = true
                 )
             }
-            state?.updatingSelection = true
+            state?.showFloatingToolbar = false
             return dragDistance
         }
 
         override fun onStop(velocity: Offset) {
             super.onStop(velocity)
-            state?.updatingSelection = false
+            state?.showFloatingToolbar = true
             showSelectionToolbar()
         }
     }
@@ -165,6 +195,7 @@ internal class TextFieldSelectionManager() {
                 // Zero out the total distance that being dragged.
                 dragTotalDistance = Offset.Zero
                 state?.draggingHandle = true
+                state?.showFloatingToolbar = false
             }
 
             override fun onDrag(dragDistance: Offset): Offset {
@@ -191,14 +222,14 @@ internal class TextFieldSelectionManager() {
                         wordBasedSelection = false
                     )
                 }
-                state?.updatingSelection = true
+                state?.showFloatingToolbar = false
                 return dragDistance
             }
 
             override fun onStop(velocity: Offset) {
                 super.onStop(velocity)
                 state?.draggingHandle = false
-                state?.updatingSelection = false
+                state?.showFloatingToolbar = true
                 showSelectionToolbar()
             }
         }
@@ -343,6 +374,14 @@ internal class TextFieldSelectionManager() {
     }
 
     /**
+     * Check if the text in the text field changed.
+     * When the content in the text field is modified, this method returns true.
+     */
+    internal fun isTextChanged(): Boolean {
+        return oldValue.text != value.text
+    }
+
+    /**
      * Calculate selected region as [Rect]. The top is the top of the first selected
      * line, and the bottom is the bottom of the last selected line. The left is the leftmost
      * handle's horizontal coordinates, and the right is the rightmost handle's coordinates.
@@ -422,6 +461,18 @@ internal class TextFieldSelectionManager() {
         state?.let {
             it.selectionIsOn = on
         }
+    }
+
+    /** Returns true if the screen coordinates position (x,y) corresponds to a character displayed
+     * in the view. Returns false when the position is in the empty space of left/right of text.
+     */
+    private fun isPositionOnText(offset: Offset): Boolean {
+        state?.layoutResult?.let {
+            val line = it.getLineForVerticalPosition(offset.y)
+            if (offset.x < it.getLineLeft(line) || offset.x > it.getLineRight(line)) return false
+            return true
+        }
+        return false
     }
 }
 
