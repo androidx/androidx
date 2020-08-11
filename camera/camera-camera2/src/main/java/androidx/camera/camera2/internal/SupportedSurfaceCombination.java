@@ -88,6 +88,8 @@ final class SupportedSurfaceCombination {
     private boolean mIsRawSupported = false;
     private boolean mIsBurstCaptureSupported = false;
     private SurfaceSizeDefinition mSurfaceSizeDefinition;
+    private Map<Integer, Size[]> mOutputSizesCache = new HashMap<>();
+    private StreamConfigurationMap mStreamConfigurationMap;
 
     SupportedSurfaceCombination(@NonNull Context context, @NonNull String cameraId,
             @NonNull CamcorderProfileHelper camcorderProfileHelper)
@@ -109,6 +111,18 @@ final class SupportedSurfaceCombination {
         generateSupportedCombinationList();
         generateSurfaceSizeDefinition(windowManager);
         checkCustomization();
+    }
+
+    private StreamConfigurationMap getStreamConfigurationMap() {
+        if (mStreamConfigurationMap == null) {
+            mStreamConfigurationMap =
+                    mCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+        }
+
+        if (mStreamConfigurationMap == null) {
+            throw new IllegalArgumentException("Can not retrieve SCALER_STREAM_CONFIGURATION_MAP");
+        }
+        return mStreamConfigurationMap;
     }
 
     String getCameraId() {
@@ -154,11 +168,6 @@ final class SupportedSurfaceCombination {
     SurfaceConfig transformSurfaceConfig(int imageFormat, Size size) {
         ConfigType configType;
         ConfigSize configSize = ConfigSize.NOT_SUPPORT;
-
-        if (getAllOutputSizesByFormat(imageFormat) == null) {
-            throw new IllegalArgumentException(
-                    "Can not get supported output size for the format: " + imageFormat);
-        }
 
         /*
          * PRIV refers to any target whose available sizes are found using
@@ -312,11 +321,15 @@ final class SupportedSurfaceCombination {
         return priorityOrder;
     }
 
+    @NonNull
     @VisibleForTesting
-    List<Size> getSupportedOutputSizes(UseCaseConfig<?> config) {
+    List<Size> getSupportedOutputSizes(@NonNull UseCaseConfig<?> config) {
         int imageFormat = config.getInputFormat();
         ImageOutputConfig imageOutputConfig = (ImageOutputConfig) config;
-        Size[] outputSizes = getAllOutputSizesByFormat(imageFormat, imageOutputConfig);
+        Size[] outputSizes = getCustomizedSupportSizesFromConfig(imageFormat, imageOutputConfig);
+        if (outputSizes == null) {
+            outputSizes = getAllOutputSizesByFormat(imageFormat);
+        }
         List<Size> outputSizeCandidates = new ArrayList<>();
         Size maxSize = imageOutputConfig.getMaxResolution(getMaxOutputSizeByFormat(imageFormat));
         int targetRotation = imageOutputConfig.getTargetRotation(Surface.ROTATION_0);
@@ -648,21 +661,22 @@ final class SupportedSurfaceCombination {
         return allPossibleSizeArrangements;
     }
 
-    @Nullable
-    private Size[] getAllOutputSizesByFormat(int imageFormat) {
-        return getAllOutputSizesByFormat(imageFormat, null);
+    @NonNull
+    private Size[] excludeProblematicSizes(@NonNull Size[] outputSizes, int imageFormat) {
+        List<Size> excludedSizes = fetchExcludedSizes(imageFormat);
+        List<Size> resultSizesList = new ArrayList<>(Arrays.asList(outputSizes));
+        resultSizesList.removeAll(excludedSizes);
+        return resultSizesList.toArray(new Size[0]);
     }
 
     @Nullable
-    private Size[] getAllOutputSizesByFormat(int imageFormat, @Nullable ImageOutputConfig config) {
+    private Size[] getCustomizedSupportSizesFromConfig(int imageFormat,
+            @NonNull ImageOutputConfig config) {
         Size[] outputSizes = null;
 
         // Try to retrieve customized supported resolutions from config.
-        List<Pair<Integer, Size[]>> formatResolutionsPairList = null;
-
-        if (config != null) {
-            formatResolutionsPairList = config.getSupportedResolutions(null);
-        }
+        List<Pair<Integer, Size[]>> formatResolutionsPairList =
+                config.getSupportedResolutions(null);
 
         if (formatResolutionsPairList != null) {
             for (Pair<Integer, Size[]> formatResolutionPair : formatResolutionsPairList) {
@@ -673,27 +687,44 @@ final class SupportedSurfaceCombination {
             }
         }
 
-        // Try to retrieve supported resolutions if there is no customization.
-        if (outputSizes == null) {
-            StreamConfigurationMap map =
-                    mCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+        if  (outputSizes != null) {
+            outputSizes = excludeProblematicSizes(outputSizes, imageFormat);
 
-            if (map == null) {
-                throw new IllegalArgumentException(
-                        "Can not get supported output size for the format: " + imageFormat);
-            }
+            // Sort the output sizes. The Comparator result must be reversed to have a descending
+            // order result.
+            Arrays.sort(outputSizes, new CompareSizesByArea(true));
+        }
 
-            if (Build.VERSION.SDK_INT < 23
-                    && imageFormat == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) {
-                // This is a little tricky that 0x22 that is internal defined in
-                // StreamConfigurationMap.java to be equal to ImageFormat.PRIVATE that is public
-                // after Android level 23 but not public in Android L. Use {@link SurfaceTexture}
-                // or {@link MediaCodec} will finally mapped to 0x22 in StreamConfigurationMap to
-                // retrieve the output sizes information.
-                outputSizes = map.getOutputSizes(SurfaceTexture.class);
-            } else {
-                outputSizes = map.getOutputSizes(imageFormat);
-            }
+        return outputSizes;
+    }
+
+    @NonNull
+    private Size[] getAllOutputSizesByFormat(int imageFormat) {
+        Size[] outputs = mOutputSizesCache.get(imageFormat);
+        if (outputs == null) {
+            outputs = doGetAllOutputSizesByFormat(imageFormat);
+            mOutputSizesCache.put(imageFormat, outputs);
+        }
+
+        return outputs;
+    }
+
+    @NonNull
+    private Size[] doGetAllOutputSizesByFormat(int imageFormat) {
+        Size[] outputSizes;
+
+        StreamConfigurationMap map = getStreamConfigurationMap();
+
+        if (Build.VERSION.SDK_INT < 23
+                && imageFormat == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) {
+            // This is a little tricky that 0x22 that is internal defined in
+            // StreamConfigurationMap.java to be equal to ImageFormat.PRIVATE that is public
+            // after Android level 23 but not public in Android L. Use {@link SurfaceTexture}
+            // or {@link MediaCodec} will finally mapped to 0x22 in StreamConfigurationMap to
+            // retrieve the output sizes information.
+            outputSizes = map.getOutputSizes(SurfaceTexture.class);
+        } else {
+            outputSizes = map.getOutputSizes(imageFormat);
         }
 
         if (outputSizes == null) {
@@ -701,11 +732,7 @@ final class SupportedSurfaceCombination {
                     "Can not get supported output size for the format: " + imageFormat);
         }
 
-        // Remove sizes that may cause problem.
-        List<Size> excludedSizes = fetchExcludedSizes(imageFormat);
-        List<Size> resultSizesList = new ArrayList<>(Arrays.asList(outputSizes));
-        resultSizesList.removeAll(excludedSizes);
-        outputSizes = resultSizesList.toArray(new Size[0]);
+        outputSizes = excludeProblematicSizes(outputSizes, imageFormat);
 
         // Sort the output sizes. The Comparator result must be reversed to have a descending order
         // result.
