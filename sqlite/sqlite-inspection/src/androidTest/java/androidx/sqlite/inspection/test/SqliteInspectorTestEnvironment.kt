@@ -19,8 +19,8 @@ package androidx.sqlite.inspection.test
 import android.app.Application
 import android.database.sqlite.SQLiteDatabase
 import androidx.inspection.ArtToolInterface
-import androidx.inspection.testing.InspectorTester
 import androidx.inspection.testing.DefaultTestInspectorEnvironment
+import androidx.inspection.testing.InspectorTester
 import androidx.inspection.testing.TestInspectorExecutors
 import androidx.sqlite.inspection.SqliteInspectorProtocol
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Command
@@ -41,15 +41,17 @@ class SqliteInspectorTestEnvironment(
     val ioExecutorOverride: Executor? = null
 ) : ExternalResource() {
     private lateinit var inspectorTester: InspectorTester
-    private lateinit var environment: FakeInspectorEnvironment
+    private lateinit var artTooling: FakeArtToolInterface
     private val job = Job()
 
     override fun before() {
-        environment = FakeInspectorEnvironment(job, TestInspectorExecutors(job, ioExecutorOverride))
+
+        artTooling = FakeArtToolInterface()
         inspectorTester = runBlocking {
             InspectorTester(
                 inspectorId = SQLITE_INSPECTOR_ID,
-                environment = environment
+                environment = DefaultTestInspectorEnvironment(
+                    TestInspectorExecutors(job, ioExecutorOverride), artTooling)
             )
         }
     }
@@ -82,15 +84,15 @@ class SqliteInspectorTestEnvironment(
     }
 
     fun registerAlreadyOpenDatabases(databases: List<SQLiteDatabase>) {
-        environment.registerInstancesToFind(databases)
+        artTooling.registerInstancesToFind(databases)
     }
 
     fun registerApplication(application: Application) {
-        environment.registerInstancesToFind(listOf(application))
+        artTooling.registerInstancesToFind(listOf(application))
     }
 
     fun consumeRegisteredHooks(): List<Hook> =
-        environment.consumeRegisteredHooks()
+        artTooling.consumeRegisteredHooks()
 
     /** Assumes an event with the relevant database will be fired. */
     suspend fun awaitDatabaseOpenedEvent(databasePath: String): DatabaseOpenedEvent {
@@ -130,10 +132,7 @@ suspend fun SqliteInspectorTestEnvironment.inspectDatabase(
  * - [registerEntryHook] and [registerExitHook] record the calls which can later be
  * retrieved in [consumeRegisteredHooks].
  */
-private class FakeInspectorEnvironment(
-    job: Job,
-    executors: TestInspectorExecutors = TestInspectorExecutors(job)
-) : DefaultTestInspectorEnvironment(executors) {
+private class FakeArtToolInterface : ArtToolInterface {
     private val instancesToFind = mutableListOf<Any>()
     private val registeredHooks = mutableListOf<Hook>()
 

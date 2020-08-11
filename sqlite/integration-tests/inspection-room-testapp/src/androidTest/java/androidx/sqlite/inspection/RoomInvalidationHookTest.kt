@@ -78,10 +78,14 @@ class RoomInvalidationHookTest {
      */
     @Test
     fun invalidationHook() = runBlocking<Unit>(testJob) {
-        val testEnv = TestInspectorEnvironment(
+        val testArtTI = TestArtToolInterface(
             roomDatabase = db,
-            sqliteDb = db.getSqliteDb(),
-            inspectorExecutors = testInspectorExecutors
+            sqliteDb = db.getSqliteDb()
+        )
+
+        val testEnv = DefaultTestInspectorEnvironment(
+            artTooling = testArtTI,
+            testInspectorExecutors = testInspectorExecutors
         )
         val tester = InspectorTester(
             inspectorId = "androidx.sqlite.inspection",
@@ -135,11 +139,10 @@ private fun RoomDatabase.getSqliteDb(): SQLiteDatabase {
 }
 
 @Suppress("UNCHECKED_CAST")
-class TestInspectorEnvironment(
+class TestArtToolInterface(
     private val roomDatabase: RoomDatabase,
-    private val sqliteDb: SQLiteDatabase,
-    inspectorExecutors: TestInspectorExecutors
-) : DefaultTestInspectorEnvironment(inspectorExecutors) {
+    private val sqliteDb: SQLiteDatabase
+) : ArtToolInterface {
     override fun registerEntryHook(
         originClass: Class<*>,
         originMethod: String,
