@@ -277,6 +277,8 @@ private class WrappedComposition(
                                 it.add(composer.slotTable)
                             }
                         ProvideAndroidAmbients(owner) {
+                            // TODO(b/161487952): Add a noConsumptionTapGestureFilter here that
+                            //  clears focus if a user clicks on a non-focusable part of the screen.
                             WrapWithSelectionContainer(content)
                         }
                     }

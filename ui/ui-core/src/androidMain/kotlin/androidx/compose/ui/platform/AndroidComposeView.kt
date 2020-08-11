@@ -76,7 +76,6 @@ import androidx.compose.ui.graphics.CanvasHolder
 import androidx.compose.ui.text.input.TextInputServiceAndroid
 import androidx.compose.ui.text.input.textInputServiceFactory
 import androidx.compose.ui.DrawLayerModifier
-import androidx.compose.ui.FocusModifier2
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.drawLayer
 import androidx.compose.ui.node.ExperimentalLayoutNodeApi
@@ -92,6 +91,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.trace
 import androidx.compose.ui.RootMeasureBlocks
+import androidx.compose.ui.focus.FocusManager
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.ViewTreeSavedStateRegistryOwner
 import java.lang.reflect.Method
@@ -147,7 +147,7 @@ internal class AndroidComposeView constructor(
     // TODO(b/160821157): Replace FocusDetailedState with FocusState2.
     @Suppress("DEPRECATION")
     private val focusModifier = FocusModifierImpl(FocusDetailedState.Inactive)
-    private val focusModifier2 = FocusModifier2(Inactive)
+    override val focusManager: FocusManager = FocusManager()
     private val keyInputModifier = KeyInputModifier(null, null)
 
     private val canvasHolder = CanvasHolder()
@@ -155,7 +155,10 @@ internal class AndroidComposeView constructor(
     override val root = LayoutNode().also {
         it.measureBlocks = RootMeasureBlocks
         it.modifier = Modifier
-            .drawLayer().then(semanticsModifier).then(focusModifier).then(focusModifier2)
+            .drawLayer()
+            .then(semanticsModifier)
+            .then(focusModifier)
+            .then(focusManager.modifier)
             .then(keyInputModifier)
     }
 
@@ -198,20 +201,14 @@ internal class AndroidComposeView constructor(
             if (focusModifier.focusDetailedState == FocusDetailedState.Inactive) {
                 focusModifier.focusDetailedState = FocusDetailedState.Active
             }
-            if (focusModifier2.focusState == Inactive) {
-                focusModifier2.focusState = Active
-                // TODO(b/152535715): propagate focus to children based on child focusability.
-            }
+            focusManager.takeFocus()
         } else {
             // If this view lost focus, clear focus from the children.
             with(focusModifier) {
                 focusNode?.clearFocus(forcedClear = true)
                 focusDetailedState = FocusDetailedState.Inactive
             }
-            with(focusModifier2) {
-                focusNode.clearFocus(forcedClear = true)
-                focusState = Inactive
-            }
+            focusManager.releaseFocus()
         }
     }
 
