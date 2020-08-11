@@ -26,6 +26,9 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.ui.focus.ExperimentalFocus
+import androidx.compose.ui.focus.isFocused
+import androidx.compose.ui.focusObserver
 import androidx.ui.test.assertPixels
 import androidx.ui.test.assertShape
 import androidx.ui.test.captureToBitmap
@@ -46,7 +49,10 @@ import java.util.concurrent.TimeUnit
 import kotlin.math.roundToInt
 
 @LargeTest
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalFocus::class,
+    ExperimentalFoundationApi::class
+)
 class TextFieldCursorTest {
 
     @get:Rule
@@ -65,11 +71,11 @@ class TextFieldCursorTest {
                 value = TextFieldValue(),
                 onValueChange = {},
                 textStyle = TextStyle(color = Color.White, background = Color.White),
-                modifier = Modifier.preferredSize(width, height).background(color = Color.White),
-                cursorColor = Color.Red,
-                onFocusChanged = { focused ->
-                    if (focused) latch.countDown()
-                }
+                modifier = Modifier
+                    .preferredSize(width, height)
+                    .background(Color.White)
+                    .focusObserver { if (it.isFocused) latch.countDown() },
+                cursorColor = Color.Red
             )
         }
         onNode(hasInputMethodsSupport()).performClick()
@@ -102,11 +108,9 @@ class TextFieldCursorTest {
                     textStyle = TextStyle(color = Color.White, background = Color.White),
                     modifier = Modifier
                         .preferredSize(width, height)
-                        .background(color = Color.White),
-                    cursorColor = Color.Red,
-                    onFocusChanged = { focused ->
-                        if (focused) latch.countDown()
-                    }
+                        .background(Color.White)
+                        .focusObserver { if (it.isFocused) latch.countDown() },
+                    cursorColor = Color.Red
                 )
             }
         }

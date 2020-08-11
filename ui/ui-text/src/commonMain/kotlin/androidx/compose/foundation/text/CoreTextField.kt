@@ -14,8 +14,7 @@
  * limitations under the License.
  */
 
-// TODO(b/160821157): Replace FocusDetailedState with FocusState2 DEPRECATION
-@file:Suppress("DEPRECATION_ERROR", "DEPRECATION")
+@file:Suppress("DEPRECATION_ERROR")
 
 package androidx.compose.foundation.text
 
@@ -29,12 +28,15 @@ import androidx.compose.runtime.onDispose
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.state
-import androidx.compose.ui.FocusModifier
 import androidx.compose.ui.Layout
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.drawBehind
-import androidx.compose.ui.focus.FocusState
-import androidx.compose.ui.focusState
+import androidx.compose.ui.focus
+import androidx.compose.ui.focus.ExperimentalFocus
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.isFocused
+import androidx.compose.ui.focusObserver
+import androidx.compose.ui.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.gesture.DragObserver
 import androidx.compose.ui.gesture.LongPressDragObserver
@@ -66,7 +68,6 @@ import androidx.compose.ui.text.TextDelegate
 import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.constrain
 import androidx.compose.ui.text.input.EditProcessor
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -75,61 +76,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import kotlin.math.max
 import kotlin.math.roundToInt
-
-@Suppress("DEPRECATION")
-@Composable
-@Deprecated("Use the Composable with androidx.compose.ui.text.input.TextFieldValue instead.")
-@OptIn(InternalTextApi::class)
-fun CoreTextField(
-    value: androidx.compose.ui.text.input.EditorValue,
-    modifier: Modifier,
-    onValueChange: (androidx.compose.ui.text.input.EditorValue) -> Unit,
-    textStyle: TextStyle = TextStyle.Default,
-    keyboardType: KeyboardType = KeyboardType.Text,
-    imeAction: ImeAction = ImeAction.Unspecified,
-    onFocusChange: (Boolean) -> Unit = {},
-    onImeActionPerformed: (ImeAction) -> Unit = {},
-    visualTransformation: VisualTransformation = VisualTransformation.None,
-    onTextLayout: (TextLayoutResult) -> Unit = {},
-    onTextInputStarted: (SoftwareKeyboardController) -> Unit = {}
-) {
-    val fullModel = remember { mutableStateOf(TextFieldValue()) }
-    if (fullModel.value.text != value.text ||
-        fullModel.value.selection != value.selection ||
-        fullModel.value.composition != value.composition) {
-        @OptIn(InternalTextApi::class)
-        fullModel.value = TextFieldValue(
-            text = value.text,
-            selection = value.selection.constrain(0, value.text.length),
-            composition = value.composition?.constrain(0, value.text.length)
-        )
-    }
-
-    val onValueChangeWrapper: (TextFieldValue) -> Unit = {
-        fullModel.value = it
-        onValueChange(
-            androidx.compose.ui.text.input.EditorValue(
-                it.text,
-                it.selection,
-                it.composition
-            )
-        )
-    }
-
-    CoreTextField(
-        value = fullModel.value,
-        modifier = modifier,
-        onValueChange = onValueChangeWrapper,
-        textStyle = textStyle,
-        keyboardType = keyboardType,
-        imeAction = imeAction,
-        onFocusChanged = onFocusChange,
-        onImeActionPerformed = onImeActionPerformed,
-        visualTransformation = visualTransformation,
-        onTextLayout = onTextLayout,
-        onTextInputStarted = onTextInputStarted
-    )
-}
 
 /**
  * Base composable that enables users to edit text via hardware or software keyboard.
@@ -166,9 +112,6 @@ fun CoreTextField(
  *  * @param onImeActionPerformed Called when the input service requested an IME action. When the
  * input service emitted an IME action, this callback is called with the emitted IME action. Note
  * that this IME action may be different from what you specified in [imeAction].
- * @param onFocusChanged Called with true value when the input field gains focus and with false
- * value when the input field loses focus. Use [FocusModifier.requestFocus] to obtain text input
- * focus to this TextField.
  * @param visualTransformation The visual transformation filter for changing the visual
  * representation of the input. By default no visual transformation is applied.
  * @param onTextLayout Callback that is executed when a new text layout is calculated.
@@ -178,7 +121,10 @@ fun CoreTextField(
  * keyboard.
  */
 @Composable
-@OptIn(InternalTextApi::class)
+@OptIn(
+    ExperimentalFocus::class,
+    InternalTextApi::class
+)
 fun CoreTextField(
     value: TextFieldValue,
     modifier: Modifier = Modifier,
@@ -187,7 +133,6 @@ fun CoreTextField(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onImeActionPerformed: (ImeAction) -> Unit = {},
-    onFocusChanged: (Boolean) -> Unit = {},
     visualTransformation: VisualTransformation = VisualTransformation.None,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     onTextInputStarted: (SoftwareKeyboardController) -> Unit = {}
@@ -197,11 +142,14 @@ fun CoreTextField(
     // incrementing generation counter when we callback to the developer and reset the state with
     // the latest state.
 
-    // BUG: b/162464429 - this can throw, "Expected a group" exceptions if changed to the
-    //      suggested equivalent for the deprecated state {} function.
-    val generation = state { 0 } // remember { mutableStateOf(0) }
+    // TODO(b/162464429): Remove deprecated state {} function. This can throw, "Expected a group"
+    //  exceptions if changed to the suggested equivalent for the deprecated state {} function.
+    @Suppress("DEPRECATION")
+    val generation = state { 0 }
+
     val Wrapper: @Composable (Int, @Composable () -> Unit) -> Unit = { _, child -> child() }
     val onValueChangeWrapper: (TextFieldValue) -> Unit = { onValueChange(it); generation.value++ }
+    val focusRequester = FocusRequester()
 
     Wrapper(generation.value) {
         // Ambients
@@ -235,10 +183,6 @@ fun CoreTextField(
             placeholders = emptyList()
         )
 
-        // TODO: Stop lookup FocusModifier from modifier chain. (b/155434146)
-        @Suppress("DEPRECATION")
-        val focusModifier = chainedFocusModifier(modifier) ?: FocusModifier()
-
         state.processor.onNewState(value, textInputService, state.inputSession)
 
         val manager = remember { TextFieldSelectionManager() }
@@ -250,11 +194,14 @@ fun CoreTextField(
         manager.textToolbar = TextToolbarAmbient.current
         manager.hapticFeedBack = HapticFeedBackAmbient.current
 
-        val observer = textInputEventObserver(
-            focusModifier = focusModifier,
-            onPress = { },
-            onFocus = {
-                state.hasFocus = true
+        val focusObserver = Modifier.focusObserver {
+            if (state.hasFocus == it.isFocused) {
+                return@focusObserver
+            }
+
+            state.hasFocus = it.isFocused
+
+            if (it.isFocused) {
                 state.inputSession = TextFieldDelegate.onFocus(
                     textInputService,
                     value,
@@ -288,19 +235,23 @@ fun CoreTextField(
                         }
                     }
                 }
-                onFocusChanged(true)
-            },
-            onBlur = { hasNextClient ->
-                state.hasFocus = false
+            } else {
                 TextFieldDelegate.onBlur(
                     textInputService,
                     state.inputSession,
                     state.processor,
-                    hasNextClient,
+                    false,
                     onValueChangeWrapper
                 )
                 manager.deselect()
-                onFocusChanged(false)
+            }
+        }
+
+        val dragPositionGestureModifier = Modifier.dragPositionGestureFilter(
+            onPress = {
+                state.selectionIsOn = false
+                manager.hideSelectionToolbar()
+                if (!state.hasFocus) focusRequester.requestFocus()
             },
             onRelease = {
                 if (state.selectionIsOn == false) {
@@ -318,9 +269,7 @@ fun CoreTextField(
                     }
                 }
             },
-            state = state,
-            longPressDragObserver = manager.longPressDragObserver,
-            manager = manager
+            longPressDragObserver = manager.longPressDragObserver
         )
 
         val drawModifier = Modifier.drawBehind {
@@ -359,23 +308,61 @@ fun CoreTextField(
             }
         }
 
-        val semanticsModifier = semanticsModifier(value, imeAction, focusModifier,
-            state, onValueChangeWrapper)
+        val semanticsModifier = Modifier.semantics {
+            this.imeAction = imeAction
+            this.supportsInputMethods()
+            this.text = AnnotatedString(value.text)
+            this.textSelectionRange = value.selection
+            this.focused = state.hasFocus
+            getTextLayoutResult {
+                if (state.layoutResult != null) {
+                    it.add(state.layoutResult!!)
+                    true
+                } else {
+                    false
+                }
+            }
+            setText {
+                onValueChange(TextFieldValue(it.text, TextRange(it.text.length)))
+                true
+            }
+            // TODO: startSelectionActionModeAsync
+            setSelection { start, end, startSelectionActionMode ->
+                if (start == value.selection.start && end == value.selection.end) {
+                    false
+                } else if (start.coerceAtMost(end) >= 0 &&
+                    start.coerceAtLeast(end) <= value.text.length
+                ) {
+                    onValueChange(TextFieldValue(value.text, TextRange(start, end)))
+                    if (startSelectionActionMode) {
+                        // startSelectionActionModeAsync
+                        // See TextView.java
+                    } else {
+                        // stop SelectionActionMode
+                    }
+                    true
+                } else {
+                    false
+                }
+            }
+            onClick {
+                if (!state.hasFocus) focusRequester.requestFocus()
+                true
+            }
+        }
 
         onDispose { manager.hideSelectionToolbar() }
 
         SelectionLayout(
-            modifier
-                .then(observer)
-                .then(focusModifier)
+            modifier.focusRequester(focusRequester)
+                .then(focusObserver)
+                .then(dragPositionGestureModifier)
                 .then(drawModifier)
                 .then(onPositionedModifier)
                 .then(semanticsModifier)
+                .focus()
         ) {
-            Layout(
-                emptyContent(),
-                Modifier
-            ) { _, constraints ->
+            Layout(emptyContent()) { _, constraints ->
                 TextFieldDelegate.layout(
                     state.textDelegate,
                     constraints,
@@ -432,15 +419,19 @@ internal class TextFieldState(
 ) {
     val processor = EditProcessor()
     var inputSession = NO_SESSION
+
     /**
      * This should be a state as every time we update the value we need to redraw it.
      * state observation during onDraw callback will make it work.
      */
     var hasFocus by mutableStateOf(false)
+
     /** The last layout coordinates for the Text's layout, used by selection */
     var layoutCoordinates: LayoutCoordinates? = null
+
     /** The latest TextLayoutResult calculated in the measure block */
     var layoutResult: TextLayoutResult? = null
+
     /**
      * The gesture detector status, to indicate whether current status is selection or editing.
      *
@@ -452,6 +443,7 @@ internal class TextFieldState(
      * screen changes selection instead of moving the cursor.
      */
     var selectionIsOn: Boolean = false
+
     /**
      * A flag to check if the selection start or end handle is being dragged.
      * If this value is true, then onPress will not select any text.
@@ -459,136 +451,13 @@ internal class TextFieldState(
      * when the dragging is stopped.
      */
     var draggingHandle = false
+
     /**
      * A flag to check if the selection is being updated at this moment.
      * This value will be set to true during long press and dragging, and dragging the
      * selection handles.
      */
     var updatingSelection = false
-}
-
-// TODO(b/161297615): Replace the deprecated FocusModifier with the new Focus API.
-@Suppress("DEPRECATION")
-private fun chainedFocusModifier(modifier: Modifier): FocusModifier? {
-    var focusModifier: FocusModifier? = null
-    modifier.foldIn(Unit) { _, element ->
-        if (element is FocusModifier) {
-            focusModifier = element
-            return@foldIn
-        }
-    }
-    return focusModifier
-}
-
-/**
- * Helper composable for observing all text input related events.
- *
- * TODO(b/161297615): Replace the deprecated FocusModifier with the new Focus API.
- */
-@Suppress("DEPRECATION")
-@Composable
-private fun textInputEventObserver(
-    onPress: (Offset) -> Unit,
-    onRelease: (Offset) -> Unit,
-    onFocus: () -> Unit,
-    state: TextFieldState,
-    longPressDragObserver: LongPressDragObserver,
-    onBlur: (hasNextClient: Boolean) -> Unit,
-    focusModifier: FocusModifier,
-    manager: TextFieldSelectionManager
-): Modifier {
-    val prevState = remember { mutableStateOf(FocusState.NotFocused) }
-    if (focusModifier.focusState == FocusState.Focused &&
-        prevState.value == FocusState.NotFocused
-    ) {
-        onFocus()
-    }
-
-    if (focusModifier.focusState == FocusState.NotFocused &&
-        prevState.value == FocusState.Focused
-    ) {
-        onBlur(false) // TODO: Need to know if there is next focus element
-    }
-
-    prevState.value = focusModifier.focusState
-
-    val doFocusIn = {
-        if (focusModifier.focusState == FocusState.NotFocused) {
-            focusModifier.requestFocus()
-        }
-    }
-
-    onDispose {
-        onBlur(false)
-    }
-
-    return Modifier.dragPositionGestureFilter(
-        onPress = {
-            state.selectionIsOn = false
-            manager.hideSelectionToolbar()
-            if (focusModifier.focusState == FocusState.Focused) {
-                onPress(it)
-            } else {
-                doFocusIn()
-            }
-        },
-        onRelease = onRelease,
-        longPressDragObserver = longPressDragObserver
-    )
-}
-
-private fun semanticsModifier(
-    value: TextFieldValue,
-    imeAction: ImeAction,
-    focusModifier: FocusModifier,
-    state: TextFieldState,
-    onValueChange: (TextFieldValue) -> Unit
-): Modifier {
-    return Modifier.semantics {
-        this.imeAction = imeAction
-        this.supportsInputMethods()
-        this.text = AnnotatedString(value.text)
-        this.textSelectionRange = value.selection
-        this.focused = focusModifier.focusState == FocusState.Focused
-        getTextLayoutResult {
-            if (state.layoutResult != null) {
-                it.add(state.layoutResult!!)
-                true
-            } else {
-                false
-            }
-        }
-        setText {
-            onValueChange(TextFieldValue(it.text, TextRange(it.text.length)))
-            true
-        }
-        // TODO: startSelectionActionModeAsync
-        setSelection { start, end, startSelectionActionMode ->
-            if (start == value.selection.start && end == value.selection.end) {
-                false
-            } else if (start.coerceAtMost(end) >= 0 &&
-                start.coerceAtLeast(end) <= value.text.length) {
-                onValueChange(TextFieldValue(value.text, TextRange(start, end)))
-                if (startSelectionActionMode) {
-                    // startSelectionActionModeAsync
-                    // See https://cs.android.com/android/platform/superproject/+/
-                    // master:frameworks/base/core/java/android/widget/TextView.java;
-                    // l=11980;drc=e13851556bcfecff6de4b3a1a99be4dcaa5853a1
-                } else {
-                    // stop SelectionActionMode
-                }
-                true
-            } else {
-                false
-            }
-        }
-        onClick {
-            if (focusModifier.focusState == FocusState.NotFocused) {
-                focusModifier.requestFocus()
-            }
-            true
-        }
-    }
 }
 
 /**
