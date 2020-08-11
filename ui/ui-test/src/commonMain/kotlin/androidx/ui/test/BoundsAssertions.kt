@@ -89,17 +89,6 @@ fun SemanticsNodeInteraction.getUnclippedBoundsInRoot(): Bounds {
 }
 
 /**
- * Returns the bounds of the layout of this node. The bounds are relative to the root composable.
- */
-@Deprecated(
-    message = "Renamed to getUnclippedBoundsInRoot()",
-    replaceWith = ReplaceWith("getUnclippedBoundsInRoot()")
-)
-fun SemanticsNodeInteraction.getBoundsInRoot(): Bounds {
-    return getUnclippedBoundsInRoot()
-}
-
-/**
  * Asserts that the layout of this node has position in the root composable that is equal to the
  * given position.
  *
