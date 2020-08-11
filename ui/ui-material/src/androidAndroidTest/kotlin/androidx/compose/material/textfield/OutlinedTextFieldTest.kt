@@ -33,6 +33,9 @@ import androidx.compose.runtime.Providers
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.ExperimentalFocus
+import androidx.compose.ui.focus.isFocused
+import androidx.compose.ui.focusObserver
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -75,8 +78,8 @@ import kotlin.math.roundToInt
 
 @MediumTest
 @RunWith(JUnit4::class)
+@OptIn(ExperimentalFocus::class)
 class OutlinedTextFieldTest {
-
     private val ExpectedMinimumTextFieldHeight = 56.dp
     private val ExpectedPadding = 16.dp
     private val IconPadding = 12.dp
@@ -97,18 +100,20 @@ class OutlinedTextFieldTest {
         testRule.setMaterialContent {
             Column {
                 OutlinedTextField(
-                    modifier = Modifier.testTag(textField1Tag),
+                    modifier = Modifier
+                        .testTag(textField1Tag)
+                        .focusObserver { textField1Focused = it.isFocused },
                     value = "input1",
                     onValueChange = {},
-                    label = {},
-                    onFocusChanged = { textField1Focused = it }
+                    label = {}
                 )
                 OutlinedTextField(
-                    modifier = Modifier.testTag(textField2Tag),
+                    modifier = Modifier
+                        .testTag(textField2Tag)
+                        .focusObserver { textField2Focused = it.isFocused },
                     value = "input2",
                     onValueChange = {},
-                    label = {},
-                    onFocusChanged = { textField2Focused = it }
+                    label = {}
                 )
             }
         }
@@ -134,11 +139,12 @@ class OutlinedTextFieldTest {
         testRule.setMaterialContent {
             Box {
                 OutlinedTextField(
-                    modifier = Modifier.testTag(TextfieldTag),
+                    modifier = Modifier
+                        .testTag(TextfieldTag)
+                        .focusObserver { focused = it.isFocused },
                     value = "input",
                     onValueChange = {},
-                    label = {},
-                    onFocusChanged = { focused = it }
+                    label = {}
                 )
             }
         }

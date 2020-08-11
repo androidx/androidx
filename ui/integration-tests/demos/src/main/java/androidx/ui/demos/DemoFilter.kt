@@ -39,7 +39,9 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.TopAppBar
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.ui.FocusModifier
+import androidx.compose.ui.focus.ExperimentalFocus
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focusRequester
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.annotatedString
 import androidx.compose.ui.text.withStyle
@@ -99,24 +101,23 @@ fun FilterAppBar(
  * [BaseTextField] that edits the current [filterText], providing [onFilter] when edited.
  */
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalFocus::class,
+    ExperimentalFoundationApi::class
+)
 private fun FilterField(
     filterText: TextFieldValue,
     onFilter: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // TODO(b/161297615): Replace the deprecated FocusModifier with the new Focus API.
-    @Suppress("DEPRECATION")
-    val focusModifier = FocusModifier()
+    val focusRequester = FocusRequester()
     // TODO: replace with Material text field when available
     BaseTextField(
-        modifier = modifier.then(focusModifier),
+        modifier = modifier.focusRequester(focusRequester),
         value = filterText,
         onValueChange = onFilter
     )
-    onCommit {
-        focusModifier.requestFocus()
-    }
+    onCommit { focusRequester.requestFocus() }
 }
 
 /**

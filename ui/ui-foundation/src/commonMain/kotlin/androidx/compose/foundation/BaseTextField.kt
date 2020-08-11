@@ -35,6 +35,9 @@ import androidx.compose.ui.ContentDrawScope
 import androidx.compose.ui.DrawModifier
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.focus.ExperimentalFocus
+import androidx.compose.ui.focus.isFocused
+import androidx.compose.ui.focusObserver
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Color
@@ -101,9 +104,6 @@ var blinkingCursorEnabled: Boolean = true
  *  * @param onImeActionPerformed Called when the input service requested an IME action. When the
  * input service emitted an IME action, this callback is called with the emitted IME action. Note
  * that this IME action may be different from what you specified in [imeAction].
- * @param onFocusChanged Called with true value when the input field gains focus and with false
- * value when the input field loses focus. Use [FocusModifier.requestFocus] to obtain text input
- * focus to this TextField.
  * @param visualTransformation The visual transformation filter for changing the visual
  * representation of the input. By default no visual transformation is applied.
  * @param onTextLayout Callback that is executed when a new text layout is calculated.
@@ -120,6 +120,7 @@ var blinkingCursorEnabled: Boolean = true
  */
 @Composable
 @ExperimentalFoundationApi
+@OptIn(ExperimentalFocus::class)
 fun BaseTextField(
     value: TextFieldValue,
     onValueChange: (TextFieldValue) -> Unit,
@@ -129,7 +130,6 @@ fun BaseTextField(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onImeActionPerformed: (ImeAction) -> Unit = {},
-    onFocusChanged: (Boolean) -> Unit = {},
     visualTransformation: VisualTransformation = VisualTransformation.None,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     onTextInputStarted: (SoftwareKeyboardController) -> Unit = {},
@@ -176,6 +176,7 @@ fun BaseTextField(
     CoreTextField(
         value = value,
         modifier = modifier
+            .focusObserver { cursorState.focused = it.isFocused }
             .defaultMinSizeConstraints(minWidth = DefaultTextFieldWidth)
             .then(cursorModifier),
         onValueChange = {
@@ -185,10 +186,6 @@ fun BaseTextField(
         keyboardType = keyboardType,
         imeAction = imeAction,
         onImeActionPerformed = onImeActionPerformed,
-        onFocusChanged = {
-            cursorState.focused = it
-            onFocusChanged(it)
-        },
         visualTransformation = visualTransformation,
         onTextLayout = {
             cursorState.layoutResult = it

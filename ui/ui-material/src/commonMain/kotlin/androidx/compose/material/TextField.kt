@@ -124,8 +124,6 @@ import kotlin.math.roundToInt
  * Note that the emitted IME action may be different from what you specified through the
  * [imeAction] field. The callback also exposes a [SoftwareKeyboardController] instance as a
  * parameter that can be used to request to hide the software keyboard
- * @param onFocusChanged a callback to be invoked when the text field receives or loses focus
- * If the boolean parameter value is `true`, it means the text field has focus, and vice versa
  * @param onTextInputStarted a callback to be invoked when the connection with the platform's text
  * input service (e.g. software keyboard on Android) has been established. Called with the
  * [SoftwareKeyboardController] instance that can be used to request to show or hide the software
@@ -155,7 +153,6 @@ fun TextField(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onImeActionPerformed: (ImeAction, SoftwareKeyboardController?) -> Unit = { _, _ -> },
-    onFocusChanged: (Boolean) -> Unit = {},
     onTextInputStarted: (SoftwareKeyboardController) -> Unit = {},
     activeColor: Color = MaterialTheme.colors.primary,
     inactiveColor: Color = MaterialTheme.colors.onSurface,
@@ -194,7 +191,6 @@ fun TextField(
         keyboardType = keyboardType,
         imeAction = imeAction,
         onImeActionPerformed = onImeActionPerformed,
-        onFocusChanged = onFocusChanged,
         onTextInputStarted = onTextInputStarted,
         activeColor = activeColor,
         inactiveColor = inactiveColor,
@@ -248,8 +244,6 @@ fun TextField(
  * Note that the emitted IME action may be different from what you specified through the
  * [imeAction] field. The callback also exposes a [SoftwareKeyboardController] instance as a
  * parameter that can be used to request to hide the software keyboard
- * @param onFocusChanged a callback to be invoked when the text field receives or loses focus
- * If the boolean parameter value is `true`, it means the text field has focus, and vice versa
  * @param onTextInputStarted a callback to be invoked when the connection with the platform's text
  * input service (e.g. software keyboard on Android) has been established. Called with the
  * [SoftwareKeyboardController] instance that can be used to request to show or hide the software
@@ -279,7 +273,6 @@ fun TextField(
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Unspecified,
     onImeActionPerformed: (ImeAction, SoftwareKeyboardController?) -> Unit = { _, _ -> },
-    onFocusChanged: (Boolean) -> Unit = {},
     onTextInputStarted: (SoftwareKeyboardController) -> Unit = {},
     activeColor: Color = MaterialTheme.colors.primary,
     inactiveColor: Color = MaterialTheme.colors.onSurface,
@@ -303,7 +296,6 @@ fun TextField(
         keyboardType = keyboardType,
         imeAction = imeAction,
         onImeActionPerformed = onImeActionPerformed,
-        onFocusChanged = onFocusChanged,
         onTextInputStarted = onTextInputStarted,
         activeColor = activeColor,
         inactiveColor = inactiveColor,
@@ -315,7 +307,7 @@ fun TextField(
 
 @Composable
 internal fun TextFieldLayout(
-    textFieldModifier: Modifier = Modifier,
+    modifier: Modifier = Modifier,
     decoratedTextField: @Composable (Modifier) -> Unit,
     decoratedPlaceholder: @Composable (() -> Unit)?,
     decoratedLabel: @Composable () -> Unit,
@@ -331,7 +323,7 @@ internal fun TextFieldLayout(
 ) {
     // places leading icon, text field with label and placeholder, trailing icon
     IconsWithTextFieldLayout(
-        modifier = textFieldModifier
+        modifier = modifier
             .background(
                 color = backgroundColor.applyAlpha(alpha = ContainerAlpha),
                 shape = shape

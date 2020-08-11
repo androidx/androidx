@@ -31,6 +31,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.autofill.AutofillNode
 import androidx.compose.ui.autofill.AutofillType
+import androidx.compose.ui.focus.ExperimentalFocus
+import androidx.compose.ui.focus.isFocused
+import androidx.compose.ui.focusObserver
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.layout.LayoutCoordinates
@@ -43,7 +46,10 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 
 @Composable
-@OptIn(ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalFocus::class,
+    ExperimentalFoundationApi::class
+)
 fun ExplicitAutofillTypesDemo() {
     Column {
         val nameState = remember { mutableStateOf(TextFieldValue("Enter name here")) }
@@ -58,17 +64,19 @@ fun ExplicitAutofillTypesDemo() {
             onFill = { nameState.value = TextFieldValue(it) }
         ) { autofillNode ->
             BaseTextField(
+                modifier = Modifier.focusObserver {
+                    autofill?.apply {
+                        if (it.isFocused) {
+                            requestAutofillForNode(autofillNode)
+                        } else {
+                            cancelAutofillForNode(autofillNode)
+                        }
+                    }
+                },
                 value = nameState.value,
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Unspecified,
                 onValueChange = { nameState.value = it },
-                onFocusChanged = { focused ->
-                    if (focused) {
-                        autofill?.requestAutofillForNode(autofillNode)
-                    } else {
-                        autofill?.cancelAutofillForNode(autofillNode)
-                    }
-                },
                 textStyle = textStyle
             )
         }
@@ -81,17 +89,19 @@ fun ExplicitAutofillTypesDemo() {
             onFill = { emailState.value = TextFieldValue(it) }
         ) { autofillNode ->
             BaseTextField(
+                modifier = Modifier.focusObserver {
+                    autofill?.run {
+                        if (it.isFocused) {
+                            requestAutofillForNode(autofillNode)
+                        } else {
+                            cancelAutofillForNode(autofillNode)
+                        }
+                    }
+                },
                 value = emailState.value,
                 keyboardType = KeyboardType.Text,
                 imeAction = ImeAction.Unspecified,
                 onValueChange = { emailState.value = it },
-                onFocusChanged = { focused ->
-                    if (focused) {
-                        autofill?.requestAutofillForNode(autofillNode)
-                    } else {
-                        autofill?.cancelAutofillForNode(autofillNode)
-                    }
-                },
                 textStyle = textStyle
             )
         }
