@@ -65,7 +65,7 @@ androidx {
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.Compose.UI
     inceptionYear = "2020"
-    description = "Compose utility methods used by other compose modules."
+    description = "Internal Compose utilities used by other modules"
 }
 
 tasks.withType(KotlinCompile).configureEach {
