@@ -24,6 +24,8 @@ import androidx.test.filters.SmallTest
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Box
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.SolidColor
@@ -31,15 +33,22 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.preferredWidth
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.AtLeastSize
+import androidx.compose.ui.background
 import androidx.compose.ui.draw.paint
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.DensityAmbient
+import androidx.compose.ui.platform.testTag
 import androidx.ui.test.captureToBitmap
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.onRoot
 import androidx.ui.test.runOnUiThread
 import androidx.ui.test.waitForIdle
 import androidx.compose.ui.unit.dp
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.performClick
 import org.junit.Assert
 import org.junit.Assert.assertEquals
 import org.junit.Rule
@@ -159,6 +168,87 @@ class VectorTest {
             assertEquals(Color.Yellow.toArgb(), getPixel(25, 100))
             assertEquals(Color.Blue.toArgb(), getPixel(100, 100))
             assertEquals(Color.Yellow.toArgb(), getPixel(175, 100))
+        }
+    }
+
+    @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Test
+    fun testVectorAssetChangeOnStateChange() {
+        val defaultWidth = 24.dp
+        val defaultHeight = 24.dp
+        val viewportWidth = 24f
+        val viewportHeight = 24f
+
+        val icon1 = VectorAssetBuilder(
+                defaultWidth = defaultWidth,
+                defaultHeight = defaultHeight,
+                viewportWidth = viewportWidth,
+                viewportHeight = viewportHeight
+            )
+            .addPath(
+                fill = SolidColor(Color.Black),
+                pathData = PathData {
+                    lineTo(viewportWidth, 0f)
+                    lineTo(viewportWidth, viewportHeight)
+                    lineTo(0f, 0f)
+                    close()
+                }
+            ).build()
+
+        val icon2 = VectorAssetBuilder(
+                defaultWidth = defaultWidth,
+                defaultHeight = defaultHeight,
+                viewportWidth = viewportWidth,
+                viewportHeight = viewportHeight
+            )
+            .addPath(
+                fill = SolidColor(Color.Black),
+                pathData = PathData {
+                    lineTo(0f, viewportHeight)
+                    lineTo(viewportWidth, viewportHeight)
+                    lineTo(0f, 0f)
+                    close()
+                }
+            ).build()
+
+        val testTag = "iconClick"
+        rule.setContent {
+            val clickState = remember { mutableStateOf(false) }
+            Image(
+                asset = if (clickState.value) icon1 else icon2,
+                modifier = Modifier
+                    .testTag(testTag)
+                    .preferredSize(icon1.defaultWidth, icon1.defaultHeight)
+                    .background(Color.Red)
+                    .clickable { clickState.value = !clickState.value },
+                contentScale = ContentScale.FillHeight,
+                alignment = Alignment.TopStart
+            )
+        }
+
+        onNodeWithTag(testTag).apply {
+            captureToBitmap().apply {
+                assertEquals(Color.Red.toArgb(), getPixel(width - 2, 0))
+                assertEquals(Color.Red.toArgb(), getPixel(2, 0))
+                assertEquals(Color.Red.toArgb(), getPixel(width - 1, height - 2))
+
+                assertEquals(Color.Black.toArgb(), getPixel(0, 2))
+                assertEquals(Color.Black.toArgb(), getPixel(0, height - 1))
+                assertEquals(Color.Black.toArgb(), getPixel(width - 2, height - 1))
+            }
+            performClick()
+        }
+
+        waitForIdle()
+
+        onNodeWithTag(testTag).captureToBitmap().apply {
+            assertEquals(Color.Black.toArgb(), getPixel(width - 2, 0))
+            assertEquals(Color.Black.toArgb(), getPixel(2, 0))
+            assertEquals(Color.Black.toArgb(), getPixel(width - 1, height - 2))
+
+            assertEquals(Color.Red.toArgb(), getPixel(0, 2))
+            assertEquals(Color.Red.toArgb(), getPixel(0, height - 2))
+            assertEquals(Color.Red.toArgb(), getPixel(width - 2, height - 1))
         }
     }
 

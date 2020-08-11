@@ -16,15 +16,17 @@
 
 package androidx.compose.ui.graphics.vector
 
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.unit.Dp
 
 /**
- * Vector graphics object that is generated as a result of [VectorAssetBuilder]]
+ * Vector graphics object that is generated as a result of [VectorAssetBuilder]
  * It can be composed and rendered by passing it as an argument to [VectorPainter]
  */
+@Immutable
 data class VectorAsset internal constructor(
 
     /**
@@ -66,8 +68,11 @@ sealed class VectorNode
  * Defines a group of paths or subgroups, plus transformation information.
  * The transformations are defined in the same coordinates as the viewport.
  * The transformations are applied in the order of scale, rotate then translate.
+ *
+ * This is constructed as part of the result of [VectorAssetBuilder] construction
  */
-class VectorGroup(
+@Immutable
+class VectorGroup internal constructor(
     /**
      * Name of the corresponding group
      */
@@ -175,8 +180,11 @@ class VectorGroup(
 /**
  * Leaf node of a Vector graphics tree. This specifies a path shape and parameters
  * to color and style the the shape itself
+ *
+ * This is constructed as part of the result of [VectorAssetBuilder] construction
  */
-data class VectorPath(
+@Immutable
+class VectorPath internal constructor(
     /**
      * Name of the corresponding path
      */
@@ -244,4 +252,45 @@ data class VectorPath(
      * in the range from 0 to 1. The default is 0.
      */
     val trimPathOffset: Float = DefaultTrimPathOffset
-) : VectorNode()
+) : VectorNode() {
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class != other::class) return false
+
+        other as VectorPath
+
+        if (name != other.name) return false
+        if (fill != other.fill) return false
+        if (fillAlpha != other.fillAlpha) return false
+        if (stroke != other.stroke) return false
+        if (strokeAlpha != other.strokeAlpha) return false
+        if (strokeLineWidth != other.strokeLineWidth) return false
+        if (strokeLineCap != other.strokeLineCap) return false
+        if (strokeLineJoin != other.strokeLineJoin) return false
+        if (strokeLineMiter != other.strokeLineMiter) return false
+        if (trimPathStart != other.trimPathStart) return false
+        if (trimPathEnd != other.trimPathEnd) return false
+        if (trimPathOffset != other.trimPathOffset) return false
+        if (pathData != other.pathData) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = name.hashCode()
+        result = 31 * result + pathData.hashCode()
+        result = 31 * result + (fill?.hashCode() ?: 0)
+        result = 31 * result + fillAlpha.hashCode()
+        result = 31 * result + (stroke?.hashCode() ?: 0)
+        result = 31 * result + strokeAlpha.hashCode()
+        result = 31 * result + strokeLineWidth.hashCode()
+        result = 31 * result + strokeLineCap.hashCode()
+        result = 31 * result + strokeLineJoin.hashCode()
+        result = 31 * result + strokeLineMiter.hashCode()
+        result = 31 * result + trimPathStart.hashCode()
+        result = 31 * result + trimPathEnd.hashCode()
+        result = 31 * result + trimPathOffset.hashCode()
+        return result
+    }
+}

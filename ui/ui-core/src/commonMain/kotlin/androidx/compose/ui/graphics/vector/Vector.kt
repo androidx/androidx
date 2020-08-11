@@ -86,34 +86,47 @@ sealed class VNode {
     abstract fun DrawScope.draw()
 }
 
-internal class VectorComponent(
-    viewportWidth: Float,
-    viewportHeight: Float,
-    val name: String = ""
-) : VNode() {
+internal class VectorComponent : VNode() {
 
-    val root = GroupComponent(this@VectorComponent.name).apply {
+    val root = GroupComponent().apply {
         pivotX = 0.0f
         pivotY = 0.0f
         invalidateListener = {
-            isDirty = true
+            doInvalidate()
         }
+    }
+
+    var name: String
+        get() = root.name
+        set(value) {
+            root.name = value
+        }
+
+    private fun doInvalidate() {
+        isDirty = true
+        invalidateCallback.invoke()
     }
 
     private var isDirty: Boolean = true
 
     private val cacheDrawScope = DrawCache()
 
-    var viewportWidth: Float = viewportWidth
+    internal var invalidateCallback = {}
+
+    var viewportWidth: Float = 0f
         set(value) {
-            field = value
-            isDirty = true
+            if (field != value) {
+                field = value
+                doInvalidate()
+            }
         }
 
-    var viewportHeight: Float = viewportHeight
+    var viewportHeight: Float = 0f
         set(value) {
-            field = value
-            isDirty = true
+            if (field != value) {
+                field = value
+                doInvalidate()
+            }
         }
 
     private var previousDrawSize: Size = Unspecified
@@ -157,7 +170,13 @@ internal class VectorComponent(
     }
 }
 
-internal data class PathComponent(val name: String) : VNode() {
+internal class PathComponent : VNode() {
+
+    var name: String = DefaultPathName
+        set(value) {
+            field = value
+            invalidate()
+        }
 
     var fill: Brush? = null
         set(value) {
@@ -310,7 +329,7 @@ internal data class PathComponent(val name: String) : VNode() {
     }
 }
 
-internal data class GroupComponent(val name: String = DefaultGroupName) : VNode() {
+internal class GroupComponent : VNode() {
 
     private var groupMatrix: Matrix4? = null
 
@@ -360,6 +379,14 @@ internal data class GroupComponent(val name: String = DefaultGroupName) : VNode(
             targetParser.addPathNodes(clipPathData).toPath(targetClip)
         }
     }
+
+    // If the name changes we should re-draw as individual nodes could
+    // be modified based off of this name parameter.
+    var name: String = DefaultGroupName
+        set(value) {
+            field = value
+            invalidate()
+        }
 
     var rotation: Float = DefaultRotation
         set(value) {
@@ -462,8 +489,10 @@ internal data class GroupComponent(val name: String = DefaultGroupName) : VNode(
 
     fun remove(index: Int, count: Int) {
         repeat(count) {
-            children[index].invalidateListener = null
-            children.removeAt(index)
+            if (index < children.size) {
+                children[index].invalidateListener = null
+                children.removeAt(index)
+            }
         }
         invalidate()
     }
