@@ -67,15 +67,16 @@ class WorkManagerInspector(
 
         environment.registerEntryHook(
             WorkContinuationImpl::class.java,
-            "enqueue()Landroidx/work/Operation;"
-        ) { obj, _ ->
-            val stackTrace = Throwable().stackTrace
-            executor.submit {
-                (obj as? WorkContinuationImpl)?.allIds?.forEach { id ->
-                    stackTraceMap[id] = stackTrace.prune()
-                }
+            "enqueue()Landroidx/work/Operation;",
+            InspectorEnvironment.EntryHook { obj, _ ->
+                    val stackTrace = Throwable().stackTrace
+                    executor.submit {
+                        (obj as? WorkContinuationImpl)?.allIds?.forEach { id ->
+                            stackTraceMap[id] = stackTrace.prune()
+                        }
+                    }
             }
-        }
+        )
     }
 
     override fun onReceiveCommand(data: ByteArray, callback: CommandCallback) {
