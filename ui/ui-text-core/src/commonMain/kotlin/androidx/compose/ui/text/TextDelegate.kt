@@ -186,7 +186,10 @@ class TextDelegate(
                 resourceLoader, constraints)) {
             return with(prevResult) {
                 copy(
-                    layoutInput = layoutInput.copy(constraints = constraints),
+                    layoutInput = layoutInput.copy(
+                        style = style,
+                        constraints = constraints
+                    ),
                     size = constraints.constrain(
                         IntSize(
                             ceil(multiParagraph.width).toInt(),

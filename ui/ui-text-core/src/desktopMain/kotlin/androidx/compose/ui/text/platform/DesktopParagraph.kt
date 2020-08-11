@@ -18,9 +18,11 @@ package androidx.compose.ui.text.platform
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.DesktopPath
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.toComposeRect
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.Paragraph
@@ -32,6 +34,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.style.ResolvedTextDirection
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Density
 import org.jetbrains.skija.paragraph.LineMetrics
 import org.jetbrains.skija.paragraph.RectHeightMode
@@ -272,7 +275,16 @@ internal class DesktopParagraph(
         return TextRange(0, 0)
     }
 
-    override fun paint(canvas: Canvas) {
+    override fun paint(
+        canvas: Canvas,
+        color: Color,
+        shadow: Shadow?,
+        textDecoration: TextDecoration?
+    ) {
+        // TODO: Implement color, shadow, textDecoration. When color is not Color.Unset or shadow
+        // is not null, or textDecoration is not null, this paint call will overwrite the style
+        // passed to this Paragraph, and then draw on the canvas.
+        // Calling this function is expected to NOT have a huge performance impact.
         para.paint(canvas.nativeCanvas, 0.0f, 0.0f)
     }
 }
