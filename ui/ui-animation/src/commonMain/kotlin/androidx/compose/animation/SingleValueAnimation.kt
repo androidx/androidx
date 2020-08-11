@@ -68,7 +68,7 @@ private val defaultAnimation = SpringSpec<Float>()
  * Note, [animate] is for simple animations that cannot be canceled. For cancellable animations
  * see [animatedFloat].
  *
- * @sample androidx.compose.animation.samples.VisibilityTransition
+ * @sample androidx.compose.animation.samples.VisibilityTransitionSample
  *
  * @param target Target value of the animation
  * @param animSpec The animation that will be used to change the value through time. [SpringSpec]
@@ -118,7 +118,7 @@ fun animate(
  * Note, [animate] is for simple animations that cannot be canceled. For cancellable animations
  * see [animatedColor].
  *
- * @sample androidx.compose.animation.samples.ColorTransition
+ * @sample androidx.compose.animation.samples.ColorTransitionSample
  *
  * @param target Target value of the animation
  * @param animSpec The animation that will be used to change the value through time. Physics
@@ -143,7 +143,7 @@ fun animate(
  * Note, [animate] is for simple animations that cannot be canceled. For cancellable animations
  * see [animatedValue].
  *
- *     val height : Dp = animate(if (collapsed) 10.dp else 20.dp)
+ * @sample androidx.compose.animation.samples.DpAnimationSample
  *
  * @param target Target value of the animation
  * @param animSpec The animation that will be used to change the value through time. Physics
@@ -262,8 +262,7 @@ fun animate(
  * Note, [animate] is for simple animations that cannot be canceled. For cancellable animations
  * see [animatedValue].
  *
- *    val position : Offset = animate(
- *        if (selected) Offset(0.px, 0.px) else Offset(20.px, 20.px))
+ * @sample androidx.compose.animation.samples.AnimateOffsetSample
  *
  * @param target Target value of the animation
  * @param animSpec The animation that will be used to change the value through time. Physics
@@ -386,6 +385,8 @@ fun animate(
  * Note, [animate] is for simple animations that cannot be canceled. For cancellable animations
  * see [animatedValue].
  *
+ * @sample androidx.compose.animation.samples.AnimateOffsetSample
+ *
  * @param target Target value of the animation
  * @param animSpec The animation that will be used to change the value through time. Physics
  *                    animation will be used by default.
@@ -470,7 +471,9 @@ fun <T : AnimationVector> animate(
  * Note, [animate] is for simple animations that cannot be canceled. For cancellable animations
  * see [animatedValue].
  *
- * @sample androidx.compose.animation.samples.ArbitraryValueTypeTransition
+ * @sample androidx.compose.animation.samples.ArbitraryValueTypeTransitionSample
+ *
+ *     data class MySize(val width: Dp, val height: Dp)
  *
  * @param target Target value of the animation
  * @param animSpec The animation that will be used to change the value through time. Physics
