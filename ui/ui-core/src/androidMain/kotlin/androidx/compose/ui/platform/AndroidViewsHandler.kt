@@ -40,7 +40,7 @@ internal class AndroidViewsHandler(context: Context) : ViewGroup(context) {
     // component nodes logic.
     @SuppressLint("MissingSuperCall")
     override fun onDescendantInvalidated(child: View, target: View) {
-        layoutNode[child]!!.onInvalidate()
+        layoutNode[child]?.onInvalidate()
     }
 
     // No call to super to avoid invalidating the AndroidComposeView and rely on

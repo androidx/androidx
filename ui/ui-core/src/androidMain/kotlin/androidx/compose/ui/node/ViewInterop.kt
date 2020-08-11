@@ -111,13 +111,18 @@ internal fun AndroidViewHolder.toLayoutNode(): LayoutNode {
         }
     layoutNode.modifier = modifier.then(coreModifier)
     onModifierChanged = { layoutNode.modifier = it.then(coreModifier) }
+
+    var viewRemovedOnDetach: View? = null
     layoutNode.onAttach = { owner ->
         (owner as? AndroidOwner)?.addAndroidView(this, layoutNode)
+        if (viewRemovedOnDetach != null) view = viewRemovedOnDetach
     }
     layoutNode.onDetach = { owner ->
         (owner as? AndroidOwner)?.removeAndroidView(this)
+        viewRemovedOnDetach = view
         view = null
     }
+
     layoutNode.measureBlocks = object : LayoutNode.NoIntrinsicsMeasureBlocks(
         "Intrinsics not supported for Android views"
     ) {
