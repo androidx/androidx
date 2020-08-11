@@ -75,7 +75,8 @@ class ComposeViewAdapterTest {
             assertTrue(viewInfos.isNotEmpty())
             // Verify that valid line numbers are being recorded
             assertTrue(viewInfos.map { it.lineNumber }.all { it > 0 })
-            // Verify that method names are being captured
+            // Verify that this composable has no animations
+            assertFalse(composeViewAdapter.hasAnimations())
         }
     }
 
@@ -93,7 +94,7 @@ class ComposeViewAdapterTest {
             assertTrue(clock.observersToAnimations.isEmpty())
 
             composeViewAdapter.findAndSubscribeTransitions()
-            assertFalse(clock.observersToAnimations.isEmpty())
+            assertTrue(composeViewAdapter.hasAnimations())
 
             val observer = clock.observersToAnimations.keys.single()
             val transitionAnimation =
