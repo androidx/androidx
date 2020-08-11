@@ -235,17 +235,17 @@ class HitPathTrackerTest {
         inOrder(pif1, pif2, pif3) {
             verify(pif1).onPointerInputMock(
                 eq(listOf(down(13))),
-                eq(PointerEventPass.InitialDown),
+                eq(PointerEventPass.Initial),
                 any()
             )
             verify(pif2).onPointerInputMock(
                 eq(listOf(down(13))),
-                eq(PointerEventPass.InitialDown),
+                eq(PointerEventPass.Initial),
                 any()
             )
             verify(pif3).onPointerInputMock(
                 eq(listOf(down(13))),
-                eq(PointerEventPass.InitialDown),
+                eq(PointerEventPass.Initial),
                 any()
             )
         }
@@ -268,32 +268,32 @@ class HitPathTrackerTest {
         inOrder(pif1, pif2, pif3) {
             verify(pif1).onPointerInputMock(
                 eq(listOf(down(13))),
-                eq(PointerEventPass.InitialDown),
+                eq(PointerEventPass.Initial),
                 any()
             )
             verify(pif2).onPointerInputMock(
                 eq(listOf(down(13))),
-                eq(PointerEventPass.InitialDown),
+                eq(PointerEventPass.Initial),
                 any()
             )
             verify(pif3).onPointerInputMock(
                 eq(listOf(down(13))),
-                eq(PointerEventPass.InitialDown),
+                eq(PointerEventPass.Initial),
                 any()
             )
             verify(pif3).onPointerInputMock(
                 eq(listOf(down(13))),
-                eq(PointerEventPass.PostUp),
+                eq(PointerEventPass.Main),
                 any()
             )
             verify(pif2).onPointerInputMock(
                 eq(listOf(down(13))),
-                eq(PointerEventPass.PostUp),
+                eq(PointerEventPass.Main),
                 any()
             )
             verify(pif1).onPointerInputMock(
                 eq(listOf(down(13))),
-                eq(PointerEventPass.PostUp),
+                eq(PointerEventPass.Main),
                 any()
             )
         }
@@ -323,44 +323,44 @@ class HitPathTrackerTest {
         inOrder(pif1, pif2) {
             verify(pif1).onPointerInputMock(
                 eq(listOf(event1)),
-                eq(PointerEventPass.InitialDown),
+                eq(PointerEventPass.Initial),
                 any()
             )
             verify(pif2).onPointerInputMock(
                 eq(listOf(event1)),
-                eq(PointerEventPass.InitialDown),
+                eq(PointerEventPass.Initial),
                 any()
             )
             verify(pif2).onPointerInputMock(
                 eq(listOf(event1)),
-                eq(PointerEventPass.PostUp),
+                eq(PointerEventPass.Main),
                 any()
             )
             verify(pif1).onPointerInputMock(
                 eq(listOf(event1)),
-                eq(PointerEventPass.PostUp),
+                eq(PointerEventPass.Main),
                 any()
             )
         }
         inOrder(pif3, pif4) {
             verify(pif3).onPointerInputMock(
                 eq(listOf(event2)),
-                eq(PointerEventPass.InitialDown),
+                eq(PointerEventPass.Initial),
                 any()
             )
             verify(pif4).onPointerInputMock(
                 eq(listOf(event2)),
-                eq(PointerEventPass.InitialDown),
+                eq(PointerEventPass.Initial),
                 any()
             )
             verify(pif4).onPointerInputMock(
                 eq(listOf(event2)),
-                eq(PointerEventPass.PostUp),
+                eq(PointerEventPass.Main),
                 any()
             )
             verify(pif3).onPointerInputMock(
                 eq(listOf(event2)),
-                eq(PointerEventPass.PostUp),
+                eq(PointerEventPass.Main),
                 any()
             )
         }
@@ -392,22 +392,22 @@ class HitPathTrackerTest {
         ) {
             verify(parent).onPointerInputMock(
                 eq(listOf(event1, event2)),
-                eq(PointerEventPass.InitialDown),
+                eq(PointerEventPass.Initial),
                 any()
             )
             verify(child1).onPointerInputMock(
                 eq(listOf(event1)),
-                eq(PointerEventPass.InitialDown),
+                eq(PointerEventPass.Initial),
                 any()
             )
             verify(child1).onPointerInputMock(
                 eq(listOf(event1)),
-                eq(PointerEventPass.PostUp),
+                eq(PointerEventPass.Main),
                 any()
             )
             verify(parent).onPointerInputMock(
                 eq(listOf(event1, event2)),
-                eq(PointerEventPass.PostUp),
+                eq(PointerEventPass.Main),
                 any()
             )
         }
@@ -419,22 +419,22 @@ class HitPathTrackerTest {
         ) {
             verify(parent).onPointerInputMock(
                 eq(listOf(event1, event2)),
-                eq(PointerEventPass.InitialDown),
+                eq(PointerEventPass.Initial),
                 any()
             )
             verify(child2).onPointerInputMock(
                 eq(listOf(event2)),
-                eq(PointerEventPass.InitialDown),
+                eq(PointerEventPass.Initial),
                 any()
             )
             verify(child2).onPointerInputMock(
                 eq(listOf(event2)),
-                eq(PointerEventPass.PostUp),
+                eq(PointerEventPass.Main),
                 any()
             )
             verify(parent).onPointerInputMock(
                 eq(listOf(event1, event2)),
-                eq(PointerEventPass.PostUp),
+                eq(PointerEventPass.Main),
                 any()
             )
         }
@@ -463,12 +463,12 @@ class HitPathTrackerTest {
         ) {
             verify(child1).onPointerInputMock(
                 eq(listOf(event1, event2)),
-                eq(PointerEventPass.InitialDown),
+                eq(PointerEventPass.Initial),
                 any()
             )
             verify(child1).onPointerInputMock(
                 eq(listOf(event1, event2)),
-                eq(PointerEventPass.PostUp),
+                eq(PointerEventPass.Main),
                 any()
             )
         }
@@ -479,12 +479,12 @@ class HitPathTrackerTest {
         ) {
             verify(child2).onPointerInputMock(
                 eq(listOf(event1, event2)),
-                eq(PointerEventPass.InitialDown),
+                eq(PointerEventPass.Initial),
                 any()
             )
             verify(child2).onPointerInputMock(
                 eq(listOf(event1, event2)),
-                eq(PointerEventPass.PostUp),
+                eq(PointerEventPass.Main),
                 any()
             )
         }
@@ -496,12 +496,12 @@ class HitPathTrackerTest {
         ) {
             verify(child1).onPointerInputMock(
                 eq(listOf(event1, event2)),
-                eq(PointerEventPass.InitialDown),
+                eq(PointerEventPass.Initial),
                 any()
             )
             verify(child2).onPointerInputMock(
                 eq(listOf(event1, event2)),
-                eq(PointerEventPass.PostUp),
+                eq(PointerEventPass.Main),
                 any()
             )
         }
@@ -513,12 +513,12 @@ class HitPathTrackerTest {
         ) {
             verify(child2).onPointerInputMock(
                 eq(listOf(event1, event2)),
-                eq(PointerEventPass.InitialDown),
+                eq(PointerEventPass.Initial),
                 any()
             )
             verify(child1).onPointerInputMock(
                 eq(listOf(event1, event2)),
-                eq(PointerEventPass.PostUp),
+                eq(PointerEventPass.Main),
                 any()
             )
         }
@@ -554,8 +554,8 @@ class HitPathTrackerTest {
                 changes.map {
                     val yConsume =
                         when (pass) {
-                            PointerEventPass.InitialDown -> 2f
-                            PointerEventPass.PostUp -> 64f
+                            PointerEventPass.Initial -> 2f
+                            PointerEventPass.Main -> 64f
                             else -> 0f
                         }
                     it.consumePositionChange(0f, yConsume)
@@ -568,8 +568,8 @@ class HitPathTrackerTest {
                 changes.map {
                     val yConsume =
                         when (pass) {
-                            PointerEventPass.InitialDown -> 4f
-                            PointerEventPass.PostUp -> 32f
+                            PointerEventPass.Initial -> 4f
+                            PointerEventPass.Main -> 32f
                             else -> 0f
                         }
                     it.consumePositionChange(0f, yConsume)
@@ -582,8 +582,8 @@ class HitPathTrackerTest {
                 changes.map {
                     val yConsume =
                         when (pass) {
-                            PointerEventPass.InitialDown -> 8f
-                            PointerEventPass.PostUp -> 16f
+                            PointerEventPass.Initial -> 8f
+                            PointerEventPass.Main -> 16f
                             else -> 0f
                         }
                     it.consumePositionChange(0f, yConsume)
@@ -596,31 +596,31 @@ class HitPathTrackerTest {
         val (result, _) = hitPathTracker.dispatchChanges(internalPointerEventOf(change))
 
         verify(pif1).onPointerInputMock(
-            eq(listOf(change)), eq(PointerEventPass.InitialDown), any()
+            eq(listOf(change)), eq(PointerEventPass.Initial), any()
         )
         verify(pif2).onPointerInputMock(
             eq(listOf(change.consumePositionChange(0f, 2f))),
-            eq(PointerEventPass.InitialDown),
+            eq(PointerEventPass.Initial),
             any()
         )
         verify(pif3).onPointerInputMock(
             eq(listOf(change.consumePositionChange(0f, 6f))), // 2 + 4
-            eq(PointerEventPass.InitialDown),
+            eq(PointerEventPass.Initial),
             any()
         )
         verify(pif3).onPointerInputMock(
             eq(listOf(change.consumePositionChange(0f, 14f))), // 2 + 4 + 8
-            eq(PointerEventPass.PostUp),
+            eq(PointerEventPass.Main),
             any()
         )
         verify(pif2).onPointerInputMock(
             eq(listOf(change.consumePositionChange(0f, 30f))), // 2 + 4 + 8 + 16
-            eq(PointerEventPass.PostUp),
+            eq(PointerEventPass.Main),
             any()
         )
         verify(pif1).onPointerInputMock(
             eq(listOf(change.consumePositionChange(0f, 62f))), // 2 + 4 + 8 + 16 + 32
-            eq(PointerEventPass.PostUp),
+            eq(PointerEventPass.Main),
             any()
         )
         assertThat(result.changes.values.first())
@@ -635,8 +635,8 @@ class HitPathTrackerTest {
                 changes.map {
                     val yConsume =
                         when (pass) {
-                            PointerEventPass.InitialDown -> 2f
-                            PointerEventPass.PostUp -> 12f
+                            PointerEventPass.Initial -> 2f
+                            PointerEventPass.Main -> 12f
                             else -> 0f
                         }
                     it.consumePositionChange(0f, yConsume)
@@ -649,8 +649,8 @@ class HitPathTrackerTest {
                 changes.map {
                     val yConsume =
                         when (pass) {
-                            PointerEventPass.InitialDown -> 3f
-                            PointerEventPass.PostUp -> 6f
+                            PointerEventPass.Initial -> 3f
+                            PointerEventPass.Main -> 6f
                             else -> 0f
                         }
                     it.consumePositionChange(0f, yConsume)
@@ -663,8 +663,8 @@ class HitPathTrackerTest {
                 changes.map {
                     val yConsume =
                         when (pass) {
-                            PointerEventPass.InitialDown -> -2f
-                            PointerEventPass.PostUp -> -12f
+                            PointerEventPass.Initial -> -2f
+                            PointerEventPass.Main -> -12f
                             else -> 0f
                         }
                     it.consumePositionChange(0f, yConsume)
@@ -677,8 +677,8 @@ class HitPathTrackerTest {
                 changes.map {
                     val yConsume =
                         when (pass) {
-                            PointerEventPass.InitialDown -> -3f
-                            PointerEventPass.PostUp -> -6f
+                            PointerEventPass.Initial -> -3f
+                            PointerEventPass.Main -> -6f
                             else -> 0f
                         }
                     it.consumePositionChange(0f, yConsume)
@@ -696,43 +696,43 @@ class HitPathTrackerTest {
 
         verify(pif1).onPointerInputMock(
             eq(listOf(event1)),
-            eq(PointerEventPass.InitialDown),
+            eq(PointerEventPass.Initial),
             any()
         )
         verify(pif2).onPointerInputMock(
             eq(listOf(event1.consumePositionChange(0f, 2f))),
-            eq(PointerEventPass.InitialDown),
+            eq(PointerEventPass.Initial),
             any()
         )
         verify(pif2).onPointerInputMock(
             eq(listOf(event1.consumePositionChange(0f, 5f))),
-            eq(PointerEventPass.PostUp),
+            eq(PointerEventPass.Main),
             any()
         )
         verify(pif1).onPointerInputMock(
             eq(listOf(event1.consumePositionChange(0f, 11f))),
-            eq(PointerEventPass.PostUp),
+            eq(PointerEventPass.Main),
             any()
         )
 
         verify(pif3).onPointerInputMock(
             eq(listOf(event2)),
-            eq(PointerEventPass.InitialDown),
+            eq(PointerEventPass.Initial),
             any()
         )
         verify(pif4).onPointerInputMock(
             eq(listOf(event2.consumePositionChange(0f, -2f))),
-            eq(PointerEventPass.InitialDown),
+            eq(PointerEventPass.Initial),
             any()
         )
         verify(pif4).onPointerInputMock(
             eq(listOf(event2.consumePositionChange(0f, -5f))),
-            eq(PointerEventPass.PostUp),
+            eq(PointerEventPass.Main),
             any()
         )
         verify(pif3).onPointerInputMock(
             eq(listOf(event2.consumePositionChange(0f, -11f))),
-            eq(PointerEventPass.PostUp),
+            eq(PointerEventPass.Main),
             any()
         )
 
@@ -749,8 +749,8 @@ class HitPathTrackerTest {
                 changes.map {
                     val yConsume =
                         when (pass) {
-                            PointerEventPass.InitialDown -> 2
-                            PointerEventPass.PostUp -> 3
+                            PointerEventPass.Initial -> 2
+                            PointerEventPass.Main -> 3
                             else -> Int.MAX_VALUE
                         }
                     it.consumePositionChange(
@@ -766,8 +766,8 @@ class HitPathTrackerTest {
                 changes.map {
                     val yConsume =
                         when (pass) {
-                            PointerEventPass.InitialDown -> 5
-                            PointerEventPass.PostUp -> 7
+                            PointerEventPass.Initial -> 5
+                            PointerEventPass.Main -> 7
                             else -> Int.MAX_VALUE
                         }
                     it.consumePositionChange(
@@ -783,8 +783,8 @@ class HitPathTrackerTest {
                 changes.map {
                     val yConsume =
                         when (pass) {
-                            PointerEventPass.InitialDown -> 11
-                            PointerEventPass.PostUp -> 13
+                            PointerEventPass.Initial -> 11
+                            PointerEventPass.Main -> 13
                             else -> Int.MAX_VALUE
                         }
                     it.consumePositionChange(
@@ -805,27 +805,27 @@ class HitPathTrackerTest {
 
         verify(parent).onPointerInputMock(
             eq(listOf(event1, event2)),
-            eq(PointerEventPass.InitialDown),
+            eq(PointerEventPass.Initial),
             any()
         )
         verify(child1).onPointerInputMock(
             eq(listOf(event1.consumePositionChange(0f, 500f))),
-            eq(PointerEventPass.InitialDown),
+            eq(PointerEventPass.Initial),
             any()
         )
         verify(child2).onPointerInputMock(
             eq(listOf(event2.consumePositionChange(0f, -500f))),
-            eq(PointerEventPass.InitialDown),
+            eq(PointerEventPass.Initial),
             any()
         )
         verify(child1).onPointerInputMock(
             eq(listOf(event1.consumePositionChange(0f, 600f))),
-            eq(PointerEventPass.PostUp),
+            eq(PointerEventPass.Main),
             any()
         )
         verify(child2).onPointerInputMock(
             eq(listOf(event2.consumePositionChange(0f, -545f))),
-            eq(PointerEventPass.PostUp),
+            eq(PointerEventPass.Main),
             any()
         )
         verify(parent).onPointerInputMock(
@@ -835,7 +835,7 @@ class HitPathTrackerTest {
                     event2.consumePositionChange(0f, -580f)
                 )
             ),
-            eq(PointerEventPass.PostUp),
+            eq(PointerEventPass.Main),
             any()
         )
 
@@ -852,8 +852,8 @@ class HitPathTrackerTest {
                 changes.map {
                     val yConsume =
                         when (pass) {
-                            PointerEventPass.InitialDown -> 2
-                            PointerEventPass.PostUp -> 3
+                            PointerEventPass.Initial -> 2
+                            PointerEventPass.Main -> 3
                             else -> Int.MAX_VALUE
                         }
                     it.consumePositionChange(
@@ -869,8 +869,8 @@ class HitPathTrackerTest {
                 changes.map {
                     val yConsume =
                         when (pass) {
-                            PointerEventPass.InitialDown -> 5
-                            PointerEventPass.PostUp -> 7
+                            PointerEventPass.Initial -> 5
+                            PointerEventPass.Main -> 7
                             else -> Int.MAX_VALUE
                         }
                     it.consumePositionChange(
@@ -891,7 +891,7 @@ class HitPathTrackerTest {
 
         verify(child1).onPointerInputMock(
             eq(listOf(event1, event2)),
-            eq(PointerEventPass.InitialDown),
+            eq(PointerEventPass.Initial),
             any()
         )
         verify(child2).onPointerInputMock(
@@ -901,7 +901,7 @@ class HitPathTrackerTest {
                     event2.consumePositionChange(0f, -500f)
                 )
             ),
-            eq(PointerEventPass.InitialDown),
+            eq(PointerEventPass.Initial),
             any()
         )
 
@@ -912,7 +912,7 @@ class HitPathTrackerTest {
                     event2.consumePositionChange(0f, -600f)
                 )
             ),
-            eq(PointerEventPass.PostUp),
+            eq(PointerEventPass.Main),
             any()
         )
         verify(child1).onPointerInputMock(
@@ -922,7 +922,7 @@ class HitPathTrackerTest {
                     event2.consumePositionChange(0f, -657f)
                 )
             ),
-            eq(PointerEventPass.PostUp),
+            eq(PointerEventPass.Main),
             any()
         )
 
@@ -2537,12 +2537,12 @@ class HitPathTrackerTest {
         verify(seniorPif, times(3)).onCustomEvent(any(), any())
         verify(juniorPif, times(3)).onCustomEvent(any(), any())
         inOrder(seniorPif, juniorPif) {
-            verify(seniorPif).onCustomEvent(event, PointerEventPass.InitialDown)
-            verify(juniorPif).onCustomEvent(event, PointerEventPass.InitialDown)
-            verify(juniorPif).onCustomEvent(event, PointerEventPass.PostUp)
-            verify(seniorPif).onCustomEvent(event, PointerEventPass.PostUp)
-            verify(seniorPif).onCustomEvent(event, PointerEventPass.PostDown)
-            verify(juniorPif).onCustomEvent(event, PointerEventPass.PostDown)
+            verify(seniorPif).onCustomEvent(event, PointerEventPass.Initial)
+            verify(juniorPif).onCustomEvent(event, PointerEventPass.Initial)
+            verify(juniorPif).onCustomEvent(event, PointerEventPass.Main)
+            verify(seniorPif).onCustomEvent(event, PointerEventPass.Main)
+            verify(seniorPif).onCustomEvent(event, PointerEventPass.Final)
+            verify(juniorPif).onCustomEvent(event, PointerEventPass.Final)
         }
         verify(pifThatDispatches, never()).onCustomEvent(any(), any())
     }
@@ -2567,14 +2567,14 @@ class HitPathTrackerTest {
 
         // Assert
         inOrder(childPin1) {
-            verify(childPin1).onCustomEvent(event, PointerEventPass.InitialDown)
-            verify(childPin1).onCustomEvent(event, PointerEventPass.PostUp)
-            verify(childPin1).onCustomEvent(event, PointerEventPass.PostDown)
+            verify(childPin1).onCustomEvent(event, PointerEventPass.Initial)
+            verify(childPin1).onCustomEvent(event, PointerEventPass.Main)
+            verify(childPin1).onCustomEvent(event, PointerEventPass.Final)
         }
         inOrder(childPin2) {
-            verify(childPin2).onCustomEvent(event, PointerEventPass.InitialDown)
-            verify(childPin2).onCustomEvent(event, PointerEventPass.PostUp)
-            verify(childPin2).onCustomEvent(event, PointerEventPass.PostDown)
+            verify(childPin2).onCustomEvent(event, PointerEventPass.Initial)
+            verify(childPin2).onCustomEvent(event, PointerEventPass.Main)
+            verify(childPin2).onCustomEvent(event, PointerEventPass.Final)
         }
         verify(parentPin, never()).onCustomEvent(any(), any())
     }
@@ -2628,9 +2628,9 @@ class HitPathTrackerTest {
 
         // Assert
         inOrder(parentPif) {
-            verify(parentPif).onCustomEvent(event, PointerEventPass.InitialDown)
-            verify(parentPif).onCustomEvent(event, PointerEventPass.PostUp)
-            verify(parentPif).onCustomEvent(event, PointerEventPass.PostDown)
+            verify(parentPif).onCustomEvent(event, PointerEventPass.Initial)
+            verify(parentPif).onCustomEvent(event, PointerEventPass.Main)
+            verify(parentPif).onCustomEvent(event, PointerEventPass.Final)
         }
         verify(childPif1, never()).onCustomEvent(any(), any())
         verify(childPif1, never()).onCustomEvent(any(), any())
@@ -2877,30 +2877,30 @@ class HitPathTrackerTest {
         dispatcher.dispatchCustomEvent(event)
 
         inOrder(pif2) {
-            verify(pif2).onCustomEvent(event, PointerEventPass.InitialDown)
-            verify(pif2).onCustomEvent(event, PointerEventPass.PostUp)
-            verify(pif2).onCustomEvent(event, PointerEventPass.PostDown)
+            verify(pif2).onCustomEvent(event, PointerEventPass.Initial)
+            verify(pif2).onCustomEvent(event, PointerEventPass.Main)
+            verify(pif2).onCustomEvent(event, PointerEventPass.Final)
         }
     }
 
     @Test
-    fun dispatchChanges_pifRemovesSelfDuringInitialDown_noPassesReceivedAfterwards() {
+    fun dispatchChanges_pifRemovesSelfDuringInitial_noPassesReceivedAfterwards() {
         dispatchChanges_pifRemovesSelfDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.InitialDown
+            PointerEventPass.Initial
         )
     }
 
     @Test
-    fun dispatchChanges_pifRemovesSelfDuringPostUp_noPassesReceivedAfterwards() {
+    fun dispatchChanges_pifRemovesSelfDuringMain_noPassesReceivedAfterwards() {
         dispatchChanges_pifRemovesSelfDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PostUp
+            PointerEventPass.Main
         )
     }
 
     @Test
-    fun dispatchChanges_pifRemovesSelfDuringPostDown_noPassesReceivedAfterwards() {
+    fun dispatchChanges_pifRemovesSelfDuringFinal_noPassesReceivedAfterwards() {
         dispatchChanges_pifRemovesSelfDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PostDown
+            PointerEventPass.Final
         )
     }
 
@@ -2934,23 +2934,23 @@ class HitPathTrackerTest {
     }
 
     @Test
-    fun dispatchChanges_pifRemovedByParentDuringInitialDown_noPassesReceivedAfterwards() {
+    fun dispatchChanges_pifRemovedByParentDuringInitial_noPassesReceivedAfterwards() {
         dispatchChanges_pifRemovedByParentDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.InitialDown
+            PointerEventPass.Initial
         )
     }
 
     @Test
-    fun dispatchChanges_pifRemovedByParentDuringPostUp_noPassesReceivedAfterwards() {
+    fun dispatchChanges_pifRemovedByParentDuringMain_noPassesReceivedAfterwards() {
         dispatchChanges_pifRemovedByParentDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PostUp
+            PointerEventPass.Main
         )
     }
 
     @Test
-    fun dispatchChanges_pifRemovedByParentDuringPostDown_noPassesReceivedAfterwards() {
+    fun dispatchChanges_pifRemovedByParentDuringFinal_noPassesReceivedAfterwards() {
         dispatchChanges_pifRemovedByParentDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PostDown
+            PointerEventPass.Final
         )
     }
 
@@ -2976,8 +2976,8 @@ class HitPathTrackerTest {
 
         val removalPassIsDown =
             when (removalPass) {
-                PointerEventPass.InitialDown -> true
-                PointerEventPass.PostDown -> true
+                PointerEventPass.Initial -> true
+                PointerEventPass.Final -> true
                 else -> false
             }
         var passedRemovalPass = false
@@ -2993,23 +2993,23 @@ class HitPathTrackerTest {
     }
 
     @Test
-    fun dispatchChanges_pifRemovedByChildDuringInitialDown_noPassesReceivedAfterwards() {
+    fun dispatchChanges_pifRemovedByChildDuringInitial_noPassesReceivedAfterwards() {
         dispatchChanges_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.InitialDown
+            PointerEventPass.Initial
         )
     }
 
     @Test
-    fun dispatchChanges_pifRemovedByChildDuringPostUp_noPassesReceivedAfterwards() {
+    fun dispatchChanges_pifRemovedByChildDuringMain_noPassesReceivedAfterwards() {
         dispatchChanges_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PostUp
+            PointerEventPass.Main
         )
     }
 
     @Test
-    fun dispatchChanges_pifRemovedByChildDuringPostDown_noPassesReceivedAfterwards() {
+    fun dispatchChanges_pifRemovedByChildDuringFinal_noPassesReceivedAfterwards() {
         dispatchChanges_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PostDown
+            PointerEventPass.Final
         )
     }
 
@@ -3035,8 +3035,8 @@ class HitPathTrackerTest {
 
         val removalPassIsDown =
             when (removalPass) {
-                PointerEventPass.InitialDown -> true
-                PointerEventPass.PostDown -> true
+                PointerEventPass.Initial -> true
+                PointerEventPass.Final -> true
                 else -> false
             }
         var passedRemovalPass = false
@@ -3052,23 +3052,23 @@ class HitPathTrackerTest {
     }
 
     @Test
-    fun dispatchCustomMessage_pifRemovesSelfDuringInitialDown_noPassesReceivedAfterwards() {
+    fun dispatchCustomMessage_pifRemovesSelfDuringInitial_noPassesReceivedAfterwards() {
         dispatchCustomMessage_pifRemovesSelfDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.InitialDown
+            PointerEventPass.Initial
         )
     }
 
     @Test
-    fun dispatchCustomMessage_pifRemovesSelfDuringPostUp_noPassesReceivedAfterwards() {
+    fun dispatchCustomMessage_pifRemovesSelfDuringMain_noPassesReceivedAfterwards() {
         dispatchCustomMessage_pifRemovesSelfDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PostUp
+            PointerEventPass.Main
         )
     }
 
     @Test
-    fun dispatchCustomMessage_pifRemovesSelfDuringPostDown_noPassesReceivedAfterwards() {
+    fun dispatchCustomMessage_pifRemovesSelfDuringFinal_noPassesReceivedAfterwards() {
         dispatchCustomMessage_pifRemovesSelfDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PostDown
+            PointerEventPass.Final
         )
     }
 
@@ -3106,23 +3106,23 @@ class HitPathTrackerTest {
     }
 
     @Test
-    fun dispatchCustomMessage_pifRemovedByParentDuringInitialDown_noPassesReceivedAfterwards() {
+    fun dispatchCustomMessage_pifRemovedByParentDuringInitial_noPassesReceivedAfterwards() {
         dispatchCustomMessage_pifRemovedByParentDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.InitialDown
+            PointerEventPass.Initial
         )
     }
 
     @Test
-    fun dispatchCustomMessage_pifRemovedByParentDuringPostUp_noPassesReceivedAfterwards() {
+    fun dispatchCustomMessage_pifRemovedByParentDuringMain_noPassesReceivedAfterwards() {
         dispatchCustomMessage_pifRemovedByParentDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PostUp
+            PointerEventPass.Main
         )
     }
 
     @Test
-    fun dispatchCustomMessage_pifRemovedByParentDuringPostDown_noPassesReceivedAfterwards() {
+    fun dispatchCustomMessage_pifRemovedByParentDuringFinal_noPassesReceivedAfterwards() {
         dispatchCustomMessage_pifRemovedByParentDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PostDown
+            PointerEventPass.Final
         )
     }
 
@@ -3151,8 +3151,8 @@ class HitPathTrackerTest {
 
         val removalPassIsDown =
             when (removalPass) {
-                PointerEventPass.InitialDown -> true
-                PointerEventPass.PostDown -> true
+                PointerEventPass.Initial -> true
+                PointerEventPass.Final -> true
                 else -> false
             }
         var passedRemovalPass = false
@@ -3168,23 +3168,23 @@ class HitPathTrackerTest {
     }
 
     @Test
-    fun dispatchCustomMessage_pifRemovedByChildDuringInitialDown_noPassesReceivedAfterwards() {
+    fun dispatchCustomMessage_pifRemovedByChildDuringInitial_noPassesReceivedAfterwards() {
         dispatchCustomMessage_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.InitialDown
+            PointerEventPass.Initial
         )
     }
 
     @Test
-    fun dispatchCustomMessage_pifRemovedByChildDuringPostUp_noPassesReceivedAfterwards() {
+    fun dispatchCustomMessage_pifRemovedByChildDuringMain_noPassesReceivedAfterwards() {
         dispatchCustomMessage_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PostUp
+            PointerEventPass.Main
         )
     }
 
     @Test
-    fun dispatchCustomMessage_pifRemovedByChildDuringPostDown_noPassesReceivedAfterwards() {
+    fun dispatchCustomMessage_pifRemovedByChildDuringFinal_noPassesReceivedAfterwards() {
         dispatchCustomMessage_pifRemovedByChildDuringDispatch_noPassesReceivedAfterwards(
-            PointerEventPass.PostDown
+            PointerEventPass.Final
         )
     }
 
@@ -3213,8 +3213,8 @@ class HitPathTrackerTest {
 
         val removalPassIsDown =
             when (removalPass) {
-                PointerEventPass.InitialDown -> true
-                PointerEventPass.PostDown -> true
+                PointerEventPass.Initial -> true
+                PointerEventPass.Final -> true
                 else -> false
             }
         var passedRemovalPass = false

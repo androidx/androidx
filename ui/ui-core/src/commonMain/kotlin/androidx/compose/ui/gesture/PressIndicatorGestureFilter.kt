@@ -36,15 +36,15 @@ import androidx.compose.ui.util.fastAny
  *
  * More specifically:
  * - It will call [onStart] if the first pointer down it receives during the
- * [PointerEventPass.PostUp] pass is not consumed.
+ * [PointerEventPass.Main] pass is not consumed.
  * - It will call [onStop] if [onStart] has been called and the last [PointerInputChange] it
- * receives during the [PointerEventPass.PostUp] pass has an up change, consumed or not, indicating
+ * receives during the [PointerEventPass.Main] pass has an up change, consumed or not, indicating
  * the press gesture indication should end.
  * - It will call [onCancel] if movement has been consumed by the time of the
- * [PointerEventPass.PostDown] pass, indicating that the press gesture indication should end because
+ * [PointerEventPass.Final] pass, indicating that the press gesture indication should end because
  * something moved.
  *
- * This gesture detector always consumes the down change during the [PointerEventPass.PostUp] pass.
+ * This gesture detector always consumes the down change during the [PointerEventPass.Main] pass.
  */
 // TODO(b/139020678): Probably has shared functionality with other press based detectors.
 fun Modifier.pressIndicatorGestureFilter(
@@ -64,7 +64,7 @@ fun Modifier.pressIndicatorGestureFilter(
 internal class PressIndicatorGestureFilter : PointerInputFilter() {
     /**
      * Called if the first pointer's down change was not consumed by the time this gesture
-     * filter receives it in the [PointerEventPass.PostUp] pass.
+     * filter receives it in the [PointerEventPass.Main] pass.
      *
      * This callback should be used to indicate that the press state should be shown.  An [Offset]
      * is provided to indicate where the first pointer made contact with this gesrure detector.
@@ -82,7 +82,7 @@ internal class PressIndicatorGestureFilter : PointerInputFilter() {
 
     /**
      * Called if onStart was attempted to be called (it may have been null), and either:
-     * 1. Pointer movement was consumed by the time [PointerEventPass.PostDown] reaches this
+     * 1. Pointer movement was consumed by the time [PointerEventPass.Final] reaches this
      * gesture filter.
      * 2. [setEnabled] is called with false.
      * 3. This [PointerInputFilter] is removed from the hierarchy, or it has no descendants
@@ -140,7 +140,7 @@ internal class PressIndicatorGestureFilter : PointerInputFilter() {
 
             var internalChanges = changes
 
-            if (pass == PointerEventPass.InitialDown && state == State.Started) {
+            if (pass == PointerEventPass.Initial && state == State.Started) {
                 internalChanges = internalChanges.map {
                     if (it.changedToDown()) {
                         it.consumeDownChange()
@@ -150,7 +150,7 @@ internal class PressIndicatorGestureFilter : PointerInputFilter() {
                 }
             }
 
-            if (pass == PointerEventPass.PostUp) {
+            if (pass == PointerEventPass.Main) {
 
                 if (state == State.Idle && internalChanges.all { it.changedToDown() }) {
                     // If we have not yet started and all of the changes changed to down, we are
@@ -177,7 +177,7 @@ internal class PressIndicatorGestureFilter : PointerInputFilter() {
             }
 
             if (
-                pass == PointerEventPass.PostDown &&
+                pass == PointerEventPass.Final &&
                 state == State.Started &&
                 internalChanges.fastAny { it.anyPositionChangeConsumed() }
             ) {

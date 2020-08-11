@@ -36,7 +36,7 @@ import org.junit.runners.JUnit4
 
 // TODO(shepshapard): Write the following tests.
 // Test for cases where things are reset when last pointer goes up
-// Verify methods called during PostUp and PostDown
+// Verify methods called during Main and Final
 // Verify correct behavior when distance is consumed at different moments between passes.
 // Verify correct behavior with no canStartScaling callback.
 
@@ -651,13 +651,13 @@ class RawScaleGestureFilterTest {
         var result = filter::onPointerInput.invokeOverPasses(
             listOf(change1, change2),
             listOf(
-                PointerEventPass.InitialDown,
-                PointerEventPass.PostUp
+                PointerEventPass.Initial,
+                PointerEventPass.Main
             )
         )
         scaleObserver.resultingScaleChange = 1f
         result = filter::onPointerInput
-            .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
+            .invokeOverPasses(result, listOf(PointerEventPass.Final))
 
         // Assert
 
@@ -689,13 +689,13 @@ class RawScaleGestureFilterTest {
         var result = filter::onPointerInput.invokeOverPasses(
             listOf(change1, change2),
             listOf(
-                PointerEventPass.InitialDown,
-                PointerEventPass.PostUp
+                PointerEventPass.Initial,
+                PointerEventPass.Main
             )
         )
         scaleObserver.resultingScaleChange = 1f
         result = filter::onPointerInput
-            .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
+            .invokeOverPasses(result, listOf(PointerEventPass.Final))
 
         // Assert
 
@@ -751,13 +751,13 @@ class RawScaleGestureFilterTest {
         var result = filter::onPointerInput.invokeOverPasses(
             listOf(change1, change2),
             listOf(
-                PointerEventPass.InitialDown,
-                PointerEventPass.PostUp
+                PointerEventPass.Initial,
+                PointerEventPass.Main
             )
         )
         scaleObserver.resultingScaleChange = 1f
         result = filter::onPointerInput
-            .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
+            .invokeOverPasses(result, listOf(PointerEventPass.Final))
 
         // Assert
 
@@ -789,13 +789,13 @@ class RawScaleGestureFilterTest {
         var result = filter::onPointerInput.invokeOverPasses(
             listOf(change1, change2),
             listOf(
-                PointerEventPass.InitialDown,
-                PointerEventPass.PostUp
+                PointerEventPass.Initial,
+                PointerEventPass.Main
             )
         )
         scaleObserver.resultingScaleChange = 1f
         result = filter::onPointerInput
-            .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
+            .invokeOverPasses(result, listOf(PointerEventPass.Final))
 
         // Assert
 
@@ -843,14 +843,14 @@ class RawScaleGestureFilterTest {
         var result = filter::onPointerInput.invokeOverPasses(
             listOf(change1, change2),
             listOf(
-                PointerEventPass.InitialDown,
-                PointerEventPass.PostUp
+                PointerEventPass.Initial,
+                PointerEventPass.Main
             )
         )
         scaleObserver.resultingScaleChange = 1f
         result = filter::onPointerInput
             .invokeOverPasses(
-                result, listOf(PointerEventPass.PostDown)
+                result, listOf(PointerEventPass.Final)
             )
 
         // Assert
@@ -883,13 +883,13 @@ class RawScaleGestureFilterTest {
         var result = filter::onPointerInput.invokeOverPasses(
             listOf(change1, change2),
             listOf(
-                PointerEventPass.InitialDown,
-                PointerEventPass.PostUp
+                PointerEventPass.Initial,
+                PointerEventPass.Main
             )
         )
         scaleObserver.resultingScaleChange = 1f
         result = filter::onPointerInput
-            .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
+            .invokeOverPasses(result, listOf(PointerEventPass.Final))
 
         // Assert
 
@@ -921,13 +921,13 @@ class RawScaleGestureFilterTest {
         var result = filter::onPointerInput.invokeOverPasses(
             listOf(change1, change2),
             listOf(
-                PointerEventPass.InitialDown,
-                PointerEventPass.PostUp
+                PointerEventPass.Initial,
+                PointerEventPass.Main
             )
         )
         scaleObserver.resultingScaleChange = 1f
         result = filter::onPointerInput
-            .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
+            .invokeOverPasses(result, listOf(PointerEventPass.Final))
 
         // Assert
 
@@ -959,13 +959,13 @@ class RawScaleGestureFilterTest {
         var result = filter::onPointerInput.invokeOverPasses(
             listOf(change1, change2),
             listOf(
-                PointerEventPass.InitialDown,
-                PointerEventPass.PostUp
+                PointerEventPass.Initial,
+                PointerEventPass.Main
             )
         )
         scaleObserver.resultingScaleChange = 1f
         result = filter::onPointerInput
-            .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
+            .invokeOverPasses(result, listOf(PointerEventPass.Final))
 
         // Assert
 
@@ -997,13 +997,13 @@ class RawScaleGestureFilterTest {
         var result = filter::onPointerInput.invokeOverPasses(
             listOf(change1, change2),
             listOf(
-                PointerEventPass.InitialDown,
-                PointerEventPass.PostUp
+                PointerEventPass.Initial,
+                PointerEventPass.Main
             )
         )
         scaleObserver.resultingScaleChange = 1f
         result = filter::onPointerInput
-            .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
+            .invokeOverPasses(result, listOf(PointerEventPass.Final))
 
         // Assert
 
@@ -1035,13 +1035,13 @@ class RawScaleGestureFilterTest {
         var result = filter::onPointerInput.invokeOverPasses(
             listOf(change1, change2),
             listOf(
-                PointerEventPass.InitialDown,
-                PointerEventPass.PostUp
+                PointerEventPass.Initial,
+                PointerEventPass.Main
             )
         )
         scaleObserver.resultingScaleChange = 1f
         result = filter::onPointerInput
-            .invokeOverPasses(result, listOf(PointerEventPass.PostDown))
+            .invokeOverPasses(result, listOf(PointerEventPass.Final))
 
         // Assert
 

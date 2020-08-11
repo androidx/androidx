@@ -141,7 +141,7 @@ internal class RawScaleGestureFilter : PointerInputFilter() {
 
             var changesToReturn = changes
 
-            if (pass == PointerEventPass.InitialDown && active) {
+            if (pass == PointerEventPass.Initial && active) {
                 // If we are currently scaling, we want to prevent any children from reacting to any
                 // down change.
                 changesToReturn = changesToReturn.map {
@@ -153,7 +153,7 @@ internal class RawScaleGestureFilter : PointerInputFilter() {
                 }
             }
 
-            if (pass == PointerEventPass.PostUp) {
+            if (pass == PointerEventPass.Main) {
 
                 var (currentlyDownChanges, otherChanges) = changesToReturn.partition {
                     it.current.down && it.previous.down

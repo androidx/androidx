@@ -3347,7 +3347,7 @@ class PointerInteropFilterTest {
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(down, motionEvent = motionEvent1),
-            PointerEventPass.InitialDown
+            PointerEventPass.Initial
         )
 
         assertThat(dispatchedMotionEvents).hasSize(1)
@@ -3381,7 +3381,7 @@ class PointerInteropFilterTest {
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(up, motionEvent = motionEvent2),
-            PointerEventPass.InitialDown
+            PointerEventPass.Initial
         )
 
         assertThat(dispatchedMotionEvents).hasSize(2)
@@ -3423,7 +3423,7 @@ class PointerInteropFilterTest {
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(aMove, bDown, motionEvent = motionEvent2),
-            PointerEventPass.InitialDown
+            PointerEventPass.Initial
         )
 
         // Assert
@@ -3482,7 +3482,7 @@ class PointerInteropFilterTest {
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(aMove2, bUp, motionEvent = motionEvent3),
-            PointerEventPass.InitialDown
+            PointerEventPass.Initial
         )
 
         // Assert
@@ -3518,15 +3518,15 @@ class PointerInteropFilterTest {
         dispatchedMotionEvents.clear()
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(move, motionEvent = motionEvent2),
-            PointerEventPass.InitialDown,
-            PointerEventPass.PostUp
+            PointerEventPass.Initial,
+            PointerEventPass.Main
         )
 
         assertThat(dispatchedMotionEvents).hasSize(0)
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(move, motionEvent = motionEvent2),
-            PointerEventPass.PostDown
+            PointerEventPass.Final
         )
 
         assertThat(dispatchedMotionEvents).hasSize(1)
@@ -3564,7 +3564,7 @@ class PointerInteropFilterTest {
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(move, motionEvent = motionEvent2),
-            PointerEventPass.InitialDown
+            PointerEventPass.Initial
         )
 
         assertThat(dispatchedMotionEvents).hasSize(1)
@@ -3627,15 +3627,15 @@ class PointerInteropFilterTest {
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(moveB, motionEvent = motionEvent4),
-            PointerEventPass.InitialDown,
-            PointerEventPass.PostUp
+            PointerEventPass.Initial,
+            PointerEventPass.Main
         )
 
         assertThat(dispatchedMotionEvents).hasSize(0)
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(moveB, motionEvent = motionEvent4),
-            PointerEventPass.PostDown
+            PointerEventPass.Final
         )
 
         assertThat(dispatchedMotionEvents).hasSize(1)
@@ -3672,15 +3672,15 @@ class PointerInteropFilterTest {
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(move, motionEvent = motionEvent2),
-            PointerEventPass.InitialDown,
-            PointerEventPass.PostUp
+            PointerEventPass.Initial,
+            PointerEventPass.Main
         )
 
         assertThat(dispatchedMotionEvents).hasSize(0)
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(move, motionEvent = motionEvent2),
-            PointerEventPass.PostDown
+            PointerEventPass.Final
         )
 
         assertThat(dispatchedMotionEvents).hasSize(1)
@@ -3714,7 +3714,7 @@ class PointerInteropFilterTest {
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(upConsumed, motionEvent = motionEvent2),
-            PointerEventPass.InitialDown
+            PointerEventPass.Initial
         )
 
         assertThat(dispatchedMotionEvents).hasSize(2)
@@ -3762,7 +3762,7 @@ class PointerInteropFilterTest {
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(aMove, bDownConsumed, motionEvent = motionEvent2),
-            PointerEventPass.InitialDown
+            PointerEventPass.Initial
         )
 
         // Assert
@@ -3821,7 +3821,7 @@ class PointerInteropFilterTest {
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(aMove2, bUpConsumed, motionEvent = motionEvent3),
-            PointerEventPass.InitialDown
+            PointerEventPass.Initial
         )
 
         // Assert
@@ -3857,15 +3857,15 @@ class PointerInteropFilterTest {
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(moveConsumed, motionEvent = motionEvent2),
-            PointerEventPass.InitialDown,
-            PointerEventPass.PostUp
+            PointerEventPass.Initial,
+            PointerEventPass.Main
         )
 
         assertThat(dispatchedMotionEvents).hasSize(1)
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(moveConsumed, motionEvent = motionEvent2),
-            PointerEventPass.PostDown
+            PointerEventPass.Final
         )
 
         assertThat(dispatchedMotionEvents).hasSize(2)
@@ -3922,8 +3922,8 @@ class PointerInteropFilterTest {
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(aMove2, bMoveConsumed, motionEvent = motionEvent3),
-            PointerEventPass.InitialDown,
-            PointerEventPass.PostUp
+            PointerEventPass.Initial,
+            PointerEventPass.Main
         )
 
         // Assert 1
@@ -3934,7 +3934,7 @@ class PointerInteropFilterTest {
 
         pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(aMove2, bMoveConsumed, motionEvent = motionEvent3),
-            PointerEventPass.PostDown
+            PointerEventPass.Final
         )
 
         // Assert 2
@@ -3958,7 +3958,7 @@ class PointerInteropFilterTest {
 
         val actual = pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(down, motionEvent = motionEvent1),
-            PointerEventPass.InitialDown
+            PointerEventPass.Initial
         )
 
         assertThat(actual.first()).isEqualTo(expected)
@@ -3993,7 +3993,7 @@ class PointerInteropFilterTest {
 
         val actual = pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(up, motionEvent = motionEvent2),
-            PointerEventPass.InitialDown
+            PointerEventPass.Initial
         )
 
         assertThat(actual.first()).isEqualTo(expected)
@@ -4037,7 +4037,7 @@ class PointerInteropFilterTest {
 
         val actual = pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(aMove, bDown, motionEvent = motionEvent2),
-            PointerEventPass.InitialDown
+            PointerEventPass.Initial
         )
 
         // Assert
@@ -4098,7 +4098,7 @@ class PointerInteropFilterTest {
 
         val actual = pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(aMove2, bUp, motionEvent = motionEvent3),
-            PointerEventPass.InitialDown
+            PointerEventPass.Initial
         )
 
         // Assert
@@ -4137,15 +4137,15 @@ class PointerInteropFilterTest {
 
         val actual1 = pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(move, motionEvent = motionEvent2),
-            PointerEventPass.InitialDown,
-            PointerEventPass.PostUp
+            PointerEventPass.Initial,
+            PointerEventPass.Main
         )
 
         assertThat(actual1.first()).isEqualTo(move)
 
         val actual2 = pointerInteropFilter.pointerInputFilter::onPointerEvent.invokeOverPasses(
             pointerEventOf(move, motionEvent = motionEvent2),
-            PointerEventPass.PostDown
+            PointerEventPass.Final
         )
 
         assertThat(actual2.first()).isEqualTo(expected2)
@@ -4395,9 +4395,9 @@ private fun PointerEventHandler.invokeOverAllPasses(
 ) = invokeOverPasses(
     pointerEvent,
     listOf(
-        PointerEventPass.InitialDown,
-        PointerEventPass.PostUp,
-        PointerEventPass.PostDown
+        PointerEventPass.Initial,
+        PointerEventPass.Main,
+        PointerEventPass.Final
     ),
     size = size
 )

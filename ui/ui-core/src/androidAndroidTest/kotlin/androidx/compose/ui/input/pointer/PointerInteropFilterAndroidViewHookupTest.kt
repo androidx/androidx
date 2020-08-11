@@ -261,7 +261,7 @@ class PointerInteropFilterAndroidViewHookupTest {
     }
 
     @Test
-    fun ui_downMove_moveIsDispatchedDuringPostDown() {
+    fun ui_downMove_moveIsDispatchedDuringFinal() {
         val down =
             MotionEvent(
                 0,
@@ -290,14 +290,14 @@ class PointerInteropFilterAndroidViewHookupTest {
         }
 
         assertThat(eventStringLog).hasSize(4)
-        assertThat(eventStringLog[0]).isEqualTo(PointerEventPass.InitialDown.toString())
-        assertThat(eventStringLog[1]).isEqualTo(PointerEventPass.PostUp.toString())
-        assertThat(eventStringLog[2]).isEqualTo(PointerEventPass.PostDown.toString())
+        assertThat(eventStringLog[0]).isEqualTo(PointerEventPass.Initial.toString())
+        assertThat(eventStringLog[1]).isEqualTo(PointerEventPass.Main.toString())
+        assertThat(eventStringLog[2]).isEqualTo(PointerEventPass.Final.toString())
         assertThat(eventStringLog[3]).isEqualTo("motionEvent")
     }
 
     @Test
-    fun ui_downDisallowInterceptMove_moveIsDispatchedDuringInitialDown() {
+    fun ui_downDisallowInterceptMove_moveIsDispatchedDuringInitial() {
         val down =
             MotionEvent(
                 0,
@@ -327,14 +327,14 @@ class PointerInteropFilterAndroidViewHookupTest {
         }
 
         assertThat(eventStringLog).hasSize(4)
-        assertThat(eventStringLog[0]).isEqualTo(PointerEventPass.InitialDown.toString())
+        assertThat(eventStringLog[0]).isEqualTo(PointerEventPass.Initial.toString())
         assertThat(eventStringLog[1]).isEqualTo("motionEvent")
-        assertThat(eventStringLog[2]).isEqualTo(PointerEventPass.PostUp.toString())
-        assertThat(eventStringLog[3]).isEqualTo(PointerEventPass.PostDown.toString())
+        assertThat(eventStringLog[2]).isEqualTo(PointerEventPass.Main.toString())
+        assertThat(eventStringLog[3]).isEqualTo(PointerEventPass.Final.toString())
     }
 
     @Test
-    fun ui_downDisallowInterceptMoveAllowInterceptMove_2ndMoveIsDispatchedDuringPostDown() {
+    fun ui_downDisallowInterceptMoveAllowInterceptMove_2ndMoveIsDispatchedDuringFinal() {
         val down =
             MotionEvent(
                 0,
@@ -376,14 +376,14 @@ class PointerInteropFilterAndroidViewHookupTest {
         }
 
         assertThat(eventStringLog).hasSize(4)
-        assertThat(eventStringLog[0]).isEqualTo(PointerEventPass.InitialDown.toString())
-        assertThat(eventStringLog[1]).isEqualTo(PointerEventPass.PostUp.toString())
-        assertThat(eventStringLog[2]).isEqualTo(PointerEventPass.PostDown.toString())
+        assertThat(eventStringLog[0]).isEqualTo(PointerEventPass.Initial.toString())
+        assertThat(eventStringLog[1]).isEqualTo(PointerEventPass.Main.toString())
+        assertThat(eventStringLog[2]).isEqualTo(PointerEventPass.Final.toString())
         assertThat(eventStringLog[3]).isEqualTo("motionEvent")
     }
 
     @Test
-    fun ui_downDisallowInterceptUpDownMove_2ndMoveIsDispatchedDuringPostDown() {
+    fun ui_downDisallowInterceptUpDownMove_2ndMoveIsDispatchedDuringFinal() {
         val down =
             MotionEvent(
                 0,
@@ -435,9 +435,9 @@ class PointerInteropFilterAndroidViewHookupTest {
         }
 
         assertThat(eventStringLog).hasSize(4)
-        assertThat(eventStringLog[0]).isEqualTo(PointerEventPass.InitialDown.toString())
-        assertThat(eventStringLog[1]).isEqualTo(PointerEventPass.PostUp.toString())
-        assertThat(eventStringLog[2]).isEqualTo(PointerEventPass.PostDown.toString())
+        assertThat(eventStringLog[0]).isEqualTo(PointerEventPass.Initial.toString())
+        assertThat(eventStringLog[1]).isEqualTo(PointerEventPass.Main.toString())
+        assertThat(eventStringLog[2]).isEqualTo(PointerEventPass.Final.toString())
         assertThat(eventStringLog[3]).isEqualTo("motionEvent")
     }
 }

@@ -74,7 +74,7 @@ class RecordingFilter(
         pass: PointerEventPass,
         bounds: IntSize
     ): List<PointerInputChange> {
-        if (pass == PointerEventPass.InitialDown) {
+        if (pass == PointerEventPass.Initial) {
             record(changes)
         }
         return changes

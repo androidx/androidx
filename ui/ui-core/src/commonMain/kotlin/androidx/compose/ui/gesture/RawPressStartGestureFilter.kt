@@ -47,12 +47,12 @@ import androidx.compose.ui.unit.IntSize
  * @param enabled If false, this GestureDetector will effectively act as if it is not in the
  * hierarchy.
  * @param executionPass The [PointerEventPass] during which this GestureDetector will attempt to
- * react to and consume down changes.  Defaults to [PointerEventPass.PostUp].
+ * react to and consume down changes.  Defaults to [PointerEventPass.Main].
  */
 fun Modifier.rawPressStartGestureFilter(
     onPressStart: (Offset) -> Unit,
     enabled: Boolean = false,
-    executionPass: PointerEventPass = PointerEventPass.PostUp
+    executionPass: PointerEventPass = PointerEventPass.Main
 ): Modifier = composed {
     val filter = remember { RawPressStartGestureFilter() }
     filter.onPressStart = onPressStart
@@ -65,7 +65,7 @@ internal class RawPressStartGestureFilter : PointerInputFilter() {
 
     lateinit var onPressStart: (Offset) -> Unit
     private var enabled: Boolean = true
-    private var executionPass = PointerEventPass.InitialDown
+    private var executionPass = PointerEventPass.Initial
 
     private var active = false
 

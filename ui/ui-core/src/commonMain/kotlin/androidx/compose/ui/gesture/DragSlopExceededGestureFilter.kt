@@ -113,7 +113,7 @@ internal class DragSlopExceededGestureFilter(
 
         scrollOrientationLocker.onPointerInputSetup(changes, pass)
 
-        if (pass == PointerEventPass.PostUp || pass == PointerEventPass.PostDown) {
+        if (pass == PointerEventPass.Main || pass == PointerEventPass.Final) {
 
             // Filter changes for those that we can interact with due to our orientation.
             val applicableChanges =
@@ -132,10 +132,10 @@ internal class DragSlopExceededGestureFilter(
                 val dx = averagePositionChange.x
                 val dy = averagePositionChange.y
 
-                // Track changes during postUp and during postDown.  This allows for fancy dragging
+                // Track changes during main and during final.  This allows for fancy dragging
                 // due to a parent being dragged and will likely be removed.
                 // TODO(b/157087973): Likely remove this two pass complexity.
-                if (pass == PointerEventPass.PostUp) {
+                if (pass == PointerEventPass.Main) {
                     dxForPass = dx
                     dyForPass = dy
                     dxUnderSlop += dx
@@ -177,7 +177,7 @@ internal class DragSlopExceededGestureFilter(
                 }
             }
 
-            if (pass == PointerEventPass.PostDown &&
+            if (pass == PointerEventPass.Final &&
                 changes.all { it.changedToUpIgnoreConsumed() }
             ) {
                 // On the final pass, check to see if all pointers have changed to up, and if they

@@ -428,7 +428,7 @@ private class LogEventsGestureFilter(val log: MutableList<List<PointerInputChang
         pass: PointerEventPass,
         bounds: IntSize
     ): List<PointerInputChange> {
-        if (pass == PointerEventPass.InitialDown) {
+        if (pass == PointerEventPass.Initial) {
             log.add(changes.map { it.copy() })
         }
         return changes
