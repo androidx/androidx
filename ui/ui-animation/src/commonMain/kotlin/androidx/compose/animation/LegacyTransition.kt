@@ -25,6 +25,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.AnimationClockAmbient
 
 /**
+ * __Deprecated:__ [Transition] has been deprecated. Please use [transition] instead.
+ *
  * [Transition] composable creates a state-based transition using the animation configuration
  * defined in [TransitionDefinition]. This can be especially useful when animating multiple
  * values from a predefined set of values to another. For animating a single value, consider using
