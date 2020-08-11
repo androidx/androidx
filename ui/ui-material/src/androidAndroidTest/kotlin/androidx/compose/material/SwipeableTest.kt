@@ -939,10 +939,10 @@ class SwipeableTest {
     }
 
     /**
-     * Tests that 'swipeTarget' works correctly.
+     * Tests that the target works correctly.
      */
     @Test
-    fun swipeable_swipeTarget() {
+    fun swipeable_targetValue() {
         val state = SwipeableState("A", clock)
         setSwipeableContent {
             Modifier.swipeable(
@@ -959,7 +959,7 @@ class SwipeableTest {
 
             swipeRight(offset = 50f + i * 10f)
 
-            val target = runOnIdle { state.swipeTarget }
+            val target = runOnIdle { state.targetValue }
 
             advanceClock()
 
@@ -973,7 +973,7 @@ class SwipeableTest {
 
             swipeLeft(offset = 50f + i * 10f)
 
-            val target = runOnIdle { state.swipeTarget }
+            val target = runOnIdle { state.targetValue }
 
             advanceClock()
 
@@ -984,10 +984,10 @@ class SwipeableTest {
     }
 
     /**
-     * Tests that 'swipeProgress' works correctly.
+     * Tests that the progress works correctly.
      */
     @Test
-    fun swipeable_swipeProgress() {
+    fun swipeable_progress() {
         val state = SwipeableState("A", clock)
         setSwipeableContent {
             Modifier.swipeable(
@@ -1000,53 +1000,53 @@ class SwipeableTest {
 
         runOnIdle {
             assertThat(state.value).isEqualTo("A")
-            assertThat(state.swipeProgress.from).isEqualTo("A")
-            assertThat(state.swipeProgress.to).isEqualTo("A")
-            assertThat(state.swipeProgress.progress).isEqualTo(1f)
+            assertThat(state.progress.from).isEqualTo("A")
+            assertThat(state.progress.to).isEqualTo("A")
+            assertThat(state.progress.fraction).isEqualTo(1f)
         }
 
         swipeRight()
 
         runOnIdle {
             assertThat(state.value).isEqualTo("A")
-            assertThat(state.swipeProgress.from).isEqualTo("A")
-            assertThat(state.swipeProgress.to).isEqualTo("B")
-            assertThat(state.swipeProgress.progress).isEqualTo(state.offset.value / 100)
+            assertThat(state.progress.from).isEqualTo("A")
+            assertThat(state.progress.to).isEqualTo("B")
+            assertThat(state.progress.fraction).isEqualTo(state.offset.value / 100)
         }
 
         advanceClock()
 
         runOnIdle {
             assertThat(state.value).isEqualTo("B")
-            assertThat(state.swipeProgress.from).isEqualTo("B")
-            assertThat(state.swipeProgress.to).isEqualTo("B")
-            assertThat(state.swipeProgress.progress).isEqualTo(1f)
+            assertThat(state.progress.from).isEqualTo("B")
+            assertThat(state.progress.to).isEqualTo("B")
+            assertThat(state.progress.fraction).isEqualTo(1f)
         }
 
         swipeLeft()
 
         runOnIdle {
             assertThat(state.value).isEqualTo("B")
-            assertThat(state.swipeProgress.from).isEqualTo("B")
-            assertThat(state.swipeProgress.to).isEqualTo("A")
-            assertThat(state.swipeProgress.progress).isEqualTo((100 - state.offset.value) / 100)
+            assertThat(state.progress.from).isEqualTo("B")
+            assertThat(state.progress.to).isEqualTo("A")
+            assertThat(state.progress.fraction).isEqualTo((100 - state.offset.value) / 100)
         }
 
         advanceClock()
 
         runOnIdle {
             assertThat(state.value).isEqualTo("A")
-            assertThat(state.swipeProgress.from).isEqualTo("A")
-            assertThat(state.swipeProgress.to).isEqualTo("A")
-            assertThat(state.swipeProgress.progress).isEqualTo(1f)
+            assertThat(state.progress.from).isEqualTo("A")
+            assertThat(state.progress.to).isEqualTo("A")
+            assertThat(state.progress.fraction).isEqualTo(1f)
         }
     }
 
     /**
-     * Tests that 'swipeDirection' works correctly.
+     * Tests that the direction works correctly.
      */
     @Test
-    fun swipeable_swipeDirection() {
+    fun swipeable_direction() {
         val state = SwipeableState("A", clock)
         setSwipeableContent {
             Modifier.swipeable(
@@ -1059,43 +1059,43 @@ class SwipeableTest {
 
         runOnIdle {
             assertThat(state.value).isEqualTo("A")
-            assertThat(state.swipeDirection).isEqualTo(0f)
+            assertThat(state.direction).isEqualTo(0f)
         }
 
         swipeRight()
 
         runOnIdle {
             assertThat(state.value).isEqualTo("A")
-            assertThat(state.swipeDirection).isEqualTo(1f)
+            assertThat(state.direction).isEqualTo(1f)
         }
 
         advanceClock()
 
         runOnIdle {
             assertThat(state.value).isEqualTo("B")
-            assertThat(state.swipeDirection).isEqualTo(0f)
+            assertThat(state.direction).isEqualTo(0f)
         }
 
         swipeLeft()
 
         runOnIdle {
             assertThat(state.value).isEqualTo("B")
-            assertThat(state.swipeDirection).isEqualTo(-1f)
+            assertThat(state.direction).isEqualTo(-1f)
         }
 
         advanceClock()
 
         runOnIdle {
             assertThat(state.value).isEqualTo("A")
-            assertThat(state.swipeDirection).isEqualTo(0f)
+            assertThat(state.direction).isEqualTo(0f)
         }
     }
 
     /**
-     * Tests that 'swipeProgress' works correctly, after a swipe was in the opposite direction.
+     * Tests that the progress works correctly, after a swipe was in the opposite direction.
      */
     @Test
-    fun swipeable_swipeProgress_multipleSwipes() {
+    fun swipeable_progress_multipleSwipes() {
         val state = SwipeableState("A", clock)
         setSwipeableContent {
             Modifier.swipeable(
@@ -1108,9 +1108,9 @@ class SwipeableTest {
 
         runOnIdle {
             assertThat(state.value).isEqualTo("A")
-            assertThat(state.swipeProgress.from).isEqualTo("A")
-            assertThat(state.swipeProgress.to).isEqualTo("A")
-            assertThat(state.swipeProgress.progress).isEqualTo(1f)
+            assertThat(state.progress.from).isEqualTo("A")
+            assertThat(state.progress.to).isEqualTo("A")
+            assertThat(state.progress.fraction).isEqualTo(1f)
         }
 
         onNodeWithTag(swipeableTag).performGesture {
@@ -1126,18 +1126,18 @@ class SwipeableTest {
 
         runOnIdle {
             assertThat(state.value).isEqualTo("A")
-            assertThat(state.swipeProgress.from).isEqualTo("A")
-            assertThat(state.swipeProgress.to).isEqualTo("B")
-            assertThat(state.swipeProgress.progress).isEqualTo(state.offset.value / 100)
+            assertThat(state.progress.from).isEqualTo("A")
+            assertThat(state.progress.to).isEqualTo("B")
+            assertThat(state.progress.fraction).isEqualTo(state.offset.value / 100)
         }
 
         advanceClock()
 
         runOnIdle {
             assertThat(state.value).isEqualTo("B")
-            assertThat(state.swipeProgress.from).isEqualTo("B")
-            assertThat(state.swipeProgress.to).isEqualTo("B")
-            assertThat(state.swipeProgress.progress).isEqualTo(1f)
+            assertThat(state.progress.from).isEqualTo("B")
+            assertThat(state.progress.to).isEqualTo("B")
+            assertThat(state.progress.fraction).isEqualTo(1f)
         }
 
         onNodeWithTag(swipeableTag).performGesture {
@@ -1153,26 +1153,26 @@ class SwipeableTest {
 
         runOnIdle {
             assertThat(state.value).isEqualTo("B")
-            assertThat(state.swipeProgress.from).isEqualTo("B")
-            assertThat(state.swipeProgress.to).isEqualTo("A")
-            assertThat(state.swipeProgress.progress).isEqualTo(1 - state.offset.value / 100)
+            assertThat(state.progress.from).isEqualTo("B")
+            assertThat(state.progress.to).isEqualTo("A")
+            assertThat(state.progress.fraction).isEqualTo(1 - state.offset.value / 100)
         }
 
         advanceClock()
 
         runOnIdle {
             assertThat(state.value).isEqualTo("A")
-            assertThat(state.swipeProgress.from).isEqualTo("A")
-            assertThat(state.swipeProgress.to).isEqualTo("A")
-            assertThat(state.swipeProgress.progress).isEqualTo(1f)
+            assertThat(state.progress.from).isEqualTo("A")
+            assertThat(state.progress.to).isEqualTo("A")
+            assertThat(state.progress.fraction).isEqualTo(1f)
         }
     }
 
     /**
-     * Tests that 'swipeDirection' works correctly, after a swipe was in the opposite direction.
+     * Tests that the direction works correctly, after a swipe was in the opposite direction.
      */
     @Test
-    fun swipeable_swipeDirection_multipleSwipes() {
+    fun swipeable_direction_multipleSwipes() {
         val state = SwipeableState("A", clock)
         setSwipeableContent {
             Modifier.swipeable(
@@ -1185,7 +1185,7 @@ class SwipeableTest {
 
         runOnIdle {
             assertThat(state.value).isEqualTo("A")
-            assertThat(state.swipeDirection).isEqualTo(0f)
+            assertThat(state.direction).isEqualTo(0f)
         }
 
         onNodeWithTag(swipeableTag).performGesture {
@@ -1201,14 +1201,14 @@ class SwipeableTest {
 
         runOnIdle {
             assertThat(state.value).isEqualTo("A")
-            assertThat(state.swipeDirection).isEqualTo(1f)
+            assertThat(state.direction).isEqualTo(1f)
         }
 
         advanceClock()
 
         runOnIdle {
             assertThat(state.value).isEqualTo("B")
-            assertThat(state.swipeDirection).isEqualTo(0f)
+            assertThat(state.direction).isEqualTo(0f)
         }
 
         onNodeWithTag(swipeableTag).performGesture {
@@ -1224,14 +1224,14 @@ class SwipeableTest {
 
         runOnIdle {
             assertThat(state.value).isEqualTo("B")
-            assertThat(state.swipeDirection).isEqualTo(-1f)
+            assertThat(state.direction).isEqualTo(-1f)
         }
 
         advanceClock()
 
         runOnIdle {
             assertThat(state.value).isEqualTo("A")
-            assertThat(state.swipeDirection).isEqualTo(0f)
+            assertThat(state.direction).isEqualTo(0f)
         }
     }
 
