@@ -509,7 +509,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder setLights(@ColorInt int, int, int);
     method public androidx.core.app.NotificationCompat.Builder setLocalOnly(boolean);
     method public androidx.core.app.NotificationCompat.Builder setLocusId(androidx.core.content.LocusIdCompat?);
-    method public androidx.core.app.NotificationCompat.Builder setNotificationSilent();
+    method @Deprecated public androidx.core.app.NotificationCompat.Builder setNotificationSilent();
     method public androidx.core.app.NotificationCompat.Builder setNumber(int);
     method public androidx.core.app.NotificationCompat.Builder setOngoing(boolean);
     method public androidx.core.app.NotificationCompat.Builder setOnlyAlertOnce(boolean);
@@ -521,6 +521,7 @@ package androidx.core.app {
     method public androidx.core.app.NotificationCompat.Builder setShortcutId(String?);
     method public androidx.core.app.NotificationCompat.Builder setShortcutInfo(androidx.core.content.pm.ShortcutInfoCompat?);
     method public androidx.core.app.NotificationCompat.Builder setShowWhen(boolean);
+    method public androidx.core.app.NotificationCompat.Builder setSilent(boolean);
     method @RequiresApi(23) public androidx.core.app.NotificationCompat.Builder setSmallIcon(androidx.core.graphics.drawable.IconCompat);
     method public androidx.core.app.NotificationCompat.Builder setSmallIcon(int);
     method public androidx.core.app.NotificationCompat.Builder setSmallIcon(int, int);

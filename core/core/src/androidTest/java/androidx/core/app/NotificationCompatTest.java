@@ -963,7 +963,7 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 .setDefaults(DEFAULT_ALL)
                 .setGroupSummary(true)
                 .setTicker("summary")
-                .setNotificationSilent()
+                .setSilent(true)
                 .build();
 
         Notification nChild = new NotificationCompat.Builder(mActivityTestRule.getActivity())
@@ -972,7 +972,16 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
                 .setDefaults(DEFAULT_ALL)
                 .setGroupSummary(false)
                 .setTicker("child")
+                .setSilent(true)
+                .build();
+
+        Notification nNoisy = new NotificationCompat.Builder(mActivityTestRule.getActivity())
+                .setVibrate(new long[]{235})
+                .setSound(Uri.EMPTY)
+                .setDefaults(DEFAULT_ALL)
+                .setTicker("noisy")
                 .setNotificationSilent()
+                .setSilent(false)
                 .build();
 
         if (Build.VERSION.SDK_INT >= 20 && !(Build.VERSION.SDK_INT >= 26)) {
@@ -987,16 +996,25 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
             assertTrue((nChild.defaults & DEFAULT_LIGHTS) != 0);
             assertTrue((nChild.defaults & DEFAULT_SOUND) == 0);
             assertTrue((nChild.defaults & DEFAULT_VIBRATE) == 0);
+
+            assertNotNull(nNoisy.sound);
+            assertNotNull(nNoisy.vibrate);
+            assertTrue((nNoisy.defaults & DEFAULT_LIGHTS) != 0);
+            assertTrue((nNoisy.defaults & DEFAULT_SOUND) != 0);
+            assertTrue((nNoisy.defaults & DEFAULT_VIBRATE) != 0);
         }
 
         if (Build.VERSION.SDK_INT >= 26) {
             assertEquals(GROUP_ALERT_SUMMARY, nChild.getGroupAlertBehavior());
             assertEquals(GROUP_ALERT_CHILDREN, nSummary.getGroupAlertBehavior());
+            assertEquals(GROUP_ALERT_ALL, nNoisy.getGroupAlertBehavior());
             assertEquals(GROUP_KEY_SILENT, nChild.getGroup());
             assertEquals(GROUP_KEY_SILENT, nSummary.getGroup());
+            assertNull(nNoisy.getGroup());
         } else if (Build.VERSION.SDK_INT >= 20) {
             assertNull(nChild.getGroup());
             assertNull(nSummary.getGroup());
+            assertNull(nNoisy.getGroup());
         }
     }
 
