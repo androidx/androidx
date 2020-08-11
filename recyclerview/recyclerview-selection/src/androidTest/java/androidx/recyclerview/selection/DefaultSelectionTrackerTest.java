@@ -130,9 +130,33 @@ public class DefaultSelectionTrackerTest {
     }
 
     @Test
+    public void testSelection_UpdatedWhenAdapterItemsRemoved() {
+        mTracker.select("2");
+        mTracker.select("7");
+        mTracker.select("11");
+
+        mAdapter.removeItem("2");
+        mSelection.assertSelection(7, 11);
+
+        mAdapter.removeItem("7");
+        mAdapter.removeItem("11");
+        mSelection.assertNoSelection();
+    }
+
+    @Test
     public void testSelect_NotifiesListenersOfChange() {
         mTracker.select(mAdapter.getSelectionKey(7));
 
+        mListener.assertSelectionChanged();
+    }
+
+    @Test
+    public void testSelect_NotifiesListenersWhenSelectedItemRemoved() {
+        mTracker.select("2");
+        mTracker.select("7");
+        mTracker.select("11");
+        mListener.reset();
+        mAdapter.removeItem("7");
         mListener.assertSelectionChanged();
     }
 
@@ -515,7 +539,7 @@ public class DefaultSelectionTrackerTest {
     @Test
     public void testOnDataSetChanged_UnselectableRemovedFromSelection() {
 
-        mListener = TestSelectionObserver.createLenientObserver();
+        mListener = new TestSelectionObserver<>();
         mTracker = new DefaultSelectionTracker<>(
                 SELECTION_ID,
                 mKeyProvider,
@@ -549,13 +573,6 @@ public class DefaultSelectionTrackerTest {
         mSelection.assertSelected(2);
         mSelection.assertSelected(4);
         mSelection.assertSelected(6);
-    }
-
-    @Test
-    public void testObserverOnChanged_NotifiesListenersOfChange() {
-        mAdapter.notifyDataSetChanged();
-
-        mListener.assertSelectionChanged();
     }
 
     @Test
