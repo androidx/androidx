@@ -19,7 +19,7 @@ package androidx.compose.ui.node
 import androidx.compose.ui.AlignmentLine
 import androidx.compose.ui.Placeable
 import androidx.compose.ui.focus.ExperimentalFocus
-import androidx.compose.ui.focus.FocusState2
+import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.input.pointer.PointerInputFilter
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
@@ -57,14 +57,14 @@ internal class InnerPlaceable(
     override val parentData: Any?
         get() = null
 
-    override fun findPreviousFocusWrapper2() = wrappedBy?.findPreviousFocusWrapper2()
+    override fun findPreviousFocusWrapper() = wrappedBy?.findPreviousFocusWrapper()
 
-    override fun findNextFocusWrapper2(): ModifiedFocusNode2? = null
+    override fun findNextFocusWrapper(): ModifiedFocusNode? = null
 
-    override fun findLastFocusWrapper2(): ModifiedFocusNode2? = findPreviousFocusWrapper2()
+    override fun findLastFocusWrapper(): ModifiedFocusNode? = findPreviousFocusWrapper()
 
     @OptIn(ExperimentalFocus::class)
-    override fun propagateFocusStateChange(focusState: FocusState2) {
+    override fun propagateFocusStateChange(focusState: FocusState) {
         wrappedBy?.propagateFocusStateChange(focusState)
     }
 

@@ -17,14 +17,14 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.foundation.Box
-import androidx.compose.ui.FocusModifier2
+import androidx.compose.ui.FocusModifier
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus
-import androidx.compose.ui.focus.FocusState2.Active
-import androidx.compose.ui.focus.FocusState2.ActiveParent
-import androidx.compose.ui.focus.FocusState2.Captured
-import androidx.compose.ui.focus.FocusState2.Disabled
-import androidx.compose.ui.focus.FocusState2.Inactive
+import androidx.compose.ui.focus.FocusState.Active
+import androidx.compose.ui.focus.FocusState.ActiveParent
+import androidx.compose.ui.focus.FocusState.Captured
+import androidx.compose.ui.focus.FocusState.Disabled
+import androidx.compose.ui.focus.FocusState.Inactive
 import androidx.compose.ui.focusObserver
 import androidx.compose.ui.focusRequester
 import androidx.test.filters.SmallTest
@@ -46,14 +46,14 @@ class FocusObserverTest {
     @Test
     fun active_requestFocus() {
         // Arrange.
-        lateinit var focusState: FocusState2
+        lateinit var focusState: FocusState
         val focusRequester = FocusRequester()
         composeTestRule.setFocusableContent {
             Box(
                 modifier = Modifier
                     .focusObserver { focusState = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier2(Active))
+                    .then(FocusModifier(Active))
             )
         }
 
@@ -69,7 +69,7 @@ class FocusObserverTest {
     @Test
     fun activeParent_requestFocus() {
         // Arrange.
-        lateinit var focusState: FocusState2
+        lateinit var focusState: FocusState
         val focusRequester = FocusRequester()
         val childFocusRequester = FocusRequester()
         composeTestRule.setFocusableContent {
@@ -103,14 +103,14 @@ class FocusObserverTest {
     @Test
     fun captured_requestFocus() {
         // Arrange.
-        lateinit var focusState: FocusState2
+        lateinit var focusState: FocusState
         val focusRequester = FocusRequester()
         composeTestRule.setFocusableContent {
             Box(
                 modifier = Modifier
                     .focusObserver { focusState = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier2(Captured))
+                    .then(FocusModifier(Captured))
             )
         }
 
@@ -126,14 +126,14 @@ class FocusObserverTest {
     @Test
     fun disabled_requestFocus() {
         // Arrange.
-        lateinit var focusState: FocusState2
+        lateinit var focusState: FocusState
         val focusRequester = FocusRequester()
         composeTestRule.setFocusableContent {
             Box(
                 modifier = Modifier
                     .focusObserver { focusState = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier2(Disabled))
+                    .then(FocusModifier(Disabled))
             )
         }
 
@@ -149,14 +149,14 @@ class FocusObserverTest {
     @Test
     fun inactive_requestFocus() {
         // Arrange.
-        lateinit var focusState: FocusState2
+        lateinit var focusState: FocusState
         val focusRequester = FocusRequester()
         composeTestRule.setFocusableContent {
             Box(
                 modifier = Modifier
                     .focusObserver { focusState = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier2(Inactive))
+                    .then(FocusModifier(Inactive))
             )
         }
 
@@ -172,12 +172,12 @@ class FocusObserverTest {
     @Test
     fun inactive_requestFocus_multipleObservers() {
         // Arrange.
-        lateinit var focusState1: FocusState2
-        lateinit var focusState2: FocusState2
-        lateinit var focusState3: FocusState2
-        lateinit var focusState4: FocusState2
-        lateinit var focusState5: FocusState2
-        lateinit var focusState6: FocusState2
+        lateinit var focusState1: FocusState
+        lateinit var focusState2: FocusState
+        lateinit var focusState3: FocusState
+        lateinit var focusState4: FocusState
+        lateinit var focusState5: FocusState
+        lateinit var focusState6: FocusState
         val focusRequester = FocusRequester()
         composeTestRule.setFocusableContent {
             Box(
@@ -196,7 +196,7 @@ class FocusObserverTest {
                                 .focusObserver { focusState5 = it }
                                 .focusObserver { focusState6 = it }
                                 .focusRequester(focusRequester)
-                                .then(FocusModifier2(Inactive))
+                                .then(FocusModifier(Inactive))
                         )
                     }
                 }
@@ -220,10 +220,10 @@ class FocusObserverTest {
     @Test
     fun active_requestFocus_multipleObserversWithExtraFocusModifierInBetween() {
         // Arrange.
-        var focusState1: FocusState2? = null
-        var focusState2: FocusState2? = null
-        var focusState3: FocusState2? = null
-        var focusState4: FocusState2? = null
+        var focusState1: FocusState? = null
+        var focusState2: FocusState? = null
+        var focusState3: FocusState? = null
+        var focusState4: FocusState? = null
         val focusRequester = FocusRequester()
         composeTestRule.setFocusableContent {
             Box(

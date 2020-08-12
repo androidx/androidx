@@ -17,13 +17,13 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.foundation.Box
-import androidx.compose.ui.FocusModifier2
+import androidx.compose.ui.FocusModifier
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.Modifier
 import androidx.ui.test.createComposeRule
-import androidx.compose.ui.focus.FocusState2.Active
-import androidx.compose.ui.focus.FocusState2.Captured
-import androidx.compose.ui.focus.FocusState2.Inactive
+import androidx.compose.ui.focus.FocusState.Active
+import androidx.compose.ui.focus.FocusState.Captured
+import androidx.compose.ui.focus.FocusState.Inactive
 import androidx.compose.ui.focusObserver
 import androidx.compose.ui.focusRequester
 import androidx.ui.test.runOnIdle
@@ -50,7 +50,7 @@ class ReusedFocusRequesterFreeFocusTest {
                 modifier = Modifier
                     .focusObserver { focusState = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier2(focusState))
+                    .then(FocusModifier(focusState))
             )
         }
 
@@ -74,7 +74,7 @@ class ReusedFocusRequesterFreeFocusTest {
                 modifier = Modifier
                     .focusObserver { focusState = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier2(focusState))
+                    .then(FocusModifier(focusState))
             )
         }
 
@@ -98,7 +98,7 @@ class ReusedFocusRequesterFreeFocusTest {
                 modifier = Modifier
                     .focusObserver { focusState = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier2(focusState))
+                    .then(FocusModifier(focusState))
             )
         }
 
@@ -123,13 +123,13 @@ class ReusedFocusRequesterFreeFocusTest {
                 modifier = Modifier
                     .focusObserver { focusState1 = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier2(focusState1))
+                    .then(FocusModifier(focusState1))
             )
             Box(
                 modifier = Modifier
                     .focusObserver { focusState2 = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier2(focusState2))
+                    .then(FocusModifier(focusState2))
             )
         }
 
@@ -155,13 +155,13 @@ class ReusedFocusRequesterFreeFocusTest {
                 modifier = Modifier
                     .focusObserver { focusState1 = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier2(focusState1))
+                    .then(FocusModifier(focusState1))
             )
             Box(
                 modifier = Modifier
                     .focusObserver { focusState2 = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier2(focusState2))
+                    .then(FocusModifier(focusState2))
             )
         }
 
@@ -187,13 +187,13 @@ class ReusedFocusRequesterFreeFocusTest {
                 modifier = Modifier
                     .focusObserver { focusState1 = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier2(focusState1))
+                    .then(FocusModifier(focusState1))
             )
             Box(
                 modifier = Modifier
                     .focusObserver { focusState2 = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier2(focusState2))
+                    .then(FocusModifier(focusState2))
             )
         }
 
