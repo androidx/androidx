@@ -25,6 +25,7 @@ import androidx.compose.ui.onPositioned
 import androidx.compose.foundation.Box
 import androidx.compose.runtime.Providers
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.boundsInParent
 import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LayoutDirectionAmbient
@@ -940,6 +941,55 @@ class ConstraintLayoutTest : LayoutTest() {
             Assert.assertEquals(Offset(60f, 60f), position[0])
             Assert.assertEquals(Offset(61f, 61f), position[1])
         }
+    }
+
+    @Test
+    fun links_canBeOverridden() = with(density) {
+        composeTestRule.setContent {
+            ConstraintLayout(Modifier.width(10.dp)) {
+                val box = createRef()
+                Box(Modifier.constrainAs(box) {
+                    start.linkTo(parent.end)
+                    start.linkTo(parent.start)
+                }.onPositioned {
+                    Assert.assertEquals(0f, it.positionInParent.x)
+                })
+            }
+        }
+        waitForIdle()
+    }
+
+    @Test
+    fun chains_defaultOutsideConstraintsCanBeOverridden() = with(density) {
+        val size = 100.toDp()
+        val boxSize = 10.toDp()
+        val guidelinesOffset = 20.toDp()
+        composeTestRule.setContent {
+            ConstraintLayout(Modifier.size(size)) {
+                val (box1, box2) = createRefs()
+                val startGuideline = createGuidelineFromStart(guidelinesOffset)
+                val topGuideline = createGuidelineFromTop(guidelinesOffset)
+                val endGuideline = createGuidelineFromEnd(guidelinesOffset)
+                val bottomGuideline = createGuidelineFromBottom(guidelinesOffset)
+                createHorizontalChain(box1, box2, chainStyle = ChainStyle.SpreadInside)
+                createVerticalChain(box1, box2, chainStyle = ChainStyle.SpreadInside)
+                Box(Modifier.size(boxSize).constrainAs(box1) {
+                    start.linkTo(startGuideline)
+                    top.linkTo(topGuideline)
+                }.onPositioned {
+                    Assert.assertEquals(20f, it.boundsInParent.left)
+                    Assert.assertEquals(20f, it.boundsInParent.top)
+                })
+                Box(Modifier.size(boxSize).constrainAs(box2) {
+                    end.linkTo(endGuideline)
+                    bottom.linkTo(bottomGuideline)
+                }.onPositioned {
+                    Assert.assertEquals(80f, it.boundsInParent.right)
+                    Assert.assertEquals(80f, it.boundsInParent.bottom)
+                })
+            }
+        }
+        waitForIdle()
     }
 
     @Test(expected = Test.None::class)
