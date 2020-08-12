@@ -18,6 +18,8 @@ package androidx.appsearch.impl;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
+
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.test.core.app.ApplicationProvider;
 
@@ -38,6 +40,8 @@ import com.google.android.icing.proto.TermMatchType;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Set;
+
 public class AppSearchImplTest {
     private AppSearchImpl mAppSearchImpl;
 
@@ -54,12 +58,12 @@ public class AppSearchImplTest {
      * schema.
      */
     @Test
-    public void testRewriteSchema() {
-        SchemaProto.Builder existingSchemaBuilder = SchemaProto.newBuilder()
-                .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("Foo").build());
+    public void testRewriteSchema() throws Exception {
+        SchemaProto.Builder existingSchemaBuilder = mAppSearchImpl.getSchemaProto().toBuilder();
 
         SchemaProto newSchema = SchemaProto.newBuilder()
+                .addTypes(SchemaTypeConfigProto.newBuilder()
+                        .setSchemaType("Foo").build())
                 .addTypes(SchemaTypeConfigProto.newBuilder()
                         .setSchemaType("TestType")
                         .addProperties(PropertyConfigProto.newBuilder()
@@ -82,11 +86,15 @@ public class AppSearchImplTest {
                         ).build()
                 ).build();
 
+        Set<String> newTypes = mAppSearchImpl.rewriteSchema("databaseName", existingSchemaBuilder,
+                newSchema);
+        assertThat(newTypes).containsExactly("databaseName/Foo", "databaseName/TestType");
+
         SchemaProto expectedSchema = SchemaProto.newBuilder()
                 .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("Foo").build())
+                    .setSchemaType("databaseName/Foo").build())
                 .addTypes(SchemaTypeConfigProto.newBuilder()
-                        .setSchemaType("com.android.server.appsearch.impl@42:TestType")
+                        .setSchemaType("databaseName/TestType")
                         .addProperties(PropertyConfigProto.newBuilder()
                                 .setPropertyName("subject")
                                 .setDataType(PropertyConfigProto.DataType.Code.STRING)
@@ -102,15 +110,12 @@ public class AppSearchImplTest {
                                 .setPropertyName("link")
                                 .setDataType(PropertyConfigProto.DataType.Code.DOCUMENT)
                                 .setCardinality(PropertyConfigProto.Cardinality.Code.OPTIONAL)
-                                .setSchemaType("com.android.server.appsearch.impl@42:RefType")
+                                .setSchemaType("databaseName/RefType")
                                 .build()
-                        ).build()
-                ).build();
-
-        mAppSearchImpl.rewriteSchema(existingSchemaBuilder, "com.android.server.appsearch.impl@42:",
-                newSchema);
-
-        assertThat(existingSchemaBuilder.build()).isEqualTo(expectedSchema);
+                        ).build())
+                .build();
+        assertThat(existingSchemaBuilder.getTypesList())
+                .containsExactlyElementsIn(expectedSchema.getTypesList());
     }
 
     @Test
@@ -153,7 +158,7 @@ public class AppSearchImplTest {
                 .addTypes(SchemaTypeConfigProto.newBuilder()
                         .setSchemaType("type").build())
                 .build();
-        mAppSearchImpl.setSchema("database", schema, false);
+        mAppSearchImpl.setSchema("database", schema, /*forceOverride=*/false);
 
         // Insert enough documents.
         for (int i = 0; i < AppSearchImpl.OPTIMIZE_THRESHOLD_DOC_COUNT
@@ -204,7 +209,7 @@ public class AppSearchImplTest {
                 .addTypes(SchemaTypeConfigProto.newBuilder()
                         .setSchemaType("type").build())
                 .build();
-        mAppSearchImpl.setSchema("database", schema, false);
+        mAppSearchImpl.setSchema("database", schema, /*forceOverride=*/false);
         // Insert document
         DocumentProto insideDocument = DocumentProto.newBuilder()
                 .setUri("inside-uri")
@@ -235,5 +240,105 @@ public class AppSearchImplTest {
         mAppSearchImpl.removeByType("EmptyDatabase", "FakeType");
         mAppSearchImpl.removeByNamespace("EmptyDatabase", "FakeNamespace");
         mAppSearchImpl.removeAll("EmptyDatabase");
+    }
+
+    @Test
+    public void testSetSchema() throws Exception {
+        // Create schemas
+        SchemaProto schemaProto = SchemaProto.newBuilder()
+                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("Email")).build();
+
+        // Set schema Email to AppSearch database1
+        mAppSearchImpl.setSchema("database1", schemaProto, /*forceOverride=*/false);
+
+        // Create excepted schemaType proto.
+        SchemaProto exceptedProto = SchemaProto.newBuilder()
+                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("database1/Email"))
+                .build();
+        assertThat(mAppSearchImpl.getSchemaProto().getTypesList())
+                .containsExactlyElementsIn(exceptedProto.getTypesList());
+    }
+
+    @Test
+    public void testRemoveSchema() throws Exception {
+        // Create schemas
+        SchemaProto schemaProto = SchemaProto.newBuilder()
+                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("Email"))
+                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("Document")).build();
+
+        // Set schema Email and Document to AppSearch database1
+        mAppSearchImpl.setSchema("database1", schemaProto, /*forceOverride=*/false);
+
+        // Create excepted schemaType proto.
+        SchemaProto exceptedProto = SchemaProto.newBuilder()
+                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("database1/Email"))
+                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("database1/Document"))
+                .build();
+
+        // Check both schema Email and Document saved correctly.
+        assertThat(mAppSearchImpl.getSchemaProto().getTypesList())
+                .containsExactlyElementsIn(exceptedProto.getTypesList());
+
+        // Save only Email this time.
+        schemaProto = SchemaProto.newBuilder()
+                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("Email")).build();
+
+        // Check the incompatible error has been thrown.
+        SchemaProto finalSchemaProto = schemaProto;
+        AppSearchException e = assertThrows(AppSearchException.class, () ->
+                mAppSearchImpl.setSchema("database1", finalSchemaProto, /*forceOverride=*/false));
+        assertThat(e).hasMessageThat().isEqualTo("Schema is incompatible.");
+
+        // ForceOverride to delete.
+        mAppSearchImpl.setSchema("database1", finalSchemaProto, /*forceOverride=*/true);
+
+        // Check Document schema is removed.
+        exceptedProto = SchemaProto.newBuilder()
+                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("database1/Email"))
+                .build();
+        assertThat(mAppSearchImpl.getSchemaProto().getTypesList())
+                .containsExactlyElementsIn(exceptedProto.getTypesList());
+    }
+
+    @Test
+    public void testRemoveSchema_differentDataBase() throws Exception {
+        // Create schemas
+        SchemaProto emailAndDocSchemaProto = SchemaProto.newBuilder()
+                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("Email"))
+                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("Document")).build();
+
+        // Set schema Email and Document to AppSearch database1 and 2
+        mAppSearchImpl.setSchema("database1", emailAndDocSchemaProto, /*forceOverride=*/false);
+        mAppSearchImpl.setSchema("database2", emailAndDocSchemaProto, /*forceOverride=*/false);
+
+        // Create excepted schemaType proto.
+        SchemaProto exceptedProto = SchemaProto.newBuilder()
+                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("database1/Email"))
+                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("database1/Document"))
+                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("database2/Email"))
+                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("database2/Document"))
+                .build();
+
+        // Check Email and Document is saved in database 1 and 2 correctly.
+        assertThat(mAppSearchImpl.getSchemaProto().getTypesList())
+                .containsExactlyElementsIn(exceptedProto.getTypesList());
+
+        // Save only Email to database1 this time.
+        SchemaProto emailSchemaProto = SchemaProto.newBuilder()
+                        .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("Email"))
+                .build();
+        mAppSearchImpl.setSchema("database1", emailSchemaProto, /*forceOverride=*/true);
+
+        // Create excepted schemaType list, database 1 should only contain Email but database 2
+        // remains in same.
+        exceptedProto = SchemaProto.newBuilder()
+                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("database1/Email"))
+                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("database2/Email"))
+                .addTypes(SchemaTypeConfigProto.newBuilder().setSchemaType("database2/Document"))
+                .build();
+
+        // Check nothing changed in database2.
+        assertThat(mAppSearchImpl.getSchemaProto().getTypesList())
+                .containsExactlyElementsIn(exceptedProto.getTypesList());
     }
 }

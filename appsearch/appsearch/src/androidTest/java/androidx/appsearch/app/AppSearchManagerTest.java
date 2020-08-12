@@ -189,6 +189,151 @@ public class AppSearchManagerTest {
     }
 
     @Test
+    public void testRemoveSchema() throws Exception {
+        // Schema registration
+        AppSearchSchema emailSchema = new AppSearchSchema.Builder(AppSearchEmail.SCHEMA_TYPE)
+                .addProperty(new AppSearchSchema.PropertyConfig.Builder("subject")
+                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(PropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .build();
+        checkIsResultSuccess(
+                mDb1.setSchema(
+                        new SetSchemaRequest.Builder().addSchema(emailSchema).build()));
+
+        // Index an email and check it present.
+        AppSearchEmail email = new AppSearchEmail.Builder("email1")
+                .setSubject("testPut example")
+                .build();
+        checkIsBatchResultSuccess(
+                mDb1.putDocuments(
+                        new PutDocumentsRequest.Builder().addGenericDocument(email).build()));
+        List<GenericDocument> outDocuments =
+                doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "email1");
+        assertThat(outDocuments).hasSize(1);
+        AppSearchEmail outEmail = new AppSearchEmail(outDocuments.get(0));
+        assertThat(outEmail).isEqualTo(email);
+
+        // Try to remove the email schema. This should fail as it's an incompatible change.
+        AppSearchResult<Void> failResult1 =
+                mDb1.setSchema(new SetSchemaRequest.Builder().build()).get();
+        assertThat(failResult1.isSuccess()).isFalse();
+        assertThat(failResult1.getErrorMessage()).isEqualTo("Schema is incompatible.");
+
+        // Try to remove the email schema again, which should now work as we set forceOverride to
+        // be true.
+        checkIsResultSuccess(
+                mDb1.setSchema(
+                        new SetSchemaRequest.Builder().setForceOverride(true).build()));
+
+        // Make sure the indexed email is gone.
+        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getDocuments(
+                new GetDocumentsRequest.Builder().setNamespace(GenericDocument.DEFAULT_NAMESPACE)
+                        .addUris("email1").build()).get();
+        assertThat(getResult.isSuccess()).isFalse();
+        assertThat(getResult.getFailures().get("email1").getResultCode())
+                .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+
+        // Try to index an email again. This should fail as the schema has been removed.
+        AppSearchEmail email2 = new AppSearchEmail.Builder("email2")
+                .setSubject("testPut example")
+                .build();
+        AppSearchBatchResult<String, Void> failResult2 = mDb1.putDocuments(
+                        new PutDocumentsRequest.Builder().addGenericDocument(email2).build()).get();
+        assertThat(failResult2.isSuccess()).isFalse();
+        assertThat(failResult2.getFailures().get("email2").getErrorMessage())
+                .isEqualTo("Schema type config 'testDb1/builtin:Email' not found");
+    }
+
+    @Test
+    public void testRemoveSchema_TwoDatabases() throws Exception {
+        // Schema registration in mDb1 and mDb2
+        AppSearchSchema emailSchema = new AppSearchSchema.Builder(AppSearchEmail.SCHEMA_TYPE)
+                .addProperty(new AppSearchSchema.PropertyConfig.Builder("subject")
+                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setIndexingType(PropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .build())
+                .build();
+        checkIsResultSuccess(
+                mDb1.setSchema(
+                        new SetSchemaRequest.Builder().addSchema(emailSchema).build()));
+        checkIsResultSuccess(
+                mDb2.setSchema(
+                        new SetSchemaRequest.Builder().addSchema(emailSchema).build()));
+
+        // Index an email and check it present in database1.
+        AppSearchEmail email1 = new AppSearchEmail.Builder("email1")
+                .setSubject("testPut example")
+                .build();
+        checkIsBatchResultSuccess(
+                mDb1.putDocuments(
+                        new PutDocumentsRequest.Builder().addGenericDocument(email1).build()));
+        List<GenericDocument> outDocuments =
+                doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "email1");
+        assertThat(outDocuments).hasSize(1);
+        AppSearchEmail outEmail = new AppSearchEmail(outDocuments.get(0));
+        assertThat(outEmail).isEqualTo(email1);
+
+        // Index an email and check it present in database2.
+        AppSearchEmail email2 = new AppSearchEmail.Builder("email2")
+                .setSubject("testPut example")
+                .build();
+        checkIsBatchResultSuccess(
+                mDb2.putDocuments(
+                        new PutDocumentsRequest.Builder().addGenericDocument(email2).build()));
+        outDocuments = doGet(mDb2, GenericDocument.DEFAULT_NAMESPACE, "email2");
+        assertThat(outDocuments).hasSize(1);
+        outEmail = new AppSearchEmail(outDocuments.get(0));
+        assertThat(outEmail).isEqualTo(email2);
+
+        // Try to remove the email schema in database1. This should fail as it's an incompatible
+        // change.
+        AppSearchResult<Void> failResult1 =
+                mDb1.setSchema(new SetSchemaRequest.Builder().build()).get();
+        assertThat(failResult1.isSuccess()).isFalse();
+        assertThat(failResult1.getErrorMessage()).isEqualTo("Schema is incompatible.");
+
+        // Try to remove the email schema again, which should now work as we set forceOverride to
+        // be true.
+        checkIsResultSuccess(
+                mDb1.setSchema(
+                        new SetSchemaRequest.Builder().setForceOverride(true).build()));
+
+        // Make sure the indexed email is gone in database 1.
+        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getDocuments(
+                new GetDocumentsRequest.Builder().setNamespace(GenericDocument.DEFAULT_NAMESPACE)
+                        .addUris("email1").build()).get();
+        assertThat(getResult.isSuccess()).isFalse();
+        assertThat(getResult.getFailures().get("email1").getResultCode())
+                .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+
+        // Try to index an email again. This should fail as the schema has been removed.
+        AppSearchEmail email3 = new AppSearchEmail.Builder("email3")
+                .setSubject("testPut example")
+                .build();
+        AppSearchBatchResult<String, Void> failResult2 = mDb1.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(email3).build()).get();
+        assertThat(failResult2.isSuccess()).isFalse();
+        assertThat(failResult2.getFailures().get("email3").getErrorMessage())
+                .isEqualTo("Schema type config 'testDb1/builtin:Email' not found");
+
+        // Make sure email in database 2 still present.
+        outDocuments = doGet(mDb2, GenericDocument.DEFAULT_NAMESPACE, "email2");
+        assertThat(outDocuments).hasSize(1);
+        outEmail = new AppSearchEmail(outDocuments.get(0));
+        assertThat(outEmail).isEqualTo(email2);
+
+        // Make sure email could still be indexed in database 2.
+        checkIsBatchResultSuccess(
+                mDb2.putDocuments(
+                        new PutDocumentsRequest.Builder().addGenericDocument(email2).build()));
+    }
+
+    @Test
     public void testGetDocuments() throws Exception {
         // Schema registration
         checkIsResultSuccess(mDb1.setSchema(
