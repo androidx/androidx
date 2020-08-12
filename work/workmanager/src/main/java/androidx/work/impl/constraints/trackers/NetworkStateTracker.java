@@ -29,6 +29,7 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.core.net.ConnectivityManagerCompat;
 import androidx.work.Logger;
 import androidx.work.impl.constraints.NetworkState;
@@ -141,14 +142,21 @@ public class NetworkStateTracker extends ConstraintTracker<NetworkState> {
         return new NetworkState(isConnected, isValidated, isMetered, isNotRoaming);
     }
 
-    private boolean isActiveNetworkValidated() {
+    @VisibleForTesting
+    boolean isActiveNetworkValidated() {
         if (Build.VERSION.SDK_INT < 23) {
             return false; // NET_CAPABILITY_VALIDATED not available until API 23. Used on API 26+.
         }
-        Network network = mConnectivityManager.getActiveNetwork();
-        NetworkCapabilities capabilities = mConnectivityManager.getNetworkCapabilities(network);
-        return capabilities != null
-                && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+        try {
+            Network network = mConnectivityManager.getActiveNetwork();
+            NetworkCapabilities capabilities = mConnectivityManager.getNetworkCapabilities(network);
+            return capabilities != null
+                    && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+        } catch (SecurityException exception) {
+            // b/163342798
+            Logger.get().error(TAG, "Unable to validate active network", exception);
+            return false;
+        }
     }
 
     @RequiresApi(24)
