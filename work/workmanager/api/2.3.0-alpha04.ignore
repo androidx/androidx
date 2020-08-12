@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-AddedAbstractMethod: androidx.work.WorkManager#createCancelPendingIntent(java.util.UUID):
-    Added method androidx.work.WorkManager.createCancelPendingIntent(java.util.UUID)
