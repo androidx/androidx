@@ -21,6 +21,7 @@ package androidx.compose.ui
 import androidx.compose.runtime.Applier
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ExperimentalComposeApi
+import androidx.compose.runtime.SkippableUpdater
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.emit
@@ -230,18 +231,27 @@ fun measureBlocksOf(
     measureBlocks: LayoutNode.MeasureBlocks,
     modifier: Modifier = Modifier
 ) {
-    val materialized = currentComposer.materialize(modifier)
-
     @OptIn(ExperimentalComposeApi::class)
     emit<LayoutNode, Applier<Any>>(
         ctor = LayoutEmitHelper.constructor,
         update = {
-            set(materialized, LayoutEmitHelper.setModifier)
             set(measureBlocks, LayoutEmitHelper.setMeasureBlocks)
             set(LayoutDirectionAmbient.current, LayoutEmitHelper.setLayoutDirection)
         },
+        skippableUpdate = materializerOf(modifier),
         children = children
     )
+}
+
+@ExperimentalLayoutNodeApi
+@PublishedApi
+internal fun materializerOf(
+    modifier: Modifier
+): @Composable SkippableUpdater<LayoutNode>.() -> Unit = {
+    val materialized = currentComposer.materialize(modifier)
+    update {
+        set(materialized, LayoutEmitHelper.setModifier)
+    }
 }
 
 @Composable
