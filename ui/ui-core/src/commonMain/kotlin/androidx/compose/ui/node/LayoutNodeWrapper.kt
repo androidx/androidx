@@ -294,40 +294,16 @@ internal abstract class LayoutNodeWrapper(
     }
 
     /**
-     * Returns the first [ModifiedFocusNode] in the wrapper list that wraps this
-     * [LayoutNodeWrapper].
-     *
-     * TODO(b/160921940): Remove this function after removing ModifiedFocusNode.
-     */
-    abstract fun findPreviousFocusWrapper(): ModifiedFocusNode?
-
-    /**
      * Returns the first [focus node][ModifiedFocusNode2] in the wrapper list that wraps this
      * [LayoutNodeWrapper].
      */
     abstract fun findPreviousFocusWrapper2(): ModifiedFocusNode2?
 
     /**
-     * Returns the next [ModifiedFocusNode] in the wrapper list that is wrapped by this
-     * [LayoutNodeWrapper].
-     *
-     * TODO(b/160921940): Remove this function after removing ModifiedFocusNode.
-     */
-    abstract fun findNextFocusWrapper(): ModifiedFocusNode?
-
-    /**
      * Returns the next [focus node][ModifiedFocusNode2] in the wrapper list that is wrapped by
      * this [LayoutNodeWrapper].
      */
     abstract fun findNextFocusWrapper2(): ModifiedFocusNode2?
-
-    /**
-     * Returns the last [ModifiedFocusNode] found following this [LayoutNodeWrapper]. It searches
-     * the wrapper list associated with this [LayoutNodeWrapper].
-     *
-     * TODO(b/160921940): Remove this function after removing ModifiedFocusNode.
-     */
-    abstract fun findLastFocusWrapper(): ModifiedFocusNode?
 
     /**
      * Returns the last [focus node][ModifiedFocusNode2] found following this [LayoutNodeWrapper].
@@ -342,31 +318,6 @@ internal abstract class LayoutNodeWrapper(
      */
     @OptIn(ExperimentalFocus::class)
     abstract fun propagateFocusStateChange(focusState: FocusState2)
-
-    /**
-     * Find the first ancestor that is a [ModifiedFocusNode].
-     *
-     * TODO(b/160921940): Remove this function after removing ModifiedFocusNode.
-     */
-    internal fun findParentFocusNode(): ModifiedFocusNode? {
-        // TODO(b/152066829): We shouldn't need to search through the parentLayoutNode, as the
-        // wrappedBy property should automatically point to the last layoutWrapper of the parent.
-        // Find out why this doesn't work.
-        var focusParent = wrappedBy?.findPreviousFocusWrapper()
-        if (focusParent != null) {
-            return focusParent
-        }
-
-        var parentLayoutNode = layoutNode.parent
-        while (parentLayoutNode != null) {
-            focusParent = parentLayoutNode.outerLayoutNodeWrapper.findLastFocusWrapper()
-            if (focusParent != null) {
-                return focusParent
-            }
-            parentLayoutNode = parentLayoutNode.parent
-        }
-        return null
-    }
 
     /**
      * Find the first ancestor that is a [ModifiedFocusNode2].
@@ -427,8 +378,8 @@ internal abstract class LayoutNodeWrapper(
     abstract fun findNextKeyInputWrapper(): ModifiedKeyInputNode?
 
     /**
-     * Returns the last [ModifiedFocusNode] found following this [LayoutNodeWrapper]. It searches
-     * the wrapper list associated with this [LayoutNodeWrapper]
+     * Returns the last [focus node][ModifiedFocusNode2] found following this [LayoutNodeWrapper].
+     * It searches the wrapper list associated with this [LayoutNodeWrapper]
      */
     abstract fun findLastKeyInputWrapper(): ModifiedKeyInputNode?
 

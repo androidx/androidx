@@ -57,15 +57,9 @@ internal class InnerPlaceable(
     override val parentData: Any?
         get() = null
 
-    override fun findPreviousFocusWrapper() = wrappedBy?.findPreviousFocusWrapper()
-
     override fun findPreviousFocusWrapper2() = wrappedBy?.findPreviousFocusWrapper2()
 
-    override fun findNextFocusWrapper() = null
-
-    override fun findNextFocusWrapper2() = null
-
-    override fun findLastFocusWrapper(): ModifiedFocusNode? = findPreviousFocusWrapper()
+    override fun findNextFocusWrapper2(): ModifiedFocusNode2? = null
 
     override fun findLastFocusWrapper2(): ModifiedFocusNode2? = findPreviousFocusWrapper2()
 
@@ -76,7 +70,7 @@ internal class InnerPlaceable(
 
     override fun findPreviousKeyInputWrapper() = wrappedBy?.findPreviousKeyInputWrapper()
 
-    override fun findNextKeyInputWrapper() = null
+    override fun findNextKeyInputWrapper(): ModifiedKeyInputNode? = null
 
     override fun findLastKeyInputWrapper(): ModifiedKeyInputNode? = findPreviousKeyInputWrapper()
 

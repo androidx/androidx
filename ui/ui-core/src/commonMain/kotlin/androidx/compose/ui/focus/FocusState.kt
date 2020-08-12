@@ -16,47 +16,10 @@
 
 package androidx.compose.ui.focus
 
-/**
- * Different states of the focus system.
- *
- * These are the most frequently used states. For more detailed states, refer to
- * [FocusDetailedState].
- *
- * [Focused]: A focusable component that is currently in focus.
- * [NotFocusable]: A focusable component that is currently not focusable. Eg. A disabled button.
- * [NotFocused]:  A focusable component that is not currently focused.
- *
- * TODO(b/160822875): Deprecate this after the new Modifier.Focus is ready for consumption.
- */
-@Deprecated("Please use FocusState2.isFocused instead")
-enum class FocusState { Focused, NotFocusable, NotFocused }
-
-/**
- * Different states of the focus system.
- * These are the detailed states used by the Focus Nodes.
- * If you need higher level states, eg [Focused][FocusState.Focused] or
- * [NotFocused][FocusState.NotFocused], use the states in [FocusState].
- *
- * [Active]: The focusable component is currently active (i.e. it receives key events).
- * [ActiveParent] : One of the descendants of the focusable component is [Active].
- * [Captured]: The focusable component is currently active (has focus), and is in a state where
- * it does not want to give up focus. (Eg. a text field with an invalid phone number).
- * [Disabled]: The focusable component is not currently focusable. (eg. A disabled button).
- * [Inactive]: The focusable component does not receive any key events. (ie it is not active,
- * nor are any of its descendants active).
- *
- * TODO(b/160822875): Deprecate this after the new Modifier.Focus is ready for consumption.
- */
-@Deprecated(
-    "Please use FocusState2 instead",
-    ReplaceWith("FocusState2", "androidx.compose.ui.focus.FocusState2")
-)
-enum class FocusDetailedState { Active, ActiveParent, Captured, Disabled, Inactive }
-
+// TODO(b/160822876): Rename this enum to FocusState after the existing FocusState is removed.
 /**
  * Different states of the focus system. These are the states used by the Focus Nodes.
  *
- * TODO(b/160822876): Rename this enum to FocusState after the existing FocusState is removed.
  */
 @ExperimentalFocus
 enum class FocusState2 {
@@ -86,21 +49,6 @@ enum class FocusState2 {
      * nor are any of its descendants active).
      */
     Inactive
-}
-
-/**
- * Converts a [FocusDetailedState] to a [FocusState].
- *
- * TODO(b/160822875): Deprecate this after the new Modifier.Focus is ready for consumption.
- */
-@Suppress("DEPRECATION")
-@Deprecated("Please use FocusState2.isFocused instead")
-fun FocusDetailedState.focusState() = when (this) {
-    FocusDetailedState.Captured,
-    FocusDetailedState.Active -> FocusState.Focused
-    FocusDetailedState.ActiveParent,
-    FocusDetailedState.Inactive -> FocusState.NotFocused
-    FocusDetailedState.Disabled -> FocusState.NotFocusable
 }
 
 /**

@@ -117,25 +117,9 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
         return this
     }
 
-    override fun findPreviousFocusWrapper() = wrappedBy?.findPreviousFocusWrapper()
-
     override fun findPreviousFocusWrapper2() = wrappedBy?.findPreviousFocusWrapper2()
 
-    override fun findNextFocusWrapper() = wrapped.findNextFocusWrapper()
-
     override fun findNextFocusWrapper2() = wrapped.findNextFocusWrapper2()
-
-    override fun findLastFocusWrapper(): ModifiedFocusNode? {
-        var lastFocusWrapper: ModifiedFocusNode? = null
-
-        // Find last focus wrapper for the current layout node.
-        var next: ModifiedFocusNode? = findNextFocusWrapper()
-        while (next != null) {
-            lastFocusWrapper = next
-            next = next.wrapped.findNextFocusWrapper()
-        }
-        return lastFocusWrapper
-    }
 
     override fun findLastFocusWrapper2(): ModifiedFocusNode2? {
         var lastFocusWrapper: ModifiedFocusNode2? = null

@@ -24,7 +24,6 @@ import androidx.compose.ui.AlignmentLine
 import androidx.compose.ui.ContentDrawScope
 import androidx.compose.ui.DrawLayerModifier
 import androidx.compose.ui.DrawModifier
-import androidx.compose.ui.FocusModifier
 import androidx.compose.ui.FocusModifier2
 import androidx.compose.ui.FocusObserverModifier
 import androidx.compose.ui.FocusRequesterModifier
@@ -40,7 +39,6 @@ import androidx.compose.ui.Remeasurement
 import androidx.compose.ui.RemeasurementModifier
 import androidx.compose.ui.ZIndexModifier
 import androidx.compose.ui.focus.ExperimentalFocus
-import androidx.compose.ui.focus.FocusModifierImpl
 import androidx.compose.ui.node.LayoutNode.LayoutState.Measuring
 import androidx.compose.ui.node.LayoutNode.LayoutState.NeedsRelayout
 import androidx.compose.ui.node.LayoutNode.LayoutState.NeedsRemeasure
@@ -378,6 +376,7 @@ class LayoutNode : Measurable, Remeasurement {
     /**
      * Call this method from the debugger to see a dump of the LayoutNode tree structure
      */
+    @Suppress("unused")
     private fun debugTreeToString(depth: Int = 0): String {
         val tree = StringBuilder()
         for (i in 0 until depth) {
@@ -484,7 +483,8 @@ class LayoutNode : Measurable, Remeasurement {
         }
 
     /**
-     * The scope used to run the [MeasureBlocks.measure] [MeasureBlock].
+     * The scope used to run the [MeasureBlocks.measure]
+     * [MeasureBlock][androidx.compose.ui.MeasureBlock].
      */
     val measureScope: MeasureScope = object : MeasureScope(), Density {
         private val ownerDensity: Density
@@ -672,12 +672,6 @@ class LayoutNode : Measurable, Remeasurement {
                         if (innerLayerWrapper == null) {
                             innerLayerWrapper = layerWrapper
                         }
-                    }
-                    @Suppress("DEPRECATION")
-                    if (mod is FocusModifier) {
-                        require(mod is FocusModifierImpl)
-                        wrapper = ModifiedFocusNode(wrapper, mod).also { mod.focusNode = it }
-                            .assignChained(toWrap)
                     }
                     if (mod is FocusModifier2) {
                         wrapper = ModifiedFocusNode2(wrapper, mod).assignChained(toWrap)
@@ -1344,7 +1338,7 @@ internal class LayoutNodeDrawScope : ContentDrawScope() {
 }
 
 /**
- * Sets [DelegatingLayoutNodeWrapper#isChained] to `true` of the [wrapped] when it
+ * Sets [DelegatingLayoutNodeWrapper#isChained] to `true` of the [wrapped][this.wrapped] when it
  * is part of a chain of LayoutNodes for the same modifier.
  *
  * @param originalWrapper The LayoutNodeWrapper that the modifier chain should be wrapping.
@@ -1354,7 +1348,7 @@ private inline fun <T : DelegatingLayoutNodeWrapper<*>> T.assignChained(
     originalWrapper: LayoutNodeWrapper
 ): T {
     if (originalWrapper !== wrapped) {
-        var wrapper = wrapped as DelegatingLayoutNodeWrapper<*>
+        val wrapper = wrapped as DelegatingLayoutNodeWrapper<*>
         wrapper.isChained = true
     }
     return this
