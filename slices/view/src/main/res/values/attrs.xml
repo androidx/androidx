@@ -77,6 +77,10 @@
          (height mode AT_MOST/EXACTLY), or expands to fit all items (height mode UNSPECIFIED).
          -->
         <attr name="expandToAvailableHeight" format="boolean" />
+
+        <!-- Hide the slice's header row. Note that if the slice doesn't have an explicit
+         header row, the first row is considered the header row. -->
+        <attr name="hideHeaderRow" format="boolean" />
     </declare-styleable>
 
     <!-- To apply a style for all slices shown within an activity or app you
