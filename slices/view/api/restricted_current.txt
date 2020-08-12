@@ -140,6 +140,7 @@ package androidx.slice.widget {
     method public CharSequence? getContentDescription();
     method public androidx.slice.SliceItem! getContentIntent();
     method public int getImageMode();
+    method public androidx.slice.SliceItem? getOverlayItem();
     method public int getTextCount();
     method public androidx.slice.SliceItem? getTitleItem();
     method public boolean hasImage();

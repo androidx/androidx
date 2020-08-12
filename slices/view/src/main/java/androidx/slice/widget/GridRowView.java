@@ -357,13 +357,14 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
                 if (textItems != null && !textItems.contains(item)) {
                     continue;
                 }
-                if (addItem(item, mTintColor, cellContainer, padding, isSingleItem)) {
+                if (addTextItem(item, cellContainer, padding)) {
                     prevItem = item;
                     textCount++;
                     added = true;
                 }
             } else if (imageCount < MAX_CELL_IMAGES && FORMAT_IMAGE.equals(item.getFormat())) {
-                if (addItem(item, mTintColor, cellContainer, 0, isSingleItem)) {
+                if (addImageItem(item, cell.getOverlayItem(), mTintColor, cellContainer,
+                        isSingleItem)) {
                     prevItem = item;
                     imageCount++;
                     added = true;
@@ -396,63 +397,91 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
     }
 
     /**
-     * Adds simple items to a container. Simple items include icons, text, and timestamps.
+     * Adds simple text based items to a container. Simple text items include text and
+     * timestamps.
      *
-     * @param item item to add to the container.
+     * @param item      item to add to the container.
      * @param container the container to add to.
-     * @param padding the padding to apply to the item.
-     * @param isSingle whether this is the only item in the cell or not.
-     *
+     * @param padding   the padding to apply to the item.
      * @return Whether an item was added.
      */
-    private boolean addItem(SliceItem item, int color, ViewGroup container, int padding,
-            boolean isSingle) {
+    private boolean addTextItem(SliceItem item, ViewGroup container, int padding) {
         final String format = item.getFormat();
-        View addedView = null;
-        if (FORMAT_TEXT.equals(format) || FORMAT_LONG.equals(format)) {
-            boolean isTitle = SliceQuery.hasAnyHints(item, HINT_LARGE, HINT_TITLE);
-            TextView tv = (TextView) LayoutInflater.from(getContext()).inflate(isTitle
-                    ? TITLE_TEXT_LAYOUT : TEXT_LAYOUT, null);
-            if (mSliceStyle != null) {
-                tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, isTitle
-                        ? mSliceStyle.getGridTitleSize() : mSliceStyle.getGridSubtitleSize());
-                tv.setTextColor(isTitle
-                        ? mSliceStyle.getTitleColor() : mSliceStyle.getSubtitleColor());
-            }
-            CharSequence text = FORMAT_LONG.equals(format)
-                    ? SliceViewUtil.getTimestampString(getContext(), item.getLong())
-                    : item.getSanitizedText();
-            tv.setText(text);
-            container.addView(tv);
-            tv.setPadding(0, padding, 0, 0);
-            addedView = tv;
-        } else if (FORMAT_IMAGE.equals(format) && item.getIcon() != null) {
-            Drawable d = item.getIcon().loadDrawable(getContext());
-            if (d != null) {
-                ImageView iv = new ImageView(getContext());
-                iv.setImageDrawable(d);
-                LinearLayout.LayoutParams lp;
-                if (item.hasHint(SliceHints.HINT_RAW)) {
-                    iv.setScaleType(ScaleType.CENTER_INSIDE);
-                    lp = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
-                } else if (item.hasHint(HINT_LARGE)) {
-                    iv.setScaleType(ScaleType.CENTER_CROP);
-                    int height = isSingle ? MATCH_PARENT : mLargeImageHeight;
-                    lp = new LinearLayout.LayoutParams(MATCH_PARENT, height);
-                } else {
-                    boolean isIcon = !item.hasHint(HINT_NO_TINT);
-                    int size = !isIcon ? mSmallImageSize : mIconSize;
-                    iv.setScaleType(isIcon ? ScaleType.CENTER_INSIDE : ScaleType.CENTER_CROP);
-                    lp = new LinearLayout.LayoutParams(size, size);
-                }
-                if (color != -1 && !item.hasHint(HINT_NO_TINT)) {
-                    iv.setColorFilter(color);
-                }
-                container.addView(iv, lp);
-                addedView = iv;
-            }
+        if (!FORMAT_TEXT.equals(format) && !FORMAT_LONG.equals(format)) {
+            return false;
         }
-        return addedView != null;
+        boolean isTitle = SliceQuery.hasAnyHints(item, HINT_LARGE, HINT_TITLE);
+        TextView tv = (TextView) LayoutInflater.from(getContext()).inflate(isTitle
+                ? TITLE_TEXT_LAYOUT : TEXT_LAYOUT, null);
+        if (mSliceStyle != null) {
+            tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, isTitle
+                    ? mSliceStyle.getGridTitleSize() : mSliceStyle.getGridSubtitleSize());
+            tv.setTextColor(isTitle
+                    ? mSliceStyle.getTitleColor() : mSliceStyle.getSubtitleColor());
+        }
+        CharSequence text = FORMAT_LONG.equals(format)
+                ? SliceViewUtil.getTimestampString(getContext(), item.getLong())
+                : item.getSanitizedText();
+        tv.setText(text);
+        container.addView(tv);
+        tv.setPadding(0, padding, 0, 0);
+        return true;
+    }
+
+    /**
+     * Adds simple image based item to a container.
+     *
+     * @param item        item to add to the container.
+     * @param overlayItem overlaid text to add to the image.
+     * @param container   the container to add to.
+     * @param isSingle    whether this is the only item in the cell or not.
+     * @return Whether an item was added.
+     */
+    private boolean addImageItem(SliceItem item, SliceItem overlayItem, int color,
+            ViewGroup container, boolean isSingle) {
+        final String format = item.getFormat();
+        if (!FORMAT_IMAGE.equals(format) || item.getIcon() == null) {
+            return false;
+        }
+        Drawable d = item.getIcon().loadDrawable(getContext());
+        if (d == null) {
+            return false;
+        }
+        ImageView iv = new ImageView(getContext());
+        iv.setImageDrawable(d);
+        LinearLayout.LayoutParams lp;
+        if (item.hasHint(SliceHints.HINT_RAW)) {
+            iv.setScaleType(ScaleType.CENTER_INSIDE);
+            lp = new LinearLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT);
+        } else if (item.hasHint(HINT_LARGE)) {
+            iv.setScaleType(ScaleType.CENTER_CROP);
+            int height = isSingle ? MATCH_PARENT : mLargeImageHeight;
+            lp = new LinearLayout.LayoutParams(MATCH_PARENT, height);
+        } else {
+            boolean isIcon = !item.hasHint(HINT_NO_TINT);
+            int size = !isIcon ? mSmallImageSize : mIconSize;
+            iv.setScaleType(isIcon ? ScaleType.CENTER_INSIDE : ScaleType.CENTER_CROP);
+            lp = new LinearLayout.LayoutParams(size, size);
+        }
+        if (color != -1 && !item.hasHint(HINT_NO_TINT)) {
+            iv.setColorFilter(color);
+        }
+        // don't add an overlay on see more
+        if (overlayItem == null || mViewContainer.getChildCount() == mMaxCells - 1) {
+            container.addView(iv, lp);
+            return true;
+        }
+        // add overlay on top of the ImageView
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+        TextView overlayText;
+        ViewGroup overlayView;
+        overlayView = (FrameLayout) inflater.inflate(R.layout.abc_slice_grid_text_overlay_image,
+                container, false);
+        overlayView.addView(iv, 0, new LayoutParams(WRAP_CONTENT, WRAP_CONTENT));
+        overlayText = overlayView.findViewById(R.id.text_overlay);
+        overlayText.setText(overlayItem.getText());
+        container.addView(overlayView, lp);
+        return true;
     }
 
     private int determinePadding(SliceItem prevItem) {
