@@ -38,4 +38,16 @@
         android:src="@drawable/app_sample_code"
         android:tint="#FF0000" />
 
+    <ImageButton
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/app_sample_code"
+        app:tint="#FF0000" />
+
+    <ImageButton
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:src="@drawable/app_sample_code"
+        android:tint="#FF0000" />
+
 </LinearLayout>

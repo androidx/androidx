@@ -21,18 +21,18 @@ import com.android.tools.lint.checks.infrastructure.LintDetectorTest
 import com.android.tools.lint.checks.infrastructure.TestLintTask.lint
 import org.junit.Test
 
-class ImageViewTintDetectorTest {
+class ImageButtonTintDetectorTest {
     @Test
     fun testUsageOfTintAttribute() {
         val layout = LintDetectorTest.xml(
-            "layout/image_view.xml",
+            "layout/image_button.xml",
             """
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
-    <ImageView
+    <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:src="@android:drawable/ic_delete"
@@ -41,7 +41,7 @@ class ImageViewTintDetectorTest {
         """
         ).indented().within("res")
 
-        // We expect the definition of the image view to be flagged since it has
+        // We expect the definition of the image button to be flagged since it has
         // android:tint instead of app:tint. We also expect a matching
         // fix to replace android:tint with app:tint, retaining the same value
         lint().files(
@@ -49,13 +49,13 @@ class ImageViewTintDetectorTest {
         ).issues(ImageViewTintDetector.USING_ANDROID_TINT)
             .run()
             .expect("""
-res/layout/image_view.xml:10: Error: Must use app:tint instead of android:tint [UseAppTint]
+res/layout/image_button.xml:10: Error: Must use app:tint instead of android:tint [UseAppTint]
         android:tint="#FF0000" />
         ~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
          """.trimIndent())
             .expectFixDiffs("""
-Fix for res/layout/image_view.xml line 10: Set tint="#FF0000":
+Fix for res/layout/image_button.xml line 10: Set tint="#FF0000":
 @@ -3 +3
 +     xmlns:app="http://schemas.android.com/apk/res-auto"
 @@ -11 +12
