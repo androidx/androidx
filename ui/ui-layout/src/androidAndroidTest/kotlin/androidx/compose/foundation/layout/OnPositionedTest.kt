@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// suppression needed for onChildPositioned import
-@file:Suppress("DEPRECATION")
-
 package androidx.compose.foundation.layout
 
 import android.widget.FrameLayout
@@ -29,7 +26,6 @@ import androidx.compose.ui.Layout
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.VerticalAlignmentLine
-import androidx.compose.ui.onChildPositioned
 import androidx.compose.ui.onPositioned
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.unit.Dp
@@ -79,37 +75,6 @@ class OnPositionedTest : LayoutTest() {
     }
 
     @Test
-    @Suppress("DEPRECATION")
-    fun simplePaddingWithChildPositioned() = with(density) {
-        val paddingLeftPx = 100f
-        val paddingTopPx = 120f
-        var realLeft: Float? = null
-        var realTop: Float? = null
-
-        val positionedLatch = CountDownLatch(1)
-        show {
-            Container(Modifier.onChildPositioned {
-                realLeft = it.positionInParent.x
-                realTop = it.positionInParent.y
-                positionedLatch.countDown()
-            }) {
-                Container(
-                    Modifier.fillMaxSize()
-                        .padding(
-                            start = paddingLeftPx.toDp(),
-                            top = paddingTopPx.toDp()
-                        ),
-                    children = emptyContent()
-                )
-            }
-        }
-        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
-
-        assertThat(realLeft).isEqualTo(paddingLeftPx)
-        assertThat(realTop).isEqualTo(paddingTopPx)
-    }
-
-    @Test
     fun nestedLayoutCoordinates() = with(density) {
         val firstPaddingPx = 10f
         val secondPaddingPx = 20f
@@ -148,34 +113,6 @@ class OnPositionedTest : LayoutTest() {
         assertThat(gpPos).isEqualTo((secondPaddingPx + thirdPaddingPx))
         // local position
         assertThat(childCoordinates!!.positionInParent.x).isEqualTo(thirdPaddingPx)
-    }
-
-    @Test
-    @Suppress("DEPRECATION")
-    fun childPositionedForTwoContainers() = with(density) {
-        val size = 100.0f
-        val sizeDp = size.toDp()
-        var firstCoordinates: LayoutCoordinates? = null
-        var secondCoordinates: LayoutCoordinates? = null
-
-        val positionedLatch = CountDownLatch(2)
-        show {
-            Row(Modifier.onChildPositioned {
-                if (firstCoordinates == null) {
-                    firstCoordinates = it
-                } else {
-                    secondCoordinates = it
-                }
-                positionedLatch.countDown()
-            }) {
-                Container(width = sizeDp, height = sizeDp, children = emptyContent())
-                Container(width = sizeDp, height = sizeDp, children = emptyContent())
-            }
-        }
-        assertTrue(positionedLatch.await(1, TimeUnit.SECONDS))
-
-        assertThat(0.0f).isEqualTo(firstCoordinates!!.positionInParent.x)
-        assertThat(size).isEqualTo(secondCoordinates!!.positionInParent.x)
     }
 
     @Test
