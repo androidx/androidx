@@ -21,6 +21,7 @@ import android.media.ImageReader;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
@@ -484,7 +485,6 @@ public abstract class UseCase {
         if (eventCallback != null) {
             eventCallback.onBind(camera.getCameraInfoInternal().getCameraId());
         }
-        onCameraControlReady();
     }
 
     /**
@@ -517,7 +517,9 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @CallSuper
     public void onStateAttached() {
+        onCameraControlReady();
     }
 
     /**
