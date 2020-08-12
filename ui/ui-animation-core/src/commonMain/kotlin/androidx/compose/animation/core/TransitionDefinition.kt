@@ -18,6 +18,7 @@ package androidx.compose.animation.core
 
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
 import androidx.compose.animation.core.AnimationConstants.Infinite
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.util.fastFirstOrNull
 
 /**
@@ -100,6 +101,7 @@ class TransitionSpec<S> internal constructor(private val fromToPairs: Array<out 
  * @param delayMillis the amount of time in milliseconds that animation waits before starting
  * @param easing the easing curve that will be used to interpolate between start and end
  */
+@Stable
 fun <T> tween(
     durationMillis: Int = DefaultDurationMillis,
     delayMillis: Int = 0,
@@ -115,6 +117,7 @@ fun <T> tween(
  * @param stiffness stiffness of the spring. [Spring.StiffnessMedium] by default.
  * @param visibilityThreshold optionally specifies the visibility threshold.
  */
+@Stable
 fun <T> spring(
     dampingRatio: Float = Spring.DampingRatioNoBouncy,
     stiffness: Float = Spring.StiffnessMedium,
@@ -130,6 +133,7 @@ fun <T> spring(
  * @param init Initialization function for the [KeyframesSpec] animation
  * @See KeyframesSpec.KeyframesSpecConfig
  */
+@Stable
 fun <T> keyframes(
     init: KeyframesSpec.KeyframesSpecConfig<T>.() -> Unit
 ): KeyframesSpec<T> {
@@ -152,6 +156,7 @@ fun <T> keyframes(
  * @param repeatMode whether animation should repeat by starting from the beginning (i.e.
  *                  [RepeatMode.Restart]) or from the end (i.e. [RepeatMode.Reverse])
  */
+@Stable
 fun <T> repeatable(
     iterations: Int,
     animation: DurationBasedAnimationSpec<T>,
@@ -164,6 +169,7 @@ fun <T> repeatable(
  *
  * @param delayMillis the number of milliseconds to wait before the animation runs. 0 by default.
  */
+@Stable
 fun <T> snap(delayMillis: Int = 0): AnimationSpec<T> = SnapSpec(delayMillis)
 
 /**
