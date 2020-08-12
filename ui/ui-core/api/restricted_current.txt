@@ -2539,8 +2539,8 @@ package androidx.compose.ui.viewinterop {
   }
 
   public final class EmitViewKt {
-    method @androidx.compose.runtime.Composable public static <T extends android.view.View> void emitView(kotlin.jvm.functions.Function1<? super android.content.Context,? extends T> ctor, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> update);
-    method @androidx.compose.runtime.Composable public static <T extends android.view.ViewGroup> void emitView(kotlin.jvm.functions.Function1<? super android.content.Context,? extends T> ctor, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> update, kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @Deprecated @androidx.compose.runtime.Composable public static <T extends android.view.View> void emitView(kotlin.jvm.functions.Function1<? super android.content.Context,? extends T> ctor, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> update);
+    method @Deprecated @androidx.compose.runtime.Composable public static <T extends android.view.ViewGroup> void emitView(kotlin.jvm.functions.Function1<? super android.content.Context,? extends T> ctor, kotlin.jvm.functions.Function1<? super T,kotlin.Unit> update, kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   @kotlin.RequiresOptIn(level=RequiresOptIn.Level.ERROR, message="This is an experimental API for Compose UI LayoutNode and is likely to change " + "before becoming stable.") @kotlin.annotation.Target(allowedTargets={AnnotationTarget.CLASS, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY}) public @interface InternalInteropApi {
