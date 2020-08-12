@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2017 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,12 +19,14 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
+
 import com.example.android.supportv7.R;
 
 final class DemoHeaderHolder extends DemoHolder {
 
     private static final String HEADER_TAG = "I'm a header";
-    public final TextView mLabel;
+    final TextView mLabel;
 
     DemoHeaderHolder(LinearLayout layout) {
         super(layout);
@@ -41,7 +43,7 @@ final class DemoHeaderHolder extends DemoHolder {
         return "Header{name:" + mLabel.getText() + "}";
     }
 
-    static boolean isHeader(View view) {
-        return HEADER_TAG.equals(view.getTag());
+    static boolean isHeader(@Nullable View view) {
+        return view == null ? false : HEADER_TAG.equals(view.getTag());
     }
 }

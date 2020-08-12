@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.Adapter;
@@ -110,6 +111,17 @@ public class TestAdapter<K> extends Adapter<TestHolder> {
 
     public K getSelectionKey(int position) {
         return mItems.get(position);
+    }
+
+    public boolean removeItem(K key) {
+        int position = getPosition(key);
+        if (position == RecyclerView.NO_POSITION) {
+            return false;
+        }
+
+        @Nullable K removed = mItems.remove(position);
+        notifyItemRemoved(position);
+        return removed != null;
     }
 
     public void resetSelectionNotifications() {

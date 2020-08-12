@@ -754,7 +754,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Selection helper demo activity -->
+        <!-- Selection helper single selection demo activity -->
         <activity android:name=".widget.selection.single.SingleStableIdSelectionDemoActivity"
             android:label="@string/single_selection_demo_activity"
             android:theme="@style/Theme.AppCompat.Light">
@@ -764,7 +764,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Selection helper demo activity -->
+        <!-- Selection helper rudimentary demo activity -->
         <activity android:name=".widget.selection.simple.SimpleSelectionDemoActivity"
                   android:label="@string/simple_selection_demo_activity"
                   android:theme="@style/Theme.AppCompat.Light">
@@ -774,7 +774,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Selection helper demo activity -->
+        <!-- Selection helper "the whole kit and caboodle" demo activity -->
         <activity android:name=".widget.selection.fancy.FancySelectionDemoActivity"
                   android:label="@string/fancy_selection_demo_activity"
                   android:theme="@style/Theme.AppCompat.Light">

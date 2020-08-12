@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.example.android.supportv7.widget.selection.fancy;
 
 import android.net.Uri;
@@ -44,7 +45,7 @@ final class DemoDetailsLookup extends ItemDetailsLookup<Uri> {
             if (holder instanceof DemoItemHolder) {
                 return ((DemoItemHolder) holder).getItemDetails();
             }
-            // FancyHeaderHolder doesn't hold a selectable item,
+            // Headers doesn't hold a selectable item,
             // so it doesn't support getItemDetails.
         }
         return null;
