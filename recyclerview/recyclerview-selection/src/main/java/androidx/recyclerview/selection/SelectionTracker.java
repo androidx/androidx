@@ -327,8 +327,7 @@ public abstract class SelectionTracker<K> {
 
         /**
          * Called immediately after completion of any set of changes, excluding
-         * those resulting in calls to {@link #onSelectionRefresh()} and
-         * {@link #onSelectionRestored()}.
+         * those resulting in calls {@link #onSelectionRestored()}.
          */
         public void onSelectionChanged() {
         }
