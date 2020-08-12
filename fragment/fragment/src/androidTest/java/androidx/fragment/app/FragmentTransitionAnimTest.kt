@@ -105,9 +105,13 @@ class FragmentTransitionAnimTest(
                 .commit()
             executePendingTransactions()
 
-            assertThat(fragment.startAnimationLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+            val startAnimationRan = fragment.startAnimationLatch.await(TIMEOUT,
+                TimeUnit.MILLISECONDS)
+            assertThat(startAnimationRan).isEqualTo(stateManager == OldStateManager)
             fragment.waitForTransition()
-            assertThat(fragment.exitAnimationLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+            val exitAnimationRan = fragment.exitAnimationLatch.await(TIMEOUT,
+                TimeUnit.MILLISECONDS)
+            assertThat(exitAnimationRan).isEqualTo(stateManager == OldStateManager)
             assertThat(onBackStackChangedTimes).isEqualTo(2)
         }
     }
@@ -158,9 +162,13 @@ class FragmentTransitionAnimTest(
                 .commit()
             executePendingTransactions()
 
-            assertThat(fragment.startAnimationLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+            val startAnimationRan = fragment.startAnimationLatch.await(TIMEOUT,
+                TimeUnit.MILLISECONDS)
+            assertThat(startAnimationRan).isEqualTo(stateManager == OldStateManager)
             fragment.waitForTransition()
-            assertThat(fragment.exitAnimationLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+            val exitAnimationRan = fragment.exitAnimationLatch.await(TIMEOUT,
+                TimeUnit.MILLISECONDS)
+            assertThat(exitAnimationRan).isEqualTo(stateManager == OldStateManager)
             assertThat(onBackStackChangedTimes).isEqualTo(2)
         }
     }
@@ -212,7 +220,9 @@ class FragmentTransitionAnimTest(
             executePendingTransactions()
 
             fragment.waitForTransition()
-            assertThat(fragment.exitAnimatorLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+            val exitAnimatorRan = fragment.exitAnimatorLatch.await(TIMEOUT,
+                TimeUnit.MILLISECONDS)
+            assertThat(exitAnimatorRan).isEqualTo(stateManager == OldStateManager)
             assertThat(onBackStackChangedTimes).isEqualTo(2)
         }
     }
@@ -264,7 +274,9 @@ class FragmentTransitionAnimTest(
             executePendingTransactions()
 
             fragment.waitForTransition()
-            assertThat(fragment.exitAnimatorLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+            val exitAnimatorRan = fragment.exitAnimatorLatch.await(TIMEOUT,
+                TimeUnit.MILLISECONDS)
+            assertThat(exitAnimatorRan).isEqualTo(stateManager == OldStateManager)
             assertThat(onBackStackChangedTimes).isEqualTo(2)
         }
     }
@@ -296,7 +308,7 @@ class FragmentTransitionAnimTest(
     }
 
     class TransitionAnimatorFragment : TransitionFragment(R.layout.scene1) {
-        lateinit var exitAnimatorLatch: CountDownLatch
+        val exitAnimatorLatch = CountDownLatch(1)
 
         override fun onCreateAnimator(
             transit: Int,
@@ -313,7 +325,6 @@ class FragmentTransitionAnimTest(
                     }
                 }
             })
-            exitAnimatorLatch = CountDownLatch(1)
         }
     }
 
