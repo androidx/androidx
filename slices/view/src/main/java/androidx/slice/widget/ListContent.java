@@ -141,14 +141,14 @@ public class ListContent extends SliceContent {
      *
      * @return the row items that should be shown based on the provided configuration.
      */
-    public ArrayList<SliceContent> getRowItems(int availableHeight, SliceStyle style,
+    public List<SliceContent> getRowItems(int availableHeight, SliceStyle style,
             SliceViewPolicy policy) {
         if (policy.getMode() == MODE_SMALL) {
             return new ArrayList<>(Arrays.asList(getHeader()));
         } else if (!policy.isScrollable() && availableHeight > 0) {
             return style.getListItemsForNonScrollingList(this, availableHeight, policy);
         }
-        return getRowItems();
+        return style.getListItemsToDisplay(this);
     }
 
     /**
@@ -289,21 +289,7 @@ public class ListContent extends SliceContent {
      */
     public static int getListHeight(List<SliceContent> listItems, SliceStyle style,
             SliceViewPolicy policy) {
-        if (listItems == null) {
-            return 0;
-        }
-        int height = 0;
-        SliceContent maybeHeader = null;
-        if (!listItems.isEmpty()) {
-            maybeHeader = listItems.get(0);
-        }
-        if (listItems.size() == 1 && !maybeHeader.getSliceItem().hasHint(HINT_HORIZONTAL)) {
-            return maybeHeader.getHeight(style, policy);
-        }
-        for (int i = 0; i < listItems.size(); i++) {
-            height += listItems.get(i).getHeight(style, policy);
-        }
-        return height;
+        return style.getListItemsHeight(listItems, policy);
     }
 
     @Nullable
