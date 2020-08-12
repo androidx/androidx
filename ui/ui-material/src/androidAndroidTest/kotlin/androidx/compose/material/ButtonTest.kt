@@ -13,10 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-// suppression needed for onChildPositioned import
-@file:Suppress("DEPRECATION")
-
 package androidx.compose.material
 
 import android.os.Build
@@ -52,7 +48,6 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.boundsInRoot
-import androidx.compose.ui.onChildPositioned
 import androidx.compose.ui.onPositioned
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.semantics
@@ -269,22 +264,22 @@ class ButtonTest {
 
     @Test
     fun containedButtonHorPaddingIsFromSpec() {
-        assertLeftPaddingIs(16.dp) { text ->
-            Button(onClick = {}, content = text)
+        assertLeftPaddingIs(16.dp) { modifier, text ->
+            Button(onClick = {}, modifier = modifier, content = text)
         }
     }
 
     @Test
     fun outlinedButtonHorPaddingIsFromSpec() {
-        assertLeftPaddingIs(16.dp) { text ->
-            OutlinedButton(onClick = {}, content = text)
+        assertLeftPaddingIs(16.dp) { modifier, text ->
+            OutlinedButton(onClick = {}, modifier = modifier, content = text)
         }
     }
 
     @Test
     fun textButtonHorPaddingIsFromSpec() {
-        assertLeftPaddingIs(8.dp) { text ->
-            TextButton(onClick = {}, content = text)
+        assertLeftPaddingIs(8.dp) { modifier, text ->
+            TextButton(onClick = {}, modifier = modifier, content = text)
         }
     }
 
@@ -656,13 +651,13 @@ class ButtonTest {
 
     private fun assertLeftPaddingIs(
         padding: Dp,
-        button: @Composable (@Composable RowScope.() -> Unit) -> Unit
+        button: @Composable (Modifier, @Composable RowScope.() -> Unit) -> Unit
     ) {
         var parentCoordinates: LayoutCoordinates? = null
         var childCoordinates: LayoutCoordinates? = null
         composeTestRule.setMaterialContent {
-            Stack(Modifier.onChildPositioned { parentCoordinates = it }) {
-                button {
+            Stack {
+                button(Modifier.onPositioned { parentCoordinates = it }) {
                     Text("Test button",
                         Modifier.onPositioned { childCoordinates = it }
                     )
