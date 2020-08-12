@@ -63,6 +63,7 @@ class PreviewViewStreamStateTest(private val implMode: PreviewView.Implementatio
     private var mIsSetup = false
     private lateinit var mLifecycle: FakeLifecycleOwner
     private lateinit var mCameraProvider: ProcessCameraProvider
+
     @get:Rule
     var mCameraPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.CAMERA)
 
@@ -89,7 +90,9 @@ class PreviewViewStreamStateTest(private val implMode: PreviewView.Implementatio
         val config = Camera2Config.defaultConfig()
         CameraX.initialize(context, config)
         mLifecycle = FakeLifecycleOwner()
-        mPreviewView = PreviewView(context)
+        mInstrumentation.runOnMainSync {
+            mPreviewView = PreviewView(context)
+        }
         setContentView(mPreviewView)
         mPreviewView.implementationMode = implMode
 
