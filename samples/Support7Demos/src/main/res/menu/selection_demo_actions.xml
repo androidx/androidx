@@ -16,9 +16,13 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
    <item
-       android:id="@+id/option_menu_enable_listener"
-       android:title="Enable OnItemTouchListener" />
+       android:id="@+id/option_menu_swipe_during_select"
+       android:title="Swipe When Selection Is Active"
+       android:checkable="true"
+       android:checked="true"/>
    <item
-       android:id="@+id/option_menu_disable_listener"
-       android:title="Disable OnItemTouchListener" />
+       android:id="@+id/option_menu_custom_listener"
+       android:title="Custom OnItemTouchListener"
+       android:checkable="true"
+       android:checked="false"/>
 </menu>

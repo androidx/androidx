@@ -390,6 +390,11 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> implements R
 
     @SuppressWarnings({"WeakerAccess", "unchecked"}) /* synthetic access */
     void onDataSetChanged() {
+        if (mSelection.isEmpty()) {
+            Log.d(TAG, "Ignoring onDataSetChange. No active selection.");
+            return;
+        }
+
         mSelection.clearProvisionalSelection();
 
         notifySelectionRefresh();
@@ -397,10 +402,12 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> implements R
         List<K> toRemove = null;
         for (K key : mSelection) {
             // If the underlying data set has changed, before restoring
-            // selection we must re-verify that it can be selected.
+            // selection we must re-verify that the items are present
+            // and if so, can still be selected.
             // Why? Because if the dataset has changed, then maybe the
-            // selectability of an item has changed.
-            if (!canSetState(key, true)) {
+            // selectability of an item has changed, or item disappeared.
+            if (mKeyProvider.getPosition(key) == RecyclerView.NO_POSITION
+                    || !canSetState(key, true)) {
                 if (toRemove == null) {
                     toRemove = new ArrayList<>();
                 }
@@ -416,10 +423,13 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> implements R
 
         if (toRemove != null) {
             for (K key : toRemove) {
+                // TODO(b/163840879): Calling deselect fires onSelectionChanged
+                //     once per call. Meaning we're firing it n+1 times when deselecting.
                 deselect(key);
             }
         }
 
+        // TODO: Send onSelectionCleared if empty in 2.0 release.
         notifySelectionChanged();
     }
 
@@ -607,6 +617,10 @@ public class DefaultSelectionTracker<K> extends SelectionTracker<K> implements R
         @Override
         public void onItemRangeRemoved(int startPosition, int itemCount) {
             mSelectionTracker.endRange();
+            // Since SelectionTracker deals in keys, not positions, we turn
+            // to the `onDataSetChanged` sledge hammer.
+            // DefaultSelectionTracker will validate and update it's selection.
+            mSelectionTracker.onDataSetChanged();
         }
 
         @Override

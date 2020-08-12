@@ -270,9 +270,11 @@
     <string name="appcompat_vector_title">AppCompat/Integrations/AnimatedVectorDrawable</string>
     <string name="appcompat_animated_selector_title">AppCompat/Integrations/AnimatedStateListDrawable</string>
 
-    <string name="single_selection_demo_activity">RecyclerView-Selection: Single Select</string>
-    <string name="simple_selection_demo_activity">RecyclerView Selection: Gesture Only</string>
-    <string name="fancy_selection_demo_activity">RecyclerView Selection: Gesture and Pointer</string>
+    <!-- RecyclerView-Selection -->
+    <string name="single_selection_demo_activity">RecyclerView/Selection/Single Select</string>
+    <string name="simple_selection_demo_activity">RecyclerView/Selection/Gesture Only</string>
+    <string name="fancy_selection_demo_activity">RecyclerView/Selection/Gesture and Pointer
+    (for Chromebooks!)</string>
 
     <string name="night_mode">DAY</string>
 

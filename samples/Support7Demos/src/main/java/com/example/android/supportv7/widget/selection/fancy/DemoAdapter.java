@@ -33,8 +33,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.example.android.supportv7.Cheeses;
 import com.example.android.supportv7.R;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 final class DemoAdapter extends RecyclerView.Adapter<DemoHolder> {
 
@@ -43,6 +44,10 @@ final class DemoAdapter extends RecyclerView.Adapter<DemoHolder> {
 
     private final KeyProvider mKeyProvider;
     private final Context mContext;
+    // Our list of thingies. Our DemoHolder subclasses extract display
+    // values directly from the Uri, so we only need this simple list.
+    // The list also contains entries for alphabetical section headers.
+    private final List<Uri> mCheeses;
 
     // This default implementation must be replaced
     // with a real implementation in #bindSelectionHelper.
@@ -56,7 +61,8 @@ final class DemoAdapter extends RecyclerView.Adapter<DemoHolder> {
 
     DemoAdapter(Context context) {
         mContext = context;
-        mKeyProvider = new KeyProvider("cheeses", Cheeses.sCheeseStrings);
+        mCheeses = createCheeseList("CheeseKindom");
+        mKeyProvider = new KeyProvider(mCheeses);
 
         // In the fancy edition of selection support we supply access to stable
         // ids using content URI. Since we can map between position and selection key
@@ -69,7 +75,7 @@ final class DemoAdapter extends RecyclerView.Adapter<DemoHolder> {
     }
 
     // Glue together SelectionTracker and the adapter.
-    public void bindSelectionHelper(final SelectionTracker<Uri> tracker) {
+    public void bindSelectionTracker(final SelectionTracker<Uri> tracker) {
         checkArgument(tracker != null);
         mSelTest = new SelectionTest() {
             @Override
@@ -89,7 +95,7 @@ final class DemoAdapter extends RecyclerView.Adapter<DemoHolder> {
 
     @Override
     public int getItemCount() {
-        return mKeyProvider.getCount();
+        return mCheeses.size();
     }
 
     @Override
@@ -141,8 +147,52 @@ final class DemoAdapter extends RecyclerView.Adapter<DemoHolder> {
         return (V) LayoutInflater.from(context).inflate(layout, parent, false);
     }
 
+    // Creates a list of cheese Uris and section header Uris.
+    private static List<Uri> createCheeseList(String authority) {
+        List<Uri> cheeses = new ArrayList<>();
+        char section = '-';  // any ol' value other than 'a' will do the trick here.
+
+        for (String cheese : Cheeses.sCheeseStrings) {
+            char leadingChar = cheese.toLowerCase().charAt(0);
+
+            // When we find a new leading character insert an artificial
+            // cheese header
+            if (leadingChar != section) {
+                section = leadingChar;
+                Uri headerUri = new Uri.Builder()
+                        .scheme("content")
+                        .encodedAuthority(authority)
+                        .appendPath(Character.toString(section))
+                        .build();
+
+                cheeses.add(headerUri);
+            }
+
+            Uri itemUri = new Uri.Builder()
+                    .scheme("content")
+                    .encodedAuthority(authority)
+                    .appendPath(Character.toString(section))
+                    .appendPath(cheese)
+                    .build();
+            cheeses.add(itemUri);
+        }
+
+        return cheeses;
+    }
+
     private interface SelectionTest {
         boolean isSelected(Uri id);
+    }
+
+    public boolean removeItem(Uri key) {
+        int position = mKeyProvider.getPosition(key);
+        if (position == RecyclerView.NO_POSITION) {
+            return false;
+        }
+
+        @Nullable Uri removed = mCheeses.remove(position);
+        notifyItemRemoved(position);
+        return removed != null;
     }
 
     /**
@@ -159,59 +209,32 @@ final class DemoAdapter extends RecyclerView.Adapter<DemoHolder> {
      */
     static final class KeyProvider extends ItemKeyProvider<Uri> {
 
-        private final Uri[] mUris;
-        private final Map<Uri, Integer> mPositions;
+        private final List<Uri> mData;
 
-        KeyProvider(String authority, String[] values) {
-            // Advise the world we can supply ids/position for entire copus
-            // at any time.
+        KeyProvider(List<Uri> cheeses) {
+            // Advise the world we can supply ids/position for any item at any time,
+            // not just when visible in RecyclerView.
+            // This enables fancy stuff especially helpful to users with pointy
+            // devices like Chromebooks, or tablets with touch pads
             super(SCOPE_MAPPED);
-
-            // For the convenience of this demo, we simply trust, based on
-            // past understanding that Cheeses has at least one element
-            // starting with each letter of the English alphabet :)
-            mUris = new Uri[Cheeses.sCheeseStrings.length + 26];
-            mPositions = new HashMap<>();
-
-            char section = '-';  // anything value other than 'a' will do the trick here.
-            int headerOffset = 0;
-
-            for (int i = 0; i < Cheeses.sCheeseStrings.length; i++) {
-                char leadingChar = Cheeses.sCheeseStrings[i].toLowerCase().charAt(0);
-                // When we find a new leading character insert an artificial
-                // cheese header
-                if (leadingChar != section) {
-                    section = leadingChar;
-                    mUris[i + headerOffset] = new Uri.Builder()
-                            .scheme("content")
-                            .encodedAuthority(authority)
-                            .appendPath(Character.toString(section))
-                            .build();
-                    mPositions.put(mUris[i + headerOffset], i + headerOffset);
-                    headerOffset++;
-                }
-                mUris[i + headerOffset] = new Uri.Builder()
-                        .scheme("content")
-                        .encodedAuthority(authority)
-                        .appendPath(Character.toString(section))
-                        .appendPath(Cheeses.sCheeseStrings[i])
-                        .build();
-                mPositions.put(mUris[i + headerOffset], i + headerOffset);
-            }
+            mData = cheeses;
         }
 
         @Override
         public @Nullable Uri getKey(int position) {
-            return mUris[position];
+            return mData.get(position);
         }
 
         @Override
         public int getPosition(@NonNull Uri key) {
-            return mPositions.get(key);
-        }
-
-        int getCount() {
-            return mUris.length;
+            int position = Collections.binarySearch(mData, key);
+            // position is insertion point if key is missing.
+            // Since the insertion point could be end of the list + 1
+            // both verify the position is in bounds, and that the value
+            // at position is the same as the key.
+            return position >= 0 && position <= mData.size() - 1 && key.equals(mData.get(position))
+                    ? position
+                    : RecyclerView.NO_POSITION;
         }
     }
 }
