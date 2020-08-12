@@ -118,7 +118,7 @@ public class PreviewView extends FrameLayout {
                 mImplementation.redrawPreview();
             }
 
-            mPreviewViewMeteringPointFactory.setViewSize(right - left, top - bottom);
+            mPreviewViewMeteringPointFactory.setViewSize(getWidth(), getHeight());
 
             boolean isSizeChanged =
                     right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop;
@@ -253,7 +253,7 @@ public class PreviewView extends FrameLayout {
                     ContextCompat.getMainExecutor(getContext()), streamStateObserver);
 
             mPreviewViewMeteringPointFactory.setViewImplementationResolution(
-                    mImplementation.getResolution());
+                    surfaceRequest.getResolution());
             mPreviewViewMeteringPointFactory.setCameraInfo(camera.getCameraInfo());
 
             mImplementation.onSurfaceRequested(surfaceRequest, () -> {
