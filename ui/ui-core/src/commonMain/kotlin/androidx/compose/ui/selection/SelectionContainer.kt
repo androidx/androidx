@@ -34,9 +34,10 @@ import androidx.compose.ui.text.InternalTextApi
  * Default SelectionContainer to be used in order to make composables selectable by default.
  */
 @Composable
-internal fun SelectionContainer(children: @Composable () -> Unit) {
+internal fun SelectionContainer(modifier: Modifier, children: @Composable () -> Unit) {
     val selection = remember { mutableStateOf<Selection?>(null) }
     SelectionContainer(
+        modifier = modifier,
         selection = selection.value,
         onSelectionChange = { selection.value = it },
         children = children
@@ -52,6 +53,8 @@ internal fun SelectionContainer(children: @Composable () -> Unit) {
 @OptIn(InternalTextApi::class)
 @Composable
 fun SelectionContainer(
+    /** A [Modifier] for SelectionContainer. */
+    modifier: Modifier = Modifier,
     /** Current Selection status.*/
     selection: Selection?,
     /** A function containing customized behaviour when selection changes. */
@@ -67,21 +70,21 @@ fun SelectionContainer(
     manager.onSelectionChange = onSelectionChange
     manager.selection = selection
 
-    val gestureModifiers =
+    val gestureModifiers = remember {
+        // Get the layout coordinates of the selection container. This is for hit test of
+        // cross-composable selection.
         Modifier
             .noConsumptionTapGestureFilter { manager.onRelease() }
             .longPressDragGestureFilter(manager.longPressDragObserver)
-
-    val modifier = remember {
-        // Get the layout coordinates of the selection container. This is for hit test of
-        // cross-composable selection.
-        gestureModifiers.onPositioned { manager.containerLayoutCoordinates = it }
+            .onPositioned { manager.containerLayoutCoordinates = it }
     }
 
     Providers(SelectionRegistrarAmbient provides registrarImpl) {
         // Get the layout coordinates of the selection container. This is for hit test of
         // cross-composable selection.
-        SelectionLayout(modifier) {
+        SelectionLayout(
+            modifier = modifier.then(gestureModifiers)
+        ) {
             children()
             manager.selection?.let {
                 for (isStartHandle in listOf(true, false)) {

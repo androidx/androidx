@@ -34,7 +34,10 @@ import androidx.compose.runtime.SlotTable
 import androidx.compose.runtime.compositionFor
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.emptyContent
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.R
+import androidx.compose.ui.focus.ExperimentalFocus
+import androidx.compose.ui.gesture.noConsumptionTapGestureFilter
 import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.node.LayoutNode
 import androidx.lifecycle.Lifecycle
@@ -170,16 +173,6 @@ fun ComponentActivity.setContent(
 }
 
 /**
- * We want text/image selection to be enabled by default and disabled per widget. Therefore a root
- * level [SelectionContainer] is installed at the root.
- */
-@Suppress("NOTHING_TO_INLINE")
-@Composable
-private inline fun WrapWithSelectionContainer(noinline content: @Composable () -> Unit) {
-    SelectionContainer(children = content)
-}
-
-/**
  * Composes the given composable into the given view.
  *
  * The new composition can be logically "linked" to an existing one, by providing a non-null
@@ -277,9 +270,13 @@ private class WrappedComposition(
                                 it.add(composer.slotTable)
                             }
                         ProvideAndroidAmbients(owner) {
-                            // TODO(b/161487952): Add a noConsumptionTapGestureFilter here that
-                            //  clears focus if a user clicks on a non-focusable part of the screen.
-                            WrapWithSelectionContainer(content)
+                            SelectionContainer(
+                                modifier = Modifier.noConsumptionTapGestureFilter {
+                                    @OptIn(ExperimentalFocus::class)
+                                    owner.focusManager.clearFocus()
+                                },
+                                children = content
+                            )
                         }
                     }
                 } else {
