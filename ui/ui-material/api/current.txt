@@ -292,13 +292,6 @@ package androidx.compose.material {
 
   public final class RadioButtonKt {
     method @androidx.compose.runtime.Composable public static void RadioButton-PKiHyag(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onClick, androidx.compose.ui.Modifier modifier = Modifier, boolean enabled = true, long selectedColor = MaterialTheme.colors.secondary, long unselectedColor = RadioButtonConstants.defaultUnselectedColor, long disabledColor = RadioButtonConstants.defaultDisabledColor);
-    method @Deprecated @androidx.compose.runtime.Composable public static void RadioGroup(kotlin.jvm.functions.Function1<? super androidx.compose.material.RadioGroupScope,kotlin.Unit> content);
-    method @Deprecated @androidx.compose.runtime.Composable public static void RadioGroup-ahtgBeg(java.util.List<java.lang.String> options, String? selectedOption, kotlin.jvm.functions.Function1<? super java.lang.String,kotlin.Unit> onSelectedChange, androidx.compose.ui.Modifier modifier = Modifier, long radioColor = MaterialTheme.colors.secondary, androidx.compose.ui.text.TextStyle? textStyle = null);
-  }
-
-  @Deprecated @androidx.compose.runtime.Stable public final class RadioGroupScope {
-    method @Deprecated @androidx.compose.runtime.Composable public void RadioGroupItem(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelect, androidx.compose.ui.Modifier modifier = Modifier, kotlin.jvm.functions.Function0<kotlin.Unit> content);
-    method @Deprecated @androidx.compose.runtime.Composable public void RadioGroupTextItem-5JR1Ee4(boolean selected, kotlin.jvm.functions.Function0<kotlin.Unit> onSelect, String text, androidx.compose.ui.Modifier modifier = Modifier, long radioColor = MaterialTheme.colors.secondary, androidx.compose.ui.text.TextStyle? textStyle = null);
   }
 
   public final class ScaffoldKt {
