@@ -27,9 +27,7 @@ import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
 import androidx.compose.ui.drawLayer
 import androidx.compose.ui.focus.ExperimentalFocus
-import androidx.compose.ui.focus.FocusDetailedState
 import androidx.compose.ui.focus.FocusManager
-import androidx.compose.ui.focus.FocusModifierImpl
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.DesktopCanvas
 import androidx.compose.ui.input.key.ExperimentalKeyInput
@@ -73,9 +71,7 @@ class DesktopOwner(
         mergeAllDescendants = false,
         properties = {}
     )
-    // TODO(demin): remove focusModifier after it is removed from AndroidComposeView
-    @Suppress("DEPRECATION")
-    private val focusModifier = FocusModifierImpl(FocusDetailedState.Inactive)
+
     private val focusManager: FocusManager = FocusManager()
     private val keyInputModifier = KeyInputModifier(null, null)
 
@@ -83,7 +79,6 @@ class DesktopOwner(
         it.measureBlocks = RootMeasureBlocks
         it.modifier = Modifier.drawLayer()
             .then(semanticsModifier)
-            .then(focusModifier)
             .then(focusManager.modifier)
             .then(keyInputModifier)
         it.isPlaced = true

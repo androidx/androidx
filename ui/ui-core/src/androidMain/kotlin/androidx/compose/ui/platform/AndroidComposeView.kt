@@ -14,11 +14,6 @@
  * limitations under the License.
  */
 
-@file:OptIn(ExperimentalComposeApi::class)
-
-// TODO(b/160821157): Replace FocusDetailedState with FocusState2
-@file:Suppress("DEPRECATION")
-
 package androidx.compose.ui.platform
 
 import android.annotation.SuppressLint
@@ -41,12 +36,9 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputConnection
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.snapshots.SnapshotStateObserver
-import androidx.core.os.HandlerCompat
-import androidx.core.view.ViewCompat
-import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewModelStoreOwner
-import androidx.lifecycle.ViewTreeLifecycleOwner
-import androidx.lifecycle.ViewTreeViewModelStoreOwner
+import androidx.compose.ui.DrawLayerModifier
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.RootMeasureBlocks
 import androidx.compose.ui.autofill.AndroidAutofill
 import androidx.compose.ui.autofill.Autofill
 import androidx.compose.ui.autofill.AutofillTree
@@ -54,12 +46,12 @@ import androidx.compose.ui.autofill.performAutofill
 import androidx.compose.ui.autofill.populateViewStructure
 import androidx.compose.ui.autofill.registerCallback
 import androidx.compose.ui.autofill.unregisterCallback
+import androidx.compose.ui.drawLayer
 import androidx.compose.ui.focus.ExperimentalFocus
 import androidx.compose.ui.focus.FOCUS_TAG
-import androidx.compose.ui.focus.FocusDetailedState
-import androidx.compose.ui.focus.FocusModifierImpl
-import androidx.compose.ui.focus.FocusState2.Active
-import androidx.compose.ui.focus.FocusState2.Inactive
+import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.graphics.Canvas
+import androidx.compose.ui.graphics.CanvasHolder
 import androidx.compose.ui.hapticfeedback.AndroidHapticFeedback
 import androidx.compose.ui.hapticfeedback.HapticFeedback
 import androidx.compose.ui.input.key.ExperimentalKeyInput
@@ -69,29 +61,28 @@ import androidx.compose.ui.input.key.KeyInputModifier
 import androidx.compose.ui.input.pointer.MotionEventAdapter
 import androidx.compose.ui.input.pointer.PointerInputEventProcessor
 import androidx.compose.ui.input.pointer.ProcessResult
-import androidx.compose.ui.semantics.SemanticsModifierCore
-import androidx.compose.ui.semantics.SemanticsOwner
-import androidx.compose.ui.graphics.Canvas
-import androidx.compose.ui.graphics.CanvasHolder
-import androidx.compose.ui.text.input.TextInputServiceAndroid
-import androidx.compose.ui.text.input.textInputServiceFactory
-import androidx.compose.ui.DrawLayerModifier
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.drawLayer
 import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.node.InternalCoreApi
 import androidx.compose.ui.node.LayoutNode
 import androidx.compose.ui.node.LayoutNode.UsageByParent
 import androidx.compose.ui.node.MeasureAndLayoutDelegate
 import androidx.compose.ui.node.OwnedLayer
+import androidx.compose.ui.semantics.SemanticsModifierCore
+import androidx.compose.ui.semantics.SemanticsOwner
 import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.input.TextInputServiceAndroid
+import androidx.compose.ui.text.input.textInputServiceFactory
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.util.trace
-import androidx.compose.ui.RootMeasureBlocks
-import androidx.compose.ui.focus.FocusManager
+import androidx.core.os.HandlerCompat
+import androidx.core.view.ViewCompat
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.ViewModelStoreOwner
+import androidx.lifecycle.ViewTreeLifecycleOwner
+import androidx.lifecycle.ViewTreeViewModelStoreOwner
 import androidx.savedstate.SavedStateRegistryOwner
 import androidx.savedstate.ViewTreeSavedStateRegistryOwner
 import java.lang.reflect.Method
@@ -120,7 +111,9 @@ fun AndroidOwner(
     savedStateRegistryOwner
 )
 
+@SuppressLint("ViewConstructor")
 @OptIn(
+    ExperimentalComposeApi::class,
     ExperimentalFocus::class,
     ExperimentalKeyInput::class,
     ExperimentalLayoutNodeApi::class
@@ -144,10 +137,8 @@ internal class AndroidComposeView constructor(
         properties = {}
     )
 
-    // TODO(b/160821157): Replace FocusDetailedState with FocusState2.
-    @Suppress("DEPRECATION")
-    private val focusModifier = FocusModifierImpl(FocusDetailedState.Inactive)
     override val focusManager: FocusManager = FocusManager()
+
     private val keyInputModifier = KeyInputModifier(null, null)
 
     private val canvasHolder = CanvasHolder()
@@ -157,7 +148,6 @@ internal class AndroidComposeView constructor(
         it.modifier = Modifier
             .drawLayer()
             .then(semanticsModifier)
-            .then(focusModifier)
             .then(focusManager.modifier)
             .then(keyInputModifier)
     }
@@ -190,25 +180,11 @@ internal class AndroidComposeView constructor(
     // Used as an ambient for performing autofill.
     override val autofill: Autofill? get() = _autofill
 
-    // TODO(b/160821157): Replace FocusDetailedState with FocusState2.
-    @Suppress("DEPRECATION")
     override fun onFocusChanged(gainFocus: Boolean, direction: Int, previouslyFocusedRect: Rect?) {
         super.onFocusChanged(gainFocus, direction, previouslyFocusedRect)
         Log.d(FOCUS_TAG, "Owner FocusChanged($gainFocus)")
-        if (gainFocus) {
-            // If the focus state is not Inactive, it indicates that the focus state is already
-            // set (possibly by dispatchWindowFocusChanged). So we don't update the state.
-            if (focusModifier.focusDetailedState == FocusDetailedState.Inactive) {
-                focusModifier.focusDetailedState = FocusDetailedState.Active
-            }
-            focusManager.takeFocus()
-        } else {
-            // If this view lost focus, clear focus from the children.
-            with(focusModifier) {
-                focusNode?.clearFocus(forcedClear = true)
-                focusDetailedState = FocusDetailedState.Inactive
-            }
-            focusManager.releaseFocus()
+        with(focusManager) {
+            if (gainFocus) takeFocus() else releaseFocus()
         }
     }
 
@@ -238,7 +214,7 @@ internal class AndroidComposeView constructor(
         }
     }
 
-    internal val onCommitAffectingLayer: (OwnedLayer) -> Unit = { layer ->
+    private val onCommitAffectingLayer: (OwnedLayer) -> Unit = { layer ->
         layer.invalidate()
     }
 
@@ -252,7 +228,6 @@ internal class AndroidComposeView constructor(
     override var showLayoutBounds = false
 
     override fun pauseModelReadObserveration(block: () -> Unit) =
-        @OptIn(ExperimentalComposeApi::class)
         snapshotObserver.pauseObservingReads(block)
 
     init {
@@ -320,6 +295,7 @@ internal class AndroidComposeView constructor(
     // us to detect the case when the View was measured twice with different constraints within
     // the same measure pass.
     private var onMeasureConstraints: Constraints? = null
+
     // Will be set to true when we were measured twice with different constraints during the last
     // measure pass.
     private var wasMeasuredWithMultipleConstraints = false
@@ -461,7 +437,7 @@ internal class AndroidComposeView constructor(
         drawBlock: (Canvas) -> Unit,
         invalidateParentLayer: () -> Unit
     ): OwnedLayer {
-        val layer = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P || isInEditMode()) {
+        val layer = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P || isInEditMode) {
             ViewLayer(
                 this, viewLayersContainer, drawLayerModifier, drawBlock,
                 invalidateParentLayer
@@ -503,7 +479,8 @@ internal class AndroidComposeView constructor(
 
     override var viewTreeOwners: AndroidOwner.ViewTreeOwners? =
         if (initialLifecycleOwner != null && initialViewModelStoreOwner != null &&
-            initialSavedStateRegistryOwner != null) {
+            initialSavedStateRegistryOwner != null
+        ) {
             AndroidOwner.ViewTreeOwners(
                 initialLifecycleOwner,
                 initialViewModelStoreOwner,
@@ -532,6 +509,7 @@ internal class AndroidComposeView constructor(
     private val globalLayoutListener = ViewTreeObserver.OnGlobalLayoutListener {
         dispatchOnPositioned()
     }
+
     // executed when a scrolling container like ScrollView of RecyclerView performed the scroll,
     // this could affect our global position
     private val scrollChangedListener = ViewTreeObserver.OnScrollChangedListener {
@@ -668,21 +646,18 @@ internal class AndroidComposeView constructor(
 
         // TODO(mount): replace with ViewCompat.isShowingLayoutBounds() when it becomes available.
         @SuppressLint("PrivateApi")
-        private fun getIsShowingLayoutBounds(): Boolean {
-            try {
-                if (systemPropertiesClass == null) {
-                    systemPropertiesClass = Class.forName("android.os.SystemProperties")
-                    getBooleanMethod = systemPropertiesClass?.getDeclaredMethod(
-                        "getBoolean",
-                        String::class.java,
-                        Boolean::class.java
-                    )
-                }
-
-                return getBooleanMethod?.invoke(null, "debug.layout", false) as? Boolean ?: false
-            } catch (e: Exception) {
-                return false
+        private fun getIsShowingLayoutBounds(): Boolean = try {
+            if (systemPropertiesClass == null) {
+                systemPropertiesClass = Class.forName("android.os.SystemProperties")
+                getBooleanMethod = systemPropertiesClass?.getDeclaredMethod(
+                    "getBoolean",
+                    String::class.java,
+                    Boolean::class.java
+                )
             }
+            getBooleanMethod?.invoke(null, "debug.layout", false) as? Boolean ?: false
+        } catch (e: Exception) {
+            false
         }
     }
 }
