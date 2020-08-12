@@ -29,6 +29,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -40,10 +42,16 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.VideoCapture;
+import androidx.camera.core.ZoomState;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.FutureCallback;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.view.LifecycleCameraController;
 import androidx.camera.view.PreviewView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
 import java.util.concurrent.ExecutorService;
@@ -57,13 +65,20 @@ public class CameraControllerFragment extends Fragment {
 
     private static final String TAG = "CameraCtrlFragment";
 
-    private LifecycleCameraController mCameraController;
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    LifecycleCameraController mCameraController;
+
     private PreviewView mPreviewView;
     private FrameLayout mContainer;
     private Button mFlashMode;
     private ToggleButton mCameraToggle;
     private ExecutorService mExecutorService;
     private ToggleButton mVideoEnabledToggle;
+    private ToggleButton mPinchToZoomToggle;
+    private ToggleButton mTapToFocusToggle;
+    private TextView mZoomStateText;
+    private TextView mTorchStateText;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -78,7 +93,7 @@ public class CameraControllerFragment extends Fragment {
             @Nullable Bundle savedInstanceState) {
         mExecutorService = Executors.newSingleThreadExecutor();
         mCameraController = new LifecycleCameraController(getContext());
-        mCameraController.bindToLifecycle(CameraControllerFragment.this);
+        mCameraController.bindToLifecycle(getViewLifecycleOwner());
 
         View view = inflater.inflate(R.layout.camera_controller_view, container, false);
         mPreviewView = view.findViewById(R.id.preview_view);
@@ -204,6 +219,47 @@ public class CameraControllerFragment extends Fragment {
                     updateUiText();
                 });
 
+        mPinchToZoomToggle = view.findViewById(R.id.pinch_to_zoom_toggle);
+        mPinchToZoomToggle.setOnCheckedChangeListener(
+                (compoundButton, checked) -> mCameraController.setPinchToZoomEnabled(checked));
+
+        mTapToFocusToggle = view.findViewById(R.id.tap_to_focus_toggle);
+        mTapToFocusToggle.setOnCheckedChangeListener(
+                (compoundButton, checked) -> mCameraController.setPinchToZoomEnabled(checked));
+
+        ((ToggleButton) view.findViewById(R.id.torch_toggle)).setOnCheckedChangeListener(
+                (compoundButton, checked) -> logFailedFuture(
+                        mCameraController.enableTorch(checked)));
+
+        ((SeekBar) view.findViewById(R.id.linear_zoom_slider)).setOnSeekBarChangeListener(
+                new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int progress, boolean b) {
+                        logFailedFuture(mCameraController.setLinearZoom(
+                                (float) progress / seekBar.getMax()));
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+
+                    }
+                });
+
+        mZoomStateText = view.findViewById(R.id.zoom_state_text);
+        updateZoomStateText(mCameraController.getZoomState().getValue());
+        mCameraController.getZoomState().observe(getViewLifecycleOwner(),
+                this::updateZoomStateText);
+
+        mTorchStateText = view.findViewById(R.id.torch_state_text);
+        updateTorchStateText(mCameraController.getTorchState().getValue());
+        mCameraController.getTorchState().observe(getViewLifecycleOwner(),
+                this::updateTorchStateText);
+
         updateUiText();
         return view;
     }
@@ -216,11 +272,42 @@ public class CameraControllerFragment extends Fragment {
         }
     }
 
+    void logFailedFuture(ListenableFuture<Void> voidFuture) {
+        Futures.addCallback(voidFuture, new FutureCallback<Void>() {
+
+            @Override
+            public void onSuccess(@Nullable Void result) {
+
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.e(TAG, "Future failed. ", t);
+            }
+        }, CameraXExecutors.mainThreadExecutor());
+    }
+
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
     void toast(String message) {
         getActivity().runOnUiThread(
                 () -> Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show());
+    }
+
+    private void updateZoomStateText(@Nullable ZoomState zoomState) {
+        if (zoomState == null) {
+            mZoomStateText.setText("Null");
+        } else {
+            mZoomStateText.setText(zoomState.toString());
+        }
+    }
+
+    private void updateTorchStateText(@Nullable Integer torchState) {
+        if (torchState == null) {
+            mTorchStateText.setText("Torch state null");
+        } else {
+            mTorchStateText.setText("Torch state: " + torchState);
+        }
     }
 
     /**
@@ -231,6 +318,8 @@ public class CameraControllerFragment extends Fragment {
         mCameraToggle.setChecked(mCameraController.getCameraSelector().getLensFacing()
                 == CameraSelector.LENS_FACING_BACK);
         mVideoEnabledToggle.setChecked(mCameraController.isVideoCaptureEnabled());
+        mPinchToZoomToggle.setChecked(mCameraController.isPinchToZoomEnabled());
+        mTapToFocusToggle.setChecked(mCameraController.isTapToFocusEnabled());
     }
 
     private void createDefaultPictureFolderIfNotExist() {
