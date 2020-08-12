@@ -21,21 +21,10 @@ import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.node.LayoutNode
-import androidx.compose.ui.node.ModifiedFocusNode
 import androidx.compose.ui.node.ModifiedFocusNode2
 import androidx.compose.ui.util.fastForEach
 
 internal val FOCUS_TAG = "Compose Focus"
-
-@OptIn(ExperimentalLayoutNodeApi::class)
-internal fun LayoutNode.focusableChildren(): List<ModifiedFocusNode> {
-    val focusableChildren = mutableListOf<ModifiedFocusNode>()
-    // TODO(b/152529395): Write a test for LayoutNode.focusableChildren(). We were calling the wrong
-    //  function on [LayoutNodeWrapper] but no test caught this.
-    outerLayoutNodeWrapper.findNextFocusWrapper()?.let { focusableChildren.add(it) }
-        ?: children.fastForEach { layout -> focusableChildren.addAll(layout.focusableChildren()) }
-    return focusableChildren
-}
 
 @OptIn(ExperimentalLayoutNodeApi::class)
 internal fun LayoutNode.focusableChildren2(): List<ModifiedFocusNode2> {
