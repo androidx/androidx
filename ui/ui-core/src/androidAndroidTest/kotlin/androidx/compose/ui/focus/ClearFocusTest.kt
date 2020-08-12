@@ -17,13 +17,13 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.foundation.Box
-import androidx.compose.ui.FocusModifier2
+import androidx.compose.ui.FocusModifier
 import androidx.test.filters.SmallTest
-import androidx.compose.ui.focus.FocusState2.Active
-import androidx.compose.ui.focus.FocusState2.ActiveParent
-import androidx.compose.ui.focus.FocusState2.Captured
-import androidx.compose.ui.focus.FocusState2.Disabled
-import androidx.compose.ui.focus.FocusState2.Inactive
+import androidx.compose.ui.focus.FocusState.Active
+import androidx.compose.ui.focus.FocusState.ActiveParent
+import androidx.compose.ui.focus.FocusState.Captured
+import androidx.compose.ui.focus.FocusState.Disabled
+import androidx.compose.ui.focus.FocusState.Inactive
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import com.google.common.truth.Truth.assertThat
@@ -48,7 +48,7 @@ class ClearFocusTest(val forcedClear: Boolean) {
     @Test
     fun active_isCleared() {
         // Arrange.
-        val modifier = FocusModifier2(Active)
+        val modifier = FocusModifier(Active)
         composeTestRule.setFocusableContent {
             Box(modifier = modifier)
         }
@@ -68,8 +68,8 @@ class ClearFocusTest(val forcedClear: Boolean) {
     @Test
     fun active_isClearedAndRemovedFromParentsFocusedChild() {
         // Arrange.
-        val parent = FocusModifier2(ActiveParent)
-        val modifier = FocusModifier2(Active)
+        val parent = FocusModifier(ActiveParent)
+        val modifier = FocusModifier(Active)
         composeTestRule.setFocusableContent {
             Box(modifier = parent) {
                 Box(modifier = modifier)
@@ -93,7 +93,7 @@ class ClearFocusTest(val forcedClear: Boolean) {
     @Test(expected = IllegalArgumentException::class)
     fun activeParent_noFocusedChild_throwsException() {
         // Arrange.
-        val modifier = FocusModifier2(ActiveParent)
+        val modifier = FocusModifier(ActiveParent)
         composeTestRule.setFocusableContent {
             Box(modifier = modifier)
         }
@@ -107,9 +107,9 @@ class ClearFocusTest(val forcedClear: Boolean) {
     @Test
     fun activeParent_isClearedAndRemovedFromParentsFocusedChild() {
         // Arrange.
-        val parent = FocusModifier2(ActiveParent)
-        val modifier = FocusModifier2(ActiveParent)
-        val child = FocusModifier2(Active)
+        val parent = FocusModifier(ActiveParent)
+        val modifier = FocusModifier(ActiveParent)
+        val child = FocusModifier(Active)
         composeTestRule.setFocusableContent {
             Box(modifier = parent) {
                 Box(modifier = modifier) {
@@ -136,10 +136,10 @@ class ClearFocusTest(val forcedClear: Boolean) {
     @Test
     fun activeParent_clearsEntireHierarchy() {
         // Arrange.
-        val modifier = FocusModifier2(ActiveParent)
-        val child = FocusModifier2(ActiveParent)
-        val grandchild = FocusModifier2(ActiveParent)
-        val greatgrandchild = FocusModifier2(Active)
+        val modifier = FocusModifier(ActiveParent)
+        val child = FocusModifier(ActiveParent)
+        val grandchild = FocusModifier(ActiveParent)
+        val greatgrandchild = FocusModifier(Active)
         composeTestRule.setFocusableContent {
             Box(modifier = modifier) {
                 Box(modifier = child) {
@@ -174,7 +174,7 @@ class ClearFocusTest(val forcedClear: Boolean) {
     @Test
     fun captured_isCleared_whenForced() {
         // Arrange.
-        val modifier = FocusModifier2(Captured)
+        val modifier = FocusModifier(Captured)
         composeTestRule.setFocusableContent {
             Box(modifier = modifier)
         }
@@ -202,8 +202,8 @@ class ClearFocusTest(val forcedClear: Boolean) {
     @Test
     fun active_isClearedAndRemovedFromParentsFocusedChild_whenForced() {
         // Arrange.
-        val parent = FocusModifier2(ActiveParent)
-        val modifier = FocusModifier2(Captured)
+        val parent = FocusModifier(ActiveParent)
+        val modifier = FocusModifier(Captured)
         composeTestRule.setFocusableContent {
             Box(modifier = parent) {
                 Box(modifier = modifier)
@@ -236,7 +236,7 @@ class ClearFocusTest(val forcedClear: Boolean) {
     @Test
     fun Inactive_isUnchanged() {
         // Arrange.
-        val modifier = FocusModifier2(Inactive)
+        val modifier = FocusModifier(Inactive)
         composeTestRule.setFocusableContent {
             Box(modifier = modifier)
         }
@@ -256,7 +256,7 @@ class ClearFocusTest(val forcedClear: Boolean) {
     @Test
     fun Disabled_isUnchanged() {
         // Arrange.
-        val modifier = FocusModifier2(Disabled)
+        val modifier = FocusModifier(Disabled)
         composeTestRule.setFocusableContent {
             Box(modifier = modifier)
         }

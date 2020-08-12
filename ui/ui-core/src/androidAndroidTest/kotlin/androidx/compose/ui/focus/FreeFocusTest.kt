@@ -17,14 +17,14 @@
 package androidx.compose.ui.focus
 
 import androidx.compose.foundation.Box
-import androidx.compose.ui.FocusModifier2
+import androidx.compose.ui.FocusModifier
 import androidx.test.filters.SmallTest
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusState2.Active
-import androidx.compose.ui.focus.FocusState2.ActiveParent
-import androidx.compose.ui.focus.FocusState2.Captured
-import androidx.compose.ui.focus.FocusState2.Disabled
-import androidx.compose.ui.focus.FocusState2.Inactive
+import androidx.compose.ui.focus.FocusState.Active
+import androidx.compose.ui.focus.FocusState.ActiveParent
+import androidx.compose.ui.focus.FocusState.Captured
+import androidx.compose.ui.focus.FocusState.Disabled
+import androidx.compose.ui.focus.FocusState.Inactive
 import androidx.compose.ui.focusObserver
 import androidx.compose.ui.focusRequester
 import androidx.ui.test.createComposeRule
@@ -45,14 +45,14 @@ class FreeFocusTest {
     @Test
     fun active_freeFocus_retainFocusAsActive() {
         // Arrange.
-        var focusState: FocusState2 = Active
+        var focusState: FocusState = Active
         val focusRequester = FocusRequester()
         composeTestRule.setFocusableContent {
             Box(
                 modifier = Modifier
                     .focusObserver { focusState = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier2(focusState))
+                    .then(FocusModifier(focusState))
             )
         }
 
@@ -69,14 +69,14 @@ class FreeFocusTest {
     @Test
     fun activeParent_freeFocus_retainFocusAsActiveParent() {
         // Arrange.
-        var focusState: FocusState2 = ActiveParent
+        var focusState: FocusState = ActiveParent
         val focusRequester = FocusRequester()
         composeTestRule.setFocusableContent {
             Box(
                 modifier = Modifier
                     .focusObserver { focusState = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier2(focusState))
+                    .then(FocusModifier(focusState))
             )
         }
 
@@ -93,14 +93,14 @@ class FreeFocusTest {
     @Test
     fun captured_freeFocus_changesStateToActive() {
         // Arrange.
-        var focusState: FocusState2 = Captured
+        var focusState: FocusState = Captured
         val focusRequester = FocusRequester()
         composeTestRule.setFocusableContent {
             Box(
                 modifier = Modifier
                     .focusObserver { focusState = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier2(focusState))
+                    .then(FocusModifier(focusState))
             )
         }
 
@@ -117,14 +117,14 @@ class FreeFocusTest {
     @Test
     fun disabled_freeFocus_retainFocusAsDisabled() {
         // Arrange.
-        var focusState: FocusState2 = Disabled
+        var focusState: FocusState = Disabled
         val focusRequester = FocusRequester()
         composeTestRule.setFocusableContent {
             Box(
                 modifier = Modifier
                     .focusObserver { focusState = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier2(focusState))
+                    .then(FocusModifier(focusState))
             )
         }
 
@@ -141,14 +141,14 @@ class FreeFocusTest {
     @Test
     fun inactive_freeFocus_retainFocusAsInactive() {
         // Arrange.
-        var focusState: FocusState2 = Inactive
+        var focusState: FocusState = Inactive
         val focusRequester = FocusRequester()
         composeTestRule.setFocusableContent {
             Box(
                 modifier = Modifier
                     .focusObserver { focusState = it }
                     .focusRequester(focusRequester)
-                    .then(FocusModifier2(focusState))
+                    .then(FocusModifier(focusState))
             )
         }
 

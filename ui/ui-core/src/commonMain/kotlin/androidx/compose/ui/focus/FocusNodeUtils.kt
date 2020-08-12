@@ -21,17 +21,17 @@ import androidx.compose.runtime.collection.MutableVector
 import androidx.compose.runtime.collection.mutableVectorOf
 import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.node.LayoutNode
-import androidx.compose.ui.node.ModifiedFocusNode2
+import androidx.compose.ui.node.ModifiedFocusNode
 import androidx.compose.ui.util.fastForEach
 
 internal val FOCUS_TAG = "Compose Focus"
 
 @OptIn(ExperimentalLayoutNodeApi::class)
-internal fun LayoutNode.focusableChildren2(): List<ModifiedFocusNode2> {
-    val focusableChildren = mutableListOf<ModifiedFocusNode2>()
+internal fun LayoutNode.focusableChildren2(): List<ModifiedFocusNode> {
+    val focusableChildren = mutableListOf<ModifiedFocusNode>()
     // TODO(b/152529395): Write a test for LayoutNode.focusableChildren(). We were calling the wrong
     //  function on [LayoutNodeWrapper] but no test caught this.
-    outerLayoutNodeWrapper.findNextFocusWrapper2()?.let { focusableChildren.add(it) }
+    outerLayoutNodeWrapper.findNextFocusWrapper()?.let { focusableChildren.add(it) }
         ?: children.fastForEach { layout -> focusableChildren.addAll(layout.focusableChildren2()) }
     return focusableChildren
 }
@@ -50,10 +50,10 @@ internal fun LayoutNode.focusableChildren2(): List<ModifiedFocusNode2> {
 )
 internal fun LayoutNode.searchChildrenForFocusNode(
     queue: MutableVector<LayoutNode> = mutableVectorOf()
-): ModifiedFocusNode2? {
+): ModifiedFocusNode? {
     // Check if any child has a focus Wrapper.
     _children.forEach { layoutNode ->
-        val focusNode = layoutNode.outerLayoutNodeWrapper.findNextFocusWrapper2()
+        val focusNode = layoutNode.outerLayoutNodeWrapper.findNextFocusWrapper()
         if (focusNode != null) {
             return focusNode
         } else {

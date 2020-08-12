@@ -18,10 +18,10 @@ package androidx.compose.ui.focus
 
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
-import androidx.compose.ui.FocusModifier2
+import androidx.compose.ui.FocusModifier
 import androidx.compose.ui.graphics.Color.Companion.Red
 import androidx.test.filters.SmallTest
-import androidx.compose.ui.focus.FocusState2.Inactive
+import androidx.compose.ui.focus.FocusState.Inactive
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.runOnIdle
 import com.google.common.truth.Truth.assertThat
@@ -39,9 +39,9 @@ class FindFocusableChildrenTest {
 
     @Test
     fun returnsFirstFocusNodeInModifierChain() {
-        val focusModifier1 = FocusModifier2(Inactive)
-        val focusModifier2 = FocusModifier2(Inactive)
-        val focusModifier3 = FocusModifier2(Inactive)
+        val focusModifier1 = FocusModifier(Inactive)
+        val focusModifier2 = FocusModifier(Inactive)
+        val focusModifier3 = FocusModifier(Inactive)
         // Arrange.
         // layoutNode--focusNode1--focusNode2--focusNode3
         composeTestRule.setContent {
@@ -61,8 +61,8 @@ class FindFocusableChildrenTest {
 
     @Test
     fun skipsNonFocusNodesAndReturnsFirstFocusNodeInModifierChain() {
-        val focusModifier1 = FocusModifier2(Inactive)
-        val focusModifier2 = FocusModifier2(Inactive)
+        val focusModifier1 = FocusModifier(Inactive)
+        val focusModifier2 = FocusModifier(Inactive)
         // Arrange.
         // layoutNode--focusNode1--nonFocusNode--focusNode2
         composeTestRule.setContent {
@@ -87,10 +87,10 @@ class FindFocusableChildrenTest {
         //       |___________________________________
         //       |                                   |
         // childLayoutNode1--focusNode1          childLayoutNode2--focusNode2--focusNode3
-        val parentFocusModifier = FocusModifier2(Inactive)
-        val focusModifier1 = FocusModifier2(Inactive)
-        val focusModifier2 = FocusModifier2(Inactive)
-        val focusModifier3 = FocusModifier2(Inactive)
+        val parentFocusModifier = FocusModifier(Inactive)
+        val focusModifier1 = FocusModifier(Inactive)
+        val focusModifier2 = FocusModifier(Inactive)
+        val focusModifier3 = FocusModifier(Inactive)
         composeTestRule.setContent {
             Box(modifier = parentFocusModifier) {
                 Box(modifier = focusModifier1)

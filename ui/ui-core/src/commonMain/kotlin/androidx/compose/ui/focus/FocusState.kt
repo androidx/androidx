@@ -16,13 +16,25 @@
 
 package androidx.compose.ui.focus
 
-// TODO(b/160822876): Rename this enum to FocusState after the existing FocusState is removed.
+/**
+ * Different states of the focus system. These are the states used by the Focus Nodes.
+ *
+ */
+@Deprecated("FocusState2 has been replaced by FocusState",
+    ReplaceWith(
+        "FocusState",
+        "androidx.compose.ui.focus.FocusState"
+    ),
+    DeprecationLevel.ERROR
+)
+enum class FocusState2
+
 /**
  * Different states of the focus system. These are the states used by the Focus Nodes.
  *
  */
 @ExperimentalFocus
-enum class FocusState2 {
+enum class FocusState {
     /**
      * The focusable component is currently active (i.e. it receives key events).
      */
@@ -52,17 +64,17 @@ enum class FocusState2 {
 }
 
 /**
- * Converts a [focus state][FocusState2] into a boolean value indicating if the component
+ * Converts a [focus state][FocusState] into a boolean value indicating if the component
  * is focused or not.
  *
  * @return true if the component is focused, false otherwise.
  */
 @ExperimentalFocus
-val FocusState2.isFocused
+val FocusState.isFocused
     get() = when (this) {
-        FocusState2.Captured,
-        FocusState2.Active -> true
-        FocusState2.ActiveParent,
-        FocusState2.Inactive,
-        FocusState2.Disabled -> false
+        FocusState.Captured,
+        FocusState.Active -> true
+        FocusState.ActiveParent,
+        FocusState.Inactive,
+        FocusState.Disabled -> false
     }

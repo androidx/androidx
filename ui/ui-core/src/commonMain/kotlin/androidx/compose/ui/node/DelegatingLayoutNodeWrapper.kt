@@ -21,7 +21,7 @@ import androidx.compose.ui.MeasureScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Placeable
 import androidx.compose.ui.focus.ExperimentalFocus
-import androidx.compose.ui.focus.FocusState2
+import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.input.pointer.PointerInputFilter
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
@@ -117,24 +117,24 @@ internal open class DelegatingLayoutNodeWrapper<T : Modifier.Element>(
         return this
     }
 
-    override fun findPreviousFocusWrapper2() = wrappedBy?.findPreviousFocusWrapper2()
+    override fun findPreviousFocusWrapper() = wrappedBy?.findPreviousFocusWrapper()
 
-    override fun findNextFocusWrapper2() = wrapped.findNextFocusWrapper2()
+    override fun findNextFocusWrapper() = wrapped.findNextFocusWrapper()
 
-    override fun findLastFocusWrapper2(): ModifiedFocusNode2? {
-        var lastFocusWrapper: ModifiedFocusNode2? = null
+    override fun findLastFocusWrapper(): ModifiedFocusNode? {
+        var lastFocusWrapper: ModifiedFocusNode? = null
 
         // Find last focus wrapper for the current layout node.
-        var next: ModifiedFocusNode2? = findNextFocusWrapper2()
+        var next: ModifiedFocusNode? = findNextFocusWrapper()
         while (next != null) {
             lastFocusWrapper = next
-            next = next.wrapped.findNextFocusWrapper2()
+            next = next.wrapped.findNextFocusWrapper()
         }
         return lastFocusWrapper
     }
 
     @OptIn(ExperimentalFocus::class)
-    override fun propagateFocusStateChange(focusState: FocusState2) {
+    override fun propagateFocusStateChange(focusState: FocusState) {
         wrappedBy?.propagateFocusStateChange(focusState)
     }
 

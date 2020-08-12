@@ -21,8 +21,8 @@ import androidx.test.filters.SmallTest
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus
 import androidx.ui.test.createComposeRule
-import androidx.compose.ui.focus.FocusState2.Active
-import androidx.compose.ui.focus.FocusState2.Inactive
+import androidx.compose.ui.focus.FocusState.Active
+import androidx.compose.ui.focus.FocusState.Inactive
 import androidx.compose.ui.focusObserver
 import androidx.compose.ui.focusRequester
 import androidx.ui.test.runOnIdle
@@ -42,7 +42,7 @@ class ReusedFocusRequesterTest {
     @Test
     fun oneComponent() {
         // Arrange.
-        lateinit var focusState: FocusState2
+        lateinit var focusState: FocusState
         val focusRequester = FocusRequester()
         composeTestRule.setFocusableContent {
             Box(
@@ -65,8 +65,8 @@ class ReusedFocusRequesterTest {
     @Test
     fun twoComponents() {
         // Arrange.
-        lateinit var focusState1: FocusState2
-        lateinit var focusState2: FocusState2
+        lateinit var focusState1: FocusState
+        lateinit var focusState2: FocusState
         val focusRequester = FocusRequester()
         composeTestRule.setFocusableContent {
             Box(
@@ -96,9 +96,9 @@ class ReusedFocusRequesterTest {
     @Test
     fun focusRequesterUsedWithThreeComponent() {
         // Arrange.
-        lateinit var focusState1: FocusState2
-        lateinit var focusState2: FocusState2
-        lateinit var focusState3: FocusState2
+        lateinit var focusState1: FocusState
+        lateinit var focusState2: FocusState
+        lateinit var focusState3: FocusState
         val focusRequester = FocusRequester()
         composeTestRule.setFocusableContent {
             Box(

@@ -22,7 +22,7 @@ import androidx.compose.ui.Measurable
 import androidx.compose.ui.MeasureScope
 import androidx.compose.ui.Placeable
 import androidx.compose.ui.focus.ExperimentalFocus
-import androidx.compose.ui.focus.FocusState2
+import androidx.compose.ui.focus.FocusState
 import androidx.compose.ui.input.pointer.PointerInputFilter
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
@@ -294,46 +294,46 @@ internal abstract class LayoutNodeWrapper(
     }
 
     /**
-     * Returns the first [focus node][ModifiedFocusNode2] in the wrapper list that wraps this
+     * Returns the first [focus node][ModifiedFocusNode] in the wrapper list that wraps this
      * [LayoutNodeWrapper].
      */
-    abstract fun findPreviousFocusWrapper2(): ModifiedFocusNode2?
+    abstract fun findPreviousFocusWrapper(): ModifiedFocusNode?
 
     /**
-     * Returns the next [focus node][ModifiedFocusNode2] in the wrapper list that is wrapped by
+     * Returns the next [focus node][ModifiedFocusNode] in the wrapper list that is wrapped by
      * this [LayoutNodeWrapper].
      */
-    abstract fun findNextFocusWrapper2(): ModifiedFocusNode2?
+    abstract fun findNextFocusWrapper(): ModifiedFocusNode?
 
     /**
-     * Returns the last [focus node][ModifiedFocusNode2] found following this [LayoutNodeWrapper].
+     * Returns the last [focus node][ModifiedFocusNode] found following this [LayoutNodeWrapper].
      * It searches the wrapper list associated with this [LayoutNodeWrapper].
      */
-    abstract fun findLastFocusWrapper2(): ModifiedFocusNode2?
+    abstract fun findLastFocusWrapper(): ModifiedFocusNode?
 
     /**
      * When the focus state changes, a [LayoutNodeWrapper] calls this function on the wrapper
      * that wraps it. The focus state change must be propagated to the parents until we reach
-     * another focus node [ModifiedFocusNode2].
+     * another [focus node][ModifiedFocusNode].
      */
     @OptIn(ExperimentalFocus::class)
-    abstract fun propagateFocusStateChange(focusState: FocusState2)
+    abstract fun propagateFocusStateChange(focusState: FocusState)
 
     /**
-     * Find the first ancestor that is a [ModifiedFocusNode2].
+     * Find the first ancestor that is a [ModifiedFocusNode].
      */
-    internal fun findParentFocusNode2(): ModifiedFocusNode2? {
+    internal fun findParentFocusNode(): ModifiedFocusNode? {
         // TODO(b/152066829): We shouldn't need to search through the parentLayoutNode, as the
         // wrappedBy property should automatically point to the last layoutWrapper of the parent.
         // Find out why this doesn't work.
-        var focusParent = wrappedBy?.findPreviousFocusWrapper2()
+        var focusParent = wrappedBy?.findPreviousFocusWrapper()
         if (focusParent != null) {
             return focusParent
         }
 
         var parentLayoutNode = layoutNode.parent
         while (parentLayoutNode != null) {
-            focusParent = parentLayoutNode.outerLayoutNodeWrapper.findLastFocusWrapper2()
+            focusParent = parentLayoutNode.outerLayoutNodeWrapper.findLastFocusWrapper()
             if (focusParent != null) {
                 return focusParent
             }
@@ -378,7 +378,7 @@ internal abstract class LayoutNodeWrapper(
     abstract fun findNextKeyInputWrapper(): ModifiedKeyInputNode?
 
     /**
-     * Returns the last [focus node][ModifiedFocusNode2] found following this [LayoutNodeWrapper].
+     * Returns the last [focus node][ModifiedFocusNode] found following this [LayoutNodeWrapper].
      * It searches the wrapper list associated with this [LayoutNodeWrapper]
      */
     abstract fun findLastKeyInputWrapper(): ModifiedKeyInputNode?

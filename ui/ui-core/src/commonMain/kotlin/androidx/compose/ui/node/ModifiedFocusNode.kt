@@ -17,14 +17,14 @@
 package androidx.compose.ui.node
 
 import androidx.compose.ui.util.fastForEach
-import androidx.compose.ui.FocusModifier2
+import androidx.compose.ui.FocusModifier
 import androidx.compose.ui.focus.ExperimentalFocus
-import androidx.compose.ui.focus.FocusState2
-import androidx.compose.ui.focus.FocusState2.Active
-import androidx.compose.ui.focus.FocusState2.ActiveParent
-import androidx.compose.ui.focus.FocusState2.Captured
-import androidx.compose.ui.focus.FocusState2.Disabled
-import androidx.compose.ui.focus.FocusState2.Inactive
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.FocusState.Active
+import androidx.compose.ui.focus.FocusState.ActiveParent
+import androidx.compose.ui.focus.FocusState.Captured
+import androidx.compose.ui.focus.FocusState.Disabled
+import androidx.compose.ui.focus.FocusState.Inactive
 import androidx.compose.ui.focus.focusableChildren2
 import androidx.compose.ui.focus.searchChildrenForFocusNode
 
@@ -32,10 +32,10 @@ import androidx.compose.ui.focus.searchChildrenForFocusNode
     ExperimentalFocus::class,
     ExperimentalLayoutNodeApi::class
 )
-internal class ModifiedFocusNode2(
+internal class ModifiedFocusNode(
     wrapped: LayoutNodeWrapper,
-    modifier: FocusModifier2
-) : DelegatingLayoutNodeWrapper<FocusModifier2>(wrapped, modifier) {
+    modifier: FocusModifier
+) : DelegatingLayoutNodeWrapper<FocusModifier>(wrapped, modifier) {
 
     init {
         modifier.focusNode = this
@@ -46,9 +46,9 @@ internal class ModifiedFocusNode2(
      *
      * @param propagateFocus Whether the focus should be propagated to the node's children.
      *
-     * In Compose, the parent [FocusNode][ModifiedFocusNode2] controls focus for its focusable
+     * In Compose, the parent [FocusNode][ModifiedFocusNode] controls focus for its focusable
      * children. Calling this function will send a focus request to this
-     * [FocusNode][ModifiedFocusNode2]'s parent [FocusNode][ModifiedFocusNode2].
+     * [FocusNode][ModifiedFocusNode]'s parent [FocusNode][ModifiedFocusNode].
      */
     fun requestFocus(propagateFocus: Boolean = true) {
         when (modifier.focusState) {
@@ -66,7 +66,7 @@ internal class ModifiedFocusNode2(
                 }
             }
             Inactive -> {
-                val focusParent = findParentFocusNode2()
+                val focusParent = findParentFocusNode()
                 if (focusParent == null) {
                     if (requestFocusForOwner()) {
                         grantFocus(propagateFocus)
@@ -116,8 +116,8 @@ internal class ModifiedFocusNode2(
      *
      * @param propagateFocus Whether the focus should be propagated to the node's children.
      *
-     * Note: This function is private, and should only be called by a parent [ModifiedFocusNode2] to
-     * grant focus to one of its child [ModifiedFocusNode2]s.
+     * Note: This function is private, and should only be called by a parent [ModifiedFocusNode] to
+     * grant focus to one of its child [ModifiedFocusNode]s.
      */
     private fun grantFocus(propagateFocus: Boolean) {
 
@@ -141,14 +141,14 @@ internal class ModifiedFocusNode2(
     /**
      * This function clears focus from this node.
      *
-     * Note: This function should only be called by a parent [focus node][ModifiedFocusNode2] to
-     * clear focus from one of its child [focus node][ModifiedFocusNode2]s. It does not change the
+     * Note: This function should only be called by a parent [focus node][ModifiedFocusNode] to
+     * clear focus from one of its child [focus node][ModifiedFocusNode]s. It does not change the
      * state of the parent.
      */
     internal fun clearFocus(forcedClear: Boolean = false): Boolean {
         return when (modifier.focusState) {
             Active -> {
-                findParentFocusNode2()?.modifier?.focusedChild = null
+                findParentFocusNode()?.modifier?.focusedChild = null
                 modifier.focusState = Inactive
                 true
             }
@@ -161,7 +161,7 @@ internal class ModifiedFocusNode2(
                 requireNotNull(focusedChild)
                 val success = focusedChild.clearFocus(forcedClear)
                 if (success) {
-                    findParentFocusNode2()?.modifier?.focusedChild = null
+                    findParentFocusNode()?.modifier?.focusedChild = null
                     modifier.focusState = Inactive
                 }
                 success
@@ -172,7 +172,7 @@ internal class ModifiedFocusNode2(
             Captured -> {
                 if (forcedClear) {
                     modifier.focusState = Inactive
-                    findParentFocusNode2()?.modifier?.focusedChild = null
+                    findParentFocusNode()?.modifier?.focusedChild = null
                 }
                 forcedClear
             }
@@ -184,7 +184,7 @@ internal class ModifiedFocusNode2(
     }
 
     /**
-     * Focusable children of this [focus node][ModifiedFocusNode2] can use this function to request
+     * Focusable children of this [focus node][ModifiedFocusNode] can use this function to request
      * focus.
      *
      * @param childNode: The node that is requesting focus.
@@ -192,7 +192,7 @@ internal class ModifiedFocusNode2(
      * @return true if focus was granted, false otherwise.
      */
     private fun requestFocusForChild(
-        childNode: ModifiedFocusNode2,
+        childNode: ModifiedFocusNode,
         propagateFocus: Boolean
     ): Boolean {
 
@@ -232,7 +232,7 @@ internal class ModifiedFocusNode2(
              * to the requesting child.
              */
             Inactive -> {
-                val focusParent = findParentFocusNode2()
+                val focusParent = findParentFocusNode()
                 if (focusParent == null) {
                     // If the owner successfully gains focus, proceed otherwise return false.
                     if (requestFocusForOwner()) {
@@ -277,7 +277,7 @@ internal class ModifiedFocusNode2(
 
     override fun detach() {
         // Find the next focus node.
-        val nextFocusNode = wrapped.findNextFocusWrapper2()
+        val nextFocusNode = wrapped.findNextFocusWrapper()
             ?: layoutNode.searchChildrenForFocusNode()
 
         when (modifier.focusState) {
@@ -291,7 +291,7 @@ internal class ModifiedFocusNode2(
                     .owner
                     ?.root
                     ?.outerLayoutNodeWrapper
-                    ?.findNextFocusWrapper2()
+                    ?.findNextFocusWrapper()
                     ?.requestFocus(propagateFocus = false)
 
                 // TODO(b/163150504): The current logic in LayoutNode detaches layoutwrappers by
@@ -320,34 +320,34 @@ internal class ModifiedFocusNode2(
         super.detach()
     }
 
-    override fun findPreviousFocusWrapper2() = this
+    override fun findPreviousFocusWrapper() = this
 
-    override fun findNextFocusWrapper2() = this
+    override fun findNextFocusWrapper() = this
 
-    override fun propagateFocusStateChange(focusState: FocusState2) {
+    override fun propagateFocusStateChange(focusState: FocusState) {
         // Do nothing. Stop propagating the focus change (since we hit another focus node).
     }
 
     // TODO(b/152051577): Measure the performance of focusableChildren.
     //  Consider caching the children.
-    internal fun focusableChildren(): List<ModifiedFocusNode2> {
+    internal fun focusableChildren(): List<ModifiedFocusNode> {
         // Check the modifier chain that this focus node is part of. If it has a focus modifier,
         // that means you have found the only focusable child for this node.
-        val focusableChild = wrapped.findNextFocusWrapper2()
+        val focusableChild = wrapped.findNextFocusWrapper()
         // findChildFocusNodeInWrapperChain()
         if (focusableChild != null) {
             return listOf(focusableChild)
         }
 
         // Go through all your children and find the first focusable node from each child.
-        val focusableChildren = mutableListOf<ModifiedFocusNode2>()
+        val focusableChildren = mutableListOf<ModifiedFocusNode>()
         layoutNode.children.fastForEach { node ->
             focusableChildren.addAll(node.focusableChildren2())
         }
         return focusableChildren
     }
 
-    internal fun findActiveFocusNode(): ModifiedFocusNode2? {
+    internal fun findActiveFocusNode(): ModifiedFocusNode? {
         return when (modifier.focusState) {
             Active, Captured -> this
             ActiveParent -> modifier.focusedChild?.findActiveFocusNode()
