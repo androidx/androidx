@@ -179,6 +179,7 @@ class PreviewViewMeteringPointFactory extends MeteringPointFactory {
         synchronized (mLock) {
             if (mScaleType == null || mScaleType != scaleType) {
                 mScaleType = scaleType;
+                mIsCalculationStale = true;
             }
         }
     }

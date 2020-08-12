@@ -72,11 +72,6 @@ abstract class PreviewViewImplementation {
         mPreviewTransform = previewTransform;
     }
 
-    @Nullable
-    public Size getResolution() {
-        return mResolution;
-    }
-
     /**
      * Invoked when the preview needs to be adjusted, either because the layout bounds of the
      * preview's container {@link PreviewView} have changed, or the {@link PreviewView.ScaleType}
