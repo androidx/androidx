@@ -59,8 +59,9 @@ inline fun Offset(x: Float, y: Float) = Offset(packFloats(x, y))
  * and the second sets [y], the vertical component.
  */
 // TODO b/162284207 njawad make this an inline class
+@Suppress("EXPERIMENTAL_FEATURE_WARNING")
 @Immutable
-/* inline */ class Offset(@PublishedApi internal val packedValue: Long) {
+inline class Offset(val packedValue: Long) {
 
     @Stable
     val x: Float
@@ -81,19 +82,6 @@ inline fun Offset(x: Float, y: Float) = Offset(packFloats(x, y))
      * x or y parameter
      */
     fun copy(x: Float = this.x, y: Float = this.y) = Offset(x, y)
-
-    @Stable
-    override fun equals(other: Any?): Boolean {
-        if (other !is Offset) {
-            return false
-        }
-        return other.packedValue == packedValue
-    }
-
-    @Stable
-    override fun hashCode(): Int {
-        return packedValue.hashCode()
-    }
 
     companion object {
         /**

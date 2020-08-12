@@ -25,17 +25,17 @@ import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
 import android.view.MotionEvent.TOOL_TYPE_UNKNOWN
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.AlignmentLine
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.gesture.PointerCoords
 import androidx.compose.ui.gesture.PointerProperties
+import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.test.filters.SmallTest
 import androidx.ui.test.android.createAndroidComposeRule
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
-import com.nhaarman.mockitokotlin2.any
-import com.nhaarman.mockitokotlin2.doReturn
-import com.nhaarman.mockitokotlin2.mock
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -56,9 +56,7 @@ class PointerInteropFilterTest {
     @Before
     fun setup() {
         pointerInteropFilter = PointerInteropFilter()
-        pointerInteropFilter.pointerInputFilter.layoutCoordinates = mock {
-            on { localToRoot(any()) } doReturn Offset(0f, 0f)
-        }
+        pointerInteropFilter.pointerInputFilter.layoutCoordinates = MockCoordinates()
 
         pointerInteropFilter.onTouchEvent = { motionEvent ->
             dispatchedMotionEvents.add(motionEvent)
@@ -4356,6 +4354,29 @@ class PointerInteropFilterTest {
         dispatchedMotionEvents.clear()
         pointerInteropFilter.pointerInputFilter.onCancel()
         assertThat(dispatchedMotionEvents).hasSize(1)
+    }
+
+    private class MockCoordinates : LayoutCoordinates {
+        override val size: IntSize
+            get() = IntSize.Zero
+        override val providedAlignmentLines: Set<AlignmentLine>
+            get() = emptySet()
+        override val parentCoordinates: LayoutCoordinates?
+            get() = null
+        override val isAttached: Boolean
+            get() = true
+        override fun globalToLocal(global: Offset): Offset = Offset.Zero
+
+        override fun localToGlobal(local: Offset): Offset = Offset.Zero
+
+        override fun localToRoot(local: Offset): Offset = Offset.Zero
+
+        override fun childToLocal(child: LayoutCoordinates, childLocal: Offset): Offset =
+            Offset.Zero
+
+        override fun childBoundingBox(child: LayoutCoordinates): Rect = Rect.Zero
+
+        override fun get(line: AlignmentLine): Int = 0
     }
 }
 

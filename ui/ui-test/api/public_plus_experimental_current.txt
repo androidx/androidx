@@ -23,7 +23,7 @@ package androidx.ui.test {
     method public static void assertShape-WOPiG5A(android.graphics.Bitmap, androidx.compose.ui.unit.Density density, float horizontalPadding, float verticalPadding, long backgroundColor, long shapeColor, androidx.compose.ui.graphics.Shape shape = androidx.compose.ui.graphics.RectangleShapeKt.RectangleShape, float shapeOverlapPixelCount = 1.0f);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.Bitmap captureToBitmap(androidx.ui.test.SemanticsNodeInteraction);
     method @RequiresApi(android.os.Build.VERSION_CODES.O) public static android.graphics.Bitmap captureToBitmap(android.view.View);
-    method public static boolean contains(androidx.compose.ui.graphics.Path, androidx.compose.ui.geometry.Offset offset);
+    method public static boolean contains-ej0GBII(androidx.compose.ui.graphics.Path, long offset);
   }
 
   public final class AndroidOutputKt {
@@ -172,17 +172,17 @@ package androidx.ui.test {
 
   public final class GestureScopeKt {
     method public static void cancel(androidx.ui.test.GestureScope);
-    method public static void click(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset position = center);
-    method public static void doubleClick(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset position = center, androidx.compose.ui.unit.Duration delay = androidx.ui.test.GestureScopeKt.doubleClickDelay);
-    method public static void down(androidx.ui.test.GestureScope, int pointerId, androidx.compose.ui.geometry.Offset position);
-    method public static void down(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset position);
+    method public static void click-7zpKyg8(androidx.ui.test.GestureScope, long position = center);
+    method public static void doubleClick-FEK65Ao(androidx.ui.test.GestureScope, long position = center, androidx.compose.ui.unit.Duration delay = androidx.ui.test.GestureScopeKt.doubleClickDelay);
+    method public static void down-7zpKyg8(androidx.ui.test.GestureScope, long position);
+    method public static void down-Y-DztCk(androidx.ui.test.GestureScope, int pointerId, long position);
     method public static inline float getBottom(androidx.ui.test.GestureScope);
-    method public static androidx.compose.ui.geometry.Offset getBottomCenter(androidx.ui.test.GestureScope);
-    method public static androidx.compose.ui.geometry.Offset getBottomLeft(androidx.ui.test.GestureScope);
-    method public static androidx.compose.ui.geometry.Offset getBottomRight(androidx.ui.test.GestureScope);
-    method public static androidx.compose.ui.geometry.Offset getCenter(androidx.ui.test.GestureScope);
-    method public static androidx.compose.ui.geometry.Offset getCenterLeft(androidx.ui.test.GestureScope);
-    method public static androidx.compose.ui.geometry.Offset getCenterRight(androidx.ui.test.GestureScope);
+    method public static long getBottomCenter(androidx.ui.test.GestureScope);
+    method public static long getBottomLeft(androidx.ui.test.GestureScope);
+    method public static long getBottomRight(androidx.ui.test.GestureScope);
+    method public static long getCenter(androidx.ui.test.GestureScope);
+    method public static long getCenterLeft(androidx.ui.test.GestureScope);
+    method public static long getCenterRight(androidx.ui.test.GestureScope);
     method public static inline float getCenterX(androidx.ui.test.GestureScope);
     method public static inline float getCenterY(androidx.ui.test.GestureScope);
     method public static inline int getHeight(androidx.ui.test.GestureScope);
@@ -190,27 +190,27 @@ package androidx.ui.test {
     method public static inline float getRight(androidx.ui.test.GestureScope);
     method public static long getSize(androidx.ui.test.GestureScope);
     method public static inline float getTop(androidx.ui.test.GestureScope);
-    method public static androidx.compose.ui.geometry.Offset getTopCenter(androidx.ui.test.GestureScope);
-    method public static androidx.compose.ui.geometry.Offset getTopLeft(androidx.ui.test.GestureScope);
-    method public static androidx.compose.ui.geometry.Offset getTopRight(androidx.ui.test.GestureScope);
+    method public static long getTopCenter(androidx.ui.test.GestureScope);
+    method public static long getTopLeft(androidx.ui.test.GestureScope);
+    method public static long getTopRight(androidx.ui.test.GestureScope);
     method public static inline int getWidth(androidx.ui.test.GestureScope);
-    method public static androidx.compose.ui.geometry.Offset localToGlobal(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset position);
-    method public static void longClick(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset position = center, androidx.compose.ui.unit.Duration duration = androidx.compose.ui.gesture.ConstantsKt.LongPressTimeout + 100.milliseconds);
+    method public static long localToGlobal-7zpKyg8(androidx.ui.test.GestureScope, long position);
+    method public static void longClick-FEK65Ao(androidx.ui.test.GestureScope, long position = center, androidx.compose.ui.unit.Duration duration = androidx.compose.ui.gesture.ConstantsKt.LongPressTimeout + 100.milliseconds);
     method public static void move(androidx.ui.test.GestureScope);
-    method public static void moveBy(androidx.ui.test.GestureScope, int pointerId, androidx.compose.ui.geometry.Offset delta);
-    method public static void moveBy(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset delta);
-    method public static void movePointerBy(androidx.ui.test.GestureScope, int pointerId, androidx.compose.ui.geometry.Offset delta);
-    method public static void movePointerTo(androidx.ui.test.GestureScope, int pointerId, androidx.compose.ui.geometry.Offset position);
-    method public static void moveTo(androidx.ui.test.GestureScope, int pointerId, androidx.compose.ui.geometry.Offset position);
-    method public static void moveTo(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset position);
-    method public static androidx.compose.ui.geometry.Offset percentOffset(androidx.ui.test.GestureScope, @FloatRange(from=-1.0, to=1.0) float x = 0f, @FloatRange(from=-1.0, to=1.0) float y = 0f);
-    method public static void pinch(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset start0, androidx.compose.ui.geometry.Offset end0, androidx.compose.ui.geometry.Offset start1, androidx.compose.ui.geometry.Offset end1, androidx.compose.ui.unit.Duration duration = 400.milliseconds);
-    method public static void swipe(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset start, androidx.compose.ui.geometry.Offset end, androidx.compose.ui.unit.Duration duration = 200.milliseconds);
+    method public static void moveBy-7zpKyg8(androidx.ui.test.GestureScope, long delta);
+    method public static void moveBy-Y-DztCk(androidx.ui.test.GestureScope, int pointerId, long delta);
+    method public static void movePointerBy-Y-DztCk(androidx.ui.test.GestureScope, int pointerId, long delta);
+    method public static void movePointerTo-Y-DztCk(androidx.ui.test.GestureScope, int pointerId, long position);
+    method public static void moveTo-7zpKyg8(androidx.ui.test.GestureScope, long position);
+    method public static void moveTo-Y-DztCk(androidx.ui.test.GestureScope, int pointerId, long position);
+    method public static long percentOffset(androidx.ui.test.GestureScope, @FloatRange(from=-1.0, to=1.0) float x = 0f, @FloatRange(from=-1.0, to=1.0) float y = 0f);
+    method public static void pinch-LifKLvY(androidx.ui.test.GestureScope, long start0, long end0, long start1, long end1, androidx.compose.ui.unit.Duration duration = 400.milliseconds);
+    method public static void swipe-lXQwTZI(androidx.ui.test.GestureScope, long start, long end, androidx.compose.ui.unit.Duration duration = 200.milliseconds);
     method public static void swipeDown(androidx.ui.test.GestureScope);
     method public static void swipeLeft(androidx.ui.test.GestureScope);
     method public static void swipeRight(androidx.ui.test.GestureScope);
     method public static void swipeUp(androidx.ui.test.GestureScope);
-    method public static void swipeWithVelocity(androidx.ui.test.GestureScope, androidx.compose.ui.geometry.Offset start, androidx.compose.ui.geometry.Offset end, @FloatRange(from=0.0, to=3.4E38) float endVelocity, androidx.compose.ui.unit.Duration duration = 200.milliseconds);
+    method public static void swipeWithVelocity-HxPTMKA(androidx.ui.test.GestureScope, long start, long end, @FloatRange(from=0.0, to=3.4E38) float endVelocity, androidx.compose.ui.unit.Duration duration = 200.milliseconds);
     method public static void up(androidx.ui.test.GestureScope, int pointerId = 0);
   }
 

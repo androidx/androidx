@@ -148,9 +148,6 @@ package androidx.compose.animation {
     method @androidx.compose.runtime.Composable public static androidx.compose.ui.unit.Bounds animate(androidx.compose.ui.unit.Bounds target, androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.unit.Bounds> animSpec = remember({ 
     return <init>(Bounds.VectorConverter.invoke(DpVisibilityThreshold4D))
 }), kotlin.jvm.functions.Function1<? super androidx.compose.ui.unit.Bounds,kotlin.Unit>? endListener = null);
-    method @androidx.compose.runtime.Composable public static androidx.compose.ui.geometry.Offset animate(androidx.compose.ui.geometry.Offset target, androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Offset> animSpec = remember({ 
-    return <init>(Offset(PxVisibilityThreshold, PxVisibilityThreshold))
-}), kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit>? endListener = null);
     method @androidx.compose.runtime.Composable public static androidx.compose.ui.geometry.Rect animate(androidx.compose.ui.geometry.Rect target, androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Rect> animSpec = remember({ 
     return <init>(Rect.VectorConverter.invoke(PxVisibilityThreshold4D))
 }), kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Rect,kotlin.Unit>? endListener = null);
@@ -184,6 +181,9 @@ package androidx.compose.animation {
     method @androidx.compose.runtime.Composable public static long animate-rlPqr8Y(long target, androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Size> animSpec = remember({ 
     return <init>(Size(PxVisibilityThreshold, PxVisibilityThreshold))
 }), kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Size,kotlin.Unit>? endListener = null);
+    method @androidx.compose.runtime.Composable public static long animate-t81mtYE(long target, androidx.compose.animation.core.AnimationSpec<androidx.compose.ui.geometry.Offset> animSpec = remember({ 
+    return <init>(Offset(PxVisibilityThreshold, PxVisibilityThreshold))
+}), kotlin.jvm.functions.Function1<? super androidx.compose.ui.geometry.Offset,kotlin.Unit>? endListener = null);
   }
 
   public final class TransitionKt {

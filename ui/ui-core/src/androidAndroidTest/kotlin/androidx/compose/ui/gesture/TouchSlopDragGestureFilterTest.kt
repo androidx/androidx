@@ -48,7 +48,7 @@ class TouchSlopDragGestureFilterTest {
     val activityTestRule = androidx.test.rule.ActivityTestRule<TestActivity>(
         TestActivity::class.java
     )
-    private lateinit var dragObserver: DragObserver
+    private lateinit var dragObserver: MyDragObserver
     private lateinit var view: View
     private var touchSlop: Float = Float.NEGATIVE_INFINITY
 
@@ -137,9 +137,12 @@ class TouchSlopDragGestureFilterTest {
         }
 
         dragObserver.inOrder {
-            verify().onStart(Offset(50f, 50f))
-            verify(dragObserver).onDrag(any())
-            verify().onStop(any())
+            verify().onStart(dragObserver.arg())
+            verify().onStartMock(Offset(50f, 50f))
+            verify().onDrag(dragObserver.arg())
+            verify().onDragMock(any())
+            verify().onStop(dragObserver.arg())
+            verify().onStopMock(any())
         }
         verifyNoMoreInteractions(dragObserver)
     }
@@ -185,8 +188,10 @@ class TouchSlopDragGestureFilterTest {
         }
 
         dragObserver.inOrder {
-            verify().onStart(Offset(50f, 50f))
-            verify(dragObserver).onDrag(any())
+            verify().onStart(dragObserver.arg())
+            verify().onStartMock(Offset(50f, 50f))
+            verify().onDrag(dragObserver.arg())
+            verify().onDragMock(any())
             verify().onCancel()
         }
         verifyNoMoreInteractions(dragObserver)
@@ -211,7 +216,8 @@ class TouchSlopDragGestureFilterTest {
         }
 
         dragObserver.inOrder {
-            verify().onStart(Offset(50f, 50f))
+            verify().onStart(dragObserver.arg())
+            verify().onStartMock(Offset(50f, 50f))
         }
         verifyNoMoreInteractions(dragObserver)
     }
@@ -284,15 +290,28 @@ class TouchSlopDragGestureFilterTest {
 
 @Suppress("RedundantOverride")
 open class MyDragObserver : DragObserver {
-    override fun onStart(downPosition: Offset) {
+    private val params = mutableListOf<Offset>()
+
+    override fun onStart(downPosition: Offset) = onStartMock(downPosition)
+
+    open fun onStartMock(downPosition: Any) {
+        params.add(downPosition as Offset)
         super.onStart(downPosition)
     }
 
-    override fun onDrag(dragDistance: Offset): Offset {
+    override fun onDrag(dragDistance: Offset): Offset = onDragMock(dragDistance)
+
+    open fun onDragMock(dragDistance: Any): Offset {
+        params.add(dragDistance as Offset)
         return super.onDrag(dragDistance)
     }
 
-    override fun onStop(velocity: Offset) {
+    override fun onStop(velocity: Offset) = onStopMock(velocity)
+
+    open fun onStopMock(velocity: Any) {
+        params.add(velocity as Offset)
         super.onStop(velocity)
     }
+
+    fun arg(): Offset = params.removeAt(0)
 }

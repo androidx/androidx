@@ -98,7 +98,7 @@ package androidx.compose.ui.text {
     method public float getMaxIntrinsicWidth();
     method public int getMaxLines();
     method public float getMinIntrinsicWidth();
-    method public int getOffsetForPosition(androidx.compose.ui.geometry.Offset position);
+    method public int getOffsetForPosition-k-4lQ0M(long position);
     method public androidx.compose.ui.text.style.ResolvedTextDirection getParagraphDirection(int offset);
     method public androidx.compose.ui.graphics.Path getPathForRange(int start, int end);
     method public java.util.List<androidx.compose.ui.geometry.Rect> getPlaceholderRects();
@@ -156,7 +156,7 @@ package androidx.compose.ui.text {
     method public float getLineWidth(int lineIndex);
     method public float getMaxIntrinsicWidth();
     method public float getMinIntrinsicWidth();
-    method public int getOffsetForPosition(androidx.compose.ui.geometry.Offset position);
+    method public int getOffsetForPosition-k-4lQ0M(long position);
     method public androidx.compose.ui.text.style.ResolvedTextDirection getParagraphDirection(int offset);
     method public androidx.compose.ui.graphics.Path getPathForRange(int start, int end);
     method public java.util.List<androidx.compose.ui.geometry.Rect> getPlaceholderRects();
@@ -345,7 +345,7 @@ package androidx.compose.ui.text {
     method public int getLineStart(int lineIndex);
     method public float getLineTop(int lineIndex);
     method public int getLineVisibleEnd(int lineIndex);
-    method public int getOffsetForPosition(androidx.compose.ui.geometry.Offset position);
+    method public int getOffsetForPosition-k-4lQ0M(long position);
     method public androidx.compose.ui.text.style.ResolvedTextDirection getParagraphDirection(int offset);
     method public androidx.compose.ui.graphics.Path getPathForRange(int start, int end);
     method public java.util.List<androidx.compose.ui.geometry.Rect> getPlaceholderRects();

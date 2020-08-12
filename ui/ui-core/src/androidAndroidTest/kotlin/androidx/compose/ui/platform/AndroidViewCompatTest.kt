@@ -433,8 +433,8 @@ class AndroidViewCompatTest {
     fun testCoordinates_acrossMultipleViewAndComposeSwitches() {
         val padding = 100
 
-        lateinit var outer: Offset
-        lateinit var inner: Offset
+        var outer: Offset = Offset.Zero
+        var inner: Offset = Offset.Zero
 
         composeTestRule.setContent {
             Box(Modifier.onPositioned { outer = it.globalPosition }) {
@@ -503,9 +503,9 @@ class AndroidViewCompatTest {
         val size = 20f
         val sizeDp = with(composeTestRule.density) { size.toDp() }
 
-        lateinit var outer: Offset
-        lateinit var inner1: Offset
-        lateinit var inner2: Offset
+        var outer: Offset = Offset.Zero
+        var inner1: Offset = Offset.Zero
+        var inner2: Offset = Offset.Zero
         composeTestRule.setContent {
             Box(Modifier.onPositioned { outer = it.globalPosition }) {
                 Box(paddingStart = paddingDp, paddingTop = paddingDp) {
