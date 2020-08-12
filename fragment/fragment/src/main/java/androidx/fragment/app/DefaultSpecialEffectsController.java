@@ -20,6 +20,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.content.Context;
 import android.graphics.Rect;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -173,11 +174,18 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         }
 
         // Start transition special effects
-        startTransitions(transitions, isPop, firstOut, lastIn);
+        Map<Operation, Boolean> startedTransitions = startTransitions(transitions, isPop,
+                firstOut, lastIn);
+        boolean startedAnyTransition = startedTransitions.containsValue(true);
 
         // Start animation special effects
         for (AnimationInfo animationInfo : animations) {
-            startAnimation(animationInfo.getOperation(), animationInfo.getSignal());
+            Operation operation = animationInfo.getOperation();
+            boolean startedTransition = startedTransitions.containsKey(operation)
+                    ? startedTransitions.get(operation)
+                    : false;
+            startAnimation(operation, animationInfo.getSignal(),
+                    startedAnyTransition, startedTransition);
         }
 
         for (final Operation operation : awaitingContainerChanges) {
@@ -187,7 +195,8 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
     }
 
     private void startAnimation(final @NonNull Operation operation,
-            final @NonNull CancellationSignal signal) {
+            final @NonNull CancellationSignal signal, boolean startedAnyTransition,
+            boolean startedTransitions) {
         final ViewGroup container = getContainer();
         final Context context = container.getContext();
         final Fragment fragment = operation.getFragment();
@@ -204,6 +213,20 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 fragment, finalState == Operation.State.VISIBLE);
         if (anim == null) {
             // No animation, so we can immediately remove the CancellationSignal
+            removeCancellationSignal(operation, signal);
+            return;
+        } else if (startedAnyTransition && anim.animation != null) {
+            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                Log.v(FragmentManager.TAG, "Ignoring Animation set on "
+                        + fragment + " as Animations cannot run alongside Transitions.");
+            }
+            removeCancellationSignal(operation, signal);
+            return;
+        } else if (startedTransitions) {
+            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                Log.v(FragmentManager.TAG, "Ignoring Animator set on "
+                        + fragment + " as this Fragment was involved in a Transition.");
+            }
             removeCancellationSignal(operation, signal);
             return;
         }
@@ -260,9 +283,11 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         });
     }
 
-    private void startTransitions(@NonNull List<TransitionInfo> transitionInfos,
+    @NonNull
+    private Map<Operation, Boolean> startTransitions(@NonNull List<TransitionInfo> transitionInfos,
             final boolean isPop, @Nullable final Operation firstOut,
             @Nullable final Operation lastIn) {
+        Map<Operation, Boolean> startedTransitions = new HashMap<>();
         // First verify that we can run all transitions together
         FragmentTransitionImpl transitionImpl = null;
         for (TransitionInfo transitionInfo : transitionInfos) {
@@ -284,10 +309,11 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         if (transitionImpl == null) {
             // There were no transitions at all so we can just cancel all of them
             for (TransitionInfo transitionInfo : transitionInfos) {
+                startedTransitions.put(transitionInfo.getOperation(), false);
                 removeCancellationSignal(transitionInfo.getOperation(),
                         transitionInfo.getSignal());
             }
-            return;
+            return startedTransitions;
         }
 
         // Every transition needs to target at least one View so that they
@@ -488,6 +514,10 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                     transitionImpl.scheduleRemoveTargets(sharedElementTransition,
                             null, null, null, null,
                             sharedElementTransition, sharedElementLastInViews);
+                    // Both the firstOut and lastIn Operations are now associated
+                    // with a Transition
+                    startedTransitions.put(firstOut, true);
+                    startedTransitions.put(lastIn, true);
                 }
             }
         }
@@ -500,6 +530,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         for (final TransitionInfo transitionInfo : transitionInfos) {
             if (transitionInfo.isVisibilityUnchanged()) {
                 // No change in visibility, so we can immediately remove the CancellationSignal
+                startedTransitions.put(transitionInfo.getOperation(), false);
                 removeCancellationSignal(transitionInfo.getOperation(),
                         transitionInfo.getSignal());
                 continue;
@@ -514,14 +545,14 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                     // Only remove the cancellation signal if this fragment isn't involved
                     // in the shared element transition (as otherwise we need to wait
                     // for that to finish)
-                    removeCancellationSignal(transitionInfo.getOperation(),
-                            transitionInfo.getSignal());
+                    startedTransitions.put(operation, false);
+                    removeCancellationSignal(operation, transitionInfo.getSignal());
                 }
             } else {
                 // Target the Transition to *only* the set of transitioning views
                 final ArrayList<View> transitioningViews = new ArrayList<>();
                 captureTransitioningViews(transitioningViews,
-                        transitionInfo.getOperation().getFragment().mView);
+                        operation.getFragment().mView);
                 if (involvedInSharedElementTransition) {
                     // Remove all of the shared element views from the transition
                     if (operation == firstOut) {
@@ -537,10 +568,10 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                     transitionImpl.scheduleRemoveTargets(transition,
                             transition, transitioningViews,
                             null, null, null, null);
-                    if (transitionInfo.getOperation().getFinalState() == Operation.State.GONE) {
+                    if (operation.getFinalState() == Operation.State.GONE) {
                         // We're hiding the Fragment. This requires a bit of extra work
                         transitionImpl.scheduleHideFragmentView(transition,
-                                transitionInfo.getOperation().getFragment().mView,
+                                operation.getFragment().mView,
                                 transitioningViews);
                         // This OneShotPreDrawListener gets fired before the delayed start of
                         // the Transition and changes the visibility of any exiting child views
@@ -557,7 +588,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                         });
                     }
                 }
-                if (transitionInfo.getOperation().getFinalState() == Operation.State.VISIBLE) {
+                if (operation.getFinalState() == Operation.State.VISIBLE) {
                     enteringViews.addAll(transitioningViews);
                     if (hasLastInEpicenter) {
                         transitionImpl.setEpicenter(transition, lastInEpicenterRect);
@@ -565,6 +596,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 } else {
                     transitionImpl.setEpicenter(transition, firstOutEpicenterView);
                 }
+                startedTransitions.put(operation, true);
                 // Now determine how this transition should be merged together
                 if (transitionInfo.isOverlapAllowed()) {
                     // Overlap is allowed, so add them to the mergeTransition set
@@ -619,6 +651,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         FragmentTransition.setViewVisibility(enteringViews, View.VISIBLE);
         transitionImpl.swapSharedElementTargets(sharedElementTransition,
                 sharedElementFirstOutViews, sharedElementLastInViews);
+        return startedTransitions;
     }
 
     /**
