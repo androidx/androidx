@@ -13,8 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// need file suppression for OnChildPositionedModifier deprecation
-@file:Suppress("DEPRECATION")
 package androidx.compose.ui.node
 
 import androidx.compose.runtime.collection.ExperimentalCollectionApi
@@ -33,7 +31,6 @@ import androidx.compose.ui.LayoutModifier
 import androidx.compose.ui.Measurable
 import androidx.compose.ui.MeasureScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.OnChildPositionedModifier
 import androidx.compose.ui.OnPositionedModifier
 import androidx.compose.ui.ParentDataModifier
 import androidx.compose.ui.Remeasurement
@@ -634,7 +631,6 @@ class LayoutNode : Measurable, Remeasurement {
             }
             val addedCallback = hasNewPositioningCallback()
             onPositionedCallbacks.clear()
-            onChildPositionedCallbacks.clear()
             outerZIndexModifier = null
             innerLayerWrapper = null
 
@@ -644,9 +640,6 @@ class LayoutNode : Measurable, Remeasurement {
                 var wrapper = toWrap
                 if (mod is OnPositionedModifier) {
                     onPositionedCallbacks += mod
-                }
-                if (mod is OnChildPositionedModifier) {
-                    onChildPositionedCallbacks += mod
                 }
                 if (mod is ZIndexModifier) {
                     outerZIndexModifier = mod
@@ -769,11 +762,6 @@ class LayoutNode : Measurable, Remeasurement {
     private val onPositionedCallbacks = mutableVectorOf<OnPositionedModifier>()
 
     /**
-     * List of all OnChildPositioned callbacks in the modifier chain.
-     */
-    private val onChildPositionedCallbacks = mutableVectorOf<OnChildPositionedModifier>()
-
-    /**
      * Flag used by [OnPositionedDispatcher] to identify LayoutNodes that have already
      * had their [OnPositionedModifier]'s dispatch called so that they aren't called
      * multiple times.
@@ -840,16 +828,11 @@ class LayoutNode : Measurable, Remeasurement {
     }
 
     /**
-     * Return true if there is a new [OnPositionedModifier] or [OnChildPositionedModifier]
-     * assigned to this Layout.
+     * Return true if there is a new [OnPositionedModifier] assigned to this Layout.
      */
     private fun hasNewPositioningCallback(): Boolean {
         return modifier.foldOut(false) { mod, hasNewCallback ->
-            hasNewCallback || when (mod) {
-                is OnPositionedModifier -> mod !in onPositionedCallbacks
-                is OnChildPositionedModifier -> mod !in onChildPositionedCallbacks
-                else -> false
-            }
+            hasNewCallback || (mod is OnPositionedModifier && mod !in onPositionedCallbacks)
         }
     }
 
@@ -1035,13 +1018,7 @@ class LayoutNode : Measurable, Remeasurement {
         if (!isPlaced) {
             return // it hasn't been placed, so don't make a call
         }
-        // There are two types of callbacks:
-        // a) when the Layout is positioned - `onPositioned`
-        // b) when the child of the Layout is positioned - `onChildPositioned`
         onPositionedCallbacks.forEach { it.onPositioned(coordinates) }
-        parent?.onChildPositionedCallbacks?.forEach {
-            it.onChildPositioned(coordinates)
-        }
     }
 
     /**

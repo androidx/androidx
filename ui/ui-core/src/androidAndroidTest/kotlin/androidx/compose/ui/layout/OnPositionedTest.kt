@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-@file:Suppress("DEPRECATION")
-
 package androidx.compose.ui.layout
 
 import android.view.View
@@ -40,7 +38,6 @@ import androidx.compose.ui.SimpleRow
 import androidx.compose.ui.Wrap
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.onChildPositioned
 import androidx.compose.ui.onPositioned
 import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.platform.setContent
@@ -124,16 +121,11 @@ class OnPositionedTest {
     @Test
     fun callbacksAreCalledWhenChildResized() {
         var size by mutableStateOf(10)
-        var realSize = 0
         var realChildSize = 0
-        var latch = CountDownLatch(1)
         var childLatch = CountDownLatch(1)
         rule.runOnUiThreadIR {
             activity.setContent {
-                AtLeastSize(size = 20, modifier = Modifier.onChildPositioned {
-                    realSize = it.size.width
-                    latch.countDown()
-                }) {
+                AtLeastSize(size = 20) {
                     Wrap(minWidth = size, minHeight = size, modifier = Modifier.onPositioned {
                         realChildSize = it.size.width
                         childLatch.countDown()
@@ -142,20 +134,15 @@ class OnPositionedTest {
             }
         }
 
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertTrue(childLatch.await(1, TimeUnit.SECONDS))
-        assertEquals(10, realSize)
         assertEquals(10, realChildSize)
 
-        latch = CountDownLatch(1)
         childLatch = CountDownLatch(1)
         rule.runOnUiThread {
             size = 15
         }
 
-        assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertTrue(childLatch.await(1, TimeUnit.SECONDS))
-        assertEquals(15, realSize)
         assertEquals(15, realChildSize)
     }
 
@@ -207,13 +194,9 @@ class OnPositionedTest {
         val latch = CountDownLatch(1)
         var wrap1OnPositionedCalled = false
         var wrap2OnPositionedCalled = false
-        var onChildPositionedCalledTimes = 0
         rule.runOnUiThread {
             activity.setContent {
                 Layout(
-                    modifier = Modifier.onChildPositioned {
-                        onChildPositionedCalledTimes++
-                    },
                     measureBlock = { measurables, constraints ->
                         layout(10, 10) {
                             measurables[1].measure(constraints).place(0, 0)
@@ -250,7 +233,6 @@ class OnPositionedTest {
         assertTrue(latch.await(1, TimeUnit.SECONDS))
         assertFalse(wrap1OnPositionedCalled)
         assertTrue(wrap2OnPositionedCalled)
-        assertEquals(1, onChildPositionedCalledTimes)
     }
 
     @Test

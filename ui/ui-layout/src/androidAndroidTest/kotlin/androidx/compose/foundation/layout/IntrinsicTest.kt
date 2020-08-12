@@ -14,9 +14,6 @@
  * limitations under the License.
  */
 
-// suppress for deprecation of onChildPositioned
-@file:Suppress("DEPRECATION")
-
 package androidx.compose.foundation.layout
 
 import androidx.compose.runtime.Composable
@@ -28,8 +25,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
-import androidx.compose.ui.onChildPositioned
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.onPositioned
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
@@ -52,13 +49,13 @@ class IntrinsicTest : LayoutTest() {
         val childSize = Ref<IntSize>()
         val childPosition = Ref<Offset>()
         show {
-            Stack(modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
-                    minIntrinsicWidthSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }
-            ) {
+            Stack {
                     FixedIntrinsicsBox(
-                        Modifier.preferredWidth(IntrinsicSize.Min).saveLayoutInfo(
+                        Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                            minIntrinsicWidthSize.value = coordinates.size
+                            positionedLatch.countDown()
+                        }
+                            .preferredWidth(IntrinsicSize.Min).saveLayoutInfo(
                             size = childSize,
                             position = childPosition,
                             positionedLatch = positionedLatch
@@ -81,13 +78,12 @@ class IntrinsicTest : LayoutTest() {
         val childSize = Ref<IntSize>()
         val childPosition = Ref<Offset>()
         show {
-            Stack(modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
-                    minIntrinsicHeightSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }
-            ) {
+            Stack {
                 FixedIntrinsicsBox(
-                    Modifier.preferredHeight(IntrinsicSize.Min).saveLayoutInfo(
+                    Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                        minIntrinsicHeightSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }.preferredHeight(IntrinsicSize.Min).saveLayoutInfo(
                         size = childSize,
                         position = childPosition,
                         positionedLatch = positionedLatch
@@ -110,13 +106,12 @@ class IntrinsicTest : LayoutTest() {
         val childSize = Ref<IntSize>()
         val childPosition = Ref<Offset>()
         show {
-            Stack(modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
-                    maxIntrinsicWidthSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }
-            ) {
+            Stack {
                 FixedIntrinsicsBox(
-                    Modifier.preferredWidth(IntrinsicSize.Max).saveLayoutInfo(
+                    Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                        maxIntrinsicWidthSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }.preferredWidth(IntrinsicSize.Max).saveLayoutInfo(
                         size = childSize,
                         position = childPosition,
                         positionedLatch = positionedLatch
@@ -139,13 +134,12 @@ class IntrinsicTest : LayoutTest() {
         val childSize = Ref<IntSize>()
         val childPosition = Ref<Offset>()
         show {
-            Stack(modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
-                    maxIntrinsicHeightSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }
-            ) {
+            Stack {
                     FixedIntrinsicsBox(
-                        Modifier.preferredHeight(IntrinsicSize.Max).saveLayoutInfo(
+                        Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                            maxIntrinsicHeightSize.value = coordinates.size
+                            positionedLatch.countDown()
+                        }.preferredHeight(IntrinsicSize.Max).saveLayoutInfo(
                             size = childSize,
                             position = childPosition,
                             positionedLatch = positionedLatch
@@ -169,15 +163,12 @@ class IntrinsicTest : LayoutTest() {
         val childPosition = Ref<Offset>()
         show {
             Stack {
-                ConstrainedBox(
-                    DpConstraints(maxWidth = 5.dp),
-                    modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
-                        minIntrinsicWidthSize.value = coordinates.size
-                        positionedLatch.countDown()
-                    }
-                ) {
+                ConstrainedBox(DpConstraints(maxWidth = 5.dp)) {
                     FixedIntrinsicsBox(
-                        Modifier.preferredWidth(IntrinsicSize.Min).saveLayoutInfo(
+                        Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                            minIntrinsicWidthSize.value = coordinates.size
+                            positionedLatch.countDown()
+                        }.preferredWidth(IntrinsicSize.Min).saveLayoutInfo(
                             size = childSize,
                             position = childPosition,
                             positionedLatch = positionedLatch
@@ -202,15 +193,12 @@ class IntrinsicTest : LayoutTest() {
         val childPosition = Ref<Offset>()
         show {
             Stack {
-                ConstrainedBox(
-                    DpConstraints(minWidth = 15.dp),
-                    modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
-                        minIntrinsicWidthSize.value = coordinates.size
-                        positionedLatch.countDown()
-                    }
-                ) {
+                ConstrainedBox(DpConstraints(minWidth = 15.dp)) {
                         FixedIntrinsicsBox(
-                            Modifier.preferredWidth(IntrinsicSize.Min).saveLayoutInfo(
+                            Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                                minIntrinsicWidthSize.value = coordinates.size
+                                positionedLatch.countDown()
+                            }.preferredWidth(IntrinsicSize.Min).saveLayoutInfo(
                                 size = childSize,
                                 position = childPosition,
                                 positionedLatch = positionedLatch
@@ -234,12 +222,13 @@ class IntrinsicTest : LayoutTest() {
         val childSize = Ref<IntSize>()
         val childPosition = Ref<Offset>()
         show {
-            Stack(modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
-                    minIntrinsicHeightSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }
-            ) {
-                ConstrainedBox(DpConstraints(maxHeight = 35.dp)) {
+            Stack {
+                ConstrainedBox(DpConstraints(maxHeight = 35.dp),
+                    modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                        minIntrinsicHeightSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
                     FixedIntrinsicsBox(
                         Modifier.preferredHeight(IntrinsicSize.Min).saveLayoutInfo(
                             size = childSize,
@@ -265,20 +254,21 @@ class IntrinsicTest : LayoutTest() {
         val childSize = Ref<IntSize>()
         val childPosition = Ref<Offset>()
         show {
-            Stack(modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
-                    minIntrinsicHeightSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }
-            ) {
-                ConstrainedBox(DpConstraints(minHeight = 45.dp)) {
-                        FixedIntrinsicsBox(
-                            Modifier.preferredHeight(IntrinsicSize.Min).saveLayoutInfo(
-                                size = childSize,
-                                position = childPosition,
-                                positionedLatch = positionedLatch
-                            ),
-                            10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp
-                        )
+            Stack {
+                ConstrainedBox(DpConstraints(minHeight = 45.dp),
+                    modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                        minIntrinsicHeightSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FixedIntrinsicsBox(
+                        Modifier.preferredHeight(IntrinsicSize.Min).saveLayoutInfo(
+                            size = childSize,
+                            position = childPosition,
+                            positionedLatch = positionedLatch
+                        ),
+                        10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp
+                    )
                 }
             }
         }
@@ -296,12 +286,13 @@ class IntrinsicTest : LayoutTest() {
         val childSize = Ref<IntSize>()
         val childPosition = Ref<Offset>()
         show {
-            Stack(modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
-                    maxIntrinsicWidthSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }
-            ) {
-                ConstrainedBox(DpConstraints(maxWidth = 25.dp)) {
+            Stack {
+                ConstrainedBox(DpConstraints(maxWidth = 25.dp),
+                    modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                        maxIntrinsicWidthSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
                     FixedIntrinsicsBox(
                         Modifier.preferredWidth(IntrinsicSize.Max).saveLayoutInfo(
                             size = childSize,
@@ -327,20 +318,21 @@ class IntrinsicTest : LayoutTest() {
         val childSize = Ref<IntSize>()
         val childPosition = Ref<Offset>()
         show {
-            Stack(modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
-                    maxIntrinsicWidthSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }
-            ) {
-                ConstrainedBox(DpConstraints(minWidth = 35.dp)) {
-                        FixedIntrinsicsBox(
-                            Modifier.preferredWidth(IntrinsicSize.Max).saveLayoutInfo(
-                                size = childSize,
-                                position = childPosition,
-                                positionedLatch = positionedLatch
-                            ),
-                            10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp
-                        )
+            Stack {
+                ConstrainedBox(DpConstraints(minWidth = 35.dp),
+                    modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                        maxIntrinsicWidthSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FixedIntrinsicsBox(
+                        Modifier.preferredWidth(IntrinsicSize.Max).saveLayoutInfo(
+                            size = childSize,
+                            position = childPosition,
+                            positionedLatch = positionedLatch
+                        ),
+                        10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp
+                    )
                 }
             }
         }
@@ -358,20 +350,21 @@ class IntrinsicTest : LayoutTest() {
         val childSize = Ref<IntSize>()
         val childPosition = Ref<Offset>()
         show {
-            Stack(modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
-                    maxIntrinsicHeightSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }
-            ) {
-                ConstrainedBox(DpConstraints(maxHeight = 55.dp)) {
-                        FixedIntrinsicsBox(
-                            Modifier.preferredHeight(IntrinsicSize.Max).saveLayoutInfo(
-                                size = childSize,
-                                position = childPosition,
-                                positionedLatch = positionedLatch
-                            ),
-                            10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp
-                        )
+            Stack {
+                ConstrainedBox(DpConstraints(maxHeight = 55.dp),
+                    modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                        maxIntrinsicHeightSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FixedIntrinsicsBox(
+                        Modifier.preferredHeight(IntrinsicSize.Max).saveLayoutInfo(
+                            size = childSize,
+                            position = childPosition,
+                            positionedLatch = positionedLatch
+                        ),
+                        10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp
+                    )
                 }
             }
         }
@@ -389,20 +382,21 @@ class IntrinsicTest : LayoutTest() {
         val childSize = Ref<IntSize>()
         val childPosition = Ref<Offset>()
         show {
-            Stack(modifier = Modifier.onChildPositioned { coordinates: LayoutCoordinates ->
-                    maxIntrinsicHeightSize.value = coordinates.size
-                    positionedLatch.countDown()
-                }
-            ) {
-                ConstrainedBox(DpConstraints(minHeight = 65.dp)) {
-                        FixedIntrinsicsBox(
-                            Modifier.preferredHeight(IntrinsicSize.Max).saveLayoutInfo(
-                                size = childSize,
-                                position = childPosition,
-                                positionedLatch = positionedLatch
-                            ),
-                            10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp
-                        )
+            Stack {
+                ConstrainedBox(DpConstraints(minHeight = 65.dp),
+                    modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                        maxIntrinsicHeightSize.value = coordinates.size
+                        positionedLatch.countDown()
+                    }
+                ) {
+                    FixedIntrinsicsBox(
+                        Modifier.preferredHeight(IntrinsicSize.Max).saveLayoutInfo(
+                            size = childSize,
+                            position = childPosition,
+                            positionedLatch = positionedLatch
+                        ),
+                        10.dp, 20.dp, 30.dp, 40.dp, 50.dp, 60.dp
+                    )
                 }
             }
         }
