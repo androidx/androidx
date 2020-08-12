@@ -49,7 +49,7 @@ internal class JavacTypeElement(
         element.getAllFieldsIncludingPrivateSupers(
             env.elementUtils
         ).map {
-            JavacVariableElement(
+            JavacFieldElement(
                 env = env,
                 element = it,
                 containing = this
@@ -117,7 +117,8 @@ internal class JavacTypeElement(
     override val type: JavacDeclaredType by lazy {
         env.wrap<JavacDeclaredType>(
             typeMirror = element.asType(),
-            nullability = element.nullability
+            kotlinType = kotlinMetadata?.kmType,
+            elementNullability = element.nullability
         )
     }
 
@@ -133,7 +134,8 @@ internal class JavacTypeElement(
         } else {
             env.wrap<JavacType>(
                 typeMirror = superClass,
-                nullability = element.nullability
+                kotlinType = kotlinMetadata?.superType,
+                elementNullability = element.nullability
             )
         }
     }
