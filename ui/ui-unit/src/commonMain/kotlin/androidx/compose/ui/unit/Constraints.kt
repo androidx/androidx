@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-@file:Suppress("NOTHING_TO_INLINE")
+@file:Suppress("NOTHING_TO_INLINE", "EXPERIMENTAL_FEATURE_WARNING")
 
 package androidx.compose.ui.unit
 
@@ -58,7 +58,7 @@ import androidx.compose.runtime.Stable
  */
 @Immutable
 // This can be made inline after b/155690960 is fixed.
-/*inline*/ data class Constraints(
+inline class Constraints(
     @PublishedApi internal val value: Long
 ) {
     /**
@@ -159,17 +159,6 @@ import androidx.compose.runtime.Stable
             "maxHeight($maxHeight) must be >= minHeight($minHeight)"
         }
         return createConstraints(minWidth, maxWidth, minHeight, maxHeight)
-    }
-
-    override fun equals(other: Any?): Boolean {
-        if (other !is Constraints) {
-            return false
-        }
-        return value == other.value
-    }
-
-    override fun hashCode(): Int {
-        return value.hashCode()
     }
 
     override fun toString(): String {

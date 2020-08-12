@@ -298,9 +298,8 @@ package androidx.compose.ui.text {
   }
 
   public final class TextLayoutInput {
-    ctor public TextLayoutInput(androidx.compose.ui.text.AnnotatedString text, androidx.compose.ui.text.TextStyle style, java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.Placeholder>> placeholders, int maxLines, boolean softWrap, androidx.compose.ui.text.style.TextOverflow overflow, androidx.compose.ui.unit.Density density, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.compose.ui.text.font.Font.ResourceLoader resourceLoader, androidx.compose.ui.unit.Constraints constraints);
     method public androidx.compose.ui.text.AnnotatedString component1();
-    method public androidx.compose.ui.unit.Constraints component10();
+    method public long component10();
     method public androidx.compose.ui.text.TextStyle component2();
     method public java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.Placeholder>> component3();
     method public int component4();
@@ -309,8 +308,8 @@ package androidx.compose.ui.text {
     method public androidx.compose.ui.unit.Density component7();
     method public androidx.compose.ui.unit.LayoutDirection component8();
     method public androidx.compose.ui.text.font.Font.ResourceLoader component9();
-    method public androidx.compose.ui.text.TextLayoutInput copy(androidx.compose.ui.text.AnnotatedString text, androidx.compose.ui.text.TextStyle style, java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.Placeholder>> placeholders, int maxLines, boolean softWrap, androidx.compose.ui.text.style.TextOverflow overflow, androidx.compose.ui.unit.Density density, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.compose.ui.text.font.Font.ResourceLoader resourceLoader, androidx.compose.ui.unit.Constraints constraints);
-    method public androidx.compose.ui.unit.Constraints getConstraints();
+    method public androidx.compose.ui.text.TextLayoutInput copy-ih31NyA(androidx.compose.ui.text.AnnotatedString text, androidx.compose.ui.text.TextStyle style, java.util.List<androidx.compose.ui.text.AnnotatedString.Range<androidx.compose.ui.text.Placeholder>> placeholders, int maxLines, boolean softWrap, androidx.compose.ui.text.style.TextOverflow overflow, androidx.compose.ui.unit.Density density, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.compose.ui.text.font.Font.ResourceLoader resourceLoader, long constraints);
+    method public long getConstraints();
     method public androidx.compose.ui.unit.Density getDensity();
     method public androidx.compose.ui.unit.LayoutDirection getLayoutDirection();
     method public int getMaxLines();

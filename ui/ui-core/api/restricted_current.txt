@@ -115,7 +115,7 @@ package androidx.compose.ui {
     method public androidx.compose.ui.IntrinsicWidthHeight getWidthHeight();
     method public int maxIntrinsicHeight(int width);
     method public int maxIntrinsicWidth(int height);
-    method public androidx.compose.ui.Placeable measure(androidx.compose.ui.unit.Constraints constraints);
+    method public androidx.compose.ui.Placeable measure-BRTryo0(long constraints);
     method public int minIntrinsicHeight(int width);
     method public int minIntrinsicWidth(int height);
     property public Object? parentData;
@@ -246,7 +246,7 @@ package androidx.compose.ui {
   public interface LayoutModifier extends androidx.compose.ui.Modifier.Element {
     method public default int maxIntrinsicHeight(androidx.compose.ui.layout.IntrinsicMeasureScope, androidx.compose.ui.layout.IntrinsicMeasurable measurable, int width);
     method public default int maxIntrinsicWidth(androidx.compose.ui.layout.IntrinsicMeasureScope, androidx.compose.ui.layout.IntrinsicMeasurable measurable, int height);
-    method public androidx.compose.ui.MeasureScope.MeasureResult measure(androidx.compose.ui.MeasureScope, androidx.compose.ui.Measurable measurable, androidx.compose.ui.unit.Constraints constraints);
+    method public androidx.compose.ui.MeasureScope.MeasureResult measure-3Jkh9V0(androidx.compose.ui.MeasureScope, androidx.compose.ui.Measurable measurable, long constraints);
     method public default int minIntrinsicHeight(androidx.compose.ui.layout.IntrinsicMeasureScope, androidx.compose.ui.layout.IntrinsicMeasurable measurable, int width);
     method public default int minIntrinsicWidth(androidx.compose.ui.layout.IntrinsicMeasureScope, androidx.compose.ui.layout.IntrinsicMeasurable measurable, int height);
   }
@@ -256,7 +256,7 @@ package androidx.compose.ui {
   }
 
   public interface Measurable extends androidx.compose.ui.layout.IntrinsicMeasurable {
-    method public androidx.compose.ui.Placeable measure(androidx.compose.ui.unit.Constraints constraints);
+    method public androidx.compose.ui.Placeable measure-BRTryo0(long constraints);
   }
 
   public abstract class MeasureScope extends androidx.compose.ui.layout.IntrinsicMeasureScope {
@@ -328,15 +328,15 @@ package androidx.compose.ui {
     method protected final long getApparentToRealOffset();
     method public final int getHeight();
     method protected final long getMeasuredSize();
-    method protected final androidx.compose.ui.unit.Constraints getMeasurementConstraints();
+    method protected final long getMeasurementConstraints();
     method public final int getWidth();
     method protected abstract void placeAt--gyyYBs(long position);
     method protected final void setMeasuredSize-ozmzZPI(long value);
-    method protected final void setMeasurementConstraints(androidx.compose.ui.unit.Constraints p);
+    method protected final void setMeasurementConstraints-BRTryo0(long p);
     property protected final long apparentToRealOffset;
     property public final int height;
     property protected final long measuredSize;
-    property protected final androidx.compose.ui.unit.Constraints measurementConstraints;
+    property protected final long measurementConstraints;
     property public final int width;
   }
 
@@ -385,12 +385,12 @@ package androidx.compose.ui {
   }
 
   @androidx.compose.runtime.Stable public interface WithConstraintsScope {
-    method public androidx.compose.ui.unit.Constraints getConstraints();
+    method public long getConstraints();
     method public float getMaxHeight();
     method public float getMaxWidth();
     method public float getMinHeight();
     method public float getMinWidth();
-    property public abstract androidx.compose.ui.unit.Constraints constraints;
+    property public abstract long constraints;
     property public abstract float maxHeight;
     property public abstract float maxWidth;
     property public abstract float minHeight;
@@ -1851,7 +1851,7 @@ package androidx.compose.ui.node {
     method public boolean isPlaced();
     method public int maxIntrinsicHeight(int width);
     method public int maxIntrinsicWidth(int height);
-    method public androidx.compose.ui.Placeable measure(androidx.compose.ui.unit.Constraints constraints);
+    method public androidx.compose.ui.Placeable measure-BRTryo0(long constraints);
     method public int minIntrinsicHeight(int width);
     method public int minIntrinsicWidth(int height);
     method public void move(int from, int to, int count);
@@ -1887,7 +1887,7 @@ package androidx.compose.ui.node {
   public static interface LayoutNode.MeasureBlocks {
     method public int maxIntrinsicHeight(androidx.compose.ui.layout.IntrinsicMeasureScope intrinsicMeasureScope, java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable> measurables, int w);
     method public int maxIntrinsicWidth(androidx.compose.ui.layout.IntrinsicMeasureScope intrinsicMeasureScope, java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable> measurables, int h);
-    method public androidx.compose.ui.MeasureScope.MeasureResult measure(androidx.compose.ui.MeasureScope measureScope, java.util.List<? extends androidx.compose.ui.Measurable> measurables, androidx.compose.ui.unit.Constraints constraints);
+    method public androidx.compose.ui.MeasureScope.MeasureResult measure-2MWCACw(androidx.compose.ui.MeasureScope measureScope, java.util.List<? extends androidx.compose.ui.Measurable> measurables, long constraints);
     method public int minIntrinsicHeight(androidx.compose.ui.layout.IntrinsicMeasureScope intrinsicMeasureScope, java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable> measurables, int w);
     method public int minIntrinsicWidth(androidx.compose.ui.layout.IntrinsicMeasureScope intrinsicMeasureScope, java.util.List<? extends androidx.compose.ui.layout.IntrinsicMeasurable> measurables, int h);
   }

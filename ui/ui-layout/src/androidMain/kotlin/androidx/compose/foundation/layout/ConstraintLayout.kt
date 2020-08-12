@@ -1059,7 +1059,7 @@ fun ConstraintSet(description: ConstraintSetScope.() -> Unit) = object : Constra
  * The state of the [ConstraintLayout] solver.
  */
 class State(val density: Density) : SolverState() {
-    lateinit var rootIncomingConstraints: Constraints
+    var rootIncomingConstraints: Constraints = Constraints()
     lateinit var layoutDirection: LayoutDirection
 
     override fun convertDimension(value: Any?): Int {
