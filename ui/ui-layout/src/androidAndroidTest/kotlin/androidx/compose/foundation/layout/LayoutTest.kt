@@ -29,7 +29,6 @@ import androidx.compose.ui.AlignmentLine
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.Layout
-import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.Placeable
 import androidx.compose.ui.node.Ref
@@ -57,7 +56,6 @@ import org.junit.Rule
 import kotlin.math.max
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlin.math.roundToInt
 
 open class LayoutTest {
     @Suppress("DEPRECATION")
@@ -298,58 +296,6 @@ open class LayoutTest {
             actual.toFloat(),
             0f
         )
-    }
-
-    internal val customVerticalArrangement = object : Arrangement.Vertical {
-        override fun arrange(
-            totalSize: Int,
-            size: List<Int>
-        ): List<Int> {
-            val positions = mutableListOf<Int>()
-            var current = 0f
-            val usedSpace = size.fold(0) { sum, e -> sum + e }
-            val step = if (size.size < 2) {
-                0f
-            } else {
-                (totalSize - usedSpace).toFloat() * 2 / (size.lastIndex * size.size)
-            }
-            size.forEachIndexed { i, childSize ->
-                current += step * i
-                positions.add(current.roundToInt())
-                current += childSize.toFloat()
-            }
-            return positions
-        }
-    }
-
-    internal val customHorizontalArrangement = object : Arrangement.Horizontal {
-        override fun arrange(
-            totalSize: Int,
-            size: List<Int>,
-            layoutDirection: LayoutDirection
-        ): List<Int> {
-            val positions = mutableListOf<Int>()
-            var current = 0f
-            if (layoutDirection == LayoutDirection.Rtl) {
-                size.asReversed().forEach {
-                    positions.add(0, current.roundToInt())
-                    current += it.toFloat()
-                }
-            } else {
-                val usedSpace = size.fold(0) { sum, e -> sum + e }
-                val step = if (size.size < 2) {
-                    0f
-                } else {
-                    (totalSize - usedSpace).toFloat() * 2 / (size.lastIndex * size.size)
-                }
-                size.forEachIndexed { i, childSize ->
-                    current += step * i
-                    positions.add(current.roundToInt())
-                    current += childSize.toFloat()
-                }
-            }
-            return positions
-        }
     }
 
     @Composable

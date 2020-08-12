@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.layout
 
+import androidx.compose.foundation.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.emptyContent
 import androidx.test.filters.SmallTest
@@ -32,6 +33,7 @@ import androidx.compose.ui.node.Ref
 import androidx.compose.ui.WithConstraints
 import androidx.compose.ui.onPositioned
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.positionInParent
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LayoutDirectionAmbient
 import androidx.compose.ui.unit.Dp
@@ -2422,53 +2424,136 @@ class RowColumnTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_withCustomArrangement() = with(density) {
-        val sizeDp = 50.toDp()
-        val size = sizeDp.toIntPx()
-
-        val drawLatch = CountDownLatch(4)
-        val childPosition = arrayOf(
-            Offset.Zero, Offset.Zero, Offset.Zero
-        )
-        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
-        var parentLayoutCoordinates: LayoutCoordinates? = null
+    fun testRow_withSpacedByArrangement() = with(density) {
+        val spacePx = 10f
+        val space = spacePx.toDp()
+        val sizePx = 20f
+        val size = sizePx.toDp()
+        val latch = CountDownLatch(3)
         show {
-            Center {
-                Row(Modifier.fillMaxWidth().onPositioned { coordinates: LayoutCoordinates ->
-                    parentLayoutCoordinates = coordinates
-                    drawLatch.countDown()
-                }, horizontalArrangement = customHorizontalArrangement) {
-                    for (i in childPosition.indices) {
-                        Container(
-                            width = sizeDp,
-                            height = sizeDp,
-                            modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
-                                childLayoutCoordinates[i] = coordinates
-                                drawLatch.countDown()
-                            }
-                        ) {
-                        }
+            Column {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(space),
+                    modifier = Modifier.onPositioned {
+                        assertEquals((sizePx * 2 + spacePx).roundToInt(), it.size.width)
+                        latch.countDown()
                     }
+                ) {
+                    Box(Modifier.size(size).onPositioned {
+                        assertEquals(0f, it.positionInParent.x)
+                        latch.countDown()
+                    })
+                    Box(Modifier.size(size).onPositioned {
+                        assertEquals(sizePx + spacePx, it.positionInParent.x)
+                        latch.countDown()
+                    })
                 }
             }
         }
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
 
-        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
+    @Test
+    fun testRow_withSpacedByAlignedArrangement() = with(density) {
+        val spacePx = 10f
+        val space = spacePx.toDp()
+        val sizePx = 20f
+        val size = sizePx.toDp()
+        val rowSizePx = 50
+        val rowSize = rowSizePx.toDp()
+        val latch = CountDownLatch(3)
+        show {
+            Column {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(space, Alignment.End),
+                    modifier = Modifier.size(rowSize).onPositioned {
+                        assertEquals(rowSizePx, it.size.width)
+                        latch.countDown()
+                    }
+                ) {
+                    Box(Modifier.size(size).onPositioned {
+                        assertEquals(rowSizePx - spacePx - sizePx * 2, it.positionInParent.x)
+                        latch.countDown()
+                    })
+                    Box(Modifier.size(size).onPositioned {
+                        assertEquals(rowSizePx - sizePx, it.positionInParent.x)
+                        latch.countDown()
+                    })
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
 
-        val root = findOwnerView()
-        waitForDraw(root)
+    @Test
+    fun testRow_withSpacedByArrangement_insufficientSpace() = with(density) {
+        val spacePx = 15f
+        val space = spacePx.toDp()
+        val sizePx = 20f
+        val size = sizePx.toDp()
+        val rowSizePx = 50f
+        val rowSize = rowSizePx.toDp()
+        val latch = CountDownLatch(4)
+        show {
+            Column {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(space),
+                    modifier = Modifier.size(rowSize).onPositioned {
+                        assertEquals(rowSizePx.roundToInt(), it.size.width)
+                        latch.countDown()
+                    }
+                ) {
+                    Box(Modifier.preferredSize(size).onPositioned {
+                        assertEquals(0f, it.positionInParent.x)
+                        assertEquals(sizePx.roundToInt(), it.size.width)
+                        latch.countDown()
+                    })
+                    Box(Modifier.preferredSize(size).onPositioned {
+                        assertEquals(sizePx + spacePx, it.positionInParent.x)
+                        assertEquals((rowSizePx - spacePx - sizePx).roundToInt(), it.size.width)
+                        latch.countDown()
+                    })
+                    Box(Modifier.preferredSize(size).onPositioned {
+                        assertEquals(rowSizePx, it.positionInParent.x)
+                        assertEquals(0, it.size.width)
+                        latch.countDown()
+                    })
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
 
-        val step = (root.width - size.toFloat() * 3) / 3
-        assertEquals(Offset(0f, 0f), childPosition[0])
-        assertEquals(
-            Offset((step + size.toFloat()).roundToInt().toFloat(), 0f),
-            childPosition[1]
-        )
-        assertEquals(
-            Offset((step * 3 + size.toFloat() * 2).roundToInt().toFloat(), 0f),
-            childPosition[2]
-        )
+    @Test
+    fun testRow_withAlignedArrangement() = with(density) {
+        val sizePx = 20f
+        val size = sizePx.toDp()
+        val rowSizePx = 50f
+        val rowSize = rowSizePx.toDp()
+        val latch = CountDownLatch(3)
+        show {
+            Column {
+                Row(
+                    horizontalArrangement = Arrangement.aligned(Alignment.End),
+                    modifier = Modifier.size(rowSize).onPositioned {
+                        assertEquals(rowSizePx.roundToInt(), it.size.width)
+                        latch.countDown()
+                    }
+                ) {
+                    Box(Modifier.preferredSize(size).onPositioned {
+                        assertEquals(rowSizePx - sizePx * 2, it.positionInParent.x)
+                        assertEquals(sizePx.roundToInt(), it.size.width)
+                        latch.countDown()
+                    })
+                    Box(Modifier.preferredSize(size).onPositioned {
+                        assertEquals(rowSizePx - sizePx, it.positionInParent.x)
+                        assertEquals(sizePx.roundToInt(), it.size.width)
+                        latch.countDown()
+                    })
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
     }
     // endregion
 
@@ -2777,53 +2862,134 @@ class RowColumnTest : LayoutTest() {
     }
 
     @Test
-    fun testColumn_withCustomArrangement() = with(density) {
-        val sizeDp = 50.toDp()
-        val size = sizeDp.toIntPx()
-
-        val drawLatch = CountDownLatch(4)
-        val childPosition = arrayOf(
-            Offset.Zero, Offset.Zero, Offset.Zero
-        )
-        val childLayoutCoordinates = arrayOfNulls<LayoutCoordinates?>(childPosition.size)
-        var parentLayoutCoordinates: LayoutCoordinates? = null
+    fun testColumn_withSpacedByArrangement() = with(density) {
+        val spacePx = 10f
+        val space = spacePx.toDp()
+        val sizePx = 20f
+        val size = sizePx.toDp()
+        val latch = CountDownLatch(3)
         show {
-            Center {
-                Column(Modifier.fillMaxHeight().onPositioned { coordinates: LayoutCoordinates ->
-                    parentLayoutCoordinates = coordinates
-                    drawLatch.countDown()
-                }, verticalArrangement = customVerticalArrangement) {
-                    for (i in childPosition.indices) {
-                        Container(
-                            width = sizeDp,
-                            height = sizeDp,
-                            modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
-                                childLayoutCoordinates[i] = coordinates
-                                drawLatch.countDown()
-                            }
-                        ) {
-                        }
+            Row {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(space),
+                    modifier = Modifier.onPositioned {
+                        assertEquals((sizePx * 2 + spacePx).roundToInt(), it.size.height)
+                        latch.countDown()
                     }
+                ) {
+                    Box(Modifier.size(size).onPositioned {
+                        assertEquals(0f, it.positionInParent.x)
+                        latch.countDown()
+                    })
+                    Box(Modifier.size(size).onPositioned {
+                        assertEquals(sizePx + spacePx, it.positionInParent.y)
+                        latch.countDown()
+                    })
                 }
             }
         }
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
 
-        calculateChildPositions(childPosition, parentLayoutCoordinates, childLayoutCoordinates)
+    @Test
+    fun testColumn_withSpacedByAlignedArrangement() = with(density) {
+        val spacePx = 10f
+        val space = spacePx.toDp()
+        val sizePx = 20f
+        val size = sizePx.toDp()
+        val columnSizePx = 50
+        val columnSize = columnSizePx.toDp()
+        val latch = CountDownLatch(3)
+        show {
+            Row {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(space, Alignment.Bottom),
+                    modifier = Modifier.size(columnSize).onPositioned {
+                        assertEquals(columnSizePx, it.size.height)
+                        latch.countDown()
+                    }
+                ) {
+                    Box(Modifier.size(size).onPositioned {
+                        assertEquals(columnSizePx - spacePx - sizePx * 2, it.positionInParent.y)
+                        latch.countDown()
+                    })
+                    Box(Modifier.size(size).onPositioned {
+                        assertEquals(columnSizePx - sizePx, it.positionInParent.y)
+                        latch.countDown()
+                    })
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
 
-        val root = findOwnerView()
-        waitForDraw(root)
+    @Test
+    fun testColumn_withSpacedByArrangement_insufficientSpace() = with(density) {
+        val spacePx = 15f
+        val space = spacePx.toDp()
+        val sizePx = 20f
+        val size = sizePx.toDp()
+        val columnSizePx = 50f
+        val columnSize = columnSizePx.toDp()
+        val latch = CountDownLatch(4)
+        show {
+            Row {
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(space),
+                    modifier = Modifier.size(columnSize).onPositioned {
+                        assertEquals(columnSizePx.roundToInt(), it.size.height)
+                        latch.countDown()
+                    }
+                ) {
+                    Box(Modifier.preferredSize(size).onPositioned {
+                        assertEquals(0f, it.positionInParent.y)
+                        assertEquals(sizePx.roundToInt(), it.size.height)
+                        latch.countDown()
+                    })
+                    Box(Modifier.preferredSize(size).onPositioned {
+                        assertEquals(sizePx + spacePx, it.positionInParent.y)
+                        assertEquals((columnSizePx - spacePx - sizePx).roundToInt(), it.size.height)
+                        latch.countDown()
+                    })
+                    Box(Modifier.preferredSize(size).onPositioned {
+                        assertEquals(columnSizePx, it.positionInParent.y)
+                        assertEquals(0, it.size.height)
+                        latch.countDown()
+                    })
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
 
-        val step = (root.height - size.toFloat() * 3f) / 3f
-        assertEquals(Offset(0f, 0f), childPosition[0])
-        assertEquals(
-            Offset(0f, (step + size.toFloat()).roundToInt().toFloat()),
-            childPosition[1]
-        )
-        assertEquals(
-            Offset(0f, (step * 3 + size.toFloat() * 2).roundToInt().toFloat()),
-            childPosition[2]
-        )
+    @Test
+    fun testColumn_withAlignedArrangement() = with(density) {
+        val sizePx = 20f
+        val size = sizePx.toDp()
+        val columnSizePx = 50
+        val columnSize = columnSizePx.toDp()
+        val latch = CountDownLatch(3)
+        show {
+            Row {
+                Column(
+                    verticalArrangement = Arrangement.aligned(Alignment.Bottom),
+                    modifier = Modifier.size(columnSize).onPositioned {
+                        assertEquals(columnSizePx, it.size.height)
+                        latch.countDown()
+                    }
+                ) {
+                    Box(Modifier.size(size).onPositioned {
+                        assertEquals(columnSizePx - sizePx * 2, it.positionInParent.y)
+                        latch.countDown()
+                    })
+                    Box(Modifier.size(size).onPositioned {
+                        assertEquals(columnSizePx - sizePx, it.positionInParent.y)
+                        latch.countDown()
+                    })
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
     }
 
     @Test
@@ -3886,49 +4052,37 @@ class RowColumnTest : LayoutTest() {
     }
 
     @Test
-    fun testRow_Rtl_customArrangement() = with(density) {
-        val sizeDp = 35.toDp()
-
-        val drawLatch = CountDownLatch(2)
-        val childPosition = arrayOf(Offset.Zero, Offset.Zero)
+    fun testRow_Rtl_withSpacedByAlignedArrangement() = with(density) {
+        val spacePx = 10f
+        val space = spacePx.toDp()
+        val sizePx = 20f
+        val size = sizePx.toDp()
+        val rowSizePx = 50
+        val rowSize = rowSizePx.toDp()
+        val latch = CountDownLatch(3)
         show {
             Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
-                Row(
-                    Modifier.fillMaxWidth(),
-                    horizontalArrangement = customHorizontalArrangement
-                ) {
-                    Container(
-                        width = sizeDp,
-                        height = sizeDp,
-                        modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
-                            childPosition[0] = coordinates.positionInRoot
-                            drawLatch.countDown()
-                        },
-                        children = emptyContent()
-                    )
-
-                    Container(
-                        width = (sizeDp * 2),
-                        height = (sizeDp * 2),
-                        modifier = Modifier.onPositioned { coordinates: LayoutCoordinates ->
-                            childPosition[1] = coordinates.positionInRoot
-                            drawLatch.countDown()
-                        },
-                        children = emptyContent()
-                    )
+                Column {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(space, Alignment.End),
+                        modifier = Modifier.size(rowSize).onPositioned {
+                            assertEquals(rowSizePx, it.size.width)
+                            latch.countDown()
+                        }
+                    ) {
+                        Box(Modifier.size(size).onPositioned {
+                            assertEquals(sizePx + spacePx, it.positionInParent.x)
+                            latch.countDown()
+                        })
+                        Box(Modifier.size(size).onPositioned {
+                            assertEquals(0f, it.positionInParent.x)
+                            latch.countDown()
+                        })
+                    }
                 }
             }
         }
-
-        assertTrue(drawLatch.await(1, TimeUnit.SECONDS))
-        val root = findOwnerView()
-        waitForDraw(root)
-
-        assertEquals(
-            Offset((sizeDp.toPx() * 2).roundToInt().toFloat(), 0f),
-            childPosition[0]
-        )
-        assertEquals(Offset(0f, 0f), childPosition[1])
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
     }
 
     @Test
@@ -4830,6 +4984,40 @@ class RowColumnTest : LayoutTest() {
                 childPosition[2]
             )
         }
+
+    @Test
+    fun testRow_Rtl_withSpacedByAlignedAbsoluteArrangement() = with(density) {
+        val spacePx = 10f
+        val space = spacePx.toDp()
+        val sizePx = 20f
+        val size = sizePx.toDp()
+        val rowSizePx = 50
+        val rowSize = rowSizePx.toDp()
+        val latch = CountDownLatch(3)
+        show {
+            Providers(LayoutDirectionAmbient provides LayoutDirection.Rtl) {
+                Column {
+                    Row(
+                        horizontalArrangement = AbsoluteArrangement.spacedBy(space, Alignment.End),
+                        modifier = Modifier.size(rowSize).onPositioned {
+                            assertEquals(rowSizePx, it.size.width)
+                            latch.countDown()
+                        }
+                    ) {
+                        Box(Modifier.size(size).onPositioned {
+                            assertEquals(0f, it.positionInParent.x)
+                            latch.countDown()
+                        })
+                        Box(Modifier.size(size).onPositioned {
+                            assertEquals(sizePx + spacePx, it.positionInParent.x)
+                            latch.countDown()
+                        })
+                    }
+                }
+            }
+        }
+        assertTrue(latch.await(1, TimeUnit.SECONDS))
+    }
     // endregion
 }
 

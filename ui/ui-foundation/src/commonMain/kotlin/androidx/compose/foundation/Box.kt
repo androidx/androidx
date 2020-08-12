@@ -30,7 +30,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.util.fastForEach
 
 /**
  * A convenience composable that combines common layout and draw logic.
@@ -126,22 +125,9 @@ private fun needsPadding(
         (paddingEnd != Dp.Unspecified && paddingEnd != 0.dp) ||
         (paddingBottom != Dp.Unspecified && paddingBottom != 0.dp)
 
-private fun Alignment.toColumnArrangement(): Arrangement.Vertical = object : Arrangement.Vertical {
-    override fun arrange(
-        totalSize: Int,
-        size: List<Int>
-    ): List<Int> {
-        val usedSize = size.fold(0) { sum, current -> sum + current }
-        var y = align(IntSize(0, totalSize - usedSize)).y
-
-        val positions = mutableListOf<Int>()
-        size.fastForEach { childSize ->
-            positions += y
-            y += childSize
-        }
-        return positions
-    }
-}
+private fun Alignment.toColumnArrangement() = Arrangement.aligned(object : Alignment.Vertical {
+    override fun align(size: Int): Int = align(IntSize(0, size)).y
+})
 
 private fun Alignment.toColumnGravity(): Alignment.Horizontal = object : Alignment.Horizontal {
     override fun align(size: Int, layoutDirection: LayoutDirection): Int {

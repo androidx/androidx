@@ -30,6 +30,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.InnerPadding
+import androidx.compose.foundation.layout.InternalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
@@ -234,6 +235,7 @@ class ScrollState(
  * padding for the content after it has been clipped, which is not possible via [modifier] param
  */
 @Composable
+@OptIn(InternalLayoutApi::class)
 fun ScrollableColumn(
     modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState(0f),
@@ -278,6 +280,7 @@ fun ScrollableColumn(
  * padding for the content after it has been clipped, which is not possible via [modifier] param.
  */
 @Composable
+@OptIn(InternalLayoutApi::class)
 fun ScrollableRow(
     modifier: Modifier = Modifier,
     scrollState: ScrollState = rememberScrollState(0f),
