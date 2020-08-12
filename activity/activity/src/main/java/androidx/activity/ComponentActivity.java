@@ -31,6 +31,7 @@ import static androidx.activity.result.contract.ActivityResultContracts.StartInt
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -406,6 +407,12 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
         ViewTreeViewModelStoreOwner.set(getWindow().getDecorView(), this);
         ViewTreeSavedStateRegistryOwner.set(getWindow().getDecorView(), this);
+    }
+
+    @Nullable
+    @Override
+    public Context peekAvailableContext() {
+        return mContextAwareHelper.peekAvailableContext();
     }
 
     /**

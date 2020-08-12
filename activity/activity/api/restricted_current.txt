@@ -15,6 +15,7 @@ package androidx.activity {
     method @Deprecated @CallSuper public void onRequestPermissionsResult(int, String![], int[]);
     method @Deprecated public Object? onRetainCustomNonConfigurationInstance();
     method public final Object? onRetainNonConfigurationInstance();
+    method public android.content.Context? peekAvailableContext();
     method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultRegistry, androidx.activity.result.ActivityResultCallback<O!>);
     method public final <I, O> androidx.activity.result.ActivityResultLauncher<I!> registerForActivityResult(androidx.activity.result.contract.ActivityResultContract<I!,O!>, androidx.activity.result.ActivityResultCallback<O!>);
     method public final void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
@@ -51,6 +52,7 @@ package androidx.activity.contextaware {
 
   public interface ContextAware {
     method public void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
+    method public android.content.Context? peekAvailableContext();
     method public void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
   }
 
@@ -59,6 +61,7 @@ package androidx.activity.contextaware {
     method public void addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
     method public void clearAvailableContext();
     method public void dispatchOnContextAvailable(android.content.Context);
+    method public android.content.Context? peekAvailableContext();
     method public void removeOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener);
   }
 
