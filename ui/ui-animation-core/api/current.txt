@@ -256,7 +256,7 @@ package androidx.compose.animation.core {
     enum_constant public static final androidx.compose.animation.core.InterruptionHandling UNINTERRUPTIBLE;
   }
 
-  public final class KeyframesSpec<T> implements androidx.compose.animation.core.DurationBasedAnimationSpec<T> {
+  @androidx.compose.runtime.Immutable public final class KeyframesSpec<T> implements androidx.compose.animation.core.DurationBasedAnimationSpec<T> {
     ctor public KeyframesSpec(androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig<T> config);
     method public androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig<T> getConfig();
     method public <V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.VectorizedKeyframesSpec<V> vectorize(androidx.compose.animation.core.TwoWayConverter<T,V> converter);
@@ -331,7 +331,7 @@ package androidx.compose.animation.core {
     enum_constant public static final androidx.compose.animation.core.RepeatMode Reverse;
   }
 
-  public final class RepeatableSpec<T> implements androidx.compose.animation.core.AnimationSpec<T> {
+  @androidx.compose.runtime.Immutable public final class RepeatableSpec<T> implements androidx.compose.animation.core.AnimationSpec<T> {
     ctor public RepeatableSpec(int iterations, androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, androidx.compose.animation.core.RepeatMode repeatMode);
     method public androidx.compose.animation.core.DurationBasedAnimationSpec<T> getAnimation();
     method public int getIterations();
@@ -339,7 +339,7 @@ package androidx.compose.animation.core {
     method public <V extends androidx.compose.animation.core.AnimationVector> androidx.compose.animation.core.VectorizedAnimationSpec<V> vectorize(androidx.compose.animation.core.TwoWayConverter<T,V> converter);
   }
 
-  public final class SnapSpec<T> implements androidx.compose.animation.core.AnimationSpec<T> {
+  @androidx.compose.runtime.Immutable public final class SnapSpec<T> implements androidx.compose.animation.core.AnimationSpec<T> {
     ctor public SnapSpec(int delay);
     ctor public SnapSpec();
     method public int getDelay();
@@ -365,7 +365,7 @@ package androidx.compose.animation.core {
   public final class SpringSimulationKt {
   }
 
-  public final class SpringSpec<T> implements androidx.compose.animation.core.AnimationSpec<T> {
+  @androidx.compose.runtime.Immutable public final class SpringSpec<T> implements androidx.compose.animation.core.AnimationSpec<T> {
     ctor public SpringSpec(float dampingRatio, float stiffness, T? visibilityThreshold);
     ctor public SpringSpec();
     method public float getDampingRatio();
@@ -416,12 +416,12 @@ package androidx.compose.animation.core {
 
   public final class TransitionDefinitionKt {
     method public static <T> androidx.compose.animation.core.TransitionAnimation<T> createAnimation(androidx.compose.animation.core.TransitionDefinition<T>, androidx.compose.animation.core.AnimationClockObservable clock, T? initState = null);
-    method public static <T> androidx.compose.animation.core.KeyframesSpec<T> keyframes(kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig<T>,kotlin.Unit> init);
-    method public static <T> androidx.compose.animation.core.AnimationSpec<T> repeatable(int iterations, androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, androidx.compose.animation.core.RepeatMode repeatMode = androidx.compose.animation.core.RepeatMode.Restart);
-    method public static <T> androidx.compose.animation.core.AnimationSpec<T> snap(int delayMillis = 0);
-    method public static <T> androidx.compose.animation.core.SpringSpec<T> spring(float dampingRatio = 1.0f, float stiffness = 1500.0f, T? visibilityThreshold = null);
+    method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.KeyframesSpec<T> keyframes(kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.KeyframesSpec.KeyframesSpecConfig<T>,kotlin.Unit> init);
+    method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.AnimationSpec<T> repeatable(int iterations, androidx.compose.animation.core.DurationBasedAnimationSpec<T> animation, androidx.compose.animation.core.RepeatMode repeatMode = androidx.compose.animation.core.RepeatMode.Restart);
+    method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.AnimationSpec<T> snap(int delayMillis = 0);
+    method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.SpringSpec<T> spring(float dampingRatio = 1.0f, float stiffness = 1500.0f, T? visibilityThreshold = null);
     method public static <T> androidx.compose.animation.core.TransitionDefinition<T> transitionDefinition(kotlin.jvm.functions.Function1<? super androidx.compose.animation.core.TransitionDefinition<T>,kotlin.Unit> init);
-    method public static <T> androidx.compose.animation.core.TweenSpec<T> tween(int durationMillis = 300, int delayMillis = 0, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> easing = FastOutSlowInEasing);
+    method @androidx.compose.runtime.Stable public static <T> androidx.compose.animation.core.TweenSpec<T> tween(int durationMillis = 300, int delayMillis = 0, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> easing = FastOutSlowInEasing);
   }
 
   public final class TransitionSpec<S> {
@@ -438,7 +438,7 @@ package androidx.compose.animation.core {
     method public operator <T, V extends androidx.compose.animation.core.AnimationVector> T! get(androidx.compose.animation.core.PropKey<T,V> propKey);
   }
 
-  public final class TweenSpec<T> implements androidx.compose.animation.core.DurationBasedAnimationSpec<T> {
+  @androidx.compose.runtime.Immutable public final class TweenSpec<T> implements androidx.compose.animation.core.DurationBasedAnimationSpec<T> {
     ctor public TweenSpec(int durationMillis, int delay, kotlin.jvm.functions.Function1<? super java.lang.Float,java.lang.Float> easing);
     ctor public TweenSpec();
     method public int getDelay();

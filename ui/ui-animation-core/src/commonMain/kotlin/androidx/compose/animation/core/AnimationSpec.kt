@@ -17,6 +17,7 @@
 package androidx.compose.animation.core
 
 import androidx.compose.animation.core.AnimationConstants.DefaultDurationMillis
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.util.annotation.IntRange
 
 object AnimationConstants {
@@ -68,6 +69,7 @@ interface AnimationSpec<T> {
  * @param delay the number of milliseconds the animation waits before starting, 0 by default.
  * @param easing the easing curve used by the animation. [FastOutSlowInEasing] by default.
  */
+@Immutable
 class TweenSpec<T>(
     val durationMillis: Int = DefaultDurationMillis,
     val delay: Int = 0,
@@ -97,6 +99,7 @@ interface DurationBasedAnimationSpec<T> : AnimationSpec<T> {
  * @param stiffness stiffness of the spring. [Spring.StiffnessMedium] by default.
  * @param visibilityThreshold specifies the visibility threshold
  */
+@Immutable
 class SpringSpec<T>(
     val dampingRatio: Float = Spring.DampingRatioNoBouncy,
     val stiffness: Float = Spring.StiffnessMedium,
@@ -128,6 +131,7 @@ private fun <T, V : AnimationVector> TwoWayConverter<T, V>.convert(data: T?): V?
  * @param repeatMode whether animation should repeat by starting from the beginning (i.e.
  *                  [RepeatMode.Restart]) or from the end (i.e. [RepeatMode.Reverse])
  */
+@Immutable
 class RepeatableSpec<T>(
     val iterations: Int,
     val animation: DurationBasedAnimationSpec<T>,
@@ -161,6 +165,7 @@ enum class RepeatMode {
  * @param delay the amount of time (in milliseconds) that the animation should wait before it
  *              starts. Defaults to 0.
  */
+@Immutable
 class SnapSpec<T>(val delay: Int = 0) : AnimationSpec<T> {
     override fun <V : AnimationVector> vectorize(
         converter: TwoWayConverter<T, V>
@@ -181,8 +186,8 @@ class SnapSpec<T>(val delay: Int = 0) : AnimationSpec<T> {
  * for the interval starting keyframe.
  * @sample androidx.compose.animation.core.samples.KeyframesBuilderWithEasing
  */
+@Immutable
 class KeyframesSpec<T>(val config: KeyframesSpecConfig<T>) : DurationBasedAnimationSpec<T> {
-
     /**
      * [KeyframesSpecConfig] stores a mutable configuration of the key frames, including [durationMillis],
      * [delayMillis], and all the key frames. Each key frame defines what the animation value should be
