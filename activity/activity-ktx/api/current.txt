@@ -11,6 +11,14 @@ package androidx.activity {
 
 }
 
+package androidx.activity.contextaware {
+
+  public final class ContextAwareKt {
+    method public static suspend inline <R> Object? withContextAvailable(androidx.activity.contextaware.ContextAware, kotlin.jvm.functions.Function1<? super android.content.Context,? extends R> onContextAvailable, kotlin.coroutines.Continuation<? super R> p);
+  }
+
+}
+
 package androidx.activity.result {
 
   public final class ActivityResultCallerKt {

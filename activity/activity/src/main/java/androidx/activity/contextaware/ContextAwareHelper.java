@@ -19,6 +19,7 @@ package androidx.activity.contextaware;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -40,12 +41,25 @@ public final class ContextAwareHelper {
 
     private final Set<OnContextAvailableListener> mListeners = new CopyOnWriteArraySet<>();
 
-    private Context mContext;
+    private volatile Context mContext;
 
     /**
      * Construct a new ContextAwareHelper.
      */
     public ContextAwareHelper() {
+    }
+
+    /**
+     * Get the {@link Context} if it is currently available. If this returns
+     * <code>null</code>, you can use
+     * {@link #addOnContextAvailableListener(OnContextAvailableListener)} to receive
+     * a callback for when it available.
+     *
+     * @return the Context if it is currently available.
+     */
+    @Nullable
+    public Context peekAvailableContext() {
+        return mContext;
     }
 
     /**

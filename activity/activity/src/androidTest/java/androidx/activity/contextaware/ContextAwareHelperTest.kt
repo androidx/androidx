@@ -36,9 +36,11 @@ class ContextAwareHelperTest {
             callbackCount++
         }
         contextAware.addOnContextAvailableListener(listener)
+        assertThat(contextAware.peekAvailableContext()).isNull()
         contextAware.dispatchOnContextAvailable()
 
         assertThat(callbackCount).isEqualTo(1)
+        assertThat(contextAware.peekAvailableContext()).isNotNull()
     }
 
     @Test
@@ -107,6 +109,8 @@ class ContextAwareHelperTest {
 
 class TestContextAware : ContextAware {
     private val contextAwareHelper = ContextAwareHelper()
+
+    override fun peekAvailableContext() = contextAwareHelper.peekAvailableContext()
 
     override fun addOnContextAvailableListener(listener: OnContextAvailableListener) {
         contextAwareHelper.addOnContextAvailableListener(listener)
