@@ -24,7 +24,6 @@ import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.compositionFor
 import androidx.compose.runtime.emit
-import androidx.compose.runtime.key
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -42,22 +41,21 @@ fun Group(
     clipPathData: List<PathNode> = EmptyPath,
     children: @Composable () -> Unit
 ) {
-    key(name) {
-        emit<GroupComponent, VectorApplier>(
-            ctor = { GroupComponent(name) },
-            update = {
-                set(rotation) { this.rotation = it }
-                set(pivotX) { this.pivotX = it }
-                set(pivotY) { this.pivotY = it }
-                set(scaleX) { this.scaleX = it }
-                set(scaleY) { this.scaleY = it }
-                set(translationX) { this.translationX = it }
-                set(translationY) { this.translationY = it }
-                set(clipPathData) { this.clipPathData = it }
-            }
-        ) {
-            children()
+    emit<GroupComponent, VectorApplier>(
+        ctor = { GroupComponent() },
+        update = {
+            set(name) { this.name = it }
+            set(rotation) { this.rotation = it }
+            set(pivotX) { this.pivotX = it }
+            set(pivotY) { this.pivotY = it }
+            set(scaleX) { this.scaleX = it }
+            set(scaleY) { this.scaleY = it }
+            set(translationX) { this.translationX = it }
+            set(translationY) { this.translationY = it }
+            set(clipPathData) { this.clipPathData = it }
         }
+    ) {
+        children()
     }
 }
 
@@ -77,25 +75,24 @@ fun Path(
     trimPathEnd: Float = DefaultTrimPathEnd,
     trimPathOffset: Float = DefaultTrimPathOffset
 ) {
-    key(name) {
-        emit<PathComponent, VectorApplier>(
-            ctor = { PathComponent(name) },
-            update = {
-                set(pathData) { this.pathData = it }
-                set(fill) { this.fill = it }
-                set(fillAlpha) { this.fillAlpha = it }
-                set(stroke) { this.stroke = it }
-                set(strokeAlpha) { this.strokeAlpha = it }
-                set(strokeLineWidth) { this.strokeLineWidth = it }
-                set(strokeLineJoin) { this.strokeLineJoin = it }
-                set(strokeLineCap) { this.strokeLineCap = it }
-                set(strokeLineMiter) { this.strokeLineMiter = it }
-                set(trimPathStart) { this.trimPathStart = it }
-                set(trimPathEnd) { this.trimPathEnd = it }
-                set(trimPathOffset) { this.trimPathOffset = it }
-            }
-        )
-    }
+    emit<PathComponent, VectorApplier>(
+        ctor = { PathComponent() },
+        update = {
+            set(name) { this.name = it }
+            set(pathData) { this.pathData = it }
+            set(fill) { this.fill = it }
+            set(fillAlpha) { this.fillAlpha = it }
+            set(stroke) { this.stroke = it }
+            set(strokeAlpha) { this.strokeAlpha = it }
+            set(strokeLineWidth) { this.strokeLineWidth = it }
+            set(strokeLineJoin) { this.strokeLineJoin = it }
+            set(strokeLineCap) { this.strokeLineCap = it }
+            set(strokeLineMiter) { this.strokeLineMiter = it }
+            set(trimPathStart) { this.trimPathStart = it }
+            set(trimPathEnd) { this.trimPathEnd = it }
+            set(trimPathOffset) { this.trimPathOffset = it }
+        }
+    )
 }
 
 @Suppress("NAME_SHADOWING")

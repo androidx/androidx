@@ -22,7 +22,7 @@ import androidx.compose.runtime.compositionReference
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.onPreCommit
+import androidx.compose.runtime.onDispose
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Size
@@ -69,15 +69,10 @@ fun VectorPainter(
     val vpHeight = if (viewportHeight.isNaN()) heightPx else viewportHeight
 
     return remember { VectorPainter() }.apply {
-        // This assignment is thread safe as the internal Size and VectorComponent parameters are
-        // backed by mutableState objects
+        // This assignment is thread safe as the internal Size parameter is
+        // backed by a mutableState object
         size = Size(widthPx, heightPx)
-        vector = createVector(
-            name = name,
-            viewportWidth = vpWidth,
-            viewportHeight = vpHeight,
-            children = children
-        )
+        composeInto(name, vpWidth, vpHeight, children)
     }
 }
 
@@ -108,8 +103,40 @@ fun VectorPainter(asset: VectorAsset): VectorPainter {
  */
 class VectorPainter internal constructor() : Painter() {
 
-    internal var vector by mutableStateOf<VectorComponent?>(null)
     internal var size by mutableStateOf(Size.Zero)
+
+    private val vector = VectorComponent().apply {
+        invalidateCallback = {
+            isDirty = true
+        }
+    }
+
+    private var isDirty by mutableStateOf(true)
+
+    @Composable
+    internal fun composeInto(
+        name: String,
+        viewportWidth: Float,
+        viewportHeight: Float,
+        children: @Composable (viewportWidth: Float, viewportHeight: Float) -> Unit
+    ) {
+        vector.apply {
+            this.name = name
+            this.viewportWidth = viewportWidth
+            this.viewportHeight = viewportHeight
+        }
+        val composition = composeVector(
+            vector,
+            @OptIn(ExperimentalComposeApi::class)
+            currentComposer.recomposer,
+            compositionReference(),
+            children
+        )
+
+        onDispose {
+            composition.dispose()
+        }
+    }
 
     private var currentAlpha: Float = 1.0f
     private var currentColorFilter: ColorFilter? = null
@@ -118,7 +145,12 @@ class VectorPainter internal constructor() : Painter() {
         get() = size
 
     override fun DrawScope.onDraw() {
-        vector?.let { with (it) { draw(currentAlpha, currentColorFilter) } }
+        with (vector) { draw(currentAlpha, currentColorFilter) }
+        // This conditional is necessary to obtain invalidation callbacks as the state is
+        // being read here which adds this callback to the snapshot observation
+        if (isDirty) {
+            isDirty = false
+        }
     }
 
     override fun applyAlpha(alpha: Float): Boolean {
@@ -130,38 +162,6 @@ class VectorPainter internal constructor() : Painter() {
         currentColorFilter = colorFilter
         return true
     }
-}
-
-@Composable
-private fun createVector(
-    name: String,
-    viewportWidth: Float,
-    viewportHeight: Float,
-    children: @Composable (viewportWidth: Float, viewportHeight: Float) -> Unit
-): VectorComponent {
-    val vector =
-        remember(name, viewportWidth, viewportHeight) {
-            VectorComponent(
-                name = name,
-                viewportWidth = viewportWidth,
-                viewportHeight = viewportHeight
-            )
-        }
-
-    val composition = composeVector(
-        vector,
-        // TODO(lmr): refactor these APIs so that recomposer isn't necessary
-        @OptIn(ExperimentalComposeApi::class)
-        currentComposer.recomposer,
-        compositionReference(),
-        children
-    )
-    onPreCommit(vector) {
-        onDispose {
-            composition.dispose()
-        }
-    }
-    return vector
 }
 
 /**
