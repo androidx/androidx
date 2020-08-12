@@ -24,7 +24,7 @@ import androidx.compose.ui.AlignmentLine
 import androidx.compose.ui.ContentDrawScope
 import androidx.compose.ui.DrawLayerModifier
 import androidx.compose.ui.DrawModifier
-import androidx.compose.ui.FocusModifier2
+import androidx.compose.ui.FocusModifier
 import androidx.compose.ui.FocusObserverModifier
 import androidx.compose.ui.FocusRequesterModifier
 import androidx.compose.ui.HorizontalAlignmentLine
@@ -673,8 +673,8 @@ class LayoutNode : Measurable, Remeasurement {
                             innerLayerWrapper = layerWrapper
                         }
                     }
-                    if (mod is FocusModifier2) {
-                        wrapper = ModifiedFocusNode2(wrapper, mod).assignChained(toWrap)
+                    if (mod is FocusModifier) {
+                        wrapper = ModifiedFocusNode(wrapper, mod).assignChained(toWrap)
                     }
                     if (mod is FocusObserverModifier) {
                         wrapper = ModifiedFocusObserverNode(wrapper, mod).assignChained(toWrap)

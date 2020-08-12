@@ -56,7 +56,7 @@ internal class KeyInputModifier(
     lateinit var keyInputNode: ModifiedKeyInputNode
 
     fun processKeyInput(keyEvent: KeyEvent): Boolean {
-        val activeKeyInputNode = keyInputNode.findPreviousFocusWrapper2()
+        val activeKeyInputNode = keyInputNode.findPreviousFocusWrapper()
             ?.findActiveFocusNode()
             ?.findLastKeyInputWrapper()
             ?: error("KeyEvent can't be processed because this key input node is not active.")

@@ -18,8 +18,8 @@ package androidx.compose.ui.node
 
 import androidx.compose.ui.FocusObserverModifier
 import androidx.compose.ui.focus.ExperimentalFocus
-import androidx.compose.ui.focus.FocusState2
-import androidx.compose.ui.focus.FocusState2.Inactive
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.focus.FocusState.Inactive
 import androidx.compose.ui.focus.searchChildrenForFocusNode
 
 @OptIn(ExperimentalFocus::class)
@@ -28,7 +28,7 @@ internal class ModifiedFocusObserverNode(
     modifier: FocusObserverModifier
 ) : DelegatingLayoutNodeWrapper<FocusObserverModifier>(wrapped, modifier) {
 
-    override fun propagateFocusStateChange(focusState: FocusState2) {
+    override fun propagateFocusStateChange(focusState: FocusState) {
         modifier.onFocusChange(focusState)
         super.propagateFocusStateChange(focusState)
     }
@@ -39,7 +39,7 @@ internal class ModifiedFocusObserverNode(
         // For instance, if the observer is moved to the end of the list, and there is no focus
         // modifier following this observer, it's focus state will be invalid. To solve this, we
         // always reset the focus state when a focus observer is re-used.
-        val focusNode = wrapped.findNextFocusWrapper2() ?: layoutNode.searchChildrenForFocusNode()
+        val focusNode = wrapped.findNextFocusWrapper() ?: layoutNode.searchChildrenForFocusNode()
         modifier.onFocusChange(focusNode?.modifier?.focusState ?: Inactive)
     }
 }

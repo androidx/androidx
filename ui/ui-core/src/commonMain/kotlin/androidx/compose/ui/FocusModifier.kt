@@ -19,28 +19,27 @@ package androidx.compose.ui
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.focus.ExperimentalFocus
-import androidx.compose.ui.focus.FocusState2
-import androidx.compose.ui.node.ModifiedFocusNode2
+import androidx.compose.ui.focus.FocusState
+import androidx.compose.ui.node.ModifiedFocusNode
 
-// TODO(b/160923332): Rename FocusModifier2 to FocusModifier
 /**
  * A [Modifier.Element] that wraps makes the modifiers on the right into a Focusable. Use a
- * different instance of [FocusModifier2] for each focusable component.
+ * different instance of [FocusModifier] for each focusable component.
  */
 @OptIn(ExperimentalFocus::class)
-internal class FocusModifier2(
-    initialFocus: FocusState2
+internal class FocusModifier(
+    initialFocus: FocusState
 ) : Modifier.Element {
 
-    var focusState: FocusState2 = initialFocus
+    var focusState: FocusState = initialFocus
         set(value) {
             field = value
             focusNode.wrappedBy?.propagateFocusStateChange(value)
         }
 
-    var focusedChild: ModifiedFocusNode2? = null
+    var focusedChild: ModifiedFocusNode? = null
 
-    lateinit var focusNode: ModifiedFocusNode2
+    lateinit var focusNode: ModifiedFocusNode
 }
 
 /**
@@ -48,4 +47,4 @@ internal class FocusModifier2(
  */
 @ExperimentalFocus
 @Composable
-fun Modifier.focus(): Modifier = this.then(remember { FocusModifier2(FocusState2.Inactive) })
+fun Modifier.focus(): Modifier = this.then(remember { FocusModifier(FocusState.Inactive) })

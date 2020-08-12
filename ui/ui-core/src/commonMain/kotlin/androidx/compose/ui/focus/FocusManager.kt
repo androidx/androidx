@@ -16,10 +16,10 @@
 
 package androidx.compose.ui.focus
 
-import androidx.compose.ui.FocusModifier2
+import androidx.compose.ui.FocusModifier
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusState2.Active
-import androidx.compose.ui.focus.FocusState2.Inactive
+import androidx.compose.ui.focus.FocusState.Active
+import androidx.compose.ui.focus.FocusState.Inactive
 
 /**
  * The focus manager is used by different [Owner][androidx.compose.ui.node.Owner] implementations
@@ -28,7 +28,7 @@ import androidx.compose.ui.focus.FocusState2.Inactive
 @ExperimentalFocus
 class FocusManager {
 
-    private val focusModifier = FocusModifier2(Inactive)
+    private val focusModifier = FocusModifier(Inactive)
     val modifier: Modifier
         get() = focusModifier
 
