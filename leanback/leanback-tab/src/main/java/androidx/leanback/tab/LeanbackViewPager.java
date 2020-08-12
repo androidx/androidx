@@ -28,10 +28,10 @@ import androidx.viewpager.widget.ViewPager;
 /**
  * A viewpager with touch and key event handling disabled by default.
  *
- * Key events handling is disabled by default as with the behaviour of viewpager the fragments
- * can change when DPAD keys are pressed and focus is on the content inside the viewpager. This is
- * not desirable for a top navigation bar. The fragments should preferably change only when the
- * focused tab changes.
+ * <p>Key events handling is disabled by default as with the behaviour of viewpager the fragments
+ * can change when DPAD keys are pressed and focus is on the content inside the {@link ViewPager}.
+ * This is not desirable for a top navigation bar. The fragments should preferably change only
+ * when the focused tab changes.
  */
 public class LeanbackViewPager extends ViewPager {
 
