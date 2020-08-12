@@ -75,7 +75,7 @@ public class BiometricFragmentTest {
 
     @Test
     public void testCancel_DoesNotCrash_WhenNotAssociatedWithFragmentManager() {
-        mFragment.cancelAuthentication(BiometricFragment.CANCELED_FROM_NONE);
+        mFragment.cancelAuthentication(BiometricFragment.CANCELED_FROM_INTERNAL);
     }
 
     @Test
