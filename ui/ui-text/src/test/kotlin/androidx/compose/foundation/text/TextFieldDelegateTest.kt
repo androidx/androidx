@@ -16,6 +16,7 @@
 
 package androidx.compose.foundation.text
 
+import androidx.compose.ui.AlignmentLine
 import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.unit.LayoutDirection
@@ -241,7 +242,9 @@ class TextFieldDelegateTest {
         val dummyRect = Rect(0f, 1f, 2f, 3f)
         whenever(textLayoutResult.getBoundingBox(any())).thenReturn(dummyRect)
         val dummyPoint = Offset(5f, 6f)
-        whenever(layoutCoordinates.localToRoot(any())).thenReturn(dummyPoint)
+        layoutCoordinates = MockCoordinates(
+            rootOffset = dummyPoint
+        )
         val dummyEditorState = TextFieldValue(text = "Hello, World", selection = TextRange(1))
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
         TextFieldDelegate.notifyFocusedRect(
@@ -279,7 +282,9 @@ class TextFieldDelegateTest {
         val dummyRect = Rect(0f, 1f, 2f, 3f)
         whenever(textLayoutResult.getBoundingBox(any())).thenReturn(dummyRect)
         val dummyPoint = Offset(5f, 6f)
-        whenever(layoutCoordinates.localToRoot(any())).thenReturn(dummyPoint)
+        layoutCoordinates = MockCoordinates(
+            rootOffset = dummyPoint
+        )
         val dummyEditorState = TextFieldValue(text = "Hello, World", selection = TextRange(12))
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
         TextFieldDelegate.notifyFocusedRect(
@@ -333,7 +338,9 @@ class TextFieldDelegateTest {
         val dummyEditorState = TextFieldValue(text = "Hello, World", selection = TextRange(1, 3))
         val dummyInputSessionToken = 10 // We are not using this value in this test. Just dummy.
         whenever(textLayoutResult.getBoundingBox(any())).thenReturn(dummyRect)
-        whenever(layoutCoordinates.localToRoot(any())).thenReturn(dummyPoint)
+        layoutCoordinates = MockCoordinates(
+            rootOffset = dummyPoint
+        )
 
         TextFieldDelegate.notifyFocusedRect(
             dummyEditorState,
@@ -425,5 +432,31 @@ class TextFieldDelegateTest {
         assertThat(result.transformedText.spanStyles).contains(
             AnnotatedString.Range(SpanStyle(textDecoration = TextDecoration.Underline), 3, 6)
         )
+    }
+
+    private class MockCoordinates(
+        override val size: IntSize = IntSize.Zero,
+        val localOffset: Offset = Offset.Zero,
+        val globalOffset: Offset = Offset.Zero,
+        val rootOffset: Offset = Offset.Zero
+    ) : LayoutCoordinates {
+        override val providedAlignmentLines: Set<AlignmentLine>
+            get() = emptySet()
+        override val parentCoordinates: LayoutCoordinates?
+            get() = null
+        override val isAttached: Boolean
+            get() = true
+        override fun globalToLocal(global: Offset): Offset = localOffset
+
+        override fun localToGlobal(local: Offset): Offset = globalOffset
+
+        override fun localToRoot(local: Offset): Offset = rootOffset
+
+        override fun childToLocal(child: LayoutCoordinates, childLocal: Offset): Offset =
+            Offset.Zero
+
+        override fun childBoundingBox(child: LayoutCoordinates): Rect = Rect.Zero
+
+        override fun get(line: AlignmentLine): Int = 0
     }
 }

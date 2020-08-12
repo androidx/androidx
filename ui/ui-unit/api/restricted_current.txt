@@ -304,11 +304,11 @@ package androidx.compose.ui.unit {
   public final class IntOffsetKt {
     method @androidx.compose.runtime.Stable public static inline long IntOffset(int x, int y);
     method @androidx.compose.runtime.Stable public static long lerp-t0UgTr0(long start, long stop, float fraction);
-    method @androidx.compose.runtime.Stable public static operator androidx.compose.ui.geometry.Offset minus-k5bmQ1s(long, androidx.compose.ui.geometry.Offset offset);
-    method @androidx.compose.runtime.Stable public static operator androidx.compose.ui.geometry.Offset minus-tRj9Ofw(androidx.compose.ui.geometry.Offset, long offset);
-    method @androidx.compose.runtime.Stable public static operator androidx.compose.ui.geometry.Offset plus-k5bmQ1s(long, androidx.compose.ui.geometry.Offset offset);
-    method @androidx.compose.runtime.Stable public static operator androidx.compose.ui.geometry.Offset plus-tRj9Ofw(androidx.compose.ui.geometry.Offset, long offset);
-    method @androidx.compose.runtime.Stable public static inline androidx.compose.ui.geometry.Offset toOffset--gyyYBs(long);
+    method @androidx.compose.runtime.Stable public static operator long minus-k5bmQ1s(long, long offset);
+    method @androidx.compose.runtime.Stable public static operator long minus-tRj9Ofw(long, long offset);
+    method @androidx.compose.runtime.Stable public static operator long plus-k5bmQ1s(long, long offset);
+    method @androidx.compose.runtime.Stable public static operator long plus-tRj9Ofw(long, long offset);
+    method @androidx.compose.runtime.Stable public static inline long toOffset--gyyYBs(long);
   }
 
   @androidx.compose.runtime.Immutable public final inline class IntSize {
@@ -416,12 +416,12 @@ package androidx.compose.ui.unit {
   }
 
   public final class PxKt {
-    method @Deprecated @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.PxBounds PxBounds-MrV732k(androidx.compose.ui.geometry.Offset topLeft, long size);
-    method @Deprecated @androidx.compose.runtime.Stable public static inline androidx.compose.ui.geometry.Offset center(androidx.compose.ui.unit.PxBounds);
-    method @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Offset center-uvyYCjk(long);
+    method @Deprecated @androidx.compose.runtime.Stable public static inline androidx.compose.ui.unit.PxBounds PxBounds-MrV732k(long topLeft, long size);
+    method @Deprecated @androidx.compose.runtime.Stable public static inline long center(androidx.compose.ui.unit.PxBounds);
+    method @androidx.compose.runtime.Stable public static long center-uvyYCjk(long);
     method @Deprecated public static inline float getHeight(androidx.compose.ui.unit.PxBounds);
     method @Deprecated public static inline float getWidth(androidx.compose.ui.unit.PxBounds);
-    method @androidx.compose.runtime.Stable public static inline long round(androidx.compose.ui.geometry.Offset);
+    method @androidx.compose.runtime.Stable public static inline long round-k-4lQ0M(long);
     method @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.ui.unit.PxBounds toBounds-uvyYCjk(long);
     method @Deprecated @androidx.compose.runtime.Stable public static androidx.compose.ui.geometry.Rect toRect(androidx.compose.ui.unit.PxBounds);
     method @Deprecated @androidx.compose.runtime.Stable public static long toSize(androidx.compose.ui.unit.PxBounds);
@@ -535,10 +535,9 @@ package androidx.compose.ui.unit {
   }
 
   @androidx.compose.runtime.Immutable public final class Velocity {
-    ctor public Velocity(androidx.compose.ui.geometry.Offset pixelsPerSecond);
-    method public androidx.compose.ui.geometry.Offset component1();
-    method @androidx.compose.runtime.Immutable public androidx.compose.ui.unit.Velocity copy(androidx.compose.ui.geometry.Offset pixelsPerSecond);
-    method public androidx.compose.ui.geometry.Offset getPixelsPerSecond();
+    method public long component1();
+    method @androidx.compose.runtime.Immutable public androidx.compose.ui.unit.Velocity copy-k-4lQ0M(long pixelsPerSecond);
+    method public long getPixelsPerSecond();
     method public operator androidx.compose.ui.unit.Velocity unaryMinus();
     field public static final androidx.compose.ui.unit.Velocity.Companion Companion;
   }

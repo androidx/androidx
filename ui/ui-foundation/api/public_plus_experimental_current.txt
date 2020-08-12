@@ -113,7 +113,7 @@ package androidx.compose.foundation {
 
   @androidx.compose.runtime.Stable public final class InteractionState implements androidx.compose.runtime.State<java.util.Set<? extends androidx.compose.foundation.Interaction>> {
     ctor public InteractionState();
-    method public void addInteraction(androidx.compose.foundation.Interaction interaction, androidx.compose.ui.geometry.Offset? position = null);
+    method public void addInteraction-Jgxim6Q(androidx.compose.foundation.Interaction interaction, androidx.compose.ui.geometry.Offset? position = null);
     method public operator boolean contains(androidx.compose.foundation.Interaction interaction);
     method public java.util.Set<androidx.compose.foundation.Interaction> getValue();
     method public androidx.compose.ui.geometry.Offset? interactionPositionFor(androidx.compose.foundation.Interaction interaction);

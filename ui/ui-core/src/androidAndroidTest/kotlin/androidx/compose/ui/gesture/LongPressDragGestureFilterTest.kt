@@ -18,18 +18,16 @@ package androidx.compose.ui.gesture
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.foundation.layout.Stack
 import androidx.compose.runtime.emptyContent
-import androidx.test.filters.LargeTest
 import androidx.compose.ui.Layout
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.test.TestActivity
-import androidx.compose.foundation.layout.Stack
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.setContent
-import com.nhaarman.mockitokotlin2.any
+import androidx.compose.ui.test.TestActivity
+import androidx.test.filters.LargeTest
 import com.nhaarman.mockitokotlin2.inOrder
 import com.nhaarman.mockitokotlin2.spy
-import com.nhaarman.mockitokotlin2.times
 import com.nhaarman.mockitokotlin2.verify
 import com.nhaarman.mockitokotlin2.verifyNoMoreInteractions
 import org.junit.Assert.assertTrue
@@ -183,7 +181,7 @@ class LongPressDragGestureFilterTest {
             view.dispatchTouchEvent(down)
         }
 
-        verify(longPressDragObserver).onLongPress(any())
+        verify(longPressDragObserver).onLongPress(Offset(50f, 50f))
         verifyNoMoreInteractions(longPressDragObserver)
     }
 
@@ -214,9 +212,9 @@ class LongPressDragGestureFilterTest {
         view.dispatchTouchEvent(move)
 
         inOrder(longPressDragObserver) {
-            verify(longPressDragObserver).onLongPress(any())
+            verify(longPressDragObserver).onLongPress(Offset(50f, 50f))
             verify(longPressDragObserver).onDragStart()
-            verify(longPressDragObserver).onDrag(any())
+            verify(longPressDragObserver).onDrag(Offset(1f, 0f))
         }
         verifyNoMoreInteractions(longPressDragObserver)
     }
@@ -249,8 +247,8 @@ class LongPressDragGestureFilterTest {
 
         // Assert.
         inOrder(longPressDragObserver) {
-            verify(longPressDragObserver).onLongPress(any())
-            verify(longPressDragObserver).onStop(any())
+            verify(longPressDragObserver).onLongPress(Offset(50f, 50f))
+            verify(longPressDragObserver).onStop(Offset(0f, 0f))
         }
         verifyNoMoreInteractions(longPressDragObserver)
     }
@@ -292,10 +290,10 @@ class LongPressDragGestureFilterTest {
         view.dispatchTouchEvent(up)
 
         inOrder(longPressDragObserver) {
-            verify(longPressDragObserver).onLongPress(any())
+            verify(longPressDragObserver).onLongPress(Offset(50f, 50f))
             verify(longPressDragObserver).onDragStart()
-            verify(longPressDragObserver).onDrag(any())
-            verify(longPressDragObserver).onStop(any())
+            verify(longPressDragObserver).onDrag(Offset(1f, 0f))
+            verify(longPressDragObserver).onStop(Offset(0f, 0f))
         }
         verifyNoMoreInteractions(longPressDragObserver)
     }
@@ -327,7 +325,7 @@ class LongPressDragGestureFilterTest {
         view.dispatchTouchEvent(cancel)
 
         inOrder(longPressDragObserver) {
-            verify(longPressDragObserver).onLongPress(any())
+            verify(longPressDragObserver).onLongPress(Offset(50f, 50f))
             verify(longPressDragObserver).onCancel()
         }
         verifyNoMoreInteractions(longPressDragObserver)
@@ -370,9 +368,9 @@ class LongPressDragGestureFilterTest {
         view.dispatchTouchEvent(cancel)
 
         inOrder(longPressDragObserver) {
-            verify(longPressDragObserver).onLongPress(any())
+            verify(longPressDragObserver).onLongPress(Offset(50f, 50f))
             verify(longPressDragObserver).onDragStart()
-            verify(longPressDragObserver).onDrag(any())
+            verify(longPressDragObserver).onDrag(Offset(1f, 0f))
             verify(longPressDragObserver).onCancel()
         }
         verifyNoMoreInteractions(longPressDragObserver)
