@@ -86,7 +86,9 @@ class ClickableTest {
     @Test
     fun clickableTest_click() {
         var counter = 0
-        val onClick: () -> Unit = { ++counter }
+        val onClick: () -> Unit = {
+            ++counter
+        }
 
         composeTestRule.setContent {
             Stack {
