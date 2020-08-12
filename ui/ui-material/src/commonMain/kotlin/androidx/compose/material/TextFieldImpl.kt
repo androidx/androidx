@@ -30,7 +30,6 @@ import androidx.compose.foundation.BaseTextField
 import androidx.compose.foundation.ContentColorAmbient
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ProvideTextStyle
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.rememberScrollableController
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.padding
@@ -58,9 +57,11 @@ import androidx.compose.ui.focus.isFocused
 import androidx.compose.ui.focusObserver
 import androidx.compose.ui.focusRequester
 import androidx.compose.ui.gesture.scrollorientationlocking.Orientation
+import androidx.compose.ui.gesture.tapGestureFilter
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.node.Ref
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -174,15 +175,8 @@ internal fun TextFieldImpl(
     val textFieldModifier = modifier
         .focusRequester(focusRequester)
         .focusObserver { isFocused = it.isFocused }
-        .clickable(indication = null) {
-            focusRequester.requestFocus()
-            // TODO(b/163109449): Showing and hiding keyboard should be handled by BaseTextField.
-            //  The requestFocus() call here should be enough to trigger the software keyboard.
-            //  Investiate why this is needed here. If it is really needed, instead of doing
-            //  this in the onClick callback, we should move this logic to the focusObserver
-            //  so that it can show or hide the keyboard based on the focus state.
-            keyboardController.value?.showSoftwareKeyboard()
-        }
+        .tapGestureFilter { focusRequester.requestFocus() }
+        .semantics(mergeAllDescendants = true) {}
 
     val emphasisLevels = EmphasisAmbient.current
 

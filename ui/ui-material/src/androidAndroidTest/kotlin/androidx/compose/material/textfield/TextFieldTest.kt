@@ -16,7 +16,10 @@
 
 package androidx.compose.material.textfield
 
+import android.content.Context
 import android.os.Build
+import android.view.View
+import android.view.inputmethod.InputMethodManager
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
@@ -37,9 +40,12 @@ import androidx.compose.runtime.Providers
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus
 import androidx.compose.ui.focus.ExperimentalFocus
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.isFocused
 import androidx.compose.ui.focusObserver
+import androidx.compose.ui.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
@@ -48,6 +54,7 @@ import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.Ref
 import androidx.compose.ui.onPositioned
 import androidx.compose.ui.platform.TextInputServiceAmbient
+import androidx.compose.ui.platform.ViewAmbient
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.SoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
@@ -182,6 +189,71 @@ class TextFieldTest {
         testRule.runOnIdleWithDensity {
             assertThat(focused).isTrue()
         }
+    }
+
+    @Test
+    fun testTextField_showHideKeyboardBasedOnFocus() {
+        val parentFocusRequester = FocusRequester()
+        val focusRequester = FocusRequester()
+        lateinit var hostView: View
+        testRule.setMaterialContent {
+            hostView = ViewAmbient.current
+            Box {
+                TextField(
+                    modifier = Modifier
+                        .focusRequester(parentFocusRequester)
+                        .focus()
+                        .focusRequester(focusRequester)
+                        .testTag(TextfieldTag),
+                    value = "input",
+                    onValueChange = {},
+                    label = {}
+                )
+            }
+        }
+
+        // Shows keyboard when the text field is focused.
+        runOnIdle { focusRequester.requestFocus() }
+        runOnIdle { assertThat(hostView.isSoftwareKeyboardShown).isTrue() }
+
+            // Hides keyboard when the text field is not focused.
+        runOnIdle { parentFocusRequester.requestFocus() }
+        runOnIdle { assertThat(hostView.isSoftwareKeyboardShown).isFalse() }
+    }
+
+    @Test
+    fun testTextField_clickingOnTextAfterDismissingKeyboard_showHideKeyboard() {
+        val parentFocusRequester = FocusRequester()
+        val focusRequester = FocusRequester()
+        lateinit var softwareKeyboardController: SoftwareKeyboardController
+        lateinit var hostView: View
+        testRule.setMaterialContent {
+            hostView = ViewAmbient.current
+            Box {
+                TextField(
+                    modifier = Modifier
+                        .focusRequester(parentFocusRequester)
+                        .focus()
+                        .focusRequester(focusRequester)
+                        .testTag(TextfieldTag),
+                    value = "input",
+                    onValueChange = {},
+                    onTextInputStarted = { softwareKeyboardController = it },
+                    label = {}
+                )
+            }
+        }
+
+        // Shows keyboard when the text field is focused.
+        runOnIdle { focusRequester.requestFocus() }
+        runOnIdle { assertThat(hostView.isSoftwareKeyboardShown).isTrue() }
+
+        // Hide keyboard.
+        runOnIdle { softwareKeyboardController.hideSoftwareKeyboard() }
+
+        // Clicking on the text field shows the keyboard.
+        onNodeWithTag(TextfieldTag).performClick()
+        runOnIdle { assertThat(hostView.isSoftwareKeyboardShown).isTrue() }
     }
 
     @Test
@@ -803,5 +875,13 @@ class TextFieldTest {
         waitForIdle()
         testRule.clockTestRule.pauseClock()
         testRule.clockTestRule.advanceClock(time)
+    }
+
+    private val View.isSoftwareKeyboardShown: Boolean get() {
+        val inputMethodManager =
+            context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        // TODO(b/163742556): This is just a proxy for software keyboard visibility. Find a better
+        //  way to check if the software keyboard is shown.
+        return inputMethodManager.isAcceptingText()
     }
 }
