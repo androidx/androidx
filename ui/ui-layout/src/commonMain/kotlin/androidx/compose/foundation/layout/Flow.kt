@@ -131,6 +131,7 @@ typealias FlowMainAxisAlignment = MainAxisAlignment
  * Layout model that arranges its children in a horizontal or vertical flow.
  */
 @Composable
+@OptIn(InternalLayoutApi::class)
 private fun Flow(
     orientation: LayoutOrientation,
     mainAxisSize: SizeMode,
@@ -239,9 +240,12 @@ private fun Flow(
                 }
                 // TODO(soboleva): rtl support
                 // Handle vertical direction
-                val mainAxisPositions = arrangement.arrange(
+                val mainAxisPositions = MutableList(childrenMainAxisSizes.size) { 0 }
+                arrangement.arrange(
                     mainAxisLayoutSize,
-                    childrenMainAxisSizes
+                    childrenMainAxisSizes,
+                    this@Layout,
+                    mainAxisPositions
                 )
                 placeables.fastForEachIndexed { j, placeable ->
                     val crossAxis = when (crossAxisAlignment) {

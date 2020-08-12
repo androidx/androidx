@@ -2,37 +2,23 @@
 package androidx.compose.foundation.layout {
 
   @androidx.compose.runtime.Immutable public final class AbsoluteArrangement {
+    method public androidx.compose.foundation.layout.Arrangement.Horizontal aligned(androidx.compose.ui.Alignment.Horizontal alignment);
+    method public androidx.compose.foundation.layout.Arrangement.Horizontal getCenter();
+    method public androidx.compose.foundation.layout.Arrangement.Horizontal getLeft();
+    method public androidx.compose.foundation.layout.Arrangement.Horizontal getRight();
+    method public androidx.compose.foundation.layout.Arrangement.Horizontal getSpaceAround();
+    method public androidx.compose.foundation.layout.Arrangement.Horizontal getSpaceBetween();
+    method public androidx.compose.foundation.layout.Arrangement.Horizontal getSpaceEvenly();
+    method public androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical spacedBy-0680j_4(float space);
+    method public androidx.compose.foundation.layout.Arrangement.Vertical spacedBy-6mHxxJo(float space, androidx.compose.ui.Alignment.Vertical alignment);
+    method public androidx.compose.foundation.layout.Arrangement.Horizontal spacedBy-w0p642k(float space, androidx.compose.ui.Alignment.Horizontal alignment);
+    property public final androidx.compose.foundation.layout.Arrangement.Horizontal Center;
+    property public final androidx.compose.foundation.layout.Arrangement.Horizontal Left;
+    property public final androidx.compose.foundation.layout.Arrangement.Horizontal Right;
+    property public final androidx.compose.foundation.layout.Arrangement.Horizontal SpaceAround;
+    property public final androidx.compose.foundation.layout.Arrangement.Horizontal SpaceBetween;
+    property public final androidx.compose.foundation.layout.Arrangement.Horizontal SpaceEvenly;
     field public static final androidx.compose.foundation.layout.AbsoluteArrangement INSTANCE;
-  }
-
-  public static final class AbsoluteArrangement.Center implements androidx.compose.foundation.layout.Arrangement.Horizontal {
-    method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    field public static final androidx.compose.foundation.layout.AbsoluteArrangement.Center INSTANCE;
-  }
-
-  public static final class AbsoluteArrangement.Left implements androidx.compose.foundation.layout.Arrangement.Horizontal {
-    method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    field public static final androidx.compose.foundation.layout.AbsoluteArrangement.Left INSTANCE;
-  }
-
-  public static final class AbsoluteArrangement.Right implements androidx.compose.foundation.layout.Arrangement.Horizontal {
-    method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    field public static final androidx.compose.foundation.layout.AbsoluteArrangement.Right INSTANCE;
-  }
-
-  public static final class AbsoluteArrangement.SpaceAround implements androidx.compose.foundation.layout.Arrangement.Horizontal {
-    method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    field public static final androidx.compose.foundation.layout.AbsoluteArrangement.SpaceAround INSTANCE;
-  }
-
-  public static final class AbsoluteArrangement.SpaceBetween implements androidx.compose.foundation.layout.Arrangement.Horizontal {
-    method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    field public static final androidx.compose.foundation.layout.AbsoluteArrangement.SpaceBetween INSTANCE;
-  }
-
-  public static final class AbsoluteArrangement.SpaceEvenly implements androidx.compose.foundation.layout.Arrangement.Horizontal {
-    method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    field public static final androidx.compose.foundation.layout.AbsoluteArrangement.SpaceEvenly INSTANCE;
   }
 
   public final class AlignmentLineKt {
@@ -40,59 +26,46 @@ package androidx.compose.foundation.layout {
   }
 
   @androidx.compose.runtime.Immutable public final class Arrangement {
+    method public androidx.compose.foundation.layout.Arrangement.Horizontal aligned(androidx.compose.ui.Alignment.Horizontal alignment);
+    method public androidx.compose.foundation.layout.Arrangement.Vertical aligned(androidx.compose.ui.Alignment.Vertical alignment);
+    method public androidx.compose.foundation.layout.Arrangement.Vertical getBottom();
+    method public androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical getCenter();
+    method public androidx.compose.foundation.layout.Arrangement.Horizontal getEnd();
+    method public androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical getSpaceAround();
+    method public androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical getSpaceBetween();
+    method public androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical getSpaceEvenly();
+    method public androidx.compose.foundation.layout.Arrangement.Horizontal getStart();
+    method public androidx.compose.foundation.layout.Arrangement.Vertical getTop();
+    method public androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical spacedBy-0680j_4(float space);
+    method public androidx.compose.foundation.layout.Arrangement.Vertical spacedBy-6mHxxJo(float space, androidx.compose.ui.Alignment.Vertical alignment);
+    method public androidx.compose.foundation.layout.Arrangement.Horizontal spacedBy-w0p642k(float space, androidx.compose.ui.Alignment.Horizontal alignment);
+    property public final androidx.compose.foundation.layout.Arrangement.Vertical Bottom;
+    property public final androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical Center;
+    property public final androidx.compose.foundation.layout.Arrangement.Horizontal End;
+    property public final androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical SpaceAround;
+    property public final androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical SpaceBetween;
+    property public final androidx.compose.foundation.layout.Arrangement.HorizontalOrVertical SpaceEvenly;
+    property public final androidx.compose.foundation.layout.Arrangement.Horizontal Start;
+    property public final androidx.compose.foundation.layout.Arrangement.Vertical Top;
     field public static final androidx.compose.foundation.layout.Arrangement INSTANCE;
   }
 
-  public static final class Arrangement.Bottom implements androidx.compose.foundation.layout.Arrangement.Vertical {
-    method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size);
-    field public static final androidx.compose.foundation.layout.Arrangement.Bottom INSTANCE;
+  @androidx.compose.foundation.layout.InternalLayoutApi public static interface Arrangement.Horizontal {
+    method public void arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.compose.ui.unit.LayoutDirection layoutDirection, androidx.compose.ui.unit.Density density, java.util.List<java.lang.Integer> outPosition);
+    method @Deprecated public default java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.compose.ui.unit.LayoutDirection layoutDirection);
+    method public default float getSpacing();
+    property public default float spacing;
   }
 
-  public static final class Arrangement.Center implements androidx.compose.foundation.layout.Arrangement.Horizontal androidx.compose.foundation.layout.Arrangement.Vertical {
-    method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size);
-    field public static final androidx.compose.foundation.layout.Arrangement.Center INSTANCE;
+  @androidx.compose.foundation.layout.InternalLayoutApi public static interface Arrangement.HorizontalOrVertical extends androidx.compose.foundation.layout.Arrangement.Horizontal androidx.compose.foundation.layout.Arrangement.Vertical {
+    property public default float spacing;
   }
 
-  public static final class Arrangement.End implements androidx.compose.foundation.layout.Arrangement.Horizontal {
-    method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    field public static final androidx.compose.foundation.layout.Arrangement.End INSTANCE;
-  }
-
-  public static interface Arrangement.Horizontal {
-    method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-  }
-
-  public static final class Arrangement.SpaceAround implements androidx.compose.foundation.layout.Arrangement.Horizontal androidx.compose.foundation.layout.Arrangement.Vertical {
-    method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size);
-    field public static final androidx.compose.foundation.layout.Arrangement.SpaceAround INSTANCE;
-  }
-
-  public static final class Arrangement.SpaceBetween implements androidx.compose.foundation.layout.Arrangement.Horizontal androidx.compose.foundation.layout.Arrangement.Vertical {
-    method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size);
-    field public static final androidx.compose.foundation.layout.Arrangement.SpaceBetween INSTANCE;
-  }
-
-  public static final class Arrangement.SpaceEvenly implements androidx.compose.foundation.layout.Arrangement.Horizontal androidx.compose.foundation.layout.Arrangement.Vertical {
-    method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size);
-    field public static final androidx.compose.foundation.layout.Arrangement.SpaceEvenly INSTANCE;
-  }
-
-  public static final class Arrangement.Start implements androidx.compose.foundation.layout.Arrangement.Horizontal {
-    method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.compose.ui.unit.LayoutDirection layoutDirection);
-    field public static final androidx.compose.foundation.layout.Arrangement.Start INSTANCE;
-  }
-
-  public static final class Arrangement.Top implements androidx.compose.foundation.layout.Arrangement.Vertical {
-    method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size);
-    field public static final androidx.compose.foundation.layout.Arrangement.Top INSTANCE;
-  }
-
-  public static interface Arrangement.Vertical {
-    method public java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size);
+  @androidx.compose.foundation.layout.InternalLayoutApi public static interface Arrangement.Vertical {
+    method public void arrange(int totalSize, java.util.List<java.lang.Integer> size, androidx.compose.ui.unit.Density density, java.util.List<java.lang.Integer> outPosition);
+    method @Deprecated public default java.util.List<java.lang.Integer> arrange(int totalSize, java.util.List<java.lang.Integer> size);
+    method public default float getSpacing();
+    property public default float spacing;
   }
 
   public final class ChainStyle {
@@ -370,6 +343,9 @@ package androidx.compose.foundation.layout {
     method public float getEnd();
     method public float getStart();
     method public float getTop();
+  }
+
+  @kotlin.RequiresOptIn(message="This is an internal layout API subject to change and should not be used directly.") public @interface InternalLayoutApi {
   }
 
   public final class IntrinsicKt {

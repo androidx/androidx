@@ -63,7 +63,7 @@ import androidx.compose.ui.util.annotation.FloatRange
  * @see Column
  */
 @Composable
-@OptIn(ExperimentalLayoutNodeApi::class)
+@OptIn(ExperimentalLayoutNodeApi::class, InternalLayoutApi::class)
 inline fun Column(
     modifier: Modifier = Modifier,
     verticalArrangement: Arrangement.Vertical = Arrangement.Top,
@@ -79,17 +79,20 @@ inline fun Column(
 }
 
 @PublishedApi
+@OptIn(InternalLayoutApi::class)
 internal val DefaultColumnMeasureBlocks = rowColumnMeasureBlocks(
     orientation = LayoutOrientation.Vertical,
-    arrangement = { totalSize, size, _ ->
-        Arrangement.Top.arrange(totalSize, size)
+    arrangement = { totalSize, size, _, density, outPosition ->
+        Arrangement.Top.arrange(totalSize, size, density, outPosition)
     },
+    arrangementSpacing = Arrangement.Top.spacing,
     crossAxisAlignment = CrossAxisAlignment.horizontal(Alignment.Start),
     crossAxisSize = SizeMode.Wrap
 )
 
 @PublishedApi
 @Composable
+@OptIn(InternalLayoutApi::class)
 internal fun columnMeasureBlocks(
     verticalArrangement: Arrangement.Vertical,
     horizontalGravity: Alignment.Horizontal
@@ -99,9 +102,10 @@ internal fun columnMeasureBlocks(
     } else {
         rowColumnMeasureBlocks(
             orientation = LayoutOrientation.Vertical,
-            arrangement = { totalSize, size, _ ->
-                verticalArrangement.arrange(totalSize, size)
+            arrangement = { totalSize, size, _, density, outPosition ->
+                verticalArrangement.arrange(totalSize, size, density, outPosition)
             },
+            arrangementSpacing = verticalArrangement.spacing,
             crossAxisAlignment = CrossAxisAlignment.horizontal(horizontalGravity),
             crossAxisSize = SizeMode.Wrap
         )
