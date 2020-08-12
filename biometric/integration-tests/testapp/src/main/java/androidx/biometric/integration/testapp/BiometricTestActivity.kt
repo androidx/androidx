@@ -24,6 +24,7 @@ import android.security.keystore.KeyProperties
 import android.widget.Button
 import android.widget.CheckBox
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators
 import androidx.biometric.BiometricPrompt
@@ -173,11 +174,12 @@ class BiometricTestActivity : FragmentActivity() {
             .setDescription(getString(R.string.biometric_prompt_description))
             .setConfirmationRequired(requireConfirmationCheckbox.isChecked)
             .setAllowedAuthenticators(allowedAuthenticators)
-
-        // Set the negative button text ONLY if device credential authentication is not enabled.
-        if (allowedAuthenticators and Authenticators.DEVICE_CREDENTIAL == 0) {
-            infoBuilder.setNegativeButtonText(getString(R.string.biometric_prompt_negative_label))
-        }
+            .apply {
+                // Set the negative button text ONLY if device credential auth is not allowed.
+                if (allowedAuthenticators and Authenticators.DEVICE_CREDENTIAL == 0) {
+                    setNegativeButtonText(getString(R.string.biometric_prompt_negative_label))
+                }
+            }
 
         val info: BiometricPrompt.PromptInfo?
         try {
@@ -205,22 +207,25 @@ class BiometricTestActivity : FragmentActivity() {
             return
         }
 
+        // Create a spec for the key to be generated.
         val keyPurpose = KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
-        val keySpecBuilder = KeyGenParameterSpec.Builder(KEY_NAME, keyPurpose)
+        val keySpec = KeyGenParameterSpec.Builder(KEY_NAME, keyPurpose)
             .setBlockModes(KeyProperties.BLOCK_MODE_CBC)
             .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_PKCS7)
             .setUserAuthenticationRequired(true)
-
-        // Require authentication for each use of the key.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            keySpecBuilder.setUserAuthenticationParameters(0 /* timeout */, keyType)
-        } else {
-            keySpecBuilder.setUserAuthenticationValidityDurationSeconds(-1)
-        }
+            .apply {
+                // Require authentication for each use of the key.
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    setUserAuthenticationParameters(0 /* timeout */, keyType)
+                } else {
+                    setUserAuthenticationValidityDurationSeconds(-1)
+                }
+            }
+            .build()
 
         // Generate and store the key in the Android keystore.
         val keyGenerator = getInstance(KeyProperties.KEY_ALGORITHM_AES, KEYSTORE_INSTANCE)
-        keyGenerator.init(keySpecBuilder.build())
+        keyGenerator.init(keySpec)
         keyGenerator.generateKey()
 
         // Prepare the crypto object to use for authentication.
@@ -245,6 +250,7 @@ class BiometricTestActivity : FragmentActivity() {
     /**
      * Logs a new [message] to the in-app [TextView].
      */
+    @SuppressLint("SetTextI18n")
     private fun log(message: CharSequence) {
         logView.text = "${message}\n${logView.text}"
     }
@@ -253,7 +259,6 @@ class BiometricTestActivity : FragmentActivity() {
         private const val KEY_LOG_TEXT = "key_log_text"
         private const val KEY_NAME = "mySecretKey"
         private const val KEYSTORE_INSTANCE = "AndroidKeyStore"
-        private const val LATCH_AWAIT_TIMEOUT_SEC = 10L
         private const val PAYLOAD = "hello"
 
         /**
@@ -293,6 +298,7 @@ class BiometricTestActivity : FragmentActivity() {
         /**
          * Returns the cipher that will be used for encryption.
          */
+        @RequiresApi(Build.VERSION_CODES.M)
         private fun getCipher(): Cipher {
             return Cipher.getInstance(KeyProperties.KEY_ALGORITHM_AES + "/" +
                     KeyProperties.BLOCK_MODE_CBC + "/" +
