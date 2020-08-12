@@ -16,9 +16,11 @@
 
 package androidx.biometric.integration.testapp
 
+import android.app.Activity
 import android.app.Instrumentation
 import android.app.KeyguardManager
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import androidx.biometric.BiometricManager
 import androidx.biometric.BiometricManager.Authenticators
@@ -31,17 +33,31 @@ import androidx.test.uiautomator.UiDevice
  */
 internal object TestUtils {
     /**
+     * The maximum time that [UiDevice.waitForIdle] should wait for the device to become idle.
+     */
+    private const val IDLE_TIMEOUT_MS = 3000L
+
+    /**
      * The maximum time that [changeOrientation] should wait for the device to finish rotating.
      */
     private const val ROTATE_TIMEOUT_MS = 2000L
 
     /**
+     * Brings the given [activity] from the background to the foreground.
+     */
+    internal fun bringToForeground(activity: Activity) {
+        val intent = Intent(activity, activity.javaClass)
+        intent.flags = Intent.FLAG_ACTIVITY_REORDER_TO_FRONT
+        activity.startActivity(intent)
+    }
+
+    /**
      * Changes the [device] to [landscape] or portrait orientation and waits for rotation to finish.
      */
-    internal fun changeOrientation(device: UiDevice, landscape: Boolean) {
+    internal fun changeOrientation(activity: Activity, device: UiDevice, landscape: Boolean) {
         // Create a monitor to wait for the activity to be recreated.
         val monitor = Instrumentation.ActivityMonitor(
-            BiometricTestActivity::class.java.name,
+            activity.javaClass.name,
             null /* result */,
             false /* block */
         )
@@ -83,5 +99,13 @@ internal object TestUtils {
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1 -> keyguard.isDeviceLocked
             else -> keyguard.isKeyguardLocked
         }
+    }
+
+    /**
+     * Presses the system home button and waits for the [device] to become idle.
+     */
+    internal fun navigateToHomeScreen(device: UiDevice) {
+        device.pressHome()
+        device.waitForIdle(IDLE_TIMEOUT_MS)
     }
 }

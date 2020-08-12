@@ -43,6 +43,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.ref.WeakReference;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 
@@ -57,9 +58,9 @@ public class BiometricFragment extends Fragment {
     private static final String TAG = "BiometricFragment";
 
     /**
-     * Authentication was not canceled by the user but may have been canceled by the system.
+     * Authentication was canceled by the library or framework.
      */
-    static final int CANCELED_FROM_NONE = 0;
+    static final int CANCELED_FROM_INTERNAL = 0;
 
     /**
      * Authentication was canceled by the user (e.g. by pressing the system back button).
@@ -72,9 +73,20 @@ public class BiometricFragment extends Fragment {
     static final int CANCELED_FROM_NEGATIVE_BUTTON = 2;
 
     /**
+     * Authentication was canceled by the client application via
+     * {@link BiometricPrompt#cancelAuthentication()}.
+     */
+    static final int CANCELED_FROM_CLIENT = 3;
+
+    /**
      * Where authentication was canceled from.
      */
-    @IntDef({CANCELED_FROM_NONE, CANCELED_FROM_USER, CANCELED_FROM_NEGATIVE_BUTTON})
+    @IntDef({
+        CANCELED_FROM_INTERNAL,
+        CANCELED_FROM_USER,
+        CANCELED_FROM_NEGATIVE_BUTTON,
+        CANCELED_FROM_CLIENT
+    })
     @Retention(RetentionPolicy.SOURCE)
     @interface CanceledFrom {}
 
@@ -124,6 +136,22 @@ public class BiometricFragment extends Fragment {
         }
     }
 
+    private static class StopIgnoringCancelRunnable implements Runnable {
+        @NonNull private final WeakReference<BiometricViewModel> mViewModelRef;
+
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        StopIgnoringCancelRunnable(@Nullable BiometricViewModel viewModel) {
+            mViewModelRef = new WeakReference<>(viewModel);
+        }
+
+        @Override
+        public void run() {
+            if (mViewModelRef.get() != null) {
+                mViewModelRef.get().setIgnoringCancel(false);
+            }
+        }
+    }
+
     /**
      * A handler used to post delayed events.
      */
@@ -150,10 +178,26 @@ public class BiometricFragment extends Fragment {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        if (!isChangingConfigurations()) {
-            cancelAuthentication(BiometricFragment.CANCELED_FROM_NONE);
+    public void onStart() {
+        super.onStart();
+
+        // Some device credential implementations in API 29 cause the prompt to receive a cancel
+        // signal immediately after it's shown (b/162022588).
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q
+                && AuthenticatorUtils.isDeviceCredentialAllowed(
+                        mViewModel.getAllowedAuthenticators())) {
+            mViewModel.setIgnoringCancel(true);
+            mHandler.postDelayed(new StopIgnoringCancelRunnable(mViewModel), 250L);
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
+                && !mViewModel.isConfirmingDeviceCredential()
+                && !isChangingConfigurations()) {
+            cancelAuthentication(BiometricFragment.CANCELED_FROM_INTERNAL);
         }
     }
 
@@ -354,7 +398,7 @@ public class BiometricFragment extends Fragment {
                 dialog.show(getParentFragmentManager(), FINGERPRINT_DIALOG_FRAGMENT_TAG);
             }
 
-            mViewModel.setCanceledFrom(CANCELED_FROM_NONE);
+            mViewModel.setCanceledFrom(CANCELED_FROM_INTERNAL);
             fingerprintManagerCompat.authenticate(
                     CryptoObjectUtils.wrapForFingerprintManager(mViewModel.getCryptoObject()),
                     0 /* flags */,
@@ -434,6 +478,10 @@ public class BiometricFragment extends Fragment {
      * @param canceledFrom Where authentication was canceled from.
      */
     void cancelAuthentication(@CanceledFrom int canceledFrom) {
+        if (canceledFrom != CANCELED_FROM_CLIENT && mViewModel.isIgnoringCancel()) {
+            return;
+        }
+
         if (isUsingFingerprintDialog()) {
             mViewModel.setCanceledFrom(canceledFrom);
             if (canceledFrom == CANCELED_FROM_USER) {
@@ -442,6 +490,7 @@ public class BiometricFragment extends Fragment {
                         errorCode, ErrorUtils.getFingerprintErrorString(getContext(), errorCode));
             }
         }
+
         mViewModel.getCancellationSignalProvider().cancel();
     }
 
@@ -511,9 +560,12 @@ public class BiometricFragment extends Fragment {
 
             if (errorCode == BiometricPrompt.ERROR_CANCELED) {
                 // User-initiated cancellation errors should already be handled.
-                if (mViewModel.getCanceledFrom() == CANCELED_FROM_NONE) {
+                @CanceledFrom final int canceledFrom = mViewModel.getCanceledFrom();
+                if (canceledFrom == CANCELED_FROM_INTERNAL
+                        || canceledFrom == CANCELED_FROM_CLIENT) {
                     sendErrorToClient(errorCode, errorString);
                 }
+
                 dismiss();
             } else {
                 if (mViewModel.isFingerprintDialogDismissedInstantly()) {

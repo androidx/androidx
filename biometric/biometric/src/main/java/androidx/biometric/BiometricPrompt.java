@@ -61,19 +61,19 @@ public class BiometricPrompt implements BiometricConstants {
      * An error code that may be returned during authentication.
      */
     @IntDef({
-            ERROR_HW_UNAVAILABLE,
-            ERROR_UNABLE_TO_PROCESS,
-            ERROR_TIMEOUT,
-            ERROR_NO_SPACE,
-            ERROR_CANCELED,
-            ERROR_LOCKOUT,
-            ERROR_VENDOR,
-            ERROR_LOCKOUT_PERMANENT,
-            ERROR_USER_CANCELED,
-            ERROR_NO_BIOMETRICS,
-            ERROR_HW_NOT_PRESENT,
-            ERROR_NEGATIVE_BUTTON,
-            ERROR_NO_DEVICE_CREDENTIAL
+        ERROR_HW_UNAVAILABLE,
+        ERROR_UNABLE_TO_PROCESS,
+        ERROR_TIMEOUT,
+        ERROR_NO_SPACE,
+        ERROR_CANCELED,
+        ERROR_LOCKOUT,
+        ERROR_VENDOR,
+        ERROR_LOCKOUT_PERMANENT,
+        ERROR_USER_CANCELED,
+        ERROR_NO_BIOMETRICS,
+        ERROR_HW_NOT_PRESENT,
+        ERROR_NEGATIVE_BUTTON,
+        ERROR_NO_DEVICE_CREDENTIAL
     })
     @Retention(RetentionPolicy.SOURCE)
     @interface AuthenticationError {}
@@ -105,9 +105,9 @@ public class BiometricPrompt implements BiometricConstants {
      * The authentication type that was used, as reported by {@link AuthenticationResult}.
      */
     @IntDef({
-            AUTHENTICATION_RESULT_TYPE_UNKNOWN,
-            AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL,
-            AUTHENTICATION_RESULT_TYPE_BIOMETRIC
+        AUTHENTICATION_RESULT_TYPE_UNKNOWN,
+        AUTHENTICATION_RESULT_TYPE_DEVICE_CREDENTIAL,
+        AUTHENTICATION_RESULT_TYPE_BIOMETRIC
     })
     @Retention(RetentionPolicy.SOURCE)
     @interface AuthenticationResultType {}
@@ -889,7 +889,7 @@ public class BiometricPrompt implements BiometricConstants {
             return;
         }
 
-        biometricFragment.cancelAuthentication(BiometricFragment.CANCELED_FROM_NONE);
+        biometricFragment.cancelAuthentication(BiometricFragment.CANCELED_FROM_CLIENT);
     }
 
     /**

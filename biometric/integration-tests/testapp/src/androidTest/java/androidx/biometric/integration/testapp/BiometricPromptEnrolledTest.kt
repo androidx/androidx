@@ -17,6 +17,7 @@
 package androidx.biometric.integration.testapp
 
 import android.content.Context
+import android.os.Build
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions.click
@@ -57,8 +58,9 @@ class BiometricPromptEnrolledTest {
     @After
     fun tearDown() {
         if (::device.isInitialized) {
-            TestUtils.changeOrientation(device, landscape = false)
-            device.pressHome()
+            TestUtils.changeOrientation(activityRule.activity, device, landscape = false)
+            TestUtils.navigateToHomeScreen(device)
+            device.pressBack()
         }
     }
 
@@ -72,32 +74,15 @@ class BiometricPromptEnrolledTest {
     }
 
     @Test
-    fun testBiometricOnlyAuth_SendsError_WhenBackPressedAfterRotation() {
-        onView(withId(R.id.button_authenticate)).perform(click())
-        TestUtils.changeOrientation(device, landscape = true)
-        device.pressBack()
-        onView(withId(R.id.text_view_log)).check(
-            matches(withText(containsString("onAuthenticationError")))
-        )
-    }
-
-    @Test
-    fun testBiometricOnlyAuth_SendsError_WhenBackPressedAfterRepeatedRotation() {
-        onView(withId(R.id.button_authenticate)).perform(click())
-        for (i in 1..3) {
-            TestUtils.changeOrientation(device, landscape = true)
-            TestUtils.changeOrientation(device, landscape = false)
-        }
-        device.pressBack()
-        onView(withId(R.id.text_view_log)).check(
-            matches(withText(containsString("onAuthenticationError")))
-        )
-    }
-
-    @Test
     fun testBiometricOrCredentialAuth_SendsError_WhenBackPressed() {
         onView(withId(R.id.checkbox_allow_device_credential)).perform(click())
+        testBiometricOnlyAuth_SendsError_WhenBackPressed()
+    }
+
+    @Test
+    fun testBiometricOnlyAuth_SendsError_WhenBackPressedAfterRotation() {
         onView(withId(R.id.button_authenticate)).perform(click())
+        TestUtils.changeOrientation(activityRule.activity, device, landscape = true)
         device.pressBack()
         onView(withId(R.id.text_view_log)).check(
             matches(withText(containsString("onAuthenticationError")))
@@ -107,8 +92,16 @@ class BiometricPromptEnrolledTest {
     @Test
     fun testBiometricOrCredentialAuth_SendsError_WhenBackPressedAfterRotation() {
         onView(withId(R.id.checkbox_allow_device_credential)).perform(click())
+        testBiometricOnlyAuth_SendsError_WhenBackPressedAfterRotation()
+    }
+
+    @Test
+    fun testBiometricOnlyAuth_SendsError_WhenBackPressedAfterRepeatedRotation() {
         onView(withId(R.id.button_authenticate)).perform(click())
-        TestUtils.changeOrientation(device, landscape = true)
+        for (i in 1..3) {
+            TestUtils.changeOrientation(activityRule.activity, device, landscape = true)
+            TestUtils.changeOrientation(activityRule.activity, device, landscape = false)
+        }
         device.pressBack()
         onView(withId(R.id.text_view_log)).check(
             matches(withText(containsString("onAuthenticationError")))
@@ -118,24 +111,41 @@ class BiometricPromptEnrolledTest {
     @Test
     fun testBiometricOrCredentialAuth_SendsError_WhenBackPressedAfterRepeatedRotation() {
         onView(withId(R.id.checkbox_allow_device_credential)).perform(click())
+        testBiometricOnlyAuth_SendsError_WhenBackPressedAfterRepeatedRotation()
+    }
+
+    @Test
+    fun testBiometricOnlyAuth_SendsError_WhenCanceledOnConfigurationChange() {
+        onView(withId(R.id.checkbox_cancel_config_change)).perform(click())
         onView(withId(R.id.button_authenticate)).perform(click())
-        for (i in 1..3) {
-            TestUtils.changeOrientation(device, landscape = true)
-            TestUtils.changeOrientation(device, landscape = false)
-        }
-        device.pressBack()
+        TestUtils.changeOrientation(activityRule.activity, device, landscape = true)
         onView(withId(R.id.text_view_log)).check(
             matches(withText(containsString("onAuthenticationError")))
         )
     }
 
     @Test
-    fun testCancelOnConfigurationChange_SendsError_WhenDeviceRotates() {
-        onView(withId(R.id.checkbox_cancel_config_change)).perform(click())
+    fun testBiometricOrCredentialAuth_SendsError_WhenCanceledOnConfigurationChange() {
+        onView(withId(R.id.checkbox_allow_device_credential)).perform(click())
+        testBiometricOnlyAuth_SendsError_WhenCanceledOnConfigurationChange()
+    }
+
+    @Test
+    fun testBiometricOnlyAuth_SendsError_WhenActivityBackgrounded() {
         onView(withId(R.id.button_authenticate)).perform(click())
-        TestUtils.changeOrientation(device, landscape = true)
+        TestUtils.navigateToHomeScreen(device)
+        TestUtils.bringToForeground(activityRule.activity)
         onView(withId(R.id.text_view_log)).check(
             matches(withText(containsString("onAuthenticationError")))
         )
+    }
+
+    @Test
+    fun testBiometricOrCredentialAuth_SendsError_WhenActivityBackgrounded() {
+        // TODO(b/162022588): Fix this for Pixel devices on API 29.
+        assumeFalse(Build.VERSION.SDK_INT == Build.VERSION_CODES.Q)
+
+        onView(withId(R.id.checkbox_allow_device_credential)).perform(click())
+        testBiometricOnlyAuth_SendsError_WhenActivityBackgrounded()
     }
 }
