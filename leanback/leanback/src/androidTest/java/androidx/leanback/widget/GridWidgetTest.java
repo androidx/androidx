@@ -4902,6 +4902,70 @@ public class GridWidgetTest {
     }
 
     @Test
+    public void testAccessibilityFocusOutFrontEnd_actionsAvailable() throws Throwable {
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
+                R.layout.horizontal_linear);
+        int[] items = new int[5];
+        for (int i = 0; i < items.length; i++) {
+            items[i] = 300;
+        }
+        intent.putExtra(GridActivity.EXTRA_ITEMS, items);
+        intent.putExtra(GridActivity.EXTRA_STAGGERED, false);
+        initActivity(intent);
+        mOrientation = BaseGridView.HORIZONTAL;
+        mNumRows = 1;
+        final RecyclerViewAccessibilityDelegate delegateCompat = mGridView
+                .getCompatAccessibilityDelegate();
+        final AccessibilityNodeInfoCompat info1 = AccessibilityNodeInfoCompat.obtain();
+        // Test not allowing going out both ends
+        mLayoutManager.setFocusOutAllowed(/* throughFront= */ false,
+                /* throughEnd= */ false);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                delegateCompat.onInitializeAccessibilityNodeInfo(mGridView, info1);
+            }
+        });
+        // When not allowing jumping out both end, handle action scroll backward/forward to block
+        // it.
+        if (Build.VERSION.SDK_INT >= 21) {
+            assertTrue(hasAction(info1,
+                    AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_RIGHT));
+            assertTrue(hasAction(info1,
+                    AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_LEFT));
+        } else {
+            assertTrue(hasAction(info1,
+                    AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD));
+            assertTrue(hasAction(info1,
+                    AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD));
+        }
+        final AccessibilityNodeInfoCompat info2 = AccessibilityNodeInfoCompat.obtain();
+        // Test allowing focus to jump out at front when reaching front.
+        mLayoutManager.setFocusOutAllowed(/* throughFront= */ true,
+                /* throughEnd= */ false);
+        mActivityTestRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                delegateCompat.onInitializeAccessibilityNodeInfo(mGridView, info2);
+            }
+        });
+        // When only allowing jumping out front, block action scroll backward when reaching front
+        // for Talkback to jump focus out.
+        if (Build.VERSION.SDK_INT >= 21) {
+            assertFalse(hasAction(info2,
+                    AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_LEFT));
+            assertTrue(hasAction(info2,
+                    AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_RIGHT));
+        } else {
+            assertFalse(hasAction(info2,
+                    AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD));
+            assertTrue(hasAction(info2,
+                    AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD));
+        }
+    }
+
+    @Test
     public void testAccessibilitySaveContextCrash() throws Throwable {
         Intent intent = new Intent();
         intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID,
