@@ -223,7 +223,7 @@ internal class ComposeViewAdapter : FrameLayout {
     @VisibleForTesting
     internal fun findAndSubscribeTransitions() {
         val slotTrees = slotTableRecord.store.map { it.asTree() }
-        slotTrees.map { tree -> tree.firstOrNull { it.name == composableName } }
+        slotTrees.mapNotNull { tree -> tree.firstOrNull { it.name == composableName } }
             .firstOrNull()?.let { composable ->
                 // Find all the AnimationClockObservers corresponding to transition animations
                 val observers = composable.findAll {
