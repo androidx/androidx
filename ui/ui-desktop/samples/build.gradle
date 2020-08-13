@@ -40,9 +40,7 @@ kotlin {
         }
 
         jvmMain.dependencies {
-            implementation(SKIKO_WINDOWS)
-            implementation(SKIKO_LINUX)
-            implementation(SKIKO_MACOS)
+            implementation(SKIKO_CURRENT_OS)
             implementation project(":compose:desktop:desktop")
         }
     }
