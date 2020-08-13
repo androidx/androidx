@@ -24,18 +24,13 @@ internal class DataMigrationInitializer<T>() {
         /**
          * Creates an initializer from DataMigrations for use with DataStore.
          *
-         * @param migrationTaskFactories A list of functions that return migrations that will be
-         * included in the initializer. If the DataMigration contains any state, the function
-         * should return a new migration each time it is called.
+         * @param migrations A list of migrations that will be included in the initializer.
          * @return The initializer which includes the data migrations returned from the factory
          * functions.
          */
-        fun <T> getInitializer(migrationTaskFactories: List<() -> DataMigration<T>>):
-                suspend (api: InitializerApi<T>) -> Unit {
-            return { api ->
-                val migrations = migrationTaskFactories.map { it() }
-                runMigrations(migrations, api)
-            }
+        fun <T> getInitializer(migrations: List<DataMigration<T>>):
+                suspend (api: InitializerApi<T>) -> Unit = { api ->
+            runMigrations(migrations, api)
         }
 
         private suspend fun <T> runMigrations(
