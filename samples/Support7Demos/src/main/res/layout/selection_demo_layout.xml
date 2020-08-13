@@ -55,7 +55,9 @@
                 android:paddingEnd="0dp"
                 android:paddingStart="0dp"
                 android:paddingTop="5dp"
-                android:scrollbars="none" />
+                android:background="#11000000"
+                android:scrollbarStyle="insideOverlay"
+                android:scrollbars="vertical" />
 
         </FrameLayout>
 
