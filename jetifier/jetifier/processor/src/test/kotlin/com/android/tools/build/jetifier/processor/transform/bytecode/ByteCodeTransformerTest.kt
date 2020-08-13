@@ -25,7 +25,7 @@ import java.io.File
 class ByteCodeTransformerTest {
     @Test(expected = InvalidByteCodeException::class)
     fun malformedBytecode_shouldThrowException() {
-        val processor = Processor.createProcessor3(config = Config.EMPTY)
+        val processor = Processor.createProcessor4(config = Config.EMPTY)
         processor.transform2(
             input = setOf(
                 FileMapping(
@@ -39,7 +39,7 @@ class ByteCodeTransformerTest {
 
     @Test(expected = InvalidByteCodeException::class)
     fun malformedBytecode_androidXDetectionOn_shouldThrowException() {
-        val processor = Processor.createProcessor3(config = Config.EMPTY)
+        val processor = Processor.createProcessor4(config = Config.EMPTY)
         processor.transform2(
             input = setOf(
                 FileMapping(

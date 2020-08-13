@@ -16,6 +16,7 @@
 
 package com.android.tools.build.jetifier.standalone
 
+import com.android.tools.build.jetifier.processor.TimestampsPolicy
 import com.android.tools.build.jetifier.processor.archive.Archive
 import com.android.tools.build.jetifier.processor.archive.ArchiveFile
 import com.android.tools.build.jetifier.processor.archive.ArchiveItemVisitor
@@ -68,7 +69,7 @@ class TopOfTreeBuilder {
 
         // Write the result
         val finalArchive = Archive(outputZip.toPath(), newFiles.toList())
-        finalArchive.writeSelf()
+        finalArchive.writeSelf(TimestampsPolicy.KEEP_PREVIOUS)
     }
 
     private fun process(
