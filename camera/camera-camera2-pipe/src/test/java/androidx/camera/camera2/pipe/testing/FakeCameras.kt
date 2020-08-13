@@ -22,20 +22,26 @@ import android.Manifest
 import android.app.Application
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
+import android.os.Handler
+import android.os.Looper
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.impl.CameraMetadataImpl
+import androidx.camera.camera2.pipe.wrapper.AndroidCameraDevice
+import androidx.camera.camera2.pipe.wrapper.CameraDeviceWrapper
 import androidx.test.core.app.ApplicationProvider
 import kotlinx.atomicfu.atomic
-import org.robolectric.Shadows
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadow.api.Shadow
 import org.robolectric.shadows.ShadowApplication
 import org.robolectric.shadows.ShadowCameraCharacteristics
 import org.robolectric.shadows.ShadowCameraManager
+import java.lang.UnsupportedOperationException
 
 /**
  * Utility class for creating, configuring, and interacting with FakeCamera objects via Robolectric
- *
- * TODO: Implement a utility method to create a fake CameraDevice when robolectric is updated to 4.4
  */
 object FakeCameras {
     private val cameraIds = atomic(0)
@@ -43,13 +49,15 @@ object FakeCameras {
     val application: Application
         get() {
             val app: Application = ApplicationProvider.getApplicationContext()
-            val shadowApp: ShadowApplication = Shadows.shadowOf(app)
+            val shadowApp: ShadowApplication = shadowOf(app)
             shadowApp.grantPermissions(Manifest.permission.CAMERA)
             return app
         }
 
     private val cameraManager: CameraManager
         get() = application.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+
+    private val initializedCameraIds = mutableSetOf<CameraId>()
 
     /**
      * This will create, configure, and add the specified CameraCharacteristics to the Robolectric
@@ -78,11 +86,82 @@ object FakeCameras {
 
         // Add the camera to the camera service
         shadowCameraManager.addCamera(cameraId.value, characteristics)
+        initializedCameraIds.add(cameraId)
 
         return cameraId
     }
 
-    operator fun get(camera: CameraId): CameraCharacteristics {
-        return cameraManager.getCameraCharacteristics(camera.value)
+    operator fun get(fakeCameraId: CameraId): CameraCharacteristics {
+        check(initializedCameraIds.contains(fakeCameraId))
+        return cameraManager.getCameraCharacteristics(fakeCameraId.value)
+    }
+
+    fun open(cameraId: CameraId): FakeCamera {
+        check(initializedCameraIds.contains(cameraId))
+        val characteristics = cameraManager.getCameraCharacteristics(cameraId.value)
+        val metadata = CameraMetadataImpl(cameraId, false, characteristics, emptyMap())
+
+        val callback = CameraStateCallback(cameraId)
+        cameraManager.openCamera(
+            cameraId.value,
+            callback,
+            Handler()
+        )
+        shadowOf(Looper.myLooper()).idle()
+
+        val cameraDevice = callback.camera!!
+        val cameraDeviceWrapper = AndroidCameraDevice(metadata, cameraDevice, cameraId)
+
+        return FakeCamera(
+            cameraId,
+            characteristics,
+            metadata,
+            cameraDevice,
+            cameraDeviceWrapper
+        )
+    }
+
+    /** Remove all fake cameras */
+    fun removeAll() {
+        val shadowCameraManager = Shadow.extract<Any>(
+            cameraManager
+        ) as ShadowCameraManager
+        for (cameraId in initializedCameraIds) {
+            shadowCameraManager.removeCamera(cameraId.value)
+        }
+        initializedCameraIds.clear()
+    }
+
+    /**
+     * The [FakeCamera] instance wraps up several useful objects for use in tests.
+     */
+    data class FakeCamera(
+        val cameraId: CameraId,
+        val characteristics: CameraCharacteristics,
+        val metadata: CameraMetadata,
+        val cameraDevice: CameraDevice,
+        val cameraDeviceWrapper: CameraDeviceWrapper
+    )
+
+    private class CameraStateCallback(private val cameraId: CameraId) :
+        CameraDevice.StateCallback() {
+        var camera: CameraDevice? = null
+        override fun onOpened(cameraDevice: CameraDevice) {
+            check(cameraDevice.id == cameraId.value)
+            this.camera = cameraDevice
+        }
+
+        override fun onDisconnected(camera: CameraDevice) {
+            throw UnsupportedOperationException(
+                "onDisconnected is not expected for Robolectric Camera"
+            )
+        }
+
+        override fun onError(
+            camera: CameraDevice,
+            error: Int
+        ) {
+            throw UnsupportedOperationException("onError is not expected for Robolectric Camera")
+        }
     }
 }

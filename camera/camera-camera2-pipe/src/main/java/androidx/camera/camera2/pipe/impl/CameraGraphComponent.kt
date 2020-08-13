@@ -16,18 +16,14 @@
 
 package androidx.camera.camera2.pipe.impl
 
-import android.os.Process
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.Request
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.Subcomponent
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.asCoroutineDispatcher
-import java.util.concurrent.Executors
 import javax.inject.Qualifier
 import javax.inject.Scope
 
@@ -73,31 +69,8 @@ object CameraGraphProviders {
     @CameraGraphScope
     @Provides
     @ForCameraGraph
-    fun provideCameraGraphCoroutineScope(
-        @ForCameraGraph dispatcher: CoroutineDispatcher
-    ): CoroutineScope {
-        return CoroutineScope(dispatcher.plus(CoroutineName("CXCP-Graph")))
-    }
-
-    @CameraGraphScope
-    @Provides
-    @ForCameraGraph
-    fun provideCameraGraphCoroutineDispatcher(): CoroutineDispatcher {
-        // TODO: Figure out how to make sure the dispatcher gets shut down.
-        return Executors.newFixedThreadPool(1) {
-            object : Thread(it) {
-                init {
-                    name = "CXCP-Graph"
-                }
-
-                override fun run() {
-                    Process.setThreadPriority(
-                        Process.THREAD_PRIORITY_DISPLAY + Process.THREAD_PRIORITY_LESS_FAVORABLE
-                    )
-                    super.run()
-                }
-            }
-        }.asCoroutineDispatcher()
+    fun provideCameraGraphCoroutineScope(threads: Threads): CoroutineScope {
+        return CoroutineScope(threads.defaultDispatcher.plus(CoroutineName("CXCP-Graph")))
     }
 
     @CameraGraphScope

@@ -241,20 +241,18 @@ inline class CameraTimestamp(val value: Long)
 /**
  * Utility function to help deal with the unsafe nature of the typed Key/Value pairs.
  */
-fun CaptureRequest.Builder.writeParameters(
-    parameters: Map<*, Any>
-) {
+fun CaptureRequest.Builder.writeParameters(parameters: Map<*, Any>) {
     for ((key, value) in parameters) {
-        if (key is CaptureRequest.Key<*>) {
-            @Suppress("UNCHECKED_CAST")
-            this.writeParameter(key as CaptureRequest.Key<Any>, value)
-        }
+        writeParameter(key, value)
     }
 }
 
 /**
  * Utility function to help deal with the unsafe nature of the typed Key/Value pairs.
  */
-fun <T> CaptureRequest.Builder.writeParameter(key: CaptureRequest.Key<T>, value: T) {
-    this.set(key, value)
+fun CaptureRequest.Builder.writeParameter(key: Any?, value: Any?) {
+    if (key != null && key is CaptureRequest.Key<*>) {
+        @Suppress("UNCHECKED_CAST")
+        this.set(key as CaptureRequest.Key<Any>, value)
+    }
 }

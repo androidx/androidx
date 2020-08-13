@@ -18,6 +18,8 @@ package androidx.camera.camera2.pipe.impl
 
 import android.content.Context
 import android.hardware.camera2.CameraManager
+import android.os.Handler
+import android.os.Process
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.Cameras
 import dagger.Binds
@@ -25,7 +27,16 @@ import dagger.Component
 import dagger.Module
 import dagger.Provides
 import dagger.Reusable
+import kotlinx.atomicfu.atomic
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.asCoroutineDispatcher
+import java.util.concurrent.Executors
+import javax.inject.Qualifier
 import javax.inject.Singleton
+
+@Qualifier
+annotation class ForCameraPipe
 
 @Singleton
 @Component(modules = [CameraPipeModule::class])
@@ -56,5 +67,58 @@ abstract class CameraPipeBindings {
         @Provides
         fun provideCameraManager(context: Context): CameraManager =
             context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+
+        @Singleton
+        @Provides
+        fun provideCameraPipeThreads(config: CameraPipe.Config): Threads {
+
+            val threadIds = atomic(0)
+            val cameraExecutor = Executors.newFixedThreadPool(2) {
+                object : Thread(it) {
+                    init {
+                        val number = threadIds.incrementAndGet().toString().padStart(2, '0')
+                        name = "CXCP-$number"
+                    }
+
+                    override fun run() {
+                        Process.setThreadPriority(
+                            Process.THREAD_PRIORITY_DISPLAY + Process.THREAD_PRIORITY_LESS_FAVORABLE
+                        )
+                        super.run()
+                    }
+                }
+            }
+            val cameraDispatcher = cameraExecutor.asCoroutineDispatcher()
+            val cameraHandlerProvider =
+                {
+                    @Suppress("DEPRECATION")
+                    config.cameraThread?.let { Handler(it.looper) } ?: Handler()
+                }
+            val ioExecutor = Executors.newFixedThreadPool(8) {
+                object : Thread(it) {
+                    init {
+                        val number = threadIds.incrementAndGet().toString().padStart(2, '0')
+                        name = "CXCP-IO-$number"
+                    }
+                }
+            }
+            val ioDispatcher = ioExecutor.asCoroutineDispatcher()
+
+            val globalScope = CoroutineScope(
+                cameraDispatcher.plus(
+                    CoroutineName
+                        ("CXCP-Pipe")
+                )
+            )
+
+            return Threads(
+                globalScope = globalScope,
+                defaultExecutor = cameraExecutor,
+                defaultDispatcher = cameraDispatcher,
+                ioExecutor = ioExecutor,
+                ioDispatcher = ioDispatcher,
+                handlerBuilder = cameraHandlerProvider
+            )
+        }
     }
 }

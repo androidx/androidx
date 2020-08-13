@@ -23,6 +23,7 @@ class CameraGraphSessionImpl(
     private val token: TokenLock.Token,
     private val graphProcessor: GraphProcessor
 ) : CameraGraph.Session {
+    private val debugId = Debug.debugIdsForGraphSession.incrementAndGet()
     override fun submit(request: Request) {
         graphProcessor.submit(request)
     }
@@ -43,4 +44,5 @@ class CameraGraphSessionImpl(
         // Release the token so that a new instance of session can be created.
         token.release()
     }
+    override fun toString(): String = "CameraGraph.Session-$debugId"
 }

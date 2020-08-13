@@ -16,7 +16,6 @@
 
 package androidx.camera.camera2.pipe.wrapper
 
-import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
@@ -27,17 +26,19 @@ import android.os.Handler
 import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.UnsafeWrapper
+import androidx.camera.camera2.pipe.impl.Debug
+import androidx.camera.camera2.pipe.impl.Log
 import androidx.camera.camera2.pipe.writeParameter
-import java.io.Closeable
 
 /** Interface around a [CameraDevice] with minor modifications.
  *
  * This interface has been modified to correct nullness, adjust exceptions, and to return or produce
  * wrapper interfaces instead of the native Camera2 types.
  */
-interface CameraDeviceWrapper : UnsafeWrapper<CameraDevice>, Closeable {
+interface CameraDeviceWrapper : UnsafeWrapper<CameraDevice> {
     /** @see [CameraDevice.getId] */
     val cameraId: CameraId
 
@@ -102,8 +103,21 @@ interface CameraDeviceWrapper : UnsafeWrapper<CameraDevice>, Closeable {
     fun createCaptureSession(config: SessionConfigData)
 }
 
+fun CameraDeviceWrapper?.closeWithTrace() {
+    this?.unwrap().closeWithTrace()
+}
+
+fun CameraDevice?.closeWithTrace() {
+    this?.let {
+        Log.info { "$it: Closing" }
+        Debug.trace("$it#close") {
+            it.close()
+        }
+    }
+}
+
 class AndroidCameraDevice(
-    private val cameraCharacteristics: CameraCharacteristics,
+    private val cameraMetadata: CameraMetadata,
     private val cameraDevice: CameraDevice,
     override val cameraId: CameraId
 ) : CameraDeviceWrapper, UnsafeWrapper<CameraDevice> {
@@ -217,18 +231,13 @@ class AndroidCameraDevice(
 
         // This compares and sets ONLY the session keys for this camera. Setting parameters that are
         // not listed in availableSessionKeys can cause an unusual amount of extra latency.
-        val sessionKeyNames =
-            cameraCharacteristics.availableSessionKeys.mapTo(HashSet()) { it.name }
+        val sessionKeyNames = cameraMetadata.sessionKeys.map { it.name }
 
         // Iterate template parameters and CHECK BY NAME, as there have been cases where equality
         // checks did not pass.
-        for (parameter in config.sessionParameters) {
-            if (sessionKeyNames.contains(parameter.key.name)) {
-                @Suppress("UNCHECKED_CAST")
-                requestBuilder.writeParameter(
-                    parameter.key as CaptureRequest.Key<Any>,
-                    parameter.value
-                )
+        for ((key, value) in config.sessionParameters) {
+            if (sessionKeyNames.contains(key.name)) {
+                requestBuilder.writeParameter(key, value)
             }
         }
         sessionConfig.sessionParameters = requestBuilder.build()
@@ -246,10 +255,6 @@ class AndroidCameraDevice(
         inputResult: TotalCaptureResult
     ): CaptureRequest.Builder = rethrowCamera2Exceptions {
         cameraDevice.createReprocessCaptureRequest(inputResult)
-    }
-
-    override fun close() = rethrowCamera2Exceptions {
-        cameraDevice.close()
     }
 
     override fun unwrap(): CameraDevice? {
