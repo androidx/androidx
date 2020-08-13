@@ -562,8 +562,7 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY)
     @Nullable
-    @SuppressWarnings("KotlinPropertyAccess")
-    protected Rect getViewPortCropRect() {
+    public Rect getViewPortCropRect() {
         return mViewPortCropRect;
     }
 
