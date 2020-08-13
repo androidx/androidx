@@ -65,8 +65,6 @@ class ParagraphIntegrationTest {
 
     private val resourceLoader = TestFontResourceLoader(context)
 
-    private val cursorWidth = 4f
-
     @Test
     fun empty_string() {
         with(defaultDensity) {
@@ -588,9 +586,9 @@ class ParagraphIntegrationTest {
                 val cursorXOffset = i * fontSizeInPx
                 assertThat(cursorRect).isEqualTo(
                     Rect(
-                        left = cursorXOffset - cursorWidth / 2,
+                        left = cursorXOffset,
                         top = 0f,
-                        right = cursorXOffset + cursorWidth / 2,
+                        right = cursorXOffset,
                         bottom = fontSizeInPx
                     )
                 )
@@ -615,9 +613,9 @@ class ParagraphIntegrationTest {
                 val cursorXOffset = i * fontSizeInPx
                 assertThat(paragraph.getCursorRect(i)).isEqualTo(
                     Rect(
-                        left = cursorXOffset - cursorWidth / 2,
+                        left = cursorXOffset,
                         top = 0f,
-                        right = cursorXOffset + cursorWidth / 2,
+                        right = cursorXOffset,
                         bottom = fontSizeInPx
                     )
                 )
@@ -627,9 +625,9 @@ class ParagraphIntegrationTest {
                 val cursorXOffset = (i % charsPerLine) * fontSizeInPx
                 assertThat(paragraph.getCursorRect(i)).isEqualTo(
                     Rect(
-                        left = cursorXOffset - cursorWidth / 2,
+                        left = cursorXOffset,
                         top = fontSizeInPx,
-                        right = cursorXOffset + cursorWidth / 2,
+                        right = cursorXOffset,
                         bottom = fontSizeInPx * 2.2f
                     )
                 )
@@ -651,9 +649,9 @@ class ParagraphIntegrationTest {
             // Cursor before '\n'
             assertThat(paragraph.getCursorRect(3)).isEqualTo(
                 Rect(
-                    left = 3 * fontSizeInPx - cursorWidth / 2,
+                    left = 3 * fontSizeInPx,
                     top = 0f,
-                    right = 3 * fontSizeInPx + cursorWidth / 2,
+                    right = 3 * fontSizeInPx,
                     bottom = fontSizeInPx
                 )
             )
@@ -661,9 +659,9 @@ class ParagraphIntegrationTest {
             // Cursor after '\n'
             assertThat(paragraph.getCursorRect(4)).isEqualTo(
                 Rect(
-                    left = -cursorWidth / 2,
+                    left = 0f,
                     top = fontSizeInPx,
-                    right = cursorWidth / 2,
+                    right = 0f,
                     bottom = fontSizeInPx * 2.2f
                 )
             )
@@ -684,9 +682,9 @@ class ParagraphIntegrationTest {
             // Cursor before '\n'
             assertThat(paragraph.getCursorRect(3)).isEqualTo(
                 Rect(
-                    left = 3 * fontSizeInPx - cursorWidth / 2,
+                    left = 3 * fontSizeInPx,
                     top = 0f,
-                    right = 3 * fontSizeInPx + cursorWidth / 2,
+                    right = 3 * fontSizeInPx,
                     bottom = fontSizeInPx
                 )
             )
@@ -694,9 +692,9 @@ class ParagraphIntegrationTest {
             // Cursor after '\n'
             assertThat(paragraph.getCursorRect(4)).isEqualTo(
                 Rect(
-                    left = -cursorWidth / 2,
+                    left = 0f,
                     top = fontSizeInPx,
-                    right = cursorWidth / 2,
+                    right = 0f,
                     bottom = fontSizeInPx * 2.2f
                 )
             )
@@ -719,9 +717,9 @@ class ParagraphIntegrationTest {
                 val cursorXOffset = (text.length - i) * fontSizeInPx
                 assertThat(paragraph.getCursorRect(i)).isEqualTo(
                     Rect(
-                        left = cursorXOffset - cursorWidth / 2,
+                        left = cursorXOffset,
                         top = 0f,
-                        right = cursorXOffset + cursorWidth / 2,
+                        right = cursorXOffset,
                         bottom = fontSizeInPx
                     )
                 )
@@ -746,9 +744,9 @@ class ParagraphIntegrationTest {
                 val cursorXOffset = (charsPerLine - i) * fontSizeInPx
                 assertThat(paragraph.getCursorRect(i)).isEqualTo(
                     Rect(
-                        left = cursorXOffset - cursorWidth / 2,
+                        left = cursorXOffset,
                         top = 0f,
-                        right = cursorXOffset + cursorWidth / 2,
+                        right = cursorXOffset,
                         bottom = fontSizeInPx
                     )
                 )
@@ -758,9 +756,9 @@ class ParagraphIntegrationTest {
                 val cursorXOffset = (charsPerLine - i % charsPerLine) * fontSizeInPx
                 assertThat(paragraph.getCursorRect(i)).isEqualTo(
                     Rect(
-                        left = cursorXOffset - cursorWidth / 2,
+                        left = cursorXOffset,
                         top = fontSizeInPx,
-                        right = cursorXOffset + cursorWidth / 2,
+                        right = cursorXOffset,
                         bottom = fontSizeInPx * 2.2f
                     )
                 )
@@ -783,9 +781,9 @@ class ParagraphIntegrationTest {
             // Cursor before '\n'
             assertThat(paragraph.getCursorRect(3)).isEqualTo(
                 Rect(
-                    left = 0 - cursorWidth / 2,
+                    left = 0f,
                     top = 0f,
-                    right = 0 + cursorWidth / 2,
+                    right = 0f,
                     bottom = fontSizeInPx
                 )
             )
@@ -793,9 +791,9 @@ class ParagraphIntegrationTest {
             // Cursor after '\n'
             assertThat(paragraph.getCursorRect(4)).isEqualTo(
                 Rect(
-                    left = 3 * fontSizeInPx - cursorWidth / 2,
+                    left = 3 * fontSizeInPx,
                     top = fontSizeInPx,
-                    right = 3 * fontSizeInPx + cursorWidth / 2,
+                    right = 3 * fontSizeInPx,
                     bottom = fontSizeInPx * 2.2f
                 )
             )
@@ -818,9 +816,9 @@ class ParagraphIntegrationTest {
             // Cursor before '\n'
             assertThat(paragraph.getCursorRect(3)).isEqualTo(
                 Rect(
-                    left = 0 - cursorWidth / 2,
+                    left = 0f,
                     top = 0f,
-                    right = 0 + cursorWidth / 2,
+                    right = 0f,
                     bottom = fontSizeInPx
                 )
             )
@@ -828,9 +826,9 @@ class ParagraphIntegrationTest {
             // Cursor after '\n'
             assertThat(paragraph.getCursorRect(4)).isEqualTo(
                 Rect(
-                    left = -cursorWidth / 2,
+                    left = 0f,
                     top = fontSizeInPx,
-                    right = +cursorWidth / 2,
+                    right = 0f,
                     bottom = fontSizeInPx * 2.2f
                 )
             )

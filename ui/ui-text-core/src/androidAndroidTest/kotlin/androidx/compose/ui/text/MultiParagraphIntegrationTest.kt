@@ -530,9 +530,9 @@ class MultiParagraphIntegrationTest {
                 val cursorXOffset = col * fontSizeInPx
 
                 val expectRect = Rect(
-                    left = cursorXOffset - cursorWidth / 2,
+                    left = cursorXOffset,
                     top = top,
-                    right = cursorXOffset + cursorWidth / 2,
+                    right = cursorXOffset,
                     bottom = top + fontSizeInPx
                 )
                 val actualRect = paragraph.getCursorRect(i)
@@ -548,9 +548,9 @@ class MultiParagraphIntegrationTest {
             val cursorXOffset = col * fontSizeInPx
 
             val expectRect = Rect(
-                left = cursorXOffset - cursorWidth / 2,
+                left = cursorXOffset,
                 top = top,
-                right = cursorXOffset + cursorWidth / 2,
+                right = cursorXOffset,
                 bottom = top + fontSizeInPx
             )
             val actualRect = paragraph.getCursorRect(text.length)
