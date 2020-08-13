@@ -19,7 +19,6 @@ package androidx.ui.tooling.inspector
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.CrossAxisAlignment
 import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -227,16 +226,6 @@ class ParameterFactoryTest {
         assertThat(lookup(CornerSize(2.4.dp))).isEqualTo(ParameterType.DimensionDp to 2.4f)
         assertThat(lookup(CornerSize(2.4f))).isEqualTo(ParameterType.DimensionDp to 1.2f)
         assertThat(lookup(CornerSize(3))).isEqualTo(ParameterType.DimensionDp to 7.5f)
-    }
-
-    @Test
-    fun testCrossAxisAlignment() {
-        assertThat(lookup(CrossAxisAlignment.Start))
-            .isEqualTo(ParameterType.String to "Start")
-        assertThat(lookup(CrossAxisAlignment.End))
-            .isEqualTo(ParameterType.String to "End")
-        assertThat(lookup(CrossAxisAlignment.Center))
-            .isEqualTo(ParameterType.String to "Center")
     }
 
     @Test
