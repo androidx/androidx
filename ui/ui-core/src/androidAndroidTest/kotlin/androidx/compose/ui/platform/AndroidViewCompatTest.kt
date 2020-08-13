@@ -118,8 +118,7 @@ class AndroidViewCompatTest {
                 Layout(
                     modifier = Modifier.testTag("content"),
                     children = @Composable {
-
-                        emitView(::ColoredSquareView) {
+                        AndroidView(::ColoredSquareView) {
                             it.size = squareSize.value
                             it.ref = squareRef
                         }
@@ -178,7 +177,7 @@ class AndroidViewCompatTest {
         composeTestRule.setContent {
             Align {
                 Container(Modifier.testTag("content").drawLayer()) {
-                    emitView(::ColoredSquareView) {
+                    AndroidView(::ColoredSquareView) {
                         it.color = colorModel.value
                         it.ref = squareRef
                     }
@@ -369,7 +368,7 @@ class AndroidViewCompatTest {
 
         composeTestRule.setContent {
             Container(LayoutConstraints(constraintsHolder.value)) {
-                emitView(::MeasureSpecSaverView) {
+                AndroidView(::MeasureSpecSaverView) {
                     it.ref = viewRef
                     it.widthMeasureSpecRef = widthMeasureSpecRef
                     it.heightMeasureSpecRef = heightMeasureSpecRef
@@ -394,7 +393,7 @@ class AndroidViewCompatTest {
         val constraintsHolder = mutableStateOf(Constraints())
         composeTestRule.setContent {
             Container(LayoutConstraints(constraintsHolder.value)) {
-                emitView(::MeasureSpecSaverView) { it.ref = viewRef }
+                AndroidView(::MeasureSpecSaverView) { it.ref = viewRef }
             }
         }
         runOnUiThread {
@@ -440,7 +439,7 @@ class AndroidViewCompatTest {
             Box(Modifier.onPositioned { outer = it.globalPosition }) {
                 val paddingDp = with(DensityAmbient.current) { padding.toDp() }
                 Box(Modifier.padding(paddingDp)) {
-                    emitView(::FrameLayout) {
+                    AndroidView(::FrameLayout) {
                         it.setContent {
                             Box(Modifier.padding(paddingDp)
                                 .onPositioned { inner = it.globalPosition })
@@ -478,7 +477,7 @@ class AndroidViewCompatTest {
                 Box {
                     val paddingDp = with(DensityAmbient.current) { padding.toDp() }
                     Box(Modifier.padding(paddingDp)) {
-                        emitView(::FrameLayout) {
+                        AndroidView(::FrameLayout) {
                             it.setContent {
                                 Box(Modifier.padding(paddingDp).onPositioned { coordinates = it })
                             }
@@ -497,6 +496,7 @@ class AndroidViewCompatTest {
     }
 
     @Test
+    @Suppress("Deprecation")
     fun testComposeInsideView_simpleLayout() {
         val padding = 10f
         val paddingDp = with(composeTestRule.density) { padding.toDp() }
@@ -529,6 +529,7 @@ class AndroidViewCompatTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Suppress("Deprecation")
     fun testComposeInsideView_simpleDraw() {
         val padding = 10f
         val paddingDp = with(composeTestRule.density) { padding.toDp() }
@@ -568,14 +569,16 @@ class AndroidViewCompatTest {
         composeTestRule.setContent {
             if (composeContent) {
                 Box {
-                    emitView(::LinearLayout, {}) {
-                        emit<LayoutNode, Applier<Any>>(
-                            ctor = LayoutEmitHelper.constructor,
-                            update = {
-                                node = this.node
-                                set(noOpMeasureBlocks, LayoutEmitHelper.setMeasureBlocks)
-                            }
-                        )
+                    AndroidView(::LinearLayout) {
+                        it.setContent {
+                            emit<LayoutNode, Applier<Any>>(
+                                ctor = LayoutEmitHelper.constructor,
+                                update = {
+                                    node = this.node
+                                    set(noOpMeasureBlocks, LayoutEmitHelper.setMeasureBlocks)
+                                }
+                            )
+                        }
                     }
                 }
             }
@@ -619,6 +622,7 @@ class AndroidViewCompatTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Suppress("Deprecation")
     fun testComposeInsideView_remove() {
         val size = 40.dp
         val sizePx = with(composeTestRule.density) { size.toIntPx() }
@@ -647,6 +651,7 @@ class AndroidViewCompatTest {
 
     @Test
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
+    @Suppress("Deprecation")
     fun testComposeInsideView_move() {
         val size = 40.dp
         val sizePx = with(composeTestRule.density) { size.toIntPx() }
