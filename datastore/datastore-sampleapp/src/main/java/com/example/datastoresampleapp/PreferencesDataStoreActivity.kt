@@ -24,27 +24,25 @@ import android.widget.TextView
 import androidx.annotation.Sampled
 import androidx.appcompat.app.AppCompatActivity
 import androidx.datastore.DataStore
-import androidx.datastore.preferences.PreferenceDataStoreFactory
 import androidx.datastore.preferences.Preferences
+import androidx.datastore.preferences.createDataStore
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import java.io.File
 import java.io.IOException
 
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class PreferencesDataStoreActivity : AppCompatActivity() {
     private val TAG = "PreferencesActivity"
 
-    private val PREFERENCE_STORE_FILE_NAME = "datastore_test_app.preferences_pb"
+    private val PREFERENCE_STORE_FILE_NAME = "datastore_test_app"
     private val COUNTER_KEY = "counter"
 
     private val preferenceStore: DataStore<Preferences> by lazy {
-        PreferenceDataStoreFactory().create(
-            { File(applicationContext.filesDir, PREFERENCE_STORE_FILE_NAME) })
+        applicationContext.createDataStore(PREFERENCE_STORE_FILE_NAME)
     }
 
     @Sampled

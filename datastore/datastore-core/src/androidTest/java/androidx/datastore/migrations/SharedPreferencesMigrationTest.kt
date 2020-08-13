@@ -138,7 +138,7 @@ class SharedPreferencesMigrationTest {
     private fun getDataStoreWithMigrations(
         migrations: List<DataMigration<Byte>>
     ): DataStore<Byte> {
-        return DataStoreFactory().create(
+        return DataStoreFactory.create(
             produceFile = { datastoreFile },
             serializer = TestingSerializer(),
             migrations = migrations,

@@ -16,7 +16,9 @@
 
 package androidx.datastore
 
+import android.content.Context
 import androidx.datastore.handlers.ReplaceFileCorruptionHandler
+import androidx.test.core.app.ApplicationProvider
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestCoroutineScope
@@ -37,17 +39,18 @@ class DataStoreFactoryTest {
 
     private lateinit var testFile: File
     private lateinit var dataStoreScope: TestCoroutineScope
+    private lateinit var context: Context
 
     @Before
     fun setUp() {
         testFile = tmp.newFile()
         dataStoreScope = TestCoroutineScope()
+        context = ApplicationProvider.getApplicationContext()
     }
 
     @Test
     fun testNewInstance() = runBlockingTest {
-        val factory = DataStoreFactory()
-        val store = factory.create(
+        val store = DataStoreFactory.create(
             produceFile = { testFile },
             serializer = TestingSerializer(),
             scope = dataStoreScope
@@ -65,9 +68,7 @@ class DataStoreFactoryTest {
     fun testCorruptionHandlerInstalled() = runBlockingTest {
         val valueToReplace = 123.toByte()
 
-        val factory = DataStoreFactory()
-
-        val store = factory.create(
+        val store = DataStoreFactory.create(
             produceFile = { testFile },
             serializer = TestingSerializer(failReadWithCorruptionException = true),
             corruptionHandler = ReplaceFileCorruptionHandler<Byte> {
@@ -81,24 +82,22 @@ class DataStoreFactoryTest {
 
     @Test
     fun testMigrationsInstalled() = runBlockingTest {
-        val factory = DataStoreFactory()
-
         val migratedByte = 1
 
         val migratePlus2 = object : DataMigration<Byte> {
-                override suspend fun shouldMigrate(currentData: Byte) = true
-                override suspend fun migrate(currentData: Byte) = currentData.inc().inc()
-                override suspend fun cleanUp() {}
-            }
+            override suspend fun shouldMigrate(currentData: Byte) = true
+            override suspend fun migrate(currentData: Byte) = currentData.inc().inc()
+            override suspend fun cleanUp() {}
+        }
         val migrateMinus1 = object : DataMigration<Byte> {
-                override suspend fun shouldMigrate(currentData: Byte) = true
+            override suspend fun shouldMigrate(currentData: Byte) = true
 
-                override suspend fun migrate(currentData: Byte) = currentData.dec()
+            override suspend fun migrate(currentData: Byte) = currentData.dec()
 
-                override suspend fun cleanUp() {}
-            }
+            override suspend fun cleanUp() {}
+        }
 
-        val store = factory.create(
+        val store = DataStoreFactory.create(
             produceFile = { testFile },
             migrations = listOf(migratePlus2, migrateMinus1),
             scope = dataStoreScope,
@@ -106,5 +105,34 @@ class DataStoreFactoryTest {
         )
 
         assertThat(store.data.first()).isEqualTo(migratedByte)
+    }
+
+    @Test
+    fun testCreateWithContextAndName() = runBlockingTest {
+        val byte = 1
+
+        var store = context.createDataStore(
+            serializer = TestingSerializer(),
+            fileName = "my_settings.byte",
+            scope = dataStoreScope
+        )
+        store.updateData { 1 }
+
+        // Create it again and confirm it's still there
+        store = context.createDataStore(
+            serializer = TestingSerializer(),
+            fileName = "my_settings.byte",
+            scope = dataStoreScope
+        )
+        assertThat(store.data.first()).isEqualTo(byte)
+
+        // Check that the file name is context.filesDir + fileName
+        store = DataStoreFactory.create(
+            produceFile = {
+                File(context.filesDir, "datastore/my_settings.byte")
+            }, serializer = TestingSerializer(),
+            scope = dataStoreScope
+        )
+        assertThat(store.data.first()).isEqualTo(byte)
     }
 }
