@@ -19,10 +19,15 @@ package androidx.camera.core.internal;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 
+import android.util.Rational;
+import android.view.Surface;
+
 import androidx.camera.core.UseCase;
+import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
@@ -173,5 +178,36 @@ public class CameraUseCaseAdapterTest {
         cameraUseCaseAdapter.removeUseCases(Collections.singleton(fakeUseCase));
 
         verify(callback).onUnbind();
+    }
+
+    @Test
+    public void addExistingUseCase_viewPortUpdated()
+            throws CameraUseCaseAdapter.CameraException {
+        Rational aspectRatio1 = new Rational(1, 1);
+        Rational aspectRatio2 = new Rational(2, 1);
+
+        // Arrange: set up adapter with aspect ratio 1.
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
+                mFakeCameraSet,
+                mFakeCameraDeviceSurfaceManager);
+        cameraUseCaseAdapter.setViewPort(
+                new ViewPort.Builder(aspectRatio1, Surface.ROTATION_0).build());
+        FakeUseCase fakeUseCase = spy(new FakeUseCase());
+        cameraUseCaseAdapter.addUseCases(Collections.singleton(fakeUseCase));
+        // Use case gets aspect ratio 1
+        assertThat(fakeUseCase.getViewPortCropRect()).isNotNull();
+        assertThat(new Rational(fakeUseCase.getViewPortCropRect().width(),
+                fakeUseCase.getViewPortCropRect().height())).isEqualTo(aspectRatio1);
+
+        // Act: set aspect ratio 2 and attach the same use case.
+        reset(fakeUseCase);
+        cameraUseCaseAdapter.setViewPort(
+                new ViewPort.Builder(aspectRatio2, Surface.ROTATION_0).build());
+        cameraUseCaseAdapter.addUseCases(Collections.singleton(fakeUseCase));
+
+        // Assert: the viewport has aspect ratio 2.
+        assertThat(fakeUseCase.getViewPortCropRect()).isNotNull();
+        assertThat(new Rational(fakeUseCase.getViewPortCropRect().width(),
+                fakeUseCase.getViewPortCropRect().height())).isEqualTo(aspectRatio2);
     }
 }
