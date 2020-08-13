@@ -646,6 +646,9 @@ public abstract class RoomDatabase {
          * pre-packaged database schema utilizing the exported schema files generated when
          * {@link Database#exportSchema()} is enabled.
          * <p>
+         * The {@link Callback#onOpen(SupportSQLiteDatabase)} method can be used as an indicator
+         * that the pre-packaged database was successfully opened by Room and can be cleaned up.
+         * <p>
          * This method is not supported for an in memory database {@link Builder}.
          *
          * @param databaseFile The database file.
@@ -668,6 +671,9 @@ public abstract class RoomDatabase {
          * The pre-packaged database schema will be validated. It might be best to create your
          * pre-packaged database schema utilizing the exported schema files generated when
          * {@link Database#exportSchema()} is enabled.
+         * <p>
+         * The {@link Callback#onOpen(SupportSQLiteDatabase)} method can be used as an indicator
+         * that the pre-packaged database was successfully opened by Room and can be cleaned up.
          * <p>
          * This method is not supported for an in memory database {@link Builder}.
          *
@@ -692,14 +698,16 @@ public abstract class RoomDatabase {
          * <p>
          * This is useful for processing compressed database files. Room does not open the
          * pre-packaged database, instead it copies it into the internal app database folder, and
-         * then open it.
+         * then open it. The {@link InputStream} will be closed once Room is done consuming it.
          * <p>
          * The pre-packaged database schema will be validated. It might be best to create your
          * pre-packaged database schema utilizing the exported schema files generated when
          * {@link Database#exportSchema()} is enabled.
          * <p>
-         * This method is not supported for an in memory database {@link Builder}. The underlying
-         * {@link InputStream} will be closed.
+         * The {@link Callback#onOpen(SupportSQLiteDatabase)} method can be used as an indicator
+         * that the pre-packaged database was successfully opened by Room and can be cleaned up.
+         * <p>
+         * This method is not supported for an in memory database {@link Builder}.
          *
          * @param inputStreamCallable A callable that returns an InputStream from which to copy
          *                            the database.
@@ -720,14 +728,16 @@ public abstract class RoomDatabase {
          * <p>
          * This is useful for processing compressed database files. Room does not open the
          * pre-packaged database, instead it copies it into the internal app database folder, and
-         * then open it.
+         * then open it. The {@link InputStream} will be closed once Room is done consuming it.
          * <p>
          * The pre-packaged database schema will be validated. It might be best to create your
          * pre-packaged database schema utilizing the exported schema files generated when
          * {@link Database#exportSchema()} is enabled.
          * <p>
-         * This method is not supported for an in memory database {@link Builder}. The underlying
-         * {@link InputStream} will be closed.
+         * The {@link Callback#onOpen(SupportSQLiteDatabase)} method can be used as an indicator
+         * that the pre-packaged database was successfully opened by Room and can be cleaned up.
+         * <p>
+         * This method is not supported for an in memory database {@link Builder}.
          *
          * @param inputStreamCallable A callable that returns an InputStream from which to copy
          *                            the database.
