@@ -17,8 +17,8 @@
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:state_activated="false"
-        android:color="?android:attr/colorForeground"
-        android:alpha=".3"
+        android:color="@android:color/black"
+        android:alpha=".1"
         />
     <item
         android:state_activated="true"

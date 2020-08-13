@@ -20,18 +20,16 @@ import static androidx.core.util.Preconditions.checkArgument;
 
 import android.content.Context;
 import android.net.Uri;
-import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.util.Predicate;
 import androidx.recyclerview.selection.ItemKeyProvider;
 import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.android.supportv7.Cheeses;
-import com.example.android.supportv7.R;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,13 +45,15 @@ final class DemoAdapter extends RecyclerView.Adapter<DemoHolder> {
     // Our list of thingies. Our DemoHolder subclasses extract display
     // values directly from the Uri, so we only need this simple list.
     // The list also contains entries for alphabetical section headers.
-    private final List<Uri> mCheeses;
+    private final List<Uri> mCheeses = new ArrayList<>();
+    private boolean mSmallItemLayout;
+    private boolean mAllCheesesEnabled;
 
     // This default implementation must be replaced
     // with a real implementation in #bindSelectionHelper.
-    private SelectionTest mSelTest = new SelectionTest() {
+    private Predicate<Uri> mIsSelectedTest = new Predicate<Uri>() {
         @Override
-        public boolean isSelected(Uri id) {
+        public boolean test(Uri key) {
             throw new IllegalStateException(
                     "Adapter must be initialized with SelectionTracker");
         }
@@ -61,7 +61,6 @@ final class DemoAdapter extends RecyclerView.Adapter<DemoHolder> {
 
     DemoAdapter(Context context) {
         mContext = context;
-        mCheeses = createCheeseList("CheeseKindom");
         mKeyProvider = new KeyProvider(mCheeses);
 
         // In the fancy edition of selection support we supply access to stable
@@ -77,20 +76,12 @@ final class DemoAdapter extends RecyclerView.Adapter<DemoHolder> {
     // Glue together SelectionTracker and the adapter.
     public void bindSelectionTracker(final SelectionTracker<Uri> tracker) {
         checkArgument(tracker != null);
-        mSelTest = new SelectionTest() {
+        mIsSelectedTest = new Predicate<Uri>() {
             @Override
-            public boolean isSelected(Uri id) {
-                return tracker.isSelected(id);
+            public boolean test(Uri key) {
+                return tracker.isSelected(key);
             }
         };
-    }
-
-    void loadData() {
-        onDataReady();
-    }
-
-    private void onDataReady() {
-        notifyDataSetChanged();
     }
 
     @Override
@@ -105,22 +96,21 @@ final class DemoAdapter extends RecyclerView.Adapter<DemoHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull DemoHolder holder, int position) {
-        if (holder instanceof DemoHeaderHolder) {
-            Uri uri = mKeyProvider.getKey(position);
-            ((DemoHeaderHolder) holder).update(uri.getPathSegments().get(0));
-        } else if (holder instanceof DemoItemHolder) {
-            Uri uri = mKeyProvider.getKey(position);
-            ((DemoItemHolder) holder).update(uri, uri.getPathSegments().get(1),
-                    mSelTest.isSelected(uri));
+        Uri uri = mKeyProvider.getKey(position);
+        holder.update(uri);
+        if (holder instanceof DemoItemHolder) {
+            DemoItemHolder itemHolder = (DemoItemHolder) holder;
+            itemHolder.setSelected(mIsSelectedTest.test(uri));
+            itemHolder.setSmallLayoutMode(mSmallItemLayout);
         }
     }
 
     @Override
     public int getItemViewType(int position) {
-        Uri key = mKeyProvider.getKey(position);
-        if (key.getPathSegments().size() == 1) {
+        Uri uri = mKeyProvider.getKey(position);
+        if (Uris.isGroup(uri)) {
             return TYPE_HEADER;
-        } else if (key.getPathSegments().size() == 2) {
+        } else if (Uris.isCheese(uri)) {
             return TYPE_ITEM;
         }
 
@@ -131,57 +121,32 @@ final class DemoAdapter extends RecyclerView.Adapter<DemoHolder> {
     public DemoHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         switch (viewType) {
             case TYPE_HEADER:
-                return new DemoHeaderHolder(
-                        inflateLayout(mContext, parent, R.layout.selection_demo_list_header));
+                return new DemoHeaderHolder(mContext, parent);
             case TYPE_ITEM:
-                return new DemoItemHolder(
-                        inflateLayout(mContext, parent, R.layout.selection_demo_list_item));
+                return new DemoItemHolder(mContext, parent);
         }
         throw new RuntimeException("Unsupported view type" + viewType);
     }
 
-    @SuppressWarnings("TypeParameterUnusedInFormals")  // Convenience to avoid clumsy cast.
-    private static <V extends View> V inflateLayout(
-            Context context, ViewGroup parent, int layout) {
-
-        return (V) LayoutInflater.from(context).inflate(layout, parent, false);
-    }
-
     // Creates a list of cheese Uris and section header Uris.
-    private static List<Uri> createCheeseList(String authority) {
-        List<Uri> cheeses = new ArrayList<>();
-        char section = '-';  // any ol' value other than 'a' will do the trick here.
+    private void populateCheeses(int maxItemsPerGroup) {
+        String group = "-";  // any ol' value other than 'a' will do the trick here.
+        int itemsInGroup = 0;
 
         for (String cheese : Cheeses.sCheeseStrings) {
-            char leadingChar = cheese.toLowerCase().charAt(0);
+            String leadingChar = Character.toString(cheese.toLowerCase().charAt(0));
 
             // When we find a new leading character insert an artificial
             // cheese header
-            if (leadingChar != section) {
-                section = leadingChar;
-                Uri headerUri = new Uri.Builder()
-                        .scheme("content")
-                        .encodedAuthority(authority)
-                        .appendPath(Character.toString(section))
-                        .build();
-
-                cheeses.add(headerUri);
+            if (!leadingChar.equals(group)) {
+                group = leadingChar;
+                itemsInGroup = 0;
+                mCheeses.add(Uris.forGroup(group));
             }
-
-            Uri itemUri = new Uri.Builder()
-                    .scheme("content")
-                    .encodedAuthority(authority)
-                    .appendPath(Character.toString(section))
-                    .appendPath(cheese)
-                    .build();
-            cheeses.add(itemUri);
+            if (++itemsInGroup <= maxItemsPerGroup) {
+                mCheeses.add(Uris.forCheese(group, cheese));
+            }
         }
-
-        return cheeses;
-    }
-
-    private interface SelectionTest {
-        boolean isSelected(Uri id);
     }
 
     public boolean removeItem(Uri key) {
@@ -193,6 +158,30 @@ final class DemoAdapter extends RecyclerView.Adapter<DemoHolder> {
         @Nullable Uri removed = mCheeses.remove(position);
         notifyItemRemoved(position);
         return removed != null;
+    }
+
+    void enableSmallItemLayout(boolean enabled) {
+        mSmallItemLayout = enabled;
+    }
+
+    void enableAllCheeses(boolean enabled) {
+        mAllCheesesEnabled = enabled;
+    }
+
+    boolean smallItemLayoutEnabled() {
+        return mSmallItemLayout;
+    }
+
+    boolean allCheesesEnabled() {
+        return mAllCheesesEnabled;
+    }
+
+
+
+    void refresh() {
+        mCheeses.clear();
+        populateCheeses(mAllCheesesEnabled ? Integer.MAX_VALUE : 5);
+        notifyDataSetChanged();
     }
 
     /**
@@ -211,13 +200,13 @@ final class DemoAdapter extends RecyclerView.Adapter<DemoHolder> {
 
         private final List<Uri> mData;
 
-        KeyProvider(List<Uri> cheeses) {
+        KeyProvider(List<Uri> data) {
             // Advise the world we can supply ids/position for any item at any time,
             // not just when visible in RecyclerView.
             // This enables fancy stuff especially helpful to users with pointy
             // devices like Chromebooks, or tablets with touch pads
             super(SCOPE_MAPPED);
-            mData = cheeses;
+            mData = data;
         }
 
         @Override
@@ -228,13 +217,7 @@ final class DemoAdapter extends RecyclerView.Adapter<DemoHolder> {
         @Override
         public int getPosition(@NonNull Uri key) {
             int position = Collections.binarySearch(mData, key);
-            // position is insertion point if key is missing.
-            // Since the insertion point could be end of the list + 1
-            // both verify the position is in bounds, and that the value
-            // at position is the same as the key.
-            return position >= 0 && position <= mData.size() - 1 && key.equals(mData.get(position))
-                    ? position
-                    : RecyclerView.NO_POSITION;
+            return position >= 0 ? position : RecyclerView.NO_POSITION;
         }
     }
 }

@@ -15,12 +15,16 @@
  */
 package com.example.android.supportv7.widget.selection.fancy;
 
+import android.content.Context;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.Dimension;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
@@ -36,7 +40,11 @@ final class DemoItemHolder extends DemoHolder {
 
     private @Nullable Uri mKey;
 
-    DemoItemHolder(LinearLayout layout) {
+    DemoItemHolder(@NonNull Context context, @NonNull ViewGroup parent) {
+        this(inflateLayout(context, parent, R.layout.selection_demo_list_item));
+    }
+
+    private DemoItemHolder(LinearLayout layout) {
         super(layout);
 
         mContainer = layout.findViewById(R.id.container);
@@ -71,13 +79,18 @@ final class DemoItemHolder extends DemoHolder {
         };
     }
 
-    void update(Uri key, String label, boolean selected) {
-        mKey = key;
-        mLabel.setText(label);
-        setSelected(selected);
+    @Override
+    void update(@NonNull Uri uri) {
+        mKey = uri;
+        mLabel.setText(Uris.getCheese(uri));
     }
 
-    private void setSelected(boolean selected) {
+    void setSmallLayoutMode(boolean small) {
+        mSelector.setVisibility(small ? View.GONE : View.VISIBLE);
+        mLabel.setTextSize(Dimension.SP, small ? 14f : 20f);
+    }
+
+    void setSelected(boolean selected) {
         mContainer.setActivated(selected);
         mSelector.setActivated(selected);
     }
@@ -108,8 +121,8 @@ final class DemoItemHolder extends DemoHolder {
 
     boolean inSelectRegion(MotionEvent e) {
         Rect iconRect = new Rect();
-        mSelector.getGlobalVisibleRect(iconRect);
-        return iconRect.contains((int) e.getRawX(), (int) e.getRawY());
+        return mSelector.getGlobalVisibleRect(iconRect)
+                && iconRect.contains((int) e.getRawX(), (int) e.getRawY());
     }
 
     ItemDetails<Uri> getItemDetails() {

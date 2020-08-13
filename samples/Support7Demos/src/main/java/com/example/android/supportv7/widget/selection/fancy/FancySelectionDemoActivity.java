@@ -72,7 +72,6 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
     private SelectionTracker<Uri> mSelectionTracker;
 
     private GridLayoutManager mLayout;
-    private boolean mIterceptListenerEnabled = false;
     private boolean mSwipeDuringSelectionEnabled = false;
 
     @Override
@@ -82,12 +81,23 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
         setContentView(R.layout.selection_demo_layout);
         mRecView = (RecyclerView) findViewById(R.id.list);
 
-        // Demo how to intercept touch events before selection tracker.
-        // In case you need to do something fancy that selection tracker
-        // might otherwise interfere with.
-        setupCustomTouchListener();
-
         mLayout = new GridLayoutManager(this, 1);
+
+        // Let our headers span any number of columns.
+        mLayout.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
+            @Override
+            public int getSpanSize(int position) {
+                switch(mAdapter.getItemViewType(position)){
+                    case DemoAdapter.TYPE_HEADER:
+                        return mLayout.getSpanCount();
+
+                    case DemoAdapter.TYPE_ITEM:
+                    default:
+                        return 1;
+                }
+            }
+        });
+
         mRecView.setLayoutManager(mLayout);
         mAdapter = new DemoAdapter(this);
         mRecView.setAdapter(mAdapter);
@@ -209,42 +219,31 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
                 });
     }
 
-    // If you want to provided special handling of clicks on items
-    // in RecyclerView (respond to a play button, or show a menu
-    // when a three-dot menu is clicked) you can't just add an OnClickListener
-    // to the View.  This is because Selection lib installs an
-    // OnItemTouchListener w/ RecyclerView, and that listener eats
-    // up many of the touch/mouse events RecyclerView sends its way.
-    // To work around this install your own OnItemTouchListener *before*
-    // you build your SelectionTracker instance. That'll give your listener
-    // a chance to intercept events before Selection lib gobbles them up.
-    private void setupCustomTouchListener() {
-        mRecView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
-            @Override
-            public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
-                return mIterceptListenerEnabled
-                        && DemoHeaderHolder.isHeader(rv.findChildViewUnder(e.getX(), e.getY()));
-            }
-
-            @Override
-            public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
-                toast(FancySelectionDemoActivity.this, "Clicked on a header!");
-            }
-
-            @Override
-            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-            }
-        });
-    }
-
     @Override
     protected void onSaveInstanceState(@NonNull Bundle state) {
         super.onSaveInstanceState(state);
         mSelectionTracker.onSaveInstanceState(state);
+        state.putBoolean("showAll", mAdapter.allCheesesEnabled());
+        state.putBoolean("gridLayout", mAdapter.smallItemLayoutEnabled());
+        state.putBoolean("enableSwipe", mSwipeDuringSelectionEnabled);
     }
 
-    private void updateFromSavedState(Bundle state) {
+    private void updateFromSavedState(@Nullable Bundle state) {
         mSelectionTracker.onRestoreInstanceState(state);
+
+        boolean showAll = false;
+        boolean gridLayout = false;
+        if (state == null) {
+            mSwipeDuringSelectionEnabled = true;
+        } else {
+            showAll = state.getBoolean("showAll");
+            gridLayout = state.getBoolean("gridLayout");
+            mSwipeDuringSelectionEnabled = state.getBoolean("enableSwipe");
+        }
+
+        mAdapter.enableAllCheeses(showAll);
+        mLayout.setSpanCount(gridLayout ? 2 : 1);
+        mAdapter.enableSmallItemLayout(gridLayout);
     }
 
     @Override
@@ -252,22 +251,41 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
         boolean showMenu = super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.selection_demo_actions, menu);
         for (int i = 0; i < menu.size(); i++) {
-            updateOptionFromMenu(menu.getItem(i));
+            MenuItem item = menu.getItem(i);
+            switch (item.getItemId()) {
+                case R.id.option_menu_more_cheese:
+                    item.setChecked(mAdapter.allCheesesEnabled());
+                    break;
+                case R.id.option_menu_grid_layout:
+                    item.setChecked(mAdapter.smallItemLayoutEnabled());
+                    break;
+                case R.id.option_menu_swipe_during_select:
+                    item.setChecked(mSwipeDuringSelectionEnabled);
+                    break;
+            }
         }
         return showMenu;
     }
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        item.setChecked(!item.isChecked());
+        if (item.isCheckable()) {
+            item.setChecked(!item.isChecked());
+        }
         updateOptionFromMenu(item);
         return true;
     }
 
     private void updateOptionFromMenu(@NonNull MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.option_menu_custom_listener:
-                mIterceptListenerEnabled = item.isChecked();
+            case R.id.option_menu_more_cheese:
+                mAdapter.enableAllCheeses(item.isChecked());
+                mAdapter.refresh();
+                break;
+            case R.id.option_menu_grid_layout:
+                mAdapter.enableSmallItemLayout(item.isChecked());
+                mLayout.setSpanCount(item.isChecked() ? 2 : 1);
+                mAdapter.refresh();
                 break;
             case R.id.option_menu_swipe_during_select:
                 mSwipeDuringSelectionEnabled = item.isChecked();
@@ -329,7 +347,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        mAdapter.loadData();
+        mAdapter.refresh();
     }
 
     // Tracking focus separately from explicit selection
