@@ -41,6 +41,7 @@ dependencies {
     implementation(KOTLIN_REFLECT)
     implementation(ANDROIDX_TEST_RULES)
     implementation(JUNIT)
+    implementation(TRUTH)
 
     androidTestImplementation project(":compose:ui:ui")
     androidTestImplementation project(":compose:foundation:foundation-layout")
