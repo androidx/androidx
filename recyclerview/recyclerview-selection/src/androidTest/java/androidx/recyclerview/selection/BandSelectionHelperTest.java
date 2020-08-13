@@ -82,7 +82,7 @@ public class BandSelectionHelperTest {
             }
         });
 
-        FocusDelegate<String> focusDelegate = FocusDelegate.dummy();
+        FocusDelegate<String> focusDelegate = FocusDelegate.stub();
 
         mBandController = new BandSelectionHelper<String>(
                 mHostEnv,
