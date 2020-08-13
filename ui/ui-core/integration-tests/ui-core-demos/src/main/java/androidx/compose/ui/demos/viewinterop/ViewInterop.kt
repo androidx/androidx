@@ -20,16 +20,11 @@ import android.content.Context
 import android.graphics.Canvas
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.widget.FrameLayout
-import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,10 +36,8 @@ import androidx.compose.ui.demos.databinding.TestLayoutBinding
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.node.Ref
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.viewinterop.AndroidViewBinding
-import androidx.compose.ui.viewinterop.emitView
 
 @Composable
 fun ViewInteropDemo() {
@@ -66,30 +59,15 @@ fun ViewInteropDemo() {
             view.layoutParams = ViewGroup.LayoutParams(size, size)
         }
 
-        emitView(::TextView) {
+        AndroidView(::TextView) {
             it.text = "This is a text in a TextView"
-        }
-        emitView(::FrameLayout, { it.layoutParams = ViewGroup.LayoutParams(100, WRAP_CONTENT) }) {
-            emitView(::TextView) {
-                it.text = "This is a very long very long text"
-            }
-        }
-        Text("This is a second text")
-
-        // Include an Android ViewGroup and add Compose to it.
-        emitView(::LinearLayout, { it.orientation = LinearLayout.VERTICAL }) {
-            Box(Modifier.size(50.dp).background(Color.Blue))
-            Box(Modifier.size(50.dp).background(Color.Gray))
         }
 
         // Compose custom Android View and do remeasurements and invalidates.
         val squareRef = Ref<ColoredSquareView>()
-        emitView(::FrameLayout, {}) {
-            emitView(::ColoredSquareView) {
-                it.size = 200
-                it.color = Color.Cyan
-                it.setRef(squareRef)
-            }
+        AndroidView({ ColoredSquareView(it).also { squareRef.value = it } }) {
+            it.size = 200
+            it.color = Color.Cyan
         }
         Button(onClick = { squareRef.value!!.size += 50 }) {
             Text("Increase size of Android view")

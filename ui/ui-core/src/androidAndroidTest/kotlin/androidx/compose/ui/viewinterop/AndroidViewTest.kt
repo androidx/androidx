@@ -285,7 +285,7 @@ class AndroidViewTest {
         // Should not crash.
         composeTestRule.setContent {
             Box {
-                emitView(::FrameLayout) {
+                AndroidView(::FrameLayout) {
                     it.setContent(Recomposer()) {
                         Box()
                     }

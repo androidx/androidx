@@ -24,17 +24,10 @@ import androidx.compose.runtime.emit
 import androidx.compose.ui.node.UiApplier
 import androidx.compose.ui.platform.ContextAmbient
 
-/**
- * Emit a view into the current composition.
- *
- * @sample androidx.compose.ui.samples.EmitViewButtonSample
- *
- * @param ctor The constructor of the view with a single [Context] parameter.
- * @param update A function which will execute when the composition is applied, with the emitted
- * view instance passed in. This function is expected to be used to handle the "update" logic to
- * handle any changes.
- */
 @Composable
+@Deprecated("emitView will be removed. Use AndroidView instead if possible. " +
+        "Composing Views and ViewGroups directly in an existing UI composition will not be " +
+        "supported in the future.")
 fun <T : View> emitView(
     ctor: (Context) -> T,
     update: (T) -> Unit
@@ -48,19 +41,10 @@ fun <T : View> emitView(
     )
 }
 
-/**
- * Emit a ViewGroup into the current composition, with the emitted nodes of [children] as the
- * content.
- *
- * @sample androidx.compose.ui.samples.EmitViewLinearLayoutSample
- *
- * @param ctor The constructor of the view with a single [Context] parameter.
- * @param update A function which will execute when the composition is applied, with the emitted
- * view instance passed in. This function is expected to be used to handle the "update" logic to
- * handle any changes.
- * @param children the composable content that will emit the "children" of this view.
- */
 @Composable
+@Deprecated("emitView will be removed. Use AndroidView instead if possible. " +
+        "Composing Views and ViewGroups directly in an existing UI composition will not be " +
+        "supported in the future.")
 fun <T : ViewGroup> emitView(
     ctor: (Context) -> T,
     update: (T) -> Unit,
