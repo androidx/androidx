@@ -72,8 +72,10 @@ private val ExpectedFile = """
 
     val Icons.Filled.TestVector: VectorAsset
         get() {
-            if (icon != null) return icon!!
-            icon = materialIcon {
+            if (_testVector != null) {
+                return _testVector!!
+            }
+            _testVector = materialIcon {
                 materialPath(fillAlpha = 0.8f) {
                     moveTo(20.0f, 10.0f)
                     lineToRelative(0.0f, 10.0f)
@@ -88,10 +90,10 @@ private val ExpectedFile = """
                     }
                 }
             }
-            return icon!!
+            return _testVector!!
         }
 
-    private var icon: VectorAsset? = null
+    private var _testVector: VectorAsset? = null
 
 """.trimIndent()
 
