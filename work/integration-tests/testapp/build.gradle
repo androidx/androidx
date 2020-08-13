@@ -64,9 +64,11 @@ dependencies {
     }
 
     implementation(CONSTRAINT_LAYOUT, { transitive = true })
-    implementation project(':work:work-runtime-ktx')
+    implementation("androidx.lifecycle:lifecycle-service:2.2.0")
+    implementation (project(':work:work-runtime-ktx'))
+    implementation (project(':work:work-multiprocess'))
     implementation (project(':work:work-gcm'))
     implementation("androidx.arch.core:core-runtime:2.1.0")
-    implementation("androidx.recyclerview:recyclerview:1.0.0")
+    implementation("androidx.recyclerview:recyclerview:1.1.0")
     implementation(MATERIAL)
 }

@@ -17,6 +17,7 @@
 package androidx.work.impl;
 
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
+import static android.text.TextUtils.isEmpty;
 
 import static androidx.work.impl.foreground.SystemForegroundDispatcher.createCancelWorkIntent;
 
@@ -62,6 +63,7 @@ import androidx.work.impl.utils.StopWorkRunnable;
 import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
+import androidx.work.multiprocess.RemoteWorkManager;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -69,6 +71,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.Executor;
 
 /**
  * A concrete implementation of {@link WorkManager}.
@@ -78,8 +81,11 @@ import java.util.UUID;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class WorkManagerImpl extends WorkManager {
 
+    private static final String TAG = Logger.tagWithPrefix("WorkManagerImpl");
     public static final int MAX_PRE_JOB_SCHEDULER_API_LEVEL = 22;
     public static final int MIN_JOB_SCHEDULER_API_LEVEL = 23;
+    public static final String REMOTE_WORK_MANAGER_CLIENT =
+            "androidx.work.multiprocess.RemoteWorkManagerClient";
 
     private Context mContext;
     private Configuration mConfiguration;
@@ -90,6 +96,7 @@ public class WorkManagerImpl extends WorkManager {
     private PreferenceUtils mPreferenceUtils;
     private boolean mForceStopRunnableCompleted;
     private BroadcastReceiver.PendingResult mRescheduleReceiverResult;
+    private volatile RemoteWorkManager mRemoteWorkManager;
 
     private static WorkManagerImpl sDelegatedInstance = null;
     private static WorkManagerImpl sDefaultInstance = null;
@@ -598,6 +605,29 @@ public class WorkManagerImpl extends WorkManager {
     }
 
     /**
+     * @hide
+     */
+    @Nullable
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public RemoteWorkManager getRemoteWorkManager() {
+        if (mRemoteWorkManager == null) {
+            synchronized (sLock) {
+                if (mRemoteWorkManager == null) {
+                    // Initialize multi-process support.
+                    tryInitializeMultiProcessSupport();
+                    if (mRemoteWorkManager == null && !isEmpty(
+                            mConfiguration.getDefaultProcessName())) {
+                        String message = "Invalid multiprocess configuration. Define an "
+                                + "`implementation` dependency on :work:work-multiprocess library";
+                        throw new IllegalStateException(message);
+                    }
+                }
+            }
+        }
+        return mRemoteWorkManager;
+    }
+
+    /**
      * @param workSpecId The {@link WorkSpec} id to start
      * @hide
      */
@@ -746,5 +776,19 @@ public class WorkManagerImpl extends WorkManager {
                 // Specify the task executor directly here as this happens before internalInit.
                 // GreedyScheduler creates ConstraintTrackers and controllers eagerly.
                 new GreedyScheduler(context, configuration, taskExecutor, this));
+    }
+
+    /**
+     * Tries to find a multi-process safe implementation for  {@link WorkManager}.
+     */
+    private void tryInitializeMultiProcessSupport() {
+        try {
+            Class<?> klass = Class.forName(REMOTE_WORK_MANAGER_CLIENT);
+            mRemoteWorkManager = (RemoteWorkManager) klass.getConstructor(
+                    Context.class, Executor.class
+            ).newInstance(mContext, mWorkTaskExecutor.getBackgroundExecutor());
+        } catch (Throwable throwable) {
+            Logger.get().debug(TAG, "Unable to initialize multi-process support", throwable);
+        }
     }
 }

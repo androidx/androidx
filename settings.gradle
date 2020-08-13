@@ -354,6 +354,7 @@ includeProject(":work:work-rxjava3", "work/workmanager-rxjava3")
 includeProject(":work:work-testing", "work/workmanager-testing")
 includeProject(":work:work-runtime-lint", "work/workmanager-lint")
 includeProject(":work:work-benchmark", "work/workmanager-benchmark")
+includeProject(":work:work-multiprocess", "work/workmanager-multiprocess")
 includeProject(":work:work-inspection", "work/workmanager-inspection")
 includeProject(":work:integration-tests:testapp", "work/integration-tests/testapp")
 
