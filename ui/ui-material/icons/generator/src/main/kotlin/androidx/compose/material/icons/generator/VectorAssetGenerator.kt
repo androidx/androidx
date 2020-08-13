@@ -25,6 +25,7 @@ import com.squareup.kotlinpoet.KModifier
 import com.squareup.kotlinpoet.MemberName
 import com.squareup.kotlinpoet.PropertySpec
 import com.squareup.kotlinpoet.buildCodeBlock
+import java.util.Locale
 
 /**
  * Generator for creating a Kotlin source file with a VectorAsset property for the given [vector],
@@ -53,7 +54,13 @@ class VectorAssetGenerator(
         val iconsPackage = PackageNames.MaterialIconsPackage.packageName
         val themePackage = iconTheme.themePackageName
         val combinedPackageName = "$iconsPackage.$themePackage"
-        val backingProperty = backingProperty()
+        // Use a unique property name for the private backing property. This is because (as of
+        // Kotlin 1.4) each property with the same name will be considered as a possible candidate
+        // for resolution, regardless of the access modifier, so by using unique names we reduce
+        // the size from ~6000 to 1, and speed up compilation time for these icons.
+        @OptIn(ExperimentalStdlibApi::class)
+        val backingPropertyName = "_" + iconName.decapitalize(Locale.ROOT)
+        val backingProperty = backingProperty(name = backingPropertyName)
         return FileSpec.builder(
             packageName = combinedPackageName,
             fileName = iconName
@@ -74,14 +81,16 @@ class VectorAssetGenerator(
      */
     private fun iconGetter(backingProperty: PropertySpec): FunSpec {
         return FunSpec.getterBuilder()
-            .addStatement("if (%N != null) return %N!!", backingProperty, backingProperty)
-            .addCode(
-                buildCodeBlock {
-                    beginControlFlow("%N = %M", backingProperty, MemberNames.MaterialIcon)
-                    vector.nodes.forEach { node -> addRecursively(node) }
-                    endControlFlow()
-                }
-            )
+            .addCode(buildCodeBlock {
+                beginControlFlow("if (%N != null)", backingProperty)
+                addStatement("return %N!!", backingProperty)
+                endControlFlow()
+            })
+            .addCode(buildCodeBlock {
+                beginControlFlow("%N = %M", backingProperty, MemberNames.MaterialIcon)
+                vector.nodes.forEach { node -> addRecursively(node) }
+                endControlFlow()
+            })
             .addStatement("return %N!!", backingProperty)
             .build()
     }
@@ -89,10 +98,12 @@ class VectorAssetGenerator(
     /**
      * @return The private backing property that is used to cache the VectorAsset for a given
      * icon once created.
+     *
+     * @param name the name of this property
      */
-    private fun backingProperty(): PropertySpec {
+    private fun backingProperty(name: String): PropertySpec {
         val nullableVectorAsset = ClassNames.VectorAsset.copy(nullable = true)
-        return PropertySpec.builder(name = "icon", type = nullableVectorAsset)
+        return PropertySpec.builder(name = name, type = nullableVectorAsset)
             .mutable()
             .addModifiers(KModifier.PRIVATE)
             .initializer("null")
