@@ -18,11 +18,11 @@ package androidx.camera.camera2.internal;
 
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraDevice;
-import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.DeferrableSurface;
@@ -45,7 +45,6 @@ import androidx.camera.core.impl.utils.futures.Futures;
 class MeteringRepeatingSession {
     private static final String TAG = "MeteringRepeating";
     private DeferrableSurface mDeferrableSurface;
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     @NonNull
     private final SessionConfig mSessionConfig;
@@ -98,9 +97,7 @@ class MeteringRepeatingSession {
      * cleared.
      */
     void clear() {
-        if (DEBUG) {
-            Log.d(TAG, "MeteringRepeating clear!");
-        }
+        Logger.d(TAG, "MeteringRepeating clear!");
         if (mDeferrableSurface != null) {
             mDeferrableSurface.close();
         }

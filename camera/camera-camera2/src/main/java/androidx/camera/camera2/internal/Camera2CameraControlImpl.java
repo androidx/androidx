@@ -28,7 +28,6 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
 import android.util.ArrayMap;
-import android.util.Log;
 import android.util.Rational;
 
 import androidx.annotation.GuardedBy;
@@ -41,6 +40,7 @@ import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureResult;
@@ -290,7 +290,7 @@ final class Camera2CameraControlImpl implements CameraControlInternal {
     @Override
     public void setFlashMode(@ImageCapture.FlashMode int flashMode) {
         if (!isControlInUse()) {
-            Log.w(TAG, "Camera is not active.");
+            Logger.w(TAG, "Camera is not active.");
             return;
         }
         // update mFlashMode immediately so that following getFlashMode() returns correct value.
@@ -360,7 +360,7 @@ final class Camera2CameraControlImpl implements CameraControlInternal {
     public void cancelAfAeTrigger(final boolean cancelAfTrigger,
             final boolean cancelAePrecaptureTrigger) {
         if (!isControlInUse()) {
-            Log.w(TAG, "Camera is not active.");
+            Logger.w(TAG, "Camera is not active.");
             return;
         }
         mExecutor.execute(() -> mFocusMeteringControl.cancelAfAeTrigger(cancelAfTrigger,
@@ -382,7 +382,7 @@ final class Camera2CameraControlImpl implements CameraControlInternal {
     @Override
     public void submitCaptureRequests(@NonNull final List<CaptureConfig> captureConfigs) {
         if (!isControlInUse()) {
-            Log.w(TAG, "Camera is not active.");
+            Logger.w(TAG, "Camera is not active.");
             return;
         }
         mExecutor.execute(() -> submitCaptureRequestsInternal(captureConfigs));
@@ -716,7 +716,7 @@ final class Camera2CameraControlImpl implements CameraControlInternal {
                         callback.onCaptureCompleted(cameraCaptureResult);
                     });
                 } catch (RejectedExecutionException e) {
-                    Log.e(TAG, "Executor rejected to invoke onCaptureCompleted.", e);
+                    Logger.e(TAG, "Executor rejected to invoke onCaptureCompleted.", e);
                 }
             }
         }
@@ -730,7 +730,7 @@ final class Camera2CameraControlImpl implements CameraControlInternal {
                         callback.onCaptureFailed(failure);
                     });
                 } catch (RejectedExecutionException e) {
-                    Log.e(TAG, "Executor rejected to invoke onCaptureFailed.", e);
+                    Logger.e(TAG, "Executor rejected to invoke onCaptureFailed.", e);
                 }
             }
         }
@@ -744,7 +744,7 @@ final class Camera2CameraControlImpl implements CameraControlInternal {
                         callback.onCaptureCancelled();
                     });
                 } catch (RejectedExecutionException e) {
-                    Log.e(TAG, "Executor rejected to invoke onCaptureCancelled.", e);
+                    Logger.e(TAG, "Executor rejected to invoke onCaptureCancelled.", e);
                 }
             }
         }

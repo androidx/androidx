@@ -18,7 +18,6 @@ package androidx.camera.camera2.internal;
 
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraMetadata;
-import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -29,6 +28,7 @@ import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.ExposureState;
+import androidx.camera.core.Logger;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraInfoInternal;
@@ -160,7 +160,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
                 levelString = "Unknown value: " + deviceLevel;
                 break;
         }
-        Log.i(TAG, "Device Level: " + levelString);
+        Logger.i(TAG, "Device Level: " + levelString);
     }
 
     @Override
