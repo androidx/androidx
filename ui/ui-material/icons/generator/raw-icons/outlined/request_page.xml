@@ -6,5 +6,5 @@
     android:tint="?attr/colorControlNormal">
   <path
       android:fillColor="@android:color/white"
-      android:pathData="M19,1H5v22h14V1zM7,18V6h10v12H7zM16,11l0,-3H8l0,3.1c0.55,0 1,0.45 1,1c0,0.55 -0.45,1 -1,1L8,16h8v-3c-0.55,0 -1,-0.45 -1,-1C15,11.45 15.45,11 16,11zM12.5,14.5h-1v-1h1V14.5zM12.5,12.5h-1v-1h1V12.5zM12.5,10.5h-1v-1h1V10.5z"/>
+      android:pathData="M13.17,4L18,8.83V20H6V4H13.17M14,2H6C4.9,2 4,2.9 4,4v16c0,1.1 0.9,2 2,2h12c1.1,0 2,-0.9 2,-2V8L14,2L14,2zM15,11h-4v1h3c0.55,0 1,0.45 1,1v3c0,0.55 -0.45,1 -1,1h-1v1h-2v-1H9v-2h4v-1h-3c-0.55,0 -1,-0.45 -1,-1v-3c0,-0.55 0.45,-1 1,-1h1V8h2v1h2V11z"/>
 </vector>

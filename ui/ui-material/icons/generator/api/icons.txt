@@ -28,6 +28,7 @@ Filled.AddLocationAlt
 Filled.AddPhotoAlternate
 Filled.AddRoad
 Filled.AddShoppingCart
+Filled.AddTask
 Filled.AddToHomeScreen
 Filled.AddToPhotos
 Filled.AddToQueue
@@ -255,6 +256,7 @@ Filled.ConfirmationNumber
 Filled.ConnectWithoutContact
 Filled.Construction
 Filled.ContactMail
+Filled.ContactPage
 Filled.ContactPhone
 Filled.ContactSupport
 Filled.Contactless
@@ -319,6 +321,7 @@ Filled.DirectionsRun
 Filled.DirectionsSubway
 Filled.DirectionsTransit
 Filled.DirectionsWalk
+Filled.DisabledByDefault
 Filled.DiscFull
 Filled.Dns
 Filled.DoNotStep
@@ -395,6 +398,7 @@ Filled.ExposurePlus2
 Filled.ExposureZero
 Filled.Extension
 Filled.Face
+Filled.Facebook
 Filled.FactCheck
 Filled.FamilyRestroom
 Filled.FastForward
@@ -516,6 +520,7 @@ Filled.GridOn
 Filled.Group
 Filled.GroupAdd
 Filled.GroupWork
+Filled.Groups
 Filled.Handyman
 Filled.Hd
 Filled.HdrOff
@@ -677,6 +682,7 @@ Filled.Loop
 Filled.Loupe
 Filled.LowPriority
 Filled.Loyalty
+Filled.Luggage
 Filled.Mail
 Filled.MailOutline
 Filled.Map
@@ -724,6 +730,7 @@ Filled.MoreHoriz
 Filled.MoreTime
 Filled.MoreVert
 Filled.MotionPhotosOn
+Filled.MotionPhotosPause
 Filled.MotionPhotosPaused
 Filled.Motorcycle
 Filled.Mouse
@@ -754,11 +761,13 @@ Filled.NextWeek
 Filled.Nfc
 Filled.NightShelter
 Filled.NightsStay
+Filled.NoBackpack
 Filled.NoCell
 Filled.NoDrinks
 Filled.NoEncryption
 Filled.NoFlash
 Filled.NoFood
+Filled.NoLuggage
 Filled.NoMeals
 Filled.NoMeetingRoom
 Filled.NoPhotography
@@ -790,6 +799,7 @@ Filled.OpenInBrowser
 Filled.OpenInFull
 Filled.OpenInNew
 Filled.OpenWith
+Filled.Outbond
 Filled.OutdoorGrill
 Filled.Outlet
 Filled.OutlinedFlag
@@ -902,6 +912,7 @@ Filled.Psychology
 Filled.Public
 Filled.PublicOff
 Filled.Publish
+Filled.PublishedWithChanges
 Filled.PushPin
 Filled.QrCode
 Filled.QrCodeScanner
@@ -942,6 +953,7 @@ Filled.ReplyAll
 Filled.Report
 Filled.ReportOff
 Filled.ReportProblem
+Filled.RequestPage
 Filled.RequestQuote
 Filled.Restaurant
 Filled.RestaurantMenu
@@ -1082,6 +1094,7 @@ Filled.SportsSoccer
 Filled.SportsTennis
 Filled.SportsVolleyball
 Filled.SquareFoot
+Filled.StackedLineChart
 Filled.Stairs
 Filled.Star
 Filled.StarBorder
@@ -1206,6 +1219,7 @@ Filled.Unarchive
 Filled.Undo
 Filled.UnfoldLess
 Filled.UnfoldMore
+Filled.Unpublished
 Filled.Unsubscribe
 Filled.Update
 Filled.Upgrade
@@ -1323,6 +1337,7 @@ Outlined.AddLocationAlt
 Outlined.AddPhotoAlternate
 Outlined.AddRoad
 Outlined.AddShoppingCart
+Outlined.AddTask
 Outlined.AddToHomeScreen
 Outlined.AddToPhotos
 Outlined.AddToQueue
@@ -1550,6 +1565,7 @@ Outlined.ConfirmationNumber
 Outlined.ConnectWithoutContact
 Outlined.Construction
 Outlined.ContactMail
+Outlined.ContactPage
 Outlined.ContactPhone
 Outlined.ContactSupport
 Outlined.Contactless
@@ -1614,6 +1630,7 @@ Outlined.DirectionsRun
 Outlined.DirectionsSubway
 Outlined.DirectionsTransit
 Outlined.DirectionsWalk
+Outlined.DisabledByDefault
 Outlined.DiscFull
 Outlined.Dns
 Outlined.DoNotStep
@@ -1690,6 +1707,7 @@ Outlined.ExposurePlus2
 Outlined.ExposureZero
 Outlined.Extension
 Outlined.Face
+Outlined.Facebook
 Outlined.FactCheck
 Outlined.FamilyRestroom
 Outlined.FastForward
@@ -1811,6 +1829,7 @@ Outlined.GridOn
 Outlined.Group
 Outlined.GroupAdd
 Outlined.GroupWork
+Outlined.Groups
 Outlined.Handyman
 Outlined.Hd
 Outlined.HdrOff
@@ -1972,6 +1991,7 @@ Outlined.Loop
 Outlined.Loupe
 Outlined.LowPriority
 Outlined.Loyalty
+Outlined.Luggage
 Outlined.Mail
 Outlined.MailOutline
 Outlined.Map
@@ -2019,6 +2039,7 @@ Outlined.MoreHoriz
 Outlined.MoreTime
 Outlined.MoreVert
 Outlined.MotionPhotosOn
+Outlined.MotionPhotosPause
 Outlined.MotionPhotosPaused
 Outlined.Motorcycle
 Outlined.Mouse
@@ -2049,11 +2070,13 @@ Outlined.NextWeek
 Outlined.Nfc
 Outlined.NightShelter
 Outlined.NightsStay
+Outlined.NoBackpack
 Outlined.NoCell
 Outlined.NoDrinks
 Outlined.NoEncryption
 Outlined.NoFlash
 Outlined.NoFood
+Outlined.NoLuggage
 Outlined.NoMeals
 Outlined.NoMeetingRoom
 Outlined.NoPhotography
@@ -2085,6 +2108,7 @@ Outlined.OpenInBrowser
 Outlined.OpenInFull
 Outlined.OpenInNew
 Outlined.OpenWith
+Outlined.Outbond
 Outlined.OutdoorGrill
 Outlined.Outlet
 Outlined.OutlinedFlag
@@ -2197,6 +2221,7 @@ Outlined.Psychology
 Outlined.Public
 Outlined.PublicOff
 Outlined.Publish
+Outlined.PublishedWithChanges
 Outlined.PushPin
 Outlined.QrCode
 Outlined.QrCodeScanner
@@ -2237,6 +2262,7 @@ Outlined.ReplyAll
 Outlined.Report
 Outlined.ReportOff
 Outlined.ReportProblem
+Outlined.RequestPage
 Outlined.RequestQuote
 Outlined.Restaurant
 Outlined.RestaurantMenu
@@ -2377,6 +2403,7 @@ Outlined.SportsSoccer
 Outlined.SportsTennis
 Outlined.SportsVolleyball
 Outlined.SquareFoot
+Outlined.StackedLineChart
 Outlined.Stairs
 Outlined.Star
 Outlined.StarBorder
@@ -2501,6 +2528,7 @@ Outlined.Unarchive
 Outlined.Undo
 Outlined.UnfoldLess
 Outlined.UnfoldMore
+Outlined.Unpublished
 Outlined.Unsubscribe
 Outlined.Update
 Outlined.Upgrade
@@ -2618,6 +2646,7 @@ Rounded.AddLocationAlt
 Rounded.AddPhotoAlternate
 Rounded.AddRoad
 Rounded.AddShoppingCart
+Rounded.AddTask
 Rounded.AddToHomeScreen
 Rounded.AddToPhotos
 Rounded.AddToQueue
@@ -2845,6 +2874,7 @@ Rounded.ConfirmationNumber
 Rounded.ConnectWithoutContact
 Rounded.Construction
 Rounded.ContactMail
+Rounded.ContactPage
 Rounded.ContactPhone
 Rounded.ContactSupport
 Rounded.Contactless
@@ -2909,6 +2939,7 @@ Rounded.DirectionsRun
 Rounded.DirectionsSubway
 Rounded.DirectionsTransit
 Rounded.DirectionsWalk
+Rounded.DisabledByDefault
 Rounded.DiscFull
 Rounded.Dns
 Rounded.DoNotStep
@@ -2985,6 +3016,7 @@ Rounded.ExposurePlus2
 Rounded.ExposureZero
 Rounded.Extension
 Rounded.Face
+Rounded.Facebook
 Rounded.FactCheck
 Rounded.FamilyRestroom
 Rounded.FastForward
@@ -3106,6 +3138,7 @@ Rounded.GridOn
 Rounded.Group
 Rounded.GroupAdd
 Rounded.GroupWork
+Rounded.Groups
 Rounded.Handyman
 Rounded.Hd
 Rounded.HdrOff
@@ -3267,6 +3300,7 @@ Rounded.Loop
 Rounded.Loupe
 Rounded.LowPriority
 Rounded.Loyalty
+Rounded.Luggage
 Rounded.Mail
 Rounded.MailOutline
 Rounded.Map
@@ -3314,6 +3348,7 @@ Rounded.MoreHoriz
 Rounded.MoreTime
 Rounded.MoreVert
 Rounded.MotionPhotosOn
+Rounded.MotionPhotosPause
 Rounded.MotionPhotosPaused
 Rounded.Motorcycle
 Rounded.Mouse
@@ -3344,11 +3379,13 @@ Rounded.NextWeek
 Rounded.Nfc
 Rounded.NightShelter
 Rounded.NightsStay
+Rounded.NoBackpack
 Rounded.NoCell
 Rounded.NoDrinks
 Rounded.NoEncryption
 Rounded.NoFlash
 Rounded.NoFood
+Rounded.NoLuggage
 Rounded.NoMeals
 Rounded.NoMeetingRoom
 Rounded.NoPhotography
@@ -3380,6 +3417,7 @@ Rounded.OpenInBrowser
 Rounded.OpenInFull
 Rounded.OpenInNew
 Rounded.OpenWith
+Rounded.Outbond
 Rounded.OutdoorGrill
 Rounded.Outlet
 Rounded.OutlinedFlag
@@ -3492,6 +3530,7 @@ Rounded.Psychology
 Rounded.Public
 Rounded.PublicOff
 Rounded.Publish
+Rounded.PublishedWithChanges
 Rounded.PushPin
 Rounded.QrCode
 Rounded.QrCodeScanner
@@ -3532,6 +3571,7 @@ Rounded.ReplyAll
 Rounded.Report
 Rounded.ReportOff
 Rounded.ReportProblem
+Rounded.RequestPage
 Rounded.RequestQuote
 Rounded.Restaurant
 Rounded.RestaurantMenu
@@ -3672,6 +3712,7 @@ Rounded.SportsSoccer
 Rounded.SportsTennis
 Rounded.SportsVolleyball
 Rounded.SquareFoot
+Rounded.StackedLineChart
 Rounded.Stairs
 Rounded.Star
 Rounded.StarBorder
@@ -3796,6 +3837,7 @@ Rounded.Unarchive
 Rounded.Undo
 Rounded.UnfoldLess
 Rounded.UnfoldMore
+Rounded.Unpublished
 Rounded.Unsubscribe
 Rounded.Update
 Rounded.Upgrade
@@ -3913,6 +3955,7 @@ Sharp.AddLocationAlt
 Sharp.AddPhotoAlternate
 Sharp.AddRoad
 Sharp.AddShoppingCart
+Sharp.AddTask
 Sharp.AddToHomeScreen
 Sharp.AddToPhotos
 Sharp.AddToQueue
@@ -4140,6 +4183,7 @@ Sharp.ConfirmationNumber
 Sharp.ConnectWithoutContact
 Sharp.Construction
 Sharp.ContactMail
+Sharp.ContactPage
 Sharp.ContactPhone
 Sharp.ContactSupport
 Sharp.Contactless
@@ -4204,6 +4248,7 @@ Sharp.DirectionsRun
 Sharp.DirectionsSubway
 Sharp.DirectionsTransit
 Sharp.DirectionsWalk
+Sharp.DisabledByDefault
 Sharp.DiscFull
 Sharp.Dns
 Sharp.DoNotStep
@@ -4280,6 +4325,7 @@ Sharp.ExposurePlus2
 Sharp.ExposureZero
 Sharp.Extension
 Sharp.Face
+Sharp.Facebook
 Sharp.FactCheck
 Sharp.FamilyRestroom
 Sharp.FastForward
@@ -4401,6 +4447,7 @@ Sharp.GridOn
 Sharp.Group
 Sharp.GroupAdd
 Sharp.GroupWork
+Sharp.Groups
 Sharp.Handyman
 Sharp.Hd
 Sharp.HdrOff
@@ -4562,6 +4609,7 @@ Sharp.Loop
 Sharp.Loupe
 Sharp.LowPriority
 Sharp.Loyalty
+Sharp.Luggage
 Sharp.Mail
 Sharp.MailOutline
 Sharp.Map
@@ -4609,6 +4657,7 @@ Sharp.MoreHoriz
 Sharp.MoreTime
 Sharp.MoreVert
 Sharp.MotionPhotosOn
+Sharp.MotionPhotosPause
 Sharp.MotionPhotosPaused
 Sharp.Motorcycle
 Sharp.Mouse
@@ -4639,11 +4688,13 @@ Sharp.NextWeek
 Sharp.Nfc
 Sharp.NightShelter
 Sharp.NightsStay
+Sharp.NoBackpack
 Sharp.NoCell
 Sharp.NoDrinks
 Sharp.NoEncryption
 Sharp.NoFlash
 Sharp.NoFood
+Sharp.NoLuggage
 Sharp.NoMeals
 Sharp.NoMeetingRoom
 Sharp.NoPhotography
@@ -4675,6 +4726,7 @@ Sharp.OpenInBrowser
 Sharp.OpenInFull
 Sharp.OpenInNew
 Sharp.OpenWith
+Sharp.Outbond
 Sharp.OutdoorGrill
 Sharp.Outlet
 Sharp.OutlinedFlag
@@ -4787,6 +4839,7 @@ Sharp.Psychology
 Sharp.Public
 Sharp.PublicOff
 Sharp.Publish
+Sharp.PublishedWithChanges
 Sharp.PushPin
 Sharp.QrCode
 Sharp.QrCodeScanner
@@ -4827,6 +4880,7 @@ Sharp.ReplyAll
 Sharp.Report
 Sharp.ReportOff
 Sharp.ReportProblem
+Sharp.RequestPage
 Sharp.RequestQuote
 Sharp.Restaurant
 Sharp.RestaurantMenu
@@ -4967,6 +5021,7 @@ Sharp.SportsSoccer
 Sharp.SportsTennis
 Sharp.SportsVolleyball
 Sharp.SquareFoot
+Sharp.StackedLineChart
 Sharp.Stairs
 Sharp.Star
 Sharp.StarBorder
@@ -5091,6 +5146,7 @@ Sharp.Unarchive
 Sharp.Undo
 Sharp.UnfoldLess
 Sharp.UnfoldMore
+Sharp.Unpublished
 Sharp.Unsubscribe
 Sharp.Update
 Sharp.Upgrade
@@ -5208,6 +5264,7 @@ TwoTone.AddLocationAlt
 TwoTone.AddPhotoAlternate
 TwoTone.AddRoad
 TwoTone.AddShoppingCart
+TwoTone.AddTask
 TwoTone.AddToHomeScreen
 TwoTone.AddToPhotos
 TwoTone.AddToQueue
@@ -5435,6 +5492,7 @@ TwoTone.ConfirmationNumber
 TwoTone.ConnectWithoutContact
 TwoTone.Construction
 TwoTone.ContactMail
+TwoTone.ContactPage
 TwoTone.ContactPhone
 TwoTone.ContactSupport
 TwoTone.Contactless
@@ -5499,6 +5557,7 @@ TwoTone.DirectionsRun
 TwoTone.DirectionsSubway
 TwoTone.DirectionsTransit
 TwoTone.DirectionsWalk
+TwoTone.DisabledByDefault
 TwoTone.DiscFull
 TwoTone.Dns
 TwoTone.DoNotStep
@@ -5575,6 +5634,7 @@ TwoTone.ExposurePlus2
 TwoTone.ExposureZero
 TwoTone.Extension
 TwoTone.Face
+TwoTone.Facebook
 TwoTone.FactCheck
 TwoTone.FamilyRestroom
 TwoTone.FastForward
@@ -5696,6 +5756,7 @@ TwoTone.GridOn
 TwoTone.Group
 TwoTone.GroupAdd
 TwoTone.GroupWork
+TwoTone.Groups
 TwoTone.Handyman
 TwoTone.Hd
 TwoTone.HdrOff
@@ -5857,6 +5918,7 @@ TwoTone.Loop
 TwoTone.Loupe
 TwoTone.LowPriority
 TwoTone.Loyalty
+TwoTone.Luggage
 TwoTone.Mail
 TwoTone.MailOutline
 TwoTone.Map
@@ -5904,6 +5966,7 @@ TwoTone.MoreHoriz
 TwoTone.MoreTime
 TwoTone.MoreVert
 TwoTone.MotionPhotosOn
+TwoTone.MotionPhotosPause
 TwoTone.MotionPhotosPaused
 TwoTone.Motorcycle
 TwoTone.Mouse
@@ -5934,11 +5997,13 @@ TwoTone.NextWeek
 TwoTone.Nfc
 TwoTone.NightShelter
 TwoTone.NightsStay
+TwoTone.NoBackpack
 TwoTone.NoCell
 TwoTone.NoDrinks
 TwoTone.NoEncryption
 TwoTone.NoFlash
 TwoTone.NoFood
+TwoTone.NoLuggage
 TwoTone.NoMeals
 TwoTone.NoMeetingRoom
 TwoTone.NoPhotography
@@ -5970,6 +6035,7 @@ TwoTone.OpenInBrowser
 TwoTone.OpenInFull
 TwoTone.OpenInNew
 TwoTone.OpenWith
+TwoTone.Outbond
 TwoTone.OutdoorGrill
 TwoTone.Outlet
 TwoTone.OutlinedFlag
@@ -6082,6 +6148,7 @@ TwoTone.Psychology
 TwoTone.Public
 TwoTone.PublicOff
 TwoTone.Publish
+TwoTone.PublishedWithChanges
 TwoTone.PushPin
 TwoTone.QrCode
 TwoTone.QrCodeScanner
@@ -6122,6 +6189,7 @@ TwoTone.ReplyAll
 TwoTone.Report
 TwoTone.ReportOff
 TwoTone.ReportProblem
+TwoTone.RequestPage
 TwoTone.RequestQuote
 TwoTone.Restaurant
 TwoTone.RestaurantMenu
@@ -6262,6 +6330,7 @@ TwoTone.SportsSoccer
 TwoTone.SportsTennis
 TwoTone.SportsVolleyball
 TwoTone.SquareFoot
+TwoTone.StackedLineChart
 TwoTone.Stairs
 TwoTone.Star
 TwoTone.StarBorder
@@ -6386,6 +6455,7 @@ TwoTone.Unarchive
 TwoTone.Undo
 TwoTone.UnfoldLess
 TwoTone.UnfoldMore
+TwoTone.Unpublished
 TwoTone.Unsubscribe
 TwoTone.Update
 TwoTone.Upgrade
