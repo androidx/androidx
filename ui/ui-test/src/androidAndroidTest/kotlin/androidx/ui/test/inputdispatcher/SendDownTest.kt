@@ -20,27 +20,22 @@ import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
-import androidx.test.filters.SmallTest
 import androidx.compose.ui.geometry.Offset
+import androidx.test.filters.SmallTest
 import androidx.ui.test.InputDispatcher.Companion.eventPeriod
-import androidx.ui.test.AndroidBaseInputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.android.AndroidInputDispatcher
-import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
 import androidx.ui.test.util.expectError
 import androidx.ui.test.util.verifyEvent
 import androidx.ui.test.util.verifyPointer
 import com.google.common.truth.Truth.assertThat
-import org.junit.After
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 
 /**
- * Tests if [AndroidInputDispatcher.sendDown] works
+ * Tests if [AndroidInputDispatcher.enqueueDown] works
  */
 @SmallTest
-class SendDownTest {
+class SendDownTest : InputDispatcherTest() {
     companion object {
         // Pointer ids
         private const val pointer1 = 11
@@ -58,20 +53,10 @@ class SendDownTest {
         private val position1_2 = Offset(12f, 12f)
     }
 
-    @get:Rule
-    val inputDispatcherRule: TestRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
-
-    private val recorder = MotionEventRecorder()
-    private val subject = AndroidInputDispatcher(recorder::recordEvent)
-
-    @After
-    fun tearDown() {
-        recorder.disposeEvents()
-    }
-
     @Test
     fun onePointer() {
-        subject.sendDownAndCheck(pointer1, position1)
+        subject.generateDownAndCheck(pointer1, position1)
+        subject.sendAllSynchronous()
 
         val t = 0L
         recorder.assertHasValidEventTimes()
@@ -83,8 +68,9 @@ class SendDownTest {
     @Test
     fun twoPointers_ascending() {
         // 2 fingers, sent in ascending order of pointerId (matters for actionIndex)
-        subject.sendDownAndCheck(pointer1, position1)
-        subject.sendDownAndCheck(pointer2, position2)
+        subject.generateDownAndCheck(pointer1, position1)
+        subject.generateDownAndCheck(pointer2, position2)
+        subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
@@ -103,8 +89,9 @@ class SendDownTest {
     @Test
     fun twoPointers_descending() {
         // 2 fingers, sent in descending order of pointerId (matters for actionIndex)
-        subject.sendDownAndCheck(pointer2, position2)
-        subject.sendDownAndCheck(pointer1, position1)
+        subject.generateDownAndCheck(pointer2, position2)
+        subject.generateDownAndCheck(pointer1, position1)
+        subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
@@ -124,10 +111,11 @@ class SendDownTest {
     fun fourPointers() {
         // 4 fingers, sent in non-trivial order of pointerId (matters for actionIndex)
 
-        subject.sendDownAndCheck(pointer3, position3)
-        subject.sendDownAndCheck(pointer1, position1)
-        subject.sendDownAndCheck(pointer4, position4)
-        subject.sendDownAndCheck(pointer2, position2)
+        subject.generateDownAndCheck(pointer3, position3)
+        subject.generateDownAndCheck(pointer1, position1)
+        subject.generateDownAndCheck(pointer4, position4)
+        subject.generateDownAndCheck(pointer2, position2)
+        subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
@@ -159,14 +147,15 @@ class SendDownTest {
         // 4 fingers, going down at different times
         // Each [sendMove] increases the time by 10 milliseconds
 
-        subject.sendDownAndCheck(pointer3, position3)
-        subject.sendMove()
-        subject.sendDownAndCheck(pointer1, position1)
-        subject.sendDownAndCheck(pointer2, position2)
-        subject.sendMove()
-        subject.sendMove()
-        subject.sendMove()
-        subject.sendDownAndCheck(pointer4, position4)
+        subject.generateDownAndCheck(pointer3, position3)
+        subject.enqueueMove()
+        subject.generateDownAndCheck(pointer1, position1)
+        subject.generateDownAndCheck(pointer2, position2)
+        subject.enqueueMove()
+        subject.enqueueMove()
+        subject.enqueueMove()
+        subject.generateDownAndCheck(pointer4, position4)
+        subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
@@ -210,12 +199,13 @@ class SendDownTest {
         // 3 fingers, where the 1st finger goes up before the 3rd finger goes down (no overlap)
         // Each [sendMove] increases the time by 10 milliseconds
 
-        subject.sendDownAndCheck(pointer1, position1)
-        subject.sendDownAndCheck(pointer2, position2)
-        subject.sendMove()
-        subject.sendUpAndCheck(pointer1)
-        subject.sendMove()
-        subject.sendDownAndCheck(pointer3, position3)
+        subject.generateDownAndCheck(pointer1, position1)
+        subject.generateDownAndCheck(pointer2, position2)
+        subject.enqueueMove()
+        subject.generateUpAndCheck(pointer1)
+        subject.enqueueMove()
+        subject.generateDownAndCheck(pointer3, position3)
+        subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
@@ -254,12 +244,13 @@ class SendDownTest {
         // fingers reuses the pointerId of finger 1
         // Each [sendMove] increases the time by 10 milliseconds
 
-        subject.sendDownAndCheck(pointer1, position1)
-        subject.sendDownAndCheck(pointer2, position2)
-        subject.sendMove()
-        subject.sendUpAndCheck(pointer1)
-        subject.sendMove()
-        subject.sendDownAndCheck(pointer1, position1_2)
+        subject.generateDownAndCheck(pointer1, position1)
+        subject.generateDownAndCheck(pointer2, position2)
+        subject.enqueueMove()
+        subject.generateUpAndCheck(pointer1)
+        subject.enqueueMove()
+        subject.generateDownAndCheck(pointer1, position1_2)
+        subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
@@ -294,9 +285,9 @@ class SendDownTest {
 
     @Test
     fun downAfterDown() {
-        subject.sendDown(pointer1, position1)
+        subject.enqueueDown(pointer1, position1)
         expectError<IllegalArgumentException> {
-            subject.sendDown(pointer1, position2)
+            subject.enqueueDown(pointer1, position2)
         }
     }
 }

@@ -20,27 +20,22 @@ import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
 import android.view.MotionEvent.ACTION_UP
-import androidx.test.filters.SmallTest
 import androidx.compose.ui.geometry.Offset
+import androidx.test.filters.SmallTest
 import androidx.ui.test.InputDispatcher.Companion.eventPeriod
-import androidx.ui.test.AndroidBaseInputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.android.AndroidInputDispatcher
-import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
 import androidx.ui.test.util.expectError
 import androidx.ui.test.util.verifyEvent
 import androidx.ui.test.util.verifyPointer
 import com.google.common.truth.Truth.assertThat
-import org.junit.After
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 
 /**
- * Tests if [AndroidInputDispatcher.sendUp] works
+ * Tests if [AndroidInputDispatcher.enqueueUp] works
  */
 @SmallTest
-class SendUpTest {
+class SendUpTest : InputDispatcherTest() {
     companion object {
         // pointerIds
         private const val pointer1 = 11
@@ -51,22 +46,12 @@ class SendUpTest {
         private val position2_1 = Offset(21f, 21f)
     }
 
-    @get:Rule
-    val inputDispatcherRule: TestRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
-
-    private val recorder = MotionEventRecorder()
-    private val subject = AndroidInputDispatcher(recorder::recordEvent)
-
-    @After
-    fun tearDown() {
-        recorder.disposeEvents()
-    }
-
     @Test
     fun onePointer() {
-        subject.sendDownAndCheck(pointer1, position1_1)
-        subject.sendUpAndCheck(pointer1)
+        subject.generateDownAndCheck(pointer1, position1_1)
+        subject.generateUpAndCheck(pointer1)
         subject.verifyNoGestureInProgress()
+        subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
@@ -83,9 +68,10 @@ class SendUpTest {
 
     @Test
     fun onePointerWithDelay() {
-        subject.sendDownAndCheck(pointer1, position1_1)
-        subject.sendUpAndCheck(pointer1, 2 * eventPeriod)
+        subject.generateDownAndCheck(pointer1, position1_1)
+        subject.generateUpAndCheck(pointer1, 2 * eventPeriod)
         subject.verifyNoGestureInProgress()
+        subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
@@ -103,11 +89,12 @@ class SendUpTest {
 
     @Test
     fun multiplePointers_ascending() {
-        subject.sendDownAndCheck(pointer1, position1_1)
-        subject.sendDownAndCheck(pointer2, position2_1)
-        subject.sendUpAndCheck(pointer1)
-        subject.sendUpAndCheck(pointer2)
+        subject.generateDownAndCheck(pointer1, position1_1)
+        subject.generateDownAndCheck(pointer2, position2_1)
+        subject.generateUpAndCheck(pointer1)
+        subject.generateUpAndCheck(pointer2)
         subject.verifyNoGestureInProgress()
+        subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
@@ -132,11 +119,12 @@ class SendUpTest {
 
     @Test
     fun multiplePointers_descending() {
-        subject.sendDownAndCheck(pointer1, position1_1)
-        subject.sendDownAndCheck(pointer2, position2_1)
-        subject.sendUpAndCheck(pointer2)
-        subject.sendUpAndCheck(pointer1)
+        subject.generateDownAndCheck(pointer1, position1_1)
+        subject.generateDownAndCheck(pointer2, position2_1)
+        subject.generateUpAndCheck(pointer2)
+        subject.generateUpAndCheck(pointer1)
         subject.verifyNoGestureInProgress()
+        subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
@@ -162,33 +150,33 @@ class SendUpTest {
     @Test
     fun upWithoutDown() {
         expectError<IllegalStateException> {
-            subject.sendUp(pointer1)
+            subject.enqueueUp(pointer1)
         }
     }
 
     @Test
     fun upWrongPointerId() {
-        subject.sendDown(pointer1, position1_1)
+        subject.enqueueDown(pointer1, position1_1)
         expectError<IllegalArgumentException> {
-            subject.sendUp(pointer2)
+            subject.enqueueUp(pointer2)
         }
     }
 
     @Test
     fun upAfterUp() {
-        subject.sendDown(pointer1, position1_1)
-        subject.sendUp(pointer1)
+        subject.enqueueDown(pointer1, position1_1)
+        subject.enqueueUp(pointer1)
         expectError<IllegalStateException> {
-            subject.sendUp(pointer1)
+            subject.enqueueUp(pointer1)
         }
     }
 
     @Test
     fun upAfterCancel() {
-        subject.sendDown(pointer1, position1_1)
-        subject.sendCancel()
+        subject.enqueueDown(pointer1, position1_1)
+        subject.enqueueCancel()
         expectError<IllegalStateException> {
-            subject.sendUp(pointer1)
+            subject.enqueueUp(pointer1)
         }
     }
 }
