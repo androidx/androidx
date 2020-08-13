@@ -51,9 +51,15 @@ class TextToggleTextBenchmark(
     private val width = textBenchmarkRule.widthDp.dp
     private val fontSize = textBenchmarkRule.fontSizeSp.sp
 
-    private val toggleTextCaseFactory = {
+    private val caseFactory = {
         textBenchmarkRule.generator { generator ->
-            TextToggleTextTestCase(generator, textLength, width, fontSize)
+            TextToggleTextTestCase(
+                textGenerator = generator,
+                textLength = textLength,
+                textNumber = textBenchmarkRule.repeatTimes,
+                width = width,
+                fontSize = fontSize
+            )
         }
     }
 
@@ -62,7 +68,7 @@ class TextToggleTextBenchmark(
      */
     @Test
     fun toggleText_recompose() {
-        benchmarkRule.toggleStateBenchmarkRecompose(toggleTextCaseFactory)
+        benchmarkRule.toggleStateBenchmarkRecompose(caseFactory)
     }
 
     /**
@@ -70,7 +76,7 @@ class TextToggleTextBenchmark(
      */
     @Test
     fun toggleText_measure() {
-        benchmarkRule.toggleStateBenchmarkMeasure(toggleTextCaseFactory)
+        benchmarkRule.toggleStateBenchmarkMeasure(caseFactory)
     }
 
     /**
@@ -78,7 +84,7 @@ class TextToggleTextBenchmark(
      */
     @Test
     fun toggleText_layout() {
-        benchmarkRule.toggleStateBenchmarkLayout(toggleTextCaseFactory)
+        benchmarkRule.toggleStateBenchmarkLayout(caseFactory)
     }
 
     /**
@@ -86,6 +92,6 @@ class TextToggleTextBenchmark(
      */
     @Test
     fun toggleText_draw() {
-        benchmarkRule.toggleStateBenchmarkDraw(toggleTextCaseFactory)
+        benchmarkRule.toggleStateBenchmarkDraw(caseFactory)
     }
 }

@@ -19,7 +19,7 @@ package androidx.ui.integration.test.view
 import android.app.Activity
 import android.util.TypedValue
 import android.view.ViewGroup
-import android.widget.FrameLayout
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.ui.benchmark.android.AndroidTestCase
 import kotlin.math.roundToInt
@@ -28,28 +28,35 @@ import kotlin.math.roundToInt
  * Version of [androidx.ui.integration.test.core.text.TextBasicTestCase] using Android views.
  */
 class AndroidTextViewTestCase(
-    val text: String
+    private val texts: List<String>
 ) : AndroidTestCase {
 
     private var fontSize = 8f
 
     override fun getContent(activity: Activity): ViewGroup {
-        val frameLayout = FrameLayout(activity)
-        val textView = TextView(activity)
-        textView.text = text
-        textView.layoutParams = ViewGroup.LayoutParams(
-            ViewGroup.LayoutParams.WRAP_CONTENT,
+        val column = LinearLayout(activity)
+        column.orientation = LinearLayout.VERTICAL
+        column.layoutParams = ViewGroup.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT,
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
+        for (text in texts) {
+            val textView = TextView(activity)
+            textView.text = text
+            textView.layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
 
-        textView.width = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            160f,
-            activity.resources.displayMetrics
-        ).roundToInt()
+            textView.width = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                160f,
+                activity.resources.displayMetrics
+            ).roundToInt()
 
-        textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize)
-        frameLayout.addView(textView)
-        return frameLayout
+            textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, fontSize)
+            column.addView(textView)
+        }
+        return column
     }
 }

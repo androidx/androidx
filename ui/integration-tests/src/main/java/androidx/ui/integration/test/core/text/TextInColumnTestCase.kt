@@ -20,12 +20,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
+import androidx.compose.foundation.layout.Column
 import androidx.compose.ui.graphics.Color
 import androidx.ui.test.ToggleableTestCase
 import androidx.compose.foundation.layout.preferredWidth
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.ui.test.LayeredComposeTestCase
@@ -33,8 +34,8 @@ import androidx.ui.test.LayeredComposeTestCase
 /**
  * The benchmark test case for [Text], where the input is a plain string.
  */
-class TextBasicTestCase(
-    private val text: String,
+class TextInColumnTestCase(
+    private val texts: List<AnnotatedString>,
     private val width: Dp,
     private val fontSize: TextUnit
 ) : LayeredComposeTestCase, ToggleableTestCase {
@@ -43,17 +44,20 @@ class TextBasicTestCase(
 
     @Composable
     override fun emitMeasuredContent() {
-        Text(text = text, color = color.value, fontSize = fontSize)
+        for (text in texts) {
+            Text(text = text, color = color.value, fontSize = fontSize)
+        }
     }
 
     @Composable
     override fun emitContentWrappers(content: @Composable () -> Unit) {
-        Box(
+        Column(
             modifier = Modifier.wrapContentSize(Alignment.Center).preferredWidth(width)
         ) {
             content()
         }
     }
+
     override fun toggleState() {
         if (color.value == Color.Black) {
             color.value = Color.Red
