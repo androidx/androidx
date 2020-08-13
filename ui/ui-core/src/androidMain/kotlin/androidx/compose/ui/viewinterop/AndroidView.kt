@@ -17,10 +17,7 @@
 package androidx.compose.ui.viewinterop
 
 import android.content.Context
-import android.view.LayoutInflater
 import android.view.View
-import android.widget.FrameLayout
-import androidx.annotation.LayoutRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.currentComposer
 import androidx.compose.ui.Modifier
@@ -62,57 +59,6 @@ fun <T : View> AndroidView(
         }
     )
 }
-
-/**
- * Composes an Android [View] given a layout resource [resId]. The method handles the inflation
- * of the [View] and will call the [postInflationCallback] after this happens. Note that the
- * callback will always be invoked on the main thread.
- *
- * @param resId The id of the layout resource to be inflated.
- * @param modifier The modifier to be applied to the layout.
- * @param postInflationCallback The callback to be invoked after the layout is inflated.
- */
-@Composable
-@Deprecated(
-    "This AndroidView overload will be removed. Please use the non-deprecated one.",
-    ReplaceWith(
-        "AndroidView({ context ->\n" +
-                "val view = LayoutInflater.from(context)" +
-                ".inflate(resId, FrameLayout(context), false\n" +
-                "view.let(postInflationCallback)\n" +
-                "view\n" +
-                "})",
-        "android.view.LayoutInflater"
-    )
-)
-fun AndroidView(
-    @LayoutRes resId: Int,
-    modifier: Modifier = Modifier,
-    postInflationCallback: (View) -> Unit = { _ -> }
-) = AndroidView(
-    { context ->
-        LayoutInflater.from(context)
-            // The fake FrameLayout is needed for layout params creation.
-            .inflate(resId, FrameLayout(context), false)
-            .apply(postInflationCallback)
-    },
-    modifier
-)
-
-/**
- * Composes an Android [View].
- *
- * @param view The [View] to compose.
- * @param modifier The [Modifier] to be applied to the [view].
- */
-@Composable
-@Deprecated(
-    "This AndroidView overload will be removed. Please use the non-deprecated one.",
-    ReplaceWith(
-        "AndroidView({ view })"
-    )
-)
-fun AndroidView(view: View, modifier: Modifier = Modifier) = AndroidView({ view }, modifier)
 
 /**
  * An empty update block used by [AndroidView].
