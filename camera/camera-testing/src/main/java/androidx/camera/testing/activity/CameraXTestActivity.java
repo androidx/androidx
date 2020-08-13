@@ -95,12 +95,12 @@ public class CameraXTestActivity extends AppCompatActivity {
             return;
         }
 
-        if (!CameraUtil.hasCameraWithLensFacing(mLensFacing)) {
-            try {
-                mLensFacing = CameraX.getDefaultLensFacing();
-            } catch (IllegalStateException e) {
-                throw new IllegalArgumentException("Cannot find camera to use", e);
-            }
+        if (CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK)) {
+            mLensFacing = CameraSelector.LENS_FACING_BACK;
+        } else if (CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT)) {
+            mLensFacing = CameraSelector.LENS_FACING_FRONT;
+        } else {
+            throw new IllegalArgumentException("Cannot find camera to use");
         }
 
         mPreview = new Preview.Builder()
@@ -129,7 +129,7 @@ public class CameraXTestActivity extends AppCompatActivity {
                 new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
 
         try {
-            CameraX cameraX = CameraX.getOrCreateInstance(CameraX.getContext()).get();
+            CameraX cameraX = CameraX.getOrCreateInstance(this).get();
             LinkedHashSet<CameraInternal> cameras =
                     cameraSelector.filter(cameraX.getCameraRepository().getCameras());
             mCameraUseCaseAdapter = new CameraUseCaseAdapter(cameras.iterator().next(), cameras,

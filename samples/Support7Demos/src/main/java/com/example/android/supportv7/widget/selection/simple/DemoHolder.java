@@ -41,7 +41,7 @@ final class DemoHolder extends RecyclerView.ViewHolder {
         mDetails = new ItemDetails<Long>() {
             @Override
             public int getPosition() {
-                return DemoHolder.this.getBindingAdapterPosition();
+                return DemoHolder.this.getAbsoluteAdapterPosition();
             }
 
             @Override

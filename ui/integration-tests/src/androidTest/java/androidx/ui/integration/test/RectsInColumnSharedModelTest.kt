@@ -16,12 +16,14 @@
 
 package androidx.ui.integration.test
 
+import androidx.activity.ComponentActivity
 import androidx.test.filters.MediumTest
 import androidx.ui.test.assertMeasureSizeIsPositive
 import androidx.ui.test.assertNoPendingChanges
 import androidx.ui.integration.test.foundation.RectsInColumnSharedModelTestCase
 import androidx.ui.test.ExperimentalTesting
-import androidx.ui.test.createComposeRule
+import androidx.ui.test.android.createAndroidComposeRule
+import androidx.ui.test.forGivenTestCase
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -42,7 +44,7 @@ class RectsInColumnSharedModelTest(private val numberOfRectangles: Int) {
     }
 
     @get:Rule
-    val composeTestRule = createComposeRule(disableTransitions = true)
+    val composeTestRule = createAndroidComposeRule<ComponentActivity>(disableTransitions = true)
 
     @Test
     fun toggleRectangleColor_compose() {

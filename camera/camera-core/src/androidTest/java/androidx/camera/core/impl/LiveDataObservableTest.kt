@@ -60,7 +60,7 @@ class LiveDataObservableTest {
 
     @Test
     fun canSetAndFetchValue_onMainThread() {
-        var fetched: Int? = null
+        var fetched: Int?
         runBlocking(Dispatchers.Main) {
             val observable = LiveDataObservable<Int>().apply {
                 postValue(MAGIC_VALUE)

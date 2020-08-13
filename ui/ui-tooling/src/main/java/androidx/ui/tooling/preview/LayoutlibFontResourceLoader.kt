@@ -20,9 +20,8 @@ import android.content.Context
 import android.graphics.Typeface
 import android.os.Build
 import androidx.annotation.RequiresApi
-import androidx.ui.text.font.Font
-import androidx.ui.text.font.font
-import androidx.ui.text.font.ResourceFont
+import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.text.font.ResourceFont
 
 /**
  * Layoutlib implementation for [Font.ResourceLoader]

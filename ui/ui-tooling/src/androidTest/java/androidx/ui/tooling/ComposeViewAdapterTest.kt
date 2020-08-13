@@ -18,10 +18,15 @@ package androidx.ui.tooling
 
 import android.app.Activity
 import android.os.Bundle
+import androidx.compose.animation.core.InternalAnimationApi
+import androidx.compose.animation.core.TransitionAnimation
 import androidx.ui.tooling.preview.ComposeViewAdapter
 import androidx.ui.tooling.preview.ViewInfo
+import androidx.ui.tooling.preview.animation.PreviewAnimationClock
 import androidx.ui.tooling.test.R
 import org.junit.Assert.assertArrayEquals
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -70,10 +75,31 @@ class ComposeViewAdapterTest {
             assertTrue(viewInfos.isNotEmpty())
             // Verify that valid line numbers are being recorded
             assertTrue(viewInfos.map { it.lineNumber }.all { it > 0 })
-            // Verify that method names are being captured
-            assertTrue(viewInfos.map { it.methodName }.all {
-                it.startsWith("androidx.ui.tooling.")
-            })
+            // Verify that this composable has no animations
+            assertFalse(composeViewAdapter.hasAnimations())
+        }
+    }
+
+    @OptIn(InternalAnimationApi::class)
+    @Test
+    fun transitionAnimationsAreSubscribedToTheClock() {
+        val clock = PreviewAnimationClock()
+
+        activityTestRule.runOnUiThread {
+            composeViewAdapter.init(
+                "androidx.ui.tooling.TestAnimationPreviewKt",
+                "PressStateAnimation"
+            )
+            composeViewAdapter.clock = clock
+            assertTrue(clock.observersToAnimations.isEmpty())
+
+            composeViewAdapter.findAndSubscribeTransitions()
+            assertTrue(composeViewAdapter.hasAnimations())
+
+            val observer = clock.observersToAnimations.keys.single()
+            val transitionAnimation =
+                (observer as TransitionAnimation<*>.TransitionAnimationClockObserver).animation
+            assertEquals("colorAnim", transitionAnimation.label)
         }
     }
 
@@ -114,7 +140,7 @@ class ComposeViewAdapterTest {
                     .sorted()
                     .toTypedArray())
             // Verify that all calls generate the correct offset information
-            assertArrayEquals(arrayOf(1158, 1195, 1216, 1344, 1392, 1414, 1431, 1454, 1471),
+            assertArrayEquals(arrayOf(1221, 1258, 1279, 1407, 1455, 1477, 1494, 1517, 1534),
                 viewInfos
                     .map { it.location?.offset ?: -1 }
                     .sorted()
@@ -167,6 +193,14 @@ class ComposeViewAdapterTest {
         assertRendersCorrectly(
             "androidx.ui.tooling.SimpleComposablePreviewKt",
             "LifecyclePreview"
+        )
+    }
+
+    @Test
+    fun uiSavedStateRegistryUsedInsidePreview() {
+        assertRendersCorrectly(
+            "androidx.ui.tooling.SimpleComposablePreviewKt",
+            "UiSavedStateRegistryPreview"
         )
     }
 

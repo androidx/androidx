@@ -450,7 +450,7 @@ public class MediaSessionProviderService extends Service {
         }
 
         @Override
-        public void createAndSetDummyPlaylist(String sessionId, int size) throws RemoteException {
+        public void createAndSetFakePlaylist(String sessionId, int size) throws RemoteException {
             MediaSession session = mSessionMap.get(sessionId);
             MockPlayer player = (MockPlayer) session.getPlayer();
 
@@ -459,14 +459,14 @@ public class MediaSessionProviderService extends Service {
                 list.add(new MediaItem.Builder()
                         .setMetadata(new MediaMetadata.Builder()
                                 .putString(MediaMetadata.METADATA_KEY_MEDIA_ID,
-                                        TestUtils.getMediaIdInDummyList(i)).build())
+                                        TestUtils.getMediaIdInFakeList(i)).build())
                         .build());
             }
             player.mPlaylist = list;
         }
 
         @Override
-        public void setPlaylistWithDummyItem(String sessionId, List<ParcelImpl> playlist)
+        public void setPlaylistWithFakeItem(String sessionId, List<ParcelImpl> playlist)
                 throws RemoteException {
             MediaSession session = mSessionMap.get(sessionId);
             MockPlayer player = (MockPlayer) session.getPlayer();
@@ -498,7 +498,7 @@ public class MediaSessionProviderService extends Service {
 
             MediaMetadata.Builder builder = new MediaMetadata.Builder();
             for (int i = 0; i < count; i++) {
-                builder.putBitmap(TestUtils.getMediaIdInDummyList(i), bitmap);
+                builder.putBitmap(TestUtils.getMediaIdInFakeList(i), bitmap);
             }
             player.mMetadata = builder.build();
         }

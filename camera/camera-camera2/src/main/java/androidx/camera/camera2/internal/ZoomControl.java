@@ -26,9 +26,10 @@ import androidx.annotation.FloatRange;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.VisibleForTesting;
-import androidx.annotation.WorkerThread;
+import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.core.CameraControl.OperationCanceledException;
 import androidx.camera.core.ZoomState;
+import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.ImmutableZoomState;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -38,6 +39,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Observer;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
+import java.util.concurrent.Executor;
 
 /**
  * Implementation of zoom control used within CameraControl and CameraInfo.
@@ -66,32 +69,28 @@ final class ZoomControl {
     public static final float MIN_ZOOM = DEFAULT_ZOOM_RATIO;
 
     private final Camera2CameraControl mCamera2CameraControl;
-
-    @GuardedBy("mActiveLock")
+    @CameraExecutor
+    private final Executor mExecutor;
+    @GuardedBy("mCurrentZoomState")
     private final ZoomStateImpl mCurrentZoomState;
     private final MutableLiveData<ZoomState> mZoomStateLiveData;
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    final Object mCompleterLock = new Object();
-    @GuardedBy("mCompleterLock")
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     CallbackToFutureAdapter.Completer<Void> mPendingZoomRatioCompleter;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @GuardedBy("mCompleterLock")
     Rect mPendingZoomCropRegion = null;
-
-    final Object mActiveLock = new Object();
 
     /**
      * true if it is ready to accept zoom operation. Any zoom operation during inactive state will
      * throw{@link IllegalStateException}.
      */
-    @GuardedBy("mActiveLock")
     private boolean mIsActive = false;
 
     ZoomControl(@NonNull Camera2CameraControl camera2CameraControl,
-            @NonNull CameraCharacteristics cameraCharacteristics) {
+            @NonNull CameraCharacteristics cameraCharacteristics,
+            @CameraExecutor @NonNull Executor executor) {
         mCamera2CameraControl = camera2CameraControl;
+        mExecutor = executor;
 
         mCurrentZoomState = new ZoomStateImpl(getMaxDigitalZoom(cameraCharacteristics), MIN_ZOOM);
 
@@ -107,71 +106,54 @@ final class ZoomControl {
      * <p>Any zoom operation during inactive state will do nothing and report a error in
      * ListenableFuture. All zoom states are reset to default once it is changed to inactive state.
      */
-    @WorkerThread
+    @ExecutedBy("mExecutor")
     void setActive(boolean isActive) {
-        CallbackToFutureAdapter.Completer<Void> completerToSetException = null;
-        boolean shouldResetDefault = false;
-
         // Only do variable assignment within the synchronized block to prevent form dead lock.
-        synchronized (mActiveLock) {
-            if (mIsActive == isActive) {
-                return;
-            }
+        if (mIsActive == isActive) {
+            return;
+        }
 
-            mIsActive = isActive;
+        mIsActive = isActive;
 
-            if (!mIsActive) {
-                // Fails the pending ListenableFuture.
-                synchronized (mCompleterLock) {
-                    if (mPendingZoomRatioCompleter != null) {
-                        completerToSetException = mPendingZoomRatioCompleter;
-                        mPendingZoomRatioCompleter = null;
-                        mPendingZoomCropRegion = null;
-                    }
-                }
-
-                // Reset all values if zoomControl is inactive.
-                shouldResetDefault = true;
+        if (!mIsActive) {
+            // Reset all values if zoomControl is inactive.
+            ZoomState zoomState;
+            synchronized (mCurrentZoomState) {
                 mCurrentZoomState.setZoomRatio(DEFAULT_ZOOM_RATIO);
-                updateLiveData(ImmutableZoomState.create(mCurrentZoomState));
+                zoomState = ImmutableZoomState.create(mCurrentZoomState);
             }
-        }
+            updateLiveData(zoomState);
 
-        if (shouldResetDefault) {
-            mCamera2CameraControl.setCropRegion(null);
-        }
+            mPendingZoomCropRegion = null;
+            mCamera2CameraControl.setCropRegionInternal(null);
 
-        if (completerToSetException != null) {
-            completerToSetException
-                    .setException(new OperationCanceledException("Camera is not active."));
+            // Fails the pending ListenableFuture.
+            if (mPendingZoomRatioCompleter != null) {
+                mPendingZoomRatioCompleter
+                        .setException(new OperationCanceledException("Camera is not active."));
+                mPendingZoomRatioCompleter = null;
+            }
         }
     }
 
     private Camera2CameraControl.CaptureResultListener mCaptureResultListener =
             new Camera2CameraControl.CaptureResultListener() {
-                @WorkerThread
+                @ExecutedBy("mExecutor")
                 @Override
                 public boolean onCaptureResult(@NonNull TotalCaptureResult captureResult) {
                     // Compare the requested crop region, not the result's crop region because HAL
                     // could modify the requested crop region.
-                    CallbackToFutureAdapter.Completer<Void> completerToSet = null;
-                    synchronized (mCompleterLock) {
-                        if (mPendingZoomRatioCompleter != null) {
-                            CaptureRequest request = captureResult.getRequest();
-                            Rect cropRect = (request == null) ? null :
-                                    request.get(CaptureRequest.SCALER_CROP_REGION);
+                    if (mPendingZoomRatioCompleter != null) {
+                        CaptureRequest request = captureResult.getRequest();
+                        Rect cropRect = (request == null) ? null :
+                                request.get(CaptureRequest.SCALER_CROP_REGION);
 
-                            if (mPendingZoomCropRegion != null
-                                    && mPendingZoomCropRegion.equals(cropRect)) {
-                                completerToSet = mPendingZoomRatioCompleter;
-                                mPendingZoomRatioCompleter = null;
-                                mPendingZoomCropRegion = null;
-                            }
+                        if (mPendingZoomCropRegion != null
+                                && mPendingZoomCropRegion.equals(cropRect)) {
+                            mPendingZoomRatioCompleter.set(null);
+                            mPendingZoomRatioCompleter = null;
+                            mPendingZoomCropRegion = null;
                         }
-                    }
-
-                    if (completerToSet != null) {
-                        completerToSet.set(null);
                     }
                     return false; // continue checking
                 }
@@ -194,26 +176,24 @@ final class ZoomControl {
      */
     @NonNull
     ListenableFuture<Void> setZoomRatio(float ratio) {
-        // Wrapping the whole method in synchronized block in case mActive is changed to false in
-        // the middle of the method. To avoid the deadlock problem, we only perform variable
-        // assignment in the setActive() synchronized block.
-        synchronized (mActiveLock) {
-            if (!mIsActive) {
-                return Futures.immediateFailedFuture(
-                        new OperationCanceledException("Camera is not active."));
-            }
-
-            // If the requested ratio is out of range, it will not modify zoom value but report
-            // IllegalArgumentException in returned ListenableFuture.
+        // If the requested ratio is out of range, it will not modify zoom value but report
+        // IllegalArgumentException in returned ListenableFuture.
+        ZoomState zoomState;
+        synchronized (mCurrentZoomState) {
             try {
                 mCurrentZoomState.setZoomRatio(ratio);
+                zoomState = ImmutableZoomState.create(mCurrentZoomState);
             } catch (IllegalArgumentException e) {
                 return Futures.immediateFailedFuture(e);
             }
-
-            updateLiveData(ImmutableZoomState.create(mCurrentZoomState));
-            return submitCameraZoomRatio(ratio);
         }
+
+        updateLiveData(zoomState);
+
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            mExecutor.execute(() -> submitCameraZoomRatio(completer, zoomState));
+            return "setZoomRatio";
+        });
     }
 
     @NonNull
@@ -233,31 +213,30 @@ final class ZoomControl {
      * <p>When the returned {@link ListenableFuture} completes, either the zoom ratio will be
      * updated or it will have failed, because some other action canceled the updating of the zoom.
      */
-    @NonNull
-    @GuardedBy("mActiveLock")
-    private ListenableFuture<Void> submitCameraZoomRatio(float ratio) {
+    @ExecutedBy("mExecutor")
+    private void submitCameraZoomRatio(@NonNull CallbackToFutureAdapter.Completer<Void> completer,
+            @NonNull ZoomState zoomState) {
+        if (!mIsActive) {
+            synchronized (mCurrentZoomState) {
+                mCurrentZoomState.setZoomRatio(DEFAULT_ZOOM_RATIO);
+                zoomState = ImmutableZoomState.create(mCurrentZoomState);
+            }
+            updateLiveData(zoomState);
+            completer.setException(new OperationCanceledException("Camera is not active."));
+            return;
+        }
+
+        updateLiveData(zoomState);
+
         Rect sensorRect = mCamera2CameraControl.getSensorRect();
-        Rect targetRegion = getCropRectByRatio(sensorRect, ratio);
-        mCamera2CameraControl.setCropRegion(targetRegion);
+        mPendingZoomCropRegion = getCropRectByRatio(sensorRect, zoomState.getZoomRatio());
+        mCamera2CameraControl.setCropRegionInternal(mPendingZoomCropRegion);
 
-        return CallbackToFutureAdapter.getFuture((completer) -> {
-            CallbackToFutureAdapter.Completer<Void> completerToCancel = null;
-            synchronized (mCompleterLock) {
-                if (mPendingZoomRatioCompleter != null) {
-                    completerToCancel = mPendingZoomRatioCompleter;
-                    mPendingZoomRatioCompleter = null;
-                }
-                mPendingZoomCropRegion = targetRegion;
-                mPendingZoomRatioCompleter = completer;
-            }
-
-            if (completerToCancel != null) {
-                completerToCancel.setException(
-                        new OperationCanceledException("There is a new zoomRatio being set"));
-            }
-
-            return "setZoomRatio";
-        });
+        if (mPendingZoomRatioCompleter != null) {
+            mPendingZoomRatioCompleter.setException(
+                    new OperationCanceledException("There is a new zoomRatio being set"));
+        }
+        mPendingZoomRatioCompleter = completer;
     }
 
     /**
@@ -280,26 +259,24 @@ final class ZoomControl {
      */
     @NonNull
     ListenableFuture<Void> setLinearZoom(@FloatRange(from = 0f, to = 1f) float linearZoom) {
-        // Wrapping the whole method in synchronized block in case mActive is changed to false in
-        // the middle of the method. To avoid the deadlock problem, we only perform variable
-        // assignment in the setActive() synchronized block.
-        synchronized (mActiveLock) {
-            if (!mIsActive) {
-                return Futures.immediateFailedFuture(
-                        new OperationCanceledException("Camera is not active."));
-            }
-
-            // If the requested linearZoom is out of range, it will not modify zoom value but
-            // report IllegalArgumentException in returned ListenableFuture.
+        // If the requested linearZoom is out of range, it will not modify zoom value but
+        // report IllegalArgumentException in returned ListenableFuture.
+        ZoomState zoomState;
+        synchronized (mCurrentZoomState) {
             try {
                 mCurrentZoomState.setLinearZoom(linearZoom);
+                zoomState = ImmutableZoomState.create(mCurrentZoomState);
             } catch (IllegalArgumentException e) {
                 return Futures.immediateFailedFuture(e);
             }
-
-            updateLiveData(ImmutableZoomState.create(mCurrentZoomState));
-            return submitCameraZoomRatio(mCurrentZoomState.getZoomRatio());
         }
+
+        updateLiveData(zoomState);
+
+        return CallbackToFutureAdapter.getFuture(completer -> {
+            mExecutor.execute(() -> submitCameraZoomRatio(completer, zoomState));
+            return "setLinearZoom";
+        });
     }
 
     private void updateLiveData(ZoomState zoomState) {

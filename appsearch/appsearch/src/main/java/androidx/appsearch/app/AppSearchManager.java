@@ -51,46 +51,86 @@ import java.util.concurrent.Executors;
  * <p>Apps can index structured text documents with AppSearch, which can then be retrieved through
  * the query API.
  *
+ * <p>AppSearch support multi-thread execute for query but we should use single thread for mutate
+ * requests(put, delete, etc..) to avoid data manipulation conflict.
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 // TODO(b/148046169): This class header needs a detailed example/tutorial.
 // TODO(b/149787478): Rename this class to AppSearch.
 public class AppSearchManager {
+    /** The default empty database name.*/
+    public static final String DEFAULT_DATABASE_NAME = "";
 
+    private final String mDatabaseName;
+    private final AppSearchImpl mAppSearchImpl;
     // Never call Executor.shutdownNow(), it will cancel the futures it's returned. And since
     // execute() won't return anything, we will hang forever waiting for the execution.
-    // AppSearch support multi-thread execute for query but we should use single thread for mutate
-    // requests(put, delete, etc..) to avoid data manipulation conflict.
-    private static final ExecutorService QUERY_EXECUTOR = Executors.newCachedThreadPool();
-    private static final ExecutorService MUTATE_EXECUTOR = Executors.newFixedThreadPool(1);
+    // AppSearch multi-thread execution is guarded by Read & Write Lock in AppSearchImpl, all
+    // mutate requests will need to gain write lock and query requests need to gain read lock.
+    private final ExecutorService mExecutorService = Executors.newCachedThreadPool();
 
-    private final String mInstanceName;
-    private final Context mContext;
-    private final AppSearchImpl mAppSearchImpl;
+    /** Builder class for {@link AppSearchManager} objects. */
+    public static final class Builder {
+        private final Context mContext;
+        private String mDatabaseName = DEFAULT_DATABASE_NAME;
+        private boolean mBuilt = false;
 
-    /** Gets the an instance of {@link AppSearchManager} */
-    @NonNull
-    public static ListenableFuture<AppSearchResult<AppSearchManager>> getInstance(
-            @NonNull String instanceName, @NonNull Context context) {
-        AppSearchManager appSearchManager = new AppSearchManager(instanceName, context);
-        return appSearchManager.initialize();
+        /** Constructs a new Builder with default settings using the provided {@code context}. */
+        public Builder(@NonNull Context context) {
+            Preconditions.checkNotNull(context);
+            mContext = context;
+        }
+
+        /**
+         * Sets the name of the database to create or open.
+         *
+         * <p>Database name cannot contain {@code '/'}.
+         * <p>Databases with different names are fully separate with distinct types, namespaces, and
+         * data.
+         *
+         * <p>If not specified, defaults to {@link #DEFAULT_DATABASE_NAME}.
+         * @param databaseName The name of the database.
+         * @throws IllegalArgumentException if the databaseName contains {@code '/'}.
+         */
+        @NonNull
+        public Builder setDatabaseName(@NonNull String databaseName) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            Preconditions.checkNotNull(databaseName);
+            if (databaseName.contains("/")) {
+                throw new IllegalArgumentException("Database name cannot contain '/'");
+            }
+            mDatabaseName = databaseName;
+            return this;
+        }
+
+        /**
+         * Connects to the AppSearch database per this builder's configuration, and asynchronously
+         * returns the initialized instance.
+         */
+        @NonNull
+        public ListenableFuture<AppSearchResult<AppSearchManager>> build() {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            mBuilt = true;
+            AppSearchManager appSearchManager = new AppSearchManager(mDatabaseName);
+            return appSearchManager.initialize(mContext);
+        }
     }
 
     /**
      * Gets a instance of {@link AppSearchManager} with the name of it.
-     * <p>Documents, schemas and types are fully isolated between different instances.
      *
-     * @param instanceName  The name of this instance.
-     * @param context The context to initialize the instance in.
+     * <p>Documents, schemas and types are fully isolated between different databases.
+     *
+     * @param databaseName The name of this database.
      */
-    private AppSearchManager(@NonNull String instanceName, @NonNull Context context) {
-        mInstanceName = instanceName;
-        mContext = context;
-        mAppSearchImpl = AppSearchImpl.getInstance(mContext);
+    AppSearchManager(@NonNull String databaseName) {
+        mDatabaseName = databaseName;
+        mAppSearchImpl = AppSearchImpl.getInstance();
     }
 
-    private ListenableFuture<AppSearchResult<AppSearchManager>> initialize() {
+    ListenableFuture<AppSearchResult<AppSearchManager>> initialize(
+            @NonNull Context context) {
         if (mAppSearchImpl.isInitialized()) {
             // Already initialized, nothing to do.
             ResolvableFuture<AppSearchResult<AppSearchManager>> resolvableFuture =
@@ -99,9 +139,9 @@ public class AppSearchManager {
             return resolvableFuture;
         }
 
-        return execute(MUTATE_EXECUTOR, () -> {
+        return execute(() -> {
             try {
-                mAppSearchImpl.initialize(mContext);
+                mAppSearchImpl.initialize(context);
                 return AppSearchResult.newSuccessfulResult(this);
             } catch (Throwable t) {
                 return throwableToFailedResult(t);
@@ -255,13 +295,13 @@ public class AppSearchManager {
     @NonNull
     public ListenableFuture<AppSearchResult<Void>> setSchema(@NonNull SetSchemaRequest request) {
         Preconditions.checkNotNull(request);
-        return execute(MUTATE_EXECUTOR, () -> {
+        return execute(() -> {
             SchemaProto.Builder schemaProtoBuilder = SchemaProto.newBuilder();
             for (AppSearchSchema schema : request.mSchemas) {
                 schemaProtoBuilder.addTypes(schema.getProto());
             }
             try {
-                mAppSearchImpl.setSchema(mInstanceName, schemaProtoBuilder.build(),
+                mAppSearchImpl.setSchema(mDatabaseName, schemaProtoBuilder.build(),
                         request.mForceOverride);
                 return AppSearchResult.newSuccessfulResult(/*value=*/ null);
             } catch (Throwable t) {
@@ -370,13 +410,13 @@ public class AppSearchManager {
         // TODO(b/146386470): Transmit these documents as a RemoteStream instead of sending them in
         // one big list.
         Preconditions.checkNotNull(request);
-        return execute(MUTATE_EXECUTOR, () -> {
+        return execute(() -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (int i = 0; i < request.mDocuments.size(); i++) {
                 GenericDocument document = request.mDocuments.get(i);
                 try {
-                    mAppSearchImpl.putDocument(mInstanceName, document.getProto());
+                    mAppSearchImpl.putDocument(mDatabaseName, document.getProto());
                     resultBuilder.setSuccess(document.getUri(), /*result=*/ null);
                 } catch (Throwable t) {
                     resultBuilder.setResult(document.getUri(), throwableToFailedResult(t));
@@ -461,13 +501,13 @@ public class AppSearchManager {
         // TODO(b/146386470): Transmit the result documents as a RemoteStream instead of sending
         //     them in one big list.
         Preconditions.checkNotNull(request);
-        return execute(QUERY_EXECUTOR, () -> {
+        return execute(() -> {
             AppSearchBatchResult.Builder<String, GenericDocument> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (String uri : request.mUris) {
                 try {
                     DocumentProto documentProto =
-                            mAppSearchImpl.getDocument(mInstanceName, request.mNamespace, uri);
+                            mAppSearchImpl.getDocument(mDatabaseName, request.mNamespace, uri);
                     try {
                         GenericDocument document = new GenericDocument(documentProto);
                         resultBuilder.setSuccess(uri, document);
@@ -532,11 +572,11 @@ public class AppSearchManager {
         //     them in one big list.
         Preconditions.checkNotNull(queryExpression);
         Preconditions.checkNotNull(searchSpec);
-        return execute(QUERY_EXECUTOR, () -> {
+        return execute(() -> {
             try {
                 SearchSpecProto searchSpecProto = searchSpec.getSearchSpecProto();
                 searchSpecProto = searchSpecProto.toBuilder().setQuery(queryExpression).build();
-                SearchResultProto searchResultProto = mAppSearchImpl.query(mInstanceName,
+                SearchResultProto searchResultProto = mAppSearchImpl.query(mDatabaseName,
                         searchSpecProto, searchSpec.getResultSpecProto(),
                         searchSpec.getScoringSpecProto());
 
@@ -621,12 +661,12 @@ public class AppSearchManager {
     public ListenableFuture<AppSearchBatchResult<String, Void>> removeDocuments(
             @NonNull RemoveDocumentsRequest request) {
         Preconditions.checkNotNull(request);
-        return execute(MUTATE_EXECUTOR, () -> {
+        return execute(() -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (String uri : request.mUris) {
                 try {
-                    mAppSearchImpl.remove(mInstanceName, request.mNamespace, uri);
+                    mAppSearchImpl.remove(mDatabaseName, request.mNamespace, uri);
                     resultBuilder.setSuccess(uri, /*result= */null);
                 } catch (Throwable t) {
                     resultBuilder.setResult(uri, throwableToFailedResult(t));
@@ -667,13 +707,13 @@ public class AppSearchManager {
     public ListenableFuture<AppSearchBatchResult<String, Void>> removeByType(
             @NonNull List<String> schemaTypes) {
         Preconditions.checkNotNull(schemaTypes);
-        return execute(MUTATE_EXECUTOR, () -> {
+        return execute(() -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (int i = 0; i < schemaTypes.size(); i++) {
                 String schemaType = schemaTypes.get(i);
                 try {
-                    mAppSearchImpl.removeByType(mInstanceName, schemaType);
+                    mAppSearchImpl.removeByType(mDatabaseName, schemaType);
                     resultBuilder.setSuccess(schemaType, /*result=*/ null);
                 } catch (Throwable t) {
                     resultBuilder.setResult(schemaType, throwableToFailedResult(t));
@@ -714,13 +754,13 @@ public class AppSearchManager {
     public ListenableFuture<AppSearchBatchResult<String, Void>> removeByNamespace(
             @NonNull List<String> namespaces) {
         Preconditions.checkNotNull(namespaces);
-        return execute(MUTATE_EXECUTOR, () -> {
+        return execute(() -> {
             AppSearchBatchResult.Builder<String, Void> resultBuilder =
                     new AppSearchBatchResult.Builder<>();
             for (int i = 0; i < namespaces.size(); i++) {
                 String namespace = namespaces.get(i);
                 try {
-                    mAppSearchImpl.removeByNamespace(mInstanceName, namespace);
+                    mAppSearchImpl.removeByNamespace(mDatabaseName, namespace);
                     resultBuilder.setSuccess(namespace, /*result=*/ null);
                 } catch (Throwable t) {
                     resultBuilder.setResult(namespace, throwableToFailedResult(t));
@@ -737,9 +777,9 @@ public class AppSearchManager {
      */
     @NonNull
     public ListenableFuture<AppSearchResult<Void>> removeAll() {
-        return execute(MUTATE_EXECUTOR, () -> {
+        return execute(() -> {
             try {
-                mAppSearchImpl.removeAll(mInstanceName);
+                mAppSearchImpl.removeAll(mDatabaseName);
                 return AppSearchResult.newSuccessfulResult(null);
             } catch (Throwable t) {
                 return throwableToFailedResult(t);
@@ -749,7 +789,7 @@ public class AppSearchManager {
 
     @VisibleForTesting
     ListenableFuture<AppSearchResult<Void>> resetAllInstances() {
-        return execute(MUTATE_EXECUTOR, () -> {
+        return execute(() -> {
             try {
                 mAppSearchImpl.reset();
                 return AppSearchResult.newSuccessfulResult(null);
@@ -759,10 +799,10 @@ public class AppSearchManager {
         });
     }
 
-    /** Executes the callable task on the given executor. */
-    private <T> ListenableFuture<T> execute(ExecutorService executor, Callable<T> callable) {
+    /** Executes the callable task and set result to ListenableFuture. */
+    private <T> ListenableFuture<T> execute(Callable<T> callable) {
         ResolvableFuture<T> future = ResolvableFuture.create();
-        executor.execute(() -> {
+        mExecutorService.execute(() -> {
             if (!future.isCancelled()) {
                 try {
                     future.set(callable.call());

@@ -30,6 +30,8 @@ plugins {
 
 kotlin {
     android()
+    jvm("desktop")
+
     sourceSets {
         commonMain.dependencies {
             implementation(KOTLIN_STDLIB_COMMON)
@@ -41,6 +43,11 @@ kotlin {
 
         androidMain.dependencies {
             api "androidx.annotation:annotation:1.1.0"
+        }
+
+        desktopMain.dependencies {
+            implementation(KOTLIN_STDLIB)
+            implementation(SKIKO)
         }
 
         androidTest.dependencies {
@@ -67,7 +74,7 @@ androidx {
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.Compose.UI
     inceptionYear = "2020"
-    description = "Compose graphics components."
+    description = "Compose graphics"
 }
 
 tasks.withType(KotlinCompile).configureEach {

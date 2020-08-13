@@ -18,6 +18,7 @@ package androidx.navigation
 
 import androidx.annotation.IdRes
 import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -81,6 +82,38 @@ class NavGraphTest {
 
         assertThat(destination.parent).isEqualTo(graph)
         assertThat(graph.findNode(FIRST_DESTINATION_ID)).isEqualTo(destination)
+    }
+
+    @Test
+    fun addDestinationWithSameId() {
+        val destination = createFirstDestination()
+        val graph = navGraphNavigator.createDestination().apply {
+            id = FIRST_DESTINATION_ID
+        }
+        try {
+            graph.addDestination(destination)
+        } catch (e: IllegalArgumentException) {
+            assertWithMessage("Adding destination with same id as its parent should fail")
+                .that(e).hasMessageThat().contains(
+                    "Destination $destination cannot have the same id as graph $graph"
+            )
+        }
+    }
+
+    @Test
+    fun setStartDestinationWithSameId() {
+        val destination = createFirstDestination()
+        val graph = navGraphNavigator.createDestination().apply {
+            id = FIRST_DESTINATION_ID
+        }
+        try {
+            graph.startDestination = destination.id
+        } catch (e: IllegalArgumentException) {
+            assertWithMessage("Setting a start destination with same id as its parent should fail")
+                .that(e).hasMessageThat().contains("Start destination " + destination.id +
+                        " cannot use the same id as the graph $graph"
+                )
+        }
     }
 
     @Test

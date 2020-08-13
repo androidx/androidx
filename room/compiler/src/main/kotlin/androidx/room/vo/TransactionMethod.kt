@@ -16,13 +16,13 @@
 
 package androidx.room.vo
 
+import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XType
 import androidx.room.solver.transaction.binder.TransactionMethodBinder
-import javax.lang.model.element.ExecutableElement
-import javax.lang.model.type.TypeMirror
 
 class TransactionMethod(
-    val element: ExecutableElement,
-    val returnType: TypeMirror,
+    val element: XMethodElement,
+    val returnType: XType,
     val parameterNames: List<String>,
     val callType: CallType,
     val methodBinder: TransactionMethodBinder

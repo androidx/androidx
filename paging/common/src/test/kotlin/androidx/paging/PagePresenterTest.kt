@@ -20,6 +20,7 @@ import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
+import androidx.paging.PagePresenter.ProcessPageEventCallback
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -54,7 +55,7 @@ internal fun <T : Any> PagePresenter<T>.insertPage(
     isPrepend: Boolean,
     page: List<T>,
     placeholdersRemaining: Int,
-    callback: PresenterCallback
+    callback: ProcessPageEventCallback
 ) = processEvent(
     adjacentInsertEvent(
         isPrepend = isPrepend,
@@ -69,7 +70,7 @@ internal fun <T : Any> PagePresenter<T>.dropPages(
     isPrepend: Boolean,
     pagesToDrop: Int,
     placeholdersRemaining: Int,
-    callback: PresenterCallback
+    callback: ProcessPageEventCallback
 ) = processEvent(
     PageEvent.Drop(
         loadType = if (isPrepend) PREPEND else APPEND,
@@ -98,7 +99,7 @@ class PagePresenterTest {
             indexOfInitialPage = 0
         )
 
-        val callback = PresenterCallbackCapture()
+        val callback = ProcessPageEventCallbackCapture()
         val page: List<Char> = List(newItems) { 'a' + it + initialItems }
         data.insertPage(
             isPrepend = false,
@@ -136,7 +137,7 @@ class PagePresenterTest {
         )
 
         val endItemCount = newItems + initialItems
-        val callback = PresenterCallbackCapture()
+        val callback = ProcessPageEventCallbackCapture()
         data.insertPage(
             isPrepend = true,
             page = List(newItems) { 'z' + it - endItemCount - 1 },
@@ -307,7 +308,7 @@ class PagePresenterTest {
 
         assertEquals(initialPages.flatten() + List<Char?>(initialNulls) { null }, data.asList())
 
-        val callback = PresenterCallbackCapture()
+        val callback = ProcessPageEventCallbackCapture()
         data.dropPages(false, pagesToDrop, newNulls, callback)
 
         assertEquals(
@@ -343,7 +344,7 @@ class PagePresenterTest {
             data.asList()
         )
 
-        val callback = PresenterCallbackCapture()
+        val callback = ProcessPageEventCallbackCapture()
         data.dropPages(true, pagesToDrop, newNulls, callback)
 
         assertEvents(
@@ -501,54 +502,34 @@ class PagePresenterTest {
         }
     }
 
+    // TODO storageCount test
+
     @Test
-    fun loadAroundOutOfBounds() {
-        val presenter = PagePresenter(
-            pages = mutableListOf(listOf('a')),
-            leadingNullCount = 1,
-            trailingNullCount = 1,
-            indexOfInitialPage = 0
+    fun snapshot_uncounted() {
+        val pagePresenter = PagePresenter(
+            PageEvent.Insert.Refresh(
+                pages = listOf(TransformablePage(listOf('a'))),
+                placeholdersBefore = 0,
+                placeholdersAfter = 0,
+                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
+            )
         )
-        assertFailsWith<IndexOutOfBoundsException> {
-            presenter.indexToHint(-1)
-        }
-        assertFailsWith<IndexOutOfBoundsException> {
-            presenter.indexToHint(4)
-        }
+
+        assertEquals<List<Char?>>(listOf('a'), pagePresenter.snapshot())
     }
 
     @Test
-    fun loadAroundSimple() {
+    fun snapshot_counted() {
         val pagePresenter = PagePresenter(
-            pages = listOf(listOf('a')),
-            leadingNullCount = 1,
-            trailingNullCount = 1,
-            indexOfInitialPage = 0
+            PageEvent.Insert.Refresh(
+                pages = listOf(TransformablePage(listOf('a'))),
+                placeholdersBefore = 1,
+                placeholdersAfter = 3,
+                combinedLoadStates = CombinedLoadStates.IDLE_SOURCE
+            )
         )
-        assertEquals(ViewportHint(0, -1), pagePresenter.indexToHint(0))
-        assertEquals(ViewportHint(0, 0), pagePresenter.indexToHint(1))
-        assertEquals(ViewportHint(0, 1), pagePresenter.indexToHint(2))
-    }
 
-    @Test
-    fun loadAround() {
-        val pagePresenter = PagePresenter(
-            pages = listOf(
-                listOf('a'),
-                listOf('b', 'c'),
-                listOf('d')
-            ),
-            leadingNullCount = 1,
-            trailingNullCount = 2,
-            indexOfInitialPage = 1
-        )
-        assertEquals(ViewportHint(-1, -1), pagePresenter.indexToHint(0))
-        assertEquals(ViewportHint(-1, 0), pagePresenter.indexToHint(1))
-        assertEquals(ViewportHint(0, 0), pagePresenter.indexToHint(2))
-        assertEquals(ViewportHint(0, 1), pagePresenter.indexToHint(3))
-        assertEquals(ViewportHint(1, 0), pagePresenter.indexToHint(4))
-        assertEquals(ViewportHint(1, 1), pagePresenter.indexToHint(5))
-        assertEquals(ViewportHint(1, 2), pagePresenter.indexToHint(6))
+        assertEquals(listOf(null, 'a', null, null, null), pagePresenter.snapshot())
     }
 
     companion object {

@@ -16,8 +16,8 @@
 
 package androidx.camera.view;
 
-import static androidx.camera.view.PreviewView.ImplementationMode.SURFACE_VIEW;
-import static androidx.camera.view.PreviewView.ImplementationMode.TEXTURE_VIEW;
+import static androidx.camera.view.PreviewView.ImplementationMode.COMPATIBLE;
+import static androidx.camera.view.PreviewView.ImplementationMode.PERFORMANCE;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -38,22 +38,24 @@ import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.util.Size;
 import android.view.LayoutInflater;
+import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceRequest;
-import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.fakes.FakeActivity;
 import androidx.camera.testing.fakes.FakeCamera;
+import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.view.preview.transform.transformation.Transformation;
 import androidx.camera.view.test.R;
 import androidx.core.content.ContextCompat;
@@ -72,6 +74,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -143,17 +146,73 @@ public class PreviewViewTest {
     }
 
     private CameraInfo createCameraInfo(String implementationType) {
-        final CameraInfo cameraInfo = mock(CameraInfoInternal.class);
-        when(cameraInfo.getImplementationType()).thenReturn(implementationType);
-        return cameraInfo;
+        FakeCameraInfoInternal cameraInfoInternal = new FakeCameraInfoInternal();
+        cameraInfoInternal.setImplementationType(implementationType);
+        return cameraInfoInternal;
     }
 
     private CameraInfo createCameraInfo(int rotationDegrees, String implementationType) {
-        final CameraInfo cameraInfo = mock(CameraInfoInternal.class);
-        when(cameraInfo.getImplementationType()).thenReturn(implementationType);
-        when(cameraInfo.getSensorRotationDegrees()).thenReturn(rotationDegrees);
-        return cameraInfo;
+        FakeCameraInfoInternal cameraInfoInternal = new FakeCameraInfoInternal(rotationDegrees,
+                CameraSelector.LENS_FACING_BACK);
+        cameraInfoInternal.setImplementationType(implementationType);
+        return cameraInfoInternal;
     }
+
+    private CameraInfo createCameraInfo(int rotationDegrees, String implementationType,
+            @CameraSelector.LensFacing int lensFacing) {
+        FakeCameraInfoInternal cameraInfoInternal = new FakeCameraInfoInternal(rotationDegrees,
+                lensFacing);
+        cameraInfoInternal.setImplementationType(implementationType);
+        return cameraInfoInternal;
+    }
+
+    @Test
+    @UiThreadTest
+    public void clearCameraController_controllerIsNull() {
+        // Arrange.
+        final PreviewView previewView = new PreviewView(mContext);
+        setContentView(previewView);
+        CameraController cameraController = new LifecycleCameraController(mContext);
+        previewView.setController(cameraController);
+        assertThat(previewView.getController()).isEqualTo(cameraController);
+
+        // Act and Assert.
+        previewView.setController(null);
+
+        // Assert
+        assertThat(previewView.getController()).isNull();
+    }
+
+    @Test
+    @UiThreadTest
+    public void setNewCameraController_oldControllerIsCleared() throws InterruptedException {
+        // Arrange.
+        final PreviewView previewView = new PreviewView(mContext);
+        setContentView(previewView);
+        Semaphore previewClearSemaphore = new Semaphore(0);
+        CameraController oldController = new CameraController(mContext) {
+            @Nullable
+            @Override
+            Camera startCamera() {
+                return null;
+            }
+
+            void clearPreviewSurface() {
+                previewClearSemaphore.release();
+            }
+        };
+        previewView.setController(oldController);
+        assertThat(previewView.getController()).isEqualTo(oldController);
+        CameraController newController = new LifecycleCameraController(mContext);
+
+        // Act and Assert.
+        previewView.setController(newController);
+
+        // Assert
+        assertThat(previewView.getController()).isEqualTo(newController);
+        assertThat(previewClearSemaphore.tryAcquire(1, TimeUnit.SECONDS)).isTrue();
+    }
+
 
     @Test
     @UiThreadTest
@@ -162,7 +221,7 @@ public class PreviewViewTest {
                 createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY);
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
-        previewView.setPreferredImplementationMode(SURFACE_VIEW);
+        previewView.setImplementationMode(PERFORMANCE);
         Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
@@ -178,7 +237,7 @@ public class PreviewViewTest {
 
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
-        previewView.setPreferredImplementationMode(SURFACE_VIEW);
+        previewView.setImplementationMode(PERFORMANCE);
         Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
@@ -194,7 +253,7 @@ public class PreviewViewTest {
 
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
-        previewView.setPreferredImplementationMode(SURFACE_VIEW);
+        previewView.setImplementationMode(PERFORMANCE);
         Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
@@ -204,12 +263,12 @@ public class PreviewViewTest {
 
     @Test
     @UiThreadTest
-    public void usesTextureView_whenNonLegacyDevice_andPreferredImplModeTextureView() {
+    public void usesTextureView_whenNonLegacyDevice_andImplModeIsTextureView() {
         final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
 
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
-        previewView.setPreferredImplementationMode(TEXTURE_VIEW);
+        previewView.setImplementationMode(COMPATIBLE);
         Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
@@ -220,7 +279,8 @@ public class PreviewViewTest {
     @Test
     @UiThreadTest
     public void canCreateMeteringPointFactory() {
-        final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+        final CameraInfo cameraInfo = createCameraInfo(90,
+                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, CameraSelector.LENS_FACING_BACK);
 
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
@@ -228,8 +288,7 @@ public class PreviewViewTest {
         Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
-        MeteringPointFactory factory =
-                previewView.createMeteringPointFactory(CameraSelector.DEFAULT_BACK_CAMERA);
+        MeteringPointFactory factory = previewView.getMeteringPointFactory();
 
         MeteringPoint point = factory.createPoint(100, 100);
         assertThat(point.getX() >= 0f || point.getX() <= 1.0f);
@@ -239,15 +298,15 @@ public class PreviewViewTest {
     @Test
     @UiThreadTest
     public void createMeteringPointFactory_previewViewWidthOrHeightIs0() {
-        final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+        final CameraInfo cameraInfo = createCameraInfo(90,
+                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, CameraSelector.LENS_FACING_BACK);
 
         final PreviewView previewView = new PreviewView(mContext);
         Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
 
-        MeteringPointFactory factory =
-                previewView.createMeteringPointFactory(CameraSelector.DEFAULT_BACK_CAMERA);
+        MeteringPointFactory factory = previewView.getMeteringPointFactory();
 
         //Width and height is 0,  but surface is requested,
         //verifying the factory only creates invalid points.
@@ -262,8 +321,7 @@ public class PreviewViewTest {
         final PreviewView previewView = new PreviewView(mContext);
         // make PreviewView.getWidth() getHeight not 0.
         setContentView(previewView);
-        MeteringPointFactory factory =
-                previewView.createMeteringPointFactory(CameraSelector.DEFAULT_BACK_CAMERA);
+        MeteringPointFactory factory = previewView.getMeteringPointFactory();
 
         //verifying the factory only creates invalid points.
         MeteringPoint point = factory.createPoint(100, 100);
@@ -273,11 +331,11 @@ public class PreviewViewTest {
 
     @Test
     @UiThreadTest
-    public void getsPreferredImplementationMode() {
+    public void getsImplementationMode() {
         final PreviewView previewView = new PreviewView(mContext);
-        previewView.setPreferredImplementationMode(SURFACE_VIEW);
+        previewView.setImplementationMode(PERFORMANCE);
 
-        assertThat(previewView.getPreferredImplementationMode()).isEqualTo(SURFACE_VIEW);
+        assertThat(previewView.getImplementationMode()).isEqualTo(PERFORMANCE);
     }
 
     @Test
@@ -400,7 +458,7 @@ public class PreviewViewTest {
             setContentView(container.get());
             // Sets as TEXTURE_VIEW mode so that we can verify the TextureView result
             // transformation.
-            previewView.get().setPreferredImplementationMode(TEXTURE_VIEW);
+            previewView.get().setImplementationMode(COMPATIBLE);
             previewView.get().setScaleType(PreviewView.ScaleType.FILL_CENTER);
 
             // Sets container size as 640x480
@@ -474,6 +532,33 @@ public class PreviewViewTest {
         final ColorDrawable actualBackground = (ColorDrawable) previewView.getBackground();
         final int expectedBackground = ContextCompat.getColor(mContext, android.R.color.white);
         assertThat(actualBackground.getColor()).isEqualTo(expectedBackground);
+    }
+
+    @Test
+    @UiThreadTest
+    public void doNotRemovePreview_whenCreatingNewSurfaceProvider() {
+        final PreviewView previewView = new PreviewView(mContext);
+        setContentView(previewView);
+
+        // Start a preview stream
+        final Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+        final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+        mSurfaceRequest = createSurfaceRequest(cameraInfo);
+        surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+
+        // Create a new surfaceProvider
+        previewView.createSurfaceProvider();
+
+        // Assert PreviewView doesn't remove the current preview TextureView/SurfaceView
+        boolean wasPreviewRemoved = true;
+        for (int i = 0; i < previewView.getChildCount(); i++) {
+            if (previewView.getChildAt(i) instanceof TextureView
+                    || previewView.getChildAt(i) instanceof SurfaceView) {
+                wasPreviewRemoved = false;
+                break;
+            }
+        }
+        assertThat(wasPreviewRemoved).isFalse();
     }
 
     private void setContentView(View view) {

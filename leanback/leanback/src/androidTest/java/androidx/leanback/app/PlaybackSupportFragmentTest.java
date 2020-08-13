@@ -537,7 +537,7 @@ public class PlaybackSupportFragmentTest extends SingleSupportFragmentTestBase {
         final ControlsOverlayAutoHideDisabledFragment fragment =
                 (ControlsOverlayAutoHideDisabledFragment) activity.getTestFragment();
 
-        // Sanity check that onViewCreated has made the controls invisible
+        // Validate that onViewCreated has made the controls invisible
         assertFalse(fragment.mControlVisible);
         activityTestRule.runOnUiThread(new Runnable() {
             public void run() {

@@ -16,19 +16,20 @@
 
 package androidx.ui.tooling
 
-import androidx.compose.Composable
-import androidx.compose.SlotTable
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SlotTable
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Modifier
-import androidx.ui.core.drawBehind
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.drawBackground
-import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
-import androidx.ui.layout.preferredSize
-import androidx.ui.unit.dp
-import androidx.ui.unit.height
-import androidx.ui.unit.width
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.drawBehind
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.height
+import androidx.compose.ui.unit.width
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -289,7 +290,7 @@ class InspectableTests : ToolingTest() {
             Inspectable(SlotTableRecord.create()) {
                 Column {
                     InInspectionModeOnly {
-                        Box(Modifier.preferredSize(100.dp).drawBackground(Color(0xFF)))
+                        Box(Modifier.preferredSize(100.dp).background(color = Color(0xFF)))
                         displayed = true
                     }
                 }
@@ -305,13 +306,38 @@ class InspectableTests : ToolingTest() {
         show {
             Column {
                 InInspectionModeOnly {
-                    Box(Modifier.preferredSize(100.dp).drawBackground(Color(0xFF)))
+                    Box(Modifier.preferredSize(100.dp).background(color = Color(0xFF)))
                     displayed = true
                 }
             }
         }
 
         assertFalse(displayed)
+    }
+
+    @Test // regression test for b/161839910
+    fun textParametersAreCorrect() {
+        val slotTableRecord = SlotTableRecord.create()
+
+        show {
+            Inspectable(slotTableRecord) {
+                Text("Test")
+            }
+        }
+        val tree = slotTableRecord.store.first().asTree()
+        val list = tree.asList()
+        val parameters = list.filter {
+            it.parameters.isNotEmpty() && it.key.let {
+                it is String && it.contains("InspectableTests")
+            }
+        }
+        val names = parameters.first().parameters.map { it.name }
+        assertEquals(
+            "text, modifier, color, fontSize, fontStyle, fontWeight, fontFamily, " +
+                "letterSpacing, textDecoration, textAlign, lineHeight, overflow, softWrap, " +
+                "maxLines, inlineContent, onTextLayout, style",
+            names.joinToString()
+        )
     }
 }
 

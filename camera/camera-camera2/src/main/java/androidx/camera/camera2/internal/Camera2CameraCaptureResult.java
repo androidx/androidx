@@ -20,25 +20,26 @@ import android.hardware.camera2.CaptureResult;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.camera.core.impl.CameraCaptureMetaData.AeState;
 import androidx.camera.core.impl.CameraCaptureMetaData.AfMode;
 import androidx.camera.core.impl.CameraCaptureMetaData.AfState;
 import androidx.camera.core.impl.CameraCaptureMetaData.AwbState;
 import androidx.camera.core.impl.CameraCaptureMetaData.FlashState;
 import androidx.camera.core.impl.CameraCaptureResult;
+import androidx.camera.core.impl.TagBundle;
 
 /** The camera2 implementation for the capture result of a single image capture. */
 public class Camera2CameraCaptureResult implements CameraCaptureResult {
     private static final String TAG = "C2CameraCaptureResult";
 
-    private final Object mTag;
+    private final TagBundle mTagBundle;
 
     /** The actual camera2 {@link CaptureResult}. */
     private final CaptureResult mCaptureResult;
 
-    public Camera2CameraCaptureResult(@Nullable Object tag, @NonNull CaptureResult captureResult) {
-        mTag = tag;
+    public Camera2CameraCaptureResult(@NonNull TagBundle tagBundle,
+            @NonNull CaptureResult captureResult) {
+        mTagBundle = tagBundle;
         mCaptureResult = captureResult;
     }
 
@@ -196,10 +197,10 @@ public class Camera2CameraCaptureResult implements CameraCaptureResult {
         return timestamp;
     }
 
-    @Nullable
+    @NonNull
     @Override
-    public Object getTag() {
-        return mTag;
+    public TagBundle getTagBundle() {
+        return mTagBundle;
     }
 
     @NonNull

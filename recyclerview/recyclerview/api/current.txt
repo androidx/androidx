@@ -403,6 +403,7 @@ package androidx.recyclerview.widget {
     method public void addOnChildAttachStateChangeListener(androidx.recyclerview.widget.RecyclerView.OnChildAttachStateChangeListener);
     method public void addOnItemTouchListener(androidx.recyclerview.widget.RecyclerView.OnItemTouchListener);
     method public void addOnScrollListener(androidx.recyclerview.widget.RecyclerView.OnScrollListener);
+    method public void addRecyclerListener(androidx.recyclerview.widget.RecyclerView.RecyclerListener);
     method public void clearOnChildAttachStateChangeListeners();
     method public void clearOnScrollListeners();
     method public int computeHorizontalScrollExtent();
@@ -463,6 +464,7 @@ package androidx.recyclerview.widget {
     method public void removeOnChildAttachStateChangeListener(androidx.recyclerview.widget.RecyclerView.OnChildAttachStateChangeListener);
     method public void removeOnItemTouchListener(androidx.recyclerview.widget.RecyclerView.OnItemTouchListener);
     method public void removeOnScrollListener(androidx.recyclerview.widget.RecyclerView.OnScrollListener);
+    method public void removeRecyclerListener(androidx.recyclerview.widget.RecyclerView.RecyclerListener);
     method public void scrollToPosition(int);
     method public void setAccessibilityDelegateCompat(androidx.recyclerview.widget.RecyclerViewAccessibilityDelegate?);
     method public void setAdapter(androidx.recyclerview.widget.RecyclerView.Adapter?);
@@ -478,7 +480,7 @@ package androidx.recyclerview.widget {
     method @Deprecated public void setOnScrollListener(androidx.recyclerview.widget.RecyclerView.OnScrollListener?);
     method public void setPreserveFocusAfterLayout(boolean);
     method public void setRecycledViewPool(androidx.recyclerview.widget.RecyclerView.RecycledViewPool?);
-    method public void setRecyclerListener(androidx.recyclerview.widget.RecyclerView.RecyclerListener?);
+    method @Deprecated public void setRecyclerListener(androidx.recyclerview.widget.RecyclerView.RecyclerListener?);
     method public void setScrollingTouchSlop(int);
     method public void setViewCacheExtension(androidx.recyclerview.widget.RecyclerView.ViewCacheExtension?);
     method public void smoothScrollBy(@Px int, @Px int);

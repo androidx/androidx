@@ -64,6 +64,7 @@ class MediaRouter2Utils {
     // Used in RoutingController#getControlHints()
     static final String KEY_MESSENGER = "androidx.mediarouter.media.KEY_MESSENGER";
     static final String KEY_SESSION_NAME = "androidx.mediarouter.media.KEY_SESSION_NAME";
+    static final String KEY_GROUP_ROUTE = "androidx.mediarouter.media.KEY_GROUP_ROUTE";
 
     private MediaRouter2Utils() {}
 

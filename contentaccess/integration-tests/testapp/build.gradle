@@ -36,8 +36,14 @@ android {
 dependencies {
     implementation("androidx.annotation:annotation:1.1.0")
     implementation(project(":contentaccess:contentaccess-annotations"))
+    implementation(project(":contentaccess:contentaccess-entities"))
     implementation(project(":contentaccess:contentaccess-runtime"))
     kapt(project(":contentaccess:contentaccess-compiler"))
     implementation(KOTLIN_STDLIB)
-    api(RX_JAVA)
+    androidTestImplementation(TRUTH)
+    kaptAndroidTest(project(":contentaccess:contentaccess-compiler"))
+    androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
+    androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_RULES)
 }

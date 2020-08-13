@@ -42,7 +42,7 @@ class ViewGroupUtilsApi14 {
     private static boolean sCancelMethodFetched;
 
     static void suppressLayout(@NonNull ViewGroup group, boolean suppress) {
-        // Prepare the dummy LayoutTransition
+        // Prepare the empty LayoutTransition
         if (sEmptyLayoutTransition == null) {
             sEmptyLayoutTransition = new LayoutTransition() {
                 @Override

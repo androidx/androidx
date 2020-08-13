@@ -16,6 +16,8 @@ package androidx.slice.builders {
     ctor public GridRowBuilder.CellBuilder();
     method public androidx.slice.builders.GridRowBuilder.CellBuilder addImage(androidx.core.graphics.drawable.IconCompat, int);
     method public androidx.slice.builders.GridRowBuilder.CellBuilder addImage(androidx.core.graphics.drawable.IconCompat?, int, boolean);
+    method public androidx.slice.builders.GridRowBuilder.CellBuilder addOverlayText(CharSequence);
+    method public androidx.slice.builders.GridRowBuilder.CellBuilder addOverlayText(CharSequence?, boolean);
     method public androidx.slice.builders.GridRowBuilder.CellBuilder addText(CharSequence);
     method public androidx.slice.builders.GridRowBuilder.CellBuilder addText(CharSequence?, boolean);
     method public androidx.slice.builders.GridRowBuilder.CellBuilder addTitleText(CharSequence);

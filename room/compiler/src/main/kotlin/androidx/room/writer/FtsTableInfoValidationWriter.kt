@@ -34,7 +34,7 @@ class FtsTableInfoValidationWriter(val entity: FtsEntity) : ValidationWriter() {
         val expectedInfoVar = scope.getTmpVar("_info$suffix")
         scope.builder().apply {
             val columnListVar = scope.getTmpVar("_columns$suffix")
-            val columnListType = ParameterizedTypeName.get(HashSet::class.typeName(),
+            val columnListType = ParameterizedTypeName.get(HashSet::class.typeName,
                     CommonTypeNames.STRING)
 
             addStatement("final $T $L = new $T($L)", columnListType, columnListVar,

@@ -41,6 +41,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureChain;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
 import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -89,7 +90,7 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @Nullable
     @GuardedBy("mLock")
-    CallbackToFutureAdapter.Completer<Void> mOpenCaptureSessionCompleter;
+    Completer<Void> mOpenCaptureSessionCompleter;
 
     @Nullable
     @GuardedBy("mLock")
@@ -208,12 +209,14 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
                                     SynchronizedCaptureSessionBaseImpl.this);
                         } finally {
                             // Finish the mOpenCaptureSessionCompleter after callback.
+                            Completer<Void> completer;
                             synchronized (mLock) {
                                 Preconditions.checkNotNull(mOpenCaptureSessionCompleter,
                                         "OpenCaptureSession completer should not null");
-                                mOpenCaptureSessionCompleter.set(null);
+                                completer = mOpenCaptureSessionCompleter;
                                 mOpenCaptureSessionCompleter = null;
                             }
+                            completer.set(null);
                         }
                     }
 
@@ -225,13 +228,14 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
                                     SynchronizedCaptureSessionBaseImpl.this);
                         } finally {
                             // Finish the mOpenCaptureSessionCompleter after callback.
+                            Completer<Void> completer;
                             synchronized (mLock) {
                                 Preconditions.checkNotNull(mOpenCaptureSessionCompleter,
                                         "OpenCaptureSession completer should not null");
-                                mOpenCaptureSessionCompleter.setException(
-                                        new IllegalStateException("onConfigureFailed"));
+                                completer = mOpenCaptureSessionCompleter;
                                 mOpenCaptureSessionCompleter = null;
                             }
+                            completer.setException(new IllegalStateException("onConfigureFailed"));
                         }
                     }
 
@@ -301,16 +305,23 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
 
     @Override
     public boolean stop() {
-        synchronized (mLock) {
-            if (!mOpenerDisabled) {
-                if (mStartingSurface != null) {
-                    mStartingSurface.cancel(true);
+        ListenableFuture<List<Surface>> startingSurface = null;
+        try {
+            synchronized (mLock) {
+                if (!mOpenerDisabled) {
+                    if (mStartingSurface != null) {
+                        startingSurface = mStartingSurface;
+                    }
+                    mOpenerDisabled = true;
                 }
-                mOpenerDisabled = true;
-            }
 
-            // Return true if the CameraCaptureSession creation has not been started yet.
-            return !isCameraCaptureSessionOpen();
+                // Return true if the CameraCaptureSession creation has not been started yet.
+                return !isCameraCaptureSessionOpen();
+            }
+        } finally {
+            if (startingSurface != null) {
+                startingSurface.cancel(true);
+            }
         }
     }
 
@@ -462,19 +473,23 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
 
     @Override
     public void onClosed(@NonNull SynchronizedCaptureSession session) {
+        ListenableFuture<Void> openFuture = null;
         synchronized (mLock) {
             if (!mClosed) {
                 mClosed = true;
                 Preconditions.checkNotNull(mOpenCaptureSessionFuture,
                         "Need to call openCaptureSession before using this API.");
                 // Only callback onClosed after the capture session is configured.
-                mOpenCaptureSessionFuture.addListener(() -> {
-                    // Set the CaptureSession closed before invoke the state callback.
-                    mCaptureSessionRepository.onCaptureSessionClosed(
-                            SynchronizedCaptureSessionBaseImpl.this);
-                    mCaptureSessionStateCallback.onClosed(session);
-                }, CameraXExecutors.directExecutor());
+                openFuture = mOpenCaptureSessionFuture;
             }
+        }
+        if (openFuture != null) {
+            openFuture.addListener(() -> {
+                // Set the CaptureSession closed before invoke the state callback.
+                mCaptureSessionRepository.onCaptureSessionClosed(
+                        SynchronizedCaptureSessionBaseImpl.this);
+                mCaptureSessionStateCallback.onClosed(session);
+            }, CameraXExecutors.directExecutor());
         }
     }
 

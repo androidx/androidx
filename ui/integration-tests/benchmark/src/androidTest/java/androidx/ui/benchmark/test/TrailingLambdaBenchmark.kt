@@ -16,20 +16,21 @@
 
 package androidx.ui.benchmark.test
 
-import androidx.compose.Composable
-import androidx.compose.MutableState
-import androidx.compose.state
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.preferredWidth
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.benchmarkFirstCompose
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
-import androidx.ui.core.Modifier
-import androidx.ui.foundation.Box
-import androidx.ui.integration.test.ToggleableTestCase
-import androidx.ui.layout.Column
-import androidx.ui.layout.preferredWidth
+import androidx.ui.test.ToggleableTestCase
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -62,14 +63,13 @@ class TrailingLambdaBenchmark {
     }
 }
 
-private sealed class TrailingLambdaTestCase() : ComposeTestCase,
-    ToggleableTestCase {
+private sealed class TrailingLambdaTestCase() : ComposeTestCase, ToggleableTestCase {
 
     var numberState: MutableState<Int>? = null
 
     @Composable
     override fun emitContent() {
-        val number = state { 5 }
+        val number = remember { mutableStateOf(5) }
         numberState = number
 
         val content = @Composable {

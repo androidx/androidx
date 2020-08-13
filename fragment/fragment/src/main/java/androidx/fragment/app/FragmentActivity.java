@@ -38,6 +38,7 @@ import android.view.Window;
 import androidx.activity.ComponentActivity;
 import androidx.activity.OnBackPressedDispatcher;
 import androidx.activity.OnBackPressedDispatcherOwner;
+import androidx.activity.contextaware.OnContextAvailableListener;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultRegistry;
 import androidx.activity.result.ActivityResultRegistryOwner;
@@ -57,6 +58,7 @@ import androidx.lifecycle.LifecycleRegistry;
 import androidx.lifecycle.ViewModelStore;
 import androidx.lifecycle.ViewModelStoreOwner;
 import androidx.loader.app.LoaderManager;
+import androidx.savedstate.SavedStateRegistry;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -99,6 +101,7 @@ public class FragmentActivity extends ComponentActivity implements
      */
     public FragmentActivity() {
         super();
+        init();
     }
 
     /**
@@ -114,6 +117,39 @@ public class FragmentActivity extends ComponentActivity implements
     @ContentView
     public FragmentActivity(@LayoutRes int contentLayoutId) {
         super(contentLayoutId);
+        init();
+    }
+
+    private void init() {
+        // TODO: Directly connect FragmentManager to SavedStateRegistry
+        getSavedStateRegistry().registerSavedStateProvider(FRAGMENTS_TAG,
+                new SavedStateRegistry.SavedStateProvider() {
+                    @NonNull
+                    @Override
+                    public Bundle saveState() {
+                        Bundle outState = new Bundle();
+                        markFragmentsCreated();
+                        mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
+                        Parcelable p = mFragments.saveAllState();
+                        if (p != null) {
+                            outState.putParcelable(FRAGMENTS_TAG, p);
+                        }
+                        return outState;
+                    }
+                });
+        addOnContextAvailableListener(new OnContextAvailableListener() {
+            @Override
+            public void onContextAvailable(@NonNull Context context) {
+                mFragments.attachHost(null /*parent*/);
+                Bundle savedInstanceState = getSavedStateRegistry()
+                        .consumeRestoredStateForKey(FRAGMENTS_TAG);
+
+                if (savedInstanceState != null) {
+                    Parcelable p = savedInstanceState.getParcelable(FRAGMENTS_TAG);
+                    mFragments.restoreSaveState(p);
+                }
+            }
+        });
     }
 
     // ------------------------------------------------------------------------
@@ -230,13 +266,6 @@ public class FragmentActivity extends ComponentActivity implements
      */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        mFragments.attachHost(null /*parent*/);
-
-        if (savedInstanceState != null) {
-            Parcelable p = savedInstanceState.getParcelable(FRAGMENTS_TAG);
-            mFragments.restoreSaveState(p);
-        }
-
         super.onCreate(savedInstanceState);
 
         mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE);
@@ -428,20 +457,6 @@ public class FragmentActivity extends ComponentActivity implements
     @Deprecated
     protected boolean onPrepareOptionsPanel(@Nullable View view, @NonNull Menu menu) {
         return super.onPreparePanel(Window.FEATURE_OPTIONS_PANEL, view, menu);
-    }
-
-    /**
-     * Save all appropriate fragment state.
-     */
-    @Override
-    protected void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        markFragmentsCreated();
-        mFragmentLifecycleRegistry.handleLifecycleEvent(Lifecycle.Event.ON_STOP);
-        Parcelable p = mFragments.saveAllState();
-        if (p != null) {
-            outState.putParcelable(FRAGMENTS_TAG, p);
-        }
     }
 
     /**
@@ -770,7 +785,7 @@ public class FragmentActivity extends ComponentActivity implements
         }
     }
 
-    private void markFragmentsCreated() {
+    void markFragmentsCreated() {
         boolean reiterate;
         do {
             reiterate = markState(getSupportFragmentManager(), Lifecycle.State.CREATED);

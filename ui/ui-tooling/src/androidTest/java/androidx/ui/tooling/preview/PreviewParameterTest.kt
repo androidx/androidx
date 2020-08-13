@@ -16,9 +16,9 @@
 
 package androidx.ui.tooling.preview
 
-import androidx.ui.material.ColorPalette
-import androidx.ui.material.darkColorPalette
-import androidx.ui.material.lightColorPalette
+import androidx.compose.material.Colors
+import androidx.compose.material.darkColors
+import androidx.compose.material.lightColors
 import androidx.ui.tooling.ComposeViewAdapterTest
 import androidx.ui.tooling.preview.datasource.CollectionPreviewParameterProvider
 import androidx.ui.tooling.preview.datasource.LoremIpsum
@@ -50,7 +50,7 @@ class PreviewParameterTest {
             composeViewAdapter.init(
                 "androidx.ui.tooling.preview.ParameterProviderComposableKt",
                 "OneStringParameter",
-                parameterProvider = LoremIpsum::class,
+                parameterProvider = LoremIpsum::class.java,
                 debugViewInfos = true
             )
         }
@@ -68,23 +68,23 @@ class PreviewParameterTest {
             composeViewAdapter.init(
                 "androidx.ui.tooling.preview.ParameterProviderComposableKt",
                 "OneIntParameter",
-                parameterProvider = MyListProvider::class,
+                parameterProvider = MyListProvider::class.java,
                 debugViewInfos = true
             )
         }
     }
 
-    private class MyColorPaletteProvider : CollectionPreviewParameterProvider<ColorPalette>(
-        listOf(lightColorPalette(), darkColorPalette())
+    private class MyColorsProvider : CollectionPreviewParameterProvider<Colors>(
+        listOf(lightColors(), darkColors())
     )
 
     @Test
-    fun checkColorPaletteProvider() {
+    fun checkColorsProvider() {
         activityTestRule.runOnUiThread {
             composeViewAdapter.init(
                 "androidx.ui.tooling.preview.ParameterProviderComposableKt",
-                "ColorPaletteParameter",
-                parameterProvider = MyColorPaletteProvider::class,
+                "ColorsParameter",
+                parameterProvider = MyColorsProvider::class.java,
                 debugViewInfos = true
             )
         }

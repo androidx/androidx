@@ -56,10 +56,16 @@
                 android:text="@string/device_default" />
 
             <RadioButton
-                android:id="@+id/midFoldRadioButton"
+                android:id="@+id/shortDimensionFoldRadioButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/middle_fold" />
+                android:text="@string/short_dimension_fold" />
+
+            <RadioButton
+                android:id="@+id/longDimensionFoldRadioButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/long_dimension_fold" />
 
         </RadioGroup>
 

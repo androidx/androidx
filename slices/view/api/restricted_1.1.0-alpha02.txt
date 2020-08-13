@@ -112,7 +112,7 @@ package androidx.slice.widget {
     field public int state;
   }
 
-  @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class GridContent extends androidx.slice.widget.SliceContent {
+  @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class GridContent {
     ctor public GridContent(androidx.slice.SliceItem!, int);
     method public int getAccentColor();
     method public CharSequence? getContentDescription();
@@ -148,7 +148,7 @@ package androidx.slice.widget {
     method public boolean populate(androidx.slice.SliceItem!);
   }
 
-  @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ListContent extends androidx.slice.widget.SliceContent {
+  @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class ListContent {
     ctor public ListContent(androidx.slice.Slice);
     ctor @Deprecated public ListContent(android.content.Context!, androidx.slice.Slice);
     method public int getAccentColor();
@@ -172,7 +172,7 @@ package androidx.slice.widget {
     method public void showTitleItems(boolean);
   }
 
-  @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class RowContent extends androidx.slice.widget.SliceContent {
+  @RequiresApi(19) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public class RowContent {
     ctor public RowContent(androidx.slice.SliceItem!, int);
     method public int getAccentColor();
     method public CharSequence? getContentDescription();

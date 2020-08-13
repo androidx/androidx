@@ -24,7 +24,10 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.Manifest;
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
+import android.provider.MediaStore;
 
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.VideoCaptureConfig;
@@ -46,10 +49,11 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 
-import java.io.File;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Minimal unit test for the VideoCapture because the {@link android.media.MediaRecorder}
@@ -99,8 +103,8 @@ public class VideoCaptureTest {
     }
 
     @After
-    public void tearDown() throws ExecutionException, InterruptedException {
-        CameraX.shutdown().get();
+    public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
     @Test
@@ -117,9 +121,7 @@ public class VideoCaptureTest {
 
 
         useCase.startRecording(
-                new File(
-                        mContext.getFilesDir()
-                                + "/useCaseBecomesActive_whenStartingVideoRecording.mp4"),
+                getVideoOutputOptions(),
                 CameraXExecutors.mainThreadExecutor(),
                 mMockVideoSavedCallback);
 
@@ -140,9 +142,7 @@ public class VideoCaptureTest {
         });
 
         useCase.startRecording(
-                new File(
-                        mContext.getFilesDir()
-                                + "/useCaseBecomesInactive_whenStoppingVideoRecording.mp4"),
+                getVideoOutputOptions(),
                 CameraXExecutors.mainThreadExecutor(),
                 mMockVideoSavedCallback);
 
@@ -159,5 +159,17 @@ public class VideoCaptureTest {
 
         verify(mMockCameraInternal, times(1)).onUseCaseInactive(mUseCaseCaptor.capture());
         assertThat(mUseCaseCaptor.getValue()).isSameInstanceAs(useCase);
+    }
+
+    private VideoCapture.OutputFileOptions getVideoOutputOptions() {
+        String videoFileName = "video_" + System.currentTimeMillis();
+        ContentResolver resolver = mContext.getContentResolver();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4");
+        contentValues.put(MediaStore.Video.Media.TITLE, videoFileName);
+        contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, videoFileName);
+        VideoCapture.OutputFileOptions output = new VideoCapture.OutputFileOptions.Builder(resolver,
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues).build();
+        return output;
     }
 }

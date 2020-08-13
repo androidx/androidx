@@ -28,7 +28,6 @@ import android.os.Looper;
 import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -52,8 +51,10 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.Logger;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
+import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
 import androidx.camera.core.impl.LensFacingConverter;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -71,15 +72,15 @@ import java.util.concurrent.Executor;
  * A {@link View} that displays a preview of the camera with methods {@link
  * #takePicture(Executor, OnImageCapturedCallback)},
  * {@link #takePicture(ImageCapture.OutputFileOptions, Executor, OnImageSavedCallback)},
- * {@link #startRecording(File, Executor, OnVideoSavedCallback)} and {@link #stopRecording()}.
+ * {@link #startRecording(File , Executor , OnVideoSavedCallback callback)}
+ * and {@link #stopRecording()}.
  *
  * <p>Because the Camera is a limited resource and consumes a high amount of power, CameraView must
  * be opened/closed. CameraView will handle opening/closing automatically through use of a {@link
  * LifecycleOwner}. Use {@link #bindToLifecycle(LifecycleOwner)} to start the camera.
  */
 public final class CameraView extends FrameLayout {
-    static final String TAG = androidx.camera.view.CameraView.class.getSimpleName();
-    static final boolean DEBUG = false;
+    static final String TAG = CameraView.class.getSimpleName();
 
     static final int INDEFINITE_VIDEO_DURATION = -1;
     static final int INDEFINITE_VIDEO_SIZE = -1;
@@ -410,8 +411,10 @@ public final class CameraView extends FrameLayout {
     }
 
     /**
-     * Sets the maximum video duration before {@link OnVideoSavedCallback#onVideoSaved(File)} is
-     * called automatically. Use {@link #INDEFINITE_VIDEO_DURATION} to disable the timeout.
+     * Sets the maximum video duration before
+     * {@link OnVideoSavedCallback#onVideoSaved(VideoCapture.OutputFileResults)} is called
+     * automatically.
+     * Use {@link #INDEFINITE_VIDEO_DURATION} to disable the timeout.
      */
     private void setMaxVideoDuration(long duration) {
         mCameraModule.setMaxVideoDuration(duration);
@@ -426,7 +429,8 @@ public final class CameraView extends FrameLayout {
     }
 
     /**
-     * Sets the maximum video size in bytes before {@link OnVideoSavedCallback#onVideoSaved(File)}
+     * Sets the maximum video size in bytes before
+     * {@link OnVideoSavedCallback#onVideoSaved(VideoCapture.OutputFileResults)}
      * is called automatically. Use {@link #INDEFINITE_VIDEO_SIZE} to disable the size restriction.
      */
     private void setMaxVideoSize(long size) {
@@ -448,6 +452,10 @@ public final class CameraView extends FrameLayout {
      * Takes a picture and calls
      * {@link OnImageSavedCallback#onImageSaved(ImageCapture.OutputFileResults)} when done.
      *
+     * <p> The value of {@link ImageCapture.Metadata#isReversedHorizontal()} in the
+     * {@link ImageCapture.OutputFileOptions} will be overwritten based on camera direction. For
+     * front camera, it will be set to true; for back camera, it will be set to false.
+     *
      * @param outputFileOptions Options to store the newly captured image.
      * @param executor          The executor in which the callback methods will be run.
      * @param callback          Callback which will receive success or failure.
@@ -467,7 +475,25 @@ public final class CameraView extends FrameLayout {
      */
     public void startRecording(@NonNull File file, @NonNull Executor executor,
             @NonNull OnVideoSavedCallback callback) {
-        mCameraModule.startRecording(file, executor, callback);
+        VideoCapture.OutputFileOptions options = new VideoCapture.OutputFileOptions.Builder(
+                file).build();
+        startRecording(options, executor, callback);
+    }
+
+    /**
+     * Takes a video and calls the OnVideoSavedCallback when done.
+     *
+     * @param outputFileOptions     Options to store the newly captured video.
+     * @param executor              The executor in which the callback methods will be run.
+     * @param callback              Callback which will receive success or failure.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void startRecording(@NonNull VideoCapture.OutputFileOptions outputFileOptions,
+            @NonNull Executor executor,
+            @NonNull OnVideoSavedCallback callback) {
+        mCameraModule.startRecording(outputFileOptions, executor, callback);
     }
 
     /** Stops an in progress video. */
@@ -587,18 +613,14 @@ public final class CameraView extends FrameLayout {
         final float y = (mUpEvent != null) ? mUpEvent.getY() : getY() + getHeight() / 2f;
         mUpEvent = null;
 
-        CameraSelector cameraSelector =
-                new CameraSelector.Builder().requireLensFacing(
-                        mCameraModule.getLensFacing()).build();
-
-        MeteringPointFactory pointFactory = mPreviewView.createMeteringPointFactory(cameraSelector);
-        float afPointWidth = 1.0f / 6.0f;  // 1/6 total area
-        float aePointWidth = afPointWidth * 1.5f;
-        MeteringPoint afPoint = pointFactory.createPoint(x, y, afPointWidth);
-        MeteringPoint aePoint = pointFactory.createPoint(x, y, aePointWidth);
-
         Camera camera = mCameraModule.getCamera();
         if (camera != null) {
+            MeteringPointFactory pointFactory = mPreviewView.getMeteringPointFactory();
+            float afPointWidth = 1.0f / 6.0f;  // 1/6 total area
+            float aePointWidth = afPointWidth * 1.5f;
+            MeteringPoint afPoint = pointFactory.createPoint(x, y, afPointWidth);
+            MeteringPoint aePoint = pointFactory.createPoint(x, y, aePointWidth);
+
             ListenableFuture<FocusMeteringResult> future =
                     camera.getCameraControl().startFocusAndMetering(
                             new FocusMeteringAction.Builder(afPoint,
@@ -617,7 +639,7 @@ public final class CameraView extends FrameLayout {
             }, CameraXExecutors.directExecutor());
 
         } else {
-            Log.d(TAG, "cannot access camera");
+            Logger.d(TAG, "cannot access camera");
         }
 
         return true;

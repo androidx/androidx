@@ -31,6 +31,7 @@ import static androidx.activity.result.contract.ActivityResultContracts.StartInt
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
@@ -43,6 +44,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 
+import androidx.activity.contextaware.ContextAware;
+import androidx.activity.contextaware.ContextAwareHelper;
+import androidx.activity.contextaware.OnContextAvailableListener;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultCaller;
 import androidx.activity.result.ActivityResultLauncher;
@@ -87,6 +91,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * without enforcing a deep Activity class hierarchy or strong coupling between components.
  */
 public class ComponentActivity extends androidx.core.app.ComponentActivity implements
+        ContextAware,
         LifecycleOwner,
         ViewModelStoreOwner,
         HasDefaultViewModelProviderFactory,
@@ -100,8 +105,10 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         ViewModelStore viewModelStore;
     }
 
+    final ContextAwareHelper mContextAwareHelper = new ContextAwareHelper();
     private final LifecycleRegistry mLifecycleRegistry = new LifecycleRegistry(this);
-    private final SavedStateRegistryController mSavedStateRegistryController =
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    final SavedStateRegistryController mSavedStateRegistryController =
             SavedStateRegistryController.create(this);
 
     // Lazily recreated from NonConfigurationInstances by getViewModelStore()
@@ -156,6 +163,13 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
 
             // Start activity path
             Intent intent = contract.createIntent(activity, input);
+            Bundle optionsBundle = null;
+            if (intent.hasExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE)) {
+                optionsBundle = intent.getBundleExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE);
+                intent.removeExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE);
+            } else if (options != null) {
+                optionsBundle = options.toBundle();
+            }
             if (ACTION_REQUEST_PERMISSIONS.equals(intent.getAction())) {
 
                 // requestPermissions path
@@ -182,10 +196,10 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 IntentSenderRequest request =
                         intent.getParcelableExtra(EXTRA_INTENT_SENDER_REQUEST);
                 try {
+                    // startIntentSenderForResult path
                     ActivityCompat.startIntentSenderForResult(activity, request.getIntentSender(),
-                            requestCode, request.getFillInIntent(),
-                            request.getFlagsMask(), request.getFlagsValues(), 0,
-                            options != null ? options.toBundle() : null);
+                            requestCode, request.getFillInIntent(), request.getFlagsMask(),
+                            request.getFlagsValues(), 0, optionsBundle);
                 } catch (final IntentSender.SendIntentException e) {
                     new Handler(Looper.getMainLooper()).post(new Runnable() {
                         @Override
@@ -198,12 +212,6 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
                 }
             } else {
                 // startActivityForResult path
-                Bundle optionsBundle = null;
-                if (intent.hasExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE)) {
-                    optionsBundle = intent.getBundleExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE);
-                } else if (options != null) {
-                    optionsBundle = options.toBundle();
-                }
                 ActivityCompat.startActivityForResult(activity, intent, requestCode, optionsBundle);
             }
         }
@@ -243,6 +251,9 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
             public void onStateChanged(@NonNull LifecycleOwner source,
                     @NonNull Lifecycle.Event event) {
                 if (event == Lifecycle.Event.ON_DESTROY) {
+                    // Clear out the available context
+                    mContextAwareHelper.clearAvailableContext();
+                    // And clear the ViewModelStore
                     if (!isChangingConfigurations()) {
                         getViewModelStore().clear();
                     }
@@ -279,8 +290,11 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
      */
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        // Restore the Saved State first so that it is available to
+        // OnContextAvailableListener instances
         mSavedStateRegistryController.performRestore(savedInstanceState);
+        mContextAwareHelper.dispatchOnContextAvailable(this);
+        super.onCreate(savedInstanceState);
         mActivityResultRegistry.onRestoreInstanceState(savedInstanceState);
         ReportFragment.injectIfNeededIn(this);
         if (mContentLayoutId != 0) {
@@ -393,6 +407,33 @@ public class ComponentActivity extends androidx.core.app.ComponentActivity imple
         ViewTreeLifecycleOwner.set(getWindow().getDecorView(), this);
         ViewTreeViewModelStoreOwner.set(getWindow().getDecorView(), this);
         ViewTreeSavedStateRegistryOwner.set(getWindow().getDecorView(), this);
+    }
+
+    @Nullable
+    @Override
+    public Context peekAvailableContext() {
+        return mContextAwareHelper.peekAvailableContext();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * Any listener added here will receive a callback as part of
+     * <code>super.onCreate()</code>, but importantly <strong>before</strong> any other
+     * logic is done (including calling through to the framework
+     * {@link Activity#onCreate(Bundle)} with the exception of restoring the state
+     * of the {@link #getSavedStateRegistry() SavedStateRegistry} for use in your listener.
+     */
+    @Override
+    public final void addOnContextAvailableListener(
+            @NonNull OnContextAvailableListener listener) {
+        mContextAwareHelper.addOnContextAvailableListener(listener);
+    }
+
+    @Override
+    public final void removeOnContextAvailableListener(
+            @NonNull OnContextAvailableListener listener) {
+        mContextAwareHelper.removeOnContextAvailableListener(listener);
     }
 
     /**

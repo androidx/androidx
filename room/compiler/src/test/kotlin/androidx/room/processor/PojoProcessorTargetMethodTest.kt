@@ -16,7 +16,6 @@
 
 package androidx.room.processor
 
-import androidx.room.ext.requireTypeElement
 import com.google.testing.compile.CompileTester
 import com.squareup.javapoet.ClassName
 import org.junit.Test

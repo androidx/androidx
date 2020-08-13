@@ -19,14 +19,14 @@ package androidx.room.vo
 import androidx.room.migration.bundle.BundleUtil
 import androidx.room.migration.bundle.DatabaseViewBundle
 import androidx.room.parser.ParsedQuery
-import javax.lang.model.element.TypeElement
-import javax.lang.model.type.DeclaredType
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XTypeElement
 
 class DatabaseView(
-    element: TypeElement,
+    element: XTypeElement,
     val viewName: String,
     val query: ParsedQuery,
-    type: DeclaredType,
+    type: XDeclaredType,
     fields: List<Field>,
     embeddedFields: List<EmbeddedField>,
     constructor: Constructor?

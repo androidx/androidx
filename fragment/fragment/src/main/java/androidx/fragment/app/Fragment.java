@@ -301,6 +301,12 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
     private final AtomicInteger mNextLocalRequestCode = new AtomicInteger();
 
+    private final ArrayList<OnPreAttachedListener> mOnPreAttachedListeners = new ArrayList<>();
+
+    private abstract static class OnPreAttachedListener {
+        abstract void onPreAttached();
+    }
+
     /**
      * {@inheritDoc}
      * <p>
@@ -1434,6 +1440,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (mHost == null) {
             throw new IllegalStateException("Fragment " + this + " not attached to Activity");
         }
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(FragmentManager.TAG, "Fragment " + this + " received the following in "
+                    + "startIntentSenderForResult() requestCode: " + requestCode + " IntentSender: "
+                    + intent + " fillInIntent: " + fillInIntent + " options: " + options);
+        }
         getParentFragmentManager().launchStartIntentSenderForResult(this, intent, requestCode,
                 fillInIntent, flagsMask, flagsValues, extraFlags, options);
     }
@@ -1460,6 +1471,11 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     @SuppressWarnings("DeprecatedIsStillUsed")
     @Deprecated
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+            Log.v(FragmentManager.TAG, "Fragment " + this + " received the following in "
+                    + "onActivityResult(): requestCode: " + requestCode + " resultCode: "
+                    + resultCode + " data: " + data);
+        }
     }
 
     /**
@@ -2705,19 +2721,22 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             mHost.getHandler().postAtFrontOfQueue(new Runnable() {
                 @Override
                 public void run() {
-                    callStartTransitionListener();
+                    callStartTransitionListener(false);
                 }
             });
         } else {
-            callStartTransitionListener();
+            callStartTransitionListener(true);
         }
     }
 
     /**
      * Calls the start transition listener. This must be called on the UI thread.
+     *
+     * @param calledDirectly Whether this was called directly or if it was already posted
+     *                       to the UI thread
      */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void callStartTransitionListener() {
+    void callStartTransitionListener(boolean calledDirectly) {
         final OnStartEnterTransitionListener listener;
         if (mAnimationInfo == null) {
             listener = null;
@@ -2730,10 +2749,24 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             listener.onStartEnterTransition();
         } else if (FragmentManager.USE_STATE_MANAGER && mView != null
                 && mContainer != null && mFragmentManager != null) {
-            SpecialEffectsController controller = SpecialEffectsController.getOrCreateController(
-                    mContainer, mFragmentManager);
+            // Mark the updated postponed state with the SpecialEffectsController immediately
+            final SpecialEffectsController controller = SpecialEffectsController
+                    .getOrCreateController(mContainer, mFragmentManager);
             controller.markPostponedState();
-            controller.executePendingOperations();
+            if (calledDirectly) {
+                // But if this call was called directly, we need to post the
+                // executePendingOperations() to avoid re-entrant calls
+                // and avoid calling execute during layout / draw calls
+                mHost.getHandler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        controller.executePendingOperations();
+                    }
+                });
+            } else {
+                // We've already posted our call, so we can execute directly
+                controller.executePendingOperations();
+            }
         }
     }
 
@@ -2851,6 +2884,10 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
     }
 
     void performAttach() {
+        for (OnPreAttachedListener listener: mOnPreAttachedListeners) {
+            listener.onPreAttached();
+        }
+        mOnPreAttachedListeners.clear();
         mChildFragmentManager.attachController(mHost, createFragmentContainer(), this);
         mState = ATTACHED;
         mCalled = false;
@@ -3288,6 +3325,28 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return mAnimationInfo.mAnimator;
     }
 
+    void setPostOnViewCreatedVisibility(int visibility) {
+        ensureAnimationInfo().mPostOnViewCreatedVisibility = visibility;
+    }
+
+    int getPostOnViewCreatedVisibility() {
+        if (mAnimationInfo == null) {
+            return View.VISIBLE;
+        }
+        return mAnimationInfo.mPostOnViewCreatedVisibility;
+    }
+
+    void setFocusedView(View view) {
+        ensureAnimationInfo().mFocusedView = view;
+    }
+
+    View getFocusedView() {
+        if (mAnimationInfo == null) {
+            return null;
+        }
+        return mAnimationInfo.mFocusedView;
+    }
+
     boolean isPostponed() {
         if (mAnimationInfo == null) {
             return false;
@@ -3314,6 +3373,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * {@link ActivityResultRegistry} of the host will be used. Otherwise, this will use the
      * registry of the Fragment's Activity.
      */
+    @MainThread
     @NonNull
     @Override
     public final <I, O> ActivityResultLauncher<I> registerForActivityResult(
@@ -3330,6 +3390,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         }, callback);
     }
 
+    @MainThread
     @NonNull
     @Override
     public final <I, O> ActivityResultLauncher<I> registerForActivityResult(
@@ -3349,21 +3410,25 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
             @NonNull final ActivityResultContract<I, O> contract,
             @NonNull final Function<Void, ActivityResultRegistry> registryProvider,
             @NonNull final ActivityResultCallback<O> callback) {
+        // Throw if attempting to register after the Fragment is CREATED.
+        if (mState > CREATED) {
+            throw new IllegalStateException("Fragment " + this + " is attempting to "
+                    + "registerForActivityResult after being created. Fragments must call "
+                    + "registerForActivityResult() before they are created (i.e. initialization, "
+                    + "onAttach(), or onCreate()).");
+        }
         final AtomicReference<ActivityResultLauncher<I>> ref = new AtomicReference<>();
-
         // We can't call generateActivityResultKey during initialization of the Fragment
         // since we need to wait for the mWho to be restored from saved instance state
-        // so we'll wait until the Lifecycle is CREATED to actually generate the key
-        // and register.
-        getLifecycle().addObserver(new LifecycleEventObserver() {
+        // so we'll wait until we have all the information needed to register  to actually
+        // generate the key and register.
+
+        registerOnPreAttachListener(new OnPreAttachedListener() {
             @Override
-            public void onStateChanged(@NonNull LifecycleOwner lifecycleOwner,
-                    @NonNull Lifecycle.Event event) {
-                if (Lifecycle.Event.ON_CREATE.equals(event)) {
-                    final String key = generateActivityResultKey();
-                    ActivityResultRegistry registry = registryProvider.apply(null);
-                    ref.set(registry.register(key, Fragment.this, contract, callback));
-                }
+            void onPreAttached() {
+                final String key = generateActivityResultKey();
+                ActivityResultRegistry registry = registryProvider.apply(null);
+                ref.set(registry.register(key, Fragment.this, contract, callback));
             }
         });
 
@@ -3392,6 +3457,16 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
                 return contract;
             }
         };
+    }
+
+    private void registerOnPreAttachListener(@NonNull final OnPreAttachedListener callback) {
+        //If we are already attached, we can register immediately
+        if (mState >= ATTACHED) {
+            callback.onPreAttached();
+        } else {
+            // else we need to wait until we are attached
+            mOnPreAttachedListeners.add(callback);
+        }
     }
 
     @NonNull
@@ -3444,6 +3519,9 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
 
         SharedElementCallback mEnterTransitionCallback = null;
         SharedElementCallback mExitTransitionCallback = null;
+
+        int mPostOnViewCreatedVisibility = View.VISIBLE;
+        View mFocusedView = null;
 
         // True when postponeEnterTransition has been called and startPostponeEnterTransition
         // hasn't been called yet.

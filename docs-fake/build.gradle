@@ -67,6 +67,10 @@ android {
         }
     }
     flavorDimensions "library-group"
+
+    lintOptions {
+        checkReleaseBuilds false
+    }
 }
 
 configurations.all {

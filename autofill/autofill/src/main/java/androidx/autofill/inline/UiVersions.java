@@ -37,7 +37,7 @@ import java.util.Set;
 /**
  * Defines the inline suggestion UI version constants.
  */
-@RequiresApi(api = Build.VERSION_CODES.Q) //TODO(b/147116534): Update to R.
+@RequiresApi(api = Build.VERSION_CODES.R)
 public final class UiVersions {
     /** @hide */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
@@ -122,6 +122,8 @@ public final class UiVersions {
 
     /**
      * Returns a new styles builder.
+     *
+     * <p>See {@link androidx.autofill.inline.v1.InlineSuggestionUi} for example usage.
      */
     @NonNull
     public static StylesBuilder newStylesBuilder() {

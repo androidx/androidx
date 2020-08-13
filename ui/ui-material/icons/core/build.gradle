@@ -17,7 +17,7 @@
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
-import androidx.ui.material.icons.generator.tasks.IconGenerationTask
+import androidx.compose.material.icons.generator.tasks.IconGenerationTask
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 import static androidx.build.dependencies.DependenciesKt.*
@@ -26,24 +26,34 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXUiPlugin")
-    id("org.jetbrains.kotlin.android")
+    id("kotlin-multiplatform")
 }
 
-dependencies {
-    implementation(KOTLIN_STDLIB)
+kotlin {
+    android()
+    jvm("desktop")
 
-    api project(":compose:ui:ui")
+    sourceSets {
+        commonMain.dependencies {
+            implementation(KOTLIN_STDLIB_COMMON)
+            api project(":compose:ui:ui")
+        }
+
+        androidMain.dependencies {
+            implementation(KOTLIN_STDLIB)
+        }
+    }
 }
 
-IconGenerationTask.registerCoreIconProject(project, android)
+IconGenerationTask.registerCoreIconProject(project)
 
 androidx {
-    name = "AndroidX Core Material Icons"
+    name = "Compose Material Icons Core"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.Compose.MATERIAL
     inceptionYear = "2020"
-    description = "AndroidX Core Material Icons"
+    description = "Compose Material Design core icons. This module contains the most commonly used set of Material icons."
 }
 
 tasks.withType(KotlinCompile).configureEach {

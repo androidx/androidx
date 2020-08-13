@@ -16,13 +16,13 @@
 
 package androidx.ui.tooling.preview
 
-import androidx.compose.Composable
-import androidx.ui.foundation.Text
-import androidx.ui.graphics.Color
-import androidx.ui.material.Button
-import androidx.ui.material.ColorPalette
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.foundation.Text
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material.Button
+import androidx.compose.material.Colors
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 
 @Preview
 @Composable
@@ -44,7 +44,7 @@ fun OneIntParameter(parameter: Integer) {
 @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
 @Preview
 @Composable
-fun ColorPaletteParameter(parameter: ColorPalette) {
+fun ColorsParameter(parameter: Colors) {
     MaterialTheme(colors = parameter) {
         Button(onClick = {}) {
             Text("Hello colors")

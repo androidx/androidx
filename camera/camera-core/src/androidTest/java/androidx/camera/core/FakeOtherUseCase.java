@@ -19,6 +19,7 @@ package androidx.camera.core;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.testing.fakes.FakeUseCase;
 
 /**
@@ -45,6 +46,12 @@ public class FakeOtherUseCase extends UseCase {
     public void clear() {
         super.clear();
         mIsCleared = true;
+    }
+
+    @NonNull
+    @Override
+    public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder() {
+        return null;
     }
 
     @Override

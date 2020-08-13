@@ -17,14 +17,14 @@
 package androidx.ui.demos
 
 import androidx.ui.androidview.demos.AndroidViewDemos
-import androidx.ui.animation.demos.AnimationDemos
-import androidx.ui.core.demos.CoreDemos
+import androidx.compose.animation.demos.AnimationDemos
+import androidx.compose.ui.demos.CoreDemos
 import androidx.ui.demos.common.DemoCategory
-import androidx.ui.foundation.demos.FoundationDemos
-import androidx.ui.layout.demos.LayoutDemos
-import androidx.ui.material.demos.MaterialDemos
-import androidx.ui.material.studies.MaterialStudies
-import androidx.ui.text.demos.TextDemos
+import androidx.compose.foundation.demos.FoundationDemos
+import androidx.compose.foundation.layout.demos.LayoutDemos
+import androidx.compose.material.demos.MaterialDemos
+import androidx.compose.material.studies.MaterialStudies
+import androidx.compose.foundation.text.demos.TextDemos
 
 /**
  * [DemoCategory] containing all the top level demo categories.

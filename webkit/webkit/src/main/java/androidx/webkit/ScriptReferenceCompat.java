@@ -21,7 +21,7 @@ import androidx.annotation.RestrictTo;
 
 /**
  * TODO(ctzsm): Complete Javadoc
- * @see WebViewCompat#addDocumentStartJavascript(android.webkit.WebView, String, List)
+ * @see WebViewCompat#addDocumentStartJavaScript(android.webkit.WebView, String, Set)
  *
  * TODO(ctzsm): unhide when ready.
  * @hide

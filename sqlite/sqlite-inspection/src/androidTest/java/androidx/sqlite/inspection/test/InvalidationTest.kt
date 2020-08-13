@@ -22,6 +22,7 @@ import android.database.CursorWrapper
 import android.database.sqlite.SQLiteCursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteStatement
+import androidx.inspection.ArtToolInterface
 import androidx.inspection.InspectorEnvironment
 import androidx.sqlite.inspection.SqliteInspectorProtocol.DatabasePossiblyChangedEvent
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Event.OneOfCase.DATABASE_POSSIBLY_CHANGED
@@ -197,7 +198,7 @@ class InvalidationTest {
         return cursor as SQLiteCursor
     }
 
-    private fun List<Hook>.entryHookFor(m: String): InspectorEnvironment.EntryHook =
+    private fun List<Hook>.entryHookFor(m: String): ArtToolInterface.EntryHook =
         this.first { it.originMethod == m && it is Hook.EntryHook }.asEntryHook
 
     @Suppress("UNCHECKED_CAST")

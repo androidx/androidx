@@ -16,6 +16,8 @@
 
 package androidx.benchmark
 
+import androidx.test.filters.FlakyTest
+import androidx.test.filters.SdkSuppress
 import androidx.test.filters.SmallTest
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -24,7 +26,6 @@ import java.io.File
 import kotlin.test.assertFalse
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
-import kotlin.test.fail
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -35,6 +36,7 @@ class ProfilerTest {
         assertSame(MethodTracing, Profiler.getByName("MethodTracing"))
         assertSame(ConnectedAllocation, Profiler.getByName("ConnectedAllocation"))
         assertSame(ConnectedSampling, Profiler.getByName("ConnectedSampling"))
+        assertSame(MethodSamplingSimpleperf, Profiler.getByName("MethodSamplingSimpleperf"))
 
         // Compat names
         assertSame(MethodTracing, Profiler.getByName("Method"))
@@ -42,25 +44,16 @@ class ProfilerTest {
         assertSame(ConnectedSampling, Profiler.getByName("ConnectedSampled"))
     }
 
-    private fun testRuntimeProfiler(profiler: Profiler) {
-        assertTrue(profiler.requiresLibraryOutputDir)
-
-        val traceFileName = "test"
-        val traceType = when (profiler) {
-            MethodTracing -> "methodTracing"
-            MethodSampling -> "methodSampling"
-            else -> fail("Profiler not supported by test")
-        }
-        val file = File(
-            Arguments.testOutputDir,
-            "$traceFileName-$traceType.trace"
-        )
+    private fun verifyProfiler(
+        profiler: Profiler,
+        file: File
+    ) {
         val deletedSuccessfully: Boolean
         try {
             file.delete() // clean up, if previous run left this behind
             assertFalse(file.exists())
 
-            profiler.start(traceFileName)
+            profiler.start("test")
             profiler.stop()
             assertTrue(file.exists(), "Profiler should create: ${file.absolutePath}")
         } finally {
@@ -70,8 +63,22 @@ class ProfilerTest {
     }
 
     @Test
-    fun methodSampling() = testRuntimeProfiler(MethodSampling)
+    fun methodSampling() = verifyProfiler(
+        profiler = MethodSampling,
+        file = File(Arguments.testOutputDir, "test-methodSampling.trace")
+    )
 
     @Test
-    fun methodTracing() = testRuntimeProfiler(MethodTracing)
+    fun methodTracing() = verifyProfiler(
+        profiler = MethodTracing,
+        file = File(Arguments.testOutputDir, "test-methodTracing.trace")
+    )
+
+    @FlakyTest // temporarily disabled in CI, since this currently requires external script setup
+    @SdkSuppress(minSdkVersion = 28)
+    @Test
+    fun methodSamplingSimpleperf() = verifyProfiler(
+        profiler = MethodSamplingSimpleperf,
+        file = File("/data/data/androidx.benchmark.test/simpleperf_data/test.data")
+    )
 }

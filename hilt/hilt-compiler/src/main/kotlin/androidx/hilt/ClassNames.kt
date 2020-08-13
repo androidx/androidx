@@ -21,8 +21,6 @@ import com.squareup.javapoet.ClassName
 internal object ClassNames {
     val ACTIVITY_RETAINED_COMPONENT =
         ClassName.get("dagger.hilt.android.components", "ActivityRetainedComponent")
-    val APPLICATION_COMPONENT =
-        ClassName.get("dagger.hilt.android.components", "ApplicationComponent")
     val ASSISTED = ClassName.get("androidx.hilt", "Assisted")
     val BINDS = ClassName.get("dagger", "Binds")
     val CONTEXT = ClassName.get("android.content", "Context")
@@ -34,6 +32,8 @@ internal object ClassNames {
     val MODULE = ClassName.get("dagger", "Module")
     val ORIGINATING_ELEMENT = ClassName.get("dagger.hilt.codegen", "OriginatingElement")
     val PROVIDER = ClassName.get("javax.inject", "Provider")
+    val SINGLETON_COMPONENT =
+        ClassName.get("dagger.hilt.components", "SingletonComponent")
     val VIEW_MODEL_ASSISTED_FACTORY =
         ClassName.get("androidx.hilt.lifecycle", "ViewModelAssistedFactory")
     val VIEW_MODEL = ClassName.get("androidx.lifecycle", "ViewModel")

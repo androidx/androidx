@@ -14,8 +14,37 @@ See the License for the specific language governing permissions and
 limitations under the License.
 -->
 <resources>
-    <color name="purple200">#BB86FC</color>
-    <color name="purple500">#6200EE</color>
-    <color name="purple700">#3700B3</color>
-    <color name="teal200">#03DAC5</color>
+    <color name="colorPrimary">#6200EE</color>
+    <color name="colorPrimaryDark">#3700B3</color>
+    <color name="colorAccent">#03DAC5</color>
+    <color name="blackTransparent">#C0000000</color>
+    <color name="graphDataColor">#FFFFFF</color>
+    <color name="graphBackground">#F0291E29</color>
+    <color name="transparent">#00000000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="whiteTransparent">#70FFFFFF</color>
+    <color name="gray">#978082</color>
+    <color name="latencyDataColor">#CEB180</color>
+    <color name="missingDataColor">#FF6666</color>
+
+    <color name="cameraPipeThemeBgDark050">#FF080808</color>
+    <color name="cameraPipeThemeBgDark100">#FF101010</color>
+
+    <color name="cameraPipeThemeBgOverlayDark50">#DD080808</color>
+    <color name="cameraPipeThemeBgOverlayDark100">#DD101010</color>
+
+    <color name="cameraPipeThemeBgRecord">#FFD00000</color>
+    <color name="cameraPipeThemeBgRecordRipple">#FFE00000</color>
+
+    <color name="cameraPipeThemeBtnOverlay100">#33404040</color>
+    <color name="cameraPipeThemeBtnOverlay200">#33FFFFFF</color>
+
+    <color name="cameraPipeThemeFgLight700">#FFD0D0D0</color>
+    <color name="cameraPipeThemeFgLight800">#FFF8F8F8</color>
+    <color name="cameraPipeThemeFgLight900">#FFFCFCFC</color>
+
+    <color name="cameraPipeThemeFgOverlay">#33000000</color>
+    <color name="cameraPipeThemeFgAccent">#FF0090D0</color>
+    <color name="cameraPipeThemeFgError800">#FFD00000</color>
+    <color name="cameraPipeThemeFgError900">#FFE00000</color>
 </resources>

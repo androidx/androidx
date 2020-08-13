@@ -29,6 +29,7 @@ import androidx.navigation.dynamicfeatures.Constants
 import androidx.navigation.dynamicfeatures.DynamicExtras
 import androidx.navigation.dynamicfeatures.DynamicInstallMonitor
 import androidx.navigation.fragment.findNavController
+import com.google.android.play.core.common.IntentSenderForResultStarter
 import com.google.android.play.core.splitinstall.SplitInstallSessionState
 import com.google.android.play.core.splitinstall.model.SplitInstallErrorCode
 import com.google.android.play.core.splitinstall.model.SplitInstallSessionStatus
@@ -128,11 +129,30 @@ abstract class AbstractProgressFragment : Fragment {
                         navigate()
                     }
                     SplitInstallSessionStatus.REQUIRES_USER_CONFIRMATION -> try {
-                        @Suppress("DEPRECATION")
-                        // TODO replace once PlayCore ships with code landed in b/145276704.
-                        startIntentSenderForResult(
-                            sessionState.resolutionIntent().intentSender,
-                            INSTALL_REQUEST_CODE, null, 0, 0, 0, null
+                        val splitInstallManager = monitor.splitInstallManager
+                        if (splitInstallManager == null) {
+                            onFailed(SplitInstallErrorCode.INTERNAL_ERROR)
+                            return
+                        }
+                        splitInstallManager.startConfirmationDialogForResult(
+                            sessionState,
+                            IntentSenderForResultStarter { intent,
+                                                           requestCode,
+                                                           fillInIntent,
+                                                           flagsMask,
+                                                           flagsValues,
+                                                           extraFlags,
+                                                           options ->
+                                startIntentSenderForResult(
+                                    intent,
+                                    requestCode,
+                                    fillInIntent,
+                                    flagsMask,
+                                    flagsValues,
+                                    extraFlags,
+                                    options
+                                )
+                            }, INSTALL_REQUEST_CODE
                         )
                     } catch (e: IntentSender.SendIntentException) {
                         onFailed(SplitInstallErrorCode.INTERNAL_ERROR)

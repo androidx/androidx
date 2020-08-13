@@ -14,6 +14,7 @@
     <mapping directory="$PROJECT_DIR$/../../external/doclava" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../../external/icing" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../../external/icu" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/../../external/protobuf" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/../../external/webview_support_interfaces" vcs="Git" />
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
   </component>

@@ -43,7 +43,7 @@ package androidx.camera.core {
   public static final class CameraSelector.Builder {
     ctor public CameraSelector.Builder();
     method public androidx.camera.core.CameraSelector build();
-    method @experimental.UseExperimental(markerClass=ExperimentalCameraFilter.class) public androidx.camera.core.CameraSelector.Builder requireLensFacing(int);
+    method public androidx.camera.core.CameraSelector.Builder requireLensFacing(int);
   }
 
   public class CameraUnavailableException extends java.lang.Exception {
@@ -75,7 +75,7 @@ package androidx.camera.core {
   }
 
   public final class DisplayOrientedMeteringPointFactory extends androidx.camera.core.MeteringPointFactory {
-    ctor public DisplayOrientedMeteringPointFactory(android.view.Display, androidx.camera.core.CameraSelector, float, float);
+    ctor public DisplayOrientedMeteringPointFactory(android.view.Display, androidx.camera.core.CameraInfo, float, float);
   }
 
   public interface ExtendableBuilder<T> {

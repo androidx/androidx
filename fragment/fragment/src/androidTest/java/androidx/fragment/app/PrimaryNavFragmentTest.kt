@@ -262,6 +262,9 @@ class PrimaryNavFragmentTest {
             .isSameInstanceAs(trackingFragment1)
     }
 
+    // When USE_STATE_MANAGER is false, postponed transactions are temporarily popped.
+    // This test verifies that the dispatched primary navigation fragment
+    // matches the current state of the FragmentManager itself.
     @Test
     fun replacePostponedFragment() {
         val fm = activityRule.activity.supportFragmentManager
@@ -290,17 +293,26 @@ class PrimaryNavFragmentTest {
             .commit()
         activityRule.waitForExecution()
 
-        assertThat(navigations.drain()).isEqualTo(
+        assertThat(navigations.drain()).isEqualTo(if (FragmentManager.USE_STATE_MANAGER) {
+            listOf(
+                trackingFragment to false,
+                postponedFragment to true
+            )
+        } else {
             listOf(
                 trackingFragment to false,
                 postponedFragment to true,
                 postponedFragment to false,
                 trackingFragment to true
             )
-        )
+        })
         assertWithMessage("primary nav fragment not set correctly after replace")
             .that(fm.primaryNavigationFragment)
-            .isSameInstanceAs(trackingFragment)
+            .isSameInstanceAs(if (FragmentManager.USE_STATE_MANAGER) {
+                postponedFragment
+            } else {
+                trackingFragment
+            })
 
         // Now pop the back stack and also add a replacement Fragment
         fm.popBackStack()
@@ -312,7 +324,14 @@ class PrimaryNavFragmentTest {
             .commit()
         activityRule.waitForExecution()
 
-        assertThat(navigations.drain()).isEqualTo(
+        assertThat(navigations.drain()).isEqualTo(if (FragmentManager.USE_STATE_MANAGER) {
+            listOf(
+                postponedFragment to false,
+                trackingFragment to true,
+                trackingFragment to false,
+                replacementFragment to true
+            )
+        } else {
             listOf(
                 trackingFragment to false,
                 postponedFragment to true,
@@ -320,8 +339,8 @@ class PrimaryNavFragmentTest {
                 trackingFragment to true,
                 trackingFragment to false,
                 replacementFragment to true
-                )
-        )
+            )
+        })
 
         assertWithMessage("primary nav fragment not set correctly after replace")
             .that(fm.primaryNavigationFragment)

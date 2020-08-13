@@ -24,4 +24,8 @@
         android:id="@+id/preview_view"
         android:title="@string/preview_view"
         app:showAsAction="never" />
+    <item
+        android:id="@+id/camera_controller"
+        android:title="@string/camera_controller"
+        app:showAsAction="never" />
 </menu>

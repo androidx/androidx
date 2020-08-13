@@ -16,17 +16,17 @@
 
 package androidx.ui.integration.test.core
 
-import androidx.compose.Composable
-import androidx.ui.core.Modifier
-import androidx.ui.foundation.Border
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Canvas
-import androidx.ui.foundation.ContentGravity
-import androidx.ui.foundation.shape.corner.CircleShape
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.drawOutline
-import androidx.ui.layout.preferredSize
-import androidx.ui.unit.dp
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ContentGravity
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawOutline
+import androidx.compose.ui.unit.dp
 
 class SimpleRadioButton1TestCase : BaseSimpleRadioButtonTestCase() {
     @Composable
@@ -34,7 +34,7 @@ class SimpleRadioButton1TestCase : BaseSimpleRadioButtonTestCase() {
         Box(
             modifier = Modifier.preferredSize(48.dp),
             shape = CircleShape,
-            border = Border(1.dp, Color.Cyan),
+            border = BorderStroke(1.dp, Color.Cyan),
             gravity = ContentGravity.Center
         ) {
             val innerSize = getInnerSize().value

@@ -21,5 +21,8 @@
     android:viewportWidth="24.0">
     <path
         android:fillColor="#FFFF0000"
-        android:pathData="M20,10, l10,0 0,10 -10, 0z" />
+        android:pathData="M20,10, l10,0 0,10 -10, 0z"
+        android:trimPathEnd="0.8"
+        android:trimPathOffset="0.1"
+        android:trimPathStart="0.2" />
 </vector>

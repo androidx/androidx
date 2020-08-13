@@ -69,8 +69,10 @@ class DynamicInstallMonitor {
 
     /**
      * The [SplitInstallManager] used to monitor the installation if any was set.
+     * @hide
      */
-    internal var splitInstallManager: SplitInstallManager? = null
+    @get:RestrictTo(RestrictTo.Scope.LIBRARY)
+    var splitInstallManager: SplitInstallManager? = null
 
     /**
      * `true` if the monitor has been used to request an install, else

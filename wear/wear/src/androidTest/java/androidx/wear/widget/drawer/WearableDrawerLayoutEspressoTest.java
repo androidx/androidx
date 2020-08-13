@@ -250,33 +250,6 @@ public class WearableDrawerLayoutEspressoTest {
     }
 
     @Test
-    public void drawerContentViewShouldOnlyInflateOnceOpened() {
-        // GIVEN a launched activity with only an action drawer
-        activityRule.launchActivity(
-                new DrawerTestActivity.Builder()
-                        .setStyle(DrawerStyle.ONLY_ACTION_DRAWER_WITH_TITLE)
-                        .build());
-        // WHEN it is opened
-        WearableDrawerView actionDrawer = activityRule.getActivity().findViewById(
-                R.id.action_drawer);
-        openDrawer(actionDrawer);
-
-        // THEN the drawer content view should be displayed
-        onView(allOf(withId(R.id.action_list), isCompletelyDisplayed()));
-    }
-
-    @Test
-    public void drawerContentViewShouldNotInflateAfterLaunch() {
-        // GIVEN a launched activity with only an action drawer
-        activityRule.launchActivity(
-                new DrawerTestActivity.Builder()
-                        .setStyle(DrawerStyle.ONLY_ACTION_DRAWER_WITH_TITLE)
-                        .build());
-        // THEN the drawer content view should not exist
-        onView(allOf(withId(R.id.action_list), not(isDisplayed())));
-    }
-
-    @Test
     public void navDrawerShouldOpenWhenCalledInOnCreateAndThenCloseWhenRequested() {
         // GIVEN an activity which calls openDrawer(Gravity.TOP) in onCreate, then closes it
         // WHEN it is launched
@@ -325,10 +298,11 @@ public class WearableDrawerLayoutEspressoTest {
         WearableActionDrawerView actionDrawer =
                 (WearableActionDrawerView) activityRule.getActivity()
                         .findViewById(R.id.action_drawer);
+        RecyclerView recyclerView = (RecyclerView) actionDrawer.getDrawerContent();
 
         // WHEN the action drawer is opened and scrolled to the last item (Item 6)
         openDrawer(actionDrawer);
-        scrollToPosition(actionDrawer, 5);
+        scrollToPosition(recyclerView, 5);
         onView(withId(R.id.action_drawer))
                 .perform(
                         waitForMatchingView(allOf(withId(R.id.action_drawer), isOpened(true)),
@@ -499,11 +473,11 @@ public class WearableDrawerLayoutEspressoTest {
                 .perform(waitForMatchingView(withText("New Item"), MAX_WAIT_MS));
     }
 
-    private void scrollToPosition(final WearableActionDrawerView actionDrawer, final int position) {
-        actionDrawer.post(new Runnable() {
+    private void scrollToPosition(final RecyclerView recyclerView, final int position) {
+        recyclerView.post(new Runnable() {
             @Override
             public void run() {
-                ((RecyclerView) actionDrawer.getDrawerContent()).scrollToPosition(position);
+                recyclerView.scrollToPosition(position);
             }
         });
     }

@@ -16,6 +16,7 @@
 
 package androidx.room.verifier
 
+import androidx.room.compiler.processing.XElement
 import androidx.room.processor.Context
 import androidx.room.vo.DatabaseView
 import androidx.room.vo.Entity
@@ -30,7 +31,6 @@ import java.io.File
 import java.sql.Connection
 import java.sql.SQLException
 import java.util.regex.Pattern
-import javax.lang.model.element.Element
 
 /**
  * Builds an in-memory version of the database and verifies the queries against it.
@@ -69,7 +69,7 @@ class DatabaseVerifier private constructor(
             // UUID named library files.
             synchronized(System::class.java) {
                 SQLiteJDBCLoader.initialize() // extract and loads native library
-                JDBC.isValidURL(CONNECTION_URL) // dummy call to register driver
+                JDBC.isValidURL(CONNECTION_URL) // call to register driver
             }
         }
 
@@ -99,7 +99,7 @@ class DatabaseVerifier private constructor(
          */
         fun create(
             context: Context,
-            element: Element,
+            element: XElement,
             entities: List<Entity>,
             views: List<DatabaseView>
         ): DatabaseVerifier? {

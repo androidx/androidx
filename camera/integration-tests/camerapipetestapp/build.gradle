@@ -21,6 +21,7 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.application")
     id("kotlin-android")
+    id("kotlin-android-extensions")
 }
 
 android {
@@ -56,8 +57,13 @@ dependencies {
     // Android Support Library
     implementation("androidx.appcompat:appcompat:1.1.0")
 
+    // Camera Pipe
+    implementation(project(":camera:camera-camera2-pipe"))
+
     // Testing framework
+    testImplementation(TRUTH)
     testImplementation(JUNIT)
+    testImplementation(TRUTH)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)

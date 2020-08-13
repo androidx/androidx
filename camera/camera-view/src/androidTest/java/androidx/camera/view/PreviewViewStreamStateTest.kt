@@ -53,8 +53,8 @@ class PreviewViewStreamStateTest(private val implMode: PreviewView.Implementatio
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
         fun data() = arrayOf(
-            PreviewView.ImplementationMode.TEXTURE_VIEW,
-            PreviewView.ImplementationMode.SURFACE_VIEW
+            PreviewView.ImplementationMode.COMPATIBLE,
+            PreviewView.ImplementationMode.PERFORMANCE
         )
     }
 
@@ -91,7 +91,7 @@ class PreviewViewStreamStateTest(private val implMode: PreviewView.Implementatio
         mLifecycle = FakeLifecycleOwner()
         mPreviewView = PreviewView(context)
         setContentView(mPreviewView)
-        mPreviewView.preferredImplementationMode = implMode
+        mPreviewView.implementationMode = implMode
 
         mCameraProvider = ProcessCameraProvider.getInstance(context).get()
     }

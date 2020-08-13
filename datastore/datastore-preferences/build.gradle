@@ -69,5 +69,4 @@ androidx {
     mavenGroup = LibraryGroups.DATASTORE
     inceptionYear = "2020"
     description = "Android Preferences DataStore"
-    url = AndroidXExtension.SUPPORT_URL
 }

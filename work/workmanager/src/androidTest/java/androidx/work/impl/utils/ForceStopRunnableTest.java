@@ -19,6 +19,7 @@ package androidx.work.impl.utils;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.greaterThan;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
@@ -34,6 +35,7 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.work.Configuration;
+import androidx.work.InitializationExceptionHandler;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.impl.Scheduler;
@@ -148,5 +150,20 @@ public class ForceStopRunnableTest {
         when(runnable.cleanUp())
                 .thenThrow(new SQLiteCantOpenDatabaseException("Cannot open database."));
         runnable.run();
+    }
+
+    @Test
+    public void test_initializationExceptionHandler() {
+        InitializationExceptionHandler handler = mock(InitializationExceptionHandler.class);
+        Configuration configuration = new Configuration.Builder(mConfiguration)
+                .setInitializationExceptionHandler(handler)
+                .build();
+
+        when(mWorkManager.getConfiguration()).thenReturn(configuration);
+        ForceStopRunnable runnable = spy(mRunnable);
+        when(runnable.cleanUp())
+                .thenThrow(new SQLiteCantOpenDatabaseException("Cannot open database."));
+        runnable.run();
+        verify(handler, times(1)).handleException(any(Throwable.class));
     }
 }

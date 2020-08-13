@@ -19,6 +19,7 @@ import android.app.Activity
 import android.app.PendingIntent
 import android.content.Intent
 import android.content.IntentSender
+import android.os.Bundle
 import androidx.fragment.app.test.FragmentResultActivity
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
@@ -119,6 +120,16 @@ class FragmentReceiveResultTest {
     }
 
     @Test
+    fun testStartIntentSenderForResultWithOptionsOk() {
+        startIntentSenderForResult(30, Activity.RESULT_OK, "content 30", Bundle())
+
+        assertWithMessage("Fragment should receive result").that(fragment.hasResult[0]).isTrue()
+        assertThat(fragment.requestCode[0]).isEqualTo(30)
+        assertThat(fragment.resultCode[0]).isEqualTo(Activity.RESULT_OK)
+        assertThat(fragment.resultContent[0]).isEqualTo("content 30")
+    }
+
+    @Test
     fun testStartIntentSenderForResultCanceled() {
         startIntentSenderForResult(40, Activity.RESULT_CANCELED, "content 40")
 
@@ -163,7 +174,8 @@ class FragmentReceiveResultTest {
     private fun startIntentSenderForResult(
         requestCode: Int,
         resultCode: Int,
-        content: String
+        content: String,
+        options: Bundle? = null
     ) {
         activityRule.runOnUiThread {
             val intent = Intent(activity, FragmentResultActivity::class.java)
@@ -175,7 +187,7 @@ class FragmentReceiveResultTest {
             try {
                 fragment.startIntentSenderForResult(
                     pendingIntent.intentSender,
-                    requestCode, null, 0, 0, 0, null
+                    requestCode, null, 0, 0, 0, options
                 )
             } catch (e: IntentSender.SendIntentException) {
                 fail("IntentSender failed")

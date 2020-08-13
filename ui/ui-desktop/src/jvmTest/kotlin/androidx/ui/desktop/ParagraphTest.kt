@@ -16,26 +16,27 @@
 
 package androidx.ui.desktop
 
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.Scaffold
+import androidx.compose.material.TopAppBar
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.fontFamily
+import androidx.compose.ui.text.platform.font
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.ui.desktop.test.DesktopScreenshotTestRule
 import androidx.ui.desktop.test.TestSkiaWindow
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
-import androidx.ui.graphics.Color
-import androidx.ui.layout.Arrangement
-import androidx.ui.layout.Column
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.padding
-import androidx.ui.layout.preferredHeight
-import androidx.ui.layout.wrapContentSize
-import androidx.ui.material.Scaffold
-import androidx.ui.material.TopAppBar
-import androidx.ui.text.AnnotatedString
-import androidx.ui.text.SpanStyle
-import androidx.ui.text.font.fontFamily
-import androidx.ui.unit.dp
-import androidx.ui.unit.sp
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -82,7 +83,7 @@ class ParagraphTest {
                             text = "Привет! 你好! Desktop Compose",
                             color = Color.Black,
                             modifier = Modifier
-                                .drawBackground(Color.Blue)
+                                .background(Color.Blue)
                                 .preferredHeight(56.dp)
                                 .wrapContentSize(Alignment.Center)
                         )

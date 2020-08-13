@@ -41,13 +41,13 @@ public class ViewTreeLifecycleOwnerTest {
     @Test
     public void setGetSameView() {
         final View v = new View(InstrumentationRegistry.getInstrumentation().getContext());
-        final LifecycleOwner dummyOwner = new DummyLifecycleOwner();
+        final LifecycleOwner fakeOwner = new FakeLifecycleOwner();
 
         assertNull("initial LifecycleOwner expects null", ViewTreeLifecycleOwner.get(v));
 
-        ViewTreeLifecycleOwner.set(v, dummyOwner);
+        ViewTreeLifecycleOwner.set(v, fakeOwner);
 
-        assertEquals("get the LifecycleOwner set directly", dummyOwner,
+        assertEquals("get the LifecycleOwner set directly", fakeOwner,
                 ViewTreeLifecycleOwner.get(v));
     }
 
@@ -66,12 +66,12 @@ public class ViewTreeLifecycleOwnerTest {
 
         assertNull("initial LifecycleOwner expects null", ViewTreeLifecycleOwner.get(child));
 
-        final LifecycleOwner dummyOwner = new DummyLifecycleOwner();
-        ViewTreeLifecycleOwner.set(root, dummyOwner);
+        final LifecycleOwner fakeOwner = new FakeLifecycleOwner();
+        ViewTreeLifecycleOwner.set(root, fakeOwner);
 
-        assertEquals("root sees owner", dummyOwner, ViewTreeLifecycleOwner.get(root));
-        assertEquals("direct child sees owner", dummyOwner, ViewTreeLifecycleOwner.get(parent));
-        assertEquals("grandchild sees owner", dummyOwner, ViewTreeLifecycleOwner.get(child));
+        assertEquals("root sees owner", fakeOwner, ViewTreeLifecycleOwner.get(root));
+        assertEquals("direct child sees owner", fakeOwner, ViewTreeLifecycleOwner.get(parent));
+        assertEquals("grandchild sees owner", fakeOwner, ViewTreeLifecycleOwner.get(child));
     }
 
     /**
@@ -89,19 +89,19 @@ public class ViewTreeLifecycleOwnerTest {
 
         assertNull("initial LifecycleOwner expects null", ViewTreeLifecycleOwner.get(child));
 
-        final LifecycleOwner rootDummyOwner = new DummyLifecycleOwner();
-        ViewTreeLifecycleOwner.set(root, rootDummyOwner);
+        final LifecycleOwner rootFakeOwner = new FakeLifecycleOwner();
+        ViewTreeLifecycleOwner.set(root, rootFakeOwner);
 
-        final LifecycleOwner parentDummyOwner = new DummyLifecycleOwner();
-        ViewTreeLifecycleOwner.set(parent, parentDummyOwner);
+        final LifecycleOwner parentFakeOwner = new FakeLifecycleOwner();
+        ViewTreeLifecycleOwner.set(parent, parentFakeOwner);
 
-        assertEquals("root sees owner", rootDummyOwner, ViewTreeLifecycleOwner.get(root));
-        assertEquals("direct child sees owner", parentDummyOwner,
+        assertEquals("root sees owner", rootFakeOwner, ViewTreeLifecycleOwner.get(root));
+        assertEquals("direct child sees owner", parentFakeOwner,
                 ViewTreeLifecycleOwner.get(parent));
-        assertEquals("grandchild sees owner", parentDummyOwner, ViewTreeLifecycleOwner.get(child));
+        assertEquals("grandchild sees owner", parentFakeOwner, ViewTreeLifecycleOwner.get(child));
     }
 
-    static class DummyLifecycleOwner implements LifecycleOwner {
+    static class FakeLifecycleOwner implements LifecycleOwner {
         @NonNull
         @Override
         public Lifecycle getLifecycle() {

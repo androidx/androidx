@@ -20,12 +20,10 @@ import static androidx.test.espresso.action.GeneralLocation.CENTER;
 import static androidx.viewpager2.widget.BaseTestKt.isHorizontal;
 import static androidx.viewpager2.widget.BaseTestKt.isRtl;
 
-import android.app.Instrumentation;
-import android.view.View;
 import android.view.animation.Interpolator;
 
+import androidx.annotation.GuardedBy;
 import androidx.test.espresso.action.CoordinatesProvider;
-import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.viewpager2.widget.ViewPager2;
 
 public class PageSwiperManual implements PageSwiper {
@@ -39,6 +37,14 @@ public class PageSwiperManual implements PageSwiper {
     // Use -mYForwardFactor for a backwards swipe.
     private final int mYForwardFactor;
 
+    // The actual injector. Should probably be merged with this class.
+    @GuardedBy("mLock")
+    private ManualSwipeInjector mInjector;
+    private final Object mLock = new Object();
+
+    // If the swipe has been cancelled; in case this PageSwiper is cancelled before it was started
+    private boolean mCancelled;
+
     public PageSwiperManual(ViewPager2 viewPager) {
         mViewPager = viewPager;
         boolean isRtl = isRtl(mViewPager);
@@ -51,29 +57,65 @@ public class PageSwiperManual implements PageSwiper {
 
     @Override
     public void swipeNext() {
-        mActionNext.swipe(InstrumentationRegistry.getInstrumentation(), mViewPager);
+        setSwipeInjector(mActionNext.createInjector());
+        if (!mCancelled) {
+            getSwipeInjector().perform(mViewPager);
+        }
+        setSwipeInjector(null);
     }
 
     @Override
     public void swipePrevious() {
-        mActionPrevious.swipe(InstrumentationRegistry.getInstrumentation(), mViewPager);
+        setSwipeInjector(mActionPrevious.createInjector());
+        if (!mCancelled) {
+            getSwipeInjector().perform(mViewPager);
+        }
+        setSwipeInjector(null);
     }
 
     public void swipeForward(float px, Interpolator interpolator) {
-        swipe(px * mXForwardFactor, px * mYForwardFactor, interpolator);
+        setSwipeInjector(createInjector(px * mXForwardFactor, px * mYForwardFactor));
+        if (!mCancelled) {
+            getSwipeInjector().perform(mViewPager, interpolator);
+        }
+        setSwipeInjector(null);
     }
 
     public void swipeBackward(float px, Interpolator interpolator) {
-        swipe(px * -mXForwardFactor, px * -mYForwardFactor, interpolator);
+        setSwipeInjector(createInjector(px * -mXForwardFactor, px * -mYForwardFactor));
+        if (!mCancelled) {
+            getSwipeInjector().perform(mViewPager, interpolator);
+        }
+        setSwipeInjector(null);
     }
 
-    private void swipe(float xOffset, float yOffset, Interpolator interpolator) {
-        new ManualSwipeInjector(
+    public void cancel() {
+        mCancelled = true;
+        synchronized (mLock) {
+            if (mInjector != null) {
+                mInjector.cancel();
+            }
+        }
+    }
+
+    private ManualSwipeInjector getSwipeInjector() {
+        synchronized (mLock) {
+            return mInjector;
+        }
+    }
+
+    private void setSwipeInjector(ManualSwipeInjector swipeInjector) {
+        synchronized (mLock) {
+            mInjector = swipeInjector;
+        }
+    }
+
+    private ManualSwipeInjector createInjector(float xOffset, float yOffset) {
+        return new ManualSwipeInjector(
                 offsetCenter(-xOffset / 2, -yOffset / 2),
                 offsetCenter(xOffset / 2, yOffset / 2),
                 150, 20
-        ).perform(InstrumentationRegistry.getInstrumentation(),
-                mViewPager.getChildAt(0), interpolator);
+        );
     }
 
     private static CoordinatesProvider offsetCenter(final float dx, final float dy) {
@@ -81,34 +123,34 @@ public class PageSwiperManual implements PageSwiper {
     }
 
     private interface SwipeAction {
-        void swipe(Instrumentation instrumentation, View view);
+        ManualSwipeInjector createInjector();
     }
 
     private static final SwipeAction SWIPE_LEFT = new SwipeAction() {
         @Override
-        public void swipe(Instrumentation instrumentation, View view) {
-            ManualSwipeInjector.swipeLeft().perform(instrumentation, view);
+        public ManualSwipeInjector createInjector() {
+            return ManualSwipeInjector.swipeLeft();
         }
     };
 
     private static final SwipeAction SWIPE_RIGHT = new SwipeAction() {
         @Override
-        public void swipe(Instrumentation instrumentation, View view) {
-            ManualSwipeInjector.swipeRight().perform(instrumentation, view);
+        public ManualSwipeInjector createInjector() {
+            return ManualSwipeInjector.swipeRight();
         }
     };
 
     private static final SwipeAction SWIPE_UP = new SwipeAction() {
         @Override
-        public void swipe(Instrumentation instrumentation, View view) {
-            ManualSwipeInjector.swipeUp().perform(instrumentation, view);
+        public ManualSwipeInjector createInjector() {
+            return ManualSwipeInjector.swipeUp();
         }
     };
 
     private static final SwipeAction SWIPE_DOWN = new SwipeAction() {
         @Override
-        public void swipe(Instrumentation instrumentation, View view) {
-            ManualSwipeInjector.swipeDown().perform(instrumentation, view);
+        public ManualSwipeInjector createInjector() {
+            return ManualSwipeInjector.swipeDown();
         }
     };
 }

@@ -73,11 +73,12 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -95,7 +96,33 @@ import java.util.concurrent.atomic.AtomicInteger;
 public abstract class FragmentManager implements FragmentResultOwner {
     private static boolean DEBUG = false;
     static final String TAG = "FragmentManager";
-    static boolean USE_STATE_MANAGER = false;
+    static boolean USE_STATE_MANAGER = true;
+
+    /**
+     * Control whether FragmentManager uses the new state manager that is responsible for:
+     * <ul>
+     *     <li>Moving Fragments through their lifecycle methods</li>
+     *     <li>Running animations and transitions</li>
+     *     <li>Handling postponed transactions</li>
+     * </ul>
+     *
+     * This must only be changed <strong>before</strong> any fragment transactions are done
+     * (i.e., in your <code>Application</code> class or prior to <code>super.onCreate()</code>
+     * in every activity with the same value for all activities). Changing it after that point
+     * is <strong>not</strong> supported and can result in fragments not moving to their
+     * expected state.
+     * <p>
+     * This is <strong>enabled</strong> by default. Disabling it should only be used in
+     * cases where you are debugging a potential regression and as part of
+     * <a href="https://issuetracker.google.com/issues/new?component=460964">filing
+     * an issue</a> to verify and fix the regression.
+     *
+     * @param enabled Whether the new state manager should be enabled.
+     */
+    @FragmentStateManagerControl
+    public static void enableNewStateManager(boolean enabled) {
+        FragmentManager.USE_STATE_MANAGER = enabled;
+    }
 
     /**
      * Control whether the framework's internal fragment manager debugging
@@ -412,13 +439,14 @@ public abstract class FragmentManager implements FragmentResultOwner {
 
     private final AtomicInteger mBackStackIndex = new AtomicInteger();
 
-    private final ConcurrentHashMap<String, Bundle> mResults = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, LifecycleAwareResultListener> mResultListeners =
-            new ConcurrentHashMap<>();
+    private final Map<String, Bundle> mResults =
+            Collections.synchronizedMap(new HashMap<String, Bundle>());
+    private final Map<String, LifecycleAwareResultListener> mResultListeners =
+            Collections.synchronizedMap(new HashMap<String, LifecycleAwareResultListener>());
 
     private ArrayList<OnBackStackChangedListener> mBackStackChangeListeners;
-    private ConcurrentHashMap<Fragment, HashSet<CancellationSignal>>
-            mExitAnimationCancellationSignals = new ConcurrentHashMap<>();
+    private Map<Fragment, HashSet<CancellationSignal>> mExitAnimationCancellationSignals =
+            Collections.synchronizedMap(new HashMap<Fragment, HashSet<CancellationSignal>>());
     private final FragmentTransition.Callback mFragmentTransitionCallback =
             new FragmentTransition.Callback() {
                 @Override
@@ -465,14 +493,14 @@ public abstract class FragmentManager implements FragmentResultOwner {
                 }
             };
 
-    // Key to retrieve the request code from any intents that are started
-    private static final String EXTRA_KEY_REQUEST_CODE = "activity.result.requestCode";
-
     private ActivityResultLauncher<Intent> mStartActivityForResult;
     private ActivityResultLauncher<IntentSenderRequest> mStartIntentSenderForResult;
     private ActivityResultLauncher<String[]> mRequestPermissions;
 
     ArrayDeque<LaunchedFragmentInfo> mLaunchedFragments = new ArrayDeque<>();
+
+    private static final String EXTRA_CREATED_FILLIN_INTENT = "androidx.fragment"
+            + ".extra.ACTIVITY_OPTIONS_BUNDLE";
 
     private boolean mNeedMenuInvalidate;
     private boolean mStateSaved;
@@ -2117,12 +2145,40 @@ public abstract class FragmentManager implements FragmentResultOwner {
         executeOps(records, isRecordPop, startIndex, endIndex);
 
         if (USE_STATE_MANAGER) {
-            if (allowReordering) {
-                moveToState(mCurState, true);
-            }
             // The last operation determines the overall direction, this ensures that operations
             // such as push, push, pop, push are correctly considered a push
             boolean isPop = isRecordPop.get(endIndex - 1);
+            if (allowReordering) {
+                // Ensure that Fragments directly affected by operations
+                // are moved to their expected state in operation order
+                for (int index = startIndex; index < endIndex; index++) {
+                    BackStackRecord record = records.get(index);
+                    if (isPop) {
+                        // Pop operations get applied in reverse order
+                        for (int opIndex = record.mOps.size() - 1; opIndex >= 0; opIndex--) {
+                            FragmentTransaction.Op op = record.mOps.get(opIndex);
+                            Fragment fragment = op.mFragment;
+                            if (fragment != null) {
+                                FragmentStateManager fragmentStateManager =
+                                        createOrGetFragmentStateManager(fragment);
+                                fragmentStateManager.moveToExpectedState();
+                            }
+                        }
+                    } else {
+                        for (FragmentTransaction.Op op : record.mOps) {
+                            Fragment fragment = op.mFragment;
+                            if (fragment != null) {
+                                FragmentStateManager fragmentStateManager =
+                                        createOrGetFragmentStateManager(fragment);
+                                fragmentStateManager.moveToExpectedState();
+                            }
+                        }
+                    }
+
+                }
+                // And only then do we move all other fragments to the current state
+                moveToState(mCurState, true);
+            }
             Set<SpecialEffectsController> changedControllers = collectChangedControllers(
                     records, startIndex, endIndex);
             for (SpecialEffectsController controller : changedControllers) {
@@ -2423,7 +2479,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         if (USE_STATE_MANAGER) {
             Set<SpecialEffectsController> controllers = collectAllSpecialEffectsController();
             for (SpecialEffectsController controller : controllers) {
-                controller.cancelAllOperations();
+                controller.forceCompleteAllOperations();
             }
         } else {
             if (!mExitAnimationCancellationSignals.isEmpty()) {
@@ -2850,8 +2906,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                             // fragment transactions was committed immediately after the for
                             // result call
                             if (fragment == null) {
-                                Log.w(TAG,
-                                        "Intent Sender result delivered for unknown Fragment "
+                                Log.w(TAG, "Intent Sender result delivered for unknown Fragment "
                                                 + fragmentWho);
                                 return;
                             }
@@ -2920,7 +2975,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
         if (mStartActivityForResult != null) {
             LaunchedFragmentInfo info = new LaunchedFragmentInfo(f.mWho, requestCode);
             mLaunchedFragments.addLast(info);
-            if (options != null) {
+            if (intent != null && options != null) {
                 intent.putExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE, options);
             }
             mStartActivityForResult.launch(intent);
@@ -2935,17 +2990,25 @@ public abstract class FragmentManager implements FragmentResultOwner {
             int requestCode, @Nullable Intent fillInIntent, int flagsMask, int flagsValues,
             int extraFlags, @Nullable Bundle options) throws IntentSender.SendIntentException {
         if (mStartIntentSenderForResult != null) {
-            IntentSenderRequest request =
-                    new IntentSenderRequest.Builder(intent).setFillInIntent(fillInIntent)
-                            .setFlags(flagsValues, flagsMask).build();
             if (options != null) {
                 if (fillInIntent == null) {
                     fillInIntent = new Intent();
+                    fillInIntent.putExtra(EXTRA_CREATED_FILLIN_INTENT, true);
+                }
+                if (isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(TAG, "ActivityOptions " + options + " were added to fillInIntent "
+                            + fillInIntent + " for fragment " + f);
                 }
                 fillInIntent.putExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE, options);
             }
+            IntentSenderRequest request =
+                    new IntentSenderRequest.Builder(intent).setFillInIntent(fillInIntent)
+                            .setFlags(flagsValues, flagsMask).build();
             LaunchedFragmentInfo info = new LaunchedFragmentInfo(f.mWho, requestCode);
             mLaunchedFragments.addLast(info);
+            if (isLoggingEnabled(Log.VERBOSE)) {
+                Log.v(TAG, "Fragment " + f + "is launching an IntentSender for result ");
+            }
             mStartIntentSenderForResult.launch(request);
         } else {
             mHost.onStartIntentSenderFromFragment(f, intent, requestCode, fillInIntent,
@@ -3047,7 +3110,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
             if (USE_STATE_MANAGER) {
                 Set<SpecialEffectsController> controllers = collectAllSpecialEffectsController();
                 for (SpecialEffectsController controller : controllers) {
-                    controller.executePendingOperations();
+                    controller.forceCompleteAllOperations();
                 }
             }
         } finally {
@@ -3572,17 +3635,24 @@ public abstract class FragmentManager implements FragmentResultOwner {
         @Override
         public Intent createIntent(@NonNull Context context, IntentSenderRequest input) {
             Intent result = new Intent(ACTION_INTENT_SENDER_REQUEST);
-            if (input.getFillInIntent() != null) {
-                Bundle activityOptions =
-                        input.getFillInIntent().getBundleExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE);
-                int requestCode =
-                        input.getFillInIntent().getIntExtra(EXTRA_KEY_REQUEST_CODE, -1);
+            Intent fillInIntent = input.getFillInIntent();
+            if (fillInIntent != null) {
+                Bundle activityOptions = fillInIntent.getBundleExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE);
                 if (activityOptions != null) {
-                    result.putExtra(EXTRA_KEY_REQUEST_CODE, requestCode);
                     result.putExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE, activityOptions);
+                    fillInIntent.removeExtra(EXTRA_ACTIVITY_OPTIONS_BUNDLE);
+                    if (fillInIntent.getBooleanExtra(EXTRA_CREATED_FILLIN_INTENT, false)) {
+                        input = new IntentSenderRequest.Builder(input.getIntentSender())
+                                .setFillInIntent(null)
+                                .setFlags(input.getFlagsValues(), input.getFlagsMask())
+                                .build();
+                    }
                 }
             }
             result.putExtra(EXTRA_INTENT_SENDER_REQUEST, input);
+            if (isLoggingEnabled(Log.VERBOSE)) {
+                Log.v(TAG, "CreateIntent created the following intent: " + result);
+            }
             return result;
         }
 

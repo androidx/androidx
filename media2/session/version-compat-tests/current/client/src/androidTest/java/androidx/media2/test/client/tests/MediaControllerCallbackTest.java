@@ -178,7 +178,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     @LargeTest
     public void connection_withLongPlaylist() throws InterruptedException {
         final int playlistSize = 5000;
-        mRemoteSession2.getMockPlayer().createAndSetDummyPlaylist(playlistSize);
+        mRemoteSession2.getMockPlayer().createAndSetFakePlaylist(playlistSize);
 
         final CountDownLatch latch = new CountDownLatch(1);
         MediaController controller = new MediaController.Builder(mContext)
@@ -200,7 +200,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         assertNotNull(playlist);
         assertEquals(playlistSize, playlist.size());
         for (int i = 0; i < playlist.size(); i++) {
-            assertEquals(TestUtils.getMediaIdInDummyList(i), playlist.get(i).getMediaId());
+            assertEquals(TestUtils.getMediaIdInFakeList(i), playlist.get(i).getMediaId());
         }
     }
 
@@ -256,7 +256,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
     public void onCurrentMediaItemChanged() throws Exception {
         final int listSize = 5;
         final List<MediaItem> list = MediaTestUtils.createFileMediaItems(listSize);
-        mRemoteSession2.getMockPlayer().setPlaylistWithDummyItem(list);
+        mRemoteSession2.getMockPlayer().setPlaylistWithFakeItem(list);
 
         final int currentItemIndex = 3;
         final MediaItem currentItem = list.get(currentItemIndex);
@@ -301,7 +301,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final int testListSize = 5;
         final List<MediaItem> list = MediaTestUtils.createFileMediaItems(testListSize);
         mRemoteSession2.getMockPlayer().setPlayerState(SessionPlayer.PLAYER_STATE_IDLE);
-        mRemoteSession2.getMockPlayer().setPlaylistWithDummyItem(list);
+        mRemoteSession2.getMockPlayer().setPlaylistWithFakeItem(list);
 
         final int testCurrentItemIndex = 3;
         final CountDownLatch latch = new CountDownLatch(1);
@@ -349,7 +349,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final int testListSize = 5;
         final List<MediaItem> list = MediaTestUtils.createFileMediaItems(testListSize);
         mRemoteSession2.getMockPlayer().setPlayerState(SessionPlayer.PLAYER_STATE_IDLE);
-        mRemoteSession2.getMockPlayer().setPlaylistWithDummyItem(list);
+        mRemoteSession2.getMockPlayer().setPlaylistWithFakeItem(list);
 
         final int testCurrentItemIndex = 3;
         final CountDownLatch latch = new CountDownLatch(1);
@@ -398,7 +398,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         final int testListSize = 5;
         final List<MediaItem> list = MediaTestUtils.createFileMediaItems(testListSize);
         mRemoteSession2.getMockPlayer().setPlayerState(SessionPlayer.PLAYER_STATE_IDLE);
-        mRemoteSession2.getMockPlayer().setPlaylistWithDummyItem(list);
+        mRemoteSession2.getMockPlayer().setPlaylistWithFakeItem(list);
 
         final int testCurrentItemIndex = 3;
         final CountDownLatch latch = new CountDownLatch(1);
@@ -629,7 +629,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
                         assertNotNull(playlist);
                         assertEquals(listSize, playlist.size());
                         for (int i = 0; i < playlist.size(); i++) {
-                            assertEquals(TestUtils.getMediaIdInDummyList(i),
+                            assertEquals(TestUtils.getMediaIdInFakeList(i),
                                     playlist.get(i).getMediaId());
                         }
                         listFromCallback.set(playlist);
@@ -638,7 +638,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
                 };
         MediaController controller = createController(mRemoteSession2.getToken(), true, null,
                 callback);
-        mRemoteSession2.getMockPlayer().createAndSetDummyPlaylist(listSize);
+        mRemoteSession2.getMockPlayer().createAndSetFakePlaylist(listSize);
         mRemoteSession2.getMockPlayer().notifyPlaylistChanged();
 
         assertTrue(latch.await(10, TimeUnit.SECONDS));
@@ -839,7 +839,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
             }
         };
 
-        mRemoteSession2.getMockPlayer().setPlaylistWithDummyItem(testPlaylist);
+        mRemoteSession2.getMockPlayer().setPlaylistWithFakeItem(testPlaylist);
 
         RemoteMediaSession.RemoteMockPlayer player = mRemoteSession2.getMockPlayer();
         player.setBufferedPosition(testBufferingPosition);
@@ -881,7 +881,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
             }
         };
 
-        mRemoteSession2.getMockPlayer().setPlaylistWithDummyItem(testPlaylist);
+        mRemoteSession2.getMockPlayer().setPlaylistWithFakeItem(testPlaylist);
 
         RemoteMediaSession.RemoteMockPlayer player = mRemoteSession2.getMockPlayer();
         player.setBufferedPosition(testBufferingPosition);

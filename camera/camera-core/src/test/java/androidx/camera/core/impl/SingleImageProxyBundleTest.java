@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Build;
 
+import androidx.camera.testing.fakes.FakeCaptureStage;
 import androidx.camera.testing.fakes.FakeImageInfo;
 import androidx.camera.testing.fakes.FakeImageProxy;
 import androidx.test.filters.SmallTest;
@@ -38,10 +39,12 @@ public final class SingleImageProxyBundleTest {
     @Test
     public void successfulCreationFromImageProxy() {
         FakeImageInfo imageInfo = new FakeImageInfo();
-        imageInfo.setTag(1);
+        FakeCaptureStage fakeCaptureStage = new FakeCaptureStage(0, null);
+        String tagBundleKey = Integer.toString(fakeCaptureStage.hashCode());
+        imageInfo.setTag(tagBundleKey, 1);
         FakeImageProxy imageProxy = new FakeImageProxy(imageInfo);
 
-        SingleImageProxyBundle bundle = new SingleImageProxyBundle(imageProxy);
+        SingleImageProxyBundle bundle = new SingleImageProxyBundle(imageProxy, tagBundleKey);
 
         assertThat(bundle).isNotNull();
     }
@@ -58,31 +61,37 @@ public final class SingleImageProxyBundleTest {
     @Test(expected = IllegalArgumentException.class)
     public void failsCreationIfNoImageInfo() {
         FakeImageProxy imageProxy = new FakeImageProxy(new FakeImageInfo());
+        FakeCaptureStage fakeCaptureStage = new FakeCaptureStage(0, null);
+        String tagBundleKey = Integer.toString(fakeCaptureStage.hashCode());
         imageProxy.setImageInfo(null);
 
         // Should throw IllegalArgumentException
-        new SingleImageProxyBundle(imageProxy);
+        new SingleImageProxyBundle(imageProxy, tagBundleKey);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void failsCreationIfNoTag() {
         FakeImageProxy imageProxy = new FakeImageProxy(new FakeImageInfo());
+        FakeCaptureStage fakeCaptureStage = new FakeCaptureStage(0, null);
+        String tagBundleKey = Integer.toString(fakeCaptureStage.hashCode());
         FakeImageInfo imageInfo = new FakeImageInfo();
-        imageInfo.setTag(null);
+        imageInfo.setTag(tagBundleKey, null);
         imageProxy.setImageInfo(imageInfo);
 
         // Should throw IllegalArgumentException
-        new SingleImageProxyBundle(imageProxy);
+        new SingleImageProxyBundle(imageProxy, tagBundleKey);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void failsCreationIfTagIsNotInteger() {
         FakeImageProxy imageProxy = new FakeImageProxy(new FakeImageInfo());
+        FakeCaptureStage fakeCaptureStage = new FakeCaptureStage(0, null);
+        String tagBundleKey = Integer.toString(fakeCaptureStage.hashCode());
         FakeImageInfo imageInfo = new FakeImageInfo();
-        imageInfo.setTag(new Object());
+        imageInfo.setTag(tagBundleKey, null);
         imageProxy.setImageInfo(imageInfo);
 
         // Should throw IllegalArgumentException
-        new SingleImageProxyBundle(imageProxy);
+        new SingleImageProxyBundle(imageProxy, tagBundleKey);
     }
 }

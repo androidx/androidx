@@ -290,7 +290,6 @@ public class WearableDrawerLayout extends FrameLayout
      * peek view and fade in the drawer content.
      */
     static void showDrawerContentMaybeAnimate(WearableDrawerView drawerView) {
-        drawerView.onDrawerOpened();
         drawerView.bringToFront();
         final View contentView = drawerView.getDrawerContent();
         if (contentView != null) {

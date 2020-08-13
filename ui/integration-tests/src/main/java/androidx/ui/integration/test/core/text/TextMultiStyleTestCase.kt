@@ -16,19 +16,19 @@
 
 package androidx.ui.integration.test.core.text
 
-import androidx.compose.Composable
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
-import androidx.ui.foundation.Text
-import androidx.ui.graphics.Color
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.foundation.Text
+import androidx.compose.ui.graphics.Color
 import androidx.ui.integration.test.RandomTextGenerator
-import androidx.ui.layout.preferredWidth
-import androidx.ui.layout.wrapContentSize
+import androidx.compose.foundation.layout.preferredWidth
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.text.AnnotatedString
-import androidx.ui.text.TextStyle
-import androidx.ui.unit.Dp
-import androidx.ui.unit.TextUnit
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 
 /**
  * The benchmark test case for [Text], where the input is an [AnnotatedString] with [TextStyle]s

@@ -17,13 +17,13 @@
 package androidx.camera.testing.fakes;
 
 import android.graphics.ImageFormat;
-import android.graphics.SurfaceTexture;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.impl.ImageReaderProxy;
+import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -158,14 +158,9 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
         return mMaxImages;
     }
 
-    @NonNull
+    @Nullable
     @Override
     public Surface getSurface() {
-        // Create a Surface using a SurfaceTexture since getSurface() requires a non-null value.
-        // However, this Surface shouldn't really be used since it isn't hooked up to anything
-        if (mSurface == null) {
-            mSurface = new Surface(new SurfaceTexture(0));
-        }
         return mSurface;
     }
 
@@ -201,8 +196,9 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
      * ImageProxy have been triggered without a {@link #acquireLatestImage()} or {@link
      * #acquireNextImage()} being called.
      */
-    public void triggerImageAvailable(Object tag, long timestamp) throws InterruptedException {
-        FakeImageProxy fakeImageProxy = generateFakeImageProxy(tag, timestamp);
+    public void triggerImageAvailable(@NonNull TagBundle tagBundle,
+            long timestamp) throws InterruptedException {
+        FakeImageProxy fakeImageProxy = generateFakeImageProxy(tagBundle, timestamp);
 
         final ListenableFuture<Void> future = fakeImageProxy.getCloseFuture();
         mImageProxyBlockingQueue.put(future);
@@ -226,9 +222,9 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
      * @return true if able to trigger the OnImageAvailableListener. Otherwise will return false if
      * it fails to trigger the callback after the timeout period.
      */
-    public boolean triggerImageAvailable(@Nullable Object tag, long timestamp, long timeout,
+    public boolean triggerImageAvailable(@NonNull TagBundle tagBundle, long timestamp, long timeout,
             @NonNull TimeUnit timeUnit) throws InterruptedException {
-        FakeImageProxy fakeImageProxy = generateFakeImageProxy(tag, timestamp);
+        FakeImageProxy fakeImageProxy = generateFakeImageProxy(tagBundle, timestamp);
 
         final ListenableFuture<Void> future = fakeImageProxy.getCloseFuture();
         if (mImageProxyBlockingQueue.offer(future, timeout, timeUnit)) {
@@ -246,9 +242,9 @@ public class FakeImageReaderProxy implements ImageReaderProxy {
         return false;
     }
 
-    private FakeImageProxy generateFakeImageProxy(Object tag, long timestamp) {
+    private FakeImageProxy generateFakeImageProxy(TagBundle tagBundle, long timestamp) {
         FakeImageInfo fakeImageInfo = new FakeImageInfo();
-        fakeImageInfo.setTag(tag);
+        fakeImageInfo.setTag(tagBundle);
         fakeImageInfo.setTimestamp(timestamp);
 
         FakeImageProxy fakeImageProxy = new FakeImageProxy(fakeImageInfo);

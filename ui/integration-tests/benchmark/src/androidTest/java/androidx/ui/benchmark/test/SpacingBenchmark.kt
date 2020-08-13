@@ -16,9 +16,17 @@
 
 package androidx.ui.benchmark.test
 
-import androidx.compose.Composable
-import androidx.compose.MutableState
-import androidx.compose.state
+import androidx.compose.foundation.layout.InnerPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Layout
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.offset
 import androidx.test.filters.LargeTest
 import androidx.ui.benchmark.ComposeBenchmarkRule
 import androidx.ui.benchmark.benchmarkDrawPerf
@@ -31,15 +39,8 @@ import androidx.ui.benchmark.toggleStateBenchmarkDraw
 import androidx.ui.benchmark.toggleStateBenchmarkLayout
 import androidx.ui.benchmark.toggleStateBenchmarkMeasure
 import androidx.ui.benchmark.toggleStateBenchmarkRecompose
-import androidx.ui.core.Layout
-import androidx.ui.core.Modifier
-import androidx.ui.core.offset
-import androidx.ui.integration.test.ToggleableTestCase
-import androidx.ui.layout.InnerPadding
-import androidx.ui.layout.padding
+import androidx.ui.test.ToggleableTestCase
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -155,8 +156,7 @@ class PaddingBenchmark {
     }
 }
 
-private sealed class PaddingTestCase : ComposeTestCase,
-    ToggleableTestCase {
+private sealed class PaddingTestCase : ComposeTestCase, ToggleableTestCase {
 
     var paddingState: MutableState<Dp>? = null
 
@@ -168,7 +168,7 @@ private sealed class PaddingTestCase : ComposeTestCase,
 
     @Composable
     override fun emitContent() {
-        val padding = state { 5.dp }
+        val padding = remember { mutableStateOf(5.dp) }
         paddingState = padding
 
         FillerContainer {
@@ -202,7 +202,7 @@ fun FillerContainer(modifier: Modifier = Modifier, children: @Composable () -> U
                 placeable?.height ?: 0
             }
         layout(width, height) {
-            placeable?.place(0, 0)
+            placeable?.placeRelative(0, 0)
         }
     }
 }
@@ -251,7 +251,7 @@ private fun Padding(
             val height = (placeable.height + verticalPadding).coerceAtMost(constraints.maxHeight)
 
             layout(width, height) {
-                placeable.place(paddingLeft, paddingTop)
+                placeable.placeRelative(paddingLeft, paddingTop)
             }
         }
     }

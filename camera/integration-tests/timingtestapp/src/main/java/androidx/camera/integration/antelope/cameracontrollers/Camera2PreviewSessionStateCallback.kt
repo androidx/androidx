@@ -150,7 +150,7 @@ class Camera2PreviewSessionStateCallback(
         params.timer.previewCloseEnd = System.currentTimeMillis()
         params.isPreviewing = false
 
-        /** If legacy HAL, create a dummy preview session before closing the device */
+        /** If legacy HAL, create a no-op preview session before closing the device */
         if ((Build.VERSION.SDK_INT > Build.VERSION_CODES.M) && (params.isLegacy)) {
             closeDeviceWithWorkaround(params)
         } else {
@@ -161,7 +161,7 @@ class Camera2PreviewSessionStateCallback(
     }
 
     /**
-     * Before closing the device, create a dummy preview session to workaround a bug where an
+     * Before closing the device, create a no-op preview session to workaround a bug where an
      * ImageReader can stay active after a device close. For example on Pixel 1 with Android 8.0.0
      * during a SWITCH_CAMERA test.
      */
@@ -181,7 +181,7 @@ class Camera2PreviewSessionStateCallback(
                     override fun onConfigureFailed(session: CameraCaptureSession) {
                         session.close()
                     }
-                    /** Dummy preview session created and closed, now proceed to close camera */
+                    /** No-op preview session created and closed, now proceed to close camera */
                     override fun onClosed(session: CameraCaptureSession) {
                         surfaceTexture.release()
                         params.timer.cameraCloseStart = System.currentTimeMillis()

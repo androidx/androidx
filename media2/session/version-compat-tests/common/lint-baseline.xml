@@ -103,7 +103,7 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static String getMediaIdInDummyList(int index) {"
+        errorLine1="    public static String getMediaIdInFakeList(int index) {"
         errorLine2="                  ~~~~~~">
         <location
             file="src/main/java/androidx/media2/test/common/TestUtils.java"

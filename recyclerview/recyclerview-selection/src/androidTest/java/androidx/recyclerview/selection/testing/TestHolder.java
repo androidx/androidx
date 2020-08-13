@@ -16,12 +16,12 @@
 
 package androidx.recyclerview.selection.testing;
 
-import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 public class TestHolder extends ViewHolder {
-    public TestHolder(View itemView) {
-        super(itemView);
+    public TestHolder(ViewGroup view) {
+        super(view);
     }
 }

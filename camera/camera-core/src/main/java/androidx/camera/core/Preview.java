@@ -29,7 +29,6 @@ import static androidx.camera.core.impl.PreviewConfig.OPTION_SESSION_CONFIG_UNPA
 import static androidx.camera.core.impl.PreviewConfig.OPTION_SUPPORTED_RESOLUTIONS;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_SURFACE_OCCUPANCY_PRIORITY;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_ASPECT_RATIO;
-import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_ASPECT_RATIO_CUSTOM;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_CLASS;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.impl.PreviewConfig.OPTION_TARGET_RESOLUTION;
@@ -44,7 +43,6 @@ import android.media.MediaCodec;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Pair;
-import android.util.Rational;
 import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
@@ -57,6 +55,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
+import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CaptureConfig;
@@ -75,15 +74,11 @@ import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.core.impl.utils.futures.FutureCallback;
-import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.CameraCaptureResultImageInfo;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
-import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Consumer;
-
-import com.google.common.util.concurrent.ListenableFuture;
+import androidx.core.util.Preconditions;
 
 import java.util.List;
 import java.util.UUID;
@@ -148,20 +143,18 @@ public final class Preview extends UseCase {
     private HandlerThread mProcessingPreviewThread;
     @Nullable
     private Handler mProcessingPreviewHandler;
-
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @Nullable
-    SurfaceProvider mSurfaceProvider;
-    @SuppressWarnings("WeakerAccess") /* Synthetic Accessor */
+    private SurfaceProvider mSurfaceProvider;
     @NonNull
-    Executor mSurfaceProviderExecutor = DEFAULT_SURFACE_PROVIDER_EXECUTOR;
-    @Nullable
-    private CallbackToFutureAdapter.Completer<Pair<SurfaceProvider, Executor>>
-            mSurfaceProviderCompleter;
-    @Nullable
-    private Size mLatestResolution;
+    private Executor mSurfaceProviderExecutor = DEFAULT_SURFACE_PROVIDER_EXECUTOR;
 
     private DeferrableSurface mSessionDeferrableSurface;
+
+    // SurfaceRequest created by the pipeline but hasn't been sent because SurfaceProvider is not
+    // set. Null if there is no pending SurfaceRequest.
+    @VisibleForTesting
+    @Nullable
+    SurfaceRequest mPendingSurfaceRequest;
 
     /**
      * Creates a new preview use case from the given configuration.
@@ -186,9 +179,13 @@ public final class Preview extends UseCase {
             mSessionDeferrableSurface.close();
         }
 
-        final SurfaceRequest surfaceRequest = new SurfaceRequest(resolution,
-                getCamera(), getViewPortCropRect());
-        setUpSurfaceProviderWrap(surfaceRequest);
+        final SurfaceRequest surfaceRequest = new SurfaceRequest(resolution, getCamera(),
+                getViewPortCropRect());
+
+        if (!sendSurfaceRequest(surfaceRequest)) {
+            // SurfaceRequest can't be sent. Save and send at a later time.
+            mPendingSurfaceRequest = surfaceRequest;
+        }
 
         if (captureProcessor != null) {
             CaptureStage captureStage = new CaptureStage.DefaultCaptureStage();
@@ -201,6 +198,8 @@ public final class Preview extends UseCase {
                 mProcessingPreviewHandler = new Handler(mProcessingPreviewThread.getLooper());
             }
 
+            String tagBundleKey = Integer.toString(captureStage.hashCode());
+
             ProcessingSurface processingSurface = new ProcessingSurface(
                     resolution.getWidth(),
                     resolution.getHeight(),
@@ -208,13 +207,16 @@ public final class Preview extends UseCase {
                     mProcessingPreviewHandler,
                     captureStage,
                     captureProcessor,
-                    surfaceRequest.getDeferrableSurface());
+                    surfaceRequest.getDeferrableSurface(),
+                    tagBundleKey);
 
             sessionConfigBuilder.addCameraCaptureCallback(
                     processingSurface.getCameraCaptureCallback());
 
             mSessionDeferrableSurface = processingSurface;
-            sessionConfigBuilder.setTag(captureStage.getId());
+
+            // Use CaptureStage object as the key for TagBundle
+            sessionConfigBuilder.addTag(tagBundleKey, captureStage.getId());
         } else {
             final ImageInfoProcessor processor = config.getImageInfoProcessor(null);
 
@@ -234,63 +236,48 @@ public final class Preview extends UseCase {
             mSessionDeferrableSurface = surfaceRequest.getDeferrableSurface();
         }
         sessionConfigBuilder.addSurface(mSessionDeferrableSurface);
-        sessionConfigBuilder.addErrorListener(new SessionConfig.ErrorListener() {
-            @Override
-            public void onError(@NonNull SessionConfig sessionConfig,
-                    @NonNull SessionConfig.SessionError error) {
+        sessionConfigBuilder.addErrorListener((sessionConfig, error) -> {
+            // Ensure the attached camera has not changed before resetting.
+            // TODO(b/143915543): Ensure this never gets called by a camera that is not attached
+            //  to this use case so we don't need to do this check.
+            if (isCurrentCamera(cameraId)) {
+                // Only reset the pipeline when the bound camera is the same.
+                SessionConfig.Builder sessionConfigBuilder1 = createPipeline(cameraId, config,
+                        resolution);
 
-                // Ensure the attached camera has not changed before resetting.
-                // TODO(b/143915543): Ensure this never gets called by a camera that is not attached
-                //  to this use case so we don't need to do this check.
-                if (isCurrentCamera(cameraId)) {
-                    // Only reset the pipeline when the bound camera is the same.
-                    SessionConfig.Builder sessionConfigBuilder = createPipeline(cameraId, config,
-                            resolution);
-
-                    updateSessionConfig(sessionConfigBuilder.build());
-                    notifyReset();
-                }
+                updateSessionConfig(sessionConfigBuilder1.build());
+                notifyReset();
             }
         });
 
         return sessionConfigBuilder;
     }
 
-    private void setUpSurfaceProviderWrap(
-            @NonNull final SurfaceRequest surfaceRequest) {
-        final ListenableFuture<Pair<SurfaceProvider, Executor>> future =
-                CallbackToFutureAdapter.getFuture(completer -> {
-                    if (mSurfaceProviderCompleter != null) {
-                        mSurfaceProviderCompleter.setCancelled();
-                    }
-
-                    mSurfaceProviderCompleter = completer;
-                    if (mSurfaceProvider != null) {
-                        mSurfaceProviderCompleter.set(
-                                new Pair<>(mSurfaceProvider, mSurfaceProviderExecutor));
-                        mSurfaceProviderCompleter = null;
-                    }
-                    return "surface provider and executor future";
-                });
-        Futures.addCallback(future, new FutureCallback<Pair<SurfaceProvider, Executor>>() {
-            @Override
-            public void onSuccess(@Nullable final Pair<SurfaceProvider, Executor> result) {
-                if (result == null) {
-                    return;
-                }
-
-                final SurfaceProvider surfaceProvider = result.first;
-                final Executor executor = result.second;
-                if (surfaceProvider != null && executor != null) {
-                    executor.execute(() -> surfaceProvider.onSurfaceRequested(surfaceRequest));
-                }
-            }
-
-            @Override
-            public void onFailure(Throwable t) {
-                surfaceRequest.getDeferrableSurface().close();
-            }
-        }, CameraXExecutors.directExecutor());
+    /**
+     * Sets the target rotation.
+     *
+     * <p>This adjust the {@link Preview#getTargetRotation()}, which once applied will update the
+     * output to match target rotation specified here.
+     *
+     * <p>While rotation can also be set via {@link Preview.Builder#setTargetRotation(int)}
+     * , using {@link Preview#setTargetRotation(int)} allows the target rotation to be set
+     * without rebinding new use cases. When this function is called, value set by
+     * {@link Preview.Builder#setTargetResolution(Size)} will be updated automatically to
+     * make sure the suitable resolution can be selected when the use case is bound.
+     *
+     * <p>If not set here or by configuration, the target rotation will default to the value of
+     * {@link Display#getRotation()} of the default display at the time the use case is created. The
+     * use case is fully created once it has been attached to a camera.
+     *
+     * @param targetRotation Target rotation of the output image, expressed as one of
+     *                       {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
+     *                       {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
+     * @hide
+     * @see Preview.Builder#setTargetRotation(int)
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void setTargetRotation(@ImageOutputConfig.RotationValue int targetRotation) {
+        setTargetRotationInternal(targetRotation);
     }
 
     /**
@@ -310,34 +297,41 @@ public final class Preview extends UseCase {
             @Nullable SurfaceProvider surfaceProvider) {
         Threads.checkMainThread();
         if (surfaceProvider == null) {
+            // SurfaceProvider is removed. Inactivate the use case.
             mSurfaceProvider = null;
             notifyInactive();
         } else {
             mSurfaceProvider = surfaceProvider;
             mSurfaceProviderExecutor = executor;
             notifyActive();
-            onSurfaceProviderAvailable();
 
-            // This method may be updating the current SurfaceProvider, in which case a
-            // DeferrableSurface will have already been provided to the camera. If that's the
-            // case, it is invalidated.
-            if (mSessionDeferrableSurface != null) {
-                mSessionDeferrableSurface.close();
+            if (mPendingSurfaceRequest != null) {
+                sendSurfaceRequest(mPendingSurfaceRequest);
+                mPendingSurfaceRequest = null;
+            } else {
+                // No pending SurfaceRequest. It could be a previous request has already been
+                // sent, which means the caller wants to replace the Surface. Or, it could be the
+                // pipeline has not started.
+                // Either way, try updating session config and let createPipeline() sends a
+                // new SurfaceRequest.
+                if (getAttachedSurfaceResolution() != null) {
+                    updateConfigAndOutput(getCameraId(), (PreviewConfig) getUseCaseConfig(),
+                            getAttachedSurfaceResolution());
+                    notifyReset();
+                }
             }
-
-            // Notify that the use case needs to be reset since the preview surface will change.
-            notifyReset();
         }
     }
 
-    private void onSurfaceProviderAvailable() {
-        if (mSurfaceProviderCompleter != null) {
-            mSurfaceProviderCompleter.set(new Pair<>(mSurfaceProvider, mSurfaceProviderExecutor));
-            mSurfaceProviderCompleter = null;
-        } else if (mLatestResolution != null) {
-            updateConfigAndOutput(getCameraId(), (PreviewConfig) getUseCaseConfig(),
-                    mLatestResolution);
+    private boolean sendSurfaceRequest(@NonNull SurfaceRequest surfaceRequest) {
+        Preconditions.checkNotNull(surfaceRequest);
+        final SurfaceProvider surfaceProvider = mSurfaceProvider;
+        if (surfaceProvider != null) {
+            mSurfaceProviderExecutor.execute(
+                    () -> surfaceProvider.onSurfaceRequested(surfaceRequest));
+            return true;
         }
+        return false;
     }
 
     /**
@@ -369,7 +363,7 @@ public final class Preview extends UseCase {
      * The rotation is set when constructing an {@link Preview} instance using
      * {@link Preview.Builder#setTargetRotation(int)}. If not set, the target rotation defaults to
      * the value of {@link Display#getRotation()} of the default display at the time the use case
-     * is created.
+     * is created. The use case is fully created once it has been attached to a camera.
      * </p>
      *
      * @return The rotation of the intended target.
@@ -407,6 +401,18 @@ public final class Preview extends UseCase {
      *
      * @hide
      */
+    @NonNull
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder() {
+        return Preview.Builder.fromConfig((PreviewConfig) getUseCaseConfig());
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void clear() {
@@ -420,10 +426,6 @@ public final class Preview extends UseCase {
                 }
             }, CameraXExecutors.directExecutor());
         }
-        if (mSurfaceProviderCompleter != null) {
-            mSurfaceProviderCompleter.setCancelled();
-            mSurfaceProviderCompleter = null;
-        }
     }
 
     /**
@@ -435,6 +437,7 @@ public final class Preview extends UseCase {
     @Override
     public void onDestroy() {
         mSurfaceProvider = null;
+        mPendingSurfaceRequest = null;
     }
 
     /**
@@ -446,12 +449,9 @@ public final class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
-        mLatestResolution = suggestedResolution;
-
         updateConfigAndOutput(getCameraId(), (PreviewConfig) getUseCaseConfig(),
-                mLatestResolution);
-
-        return mLatestResolution;
+                suggestedResolution);
+        return suggestedResolution;
     }
 
     /**
@@ -687,39 +687,6 @@ public final class Preview extends UseCase {
         /**
          * Sets the aspect ratio of the intended target for images from this configuration.
          *
-         * <p>This is the ratio of the target's width to the image's height, where the numerator of
-         * the provided {@link Rational} corresponds to the width, and the denominator corresponds
-         * to the height.
-         *
-         * <p>The target aspect ratio is used as a hint when determining the resulting output aspect
-         * ratio which may differ from the request, possibly due to device constraints.
-         * Application code should check the resulting output's resolution.
-         *
-         * <p>This method can be used to request an aspect ratio that is not from the standard set
-         * of aspect ratios defined in the {@link AspectRatio}.
-         *
-         * <p>This method will remove any value set by setTargetAspectRatio().
-         *
-         * <p>For Preview, the value will be used to calculate the suggested resolution size in
-         * {@link SurfaceRequest#getResolution()}.
-         *
-         * @param aspectRatio A {@link Rational} representing the ratio of the target's width and
-         *                    height.
-         * @return The current Builder.
-         * @hide
-         */
-        @NonNull
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        public Builder setTargetAspectRatioCustom(@NonNull Rational aspectRatio) {
-            getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM, aspectRatio);
-            getMutableConfig().removeOption(OPTION_TARGET_ASPECT_RATIO);
-            return this;
-        }
-
-        /**
-         * Sets the aspect ratio of the intended target for images from this configuration.
-         *
          * <p>The aspect ratio is the ratio of width to height in the sensor orientation.
          *
          * <p>It is not allowed to set both target aspect ratio and target resolution on the same
@@ -727,7 +694,8 @@ public final class Preview extends UseCase {
          *
          * <p>The target aspect ratio is used as a hint when determining the resulting output aspect
          * ratio which may differ from the request, possibly due to device constraints.
-         * Application code should check the resulting output's resolution.
+         * Application code should check the resulting output's resolution and the resulting aspect
+         * ratio may not be exactly as requested.
          *
          * <p>For Preview, the value will be used to calculate the suggested resolution size in
          * {@link SurfaceRequest#getResolution()}.
@@ -762,6 +730,12 @@ public final class Preview extends UseCase {
          *
          * <p>If not set, the target rotation will default to the value of
          * {@link Display#getRotation()} of the default display at the time the use case is created.
+         * The use case is fully created once it has been attached to a camera.
+         *
+         * <p> Note that {@link SurfaceView} does not support non-display rotation. If the target
+         * rotation is different than the value of {@link Display#getRotation()},
+         * {@link SurfaceView} should not be used to provide the {@link Surface} in
+         * {@link SurfaceRequest#provideSurface(Surface, Executor, Consumer)}
          *
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
@@ -810,10 +784,6 @@ public final class Preview extends UseCase {
         public Builder setTargetResolution(@NonNull Size resolution) {
             getMutableConfig()
                     .insertOption(ImageOutputConfig.OPTION_TARGET_RESOLUTION, resolution);
-            if (resolution != null) {
-                getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM,
-                        new Rational(resolution.getWidth(), resolution.getHeight()));
-            }
             return this;
         }
 

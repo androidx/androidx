@@ -20,9 +20,9 @@ dependencies {
 }
 
 androidx {
-    name = "Android Support Palette v7"
+    name = "Android Support Palette"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.PALETTE
     inceptionYear = "2014"
-    description = "Android Support Palette v7"
+    description = "Android Support Palette"
 }

@@ -231,6 +231,8 @@ class FragmentAnimationTest {
             .commit()
         activityRule.executePendingTransactions()
 
+        assertFragmentAnimation(parent, 1, true, ENTER)
+
         val child = AnimationFragment()
         parent.childFragmentManager.beginTransaction()
             .add(R.id.fragmentContainer, child, "child")
@@ -246,8 +248,8 @@ class FragmentAnimationTest {
             .commit()
         activityRule.executePendingTransactions()
 
-        assertFragmentAnimation(parent, 2, false, EXIT)
         assertThat(childContainer.findViewById<View>(childView.id)).isNotNull()
+        assertFragmentAnimation(parent, 2, false, EXIT)
     }
 
     // Ensure grandChild view is not removed before parent view animates out.
@@ -262,6 +264,8 @@ class FragmentAnimationTest {
             .add(R.id.fragmentContainer, parent, "parent")
             .commit()
         activityRule.executePendingTransactions()
+
+        assertFragmentAnimation(parent, 1, true, ENTER)
 
         val child = AnimationFragment(R.layout.simple_container)
         parent.childFragmentManager.beginTransaction()
@@ -287,9 +291,9 @@ class FragmentAnimationTest {
             .commit()
         activityRule.executePendingTransactions()
 
-        assertFragmentAnimation(parent, 2, false, EXIT)
         assertThat(childContainer.findViewById<View>(childView.id)).isNotNull()
         assertThat(grandChildContainer.findViewById<View>(grandChildView.id)).isNotNull()
+        assertFragmentAnimation(parent, 2, false, EXIT)
     }
 
     // Ensure that adding and popping a Fragment uses the enter and popExit animators,

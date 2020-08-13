@@ -16,7 +16,6 @@
 
 package androidx.room.processor
 
-import androidx.room.ext.requireTypeMirror
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.vo.CallType
 import androidx.room.vo.Field
@@ -28,7 +27,6 @@ import org.hamcrest.MatcherAssert.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import javax.lang.model.type.TypeKind.INT
 
 @RunWith(Parameterized::class)
 class EntityNameMatchingVariationsTest(triple: Triple<String, String, String>) :
@@ -64,7 +62,7 @@ class EntityNameMatchingVariationsTest(triple: Triple<String, String, String>) :
             assertThat(entity.type.toString(), `is`("foo.bar.MyEntity"))
             assertThat(entity.fields.size, `is`(1))
             val field = entity.fields.first()
-            val intType = invocation.processingEnv.requireTypeMirror(TypeName.INT)
+            val intType = invocation.processingEnv.requireType(TypeName.INT)
             assertThat(field, `is`(Field(
                     element = field.element,
                     name = fieldName,

@@ -204,6 +204,7 @@ class WindowInsetsCompatActivityTest(
     }
 
     @SdkSuppress(minSdkVersion = 23)
+    @FlakyTest(detail = "IME tests are inherently flaky, but still useful for local testing.")
     @Test
     fun systemBars_rootInsets() {
         // Test do not currently work on Cuttlefish

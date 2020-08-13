@@ -15,6 +15,7 @@
  */
 package androidx.camera.extensions;
 
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
@@ -23,7 +24,6 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -94,6 +94,12 @@ public final class ExtensionsManager {
     @GuardedBy("ERROR_LOCK")
     private static volatile ExtensionsErrorListener sExtensionsErrorListener = null;
 
+    // Singleton instance of the Extensions object
+    private static final Object EXTENSIONS_LOCK = new Object();
+
+    @GuardedBy("EXTENSIONS_LOCK")
+    private static ListenableFuture<ExtensionsAvailability> sAvailabilityFuture;
+
     /**
      * Initialize the extensions asynchronously.
      *
@@ -101,43 +107,49 @@ public final class ExtensionsManager {
      * {@link ListenableFuture} completes before making any other calls to the extensions module.
      */
     @NonNull
-    public static ListenableFuture<ExtensionsAvailability> init() {
-        if (ExtensionVersion.getRuntimeVersion() == null) {
-            return Futures.immediateFuture(ExtensionsAvailability.NONE);
-        }
-
-        if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) < 0) {
-            return Futures.immediateFuture(
-                    ExtensionsAvailability.LIBRARY_AVAILABLE);
-        }
-
-        return CallbackToFutureAdapter.getFuture(completer -> {
-            try {
-                InitializerImpl.init(VersionName.getCurrentVersion().toVersionString(),
-                        CameraX.getContext(),
-                        new InitializerImpl.OnExtensionsInitializedCallback() {
-                            @Override
-                            public void onSuccess() {
-                                Log.d(TAG, "Successfully initialized extensions");
-                                completer.set(
-                                        ExtensionsAvailability.LIBRARY_AVAILABLE);
-                            }
-
-                            @Override
-                            public void onFailure(int error) {
-                                Log.d(TAG, "Failed to initialize extensions");
-                                completer.set(
-                                        ExtensionsAvailability.LIBRARY_UNAVAILABLE_ERROR_LOADING);
-                            }
-                        },
-                        CameraXExecutors.mainThreadExecutor());
-            } catch (NoSuchMethodError | NoClassDefFoundError e) {
-                completer.set(
-                        ExtensionsAvailability.LIBRARY_UNAVAILABLE_MISSING_IMPLEMENTATION);
+    public static ListenableFuture<ExtensionsAvailability> init(@NonNull Context context) {
+        synchronized (EXTENSIONS_LOCK) {
+            if (ExtensionVersion.getRuntimeVersion() == null) {
+                return Futures.immediateFuture(ExtensionsAvailability.NONE);
             }
 
-            return "Initialize extensions";
-        });
+            if (ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) < 0) {
+                return Futures.immediateFuture(
+                        ExtensionsAvailability.LIBRARY_AVAILABLE);
+            }
+
+            if (sAvailabilityFuture == null) {
+                sAvailabilityFuture = CallbackToFutureAdapter.getFuture(completer -> {
+                    try {
+                        InitializerImpl.init(VersionName.getCurrentVersion().toVersionString(),
+                                context,
+                                new InitializerImpl.OnExtensionsInitializedCallback() {
+                                @Override
+                                public void onSuccess() {
+                                    Log.d(TAG, "Successfully initialized extensions");
+                                    completer.set(
+                                        ExtensionsAvailability.LIBRARY_AVAILABLE);
+                                    }
+
+                                @Override
+                                public void onFailure(int error) {
+                                    Log.d(TAG, "Failed to initialize extensions");
+                                    completer.set(
+                                        ExtensionsAvailability.LIBRARY_UNAVAILABLE_ERROR_LOADING);
+                                }
+                                },
+                                CameraXExecutors.mainThreadExecutor());
+                    } catch (NoSuchMethodError | NoClassDefFoundError e) {
+                        completer.set(
+                                ExtensionsAvailability.LIBRARY_UNAVAILABLE_MISSING_IMPLEMENTATION);
+                    }
+
+                    return "Initialize extensions";
+                });
+            }
+
+            return sAvailabilityFuture;
+        }
     }
 
     /**

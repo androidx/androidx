@@ -16,15 +16,13 @@
 
 package androidx.camera.integration.core
 
+import android.Manifest
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.CoreAppTestUtil.clearDeviceUI
 import androidx.test.core.app.ActivityScenario
 import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.action.ViewActions.click
-import androidx.test.espresso.assertion.ViewAssertions
-import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
@@ -40,13 +38,12 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class TakePictureTest {
     @get:Rule
-    var mCameraPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.CAMERA)
-    @get:Rule
-    var mStoragePermissionRule =
-        GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-    @get:Rule
-    var mRecordAudioRule =
-        GrantPermissionRule.grant(android.Manifest.permission.RECORD_AUDIO)
+    val mPermissionRule: GrantPermissionRule =
+        GrantPermissionRule.grant(
+            Manifest.permission.CAMERA,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.RECORD_AUDIO
+        )
 
     @Before
     fun setUp() {
@@ -60,17 +57,10 @@ class TakePictureTest {
     // Take a photo, wait for callback via imageSavedIdlingResource resource.
     @Test
     fun testPictureButton() {
-        ActivityScenario.launch(CameraXActivity::class.java).use {
-            it?.onActivity { activity ->
-                IdlingRegistry.getInstance().register(activity.viewIdlingResource)
-                IdlingRegistry.getInstance().register(activity.imageSavedIdlingResource)
-            }
-            onView(withId(R.id.Picture)).perform(click())
-            onView(withId(R.id.viewFinder))
-            it?.onActivity { activity ->
-                IdlingRegistry.getInstance().unregister(activity.viewIdlingResource)
-                IdlingRegistry.getInstance().unregister(activity.imageSavedIdlingResource)
-                activity.deleteSessionImages()
+        with(ActivityScenario.launch(CameraXActivity::class.java)) {
+            use { // Ensure ActivityScenario is cleaned up properly.
+                waitForViewfinderIdle()
+                takePictureAndWaitForImageSavedIdle()
             }
         }
     }
@@ -79,26 +69,15 @@ class TakePictureTest {
     // onError path.
     @Test
     fun testTakePictureAndRestartWhileCapturing() { // Launch activity check for view idle.
-        ActivityScenario.launch(CameraXActivity::class.java).use {
-            checkForViewIdle(it)
-            onView(withId(R.id.Picture)).perform(click())
-            // Immediately .recreate() this allows the test to reach the onError callback path.
-            // Note, moveToState(DESTROYED) doesn't trigger the same code path.
-            checkForViewIdle(it!!.recreate())
+        with(ActivityScenario.launch(CameraXActivity::class.java)) {
+            use { // Ensure ActivityScenario is cleaned up properly.
+                waitForViewfinderIdle()
+                onView(withId(R.id.Picture)).perform(click())
+                // Immediately .recreate() this allows the test to reach the onError callback path.
+                // Note, moveToState(DESTROYED) doesn't trigger the same code path.
+                it!!.recreate()
+                waitForViewfinderIdle()
+            }
         }
-    }
-
-    private fun checkForViewIdle(activityScenario: ActivityScenario<CameraXActivity>):
-            ActivityScenario<CameraXActivity>? {
-        activityScenario.onActivity { activity ->
-            IdlingRegistry.getInstance().register(activity.viewIdlingResource)
-        }
-        // Check the activity launched and Preview displays frames.
-        onView(withId(R.id.viewFinder))
-            .check(ViewAssertions.matches(ViewMatchers.isDisplayed()))
-        activityScenario.onActivity { activity ->
-            IdlingRegistry.getInstance().unregister(activity.viewIdlingResource)
-        }
-        return activityScenario
     }
 }

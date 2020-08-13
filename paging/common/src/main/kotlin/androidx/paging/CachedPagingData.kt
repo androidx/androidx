@@ -66,6 +66,11 @@ private class MulticastedPagingData<T : Any>(
  * upon configuration change (e.g. rotation), then new Activity will receive the existing data
  * immediately rather than fetching it from scratch.
  *
+ * Calling [cachedIn] is required to allow calling
+ * [submitData][androidx.paging.AsyncPagingDataAdapter] on the same instance of [PagingData]
+ * emitted by [Pager] or any of its transformed derivatives, as reloading data from scratch on the
+ * same generation of [PagingData] is an unsupported operation.
+ *
  * Note that this does not turn the `Flow<PagingData>` into a hot stream. It won't execute any
  * unnecessary code unless it is being collected.
  *

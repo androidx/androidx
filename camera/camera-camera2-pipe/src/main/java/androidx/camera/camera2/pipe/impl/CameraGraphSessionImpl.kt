@@ -19,17 +19,24 @@ package androidx.camera.camera2.pipe.impl
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.Request
 
-class CameraGraphSessionImpl(private val token: TokenLock.Token) : CameraGraph.Session {
+class CameraGraphSessionImpl(
+    private val token: TokenLock.Token,
+    private val graphProcessor: GraphProcessor
+) : CameraGraph.Session {
     override fun submit(request: Request) {
-        TODO("not implemented")
+        graphProcessor.submit(request)
     }
 
     override fun submit(requests: List<Request>) {
-        TODO("not implemented")
+        graphProcessor.submit(requests)
     }
 
     override fun setRepeating(request: Request) {
-        TODO("not implemented")
+        graphProcessor.setRepeating(request)
+    }
+
+    override fun abort() {
+        graphProcessor.abort()
     }
 
     override fun close() {

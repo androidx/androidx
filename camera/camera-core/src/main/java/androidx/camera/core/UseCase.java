@@ -21,7 +21,9 @@ import android.media.ImageReader;
 import android.util.Size;
 import android.view.Surface;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.GuardedBy;
+import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
@@ -33,6 +35,7 @@ import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.internal.utils.UseCaseConfigUtil;
 import androidx.core.util.Preconditions;
 
 import java.util.Collections;
@@ -157,13 +160,13 @@ public abstract class UseCase {
 
         MutableConfig defaultMutableConfig = defaultConfigBuilder.getMutableConfig();
 
-        // If OPTION_TARGET_ASPECT_RATIO has been set by the user, remove
-        // OPTION_TARGET_ASPECT_RATIO_CUSTOM from defaultConfigBuilder. Otherwise, it may cause
-        // aspect ratio mismatched issue.
-        if (userConfig.containsOption(ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)
+        // If OPTION_TARGET_RESOLUTION has been set by the user, remove
+        // OPTION_TARGET_ASPECT_RATIO from defaultConfigBuilder because these two settings can be
+        // set at the same time.
+        if (userConfig.containsOption(ImageOutputConfig.OPTION_TARGET_RESOLUTION)
                 && defaultMutableConfig.containsOption(
-                ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO_CUSTOM)) {
-            defaultMutableConfig.removeOption(ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO_CUSTOM);
+                ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)) {
+            defaultMutableConfig.removeOption(ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO);
         }
 
         // If any options need special handling, this is the place to do it. For now we'll just copy
@@ -177,6 +180,41 @@ public abstract class UseCase {
         }
 
         return defaultConfigBuilder.getUseCaseConfig();
+    }
+
+    /**
+     * Updates the target rotation of the use case config.
+     *
+     * @param targetRotation Target rotation of the output image, expressed as one of
+     *                       {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
+     *                       {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
+     * @return true if the target rotation was changed.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    protected boolean setTargetRotationInternal(
+            @ImageOutputConfig.RotationValue int targetRotation) {
+        ImageOutputConfig oldConfig = (ImageOutputConfig) getUseCaseConfig();
+        int oldRotation = oldConfig.getTargetRotation(ImageOutputConfig.INVALID_ROTATION);
+        if (oldRotation == ImageOutputConfig.INVALID_ROTATION || oldRotation != targetRotation) {
+            UseCaseConfig.Builder<?, ?, ?> builder = getUseCaseConfigBuilder();
+            UseCaseConfigUtil.updateTargetRotationAndRelatedConfigs(builder, targetRotation);
+            updateUseCaseConfig(builder.getUseCaseConfig());
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Gets the relative rotation degrees based on the target rotation.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @IntRange(from = 0, to = 359)
+    protected int getRelativeRotation(@NonNull CameraInternal cameraInternal) {
+        return cameraInternal.getCameraInfoInternal().getSensorRotationDegrees(
+                ((ImageOutputConfig) getUseCaseConfig()).getTargetRotation(Surface.ROTATION_0));
     }
 
     /**
@@ -359,6 +397,15 @@ public abstract class UseCase {
     }
 
     /**
+     * Returns a builder based on the current use case config.
+     *
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public abstract UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder();
+
+    /**
      * Returns the currently attached {@link Camera} or {@code null} if none is attached.
      *
      * @hide
@@ -438,7 +485,6 @@ public abstract class UseCase {
         if (eventCallback != null) {
             eventCallback.onBind(camera.getCameraInfoInternal().getCameraId());
         }
-        onCameraControlReady();
     }
 
     /**
@@ -471,7 +517,9 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
+    @CallSuper
     public void onStateAttached() {
+        onCameraControlReady();
     }
 
     /**

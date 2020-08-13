@@ -23,6 +23,7 @@ import android.media.Image;
 import android.media.ImageWriter;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Pair;
 import android.util.Size;
 import android.view.Surface;
 
@@ -35,6 +36,7 @@ import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageProxyBundle;
 import androidx.camera.core.impl.ImageReaderProxy;
 import androidx.camera.core.impl.ImmediateSurface;
+import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.testing.fakes.FakeCameraCaptureResult;
@@ -133,6 +135,14 @@ public final class ProcessingSurfaceTest {
             InterruptedException {
         // Arrange.
         final Semaphore frameReceivedSemaphore = new Semaphore(0);
+        ImageReaderProxy imageReaderProxy =
+                ImageReaderProxys.createIsolatedReader(
+                        RESOLUTION.getWidth(), RESOLUTION.getHeight(),
+                        ImageFormat.YUV_420_888, 2);
+
+        imageReaderProxy.setOnImageAvailableListener(
+                (imageReader) -> frameReceivedSemaphore.release(),
+                CameraXExecutors.directExecutor());
 
         // Create ProcessingSurface with user Surface.
         ProcessingSurface processingSurface = createProcessingSurface(
@@ -140,19 +150,6 @@ public final class ProcessingSurfaceTest {
                     @NonNull
                     @Override
                     protected ListenableFuture<Surface> provideSurface() {
-                        ImageReaderProxy imageReaderProxy =
-                                ImageReaderProxys.createIsolatedReader(
-                                        RESOLUTION.getWidth(), RESOLUTION.getHeight(),
-                                        ImageFormat.YUV_420_888, 2);
-
-                        imageReaderProxy.setOnImageAvailableListener(
-                                new ImageReaderProxy.OnImageAvailableListener() {
-                                    @Override
-                                    public void onImageAvailable(
-                                            @NonNull ImageReaderProxy imageReader) {
-                                        frameReceivedSemaphore.release();
-                                    }
-                                }, CameraXExecutors.directExecutor());
                         return Futures.immediateFuture(imageReaderProxy.getSurface());
                     }
                 });
@@ -211,9 +208,9 @@ public final class ProcessingSurfaceTest {
 
         FakeCameraCaptureResult cameraCaptureResult = new FakeCameraCaptureResult();
         cameraCaptureResult.setTimestamp(timestamp);
-        cameraCaptureResult.setTag(mCaptureStage.getId());
+        cameraCaptureResult.setTag(TagBundle.create(
+                new Pair<>(Integer.toString(mCaptureStage.hashCode()), mCaptureStage.getId())));
         callback.onCaptureCompleted(cameraCaptureResult);
-
     }
 
     private ProcessingSurface createProcessingSurface(
@@ -225,7 +222,7 @@ public final class ProcessingSurfaceTest {
                 mBackgroundHandler,
                 mCaptureStage,
                 mCaptureProcessor,
-                deferrableSurface);
+                deferrableSurface, Integer.toString(mCaptureStage.hashCode()));
         mProcessingSurfaces.add(processingSurface);
         return processingSurface;
     }

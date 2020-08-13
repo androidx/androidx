@@ -45,5 +45,4 @@ androidx {
     mavenGroup = LibraryGroups.TRACING
     inceptionYear = "2020"
     description = "Android Tracing"
-    url = AndroidXExtension.ARCHITECTURE_URL
 }

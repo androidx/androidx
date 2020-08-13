@@ -48,6 +48,7 @@ class MetaInfTransformer internal constructor(
             "androidx.navigation_navigation-dynamic-features-fragment.version",
             "androidx.navigation_navigation-dynamic-features-runtime.version",
             "androidx.navigation_navigation-testing.version",
+            "androidx.paging_paging-rxjava3.version",
             "androidx.savedstate_savedstate-ktx.version"
         )
     }

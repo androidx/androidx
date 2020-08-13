@@ -2,23 +2,24 @@
 package androidx.ui.tooling {
 
   public final class CallGroup extends androidx.ui.tooling.Group {
-    ctor public CallGroup(Object? key, androidx.ui.unit.IntBounds box, androidx.ui.tooling.SourceLocation? location, java.util.List<androidx.ui.tooling.ParameterInformation> parameters, java.util.Collection<?> data, java.util.Collection<? extends androidx.ui.tooling.Group> children);
+    ctor public CallGroup(Object? key, String? name, androidx.compose.ui.unit.IntBounds box, androidx.ui.tooling.SourceLocation? location, java.util.List<androidx.ui.tooling.ParameterInformation> parameters, java.util.Collection<?> data, java.util.Collection<? extends androidx.ui.tooling.Group> children);
   }
 
   public abstract sealed class Group {
-    method public final androidx.ui.unit.IntBounds getBox();
+    method public final androidx.compose.ui.unit.IntBounds getBox();
     method public final java.util.Collection<androidx.ui.tooling.Group> getChildren();
     method public final java.util.Collection<java.lang.Object> getData();
     method public final Object? getKey();
     method public final androidx.ui.tooling.SourceLocation? getLocation();
-    method public java.util.List<androidx.ui.core.ModifierInfo> getModifierInfo();
+    method public java.util.List<androidx.compose.ui.node.ModifierInfo> getModifierInfo();
+    method public final String? getName();
     method public java.util.List<androidx.ui.tooling.ParameterInformation> getParameters();
-    property public java.util.List<androidx.ui.core.ModifierInfo> modifierInfo;
+    property public java.util.List<androidx.compose.ui.node.ModifierInfo> modifierInfo;
     property public java.util.List<androidx.ui.tooling.ParameterInformation> parameters;
   }
 
   public final class InspectableKt {
-    method @androidx.compose.Composable public static void InInspectionModeOnly(kotlin.jvm.functions.Function0<kotlin.Unit> children);
+    method @androidx.compose.runtime.Composable public static void InInspectionModeOnly(kotlin.jvm.functions.Function0<kotlin.Unit> children);
   }
 
   public final class JoinedKey {
@@ -31,40 +32,44 @@ package androidx.ui.tooling {
   }
 
   public final class NodeGroup extends androidx.ui.tooling.Group {
-    ctor public NodeGroup(Object? key, Object node, androidx.ui.unit.IntBounds box, java.util.Collection<?> data, java.util.List<androidx.ui.core.ModifierInfo> modifierInfo, java.util.Collection<? extends androidx.ui.tooling.Group> children);
+    ctor public NodeGroup(Object? key, Object node, androidx.compose.ui.unit.IntBounds box, java.util.Collection<?> data, java.util.List<androidx.compose.ui.node.ModifierInfo> modifierInfo, java.util.Collection<? extends androidx.ui.tooling.Group> children);
     method public Object getNode();
   }
 
   public final class ParameterInformation {
-    ctor public ParameterInformation(String name, Object? value, boolean fromDefault, boolean p, boolean compared);
+    ctor public ParameterInformation(String name, Object? value, boolean fromDefault, boolean p, boolean compared, String? inlineClass);
     method public String component1();
     method public Object? component2();
     method public boolean component3();
     method public boolean component4();
     method public boolean component5();
-    method public androidx.ui.tooling.ParameterInformation copy(String name, Object? value, boolean fromDefault, boolean p, boolean compared);
+    method public String? component6();
+    method public androidx.ui.tooling.ParameterInformation copy(String name, Object? value, boolean fromDefault, boolean p, boolean compared, String? inlineClass);
     method public boolean getCompared();
     method public boolean getFromDefault();
+    method public String? getInlineClass();
     method public String getName();
     method public boolean getStatic();
     method public Object? getValue();
   }
 
   public final class SlotTreeKt {
-    method public static androidx.ui.tooling.Group asTree(androidx.compose.SlotTable);
+    method public static androidx.ui.tooling.Group asTree(androidx.compose.runtime.SlotTable);
     method public static String? getPosition(androidx.ui.tooling.Group);
   }
 
   public final class SourceLocation {
-    ctor public SourceLocation(int lineNumber, int offset, int length, String? sourceFile);
+    ctor public SourceLocation(int lineNumber, int offset, int length, String? sourceFile, int packageHash);
     method public int component1();
     method public int component2();
     method public int component3();
     method public String? component4();
-    method public androidx.ui.tooling.SourceLocation copy(int lineNumber, int offset, int length, String? sourceFile);
+    method public int component5();
+    method public androidx.ui.tooling.SourceLocation copy(int lineNumber, int offset, int length, String? sourceFile, int packageHash);
     method public int getLength();
     method public int getLineNumber();
     method public int getOffset();
+    method public int getPackageHash();
     method public String? getSourceFile();
   }
 
@@ -75,12 +80,14 @@ package androidx.ui.tooling.inspector {
   public final class InspectorNode {
     method public java.util.List<androidx.ui.tooling.inspector.InspectorNode> getChildren();
     method public String getFileName();
-    method public String getFunctionName();
     method public int getHeight();
     method public long getId();
     method public int getLeft();
+    method public int getLength();
     method public int getLineNumber();
     method public String getName();
+    method public int getOffset();
+    method public int getPackageHash();
     method public java.util.List<androidx.ui.tooling.inspector.NodeParameter> getParameters();
     method public int getTop();
     method public int getWidth();

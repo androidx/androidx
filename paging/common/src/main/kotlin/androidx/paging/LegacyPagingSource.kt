@@ -85,4 +85,7 @@ internal class LegacyPagingSource<Key : Any, Value : Any>(
                 ?.let { item -> dataSource.getKeyInternal(item) }
         }
     }
+
+    override val jumpingSupported: Boolean
+        get() = dataSource.type == POSITIONAL
 }

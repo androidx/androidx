@@ -47,6 +47,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     private MutableLiveData<Integer> mTorchState = new MutableLiveData<>(TorchState.OFF);
 
     private final MutableLiveData<ZoomState> mZoomLiveData;
+    private String mImplementationType = IMPLEMENTATION_TYPE_FAKE;
 
     public FakeCameraInfoInternal() {
         this(/*sensorRotation=*/ 0, /*lensFacing=*/ CameraSelector.LENS_FACING_BACK);
@@ -119,7 +120,7 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     @NonNull
     @Override
     public String getImplementationType() {
-        return IMPLEMENTATION_TYPE_FAKE;
+        return mImplementationType;
     }
 
     @Override
@@ -131,5 +132,12 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     @Override
     public void removeSessionCaptureCallback(@NonNull CameraCaptureCallback callback) {
         throw new UnsupportedOperationException("Not Implemented");
+    }
+
+    /**
+     * Set the implementation type for testing
+     */
+    public void setImplementationType(@NonNull @ImplementationType String implementationType) {
+        mImplementationType = implementationType;
     }
 }

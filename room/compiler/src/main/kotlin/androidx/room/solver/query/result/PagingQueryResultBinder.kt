@@ -51,7 +51,7 @@ abstract class PagingQueryResultBinder(
                     superclass(
                         ParameterizedTypeName.get(
                             PagingTypeNames.DATA_SOURCE_FACTORY,
-                            Integer::class.typeName(),
+                            Integer::class.typeName,
                             typeName
                         )
                     )

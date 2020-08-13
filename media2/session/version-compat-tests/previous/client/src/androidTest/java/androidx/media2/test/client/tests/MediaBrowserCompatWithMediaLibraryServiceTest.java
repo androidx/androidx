@@ -189,7 +189,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
 
                 // Compare the given results with originals.
                 for (int i = 0; i < children.size(); i++) {
-                    assertEquals(TestUtils.getMediaIdInDummyList(i), children.get(i).getMediaId());
+                    assertEquals(TestUtils.getMediaIdInFakeList(i), children.get(i).getMediaId());
                 }
                 latch.countDown();
             }
@@ -347,7 +347,7 @@ public class MediaBrowserCompatWithMediaLibraryServiceTest extends
                 assertNotNull(items);
                 assertTrue(items.size() < LONG_LIST_COUNT);
                 for (int i = 0; i < items.size(); i++) {
-                    assertEquals(TestUtils.getMediaIdInDummyList(i), items.get(i).getMediaId());
+                    assertEquals(TestUtils.getMediaIdInFakeList(i), items.get(i).getMediaId());
                 }
                 latch.countDown();
             }

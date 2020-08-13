@@ -163,15 +163,20 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
         // Skip tests where manual dragging is disabled
         assumeThat(config.enableUserInput, equalTo(true))
 
-        // start manual drag
-        val latch = test.viewPager.addWaitForStateLatch(DRAGGING)
-        // Perform manual swipe in separate thread, because the SwipeMethod.MANUAL blocks while
-        // injecting events, and we need to interrupt it
-        newSingleThreadExecutor().execute { test.swipeForward(SwipeMethod.MANUAL) }
-        assertThat(latch.await(1, SECONDS), equalTo(true))
+        val pageSwiper = PageSwiperManual(test.viewPager)
+        try {
+            // start manual drag
+            val latch = test.viewPager.addWaitForStateLatch(DRAGGING)
+            // Perform manual swipe in separate thread, because PageSwiperManual
+            // blocks while injecting events, and we need to interrupt it
+            newSingleThreadExecutor().execute { pageSwiper.swipeNext() }
+            assertThat(latch.await(1, SECONDS), equalTo(true))
 
-        // start fake drag
-        assertThat(test.viewPager.beginFakeDrag(), equalTo(false))
+            // start fake drag
+            assertThat(test.viewPager.beginFakeDrag(), equalTo(false))
+        } finally {
+            pageSwiper.cancel()
+        }
     }
 
     @Test
@@ -365,7 +370,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
             assertThat(test.viewPager.isFakeDragging, equalTo(false))
             assertThat(fakeDragger.isInterrupted, equalTo(false))
             recorder.apply {
-                scrollEvents.assertValueSanity(
+                scrollEvents.assertValueCorrectness(
                     initialPage,
                     min(pageCount - 1, expectedFinalPageWithOffset + 1 /* for peeking */),
                     test.viewPager.pageSize
@@ -438,7 +443,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
             assertThat(test.viewPager.isFakeDragging, equalTo(false))
             assertThat(fakeDragger.isInterrupted, equalTo(false))
             recorder.apply {
-                scrollEvents.assertValueSanity(initialPage, expectedFinalPage,
+                scrollEvents.assertValueCorrectness(initialPage, expectedFinalPage,
                     test.viewPager.pageSize)
                 assertFirstEvents(SETTLING)
                 assertLastEvents(expectedFinalPage)
@@ -525,7 +530,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
                 // test assertions
                 test.assertBasicState(expectedFinalPage)
                 recorder.apply {
-                    scrollEvents.assertValueSanity(initialPage,
+                    scrollEvents.assertValueCorrectness(initialPage,
                         expectedFinalPage + referencePageOffset, test.viewPager.pageSize)
                     assertFirstEvents(DRAGGING)
                     assertLastEvents(expectedFinalPage)
@@ -673,7 +678,7 @@ class FakeDragTest(private val config: TestConfig) : BaseTest() {
         )
     }
 
-    private fun List<OnPageScrolledEvent>.assertValueSanity(
+    private fun List<OnPageScrolledEvent>.assertValueCorrectness(
         initialPage: Int,
         otherPage: Int,
         pageSize: Int

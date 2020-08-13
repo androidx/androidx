@@ -275,7 +275,7 @@ public class TransitionTest extends BaseTest {
     public void testExcludedTransitionAnimator() throws Throwable {
         showInitialScene();
         final Animator.AnimatorListener animatorListener = mock(Animator.AnimatorListener.class);
-        final DummyTransition transition = new DummyTransition(animatorListener);
+        final TranslationXTransition transition = new TranslationXTransition(animatorListener);
         final SyncTransitionListener transitionListener = new SyncTransitionListener(
                 SyncTransitionListener.EVENT_END);
         transition.addListener(transitionListener);
@@ -330,7 +330,7 @@ public class TransitionTest extends BaseTest {
     public void testPropagationApplied() throws Throwable {
         showInitialScene();
         final Animator[] animators = new Animator[3];
-        final Transition transition = new DummyTransition(null) {
+        final Transition transition = new TranslationXTransition(null) {
 
             @Override
             public Animator createAnimator(@NonNull ViewGroup sceneRoot,
@@ -368,7 +368,7 @@ public class TransitionTest extends BaseTest {
         final EmptyTransition transition = new EmptyTransition();
         assertThat(transition.isTransitionRequired(null, null), is(false));
         final TransitionValues start = new TransitionValues(fakeView);
-        final String propname = "android:transition:dummy";
+        final String propname = "android:transition:placeholder";
         start.values.put(propname, 1);
         final TransitionValues end = new TransitionValues(fakeView);
         end.values.put(propname, 1);
@@ -444,13 +444,15 @@ public class TransitionTest extends BaseTest {
     }
 
     /**
-     * A dummy transition for monitoring use of its animator by the Transition framework.
+     * A transition that changes the <code>translationX</code> property via an
+     * {@link ObjectAnimator}, suitable for monitoring use of its animator
+     * by the Transition framework.
      */
-    private static class DummyTransition extends Transition {
+    private static class TranslationXTransition extends Transition {
 
         private final Animator.AnimatorListener mListener;
 
-        DummyTransition(Animator.AnimatorListener listener) {
+        TranslationXTransition(Animator.AnimatorListener listener) {
             mListener = listener;
         }
 

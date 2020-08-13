@@ -38,45 +38,34 @@ public final class DeviceState {
     public static final int POSTURE_UNKNOWN = 0;
 
     /**
-     * The foldable device is closed, its primary screen area is not accessible.
+     * The foldable device is closed, its primary screen area is not accessible. See the
+     * <a href="https://developer.android.com/guide/topics/ui/foldables#postures">Posture</a>
+     * section in the official documentation for visual samples and references.
      */
     public static final int POSTURE_CLOSED = 1;
 
     /**
      * The foldable device's hinge is in an intermediate position between opened and closed state,
      * there is a non-flat angle between parts of the flexible screen or between physical screen
-     * panels.
-     * <pre>
-     * {@code
-     * |
-     * |
-     * |
-     * |
-     * *____________
-     * }
-     * </pre>
+     * panels. See the
+     * <a href="https://developer.android.com/guide/topics/ui/foldables#postures">Posture</a>
+     * section in the official documentation for visual samples and references.
      */
     public static final int POSTURE_HALF_OPENED = 2;
 
     /**
      * The foldable device is completely open, the screen space that is presented to the user is
-     * flat.
-     * <pre>
-     * {@code _____________ __________________
-     *                     *
-     * }</pre>
+     * flat. See the
+     * <a href="https://developer.android.com/guide/topics/ui/foldables#postures">Posture</a>
+     * section in the official documentation for visual samples and references.
      */
     public static final int POSTURE_OPENED = 3;
 
     /**
      * The foldable device is flipped with the flexible screen parts or physical screens facing
-     * opposite directions.
-     * <pre>
-     * {@code
-     *   ________________
-     *  *________________
-     *  }
-     * </pre>
+     * opposite directions. See the
+     * <a href="https://developer.android.com/guide/topics/ui/foldables#postures">Posture</a>
+     * section in the official documentation for visual samples and references.
      */
     public static final int POSTURE_FLIPPED = 4;
 

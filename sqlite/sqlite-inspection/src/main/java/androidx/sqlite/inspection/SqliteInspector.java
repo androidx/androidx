@@ -19,7 +19,6 @@ package androidx.sqlite.inspection;
 import static android.database.DatabaseUtils.getSqlStatementType;
 
 import static androidx.sqlite.inspection.DatabaseExtensions.isAttemptAtUsingClosedDatabase;
-import static androidx.sqlite.inspection.SqliteInspectionExecutors.directExecutor;
 import static androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent.ErrorCode.ERROR_DB_CLOSED_DURING_OPERATION;
 import static androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent.ErrorCode.ERROR_ISSUE_WITH_PROCESSING_NEW_DATABASE_CONNECTION;
 import static androidx.sqlite.inspection.SqliteInspectorProtocol.ErrorContent.ErrorCode.ERROR_ISSUE_WITH_PROCESSING_QUERY;
@@ -87,8 +86,6 @@ import java.util.Set;
 import java.util.WeakHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Inspector to work with SQLite databases
@@ -171,7 +168,7 @@ final class SqliteInspector extends Inspector {
     private final DatabaseRegistry mDatabaseRegistry;
     private final InspectorEnvironment mEnvironment;
     private final Executor mIOExecutor;
-    private final ScheduledExecutorService mScheduledExecutor;
+
     /**
      * Utility instance that handles communication with Room's InvalidationTracker instances.
      */
@@ -180,12 +177,10 @@ final class SqliteInspector extends Inspector {
     @NonNull
     private final SqlDelightInvalidation mSqlDelightInvalidation;
 
-    SqliteInspector(@NonNull Connection connection, InspectorEnvironment environment,
-            Executor ioExecutor, ScheduledExecutorService scheduledExecutor) {
+    SqliteInspector(@NonNull Connection connection, @NonNull InspectorEnvironment environment) {
         super(connection);
         mEnvironment = environment;
-        mIOExecutor = ioExecutor;
-        mScheduledExecutor = scheduledExecutor;
+        mIOExecutor = environment.executors().io();
         mRoomInvalidationRegistry = new RoomInvalidationRegistry(mEnvironment);
         mSqlDelightInvalidation = SqlDelightInvalidation.create(mEnvironment);
 
@@ -349,12 +344,12 @@ final class SqliteInspector extends Inspector {
                     @Override
                     @SuppressWarnings("FutureReturnValueIgnored") // TODO: handle errors from Future
                     public void schedule(final Runnable command, final long delayMs) {
-                        mScheduledExecutor.schedule(new Runnable() {
+                        mEnvironment.executors().handler().postDelayed(new Runnable() {
                             @Override
                             public void run() {
                                 mIOExecutor.execute(command);
                             }
-                        }, delayMs, TimeUnit.MILLISECONDS);
+                        }, delayMs);
                     }
                 };
         final RequestCollapsingThrottler throttler = new RequestCollapsingThrottler(
@@ -553,7 +548,7 @@ final class SqliteInspector extends Inspector {
                 }
             }
         });
-        callback.addCancellationListener(directExecutor(), new Runnable() {
+        callback.addCancellationListener(mEnvironment.executors().primary(), new Runnable() {
             @Override
             public void run() {
                 cancellationSignal.cancel();

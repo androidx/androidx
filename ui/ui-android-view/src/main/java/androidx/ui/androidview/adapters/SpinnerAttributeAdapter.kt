@@ -20,7 +20,7 @@ package androidx.ui.androidview.adapters
 
 import android.widget.AbsSpinner
 import android.widget.Spinner
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 
 private val AbsSpinner.composeAdapter: ArrayAdapter<Any>
     get() {

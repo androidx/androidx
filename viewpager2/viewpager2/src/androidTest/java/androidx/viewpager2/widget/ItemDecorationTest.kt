@@ -63,7 +63,7 @@ class ItemDecorationTest : BaseTest() {
         setUpTest(orientation).run {
             setAdapterSync(adapterProvider.provider(stringSequence(3)))
 
-            // sanity checks
+            // quick checks
             assertBasicState(0)
             assertThat(viewPager.itemDecorationCount, equalTo(0))
 

@@ -19,6 +19,7 @@ package androidx.recyclerview.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.core.util.Preconditions.checkArgument;
 import static androidx.core.view.ViewCompat.TYPE_NON_TOUCH;
 import static androidx.core.view.ViewCompat.TYPE_TOUCH;
 
@@ -423,7 +424,10 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
     Adapter mAdapter;
     @VisibleForTesting
     LayoutManager mLayout;
+    // TODO: Remove this once setRecyclerListener has been removed.
     RecyclerListener mRecyclerListener;
+    // default access to avoid the need for synthetic accessors for Recycler inner class.
+    final List<RecyclerListener> mRecyclerListeners = new ArrayList<>();
     final ArrayList<ItemDecoration> mItemDecorations = new ArrayList<>();
     private final ArrayList<OnItemTouchListener> mOnItemTouchListeners =
             new ArrayList<>();
@@ -1265,9 +1269,37 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
      * or free those resources.</p>
      *
      * @param listener Listener to register, or null to clear
+     * @deprecated Use {@link #addRecyclerListener(RecyclerListener)} and
+     *     {@link #removeRecyclerListener(RecyclerListener)}
      */
+    @Deprecated
     public void setRecyclerListener(@Nullable RecyclerListener listener) {
         mRecyclerListener = listener;
+    }
+
+    /**
+     * Register a listener that will be notified whenever a child view is recycled.
+     *
+     * <p>The listeners will be called when a LayoutManager or the RecyclerView decides
+     * that a child view is no longer needed. If an application associates data with
+     * the item views being recycled, this may be a good place to release
+     * or free those resources.</p>
+     *
+     * @param listener Listener to register.
+     */
+    public void addRecyclerListener(@NonNull RecyclerListener listener) {
+        checkArgument(listener != null, "'listener' arg cannot "
+                + "be null.");
+        mRecyclerListeners.add(listener);
+    }
+
+    /**
+     * Removes the provided listener from RecyclerListener list.
+     *
+     * @param listener Listener to unregister.
+     */
+    public void removeRecyclerListener(@NonNull RecyclerListener listener) {
+        mRecyclerListeners.remove(listener);
     }
 
     /**
@@ -5249,10 +5281,7 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
             return lp.mDecorInsets;
         }
 
-        final boolean positionWillChange =
-                (lp.mViewHolder.getLayoutPosition() != lp.mViewHolder.getAbsoluteAdapterPosition());
-        if (mState.isPreLayout()
-                && (lp.isItemChanged() || lp.isViewInvalid() || positionWillChange)) {
+        if (mState.isPreLayout() && (lp.isItemChanged() || lp.isViewInvalid())) {
             // changed/invalid items should not be updated until they are rebound.
             return lp.mDecorInsets;
         }
@@ -6925,8 +6954,14 @@ public class RecyclerView extends ViewGroup implements ScrollingView,
 
         @SuppressWarnings("unchecked")
         void dispatchViewRecycled(@NonNull ViewHolder holder) {
+            // TODO: Remove this once setRecyclerListener (currently deprecated) is deleted.
             if (mRecyclerListener != null) {
                 mRecyclerListener.onViewRecycled(holder);
+            }
+
+            final int listenerCount = mRecyclerListeners.size();
+            for (int i = 0; i < listenerCount; i++) {
+                mRecyclerListeners.get(i).onViewRecycled(holder);
             }
             if (mAdapter != null) {
                 mAdapter.onViewRecycled(holder);

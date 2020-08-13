@@ -3,7 +3,7 @@
 Jetpack Compose is a suite of libraries within the AndroidX ecosystem. For more information, see our [project page](https://developer.android.com/jetpackcompose)
 
 ## Syntax
-Jetpack Compose uses composable functions instead of XML layouts to define UI components. You can see this in action in the demos, like `androidx.ui.material.demos.ButtonDemo.kt`. More information can be found in the [compiler README](https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/compose/README.md).
+Jetpack Compose uses composable functions instead of XML layouts to define UI components. You can see this in action in the demos, like `androidx.compose.material.demos.ButtonDemo.kt`. More information can be found in the [compiler README](https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/compose/README.md).
 
 You may notice some parts of the codebase use an XML-like syntax. This was an exploration done early on in the project, and we have since decided to move away from it. Usages of this syntax will eventually be converted to use the standard kotlin DSL instead.
 
@@ -32,43 +32,6 @@ A sample implementation of the [Material Rally app](https://material.io/design/m
 
 ## Structure
 Library code for Jetpack Compose lives under the `frameworks/support/ui` directory. Additionally, sample code can be found within each module in the `integration-tests` subdirectories and the compiler and runtime code can be found in `frameworks/support/compose`.
-
-The modules within UI are structured as follows:
-* `ui-android-view/`
-
-   Wrappers and adapters for existing Android Views
-* `ui-animation/`
-
-   Animation components
-* `ui-animation-core/`
-
-   Internal declarations for the animations system
-* `ui-core/`
-
-   Classes and components used across the system for layout, drawing, root
-   views, etc.
-
-* `integration-tests/demos/`
-
-   Module that collects all demos across ui and packages them into one demo APK
-* `ui-layout/`
-
-   Basic layout components
-* `ui-material/`
-
-   Set of UI components built according to the Material spec
-* `ui-test/`
-
-   Testing framework
-* `ui-text/`
-
-   Base Text composables
-* `ui-text-core/`
-
-   Text engine that contains base text components
-* `ui-text-android/`
-
-   Android specific text stack dependent implementations
 
 ## Feedback
 To provide feedback or report bugs, please refer to the main [AndroidX contribution guide](https://android.googlesource.com/platform/frameworks/support/+/androidx-master-dev/README.md) and report your bugs [here](https://issuetracker.google.com/issues/new?component=612128)

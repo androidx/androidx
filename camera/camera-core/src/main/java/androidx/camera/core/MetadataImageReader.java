@@ -228,7 +228,7 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
         }
     }
 
-    @NonNull
+    @Nullable
     @Override
     public Surface getSurface() {
         synchronized (mLock) {

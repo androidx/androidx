@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.location.Location;
 import android.os.Build;
+import android.os.SystemClock;
 
 import androidx.test.filters.SmallTest;
 
@@ -34,6 +35,7 @@ import org.robolectric.shadows.ShadowSystemClock;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.time.Duration;
 
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
@@ -156,13 +158,12 @@ public class ExifTest {
 
     @Test
     public void attachedTimestampUsesSystemWallTime() {
-        long beforeTimestamp = System.currentTimeMillis();
+        long beforeTimestamp = SystemClock.uptimeMillis();
+        ShadowSystemClock.advanceBy(Duration.ofMillis(100));
 
-        // The Exif class is instrumented since it's in the androidx.* namespace.
-        // Set the ShadowSystemClock to match the real system clock.
-        ShadowSystemClock.setNanoTime(System.currentTimeMillis() * 1000 * 1000);
         mExif.attachTimestamp();
-        long afterTimestamp = System.currentTimeMillis();
+        ShadowSystemClock.advanceBy(Duration.ofMillis(100));
+        long afterTimestamp = SystemClock.uptimeMillis();
 
         // Check that the attached timestamp is in the closed range [beforeTimestamp,
         // afterTimestamp].

@@ -98,7 +98,7 @@ public interface BiometricConstants {
     int ERROR_NO_BIOMETRICS = 11;
 
     /**
-     * The device does not have a biometric sensor.
+     * The device does not have the required authentication hardware.
      */
     int ERROR_HW_NOT_PRESENT = 12;
 
@@ -111,6 +111,12 @@ public interface BiometricConstants {
      * The device does not have pin, pattern, or password set up.
      */
     int ERROR_NO_DEVICE_CREDENTIAL = 14;
+
+    /**
+     * A security vulnerability has been discovered with one or more hardware sensors. The
+     * affected sensor(s) are unavailable until a security update has addressed the issue.
+     */
+    int ERROR_SECURITY_UPDATE_REQUIRED = 15;
 
     /**
      * @hide

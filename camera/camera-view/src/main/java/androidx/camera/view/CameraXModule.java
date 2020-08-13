@@ -21,7 +21,6 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import android.Manifest.permission;
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.util.Log;
 import android.util.Rational;
 import android.util.Size;
 
@@ -30,11 +29,12 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresPermission;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.Camera;
+import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.OnImageCapturedCallback;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
+import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.UseCase;
@@ -55,7 +55,6 @@ import androidx.lifecycle.OnLifecycleEvent;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
@@ -180,18 +179,18 @@ final class CameraXModule {
         Set<Integer> available = getAvailableCameraLensFacing();
 
         if (available.isEmpty()) {
-            Log.w(TAG, "Unable to bindToLifeCycle since no cameras available");
+            Logger.w(TAG, "Unable to bindToLifeCycle since no cameras available");
             mCameraLensFacing = null;
         }
 
         // Ensure the current camera exists, or default to another camera
         if (mCameraLensFacing != null && !available.contains(mCameraLensFacing)) {
-            Log.w(TAG, "Camera does not exist with direction " + mCameraLensFacing);
+            Logger.w(TAG, "Camera does not exist with direction " + mCameraLensFacing);
 
             // Default to the first available camera direction
             mCameraLensFacing = available.iterator().next();
 
-            Log.w(TAG, "Defaulting to primary camera with direction " + mCameraLensFacing);
+            Logger.w(TAG, "Defaulting to primary camera with direction " + mCameraLensFacing);
         }
 
         // Do not attempt to create use cases for a null cameraLensFacing. This could occur if
@@ -292,13 +291,13 @@ final class CameraXModule {
             throw new IllegalArgumentException("OnImageSavedCallback should not be empty");
         }
 
-        ImageCapture.Metadata metadata = new ImageCapture.Metadata();
-        metadata.setReversedHorizontal(
-                mCameraLensFacing != null && mCameraLensFacing == CameraSelector.LENS_FACING_FRONT);
+        outputFileOptions.getMetadata().setReversedHorizontal(mCameraLensFacing != null
+                && mCameraLensFacing == CameraSelector.LENS_FACING_FRONT);
         mImageCapture.takePicture(outputFileOptions, executor, callback);
     }
 
-    public void startRecording(File file, Executor executor, final OnVideoSavedCallback callback) {
+    public void startRecording(VideoCapture.OutputFileOptions outputFileOptions,
+            Executor executor, final OnVideoSavedCallback callback) {
         if (mVideoCapture == null) {
             return;
         }
@@ -313,13 +312,14 @@ final class CameraXModule {
 
         mVideoIsRecording.set(true);
         mVideoCapture.startRecording(
-                file,
+                outputFileOptions,
                 executor,
                 new VideoCapture.OnVideoSavedCallback() {
                     @Override
-                    public void onVideoSaved(@NonNull File savedFile) {
+                    public void onVideoSaved(
+                            @NonNull VideoCapture.OutputFileResults outputFileResults) {
                         mVideoIsRecording.set(false);
-                        callback.onVideoSaved(savedFile);
+                        callback.onVideoSaved(outputFileResults);
                     }
 
                     @Override
@@ -328,7 +328,7 @@ final class CameraXModule {
                             @NonNull String message,
                             @Nullable Throwable cause) {
                         mVideoIsRecording.set(false);
-                        Log.e(TAG, message, cause);
+                        Logger.e(TAG, message, cause);
                         callback.onError(videoCaptureError, message, cause);
                     }
                 });
@@ -364,8 +364,15 @@ final class CameraXModule {
 
     @RequiresPermission(permission.CAMERA)
     public boolean hasCameraWithLensFacing(@CameraSelector.LensFacing int lensFacing) {
-        return CameraX.hasCamera(
-                new CameraSelector.Builder().requireLensFacing(lensFacing).build());
+        if (mCameraProvider == null) {
+            return false;
+        }
+        try {
+            return mCameraProvider.hasCamera(
+                    new CameraSelector.Builder().requireLensFacing(lensFacing).build());
+        } catch (CameraInfoUnavailableException e) {
+            return false;
+        }
     }
 
     @Nullable
@@ -424,7 +431,7 @@ final class CameraXModule {
                 }
             }, CameraXExecutors.directExecutor());
         } else {
-            Log.e(TAG, "Failed to set zoom ratio");
+            Logger.e(TAG, "Failed to set zoom ratio");
         }
     }
 

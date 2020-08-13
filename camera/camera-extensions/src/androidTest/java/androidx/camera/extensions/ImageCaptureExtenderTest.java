@@ -47,12 +47,14 @@ import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.impl.CameraRepository;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
 import androidx.camera.extensions.util.ExtensionsTestUtil;
+import androidx.camera.testing.CameraAvailabilityUtil;
 import androidx.camera.testing.CameraUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -72,6 +74,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 @RunWith(AndroidJUnit4.class)
@@ -83,26 +86,28 @@ public class ImageCaptureExtenderTest {
             Manifest.permission.CAMERA);
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
+    private final Context mContext = ApplicationProvider.getApplicationContext();
+    private CameraRepository mCameraRepository;
 
     @Before
     public void setUp() throws InterruptedException, ExecutionException, TimeoutException {
         assumeTrue(CameraUtil.deviceHasCamera());
 
-        Context context = ApplicationProvider.getApplicationContext();
-        CameraX.initialize(context, Camera2Config.defaultConfig());
+        CameraX.initialize(mContext, Camera2Config.defaultConfig()).get();
+        CameraX cameraX = CameraX.getOrCreateInstance(mContext).get();
+        mCameraRepository = cameraX.getCameraRepository();
 
-        assumeTrue(ExtensionsTestUtil.initExtensions());
+        assumeTrue(ExtensionsTestUtil.initExtensions(mContext));
     }
 
     @After
-    public void tearDown() throws ExecutionException, InterruptedException {
-        CameraX.shutdown().get();
+    public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
     @Test
     @MediumTest
-    public void extenderLifeCycleTest_noMoreGetCaptureStagesBeforeAndAfterInitDeInit()
-            throws CameraInfoUnavailableException {
+    public void extenderLifeCycleTest_noMoreGetCaptureStagesBeforeAndAfterInitDeInit() {
         ImageCaptureExtenderImpl mockImageCaptureExtenderImpl = mock(
                 ImageCaptureExtenderImpl.class);
         ArrayList<CaptureStageImpl> captureStages = new ArrayList<>();
@@ -120,11 +125,12 @@ public class ImageCaptureExtenderTest {
 
         ImageCapture useCase = builder.build();
 
-        @CameraSelector.LensFacing int lensFacing = CameraX.getDefaultLensFacing();
+        @CameraSelector.LensFacing int lensFacing =
+                CameraAvailabilityUtil.getDefaultLensFacing(mCameraRepository);
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(lensFacing).build();
         CameraUseCaseAdapter cameraUseCaseAdapter =
-                CameraUtil.getCameraUseCaseAdapter(CameraX.getContext(), cameraSelector);
+                CameraUtil.getCameraUseCaseAdapter(mContext, cameraSelector);
         mInstrumentation.runOnMainSync(() -> {
             try {
                 cameraUseCaseAdapter.addUseCases(Collections.singleton(useCase));
@@ -175,11 +181,13 @@ public class ImageCaptureExtenderTest {
 
         ImageCapture useCase = configBuilder.build();
 
-        @CameraSelector.LensFacing int lensFacing = CameraX.getDefaultLensFacing();
+        @CameraSelector.LensFacing int lensFacing =
+                CameraAvailabilityUtil.getDefaultLensFacing(mCameraRepository);
+
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(lensFacing).build();
         CameraUseCaseAdapter cameraUseCaseAdapter =
-                CameraUtil.getCameraUseCaseAdapter(CameraX.getContext(), cameraSelector);
+                CameraUtil.getCameraUseCaseAdapter(mContext, cameraSelector);
         mInstrumentation.runOnMainSync(() -> {
             try {
                 cameraUseCaseAdapter.addUseCases(Collections.singleton(useCase));
@@ -222,7 +230,9 @@ public class ImageCaptureExtenderTest {
         // getSupportedResolutions supported since version 1.1
         assumeTrue(ExtensionVersion.getRuntimeVersion().compareTo(Version.VERSION_1_1) >= 0);
 
-        @CameraSelector.LensFacing int lensFacing = CameraX.getDefaultLensFacing();
+        @CameraSelector.LensFacing int lensFacing =
+                CameraAvailabilityUtil.getDefaultLensFacing(mCameraRepository);
+
         ImageCapture.Builder builder = new ImageCapture.Builder();
 
         ImageCaptureExtenderImpl mockImageCaptureExtenderImpl = mock(

@@ -17,20 +17,20 @@
 package androidx.ui.tooling
 
 import androidx.test.filters.SmallTest
-import androidx.ui.core.DensityAmbient
-import androidx.ui.core.DrawLayerModifier
-import androidx.ui.core.DrawModifier
-import androidx.ui.core.LayoutModifier
-import androidx.ui.core.Modifier
-import androidx.ui.core.OwnedLayer
-import androidx.ui.core.drawLayer
-import androidx.ui.core.positionInRoot
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.drawBackground
-import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
-import androidx.ui.layout.padding
-import androidx.ui.layout.size
+import androidx.compose.ui.platform.DensityAmbient
+import androidx.compose.ui.DrawModifier
+import androidx.compose.ui.LayoutModifier
+import androidx.compose.ui.Modifier
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.DrawLayerModifier
+import androidx.compose.ui.drawLayer
+import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.node.OwnedLayer
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -52,7 +52,7 @@ class ModifierInfoTest : ToolingTest() {
                     val px10 = 10f.toDp()
                     val px5 = 5f.toDp()
                     Box {
-                        Column(Modifier.padding(px10).drawLayer().drawBackground(Color.Blue)) {
+                        Column(Modifier.padding(px10).drawLayer().background(color = Color.Blue)) {
                             Box(Modifier.padding(px5).size(px5))
                         }
                     }

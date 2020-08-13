@@ -110,6 +110,12 @@ public abstract class TrustedWebActivityService extends Service {
     public static final String KEY_SMALL_ICON_BITMAP =
             "android.support.customtabs.trusted.SMALL_ICON_BITMAP";
 
+    /**
+     * The key to use to store a boolean in the returns bundle of {@link #onExtraCommand} method,
+     * to indicate whether the command is executed successfully.
+     */
+    public static final String KEY_SUCCESS = "androidx.browser.trusted.SUCCESS";
+
     /** Used as a return value of {@link #onGetSmallIconId} when the icon is not provided. */
     public static final int SMALL_ICON_NOT_SET = -1;
 
@@ -377,19 +383,19 @@ public abstract class TrustedWebActivityService extends Service {
      * an additional API to use in advanced. This call can be used for testing or experimental
      * purposes.
      *
-     * A return value of {@code null} will be used to signify that the client does not know how to
-     * handle the request.
+     * The return bundle should contain a boolean value {@code true} with key
+     * {@link #KEY_SUCCESS} to signify that the client knows how to handle the request.
      *
      * @param commandName    Name of the command to execute.
      * @param args           Arguments to the command.
      * @param callbackRemote Contains the callback that passed with the command.
-     * @return The result {@link Bundle}, or {@code null}.
+     * @return The result {@link Bundle}.
      */
     @BinderThread
-    @Nullable
+    @NonNull
     public Bundle onExtraCommand(@NonNull String commandName, @NonNull Bundle args,
             @Nullable TrustedWebActivityCallbackRemote callbackRemote) {
-        return null;
+        return Bundle.EMPTY;
     }
 
     private static String channelNameToId(String name) {

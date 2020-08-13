@@ -53,7 +53,6 @@ androidx {
     inceptionYear = "2020"
     toolingProject = true
     description = "The implementation of WorkManager Inspector."
-    url = ARCHITECTURE_URL
 }
 
 android {
@@ -65,6 +64,10 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_7
         targetCompatibility = JavaVersion.VERSION_1_7
+    }
+
+    sourceSets {
+        main.resources.srcDirs += "src/main/proto"
     }
 }
 

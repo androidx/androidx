@@ -16,29 +16,29 @@
 
 package androidx.ui.integration.test.foundation
 
-import androidx.compose.Composable
-import androidx.compose.key
-import androidx.compose.remember
-import androidx.ui.core.Alignment
-import androidx.ui.core.DensityAmbient
-import androidx.ui.core.Modifier
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.ScrollState
-import androidx.ui.foundation.ScrollableColumn
-import androidx.ui.foundation.ScrollableRow
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
-import androidx.ui.foundation.rememberScrollState
-import androidx.ui.graphics.Color
-import androidx.ui.integration.test.ToggleableTestCase
-import androidx.ui.layout.Column
-import androidx.ui.layout.Row
-import androidx.ui.layout.RowScope
-import androidx.ui.layout.fillMaxHeight
-import androidx.ui.layout.fillMaxWidth
-import androidx.ui.layout.preferredSize
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.DensityAmbient
+import androidx.compose.ui.Modifier
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.ScrollableRow
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.background
+import androidx.compose.ui.graphics.Color
+import androidx.ui.test.ToggleableTestCase
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.ui.test.ComposeTestCase
 import kotlin.random.Random
 
@@ -83,7 +83,7 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
                             val blue = Random.nextInt(256)
                             Color(red = red, green = green, blue = blue)
                         }
-                        Box(Modifier.preferredSize(350f.toDp()).drawBackground(color))
+                        Box(Modifier.preferredSize(350f.toDp()).background(color = color))
                         Text(
                             text = "Some title",
                             color = Color.Black,
@@ -99,7 +99,7 @@ class NestedScrollerTestCase : ComposeTestCase, ToggleableTestCase {
                                 Modifier
                                     .gravity(Alignment.CenterVertically)
                                     .preferredSize(40f.toDp())
-                                    .drawBackground(playStoreColor)
+                                    .background(color = playStoreColor)
                             )
                         }
                     }

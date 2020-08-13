@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="buttons_round_top_center">Üst</string>
+  <string name="buttons_round_top_right">Sağ üst</string>
+  <string name="buttons_round_center_right">Sağ orta</string>
+  <string name="buttons_round_bottom_right">Sağ alt</string>
+  <string name="buttons_round_bottom_center">Alt</string>
+  <string name="buttons_round_bottom_left">Sol alt</string>
+  <string name="buttons_round_center_left">Sol orta</string>
+  <string name="buttons_round_top_left">Sol üst</string>
+  <string name="buttons_round_top_right_upper">Sağ üst, yukarı</string>
+  <string name="buttons_round_top_right_lower">Sağ üst, aşağı</string>
+  <string name="buttons_round_bottom_right_upper">Sağ alt, yukarı</string>
+  <string name="buttons_round_bottom_right_lower">Sağ alt, aşağı</string>
+  <string name="buttons_round_bottom_left_lower">Sol alt, aşağı</string>
+  <string name="buttons_round_bottom_left_upper">Sol alt, yukarı</string>
+  <string name="buttons_round_top_left_lower">Sol üst, aşağı</string>
+  <string name="buttons_round_top_left_upper">Sol üst, yukarı</string>
+  <string name="buttons_rect_left_top">Üst, sol yan</string>
+  <string name="buttons_rect_left_center">Sol orta</string>
+  <string name="buttons_rect_left_bottom">Alt, sol yan</string>
+  <string name="buttons_rect_right_top">Üst, sağ yan</string>
+  <string name="buttons_rect_right_center">Sağ orta</string>
+  <string name="buttons_rect_right_bottom">Alt, sağ yan</string>
+  <string name="buttons_rect_top_left">Sol üst</string>
+  <string name="buttons_rect_top_center">Üst</string>
+  <string name="buttons_rect_top_right">Sağ üst</string>
+  <string name="buttons_rect_bottom_left">Sol alt</string>
+  <string name="buttons_rect_bottom_center">Alt</string>
+  <string name="buttons_rect_bottom_right">Sağ alt</string>
+</resources>

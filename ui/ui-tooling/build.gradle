@@ -42,7 +42,6 @@ dependencies {
     // kotlin-reflect and tooling-animation-internal are provided by Studio at runtime
     compileOnly(project(":ui:ui-animation-tooling-internal"))
     compileOnly(KOTLIN_REFLECT)
-    compileOnly(KOTLIN_METADATA_JVM)
 
     androidTestImplementation project(":ui:ui-test")
 
@@ -53,16 +52,7 @@ dependencies {
     androidTestImplementation project(":compose:foundation:foundation")
     androidTestImplementation(TRUTH)
     androidTestImplementation(KOTLIN_REFLECT)
-    androidTestImplementation(KOTLIN_METADATA_JVM)
     androidTestImplementation(project(":ui:ui-animation-tooling-internal"))
-}
-
-// Workaround for https://youtrack.jetbrains.com/issue/KT-39813
-android {
-    packagingOptions {
-        exclude "META-INF/metadata.jvm.kotlin_module"
-        exclude "META-INF/metadata.kotlin_module"
-    }
 }
 
 androidx {
@@ -71,12 +61,14 @@ androidx {
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2019"
-    description = "Compose Tooling support"
+    description = "Compose tooling library. This library exposes information to our tools for better IDE support."
 }
 
 tasks.withType(KotlinCompile).configureEach {
     kotlinOptions {
         useIR = true
-        freeCompilerArgs += ["-P", "plugin:androidx.compose.plugins.kotlin:sourceInformation=true"]
+        freeCompilerArgs += [
+                "-P", "plugin:androidx.compose.compiler.plugins.kotlin:sourceInformation=true"
+        ]
     }
 }

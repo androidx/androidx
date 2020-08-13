@@ -16,6 +16,7 @@
 
 package androidx.sqlite.inspection
 
+import androidx.inspection.ArtToolInterface
 import androidx.inspection.InspectorEnvironment
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -37,7 +38,7 @@ class RoomInvalidationRegistryWithoutRoomTest {
             override fun registerEntryHook(
                 originClass: Class<*>,
                 originMethod: String,
-                entryHook: InspectorEnvironment.EntryHook
+                entryHook: ArtToolInterface.EntryHook
             ) {
                 throw AssertionError("should never call environment")
             }
@@ -49,7 +50,7 @@ class RoomInvalidationRegistryWithoutRoomTest {
             override fun <T : Any?> registerExitHook(
                 originClass: Class<*>,
                 originMethod: String,
-                exitHook: InspectorEnvironment.ExitHook<T>
+                exitHook: ArtToolInterface.ExitHook<T>
             ) {
                 throw AssertionError("should never call environment")
             }

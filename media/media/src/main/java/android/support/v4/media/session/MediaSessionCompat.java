@@ -818,7 +818,8 @@ public class MediaSessionCompat {
     /**
      * Updates the list of items in the play queue. It is an ordered list and
      * should contain the current item, and previous or upcoming items if they
-     * exist. Specify null if there is no current play queue.
+     * exist. The id of each item should be unique within the play queue.
+     * Specify null if there is no current play queue.
      * <p>
      * The queue should be of reasonable size. If the play queue is unbounded
      * within your app, it is better to send a reasonable amount in a sliding
@@ -834,7 +835,8 @@ public class MediaSessionCompat {
                     throw new IllegalArgumentException("queue shouldn't have null items");
                 }
                 if (set.contains(item.getQueueId())) {
-                    throw new IllegalArgumentException("id of each queue item should be unique");
+                    Log.e(TAG, "Found duplicate queue id: " + item.getQueueId(),
+                            new IllegalArgumentException("id of each queue item should be unique"));
                 }
                 set.add(item.getQueueId());
             }
@@ -955,7 +957,7 @@ public class MediaSessionCompat {
      * <p>
      * Note: This is only valid while in a request callback, such as {@link Callback#onPlay}.
      * <p>
-     * Note: From API 21 to 23, this method returns a dummy {@link RemoteUserInfo} which has
+     * Note: From API 21 to 23, this method returns a fake {@link RemoteUserInfo} which has
      * following values:
      * <ul>
      *     <li>Package name is {@link MediaSessionManager.RemoteUserInfo#LEGACY_CONTROLLER}.</li>

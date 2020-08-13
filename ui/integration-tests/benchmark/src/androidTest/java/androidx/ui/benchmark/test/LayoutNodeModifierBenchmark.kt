@@ -21,24 +21,24 @@ import androidx.activity.ComponentActivity
 import androidx.benchmark.junit4.BenchmarkRule
 import androidx.benchmark.junit4.measureRepeated
 import androidx.test.filters.LargeTest
-import androidx.ui.core.AndroidOwner
-import androidx.ui.core.ExperimentalLayoutNodeApi
-import androidx.ui.core.LayoutNode
-import androidx.ui.core.Modifier
-import androidx.ui.core.drawBehind
-import androidx.ui.core.drawLayer
-import androidx.ui.core.gesture.pressIndicatorGestureFilter
-import androidx.ui.core.keyinput.ExperimentalKeyInput
-import androidx.ui.core.keyinput.keyInputFilter
-import androidx.ui.core.layoutId
-import androidx.ui.core.onPositioned
-import androidx.ui.core.semantics.semantics
-import androidx.ui.core.setContent
-import androidx.ui.core.zIndex
-import androidx.ui.foundation.Box
-import androidx.ui.layout.padding
+import androidx.compose.ui.node.ExperimentalLayoutNodeApi
+import androidx.compose.ui.node.LayoutNode
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.drawBehind
+import androidx.compose.ui.gesture.pressIndicatorGestureFilter
+import androidx.compose.ui.input.key.ExperimentalKeyInput
+import androidx.compose.ui.input.key.keyInputFilter
+import androidx.compose.ui.layout.layoutId
+import androidx.compose.ui.onPositioned
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.platform.setContent
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.drawLayer
+import androidx.compose.ui.platform.AndroidOwner
 import androidx.ui.test.DisableTransitions
-import androidx.ui.unit.dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -87,7 +87,7 @@ class LayoutNodeModifierBenchmark(
         ).subList(0, numberOfModifiers)
 
         combinedModifier = modifiers.fold<Modifier, Modifier>(Modifier) { acc, modifier ->
-            acc + modifier
+            acc.then(modifier)
         }
 
         rule.activityTestRule.runOnUiThread {
@@ -116,7 +116,7 @@ class LayoutNodeModifierBenchmark(
     @Test
     fun smallModifierChange() {
         rule.activityTestRule.runOnUiThread {
-            val altModifier = Modifier.padding(10.dp) + combinedModifier
+            val altModifier = Modifier.padding(10.dp).then(combinedModifier)
             layoutNode.modifier = altModifier
 
             rule.benchmarkRule.measureRepeated {

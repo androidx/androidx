@@ -16,19 +16,19 @@
 
 package androidx.ui.integration.test.core.text
 
-import androidx.compose.Composable
-import androidx.compose.mutableStateOf
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Text
-import androidx.ui.graphics.Color
-import androidx.ui.integration.test.ToggleableTestCase
-import androidx.ui.layout.preferredWidth
-import androidx.ui.layout.wrapContentSize
-import androidx.ui.test.ComposeTestCase
-import androidx.ui.unit.Dp
-import androidx.ui.unit.TextUnit
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Text
+import androidx.compose.ui.graphics.Color
+import androidx.ui.test.ToggleableTestCase
+import androidx.compose.foundation.layout.preferredWidth
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
+import androidx.ui.test.LayeredComposeTestCase
 
 /**
  * The benchmark test case for [Text], where the input is a plain string.
@@ -37,19 +37,23 @@ class TextBasicTestCase(
     private val text: String,
     private val width: Dp,
     private val fontSize: TextUnit
-) : ComposeTestCase, ToggleableTestCase {
+) : LayeredComposeTestCase, ToggleableTestCase {
 
     private val color = mutableStateOf(Color.Black)
 
     @Composable
-    override fun emitContent() {
+    override fun emitMeasuredContent() {
+        Text(text = text, color = color.value, fontSize = fontSize)
+    }
+
+    @Composable
+    override fun emitContentWrappers(content: @Composable () -> Unit) {
         Box(
             modifier = Modifier.wrapContentSize(Alignment.Center).preferredWidth(width)
         ) {
-            Text(text = text, color = color.value, fontSize = fontSize)
+            content()
         }
     }
-
     override fun toggleState() {
         if (color.value == Color.Black) {
             color.value = Color.Red

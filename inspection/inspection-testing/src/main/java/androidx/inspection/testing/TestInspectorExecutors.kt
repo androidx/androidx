@@ -21,6 +21,7 @@ import android.os.HandlerThread
 import androidx.inspection.InspectorExecutors
 import kotlinx.coroutines.Job
 import java.util.concurrent.Executor
+import java.util.concurrent.Executors
 import java.util.concurrent.RejectedExecutionException
 
 /**
@@ -29,16 +30,23 @@ import java.util.concurrent.RejectedExecutionException
  * HandlerThread created for inspector will quit once parent job completes.
  */
 class TestInspectorExecutors(
-    parentJob: Job
+    parentJob: Job,
+    ioExecutor: Executor? = null
 ) : InspectorExecutors {
     private val handlerThread = HandlerThread("Test Inspector Handler Thread")
     private val handler: Handler
+    private val ioExecutor: Executor
 
     init {
         handlerThread.start()
         handler = Handler(handlerThread.looper)
         parentJob.invokeOnCompletion {
             handlerThread.looper.quitSafely()
+        }
+        this.ioExecutor = ioExecutor ?: Executors.newFixedThreadPool(4).also { executor ->
+            parentJob.invokeOnCompletion {
+                executor.shutdown()
+            }
         }
     }
 
@@ -50,7 +58,5 @@ class TestInspectorExecutors(
         }
     }
 
-    override fun io(): Executor {
-        TODO()
-    }
+    override fun io() = ioExecutor
 }

@@ -19,6 +19,7 @@ import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.transition.Transition
+import android.transition.TransitionListenerAdapter
 import android.transition.TransitionSet
 import android.view.View
 import androidx.core.app.SharedElementCallback
@@ -47,7 +48,10 @@ import java.util.concurrent.TimeUnit
 @MediumTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
-class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
+class FragmentTransitionTest(
+    private val reorderingAllowed: ReorderingAllowed,
+    private val stateManager: StateManager
+) {
 
     @Suppress("DEPRECATION")
     @get:Rule
@@ -61,6 +65,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
     @Before
     fun setup() {
+        stateManager.setup()
         activityRule.setContentView(R.layout.simple_container)
         onBackStackChangedTimes = 0
         fragmentManager = activityRule.activity.supportFragmentManager
@@ -70,6 +75,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
     @After
     fun teardown() {
         fragmentManager.removeOnBackStackChangedListener(onBackStackChangedListener)
+        stateManager.teardown()
     }
 
     // Test that normal view transitions (enter, exit, reenter, return) run with
@@ -145,18 +151,24 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
         // If reordering is allowed, the remove is ignored and the transaction is just added to the
         // back stack
-        if (reorderingAllowed) {
+        if (reorderingAllowed is Reordered) {
             assertThat(onBackStackChangedTimes).isEqualTo(2)
             assertThat(fragment.requireView()).isEqualTo(view1)
         } else {
-            // If reorder is not allowed we will get the exit Transition and the fragment will be
-            // added with a different view.
-            fragment.waitForTransition()
-            fragment.exitTransition.verifyAndClearTransition {
-                exitingViews += listOf(green, blue)
-            }
             assertThat(onBackStackChangedTimes).isEqualTo(3)
-            assertThat(fragment.requireView()).isNotEqualTo(view1)
+            if (stateManager is NewStateManager) {
+                // When using FragmentStateManager, the transition gets cancelled and the
+                // Fragment  does not go all the way through to destroying the view before
+                // coming back up, so the view instances will still match
+                assertThat(fragment.requireView()).isEqualTo(view1)
+            } else {
+                // If reorder is not allowed we will get the exit Transition
+                fragment.waitForTransition()
+                fragment.exitTransition.verifyAndClearTransition {
+                    exitingViews += listOf(green, blue)
+                }
+                assertThat(fragment.requireView()).isNotEqualTo(view1)
+            }
         }
         verifyNoOtherTransitions(fragment)
     }
@@ -699,6 +711,57 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         verifyNoOtherTransitions(fragment2)
     }
 
+    // Test that setting allowEnterTransitionOverlap to false correctly delays
+    // the enter transition until after the exit transition finishes
+    @Test
+    fun disallowEnterOverlap() {
+        val fragment = setupInitialFragment()
+        val blue = activityRule.findBlue()
+        val green = activityRule.findGreen()
+
+        val fragment2 = TransitionFragment(R.layout.scene2)
+        fragment2.allowEnterTransitionOverlap = false
+        fragment2.enterTransition.setRealTransition(true)
+        var enterTransitionStarted = false
+        fragment2.enterTransition.addListener(object : TransitionListenerAdapter() {
+            override fun onTransitionStart(transition: Transition?) {
+                enterTransitionStarted = true
+            }
+        })
+        var enterTransitionStartedOnEnd = true
+        fragment.exitTransition.setRealTransition(true)
+        fragment.exitTransition.addListener(object : TransitionListenerAdapter() {
+            override fun onTransitionEnd(transition: Transition?) {
+                enterTransitionStartedOnEnd = enterTransitionStarted
+            }
+        })
+
+        fragmentManager.beginTransaction()
+            .setReorderingAllowed(reorderingAllowed)
+            .replace(R.id.fragmentContainer, fragment2)
+            .addToBackStack(null)
+            .commit()
+
+        fragment.waitForTransition()
+        fragment2.waitForTransition()
+        fragment.exitTransition.verifyAndClearTransition {
+            exitingViews += listOf(green, blue)
+        }
+        verifyNoOtherTransitions(fragment)
+
+        val endBlue = activityRule.findBlue()
+        val endGreen = activityRule.findGreen()
+        fragment2.enterTransition.verifyAndClearTransition {
+            enteringViews += listOf(endGreen, endBlue)
+        }
+        verifyNoOtherTransitions(fragment2)
+        assertThat(onBackStackChangedTimes).isEqualTo(2)
+
+        assertWithMessage("Enter transition did not wait for exit transition")
+            .that(enterTransitionStartedOnEnd)
+            .isFalse()
+    }
+
     // Ensure that transitions are done when a fragment is attached and detached
     @Test
     fun attachDetachTransition() {
@@ -774,7 +837,9 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val endBlue = activityRule.findBlue()
         val endGreen = activityRule.findGreen()
 
-        if (reorderingAllowed) {
+        // FragmentStateManager is able to build the correct transition
+        // whether you use reordering or not
+        if (stateManager is NewStateManager || reorderingAllowed is Reordered) {
             fragment1.exitTransition.verifyAndClearTransition {
                 exitingViews += listOf(startGreen, startBlue)
             }
@@ -828,7 +893,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
     // Test that invisible fragment views don't participate in transitions
     @Test
     fun invisibleNoTransitions() {
-        if (!reorderingAllowed) {
+        if (reorderingAllowed is Ordered) {
             return // only reordered transitions can avoid interaction
         }
         // enter transition
@@ -919,11 +984,19 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
         fragment2.waitForTransition()
         // It does not transition properly for ordered transactions, though.
-        if (reorderingAllowed) {
+        if (reorderingAllowed is Reordered) {
             // reordering allowed fragment3 to get a transition so we should wait for it to finish
             fragment3.waitForTransition()
-            fragment2.returnTransition.verifyAndClearTransition {
-                exitingViews += listOf(midGreen, midBlue)
+            if (stateManager is NewStateManager) {
+                // When using the NewStateManager, the last operation sets the direction.
+                // In this case, the forward direction since we did a replace() after the pop
+                fragment2.exitTransition.verifyAndClearTransition {
+                    exitingViews += listOf(midGreen, midBlue)
+                }
+            } else {
+                fragment2.returnTransition.verifyAndClearTransition {
+                    exitingViews += listOf(midGreen, midBlue)
+                }
             }
             val endGreen = activityRule.findGreen()
             val endBlue = activityRule.findBlue()
@@ -971,19 +1044,37 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         activityRule.executePendingTransactions()
 
         // It does not transition properly for ordered transactions, though.
-        if (reorderingAllowed) {
-            fragment1.returnTransition.verifyAndClearTransition {
-                exitingViews += startGreen
-            }
+        if (reorderingAllowed is Reordered) {
+            // reordering allowed fragment3 to get a transition so we should wait for it to finish
+            fragment2.waitForTransition()
+
             val endGreen = activityRule.findGreen()
             val endBlue = activityRule.findBlue()
+            val endGreenBounds = endGreen.boundsOnScreen
+
+            if (stateManager is NewStateManager) {
+                // When using the NewStateManager, the last operation sets the direction.
+                // In this case, the forward direction since we did a replace() after the pop
+                fragment1.exitTransition.verifyAndClearTransition {
+                    epicenter = endGreenBounds
+                    exitingViews += startGreen
+                }
+            } else {
+                fragment1.returnTransition.verifyAndClearTransition {
+                    exitingViews += startGreen
+                }
+            }
             fragment2.enterTransition.verifyAndClearTransition {
                 epicenter = startGreenBounds
                 enteringViews += endGreen
             }
             fragment2.sharedElementEnter.verifyAndClearTransition {
-                // In this case, we can't find an epicenter
-                epicenter = Rect()
+                epicenter = if (stateManager is NewStateManager) {
+                    endGreenBounds
+                } else {
+                    // In this case, we can't find an epicenter
+                    Rect()
+                }
                 exitingViews += startBlue
                 enteringViews += endBlue
             }
@@ -1021,7 +1112,10 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         val midBlue = activityRule.findBlue()
         val midRed = activityRule.findRed()
         val midGreenBounds = midGreen.boundsOnScreen
-        if (reorderingAllowed) {
+
+        // FragmentStateManager is able to build the correct transition
+        // whether you use reordering or not
+        if (stateManager is NewStateManager || reorderingAllowed is Reordered) {
             fragment2.sharedElementEnter.verifyAndClearTransition {
                 epicenter = startGreenBounds
                 exitingViews += startGreen
@@ -1127,7 +1221,7 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
         from2: TransitionFragment
     ) {
         val startNumOnBackStackChanged = onBackStackChangedTimes
-        val changesPerOperation = if (reorderingAllowed) 1 else 2
+        val changesPerOperation = if (reorderingAllowed is Reordered) 1 else 2
 
         val to1 = TransitionFragment(R.layout.scene2)
         val to2 = TransitionFragment(R.layout.scene2)
@@ -1368,9 +1462,17 @@ class FragmentTransitionTest(private val reorderingAllowed: Boolean) {
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters
-        fun data(): Array<Boolean> {
-            return arrayOf(false, true)
+        @Parameterized.Parameters(name = "ordering={0}, stateManager={1}")
+        fun data() = mutableListOf<Array<Any>>().apply {
+            arrayOf(
+                Ordered,
+                Reordered
+            ).forEach { ordering ->
+                // Run the test with the new state manager
+                add(arrayOf(ordering, NewStateManager))
+                // Run the test with the old state manager
+                add(arrayOf(ordering, OldStateManager))
+            }
         }
     }
 }

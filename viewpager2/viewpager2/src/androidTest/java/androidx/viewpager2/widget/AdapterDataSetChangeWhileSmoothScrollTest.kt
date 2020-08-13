@@ -148,7 +148,8 @@ class AdapterDataSetChangeWhileSmoothScrollTest(private val config: TestConfig) 
                 val scrollsAfterMarker = scrollEventsAfter(removeItemMarkIx)
                 listOf(scrollsBeforeMarker, scrollsAfterMarker).forEach {
                     it.assertPositionSorted(SortOrder.ASC)
-                    it.assertValueSanity(0, targetPage + removeCountHead, test.viewPager.pageSize)
+                    it.assertValueCorrectness(0, targetPage + removeCountHead,
+                    test.viewPager.pageSize)
                 }
                 // Only check assertOffsetSorted on scroll events _before_ the marker:
                 //   after the data set change, it can overshoot and reverse direction
@@ -310,7 +311,7 @@ class AdapterDataSetChangeWhileSmoothScrollTest(private val config: TestConfig) 
         }
     }
 
-    private fun List<OnPageScrolledEvent>.assertValueSanity(
+    private fun List<OnPageScrolledEvent>.assertValueCorrectness(
         initialPage: Int,
         otherPage: Int,
         pageSize: Int

@@ -27,6 +27,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.VisibleForTesting;
 import androidx.webkit.ProxyConfig;
 import androidx.webkit.ProxyController;
 import androidx.webkit.SafeBrowsingResponseCompat;
@@ -46,6 +47,7 @@ import org.chromium.support_lib_boundary.util.Features;
 
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -54,14 +56,14 @@ import java.util.concurrent.Executor;
  * Enum representing a WebView feature, this provides functionality for determining whether a
  * feature is supported by the current framework and/or WebView APK.
  */
-public enum WebViewFeatureInternal {
+public enum WebViewFeatureInternal implements ConditionallySupportedFeature {
     /**
      * This feature covers
      * {@link androidx.webkit.WebViewCompat#postVisualStateCallback(android.webkit.WebView, long,
      * androidx.webkit.WebViewCompat.VisualStateCallback)}, and
      * {@link WebViewClientCompat#onPageCommitVisible(android.webkit.WebView, String)}.
      */
-    VISUAL_STATE_CALLBACK_FEATURE(WebViewFeature.VISUAL_STATE_CALLBACK,
+    VISUAL_STATE_CALLBACK(WebViewFeature.VISUAL_STATE_CALLBACK,
             Features.VISUAL_STATE_CALLBACK, Build.VERSION_CODES.M),
 
     /**
@@ -96,11 +98,48 @@ public enum WebViewFeatureInternal {
             Build.VERSION_CODES.O_MR1),
 
     /**
-     * This feature covers
-     * {@link androidx.webkit.WebViewCompat#setSafeBrowsingWhitelist(List, ValueCallback)}.
+     * This feature covers {@link androidx.webkit.WebViewCompat#setSafeBrowsingWhitelist(Set,
+     * ValueCallback)}, plumbing through the deprecated boundary interface.
+     *
+     * <p>Don't use this value directly. This exists only so {@link WebViewFeature#isSupported}
+     * supports the <b>deprecated</b> public feature when running against <b>old</b> WebView
+     * versions.
+     *
+     * @deprecated use {@link #SAFE_BROWSING_ALLOWLIST_PREFERRED_TO_DEPRECATED} to test for the
+     * <b>old</b> boundary interface
      */
-    SAFE_BROWSING_WHITELIST(WebViewFeature.SAFE_BROWSING_WHITELIST,
+    @Deprecated
+    SAFE_BROWSING_ALLOWLIST_DEPRECATED_TO_DEPRECATED(WebViewFeature.SAFE_BROWSING_WHITELIST,
             Features.SAFE_BROWSING_WHITELIST, Build.VERSION_CODES.O_MR1),
+
+    /**
+     * This feature covers {@link androidx.webkit.WebViewCompat#setSafeBrowsingWhitelist(Set,
+     * ValueCallback)}, plumbing through the new boundary interface.
+     *
+     * <p>Don't use this value directly. This exists only so {@link WebViewFeature#isSupported}
+     * supports the <b>deprecated</b> public feature when running against <b>new</b> WebView
+     * versions.
+     *
+     * @deprecated use {@link #SAFE_BROWSING_ALLOWLIST_PREFERRED_TO_PREFERRED} to test for the
+     * <b>new</b> boundary interface.
+     */
+    @Deprecated
+    SAFE_BROWSING_ALLOWLIST_DEPRECATED_TO_PREFERRED(WebViewFeature.SAFE_BROWSING_WHITELIST,
+            Features.SAFE_BROWSING_ALLOWLIST, Build.VERSION_CODES.O_MR1),
+
+    /**
+     * This feature covers {@link androidx.webkit.WebViewCompat#setSafeBrowsingAllowlist(Set,
+     * ValueCallback)}, plumbing through the deprecated boundary interface.
+     */
+    SAFE_BROWSING_ALLOWLIST_PREFERRED_TO_DEPRECATED(WebViewFeature.SAFE_BROWSING_ALLOWLIST,
+            Features.SAFE_BROWSING_WHITELIST, Build.VERSION_CODES.O_MR1),
+
+    /**
+     * This feature covers {@link androidx.webkit.WebViewCompat#setSafeBrowsingAllowlist(Set,
+     * ValueCallback)}, plumbing through the new boundary interface.
+     */
+    SAFE_BROWSING_ALLOWLIST_PREFERRED_TO_PREFERRED(WebViewFeature.SAFE_BROWSING_ALLOWLIST,
+            Features.SAFE_BROWSING_ALLOWLIST, Build.VERSION_CODES.O_MR1),
 
     /**
      * This feature covers
@@ -358,8 +397,8 @@ public enum WebViewFeatureInternal {
     /**
      * This feature covers
      * {@link
-     * androidx.webkit.WebViewCompat#addDocumentStartJavascript(android.webkit.WebView, String,
-     * List)}
+     * androidx.webkit.WebViewCompat#addDocumentStartJavaScript(android.webkit.WebView, String,
+     * Set)}
      */
     DOCUMENT_START_SCRIPT(WebViewFeature.DOCUMENT_START_SCRIPT, Features.DOCUMENT_START_SCRIPT),
 
@@ -400,17 +439,41 @@ public enum WebViewFeatureInternal {
     }
 
     /**
-     * Return the {@link WebViewFeatureInternal} corresponding to {@param feature}.
+     * Return whether a public feature is supported by any internal features defined in this enum.
      */
-    @NonNull
-    public static WebViewFeatureInternal getFeature(@NonNull @WebViewFeature.WebViewSupportFeature
-            String publicFeatureValue) {
-        for (WebViewFeatureInternal internalFeature : WebViewFeatureInternal.values()) {
-            if (internalFeature.mPublicFeatureValue.equals(publicFeatureValue)) {
-                return internalFeature;
+    public static boolean isSupported(
+            @NonNull @WebViewFeature.WebViewSupportFeature String publicFeatureValue) {
+        Set<ConditionallySupportedFeature> features = new HashSet<>();
+        for (WebViewFeatureInternal feature : WebViewFeatureInternal.values()) {
+            features.add(feature);
+        }
+        return isSupported(publicFeatureValue, features);
+    }
+
+    /**
+     * Return whether a public feature is supported by any {@link ConditionallySupportedFeature}s
+     * defined in {@code internalFeatures}.
+     *
+     * @throws RuntimeException if {@code publicFeatureValue} is not matched in
+     *      {@code internalFeatures}
+     */
+    @VisibleForTesting
+    public static boolean isSupported(
+            @NonNull @WebViewFeature.WebViewSupportFeature String publicFeatureValue,
+            @NonNull Collection<ConditionallySupportedFeature> internalFeatures) {
+        Set<ConditionallySupportedFeature> matchingFeatures = new HashSet<>();
+        for (ConditionallySupportedFeature feature : internalFeatures) {
+            if (feature.getPublicFeatureName().equals(publicFeatureValue)) {
+                matchingFeatures.add(feature);
             }
         }
-        throw new RuntimeException("Unknown feature " + publicFeatureValue);
+        if (matchingFeatures.isEmpty()) {
+            throw new RuntimeException("Unknown feature " + publicFeatureValue);
+        }
+        for (ConditionallySupportedFeature feature : matchingFeatures) {
+            if (feature.isSupported()) return true;
+        }
+        return false;
     }
 
     /**
@@ -430,6 +493,17 @@ public enum WebViewFeatureInternal {
     public boolean isSupportedByWebView() {
         return BoundaryInterfaceReflectionUtil.containsFeature(
                 LAZY_HOLDER.WEBVIEW_APK_FEATURES, mInternalFeatureValue);
+    }
+
+    @Override
+    @NonNull
+    public String getPublicFeatureName() {
+        return mPublicFeatureValue;
+    }
+
+    @Override
+    public boolean isSupported() {
+        return isSupportedByFramework() || isSupportedByWebView();
     }
 
     private static class LAZY_HOLDER {

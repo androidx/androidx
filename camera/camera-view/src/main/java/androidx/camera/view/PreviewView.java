@@ -20,27 +20,32 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.Display;
 import android.view.Surface;
+import android.view.SurfaceView;
+import android.view.TextureView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import androidx.annotation.ColorRes;
+import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.CameraInfo;
-import androidx.camera.core.CameraSelector;
 import androidx.camera.core.FocusMeteringAction;
+import androidx.camera.core.Logger;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
+import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.utils.Threads;
@@ -56,8 +61,21 @@ import java.util.concurrent.atomic.AtomicReference;
  * Custom View that displays the camera feed for CameraX's Preview use case.
  *
  * <p> This class manages the Surface lifecycle, as well as the preview aspect ratio and
- * orientation. Internally, it uses either a {@link android.view.TextureView} or
- * {@link android.view.SurfaceView} to display the camera feed.
+ * orientation. Internally, it uses either a {@link TextureView} or {@link SurfaceView} to
+ * display the camera feed.
+ *
+ * <p> If {@link PreviewView} uses a {@link SurfaceView} to display the preview
+ * stream, be careful when overlapping a {@link View} that's initially not visible (either
+ * {@link View#INVISIBLE} or {@link View#GONE}) on top of it. When the
+ * {@link SurfaceView} is attached to the display window, it calls
+ * {@link android.view.ViewParent#requestTransparentRegion(View)} which requests a computation of
+ * the transparent regions on the display. At this point, the {@link View} isn't visible, causing
+ * the overlapped region between the {@link SurfaceView} and the {@link View} to be
+ * considered transparent. Later if the {@link View} becomes {@linkplain View#VISIBLE visible}, it
+ * will not be displayed on top of {@link SurfaceView}. A way around this is to call
+ * {@link android.view.ViewParent#requestTransparentRegion(View)} right after making the
+ * {@link View} visible, or initially hiding the {@link View} by setting its
+ * {@linkplain View#setAlpha(float) opacity} to 0, then setting it to 1.0F to show it.
  */
 public class PreviewView extends FrameLayout {
 
@@ -65,17 +83,17 @@ public class PreviewView extends FrameLayout {
 
     @ColorRes
     static final int DEFAULT_BACKGROUND_COLOR = android.R.color.black;
-    private static final ImplementationMode DEFAULT_IMPL_MODE = ImplementationMode.SURFACE_VIEW;
+    private static final ImplementationMode DEFAULT_IMPL_MODE = ImplementationMode.PERFORMANCE;
 
     @NonNull
-    private ImplementationMode mPreferredImplementationMode = DEFAULT_IMPL_MODE;
+    private ImplementationMode mImplementationMode = DEFAULT_IMPL_MODE;
 
     @VisibleForTesting
     @Nullable
     PreviewViewImplementation mImplementation;
 
     @NonNull
-    private PreviewTransform mPreviewTransform = new PreviewTransform();
+    PreviewTransform mPreviewTransform = new PreviewTransform();
 
     @NonNull
     private MutableLiveData<StreamState> mPreviewStreamStateLiveData =
@@ -84,6 +102,13 @@ public class PreviewView extends FrameLayout {
     @Nullable
     private AtomicReference<PreviewStreamStateObserver> mActiveStreamStateObserver =
             new AtomicReference<>();
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    CameraController mCameraController;
+
+    @NonNull
+    PreviewViewMeteringPointFactory mPreviewViewMeteringPointFactory =
+            new PreviewViewMeteringPointFactory();
 
     private final OnLayoutChangeListener mOnLayoutChangeListener = new OnLayoutChangeListener() {
         @Override
@@ -91,6 +116,15 @@ public class PreviewView extends FrameLayout {
                 int oldTop, int oldRight, int oldBottom) {
             if (mImplementation != null) {
                 mImplementation.redrawPreview();
+            }
+
+            mPreviewViewMeteringPointFactory.setViewSize(getWidth(), getHeight());
+
+            boolean isSizeChanged =
+                    right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop;
+            if (mCameraController != null && isSizeChanged) {
+                mCameraController.attachPreviewSurface(createSurfaceProvider(), getWidth(),
+                        getHeight());
             }
         }
     };
@@ -140,6 +174,11 @@ public class PreviewView extends FrameLayout {
         if (mImplementation != null) {
             mImplementation.onAttachedToWindow();
         }
+        mPreviewViewMeteringPointFactory.setDisplay(getDisplay());
+        if (mCameraController != null) {
+            mCameraController.attachPreviewSurface(createSurfaceProvider(), getWidth(),
+                    getHeight());
+        }
     }
 
     @Override
@@ -149,65 +188,60 @@ public class PreviewView extends FrameLayout {
         if (mImplementation != null) {
             mImplementation.onDetachedFromWindow();
         }
+        mPreviewViewMeteringPointFactory.setDisplay(getDisplay());
+        if (mCameraController != null) {
+            mCameraController.clearPreviewSurface();
+        }
     }
 
     /**
-     * Specifies the preferred {@link ImplementationMode} to use for preview.
-     * <p>
-     * When the preferred {@link ImplementationMode} is {@link ImplementationMode#SURFACE_VIEW}
-     * but the device doesn't support this mode (e.g. devices with API level not newer than
-     * Android 7.0 or a supported camera hardware level
-     * {@link android.hardware.camera2.CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY}),
-     * the actual implementation mode will be {@link ImplementationMode#TEXTURE_VIEW}.
+     * Sets the {@link ImplementationMode} for the {@link PreviewView}.
      *
-     * @param preferredMode <code>SURFACE_VIEW</code> if a {@link android.view.SurfaceView}
-     *                      should be used to display the camera feed -when possible-, or
-     *                      <code>TEXTURE_VIEW</code> to use a {@link android.view.TextureView}.
+     * <p> {@link PreviewView} displays the preview with either a {@link SurfaceView} or a
+     * {@link TextureView} depending on the mode. If not set, the default value is
+     * {@link ImplementationMode#PERFORMANCE}.
+     *
+     * @see ImplementationMode
      */
-    public void setPreferredImplementationMode(@NonNull final ImplementationMode preferredMode) {
-        mPreferredImplementationMode = preferredMode;
+    public void setImplementationMode(@NonNull final ImplementationMode implementationMode) {
+        mImplementationMode = implementationMode;
     }
 
     /**
-     * Returns the preferred {@link ImplementationMode} for preview.
-     * <p>
-     * If the preferred {@link ImplementationMode} hasn't been set using
-     * {@link #setPreferredImplementationMode(ImplementationMode)}, it defaults to
-     * {@link ImplementationMode#SURFACE_VIEW}.
+     * Returns the {@link ImplementationMode}.
      *
-     * @return The preferred {@link ImplementationMode} for preview.
+     * <p> If nothing is set via {@link #setImplementationMode}, the default
+     * value is {@link ImplementationMode#PERFORMANCE}.
+     *
+     * @return The {@link ImplementationMode} for {@link PreviewView}.
      */
     @NonNull
-    public ImplementationMode getPreferredImplementationMode() {
-        return mPreferredImplementationMode;
+    public ImplementationMode getImplementationMode() {
+        return mImplementationMode;
     }
 
     /**
      * Gets the {@link Preview.SurfaceProvider} to be used with
      * {@link Preview#setSurfaceProvider(Executor, Preview.SurfaceProvider)}.
-     * <p>
-     * The returned {@link Preview.SurfaceProvider} will provide a preview
-     * {@link android.view.Surface} to the camera that's either managed by a
-     * {@link android.view.TextureView} or {@link android.view.SurfaceView}. This option is
-     * determined by the {@linkplain #setPreferredImplementationMode(ImplementationMode)
-     * preferred implementation mode} and the device's capabilities.
      *
+     * <p> The returned {@link Preview.SurfaceProvider} will provide a preview {@link Surface} to
+     * the camera that's either managed by a {@link TextureView} or {@link SurfaceView} depending
+     * on the {@link ImplementationMode}.
+     *
+     * @see ImplementationMode
      * @return A {@link Preview.SurfaceProvider} used to start the camera preview.
      */
     @NonNull
     @UiThread
     public Preview.SurfaceProvider createSurfaceProvider() {
         Threads.checkMainThread();
-        removeAllViews();
-
         return surfaceRequest -> {
-            Log.d(TAG, "Surface requested by Preview.");
+            Logger.d(TAG, "Surface requested by Preview.");
             CameraInternal camera = (CameraInternal) surfaceRequest.getCamera();
-            final ImplementationMode actualImplementationMode =
-                    computeImplementationMode(camera.getCameraInfo(), mPreferredImplementationMode);
             mPreviewTransform.setSensorDimensionFlipNeeded(
                     isSensorDimensionFlipNeeded(camera.getCameraInfo()));
-            mImplementation = computeImplementation(actualImplementationMode);
+            mImplementation = shouldUseTextureView(camera.getCameraInfo(), mImplementationMode)
+                    ? new TextureViewImplementation() : new SurfaceViewImplementation();
             mImplementation.init(this, mPreviewTransform);
 
             PreviewStreamStateObserver streamStateObserver =
@@ -217,6 +251,10 @@ public class PreviewView extends FrameLayout {
 
             camera.getCameraState().addObserver(
                     ContextCompat.getMainExecutor(getContext()), streamStateObserver);
+
+            mPreviewViewMeteringPointFactory.setViewImplementationResolution(
+                    surfaceRequest.getResolution());
+            mPreviewViewMeteringPointFactory.setCameraInfo(camera.getCameraInfo());
 
             mImplementation.onSurfaceRequested(surfaceRequest, () -> {
                 // We've no longer needed this observer, if there is no new StreamStateObserver
@@ -241,6 +279,7 @@ public class PreviewView extends FrameLayout {
      */
     public void setScaleType(@NonNull final ScaleType scaleType) {
         mPreviewTransform.setScaleType(scaleType);
+        mPreviewViewMeteringPointFactory.setScaleType(scaleType);
         if (mImplementation != null) {
             mImplementation.redrawPreview();
         }
@@ -307,12 +346,11 @@ public class PreviewView extends FrameLayout {
     }
 
     /**
-     * Creates a {@link MeteringPointFactory} by a given {@link CameraSelector}
+     * Gets the {@link MeteringPointFactory} for the Camera currently connected to the PreviewView.
      *
      * <p>The returned {@link MeteringPointFactory} is capable of creating {@link MeteringPoint}s
      * from (x, y) coordinates in the {@link PreviewView}. This conversion takes into account its
-     * {@link ScaleType}. It is recommended to call this method to create a new factory every
-     * time you start a focus and metering action, instead of caching the factory instance.
+     * {@link ScaleType}.
      *
      * <p>When the PreviewView has a width and/or height equal to zero, or when a preview
      * {@link Surface} is not yet requested, the returned factory will always create invalid
@@ -320,14 +358,11 @@ public class PreviewView extends FrameLayout {
      * {@link androidx.camera.core.CameraControl#startFocusAndMetering(FocusMeteringAction)} but it
      * won't cause any crash.
      *
-     * @param cameraSelector the CameraSelector which the {@link Preview} is bound to.
      * @return a {@link MeteringPointFactory}
      */
     @NonNull
-    public MeteringPointFactory createMeteringPointFactory(@NonNull CameraSelector cameraSelector) {
-        return new PreviewViewMeteringPointFactory(getDisplay(), cameraSelector,
-                mImplementation == null ? null : mImplementation.getResolution(),
-                mPreviewTransform.getScaleType(), getWidth(), getHeight());
+    public MeteringPointFactory getMeteringPointFactory() {
+        return mPreviewViewMeteringPointFactory;
     }
 
     /**
@@ -337,11 +372,13 @@ public class PreviewView extends FrameLayout {
      * {@link StreamState#IDLE} represents the preview is currently not visible and streaming is
      * stopped. {@link StreamState#STREAMING} means the preview is streaming.
      *
-     * <p>When it's in STREAMING state, it guarantees preview is visible only when
-     * implementationMode is TEXTURE_VIEW. When in SURFACE_VIEW implementationMode, it is
-     * possible that preview becomes visible slightly after state changes to STREAMING. For apps
-     * relying on the preview visible signal to be working correctly, please set TEXTURE_VIEW
-     * mode by {@link #setPreferredImplementationMode}.
+     * <p>When {@link PreviewView} is in a {@link StreamState#STREAMING} state, it guarantees
+     * preview is visible only when implementationMode is {@link ImplementationMode#COMPATIBLE}.
+     * When in {@link ImplementationMode#PERFORMANCE} mode, it is possible that preview becomes
+     * visible slightly after state changes to {@link StreamState#STREAMING}. For apps
+     * relying on the preview visible signal to be working correctly, please set
+     * {@link ImplementationMode#COMPATIBLE} mode in
+     * {@link #setImplementationMode}.
      *
      * @return A {@link LiveData} containing the {@link StreamState}. Apps can either get current
      * value by {@link LiveData#getValue()} or register a observer by {@link LiveData#observe} .
@@ -376,27 +413,22 @@ public class PreviewView extends FrameLayout {
         return mImplementation == null ? null : mImplementation.getBitmap();
     }
 
-    @NonNull
-    private ImplementationMode computeImplementationMode(@NonNull CameraInfo cameraInfo,
-            @NonNull final ImplementationMode preferredMode) {
-        // Force to use TEXTURE_VIEW when the device is running android 7.0 and below, legacy
-        // level or it is running in remote display mode.
-        return Build.VERSION.SDK_INT <= 24 || cameraInfo.getImplementationType().equals(
-                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY) || isRemoteDisplayMode()
-                ? ImplementationMode.TEXTURE_VIEW : preferredMode;
-    }
-
-    @NonNull
-    private PreviewViewImplementation computeImplementation(
-            @NonNull final ImplementationMode mode) {
-        switch (mode) {
-            case SURFACE_VIEW:
-                return new SurfaceViewImplementation();
-            case TEXTURE_VIEW:
-                return new TextureViewImplementation();
+    private boolean shouldUseTextureView(@NonNull CameraInfo cameraInfo,
+            @NonNull final ImplementationMode implementationMode) {
+        if (Build.VERSION.SDK_INT <= 24 || cameraInfo.getImplementationType().equals(
+                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY) || isRemoteDisplayMode()) {
+            // Force to use TextureView when the device is running android 7.0 and below, legacy
+            // level or it is running in remote display mode.
+            return true;
+        }
+        switch (implementationMode) {
+            case COMPATIBLE:
+                return true;
+            case PERFORMANCE:
+                return false;
             default:
-                throw new IllegalStateException(
-                        "Unsupported implementation mode " + mode);
+                throw new IllegalArgumentException(
+                        "Invalid implementation mode: " + implementationMode);
         }
     }
 
@@ -435,28 +467,50 @@ public class PreviewView extends FrameLayout {
 
     /**
      * The implementation mode of a {@link PreviewView}.
-     * <p>
-     * {@link PreviewView} manages the preview {@link Surface} by either using a
-     * {@link android.view.SurfaceView} or a {@link android.view.TextureView}. A
-     * {@link android.view.SurfaceView} is generally better than a
-     * {@link android.view.TextureView} when it comes to certain key metrics, including power and
-     * latency, which is why {@link PreviewView} tries to use a {@link android.view.SurfaceView} by
-     * default, but will fall back to use a {@link android.view.TextureView} when it's explicitly
-     * set by calling {@link #setPreferredImplementationMode(ImplementationMode)} with
-     * {@link ImplementationMode#TEXTURE_VIEW}, or when the device does not support using a
-     * {@link android.view.SurfaceView} well (for example on LEGACY devices and devices running
-     * on API 24 or less).
+     *
+     * <p> User preference on how the {@link PreviewView} should render the preview.
+     * {@link PreviewView} displays the preview with either a {@link SurfaceView} or a
+     * {@link TextureView}. A {@link SurfaceView} is generally better than a {@link TextureView}
+     * when it comes to certain key metrics, including power and latency. On the other hand,
+     * {@link TextureView} is better supported by a wider range of devices. The option is used by
+     * {@link PreviewView} to decide what is the best internal implementation given the device
+     * capabilities and user configurations.
      */
     public enum ImplementationMode {
-        /**
-         * Use a {@link android.view.SurfaceView} for the preview. If the device doesn't support
-         * it well, {@link PreviewView} will fall back to use a {@link android.view.TextureView}
-         * instead.
-         */
-        SURFACE_VIEW,
 
-        /** Use a {@link android.view.TextureView} for the preview */
-        TEXTURE_VIEW
+        /**
+         * Use a {@link SurfaceView} for the preview when possible. If the device
+         * doesn't support {@link SurfaceView}, {@link PreviewView} will fall back to use a
+         * {@link TextureView} instead.
+         *
+         * {@link PreviewView} falls back to {@link TextureView} when the API level is 24 or lower,
+         * the camera hardware is
+         * {@link CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY}, or
+         * {@link Preview#getTargetRotation()} is different from {@link PreviewView}'s display
+         * rotation.
+         *
+         * Use of this mode is discouraged if {@link Preview.Builder#setTargetRotation(int)} is set
+         * to a value different than the display's rotation at the time the {@link Preview} was
+         * created. If preview's target rotation is changed after the preview starts, it will
+         * cause extra latency to switch from {@link SurfaceView} to {@link TextureView} because
+         * {@link SurfaceView} does not support arbitrary transformation. This mode is also
+         * encouraged if the {@link PreviewView} needs to be animated. {@link SurfaceView}
+         * animation is not supported on API level 24 or lower. Also for streaming state
+         * provided in {@link #getPreviewStreamState}, the {@link StreamState#STREAMING} state
+         * might happen prematurely if this mode is used.
+         *
+         * @see Preview.Builder#setTargetRotation(int)
+         * @see Preview.Builder#getTargetRotation()
+         * @see Display#getRotation()
+         * @see CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY
+         * @see StreamState#STREAMING
+         */
+        PERFORMANCE,
+
+        /**
+         * Use a {@link TextureView} for the preview.
+         */
+        COMPATIBLE
     }
 
     /** Options for scaling the preview vis-à-vis its container {@link PreviewView}. */
@@ -547,12 +601,50 @@ public class PreviewView extends FrameLayout {
         /**
          * Preview is streaming.
          *
-         * It guarantees preview is visible only when implementationMode is TEXTURE_VIEW. When in
-         * SURFACE_VIEW implementationMode, it is possible that preview becomes visible slightly
-         * after state changes to STREAMING. For apps relying on the preview visible signal to
-         * be working correctly, please set TEXTURE_VIEW mode by
-         * {@link #setPreferredImplementationMode}.
+         * It only guarantees preview streaming when implementation mode is
+         * {@link ImplementationMode#COMPATIBLE}. When in {@link ImplementationMode#PERFORMANCE},
+         * it is possible that preview becomes visible slightly after state is changed. For apps
+         * relying on the preview visible signal to work correctly, please set
+         * {@link ImplementationMode#PERFORMANCE} mode via {@link #setImplementationMode}.
          */
         STREAMING
+    }
+
+    /**
+     * Sets the {@link CameraController}.
+     *
+     * <p> The controller creates and manages the {@link Preview} that backs the
+     * {@link PreviewView}. It also configures the {@link ViewPort} based on the {@link ScaleType}
+     * and the dimension of the {@link PreviewView}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @MainThread
+    public void setController(@Nullable CameraController cameraController) {
+        Threads.checkMainThread();
+        if (mCameraController != null && mCameraController != cameraController) {
+            // If already bound to a different controller, ask the old controller to stop
+            // using this PreviewView.
+            mCameraController.clearPreviewSurface();
+        }
+        mCameraController = cameraController;
+        if (mCameraController != null) {
+            mCameraController.attachPreviewSurface(createSurfaceProvider(), getWidth(),
+                    getHeight());
+        }
+    }
+
+    /**
+     * Get the {@link CameraController}.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Nullable
+    @MainThread
+    public CameraController getController() {
+        Threads.checkMainThread();
+        return mCameraController;
     }
 }

@@ -17,11 +17,11 @@
 package androidx.ui.tooling.preview.animation
 
 import android.util.Log
-import androidx.animation.InternalAnimationApi
-import androidx.animation.TransitionAnimation
-import androidx.animation.getStates
-import androidx.ui.animation.tooling.ComposeAnimation
-import androidx.ui.animation.tooling.ComposeAnimationType
+import androidx.compose.animation.core.InternalAnimationApi
+import androidx.compose.animation.core.TransitionAnimation
+import androidx.compose.animation.core.getStates
+import androidx.compose.animation.tooling.ComposeAnimation
+import androidx.compose.animation.tooling.ComposeAnimationType
 
 // TODO(b/160126628): support other animation types, e.g. AnimatedValue
 /**
@@ -32,11 +32,18 @@ import androidx.ui.animation.tooling.ComposeAnimationType
 internal fun TransitionAnimation<*>.TransitionAnimationClockObserver.parse(): ComposeAnimation {
     Log.d("ComposeAnimationParser", "TransitionAnimation subscribed")
     animation.monotonic = false
+    val states = animation.getStates().filterNotNull().toSet()
     return object : ComposeAnimation {
-        override fun getType() = ComposeAnimationType.TRANSITION_ANIMATION
+        override val type: ComposeAnimationType
+            get() = ComposeAnimationType.TRANSITION_ANIMATION
 
-        override fun getAnimation() = animation
+        override val animationObject: Any
+            get() = animation
 
-        override fun getStates() = animation.getStates().filterNotNull().toSet()
+        override val states: Set<Any>
+            get() = states
+
+        override val label: String?
+            get() = animation.label ?: states.firstOrNull()?.let { it::class.simpleName }
     }
 }

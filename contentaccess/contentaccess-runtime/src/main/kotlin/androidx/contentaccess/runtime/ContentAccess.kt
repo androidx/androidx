@@ -31,8 +31,10 @@ class ContentAccess {
             contentResolver: ContentResolver,
             queryExecutor: Executor = ArchTaskExecutor.getIOThreadExecutor()
         ): T {
-            val generatedClassName = "_${contentAccessObject.simpleName}Impl"
             val packageName = contentAccessObject.java.`package`!!.name
+            // We do this instead of getting the simple name of the class in case of nested classes.
+            val generatedClassName = "${contentAccessObject.qualifiedName!!
+                .removePrefix(packageName).replace(".", "_")}Impl"
             try {
                 val cl = Class.forName("$packageName.$generatedClassName")
                 val constructor = cl.getConstructor(

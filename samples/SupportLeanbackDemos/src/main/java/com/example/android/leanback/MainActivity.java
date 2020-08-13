@@ -172,6 +172,9 @@ public class MainActivity extends Activity {
             addAction(actions, PinPickerActivity.class,
                     R.string.pin_picker,
                     R.string.pin_picker_description);
+            addAction(actions, TabLayoutActivity.class,
+                    R.string.tab_layout,
+                    R.string.tab_layout_description);
         }
 
         private void addAction(List<GuidedAction> actions, Class<?> cls, int titleRes,

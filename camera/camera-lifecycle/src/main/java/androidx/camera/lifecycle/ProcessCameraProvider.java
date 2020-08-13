@@ -484,7 +484,13 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
     @Override
     public boolean hasCamera(@NonNull CameraSelector cameraSelector)
             throws CameraInfoUnavailableException {
-        return CameraX.hasCamera(cameraSelector);
+        try {
+            cameraSelector.select(mCameraX.getCameraRepository().getCameras());
+        } catch (IllegalArgumentException e) {
+            return false;
+        }
+
+        return true;
     }
 
     private ProcessCameraProvider() {

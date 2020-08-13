@@ -36,7 +36,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
-import org.robolectric.shadows.ShadowPendingIntent;
 
 /**
  * Tests for CustomTabsIntent.
@@ -44,7 +43,7 @@ import org.robolectric.shadows.ShadowPendingIntent;
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 // minSdk For Bundle#getBinder
-@Config(minSdk = Build.VERSION_CODES.JELLY_BEAN_MR2, shadows = ShadowPendingIntent.class)
+@Config(minSdk = Build.VERSION_CODES.JELLY_BEAN_MR2)
 @SmallTest
 public class CustomTabsIntentTest {
 

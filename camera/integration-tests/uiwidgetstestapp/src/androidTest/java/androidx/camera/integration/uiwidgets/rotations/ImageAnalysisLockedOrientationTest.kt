@@ -72,6 +72,13 @@ class ImageAnalysisLockedOrientationTest(
 
     private fun ActivityScenario<LockedOrientationActivity>.rotate(rotationDegrees: Int) {
         onActivity { activity ->
+            // OrientationEventListener is called whenever the sensor detects the slightest change
+            // in the device's orientation. This causes flakiness in the test, since a new
+            // orientation can be set between the moment `onOrientationChanged(rotationDegrees)` is
+            // called, and the moment the final test assertion is done, which would change the
+            // value of the imageCapture use case's target rotation. To work around this, the
+            // orientationEventListener is disabled right before the rotation is performed.
+            activity.mOrientationEventListener.disable()
             activity.mOrientationEventListener.onOrientationChanged(rotationDegrees)
         }
     }

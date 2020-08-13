@@ -80,6 +80,11 @@ public class SliceHints {
     public static final String HINT_RAW = "raw";
 
     /**
+     * Hint indicating that the text in this slice should be used to overlay an image.
+     */
+    public static final String HINT_OVERLAY = "overlay";
+
+    /**
      * Subtype indicating that this slice represents a selection. The options will be included as
      * sub-slices.
      */

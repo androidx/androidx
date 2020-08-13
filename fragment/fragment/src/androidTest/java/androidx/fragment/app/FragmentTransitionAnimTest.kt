@@ -31,6 +31,7 @@ import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -41,12 +42,21 @@ import java.util.concurrent.TimeUnit
 @LargeTest
 @RunWith(Parameterized::class)
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.LOLLIPOP)
-class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
+class FragmentTransitionAnimTest(
+    private val reorderingAllowed: ReorderingAllowed,
+    private val stateManager: StateManager
+) {
     private var onBackStackChangedTimes: Int = 0
 
     @Before
     fun setup() {
+        stateManager.setup()
         onBackStackChangedTimes = 0
+    }
+
+    @After
+    fun teardown() {
+        stateManager.teardown()
     }
 
     // Ensure when transition duration is shorter than animation duration, we will get both end
@@ -95,9 +105,13 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
                 .commit()
             executePendingTransactions()
 
-            assertThat(fragment.startAnimationLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+            val startAnimationRan = fragment.startAnimationLatch.await(TIMEOUT,
+                TimeUnit.MILLISECONDS)
+            assertThat(startAnimationRan).isEqualTo(stateManager == OldStateManager)
             fragment.waitForTransition()
-            assertThat(fragment.exitAnimationLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+            val exitAnimationRan = fragment.exitAnimationLatch.await(TIMEOUT,
+                TimeUnit.MILLISECONDS)
+            assertThat(exitAnimationRan).isEqualTo(stateManager == OldStateManager)
             assertThat(onBackStackChangedTimes).isEqualTo(2)
         }
     }
@@ -148,9 +162,13 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
                 .commit()
             executePendingTransactions()
 
-            assertThat(fragment.startAnimationLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+            val startAnimationRan = fragment.startAnimationLatch.await(TIMEOUT,
+                TimeUnit.MILLISECONDS)
+            assertThat(startAnimationRan).isEqualTo(stateManager == OldStateManager)
             fragment.waitForTransition()
-            assertThat(fragment.exitAnimationLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+            val exitAnimationRan = fragment.exitAnimationLatch.await(TIMEOUT,
+                TimeUnit.MILLISECONDS)
+            assertThat(exitAnimationRan).isEqualTo(stateManager == OldStateManager)
             assertThat(onBackStackChangedTimes).isEqualTo(2)
         }
     }
@@ -202,7 +220,9 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
             executePendingTransactions()
 
             fragment.waitForTransition()
-            assertThat(fragment.exitAnimatorLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+            val exitAnimatorRan = fragment.exitAnimatorLatch.await(TIMEOUT,
+                TimeUnit.MILLISECONDS)
+            assertThat(exitAnimatorRan).isEqualTo(stateManager == OldStateManager)
             assertThat(onBackStackChangedTimes).isEqualTo(2)
         }
     }
@@ -254,7 +274,9 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
             executePendingTransactions()
 
             fragment.waitForTransition()
-            assertThat(fragment.exitAnimatorLatch.await(TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
+            val exitAnimatorRan = fragment.exitAnimatorLatch.await(TIMEOUT,
+                TimeUnit.MILLISECONDS)
+            assertThat(exitAnimatorRan).isEqualTo(stateManager == OldStateManager)
             assertThat(onBackStackChangedTimes).isEqualTo(2)
         }
     }
@@ -286,7 +308,7 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
     }
 
     class TransitionAnimatorFragment : TransitionFragment(R.layout.scene1) {
-        lateinit var exitAnimatorLatch: CountDownLatch
+        val exitAnimatorLatch = CountDownLatch(1)
 
         override fun onCreateAnimator(
             transit: Int,
@@ -303,15 +325,22 @@ class FragmentTransitionAnimTest(private val reorderingAllowed: Boolean) {
                     }
                 }
             })
-            exitAnimatorLatch = CountDownLatch(1)
         }
     }
 
     companion object {
         @JvmStatic
-        @Parameterized.Parameters
-        fun data(): Array<Boolean> {
-            return arrayOf(false, true)
+        @Parameterized.Parameters(name = "ordering={0}, stateManager={1}")
+        fun data() = mutableListOf<Array<Any>>().apply {
+            arrayOf(
+                Ordered,
+                Reordered
+            ).forEach { ordering ->
+                // Run the test with the new state manager
+                add(arrayOf(ordering, NewStateManager))
+                // Run the test with the old state manager
+                add(arrayOf(ordering, OldStateManager))
+            }
         }
 
         @AnimRes

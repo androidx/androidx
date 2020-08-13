@@ -30,6 +30,37 @@ import com.google.common.truth.Truth.assertWithMessage
 import java.lang.ref.WeakReference
 import java.util.ArrayList
 
+fun FragmentTransaction.setReorderingAllowed(
+    reorderingAllowed: ReorderingAllowed
+) = setReorderingAllowed(reorderingAllowed is Reordered)
+
+sealed class ReorderingAllowed {
+    override fun toString(): String = this.javaClass.simpleName
+}
+object Reordered : ReorderingAllowed()
+object Ordered : ReorderingAllowed()
+
+sealed class StateManager {
+    abstract fun setup()
+
+    override fun toString(): String = this.javaClass.simpleName
+
+    fun teardown() {
+        // Reset it back to the default
+        FragmentManager.enableNewStateManager(true)
+    }
+}
+object NewStateManager : StateManager() {
+    override fun setup() {
+        FragmentManager.enableNewStateManager(true)
+    }
+}
+object OldStateManager : StateManager() {
+    override fun setup() {
+        FragmentManager.enableNewStateManager(false)
+    }
+}
+
 @Suppress("DEPRECATION")
 fun androidx.test.rule.ActivityTestRule<out FragmentActivity>.executePendingTransactions(
     fm: FragmentManager = activity.supportFragmentManager

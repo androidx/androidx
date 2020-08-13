@@ -40,6 +40,7 @@ package androidx.biometric {
     field public static final int ERROR_NO_BIOMETRICS = 11; // 0xb
     field public static final int ERROR_NO_DEVICE_CREDENTIAL = 14; // 0xe
     field public static final int ERROR_NO_SPACE = 4; // 0x4
+    field public static final int ERROR_SECURITY_UPDATE_REQUIRED = 15; // 0xf
     field public static final int ERROR_TIMEOUT = 3; // 0x3
     field public static final int ERROR_UNABLE_TO_PROCESS = 2; // 0x2
     field public static final int ERROR_USER_CANCELED = 10; // 0xa

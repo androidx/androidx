@@ -44,6 +44,8 @@ public class ErrorUtilsTest {
         assertThat(ErrorUtils.isKnownError(BiometricPrompt.ERROR_HW_NOT_PRESENT)).isTrue();
         assertThat(ErrorUtils.isKnownError(BiometricPrompt.ERROR_NEGATIVE_BUTTON)).isTrue();
         assertThat(ErrorUtils.isKnownError(BiometricPrompt.ERROR_NO_DEVICE_CREDENTIAL)).isTrue();
+        assertThat(ErrorUtils.isKnownError(BiometricPrompt.ERROR_SECURITY_UPDATE_REQUIRED))
+                .isTrue();
     }
 
     @Test

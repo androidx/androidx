@@ -16,41 +16,42 @@
 
 package androidx.ui.demos
 
-import androidx.compose.Composable
-import androidx.compose.getValue
-import androidx.compose.setValue
-import androidx.ui.animation.Crossfade
-import androidx.ui.core.Alignment
-import androidx.ui.core.LayoutDirection
-import androidx.ui.core.Modifier
-import androidx.ui.core.WithConstraints
-import androidx.ui.core.testTag
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import androidx.compose.animation.Crossfade
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.LayoutDirection
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.ui.demos.common.ActivityDemo
 import androidx.ui.demos.common.ComposableDemo
 import androidx.ui.demos.common.Demo
 import androidx.ui.demos.common.DemoCategory
 import androidx.ui.demos.common.allLaunchableDemos
-import androidx.ui.foundation.Icon
-import androidx.ui.foundation.ScrollableColumn
-import androidx.ui.foundation.Text
-import androidx.ui.input.TextFieldValue
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.padding
-import androidx.ui.layout.preferredHeight
-import androidx.ui.layout.wrapContentSize
-import androidx.ui.material.IconButton
-import androidx.ui.material.ListItem
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.Scaffold
-import androidx.ui.material.Surface
-import androidx.ui.material.TopAppBar
-import androidx.ui.material.icons.Icons
-import androidx.ui.material.icons.filled.ArrowBack
-import androidx.ui.material.icons.filled.ArrowForward
-import androidx.ui.material.icons.filled.Search
-import androidx.ui.material.icons.filled.Settings
-import androidx.ui.savedinstancestate.savedInstanceState
-import androidx.ui.unit.dp
+import androidx.compose.foundation.Icon
+import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.IconButton
+import androidx.compose.material.ListItem
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Surface
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.runtime.savedinstancestate.savedInstanceState
+import androidx.compose.ui.platform.LayoutDirectionAmbient
+import androidx.compose.ui.unit.dp
 
 @Composable
 fun DemoApp(
@@ -131,9 +132,7 @@ private fun DisplayDemoCategory(category: DemoCategory, onNavigate: (Demo) -> Un
                         text = demo.title
                     )
                 },
-                onClick = {
-                    onNavigate(demo)
-                }
+                modifier = Modifier.clickable { onNavigate(demo) }
             )
         }
     }
@@ -173,14 +172,12 @@ private fun DemoAppBar(
 private object AppBarIcons {
     @Composable
     fun Back(onClick: () -> Unit) {
-        WithConstraints {
-            val icon = when (layoutDirection) {
-                LayoutDirection.Ltr -> Icons.Filled.ArrowBack
-                LayoutDirection.Rtl -> Icons.Filled.ArrowForward
-            }
-            IconButton(onClick = onClick) {
-                Icon(icon)
-            }
+        val icon = when (LayoutDirectionAmbient.current) {
+            LayoutDirection.Ltr -> Icons.Filled.ArrowBack
+            LayoutDirection.Rtl -> Icons.Filled.ArrowForward
+        }
+        IconButton(onClick = onClick) {
+            Icon(icon)
         }
     }
 

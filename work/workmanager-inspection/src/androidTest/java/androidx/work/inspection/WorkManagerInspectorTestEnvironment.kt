@@ -17,6 +17,7 @@
 package androidx.work.inspection
 
 import android.app.Application
+import androidx.inspection.ArtToolInterface
 import androidx.inspection.testing.DefaultTestInspectorEnvironment
 import androidx.inspection.testing.InspectorTester
 import androidx.inspection.testing.TestInspectorExecutors
@@ -81,26 +82,39 @@ class WorkManagerInspectorTestEnvironment : ExternalResource() {
             }
     }
 
-    suspend fun receiveEvent(): Event {
-        inspectorTester.channel.receive().let { responseBytes ->
-            assertThat(responseBytes).isNotEmpty()
-            return Event.parseFrom(responseBytes)
+    suspend fun receiveEvent() = receiveFilteredEvent { true }
+
+    suspend fun receiveFilteredEvent(predicate: (Event) -> Boolean): Event {
+        while (true) {
+            inspectorTester.channel.receive().let { responseBytes ->
+                assertThat(responseBytes).isNotEmpty()
+                val event = Event.parseFrom(responseBytes)
+                if (predicate(event)) {
+                    return event
+                }
+            }
         }
     }
 
     private fun registerApplication(application: Application) {
         environment.registerInstancesToFind(listOf(application))
     }
+
+    fun consumeRegisteredHooks(): List<Hook> =
+        environment.consumeRegisteredHooks()
 }
 
 /**
  * Fake inspector environment with the following behaviour:
  * - [findInstances] returns pre-registered values from [registerInstancesToFind].
+ * - [registerEntryHook] and [registerExitHook] record the calls which can later be
+ * retrieved in [consumeRegisteredHooks].
  */
 private class FakeInspectorEnvironment(
     job: Job
 ) : DefaultTestInspectorEnvironment(TestInspectorExecutors(job)) {
     private val instancesToFind = mutableListOf<Any>()
+    private val registeredHooks = mutableListOf<Hook>()
 
     fun registerInstancesToFind(instances: List<Any>) {
         instancesToFind.addAll(instances)
@@ -111,6 +125,31 @@ private class FakeInspectorEnvironment(
      *  By design crashes in case of the wrong setup - indicating an issue with test code.
      */
     @Suppress("UNCHECKED_CAST")
+    // TODO: implement actual findInstances behaviour
     override fun <T : Any?> findInstances(clazz: Class<T>): List<T> =
         instancesToFind.filter { clazz.isInstance(it) }.map { it as T }.toList()
+
+    override fun registerEntryHook(
+        originClass: Class<*>,
+        originMethod: String,
+        entryHook: ArtToolInterface.EntryHook
+    ) {
+        // TODO: implement actual registerEntryHook behaviour
+        registeredHooks.add(Hook.EntryHook(originClass, originMethod, entryHook))
+    }
+
+    fun consumeRegisteredHooks(): List<Hook> =
+        registeredHooks.toList().also {
+            registeredHooks.clear()
+        }
 }
+
+sealed class Hook(val originClass: Class<*>, val originMethod: String) {
+    class EntryHook(
+        originClass: Class<*>,
+        originMethod: String,
+        val entryHook: ArtToolInterface.EntryHook
+    ) : Hook(originClass, originMethod)
+}
+
+val Hook.asEntryHook get() = (this as Hook.EntryHook).entryHook

@@ -27,7 +27,7 @@ import javax.inject.Provider;
 import dagger.Module;
 import dagger.Provides;
 import dagger.hilt.InstallIn;
-import dagger.hilt.android.components.ApplicationComponent;
+import dagger.hilt.components.SingletonComponent;
 import dagger.multibindings.Multibinds;
 
 /**
@@ -37,7 +37,7 @@ import dagger.multibindings.Multibinds;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @Module
-@InstallIn(ApplicationComponent.class)
+@InstallIn(SingletonComponent.class)
 public abstract class WorkerFactoryModule {
 
     @NonNull

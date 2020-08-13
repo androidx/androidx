@@ -171,19 +171,22 @@ final class LifecycleCameraRepository {
                     getLifecycleCameraRepositoryObserver(lifecycleOwner);
             Set<Key> lifecycleCameraKeySet;
 
+            // Retrieves original or creates new key set.
             if (observer != null) {
-                // Retrieves original key set if it has been existed.
                 lifecycleCameraKeySet = mLifecycleObserverMap.get(observer);
             } else {
-                // Creates and put news observer and key set into the map if no one existed.
-                observer = new LifecycleCameraRepositoryObserver(lifecycleOwner, this);
                 lifecycleCameraKeySet = new HashSet<>();
-                mLifecycleObserverMap.put(observer, lifecycleCameraKeySet);
             }
 
             lifecycleCameraKeySet.add(key);
             mCameraMap.put(key, lifecycleCamera);
-            lifecycleOwner.getLifecycle().addObserver(observer);
+
+            // Create and put new observer and key set into the map if it didn't exist.
+            if (observer == null) {
+                observer = new LifecycleCameraRepositoryObserver(lifecycleOwner, this);
+                mLifecycleObserverMap.put(observer, lifecycleCameraKeySet);
+                lifecycleOwner.getLifecycle().addObserver(observer);
+            }
         }
     }
 
@@ -197,9 +200,18 @@ final class LifecycleCameraRepository {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void unregisterLifecycle(LifecycleOwner lifecycleOwner) {
         synchronized (mLock) {
-            setInactive(lifecycleOwner);
             LifecycleCameraRepositoryObserver observer =
                     getLifecycleCameraRepositoryObserver(lifecycleOwner);
+
+            // There is an error condition that can happen where onDestroy() can possibly be
+            // called twice if using Robolectric. The observer for the lifecycle would be removed
+            // in the first onDestroy() call and become null in the second onDestroy() call. It
+            // will cause an exception when executing the code after the null checker.
+            if (observer == null) {
+                return;
+            }
+
+            setInactive(lifecycleOwner);
 
             for (Key key: mLifecycleObserverMap.get(observer)) {
                 mCameraMap.remove(key);
@@ -390,6 +402,11 @@ final class LifecycleCameraRepository {
         synchronized (mLock) {
             LifecycleCameraRepositoryObserver observer =
                     getLifecycleCameraRepositoryObserver(lifecycleOwner);
+
+            if (observer == null) {
+                return false;
+            }
+
             Set<Key> lifecycleCameraKeySet = mLifecycleObserverMap.get(observer);
 
             // Checks whether any LifecycleCamera controlled by the LifecycleOwner has any

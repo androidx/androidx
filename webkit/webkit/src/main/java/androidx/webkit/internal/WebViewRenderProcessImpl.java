@@ -19,7 +19,6 @@ package androidx.webkit.internal;
 import android.annotation.SuppressLint;
 
 import androidx.annotation.NonNull;
-import androidx.webkit.WebViewFeature;
 import androidx.webkit.WebViewRenderProcess;
 
 import org.chromium.support_lib_boundary.WebViewRendererBoundaryInterface;
@@ -89,8 +88,7 @@ public class WebViewRenderProcessImpl extends WebViewRenderProcess {
     @SuppressLint("NewApi")
     @Override
     public boolean terminate() {
-        final WebViewFeatureInternal feature =
-                WebViewFeatureInternal.getFeature(WebViewFeature.WEB_VIEW_RENDERER_TERMINATE);
+        final WebViewFeatureInternal feature = WebViewFeatureInternal.WEB_VIEW_RENDERER_TERMINATE;
         if (feature.isSupportedByFramework()) {
             android.webkit.WebViewRenderProcess renderer = mFrameworkObject.get();
             return renderer != null ? renderer.terminate() : false;

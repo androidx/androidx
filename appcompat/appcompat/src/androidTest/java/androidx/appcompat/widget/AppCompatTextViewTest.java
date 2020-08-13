@@ -902,27 +902,27 @@ public class AppCompatTextViewTest
     public void testGetTextClassifier() {
         AppCompatTextView textView = mContainer.findViewById(R.id.textview_simple);
         textView.getTextClassifier();
-        DummyTextClassifier dummyTextClassifier = new DummyTextClassifier();
+        NoOpTextClassifier noOpTextClassifier = new NoOpTextClassifier();
 
         TextClassificationManager textClassificationManager =
                 mActivity.getSystemService(TextClassificationManager.class);
-        textClassificationManager.setTextClassifier(dummyTextClassifier);
+        textClassificationManager.setTextClassifier(noOpTextClassifier);
 
-        assertEquals(dummyTextClassifier, textView.getTextClassifier());
+        assertEquals(noOpTextClassifier, textView.getTextClassifier());
     }
 
     @SdkSuppress(minSdkVersion = 26)
     @Test
     public void testSetTextClassifier() {
         final AppCompatTextView textview = new AppCompatTextView(mActivityTestRule.getActivity());
-        DummyTextClassifier dummyTextClassifier = new DummyTextClassifier();
+        NoOpTextClassifier noOpTextClassifier = new NoOpTextClassifier();
 
-        textview.setTextClassifier(dummyTextClassifier);
+        textview.setTextClassifier(noOpTextClassifier);
 
-        assertEquals(dummyTextClassifier, textview.getTextClassifier());
+        assertEquals(noOpTextClassifier, textview.getTextClassifier());
     }
 
-    private static class DummyTextClassifier implements TextClassifier {}
+    private static class NoOpTextClassifier implements TextClassifier {}
 
     class TestCase {
         public final int id;

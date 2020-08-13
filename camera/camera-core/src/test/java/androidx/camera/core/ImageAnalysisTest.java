@@ -18,15 +18,19 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.robolectric.Shadows.shadowOf;
+
 import android.content.Context;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Pair;
 import android.util.Rational;
 import android.view.Surface;
 
 import androidx.camera.core.impl.CameraFactory;
+import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
@@ -46,14 +50,14 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
-import org.robolectric.shadow.api.Shadow;
-import org.robolectric.shadows.ShadowLooper;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Unit test for {@link ImageAnalysis}.
@@ -65,7 +69,7 @@ import java.util.concurrent.Executor;
 public class ImageAnalysisTest {
 
     private static final int QUEUE_DEPTH = 8;
-    private static final String IMAGE_TAG = "IMAGE_TAG";
+    private static final int IMAGE_TAG = 0;
     private static final long TIMESTAMP_1 = 1;
     private static final long TIMESTAMP_2 = 2;
     private static final long TIMESTAMP_3 = 3;
@@ -78,19 +82,26 @@ public class ImageAnalysisTest {
     private FakeImageReaderProxy mFakeImageReaderProxy;
     private HandlerThread mBackgroundThread;
     private HandlerThread mCallbackThread;
+    private TagBundle mTagBundle;
 
     @Before
     public void setUp() throws ExecutionException, InterruptedException {
         mCallbackThread = new HandlerThread("Callback");
         mCallbackThread.start();
+        // Explicitly pause callback thread since we will control execution manually in tests
+        shadowOf(mCallbackThread.getLooper()).pause();
         mCallbackHandler = new Handler(mCallbackThread.getLooper());
 
         mBackgroundThread = new HandlerThread("Background");
         mBackgroundThread.start();
+        // Explicitly pause background thread since we will control execution manually in tests
+        shadowOf(mBackgroundThread.getLooper()).pause();
         mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
         mBackgroundExecutor = CameraXExecutors.newHandlerExecutor(mBackgroundHandler);
 
         mImageProxiesReceived = new ArrayList<>();
+
+        mTagBundle = TagBundle.create(new Pair<>("FakeCaptureStageId", IMAGE_TAG));
 
         CameraFactory.Provider cameraFactoryProvider = (ignored1, ignored2) -> {
             FakeCameraFactory cameraFactory = new FakeCameraFactory();
@@ -106,9 +117,9 @@ public class ImageAnalysisTest {
     }
 
     @After
-    public void tearDown() throws ExecutionException, InterruptedException {
+    public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
         mImageProxiesReceived.clear();
-        CameraX.shutdown().get();
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
         if (mBackgroundThread != null) {
             mBackgroundThread.quitSafely();
         }
@@ -126,7 +137,7 @@ public class ImageAnalysisTest {
                         .build());
 
         // Act.
-        mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_1);
+        mFakeImageReaderProxy.triggerImageAvailable(mTagBundle, TIMESTAMP_1);
         flushHandler(mBackgroundHandler);
         flushHandler(mCallbackHandler);
 
@@ -149,7 +160,7 @@ public class ImageAnalysisTest {
         setUpImageAnalysisWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST);
 
         // Act.
-        mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_1);
+        mFakeImageReaderProxy.triggerImageAvailable(mTagBundle, TIMESTAMP_1);
         flushHandler(mBackgroundHandler);
         flushHandler(mCallbackHandler);
 
@@ -168,9 +179,9 @@ public class ImageAnalysisTest {
 
         // Act.
         // Receive images from camera feed.
-        mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_1);
+        mFakeImageReaderProxy.triggerImageAvailable(mTagBundle, TIMESTAMP_1);
         flushHandler(mBackgroundHandler);
-        mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_2);
+        mFakeImageReaderProxy.triggerImageAvailable(mTagBundle, TIMESTAMP_2);
         flushHandler(mBackgroundHandler);
 
         // Assert.
@@ -197,7 +208,7 @@ public class ImageAnalysisTest {
 
         // Act.
         // Receive images from camera feed.
-        mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_1);
+        mFakeImageReaderProxy.triggerImageAvailable(mTagBundle, TIMESTAMP_1);
         flushHandler(mBackgroundHandler);
 
         // Assert.
@@ -218,11 +229,11 @@ public class ImageAnalysisTest {
 
         // Act.
         // Receive images from camera feed.
-        mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_1);
+        mFakeImageReaderProxy.triggerImageAvailable(mTagBundle, TIMESTAMP_1);
         flushHandler(mBackgroundHandler);
-        mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_2);
+        mFakeImageReaderProxy.triggerImageAvailable(mTagBundle, TIMESTAMP_2);
         flushHandler(mBackgroundHandler);
-        mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_3);
+        mFakeImageReaderProxy.triggerImageAvailable(mTagBundle, TIMESTAMP_3);
         flushHandler(mBackgroundHandler);
 
         // Assert.
@@ -253,11 +264,11 @@ public class ImageAnalysisTest {
 
         // Act.
         // Receive images from camera feed.
-        mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_1);
+        mFakeImageReaderProxy.triggerImageAvailable(mTagBundle, TIMESTAMP_1);
         flushHandler(mBackgroundHandler);
-        mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_2);
+        mFakeImageReaderProxy.triggerImageAvailable(mTagBundle, TIMESTAMP_2);
         flushHandler(mBackgroundHandler);
-        mFakeImageReaderProxy.triggerImageAvailable(IMAGE_TAG, TIMESTAMP_3);
+        mFakeImageReaderProxy.triggerImageAvailable(mTagBundle, TIMESTAMP_3);
         flushHandler(mBackgroundHandler);
 
         // Assert.
@@ -320,6 +331,6 @@ public class ImageAnalysisTest {
      * @param handler the {@link Handler} to flush.
      */
     private static void flushHandler(Handler handler) {
-        ((ShadowLooper) Shadow.extract(handler.getLooper())).idle();
+        shadowOf(handler.getLooper()).idle();
     }
 }

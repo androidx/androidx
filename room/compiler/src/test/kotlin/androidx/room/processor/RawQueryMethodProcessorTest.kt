@@ -25,14 +25,6 @@ import androidx.room.Query
 import androidx.room.RawQuery
 import androidx.room.ext.PagingTypeNames
 import androidx.room.ext.SupportDbTypeNames
-import androidx.room.ext.asDeclaredType
-import androidx.room.ext.asExecutableElement
-import androidx.room.ext.asTypeElement
-import androidx.room.ext.getAllMethods
-import androidx.room.ext.getDeclaredMethods
-import androidx.room.ext.hasAnnotation
-import androidx.room.ext.requireTypeElement
-import androidx.room.ext.typeName
 import androidx.room.processor.ProcessorErrors.RAW_QUERY_STRING_PARAMETER_REMOVED
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
@@ -65,7 +57,7 @@ class RawQueryMethodProcessorTest {
                             type = SupportDbTypeNames.QUERY
                     )
             ))
-            assertThat(query.returnType.typeName(),
+            assertThat(query.returnType.typeName,
                     `is`(ArrayTypeName.of(TypeName.INT) as TypeName))
         }.compilesWithoutError()
     }
@@ -174,7 +166,7 @@ class RawQueryMethodProcessorTest {
                             type = SupportDbTypeNames.QUERY
                     )
             ))
-            assertThat(query.returnType.typeName(), `is`(pojo))
+            assertThat(query.returnType.typeName, `is`(pojo))
             assertThat(query.observedTableNames, `is`(emptySet()))
         }.compilesWithoutError()
     }
@@ -316,9 +308,7 @@ class RawQueryMethodProcessorTest {
                                     .getElementsAnnotatedWith(Dao::class.java)
                                     .map {
                                         Pair(it,
-                                                it.asTypeElement().getAllMethods(
-                                                    invocation.processingEnv
-                                                ).filter {
+                                                it.asTypeElement().getAllMethods().filter {
                                                     it.hasAnnotation(RawQuery::class)
                                                 }
                                         )
@@ -326,7 +316,7 @@ class RawQueryMethodProcessorTest {
                             val parser = RawQueryMethodProcessor(
                                     baseContext = invocation.context,
                                     containing = owner.asDeclaredType(),
-                                    executableElement = methods.first().asExecutableElement())
+                                    executableElement = methods.first())
                             val parsedQuery = parser.process()
                             handler(parsedQuery, invocation)
                             true

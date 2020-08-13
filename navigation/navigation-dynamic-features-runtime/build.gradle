@@ -55,5 +55,4 @@ androidx {
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = "2019"
     description = "Android Dynamic Feature Navigation Runtime"
-    url = AndroidXExtension.ARCHITECTURE_URL
 }

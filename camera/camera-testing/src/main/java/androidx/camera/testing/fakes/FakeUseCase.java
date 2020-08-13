@@ -63,6 +63,12 @@ public class FakeUseCase extends UseCase {
         mIsCleared = true;
     }
 
+    @NonNull
+    @Override
+    public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder() {
+        return null;
+    }
+
     @Override
     @NonNull
     protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {

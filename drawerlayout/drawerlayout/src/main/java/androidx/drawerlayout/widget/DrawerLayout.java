@@ -1718,15 +1718,10 @@ public class DrawerLayout extends ViewGroup implements Openable {
 
     /**
      * Open the {@link GravityCompat#START} drawer by animating it into view.
-     * <p>
-     * This has no effect if the {@link #getDrawerLockMode(int) drawer lock mode} is
-     * {@link #LOCK_MODE_LOCKED_CLOSED}.
      */
     @Override
     public void open() {
-        if (getDrawerLockMode(GravityCompat.START) != LOCK_MODE_LOCKED_CLOSED) {
-            openDrawer(GravityCompat.START);
-        }
+        openDrawer(GravityCompat.START);
     }
 
     /**
@@ -1801,15 +1796,10 @@ public class DrawerLayout extends ViewGroup implements Openable {
 
     /**
      * Close the {@link GravityCompat#START} drawer by animating it out of view.
-     * <p>
-     * This has no effect if the {@link #getDrawerLockMode(int) drawer lock mode} is
-     * {@link #LOCK_MODE_LOCKED_OPEN}.
      */
     @Override
     public void close() {
-        if (getDrawerLockMode(GravityCompat.START) != LOCK_MODE_LOCKED_OPEN) {
-            closeDrawer(GravityCompat.START);
-        }
+        closeDrawer(GravityCompat.START);
     }
 
     /**

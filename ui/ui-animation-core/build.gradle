@@ -34,13 +34,21 @@ dependencies {
 
 kotlin {
     android()
+    jvm("desktop")
+
     sourceSets {
         commonMain.dependencies {
             implementation project(":compose:ui:ui-util")
+            implementation project(":compose:runtime:runtime-dispatch")
+            implementation project(":compose:runtime:runtime")
             implementation (KOTLIN_STDLIB_COMMON)
         }
         androidMain.dependencies {
             api "androidx.annotation:annotation:1.1.0"
+            implementation (KOTLIN_STDLIB)
+        }
+        desktopMain.dependencies {
+            implementation project(":compose:runtime:runtime-dispatch")
             implementation (KOTLIN_STDLIB)
         }
 
@@ -66,7 +74,7 @@ androidx {
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.Compose.ANIMATION
     inceptionYear = "2019"
-    description = "Declarative animation library core classes"
+    description = "Animation engine and animation primitives that are the building blocks of the Compose animation library"
 }
 
 tasks.withType(KotlinCompile).configureEach {

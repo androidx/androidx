@@ -33,7 +33,7 @@ import androidx.autofill.inline.v1.InlineSuggestionUi;
 /**
  * Renderer class responsible for rendering the inline suggestion UI.
  */
-@RequiresApi(api = Build.VERSION_CODES.Q) //TODO(b/147116534): Update to R.
+@RequiresApi(api = Build.VERSION_CODES.R)
 public final class Renderer {
 
     private static final String TAG = "Renderer";

@@ -1343,7 +1343,6 @@ class MediaControllerImplBase implements MediaControllerImpl {
                 if (DEBUG) {
                     Log.d(TAG, "onServiceConnected " + name + " " + this);
                 }
-                // Sanity check
                 if (!mToken.getPackageName().equals(name.getPackageName())) {
                     Log.wtf(TAG, "Expected connection to " + mToken.getPackageName() + " but is"
                             + " connected to " + name);

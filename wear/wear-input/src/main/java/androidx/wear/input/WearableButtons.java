@@ -16,12 +16,10 @@
 
 package androidx.wear.input;
 
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.RotateDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.Surface;
@@ -35,7 +33,6 @@ import androidx.annotation.VisibleForTesting;
 import com.google.android.wearable.input.WearableInputDevice;
 
 /** Class containing helpers for managing wearable buttons. */
-@TargetApi(Build.VERSION_CODES.M)
 public final class WearableButtons {
 
     private static WearableButtonsProvider sButtonsProvider = new DeviceWearableButtonsProvider();
@@ -232,12 +229,11 @@ public final class WearableButtons {
     }
 
     /**
-     * Get the number of hardware buttons available. This function only works on API level 24 or
-     * higher (Wear 2.0). This count includes the primary stem key as well as any secondary stem
-     * keys available.
+     * Get the number of hardware buttons available. This count includes the primary stem key as
+     * well as any secondary stem keys available.
      *
      * @param context The context of the current activity
-     * @return The number of buttons available or -1 if not a Wear 2.0 device.
+     * @return The number of buttons available, or the information is not available.
      */
     public static int getButtonCount(@NonNull Context context) {
         if (sButtonCount == -1) {
@@ -388,9 +384,10 @@ public final class WearableButtons {
      *
      * @param context The context of the current activity
      * @param keycode The keycode associated with the hardware button of interest
-     * @return A CharSequence describing the placement location of the button
+     * @return A CharSequence describing the placement location of the button, or null if no
+     * location is available for that button.
      */
-    @NonNull
+    @Nullable
     public static CharSequence getButtonLabel(@NonNull Context context, int keycode) {
         // 4 length array where the index uses the standard quadrant counting system (minus 1 for
         // 0 index)

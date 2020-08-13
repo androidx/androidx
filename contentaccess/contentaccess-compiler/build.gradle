@@ -46,6 +46,7 @@ dependencies {
     implementation(KOTLINPOET_METADATA)
     implementation(KOTLINPOET_METADATA_SPECS)
     implementation(KOTLINPOET_CLASSINSPECTOR_ELEMENTS)
+    implementation("androidx.annotation:annotation:1.0.0")
 
     testImplementation(ASSERTJ)
     testImplementation(GOOGLE_COMPILE_TESTING)
@@ -60,11 +61,10 @@ dependencies {
 
 androidx {
     name = "AndroidX ContentAccess Annotation Compiler"
-    publish = Publish.NONE
+    publish = Publish.SNAPSHOT_ONLY
     mavenVersion = LibraryVersions.CONTENTACCESS
     mavenGroup = LibraryGroups.CONTENTACCESS
     inceptionYear = "2020"
     description = "AndroidX ContentAccess Annotation Compiler"
-    url = AndroidXExtension.ARCHITECTURE_URL
     compilationTarget = CompilationTarget.HOST
 }

@@ -76,7 +76,7 @@ public class MediaSession_KeyEventTest extends MediaSessionTestBase {
             // KeyEvent from system service has the package name "android".
             sExpectedControllerPackageName = "android";
         } else {
-            // In API 21+, MediaSessionCompat#getCurrentControllerInfo always returns dummy info.
+            // In API 21+, MediaSessionCompat#getCurrentControllerInfo always returns fake info.
             sExpectedControllerPackageName = LEGACY_CONTROLLER;
         }
     }

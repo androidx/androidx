@@ -232,10 +232,10 @@ public final class SessionConfig {
         }
 
         /**
-         * Set the tag of the SessionConfig. For tracking the source.
+         * Adds a tag to the SessionConfig with a key. For tracking the source.
          */
-        public void setTag(@NonNull Object tag) {
-            mCaptureConfigBuilder.setTag(tag);
+        public void addTag(@NonNull String key, @NonNull Integer tag) {
+            mCaptureConfigBuilder.addTag(key, tag);
         }
 
         /**
@@ -434,10 +434,8 @@ public final class SessionConfig {
                 }
             }
 
-            Object tag = sessionConfig.getRepeatingCaptureConfig().getTag();
-            if (tag != null) {
-                mCaptureConfigBuilder.setTag(tag);
-            }
+            TagBundle tagBundle = sessionConfig.getRepeatingCaptureConfig().getTagBundle();
+            mCaptureConfigBuilder.addAllTags(tagBundle);
 
             // Check device state callbacks
             mDeviceStateCallbacks.addAll(sessionConfig.getDeviceStateCallbacks());

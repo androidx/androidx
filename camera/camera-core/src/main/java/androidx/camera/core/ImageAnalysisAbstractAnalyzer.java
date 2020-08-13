@@ -80,7 +80,7 @@ abstract class ImageAnalysisAbstractAnalyzer implements ImageReaderProxy.OnImage
                         executor.execute(() -> {
                             if (!isClosed()) {
                                 ImageInfo imageInfo = ImmutableImageInfo.create(
-                                        imageProxy.getImageInfo().getTag(),
+                                        imageProxy.getImageInfo().getTagBundle(),
                                         imageProxy.getImageInfo().getTimestamp(),
                                         mRelativeRotation);
 

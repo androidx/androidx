@@ -376,7 +376,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
         final int testItemIndex = 0;
         final int testBufferingState = SessionPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
         final long testBufferingPosition = 500;
-        mSession.getMockPlayer().setPlaylistWithDummyItem(testPlaylist);
+        mSession.getMockPlayer().setPlaylistWithFakeItem(testPlaylist);
 
         final MediaControllerCallback controllerCallback = new MediaControllerCallback();
         controllerCallback.reset(1);
@@ -421,7 +421,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
         List<MediaItem> playlist = MediaTestUtils.createFileMediaItems(5);
         final int testItemIndex = 3;
         playlist.set(testItemIndex, currentMediaItem);
-        mSession.getMockPlayer().setPlaylistWithDummyItem(playlist);
+        mSession.getMockPlayer().setPlaylistWithFakeItem(playlist);
 
         final MediaControllerCallback controllerCallback = new MediaControllerCallback();
         controllerCallback.reset(1);
@@ -477,7 +477,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
         mControllerCompat.registerCallback(controllerCallback, sHandler);
 
         final int listSize = 5000;
-        mSession.getMockPlayer().createAndSetDummyPlaylist(listSize);
+        mSession.getMockPlayer().createAndSetFakePlaylist(listSize);
         mSession.getMockPlayer().setPlaylistMetadata(playlistMetadata);
         mSession.getMockPlayer().notifyPlaylistChanged();
 
@@ -496,7 +496,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
             assertTrue(queue.size() < listSize);
         }
         for (int i = 0; i < queue.size(); i++) {
-            assertEquals(TestUtils.getMediaIdInDummyList(i),
+            assertEquals(TestUtils.getMediaIdInFakeList(i),
                     queue.get(i).getDescription().getMediaId());
         }
         assertEquals(playlistTitle, controllerCallback.mTitle);

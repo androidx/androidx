@@ -54,10 +54,10 @@ android {
 }
 
 androidx {
-    name = "Android Support RecyclerView v7"
+    name = "Android Support RecyclerView"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.RECYCLERVIEW
     mavenGroup = LibraryGroups.RECYCLERVIEW
     inceptionYear = "2014"
-    description = "Android Support RecyclerView v7"
+    description = "Android Support RecyclerView"
 }

@@ -19,7 +19,6 @@ package androidx.webkit.internal;
 import androidx.annotation.NonNull;
 import androidx.webkit.ProxyConfig;
 import androidx.webkit.ProxyController;
-import androidx.webkit.WebViewFeature;
 
 import org.chromium.support_lib_boundary.ProxyControllerBoundaryInterface;
 
@@ -35,9 +34,8 @@ public class ProxyControllerImpl extends ProxyController {
     @Override
     public void setProxyOverride(@NonNull ProxyConfig proxyConfig, @NonNull Executor executor,
             @NonNull Runnable listener) {
-        WebViewFeatureInternal webViewFeature =
-                WebViewFeatureInternal.getFeature(WebViewFeature.PROXY_OVERRIDE);
-        if (webViewFeature.isSupportedByWebView()) {
+        WebViewFeatureInternal feature = WebViewFeatureInternal.PROXY_OVERRIDE;
+        if (feature.isSupportedByWebView()) {
             List<ProxyConfig.ProxyRule> proxyRulesList = proxyConfig.getProxyRules();
 
             // A 2D String array representation is required by reflection
@@ -56,9 +54,8 @@ public class ProxyControllerImpl extends ProxyController {
 
     @Override
     public void clearProxyOverride(@NonNull Executor executor, @NonNull Runnable listener) {
-        WebViewFeatureInternal webViewFeature =
-                WebViewFeatureInternal.getFeature(WebViewFeature.PROXY_OVERRIDE);
-        if (webViewFeature.isSupportedByWebView()) {
+        WebViewFeatureInternal feature = WebViewFeatureInternal.PROXY_OVERRIDE;
+        if (feature.isSupportedByWebView()) {
             getBoundaryInterface().clearProxyOverride(listener, executor);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();

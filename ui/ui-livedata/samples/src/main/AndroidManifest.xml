@@ -14,4 +14,4 @@
   limitations under the License.
   -->
 
-<manifest package="androidx.ui.livedata.samples" />
+<manifest package="androidx.compose.runtime.livedata.samples" />

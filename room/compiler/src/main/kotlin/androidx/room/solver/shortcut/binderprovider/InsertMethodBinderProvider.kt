@@ -16,9 +16,9 @@
 
 package androidx.room.solver.shortcut.binderprovider
 
+import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.solver.shortcut.binder.InsertMethodBinder
 import androidx.room.vo.ShortcutQueryParameter
-import javax.lang.model.type.DeclaredType
 
 /**
  * Provider for insert method binders.
@@ -26,12 +26,12 @@ import javax.lang.model.type.DeclaredType
 interface InsertMethodBinderProvider {
 
     /**
-     * Check whether the [DeclaredType] can be handled by the [InsertMethodBinder]
+     * Check whether the [XDeclaredType] can be handled by the [InsertMethodBinder]
      */
-    fun matches(declared: DeclaredType): Boolean
+    fun matches(declared: XDeclaredType): Boolean
 
     /**
-     * Provider of [InsertMethodBinder], based on the [DeclaredType] and the list of parameters
+     * Provider of [InsertMethodBinder], based on the [XDeclaredType] and the list of parameters
      */
-    fun provide(declared: DeclaredType, params: List<ShortcutQueryParameter>): InsertMethodBinder
+    fun provide(declared: XDeclaredType, params: List<ShortcutQueryParameter>): InsertMethodBinder
 }

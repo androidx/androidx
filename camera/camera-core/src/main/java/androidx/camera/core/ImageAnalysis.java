@@ -22,7 +22,6 @@ import static androidx.camera.core.impl.ImageAnalysisConfig.OPTION_IMAGE_READER_
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_MAX_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_SUPPORTED_RESOLUTIONS;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO;
-import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO_CUSTOM;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_RESOLUTION;
 import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ROTATION;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
@@ -37,9 +36,7 @@ import static androidx.camera.core.impl.UseCaseConfig.OPTION_USE_CASE_EVENT_CALL
 import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECUTOR;
 
 import android.media.ImageReader;
-import android.util.Log;
 import android.util.Pair;
-import android.util.Rational;
 import android.util.Size;
 import android.view.Display;
 import android.view.Surface;
@@ -50,7 +47,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.impl.CameraInfoInternal;
+import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
@@ -67,7 +64,6 @@ import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
-import androidx.camera.core.internal.utils.UseCaseConfigUtil;
 import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
@@ -270,7 +266,7 @@ public final class ImageAnalysis extends UseCase {
      * {@link ImageAnalysis.Builder#setTargetRotation(int)}, or dynamically by calling
      * {@link ImageAnalysis#setTargetRotation(int)}. If not set, the target rotation defaults to
      * the value of {@link Display#getRotation()} of the default display at the time the use case
-     * is created.
+     * is created. The use case is fully created once it has been attached to a camera.
      * </p>
      *
      * @return The rotation of the intended target for images.
@@ -313,38 +309,16 @@ public final class ImageAnalysis extends UseCase {
      * make sure the suitable resolution can be selected when the use case is bound.
      *
      * <p>If not set here or by configuration, the target rotation will default to the value of
-     * {@link Display#getRotation()} of the default display at the time the
-     * use case is created.
+     * {@link Display#getRotation()} of the default display at the time the use case is created.
+     * The use case is fully created once it has been attached to a camera.
      *
      * @param rotation Target rotation of the output image, expressed as one of
      *                 {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
      *                 {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
      */
     public void setTargetRotation(@RotationValue int rotation) {
-        ImageAnalysisConfig oldConfig = (ImageAnalysisConfig) getUseCaseConfig();
-        Builder builder = Builder.fromConfig(oldConfig);
-        int oldRotation = oldConfig.getTargetRotation(ImageOutputConfig.INVALID_ROTATION);
-        if (oldRotation == ImageOutputConfig.INVALID_ROTATION || oldRotation != rotation) {
-            UseCaseConfigUtil.updateTargetRotationAndRelatedConfigs(builder, rotation);
-            updateUseCaseConfig(builder.getUseCaseConfig());
-
-            // TODO(b/122846516): Update session configuration and possibly reconfigure session.
-            // For now we'll just update the relative rotation value.
-            // Attempt to get the camera ID and update the relative rotation. If we can't, we
-            // probably
-            // don't yet have permission, so we will try again in onSuggestedResolutionUpdated().
-            // Old
-            // configuration lens facing should match new configuration.
-            try {
-                tryUpdateRelativeRotation();
-            } catch (Exception e) {
-                // Likely don't yet have permissions. This is expected if this method is called
-                // before
-                // this use case becomes active. That's OK though since we've updated the use case
-                // configuration. We'll try to update relative rotation again in
-                // onSuggestedResolutionUpdated().
-                Log.w(TAG, "Unable to get camera id for the use case.");
-            }
+        if (setTargetRotationInternal(rotation)) {
+            tryUpdateRelativeRotation();
         }
     }
 
@@ -468,6 +442,18 @@ public final class ImageAnalysis extends UseCase {
      *
      * @hide
      */
+    @NonNull
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder() {
+        return Builder.fromConfig((ImageAnalysisConfig) getUseCaseConfig());
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
@@ -481,12 +467,14 @@ public final class ImageAnalysis extends UseCase {
         return suggestedResolution;
     }
 
+    /**
+     * Updates relative rotation if attached to a camera. No-op otherwise.
+     */
     private void tryUpdateRelativeRotation() {
-        ImageOutputConfig config = (ImageOutputConfig) getUseCaseConfig();
-        CameraInfoInternal cameraInfoInternal = getCamera().getCameraInfoInternal();
-        mImageAnalysisAbstractAnalyzer.setRelativeRotation(
-                cameraInfoInternal.getSensorRotationDegrees(
-                        config.getTargetRotation(Surface.ROTATION_0)));
+        CameraInternal cameraInternal = getCamera();
+        if (cameraInternal != null) {
+            mImageAnalysisAbstractAnalyzer.setRelativeRotation(getRelativeRotation(cameraInternal));
+        }
     }
 
     /**
@@ -767,41 +755,6 @@ public final class ImageAnalysis extends UseCase {
             return this;
         }
 
-        // Implementations of ImageOutputConfig.Builder default methods
-
-        /**
-         * Sets the aspect ratio of the intended target for images from this configuration.
-         *
-         * <p>This is the ratio of the target's width to the image's height, where the numerator of
-         * the provided {@link Rational} corresponds to the width, and the denominator corresponds
-         * to the height.
-         *
-         * <p>The target aspect ratio is used as a hint when determining the resulting output aspect
-         * ratio which may differ from the request, possibly due to device constraints.
-         * Application code should check the resulting output's resolution.
-         *
-         * <p>This method can be used to request an aspect ratio that is not from the standard set
-         * of aspect ratios defined in the {@link AspectRatio}.
-         *
-         * <p>This method will remove any value set by setTargetAspectRatio().
-         *
-         * <p>For ImageAnalysis, the output is the {@link ImageProxy} passed to the analyzer
-         * function.
-         *
-         * @param aspectRatio A {@link Rational} representing the ratio of the target's width and
-         *                    height.
-         * @return The current Builder.
-         * @hide
-         */
-        @NonNull
-        @RestrictTo(Scope.LIBRARY_GROUP)
-        @Override
-        public Builder setTargetAspectRatioCustom(@NonNull Rational aspectRatio) {
-            getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM, aspectRatio);
-            getMutableConfig().removeOption(OPTION_TARGET_ASPECT_RATIO);
-            return this;
-        }
-
         /**
          * Sets the aspect ratio of the intended target for images from this configuration.
          *
@@ -812,7 +765,8 @@ public final class ImageAnalysis extends UseCase {
          *
          * <p>The target aspect ratio is used as a hint when determining the resulting output aspect
          * ratio which may differ from the request, possibly due to device constraints.
-         * Application code should check the resulting output's resolution.
+         * Application code should check the resulting output's resolution and the resulting
+         * aspect ratio may not be exactly as requested.
          *
          * <p>If not set, resolutions with aspect ratio 4:3 will be considered in higher
          * priority.
@@ -846,7 +800,7 @@ public final class ImageAnalysis extends UseCase {
          *
          * <p>If not set, the target rotation will default to the value of
          * {@link android.view.Display#getRotation()} of the default display at the time the
-         * use case is created.
+         * use case is created. The use case is fully created once it has been attached to a camera.
          *
          * @param rotation The rotation of the intended target.
          * @return The current Builder.
@@ -895,8 +849,6 @@ public final class ImageAnalysis extends UseCase {
         public Builder setTargetResolution(@NonNull Size resolution) {
             getMutableConfig()
                     .insertOption(ImageOutputConfig.OPTION_TARGET_RESOLUTION, resolution);
-            getMutableConfig().insertOption(OPTION_TARGET_ASPECT_RATIO_CUSTOM,
-                    new Rational(resolution.getWidth(), resolution.getHeight()));
             return this;
         }
 

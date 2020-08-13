@@ -17,14 +17,11 @@
 package androidx.room.parser
 
 import androidx.room.ColumnInfo
-import androidx.room.ext.getArrayType
-import androidx.room.ext.requireTypeMirror
-import box
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XType
 import com.squareup.javapoet.TypeName
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.tree.TerminalNode
-import javax.annotation.processing.ProcessingEnvironment
-import javax.lang.model.type.TypeMirror
 
 @Suppress("FunctionName")
 class QueryVisitor(
@@ -155,7 +152,7 @@ class SqlParser {
             input.isNotBlank() && INVALID_IDENTIFIER_CHARS.none { input.contains(it) }
 
         /**
-         * creates a dummy select query for raw queries that queries the given list of tables.
+         * creates a no-op select query for raw queries that queries the given list of tables.
          */
         fun rawQueryForTables(tableNames: Set<String>): ParsedQuery {
             return ParsedQuery(
@@ -191,9 +188,9 @@ enum class SQLTypeAffinity {
     REAL,
     BLOB;
 
-    fun getTypeMirrors(env: ProcessingEnvironment): List<TypeMirror>? {
+    fun getTypeMirrors(env: XProcessingEnv): List<XType>? {
         return when (this) {
-            TEXT -> listOf(env.requireTypeMirror("java.lang.String"))
+            TEXT -> listOf(env.requireType("java.lang.String"))
             INTEGER -> withBoxedTypes(
                 env, TypeName.INT, TypeName.BYTE, TypeName.CHAR,
                 TypeName.LONG, TypeName.SHORT
@@ -206,11 +203,11 @@ enum class SQLTypeAffinity {
         }
     }
 
-    private fun withBoxedTypes(env: ProcessingEnvironment, vararg primitives: TypeName):
-            List<TypeMirror> {
+    private fun withBoxedTypes(env: XProcessingEnv, vararg primitives: TypeName):
+            List<XType> {
         return primitives.flatMap {
-            val primitiveType = env.requireTypeMirror(it)
-            listOf(primitiveType, primitiveType.box(env.typeUtils))
+            val primitiveType = env.requireType(it)
+            listOf(primitiveType, primitiveType.boxed())
         }
     }
 

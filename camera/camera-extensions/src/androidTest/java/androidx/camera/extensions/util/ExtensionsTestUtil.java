@@ -20,6 +20,7 @@ import static junit.framework.TestCase.assertNotNull;
 
 import static org.junit.Assert.assertTrue;
 
+import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 
@@ -91,9 +92,9 @@ public class ExtensionsTestUtil {
      *
      * @return True if initializing successfully.
      */
-    public static boolean initExtensions()
+    public static boolean initExtensions(@NonNull Context context)
             throws InterruptedException, ExecutionException, TimeoutException {
-        ListenableFuture<ExtensionsAvailability> availability = ExtensionsManager.init();
+        ListenableFuture<ExtensionsAvailability> availability = ExtensionsManager.init(context);
         ExtensionsAvailability extensionsAvailability = availability.get(1, TimeUnit.SECONDS);
 
         // Checks that there is vendor library on device for test.

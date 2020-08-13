@@ -18,10 +18,15 @@ package androidx.work.inspection
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.await
+import androidx.work.impl.model.WorkSpec
 import androidx.work.inspection.WorkManagerInspectorProtocol.Command
+import androidx.work.inspection.WorkManagerInspectorProtocol.DataEntry
 import androidx.work.inspection.WorkManagerInspectorProtocol.TrackWorkManagerCommand
+import androidx.work.inspection.WorkManagerInspectorProtocol.WorkInfo.State
+import androidx.work.inspection.worker.EmptyWorker
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -59,9 +64,126 @@ class WorkInfoTest {
             assertThat(event.workAdded.work.id).isEqualTo(request.stringId)
         }
         clearAllWorks()
-        testEnvironment.receiveEvent().let { event ->
+        testEnvironment.receiveFilteredEvent { event ->
+            event.hasWorkRemoved()
+        }.let { event ->
             assertThat(event.hasWorkRemoved()).isTrue()
             assertThat(event.workRemoved.id).isEqualTo(request.stringId)
+        }
+    }
+
+    @Test
+    fun sendWorkAddedEvent() = runBlocking {
+        inspectWorkManager()
+        val request = OneTimeWorkRequestBuilder<EmptyWorker>().build()
+        testEnvironment.workManager.enqueue(request)
+        testEnvironment.receiveEvent().let { event ->
+            assertThat(event.hasWorkAdded()).isTrue()
+            val workInfo = event.workAdded.work
+            assertThat(workInfo.id).isEqualTo(request.stringId)
+            assertThat(workInfo.isPeriodic).isFalse()
+        }
+    }
+
+    @Test
+    fun updateWorkInfoState() = runBlocking {
+        inspectWorkManager()
+        val request = OneTimeWorkRequestBuilder<EmptyWorker>().build()
+        testEnvironment.workManager.enqueue(request)
+        testEnvironment.receiveFilteredEvent { event ->
+            event.hasWorkUpdated() && event.workUpdated.state == State.SUCCEEDED
+        }.let { event ->
+            assertThat(event.workUpdated.id).isEqualTo(request.stringId)
+        }
+    }
+
+    @Test
+    fun updateWorkInfoRetryCount() = runBlocking {
+        inspectWorkManager()
+        val request = OneTimeWorkRequestBuilder<EmptyWorker>().build()
+        testEnvironment.workManager.enqueue(request)
+        testEnvironment.receiveFilteredEvent { event ->
+            event.hasWorkUpdated() && event.workUpdated.runAttemptCount == 1
+        }.let { event ->
+            assertThat(event.workUpdated.id).isEqualTo(request.stringId)
+        }
+    }
+
+    @Test
+    fun updateWorkInfoOutputData() = runBlocking {
+        inspectWorkManager()
+        val request = OneTimeWorkRequestBuilder<EmptyWorker>().build()
+        testEnvironment.workManager.enqueue(request)
+        testEnvironment.receiveFilteredEvent { event ->
+            event.hasWorkUpdated() &&
+                    event.workUpdated.hasData() &&
+                    event.workUpdated.data.entriesCount == 1
+        }.let { event ->
+            assertThat(event.workUpdated.id).isEqualTo(request.stringId)
+            val expectedEntry = DataEntry.newBuilder()
+                .setKey("key")
+                .setValue("value")
+                .build()
+            assertThat(event.workUpdated.data.getEntries(0)).isEqualTo(expectedEntry)
+        }
+    }
+
+    @Test
+    fun updateWorkInfoScheduleRequestedAt() = runBlocking {
+        inspectWorkManager()
+        val request = OneTimeWorkRequestBuilder<EmptyWorker>().build()
+        testEnvironment.workManager.enqueue(request)
+        testEnvironment.receiveFilteredEvent { event ->
+            event.hasWorkUpdated() &&
+                    event.workUpdated.scheduleRequestedAt != WorkSpec.SCHEDULE_NOT_REQUESTED_YET
+        }.let { event ->
+            assertThat(event.workUpdated.id).isEqualTo(request.stringId)
+        }
+    }
+
+    @Test
+    fun runEntryHook_getCallStackWithWorkAddedEvent() = runBlocking {
+        inspectWorkManager()
+        val request = OneTimeWorkRequestBuilder<EmptyWorker>().build()
+        val workContinuation = testEnvironment.workManager.beginWith(request)
+        // a call stack should be recorded from WorkManagerInspector.
+        testEnvironment.consumeRegisteredHooks()
+            .first()
+            .asEntryHook
+            .onEntry(workContinuation, listOf())
+        workContinuation.enqueue()
+
+        testEnvironment.receiveEvent().let { event ->
+            val workInfo = event.workAdded.work
+            assertThat(workInfo.callStack.framesList[0].fileName)
+                .isEqualTo("ContinuationImpl.kt")
+        }
+    }
+
+    @Test
+    fun addChainingWorkWithUniqueName() = runBlocking {
+        inspectWorkManager()
+        val work1 = OneTimeWorkRequestBuilder<EmptyWorker>().build()
+        val work2 = OneTimeWorkRequestBuilder<EmptyWorker>().build()
+        val name = "myName"
+        testEnvironment.workManager.beginUniqueWork(name, ExistingWorkPolicy.REPLACE, work1)
+            .then(work2)
+            .enqueue()
+        for (count in 1..2) {
+            testEnvironment.receiveEvent().let { event ->
+                assertThat(event.hasWorkAdded()).isTrue()
+                val workInfo = event.workAdded.work
+                assertThat(workInfo.namesCount).isEqualTo(1)
+                assertThat(workInfo.getNames(0)).isEqualTo(name)
+                if (workInfo.id == work1.stringId) {
+                    assertThat(workInfo.dependentsCount).isEqualTo(1)
+                    assertThat(workInfo.getDependents(0)).isEqualTo(work2.stringId)
+                }
+                if (workInfo.id == work2.stringId) {
+                    assertThat(workInfo.prerequisitesCount).isEqualTo(1)
+                    assertThat(workInfo.getPrerequisites(0)).isEqualTo(work1.stringId)
+                }
+            }
         }
     }
 }

@@ -16,7 +16,7 @@
 
 <manifest
         xmlns:android="http://schemas.android.com/apk/res/android"
-        package="androidx.ui.material.studies">
+        package="androidx.compose.material.studies">
 
     <application>
         <activity android:name=".rally.RallyActivity"

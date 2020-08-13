@@ -96,6 +96,12 @@ public abstract class CustomTabsService extends Service {
     public static final String KEY_URL =
             "android.support.customtabs.otherurls.URL";
 
+    /**
+     * The key to use to store a boolean in the returns bundle of {@link #extraCommand} method,
+     * to indicate whether the command is executed successfully.
+     */
+    public static final String KEY_SUCCESS = "androidx.browser.customtabs.SUCCESS";
+
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({RESULT_SUCCESS, RESULT_FAILURE_DISALLOWED,
             RESULT_FAILURE_REMOTE_ERROR, RESULT_FAILURE_MESSAGING_ERROR})
@@ -345,11 +351,14 @@ public abstract class CustomTabsService extends Service {
      * <p> This call can be used by implementations to add extra commands, for testing or
      * experimental purposes.
      *
+     * The return bundle should contain a boolean value {@code true} with key
+     * {@link #KEY_SUCCESS} to signify that the client knows how to handle the request.
+     *
      * @param commandName Name of the extra command to execute.
      * @param args        Arguments for the command
-     * @return The result {@link Bundle}, or {@code null}.
+     * @return The result {@link Bundle}.
      */
-    @Nullable
+    @NonNull
     protected abstract Bundle extraCommand(@NonNull String commandName, @Nullable Bundle args);
 
     /**

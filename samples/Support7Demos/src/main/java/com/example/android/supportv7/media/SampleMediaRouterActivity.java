@@ -51,6 +51,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.mediarouter.app.MediaRouteActionProvider;
@@ -132,8 +133,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
 
         @Override
         public void onRouteSelected(@NonNull MediaRouter router,
-                @NonNull RouteInfo requestedRoute, @NonNull RouteInfo selectedRoute,
-                int reason) {
+                @NonNull RouteInfo selectedRoute, int reason, @NonNull RouteInfo requestedRoute) {
             Log.d(TAG, "onRouteSelected: requestedRoute=" + requestedRoute
                     + ", route=" + selectedRoute + ", reason=" + reason);
 
@@ -221,12 +221,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         // Get the media router service.
         mMediaRouter = MediaRouter.getInstance(this);
 
-        MediaRouterParams params = new MediaRouterParams.Builder()
-                .setDialogType(MediaRouterParams.DIALOG_TYPE_DEFAULT)
-                .setOutputSwitcherEnabled(true) // Output switcher will be shown from Android R+.
-                .setTransferToLocalEnabled(true) // Phone speaker will be shown when casting.
-                .build();
-        mMediaRouter.setRouterParams(params);
+        mMediaRouter.setRouterParams(getRouterParams());
 
         // Create a route selector for the type of routes that we care about.
         mSelector = new MediaRouteSelector.Builder()
@@ -234,14 +229,13 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
                 .addControlCategory(SampleMediaRouteProvider.CATEGORY_SAMPLE_ROUTE)
                 .build();
 
-        mMediaRouter.setOnPrepareTransferListener(new MediaRouter.OnPrepareTransferListener() {
-            @Override
-            public void onPrepareTransfer(@NonNull RouteInfo fromRoute, @NonNull RouteInfo toRoute,
-                    @NonNull MediaRouter.TransferNotifier notifier) {
-                Log.d(TAG, "onPrepareTransfer: from=" + fromRoute.getId()
-                        + ", to=" + toRoute.getId());
-                notifier.notifyPrepareFinished();
-            }
+        mMediaRouter.setOnPrepareTransferListener((fromRoute, toRoute) -> {
+            Log.d(TAG, "onPrepareTransfer: from=" + fromRoute.getId()
+                    + ", to=" + toRoute.getId());
+            return CallbackToFutureAdapter.getFuture(completer -> {
+                completer.set(null);
+                return "onPrepareTransfer";
+            });
         });
 
         // Add a fragment to take care of media route discovery.
@@ -511,6 +505,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         mSessionManager.stop();
         mPlayer.release();
         mMediaSession.release();
+        mMediaRouter.removeCallback(mMediaRouterCB);
         super.onDestroy();
     }
 
@@ -622,6 +617,13 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
             return mPlayListItems.getItem(index);
         }
         return null;
+    }
+
+    public MediaRouterParams getRouterParams() {
+        return new MediaRouterParams.Builder()
+                .setDialogType(MediaRouterParams.DIALOG_TYPE_DEFAULT)
+                .setTransferToLocalEnabled(true) // Phone speaker will be shown when casting.
+                .build();
     }
 
     /**
@@ -750,6 +752,30 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
      * same activity using a light theme with dark action bar instead of the dark theme.
      */
     public static class LightWithDarkActionBar extends SampleMediaRouterActivity {
+    }
+
+    /**
+     * This will show dynamic group dialog when ther user clicks the media route button.
+     */
+    public static class DynamicGroupActivity extends SampleMediaRouterActivity {
+        @Override
+        public MediaRouterParams getRouterParams() {
+            return new MediaRouterParams.Builder(super.getRouterParams())
+                    .setDialogType(MediaRouterParams.DIALOG_TYPE_DYNAMIC_GROUP)
+                    .build();
+        }
+    }
+
+    /**
+     * This pops up the output switcher if run on Android R+
+     */
+    public static class OutputSwitcherActivity extends SampleMediaRouterActivity {
+        @Override
+        public MediaRouterParams getRouterParams() {
+            return new MediaRouterParams.Builder(super.getRouterParams())
+                    .setOutputSwitcherEnabled(true)
+                    .build();
+        }
     }
 
     public static class ControllerDialogFragment extends MediaRouteControllerDialogFragment {

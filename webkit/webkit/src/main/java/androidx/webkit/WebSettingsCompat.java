@@ -62,11 +62,10 @@ public class WebSettingsCompat {
     @RequiresFeature(name = WebViewFeature.OFF_SCREEN_PRERASTER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setOffscreenPreRaster(@NonNull WebSettings settings, boolean enabled) {
-        WebViewFeatureInternal webviewFeature =
-                WebViewFeatureInternal.getFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
-        if (webviewFeature.isSupportedByFramework()) {
+        WebViewFeatureInternal feature = WebViewFeatureInternal.OFF_SCREEN_PRERASTER;
+        if (feature.isSupportedByFramework()) {
             settings.setOffscreenPreRaster(enabled);
-        } else if (webviewFeature.isSupportedByWebView()) {
+        } else if (feature.isSupportedByWebView()) {
             getAdapter(settings).setOffscreenPreRaster(enabled);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
@@ -89,11 +88,10 @@ public class WebSettingsCompat {
     @RequiresFeature(name = WebViewFeature.OFF_SCREEN_PRERASTER,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static boolean getOffscreenPreRaster(@NonNull WebSettings settings) {
-        WebViewFeatureInternal webviewFeature =
-                WebViewFeatureInternal.getFeature(WebViewFeature.OFF_SCREEN_PRERASTER);
-        if (webviewFeature.isSupportedByFramework()) {
+        WebViewFeatureInternal feature = WebViewFeatureInternal.OFF_SCREEN_PRERASTER;
+        if (feature.isSupportedByFramework()) {
             return settings.getOffscreenPreRaster();
-        } else if (webviewFeature.isSupportedByWebView()) {
+        } else if (feature.isSupportedByWebView()) {
             return getAdapter(settings).getOffscreenPreRaster();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
@@ -123,11 +121,10 @@ public class WebSettingsCompat {
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_ENABLE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setSafeBrowsingEnabled(@NonNull WebSettings settings, boolean enabled) {
-        WebViewFeatureInternal webviewFeature =
-                WebViewFeatureInternal.getFeature(WebViewFeature.SAFE_BROWSING_ENABLE);
-        if (webviewFeature.isSupportedByFramework()) {
+        WebViewFeatureInternal feature = WebViewFeatureInternal.SAFE_BROWSING_ENABLE;
+        if (feature.isSupportedByFramework()) {
             settings.setSafeBrowsingEnabled(enabled);
-        } else if (webviewFeature.isSupportedByWebView()) {
+        } else if (feature.isSupportedByWebView()) {
             getAdapter(settings).setSafeBrowsingEnabled(enabled);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
@@ -149,11 +146,10 @@ public class WebSettingsCompat {
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_ENABLE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static boolean getSafeBrowsingEnabled(@NonNull WebSettings settings) {
-        WebViewFeatureInternal webviewFeature =
-                WebViewFeatureInternal.getFeature(WebViewFeature.SAFE_BROWSING_ENABLE);
-        if (webviewFeature.isSupportedByFramework()) {
+        WebViewFeatureInternal feature = WebViewFeatureInternal.SAFE_BROWSING_ENABLE;
+        if (feature.isSupportedByFramework()) {
             return settings.getSafeBrowsingEnabled();
-        } else if (webviewFeature.isSupportedByWebView()) {
+        } else if (feature.isSupportedByWebView()) {
             return getAdapter(settings).getSafeBrowsingEnabled();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
@@ -189,11 +185,11 @@ public class WebSettingsCompat {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setDisabledActionModeMenuItems(@NonNull WebSettings settings,
             @MenuItemFlags int menuItems) {
-        WebViewFeatureInternal webviewFeature =
-                WebViewFeatureInternal.getFeature(WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS);
-        if (webviewFeature.isSupportedByFramework()) {
+        WebViewFeatureInternal feature =
+                WebViewFeatureInternal.DISABLED_ACTION_MODE_MENU_ITEMS;
+        if (feature.isSupportedByFramework()) {
             settings.setDisabledActionModeMenuItems(menuItems);
-        } else if (webviewFeature.isSupportedByWebView()) {
+        } else if (feature.isSupportedByWebView()) {
             getAdapter(settings).setDisabledActionModeMenuItems(menuItems);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
@@ -215,11 +211,11 @@ public class WebSettingsCompat {
     @RequiresFeature(name = WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @MenuItemFlags int getDisabledActionModeMenuItems(@NonNull WebSettings settings) {
-        WebViewFeatureInternal webviewFeature =
-                WebViewFeatureInternal.getFeature(WebViewFeature.DISABLED_ACTION_MODE_MENU_ITEMS);
-        if (webviewFeature.isSupportedByFramework()) {
+        WebViewFeatureInternal feature =
+                WebViewFeatureInternal.DISABLED_ACTION_MODE_MENU_ITEMS;
+        if (feature.isSupportedByFramework()) {
             return settings.getDisabledActionModeMenuItems();
-        } else if (webviewFeature.isSupportedByWebView()) {
+        } else if (feature.isSupportedByWebView()) {
             return getAdapter(settings).getDisabledActionModeMenuItems();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
@@ -248,9 +244,8 @@ public class WebSettingsCompat {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setWillSuppressErrorPage(@NonNull WebSettings settings,
             boolean suppressed) {
-        WebViewFeatureInternal webviewFeature =
-                WebViewFeatureInternal.getFeature(WebViewFeature.SUPPRESS_ERROR_PAGE);
-        if (webviewFeature.isSupportedByWebView()) {
+        WebViewFeatureInternal feature = WebViewFeatureInternal.SUPPRESS_ERROR_PAGE;
+        if (feature.isSupportedByWebView()) {
             getAdapter(settings).setWillSuppressErrorPage(suppressed);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
@@ -277,9 +272,8 @@ public class WebSettingsCompat {
     @RequiresFeature(name = WebViewFeature.SUPPRESS_ERROR_PAGE,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static boolean willSuppressErrorPage(@NonNull WebSettings settings) {
-        WebViewFeatureInternal webviewFeature =
-                WebViewFeatureInternal.getFeature(WebViewFeature.SUPPRESS_ERROR_PAGE);
-        if (webviewFeature.isSupportedByWebView()) {
+        WebViewFeatureInternal feature = WebViewFeatureInternal.SUPPRESS_ERROR_PAGE;
+        if (feature.isSupportedByWebView()) {
             return getAdapter(settings).willSuppressErrorPage();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
@@ -301,6 +295,14 @@ public class WebSettingsCompat {
      * (@see android.view.View#setForceDarkAllowed), then WebView content will be rendered
      * so as to emulate a dark theme. WebViews that are not attached to the view hierarchy will not
      * be inverted.
+     *
+     * <p class="note"> If your app uses a dark theme, WebView will not be inverted. Similarly, if
+     * your app's theme inherits from a {@code DayNight} theme, WebView will not be inverted.
+     * In either of these cases, you should control the mode manually with
+     * {@link ForceDark#FORCE_DARK_ON} or {@link ForceDark#FORCE_DARK_OFF}.
+     *
+     * <p> See <a href="https://developer.android.com/guide/topics/ui/look-and-feel/darktheme#force_dark">
+     * Force Dark documentation</a> for more information.
      *
      * @see #setForceDark
      */
@@ -347,11 +349,10 @@ public class WebSettingsCompat {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setForceDark(@NonNull WebSettings settings,
             @ForceDark int forceDarkMode) {
-        WebViewFeatureInternal webViewFeature =
-                WebViewFeatureInternal.getFeature(WebViewFeature.FORCE_DARK);
-        if (webViewFeature.isSupportedByFramework()) {
+        WebViewFeatureInternal feature = WebViewFeatureInternal.FORCE_DARK;
+        if (feature.isSupportedByFramework()) {
             settings.setForceDark(forceDarkMode);
-        } else if (webViewFeature.isSupportedByWebView()) {
+        } else if (feature.isSupportedByWebView()) {
             getAdapter(settings).setForceDark(forceDarkMode);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
@@ -376,11 +377,10 @@ public class WebSettingsCompat {
     @RequiresFeature(name = WebViewFeature.FORCE_DARK,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @ForceDark int getForceDark(@NonNull WebSettings settings) {
-        WebViewFeatureInternal webViewFeature =
-                WebViewFeatureInternal.getFeature(WebViewFeature.FORCE_DARK);
-        if (webViewFeature.isSupportedByFramework()) {
+        WebViewFeatureInternal feature = WebViewFeatureInternal.FORCE_DARK;
+        if (feature.isSupportedByFramework()) {
             return settings.getForceDark();
-        } else if (webViewFeature.isSupportedByWebView()) {
+        } else if (feature.isSupportedByWebView()) {
             return getAdapter(settings).getForceDark();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
@@ -389,8 +389,10 @@ public class WebSettingsCompat {
 
     /**
      * In this mode WebView content will be darkened by a user agent and it will ignore the
-     * web page's dark theme if it exists.
-     * See <a href="https://drafts.csswg.org/css-color-adjust-1/">specification</a>
+     * web page's dark theme if it exists. To avoid mixing two different darkening strategies,
+     * the {@code prefers-color-scheme} media query will evaluate to light.
+     *
+     * <p> See <a href="https://drafts.csswg.org/css-color-adjust-1/">specification</a>
      * for more information.
      *
      * @see #setForceDarkStrategy
@@ -403,6 +405,9 @@ public class WebSettingsCompat {
      * If web page does not provide dark theme support WebView content will be rendered with a
      * default theme.
      *
+     * <p> See <a href="https://drafts.csswg.org/css-color-adjust-1/">specification</a>
+     * for more information.
+     *
      * @see #setForceDarkStrategy
      */
     public static final int DARK_STRATEGY_WEB_THEME_DARKENING_ONLY =
@@ -410,7 +415,14 @@ public class WebSettingsCompat {
 
     /**
      * In this mode WebView content will be darkened by a user agent unless web page supports dark
-     * theme.
+     * theme. WebView determines whether web pages supports dark theme by the presence of
+     * {@code color-scheme} metadata containing "dark" value. For example,
+     * {@code <meta name="color-scheme" content="dark light">"}.
+     * If the metadata is not presented WebView content will be darkened by a user agent and
+     * {@code prefers-color-scheme} media query will evaluate to light.
+     *
+     * <p> See <a href="https://drafts.csswg.org/css-color-adjust-1/">specification</a>
+     * for more information.
      *
      * @see #setForceDarkStrategy
      */
@@ -450,9 +462,8 @@ public class WebSettingsCompat {
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static void setForceDarkStrategy(@NonNull WebSettings settings,
             @ForceDarkStrategy int forceDarkBehavior) {
-        WebViewFeatureInternal webViewFeature =
-                WebViewFeatureInternal.getFeature(WebViewFeature.FORCE_DARK_STRATEGY);
-        if (webViewFeature.isSupportedByWebView()) {
+        WebViewFeatureInternal feature = WebViewFeatureInternal.FORCE_DARK_STRATEGY;
+        if (feature.isSupportedByWebView()) {
             getAdapter(settings).setForceDarkStrategy(forceDarkBehavior);
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();
@@ -478,9 +489,8 @@ public class WebSettingsCompat {
     @RequiresFeature(name = WebViewFeature.FORCE_DARK_STRATEGY,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
     public static @ForceDarkStrategy int getForceDarkStrategy(@NonNull WebSettings settings) {
-        WebViewFeatureInternal webViewFeature =
-                WebViewFeatureInternal.getFeature(WebViewFeature.FORCE_DARK_STRATEGY);
-        if (webViewFeature.isSupportedByWebView()) {
+        WebViewFeatureInternal feature = WebViewFeatureInternal.FORCE_DARK_STRATEGY;
+        if (feature.isSupportedByWebView()) {
             return getAdapter(settings).getForceDark();
         } else {
             throw WebViewFeatureInternal.getUnsupportedOperationException();

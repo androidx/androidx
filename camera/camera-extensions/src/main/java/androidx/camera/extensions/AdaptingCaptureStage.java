@@ -43,7 +43,6 @@ final class AdaptingCaptureStage implements CaptureStage {
 
         CaptureConfig.Builder captureConfigBuilder = new CaptureConfig.Builder();
         captureConfigBuilder.addImplementationOptions(camera2ConfigurationBuilder.build());
-        captureConfigBuilder.setTag(mId);
         mCaptureRequestConfiguration = captureConfigBuilder.build();
     }
 

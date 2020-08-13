@@ -76,8 +76,9 @@ public final class CaptureConfig {
     /** True if this capture request needs a repeating surface */
     private final boolean mUseRepeatingSurface;
 
-    /** The tag for associating capture result with capture request. */
-    private final Object mTag;
+    /** The tag collection for associating capture result with capture request. */
+    @NonNull
+    private final TagBundle mTagBundle;
 
     /**
      * Private constructor for a CaptureConfig.
@@ -98,13 +99,13 @@ public final class CaptureConfig {
             int templateType,
             List<CameraCaptureCallback> cameraCaptureCallbacks,
             boolean useRepeatingSurface,
-            Object tag) {
+            @NonNull TagBundle tagBundle) {
         mSurfaces = surfaces;
         mImplementationOptions = implementationOptions;
         mTemplateType = templateType;
         mCameraCaptureCallbacks = Collections.unmodifiableList(cameraCaptureCallbacks);
         mUseRepeatingSurface = useRepeatingSurface;
-        mTag = tag;
+        mTagBundle = tagBundle;
     }
 
     /** Returns an instance of a capture configuration with minimal configurations. */
@@ -138,9 +139,9 @@ public final class CaptureConfig {
         return mCameraCaptureCallbacks;
     }
 
-    @Nullable
-    public Object getTag() {
-        return mTag;
+    @NonNull
+    public TagBundle getTagBundle() {
+        return mTagBundle;
     }
 
     /**
@@ -166,7 +167,7 @@ public final class CaptureConfig {
         private int mTemplateType = -1;
         private List<CameraCaptureCallback> mCameraCaptureCallbacks = new ArrayList<>();
         private boolean mUseRepeatingSurface = false;
-        private Object mTag = null;
+        private MutableTagBundle mMutableTagBundle = MutableTagBundle.create();
 
         public Builder() {
         }
@@ -177,7 +178,7 @@ public final class CaptureConfig {
             mTemplateType = base.mTemplateType;
             mCameraCaptureCallbacks.addAll(base.getCameraCaptureCallbacks());
             mUseRepeatingSurface = base.isUseRepeatingSurface();
-            mTag = base.getTag();
+            mMutableTagBundle = MutableTagBundle.from(base.getTagBundle());
         }
 
         /**
@@ -310,8 +311,24 @@ public final class CaptureConfig {
             mUseRepeatingSurface = useRepeatingSurface;
         }
 
-        public void setTag(@NonNull Object tag) {
-            mTag = tag;
+        /** Gets a tag's value by a key. */
+        @Nullable
+        public Integer getTag(@NonNull String key) {
+            return mMutableTagBundle.getTag(key);
+        }
+
+        /**
+         * Sets a tag with a key to CaptureConfig.
+         */
+        public void addTag(@NonNull String key, @NonNull Integer tag) {
+            mMutableTagBundle.putTag(key, tag);
+        }
+
+        /**
+         * Adds a TagBundle to CaptureConfig.
+         */
+        public void addAllTags(@NonNull TagBundle bundle) {
+            mMutableTagBundle.addTagBundle(bundle);
         }
 
         /**
@@ -326,7 +343,7 @@ public final class CaptureConfig {
                     mTemplateType,
                     mCameraCaptureCallbacks,
                     mUseRepeatingSurface,
-                    mTag);
+                    TagBundle.from(mMutableTagBundle));
         }
     }
 }

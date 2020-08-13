@@ -16,6 +16,7 @@
 
 package androidx.room.log
 
+import androidx.room.compiler.processing.XMessager
 import androidx.room.vo.Warning
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -25,7 +26,7 @@ import org.mockito.Mockito.mock
 @RunWith(JUnit4::class)
 class RLogTest {
 
-    val messager = mock(RLog.Messager::class.java)
+    val messager = mock(XMessager::class.java)
 
     @Test
     fun testSafeFormat() {

@@ -452,7 +452,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
         int testItemIndex = 0;
         int testBufferingState = SessionPlayer.BUFFERING_STATE_BUFFERING_AND_PLAYABLE;
         long testBufferingPosition = 500;
-        mSession.getMockPlayer().setPlaylistWithDummyItem(testPlaylist);
+        mSession.getMockPlayer().setPlaylistWithFakeItem(testPlaylist);
 
         AtomicReference<PlaybackStateCompat> playbackStateRef = new AtomicReference<>();
         CountDownLatch latch = new CountDownLatch(1);
@@ -509,7 +509,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
 
         List<MediaItem> playlist = MediaTestUtils.createFileMediaItems(5);
         playlist.set(testItemIndex, currentMediaItem);
-        mSession.getMockPlayer().setPlaylistWithDummyItem(playlist);
+        mSession.getMockPlayer().setPlaylistWithFakeItem(playlist);
 
         AtomicReference<MediaMetadataCompat> metadataRef = new AtomicReference<>();
         AtomicReference<PlaybackStateCompat> playbackStateRef = new AtomicReference<>();
@@ -610,7 +610,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
         mControllerCompat.registerCallback(callback, sHandler);
 
         int listSize = 5000;
-        mSession.getMockPlayer().createAndSetDummyPlaylist(listSize);
+        mSession.getMockPlayer().createAndSetFakePlaylist(listSize);
         mSession.getMockPlayer().setPlaylistMetadata(playlistMetadata);
         mSession.getMockPlayer().notifyPlaylistChanged();
 
@@ -627,7 +627,7 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
             assertTrue(queue.size() < listSize);
         }
         for (int i = 0; i < queue.size(); i++) {
-            assertEquals(TestUtils.getMediaIdInDummyList(i),
+            assertEquals(TestUtils.getMediaIdInFakeList(i),
                     queue.get(i).getDescription().getMediaId());
         }
         assertEquals(playlistTitle, queueTitleRef.get().toString());
