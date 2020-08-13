@@ -39,7 +39,7 @@ final class EventRouter implements OnItemTouchListener, Resettable {
     private boolean mDisallowIntercept;
 
     EventRouter() {
-        mDelegates = new ToolHandlerRegistry<>(new DummyOnItemTouchListener());
+        mDelegates = new ToolHandlerRegistry<>(new StubOnItemTouchListener());
     }
 
     /**

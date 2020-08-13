@@ -501,7 +501,7 @@ public abstract class SelectionTracker<K> {
         private ItemKeyProvider<K> mKeyProvider;
         private ItemDetailsLookup<K> mDetailsLookup;
 
-        private FocusDelegate<K> mFocusDelegate = FocusDelegate.dummy();
+        private FocusDelegate<K> mFocusDelegate = FocusDelegate.stub();
 
         private OnItemActivatedListener<K> mOnItemActivatedListener;
         private OnDragInitiatedListener mOnDragInitiatedListener;
@@ -783,7 +783,7 @@ public abstract class SelectionTracker<K> {
             // be configured to handle other types of input (to satisfy user expectation).);
 
             // Internally, the code doesn't permit nullable listeners, so we lazily
-            // initialize dummy instances if the developer didn't supply a real listener.
+            // initialize stub instances if the developer didn't supply a real listener.
             mOnDragInitiatedListener = (mOnDragInitiatedListener != null)
                     ? mOnDragInitiatedListener
                     : new OnDragInitiatedListener() {
