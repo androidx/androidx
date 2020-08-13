@@ -29,6 +29,7 @@ import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
+import android.hardware.camera2.params.StreamConfigurationMap;
 import android.os.Build;
 import android.util.Pair;
 import android.util.Rational;
@@ -93,9 +94,7 @@ import java.util.concurrent.TimeoutException;
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP,
-        maxSdk = Build.VERSION_CODES.P //TODO (b/149669465) : Some robolectric tests will fail on Q
-)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public final class SupportedSurfaceCombinationTest {
     private static final String CAMERA_ID = "0";
     private static final int DEFAULT_SENSOR_ORIENTATION = 90;
@@ -1899,10 +1898,21 @@ public final class SupportedSurfaceCombinationTest {
         int[] supportedFormats = isRawSupported(capabilities)
                 ? mSupportedFormatsWithRaw : mSupportedFormats;
 
-        shadowCharacteristics.set(
-                CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
-                StreamConfigurationMapUtil.generateFakeStreamConfigurationMap(supportedFormats,
-                        supportedSizes));
+        // Current robolectric can support to directly mock a StreamConfigurationMap object if
+        // the testing platform target is equal to or newer than API level 23. For API level 21
+        // or 22 testing platform target, keep the original method to create a
+        // StreamConfigurationMap object via reflection.
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            shadowCharacteristics.set(
+                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
+                    StreamConfigurationMapUtil.generateFakeStreamConfigurationMap(supportedFormats,
+                            supportedSizes));
+        } else {
+            StreamConfigurationMap mockMap = mock(StreamConfigurationMap.class);
+            when(mockMap.getOutputSizes(anyInt())).thenReturn(supportedSizes);
+            shadowCharacteristics.set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
+                    mockMap);
+        }
 
         @CameraSelector.LensFacing int lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(
                 CameraCharacteristics.LENS_FACING_BACK);
