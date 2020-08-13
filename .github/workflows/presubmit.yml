@@ -1,11 +1,11 @@
 name: AndroidX Presubmits
 on:
-  pull_request:
-    branches:
-      - master
-      - androidx-master-dev
-  repository_dispatch:
-    if: always()
+  push:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+  pull_request_review:
+    types: [submitted, edited]
+  workflow_dispatch:
 
 jobs:
   # This workflow contains a single job called "build"
@@ -23,12 +23,13 @@ jobs:
         uses: 'tikurahul/check-pr-format-action@master'
         with:
           # Enforces a `Test: <stanza>` in the pull request
-          checks: '["(.*)?Test\:(.*)?"]'
+          checks: '["(.*)?Test:(.*)?"]'
       # https://github.com/tikurahul/github-workflow-webhook-action
       - name: Start WebHook
         uses: tikurahul/github-workflow-webhook-action@master
         with:
           url: 'https://androidx.dev/github/androidX/presubmit/hook'
+          secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
           payload: '{ "platform": "${{ matrix.os }}", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "started"}'
       - name: Setup Java environment based on setup-java
         uses: actions/setup-java@v1
@@ -68,29 +69,27 @@ jobs:
         run: echo $DIST_DIR && ls $HOME/Library/Android/sdk
       - name: build on server
         run: |
-          cd playground
-          ./gradlew -Pandroidx.sdkPath=$(echo $HOME)/Library/Android/sdk :buildOnServer
+          cd paging && ./gradlew :buildOnServer &&  \
+          cd ../room && ./gradlew :buildOnServer && \
+          cd ../work && ./gradlew :buildOnServer
         id: gradlew_bos
-      - name: Set webhook outputs from ./gradlew
-        if: always()
-        run: |
-          if [ "${{ steps.gradlew_bos.outcome }}" == "success" ] || [ "${{ steps.gradlew_bos.outcome }}" == "skipped" ]
-          then
-            echo "##[set-output name=success;]true"
-          else
-            echo "##[set-output name=success;]false"
-          fi
-        id: gradlew_bos_outputs
       - name: Upload Results
         if: always()
         uses: actions/upload-artifact@v2
         with:
           name: artifacts
           path: ~/dist
-      - name: Completed WebHook
-        if: always()
+      - name: Successful WebHook
+        if: success()
         uses: tikurahul/github-workflow-webhook-action@master
         with:
           url: 'https://androidx.dev/github/androidX/presubmit/hook'
-          # TODO: extract the state of the build on server step
-          payload: '{ "platform": "${{ matrix.os }}", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "completed", "success": ${{ steps.gradlew_bos_outputs.outputs.success }} }'
+          secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
+          payload: '{ "platform": "${{ matrix.os }}", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "completed", "success": true }'
+      - name: Failure WebHook
+        if: ${{ failure() || cancelled() }}
+        uses: tikurahul/github-workflow-webhook-action@master
+        with:
+          url: 'https://androidx.dev/github/androidX/presubmit/hook'
+          secret: ${{ secrets.ANDROIDX_PRESUBMIT_HOOK_SECRET }}
+          payload: '{ "platform": "${{ matrix.os }}", "token": "${{ secrets.GITHUB_TOKEN }}", "state": "completed", "success": false }'

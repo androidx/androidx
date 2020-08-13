@@ -16,6 +16,8 @@
 
 package com.example.android.supportv7.widget.selection.fancy;
 
+import static androidx.recyclerview.widget.ItemTouchHelper.RIGHT;
+
 import android.content.Context;
 import android.net.Uri;
 import android.os.Build;
@@ -29,8 +31,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Toast;
 
-import androidx.annotation.CallSuper;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
@@ -40,47 +42,188 @@ import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.selection.SelectionTracker.SelectionObserver;
 import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 import com.example.android.supportv7.R;
 
 /**
- * ContentPager demo activity.
+ * RecyclerView Selection library fancy demo activity. The fancy
+ * demo includes support for both touch and mouse (band) driven selection.
+ * Use this activity as your example when implementing an activity/fragment
+ * that will run on a wide range of devices, including devices like ChromeOS
+ * where a pointing device may be present, or even the sole means of input.
+ *
+ * <p>The key to an implementation that provides mouse support is
+ * to provide an {@link ItemKeyProvider} that is
+ * {@link ItemKeyProvider#SCOPE_MAPPED}. This means the key provider
+ * can supply information about both position and item key at any time,
+ * even when an item is not attached to the recycler view. See
+ * {@link DemoAdapter.KeyProvider} for an example of a SCOPE_MAPPED
+ * provider that uses simple {@link Uri}s as the keys.
  */
 public class FancySelectionDemoActivity extends AppCompatActivity {
 
     private static final String TAG = "SelectionDemos";
-    private static final String EXTRA_COLUMN_COUNT = "demo-column-count";
 
     private RecyclerView mRecView;
-    private FancySelectionDemoAdapter mAdapter;
+    private DemoAdapter mAdapter;
     private SelectionTracker<Uri> mSelectionTracker;
 
     private GridLayoutManager mLayout;
-    private int mColumnCount = 1;  // This will get updated when layout changes.
     private boolean mIterceptListenerEnabled = false;
+    private boolean mSwipeDuringSelectionEnabled = false;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.selection_demo_layout);
         mRecView = (RecyclerView) findViewById(R.id.list);
 
-        // If you want to provided special handling of clicks on items
-        // in RecyclerView (respond to a play button, or show a menu
-        // when a three-dot menu is clicked) you can't just add an OnClickListener
-        // to the View.  This is because Selection lib installs an
-        // OnItemTouchListener w/ RecyclerView, and that listener eats
-        // up many of the touch/mouse events RecyclerView sends its way.
-        // To work around this install your own OnItemTouchListener *before*
-        // you build your SelectionTracker instance. That'll give your listener
-        // a chance to intercept events before Selection lib gobbles them up.
+        // Demo how to intercept touch events before selection tracker.
+        // In case you need to do something fancy that selection tracker
+        // might otherwise interfere with.
+        setupCustomTouchListener();
+
+        mLayout = new GridLayoutManager(this, 1);
+        mRecView.setLayoutManager(mLayout);
+        mAdapter = new DemoAdapter(this);
+        mRecView.setAdapter(mAdapter);
+        ItemKeyProvider<Uri> keyProvider = mAdapter.getItemKeyProvider();
+        final DemoDetailsLookup detailsLookup = new DemoDetailsLookup(mRecView);
+
+        SelectionTracker.Builder<Uri> builder = new SelectionTracker.Builder<>(
+                "fancy-demo",
+                mRecView,
+                keyProvider,
+                detailsLookup,
+                StorageStrategy.createParcelableStorage(Uri.class));
+
+        // Build a multi-selection enabled tracker with support for many
+        // mouse/keyboard centric niceties friendly to ChromeOS users
+        // of your app.
+        mSelectionTracker = builder
+                .withSelectionPredicate(SelectionPredicates.createSelectAnything())
+                // Allow users to drag a selection, can be initiated by long pressing
+                // on existing selection, or click-dragging with a mouse.
+                .withOnDragInitiatedListener(new OnDragInitiatedListener(this))
+                // Respond to context clicks allows you to add options for mouse users.
+                .withOnContextClickListener(new OnContextClickListener())
+                .withOnItemActivatedListener(new OnItemActivatedListener(this))
+                // Keep track of item focus which can aid in creating desirable
+                // keyboard based experiences for users on laptops.
+                .withFocusDelegate(new FocusDelegate())
+                // Use a custom band overlay when mouse selection is active.
+                // The library provides a default resource.
+                .withBandOverlay(R.drawable.selection_demo_band_overlay)
+                .build();
+
+        // Lazily bind SelectionTracker. Allows us to defer initialization of the
+        // SelectionTracker dependency until after the adapter is created.
+        mAdapter.bindSelectionTracker(mSelectionTracker);
+
+        // Adds a selection observer. You can use selection observer to enable
+        // action mode in your app when there is an active selection.
+        monitorSelectionChanges(mSelectionTracker);
+
+        // Adds swipe support. Demoing how selection and ItemTouchHelper can work together.
+        addSwipeSupport();
+
+        // Restore selection from saved state.
+        updateFromSavedState(savedInstanceState);
+    }
+
+    private void addSwipeSupport() {
+        // Add swipe support, just because it's cool!
+        ItemTouchHelper itemTouchhelper = new ItemTouchHelper(
+                new ItemTouchHelper.Callback() {
+                    @Override
+                    public int getMovementFlags(@NonNull RecyclerView recyclerView,
+                            @NonNull ViewHolder viewHolder) {
+                        // Possibly don't allow swipe during active selection.
+                        if (mSelectionTracker.hasSelection() && !mSwipeDuringSelectionEnabled) {
+                            return 0;
+                        }
+
+                        // Don't allow swipe on anything not an DemoItemHolder.
+                        if (!(viewHolder instanceof DemoItemHolder)) {
+                            return 0;
+                        }
+
+                        // Everything else is fair game.
+                        return makeMovementFlags(0, RIGHT);
+                    }
+
+                    @Override
+                    public boolean onMove(@NonNull RecyclerView recyclerView,
+                            @NonNull ViewHolder viewHolder,
+                            @NonNull ViewHolder target) {
+                        return false;
+                    }
+
+                    @Override
+                    public void onSwiped(@NonNull ViewHolder viewHolder, int direction) {
+                        if (viewHolder instanceof DemoItemHolder) {
+                            ItemDetails<Uri> details =
+                                    ((DemoItemHolder) viewHolder).getItemDetails();
+                            mAdapter.removeItem(details.getSelectionKey());
+                        }
+                    }
+                });
+        itemTouchhelper.attachToRecyclerView(mRecView);
+    }
+
+    private void monitorSelectionChanges(SelectionTracker<Uri> selectionTracker) {
+        // TODO: Glue selection to ActionMode, since that'll be a common practice.
+        selectionTracker.addObserver(
+                new SelectionObserver<Uri>() {
+                    @Override
+                    public void onItemStateChanged(@NonNull Uri key, boolean selected) {
+                        Log.i(TAG,
+                                String.format("Selection item `%s`state changed to %b", key,
+                                        selected));
+                    }
+
+                    @Override
+                    public void onSelectionRefresh() {
+                        Log.i(TAG, "Selection refreshed as: " + selectionTracker.getSelection());
+                    }
+
+                    @Override
+                    public void onSelectionChanged() {
+                        Log.i(TAG, "Selection changed to: " + selectionTracker.getSelection());
+                    }
+
+                    @Override
+                    public void onSelectionCleared() {
+                        Log.i(TAG, "No more selection. :(");
+                    }
+
+                    @Override
+                    public void onSelectionRestored() {
+                        Log.i(TAG,
+                                "Selection restored as: " + selectionTracker.getSelection());
+                    }
+                });
+    }
+
+    // If you want to provided special handling of clicks on items
+    // in RecyclerView (respond to a play button, or show a menu
+    // when a three-dot menu is clicked) you can't just add an OnClickListener
+    // to the View.  This is because Selection lib installs an
+    // OnItemTouchListener w/ RecyclerView, and that listener eats
+    // up many of the touch/mouse events RecyclerView sends its way.
+    // To work around this install your own OnItemTouchListener *before*
+    // you build your SelectionTracker instance. That'll give your listener
+    // a chance to intercept events before Selection lib gobbles them up.
+    private void setupCustomTouchListener() {
         mRecView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
             @Override
             public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
                 return mIterceptListenerEnabled
-                        && FancyHeaderHolder.isHeader(rv.findChildViewUnder(e.getX(), e.getY()));
+                        && DemoHeaderHolder.isHeader(rv.findChildViewUnder(e.getX(), e.getY()));
             }
 
             @Override
@@ -92,89 +235,44 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
             public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
             }
         });
-
-        mLayout = new GridLayoutManager(this, mColumnCount);
-        mRecView.setLayoutManager(mLayout);
-        mAdapter = new FancySelectionDemoAdapter(this);
-        mRecView.setAdapter(mAdapter);
-        ItemKeyProvider<Uri> keyProvider = mAdapter.getItemKeyProvider();
-
-        SelectionTracker.Builder<Uri> builder = new SelectionTracker.Builder<>(
-                "fancy-demo",
-                mRecView,
-                keyProvider,
-                new FancyDetailsLookup(mRecView),
-                StorageStrategy.createParcelableStorage(Uri.class));
-
-        // Override default behaviors and build in multi select mode.
-        // Call .withSelectionPredicate(SelectionTracker.SelectionPredicate.SINGLE_ANYTHING)
-        // for single selection mode.
-        mSelectionTracker = builder
-                .withSelectionPredicate(SelectionPredicates.createSelectAnything())
-                .withOnDragInitiatedListener(new OnDragInitiatedListener(this))
-                .withOnContextClickListener(new OnContextClickListener())
-                .withOnItemActivatedListener(new OnItemActivatedListener(this))
-                .withFocusDelegate(new FocusDelegate())
-                .withBandOverlay(R.drawable.selection_demo_band_overlay)
-                .build();
-
-        // Lazily bind SelectionTracker. Allows us to defer initialization of the
-        // SelectionTracker dependency until after the adapter is created.
-        mAdapter.bindSelectionHelper(mSelectionTracker);
-
-        // TODO: Glue selection to ActionMode, since that'll be a common practice.
-        mSelectionTracker.addObserver(
-                new SelectionObserver<Uri>() {
-                    @Override
-                    public void onSelectionChanged() {
-                        Log.i(TAG, "Selection changed to: " + mSelectionTracker.getSelection());
-                    }
-                });
-
-        // Restore selection from saved state.
-        updateFromSavedState(savedInstanceState);
     }
 
     @Override
     protected void onSaveInstanceState(@NonNull Bundle state) {
         super.onSaveInstanceState(state);
         mSelectionTracker.onSaveInstanceState(state);
-        state.putInt(EXTRA_COLUMN_COUNT, mColumnCount);
     }
 
     private void updateFromSavedState(Bundle state) {
         mSelectionTracker.onRestoreInstanceState(state);
-
-        if (state != null) {
-            if (state.containsKey(EXTRA_COLUMN_COUNT)) {
-                mColumnCount = state.getInt(EXTRA_COLUMN_COUNT);
-                mLayout.setSpanCount(mColumnCount);
-            }
-        }
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         boolean showMenu = super.onCreateOptionsMenu(menu);
         getMenuInflater().inflate(R.menu.selection_demo_actions, menu);
+        for (int i = 0; i < menu.size(); i++) {
+            updateOptionFromMenu(menu.getItem(i));
+        }
         return showMenu;
     }
 
     @Override
-    @CallSuper
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        super.onPrepareOptionsMenu(menu);
-        menu.findItem(R.id.option_menu_enable_listener)
-                .setEnabled(!mIterceptListenerEnabled);
-        menu.findItem(R.id.option_menu_disable_listener)
-                .setEnabled(mIterceptListenerEnabled);
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        item.setChecked(!item.isChecked());
+        updateOptionFromMenu(item);
         return true;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        mIterceptListenerEnabled = !mIterceptListenerEnabled;
-        return true;
+    private void updateOptionFromMenu(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.option_menu_custom_listener:
+                mIterceptListenerEnabled = item.isChecked();
+                break;
+            case R.id.option_menu_swipe_during_select:
+                mSwipeDuringSelectionEnabled = item.isChecked();
+                break;
+        }
     }
 
     @Override
@@ -276,7 +374,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
         }
 
         @Override
-        public boolean onItemActivated(ItemDetails<Uri> item, MotionEvent e) {
+        public boolean onItemActivated(@NonNull ItemDetails<Uri> item, @NonNull MotionEvent e) {
             toast(mContext, "Activate item: " + item);
             return true;
         }
@@ -316,7 +414,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
         }
 
         @Override
-        public boolean onDragInitiated(MotionEvent e) {
+        public boolean onDragInitiated(@NonNull MotionEvent e) {
             toast(mContext, "onDragInitiated received.");
             return true;
         }

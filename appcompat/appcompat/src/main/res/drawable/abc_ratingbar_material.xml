@@ -14,16 +14,5 @@
      limitations under the License.
 -->
 
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:id="@android:id/background"
-        android:drawable="@drawable/abc_ic_star_black_48dp"/>
-    <item
-        android:id="@android:id/secondaryProgress"
-        android:drawable="@drawable/abc_ic_star_half_black_48dp"/>
-    <item android:id="@android:id/progress">
-        <bitmap
-            android:src="@drawable/abc_ic_star_black_48dp"
-            android:tileModeX="repeat"/>
-    </item>
-</layer-list>
+<!-- Placeholder. The real content is inflated at runtime in AppCompatDrawableManager -->
+<layer-list />

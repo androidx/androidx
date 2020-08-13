@@ -46,7 +46,7 @@ enum class Warning(val publicKey: String) {
     EXPAND_PROJECTION_WITH_REMOVE_UNUSED_COLUMNS("ROOM_EXPAND_PROJECTION_WITH_UNUSED_COLUMNS");
 
     companion object {
-        val PUBLIC_KEY_MAP = Warning.values().associateBy { it.publicKey }
+        val PUBLIC_KEY_MAP = values().associateBy { it.publicKey }
         fun fromPublicKey(publicKey: String): Warning? {
             return PUBLIC_KEY_MAP[publicKey.toUpperCase()]
         }

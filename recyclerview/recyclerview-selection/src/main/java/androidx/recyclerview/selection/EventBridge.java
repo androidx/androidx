@@ -26,6 +26,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.core.util.Consumer;
 import androidx.recyclerview.widget.RecyclerView;
 
 /**
@@ -50,37 +51,45 @@ public class EventBridge {
      * @param adapter
      * @param selectionTracker
      * @param keyProvider
+     * @param runner Callback allowing operation to be run at next opportune time.
+     *                   Implementation could be {@link RecyclerView#postOnAnimation(Runnable)}.
      *
      * @param <K> Selection key type. @see {@link StorageStrategy} for supported types.
      */
     public static <K> void install(
             @NonNull RecyclerView.Adapter<?> adapter,
             @NonNull SelectionTracker<K> selectionTracker,
-            @NonNull ItemKeyProvider<K> keyProvider) {
+            @NonNull ItemKeyProvider<K> keyProvider,
+            @NonNull Consumer<Runnable> runner) {
 
         // setup bridges to relay selection and adapter events
-        new TrackerToAdapterBridge<>(selectionTracker, keyProvider, adapter);
+        new TrackerToAdapterBridge<>(selectionTracker, keyProvider, adapter, runner);
         adapter.registerAdapterDataObserver(selectionTracker.getAdapterDataObserver());
     }
 
     private static final class TrackerToAdapterBridge<K>
             extends SelectionTracker.SelectionObserver<K> {
 
+        // Non-private as necessary to avoid synthetic accessors for inner classes.
+        final RecyclerView.Adapter<?> mAdapter;
         private final ItemKeyProvider<K> mKeyProvider;
-        private final RecyclerView.Adapter<?> mAdapter;
+        private final Consumer<Runnable> mRunner;
 
         TrackerToAdapterBridge(
                 @NonNull SelectionTracker<K> selectionTracker,
                 @NonNull ItemKeyProvider<K> keyProvider,
-                @NonNull RecyclerView.Adapter<?> adapter) {
+                @NonNull RecyclerView.Adapter<?> adapter,
+                Consumer<Runnable> runner) {
 
             selectionTracker.addObserver(this);
 
             checkArgument(keyProvider != null);
             checkArgument(adapter != null);
+            checkArgument(runner != null);
 
             mKeyProvider = keyProvider;
             mAdapter = adapter;
+            mRunner = runner;
         }
 
         /**
@@ -96,7 +105,12 @@ public class EventBridge {
                 return;
             }
 
-            mAdapter.notifyItemChanged(position, SelectionTracker.SELECTION_CHANGED_MARKER);
+            mRunner.accept(new Runnable() {
+                @Override
+                public void run() {
+                    mAdapter.notifyItemChanged(position, SelectionTracker.SELECTION_CHANGED_MARKER);
+                }
+            });
         }
     }
 

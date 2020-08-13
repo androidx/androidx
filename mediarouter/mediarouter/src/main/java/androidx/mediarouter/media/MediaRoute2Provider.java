@@ -46,6 +46,7 @@ import android.util.SparseArray;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.mediarouter.R;
 import androidx.mediarouter.media.MediaRouteProvider.DynamicGroupRouteController.DynamicRouteDescriptor;
 import androidx.mediarouter.media.MediaRouter.ControlRequestCallback;
 
@@ -233,15 +234,19 @@ class MediaRoute2Provider extends MediaRouteProvider {
         MediaRouteDescriptor initialRouteDescriptor = MediaRouter2Utils.toMediaRouteDescriptor(
                 routingController.getSelectedRoutes().get(0));
 
+        MediaRouteDescriptor groupDescriptor = null;
         // TODO: Add RoutingController#getName() and use it in Android S+
-        // TODO: May need to define the string value "Group" in strings.xml for translation.
         Bundle controlHints = routingController.getControlHints();
-        String groupRouteName = "Group";
+        String groupRouteName = getContext().getString(R.string.mr_dialog_default_group_name);
         try {
             if (controlHints != null) {
                 String sessionName = controlHints.getString(MediaRouter2Utils.KEY_SESSION_NAME);
                 if (!TextUtils.isEmpty(sessionName)) {
                     groupRouteName = sessionName;
+                }
+                Bundle groupRouteBundle = controlHints.getBundle(MediaRouter2Utils.KEY_GROUP_ROUTE);
+                if (groupRouteBundle != null) {
+                    groupDescriptor = MediaRouteDescriptor.fromBundle(groupRouteBundle);
                 }
             }
         } catch (Exception ex) {
@@ -249,16 +254,18 @@ class MediaRoute2Provider extends MediaRouteProvider {
         }
 
         // Create group route descriptor
-        MediaRouteDescriptor groupDescriptor = new MediaRouteDescriptor.Builder(
-                routingController.getId(), groupRouteName)
-                .setConnectionState(MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTED)
-                .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
-                .setVolume(routingController.getVolume())
-                .setVolumeMax(routingController.getVolumeMax())
-                .setVolumeHandling(routingController.getVolumeHandling())
-                .addControlFilters(initialRouteDescriptor.getControlFilters())
-                .addGroupMemberIds(selectedRouteIds)
-                .build();
+        if (groupDescriptor == null) {
+            groupDescriptor = new MediaRouteDescriptor.Builder(
+                    routingController.getId(), groupRouteName)
+                    .setConnectionState(MediaRouter.RouteInfo.CONNECTION_STATE_CONNECTED)
+                    .setPlaybackType(MediaRouter.RouteInfo.PLAYBACK_TYPE_REMOTE)
+                    .setVolume(routingController.getVolume())
+                    .setVolumeMax(routingController.getVolumeMax())
+                    .setVolumeHandling(routingController.getVolumeHandling())
+                    .addControlFilters(initialRouteDescriptor.getControlFilters())
+                    .addGroupMemberIds(selectedRouteIds)
+                    .build();
+        }
 
         // Create dynamic route descriptors
         List<String> selectableRouteIds =
@@ -300,7 +307,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
     private MediaRouteDiscoveryRequest updateDiscoveryRequest(
             @Nullable MediaRouteDiscoveryRequest request, boolean transferToLocalEnabled) {
         if (request == null) {
-            return null;
+            request = new MediaRouteDiscoveryRequest(MediaRouteSelector.EMPTY, false);
         }
 
         List<String> controlCategories = request.getSelector().getControlCategories();

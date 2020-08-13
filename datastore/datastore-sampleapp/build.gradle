@@ -52,11 +52,13 @@ android {
 }
 
 dependencies {
-    //For DataStore with Preferences
+    // For DataStore with Preferences
     implementation(project(":datastore:datastore-preferences"))
 
     // For DataStore with protos
     implementation(project(":datastore:datastore-core"))
+    api("androidx.preference:preference:1.1.0")
+
     implementation(PROTOBUF_LITE)
 
     implementation(KOTLIN_STDLIB)

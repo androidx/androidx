@@ -21,9 +21,11 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import static androidx.camera.core.ImageCapture.FLASH_MODE_ON;
 
 import android.Manifest;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.hardware.display.DisplayManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -288,10 +290,12 @@ public class CameraXActivity extends AppCompatActivity {
         mRecord.setOnClickListener((view) -> {
             String text = mRecord.getText().toString();
             if (text.equals("Record") && !mVideoFileSaver.isSaving()) {
-                getVideoCapture().startRecording(
-                        mVideoFileSaver.getNewVideoFile(),
-                        ContextCompat.getMainExecutor(CameraXActivity.this),
-                        mVideoFileSaver);
+                createDefaultVideoFolderIfNotExist();
+
+                getVideoCapture().startRecording(mVideoFileSaver.getNewVideoOutputFileOptions(
+                        getApplicationContext().getContentResolver()),
+                        ContextCompat.getMainExecutor(CameraXActivity.this), mVideoFileSaver);
+
                 mVideoFileSaver.setSaving();
                 mRecord.setText("Stop");
             } else if (text.equals("Stop") && mVideoFileSaver.isSaving()) {
@@ -637,8 +641,6 @@ public class CameraXActivity extends AppCompatActivity {
 
         if (mVideoToggle.isChecked()) {
             mVideoFileSaver = new VideoFileSaver();
-            mVideoFileSaver.setRootDirectory(
-                    Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM));
             VideoCapture videoCapture = new VideoCapture.Builder()
                     .setTargetName("VideoCapture")
                     .build();
@@ -697,6 +699,25 @@ public class CameraXActivity extends AppCompatActivity {
         }
     }
 
+    /** Checks the folder existence by how the video file be created. */
+    private void createDefaultVideoFolderIfNotExist() {
+        String videoFilePath =
+                getAbsolutePathFromUri(getApplicationContext().getContentResolver(),
+                        MediaStore.Video.Media.EXTERNAL_CONTENT_URI);
+
+        // If cannot get the video path, just skip checking and create folder.
+        if (videoFilePath == null) {
+            return;
+        }
+        File videoFile = new File(videoFilePath);
+
+        if (videoFile.getParentFile() != null && !videoFile.getParentFile().exists()) {
+            if (!videoFile.getParentFile().mkdir()) {
+                Log.e(TAG, "Failed to create directory: " + videoFile);
+            }
+        }
+    }
+
     /**
      * Workaround method for an AndroidX issue where {@link UseExperimental} doesn't support 2 or
      * more annotations.
@@ -725,6 +746,35 @@ public class CameraXActivity extends AppCompatActivity {
         mCamera = mCameraProvider.bindToLifecycle(this, mCurrentCameraSelector,
                 useCaseGroupBuilder.build());
         return mCamera;
+    }
+
+    /** Gets the absolute path from a Uri. */
+    @Nullable
+    @SuppressWarnings("deprecation")
+    public String getAbsolutePathFromUri(@NonNull ContentResolver resolver,
+            @NonNull Uri contentUri) {
+        Cursor cursor = null;
+        try {
+            // We should include in any Media collections.
+            String[] proj;
+            int columnIndex;
+            // MediaStore.Video.Media.DATA was deprecated in API level 29.
+            proj = new String[]{MediaStore.Video.Media.DATA};
+            cursor = resolver.query(contentUri, proj, null, null, null);
+            columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Video.Media.DATA);
+
+            cursor.moveToFirst();
+            return cursor.getString(columnIndex);
+        } catch (RuntimeException e) {
+            Log.e(TAG, String.format(
+                    "Failed in getting absolute path for Uri %s with Exception %s",
+                    contentUri.toString(), e.toString()));
+            return "";
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
     }
 
     private class SessionImagesUriSet {

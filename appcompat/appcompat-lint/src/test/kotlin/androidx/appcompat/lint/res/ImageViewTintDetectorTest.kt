@@ -23,7 +23,7 @@ import org.junit.Test
 
 class ImageViewTintDetectorTest {
     @Test
-    fun testIncompleteColorStateList() {
+    fun testUsageOfTintAttribute() {
         val layout = LintDetectorTest.xml(
             "layout/image_view.xml",
             """

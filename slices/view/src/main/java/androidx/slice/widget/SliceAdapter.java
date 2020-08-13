@@ -328,7 +328,8 @@ public class SliceAdapter extends RecyclerView.Adapter<SliceAdapter.SliceViewHol
             mSliceChildView.setOnTouchListener(this);
             mSliceChildView.setSliceActionLoadingListener(SliceAdapter.this);
 
-            final boolean isHeader = position == HEADER_INDEX;
+            final boolean isHeader = item instanceof RowContent
+                    ? ((RowContent) item).getIsHeader() : position == HEADER_INDEX;
             mSliceChildView.setLoadingActions(mLoadingActions);
             mSliceChildView.setPolicy(mPolicy);
             mSliceChildView.setTint(mColor);

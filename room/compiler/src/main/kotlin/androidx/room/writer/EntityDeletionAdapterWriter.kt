@@ -24,7 +24,6 @@ import androidx.room.solver.CodeGenScope
 import androidx.room.vo.FieldWithIndex
 import androidx.room.vo.Fields
 import androidx.room.vo.ShortcutEntity
-import androidx.room.vo.columnNames
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec

@@ -16,21 +16,21 @@
 
 package androidx.ui.tooling
 
-import androidx.compose.InternalComposeApi
-import androidx.compose.getValue
-import androidx.compose.key
-import androidx.compose.mutableStateOf
-import androidx.compose.resetSourceInfo
-import androidx.compose.setValue
+import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.resetSourceInfo
+import androidx.compose.runtime.setValue
 import androidx.test.filters.SmallTest
-import androidx.ui.core.Modifier
-import androidx.ui.core.WithConstraints
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.Text
-import androidx.ui.layout.Column
-import androidx.ui.layout.padding
-import androidx.ui.unit.Density
-import androidx.ui.unit.dp
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.WithConstraints
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.dp
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
@@ -118,11 +118,9 @@ class BoundsTest : ToolingTest() {
             val trees = slotTableRecord.store.map { it.asTree() }
             val boundingBoxes = trees.map {
                 it.all().filter {
-                    it.box.right > 0 && it.key.let {
-                        it is String && it.contains("BoundsTest.kt")
-                    }
+                    it.box.right > 0 && it.location?.sourceFile == "BoundsTest.kt"
                 }
-            }.flatten().groupBy { it.key }
+            }.flatten().groupBy { it.location }
 
             Assert.assertTrue(boundingBoxes.size >= 6)
         }

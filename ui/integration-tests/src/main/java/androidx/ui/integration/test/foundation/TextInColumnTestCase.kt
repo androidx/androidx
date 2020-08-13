@@ -16,16 +16,16 @@
 
 package androidx.ui.integration.test.foundation
 
-import androidx.compose.Composable
-import androidx.compose.mutableStateOf
-import androidx.ui.foundation.Text
-import androidx.ui.integration.test.ToggleableTestCase
-import androidx.ui.layout.Column
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.foundation.Text
+import androidx.ui.test.ToggleableTestCase
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.text.TextStyle
-import androidx.ui.unit.sp
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.sp
 
 /**
  * Test case that puts the given amount of rectangles into a column layout and makes changes by

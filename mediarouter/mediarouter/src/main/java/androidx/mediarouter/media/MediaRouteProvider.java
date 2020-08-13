@@ -549,12 +549,13 @@ public abstract class MediaRouteProvider {
         }
 
         /**
-         * Sets the dynamic route descriptors for routes.
+         * Sets the dynamic route descriptors for the dynamic group.
          * <p>
-         * The dynamic group controller must call this method to notify the current
-         * dynamic group state of routes.
+         * The dynamic group controller should call this method to notify the current
+         * dynamic group state.
          * </p>
          * @param routes The dynamic route descriptors for published routes.
+         *               At least a selected or selecting route must be included.
          * @deprecated Use {@link #notifyDynamicRoutesChanged(MediaRouteDescriptor, Collection)}
          * instead to notify information of the group.
          */
@@ -580,13 +581,15 @@ public abstract class MediaRouteProvider {
         }
 
         /**
-         * Sets the group route descriptor and the dynamic route descriptors for dynamicRoutes.
+         * Sets the group route descriptor and the dynamic route descriptors for the dynamic group.
          * <p>
-         * The dynamic group controller must call this method to notify the current
-         * dynamic group state of dynamicRoutes.
+         * The dynamic group controller should call this method to notify the current
+         * dynamic group state.
          * </p>
          * @param groupRoute The media route descriptor describing the dynamic group.
+         *                   The name, description, and volume information are used.
          * @param dynamicRoutes The dynamic route descriptors for published routes.
+         *                      At least a selected or selecting route must be included.
          */
         public final void notifyDynamicRoutesChanged(
                 @NonNull MediaRouteDescriptor groupRoute,

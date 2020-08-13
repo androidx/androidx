@@ -16,7 +16,6 @@
 
 package androidx.sqlite.inspection.test
 
-import androidx.sqlite.inspection.SqliteInspectorFactory
 import androidx.sqlite.inspection.test.CountingDelegatingExecutorService.Event.FINISHED
 import androidx.sqlite.inspection.test.CountingDelegatingExecutorService.Event.STARTED
 import androidx.test.ext.junit.runners.AndroidJUnit4
@@ -35,16 +34,14 @@ import org.junit.rules.TemporaryFolder
 import org.junit.runner.RunWith
 import java.util.concurrent.Executor
 import java.util.concurrent.Executors.newCachedThreadPool
-import java.util.concurrent.Executors.newSingleThreadScheduledExecutor
 
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 class CancellationQueryTest {
     private val countingExecutorService = CountingDelegatingExecutorService(newCachedThreadPool())
     @get:Rule
-    val environment = SqliteInspectorTestEnvironment(
-        SqliteInspectorFactory(countingExecutorService, newSingleThreadScheduledExecutor())
-    )
+    val environment = SqliteInspectorTestEnvironment(countingExecutorService)
+
     @get:Rule
     val temporaryFolder = TemporaryFolder(getInstrumentation().context.cacheDir)
 

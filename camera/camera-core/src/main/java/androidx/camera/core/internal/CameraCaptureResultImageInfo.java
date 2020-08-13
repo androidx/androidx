@@ -17,9 +17,9 @@
 package androidx.camera.core.internal;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.impl.CameraCaptureResult;
+import androidx.camera.core.impl.TagBundle;
 
 /** An ImageInfo that is created by a {@link CameraCaptureResult}. */
 public final class CameraCaptureResultImageInfo implements ImageInfo {
@@ -31,9 +31,9 @@ public final class CameraCaptureResultImageInfo implements ImageInfo {
     }
 
     @Override
-    @Nullable
-    public Object getTag() {
-        return mCameraCaptureResult.getTag();
+    @NonNull
+    public TagBundle getTagBundle() {
+        return mCameraCaptureResult.getTagBundle();
     }
 
     @Override

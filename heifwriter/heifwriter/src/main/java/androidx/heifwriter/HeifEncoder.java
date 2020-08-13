@@ -46,6 +46,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * This class encodes images into HEIF-compatible samples using HEVC encoder.
@@ -127,6 +128,7 @@ public final class HeifEncoder implements AutoCloseable,
     private int mTextureId;
     private final float[] mTmpMatrix = new float[16];
     private final AtomicBoolean mStopping = new AtomicBoolean(false);
+    private final CountDownLatch mStoppedLatch;
 
     public static final int INPUT_MODE_BUFFER = HeifWriter.INPUT_MODE_BUFFER;
     public static final int INPUT_MODE_SURFACE = HeifWriter.INPUT_MODE_SURFACE;
@@ -378,6 +380,8 @@ public final class HeifEncoder implements AutoCloseable,
 
         mDstRect = new Rect(0, 0, mGridWidth, mGridHeight);
         mSrcRect = new Rect();
+
+        mStoppedLatch = new CountDownLatch(1);
     }
 
     private String findHevcFallback() {
@@ -782,6 +786,8 @@ public final class HeifEncoder implements AutoCloseable,
                 mInputTexture = null;
             }
         }
+
+        mStoppedLatch.countDown();
     }
 
     /**
@@ -994,5 +1000,8 @@ public final class HeifEncoder implements AutoCloseable,
                 stopInternal();
             }
         });
+        try {
+            mStoppedLatch.await();
+        } catch(InterruptedException e) {}
     }
 }

@@ -18,7 +18,7 @@ package androidx.ui.demos.common
 
 import android.app.Activity
 import androidx.activity.ComponentActivity
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import kotlin.reflect.KClass
 
 /**

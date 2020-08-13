@@ -16,32 +16,36 @@
 
 package androidx.ui.demos
 
-import androidx.compose.Composable
-import androidx.compose.key
-import androidx.compose.onCommit
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
-import androidx.ui.core.focus.FocusModifier
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.key
+import androidx.compose.runtime.onCommit
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.ui.demos.common.Demo
-import androidx.ui.foundation.Icon
-import androidx.ui.foundation.ScrollableColumn
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.TextField
-import androidx.ui.graphics.compositeOver
-import androidx.ui.input.TextFieldValue
-import androidx.ui.layout.fillMaxWidth
-import androidx.ui.layout.preferredHeight
-import androidx.ui.layout.wrapContentSize
-import androidx.ui.material.IconButton
-import androidx.ui.material.ListItem
-import androidx.ui.material.MaterialTheme
-import androidx.ui.material.TopAppBar
-import androidx.ui.material.icons.Icons
-import androidx.ui.material.icons.filled.Close
-import androidx.ui.text.SpanStyle
-import androidx.ui.text.annotatedString
-import androidx.ui.text.withStyle
-import androidx.ui.unit.dp
+import androidx.compose.foundation.Icon
+import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.BaseTextField
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
+import androidx.compose.ui.graphics.compositeOver
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.IconButton
+import androidx.compose.material.ListItem
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.ui.focus.ExperimentalFocus
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focusRequester
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.annotatedString
+import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.dp
 
 /**
  * A scrollable list of [launchableDemos], filtered by [filterText].
@@ -94,26 +98,26 @@ fun FilterAppBar(
 }
 
 /**
- * [TextField] that edits the current [filterText], providing [onFilter] when edited.
+ * [BaseTextField] that edits the current [filterText], providing [onFilter] when edited.
  */
 @Composable
+@OptIn(
+    ExperimentalFocus::class,
+    ExperimentalFoundationApi::class
+)
 private fun FilterField(
     filterText: TextFieldValue,
     onFilter: (TextFieldValue) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // TODO(b/161297615): Replace the deprecated FocusModifier with the new Focus API.
-    @Suppress("DEPRECATION")
-    val focusModifier = FocusModifier()
+    val focusRequester = FocusRequester()
     // TODO: replace with Material text field when available
-    TextField(
-        modifier = modifier + focusModifier,
+    BaseTextField(
+        modifier = modifier.focusRequester(focusRequester),
         value = filterText,
         onValueChange = onFilter
     )
-    onCommit {
-        focusModifier.requestFocus()
-    }
+    onCommit { focusRequester.requestFocus() }
 }
 
 /**
@@ -153,7 +157,7 @@ private fun FilteredDemoListItem(
                     text = annotatedString
                 )
             },
-            onClick = { onNavigate(demo) }
+            modifier = Modifier.clickable { onNavigate(demo) }
         )
     }
 }

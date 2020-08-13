@@ -41,6 +41,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 @RunWith(AndroidJUnit4.class)
@@ -48,19 +49,19 @@ public class ImageCaptureExtenderValidationTest {
     @Rule
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
+    private final Context mContext = ApplicationProvider.getApplicationContext();
 
     @Before
     public void setUp() throws InterruptedException, ExecutionException, TimeoutException {
         assumeTrue(CameraUtil.deviceHasCamera());
-        Context context = ApplicationProvider.getApplicationContext();
-        CameraX.initialize(context, Camera2Config.defaultConfig());
+        CameraX.initialize(mContext, Camera2Config.defaultConfig());
 
-        assumeTrue(ExtensionsTestUtil.initExtensions());
+        assumeTrue(ExtensionsTestUtil.initExtensions(mContext));
     }
 
     @After
-    public void tearDown() throws ExecutionException, InterruptedException {
-        CameraX.shutdown().get();
+    public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
     @Test

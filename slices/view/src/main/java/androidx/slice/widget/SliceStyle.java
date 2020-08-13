@@ -16,8 +16,6 @@
 
 package androidx.slice.widget;
 
-import static android.app.slice.Slice.HINT_HORIZONTAL;
-
 import static androidx.slice.core.SliceHints.ICON_IMAGE;
 import static androidx.slice.core.SliceHints.UNKNOWN_IMAGE;
 import static androidx.slice.widget.SliceView.MODE_LARGE;
@@ -77,6 +75,9 @@ public class SliceStyle {
 
     private int mListMinScrollHeight;
     private int mListLargeHeight;
+
+    private boolean mExpandToAvailableHeight;
+    private boolean mHideHeaderRow;
 
     private RowStyle mRowStyle;
 
@@ -142,6 +143,11 @@ public class SliceStyle {
                     R.dimen.abc_slice_row_range_inline_height);
             mRowInlineRangeHeight = (int) a.getDimension(
                     R.styleable.SliceView_rowInlineRangeHeight, defaultRowInlineRangeHeight);
+
+            mExpandToAvailableHeight = a.getBoolean(
+                    R.styleable.SliceView_expandToAvailableHeight, false);
+
+            mHideHeaderRow = a.getBoolean(R.styleable.SliceView_hideHeaderRow, false);
         } finally {
             a.recycle();
         }
@@ -253,6 +259,14 @@ public class SliceStyle {
         return mRowSelectionHeight;
     }
 
+    public boolean getExpandToAvailableHeight() {
+        return mExpandToAvailableHeight;
+    }
+
+    public boolean getHideHeaderRow() {
+        return mHideHeaderRow;
+    }
+
     public int getRowHeight(RowContent row, SliceViewPolicy policy) {
         int maxHeight = policy.getMaxSmallHeight() > 0 ? policy.getMaxSmallHeight() : mRowMaxHeight;
 
@@ -335,7 +349,7 @@ public class SliceStyle {
         boolean bigEnoughToScroll = desiredHeight - maxLargeHeight >= mListMinScrollHeight;
 
         // Adjust for scrolling
-        int height = bigEnoughToScroll ? maxLargeHeight
+        int height = bigEnoughToScroll && !getExpandToAvailableHeight() ? maxLargeHeight
                 : maxHeight <= 0 ? desiredHeight
                 : Math.min(maxLargeHeight, desiredHeight);
         if (!scrollable) {
@@ -349,16 +363,14 @@ public class SliceStyle {
         if (listItems == null) {
             return 0;
         }
+
         int height = 0;
-        SliceContent maybeHeader = null;
-        if (!listItems.isEmpty()) {
-            maybeHeader = listItems.get(0);
-        }
-        if (listItems.size() == 1 && !maybeHeader.getSliceItem().hasHint(HINT_HORIZONTAL)) {
-            return maybeHeader.getHeight(this, policy);
-        }
         for (int i = 0; i < listItems.size(); i++) {
-            height += listItems.get(i).getHeight(this, policy);
+            SliceContent listItem = listItems.get(i);
+            if (i == 0 && shouldSkipFirstListItem(listItem)) {
+                continue;
+            }
+            height += listItem.getHeight(this, policy);
         }
         return height;
     }
@@ -389,12 +401,16 @@ public class SliceStyle {
         }
         int rowCount = list.getRowItems().size();
         for (int i = 0; i < rowCount; i++) {
-            int itemHeight = list.getRowItems().get(i).getHeight(this, policy);
+            SliceContent listItem = list.getRowItems().get(i);
+            if (i == 0 && shouldSkipFirstListItem(listItem)) {
+                continue;
+            }
+            int itemHeight = listItem.getHeight(this, policy);
             if (availableHeight > 0 && visibleHeight + itemHeight > availableHeight) {
                 break;
             } else {
                 visibleHeight += itemHeight;
-                visibleItems.add(list.getRowItems().get(i));
+                visibleItems.add(listItem);
             }
         }
         if (list.getSeeMoreItem() != null && visibleItems.size() >= minItemCountForSeeMore
@@ -407,5 +423,26 @@ public class SliceStyle {
             visibleItems.add(list.getRowItems().get(0));
         }
         return visibleItems;
+    }
+
+    /**
+     * Returns a list of items that should be displayed to the user.
+     *
+     * @param list the list from which to source the items.
+     */
+    @NonNull
+    public List<SliceContent> getListItemsToDisplay(@NonNull ListContent list) {
+        List<SliceContent> rowItems = list.getRowItems();
+        if (rowItems.size() > 0 && shouldSkipFirstListItem(rowItems.get(0))) {
+            return rowItems.subList(1, rowItems.size());
+        }
+        return rowItems;
+    }
+
+    /** Returns true if the first item of a list should be skipped. */
+    private boolean shouldSkipFirstListItem(SliceContent firstListItem) {
+        // Hide header row if requested.
+        return getHideHeaderRow() && firstListItem instanceof RowContent
+                && ((RowContent) firstListItem).getIsHeader();
     }
 }

@@ -87,7 +87,6 @@ androidx {
     mavenGroup = LibraryGroups.HILT
     inceptionYear = "2020"
     description = "AndroidX Hilt Extension Compiler"
-    url = AndroidXExtension.ARCHITECTURE_URL
     compilationTarget = CompilationTarget.HOST
     toolingProject = true
 }

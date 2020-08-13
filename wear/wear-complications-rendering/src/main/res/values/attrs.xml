@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2020 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<resources>
+    <declare-styleable name="ComplicationDrawable">
+        <!-- Defines the background color. -->
+        <attr name="backgroundColor" format="color" />
+        <!-- Defines the drawable to be used as a background. Corners of the drawable will be
+            rounded if border radius of the complication drawable is non-zero. Even if a background
+            drawable is set, background color will still be used to fill background of the
+            complication before drawing the drawable. -->
+        <attr name="backgroundDrawable" format="reference" />
+        <!-- Defines text color for short text and long text fields. -->
+        <attr name="textColor" format="color" />
+        <!-- Defines text color for short title and long title fields. -->
+        <attr name="titleColor" format="color" />
+        <!-- Defines typeface for short text and long text fields. -->
+        <attr name="textTypeface" format="string" />
+        <!-- Defines typeface for short title and long title fields. -->
+        <attr name="titleTypeface" format="string" />
+        <!-- Defines text size for short text and long text fields. -->
+        <attr name="textSize" format="dimension" />
+        <!-- Defines text size for short title and long title fields. -->
+        <attr name="titleSize" format="dimension" />
+        <!-- Defines icon tint color. -->
+        <attr name="iconColor" format="color" />
+        <!-- Defines border color. -->
+        <attr name="borderColor" format="color" />
+        <!-- Defines border radius. Padding will be applied to the content to avoid overflow if
+            border radius is not zero. -->
+        <attr name="borderRadius" format="dimension" />
+        <!-- Defines border style. -->
+        <attr name="borderStyle" format="enum">
+            <!-- Do not draw any borders. -->
+            <enum name="none" value="0" />
+            <!-- Draw solid borders. -->
+            <enum name="solid" value="1" />
+            <!-- Draw dashed borders. borderDashWidth and borderDashGap attributes can be used to
+                customize dashed borders. -->
+            <enum name="dashed" value="2" />
+        </attr>
+        <!-- Defines dash width for borders with style 'dashed'. -->
+        <attr name="borderDashWidth" format="dimension" />
+        <!-- Defines dash gap for borders with style 'dashed'. -->
+        <attr name="borderDashGap" format="dimension" />
+        <!-- Defines stroke width for borders. -->
+        <attr name="borderWidth" format="dimension" />
+        <!-- Defines stroke width for ranged value indicator. -->
+        <attr name="rangedValueRingWidth" format="dimension" />
+        <!-- Defines main color for ranged value indicator. -->
+        <attr name="rangedValuePrimaryColor" format="color" />
+        <!-- Defines secondary color for ranged value indicator. -->
+        <attr name="rangedValueSecondaryColor" format="color" />
+        <!-- Defines visibility for ranged value indicator. -->
+        <attr name="rangedValueProgressHidden" format="boolean" />
+        <!-- Defines highlight color. -->
+        <attr name="highlightColor" format="color" />
+    </declare-styleable>
+</resources>

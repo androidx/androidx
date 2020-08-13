@@ -20,6 +20,7 @@ import androidx.contentaccess.compiler.processor.PojoProcessor
 import androidx.contentaccess.compiler.processor.warn
 import androidx.contentaccess.compiler.vo.ContentColumnVO
 import androidx.contentaccess.compiler.vo.ContentQueryVO
+import androidx.contentaccess.ext.getAllConstructorParamsOrPublicFields
 import androidx.contentaccess.ext.hasNonEmptyNonPrivateNonIgnoredConstructor
 import asTypeElement
 import com.squareup.kotlinpoet.AnnotationSpec
@@ -44,6 +45,7 @@ class ContentQueryMethodWriter(
     val contentQuery: ContentQueryVO
 ) {
     val returnOrSet = if (contentQuery.isSuspend) "" else "return "
+    val buildClassPlaceHolder = ClassName("android.os", "Build")
 
     @KotlinPoetMetadataPreview
     fun createContentQueryMethod(): FunSpec? {
@@ -51,7 +53,7 @@ class ContentQueryMethodWriter(
         val methodBuilder = funSpecOverriding(contentQuery.method, processingEnv)
         methodBuilder.annotations.add(AnnotationSpec.builder(Suppress::class).addMember
             ("%S", "USELESS_CAST").addMember("%S", "UNCHECKED_CAST").addMember("%S",
-            "PLATFORM_CLASS_MAPPED_TO_KOTLIN").build())
+            "PLATFORM_CLASS_MAPPED_TO_KOTLIN").addMember("%S", "DEPRECATION").build())
         if (contentQuery.isSuspend) {
             val withContext = MemberName("kotlinx.coroutines", "withContext")
             methodBuilder.beginControlFlow(
@@ -66,13 +68,18 @@ class ContentQueryMethodWriter(
             methodBuilder.addStatement("val _uri = %T.parse(%S)", uriTypePlaceHolder.copy(),
                 contentQuery.uri)
         }
-        methodBuilder.addStatement("val _projection = %T(${contentQuery.toQueryFor.size}, {" +
-                "\"\"})",
-            ClassName("kotlin", "Array").parameterizedBy(ClassName("kotlin", "String")))
-        for (i in contentQuery.toQueryFor.indices) {
-            methodBuilder
-                .addStatement("_projection[$i] = %S", contentQuery.toQueryFor[i].columnName)
+        methodBuilder.addStatement("val _projectionList = mutableListOf<String>()")
+        for (column in contentQuery.toQueryFor) {
+            if (column.requiresApi != null) {
+                methodBuilder.beginControlFlow("if (%T.VERSION.SDK_INT >= ${column.requiresApi})",
+                    buildClassPlaceHolder)
+                methodBuilder.addStatement("_projectionList.add(%S)", column.columnName)
+                methodBuilder.endControlFlow()
+            } else {
+                methodBuilder.addStatement("_projectionList.add(%S)", column.columnName)
+            }
         }
+        methodBuilder.addStatement("val _projection = _projectionList.toTypedArray()")
         var noSelectionArgs = true
         if (contentQuery.selection != null) {
             methodBuilder.addStatement("val _selection = %S", contentQuery.selection.selection)
@@ -236,58 +243,107 @@ class ContentQueryMethodWriter(
         val pojoColumnsToFieldNames = pojo.pojoFields.map { it.columnName to it.name }.toMap()
         if (realReturnType.asTypeElement().hasNonEmptyNonPrivateNonIgnoredConstructor()) {
             val constructorParams = ArrayList<String>()
+            val constructorFieldNames = realReturnType.asTypeElement()
+                .getAllConstructorParamsOrPublicFields().map { it.simpleName.toString() }
 
-            val columnNamesBeingSelected = columns.map { it.columnName }
-            val unPopulatedPojoFields = pojo.pojoFields.filter { it.columnName !in
-                    columnNamesBeingSelected }.map { it.name }
-            for ((currIndex, column) in columns.withIndex()) {
+            val fieldNameValueMap = mutableMapOf<String, String>()
+            for (column in columns) {
                 if (column.isNullable) {
-                    methodBuilder.beginControlFlow("val _${pojoColumnsToFieldNames
-                        .get(column.columnName)}_value = if (_cursor.isNull($currIndex))")
-                    methodBuilder.addStatement("null")
-                    methodBuilder.nextControlFlow("else")
-                    methodBuilder.addStatement("_cursor" +
-                            ".${column.type.getCursorMethod()}($currIndex)")
-                    methodBuilder.endControlFlow()
+                    if (column.requiresApi != null) {
+                        methodBuilder.beginControlFlow("val _${pojoColumnsToFieldNames
+                            .get(column.columnName)}_value = if (%T.VERSION.SDK_INT >= ${column
+                            .requiresApi})", buildClassPlaceHolder)
+                        methodBuilder.beginControlFlow("if (_cursor.isNull(_cursor" +
+                                ".getColumnIndex(%S)))", column.columnName)
+                        methodBuilder.addStatement("null")
+                        methodBuilder.nextControlFlow("else")
+                        methodBuilder.addStatement("_cursor" +
+                                ".${column.type.getCursorMethod()}(_cursor.getColumnIndex(%S))",
+                            column.columnName)
+                        methodBuilder.endControlFlow()
+                        methodBuilder.nextControlFlow("else")
+                        methodBuilder.addStatement("null")
+                        methodBuilder.endControlFlow()
+                    } else {
+                        methodBuilder.beginControlFlow("val _${pojoColumnsToFieldNames
+                            .get(column.columnName)}_value = if (_cursor.isNull(_cursor" +
+                                ".getColumnIndex(%S)))", column.columnName)
+                        methodBuilder.addStatement("null")
+                        methodBuilder.nextControlFlow("else")
+                        methodBuilder.addStatement("_cursor" +
+                                ".${column.type.getCursorMethod()}(_cursor.getColumnIndex(%S))",
+                            column.columnName)
+                        methodBuilder.endControlFlow()
+                    }
                 } else {
+                    // We do not check SDK_INT for this because we should not have non nullable
+                    // fields that were added in a later API to the provider. If that ever happens
+                    // the bug ought to be with the entity or if it's legitimate then weird but
+                    // okay, warrants a special exception.
                     methodBuilder.beginControlFlow("val _${pojoColumnsToFieldNames.get(column
                         .columnName)}_value" +
-                            " = if (_cursor.isNull($currIndex))")
+                            " = if (_cursor.isNull(_cursor.getColumnIndex(%S)))",
+                        column.columnName)
                     methodBuilder.addStatement("throw NullPointerException(%S)", "Column ${column
                         .columnName} associated with field ${column.name} in $realReturnType " +
                             "return null, however field ${column.name} is not nullable")
                     methodBuilder.nextControlFlow("else")
                     methodBuilder.addStatement("_cursor" +
-                            ".${column.type.getCursorMethod()}($currIndex)")
+                            ".${column.type.getCursorMethod()}(_cursor.getColumnIndex(%S))",
+                        column.columnName)
                     methodBuilder.endControlFlow()
                 }
-                constructorParams.add("${pojoColumnsToFieldNames.get(column.columnName)}" +
-                        " = _${pojoColumnsToFieldNames.get(column.columnName)}_value")
+                fieldNameValueMap.put(pojoColumnsToFieldNames.get(column.columnName)!!,
+                    "_${pojoColumnsToFieldNames.get(column.columnName)!!}_value")
             }
-            for (unPopoulatedPojoField in unPopulatedPojoFields) {
-                constructorParams.add("$unPopoulatedPojoField = null")
+            for (field in constructorFieldNames) {
+                if (field in fieldNameValueMap) {
+                    constructorParams.add(fieldNameValueMap.get(field)!!)
+                } else {
+                    constructorParams.add("null")
+                }
             }
+
             methodBuilder.addStatement("val $RETURN_OBJECT_NAME = %T(%L)", realReturnType,
                 constructorParams.joinToString(","))
         } else {
             // We should instead assign to public fields directly.
             methodBuilder.addStatement("val $RETURN_OBJECT_NAME = %T()", realReturnType)
-            for ((currIndex, column) in columns.withIndex()) {
+            for (column in columns) {
                 if (column.isNullable) {
-                    methodBuilder.beginControlFlow("if (!_cursor.isNull($currIndex))")
-                    methodBuilder.addStatement("$RETURN_OBJECT_NAME.${pojoColumnsToFieldNames
-                        .get(column.columnName)} =" +
-                            " _cursor.${column.type.getCursorMethod()}($currIndex)")
-                    methodBuilder.endControlFlow()
+                    if (column.requiresApi != null) {
+                        methodBuilder.beginControlFlow(
+                            "if (%T.VERSION.SDK_INT >= ${column.requiresApi})",
+                            buildClassPlaceHolder
+                        )
+                        methodBuilder.beginControlFlow("if (!_cursor.isNull(_cursor" +
+                                ".getColumnIndex(%S)))", column.columnName)
+                        methodBuilder.addStatement("$RETURN_OBJECT_NAME.${pojoColumnsToFieldNames
+                            .get(column.columnName)} =" +
+                                " _cursor.${column.type.getCursorMethod()}" +
+                                "(_cursor.getColumnIndex(%S))", column.columnName)
+                        methodBuilder.endControlFlow()
+                        methodBuilder.endControlFlow()
+                    } else {
+                        methodBuilder.beginControlFlow("if (!_cursor.isNull(_cursor" +
+                                ".getColumnIndex(%S)))", column.columnName)
+                        methodBuilder.addStatement("$RETURN_OBJECT_NAME.${pojoColumnsToFieldNames
+                            .get(column.columnName)} =" +
+                                " _cursor.${column.type.getCursorMethod()}" +
+                                "(_cursor.getColumnIndex(%S))", column.columnName)
+                        methodBuilder.endControlFlow()
+                    }
                 } else {
-                    methodBuilder.beginControlFlow("if (_cursor.isNull($currIndex))")
+                    methodBuilder.beginControlFlow("if (_cursor.isNull(" +
+                            "_cursor.getColumnIndex(%S)))", column.columnName)
                     methodBuilder.addStatement("throw NullPointerException(%S)", "Column ${column
                         .columnName} associated with field ${column.name} in $realReturnType " +
                             "return null, however field ${column.name} is not nullable")
                     methodBuilder.nextControlFlow("else")
                     methodBuilder.addStatement("$RETURN_OBJECT_NAME.${pojoColumnsToFieldNames
                         .get(column.columnName)} = " +
-                            "_cursor.${column.type.getCursorMethod()}($currIndex)")
+                            "_cursor.${column.type.getCursorMethod()}(_cursor.getColumnIndex(%S))",
+                        column.columnName)
                     methodBuilder.endControlFlow()
                 }
             }
@@ -296,7 +352,7 @@ class ContentQueryMethodWriter(
 
     fun checkIfTypeArgumentIsNullable(returnTypeInKotlin: String): Boolean {
         // TODO(obenabde): Hummmm beatiful code... is there a better way to do this.
-        return returnTypeInKotlin.substringAfterLast("<").substringBeforeLast(">").endsWith("?")
+        return returnTypeInKotlin.substringAfterLast("<").substringBefore(">").endsWith("?")
     }
 }
 

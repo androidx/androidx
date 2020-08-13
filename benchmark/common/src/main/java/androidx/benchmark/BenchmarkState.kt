@@ -557,7 +557,8 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         internal val REPEAT_DURATION_TARGET_NS = when (Arguments.profiler?.requiresExtraRuntime) {
             // longer measurements while profiling to ensure we have enough data
             true -> TimeUnit.MILLISECONDS.toNanos(50)
-            else -> TimeUnit.MICROSECONDS.toNanos(500)
+            else -> TimeUnit.SECONDS.toNanos(Arguments.profilerSampleDurationSeconds) /
+                    REPEAT_COUNT_TIME
         }
         internal const val MAX_TEST_ITERATIONS = 1_000_000
         internal const val MIN_TEST_ITERATIONS = 1

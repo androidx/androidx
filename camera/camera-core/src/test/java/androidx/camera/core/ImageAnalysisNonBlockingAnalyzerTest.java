@@ -16,6 +16,8 @@
 
 package androidx.camera.core;
 
+import static android.os.Looper.getMainLooper;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertEquals;
@@ -26,10 +28,12 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.robolectric.Shadows.shadowOf;
 
 import android.os.Build;
 
 import androidx.camera.core.impl.ImageReaderProxy;
+import androidx.camera.core.impl.MutableTagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.test.filters.SmallTest;
 
@@ -54,14 +58,20 @@ public class ImageAnalysisNonBlockingAnalyzerTest {
     private ImageReaderProxy mImageReaderProxy;
     private ImageProxy mImageProxy;
     private ImageInfo mImageInfo;
+    private MutableTagBundle mTagBundle;
+    private String mTagBundleKey = "FakeTagBundleKey";
 
     @Before
     public void setup() {
         mImageInfo = mock(ImageInfo.class);
         mImageProxy = mock(ImageProxy.class);
-        when(mImageProxy.getImageInfo()).thenReturn(mImageInfo);
-        mImageReaderProxy = mock(ImageReaderProxy.class);
+        mTagBundle = MutableTagBundle.create();
+        mTagBundle.putTag(mTagBundleKey, 0);
 
+        when(mImageProxy.getImageInfo()).thenReturn(mImageInfo);
+        when(mImageInfo.getTagBundle()).thenReturn(mTagBundle);
+
+        mImageReaderProxy = mock(ImageReaderProxy.class);
         when(mImageReaderProxy.acquireLatestImage()).thenReturn(mImageProxy);
 
         mAnalyzer = mock(ImageAnalysis.Analyzer.class);
@@ -105,6 +115,8 @@ public class ImageAnalysisNonBlockingAnalyzerTest {
 
         mImageAnalysisNonBlockingAnalyzer.onImageAvailable(mImageReaderProxy);
 
+        shadowOf(getMainLooper()).idle();
+
         ArgumentCaptor<ImageProxy> imageProxyArgumentCaptor =
                 ArgumentCaptor.forClass(ImageProxy.class);
         verify(mAnalyzer, times(1)).analyze(
@@ -112,7 +124,8 @@ public class ImageAnalysisNonBlockingAnalyzerTest {
         // Check for equality of ImageInfo because it won't necessarily be same instance of
         // ImageProxy that is analyzed, but an equivalent instance.
         ImageInfo capturedImageInfo = imageProxyArgumentCaptor.getValue().getImageInfo();
-        assertEquals(mImageInfo.getTag(), capturedImageInfo.getTag());
+        assertEquals(mImageInfo.getTagBundle().getTag(mTagBundleKey),
+                capturedImageInfo.getTagBundle().getTag(mTagBundleKey));
         assertEquals(mImageInfo.getTimestamp(), capturedImageInfo.getTimestamp());
         assertEquals(ROTATION.get(), capturedImageInfo.getRotationDegrees());
     }

@@ -25,55 +25,74 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXUiPlugin")
-    id("org.jetbrains.kotlin.android")
+    id("kotlin-multiplatform")
 }
 
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
+}
 
-    implementation(KOTLIN_STDLIB)
+kotlin {
+    android()
+    jvm("desktop")
 
-    api "androidx.annotation:annotation:1.1.0"
+    sourceSets {
+        commonMain.dependencies {
+            implementation(KOTLIN_STDLIB_COMMON)
+            api project(":compose:runtime:runtime")
+            implementation project(":compose:ui:ui-util")
+            api project(":compose:ui:ui")
+            api project(":compose:foundation:foundation")
+            api project(":compose:material:material-icons-core")
+            api project(":compose:ui:ui-text")
+            api project(":compose:foundation:foundation-text")
+            api project(":compose:animation:animation-core")
 
-    api project(":compose:runtime:runtime")
-    implementation project(":compose:ui:ui-util")
-    api project(":compose:ui:ui")
-    api project(":compose:foundation:foundation")
-    api project(":compose:material:material-icons-core")
-    api project(":compose:ui:ui-text")
-    api project(":compose:foundation:foundation-text")
-    api project(":compose:animation:animation-core")
+            implementation project(":compose:foundation:foundation-layout")
+            implementation project(":compose:animation:animation")
+        }
 
-    implementation project(":compose:foundation:foundation-layout")
-    implementation project(":compose:animation:animation")
+        androidMain.dependencies {
+            api "androidx.annotation:annotation:1.1.0"
+        }
 
-    testImplementation(ANDROIDX_TEST_RULES)
-    testImplementation(ANDROIDX_TEST_RUNNER)
-    testImplementation(JUNIT)
-    testImplementation(TRUTH)
+        desktopMain.dependencies {
+            implementation(KOTLIN_STDLIB)
+            implementation(SKIKO)
+        }
 
-    androidTestImplementation project(":compose:material:material:samples")
-    androidTestImplementation project(":ui:ui-test")
-    androidTestImplementation project(":test-screenshot")
+        test.dependencies {
+            implementation(ANDROIDX_TEST_RULES)
+            implementation(ANDROIDX_TEST_RUNNER)
+            implementation(JUNIT)
+            implementation(TRUTH)
+        }
 
-    androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(ANDROIDX_TEST_RUNNER)
-    androidTestImplementation(JUNIT)
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-    androidTestImplementation MOCKITO_KOTLIN, {
-        exclude group: 'org.mockito' // to keep control on the mockito version
+        androidAndroidTest.dependencies {
+            implementation project(":compose:material:material:samples")
+            implementation project(":ui:ui-test")
+            implementation project(":test-screenshot")
+
+            implementation(ANDROIDX_TEST_RULES)
+            implementation(ANDROIDX_TEST_RUNNER)
+            implementation(JUNIT)
+            implementation(TRUTH)
+            implementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+            implementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+            implementation MOCKITO_KOTLIN, {
+                exclude group: 'org.mockito' // to keep control on the mockito version
+            }
+        }
     }
 }
 
 androidx {
-    name = "Androidx Material"
+    name = "Compose Material Components"
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenVersion = LibraryVersions.UI
     mavenGroup = LibraryGroups.Compose.MATERIAL
     inceptionYear = "2018"
-    description = "AndroidX Material"
+    description = "Compose Material Design Components library"
 }
 
 tasks.withType(KotlinCompile).configureEach {

@@ -20,6 +20,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.work.ListenableWorker;
 import androidx.work.WorkerParameters;
 
@@ -31,14 +32,16 @@ import javax.inject.Provider;
  * Worker Factory for the Hilt Extension
  * <p>
  * A provider for this factory will be installed in the
- * {@link dagger.hilt.android.components.ApplicationComponent}.
+ * {@link dagger.hilt.components.SingletonComponent}.
  */
 public final class HiltWorkerFactory extends androidx.work.WorkerFactory {
 
     private final Map<String,
             Provider<WorkerAssistedFactory<? extends ListenableWorker>>> mWorkerFactories;
 
-    public HiltWorkerFactory(@NonNull Map<String,
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    HiltWorkerFactory(@NonNull Map<String,
             Provider<WorkerAssistedFactory<? extends ListenableWorker>>> workerFactories) {
         mWorkerFactories = workerFactories;
     }

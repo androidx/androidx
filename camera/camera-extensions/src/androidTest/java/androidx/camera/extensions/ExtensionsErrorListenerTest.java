@@ -71,6 +71,8 @@ public final class ExtensionsErrorListenerTest {
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
 
+    private final Context mContext = ApplicationProvider.getApplicationContext();
+
     @Parameterized.Parameters
     public static Collection<Object[]> getParameters() {
         return ExtensionsTestUtil.getAllEffectLensFacingCombinations();
@@ -100,20 +102,19 @@ public final class ExtensionsErrorListenerTest {
     public void setUp() throws InterruptedException, ExecutionException, TimeoutException {
         assumeTrue(CameraUtil.deviceHasCamera());
 
-        Context context = ApplicationProvider.getApplicationContext();
         CameraXConfig cameraXConfig = Camera2Config.defaultConfig();
-        CameraX.initialize(context, cameraXConfig).get();
+        CameraX.initialize(mContext, cameraXConfig).get();
 
         assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
-        assumeTrue(ExtensionsTestUtil.initExtensions());
+        assumeTrue(ExtensionsTestUtil.initExtensions(mContext));
         assumeTrue(ExtensionsManager.isExtensionAvailable(mEffectMode, mLensFacing));
 
         mLatch = new CountDownLatch(1);
     }
 
     @After
-    public void tearDown() throws ExecutionException, InterruptedException {
-        CameraX.shutdown().get();
+    public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
     @Test

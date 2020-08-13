@@ -33,10 +33,11 @@ import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
+import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
+import androidx.camera.testing.CameraAvailabilityUtil;
 import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -53,9 +54,11 @@ import org.junit.runners.Parameterized;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Test if camera control functionality can run well in real devices. Autofocus may not work well in
@@ -80,8 +83,8 @@ public class CameraControlDeviceTest {
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
-    private FakeLifecycleOwner mLifecycleOwner;
     private CameraUseCaseAdapter mCamera;
+    private UseCase mBoundUseCase;
     private MeteringPoint mMeteringPoint1;
     private ImageAnalysis.Analyzer mAnalyzer = (image) -> {
         image.close();
@@ -94,16 +97,17 @@ public class CameraControlDeviceTest {
         CameraXConfig cameraXConfig = Camera2Config.defaultConfig();
         CameraX.initialize(context, cameraXConfig).get();
 
-        assumeTrue(CameraX.hasCamera(mCameraSelector));
+        CameraX cameraX = CameraX.getOrCreateInstance(context).get();
 
-        mLifecycleOwner = new FakeLifecycleOwner();
+        assumeTrue(CameraAvailabilityUtil.hasCamera(cameraX.getCameraRepository(),
+                mCameraSelector));
 
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(1, 1);
         mMeteringPoint1 = factory.createPoint(0, 0);
 
         ImageAnalysis useCase = new ImageAnalysis.Builder().build();
         mCamera = CameraUtil.getCameraAndAttachUseCase(context, mCameraSelector,
-                useCase);
+                mBoundUseCase = useCase);
         useCase.setAnalyzer(CameraXExecutors.ioExecutor(), mAnalyzer);
     }
 
@@ -133,8 +137,8 @@ public class CameraControlDeviceTest {
     }
 
     @After
-    public void tearDown() throws ExecutionException, InterruptedException {
-        CameraX.shutdown().get();
+    public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
 
@@ -210,6 +214,44 @@ public class CameraControlDeviceTest {
                 new FocusMeteringAction.Builder(mMeteringPoint1).build();
         mCamera.getCameraControlInternal().startFocusAndMetering(action);
         ListenableFuture<Void> result = mCamera.getCameraControlInternal().cancelFocusAndMetering();
+
+        assertFutureCompletes(result);
+    }
+
+    @Test
+    public void rebindAndEnableTorch_futureCompletes() {
+        assumeTrue(CameraUtil.hasFlashUnitWithLensFacing(mCameraSelector.getLensFacing()));
+
+        mInstrumentation.runOnMainSync(() -> {
+            try {
+                mCamera.removeUseCases(Collections.singleton(mBoundUseCase));
+                ImageAnalysis useCase = new ImageAnalysis.Builder().build();
+                mCamera.addUseCases(Collections.singleton(mBoundUseCase = useCase));
+                useCase.setAnalyzer(CameraXExecutors.ioExecutor(), mAnalyzer);
+            } catch (CameraUseCaseAdapter.CameraException e) {
+                new IllegalArgumentException(e);
+            }
+        });
+
+        ListenableFuture<Void> result = mCamera.getCameraControlInternal().enableTorch(true);
+
+        assertFutureCompletes(result);
+    }
+
+    @Test
+    public void rebindAndSetZoomRatio_futureCompletes() {
+        mInstrumentation.runOnMainSync(() -> {
+            try {
+                mCamera.removeUseCases(Collections.singleton(mBoundUseCase));
+                ImageAnalysis useCase = new ImageAnalysis.Builder().build();
+                mCamera.addUseCases(Collections.singleton(mBoundUseCase = useCase));
+                useCase.setAnalyzer(CameraXExecutors.ioExecutor(), mAnalyzer);
+            } catch (CameraUseCaseAdapter.CameraException e) {
+                new IllegalArgumentException(e);
+            }
+        });
+
+        ListenableFuture<Void> result = mCamera.getCameraControlInternal().setZoomRatio(1.0f);
 
         assertFutureCompletes(result);
     }

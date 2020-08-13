@@ -16,7 +16,11 @@
 
 package androidx.camera.integration.view;
 
+import static androidx.camera.view.PreviewView.StreamState.IDLE;
+import static androidx.camera.view.PreviewView.StreamState.STREAMING;
+
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -26,13 +30,13 @@ import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.core.Camera;
-import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.FocusMeteringAction;
@@ -44,6 +48,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
@@ -51,17 +56,31 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /** A Fragment that displays a {@link PreviewView}. */
 public class PreviewViewFragment extends Fragment {
 
+    /** Scale types of ImageView that map to the PreviewView scale types. */
+    private static final ImageView.ScaleType[] IMAGE_VIEW_SCALE_TYPES =
+            {ImageView.ScaleType.FIT_CENTER, ImageView.ScaleType.FIT_CENTER,
+                    ImageView.ScaleType.FIT_CENTER, ImageView.ScaleType.FIT_START,
+                    ImageView.ScaleType.FIT_CENTER, ImageView.ScaleType.FIT_END};
+
     private static final String TAG = "PreviewViewFragment";
+
+    // Possible values for this intent key are the name values of LensFacing encoded as
+    // strings (case-insensitive): "back", "front".
+    private static final String INTENT_EXTRA_CAMERA_DIRECTION = "camera_direction";
+    private static final String CAMERA_DIRECTION_BACK = "back";
+    private static final String CAMERA_DIRECTION_FRONT = "front";
 
     private ListenableFuture<ProcessCameraProvider> mCameraProviderFuture;
     @SuppressWarnings("WeakerAccess")
     PreviewView mPreviewView;
     @SuppressWarnings("WeakerAccess")
     int mCurrentLensFacing = CameraSelector.LENS_FACING_BACK;
+    private BlurBitmap mBlurBitmap;
 
     public PreviewViewFragment() {
         super(R.layout.fragment_preview_view);
@@ -73,11 +92,11 @@ public class PreviewViewFragment extends Fragment {
         mCameraProviderFuture = ProcessCameraProvider.getInstance(context);
     }
 
-    @SuppressWarnings("UnstableApiUsage")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mPreviewView = view.findViewById(R.id.preview_view);
+        mBlurBitmap = new BlurBitmap(requireContext());
         Futures.addCallback(mCameraProviderFuture, new FutureCallback<ProcessCameraProvider>() {
             @Override
             public void onSuccess(@Nullable ProcessCameraProvider cameraProvider) {
@@ -88,6 +107,7 @@ public class PreviewViewFragment extends Fragment {
                 }
 
                 setUpToggleVisibility(cameraProvider, view);
+                setUpCameraLensFacing(cameraProvider);
                 setUpToggleCamera(cameraProvider, view);
                 setUpScaleTypeSelect(view);
                 bindPreview(cameraProvider);
@@ -99,6 +119,12 @@ public class PreviewViewFragment extends Fragment {
                         + "initialized?", throwable);
             }
         }, ContextCompat.getMainExecutor(requireContext()));
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mBlurBitmap.clear();
     }
 
     @SuppressWarnings("WeakerAccess")
@@ -118,8 +144,8 @@ public class PreviewViewFragment extends Fragment {
         final Button toggleVisibilityButton = rootView.findViewById(R.id.toggle_visibility);
         toggleVisibilityButton.setEnabled(true);
         toggleVisibilityButton.setOnClickListener(view -> {
-            if (previewViewContainer.getChildCount() == 0) {
-                previewViewContainer.addView(mPreviewView);
+            if (previewViewContainer.indexOfChild(mPreviewView) == -1) {
+                previewViewContainer.addView(mPreviewView, 0);
                 bindPreview(cameraProvider);
             } else {
                 cameraProvider.unbindAll();
@@ -129,21 +155,57 @@ public class PreviewViewFragment extends Fragment {
     }
 
     @SuppressWarnings("WeakerAccess")
+    void setUpCameraLensFacing(@NonNull final ProcessCameraProvider cameraProvider) {
+        try {
+            // Get extra option for setting initial camera direction
+            boolean isCameraDirectionValid = false;
+            String cameraDirectionString = null;
+            Bundle bundle = getActivity().getIntent().getExtras();
+            if (bundle != null) {
+                cameraDirectionString = bundle.getString(INTENT_EXTRA_CAMERA_DIRECTION);
+                isCameraDirectionValid =
+                        cameraDirectionString != null && (cameraDirectionString.equalsIgnoreCase(
+                                CAMERA_DIRECTION_BACK) || cameraDirectionString.equalsIgnoreCase(
+                                CAMERA_DIRECTION_FRONT));
+            }
+            if (isCameraDirectionValid) {
+                if (cameraDirectionString.equalsIgnoreCase(CAMERA_DIRECTION_BACK)
+                        && cameraProvider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)) {
+                    mCurrentLensFacing = CameraSelector.LENS_FACING_BACK;
+                } else if (cameraDirectionString.equalsIgnoreCase(CAMERA_DIRECTION_FRONT)
+                        && cameraProvider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)) {
+                    mCurrentLensFacing = CameraSelector.LENS_FACING_FRONT;
+                } else {
+                    throw new IllegalStateException(
+                            "The camera " + cameraDirectionString + " is unavailable.");
+                }
+            } else {
+                if (cameraProvider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)) {
+                    mCurrentLensFacing = CameraSelector.LENS_FACING_BACK;
+                } else if (cameraProvider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)) {
+                    mCurrentLensFacing = CameraSelector.LENS_FACING_FRONT;
+                } else {
+                    throw new IllegalStateException("Front and back cameras are unavailable.");
+                }
+            }
+        } catch (CameraInfoUnavailableException e) {
+            Log.e(TAG, "Unable to access camera: " + e.getMessage());
+        }
+    }
+
+    @SuppressWarnings("WeakerAccess")
     void setUpToggleCamera(@NonNull final ProcessCameraProvider cameraProvider,
             @NonNull final View rootView) {
         final Button toggleCameraButton = rootView.findViewById(R.id.toggle_camera);
         try {
-            if (cameraProvider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)) {
-                mCurrentLensFacing = CameraSelector.LENS_FACING_BACK;
-                if (cameraProvider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)) {
-                    toggleCameraButton.setEnabled(true);
-                }
-            } else if (cameraProvider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)) {
-                mCurrentLensFacing = CameraSelector.LENS_FACING_FRONT;
-            } else {
-                throw new IllegalStateException("Front and back cameras are unavailable.");
+            if (cameraProvider.hasCamera(CameraSelector.DEFAULT_BACK_CAMERA)
+                    && cameraProvider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA)) {
+                toggleCameraButton.setEnabled(true);
             }
-            toggleCameraButton.setOnClickListener(view -> switchCamera(cameraProvider));
+            toggleCameraButton.setOnClickListener(view -> {
+                animateToggleCamera(rootView);
+                toggleCamera(cameraProvider);
+            });
         } catch (CameraInfoUnavailableException exception) {
             toggleCameraButton.setEnabled(false);
         }
@@ -171,6 +233,11 @@ public class PreviewViewFragment extends Fragment {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 final PreviewView.ScaleType scaleType = PreviewView.ScaleType.values()[position];
                 mPreviewView.setScaleType(scaleType);
+
+                // Update the preview snapshot ImageView to have a scaleType matching that of the
+                // PreviewView.
+                final ImageView previewSnapshot = rootView.findViewById(R.id.preview_snapshot);
+                previewSnapshot.setScaleType(IMAGE_VIEW_SCALE_TYPES[position]);
             }
 
             @Override
@@ -184,29 +251,26 @@ public class PreviewViewFragment extends Fragment {
         final Preview preview = new Preview.Builder()
                 .setTargetName("Preview")
                 .build();
-        mPreviewView.setPreferredImplementationMode(PreviewView.ImplementationMode.TEXTURE_VIEW);
+        mPreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
         preview.setSurfaceProvider(mPreviewView.createSurfaceProvider());
-        final CameraSelector cameraSelector = getCurrentCameraSelector();
-        final Camera camera = cameraProvider.bindToLifecycle(this, cameraSelector, preview);
-        setUpFocusAndMetering(camera.getCameraControl(), cameraSelector);
+        final Camera camera = cameraProvider.bindToLifecycle(this, getCurrentCameraSelector(),
+                preview);
+        setUpFocusAndMetering(camera);
     }
 
-    @SuppressWarnings("UnstableApiUsage")
-    private void setUpFocusAndMetering(@NonNull final CameraControl cameraControl,
-            @NonNull final CameraSelector cameraSelector) {
+    private void setUpFocusAndMetering(@NonNull final Camera camera) {
         mPreviewView.setOnTouchListener((view, motionEvent) -> {
             switch (motionEvent.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     return true;
                 case MotionEvent.ACTION_UP:
-                    final MeteringPointFactory factory = mPreviewView.createMeteringPointFactory(
-                            cameraSelector);
+                    final MeteringPointFactory factory = mPreviewView.getMeteringPointFactory();
                     final MeteringPoint point = factory.createPoint(motionEvent.getX(),
                             motionEvent.getY());
                     final FocusMeteringAction action = new FocusMeteringAction.Builder(
                             point).build();
                     Futures.addCallback(
-                            cameraControl.startFocusAndMetering(action),
+                            camera.getCameraControl().startFocusAndMetering(action),
                             new FutureCallback<FocusMeteringResult>() {
                                 @Override
                                 public void onSuccess(FocusMeteringResult result) {
@@ -225,8 +289,34 @@ public class PreviewViewFragment extends Fragment {
         });
     }
 
-    @SuppressWarnings("WeakerAccess")
-    void switchCamera(@NonNull final ProcessCameraProvider cameraProvider) {
+    private void animateToggleCamera(@NonNull final View rootView) {
+        final Bitmap snapshot = mPreviewView.getBitmap();
+        if (snapshot == null) {
+            return;
+        }
+
+        final ImageView previewSnapshot = rootView.findViewById(R.id.preview_snapshot);
+        mBlurBitmap.blur(snapshot);
+        previewSnapshot.setImageBitmap(snapshot);
+
+        final AtomicBoolean isPreviewIdle = new AtomicBoolean(false);
+        mPreviewView.getPreviewStreamState().observe(getViewLifecycleOwner(),
+                new Observer<PreviewView.StreamState>() {
+                    @Override
+                    public void onChanged(PreviewView.StreamState streamState) {
+                        if (streamState == IDLE) {
+                            // The current preview stream is idle
+                            isPreviewIdle.set(true);
+                        } else if (isPreviewIdle.get() && streamState == STREAMING) {
+                            // A new preview stream is starting
+                            previewSnapshot.setImageBitmap(null);
+                            mPreviewView.getPreviewStreamState().removeObserver(this);
+                        }
+                    }
+                });
+    }
+
+    private void toggleCamera(@NonNull final ProcessCameraProvider cameraProvider) {
         cameraProvider.unbindAll();
 
         if (mCurrentLensFacing == CameraSelector.LENS_FACING_BACK) {

@@ -16,13 +16,14 @@
 
 package androidx.ui.integration.test.core
 
-import androidx.compose.Composable
-import androidx.compose.MutableState
-import androidx.compose.state
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.ui.test.ToggleableTestCase
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.integration.test.ToggleableTestCase
 
 abstract class BaseSimpleRadioButtonTestCase : ComposeTestCase, ToggleableTestCase {
 
@@ -30,7 +31,7 @@ abstract class BaseSimpleRadioButtonTestCase : ComposeTestCase, ToggleableTestCa
 
     @Composable
     fun getInnerSize(): MutableState<Dp> {
-        val innerSize = state { 10.dp }
+        val innerSize = remember { mutableStateOf(10.dp) }
         state = innerSize
         return innerSize
     }

@@ -19,7 +19,6 @@ package androidx.room.solver.query.result
 import androidx.room.ext.GuavaBaseTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.T
-import androidx.room.ext.typeName
 import androidx.room.solver.CodeGenScope
 import com.squareup.javapoet.ParameterizedTypeName
 
@@ -40,7 +39,7 @@ class GuavaOptionalQueryResultAdapter(private val resultAdapter: SingleEntityQue
             resultAdapter.convert(valueVarName, cursorVarName, scope)
             addStatement(
                     "final $T $L = $T.fromNullable($L)",
-                    ParameterizedTypeName.get(GuavaBaseTypeNames.OPTIONAL, type?.typeName()),
+                    ParameterizedTypeName.get(GuavaBaseTypeNames.OPTIONAL, type?.typeName),
                     outVarName,
                     GuavaBaseTypeNames.OPTIONAL,
                     valueVarName)

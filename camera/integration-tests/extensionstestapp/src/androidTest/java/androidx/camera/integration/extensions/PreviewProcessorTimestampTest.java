@@ -62,7 +62,6 @@ import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.GLUtil;
 import androidx.camera.testing.SurfaceTextureProvider;
 import androidx.camera.testing.TimestampCaptureProcessor;
-import androidx.camera.testing.fakes.FakeLifecycleOwner;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -84,6 +83,7 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Tests that the {@link androidx.camera.extensions.impl.PreviewImageProcessorImpl} properly
@@ -98,7 +98,8 @@ public class PreviewProcessorTimestampTest {
             Manifest.permission.CAMERA);
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
-    private FakeLifecycleOwner mLifecycleOwner;
+    private final Context mContext = ApplicationProvider.getApplicationContext();
+
     private ExtensionsManager.EffectMode mEffectMode;
     @CameraSelector.LensFacing
     private int mLensFacing;
@@ -114,7 +115,7 @@ public class PreviewProcessorTimestampTest {
     private ImageCapture.Builder mImageCaptureBuilder;
     private Preview.Builder mPreviewBuilder;
 
-    @Parameterized.Parameters
+    @Parameterized.Parameters(name = "effect = {0}, facing = {1}")
     public static Collection<Object[]> getParameters() {
         return Arrays.asList(new Object[][]{
                 {ExtensionsManager.EffectMode.BOKEH, CameraSelector.LENS_FACING_FRONT},
@@ -146,18 +147,16 @@ public class PreviewProcessorTimestampTest {
 
         assumeTrue(androidx.camera.testing.CameraUtil.deviceHasCamera());
 
-        Context context = ApplicationProvider.getApplicationContext();
         CameraXConfig config = Camera2Config.defaultConfig();
-        CameraX.initialize(context, config);
+        CameraX.initialize(mContext, config);
 
         ListenableFuture<ExtensionsManager.ExtensionsAvailability> availability =
-                ExtensionsManager.init();
+                ExtensionsManager.init(mContext);
         ExtensionsManager.ExtensionsAvailability extensionsAvailability = availability.get(1,
                 TimeUnit.SECONDS);
         assumeTrue(extensionsAvailability
                 == ExtensionsManager.ExtensionsAvailability.LIBRARY_AVAILABLE);
 
-        mLifecycleOwner = new FakeLifecycleOwner();
         mImageCaptureBuilder = new ImageCapture.Builder();
         mPreviewBuilder = new Preview.Builder();
         mInputTimestampsLatch = new CountDownLatch(1);
@@ -210,8 +209,8 @@ public class PreviewProcessorTimestampTest {
     }
 
     @After
-    public void cleanUp() throws InterruptedException, ExecutionException {
-        CameraX.shutdown().get();
+    public void cleanUp() throws InterruptedException, ExecutionException, TimeoutException {
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
     private HandlerThread mProcessingHandlerThread;
@@ -263,7 +262,7 @@ public class PreviewProcessorTimestampTest {
                     }));
 
             CameraUseCaseAdapter cameraUseCaseAdapter =
-                    CameraUtil.getCameraUseCaseAdapter(CameraX.getContext(), cameraSelector);
+                    CameraUtil.getCameraUseCaseAdapter(mContext, cameraSelector);
             try {
                 cameraUseCaseAdapter.addUseCases(Arrays.asList(preview, imageCapture));
             } catch (CameraUseCaseAdapter.CameraException e) {

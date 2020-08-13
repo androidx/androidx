@@ -16,23 +16,21 @@
 
 package androidx.room.vo
 
-import androidx.room.ext.isNonNull
-import androidx.room.ext.typeName
 import androidx.room.migration.bundle.FieldBundle
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
+import androidx.room.compiler.processing.XNullability
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XVariableElement
 import androidx.room.solver.types.CursorValueReader
 import androidx.room.solver.types.StatementValueBinder
 import com.squareup.javapoet.TypeName
-import javax.lang.model.element.Element
-import javax.lang.model.element.VariableElement
-import javax.lang.model.type.TypeMirror
 
 // used in cache matching, must stay as a data class or implement equals
 data class Field(
-    val element: VariableElement,
+    val element: XVariableElement,
     val name: String,
-    val type: TypeMirror,
+    val type: XType,
     var affinity: SQLTypeAffinity?,
     val collate: Collate? = null,
     val columnName: String = name,
@@ -43,7 +41,7 @@ data class Field(
     // index might be removed when being merged into an Entity
     var indexed: Boolean = false,
     /** Whether the table column for this field should be NOT NULL */
-    val nonNull: Boolean = calcNonNull(element, parent)
+    val nonNull: Boolean = calcNonNull(type, parent)
 ) : HasSchemaIdentity {
     lateinit var getter: FieldGetter
     lateinit var setter: FieldSetter
@@ -51,7 +49,7 @@ data class Field(
     var statementBinder: StatementValueBinder? = null
     // reads this field from a cursor column
     var cursorValueReader: CursorValueReader? = null
-    val typeName: TypeName by lazy { type.typeName() }
+    val typeName: TypeName by lazy { type.typeName }
 
     override fun getIdKey(): String {
         return buildString {
@@ -150,8 +148,9 @@ data class Field(
     )
 
     companion object {
-        fun calcNonNull(element: Element, parent: EmbeddedField?): Boolean {
-            return element.isNonNull() && (parent == null || parent.isNonNullRecursively())
+        fun calcNonNull(type: XType, parent: EmbeddedField?): Boolean {
+            return XNullability.NONNULL == type.nullability &&
+                    (parent == null || parent.isNonNullRecursively())
         }
     }
 }

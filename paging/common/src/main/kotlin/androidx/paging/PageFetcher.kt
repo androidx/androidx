@@ -115,7 +115,9 @@ internal class PageFetcher<Key : Any, Value : Any>(
         private val pageFetcherSnapshot: PageFetcherSnapshot<Key, Value>,
         private val retryChannel: SendChannel<Unit>
     ) : UiReceiver {
-        override fun addHint(hint: ViewportHint) = pageFetcherSnapshot.addHint(hint)
+        override fun accessHint(viewportHint: ViewportHint) {
+            pageFetcherSnapshot.accessHint(viewportHint)
+        }
 
         override fun retry() {
             retryChannel.offer(Unit)

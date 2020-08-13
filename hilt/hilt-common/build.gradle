@@ -28,6 +28,7 @@ plugins {
 
 dependencies {
     implementation(HILT_ANDROID)
+    annotationProcessor(HILT_ANDROID_COMPILER)
 }
 
 android.libraryVariants.all { variant ->
@@ -49,5 +50,4 @@ androidx {
     mavenGroup = LibraryGroups.HILT
     inceptionYear = "2020"
     description = "AndroidX Hilt Extension Annotations"
-    url = AndroidXExtension.ARCHITECTURE_URL
 }

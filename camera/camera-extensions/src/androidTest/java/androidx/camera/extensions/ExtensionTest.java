@@ -75,6 +75,8 @@ import org.mockito.ArgumentCaptor;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @LargeTest
 @RunWith(Parameterized.class)
@@ -85,12 +87,13 @@ public class ExtensionTest {
     public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
 
-    @Parameterized.Parameters
+    @Parameterized.Parameters(name = "effect = {0}, facing = {1}")
     public static Collection<Object[]> getParameters() {
         return ExtensionsTestUtil.getAllEffectLensFacingCombinations();
     }
 
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
+    private final Context mContext = ApplicationProvider.getApplicationContext();
 
     private EffectMode mEffectMode;
     @CameraSelector.LensFacing
@@ -105,19 +108,18 @@ public class ExtensionTest {
     public void setUp() throws Exception {
         assumeTrue(CameraUtil.deviceHasCamera());
 
-        Context context = ApplicationProvider.getApplicationContext();
         CameraXConfig cameraXConfig = Camera2Config.defaultConfig();
-        CameraX.initialize(context, cameraXConfig).get();
+        CameraX.initialize(mContext, cameraXConfig).get();
 
         assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
-        assumeTrue(ExtensionsTestUtil.initExtensions());
+        assumeTrue(ExtensionsTestUtil.initExtensions(mContext));
         assumeTrue(ExtensionsManager.isExtensionAvailable(mEffectMode, mLensFacing));
         assumeTrue(isTargetDeviceAvailableForExtensions(mLensFacing));
     }
 
     @After
-    public void cleanUp() throws InterruptedException, ExecutionException {
-        CameraX.shutdown().get();
+    public void cleanUp() throws InterruptedException, ExecutionException, TimeoutException {
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
     @Test
@@ -133,7 +135,7 @@ public class ExtensionTest {
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
         CameraUseCaseAdapter cameraUseCaseAdapter =
-                CameraUtil.getCameraUseCaseAdapter(CameraX.getContext(), cameraSelector);
+                CameraUtil.getCameraUseCaseAdapter(mContext, cameraSelector);
         mInstrumentation.runOnMainSync(
                 () -> {
                     // To set the update listener and Preview will change to active state.
@@ -166,7 +168,7 @@ public class ExtensionTest {
 
         // Verify the image captured.
         ArgumentCaptor<ImageProxy> imageProxy = ArgumentCaptor.forClass(ImageProxy.class);
-        verify(mockOnImageCapturedCallback, timeout(3000)).onCaptureSuccess(
+        verify(mockOnImageCapturedCallback, timeout(10000)).onCaptureSuccess(
                 imageProxy.capture());
         assertNotNull(imageProxy.getValue());
         imageProxy.getValue().close(); // Close the image after verification.

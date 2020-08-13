@@ -15,40 +15,37 @@
  */
 package androidx.ui.desktop.examples.example1
 
-import android.graphics.Bitmap
-import androidx.compose.Composable
-import androidx.compose.remember
-import androidx.compose.state
-import androidx.compose.remember
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.Button
+import androidx.compose.material.CircularProgressIndicator
+import androidx.compose.material.ExtendedFloatingActionButton
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Slider
+import androidx.compose.material.TextField
+import androidx.compose.material.TopAppBar
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.imageResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.fontFamily
+import androidx.compose.ui.text.platform.font
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.ui.desktop.AppWindow
-import androidx.ui.foundation.Image
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.drawBackground
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.ImageAsset
-import androidx.ui.graphics.asImageAsset
-import androidx.ui.layout.Arrangement
-import androidx.ui.layout.Column
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.preferredHeight
-import androidx.ui.layout.wrapContentSize
-import androidx.ui.material.Button
-import androidx.ui.material.CircularProgressIndicator
-import androidx.ui.material.ExtendedFloatingActionButton
-import androidx.ui.material.FilledTextField
-import androidx.ui.material.Scaffold
-import androidx.ui.material.Slider
-import androidx.ui.material.TopAppBar
-import androidx.ui.text.AnnotatedString
-import androidx.ui.text.SpanStyle
-import androidx.ui.unit.dp
-import androidx.ui.unit.sp
-import androidx.ui.text.font.fontFamily
-import androidx.ui.desktop.font
-import androidx.ui.layout.padding
-import androidx.ui.unit.IntSize
 
 private const val title = "Desktop Compose Elements"
 
@@ -71,14 +68,17 @@ fun main() {
                 )
             },
             bodyContent = {
-                val amount = state { 0 }
-                val text = state { "Hello" }
+                val amount = remember { mutableStateOf(0) }
+                val animation = remember { mutableStateOf(true) }
+                val text = remember {
+                    mutableStateOf("Hello \uD83E\uDDD1\uD83C\uDFFF\u200D\uD83E\uDDB0\nПривет")
+                }
                 Column(Modifier.fillMaxSize(), Arrangement.SpaceEvenly) {
                     Text(
                         text = "Привет! 你好! Desktop Compose ${amount.value}",
                         color = Color.Black,
                         modifier = Modifier
-                            .drawBackground(Color.Blue)
+                            .background(Color.Blue)
                             .preferredHeight(56.dp)
                             .wrapContentSize(Alignment.Center)
                     )
@@ -128,15 +128,29 @@ fun main() {
                     }) {
                         Text("Base")
                     }
-                    CircularProgressIndicator()
+
+                    Row(modifier = Modifier.padding(vertical = 10.dp),
+                        verticalGravity = Alignment.CenterVertically) {
+                        Button(
+                            onClick = {
+                            animation.value = !animation.value
+                        }) {
+                            Text("Toggle")
+                        }
+
+                        if (animation.value) {
+                            CircularProgressIndicator()
+                        }
+                    }
+
                     Slider(value = amount.value.toFloat() / 100f,
                         onValueChange = { amount.value = (it * 100).toInt() })
-                    FilledTextField(
+                    TextField(
                         value = amount.value.toString(),
                         onValueChange = { amount.value = it.toIntOrNull() ?: 42 },
                         label = { Text(text = "Input1") }
                     )
-                    FilledTextField(
+                    TextField(
                         value = text.value,
                         onValueChange = { text.value = it },
                         label = { Text(text = "Input2") }
@@ -146,16 +160,5 @@ fun main() {
                 }
             }
         )
-    }
-}
-
-fun loadResource(path: String): ByteArray {
-    return Thread.currentThread().contextClassLoader.getResource(path).readBytes()
-}
-
-@Composable
-fun imageResource(path: String): ImageAsset {
-    return remember(path) {
-        Bitmap(loadResource(path)).asImageAsset()
     }
 }

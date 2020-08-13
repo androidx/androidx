@@ -17,18 +17,19 @@
 @file:OptIn(InternalComposeApi::class)
 package androidx.ui.tooling
 
-import androidx.compose.InternalComposeApi
-import androidx.compose.SlotReader
-import androidx.compose.SlotTable
-import androidx.compose.isJoinedKey
-import androidx.compose.joinedKeyLeft
-import androidx.compose.joinedKeyRight
-import androidx.compose.keySourceInfoOf
-import androidx.ui.core.ExperimentalLayoutNodeApi
-import androidx.ui.core.LayoutNode
-import androidx.ui.core.ModifierInfo
-import androidx.ui.core.globalPosition
-import androidx.ui.unit.IntBounds
+import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.runtime.SlotReader
+import androidx.compose.runtime.SlotTable
+import androidx.compose.runtime.isJoinedKey
+import androidx.compose.runtime.joinedKeyLeft
+import androidx.compose.runtime.joinedKeyRight
+import androidx.compose.runtime.keySourceInfoOf
+import androidx.compose.ui.layout.globalPosition
+import androidx.compose.ui.node.ExperimentalLayoutNodeApi
+import androidx.compose.ui.node.LayoutNode
+import androidx.compose.ui.node.ModifierInfo
+import androidx.compose.ui.unit.IntBounds
+import java.lang.Exception
 import java.lang.reflect.Field
 import kotlin.math.max
 import kotlin.math.min
@@ -42,6 +43,11 @@ sealed class Group(
      * The key is the key generated for the group
      */
     val key: Any?,
+
+    /**
+     * The name of the function called, if provided
+     */
+    val name: String?,
 
     /**
      * The source location that produce the group if it can be determined
@@ -79,7 +85,8 @@ data class ParameterInformation(
     val value: Any?,
     val fromDefault: Boolean,
     val static: Boolean,
-    val compared: Boolean
+    val compared: Boolean,
+    val inlineClass: String?
 )
 
 /**
@@ -105,9 +112,21 @@ data class SourceLocation(
 
     /**
      * The file name (without path information) of the source file that contains the call that
-     * produced the group.
+     * produced the group. A source file names are not guaranteed to be unique, [packageHash] is
+     * included to help disambiguate files with duplicate names.
      */
-    val sourceFile: String?
+    val sourceFile: String?,
+
+    /**
+     * A hash code of the package name of the file. This hash is calculated by,
+     *
+     *   `packageName.fold(0) { hash, current -> hash * 31 + current.toInt() }?.absoluteValue`
+     *
+     * where the package name is the dotted name of the package. This can be used to disambiguate
+     * which file is referenced by [sourceFile]. This number is -1 if there was no package hash
+     * information generated such as when the file does not contain a package declaration.
+     */
+    val packageHash: Int
 )
 
 /**
@@ -115,12 +134,13 @@ data class SourceLocation(
  */
 class CallGroup(
     key: Any?,
+    name: String?,
     box: IntBounds,
     location: SourceLocation?,
     override val parameters: List<ParameterInformation>,
     data: Collection<Any?>,
     children: Collection<Group>
-) : Group(key, location, box, data, children)
+) : Group(key, name, location, box, data, children)
 
 /**
  * A group that represents an emitted node
@@ -136,7 +156,7 @@ class NodeGroup(
     data: Collection<Any?>,
     override val modifierInfo: List<ModifierInfo>,
     children: Collection<Group>
-) : Group(key, null, box, data, children)
+) : Group(key, null, null, box, data, children)
 
 /**
  * A key that has being joined together to form one key.
@@ -157,20 +177,26 @@ private fun convertKey(key: Any?): Any? =
 
 internal val emptyBox = IntBounds(0, 0, 0, 0)
 
-private val tokenizer = Regex("(\\d+)|([,])|([*])|([:])|C|L|@")
+private val tokenizer = Regex("(\\d+)|([,])|([*])|([:])|L|(P\\([^)]*\\))|(C(\\(([^)]*)\\))?)|@")
 
-private fun MatchResult.isNumber() = groupValues[1].isNotEmpty()
+private fun MatchResult.isNumber() = groups[1] != null
 private fun MatchResult.number() = groupValues[1].toInt()
 private val MatchResult.text get() = groupValues[0]
 private fun MatchResult.isChar(c: String) = text == c
-private fun MatchResult.isFileName() = groupValues[4].isNotEmpty()
+private fun MatchResult.isFileName() = groups[4] != null
+private fun MatchResult.isParameterInformation() = groups[5] != null
+private fun MatchResult.isCallWithName() = groups[6] != null
+private fun MatchResult.callName() = groupValues[8]
 
 private class SourceLocationInfo(val lineNumber: Int?, val offset: Int?, val length: Int?)
 
 private class SourceInformationContext(
+    val name: String?,
     val sourceFile: String?,
+    val packageHash: Int,
     val locations: List<SourceLocationInfo>,
     val repeatOffset: Int,
+    val parameters: List<Parameter>?,
     val isCall: Boolean
 ) {
     private var nextLocation = 0
@@ -185,10 +211,129 @@ private class SourceInformationContext(
                 location.lineNumber ?: -1,
                 location.offset ?: -1,
                 location.length ?: -1,
-                sourceFile
+                sourceFile,
+                packageHash
             )
         }
         return null
+    }
+}
+
+private val parametersInformationTokenizer = Regex("(\\d+)|,|[!P()]|:([^,!)]+)")
+private val MatchResult.isANumber get() = groups[1] != null
+private val MatchResult.isClassName get() = groups[2] != null
+
+private class ParseError : Exception()
+
+private class Parameter(
+    val sortedIndex: Int,
+    val inlineClass: String? = null
+)
+
+// The parameter information follows the following grammar:
+//
+//   parameters: (parameter|run) ("," parameter | run)*
+//   parameter: sorted-index [":" inline-class]
+//   sorted-index: <number>
+//   inline-class: <chars not "," or "!">
+//   run: "!" <number>
+//
+// The full description of this grammar can be found in the ComposableFunctionBodyTransfomer of the
+// compose compiler plugin.
+private fun parseParameters(parameters: String): List<Parameter> {
+    var currentResult = parametersInformationTokenizer.find(parameters)
+    val expectedSortedIndex = mutableListOf(0, 1, 2, 3)
+    var lastAdded = expectedSortedIndex.size - 1
+    val result = mutableListOf<Parameter>()
+    fun next(): MatchResult? {
+        currentResult?.let { currentResult = it.next() }
+        return currentResult
+    }
+
+    fun expectNumber(): Int {
+        val mr = currentResult
+        if (mr == null || !mr.isANumber) throw ParseError()
+        next()
+        return mr.text.toInt()
+    }
+
+    fun expectClassName(): String {
+        val mr = currentResult
+        if (mr == null || !mr.isClassName) throw ParseError()
+        next()
+        return mr.text
+            .substring(1)
+            .replacePrefix("c#", "androidx.compose.")
+            .replacePrefix("u#", "androidx.ui.")
+    }
+
+    fun expect(value: String) {
+        val mr = currentResult
+        if (mr == null || mr.text != value) throw ParseError()
+        next()
+    }
+
+    fun isChar(value: String): Boolean {
+        val mr = currentResult
+        return mr == null || mr.text == value
+    }
+
+    fun isClassName(): Boolean {
+        val mr = currentResult
+        return mr != null && mr.isClassName
+    }
+
+    fun ensureIndexes(index: Int) {
+        val missing = index - lastAdded
+        if (missing > 0) {
+            val minAddAmount = 4
+            val amountToAdd = if (missing < minAddAmount) minAddAmount else missing
+            repeat(amountToAdd) {
+                expectedSortedIndex.add(it + lastAdded + 1)
+            }
+            lastAdded += amountToAdd
+        }
+    }
+
+    try {
+        expect("P")
+        expect("(")
+        loop@ while (!isChar(")")) {
+            when {
+                isChar("!") -> {
+                    // run
+                    next()
+                    val count = expectNumber()
+                    ensureIndexes(result.size + count)
+                    repeat(count) {
+                        result.add(Parameter(expectedSortedIndex.first()))
+                        expectedSortedIndex.removeAt(0)
+                    }
+                }
+                isChar(",") -> next()
+                else -> {
+                    val index = expectNumber()
+                    val inlineClass = if (isClassName()) {
+                        expectClassName()
+                    } else null
+                    result.add(Parameter(index, inlineClass))
+                    ensureIndexes(index)
+                    expectedSortedIndex.remove(index)
+                }
+            }
+        }
+        expect(")")
+
+        // Ensure there are at least as many entries as the highest referenced index.
+        while (expectedSortedIndex.size > 0) {
+            result.add(Parameter(expectedSortedIndex.first()))
+            expectedSortedIndex.removeAt(0)
+        }
+        return result
+    } catch (_: ParseError) {
+        return emptyList()
+    } catch (_: NumberFormatException) {
+        return emptyList()
     }
 }
 
@@ -235,9 +380,12 @@ private fun sourceInformationContextOf(
         return null
     }
     val sourceLocations = mutableListOf<SourceLocationInfo>()
-    var repeateOffset = -1
+    var repeatOffset = -1
     var isCall = false
+    var name: String? = null
+    var parameters: List<Parameter>? = null
     var sourceFile: String? = null
+    var packageHash = -1
     loop@ while (currentResult != null) {
         val mr = currentResult!!
         when {
@@ -248,21 +396,47 @@ private fun sourceInformationContextOf(
                 isCall = true
                 next()
             }
+            mr.isCallWithName() -> {
+                isCall = true
+                name = mr.callName()
+                next()
+            }
+            mr.isParameterInformation() -> {
+                parameters = parseParameters(mr.text)
+                next()
+            }
             mr.isChar("*") -> {
-                repeateOffset = sourceLocations.size
+                repeatOffset = sourceLocations.size
+                next()
             }
             mr.isChar(",") -> next()
             mr.isFileName() -> {
                 sourceFile = information.substring(mr.range.last + 1)
+                val hashText = sourceFile.substringAfterLast("#", "")
+                if (hashText.isNotEmpty()) {
+                    // Remove the hash information
+                    sourceFile = sourceFile
+                        .substring(0 until sourceFile.length - hashText.length - 1)
+                    try {
+                        packageHash = hashText.toInt(36)
+                    } catch (_: NumberFormatException) {
+                        packageHash = -1
+                    }
+                }
                 break@loop
             }
+            else -> break@loop
         }
         require(mr != currentResult) { "regex didn't advance" }
     }
+
     return SourceInformationContext(
+        name = name,
         sourceFile = sourceFile ?: parent?.sourceFile,
+        packageHash = packageHash,
         locations = sourceLocations,
-        repeatOffset = repeateOffset,
+        repeatOffset = repeatOffset,
+        parameters = parameters,
         isCall = isCall
     )
 }
@@ -274,10 +448,9 @@ private fun sourceInformationContextOf(
 private fun SlotReader.getGroup(parentContext: SourceInformationContext?): Group {
     val key = convertKey(groupKey)
     val groupData = groupData
-    val myContext = if (groupData != null && groupData is String) {
+    val context = if (groupData != null && groupData is String) {
         sourceInformationContextOf(groupData, parentContext)
     } else null
-    val context = myContext ?: parentContext
     val nodeGroup = isNode
     val end = current + groupSize
     val node = if (nodeGroup) groupNode else null
@@ -320,13 +493,14 @@ private fun SlotReader.getGroup(parentContext: SourceInformationContext?): Group
     ) else
         CallGroup(
             key,
+            context?.name,
             box,
-            if (myContext != null && myContext.isCall) {
+            if (context != null && context.isCall) {
                 parentContext?.nextSourceLocation()
             } else {
                 null
             },
-            extractParameterInfo(data),
+            extractParameterInfo(data, context),
             data,
             children
         )
@@ -379,9 +553,13 @@ private const val parameterPrefix = "${'$'}"
 private const val internalFieldPrefix = parameterPrefix + parameterPrefix
 private const val defaultFieldName = "${internalFieldPrefix}default"
 private const val changedFieldName = "${internalFieldPrefix}changed"
+private const val jacocoDataField = "${parameterPrefix}jacoco"
 private const val recomposeScopeNameSuffix = ".RecomposeScope"
 
-private fun extractParameterInfo(data: List<Any?>): List<ParameterInformation> {
+private fun extractParameterInfo(
+    data: List<Any?>,
+    context: SourceInformationContext?
+): List<ParameterInformation> {
     if (data.isNotEmpty()) {
         val recomposeScope = data[0]
         if (recomposeScope != null) {
@@ -399,30 +577,37 @@ private fun extractParameterInfo(data: List<Any?>): List<ParameterInformation> {
                                 if (defaultsField != null) defaultsField.get(block) as Int else 0
                             val changed =
                                 if (changedField != null) changedField.get(block) as Int else 0
-                            var index = 0
+                            val fields = blockClass.declaredFields
+                                .filter {
+                                    it.name.startsWith(parameterPrefix) &&
+                                            !it.name.startsWith(internalFieldPrefix) &&
+                                            !it.name.startsWith(jacocoDataField)
+                                }.sortedBy { it.name }
                             val parameters = mutableListOf<ParameterInformation>()
-                            for (field in blockClass.declaredFields) {
-                                if (field.name.startsWith(parameterPrefix) &&
-                                    !field.name.startsWith(internalFieldPrefix)) {
-                                    field.isAccessible = true
-                                    val value = field.get(block)
-                                    val fromDefault = (1 shl index) and default != 0
-                                    val changedOffset = index * 2 + 1
-                                    val parameterChanged =
-                                        ((3 shl changedOffset) and changed) shr changedOffset
-                                    val static = parameterChanged == 3
-                                    val compared = parameterChanged == 0
-                                    parameters.add(
-                                        ParameterInformation(
-                                            name = field.name.substring(1),
-                                            value = value,
-                                            fromDefault = fromDefault,
-                                            static = static,
-                                            compared = compared && !fromDefault
-                                        )
+                            val parametersMetadata = context?.parameters ?: emptyList()
+                            repeat(fields.size) { index ->
+                                val metadata = if (index < parametersMetadata.size)
+                                    parametersMetadata[index] else Parameter(index)
+                                if (metadata.sortedIndex >= fields.size) return@repeat
+                                val field = fields[metadata.sortedIndex]
+                                field.isAccessible = true
+                                val value = field.get(block)
+                                val fromDefault = (1 shl index) and default != 0
+                                val changedOffset = index * 2 + 1
+                                val parameterChanged =
+                                    ((3 shl changedOffset) and changed) shr changedOffset
+                                val static = parameterChanged == 3
+                                val compared = parameterChanged == 0
+                                parameters.add(
+                                    ParameterInformation(
+                                        name = field.name.substring(1),
+                                        value = value,
+                                        fromDefault = fromDefault,
+                                        static = static,
+                                        compared = compared && !fromDefault,
+                                        inlineClass = metadata.inlineClass
                                     )
-                                    index++
-                                }
+                                )
                             }
                             return parameters
                         }
@@ -443,3 +628,6 @@ val Group.position: String? get() = keyPosition(key)
 private fun Class<*>.accessibleField(name: String): Field? = declaredFields.firstOrNull {
     it.name == name
 }?.apply { isAccessible = true }
+
+private fun String.replacePrefix(prefix: String, replacement: String) =
+    if (startsWith(prefix)) replacement + substring(prefix.length) else this

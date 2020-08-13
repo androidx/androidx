@@ -15,15 +15,15 @@
  */
 package androidx.ui.desktop.examples.example2
 
-import androidx.ui.core.Modifier
-import androidx.ui.foundation.Canvas
-import androidx.ui.geometry.Offset
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.drawscope.inset
-import androidx.ui.graphics.drawscope.rotate
-import androidx.ui.graphics.drawscope.withTransform
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.unit.IntSize
+import androidx.compose.ui.Modifier
+import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.inset
+import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.drawscope.withTransform
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.unit.IntSize
 import androidx.ui.desktop.AppWindow
 
 private const val title = "Desktop Compose Canvas"

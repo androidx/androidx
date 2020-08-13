@@ -24,6 +24,7 @@ import static android.app.slice.Slice.SUBTYPE_CONTENT_DESCRIPTION;
 import static android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.slice.core.SliceHints.HINT_OVERLAY;
 
 import android.app.PendingIntent;
 import android.net.Uri;
@@ -162,6 +163,9 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
                         Pair<IconCompat, Integer> pair = (Pair<IconCompat, Integer>) objs.get(i);
                         addImage(pair.first, pair.second, loadings.get(i));
                         break;
+                    case CellBuilder.TYPE_OVERLAY:
+                        addOverlayText((CharSequence) objs.get(i), loadings.get(i));
+                        break;
                 }
             }
         }
@@ -185,24 +189,37 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
          */
         private void addTitleText(@Nullable CharSequence text, boolean isLoading) {
             @Slice.SliceHint String[] hints = isLoading
-                    ? new String[] {HINT_PARTIAL, HINT_TITLE}
-                    : new String[] {HINT_TITLE};
+                    ? new String[]{HINT_PARTIAL, HINT_TITLE}
+                    : new String[]{HINT_TITLE};
             getBuilder().addText(text, null, hints);
         }
 
         /**
+         *
          */
         private void addImage(@Nullable IconCompat image, int imageMode, boolean isLoading) {
             getBuilder().addIcon(image, null, parseImageMode(imageMode, isLoading));
         }
 
         /**
+         *
+         */
+        private void addOverlayText(@Nullable CharSequence text, boolean isLoading) {
+            @Slice.SliceHint String[] hints = isLoading
+                    ? new String[]{HINT_PARTIAL, HINT_OVERLAY}
+                    : new String[]{HINT_OVERLAY};
+            getBuilder().addText(text, null, hints);
+        }
+
+        /**
+         *
          */
         private void setContentIntent(@NonNull PendingIntent intent) {
             mContentIntent = intent;
         }
 
         /**
+         *
          */
         private void setContentDescription(CharSequence description) {
             getBuilder().addText(description, SUBTYPE_CONTENT_DESCRIPTION);

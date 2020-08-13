@@ -160,7 +160,6 @@ public class MediaRouteDiscoveryFragment extends Fragment {
     public void onStart() {
         super.onStart();
         if (mCallback != null) {
-            // TODO: Change here when setCallbackFlags() is added.
             mRouter.addCallback(mSelector, mCallback, onPrepareCallbackFlags());
         }
     }
@@ -168,9 +167,16 @@ public class MediaRouteDiscoveryFragment extends Fragment {
     @Override
     public void onStop() {
         if (mCallback != null) {
-            // TODO: Change here when setCallbackFlags() is added.
             mRouter.addCallback(mSelector, mCallback, 0);
         }
         super.onStop();
+    }
+
+    @Override
+    public void onDestroy() {
+        if (mCallback != null) {
+            mRouter.removeCallback(mCallback);
+        }
+        super.onDestroy();
     }
 }

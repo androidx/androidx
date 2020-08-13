@@ -46,12 +46,13 @@ public final class LifecycleCameraRepositoryTest {
     private LifecycleCameraRepository mRepository;
     private CameraUseCaseAdapter mCameraUseCaseAdapter;
     private LinkedHashSet<CameraInternal> mCameraSet;
+    private int mCameraId = 0;
 
     @Before
     public void setUp() {
         mLifecycle = new FakeLifecycleOwner();
         mRepository = new LifecycleCameraRepository();
-        CameraInternal camera = new FakeCamera();
+        CameraInternal camera = new FakeCamera(String.valueOf(mCameraId));
         mCameraSet = new LinkedHashSet<>(Collections.singleton(camera));
         mCameraUseCaseAdapter = new CameraUseCaseAdapter(camera,
                 mCameraSet,
@@ -359,6 +360,60 @@ public final class LifecycleCameraRepositoryTest {
     }
 
     @Test
+    public void lifecycleCameraWithUseCaseIsActive_whenNewLifecycleCameraWithoutUseCaseIsStarted() {
+        // Starts first LifecycleCamera with use case bound.
+        LifecycleCamera firstLifecycleCamera = mRepository.createLifecycleCamera(
+                mLifecycle, mCameraUseCaseAdapter);
+        mRepository.bindToLifecycleCamera(firstLifecycleCamera, null,
+                Collections.singletonList(new FakeUseCase()));
+        mLifecycle.start();
+        assertThat(firstLifecycleCamera.isActive()).isTrue();
+
+        // Starts second LifecycleCamera without use case bound.
+        FakeLifecycleOwner secondLifecycle = new FakeLifecycleOwner();
+        LifecycleCamera secondLifecycleCamera = mRepository.createLifecycleCamera(secondLifecycle,
+                createNewCameraUseCaseAdapter());
+        secondLifecycle.start();
+
+        // The first LifecycleCamera is still active because the second LifecycleCamera won't
+        // become active when there is no use case bound.
+        assertThat(firstLifecycleCamera.isActive()).isTrue();
+        assertThat(secondLifecycleCamera.isActive()).isFalse();
+    }
+
+    @Test
+    public void onlyLifecycleCameraWithUseCaseIsActive_afterLifecycleIsStarted() {
+        // Starts first LifecycleCamera with no use case bound.
+        LifecycleCamera lifecycleCamera0 = mRepository.createLifecycleCamera(
+                mLifecycle, mCameraUseCaseAdapter);
+        mLifecycle.start();
+
+        // Starts second LifecycleCamera with use case bound to the same Lifecycle.
+        LifecycleCamera lifecycleCamera1 = mRepository.createLifecycleCamera(
+                mLifecycle, createNewCameraUseCaseAdapter());
+        mRepository.bindToLifecycleCamera(lifecycleCamera1, null,
+                Collections.singletonList(new FakeUseCase()));
+
+        // Starts third LifecycleCamera with no use case bound to the same Lifecycle.
+        LifecycleCamera lifecycleCamera2 = mRepository.createLifecycleCamera(
+                mLifecycle, createNewCameraUseCaseAdapter());
+
+        // Checks only the LifecycleCamera with use case bound can become active.
+        assertThat(lifecycleCamera0.isActive()).isFalse();
+        assertThat(lifecycleCamera1.isActive()).isTrue();
+        assertThat(lifecycleCamera2.isActive()).isFalse();
+
+        // Stops and resumes the lifecycle
+        mLifecycle.stop();
+        mLifecycle.start();
+
+        // Checks still only the LifecycleCamera with use case bound is active.
+        assertThat(lifecycleCamera0.isActive()).isFalse();
+        assertThat(lifecycleCamera1.isActive()).isTrue();
+        assertThat(lifecycleCamera2.isActive()).isFalse();
+    }
+
+    @Test
     public void retrievesExistingCamera() {
         LifecycleCamera lifecycleCamera = mRepository.createLifecycleCamera(
                 mLifecycle, mCameraUseCaseAdapter);
@@ -383,7 +438,8 @@ public final class LifecycleCameraRepositoryTest {
     }
 
     private CameraUseCaseAdapter createNewCameraUseCaseAdapter() {
-        CameraInternal fakeCamera = new FakeCamera("other");
+        String cameraId = String.valueOf(++mCameraId);
+        CameraInternal fakeCamera = new FakeCamera(cameraId);
         return new CameraUseCaseAdapter(fakeCamera,
                 new LinkedHashSet<>(Collections.singleton(fakeCamera)),
                 new FakeCameraDeviceSurfaceManager());

@@ -152,11 +152,6 @@ class AsyncPagingDataDifferTest {
                 localLoadStatesOf(
                     refreshLocal = NotLoading(endOfPaginationReached = false),
                     prependLocal = NotLoading(endOfPaginationReached = true),
-                    appendLocal = NotLoading(endOfPaginationReached = false)
-                ),
-                localLoadStatesOf(
-                    refreshLocal = NotLoading(endOfPaginationReached = false),
-                    prependLocal = NotLoading(endOfPaginationReached = true),
                     appendLocal = NotLoading(endOfPaginationReached = true)
                 )
             ),
@@ -211,11 +206,6 @@ class AsyncPagingDataDifferTest {
         // empty next list.
         assertEvents(
             expected = listOf(
-                localLoadStatesOf(
-                    refreshLocal = NotLoading(endOfPaginationReached = false),
-                    prependLocal = NotLoading(endOfPaginationReached = true),
-                    appendLocal = NotLoading(endOfPaginationReached = false)
-                ),
                 localLoadStatesOf(
                     refreshLocal = NotLoading(endOfPaginationReached = false),
                     prependLocal = NotLoading(endOfPaginationReached = true),
@@ -492,5 +482,154 @@ class AsyncPagingDataDifferTest {
 
         job1.cancelAndJoin()
         job2.cancelAndJoin()
+    }
+
+    @Test
+    fun loadStateFlowSynchronouslyUpdates() = testScope.runBlockingTest {
+        var combinedLoadStates: CombinedLoadStates? = null
+        var itemCount = -1
+        val loadStateJob = launch {
+            differ.loadStateFlow.collect {
+                combinedLoadStates = it
+                itemCount = differ.itemCount
+            }
+        }
+
+        val pager = Pager(
+            config = PagingConfig(
+                pageSize = 10,
+                enablePlaceholders = false,
+                initialLoadSize = 10,
+                prefetchDistance = 1
+            ),
+            initialKey = 50
+        ) { TestPagingSource() }
+        val job = launch {
+            pager.flow.collectLatest { differ.submitData(it) }
+        }
+
+        // Initial refresh
+        advanceUntilIdle()
+        assertEquals(
+            CombinedLoadStates(
+                source = LoadStates(
+                    refresh = NotLoading(endOfPaginationReached = false),
+                    prepend = NotLoading(endOfPaginationReached = false),
+                    append = NotLoading(endOfPaginationReached = false)
+                )
+            ),
+            combinedLoadStates
+        )
+        assertEquals(10, itemCount)
+        assertEquals(10, differ.itemCount)
+
+        // Append
+        differ.getItem(9)
+        advanceUntilIdle()
+        assertEquals(
+            CombinedLoadStates(
+                source = LoadStates(
+                    refresh = NotLoading(endOfPaginationReached = false),
+                    prepend = NotLoading(endOfPaginationReached = false),
+                    append = NotLoading(endOfPaginationReached = false)
+                )
+            ),
+            combinedLoadStates
+        )
+        assertEquals(20, itemCount)
+        assertEquals(20, differ.itemCount)
+
+        // Prepend
+        differ.getItem(0)
+        advanceUntilIdle()
+        assertEquals(
+            CombinedLoadStates(
+                source = LoadStates(
+                    refresh = NotLoading(endOfPaginationReached = false),
+                    prepend = NotLoading(endOfPaginationReached = false),
+                    append = NotLoading(endOfPaginationReached = false)
+                )
+            ),
+            combinedLoadStates
+        )
+        assertEquals(30, itemCount)
+        assertEquals(30, differ.itemCount)
+
+        job.cancel()
+        loadStateJob.cancel()
+    }
+
+    @Test
+    fun loadStateListenerSynchronouslyUpdates() = testScope.runBlockingTest {
+        pauseDispatcher {
+            var combinedLoadStates: CombinedLoadStates? = null
+            var itemCount = -1
+            differ.addLoadStateListener {
+                combinedLoadStates = it
+                itemCount = differ.itemCount
+            }
+
+            val pager = Pager(
+                config = PagingConfig(
+                    pageSize = 10,
+                    enablePlaceholders = false,
+                    initialLoadSize = 10,
+                    prefetchDistance = 1
+                ),
+                initialKey = 50
+            ) { TestPagingSource() }
+            val job = launch {
+                pager.flow.collectLatest { differ.submitData(it) }
+            }
+
+            // Initial refresh
+            advanceUntilIdle()
+            assertEquals(
+                CombinedLoadStates(
+                    source = LoadStates(
+                        refresh = NotLoading(endOfPaginationReached = false),
+                        prepend = NotLoading(endOfPaginationReached = false),
+                        append = NotLoading(endOfPaginationReached = false)
+                    )
+                ),
+                combinedLoadStates
+            )
+            assertEquals(10, itemCount)
+            assertEquals(10, differ.itemCount)
+
+            // Append
+            differ.getItem(9)
+            advanceUntilIdle()
+            assertEquals(
+                CombinedLoadStates(
+                    source = LoadStates(
+                        refresh = NotLoading(endOfPaginationReached = false),
+                        prepend = NotLoading(endOfPaginationReached = false),
+                        append = NotLoading(endOfPaginationReached = false)
+                    )
+                ),
+                combinedLoadStates
+            )
+            assertEquals(20, itemCount)
+            assertEquals(20, differ.itemCount)
+
+            // Prepend
+            differ.getItem(0)
+            advanceUntilIdle()
+            assertEquals(
+                CombinedLoadStates(
+                    source = LoadStates(
+                        refresh = NotLoading(endOfPaginationReached = false),
+                        prepend = NotLoading(endOfPaginationReached = false),
+                        append = NotLoading(endOfPaginationReached = false)
+                    )
+                ),
+                combinedLoadStates
+            )
+            assertEquals(30, itemCount)
+            assertEquals(30, differ.itemCount)
+
+            job.cancel()
+        }
     }
 }

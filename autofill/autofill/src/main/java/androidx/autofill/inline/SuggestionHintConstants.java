@@ -32,7 +32,7 @@ import java.util.List;
  * associated hints to help rank and evaluate the quality of the suggestion based on user action
  * on them.
  */
-@RequiresApi(api = Build.VERSION_CODES.Q) //TODO(b/147116534): Update to R.
+@RequiresApi(api = Build.VERSION_CODES.R)
 public final class SuggestionHintConstants {
     private SuggestionHintConstants() {}
 

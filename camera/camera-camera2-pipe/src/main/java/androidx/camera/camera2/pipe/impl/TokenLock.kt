@@ -177,7 +177,6 @@ class TokenLockImpl(override val capacity: Long) : TokenLock {
                 return@suspendCancellableCoroutine
             }
 
-            var tokenRequest: TokenRequest
             synchronized(pending) {
                 if (closed) throw closedException
                 if (pending.isEmpty()) {
@@ -188,10 +187,12 @@ class TokenLockImpl(override val capacity: Long) : TokenLock {
                         return@suspendCancellableCoroutine
                     }
                 }
-                continuation.invokeOnCancellation { release(0) }
-                tokenRequest = TokenRequest(continuation, min, max)
-                pending.add(tokenRequest)
+                pending.add(TokenRequest(continuation, min, max))
             }
+
+            // WARNING: This may invoke the release method **synchronously** if the continuation
+            //   was canceled while this method was executing.
+            continuation.invokeOnCancellation { release(0) }
         }
 
     override fun close() {

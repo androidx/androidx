@@ -101,7 +101,7 @@ class Cea708CCParser {
 
     private final StringBuilder mBuilder = new StringBuilder();
 
-    // Assign a dummy listener in order to avoid null checks.
+    // Assign a placeholder listener in order to avoid null checks.
     private DisplayListener mListener = new DisplayListener() {
         @Override
         public void emitEvent(CaptionEvent event) {

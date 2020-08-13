@@ -44,7 +44,7 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
         val expectedInfoVar = scope.getTmpVar("_info$suffix")
         scope.builder().apply {
             val columnListVar = scope.getTmpVar("_columns$suffix")
-            val columnListType = ParameterizedTypeName.get(HashMap::class.typeName(),
+            val columnListType = ParameterizedTypeName.get(HashMap::class.typeName,
                     CommonTypeNames.STRING, RoomTypeNames.TABLE_INFO_COLUMN)
 
             addStatement("final $T $L = new $T($L)", columnListType, columnListVar,
@@ -61,7 +61,7 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
             }
 
             val foreignKeySetVar = scope.getTmpVar("_foreignKeys$suffix")
-            val foreignKeySetType = ParameterizedTypeName.get(HashSet::class.typeName(),
+            val foreignKeySetType = ParameterizedTypeName.get(HashSet::class.typeName,
                     RoomTypeNames.TABLE_INFO_FOREIGN_KEY)
             addStatement("final $T $L = new $T($L)", foreignKeySetType, foreignKeySetVar,
                     foreignKeySetType, entity.foreignKeys.size)
@@ -76,14 +76,14 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
                         /*parent table*/ it.parentTable,
                         /*on delete*/ it.onDelete.sqlName,
                         /*on update*/ it.onUpdate.sqlName,
-                        Arrays::class.typeName(),
+                        Arrays::class.typeName,
                         /*parent names*/ myColumnNames,
-                        Arrays::class.typeName(),
+                        Arrays::class.typeName,
                         /*parent column names*/ refColumnNames)
             }
 
             val indicesSetVar = scope.getTmpVar("_indices$suffix")
-            val indicesType = ParameterizedTypeName.get(HashSet::class.typeName(),
+            val indicesType = ParameterizedTypeName.get(HashSet::class.typeName,
                     RoomTypeNames.TABLE_INFO_INDEX)
             addStatement("final $T $L = new $T($L)", indicesType, indicesSetVar,
                     indicesType, entity.indices.size)
@@ -94,7 +94,7 @@ class TableInfoValidationWriter(val entity: Entity) : ValidationWriter() {
                         RoomTypeNames.TABLE_INFO_INDEX,
                         index.name,
                         index.unique,
-                        Arrays::class.typeName(),
+                        Arrays::class.typeName,
                         columnNames)
             }
 

@@ -14,7 +14,7 @@
      limitations under the License.
 -->
 
-<!-- This is a dummy drawable so that we can refer to the drawable ID -->
+<!-- This is a fake drawable so that we can refer to the drawable ID -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <solid android:color="@android:color/white"/>
 </shape>

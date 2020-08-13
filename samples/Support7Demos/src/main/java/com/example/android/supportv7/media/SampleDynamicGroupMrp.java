@@ -283,7 +283,6 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
                 mMemberRouteIds.addAll(memberIds);
             }
 
-            updateDynamicRouteDescriptors(/*shouldNotify=*/true);
             Log.d(TAG, mRouteId + ": Controller created.");
         }
 
@@ -420,6 +419,8 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
         @Override
         public void onSelect() {
             Log.d(TAG, mRouteId + ": Selected");
+            updateDynamicRouteDescriptors(/*shouldNotify=*/true);
+
             for (RouteController controller : getValidMemberControllers()) {
                 controller.onSelect();
             }
@@ -499,7 +500,7 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
             for (Iterator<WeakReference<SampleRouteController>> it =
                     mControllerMap.values().iterator(); it.hasNext(); ) {
                 SampleRouteController controller = it.next().get();
-                if (controller == null || !controller.isReleased()) {
+                if (controller == null || controller.isReleased()) {
                     it.remove();
                 } else {
                     controllers.add(controller);

@@ -15,42 +15,43 @@
  */
 package androidx.ui.desktop.examples.popupexample
 
-import androidx.compose.Composable
-import androidx.compose.MutableState
-import androidx.compose.state
-import androidx.ui.core.Alignment
-import androidx.ui.core.Modifier
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.ContentGravity
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope.gravity
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.preferredWidth
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Button
+import androidx.compose.material.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Popup
 import androidx.ui.desktop.AppManager
 import androidx.ui.desktop.AppWindow
-import androidx.ui.desktop.Dialog
-import androidx.ui.desktop.core.Popup
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.ContentGravity
-import androidx.ui.foundation.Text
-import androidx.ui.foundation.shape.corner.RoundedCornerShape
-import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
-import androidx.ui.layout.ColumnScope.gravity
-import androidx.ui.layout.Row
-import androidx.ui.layout.Spacer
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.height
-import androidx.ui.layout.preferredHeight
-import androidx.ui.layout.preferredSize
-import androidx.ui.layout.preferredWidth
-import androidx.ui.layout.width
-import androidx.ui.material.Button
-import androidx.ui.material.Surface
-import androidx.ui.unit.IntSize
-import androidx.ui.unit.IntOffset
-import androidx.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 
 @Composable
 fun content() {
 
-    val popupState = state { false }
-    val dialogState = state { false }
-    val amount = state { 0 }
+    val popupState = remember { mutableStateOf(false) }
+    val dialogState = remember { mutableStateOf(false) }
+    val amount = remember { mutableStateOf(0) }
 
     Surface(
         modifier = Modifier.fillMaxSize(),

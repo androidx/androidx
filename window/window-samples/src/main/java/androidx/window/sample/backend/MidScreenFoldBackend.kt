@@ -16,9 +16,7 @@
 
 package androidx.window.sample.backend
 
-import android.app.Activity
 import android.content.Context
-import android.content.ContextWrapper
 import android.graphics.Point
 import android.graphics.Rect
 import androidx.core.util.Consumer
@@ -27,34 +25,44 @@ import androidx.window.DisplayFeature
 import androidx.window.DisplayFeature.TYPE_FOLD
 import androidx.window.WindowBackend
 import androidx.window.WindowLayoutInfo
-import androidx.window.WindowManager
 import java.util.concurrent.Executor
 
 /**
- * Sample backend implementation that reports a {@link DisplayFeature#TYPE_FOLD} display feature
- * that goes across the screen in the middle. It can be used as a mock backend implementation
- * with [WindowManager] for automated or manual testing.
- * <p> If the application window is portrait-oriented, then the reported fold in the screen will
- * be horizontal (vertically-folding device configuration). If the window is landscape-oriented,
- * then the reported fold will be vertical (horizontally-folding device configuration).
- * @see [WindowManager]
- * @see [getWindowLayoutInfo]
+ * A sample backend that will have a fold in the middle of the screen. The {@link FoldAxis}
+ * specifies which axis is followed. This sample backend can be used to model devices that open
+ * like a clam shell or a book. This is relative to the display's dimensions. For displays that
+ * are taller than they are wide with a short fold axis they will mimic a horizontal fold. For
+ * displays that are wider than they are tall with a short fold axis will mimic a vertical fold.
+ *
+ * <p>The {@link DeviceState} is fixed to have an opened posture. This sample implementation
+ * ignores the device state listener. Combine with {@link InitialValueWindowBackendDecorator} to
+ * receive the initial value through the listener.
+ *
+ * <p>The {@link WindowLayoutInfo} is also fixed to have a {@link TYPE_FOLD} where the longest
+ * dimension runs parallel to the specified {@link FoldAxis}. The fold is placed in the middle
+ * of the display. Like the {@link DeviceState}, the sample implementation ignores the window
+ * layout info listener. Combine with {@link InitialValueWindowBackendDecorator} to
+ * receive the initial value through the listener.
  */
-class MidScreenFoldBackend : WindowBackend {
+class MidScreenFoldBackend(private val foldAxis: FoldAxis) : WindowBackend {
+    /**
+     * The side which the fold axis should be parallel to.
+     */
+    enum class FoldAxis {
+        LONG_DIMENSION,
+        SHORT_DIMENSION
+    }
+
     override fun getDeviceState(): DeviceState {
         return DeviceState.Builder().setPosture(DeviceState.POSTURE_OPENED).build()
     }
 
     override fun getWindowLayoutInfo(context: Context): WindowLayoutInfo {
-        val activity = getActivityFromContext(context) ?: throw IllegalArgumentException(
+        val activity = context.getActivityExt() ?: throw IllegalArgumentException(
             "Used non-visual Context used with WindowManager. Please use an Activity or a " +
                     "ContextWrapper around an Activity instead.")
-        val displaySize = Point(activity.window.decorView.width, activity.window.decorView.height)
-        val featureRect = if (displaySize.x >= displaySize.y) { // Landscape
-            Rect(displaySize.x / 2, 0, displaySize.x / 2, displaySize.y)
-        } else { // Portrait
-            Rect(0, displaySize.y / 2, displaySize.x, displaySize.y / 2)
-        }
+        val windowSize = activity.calculateWindowSizeExt()
+        val featureRect = foldRect(windowSize)
 
         val displayFeature = DisplayFeature.Builder()
             .setBounds(featureRect)
@@ -65,19 +73,27 @@ class MidScreenFoldBackend : WindowBackend {
         return WindowLayoutInfo.Builder().setDisplayFeatures(featureList).build()
     }
 
-    /**
-     * Unwraps the hierarchy of [ContextWrapper]-s until [Activity] is reached.
-     * @return Base [Activity] context or `null` if not available.
-     */
-    private fun getActivityFromContext(c: Context?): Activity? {
-        var context = c
-        while (context is ContextWrapper) {
-            if (context is Activity) {
-                return context
-            }
-            context = context.baseContext
+    private fun foldRect(windowSize: Point): Rect {
+        return when (foldAxis) {
+            FoldAxis.LONG_DIMENSION -> longDimensionFold(windowSize)
+            FoldAxis.SHORT_DIMENSION -> shortDimensionFold(windowSize)
         }
-        return null
+    }
+
+    private fun shortDimensionFold(windowSize: Point): Rect {
+        return if (windowSize.x >= windowSize.y) { // Landscape
+            Rect(windowSize.x / 2, 0, windowSize.x / 2, windowSize.y)
+        } else { // Portrait
+            Rect(0, windowSize.y / 2, windowSize.x, windowSize.y / 2)
+        }
+    }
+
+    private fun longDimensionFold(windowSize: Point): Rect {
+        return if (windowSize.x >= windowSize.y) { // Landscape
+            Rect(0, windowSize.y / 2, windowSize.x, windowSize.y / 2)
+        } else { // Portrait
+            Rect(windowSize.x / 2, 0, windowSize.x / 2, windowSize.y)
+        }
     }
 
     override fun registerDeviceStateChangeCallback(

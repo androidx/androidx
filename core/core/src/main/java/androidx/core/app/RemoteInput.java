@@ -570,6 +570,20 @@ public final class RemoteInput {
         return builder.build();
     }
 
+    @RequiresApi(20)
+    static RemoteInput fromPlatform(android.app.RemoteInput src) {
+        RemoteInput.Builder builder =
+                new RemoteInput.Builder(src.getResultKey())
+                        .setLabel(src.getLabel())
+                        .setChoices(src.getChoices())
+                        .setAllowFreeFormInput(src.getAllowFreeFormInput())
+                        .addExtras(src.getExtras());
+        if (Build.VERSION.SDK_INT >= 29) {
+            builder.setEditChoicesBeforeSending(src.getEditChoicesBeforeSending());
+        }
+        return builder.build();
+    }
+
     @RequiresApi(16)
     private static Intent getClipDataIntentFromIntent(Intent intent) {
         ClipData clipData = intent.getClipData();

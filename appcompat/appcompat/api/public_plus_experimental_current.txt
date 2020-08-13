@@ -677,15 +677,12 @@ package androidx.appcompat.widget {
     field public static final int VERTICAL = 1; // 0x1
   }
 
-  public static class LinearLayoutCompat.LayoutParams extends android.view.ViewGroup.MarginLayoutParams {
+  public static class LinearLayoutCompat.LayoutParams extends android.widget.LinearLayout.LayoutParams {
     ctor public LinearLayoutCompat.LayoutParams(android.content.Context!, android.util.AttributeSet!);
     ctor public LinearLayoutCompat.LayoutParams(int, int);
     ctor public LinearLayoutCompat.LayoutParams(int, int, float);
     ctor public LinearLayoutCompat.LayoutParams(android.view.ViewGroup.LayoutParams!);
     ctor public LinearLayoutCompat.LayoutParams(android.view.ViewGroup.MarginLayoutParams!);
-    ctor public LinearLayoutCompat.LayoutParams(androidx.appcompat.widget.LinearLayoutCompat.LayoutParams!);
-    field public int gravity;
-    field public float weight;
   }
 
   public class ListPopupWindow {

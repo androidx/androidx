@@ -19,12 +19,6 @@ package androidx.room.processor
 import COMMON
 import androidx.room.Dao
 import androidx.room.Transaction
-import androidx.room.ext.asDeclaredType
-import androidx.room.ext.asExecutableElement
-import androidx.room.ext.asTypeElement
-import androidx.room.ext.getAllMethods
-import androidx.room.ext.hasAnnotation
-import androidx.room.ext.name
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.TransactionMethod
@@ -242,9 +236,7 @@ class TransactionMethodProcessorTest {
                                     .getElementsAnnotatedWith(Dao::class.java)
                                     .map {
                                         Pair(it,
-                                            it.asTypeElement().getAllMethods(
-                                                invocation.processingEnv
-                                            ).filter {
+                                            it.asTypeElement().getAllMethods().filter {
                                                 it.hasAnnotation(Transaction::class)
                                             }
                                         )
@@ -252,7 +244,7 @@ class TransactionMethodProcessorTest {
                             val processor = TransactionMethodProcessor(
                                     baseContext = invocation.context,
                                     containing = owner.asDeclaredType(),
-                                    executableElement = methods.first().asExecutableElement())
+                                    executableElement = methods.first())
                             val processed = processor.process()
                             handler(processed, invocation)
                             true

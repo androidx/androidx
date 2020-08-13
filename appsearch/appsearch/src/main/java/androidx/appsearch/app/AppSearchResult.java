@@ -107,16 +107,19 @@ public final class AppSearchResult<ValueType> {
     }
 
     /**
-     * Returns the returned value associated with this result.
+     * Returns the result value associated with this result, if it was successful.
      *
-     * <p>If {@link #isSuccess} is {@code false}, the result value is always {@code null}. The value
-     * may be {@code null} even if {@link #isSuccess} is {@code true}. See the documentation of the
-     * particular {@code AppSearchManager} call producing this {@link AppSearchResult} for what is
-     * returned by {@link #getResultValue}.
+     * <p>See the documentation of the particular {@code AppSearchManager} call producing this
+     * {@link AppSearchResult} for what is placed in the result value by that call.
+     *
+     * @throws IllegalStateException if this {@link AppSearchResult} is not successful.
      */
     // TODO(b/157082794): Linkify AppSearchManager once that API is public
     @Nullable
     public ValueType getResultValue() {
+        if (!isSuccess()) {
+            throw new IllegalStateException("AppSearchResult is a failure: " + this);
+        }
         return mResultValue;
     }
 
@@ -132,16 +135,6 @@ public final class AppSearchResult<ValueType> {
     @Nullable
     public String getErrorMessage() {
         return mErrorMessage;
-    }
-
-    /**
-     * Asserts that this {@link AppSearchResult} is successful.
-     * @hide
-     */
-    public void checkSuccess() {
-        if (!isSuccess()) {
-            throw new IllegalStateException("AppSearchResult is a failure: " + this);
-        }
     }
 
     @Override

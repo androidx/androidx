@@ -261,7 +261,7 @@ public class GuidedStepSupportActivity extends FragmentActivity {
     static int sSelectedCard = -1;
     static {
         sCards.add("Visa-1234");
-        sCards.add("Master-4321");
+        sCards.add("AmEx-4321");
     }
 
     public static class NewPaymentStepFragment extends GuidedStepSupportFragment {
@@ -314,7 +314,7 @@ public class GuidedStepSupportActivity extends FragmentActivity {
                 if ((Integer.parseInt(cardNumber) & 1) == 0) {
                     card = "Visa "+cardNumber;
                 } else {
-                    card = "Master "+cardNumber;
+                    card = "AmEx "+cardNumber;
                 }
                 int selection = sCards.size();
                 sCards.add(card);
@@ -515,8 +515,8 @@ public class GuidedStepSupportActivity extends FragmentActivity {
             CharSequence paymentType = findActionById(PAYMENT).getDescription();
             return (paymentType.length() >= 4 &&
                     paymentType.subSequence(0, 4).toString().equals("Visa")) ||
-                    (paymentType.length() >= 6 &&
-                    paymentType.subSequence(0, 6).toString().equals("Master"));
+                    (paymentType.length() >= 4 &&
+                    paymentType.subSequence(0, 4).toString().equals("AmEx"));
         }
 
         boolean isPasswordValid() {

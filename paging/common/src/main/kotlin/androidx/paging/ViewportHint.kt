@@ -17,36 +17,35 @@
 package androidx.paging
 
 /**
- * Load access pair - page, and index inside (or adjacent)
+ * Load access information blob, containing information from presenter.
  */
 internal data class ViewportHint(
+    /** Page index offset from initial load */
+    val pageOffset: Int,
     /**
-     * Index of the accessed page relative to initial load = 0
-     */
-    val sourcePageIndex: Int,
-
-    /**
-     * Index either inside, or (in the case of placeholders) outside of page bounds, reflecting
-     * how close access was.
+     * Distance from hint to first loaded item: `anchorPosition - firstLoadedItemPosition`
      *
-     * Note: It is valid for this field to be a negative number, indicating access of an element
-     * before the page referenced by [sourcePageIndex].
+     * Zero indicates access at boundary
+     * Positive -> Within loaded range or in placeholders if greater than size of last page.
+     * Negative -> placeholder access.
      */
     val indexInPage: Int,
-
     /**
-     * `true` if this hint should be resolved even if Paging is in an error state.
+     * Distance from hint to first loaded item: `anchorPosition - firstLoadedItemPosition`
+     *
+     * Zero indicates access at boundary
+     * Positive -> Within loaded range or in placeholders if greater than size of last page.
+     * Negative -> placeholder access.
      */
-    val fromRetry: Boolean = false
-) : Comparable<ViewportHint> {
-    override operator fun compareTo(other: ViewportHint): Int {
-        if (sourcePageIndex != other.sourcePageIndex) return sourcePageIndex - other.sourcePageIndex
-        return indexInPage - other.indexInPage
-    }
-
-    companion object {
-        val MIN_VALUE = ViewportHint(Int.MIN_VALUE, 0)
-        val MAX_VALUE = ViewportHint(Int.MAX_VALUE, Int.MAX_VALUE)
-        val DUMMY_VALUE = MAX_VALUE
-    }
-}
+    val presentedItemsBefore: Int,
+    /**
+     * Distance from hint to first presented item: `anchorPosition - firstLoadedItemPosition`
+     *
+     * Zero indicates access at boundary
+     * Positive -> Within loaded range or in placeholders if greater than size of last page.
+     * Negative -> placeholder access.
+     */
+    val presentedItemsAfter: Int,
+    val originalPageOffsetFirst: Int,
+    val originalPageOffsetLast: Int
+)

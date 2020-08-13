@@ -47,18 +47,18 @@ package androidx.autofill {
 
 package androidx.autofill.inline {
 
-  @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public final class Renderer {
+  @RequiresApi(api=android.os.Build.VERSION_CODES.R) public final class Renderer {
     method public static android.app.PendingIntent? getAttributionIntent(android.app.slice.Slice);
     method public static android.os.Bundle getSupportedInlineUiVersionsAsBundle();
     method public static android.view.View? render(android.content.Context, android.app.slice.Slice, android.os.Bundle);
   }
 
-  @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public final class SuggestionHintConstants {
+  @RequiresApi(api=android.os.Build.VERSION_CODES.R) public final class SuggestionHintConstants {
     field public static final String SUGGESTION_HINT_CLIPBOARD_CONTENT = "clipboardContent";
     field public static final String SUGGESTION_HINT_SMART_REPLY = "smartReply";
   }
 
-  @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public final class UiVersions {
+  @RequiresApi(api=android.os.Build.VERSION_CODES.R) public final class UiVersions {
     method public static java.util.List<java.lang.String!> getVersions(android.os.Bundle);
     method public static androidx.autofill.inline.UiVersions.StylesBuilder newStylesBuilder();
     field public static final String INLINE_UI_VERSION_1 = "androidx.autofill.inline.ui.version:v1";
@@ -80,7 +80,7 @@ package androidx.autofill.inline {
 
 package androidx.autofill.inline.common {
 
-  @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public final class ImageViewStyle extends androidx.autofill.inline.common.ViewStyle {
+  @RequiresApi(api=android.os.Build.VERSION_CODES.R) public final class ImageViewStyle extends androidx.autofill.inline.common.ViewStyle {
   }
 
   public static final class ImageViewStyle.Builder {
@@ -96,7 +96,7 @@ package androidx.autofill.inline.common {
     method public androidx.autofill.inline.common.ImageViewStyle.Builder setTintList(android.content.res.ColorStateList);
   }
 
-  @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public final class TextViewStyle extends androidx.autofill.inline.common.ViewStyle {
+  @RequiresApi(api=android.os.Build.VERSION_CODES.R) public final class TextViewStyle extends androidx.autofill.inline.common.ViewStyle {
   }
 
   public static final class TextViewStyle.Builder {
@@ -112,7 +112,7 @@ package androidx.autofill.inline.common {
     method public androidx.autofill.inline.common.TextViewStyle.Builder setTypeface(String, int);
   }
 
-  @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public class ViewStyle {
+  @RequiresApi(api=android.os.Build.VERSION_CODES.R) public class ViewStyle {
   }
 
   public static final class ViewStyle.Builder {
@@ -128,7 +128,7 @@ package androidx.autofill.inline.common {
 
 package androidx.autofill.inline.v1 {
 
-  @RequiresApi(api=android.os.Build.VERSION_CODES.Q) public final class InlineSuggestionUi {
+  @RequiresApi(api=android.os.Build.VERSION_CODES.R) public final class InlineSuggestionUi {
     method public static androidx.autofill.inline.v1.InlineSuggestionUi.Content.Builder newContentBuilder(android.app.PendingIntent);
     method public static androidx.autofill.inline.v1.InlineSuggestionUi.Style.Builder newStyleBuilder();
   }

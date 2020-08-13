@@ -30,9 +30,9 @@ enum class SectionType {
 
 data class Section(val text: String, val type: SectionType) {
     companion object {
-        fun text(text: String) = Section(text, SectionType.TEXT)
-        fun newline() = Section("", SectionType.NEWLINE)
-        fun bindVar(text: String) = Section(text, SectionType.BIND_VAR)
+        fun text(text: String) = Section(text, TEXT)
+        fun newline() = Section("", NEWLINE)
+        fun bindVar(text: String) = Section(text, BIND_VAR)
     }
 }
 

@@ -23,7 +23,8 @@ import android.widget.RadioGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.window.sample.BaseSampleActivity.Companion.BACKEND_TYPE_DEVICE_DEFAULT
 import androidx.window.sample.BaseSampleActivity.Companion.BACKEND_TYPE_EXTRA
-import androidx.window.sample.BaseSampleActivity.Companion.BACKEND_TYPE_MID_SCREEN_FOLD
+import androidx.window.sample.BaseSampleActivity.Companion.BACKEND_TYPE_LONG_DIMENSION_FOLD
+import androidx.window.sample.BaseSampleActivity.Companion.BACKEND_TYPE_SHORT_DIMENSION_FOLD
 
 /**
  * Main activity that launches WindowManager demos. Allows the user to choose the backend to use
@@ -39,11 +40,11 @@ class WindowDemosActivity : AppCompatActivity() {
 
         val radioGroup = findViewById<RadioGroup>(R.id.backendRadioGroup)
         radioGroup.setOnCheckedChangeListener { _, checkedId ->
-            when (checkedId) {
-                R.id.deviceDefaultRadioButton ->
-                    selectedBackend = BACKEND_TYPE_DEVICE_DEFAULT
-                R.id.midFoldRadioButton ->
-                    selectedBackend = BACKEND_TYPE_MID_SCREEN_FOLD
+            selectedBackend = when (checkedId) {
+                R.id.deviceDefaultRadioButton -> BACKEND_TYPE_DEVICE_DEFAULT
+                R.id.shortDimensionFoldRadioButton -> BACKEND_TYPE_SHORT_DIMENSION_FOLD
+                R.id.longDimensionFoldRadioButton -> BACKEND_TYPE_LONG_DIMENSION_FOLD
+                else -> BACKEND_TYPE_DEVICE_DEFAULT
             }
         }
 
@@ -54,8 +55,10 @@ class WindowDemosActivity : AppCompatActivity() {
         when (selectedBackend) {
             BACKEND_TYPE_DEVICE_DEFAULT ->
                 radioGroup.check(R.id.deviceDefaultRadioButton)
-            BACKEND_TYPE_MID_SCREEN_FOLD ->
-                radioGroup.check(R.id.midFoldRadioButton)
+            BACKEND_TYPE_SHORT_DIMENSION_FOLD ->
+                radioGroup.check(R.id.shortDimensionFoldRadioButton)
+            BACKEND_TYPE_LONG_DIMENSION_FOLD ->
+                radioGroup.check(R.id.longDimensionFoldRadioButton)
         }
     }
 

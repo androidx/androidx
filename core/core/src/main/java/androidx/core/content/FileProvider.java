@@ -381,7 +381,7 @@ public class FileProvider extends ContentProvider {
     public void attachInfo(@NonNull Context context, @NonNull ProviderInfo info) {
         super.attachInfo(context, info);
 
-        // Sanity check our security
+        // Check our security attributes
         if (info.exported) {
             throw new SecurityException("Provider must not be exported");
         }

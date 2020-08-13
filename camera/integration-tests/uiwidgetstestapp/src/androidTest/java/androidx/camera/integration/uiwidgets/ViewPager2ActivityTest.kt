@@ -19,7 +19,6 @@ package androidx.camera.integration.uiwidgets
 import android.content.Context
 import android.content.Intent
 import android.graphics.SurfaceTexture
-import android.os.Build
 import android.view.TextureView
 import android.view.View
 import androidx.camera.core.CameraSelector
@@ -49,6 +48,8 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 @RunWith(Parameterized::class)
 @LargeTest
@@ -89,56 +90,36 @@ class ViewPager2ActivityTest(private val lensFacing: Int) {
             scenario.moveToState(State.RESUMED)
 
             assertStreamState(scenario, PreviewView.StreamState.STREAMING)
+            // Make sure the surface texture of TextureView continues getting updates.
+            assertSurfaceTextureFramesUpdate(scenario)
         }
     }
 
     // The test makes sure the TextureView surface texture keeps the same after swipe out/in.
     @Test
     fun testPreviewViewUpdateAfterSwipeOutIn() {
-        var newSurfaceTexture: SurfaceTexture? = null
-        var surfaceTexture: SurfaceTexture? = null
-        lateinit var previewView: PreviewView
 
         launchActivity(lensFacing).use { scenario ->
             // At first, check Preview in stream state
             assertStreamState(scenario, PreviewView.StreamState.STREAMING)
-
-            scenario.onActivity { activity ->
-                previewView = activity.findViewById(R.id.preview_textureview)
-                surfaceTexture = getTextureView(previewView)!!.surfaceTexture
-            }
 
             // swipe out CameraFragment and then swipe in to check Preview update
             onView(withId(R.id.viewPager2)).perform(swipeLeft())
             onView(withId(R.id.blank_textview)).check(matches(isDisplayed()))
 
             onView(withId(R.id.viewPager2)).perform(swipeRight())
-            scenario.onActivity { activity ->
-                previewView = activity.findViewById(R.id.preview_textureview)
-                newSurfaceTexture = getTextureView(previewView)!!.surfaceTexture
-            }
 
-            // Except confirming the PreviewView is in the Streaming state, need to check if
-            // there  are different surface textures usage in textureview for b/149877652 and
-            // make sure the same surface texture when detach window and then attach window.
-            assertThat(newSurfaceTexture).isEqualTo(surfaceTexture)
+            // For b/149877652, need to check if the surface texture of TextureView continues
+            // getting updates after detaching from window and then attaching to window.
+            assertSurfaceTextureFramesUpdate(scenario)
         }
     }
 
     @Test
     fun testPreviewViewUpdateAfterSwipeOutAndStop_ResumeAndSwipeIn() {
-        var newSurfaceTexture: SurfaceTexture? = null
-        var surfaceTexture: SurfaceTexture? = null
-        lateinit var previewView: PreviewView
-
         launchActivity(lensFacing).use { scenario ->
             // At first, check Preview in stream state
             assertStreamState(scenario, PreviewView.StreamState.STREAMING)
-
-            scenario.onActivity { activity ->
-                previewView = activity.findViewById(R.id.preview_textureview)
-                surfaceTexture = getTextureView(previewView)!!.surfaceTexture
-            }
 
             // swipe out CameraFragment and then Stop and Resume ViewPager2Activity
             onView(withId(R.id.viewPager2)).perform(swipeLeft())
@@ -152,16 +133,9 @@ class ViewPager2ActivityTest(private val lensFacing: Int) {
             onView(withId(R.id.viewPager2)).perform(swipeRight())
             assertStreamState(scenario, PreviewView.StreamState.STREAMING)
 
-            // As previous test, it also needs to compare the surfacetextures are the same. However,
-            // the test has stop/resume and Preview surface texture will be recreated
-            // when API level <= 26.
-            scenario.onActivity { activity ->
-                previewView = activity.findViewById(R.id.preview_textureview)
-                newSurfaceTexture = getTextureView(previewView)!!.surfaceTexture
-            }
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
-                assertThat(newSurfaceTexture).isEqualTo(surfaceTexture)
-            }
+            // The test covers pause/resume and ViewPager2 swipe out/in behaviors. Hence, need to
+            // check the surface texture of TextureView continues getting updates for b/149877652.
+            assertSurfaceTextureFramesUpdate(scenario)
         }
     }
 
@@ -203,5 +177,21 @@ class ViewPager2ActivityTest(private val lensFacing: Int) {
         }
 
         assertThat(result.await()).isTrue()
+    }
+
+    private fun assertSurfaceTextureFramesUpdate(scenario: ActivityScenario<ViewPager2Activity>) {
+        var newSurfaceTexture: SurfaceTexture? = null
+        lateinit var previewView: PreviewView
+
+        scenario.onActivity { activity ->
+            previewView = activity.findViewById(R.id.preview_textureview)
+            newSurfaceTexture = getTextureView(previewView)!!.surfaceTexture
+        }
+
+        val latchForFrameUpdate = CountDownLatch(1)
+        newSurfaceTexture!!.setOnFrameAvailableListener { _ ->
+            latchForFrameUpdate.countDown()
+        }
+        assertThat(latchForFrameUpdate.await(ACTION_IDLE_TIMEOUT, TimeUnit.MILLISECONDS)).isTrue()
     }
 }

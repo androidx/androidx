@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="buttons_round_top_center">Atas</string>
+  <string name="buttons_round_top_right">Kanan atas</string>
+  <string name="buttons_round_center_right">Kanan tengah</string>
+  <string name="buttons_round_bottom_right">Kanan bawah</string>
+  <string name="buttons_round_bottom_center">Bawah</string>
+  <string name="buttons_round_bottom_left">Kiri bawah</string>
+  <string name="buttons_round_center_left">Kiri tengah</string>
+  <string name="buttons_round_top_left">Kiri atas</string>
+  <string name="buttons_round_top_right_upper">Kanan atas, tinggi</string>
+  <string name="buttons_round_top_right_lower">Kanan atas, rendah</string>
+  <string name="buttons_round_bottom_right_upper">Kanan bawah, tinggi</string>
+  <string name="buttons_round_bottom_right_lower">Kanan bawah, rendah</string>
+  <string name="buttons_round_bottom_left_lower">Kiri bawah, rendah</string>
+  <string name="buttons_round_bottom_left_upper">Kiri bawah, tinggi</string>
+  <string name="buttons_round_top_left_lower">Kiri atas, rendah</string>
+  <string name="buttons_round_top_left_upper">Kiri atas, tinggi</string>
+  <string name="buttons_rect_left_top">Atas, sisi kiri</string>
+  <string name="buttons_rect_left_center">Kiri tengah</string>
+  <string name="buttons_rect_left_bottom">Bawah, sisi kiri</string>
+  <string name="buttons_rect_right_top">Atas, sisi kanan</string>
+  <string name="buttons_rect_right_center">Kanan tengah</string>
+  <string name="buttons_rect_right_bottom">Bawah, sisi kanan</string>
+  <string name="buttons_rect_top_left">Kiri atas</string>
+  <string name="buttons_rect_top_center">Atas</string>
+  <string name="buttons_rect_top_right">Kanan atas</string>
+  <string name="buttons_rect_bottom_left">Kiri bawah</string>
+  <string name="buttons_rect_bottom_center">Bawah</string>
+  <string name="buttons_rect_bottom_right">Kanan bawah</string>
+</resources>

@@ -16,8 +16,6 @@
 
 package androidx.biometric;
 
-import static androidx.biometric.BiometricConstants.ERROR_NEGATIVE_BUTTON;
-
 import android.app.Activity;
 import android.app.KeyguardManager;
 import android.content.Context;
@@ -45,6 +43,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.lang.ref.WeakReference;
 import java.util.Objects;
 import java.util.concurrent.Executor;
 
@@ -59,9 +58,9 @@ public class BiometricFragment extends Fragment {
     private static final String TAG = "BiometricFragment";
 
     /**
-     * Authentication was not canceled by the user but may have been canceled by the system.
+     * Authentication was canceled by the library or framework.
      */
-    static final int CANCELED_FROM_NONE = 0;
+    static final int CANCELED_FROM_INTERNAL = 0;
 
     /**
      * Authentication was canceled by the user (e.g. by pressing the system back button).
@@ -74,9 +73,20 @@ public class BiometricFragment extends Fragment {
     static final int CANCELED_FROM_NEGATIVE_BUTTON = 2;
 
     /**
+     * Authentication was canceled by the client application via
+     * {@link BiometricPrompt#cancelAuthentication()}.
+     */
+    static final int CANCELED_FROM_CLIENT = 3;
+
+    /**
      * Where authentication was canceled from.
      */
-    @IntDef({CANCELED_FROM_NONE, CANCELED_FROM_USER, CANCELED_FROM_NEGATIVE_BUTTON})
+    @IntDef({
+        CANCELED_FROM_INTERNAL,
+        CANCELED_FROM_USER,
+        CANCELED_FROM_NEGATIVE_BUTTON,
+        CANCELED_FROM_CLIENT
+    })
     @Retention(RetentionPolicy.SOURCE)
     @interface CanceledFrom {}
 
@@ -111,20 +121,41 @@ public class BiometricFragment extends Fragment {
     private static final boolean DEBUG_FORCE_FINGERPRINT = false;
 
     /**
-     * A handler used to post delayed events and to execute framework code.
-     */
-    @VisibleForTesting Handler mHandler = new Handler(Looper.getMainLooper());
-
-    /**
      * An executor used by {@link android.hardware.biometrics.BiometricPrompt} to run framework
      * code.
      */
-    private final Executor mPromptExecutor = new Executor() {
+    private static class PromptExecutor implements Executor {
+        private final Handler mPromptHandler = new Handler(Looper.getMainLooper());
+
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        PromptExecutor() {}
+
         @Override
         public void execute(@NonNull Runnable runnable) {
-            mHandler.post(runnable);
+            mPromptHandler.post(runnable);
         }
-    };
+    }
+
+    private static class StopIgnoringCancelRunnable implements Runnable {
+        @NonNull private final WeakReference<BiometricViewModel> mViewModelRef;
+
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        StopIgnoringCancelRunnable(@Nullable BiometricViewModel viewModel) {
+            mViewModelRef = new WeakReference<>(viewModel);
+        }
+
+        @Override
+        public void run() {
+            if (mViewModelRef.get() != null) {
+                mViewModelRef.get().setIgnoringCancel(false);
+            }
+        }
+    }
+
+    /**
+     * A handler used to post delayed events.
+     */
+    @VisibleForTesting Handler mHandler = new Handler(Looper.getMainLooper());
 
     /**
      * The view model for the ongoing authentication session.
@@ -147,10 +178,26 @@ public class BiometricFragment extends Fragment {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
-        if (!isChangingConfigurations()) {
-            cancelAuthentication(BiometricFragment.CANCELED_FROM_NONE);
+    public void onStart() {
+        super.onStart();
+
+        // Some device credential implementations in API 29 cause the prompt to receive a cancel
+        // signal immediately after it's shown (b/162022588).
+        if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q
+                && AuthenticatorUtils.isDeviceCredentialAllowed(
+                        mViewModel.getAllowedAuthenticators())) {
+            mViewModel.setIgnoringCancel(true);
+            mHandler.postDelayed(new StopIgnoringCancelRunnable(mViewModel), 250L);
+        }
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
+                && !mViewModel.isConfirmingDeviceCredential()
+                && !isChangingConfigurations()) {
+            cancelAuthentication(BiometricFragment.CANCELED_FROM_INTERNAL);
         }
     }
 
@@ -336,26 +383,22 @@ public class BiometricFragment extends Fragment {
         }
 
         if (isAdded()) {
-            final boolean shouldHideFingerprintDialog =
-                    DeviceUtils.shouldHideFingerprintDialog(context, Build.MODEL);
-            if (mViewModel.isFingerprintDialogDismissedInstantly() != shouldHideFingerprintDialog) {
+            mViewModel.setFingerprintDialogDismissedInstantly(true);
+            if (!DeviceUtils.shouldHideFingerprintDialog(context, Build.MODEL)) {
                 mHandler.postDelayed(
                         new Runnable() {
                             @Override
                             public void run() {
-                                mViewModel.setFingerprintDialogDismissedInstantly(
-                                        shouldHideFingerprintDialog);
+                                mViewModel.setFingerprintDialogDismissedInstantly(false);
                             }
                         },
                         DISMISS_INSTANTLY_DELAY_MS);
-            }
 
-            if (!shouldHideFingerprintDialog) {
                 final FingerprintDialogFragment dialog = FingerprintDialogFragment.newInstance();
                 dialog.show(getParentFragmentManager(), FINGERPRINT_DIALOG_FRAGMENT_TAG);
             }
 
-            mViewModel.setCanceledFrom(CANCELED_FROM_NONE);
+            mViewModel.setCanceledFrom(CANCELED_FROM_INTERNAL);
             fingerprintManagerCompat.authenticate(
                     CryptoObjectUtils.wrapForFingerprintManager(mViewModel.getCryptoObject()),
                     0 /* flags */,
@@ -371,9 +414,8 @@ public class BiometricFragment extends Fragment {
      */
     @RequiresApi(Build.VERSION_CODES.P)
     private void showBiometricPromptForAuthentication() {
-        final Context context = requireContext();
         final android.hardware.biometrics.BiometricPrompt.Builder builder =
-                Api28Impl.createPromptBuilder(context);
+                Api28Impl.createPromptBuilder(requireContext().getApplicationContext());
 
         final CharSequence title = mViewModel.getTitle();
         final CharSequence subtitle = mViewModel.getSubtitle();
@@ -416,20 +458,17 @@ public class BiometricFragment extends Fragment {
                 Api28Impl.buildPrompt(builder);
         final android.os.CancellationSignal cancellationSignal =
                 mViewModel.getCancellationSignalProvider().getBiometricCancellationSignal();
+        final Executor executor = new PromptExecutor();
         final android.hardware.biometrics.BiometricPrompt.AuthenticationCallback callback =
                 mViewModel.getAuthenticationCallbackProvider().getBiometricCallback();
         BiometricPrompt.CryptoObject crypto = mViewModel.getCryptoObject();
         if (crypto == null) {
-            Api28Impl.authenticate(biometricPrompt, cancellationSignal, mPromptExecutor, callback);
+            Api28Impl.authenticate(biometricPrompt, cancellationSignal, executor, callback);
         } else {
             android.hardware.biometrics.BiometricPrompt.CryptoObject wrappedCrypto =
                     Objects.requireNonNull(CryptoObjectUtils.wrapForBiometricPrompt(crypto));
             Api28Impl.authenticate(
-                    biometricPrompt,
-                    wrappedCrypto,
-                    cancellationSignal,
-                    mPromptExecutor,
-                    callback);
+                    biometricPrompt, wrappedCrypto, cancellationSignal, executor, callback);
         }
     }
 
@@ -439,6 +478,10 @@ public class BiometricFragment extends Fragment {
      * @param canceledFrom Where authentication was canceled from.
      */
     void cancelAuthentication(@CanceledFrom int canceledFrom) {
+        if (canceledFrom != CANCELED_FROM_CLIENT && mViewModel.isIgnoringCancel()) {
+            return;
+        }
+
         if (isUsingFingerprintDialog()) {
             mViewModel.setCanceledFrom(canceledFrom);
             if (canceledFrom == CANCELED_FROM_USER) {
@@ -447,6 +490,7 @@ public class BiometricFragment extends Fragment {
                         errorCode, ErrorUtils.getFingerprintErrorString(getContext(), errorCode));
             }
         }
+
         mViewModel.getCancellationSignalProvider().cancel();
     }
 
@@ -516,9 +560,12 @@ public class BiometricFragment extends Fragment {
 
             if (errorCode == BiometricPrompt.ERROR_CANCELED) {
                 // User-initiated cancellation errors should already be handled.
-                if (mViewModel.getCanceledFrom() == CANCELED_FROM_NONE) {
+                @CanceledFrom final int canceledFrom = mViewModel.getCanceledFrom();
+                if (canceledFrom == CANCELED_FROM_INTERNAL
+                        || canceledFrom == CANCELED_FROM_CLIENT) {
                     sendErrorToClient(errorCode, errorString);
                 }
+
                 dismiss();
             } else {
                 if (mViewModel.isFingerprintDialogDismissedInstantly()) {
@@ -593,7 +640,7 @@ public class BiometricFragment extends Fragment {
     void onCancelButtonPressed() {
         final CharSequence negativeButtonText = mViewModel.getNegativeButtonText();
         sendErrorAndDismiss(
-                ERROR_NEGATIVE_BUTTON,
+                BiometricPrompt.ERROR_NEGATIVE_BUTTON,
                 negativeButtonText != null
                         ? negativeButtonText
                         : getString(R.string.default_error_msg));
@@ -615,8 +662,9 @@ public class BiometricFragment extends Fragment {
         // Get the KeyguardManager service in whichever way the platform supports.
         final KeyguardManager keyguardManager = KeyguardUtils.getKeyguardManager(activity);
         if (keyguardManager == null) {
-            Log.e(TAG, "Failed to check device credential. KeyguardManager not found.");
-            handleConfirmCredentialResult(Activity.RESULT_CANCELED);
+            sendErrorAndDismiss(
+                    BiometricPrompt.ERROR_HW_NOT_PRESENT,
+                    getString(R.string.generic_error_no_keyguard));
             return;
         }
 
@@ -629,9 +677,11 @@ public class BiometricFragment extends Fragment {
         final Intent intent = Api21Impl.createConfirmDeviceCredentialIntent(
                 keyguardManager, title, credentialDescription);
 
+        // A null intent from KeyguardManager means that the device is not secure.
         if (intent == null) {
-            Log.e(TAG, "Failed to check device credential. Got null intent from Keyguard.");
-            handleConfirmCredentialResult(Activity.RESULT_CANCELED);
+            sendErrorAndDismiss(
+                    BiometricPrompt.ERROR_NO_DEVICE_CREDENTIAL,
+                    getString(R.string.generic_error_no_device_credential));
             return;
         }
 
@@ -662,7 +712,7 @@ public class BiometricFragment extends Fragment {
         } else {
             // Device credential auth failed. Assume this is due to the user canceling.
             sendErrorAndDismiss(
-                    BiometricConstants.ERROR_USER_CANCELED,
+                    BiometricPrompt.ERROR_USER_CANCELED,
                     getString(R.string.generic_error_user_canceled));
         }
     }

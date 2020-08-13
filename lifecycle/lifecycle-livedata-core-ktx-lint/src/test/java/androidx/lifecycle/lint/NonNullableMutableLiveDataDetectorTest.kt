@@ -227,6 +227,50 @@ src/com/example/test.kt:9: Error: Cannot set non-nullable LiveData value to null
     }
 
     @Test
+    fun nullLiteralFieldApply() {
+        check(
+            kotlin(
+                """
+                package com.example
+
+                import androidx.lifecycle.MutableLiveData
+
+                class MyClass {
+                    val liveDataField = MutableLiveData<Boolean>().apply { value = null }
+
+                    fun foo() {
+                        liveDataField.value = false
+                    }
+                }
+            """
+            ).indented()
+        ).expectClean()
+    }
+
+    @Test
+    fun companionObjectCheck() {
+        check(
+            kotlin(
+                """
+                package com.example
+
+                import androidx.lifecycle.MutableLiveData
+
+                class MyClass {
+                    companion object {
+                        val liveDataField = MutableLiveData(true)
+                    }
+
+                    fun foo() {
+                        liveDataField.value = false
+                    }
+                }
+            """
+            ).indented()
+        ).expectClean()
+    }
+
+    @Test
     fun nullLiteralFailFieldAndLocalVariable() {
         check(
             kotlin(

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="buttons_round_top_center">Top</string>
+  <string name="buttons_round_top_right">Top right</string>
+  <string name="buttons_round_center_right">Centre right</string>
+  <string name="buttons_round_bottom_right">Bottom right</string>
+  <string name="buttons_round_bottom_center">Bottom</string>
+  <string name="buttons_round_bottom_left">Bottom left</string>
+  <string name="buttons_round_center_left">Centre left</string>
+  <string name="buttons_round_top_left">Top left</string>
+  <string name="buttons_round_top_right_upper">Top right, upper</string>
+  <string name="buttons_round_top_right_lower">Top right, lower</string>
+  <string name="buttons_round_bottom_right_upper">Bottom right, upper</string>
+  <string name="buttons_round_bottom_right_lower">Bottom right, lower</string>
+  <string name="buttons_round_bottom_left_lower">Bottom left, lower</string>
+  <string name="buttons_round_bottom_left_upper">Bottom left, upper</string>
+  <string name="buttons_round_top_left_lower">Top left, lower</string>
+  <string name="buttons_round_top_left_upper">Top left, upper</string>
+  <string name="buttons_rect_left_top">Top, left side</string>
+  <string name="buttons_rect_left_center">Centre left</string>
+  <string name="buttons_rect_left_bottom">Bottom, left side</string>
+  <string name="buttons_rect_right_top">Top, right side</string>
+  <string name="buttons_rect_right_center">Centre right</string>
+  <string name="buttons_rect_right_bottom">Bottom, right side</string>
+  <string name="buttons_rect_top_left">Top left</string>
+  <string name="buttons_rect_top_center">Top</string>
+  <string name="buttons_rect_top_right">Top right</string>
+  <string name="buttons_rect_bottom_left">Bottom left</string>
+  <string name="buttons_rect_bottom_center">Bottom</string>
+  <string name="buttons_rect_bottom_right">Bottom right</string>
+</resources>

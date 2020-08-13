@@ -16,6 +16,7 @@
 
 package androidx.contentaccess.compiler.processor
 
+import androidx.annotation.RequiresApi
 import androidx.contentaccess.ContentColumn
 import androidx.contentaccess.ContentEntity
 import androidx.contentaccess.ContentPrimaryKey
@@ -29,6 +30,7 @@ import androidx.contentaccess.ext.isNotInstantiable
 import asTypeElement
 import com.google.auto.common.MoreTypes
 import isPrimitive
+import isPrimitiveBlob
 import isSupportedColumnType
 import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.VariableElement
@@ -52,7 +54,8 @@ class ContentEntityProcessor(
         }
         val columns = entity.getAllConstructorParamsOrPublicFields()
         columns.forEach {
-            if (fieldIsNullable(it) && it.asType().isPrimitive()) {
+            if (fieldIsNullable(it) && (it.asType().isPrimitive() &&
+                        !it.asType().isPrimitiveBlob())) {
                 errorReporter.reportError(entityWithNullablePrimitiveType(it.simpleName.toString(),
                     contentEntity.toString()), it)
             }
@@ -69,7 +72,8 @@ class ContentEntityProcessor(
                     val vo = ContentColumnVO(
                         column.simpleName.toString(), column.asType(),
                         column.getAnnotation(ContentColumn::class.java).columnName,
-                        fieldIsNullable(column)
+                        fieldIsNullable(column),
+                        fieldRequiresApi(column)
                     )
                     contentColumns.put(vo.columnName, vo)
                 }
@@ -77,7 +81,8 @@ class ContentEntityProcessor(
                 if (validateColumnType(column, errorReporter)) {
                     val vo = ContentColumnVO(column.simpleName.toString(), column.asType(), column
                         .getAnnotation(ContentPrimaryKey::class.java).columnName,
-                        fieldIsNullable(column)
+                        fieldIsNullable(column),
+                        fieldRequiresApi(column)
                     )
                     contentColumns.put(vo.columnName, vo)
                     contentPrimaryKey.add(vo)
@@ -129,6 +134,13 @@ class ContentEntityProcessor(
 
 fun fieldIsNullable(field: VariableElement): Boolean {
     return field.annotationMirrors.any { NULLABLE_ANNOTATIONS.contains(it.toString()) }
+}
+
+fun fieldRequiresApi(field: VariableElement): Int? {
+    if (field.hasAnnotation(RequiresApi::class)) {
+        return field.getAnnotation(RequiresApi::class.java).value
+    }
+    return null
 }
 
 val NULLABLE_ANNOTATIONS = listOf(

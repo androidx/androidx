@@ -17,8 +17,6 @@
 package androidx.room.processor
 
 import COMMON
-import androidx.room.ext.requireTypeMirror
-import androidx.room.ext.typeName
 import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.ProcessorErrors.RELATION_IN_ENTITY
 import androidx.room.vo.CallType
@@ -53,7 +51,7 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             assertThat(entity.type.toString(), `is`("foo.bar.MyEntity"))
             assertThat(entity.fields.size, `is`(1))
             val field = entity.fields.first()
-            val intType = invocation.processingEnv.requireTypeMirror(TypeName.INT)
+            val intType = invocation.processingEnv.requireType(TypeName.INT)
             assertThat(field, `is`(Field(
                     element = field.element,
                     name = "id",
@@ -154,8 +152,8 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             val idField = entity.fields.first()
             val cursorValueReader = idField.cursorValueReader
                 ?: throw AssertionError("must have a cursor value reader")
-            assertThat(cursorValueReader.typeMirror().typeName(),
-                `is`(invocation.processingEnv.requireTypeMirror(TypeName.INT).typeName()))
+            assertThat(cursorValueReader.typeMirror().typeName,
+                `is`(invocation.processingEnv.requireType(TypeName.INT).typeName))
         }.compilesWithoutError()
             .withWarningContaining(
                 ProcessorErrors.mismatchedSetter(
@@ -178,8 +176,8 @@ class TableEntityProcessorTest : BaseEntityParserTest() {
             val idField = entity.fields.first()
             val statementBinder = idField.statementBinder
                 ?: throw AssertionError("must have a statement binder")
-            assertThat(statementBinder.typeMirror().typeName(),
-                `is`(invocation.processingEnv.requireTypeMirror(TypeName.INT).typeName()))
+            assertThat(statementBinder.typeMirror().typeName,
+                `is`(invocation.processingEnv.requireType(TypeName.INT).typeName))
         }.compilesWithoutError()
     }
 

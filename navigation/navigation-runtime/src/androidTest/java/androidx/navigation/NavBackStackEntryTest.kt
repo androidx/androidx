@@ -167,9 +167,9 @@ class NavBackStackEntryTest {
         val navController = createNavController()
         navController.setViewModelStore(ViewModelStore())
         val provider = navController.navigatorProvider
-        val graph = provider.navigation(1, startDestination = 1) {
-            navigation(1, startDestination = 2) {
-                test(2)
+        val graph = provider.navigation(1, startDestination = 2) {
+            navigation(2, startDestination = 3) {
+                test(3)
             }
         }
 

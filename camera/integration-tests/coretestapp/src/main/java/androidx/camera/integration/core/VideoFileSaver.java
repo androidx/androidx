@@ -16,6 +16,9 @@
 
 package androidx.camera.integration.core;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.provider.MediaStore;
 import android.util.Log;
 
 import androidx.annotation.GuardedBy;
@@ -23,30 +26,23 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
+import androidx.camera.core.VideoCapture.OutputFileOptions;
 import androidx.camera.core.VideoCapture.VideoCaptureError;
-
-import java.io.File;
-import java.text.Format;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
 
 /**
  * Basic functionality required for interfacing the {@link VideoCapture}.
  */
 public class VideoFileSaver implements OnVideoSavedCallback {
     private static final String TAG = "VideoFileSaver";
-    private final Format mFormatter = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.ENGLISH);
     private final Object mLock = new Object();
-    private File mRootDirectory;
     @GuardedBy("mLock")
     private boolean mIsSaving = false;
 
     @Override
-    public void onVideoSaved(@NonNull File file) {
-
-        Log.d(TAG, "Saved file: " + file.getPath());
+    public void onVideoSaved(@NonNull VideoCapture.OutputFileResults outputFileResults) {
+        if (outputFileResults.getSavedUri() != null) {
+            Log.d(TAG, "Saved file: " + outputFileResults.getSavedUri().getPath());
+        }
         synchronized (mLock) {
             mIsSaving = false;
         }
@@ -66,17 +62,18 @@ public class VideoFileSaver implements OnVideoSavedCallback {
         }
     }
 
-    /** Returns a new {@link File} where to save a video. */
-    public File getNewVideoFile() {
-        Date date = Calendar.getInstance().getTime();
-        File file = new File(mRootDirectory + "/" + mFormatter.format(date) + ".mp4");
-        return file;
-    }
+    /** Return a VideoOutputFileOption which is used to save a video. */
+    public OutputFileOptions getNewVideoOutputFileOptions(ContentResolver resolver) {
+        String videoFileName = "video_" + System.currentTimeMillis();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4");
+        contentValues.put(MediaStore.Video.Media.TITLE, videoFileName);
+        contentValues.put(MediaStore.Video.Media.DISPLAY_NAME, videoFileName);
+        contentValues.put(MediaStore.Video.Media.DATE_ADDED, System.currentTimeMillis() / 1000);
+        contentValues.put(MediaStore.Video.Media.DATE_TAKEN, System.currentTimeMillis());
 
-    /** Sets the directory for saving files. */
-    public void setRootDirectory(File rootDirectory) {
-
-        mRootDirectory = rootDirectory;
+        return new OutputFileOptions.Builder(resolver,
+                        MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues).build();
     }
 
     boolean isSaving() {

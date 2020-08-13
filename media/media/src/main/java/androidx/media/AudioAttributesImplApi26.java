@@ -31,7 +31,6 @@ import androidx.versionedparcelable.VersionedParcelize;
 @RestrictTo(LIBRARY)
 @RequiresApi(26)
 public class AudioAttributesImplApi26 extends AudioAttributesImplApi21 {
-    private static final String TAG = "AudioAttributesCompat26";
 
     // WARNING: Adding a new ParcelField may break old library users (b/152830728)
 

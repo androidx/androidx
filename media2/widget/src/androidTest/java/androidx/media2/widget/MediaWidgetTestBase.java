@@ -210,7 +210,7 @@ public class MediaWidgetTestBase extends MediaTestBase {
         volatile CountDownLatch mItemLatch = new CountDownLatch(1);
         CountDownLatch mPausedLatch = new CountDownLatch(1);
         CountDownLatch mPlayingLatch = new CountDownLatch(1);
-        String mPrevId = "dummyId";
+        String mPrevId = "placeholderId";
 
         @Override
         void onCurrentMediaItemChanged(@NonNull PlayerWrapper player,

@@ -448,7 +448,8 @@ public class RowView extends SliceChildView implements View.OnClickListener,
             mContent.setContentDescription(contentDescr);
         }
         mStartItem = mRowContent.getStartItem();
-        boolean showStart = mStartItem != null && (mRowIndex > 0 || mRowContent.hasTitleItems());
+        boolean showStart = mStartItem != null && (!mRowContent.getIsHeader()
+                || mRowContent.hasTitleItems());
         if (showStart) {
             showStart = addItem(mStartItem, mTintColor, true /* isStart */);
         }
@@ -524,7 +525,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         }
         // Add start item to end of row for the top row if end items are empty and presenter
         // doesn't show title items.
-        if (mRowIndex == 0 && mStartItem != null && endItems.isEmpty()
+        if (mRowContent.getIsHeader() && mStartItem != null && endItems.isEmpty()
                 && !mRowContent.hasTitleItems()) {
             endItems.add(mStartItem);
         }
@@ -647,7 +648,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
 
         // If this is non-header or something that can have 2 lines in the header (e.g. permission
         // slice) then allow 2 lines if there's only a subtitle and now timestring.
-        boolean canHaveMultiLines = mRowIndex > 0 || mAllowTwoLines;
+        boolean canHaveMultiLines = !mRowContent.getIsHeader() || mAllowTwoLines;
         int maxLines = canHaveMultiLines && !hasTitle && subtitleExists
                 && TextUtils.isEmpty(subtitleTimeString)
                 ? 2 : 1;
@@ -1022,7 +1023,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
             // and it will handle displaying any loading states / updating state for toggles
             sav.sendAction();
         } else {
-            if (mRowIndex == 0) {
+            if (mRowContent.getIsHeader()) {
                 // Header clicks are a little weird and SliceView needs to know about them to
                 // maintain loading state; this is hooked up in SliceAdapter -- it will call
                 // through to SliceView parent which has the info to perform the click.

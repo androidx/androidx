@@ -20,8 +20,8 @@ import android.print.PrintDocumentAdapter
 import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import androidx.compose.Composable
-import androidx.ui.viewinterop.emitView
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.viewinterop.AndroidView
 
 class WebContext {
 
@@ -81,7 +81,7 @@ fun WebComponent(
         Log.d("WebComponent", "WebComponent compose " + url)
     }
 
-    emitView(::WebView) {
+    AndroidView(::WebView) {
         it.setRef { view -> webContext.webView = view }
         it.setUrl(url)
         it.webViewClient = webViewClient

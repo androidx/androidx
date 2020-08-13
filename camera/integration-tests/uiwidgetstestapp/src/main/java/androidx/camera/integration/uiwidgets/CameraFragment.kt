@@ -74,8 +74,8 @@ class CameraFragment : Fragment() {
 
         cameraProvider.bindToLifecycle(this, getCameraSelector(), preview)
 
-        preview_textureview.preferredImplementationMode =
-            PreviewView.ImplementationMode.TEXTURE_VIEW
+        preview_textureview.implementationMode =
+            PreviewView.ImplementationMode.COMPATIBLE
         preview.setSurfaceProvider(preview_textureview.createSurfaceProvider())
     }
 

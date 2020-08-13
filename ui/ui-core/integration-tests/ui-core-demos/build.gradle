@@ -17,7 +17,9 @@ dependencies {
     implementation project(":compose:runtime:runtime")
     implementation project(":compose:integration-tests:demos:common")
     implementation project(":compose:ui:ui")
+    implementation project(":compose:ui:ui-viewbinding")
     implementation project(":compose:foundation:foundation-layout")
+    implementation project(":compose:foundation:foundation-text")
     implementation project(":compose:ui:ui-text")
     implementation project(":compose:animation:animation")
     implementation project(":compose:foundation:foundation")
@@ -30,5 +32,9 @@ android {
         kotlinOptions {
             useIR = true
         }
+    }
+
+    buildFeatures {
+        viewBinding true
     }
 }

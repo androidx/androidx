@@ -16,19 +16,24 @@
  */
 package androidx.contentaccess
 
+import kotlin.reflect.KClass
+
 /**
  * Annotates a method that deletes one or more entries into a content provider.
  *
- * @property selection The conditions for deleting a row (e.g column1 = :value).
+ * @property where The conditions for deleting a row (e.g column1 = :value).
  * This applies if the method is not being passed the entity, otherwise this field is ignored and
  * we deleted the passed in entity(s).
  *
  * @property uri The string representation of the uri to delete from, if empty then uses the
  * entity's uri, if existing.
+ *
+ * @property contentEntity The content entity to associate the method with.
  */
 @Retention(AnnotationRetention.BINARY)
 @Target(AnnotationTarget.FUNCTION)
 annotation class ContentDelete(
-    val selection: String,
-    val uri: String
+    val where: String = "",
+    val uri: String = "",
+    val contentEntity: KClass<*> = Void::class
 )

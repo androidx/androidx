@@ -18,7 +18,6 @@ package androidx.room.processor
 
 import androidx.annotation.NonNull
 import androidx.room.Embedded
-import androidx.room.ext.asTypeElement
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
 import androidx.room.vo.Entity

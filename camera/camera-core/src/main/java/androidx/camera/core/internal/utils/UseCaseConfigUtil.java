@@ -16,7 +16,6 @@
 
 package androidx.camera.core.internal.utils;
 
-import android.util.Rational;
 import android.util.Size;
 import android.view.Surface;
 
@@ -64,14 +63,8 @@ public final class UseCaseConfigUtil {
         // For the target resolution, the width and height of original setting value will be
         // swapped then set back. The target resolution value is orientation-dependent that will
         // be used by auto-resolution mechanism to find the nearest boxing size if anyone exists.
-        //
-        // For the crop aspect ratio value, the numerator and denominator of original setting
-        // value will be swapped then set back. It is a orientation-dependent value that will be
-        // used by auto-resolution mechanism to select those supported sizes with same aspect
-        // ratio in priority. It will also be used to crop ImageCapture's output image.
         if ((Math.abs(newRotationDegrees - oldRotationDegrees) % 180) == 90) {
             Size targetResolution = config.getTargetResolution(null);
-            Rational targetAspectRatioCustom = config.getTargetAspectRatioCustom(null);
 
             if (targetResolution != null) {
                 // If there is target resolution value set before, updating it and then crop aspect
@@ -79,18 +72,6 @@ public final class UseCaseConfigUtil {
                 ((ImageOutputConfig.Builder<?>) builder).setTargetResolution(
                         new Size(/* width=*/targetResolution.getHeight(), /* height= */
                                 targetResolution.getWidth()));
-            }
-
-            // If there is crop aspect ratio set, it needs to be updated to match the new target
-            // rotation value. Because the value may be updated by the developers that is
-            // different from the aspect ratio of target resolution, this needs to be updated
-            // after updating target resolution. Otherwise, it will be overwritten by
-            // setTargetResolution API call.
-            if (targetAspectRatioCustom != null) {
-                ((ImageOutputConfig.Builder<?>) builder).setTargetAspectRatioCustom(
-                        new Rational(/* numerator= */
-                                targetAspectRatioCustom.getDenominator(), /* denominator= */
-                                targetAspectRatioCustom.getNumerator()));
             }
         }
     }

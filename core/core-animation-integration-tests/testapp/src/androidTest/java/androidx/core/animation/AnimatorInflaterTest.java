@@ -55,7 +55,7 @@ public class AnimatorInflaterTest {
         Animator anim = AnimatorInflater.loadAnimator(context, R.animator.animator_set_with_dimens);
         assertEquals(100, anim.getTotalDuration());
 
-        DummyObject obj = new DummyObject();
+        TestObject obj = new TestObject();
         anim.setTarget(obj);
         anim.start();
 
@@ -79,7 +79,7 @@ public class AnimatorInflaterTest {
         Animator anim = AnimatorInflater.loadAnimator(context, R.animator.animator_along_path);
         assertTrue(anim.getInterpolator() instanceof LinearInterpolator);
         assertEquals(100, anim.getDuration());
-        DummyObject obj = new DummyObject();
+        TestObject obj = new TestObject();
         anim.setTarget(obj);
         anim.start();
 
@@ -163,7 +163,7 @@ public class AnimatorInflaterTest {
                 R.interpolator.wrong_path_interpolator_3);
     }
 
-    static class DummyObject {
+    static class TestObject {
 
         public float x;
         public float y;

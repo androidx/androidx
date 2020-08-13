@@ -18,13 +18,16 @@ A playground project needs a `settings.gradle` file that applies
 to pull select projects from AndroidX.
 
 To share as much common configuration as possible, it is also recommended
-to symlink to the following files of `playground-common`:
+to symlink some common files like `gradle` and `.idea` configuration.
 
+To do that, execute "setup-playground.sh" comamnd in your playground directory.
 ```
-gradle -> playground-common/gradle
-gradlew -> playground-common/gradlew
-gradlew.bat -> playground-common/gradlew.bat
+cd room;
+../playground-common/setup-playground.sh
 ```
+This script will create symbolic links for `gradle` and `.idea` files that are committed
+to the git repository. It also force adds the `.idea` files to the git repository because
+by default any nested .idea folder is ignored from git.
 
 The `playground-settings.gradle` file sets a pre-defined build file (`playground-build.gradle`)
 for the root project and also provides `includeProject` and `selectProjectsFromAndroidX`
@@ -38,6 +41,21 @@ After running `setupPlayground`, it can either include projects via `includeProj
 method or filter projects from the main AndroidX settings gradle file using the
 `selectProjectsFromAndroidX` method.
 
+### Properties
+When a `gradle.properties` file shows up under a sub project, main AndroidX build ends up
+reading it. For this reason, we can only keep a minimal `gradle.properties` file in these
+sub modules that also support playground setup.
+
+We cannot avoid creating `gradle.properties` as certain properties (e.g. `useAndroidX`) are
+read at configuration time and we cannot set it dynamically.
+
+Properties that will be set dynamically are kept in `playground.properties` file while
+shared properties are kept in `androidx-shared.properties` file.
+The dynamic properties are read in the `playground-include-settings.gradle` file and set
+on each project.
+
+There is a `VerifyPlaygroundGradlePropertiesTask` task that validates the contents of
+`androidx-shared.properties` file as part of the main AndroidX build.
 ### Optional Dependencies
 Even though sub-projects usually declare exact coordinates for their dependencies,
 for tests, it is a common practice to declare `project` dependencies. To avoid needing

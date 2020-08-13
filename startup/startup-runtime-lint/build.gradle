@@ -49,6 +49,5 @@ androidx {
     mavenVersion = LibraryVersions.STARTUP
     inceptionYear = "2020"
     description = "Android App Startup Runtime"
-    url = AndroidXExtension.ARCHITECTURE_URL
     compilationTarget = CompilationTarget.HOST
 }

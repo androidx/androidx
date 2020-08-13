@@ -33,7 +33,7 @@ import androidx.core.util.Preconditions;
  * {@link android.os.Build.VERSION_CODES#Q Android Q} and it lets the Android system correlate
  * state between different subsystems such as content capture, shortcuts, and notifications.
  *
- * <p>For example, if your app provides an activiy representing a chat between 2 users
+ * <p>For example, if your app provides an activity representing a chat between 2 users
  * (say {@code A} and {@code B}, this chat state could be represented by:
  *
  * <pre><code>

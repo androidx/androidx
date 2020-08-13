@@ -36,7 +36,7 @@ import javax.lang.model.element.Modifier
  * Should generate:
  * ```
  * @Module
- * @InstallIn(ApplicationComponent.class)
+ * @InstallIn(SingletonComponent.class)
  * public interface $_HiltModule {
  *   @Binds
  *   @IntoMap
@@ -87,7 +87,7 @@ internal class WorkerGenerator(
             .addAnnotation(ClassNames.MODULE)
             .addAnnotation(
                 AnnotationSpec.builder(ClassNames.INSTALL_IN)
-                    .addMember("value", "$T.class", ClassNames.APPLICATION_COMPONENT)
+                    .addMember("value", "$T.class", ClassNames.SINGLETON_COMPONENT)
                     .build())
             .addAnnotation(
                 AnnotationSpec.builder(ClassNames.ORIGINATING_ELEMENT)

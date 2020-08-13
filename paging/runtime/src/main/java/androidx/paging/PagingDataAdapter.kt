@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.annotation.IntRange
 import androidx.lifecycle.Lifecycle
 import androidx.paging.LoadType.REFRESH
 import androidx.recyclerview.widget.AdapterListUpdateCallback
@@ -119,6 +120,9 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOver
      * Retry any failed load requests that would result in a [LoadState.Error] update to this
      * [PagingDataAdapter].
      *
+     * Unlike [refresh], this does not invalidate [PagingSource], it only retries failed loads
+     * within the same generation of [PagingData].
+     *
      * [LoadState.Error] can be generated from two types of load requests:
      *  * [PagingSource.load] returning [PagingSource.LoadResult.Error]
      *  * [RemoteMediator.load] returning [RemoteMediator.MediatorResult.Error]
@@ -147,7 +151,29 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOver
         differ.refresh()
     }
 
-    protected fun getItem(position: Int) = differ.getItem(position)
+    /**
+     * Returns the presented item at the specified position, notifying Paging of the item access to
+     * trigger any loads necessary to fulfill [prefetchDistance][PagingConfig.prefetchDistance].
+     *
+     * @param position Index of the presented item to return, including placeholders.
+     * @return The presented item at [position], `null` if it is a placeholder
+     */
+    protected fun getItem(@IntRange(from = 0) position: Int) = differ.getItem(position)
+
+    /**
+     * Returns the presented item at the specified position, without notifying Paging of the item
+     * access that would normally trigger page loads.
+     *
+     * @param index Index of the presented item to return, including placeholders.
+     * @return The presented item at position [index], `null` if it is a placeholder.
+     */
+    fun peek(@IntRange(from = 0) index: Int) = differ.peek(index)
+
+    /**
+     * Returns a new [ItemSnapshotList] representing the currently presented items, including any
+     * placeholders if they are enabled.
+     */
+    fun snapshot(): ItemSnapshotList<T> = differ.snapshot()
 
     override fun getItemCount() = differ.itemCount
 
@@ -245,6 +271,11 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOver
      * displayed. The [Boolean] that is emitted is `true` if the new [PagingData] is empty,
      * `false` otherwise.
      */
+    @Suppress("DEPRECATION")
+    @Deprecated(
+        "dataRefreshFlow is now redundant with the information passed from loadStateFlow and " +
+                "getItemCount, and will be removed in a future alpha version"
+    )
     @ExperimentalPagingApi
     val dataRefreshFlow: Flow<Boolean> = differ.dataRefreshFlow
 
@@ -256,8 +287,13 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOver
      *
      * @see removeDataRefreshListener
      */
+    @Deprecated(
+        "dataRefreshListener is now redundant with the information passed from loadStateListener " +
+                "and getItemCount, and will be removed in a future alpha version"
+    )
     @ExperimentalPagingApi
     fun addDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
+        @Suppress("DEPRECATION")
         differ.addDataRefreshListener(listener)
     }
 
@@ -268,8 +304,13 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOver
      *
      * @see addDataRefreshListener
      */
+    @Deprecated(
+        "dataRefreshListener is now redundant with the information passed from loadStateListener " +
+                "and getItemCount, and will be removed in a future alpha version"
+    )
     @ExperimentalPagingApi
     fun removeDataRefreshListener(listener: (isEmpty: Boolean) -> Unit) {
+        @Suppress("DEPRECATION")
         differ.removeDataRefreshListener(listener)
     }
 }

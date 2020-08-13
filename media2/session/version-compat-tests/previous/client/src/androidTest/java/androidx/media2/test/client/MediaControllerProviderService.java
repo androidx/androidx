@@ -195,13 +195,13 @@ public class MediaControllerProviderService extends Service {
         }
 
         @Override
-        public void createAndSetDummyPlaylist(String controllerId, int size, ParcelImpl metadata)
+        public void createAndSetFakePlaylist(String controllerId, int size, ParcelImpl metadata)
                 throws RemoteException {
             MediaController controller = mMediaControllerMap.get(controllerId);
             List<String> list = new ArrayList<>();
             for (int i = 0; i < size; i++) {
                 // Make media ID of each item same with its index.
-                list.add(TestUtils.getMediaIdInDummyList(i));
+                list.add(TestUtils.getMediaIdInFakeList(i));
             }
             controller.setPlaylist(list, (MediaMetadata) MediaParcelUtils.fromParcelable(metadata));
         }

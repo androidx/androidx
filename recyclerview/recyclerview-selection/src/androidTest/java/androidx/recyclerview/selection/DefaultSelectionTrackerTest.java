@@ -25,6 +25,7 @@ import android.os.Bundle;
 import android.util.SparseBooleanArray;
 
 import androidx.annotation.NonNull;
+import androidx.core.util.Consumer;
 import androidx.recyclerview.selection.SelectionTracker.SelectionPredicate;
 import androidx.recyclerview.selection.testing.Bundles;
 import androidx.recyclerview.selection.testing.SelectionProbe;
@@ -49,7 +50,6 @@ public class DefaultSelectionTrackerTest {
 
     private static final String SELECTION_ID = "test-selection";
 
-    private List<String> mItems;
     private Set<String> mIgnored;
     private TestAdapter<String> mAdapter;
     private SelectionPredicate<String> mSelectionPredicate;
@@ -61,10 +61,8 @@ public class DefaultSelectionTrackerTest {
     @Before
     public void setUp() throws Exception {
         mIgnored = new HashSet<>();
-        mItems = TestAdapter.createItemList(100);
+        mAdapter = TestAdapter.createStringAdapter(100);
         mListener = new TestSelectionObserver<>();
-        mAdapter = new TestAdapter();
-        mAdapter.updateTestModelIds(mItems);
 
         mSelectionPredicate = new SelectionPredicate<String>() {
 
@@ -92,7 +90,13 @@ public class DefaultSelectionTrackerTest {
                 mSelectionPredicate,
                 StorageStrategy.createStringStorage());
 
-        EventBridge.install(mAdapter, mTracker, mKeyProvider);
+        EventBridge.install(
+                mAdapter, mTracker, mKeyProvider, new Consumer<Runnable>() {
+                    @Override
+                    public void accept(Runnable runnable) {
+                        runnable.run();
+                    }
+                });
 
         mTracker.addObserver(mListener);
 
@@ -103,61 +107,85 @@ public class DefaultSelectionTrackerTest {
 
     @Test
     public void testSelect() {
-        mTracker.select(mItems.get(7));
+        mTracker.select(mAdapter.getSelectionKey(7));
 
         mSelection.assertSelection(7);
     }
 
     @Test
     public void testDeselect() {
-        mTracker.select(mItems.get(7));
-        mTracker.deselect(mItems.get(7));
+        mTracker.select(mAdapter.getSelectionKey(7));
+        mTracker.deselect(mAdapter.getSelectionKey(7));
 
         mSelection.assertNoSelection();
     }
 
     @Test
     public void testSelection_DoNothingOnUnselectableItem() {
-        mIgnored.add(mItems.get(7));
-        boolean selected = mTracker.select(mItems.get(7));
+        mIgnored.add(mAdapter.getSelectionKey(7));
+        boolean selected = mTracker.select(mAdapter.getSelectionKey(7));
 
         assertFalse(selected);
         mSelection.assertNoSelection();
     }
 
     @Test
+    public void testSelection_UpdatedWhenAdapterItemsRemoved() {
+        mTracker.select("2");
+        mTracker.select("7");
+        mTracker.select("11");
+
+        mAdapter.removeItem("2");
+        mSelection.assertSelection(7, 11);
+
+        mAdapter.removeItem("7");
+        mAdapter.removeItem("11");
+        mSelection.assertNoSelection();
+    }
+
+    @Test
     public void testSelect_NotifiesListenersOfChange() {
-        mTracker.select(mItems.get(7));
+        mTracker.select(mAdapter.getSelectionKey(7));
 
         mListener.assertSelectionChanged();
     }
 
     @Test
+    public void testSelect_NotifiesListenersWhenSelectedItemRemoved() {
+        mTracker.select("2");
+        mTracker.select("7");
+        mTracker.select("11");
+        mListener.reset();
+        mAdapter.removeItem("7");
+        mListener.assertSelectionChanged();
+    }
+
+    @Test
     public void testSelect_NotifiesAdapterOfSelect() {
-        mTracker.select(mItems.get(7));
+        mTracker.select(mAdapter.getSelectionKey(7));
 
         mAdapter.assertNotifiedOfSelectionChange(7);
     }
 
     @Test
     public void testSelect_NotifiesAdapterOfDeselect() {
-        mTracker.select(mItems.get(7));
+        mTracker.select(mAdapter.getSelectionKey(7));
         mAdapter.resetSelectionNotifications();
-        mTracker.deselect(mItems.get(7));
+        mTracker.deselect(mAdapter.getSelectionKey(7));
         mAdapter.assertNotifiedOfSelectionChange(7);
     }
 
     @Test
     public void testDeselect_SelectionChange_Notifies() {
-        mTracker.select(mItems.get(7));
-        mTracker.deselect(mItems.get(7));
+        mTracker.select(mAdapter.getSelectionKey(7));
+        mTracker.deselect(mAdapter.getSelectionKey(7));
 
         mListener.assertSelectionChanged();
     }
 
     @Test
     public void testClearSelection_ClearSelection_Notifies() {
-        mTracker.select(mItems.get(7));
+        mTracker.select(mAdapter.getSelectionKey(7));
         mTracker.clearSelection();
 
         mListener.assertSelectionCleared();
@@ -175,8 +203,11 @@ public class DefaultSelectionTrackerTest {
 
     @Test
     public void testSelection_PersistsOnUpdate() {
-        mTracker.select(mItems.get(7));
-        mAdapter.updateTestModelIds(mItems);
+        mTracker.select(mAdapter.getSelectionKey(7));
+
+        List<String> newItems = new ArrayList<>();
+        newItems.addAll(mAdapter.getItems().subList(0, 10));
+        mAdapter.updateTestModelIds(newItems);
 
         mSelection.assertSelection(7);
     }
@@ -190,7 +221,7 @@ public class DefaultSelectionTrackerTest {
 
     @Test
     public void testSetItemsSelected_SkipUnselectableItem() {
-        mIgnored.add(mItems.get(7));
+        mIgnored.add(mAdapter.getSelectionKey(7));
 
         mTracker.setItemsSelected(getStringIds(6, 7, 8), true);
 
@@ -201,8 +232,8 @@ public class DefaultSelectionTrackerTest {
 
     @Test
     public void testClearSelection_RemovesPrimarySelection() {
-        mTracker.select(mItems.get(1));
-        mTracker.select(mItems.get(2));
+        mTracker.select(mAdapter.getSelectionKey(1));
+        mTracker.select(mAdapter.getSelectionKey(2));
 
         assertTrue(mTracker.clearSelection());
 
@@ -212,8 +243,8 @@ public class DefaultSelectionTrackerTest {
     @Test
     public void testClearSelection_RemovesProvisionalSelection() {
         Set<String> prov = new HashSet<>();
-        prov.add(mItems.get(1));
-        prov.add(mItems.get(2));
+        prov.add(mAdapter.getSelectionKey(1));
+        prov.add(mAdapter.getSelectionKey(2));
 
         assertFalse(mTracker.clearSelection());
         assertFalse(mTracker.hasSelection());
@@ -221,7 +252,7 @@ public class DefaultSelectionTrackerTest {
 
     @Test
     public void testRequiresReset_ForSelection() {
-        mTracker.select(mItems.get(1));
+        mTracker.select(mAdapter.getSelectionKey(1));
 
         assertTrue(mTracker.isResetRequired());
     }
@@ -229,7 +260,7 @@ public class DefaultSelectionTrackerTest {
     @Test
     public void testRequiresReset_ForProvisionalSelection() {
         Set<String> items = new HashSet<>();
-        items.add(mItems.get(1));
+        items.add(mAdapter.getSelectionKey(1));
 
         mTracker.setProvisionalSelection(items);
 
@@ -245,7 +276,7 @@ public class DefaultSelectionTrackerTest {
 
     @Test
     public void testReset_ForSelection() {
-        mTracker.select(mItems.get(1));
+        mTracker.select(mAdapter.getSelectionKey(1));
 
         mTracker.reset();
         assertFalse(mTracker.isResetRequired());
@@ -254,7 +285,7 @@ public class DefaultSelectionTrackerTest {
     @Test
     public void testReset_ForProvisionalSelection() {
         Set<String> items = new HashSet<>();
-        items.add(mItems.get(1));
+        items.add(mAdapter.getSelectionKey(1));
         mTracker.setProvisionalSelection(items);
 
         mTracker.reset();
@@ -263,10 +294,10 @@ public class DefaultSelectionTrackerTest {
 
     @Test
     public void testReset_Combined() {
-        mTracker.select(mItems.get(1));
+        mTracker.select(mAdapter.getSelectionKey(1));
 
         Set<String> items = new HashSet<>();
-        items.add(mItems.get(1));
+        items.add(mAdapter.getSelectionKey(1));
         mTracker.setProvisionalSelection(items);
 
         mTracker.startRange(15);
@@ -292,7 +323,7 @@ public class DefaultSelectionTrackerTest {
 
     @Test
     public void testRangeSelection_SkipUnselectableItem() {
-        mIgnored.add(mItems.get(17));
+        mIgnored.add(mAdapter.getSelectionKey(17));
 
         mTracker.startRange(15);
         mTracker.extendRange(19);
@@ -391,8 +422,8 @@ public class DefaultSelectionTrackerTest {
         mSelection.assertNoSelection();
 
         // Mimicking band selection case -- BandController notifies item callback by itself.
-        mListener.onItemStateChanged(mItems.get(1), true);
-        mListener.onItemStateChanged(mItems.get(2), true);
+        mListener.onItemStateChanged(mAdapter.getSelectionKey(1), true);
+        mListener.onItemStateChanged(mAdapter.getSelectionKey(2), true);
 
         SparseBooleanArray provisional = new SparseBooleanArray();
         provisional.append(1, true);
@@ -406,19 +437,19 @@ public class DefaultSelectionTrackerTest {
         Selection<String> s = mTracker.getSelection();
 
         // Mimicking band selection case -- BandController notifies item callback by itself.
-        mListener.onItemStateChanged(mItems.get(1), true);
-        mListener.onItemStateChanged(mItems.get(2), true);
+        mListener.onItemStateChanged(mAdapter.getSelectionKey(1), true);
+        mListener.onItemStateChanged(mAdapter.getSelectionKey(2), true);
         SparseBooleanArray provisional = new SparseBooleanArray();
         provisional.append(1, true);
         provisional.append(2, true);
         s.setProvisionalSelection(getItemIds(provisional));
 
-        mListener.onItemStateChanged(mItems.get(1), false);
-        mListener.onItemStateChanged(mItems.get(2), false);
+        mListener.onItemStateChanged(mAdapter.getSelectionKey(1), false);
+        mListener.onItemStateChanged(mAdapter.getSelectionKey(2), false);
         provisional.clear();
 
-        mListener.onItemStateChanged(mItems.get(3), true);
-        mListener.onItemStateChanged(mItems.get(4), true);
+        mListener.onItemStateChanged(mAdapter.getSelectionKey(3), true);
+        mListener.onItemStateChanged(mAdapter.getSelectionKey(4), true);
         provisional.append(3, true);
         provisional.append(4, true);
         s.setProvisionalSelection(getItemIds(provisional));
@@ -430,18 +461,18 @@ public class DefaultSelectionTrackerTest {
         Selection<String> s = mTracker.getSelection();
 
         // Mimicking band selection case -- BandController notifies item callback by itself.
-        mListener.onItemStateChanged(mItems.get(1), true);
-        mListener.onItemStateChanged(mItems.get(2), true);
+        mListener.onItemStateChanged(mAdapter.getSelectionKey(1), true);
+        mListener.onItemStateChanged(mAdapter.getSelectionKey(2), true);
         SparseBooleanArray provisional = new SparseBooleanArray();
         provisional.append(1, true);
         provisional.append(2, true);
         s.setProvisionalSelection(getItemIds(provisional));
 
-        mListener.onItemStateChanged(mItems.get(1), false);
-        mListener.onItemStateChanged(mItems.get(2), false);
+        mListener.onItemStateChanged(mAdapter.getSelectionKey(1), false);
+        mListener.onItemStateChanged(mAdapter.getSelectionKey(2), false);
         provisional.clear();
 
-        mListener.onItemStateChanged(mItems.get(1), true);
+        mListener.onItemStateChanged(mAdapter.getSelectionKey(1), true);
         provisional.append(1, true);
         s.setProvisionalSelection(getItemIds(provisional));
         mSelection.assertSelection(1);
@@ -452,8 +483,8 @@ public class DefaultSelectionTrackerTest {
         Selection<String> s = mTracker.getSelection();
 
         // Mimicking band selection case -- BandController notifies item callback by itself.
-        mListener.onItemStateChanged(mItems.get(1), true);
-        mListener.onItemStateChanged(mItems.get(2), true);
+        mListener.onItemStateChanged(mAdapter.getSelectionKey(1), true);
+        mListener.onItemStateChanged(mAdapter.getSelectionKey(2), true);
         SparseBooleanArray provisional = new SparseBooleanArray();
         provisional.append(1, true);
         provisional.append(2, true);
@@ -465,8 +496,8 @@ public class DefaultSelectionTrackerTest {
 
     @Test
     public void testProvisionalSelection_Cancel() {
-        mTracker.select(mItems.get(1));
-        mTracker.select(mItems.get(2));
+        mTracker.select(mAdapter.getSelectionKey(1));
+        mTracker.select(mAdapter.getSelectionKey(2));
         Selection<String> s = mTracker.getSelection();
 
         SparseBooleanArray provisional = new SparseBooleanArray();
@@ -481,12 +512,12 @@ public class DefaultSelectionTrackerTest {
 
     @Test
     public void testProvisionalSelection_IntersectsAppliedSelection() {
-        mTracker.select(mItems.get(1));
-        mTracker.select(mItems.get(2));
+        mTracker.select(mAdapter.getSelectionKey(1));
+        mTracker.select(mAdapter.getSelectionKey(2));
         Selection<String> s = mTracker.getSelection();
 
         // Mimicking band selection case -- BandController notifies item callback by itself.
-        mListener.onItemStateChanged(mItems.get(3), true);
+        mListener.onItemStateChanged(mAdapter.getSelectionKey(3), true);
         SparseBooleanArray provisional = new SparseBooleanArray();
         provisional.append(2, true);
         provisional.append(3, true);
@@ -499,7 +530,7 @@ public class DefaultSelectionTrackerTest {
 
         int count = selection.size();
         for (int i = 0; i < count; ++i) {
-            ids.add(mItems.get(selection.keyAt(i)));
+            ids.add(mAdapter.getSelectionKey(selection.keyAt(i)));
         }
 
         return ids;
@@ -508,25 +539,31 @@ public class DefaultSelectionTrackerTest {
     @Test
     public void testOnDataSetChanged_UnselectableRemovedFromSelection() {
 
-        mListener = TestSelectionObserver.createLenientObserver();
+        mListener = new TestSelectionObserver<>();
         mTracker = new DefaultSelectionTracker<>(
                 SELECTION_ID,
                 mKeyProvider,
                 mSelectionPredicate,
                 StorageStrategy.createStringStorage());
 
-        EventBridge.install(mAdapter, mTracker, mKeyProvider);
+        EventBridge.install(
+                mAdapter, mTracker, mKeyProvider, new Consumer<Runnable>() {
+                    @Override
+                    public void accept(Runnable runnable) {
+                        runnable.run();
+                    }
+                });
 
         mTracker.addObserver(mListener);
 
         mSelection = new SelectionProbe(mTracker, mListener);
 
         for (int i = 2; i < 7; i++) {
-            mTracker.select(mItems.get(i));
+            mTracker.select(mAdapter.getSelectionKey(i));
         }
 
-        mIgnored.add(mItems.get(3));
-        mIgnored.add(mItems.get(5));
+        mIgnored.add(mAdapter.getSelectionKey(3));
+        mIgnored.add(mAdapter.getSelectionKey(5));
 
         mAdapter.notifyDataSetChanged();
 
@@ -536,13 +573,6 @@ public class DefaultSelectionTrackerTest {
         mSelection.assertSelected(2);
         mSelection.assertSelected(4);
         mSelection.assertSelected(6);
-    }
-
-    @Test
-    public void testObserverOnChanged_NotifiesListenersOfChange() {
-        mAdapter.notifyDataSetChanged();
-
-        mListener.assertSelectionChanged();
     }
 
     @Test
@@ -571,7 +601,7 @@ public class DefaultSelectionTrackerTest {
     private Iterable<String> getStringIds(int... ids) {
         List<String> stringIds = new ArrayList<>(ids.length);
         for (int id : ids) {
-            stringIds.add(mItems.get(id));
+            stringIds.add(mAdapter.getSelectionKey(id));
         }
         return stringIds;
     }

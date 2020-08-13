@@ -17,90 +17,30 @@
 package androidx.inspection;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.util.List;
 
 /**
- * This interface exposes special tooling capabilities provided by JVMTI.
+ * This interface provides inspector specific utilities, such as
+ * managed threads and ARTTI features.
  */
-public interface InspectorEnvironment {
-    /**
-     * Returns a list of all present instances of the given class in heap.
-     *
-     * @param clazz class whose instances should be looked up
-     * @return a list of instances of {@code clazz}
-     */
-    @NonNull
-    <T> List<T> findInstances(@NonNull Class<T> clazz);
+//TODO(b/163335801): remove "extends ArtToolInterface"
+// /temporary implements ArtToolInterface to ease drop to Studio.
+public interface InspectorEnvironment extends ArtToolInterface {
 
+    // TODO: will be removed once studio and clients are migrated
     /**
-     * A callback invoked at the entry to an instrumented method.
-     *
-     * {@link InspectorEnvironment#registerEntryHook(Class, String, EntryHook)}
+     * This interface will be removed
+     * @param <T>
      */
-    interface EntryHook {
-        /**
-         * Called inline at the entry of an instrumented method.
-         *
-         * @param thisObject "this" object of origin method or {@code null} if origin method is
-         *                   static.
-         * @param args arguments passed into the origin method
-         */
-        void onEntry(@Nullable Object thisObject, @NonNull List<Object> args);
+    interface ExitHook<T> extends ArtToolInterface.ExitHook<T> {
     }
 
     /**
-     * Register entry hook for the {@code originMethod} in the {@code originClass}.
-     * <p/>
-     * This method performs bytecode transformation and injects a call to {@code entryHook}
-     * at the start of {@code originMethod} of {@code originClass}.
-     * <p/>
-     * {@code originMethod} should be in the format:
-     * "methodName(signature)", where signature is JAVA VM's format (the one that JNI uses). For
-     * example, for method {@code Foo bla(Bar bla);} it should look like:
-     * {@code bla(LpackageOfBar/Bar;)LpackageOfFoo/Foo;}
-     *
-     * @param originClass  class where {@code originMethod} is defined
-     * @param originMethod method which should be instrumented with entry hook
-     * @param entryHook    a hook to be called at the entry of {@code origin method}
+     * This interface will be removed
      */
-    void registerEntryHook(@NonNull Class<?> originClass, @NonNull String originMethod,
-            @NonNull EntryHook entryHook);
-
-    /**
-     * A callback invoked at the exit to an instrumented method.
-     *
-     * @param <T> The type of data returned by an instrumented method.
-     */
-    interface ExitHook<T> {
-        /**
-         * Called inline at the exit of an instrumented method and allows to intercept
-         * a returned value of an origin method.
-         *
-         * @param result an object that was meant to be returned by origin method
-         * @return an object that should be returned instead by origin method.
-         */
-        T onExit(T result);
+    interface EntryHook extends ArtToolInterface.EntryHook {
     }
-
-    /**
-     * Register exit hook for the {@code originMethod} in the {@code originClass}.
-     * <p/>
-     * This method performs bytecode transformation and injects a call to {@code exitHook}
-     * at the end of {@code originMethod} of {@code originClass}.
-     * <p/>
-     * {@code originMethod} should be in the format:
-     * "methodName(signature)", where signature is JAVA VM's format (the one that JNI uses). For
-     * example, for method {@code Foo bla(Bar bla);} it should look like:
-     * {@code bla(LpackageOfBar/Bar;)LpackageOfFoo/Foo;}
-     *
-     * @param originClass  class where {@code originMethod} is defined
-     * @param originMethod method which should be instrumented with entry hook
-     * @param exitHook    a hook to be called at the exit of {@code origin method}
-     */
-    <T> void registerExitHook(@NonNull Class<?> originClass, @NonNull String originMethod,
-            @NonNull ExitHook<T> exitHook);
 
     /**
      * Executors provided by App Inspection Platforms. Clients should use it instead of
@@ -110,4 +50,49 @@ public interface InspectorEnvironment {
     default InspectorExecutors executors() {
         throw new UnsupportedOperationException();
     }
+
+    /**
+     * Interface that provides ART TI capabilities.
+     */
+    @NonNull
+    default ArtToolInterface artTI() {
+        return this;
+    }
+
+    // Temporary default implementations (so they can be removed from actual implementation of
+    // InspectorEnvironment
+    @NonNull
+    @Override
+    default <T> List<T> findInstances(@NonNull Class<T> clazz) {
+        return artTI().findInstances(clazz);
+    }
+
+    @Override
+    default void registerEntryHook(@NonNull Class<?> originClass, @NonNull String originMethod,
+            @NonNull ArtToolInterface.EntryHook entryHook) {
+        artTI().registerEntryHook(originClass, originMethod, entryHook);
+    }
+
+    @Override
+    default <T> void registerExitHook(@NonNull Class<?> originClass, @NonNull String originMethod,
+            @NonNull ArtToolInterface.ExitHook<T> exitHook) {
+        artTI().registerExitHook(originClass, originMethod, exitHook);
+    }
+
+    /**
+     * Temporary method for backwards compat. TODO(b/163335801)
+     */
+    default void registerEntryHook(@NonNull Class<?> originClass, @NonNull String originMethod,
+            @NonNull EntryHook entryHook) {
+        artTI().registerEntryHook(originClass, originMethod, entryHook);
+    }
+
+    /**
+     * Temporary method for backwards compat. TODO(b/163335801)
+     */
+    default <T> void registerExitHook(@NonNull Class<?> originClass, @NonNull String originMethod,
+            @NonNull ExitHook<T> exitHook) {
+        artTI().registerExitHook(originClass, originMethod, exitHook);
+    }
+
 }

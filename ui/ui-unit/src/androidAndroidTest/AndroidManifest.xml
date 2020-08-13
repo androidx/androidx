@@ -14,11 +14,11 @@
      limitations under the License.
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="androidx.ui.unit.test">
+    package="androidx.compose.ui.unit">
     <application>
-        <activity android:name="androidx.ui.unit.DpDeviceTest$Companion$TestActivity"
+        <activity android:name="androidx.compose.ui.unit.DpDeviceTest$Companion$TestActivity"
             android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"/>
-        <activity android:name="androidx.ui.unit.SpDeviceTest$Companion$TestActivity"
+        <activity android:name="androidx.compose.ui.unit.SpDeviceTest$Companion$TestActivity"
             android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen"/>
     </application>
 </manifest>

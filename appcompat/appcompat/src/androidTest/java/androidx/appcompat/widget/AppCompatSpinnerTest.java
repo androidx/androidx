@@ -97,7 +97,15 @@ public class AppCompatSpinnerTest
      */
     private void verifySpinnerPopupTheming(@IdRes int spinnerId,
             @ColorRes int expectedPopupColorResId) {
-        final Resources res = mActivityTestRule.getActivity().getResources();
+        // Wait until the activity can receive input.
+        PollingCheck.waitFor(new PollingCheck.PollingCheckCondition() {
+            @Override
+            public boolean canProceed() {
+                return mActivity.hasWindowFocus();
+            }
+        });
+
+        final Resources res = mActivity.getResources();
         final @ColorInt int expectedPopupColor =
                 ResourcesCompat.getColor(res, expectedPopupColorResId, null);
         final AppCompatSpinner spinner = mContainer.findViewById(spinnerId);

@@ -20,38 +20,40 @@ import android.content.Context
 import android.graphics.Canvas
 import android.graphics.DashPathEffect
 import android.graphics.Paint
+import android.os.Bundle
 import android.util.AttributeSet
 import android.util.Log
 import android.widget.FrameLayout
 import androidx.annotation.VisibleForTesting
-import androidx.compose.AtomicReference
-import androidx.compose.Composable
-import androidx.compose.Composition
-import androidx.compose.Providers
-import androidx.compose.Recomposer
-import androidx.compose.currentComposer
+import androidx.compose.animation.TransitionModel
+import androidx.compose.animation.core.InternalAnimationApi
+import androidx.compose.runtime.AtomicReference
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Composition
+import androidx.compose.runtime.Providers
+import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.currentComposer
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.AnimationClockAmbient
+import androidx.compose.ui.platform.FontLoaderAmbient
+import androidx.compose.ui.platform.setContent
+import androidx.compose.ui.unit.IntBounds
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.ViewTreeLifecycleOwner
 import androidx.lifecycle.ViewTreeViewModelStoreOwner
-import androidx.ui.core.AnimationClockAmbient
-import androidx.ui.core.FontLoaderAmbient
-import androidx.ui.core.setContent
-import androidx.ui.core.toAndroidRect
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.toArgb
+import androidx.savedstate.SavedStateRegistry
+import androidx.savedstate.SavedStateRegistryController
+import androidx.savedstate.SavedStateRegistryOwner
+import androidx.savedstate.ViewTreeSavedStateRegistryOwner
 import androidx.ui.tooling.Group
 import androidx.ui.tooling.Inspectable
 import androidx.ui.tooling.SlotTableRecord
 import androidx.ui.tooling.SourceLocation
 import androidx.ui.tooling.asTree
 import androidx.ui.tooling.preview.animation.PreviewAnimationClock
-import androidx.ui.unit.IntBounds
-import androidx.ui.unit.PxBounds
-import androidx.ui.unit.toRect
-import kotlin.reflect.KClass
 
 const val TOOLS_NS_URI = "http://schemas.android.com/tools"
 
@@ -64,7 +66,6 @@ const val TOOLS_NS_URI = "http://schemas.android.com/tools"
 data class ViewInfo(
     val fileName: String,
     val lineNumber: Int,
-    val methodName: String,
     val bounds: IntBounds,
     val location: SourceLocation?,
     val children: List<ViewInfo>
@@ -77,24 +78,10 @@ data class ViewInfo(
     override fun toString(): String =
         """($fileName:$lineNumber,
             |bounds=(top=${bounds.top}, left=${bounds.left},
+            |location=${location?.let { "(${it.offset}L${it.length}"} ?: "<none>" }
             |bottom=${bounds.bottom}, right=${bounds.right}),
             |childrenCount=${children.size})""".trimMargin()
 }
-
-/**
- * Regular expression that matches and extracts the key information as serialized in
- * [KeySourceInfo#recordSourceKeyInfo]. The expression supports two formats for backwards
- * compatibility:
- *
- *  - fileName:lineNumber
- *  - methodName (fileName:lineNumber)
- *
- *  API <=21 does not support named regex but for documentation purposes, the named version
- *  of the regex would be:
- *  `(?<method>[\w\\.$]*?)\s?\(?(?<fileName>[\w.]+):(?<lineNumber>\d+)\)?`
- */
-private val KEY_INFO_REGEX =
-    """([\w\\.$]*?)\s?\(?([\w.]+):(\d+)\)?""".toRegex()
 
 /**
  * View adapter that renders a `@Composable`. The `@Composable` is found by
@@ -129,6 +116,16 @@ internal class ComposeViewAdapter : FrameLayout {
     private var debugPaintBounds = false
     internal var viewInfos: List<ViewInfo> = emptyList()
     private val slotTableRecord = SlotTableRecord.create()
+
+    /**
+     * Simple function name of the Composable being previewed.
+     */
+    private var composableName = ""
+
+    /**
+     * Whether the current Composable has animations.
+     */
+    private var hasAnimations = false
 
     /**
      * Saved exception from the last composition. Since we can not handle the exception during the
@@ -190,14 +187,10 @@ internal class ComposeViewAdapter : FrameLayout {
             .filter { !it.isNullGroup() }
             .map { it.toViewInfo() }
 
-        val match = KEY_INFO_REGEX.matchEntire(key as? String ?: "")
-            ?: return ViewInfo("", -1, "", box, location, childrenViewInfo)
-
         // TODO: Use group names instead of indexing once it's supported
         return ViewInfo(
-            match.groups[2]?.value ?: "",
-            match.groups[3]?.value?.toInt() ?: -1,
-            match.groups[1]?.value ?: "",
+            location?.sourceFile ?: "",
+            location?.lineNumber ?: -1,
             box,
             location,
             childrenViewInfo
@@ -219,6 +212,75 @@ internal class ComposeViewAdapter : FrameLayout {
                 walkTable(it)
             }
         }
+
+        if (composableName.isNotEmpty()) {
+            // TODO(b/160126628): support other APIs, e.g. animate
+            findAndSubscribeTransitions()
+        }
+    }
+
+    /**
+     * Finds all the transition animations defined in the Compose tree where the root is the
+     * `@Composable` being previewed. We only return animations defined in the user code, i.e.
+     * the ones we've got source information for.
+     */
+    @OptIn(InternalAnimationApi::class)
+    @VisibleForTesting
+    internal fun findAndSubscribeTransitions() {
+        val slotTrees = slotTableRecord.store.map { it.asTree() }
+        slotTrees.map { tree -> tree.firstOrNull { it.name == composableName } }
+            .firstOrNull()?.let { composable ->
+                // Find all the AnimationClockObservers corresponding to transition animations
+                val observers = composable.findAll {
+                    // Find `transition` calls in the user code, i.e. when source location is known
+                    it.name == "transition" && it.location != null
+                }.mapNotNull {
+                    val rememberCall =
+                        it.firstOrNull { it.name == "remember" } ?: return@mapNotNull null
+                    val transitionModel = rememberCall.data.firstOrNull { data ->
+                        data is TransitionModel<*>
+                    } as? TransitionModel<*>
+                    transitionModel?.anim?.animationClockObserver
+                }
+                hasAnimations = observers.isNotEmpty()
+                // Subscribe all the observers found to the `PreviewAnimationClock`
+                if (::clock.isInitialized) {
+                    observers.forEach { clock.subscribe(it) }
+                }
+            }
+    }
+
+    private fun Group.firstOrNull(predicate: (Group) -> Boolean): Group? {
+        return findGroupsThatMatchPredicate(this, predicate, true).firstOrNull()
+    }
+
+    private fun Group.findAll(predicate: (Group) -> Boolean): List<Group> {
+        return findGroupsThatMatchPredicate(this, predicate)
+    }
+
+    /**
+     * Search [Group]s that match a given [predicate], starting from a given [root]. An optional
+     * boolean parameter can be set if we're interested in a single occurrence. If it's set, we
+     * return early after finding the first matching [Group].
+     */
+    private fun findGroupsThatMatchPredicate(
+        root: Group,
+        predicate: (Group) -> Boolean,
+        findOnlyFirst: Boolean = false
+    ): List<Group> {
+        val result = mutableListOf<Group>()
+        val stack = mutableListOf(root)
+        while (stack.isNotEmpty()) {
+            val current = stack.removeLast()
+            if (predicate(current)) {
+                if (findOnlyFirst) {
+                    return listOf(current)
+                }
+                result.add(current)
+            }
+            stack.addAll(current.children)
+        }
+        return result
     }
 
     override fun dispatchDraw(canvas: Canvas?) {
@@ -233,13 +295,13 @@ internal class ComposeViewAdapter : FrameLayout {
             .forEach {
                 if (it.hasBounds()) {
                     canvas?.apply {
-                        val pxBounds = PxBounds(
-                            it.bounds.left.toFloat(),
-                            it.bounds.top.toFloat(),
-                            it.bounds.right.toFloat(),
-                            it.bounds.bottom.toFloat()
+                        val pxBounds = android.graphics.Rect(
+                            it.bounds.left,
+                            it.bounds.top,
+                            it.bounds.right,
+                            it.bounds.bottom
                         )
-                        drawRect(pxBounds.toRect().toAndroidRect(), debugBoundsPaint)
+                        drawRect(pxBounds, debugBoundsPaint)
                     }
                 }
             }
@@ -250,7 +312,8 @@ internal class ComposeViewAdapter : FrameLayout {
      *
      * @suppress
      */
-    private lateinit var clock: PreviewAnimationClock
+    @VisibleForTesting
+    internal lateinit var clock: PreviewAnimationClock
 
     /**
      * Wraps a given [Preview] method an does any necessary setup.
@@ -269,7 +332,7 @@ internal class ComposeViewAdapter : FrameLayout {
      * Initializes the adapter and populates it with the given [Preview] composable.
      * @param className name of the class containing the preview function
      * @param methodName `@Preview` method name
-     * @param parameterProvider [KClass] for the [PreviewParameterProvider] to be used as
+     * @param parameterProvider [Class] for the [PreviewParameterProvider] to be used as
      * parameter input for this call. If null, no parameters will be passed to the composable.
      * @param parameterProviderIndex when [parameterProvider] is not null, this index will
      * reference the element in the [Sequence] to be used as parameter.
@@ -283,16 +346,18 @@ internal class ComposeViewAdapter : FrameLayout {
     internal fun init(
         className: String,
         methodName: String,
-        parameterProvider: KClass<out PreviewParameterProvider<*>>? = null,
+        parameterProvider: Class<out PreviewParameterProvider<*>>? = null,
         parameterProviderIndex: Int = 0,
         debugPaintBounds: Boolean = false,
         debugViewInfos: Boolean = false,
         animationClockStartTime: Long = -1
     ) {
-        ViewTreeLifecycleOwner.set(this, FakeLifecycleOwner)
+        ViewTreeLifecycleOwner.set(this, FakeSavedStateRegistryOwnerOwner)
+        ViewTreeSavedStateRegistryOwner.set(this, FakeSavedStateRegistryOwnerOwner)
         ViewTreeViewModelStoreOwner.set(this, FakeViewModelStoreOwner)
         this.debugPaintBounds = debugPaintBounds
         this.debugViewInfos = debugViewInfos
+        this.composableName = methodName
 
         composition = setContent(Recomposer.current()) {
             WrapPreview {
@@ -346,6 +411,17 @@ internal class ComposeViewAdapter : FrameLayout {
         }
     }
 
+    /**
+     *  Returns whether this `@Composable` has animations. This allows Android Studio to decide if
+     *  the Animation Inspector icon should be displayed for this preview. The reason for using a
+     *  method instead of the property directly is we use Java reflection to call it from Android
+     *  Studio, and to find the property we'd need to filter the method names using `contains`
+     *  instead of `equals`.
+     *
+     *  @suppress
+     */
+    fun hasAnimations() = hasAnimations
+
     private fun init(attrs: AttributeSet) {
         val composableName = attrs.getAttributeValue(TOOLS_NS_URI, "composableName") ?: return
         val className = composableName.substringBeforeLast('.')
@@ -382,12 +458,18 @@ internal class ComposeViewAdapter : FrameLayout {
         )
     }
 
-    private val FakeLifecycleOwner = object : LifecycleOwner {
-        val lifecycleRegistry = LifecycleRegistry(this).apply {
-            currentState = Lifecycle.State.RESUMED
+    private val FakeSavedStateRegistryOwnerOwner = object : SavedStateRegistryOwner {
+        private val lifecycle = LifecycleRegistry(this)
+        private val controller = SavedStateRegistryController.create(this).apply {
+            performRestore(Bundle())
         }
 
-        override fun getLifecycle() = lifecycleRegistry
+        init {
+            lifecycle.currentState = Lifecycle.State.RESUMED
+        }
+
+        override fun getSavedStateRegistry(): SavedStateRegistry = controller.savedStateRegistry
+        override fun getLifecycle(): Lifecycle = lifecycle
     }
 
     private val FakeViewModelStoreOwner = ViewModelStoreOwner {

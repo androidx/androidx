@@ -77,5 +77,4 @@ androidx {
     mavenGroup = LibraryGroups.ROOM
     inceptionYear = "2017"
     description = "Android Room-Runtime"
-    url = AndroidXExtension.ARCHITECTURE_URL
 }

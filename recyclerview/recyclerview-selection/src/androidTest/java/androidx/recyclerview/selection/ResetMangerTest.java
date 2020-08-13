@@ -44,7 +44,7 @@ public final class ResetMangerTest {
 
     @Before
     public void setUp() {
-        mManager = new ResetManager();
+        mManager = new ResetManager<>();
         mResettable1 = new TestResettable(true);
         mResettable2 = new TestResettable(true);
         mManager.addResetHandler(mResettable1);

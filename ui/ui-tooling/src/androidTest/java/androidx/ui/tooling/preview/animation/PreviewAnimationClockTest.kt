@@ -16,17 +16,18 @@
 
 package androidx.ui.tooling.preview.animation
 
-import androidx.animation.AnimationClockObserver
-import androidx.animation.FloatPropKey
-import androidx.animation.InternalAnimationApi
-import androidx.animation.LinearEasing
-import androidx.animation.TransitionAnimation
-import androidx.animation.transitionDefinition
-import androidx.animation.tween
-import androidx.ui.animation.ColorPropKey
-import androidx.ui.animation.tooling.ComposeAnimation
-import androidx.ui.animation.tooling.ComposeAnimationType
-import androidx.ui.graphics.Color
+import androidx.compose.animation.ColorPropKey
+import androidx.compose.animation.core.AnimationClockObserver
+import androidx.compose.animation.core.FloatPropKey
+import androidx.compose.animation.core.InternalAnimationApi
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.TransitionAnimation
+import androidx.compose.animation.core.repeatable
+import androidx.compose.animation.core.transitionDefinition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.tooling.ComposeAnimation
+import androidx.compose.animation.tooling.ComposeAnimationType
+import androidx.compose.ui.graphics.Color
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -68,11 +69,11 @@ class PreviewAnimationClockTest {
         assertEquals(subscribedAnimation, testClock.unsubscribedAnimation)
 
         // Check the animation is a non-monotonic TransitionAnimation
-        assertEquals(ComposeAnimationType.TRANSITION_ANIMATION, subscribedAnimation.getType())
-        val animation = subscribedAnimation.getAnimation() as TransitionAnimation<*>
+        assertEquals(ComposeAnimationType.TRANSITION_ANIMATION, subscribedAnimation.type)
+        val animation = subscribedAnimation.animationObject as TransitionAnimation<*>
         assertEquals(anim, animation)
         assertFalse(animation.monotonic)
-        val states = subscribedAnimation.getStates()
+        val states = subscribedAnimation.states
         assertEquals(2, states.size)
         assertTrue(states.contains(Offset.O1))
         assertTrue(states.contains(Offset.O2))
@@ -149,8 +150,8 @@ class PreviewAnimationClockTest {
     @Test
     fun updateAnimationStatesUpdatesAllTransitionAnimations() {
         val rotationAnimation =
-            setUpRotationColorScenario().getAnimation() as TransitionAnimation<RotationColor>
-        val offsetAnimation = setUpOffsetScenario().getAnimation() as TransitionAnimation<Offset>
+            setUpRotationColorScenario().animationObject as TransitionAnimation<RotationColor>
+        val offsetAnimation = setUpOffsetScenario().animationObject as TransitionAnimation<Offset>
 
         testClock.updateAnimationStates()
 
@@ -171,21 +172,21 @@ class PreviewAnimationClockTest {
         testClock.setClockTime(200)
         var animatedProperties = testClock.getAnimatedProperties(rotationAnimation)
 
-        val color = animatedProperties.single { it.first == "borderColor" }
+        val color = animatedProperties.single { it.label == "borderColor" }
         // We're animating from RC1 (Red) to RC3 (Green). Since there is no transition defined
         // for the color property, we snap to the end state.
-        assertEquals(Color.Green, color.second)
+        assertEquals(Color.Green, color.value)
 
-        val rotation = animatedProperties.single { it.first == "myRotation" }
+        val rotation = animatedProperties.single { it.label == "myRotation" }
         // We're animating from RC1 (0 degrees) to RC3 (360 degrees). There is a transition of
         // 1000ms defined for the rotation, and we set the clock to 20% of this time.
-        assertEquals(72f, rotation.second as Float, eps)
+        assertEquals(72f, rotation.value as Float, eps)
 
         animatedProperties = testClock.getAnimatedProperties(offsetAnimation)
         val offset = animatedProperties.single()
         // We're animating from O1 (0) to O2 (100). There is a transition of 800ms defined for
         // the offset, and we set the clock to 25% of this time.
-        assertEquals(25f, offset.second as Float, eps)
+        assertEquals(25f, offset.value as Float, eps)
     }
 
     @Test
@@ -198,11 +199,40 @@ class PreviewAnimationClockTest {
         assertEquals(1000, testClock.getMaxDuration())
     }
 
+    @Test
+    fun maxDurationPerIterationReturnsLongestSingleIteration() {
+        TransitionAnimation(repeatablesDef, testClock).toState("state2")
+        val repeatableAnimation = testClock.observersToAnimations.values.single()
+        testClock.updateSeekableAnimation(repeatableAnimation, "state1", "state2")
+        assertEquals(300, testClock.getMaxDurationPerIteration()) // 300ms iteration
+        assertEquals(1500, testClock.getMaxDuration()) // 5 iterations of 300ms
+
+        setUpRotationColorScenario() // 1000ms
+        // the rotation animation takes longer than a single iteration of the repeatable animation
+        assertEquals(1000, testClock.getMaxDurationPerIteration())
+        // total duration is still the same, as the repeatable animation will take longer in total
+        assertEquals(1500, testClock.getMaxDuration())
+    }
+
+    @Test
+    fun animationLabelIsSetExplicitlyOrImplicitly() {
+        TransitionAnimation(rotationColorDef, testClock, label = "MyRot").toState(RotationColor.RC2)
+        val rotationAnimation = testClock.observersToAnimations.values.single {
+            it.states.contains(RotationColor.RC1)
+        }
+        // Label explicitly set
+        assertEquals("MyRot", rotationAnimation.label)
+
+        val offsetAnimation = setUpOffsetScenario()
+        // Label is not explicitly set, but inferred from the state type
+        assertEquals("Offset", offsetAnimation.label)
+    }
+
     // Sets up a transition animation scenario, going from RotationColor.RC1 to RotationColor.RC3.
     private fun setUpRotationColorScenario(): ComposeAnimation {
         TransitionAnimation(rotationColorDef, testClock).toState(RotationColor.RC2)
         val composeAnimation = testClock.observersToAnimations.values.single {
-            it.getStates().contains(RotationColor.RC1)
+            it.states.contains(RotationColor.RC1)
         }
         testClock.updateSeekableAnimation(composeAnimation, RotationColor.RC1, RotationColor.RC3)
         return composeAnimation
@@ -212,7 +242,7 @@ class PreviewAnimationClockTest {
     private fun setUpOffsetScenario(): ComposeAnimation {
         TransitionAnimation(offsetDef, testClock).toState(Offset.O2)
         val composeAnimation = testClock.observersToAnimations.values.single {
-            it.getStates().contains(Offset.O1)
+            it.states.contains(Offset.O1)
         }
         testClock.updateSeekableAnimation(composeAnimation, Offset.O1, Offset.O2)
         return composeAnimation
@@ -252,11 +282,29 @@ private enum class Offset { O1, O2 }
 
 private enum class RotationColor { RC1, RC2, RC3 }
 
+private const val eps = 0.00001f
+
 private val rotation = FloatPropKey(label = "myRotation")
 private val offset = FloatPropKey(label = "myOffset")
 private val color = ColorPropKey(label = "borderColor")
+private val floatProp = FloatPropKey()
 
-private val offsetDef = transitionDefinition {
+private val repeatablesDef = transitionDefinition<String> {
+    state("state1") {
+        this[floatProp] = 0f
+    }
+    state("state2") {
+        this[floatProp] = 0f
+    }
+    transition {
+        floatProp using repeatable(
+            iterations = 5,
+            animation = tween(durationMillis = 300, easing = LinearEasing)
+        )
+    }
+}
+
+private val offsetDef = transitionDefinition<Offset> {
     state(Offset.O1) {
         this[offset] = 0f
     }
@@ -269,9 +317,7 @@ private val offsetDef = transitionDefinition {
     }
 }
 
-private const val eps = 0.00001f
-
-private val rotationColorDef = transitionDefinition {
+private val rotationColorDef = transitionDefinition<RotationColor> {
     state(RotationColor.RC1) {
         this[rotation] = 0f
         this[color] = Color.Red

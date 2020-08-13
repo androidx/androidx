@@ -18,25 +18,22 @@ package androidx.room.processor
 
 import androidx.room.DatabaseView
 import androidx.room.Entity
-import androidx.room.ext.hasAnnotation
-import androidx.room.ext.type
-import androidx.room.ext.typeName
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.vo.EntityOrView
 import androidx.room.vo.Fields
 import com.squareup.javapoet.TypeName
-import javax.lang.model.element.TypeElement
 
 interface EntityOrViewProcessor {
     fun process(): EntityOrView
 }
 
 /**
- * A dummy implementation of [EntityOrViewProcessor] that just prints a processor error for use of
+ * A no-op implementation of [EntityOrViewProcessor] that just prints a processor error for use of
  * an invalid class as [EntityOrView].
  */
 private class NonEntityOrViewProcessor(
     val context: Context,
-    val element: TypeElement,
+    val element: XTypeElement,
     private val referenceStack: LinkedHashSet<String>
 ) : EntityOrViewProcessor {
 
@@ -54,7 +51,7 @@ private class NonEntityOrViewProcessor(
             override val tableName: String
                 get() = typeName.toString()
             override val typeName: TypeName
-                get() = element.type.typeName()
+                get() = element.type.typeName
         }
     }
 }
@@ -62,7 +59,7 @@ private class NonEntityOrViewProcessor(
 @Suppress("FunctionName")
 fun EntityOrViewProcessor(
     context: Context,
-    element: TypeElement,
+    element: XTypeElement,
     referenceStack: LinkedHashSet<String> = LinkedHashSet()
 ): EntityOrViewProcessor {
     return when {

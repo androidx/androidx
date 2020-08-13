@@ -17,18 +17,18 @@
 package androidx.ui.tooling.inspector
 
 import androidx.test.filters.SmallTest
-import androidx.ui.foundation.Text
-import androidx.ui.graphics.Color
-import androidx.ui.material.Button
-import androidx.ui.material.Surface
+import androidx.compose.foundation.Text
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material.Button
+import androidx.compose.material.Surface
 import androidx.ui.tooling.Group
 import androidx.ui.tooling.Inspectable
 import androidx.ui.tooling.SlotTableRecord
 import androidx.ui.tooling.ToolingTest
 import androidx.ui.tooling.asTree
 import androidx.ui.tooling.position
-import androidx.ui.unit.Dp
-import androidx.ui.unit.TextUnit
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -59,20 +59,18 @@ class InlineClassConverterTest : ToolingTest() {
 
         val mapper = InlineClassConverter()
 
-        fun validate(function: String, caller: Group, parameterName: String, valueType: Class<*>) {
-            val callee = caller.children.first { it.position?.contains(function) == true }
-            val functionName = callee.position!!.substringBefore(" (")
+        fun validate(caller: Group, parameterName: String, valueType: Class<*>) {
             val parameter = caller.parameters.single { it.name == parameterName }
-            val value = mapper.castParameterValue(functionName, parameterName, parameter.value)
+            val value = mapper.castParameterValue(parameter.inlineClass, parameter.value)
             assertThat(value).isInstanceOf(valueType)
         }
 
-        validate("Surface", surface, "color", Color::class.java)
-        validate("Surface", surface, "elevation", Dp::class.java)
-        validate("Button", button, "backgroundColor", Color::class.java)
-        validate("Button", button, "elevation", Dp::class.java)
-        validate("Text", text, "color", Color::class.java)
-        validate("Text", text, "fontSize", TextUnit::class.java)
+        validate(surface, "color", Color::class.java)
+        validate(surface, "elevation", Dp::class.java)
+        validate(button, "backgroundColor", Color::class.java)
+        validate(button, "elevation", Dp::class.java)
+        validate(text, "color", Color::class.java)
+        validate(text, "fontSize", TextUnit::class.java)
     }
 
     private fun flatten(group: Group): Sequence<Group> =

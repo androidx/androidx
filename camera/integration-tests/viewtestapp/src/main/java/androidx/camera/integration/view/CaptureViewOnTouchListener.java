@@ -17,10 +17,7 @@
 package androidx.camera.integration.view;
 
 import android.content.ContentValues;
-import android.content.Intent;
 import android.graphics.Rect;
-import android.hardware.Camera;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
@@ -37,7 +34,7 @@ import androidx.annotation.Nullable;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCapture.OnImageSavedCallback;
 import androidx.camera.core.ImageCaptureException;
-import androidx.camera.core.VideoCapture.OnVideoSavedCallback;
+import androidx.camera.core.VideoCapture;
 import androidx.camera.view.CameraView;
 import androidx.camera.view.CameraView.CaptureMode;
 import androidx.core.content.ContextCompat;
@@ -148,11 +145,11 @@ class CaptureViewOnTouchListener implements View.OnTouchListener {
             final File saveFile = createNewFile(VIDEO_EXTENSION);
             mCameraView.startRecording(saveFile,
                     ContextCompat.getMainExecutor(mCameraView.getContext()),
-                    new OnVideoSavedCallback() {
+                    new VideoCapture.OnVideoSavedCallback() {
                         @Override
-                        public void onVideoSaved(@NonNull File file) {
-                            report("Video saved to " + saveFile.getAbsolutePath());
-                            broadcastVideo(saveFile);
+                        public void onVideoSaved(
+                                @NonNull VideoCapture.OutputFileResults outputFileResults) {
+                            report("Video saved to " + outputFileResults.getSavedUri());
                         }
 
                         @Override
@@ -245,33 +242,5 @@ class CaptureViewOnTouchListener implements View.OnTouchListener {
     void report(@NonNull String msg, @Nullable Throwable cause) {
         Log.d(TAG, msg, cause);
         Toast.makeText(mCameraView.getContext(), msg, Toast.LENGTH_SHORT).show();
-    }
-
-    @SuppressWarnings("WeakerAccess")
-    void broadcastPicture(@NonNull final File file) {
-        if (Build.VERSION.SDK_INT < 24) {
-            @SuppressWarnings("deprecation")
-            Intent intent = new Intent(Camera.ACTION_NEW_PICTURE);
-            intent.setData(Uri.fromFile(file));
-            mCameraView.getContext().sendBroadcast(intent);
-        } else {
-            Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-            intent.setData(Uri.fromFile(file));
-            mCameraView.getContext().sendBroadcast(intent);
-        }
-    }
-
-    @SuppressWarnings("WeakerAccess")
-    void broadcastVideo(@NonNull final File file) {
-        if (Build.VERSION.SDK_INT < 24) {
-            @SuppressWarnings("deprecation")
-            Intent intent = new Intent(Camera.ACTION_NEW_VIDEO);
-            intent.setData(Uri.fromFile(file));
-            mCameraView.getContext().sendBroadcast(intent);
-        } else {
-            Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-            intent.setData(Uri.fromFile(file));
-            mCameraView.getContext().sendBroadcast(intent);
-        }
     }
 }

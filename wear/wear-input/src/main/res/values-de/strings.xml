@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+  <string name="buttons_round_top_center">Oben</string>
+  <string name="buttons_round_top_right">Rechts oben</string>
+  <string name="buttons_round_center_right">Mitte rechts</string>
+  <string name="buttons_round_bottom_right">Rechts unten</string>
+  <string name="buttons_round_bottom_center">Unten</string>
+  <string name="buttons_round_bottom_left">Links unten</string>
+  <string name="buttons_round_center_left">Mitte links</string>
+  <string name="buttons_round_top_left">Links oben</string>
+  <string name="buttons_round_top_right_upper">Rechts oben, oberer Teil</string>
+  <string name="buttons_round_top_right_lower">Rechts oben, unterer Teil</string>
+  <string name="buttons_round_bottom_right_upper">Rechts unten, oberer Teil</string>
+  <string name="buttons_round_bottom_right_lower">Rechts unten, unterer Teil</string>
+  <string name="buttons_round_bottom_left_lower">Links unten, unterer Teil</string>
+  <string name="buttons_round_bottom_left_upper">Links unten, oberer Teil</string>
+  <string name="buttons_round_top_left_lower">Links oben, unterer Teil</string>
+  <string name="buttons_round_top_left_upper">Links oben, oberer Teil</string>
+  <string name="buttons_rect_left_top">Oben, linke Seite</string>
+  <string name="buttons_rect_left_center">Mitte links</string>
+  <string name="buttons_rect_left_bottom">Unten, linke Seite</string>
+  <string name="buttons_rect_right_top">Oben, rechte Seite</string>
+  <string name="buttons_rect_right_center">Mitte rechts</string>
+  <string name="buttons_rect_right_bottom">Unten, rechte Seite</string>
+  <string name="buttons_rect_top_left">Links oben</string>
+  <string name="buttons_rect_top_center">Oben</string>
+  <string name="buttons_rect_top_right">Rechts oben</string>
+  <string name="buttons_rect_bottom_left">Links unten</string>
+  <string name="buttons_rect_bottom_center">Unten</string>
+  <string name="buttons_rect_bottom_right">Rechts unten</string>
+</resources>

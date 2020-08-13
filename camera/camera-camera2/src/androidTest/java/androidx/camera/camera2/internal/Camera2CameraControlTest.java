@@ -96,6 +96,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -141,6 +142,7 @@ public final class Camera2CameraControlTest {
         mCamera2CameraControl = new Camera2CameraControl(mCameraCharacteristics,
                 executorService, executorService, mControlUpdateCallback);
 
+        mCamera2CameraControl.incrementUseCount();
         mCamera2CameraControl.setActive(true);
         HandlerUtil.waitForLooperToIdle(mHandler);
 
@@ -150,8 +152,8 @@ public final class Camera2CameraControlTest {
     }
 
     @After
-    public void tearDown() throws Exception {
-        CameraX.shutdown().get();
+    public void tearDown() throws InterruptedException, ExecutionException, TimeoutException {
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
         if (mHandlerThread != null) {
             mHandlerThread.quitSafely();
         }
@@ -167,6 +169,25 @@ public final class Camera2CameraControlTest {
 
     private int getMaxAwbRegionCount() {
         return mCameraCharacteristics.get(CameraCharacteristics.CONTROL_MAX_REGIONS_AWB);
+    }
+
+    @Test
+    public void canIncrementDecrementUseCount() {
+        // incrementUseCount() in setup()
+        assertThat(mCamera2CameraControl.getUseCount()).isEqualTo(1);
+
+        mCamera2CameraControl.decrementUseCount();
+
+        assertThat(mCamera2CameraControl.getUseCount()).isEqualTo(0);
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void decrementUseCountLessThanZero_getException() {
+        // incrementUseCount() in setup()
+        assertThat(mCamera2CameraControl.getUseCount()).isEqualTo(1);
+
+        mCamera2CameraControl.decrementUseCount();
+        mCamera2CameraControl.decrementUseCount();
     }
 
     @Test

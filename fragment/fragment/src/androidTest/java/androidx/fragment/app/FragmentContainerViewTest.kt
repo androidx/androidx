@@ -408,8 +408,8 @@ class FragmentContainerViewTest {
     fun drawDisappearingChildViewsLastAfterPopNoReordering() {
         val fm = activityRule.activity.supportFragmentManager
 
-        val fragment1 = ChildViewFragment()
-        val fragment2 = ChildViewFragment()
+        val fragment1 = ChildViewFragment("child1")
+        val fragment2 = ChildViewFragment("child2")
 
         fm.beginTransaction()
             .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
@@ -466,8 +466,8 @@ class FragmentContainerViewTest {
     fun drawDisappearingChildViewsLastAfterPopReorderingAllowed() {
         val fm = activityRule.activity.supportFragmentManager
 
-        val fragment1 = ChildViewFragment()
-        val fragment2 = ChildViewFragment()
+        val fragment1 = ChildViewFragment("child1")
+        val fragment2 = ChildViewFragment("child2")
 
         fm.beginTransaction()
             .setReorderingAllowed(true)
@@ -527,8 +527,8 @@ class FragmentContainerViewTest {
     fun drawDisappearingChildViewsLastAfterPopReorderingAllowedAddNewFragment() {
         val fm = activityRule.activity.supportFragmentManager
 
-        val fragment1 = ChildViewFragment()
-        val fragment2 = ChildViewFragment()
+        val fragment1 = ChildViewFragment("child1")
+        val fragment2 = ChildViewFragment("child2")
 
         fm.beginTransaction()
             .setReorderingAllowed(true)
@@ -585,12 +585,12 @@ class FragmentContainerViewTest {
         assertThat(drawnFirst!!).isEqualTo(frag2View)
     }
 
-    class ChildViewFragment : StrictViewFragment() {
+    class ChildViewFragment(val viewTag: String? = null) : StrictViewFragment() {
         override fun onCreateView(
             inflater: LayoutInflater,
             container: ViewGroup?,
             savedInstanceState: Bundle?
-        ) = ChildView(context)
+        ) = ChildView(context).apply { this.tag = viewTag }
     }
 
     class ChildView(context: Context?) : View(context) {

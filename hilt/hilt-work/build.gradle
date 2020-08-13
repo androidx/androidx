@@ -59,5 +59,4 @@ androidx {
     mavenGroup = LibraryGroups.HILT
     inceptionYear = "2020"
     description = "Android Lifecycle WorkManager Hilt Extension"
-    url = AndroidXExtension.ARCHITECTURE_URL
 }

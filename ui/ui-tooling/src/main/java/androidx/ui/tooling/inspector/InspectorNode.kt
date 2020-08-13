@@ -36,14 +36,32 @@ class InspectorNode internal constructor(
     val fileName: String,
 
     /**
+     * A hash of the package name to help disambiguate duplicate [fileName] values.
+     *
+     * This hash is calculated by,
+     *
+     *   `packageName.fold(0) { hash, current -> hash * 31 + current.toInt() }?.absoluteValue`
+     *
+     * where the package name is the dotted name of the package. This can be used to disambiguate
+     * which file is referenced by [fileName]. This number is -1 if there was no package hash
+     * information generated such as when the file does not contain a package declaration.
+     */
+    val packageHash: Int,
+
+    /**
      * The line number where the Composable was called.
      */
     val lineNumber: Int,
 
     /**
-     * The name of the function that called the Composable.
+     * The UTF-16 offset in the file where the Composable was called
      */
-    val functionName: String,
+    val offset: Int,
+
+    /**
+     * The number of UTF-16 code point comprise the Composable call
+     */
+    val length: Int,
 
     /**
      * Left side of the Composable in pixels.
@@ -83,10 +101,10 @@ internal class MutableInspectorNode {
     var id = 0L
     var name = ""
     var fileName = ""
+    var packageHash = -1
     var lineNumber = 0
-    var functionName = ""
-    var qualifiedFunctionName = ""
-    var hasInlineParameters = false
+    var offset = 0
+    var length = 0
     var left = 0
     var top = 0
     var width = 0
@@ -103,10 +121,10 @@ internal class MutableInspectorNode {
     fun resetExceptIdAndChildren() {
         name = ""
         fileName = ""
-        qualifiedFunctionName = ""
-        hasInlineParameters = false
+        packageHash = -1
         lineNumber = 0
-        functionName = ""
+        offset = 0
+        length = 0
         left = 0
         top = 0
         width = 0
@@ -116,7 +134,7 @@ internal class MutableInspectorNode {
 
     fun build(): InspectorNode =
         InspectorNode(
-            id, name, fileName, lineNumber, functionName, left, top, width, height,
+            id, name, fileName, packageHash, lineNumber, offset, length, left, top, width, height,
             parameters.toList(), children.toList()
         )
 }

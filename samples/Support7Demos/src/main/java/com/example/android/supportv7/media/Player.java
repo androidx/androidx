@@ -117,6 +117,7 @@ public abstract class Player {
         } else {
             player = new LocalPlayer.OverlayPlayer(context);
         }
+        player.setPlayPauseNotificationAction();
         player.setMediaSession(session);
         player.initMediaSession();
         player.connect(route);
@@ -188,11 +189,6 @@ public abstract class Player {
             NotificationManager notificationManager =
                     mContext.getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel);
-
-            mPlayAction = createNotificationAction(R.drawable.ic_media_play,
-                    "play", ACTION_PLAY);
-            mPauseAction = createNotificationAction(R.drawable.ic_media_pause,
-                    "pause", ACTION_PAUSE);
         }
     }
 
@@ -245,6 +241,13 @@ public abstract class Player {
 
     private void setMediaSession(MediaSessionCompat session) {
         mMediaSession = session;
+    }
+
+    private void setPlayPauseNotificationAction() {
+        mPlayAction = createNotificationAction(
+                R.drawable.ic_media_play, "play", ACTION_PLAY);
+        mPauseAction = createNotificationAction(
+                R.drawable.ic_media_pause, "pause", ACTION_PAUSE);
     }
 
     public interface Callback {

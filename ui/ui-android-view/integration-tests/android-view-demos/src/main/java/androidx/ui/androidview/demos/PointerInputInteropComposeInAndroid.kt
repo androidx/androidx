@@ -22,33 +22,34 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.activity.ComponentActivity
-import androidx.compose.Composition
-import androidx.compose.Recomposer
-import androidx.compose.state
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.ScrollableRow
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredHeight
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.layout.preferredWidth
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.runtime.Composition
+import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.gesture.tapGestureFilter
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.platform.setContent
+import androidx.compose.ui.unit.dp
 import androidx.ui.androidview.adapters.setOnClick
-import androidx.ui.core.Modifier
-import androidx.ui.core.gesture.tapGestureFilter
-import androidx.ui.core.setContent
 import androidx.ui.demos.common.ActivityDemo
 import androidx.ui.demos.common.DemoCategory
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.ScrollableColumn
-import androidx.ui.foundation.ScrollableRow
-import androidx.ui.foundation.clickable
-import androidx.ui.foundation.drawBackground
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.RectangleShape
-import androidx.ui.graphics.toArgb
-import androidx.ui.layout.Column
-import androidx.ui.layout.fillMaxHeight
-import androidx.ui.layout.fillMaxSize
-import androidx.ui.layout.fillMaxWidth
-import androidx.ui.layout.padding
-import androidx.ui.layout.preferredHeight
-import androidx.ui.layout.preferredSize
-import androidx.ui.layout.preferredWidth
-import androidx.ui.layout.wrapContentSize
-import androidx.ui.unit.dp
 
 val ComposeInAndroidDemos = DemoCategory(
     "Compose in Android Interop", listOf(
@@ -108,7 +109,7 @@ open class ComposeNothingInAndroidTap : ComponentActivity() {
             container.setBackgroundColor(currentColor.toArgb())
         }
         composition = container.setContent(Recomposer.current()) {
-            Box(Modifier.drawBackground(Color.LightGray, RectangleShape).fillMaxSize())
+            Box(Modifier.background(color = Color.LightGray).fillMaxSize())
         }
     }
 
@@ -150,7 +151,7 @@ open class ComposeTapInAndroidTap : ComponentActivity() {
 
         composition = container.setContent(Recomposer.current()) {
 
-            val currentColor = state { Color.LightGray }
+            val currentColor = remember { mutableStateOf(Color.LightGray) }
 
             val tap =
                 Modifier.tapGestureFilter {
@@ -160,7 +161,7 @@ open class ComposeTapInAndroidTap : ComponentActivity() {
 
             Column {
                 Box(
-                    tap + Modifier.drawBackground(currentColor.value, RectangleShape).fillMaxSize()
+                    tap.then(Modifier.background(color = currentColor.value).fillMaxSize())
                 )
             }
         }
@@ -196,11 +197,11 @@ open class ComposeTapInAndroidScroll : ComponentActivity() {
         val container = findViewById<ViewGroup>(R.id.container)
         composition = container.setContent(Recomposer.current()) {
 
-            val currentColor = state { Color.LightGray }
+            val currentColor = remember { mutableStateOf(Color.LightGray) }
 
             Box(
                 Modifier
-                    .drawBackground(Color.Gray, RectangleShape)
+                    .background(color = Color.Gray)
                     .fillMaxWidth()
                     .preferredHeight(456.dp)
                     .wrapContentSize()
@@ -208,7 +209,7 @@ open class ComposeTapInAndroidScroll : ComponentActivity() {
                         currentColor.value =
                             if (currentColor.value == Color.Blue) Color.Yellow else Color.Blue
                     }
-                    .drawBackground(currentColor.value, RectangleShape)
+                    .background(currentColor.value, RectangleShape)
                     .preferredSize(192.dp)
             )
         }
@@ -246,14 +247,14 @@ open class ComposeScrollInAndroidScrollSameOrientation : ComponentActivity() {
             ScrollableColumn(
                 modifier = Modifier
                     .padding(48.dp)
-                    .drawBackground(Color.Gray, RectangleShape)
+                    .background(color = Color.Gray)
                     .fillMaxWidth()
                     .preferredHeight(456.dp)
             ) {
                 Box(
                     Modifier
                         .padding(48.dp)
-                        .drawBackground(Color.LightGray, RectangleShape)
+                        .background(color = Color.LightGray)
                         .fillMaxWidth()
                         .preferredHeight(456.dp)
                 )
@@ -291,14 +292,14 @@ open class ComposeScrollInAndroidScrollDifferentOrientation : ComponentActivity(
             ScrollableRow(
                 modifier = Modifier
                     .padding(48.dp)
-                    .drawBackground(Color.Gray, RectangleShape)
+                    .background(color = Color.Gray)
                     .fillMaxWidth()
                     .preferredHeight(456.dp)
             ) {
                 Box(
                     Modifier
                         .padding(48.dp)
-                        .drawBackground(Color.LightGray, RectangleShape)
+                        .background(color = Color.LightGray)
                         .preferredWidth(360.dp)
                         .fillMaxHeight()
                 )

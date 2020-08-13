@@ -46,7 +46,7 @@ public class TemplateView extends SliceChildView implements
     private final SliceAdapter mAdapter;
     private final RecyclerView mRecyclerView;
     private ListContent mListContent;
-    private ArrayList<SliceContent> mDisplayedItems = new ArrayList<>();
+    private List<SliceContent> mDisplayedItems = new ArrayList<>();
     private int mDisplayedItemsHeight = 0;
     private int[] mLoc = new int[2];
 

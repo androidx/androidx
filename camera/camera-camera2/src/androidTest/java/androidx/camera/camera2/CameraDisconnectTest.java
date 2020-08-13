@@ -48,6 +48,8 @@ import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @RunWith(AndroidJUnit4.class)
 @LargeTest
@@ -80,11 +82,11 @@ public class CameraDisconnectTest {
     }
 
     @After
-    public void tearDown() throws ExecutionException, InterruptedException {
+    public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
         mCameraXTestActivityRule.finishActivity();
         mCamera2ActivityRule.finishActivity();
 
-        CameraX.shutdown().get();
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
     @Test

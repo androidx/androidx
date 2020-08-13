@@ -613,8 +613,6 @@ public class MockPlayer extends SessionPlayer {
     }
 
     public void notifyVideoSizeChanged(@NonNull final VideoSize videoSize) {
-        final MediaItem dummyItem = new MediaItem.Builder().build();
-
         List<Pair<PlayerCallback, Executor>> callbacks = getCallbacks();
         for (Pair<PlayerCallback, Executor> pair : callbacks) {
             final PlayerCallback callback = pair.first;

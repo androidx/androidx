@@ -82,7 +82,7 @@ public class GridLayoutTest {
         int total = mGridView.getWidth();
         assertTrue("left item should get some width", left > 0);
         assertTrue("right item should get some width", right > 0);
-        assertTrue("test sanity", total > 0);
+        assertTrue("test total width", total > 0);
         assertTrue("left view should be almost two times right view " + left + " vs " + right,
                 Math.abs(right * 2 - left) < 2);
     }
@@ -95,7 +95,7 @@ public class GridLayoutTest {
         int total = mGridView.getWidth();
         assertTrue("left item should get some width", left > 0);
         assertTrue("right item should get some width", right > 0);
-        assertTrue("test sanity", total > 0);
+        assertTrue("test total width", total > 0);
         assertTrue("left view should be almost two times right view " + left + " vs " + right,
                 Math.abs(right * 2 - left) < 2);
     }
@@ -108,7 +108,7 @@ public class GridLayoutTest {
         int total = mGridView.getWidth();
         assertTrue("left item should get some width", left > 0);
         assertTrue("right item should get some width", right > 0);
-        assertTrue("test sanity", total > 0);
+        assertTrue("test total width", total > 0);
         // set second view to gone
         final Instrumentation instrumentation = InstrumentationRegistry.getInstrumentation();
         mActivityTestRule.runOnUiThread(new Runnable() {
@@ -131,9 +131,9 @@ public class GridLayoutTest {
         int left = mLeftView.getHeight();
         int right = mRightView.getHeight();
         int total = mGridView.getHeight();
-        assertTrue("test sanity", left > 0);
-        assertTrue("test sanity", right > 0);
-        assertTrue("test sanity", total > 0);
+        assertTrue("left view height positive", left > 0);
+        assertTrue("right view height positive", right > 0);
+        assertTrue("grid view height positive", total > 0);
         assertTrue("right should be taller than left", right >= left);
         assertTrue("total height should be smaller than what it could be",
                 total < ((ViewGroup) mGridView.getParent()).getHeight());

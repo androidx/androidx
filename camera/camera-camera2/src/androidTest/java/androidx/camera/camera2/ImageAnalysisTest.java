@@ -24,11 +24,11 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.util.Rational;
 import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
+import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
@@ -59,6 +59,7 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -107,8 +108,8 @@ public final class ImageAnalysisTest {
     }
 
     @After
-    public void tearDown() throws ExecutionException, InterruptedException {
-        CameraX.shutdown().get();
+    public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
 
         if (mHandlerThread != null) {
             mHandlerThread.quitSafely();
@@ -246,6 +247,28 @@ public final class ImageAnalysisTest {
     }
 
     @Test
+    public void defaultAspectRatioWillBeSet_whenTargetResolutionIsNotSet() {
+        ImageAnalysis useCase = new ImageAnalysis.Builder().build();
+        ImageOutputConfig config = (ImageOutputConfig) useCase.getUseCaseConfig();
+        assertThat(config.getTargetAspectRatio()).isEqualTo(AspectRatio.RATIO_4_3);
+    }
+
+    @Test
+    public void defaultAspectRatioWontBeSet_whenTargetResolutionIsSet() {
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK));
+        ImageAnalysis useCase = new ImageAnalysis.Builder().setTargetResolution(
+                GUARANTEED_RESOLUTION).build();
+
+        assertThat(useCase.getUseCaseConfig().containsOption(
+                ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)).isFalse();
+
+        CameraUtil.getCameraAndAttachUseCase(mContext, CameraSelector.DEFAULT_BACK_CAMERA, useCase);
+
+        assertThat(useCase.getUseCaseConfig().containsOption(
+                ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)).isFalse();
+    }
+
+    @Test
     public void targetRotationCanBeUpdatedAfterUseCaseIsCreated() {
         ImageAnalysis imageAnalysis =
                 new ImageAnalysis.Builder().setTargetRotation(Surface.ROTATION_0).build();
@@ -256,7 +279,6 @@ public final class ImageAnalysisTest {
 
     @Test
     public void targetResolutionIsUpdatedAfterTargetRotationIsUpdated() {
-        // setTargetResolution will also set corresponding value to targetAspectRatioCustom.
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().setTargetResolution(
                 GUARANTEED_RESOLUTION).setTargetRotation(Surface.ROTATION_0).build();
 
@@ -266,14 +288,50 @@ public final class ImageAnalysisTest {
         ImageOutputConfig newConfig = (ImageOutputConfig) imageAnalysis.getUseCaseConfig();
         Size expectedTargetResolution = new Size(GUARANTEED_RESOLUTION.getHeight(),
                 GUARANTEED_RESOLUTION.getWidth());
-        Rational expectedTargetAspectRatioCustom = new Rational(GUARANTEED_RESOLUTION.getHeight(),
-                GUARANTEED_RESOLUTION.getWidth());
 
-        // Expected targetResolution and targetAspectRatioCustom will be reversed from original
-        // target resolution.
+        // Expected targetResolution will be reversed from original target resolution.
         assertThat(newConfig.getTargetResolution().equals(expectedTargetResolution)).isTrue();
-        assertThat(newConfig.getTargetAspectRatioCustom().equals(
-                expectedTargetAspectRatioCustom)).isTrue();
+    }
+
+    // TODO(b/162298517): change the test to be deterministic instead of depend upon timing.
+    @Test
+    public void analyzerSetMultipleTimesInKeepOnlyLatestMode() throws Exception {
+        ImageAnalysis useCase = new ImageAnalysis.Builder().setBackpressureStrategy(
+                ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build();
+        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, useCase);
+
+        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mAnalyzer);
+        mAnalysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS);
+
+        Analyzer slowAnalyzer = image -> {
+            try {
+                Thread.sleep(200);
+                image.close();
+            } catch (Exception e) {
+            }
+        };
+        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), slowAnalyzer);
+
+        Thread.sleep(100);
+        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), slowAnalyzer);
+
+        Thread.sleep(100);
+        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), slowAnalyzer);
+
+        Thread.sleep(100);
+        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), slowAnalyzer);
+
+        Thread.sleep(100);
+        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), slowAnalyzer);
+
+        Thread.sleep(100);
+        useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mAnalyzer);
+
+        mAnalysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS);
+
+        synchronized (mAnalysisResultLock) {
+            assertThat(mAnalysisResults).isNotEmpty();
+        }
     }
 
     private static class ImageProperties {

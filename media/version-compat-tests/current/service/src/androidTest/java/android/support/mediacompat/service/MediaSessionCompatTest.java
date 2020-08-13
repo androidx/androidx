@@ -81,24 +81,6 @@ public class MediaSessionCompatTest {
         }
     }
 
-    @Test
-    @SmallTest
-    public void testSetQueue_withDuplicateIds_throwsIAE() {
-        List<QueueItem> queue = new ArrayList<>();
-        queue.add(createQueueItemWithId(0));
-        queue.add(createQueueItemWithId(1));
-        queue.add(createQueueItemWithId(2));
-        queue.add(createQueueItemWithId(1));
-
-        MediaSessionCompat session = new MediaSessionCompat(mContext, "testSetQueue");
-        try {
-            session.setQueue(queue);
-            fail("setQueue should throw IAE");
-        } catch (IllegalArgumentException ex) {
-            // expected
-        }
-    }
-
     private QueueItem createQueueItemWithId(long id) {
         return new QueueItem(
                 new MediaDescriptionCompat.Builder().setMediaId("item" + id).build(), id);

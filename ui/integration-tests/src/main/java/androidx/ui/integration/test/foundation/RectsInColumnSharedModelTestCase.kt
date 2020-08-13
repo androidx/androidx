@@ -16,18 +16,18 @@
 
 package androidx.ui.integration.test.foundation
 
-import androidx.compose.Composable
-import androidx.compose.mutableStateOf
-import androidx.ui.core.Modifier
-import androidx.ui.foundation.Box
-import androidx.ui.unit.dp
-import androidx.ui.foundation.drawBackground
-import androidx.ui.graphics.Color
-import androidx.ui.layout.Column
-import androidx.ui.material.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.background
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.Column
+import androidx.compose.material.MaterialTheme
 import androidx.ui.test.ComposeTestCase
-import androidx.ui.integration.test.ToggleableTestCase
-import androidx.ui.layout.preferredSize
+import androidx.ui.test.ToggleableTestCase
+import androidx.compose.foundation.layout.preferredSize
 
 /**
  * Test case that puts the given amount of rectangles into a column layout and makes changes by
@@ -48,9 +48,9 @@ class RectsInColumnSharedModelTestCase(
             Column {
                 repeat(amountOfRectangles) { i ->
                     if (i == 0) {
-                        Box(Modifier.preferredSize(100.dp, 50.dp).drawBackground(color.value))
+                        Box(Modifier.preferredSize(100.dp, 50.dp).background(color = color.value))
                     } else {
-                        Box(Modifier.preferredSize(100.dp, 50.dp).drawBackground(Color.Green))
+                        Box(Modifier.preferredSize(100.dp, 50.dp).background(color = Color.Green))
                     }
                 }
             }

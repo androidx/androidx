@@ -171,10 +171,10 @@ class FragmentLifecycleTest : BaseTest() {
                     expectedPageIx = 4,
                     expectedPageText = "5",
                     dataChangeAction = {
-                        assertThat(items[5], equalTo("5")) // sanity check
+                        assertThat(items[5], equalTo("5")) // quick check
                         items.removeAt(5)
                         items.add(4, "5")
-                        assertThat(items[4], equalTo("5")) // sanity check
+                        assertThat(items[4], equalTo("5")) // quick check
                         adapter.notifyItemMoved(5, 4)
                     }
                 ),

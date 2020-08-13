@@ -101,7 +101,7 @@ public class PreviewViewTest {
                         Context.WINDOW_SERVICE);
         Shadows.shadowOf(windowManager.getDefaultDisplay()).setDisplayId(secondDisplayId);
 
-        previewView.setPreferredImplementationMode(PreviewView.ImplementationMode.SURFACE_VIEW);
+        previewView.setImplementationMode(PreviewView.ImplementationMode.PERFORMANCE);
         Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
@@ -127,7 +127,7 @@ public class PreviewViewTest {
                         Context.WINDOW_SERVICE);
         Shadows.shadowOf(windowManager.getDefaultDisplay()).setDisplayId(secondDisplayId);
 
-        previewView.setPreferredImplementationMode(PreviewView.ImplementationMode.SURFACE_VIEW);
+        previewView.setImplementationMode(PreviewView.ImplementationMode.PERFORMANCE);
         Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);

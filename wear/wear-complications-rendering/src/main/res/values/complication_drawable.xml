@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Copyright 2020 The Android Open Source Project
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+
+<!-- This file defines the default values for the attributes of complication drawable. -->
+<resources>
+  <!-- Default colors -->
+  <color name="complicationDrawable_backgroundColor">#00000000</color> <!-- Transparent -->
+  <color name="complicationDrawable_iconColor">#FFFFFFFF</color> <!-- White -->
+  <color name="complicationDrawable_highlightColor">#4DFFFFFF</color> <!-- 30% White -->
+
+  <!-- Default text properties -->
+  <color name="complicationDrawable_textColor">#FFFFFFFF</color> <!-- White -->
+  <color name="complicationDrawable_titleColor">#80FFFFFF</color> <!-- 50% White -->
+
+
+  <string name="complicationDrawable_textTypeface" translatable="false">sans-serif-condensed</string>
+  <string name="complicationDrawable_titleTypeface" translatable="false">sans-serif-condensed</string>
+  <dimen name="complicationDrawable_textSize">14sp</dimen>
+  <dimen name="complicationDrawable_titleSize">14sp</dimen>
+
+  <!-- Default border style -->
+  <color name="complicationDrawable_borderColor">#80000000</color> <!-- 50% Black -->
+  <dimen name="complicationDrawable_borderWidth">1dp</dimen>
+  <dimen name="complicationDrawable_borderRadius">65536dp</dimen> <!-- Maximum radius (fully-rounded) -->
+  <integer name="complicationDrawable_borderStyle">1</integer> <!-- BORDER_STYLE_NORMAL -->
+  <dimen name="complicationDrawable_borderDashWidth">1dp</dimen>
+  <dimen name="complicationDrawable_borderDashGap">1dp</dimen>
+
+  <!-- Default ranged value indicator properties -->
+  <dimen name="complicationDrawable_rangedValueRingWidth">2dp</dimen>
+  <color name="complicationDrawable_rangedValuePrimaryColor">#FFFFFFFF</color> <!-- White -->
+  <color name="complicationDrawable_rangedValueSecondaryColor">#80FFFFFF</color> <!-- 50% White -->
+
+  <!-- Used to render complications with no data -->
+  <string name="complicationDrawable_noDataText" translatable="false">--</string>
+
+  <!-- Default highlight duration in milliseconds -->
+  <integer name="complicationDrawable_highlightDurationMs">300</integer>
+</resources>

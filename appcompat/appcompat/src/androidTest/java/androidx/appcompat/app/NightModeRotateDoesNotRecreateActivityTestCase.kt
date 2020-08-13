@@ -16,19 +16,21 @@
 
 package androidx.appcompat.app
 
-import android.content.pm.ActivityInfo
 import android.content.res.Configuration
 import android.os.Build
+import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.appcompat.testutils.NightModeActivityTestRule
 import androidx.appcompat.testutils.NightModeUtils.NightSetMode
 import androidx.appcompat.testutils.NightModeUtils.assertConfigurationNightModeEquals
 import androidx.appcompat.testutils.NightModeUtils.setNightModeAndWaitForRecreate
 import androidx.appcompat.testutils.TestUtilsActions.rotateScreenOrientation
-import androidx.appcompat.testutils.TestUtilsActions.setScreenOrientation
+import androidx.lifecycle.Lifecycle
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.matcher.ViewMatchers.isRoot
 import androidx.test.filters.LargeTest
+import androidx.testutils.LifecycleOwnerUtils
+import org.junit.After
 import org.junit.Assert.assertNotSame
 import org.junit.Assert.assertSame
 import org.junit.Rule
@@ -40,7 +42,22 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class NightModeRotateDoesNotRecreateActivityTestCase(private val setMode: NightSetMode) {
     @get:Rule
-    val activityRule = NightModeActivityTestRule(NightModeRotateDoesNotRecreateActivity::class.java)
+    val activityRule = NightModeActivityTestRule(
+        NightModeRotateDoesNotRecreateActivity::class.java,
+        initialTouchMode = false,
+        // Let the test method launch its own activity so that we can ensure it's RESUMED.
+        launchActivity = false
+    )
+
+    @After
+    fun teardown() {
+        // Clean up after the default mode test.
+        if (setMode == NightSetMode.DEFAULT) {
+            activityRule.runOnUiThread {
+                AppCompatDelegate.setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM)
+            }
+        }
+    }
 
     @Test
     fun testRotateDoesNotRecreateActivity() {
@@ -53,38 +70,33 @@ class NightModeRotateDoesNotRecreateActivityTestCase(private val setMode: NightS
             return
         }
 
-        // Set local night mode to YES
-        setNightModeAndWaitForRecreate(activityRule, MODE_NIGHT_YES, setMode)
+        // Set local night mode to MODE_NIGHT_YES and wait for state RESUMED.
+        val initialActivity = activityRule.launchActivity(null)
+        LifecycleOwnerUtils.waitUntilState(initialActivity, Lifecycle.State.RESUMED)
+        setNightModeAndWaitForRecreate(initialActivity, MODE_NIGHT_YES, setMode)
 
-        val activity = activityRule.activity
-        val config = activity.resources.configuration
-
-        // On API level 26 and below, the configuration object is going to be identical
-        // across configuration changes, so we need to pull the orientation value now.
+        val nightModeActivity = activityRule.activity
+        val config = nightModeActivity.resources.configuration
         val orientation = config.orientation
 
-        // Assert that the current Activity is 'dark'
+        // Assert that the current Activity is 'dark'.
         assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_YES, config)
 
-        // Now rotate the device
-        activity.resetOnConfigurationChange()
-        onView(isRoot()).perform(rotateScreenOrientation(activity))
-        activity.expectOnConfigurationChange(5000)
+        // Now rotate the device. This should NOT result in a lifecycle event, just a call to
+        // onConfigurationChanged.
+        nightModeActivity.resetOnConfigurationChange()
+        onView(isRoot()).perform(rotateScreenOrientation(nightModeActivity))
+        nightModeActivity.expectOnConfigurationChange(5000)
 
-        // Assert that we got the same activity.
-        val activity2 = activityRule.activity
-        val config2 = activity2.resources.configuration
+        // Assert that we got the same activity and thus it was not recreated.
+        val rotatedNightModeActivity = activityRule.activity
+        val rotatedConfig = rotatedNightModeActivity.resources.configuration
+        assertSame(nightModeActivity, rotatedNightModeActivity)
+        assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_YES, rotatedConfig)
 
-        // And assert that we have the same Activity, and thus was not recreated.
-        assertSame(activity, activity2)
-        assertNotSame(orientation, config2.orientation)
-        assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_YES, config2)
-
-        // Reset the requested orientation and wait for it to apply.
-        activity.resetOnConfigurationChange()
-        onView(isRoot()).perform(setScreenOrientation(activity,
-            ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED))
-        activity.expectOnConfigurationChange(5000)
+        // On API level 26 and below, the configuration object is going to be identical
+        // across configuration changes, so we need to compare against the cached value.
+        assertNotSame(orientation, rotatedConfig.orientation)
     }
 
     companion object {

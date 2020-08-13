@@ -49,6 +49,5 @@ androidx {
     mavenGroup = LibraryGroups.RECYCLERVIEW
     inceptionYear = "2020"
     description = "RecyclerView Lint Checks"
-    url = AndroidXExtension.ARCHITECTURE_URL
     compilationTarget = CompilationTarget.HOST
 }

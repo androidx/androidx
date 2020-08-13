@@ -80,7 +80,8 @@ public class BiometricManager {
             android.hardware.biometrics.BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED;
 
     /**
-     * The user can't authenticate because there is no suitable biometric hardware.
+     * The user can't authenticate because there is no suitable hardware (e.g. no biometric sensor
+     * or no keyguard).
      */
     public static final int BIOMETRIC_ERROR_NO_HARDWARE =
             android.hardware.biometrics.BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE;
@@ -180,6 +181,12 @@ public class BiometricManager {
         androidx.core.hardware.fingerprint.FingerprintManagerCompat getFingerprintManager();
 
         /**
+         * Checks if the current device is capable of being secured with a lock screen credential
+         * (i.e. PIN, pattern, or password).
+         */
+        boolean isDeviceSecurable();
+
+        /**
          * Checks if the current device is secured with a lock screen credential (i.e. PIN, pattern,
          * or password).
          *
@@ -200,7 +207,7 @@ public class BiometricManager {
      * Provides the default class and method dependencies that will be used in production.
      */
     private static class DefaultInjector implements Injector {
-        @NonNull private Context mContext;
+        @NonNull private final Context mContext;
 
         /**
          * Creates a default injector from the given context.
@@ -222,6 +229,11 @@ public class BiometricManager {
         @Nullable
         public androidx.core.hardware.fingerprint.FingerprintManagerCompat getFingerprintManager() {
             return androidx.core.hardware.fingerprint.FingerprintManagerCompat.from(mContext);
+        }
+
+        @Override
+        public boolean isDeviceSecurable() {
+            return KeyguardUtils.getKeyguardManager(mContext) != null;
         }
 
         @Override
@@ -347,7 +359,12 @@ public class BiometricManager {
             return BIOMETRIC_ERROR_NO_HARDWARE;
         }
 
-        // No authenticators can be enrolled if the device is not secured.
+        // Authentication is impossible if the device can't be secured.
+        if (!mInjector.isDeviceSecurable()) {
+            return BIOMETRIC_ERROR_NO_HARDWARE;
+        }
+
+        // No authenticators are enrolled if the device is not secured.
         if (!mInjector.isDeviceSecuredWithCredential()) {
             return BIOMETRIC_ERROR_NONE_ENROLLED;
         }

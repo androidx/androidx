@@ -67,6 +67,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -3837,7 +3838,7 @@ public class ExifInterface {
     private static final int IMAGE_TYPE_WEBP = 14;
 
     static {
-        sFormatter = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss");
+        sFormatter = new SimpleDateFormat("yyyy:MM:dd HH:mm:ss", Locale.US);
         sFormatter.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         // Build up the hash tables to look up Exif tags for reading Exif tags.
@@ -3976,7 +3977,7 @@ public class ExifInterface {
      * @throws NullPointerException if the input stream is null
      */
     public ExifInterface(@NonNull InputStream inputStream) throws IOException {
-        this(inputStream, false);
+        this(inputStream, STREAM_TYPE_FULL_IMAGE_DATA);
     }
 
     /**
@@ -3993,16 +3994,12 @@ public class ExifInterface {
      */
     public ExifInterface(@NonNull InputStream inputStream, @ExifStreamType int streamType)
             throws IOException {
-        this(inputStream, (streamType == STREAM_TYPE_EXIF_DATA_ONLY) ? true : false);
-    }
-
-    private ExifInterface(@NonNull InputStream inputStream, boolean shouldBeExifDataOnly)
-            throws IOException {
         if (inputStream == null) {
             throw new NullPointerException("inputStream cannot be null");
         }
         mFilename = null;
 
+        boolean shouldBeExifDataOnly = (streamType == STREAM_TYPE_EXIF_DATA_ONLY);
         if (shouldBeExifDataOnly) {
             inputStream = new BufferedInputStream(inputStream, SIGNATURE_CHECK_SIZE);
             if (!isExifDataOnly((BufferedInputStream) inputStream)) {
@@ -4678,7 +4675,10 @@ public class ExifInterface {
         try {
             // Move the original file to temporary file.
             if (mFilename != null) {
-                tempFile = new File(mFilename + ".tmp");
+                String parent = originalFile.getParent();
+                String name = originalFile.getName();
+                String tempPrefix = UUID.randomUUID().toString() + "_";
+                tempFile = new File(parent, tempPrefix + name);
                 if (!originalFile.renameTo(tempFile)) {
                     throw new IOException("Couldn't rename to " + tempFile.getAbsolutePath());
                 }

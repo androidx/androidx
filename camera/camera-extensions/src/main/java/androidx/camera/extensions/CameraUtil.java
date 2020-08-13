@@ -56,6 +56,8 @@ class CameraUtil {
 
     static CameraCharacteristics getCameraCharacteristics(String cameraId) {
         Preconditions.checkNotNull(cameraId, "Invalid camera id.");
+        // TODO(b/161302102): Remove usage of deprecated CameraX.getContext()
+        @SuppressWarnings("deprecation")
         Context context = CameraX.getContext();
         CameraManagerCompat cameraManager = CameraManagerCompat.from(context);
         CameraCharacteristics cameraCharacteristics = null;

@@ -64,6 +64,5 @@ androidx {
     mavenGroup = LibraryGroups.NAVIGATION
     inceptionYear = '2017'
     description = "Android Navigation TypeSafe Arguments Generator"
-    url = AndroidXExtension.ARCHITECTURE_URL
     compilationTarget = CompilationTarget.HOST
 }

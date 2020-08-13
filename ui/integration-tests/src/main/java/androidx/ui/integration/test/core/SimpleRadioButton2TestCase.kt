@@ -16,24 +16,24 @@
 
 package androidx.ui.integration.test.core
 
-import androidx.compose.Composable
-import androidx.ui.core.Modifier
-import androidx.ui.foundation.Border
-import androidx.ui.foundation.Box
-import androidx.ui.foundation.drawBackground
-import androidx.ui.foundation.drawBorder
-import androidx.ui.foundation.shape.corner.CircleShape
-import androidx.ui.geometry.Offset
-import androidx.ui.geometry.Size
-import androidx.ui.geometry.shift
-import androidx.ui.graphics.Color
-import androidx.ui.graphics.Outline
-import androidx.ui.graphics.Path
-import androidx.ui.graphics.Shape
-import androidx.ui.layout.preferredSize
-import androidx.ui.unit.Density
-import androidx.ui.unit.Dp
-import androidx.ui.unit.dp
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.shift
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Outline
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
 class SimpleRadioButton2TestCase : BaseSimpleRadioButtonTestCase() {
     @Composable
@@ -41,8 +41,8 @@ class SimpleRadioButton2TestCase : BaseSimpleRadioButtonTestCase() {
         val padding = (48.dp - getInnerSize().value) / 2
         Box(
             Modifier.preferredSize(48.dp)
-                .drawBorder(Border(1.dp, Color.Cyan), CircleShape)
-                .drawBackground(
+                .border(BorderStroke(1.dp, Color.Cyan), CircleShape)
+                .background(
                     color = Color.Cyan,
                     shape = (PaddingShape(padding, CircleShape))
                 )
@@ -63,7 +63,7 @@ private fun Outline.offset(size: Float): Outline {
     val offset = Offset(size, size)
     return when (this) {
         is Outline.Rectangle -> Outline.Rectangle(rect.shift(offset))
-        is Outline.Rounded -> Outline.Rounded(rrect.shift(offset))
+        is Outline.Rounded -> Outline.Rounded(roundRect.shift(offset))
         is Outline.Generic -> Outline.Generic(Path().apply {
             addPath(path)
             shift(offset)

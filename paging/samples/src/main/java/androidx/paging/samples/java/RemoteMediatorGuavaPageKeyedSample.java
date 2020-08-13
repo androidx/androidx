@@ -17,7 +17,6 @@
 package androidx.paging.samples.java;
 
 import androidx.annotation.experimental.UseExperimental;
-import androidx.concurrent.futures.ResolvableFuture;
 import androidx.paging.ExperimentalPagingApi;
 import androidx.paging.ListenableFutureRemoteMediator;
 import androidx.paging.LoadType;
@@ -66,10 +65,10 @@ class RemoteMediatorGuavaPageKeyedSample extends ListenableFutureRemoteMediator<
         // The network load method takes an optional `after=<user.id>` parameter. For every
         // page after the first, we pass the last user ID to let it continue from where it
         // left off. For REFRESH, pass `null` to load the first page.
-        ResolvableFuture<RemoteKey> remoteKeyFuture = ResolvableFuture.create();
+        ListenableFuture<RemoteKey> remoteKeyFuture = null;
         switch (loadType) {
             case REFRESH:
-                remoteKeyFuture.set(new RemoteKey(mQuery, null));
+                remoteKeyFuture = Futures.immediateFuture(new RemoteKey(mQuery, null));
                 break;
             case PREPEND:
                 // In this example, we never need to prepend, since REFRESH will always load the
@@ -87,11 +86,17 @@ class RemoteMediatorGuavaPageKeyedSample extends ListenableFutureRemoteMediator<
                 }
 
                 // Query remoteKeyDao for the next RemoteKey.
-                remoteKeyFuture.setFuture(mRemoteKeyDao.remoteKeyByQueryFuture(mQuery));
+                remoteKeyFuture = mRemoteKeyDao.remoteKeyByQueryFuture(mQuery);
                 break;
         }
 
+        //noinspection UnstableApiUsage
         return Futures.transformAsync(remoteKeyFuture, remoteKey -> {
+            if (remoteKey == null) {
+                throw new IllegalStateException("RemoteKey should never be null, since we would "
+                        + "normally return MediatorResult.Success(true) immediately.");
+            }
+
             // We must explicitly check if the page key is `null` when appending,
             // since `null` is only valid for initial load. If we receive `null`
             // for APPEND, that means we have reached the end of pagination and
@@ -100,9 +105,14 @@ class RemoteMediatorGuavaPageKeyedSample extends ListenableFutureRemoteMediator<
                 return Futures.immediateFuture(new MediatorResult.Success(true));
             }
 
+            //noinspection UnstableApiUsage
             ListenableFuture<MediatorResult> networkResult = Futures.transform(
                     mNetworkService.searchUsers(mQuery, remoteKey.getNextKey()),
                     response -> {
+                        if (response == null) {
+                            throw new IllegalArgumentException("Response from network was null");
+                        }
+
                         mDatabase.runInTransaction(() -> {
                             if (loadType == LoadType.REFRESH) {
                                 mUserDao.deleteByQuery(mQuery);
@@ -121,10 +131,12 @@ class RemoteMediatorGuavaPageKeyedSample extends ListenableFutureRemoteMediator<
                         return new MediatorResult.Success(response.getNextKey() == null);
                     }, mBgExecutor);
 
+            @SuppressWarnings("UnstableApiUsage")
             ListenableFuture<MediatorResult> ioCatchingNetworkResult = Futures.catching(
                     networkResult, IOException.class, MediatorResult.Error::new,
                     mBgExecutor);
 
+            //noinspection UnstableApiUsage
             return Futures.catching(ioCatchingNetworkResult, HttpException.class,
                     MediatorResult.Error::new, mBgExecutor);
 

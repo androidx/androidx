@@ -47,6 +47,7 @@ class AppInitializerTest {
         appInitializer.initializeComponent(InitializerNoDependencies::class.java)
         assertThat(appInitializer.mInitialized.size, `is`(1))
         assertTrue(appInitializer.mInitialized.containsKey(InitializerNoDependencies::class.java))
+        assertThat(appInitializer.mDiscovered.size, `is`(0))
     }
 
     @Test
@@ -55,6 +56,14 @@ class AppInitializerTest {
         assertThat(appInitializer.mInitialized.size, `is`(2))
         assertTrue(appInitializer.mInitialized.containsKey(InitializerNoDependencies::class.java))
         assertTrue(appInitializer.mInitialized.containsKey(InitializerWithDependency::class.java))
+        assertThat(appInitializer.mDiscovered.size, `is`(0))
+    }
+
+    @Test
+    fun discoveredDependencies() {
+        // Fake discovery
+        appInitializer.mDiscovered.add(InitializerNoDependencies::class.java)
+        assertTrue(appInitializer.isEagerlyInitialized(InitializerNoDependencies::class.java))
     }
 
     @Test

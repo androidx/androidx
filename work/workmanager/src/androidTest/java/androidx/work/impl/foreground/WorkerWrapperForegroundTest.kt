@@ -60,6 +60,7 @@ class WorkerWrapperForegroundTest {
     private lateinit var handler: Handler
     private lateinit var config: Configuration
     private lateinit var executor: ExecutorService
+    private lateinit var internalExecutor: ExecutorService
     private lateinit var taskExecutor: TaskExecutor
     private lateinit var workDatabase: WorkDatabase
     private lateinit var schedulers: List<Scheduler>
@@ -76,6 +77,7 @@ class WorkerWrapperForegroundTest {
         doReturn(context).`when`(context).applicationContext
 
         executor = Executors.newSingleThreadExecutor()
+        internalExecutor = Executors.newSingleThreadExecutor()
         handler = Handler(Looper.getMainLooper())
         config = Configuration.Builder()
             .setExecutor(executor)
@@ -86,7 +88,7 @@ class WorkerWrapperForegroundTest {
             val main = Executor { runnable ->
                 handler.post(runnable)
             }
-            val serialExecutor = SerialExecutor(executor)
+            val serialExecutor = SerialExecutor(internalExecutor)
             override fun postToMainThread(runnable: Runnable) {
                 handler.post(runnable)
             }
@@ -154,10 +156,6 @@ class WorkerWrapperForegroundTest {
 
         wrapper.run()
         val future = wrapper.future as SettableFuture<Boolean>
-        while (taskExecutor.backgroundExecutor.hasPendingTasks()) {
-            // Wait until all pending operations in the internal task executor are complete
-        }
-
         val latch = CountDownLatch(1)
         future.addListener(Runnable {
             assertThat(future.isDone, `is`(true))

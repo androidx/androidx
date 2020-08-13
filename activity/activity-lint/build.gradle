@@ -49,6 +49,5 @@ androidx {
     mavenGroup = LibraryGroups.ACTIVITY
     inceptionYear = "2020"
     description = "Android Activity Lint Checks"
-    url = AndroidXExtension.ARCHITECTURE_URL
     compilationTarget = CompilationTarget.HOST
 }

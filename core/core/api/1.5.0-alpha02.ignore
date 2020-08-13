@@ -1,0 +1,13 @@
+// Baseline format: 1.0
+InvalidNullConversion: androidx.core.util.Pair#Pair(F, S) parameter #0:
+    Attempted to remove @Nullable annotation from parameter arg1 in androidx.core.util.Pair(F arg1, S arg2)
+InvalidNullConversion: androidx.core.util.Pair#Pair(F, S) parameter #1:
+    Attempted to remove @Nullable annotation from parameter arg2 in androidx.core.util.Pair(F arg1, S arg2)
+InvalidNullConversion: androidx.core.util.Pair#create(A, B) parameter #0:
+    Attempted to remove @Nullable annotation from parameter arg1 in androidx.core.util.Pair.create(A arg1, B arg2)
+InvalidNullConversion: androidx.core.util.Pair#create(A, B) parameter #1:
+    Attempted to remove @Nullable annotation from parameter arg2 in androidx.core.util.Pair.create(A arg1, B arg2)
+InvalidNullConversion: androidx.core.util.Pair#first:
+    Attempted to remove @Nullable annotation from field androidx.core.util.Pair.first
+InvalidNullConversion: androidx.core.util.Pair#second:
+    Attempted to remove @Nullable annotation from field androidx.core.util.Pair.second

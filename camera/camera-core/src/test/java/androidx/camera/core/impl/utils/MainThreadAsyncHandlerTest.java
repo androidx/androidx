@@ -24,8 +24,6 @@ import android.os.Message;
 
 import androidx.test.filters.SmallTest;
 
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -40,16 +38,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class MainThreadAsyncHandlerTest {
-
-    @Before
-    public void setUp() {
-        ShadowLooper.pauseMainLooper();
-    }
-
-    @After
-    public void tearDown() {
-        ShadowLooper.idleMainLooperConstantly(true);
-    }
 
     @Test
     public void canPostTaskToMainLooper() {

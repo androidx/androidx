@@ -577,7 +577,8 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
     List<MediaRouter.RouteInfo> getCurrentGroupableRoutes() {
         List<MediaRouter.RouteInfo> groupableRoutes = new ArrayList<>();
         for (MediaRouter.RouteInfo route : mSelectedRoute.getProvider().getRoutes()) {
-            MediaRouter.RouteInfo.DynamicGroupState state = route.getDynamicGroupState();
+            MediaRouter.RouteInfo.DynamicGroupState state =
+                    mSelectedRoute.getDynamicGroupState(route);
             if (state != null && state.isGroupable()) {
                 groupableRoutes.add(route);
             }
@@ -625,7 +626,8 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
 
         mMemberRoutes.addAll(mSelectedRoute.getMemberRoutes());
         for (MediaRouter.RouteInfo route : mSelectedRoute.getProvider().getRoutes()) {
-            MediaRouter.RouteInfo.DynamicGroupState state = route.getDynamicGroupState();
+            MediaRouter.RouteInfo.DynamicGroupState state =
+                    mSelectedRoute.getDynamicGroupState(route);
             if (state == null) continue;
 
             if (state.isGroupable()) {
@@ -1176,7 +1178,8 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
                 if (route.isSelected()) {
                     return true;
                 }
-                MediaRouter.RouteInfo.DynamicGroupState state = route.getDynamicGroupState();
+                MediaRouter.RouteInfo.DynamicGroupState state =
+                        mSelectedRoute.getDynamicGroupState(route);
                 return state != null && state.getSelectionState()
                         == MediaRouteProvider.DynamicGroupRouteController
                         .DynamicRouteDescriptor.SELECTED;
@@ -1193,7 +1196,8 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
                 }
                 // Selected route that can't be unselected has to be disabled.
                 if (isSelected(route)) {
-                    MediaRouter.RouteInfo.DynamicGroupState state = route.getDynamicGroupState();
+                    MediaRouter.RouteInfo.DynamicGroupState state =
+                            mSelectedRoute.getDynamicGroupState(route);
                     return state != null && state.isUnselectable();
                 }
                 return true;
@@ -1349,13 +1353,13 @@ public class MediaRouteDynamicControllerDialog extends AppCompatDialog {
         @Override
         public void onRouteChanged(MediaRouter router, MediaRouter.RouteInfo route) {
             boolean shouldRefreshRoute = false;
-            if (route == mSelectedRoute && route.getDynamicGroupState() != null) {
+            if (route == mSelectedRoute && route.getDynamicGroupController() != null) {
                 for (MediaRouter.RouteInfo memberRoute : route.getProvider().getRoutes()) {
                     if (mSelectedRoute.getMemberRoutes().contains(memberRoute)) {
                         continue;
                     }
                     MediaRouter.RouteInfo.DynamicGroupState state =
-                            memberRoute.getDynamicGroupState();
+                            mSelectedRoute.getDynamicGroupState(memberRoute);
 
                     // Refresh items only when a new groupable route is found.
                     if (state != null && state.isGroupable()

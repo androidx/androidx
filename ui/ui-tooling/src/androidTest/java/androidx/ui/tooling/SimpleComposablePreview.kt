@@ -16,12 +16,13 @@
 
 package androidx.ui.tooling
 
-import androidx.compose.Composable
+import androidx.compose.runtime.Composable
 import androidx.lifecycle.Lifecycle
-import androidx.ui.core.LifecycleOwnerAmbient
-import androidx.ui.foundation.Text
-import androidx.ui.graphics.Color
-import androidx.ui.material.Surface
+import androidx.compose.foundation.Text
+import androidx.compose.ui.graphics.Color
+import androidx.compose.material.Surface
+import androidx.compose.runtime.savedinstancestate.UiSavedStateRegistryAmbient
+import androidx.compose.ui.platform.LifecycleOwnerAmbient
 import androidx.ui.tooling.preview.Preview
 
 @Preview
@@ -74,6 +75,15 @@ private fun LifecyclePreview() {
         "Lifecycle state is not resumed. $lifecycleState"
     )
     Text("Lifecycle is $lifecycleState")
+}
+
+@Preview
+@Composable
+private fun UiSavedStateRegistryPreview() {
+    if (UiSavedStateRegistryAmbient.current == null) throw IllegalArgumentException(
+        "UiSavedStateRegistry is not provided"
+    )
+    Text("UiSavedStateRegistry preview")
 }
 
 class TestGroup {

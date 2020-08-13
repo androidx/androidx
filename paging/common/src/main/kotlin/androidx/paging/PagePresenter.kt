@@ -16,28 +16,10 @@
 
 package androidx.paging
 
-import androidx.annotation.RestrictTo
 import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
-
-/**
- * Callbacks for the presenter/adapter to listen to the state of pagination data.
- *
- * Note that these won't map directly to PageEvents, since PageEvents can cause several adapter
- * events that should all be dispatched to the presentation layer at once - as part of the same
- * frame.
- *
- * @suppress
- */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-interface PresenterCallback {
-    fun onChanged(position: Int, count: Int)
-    fun onInserted(position: Int, count: Int)
-    fun onRemoved(position: Int, count: Int)
-    fun onStateUpdate(loadType: LoadType, fromMediator: Boolean, loadState: LoadState)
-}
 
 /**
  * Presents post-transform paging data as a list, with list update notifications when
@@ -50,6 +32,10 @@ internal class PagePresenter<T : Any>(
     override var storageCount: Int = insertEvent.pages.fullCount()
         private set
 
+    val firstPageIndex: Int
+        get() = pages.first().originalPageOffset
+    val lastPageIndex: Int
+        get() = pages.last().originalPageOffset
     override var placeholdersBefore: Int = insertEvent.placeholdersBefore
         private set
     override var placeholdersAfter: Int = insertEvent.placeholdersAfter
@@ -76,6 +62,14 @@ internal class PagePresenter<T : Any>(
         return getFromStorage(localIndex)
     }
 
+    fun snapshot(): ItemSnapshotList<T> {
+        return ItemSnapshotList(
+            placeholdersBefore,
+            placeholdersAfter,
+            pages.flatMap { it.data }
+        )
+    }
+
     override fun getFromStorage(localIndex: Int): T {
         var pageIndex = 0
         var indexInPage = localIndex
@@ -94,55 +88,12 @@ internal class PagePresenter<T : Any>(
         return pages[pageIndex].data[indexInPage]
     }
 
-    private inline fun <T> withIndex(
-        index: Int,
-        block: (pageIndex: Int, indexInPage: Int) -> T
-    ): T {
-        var pageIndex = 0
-        var indexInPage = index - placeholdersBefore
-        while (indexInPage >= pages[pageIndex].data.size && pageIndex < pages.lastIndex) {
-            // index doesn't appear in current page, keep looking!
-            indexInPage -= pages[pageIndex].data.size
-            pageIndex++
-        }
-
-        return block(pageIndex, indexInPage)
-    }
-
-    /**
-     * @return For a given index location, returns a [ViewportHint] reporting the nearest page and
-     * index.
-     */
-    fun indexToHint(index: Int): ViewportHint {
-        checkIndex(index)
-
-        return withIndex(index) { pageIndex, indexInPage ->
-            pages[pageIndex].getLoadHint(indexInPage)
-        }
-    }
-
-    /**
-     * @return For a given index location, returns a [ViewportHint] reporting the nearest page and
-     * index if it is a placeholder, `null` otherwise.
-     */
-    fun placeholderIndexToHintOrNull(
-        index: Int
-    ): ViewportHint? = withIndex(index) { pageIndex, indexInPage ->
-        when (indexInPage) {
-            in pages[pageIndex].data.indices -> null
-            else -> pages[pageIndex].getLoadHint(indexInPage)
-        }
-    }
-
     override val size: Int
         get() = placeholdersBefore + storageCount + placeholdersAfter
 
-    val loadedCount: Int
-        get() = storageCount
-
     private fun List<TransformablePage<T>>.fullCount() = sumBy { it.data.size }
 
-    fun processEvent(pageEvent: PageEvent<T>, callback: PresenterCallback) {
+    fun processEvent(pageEvent: PageEvent<T>, callback: ProcessPageEventCallback) {
         when (pageEvent) {
             is PageEvent.Insert -> insertPage(pageEvent, callback)
             is PageEvent.Drop -> dropPages(pageEvent, callback)
@@ -154,6 +105,31 @@ internal class PagePresenter<T : Any>(
                 )
             }
         }
+    }
+
+    fun presenterIndexToHint(index: Int): ViewportHint {
+        var pageIndex = 0
+        var indexInPage = index - placeholdersBefore
+        while (indexInPage >= pages[pageIndex].data.size && pageIndex < pages.lastIndex) {
+            // index doesn't appear in current page, keep looking!
+            indexInPage -= pages[pageIndex].data.size
+            pageIndex++
+        }
+
+        val originalIndices = pages[pageIndex].originalIndices
+        return ViewportHint(
+            pageOffset = pages[pageIndex].originalPageOffset,
+            indexInPage = if (originalIndices != null && indexInPage in originalIndices.indices) {
+                originalIndices[indexInPage]
+            } else {
+                indexInPage
+            },
+            presentedItemsBefore = index - placeholdersBefore,
+            presentedItemsAfter = size - index - placeholdersAfter - 1,
+            originalPageOffsetFirst = firstPageIndex,
+            originalPageOffsetLast = lastPageIndex
+
+        )
     }
 
     /**
@@ -174,7 +150,7 @@ internal class PagePresenter<T : Any>(
      *     counting or filtering are the most common. In either case, we adjust placeholders at
      *     the far end of the list, so that they don't trigger animations near the user.
      */
-    private fun insertPage(insert: PageEvent.Insert<T>, callback: PresenterCallback) {
+    private fun insertPage(insert: PageEvent.Insert<T>, callback: ProcessPageEventCallback) {
         val count = insert.pages.fullCount()
         val oldSize = size
         when (insert.loadType) {
@@ -232,7 +208,7 @@ internal class PagePresenter<T : Any>(
         }
     }
 
-    private fun dropPages(drop: PageEvent.Drop<T>, callback: PresenterCallback) {
+    private fun dropPages(drop: PageEvent.Drop<T>, callback: ProcessPageEventCallback) {
         val oldSize = size
         if (drop.loadType == PREPEND) {
             val removeCount = pages.take(drop.count).fullCount()
@@ -307,5 +283,15 @@ internal class PagePresenter<T : Any>(
 
         @Suppress("UNCHECKED_CAST", "SyntheticAccessor")
         internal fun <T : Any> initial(): PagePresenter<T> = INITIAL as PagePresenter<T>
+    }
+
+    /**
+     * Callback to communicate events from [PagePresenter] to [PagingDataDiffer]
+     */
+    internal interface ProcessPageEventCallback {
+        fun onChanged(position: Int, count: Int)
+        fun onInserted(position: Int, count: Int)
+        fun onRemoved(position: Int, count: Int)
+        fun onStateUpdate(loadType: LoadType, fromMediator: Boolean, loadState: LoadState)
     }
 }

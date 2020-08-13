@@ -246,30 +246,23 @@ class Commit:
 		# Account for the use of quotes in a release note line
 		# No quotes in the Release Note line means it's a one-line release note
 		# If there are quotes, assume it's a multi-line release note
+		# Notes that we only count non-escaped quotes
 		quoteCountInRelNoteLine = 0
-		for character in line:
-			if character == '"': quoteCountInRelNoteLine += 1
+		for i in range(0, len(line)):
+			if line[i] == '"' and i > 0 and line[i-1] != '\\':
+				quoteCountInRelNoteLine += 1
+		# Case 1: Single line relnote
 		if quoteCountInRelNoteLine == 0:
 			releaseNote = self.getOneLineReleaseNotesFromGitLine(line)
+		# Case 2: Triple quote relnote
+		elif line.find('"""') >= 0:
+			releaseNote = self.getQuotedReleaseNotesFromGitLine(line, gitCommit, '"""')
+		# Case 3: Single quote relnote
 		else:
-			if self.releaseNoteDelimiter in line:
-				# Find the starting quote of the release notes quote block
-				releaseNoteStartIndexInit = gitCommit.rfind(self.releaseNoteDelimiter) + len(self.releaseNoteDelimiter)
-				try:
-					releaseNoteStartIndex = gitCommit.index('"', releaseNoteStartIndexInit)
-				except ValueError:
-					releaseNoteStartIndex = releaseNoteStartIndexInit
-				# Move to the character after the first quote
-				if gitCommit[releaseNoteStartIndex] == '"':
-					releaseNoteStartIndex += 1
-				# Find the ending quote of the release notes quote block
-				releaseNoteEndIndex = releaseNoteStartIndex + 1
-				try:
-					releaseNoteEndIndex = gitCommit.index('"', releaseNoteEndIndex)
-					releaseNote = gitCommit[releaseNoteStartIndex:releaseNoteEndIndex].strip()
-				except ValueError:
-					# If there is no closing quote, just use the first line
-					releaseNote = self.getOneLineReleaseNotesFromGitLine(line)
+			releaseNote = self.getQuotedReleaseNotesFromGitLine(line, gitCommit, '"')
+
+		# Replace all instances of '\"' with just '"'
+		releaseNote = releaseNote.replace('\\"', '"')
 
 		# Finally, set the release note to be an empty string if the Relnote says the commit
 		# is not applicable for release notes.
@@ -279,10 +272,52 @@ class Commit:
 			self.releaseNote = releaseNote
 
 	def getOneLineReleaseNotesFromGitLine(self, line):
+		releaseNote = ""
 		if self.releaseNoteDelimiter in line:
 			releaseNoteStartIndex = line.index(self.releaseNoteDelimiter) + len(self.releaseNoteDelimiter)
-			return line[releaseNoteStartIndex:].strip(' "')
-		return ""
+			# Strip space and quotes from left side, and extra space from right side
+			releaseNote = line[releaseNoteStartIndex:].strip(' ')
+			# Strip quotes and spaces
+			if releaseNote.find('"""') >= 0:
+				releaseNote = releaseNote.strip('"""')
+			elif releaseNote.startswith('"'):
+				releaseNote = releaseNote.lstrip('"')
+				if releaseNote.endswith('\\""'):
+					releaseNote = releaseNote.replace('\\""', '\\"')
+				else:
+					releaseNote = releaseNote.rstrip('"')
+		return releaseNote
+
+	def getQuotedReleaseNotesFromGitLine(self, line, gitCommit, quoteDelim):
+		releaseNote = ""
+		quoteDelimLen = len(quoteDelim)
+		if self.releaseNoteDelimiter in line:
+			# Find the starting quoteDelim of the release notes quote block
+			releaseNoteStartIndexInit = gitCommit.rfind(self.releaseNoteDelimiter) + len(self.releaseNoteDelimiter)
+			releaseNoteStartIndex = gitCommit.find(quoteDelim, releaseNoteStartIndexInit)
+			# Move to the starting index to after the first quote
+			if releaseNoteStartIndex < 0:
+				releaseNoteStartIndex = releaseNoteStartIndexInit
+			else:
+				releaseNoteStartIndex += quoteDelimLen
+			# Find the ending quote of the release notes quote block
+			releaseNoteEndIndex = releaseNoteStartIndex + 1
+			while True:
+				releaseNoteEndIndex = gitCommit.find(quoteDelim, releaseNoteEndIndex)
+				if releaseNoteEndIndex < 0:
+					# No closing quoteDelim found, so just use the first line and fix it
+					return self.getOneLineReleaseNotesFromGitLine(line + quoteDelim)
+				else:
+					releaseNote = gitCommit[releaseNoteStartIndex:releaseNoteEndIndex].strip()
+				# If we're searching for a singluar quote, continue searching until we find a
+				# quote without a backslash
+				if quoteDelim != '"':
+					break
+				if gitCommit[releaseNoteEndIndex-1] != '\\':
+					break
+				else:
+					releaseNoteEndIndex += 1
+		return releaseNote
 
 	def isIgnoredChange(self, releaseNote):
 		notApplicableStringOptions = ['na', 'n/a', 'n a']

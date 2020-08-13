@@ -22,7 +22,6 @@ import android.webkit.SafeBrowsingResponse;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.webkit.SafeBrowsingResponseCompat;
-import androidx.webkit.WebViewFeature;
 
 import org.chromium.support_lib_boundary.SafeBrowsingResponseBoundaryInterface;
 import org.chromium.support_lib_boundary.util.BoundaryInterfaceReflectionUtil;
@@ -82,8 +81,7 @@ public class SafeBrowsingResponseImpl extends SafeBrowsingResponseCompat {
     @Override
     public void showInterstitial(boolean allowReporting) {
         final WebViewFeatureInternal feature =
-                WebViewFeatureInternal.getFeature(
-                        WebViewFeature.SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL);
+                WebViewFeatureInternal.SAFE_BROWSING_RESPONSE_SHOW_INTERSTITIAL;
         if (feature.isSupportedByFramework()) {
             getFrameworksImpl().showInterstitial(allowReporting);
         } else if (feature.isSupportedByWebView()) {
@@ -97,8 +95,7 @@ public class SafeBrowsingResponseImpl extends SafeBrowsingResponseCompat {
     @Override
     public void proceed(boolean report) {
         final WebViewFeatureInternal feature =
-                WebViewFeatureInternal.getFeature(
-                        WebViewFeature.SAFE_BROWSING_RESPONSE_PROCEED);
+                WebViewFeatureInternal.SAFE_BROWSING_RESPONSE_PROCEED;
         if (feature.isSupportedByFramework()) {
             getFrameworksImpl().proceed(report);
         } else if (feature.isSupportedByWebView()) {
@@ -112,8 +109,7 @@ public class SafeBrowsingResponseImpl extends SafeBrowsingResponseCompat {
     @Override
     public void backToSafety(boolean report) {
         final WebViewFeatureInternal feature =
-                WebViewFeatureInternal.getFeature(
-                        WebViewFeature.SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY);
+                WebViewFeatureInternal.SAFE_BROWSING_RESPONSE_BACK_TO_SAFETY;
         if (feature.isSupportedByFramework()) {
             getFrameworksImpl().backToSafety(report);
         } else if (feature.isSupportedByWebView()) {

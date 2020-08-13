@@ -23,7 +23,7 @@ import static org.mockito.Mockito.mock;
 
 import android.content.Context;
 
-import androidx.loader.app.test.DummyLoader;
+import androidx.loader.app.test.ImmediateLoader;
 import androidx.loader.content.Loader;
 import androidx.test.filters.MediumTest;
 
@@ -68,7 +68,7 @@ public class LoaderViewModelTest {
         boolean mDestroyed = false;
 
         AlwaysRunningLoaderInfo(Context context) {
-            super(0, null, new DummyLoader(context), null);
+            super(0, null, new ImmediateLoader(context), null);
         }
 
         @Override

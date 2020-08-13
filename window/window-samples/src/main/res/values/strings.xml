@@ -36,7 +36,10 @@
     <string name="windowManagerDemos">WindowManager Demos</string>
     <string name="hardware_config_select">Hardware configuration to use</string>
     <string name="device_default">Device default</string>
-    <string name="middle_fold">Fold in the middle of the window</string>
+    <string name="short_dimension_fold">Fold in the middle of the window along short
+        dimension</string>
+    <string name="long_dimension_fold">Fold in the middle of the window along long
+        dimension</string>
     <string name="test_activity">Test activity</string>
     <string name="show_all_display_features_description">Show all display features of the device on the screen</string>
     <string name="split_layout_demo_description">Demo of a layout that splits the content to sides of a fold or a hinge. If not present or minimal size requirements are not meant, it behave like a FrameLayout.</string>

@@ -16,6 +16,7 @@
 
 package androidx.camera.extensions;
 
+import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
 import android.util.Log;
 import android.util.Pair;
@@ -236,7 +237,10 @@ public abstract class PreviewExtender {
                 if (mActive) {
                     CameraCharacteristics cameraCharacteristics =
                             CameraUtil.getCameraCharacteristics(cameraId);
-                    mImpl.onInit(cameraId, cameraCharacteristics, CameraX.getContext());
+                    // TODO(b/161302102): Remove usage of deprecated CameraX.getContext()
+                    @SuppressWarnings("deprecation")
+                    Context context = CameraX.getContext();
+                    mImpl.onInit(cameraId, cameraCharacteristics, context);
                 }
             }
         }

@@ -95,4 +95,18 @@ public class ObjectsCompat {
             return Arrays.hashCode(values);
         }
     }
+
+    /**
+     * Returns the result of calling {@code toString} on the first argument if the first argument
+     * is not {@code null} and returns the second argument otherwise.
+     *
+     * @param o an object
+     * @param nullDefault string to return if the first argument is {@code null}
+     * @return the result of calling {@code toString} on the first argument if it is not {@code
+     * null} and the second argument otherwise.
+     */
+    @Nullable
+    public static String toString(@Nullable Object o, @Nullable String nullDefault) {
+        return (o != null) ? o.toString() : nullDefault;
+    }
 }

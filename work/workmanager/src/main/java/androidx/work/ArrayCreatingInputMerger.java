@@ -47,7 +47,6 @@ import java.util.Map;
  *   </ul>
  * </ul>
  */
-
 public final class ArrayCreatingInputMerger extends InputMerger {
 
     @Override

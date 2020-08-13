@@ -20,12 +20,10 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.mock;
 
-import android.app.Instrumentation;
 import android.content.Context;
 
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraFactory;
-import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.ExtendableUseCaseConfigFactory;
 import androidx.camera.core.impl.UseCaseConfigFactory;
@@ -39,8 +37,7 @@ import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.MediumTest;
-import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.filters.LargeTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -50,20 +47,17 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
-@MediumTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class CameraXTest {
     @CameraSelector.LensFacing
     private static final int CAMERA_LENS_FACING = CameraSelector.LENS_FACING_BACK;
-    @CameraSelector.LensFacing
-    private static final int CAMERA_LENS_FACING_FRONT = CameraSelector.LENS_FACING_FRONT;
-    private static final CameraSelector CAMERA_SELECTOR =
-            new CameraSelector.Builder().requireLensFacing(CAMERA_LENS_FACING).build();
-    private static final String CAMERA_ID = "0";
-    private static final String CAMERA_ID_FRONT = "1";
 
-    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
+    private static final String CAMERA_ID = "0";
+
     private Context mContext;
     private CameraInternal mCameraInternal;
     private FakeLifecycleOwner mLifecycle;
@@ -94,8 +88,8 @@ public final class CameraXTest {
     }
 
     @After
-    public void tearDown() throws ExecutionException, InterruptedException {
-        CameraX.shutdown().get();
+    public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
+        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
 
@@ -234,47 +228,11 @@ public final class CameraXTest {
         assertThat(config.getTargetClass(null)).isEqualTo(FakeUseCase.class);
     }
 
-
-
-
-
-    @Test
-    public void canRetrieveCameraInfo() {
-        initCameraX();
-        CameraInfoInternal cameraInfoInternal = CameraX.getCameraInfo(CAMERA_ID);
-        assertThat(cameraInfoInternal).isNotNull();
-        assertThat(cameraInfoInternal.getLensFacing()).isEqualTo(CAMERA_LENS_FACING);
-    }
-
     @Test
     public void canGetCameraXContext() {
         initCameraX();
         Context context = CameraX.getContext();
         assertThat(context).isNotNull();
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void cameraInfo_cannotRetrieveCameraInfo_forFrontCamera() {
-        initCameraX();
-        // Expect throw the IllegalArgumentException when try to get the cameraInfo from the camera
-        // which does not exist.
-        CameraX.getCameraInfo(CAMERA_ID_FRONT);
-    }
-
-    @Test
-    public void checkHasCameraTrueForExistentCamera() throws CameraInfoUnavailableException {
-        initCameraX();
-        assertThat(CameraX.hasCamera(
-                new CameraSelector.Builder().requireLensFacing(
-                        CameraSelector.LENS_FACING_BACK).build())).isTrue();
-    }
-
-    @Test
-    public void checkHasCameraFalseForNonexistentCamera() throws CameraInfoUnavailableException {
-        initCameraX();
-        assertThat(CameraX.hasCamera(new CameraSelector.Builder().requireLensFacing(
-                CameraSelector.LENS_FACING_BACK).requireLensFacing(
-                CameraSelector.LENS_FACING_FRONT).build())).isFalse();
     }
 
     private void initCameraX() {

@@ -22,5 +22,6 @@ import androidx.ui.demos.common.DemoCategory
 val AndroidViewDemos = DemoCategory("AndroidView", listOf(
     ComposeInAndroidDemos,
     AndroidInComposeDemos,
+    ComplexTouchInterop,
     ActivityDemo("WebComponent", WebComponentActivity::class)
 ))

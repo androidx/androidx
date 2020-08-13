@@ -139,7 +139,7 @@ class AntelopeInstrumentedTests {
     }
 
     /**
-     * Basic context sanity test
+     * Basic context soundness test
      */
     @Test
     @MediumTest

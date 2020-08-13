@@ -139,7 +139,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                             else SortOrder.DESC
                     scrollEvents.assertPositionSorted(sortOrder)
                     scrollEvents.assertOffsetSorted(sortOrder)
-                    scrollEvents.assertValueSanity(initialPage, targetPage, viewPager.pageSize)
+                    scrollEvents.assertValueCorrectness(initialPage, targetPage, viewPager.pageSize)
                     scrollEvents.assertLastCorrect(targetPage)
                     scrollEvents.assertMaxShownPages()
                 }
@@ -265,9 +265,9 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                 // dive into scroll events
                 scrollEvents.assertPositionSorted(SortOrder.DESC)
                 scrollEventsBeforeSettling.assertOffsetSorted(SortOrder.ASC)
-                assertThat(scrollEvents, // sanity check
+                assertThat(scrollEvents, // quick check
                         equalTo(scrollEventsBeforeSettling + scrollEventsAfterSettling))
-                scrollEvents.assertValueSanity(0, 0, viewPager.pageSize)
+                scrollEvents.assertValueCorrectness(0, 0, viewPager.pageSize)
                 scrollEvents.assertLastCorrect(0)
             }
 
@@ -329,10 +329,10 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                 scrollEvents.assertPositionSorted(SortOrder.ASC)
                 scrollEventsBeforeSettling.assertOffsetSorted(SortOrder.DESC)
                 scrollEventsAfterSettling.assertOffsetSorted(SortOrder.ASC)
-                assertThat(scrollEvents, // sanity check
+                assertThat(scrollEvents, // quick check
                         equalTo(scrollEventsBeforeSettling + scrollEventsAfterSettling))
-                scrollEvents.assertValueSanity(1, 2, viewPager.pageSize)
-                scrollEvents.dropLast(1).assertValueSanity(1, 1, viewPager.pageSize)
+                scrollEvents.assertValueCorrectness(1, 2, viewPager.pageSize)
+                scrollEvents.dropLast(1).assertValueCorrectness(1, 1, viewPager.pageSize)
                 scrollEvents.assertLastCorrect(2)
             }
 
@@ -396,7 +396,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
                             val sortOrder = if (pageIxDelta > 0) SortOrder.ASC else SortOrder.DESC
                             scrollEvents.assertPositionSorted(sortOrder)
                             scrollEvents.assertOffsetSorted(sortOrder)
-                            scrollEvents.assertValueSanity(currentPage, targetPage,
+                            scrollEvents.assertValueCorrectness(currentPage, targetPage,
                                     viewPager.pageSize)
                             scrollEvents.assertLastCorrect(targetPage)
                             scrollEvents.assertMaxShownPages()
@@ -796,10 +796,15 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
         }
 
         // Test SCROLL_STATE_DRAGGING (real drag)
-        test_getScrollState(test, SCROLL_STATE_DRAGGING, 2, true) {
-            // Perform manual swipe in separate thread, because the SwipeMethod.MANUAL blocks while
-            // injecting events, and we need to check getScrollState() during the swipe.
-            newSingleThreadExecutor().execute { test.swipeForward(SwipeMethod.MANUAL) }
+        val pageSwiper = PageSwiperManual(test.viewPager)
+        try {
+            test_getScrollState(test, SCROLL_STATE_DRAGGING, 2, true) {
+                // Perform manual swipe in separate thread, because PageSwiperManual blocks while
+                // injecting events, and we need to check getScrollState() during the swipe
+                newSingleThreadExecutor().execute { pageSwiper.swipeNext() }
+            }
+        } finally {
+            pageSwiper.cancel()
         }
 
         // Test SCROLL_STATE_DRAGGING (fake drag)
@@ -924,7 +929,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
             } else {
                 // make sure the page select events and scroll events are correct
                 val pageSize = test.viewPager.pageSize
-                callback.scrollEvents.assertValueSanity(initialPage, targetBoundary, pageSize)
+                callback.scrollEvents.assertValueCorrectness(initialPage, targetBoundary, pageSize)
                 callback.scrollEvents.assertLastCorrect(targetBoundary)
                 callback.assertAllPagesSelected(listOf(targetBoundary))
             }
@@ -1144,7 +1149,7 @@ class PageChangeCallbackTest(private val config: TestConfig) : BaseTest() {
         }
     }
 
-    private fun List<OnPageScrolledEvent>.assertValueSanity(
+    private fun List<OnPageScrolledEvent>.assertValueCorrectness(
         initialPage: Int,
         otherPage: Int,
         pageSize: Int

@@ -14,4 +14,4 @@
   ~ limitations under the License
   -->
 
-<manifest package="androidx.ui.animation.demos"/>
+<manifest package="androidx.compose.animation.demos"/>

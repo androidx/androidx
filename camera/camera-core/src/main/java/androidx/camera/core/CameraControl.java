@@ -56,7 +56,8 @@ public interface CameraControl {
      *
      * @param torch true to turn on the torch, false to turn it off.
      * @return A {@link ListenableFuture} which is successful when the torch was changed to the
-     * value specified. It fails when it is unable to change the torch state.
+     * value specified. It fails when it is unable to change the torch state. Cancellation of
+     * this future is a no-op.
      */
     @NonNull
     ListenableFuture<Void> enableTorch(boolean torch);
@@ -87,8 +88,7 @@ public interface CameraControl {
      * @return A {@link ListenableFuture} which completes with {@link FocusMeteringAction} when
      * auto focus is done and AF/AE/AWB regions are updated. In case AF points are not added,
      * auto focus will not be triggered and this {@link ListenableFuture} completes when
-     * AE/AWB regions are updated.
-     *
+     * AE/AWB regions are updated. Cancellation of this future is a no-op.
      */
     @NonNull
     ListenableFuture<FocusMeteringResult> startFocusAndMetering(
@@ -103,7 +103,7 @@ public interface CameraControl {
      * {@link OperationCanceledException}.
      *
      * @return A {@link ListenableFuture} which completes when the AF/AE/AWB regions is clear and AF
-     * mode is set to continuous focus (if supported).
+     * mode is set to continuous focus (if supported). Cancellation of this future is a no-op.
      */
     @NonNull
     ListenableFuture<Void> cancelFocusAndMetering();
@@ -121,7 +121,8 @@ public interface CameraControl {
      * @return a {@link ListenableFuture} which is finished when current repeating request
      * result contains the requested zoom ratio. It fails with
      * {@link OperationCanceledException} if there is newer value being set or camera is closed. If
-     * the ratio is out of range, it fails with {@link IllegalArgumentException}.
+     * the ratio is out of range, it fails with {@link IllegalArgumentException}. Cancellation of
+     * this future is a no-op.
      */
     @NonNull
     ListenableFuture<Void> setZoomRatio(float ratio);
@@ -143,7 +144,7 @@ public interface CameraControl {
      * result contains the requested linearZoom. It fails with
      * {@link OperationCanceledException} if there is newer value being set or camera is closed.
      * If linearZoom is not in range [0..1], it fails with {@link IllegalArgumentException}.
-     *
+     * Cancellation of this future is a no-op.
      */
     @NonNull
     ListenableFuture<Void> setLinearZoom(@FloatRange(from = 0f, to = 1f) float linearZoom);
