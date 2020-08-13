@@ -237,7 +237,8 @@ private data class CursorModifier(
                 0f, 0f,
                 cursorWidth, cursorHeight
             )
-            val cursorX = (cursorRect.left + cursorRect.right) / 2
+            val cursorX = (cursorRect.left + cursorWidth / 2)
+                .coerceAtMost(size.width - cursorWidth / 2)
 
             drawLine(
                 color.value,

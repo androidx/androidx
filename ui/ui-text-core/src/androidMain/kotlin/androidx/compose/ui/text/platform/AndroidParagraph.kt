@@ -256,14 +256,15 @@ internal class AndroidParagraph constructor(
         if (offset !in 0..charSequence.length) {
             throw AssertionError("offset($offset) is out of bounds (0,${charSequence.length}")
         }
-        val cursorWidth = 4.0f
         val horizontal = layout.getPrimaryHorizontal(offset)
         val line = layout.getLineForOffset(offset)
 
+        // The width of the cursor is not taken into account. The callers of this API should use
+        // rect.left to get the start X position and then adjust it according to the width if needed
         return Rect(
-            horizontal - 0.5f * cursorWidth,
+            horizontal,
             layout.getLineTop(line),
-            horizontal + 0.5f * cursorWidth,
+            horizontal,
             layout.getLineBottom(line)
         )
     }

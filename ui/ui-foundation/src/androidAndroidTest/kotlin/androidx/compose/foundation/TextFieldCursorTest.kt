@@ -46,7 +46,6 @@ import org.junit.Rule
 import org.junit.Test
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
-import kotlin.math.roundToInt
 
 @LargeTest
 @OptIn(
@@ -142,19 +141,19 @@ class TextFieldCursorTest {
     }
 
     private fun Bitmap.assertCursor(cursorWidth: Dp, density: Density) {
-        val halfCursorWidth = (with(density) { cursorWidth.toIntPx() } / 2f).roundToInt()
+        val сursorWidth = (with(density) { cursorWidth.toIntPx() })
         val width = width
         val height = height
         this.assertPixels(
             IntSize(width, height)
         ) { position ->
-            if (position.x >= halfCursorWidth - 1 && position.x < halfCursorWidth + 1) {
+            if (position.x >= сursorWidth - 1 && position.x < сursorWidth + 1) {
                 // skip some pixels around cursor
                 null
             } else if (position.y < 5 || position.y > height - 5) {
                 // skip some pixels vertically
                 null
-            } else if (position.x in 0..halfCursorWidth) {
+            } else if (position.x in 0..сursorWidth) {
                 // cursor
                 Color.Red
             } else {
