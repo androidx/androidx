@@ -54,6 +54,10 @@ class TextBenchmarkTestRule(alphabet: Alphabet = Alphabet.Latin) : TestRule {
     // fontSize here are dp and sp, which should be converted into needed unit in the test case.
     val widthDp: Float = 160f
     val fontSizeSp: Float = 8f
+
+    // We noticed that benchmark a single composable Text will lead to inaccurate result. To fix
+    // this problem, we benchmark a column of Texts with its length equal to [repeatTimes].
+    val repeatTimes: Int = 10
 }
 
 /**
