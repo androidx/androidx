@@ -157,7 +157,7 @@ public final class CameraUseCaseAdapter {
 
             for (UseCase useCase : useCases) {
                 if (mUseCases.contains(useCase)) {
-                    Log.e(TAG, "Attempting to attach already attached UseCase");
+                    Log.d(TAG, "Attempting to attach already attached UseCase");
                 } else {
                     useCaseListAfterUpdate.add(useCase);
                     newUseCases.add(useCase);
@@ -189,7 +189,8 @@ public final class CameraUseCaseAdapter {
                         mViewPort.getLayoutDirection(),
                         suggestedResolutionsMap);
                 for (UseCase useCase : useCases) {
-                    useCase.setViewPortCropRect(cropRectMap.get(useCase));
+                    useCase.setViewPortCropRect(
+                            Preconditions.checkNotNull(cropRectMap.get(useCase)));
                 }
             }
 
@@ -279,38 +280,42 @@ public final class CameraUseCaseAdapter {
             @NonNull List<UseCase> currentUseCases) {
         List<SurfaceConfig> existingSurfaces = new ArrayList<>();
         String cameraId = mCameraInternal.getCameraInfoInternal().getCameraId();
+        Map<UseCase, Size> suggestedResolutions = new HashMap<>();
 
-        Map<UseCaseConfig<?>, UseCase> configToUseCaseMap = new HashMap<>();
-
+        // Get resolution for current use cases.
         for (UseCase useCase : currentUseCases) {
             SurfaceConfig surfaceConfig =
                     mCameraDeviceSurfaceManager.transformSurfaceConfig(cameraId,
                             useCase.getImageFormat(),
                             useCase.getAttachedSurfaceResolution());
             existingSurfaces.add(surfaceConfig);
+            suggestedResolutions.put(useCase, useCase.getAttachedSurfaceResolution());
         }
 
-        for (UseCase useCase : newUseCases) {
-            UseCaseConfig.Builder<?, ?, ?> defaultBuilder = useCase.getDefaultBuilder(
-                    mCameraInternal.getCameraInfoInternal());
+        // Calculate resolution for new use cases.
+        if (!newUseCases.isEmpty()) {
+            Map<UseCaseConfig<?>, UseCase> configToUseCaseMap = new HashMap<>();
+            for (UseCase useCase : newUseCases) {
+                UseCaseConfig.Builder<?, ?, ?> defaultBuilder = useCase.getDefaultBuilder(
+                        mCameraInternal.getCameraInfoInternal());
 
-            // Combine with default configuration.
-            UseCaseConfig<?> combinedUseCaseConfig =
-                    useCase.applyDefaults(useCase.getUseCaseConfig(),
-                            defaultBuilder);
-            configToUseCaseMap.put(combinedUseCaseConfig, useCase);
+                // Combine with default configuration.
+                UseCaseConfig<?> combinedUseCaseConfig =
+                        useCase.applyDefaults(useCase.getUseCaseConfig(),
+                                defaultBuilder);
+                configToUseCaseMap.put(combinedUseCaseConfig, useCase);
+            }
+
+            // Get suggested resolutions and update the use case session configuration
+            Map<UseCaseConfig<?>, Size> useCaseConfigSizeMap = mCameraDeviceSurfaceManager
+                    .getSuggestedResolutions(cameraId, existingSurfaces,
+                            new ArrayList<>(configToUseCaseMap.keySet()));
+
+            for (Map.Entry<UseCaseConfig<?>, UseCase> entry : configToUseCaseMap.entrySet()) {
+                suggestedResolutions.put(entry.getValue(),
+                        useCaseConfigSizeMap.get(entry.getKey()));
+            }
         }
-
-        // Get suggested resolutions and update the use case session configuration
-        Map<UseCaseConfig<?>, Size> useCaseConfigSizeMap = mCameraDeviceSurfaceManager
-                .getSuggestedResolutions(cameraId, existingSurfaces,
-                        new ArrayList<>(configToUseCaseMap.keySet()));
-
-        Map<UseCase, Size> suggestedResolutions = new HashMap<>();
-        for (Map.Entry<UseCaseConfig<?>, UseCase> entry : configToUseCaseMap.entrySet()) {
-            suggestedResolutions.put(entry.getValue(), useCaseConfigSizeMap.get(entry.getKey()));
-        }
-
         return suggestedResolutions;
     }
 
@@ -333,6 +338,7 @@ public final class CameraUseCaseAdapter {
      */
     public static final class CameraId {
         private final List<String> mIds;
+
         CameraId(LinkedHashSet<CameraInternal> cameraInternals) {
             mIds = new ArrayList<>();
             for (CameraInternal cameraInternal : cameraInternals) {
