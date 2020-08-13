@@ -82,6 +82,11 @@ fun SemanticsNodeInteraction.performScrollTo(): SemanticsNodeInteraction {
  * responsibility of the caller to make sure partial gestures don't leave the test in an
  * inconsistent state.
  *
+ * All events that are injected from the [block] are batched together and sent after [block] is
+ * complete. This method blocks until all those events have been injected, which normally takes
+ * as long as the duration of the gesture. If an error occurs during execution of [block] or
+ * injection of the events, all (subsequent) events are dropped and the error is thrown here.
+ *
  * This method must not be called from the main thread. The block will be executed on the same
  * thread as the caller.
  *
@@ -107,7 +112,11 @@ fun SemanticsNodeInteraction.performGesture(
         try {
             block()
         } finally {
-            dispose()
+            try {
+                inputDispatcher.sendAllSynchronous()
+            } finally {
+                dispose()
+            }
         }
     }
     return this

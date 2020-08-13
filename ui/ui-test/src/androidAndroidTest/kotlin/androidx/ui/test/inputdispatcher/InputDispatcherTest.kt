@@ -18,12 +18,36 @@ package androidx.ui.test.inputdispatcher
 
 import androidx.compose.ui.geometry.Offset
 import androidx.ui.test.AndroidBaseInputDispatcher
+import androidx.ui.test.AndroidBaseInputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.InputDispatcher
 import androidx.ui.test.android.AndroidInputDispatcher
+import androidx.ui.test.util.MotionEventRecorder
 import com.google.common.truth.Truth.assertThat
+import org.junit.After
+import org.junit.Rule
+import org.junit.rules.TestRule
 
-internal fun AndroidInputDispatcher.sendDownAndCheck(pointerId: Int, position: Offset) {
-    sendDown(pointerId, position)
+open class InputDispatcherTest(eventPeriodOverride: Long? = null) {
+
+    @get:Rule
+    val inputDispatcherRule: TestRule = InputDispatcherTestRule(
+        disableDispatchInRealTime = true,
+        eventPeriodOverride = eventPeriodOverride
+    )
+
+    internal val recorder = MotionEventRecorder()
+    internal val subject = AndroidInputDispatcher(recorder::recordEvent)
+
+    @After
+    fun tearDown() {
+        // MotionEvents are still at the subject or in the recorder, but not both
+        subject.dispose()
+        recorder.disposeEvents()
+    }
+}
+
+internal fun AndroidInputDispatcher.generateDownAndCheck(pointerId: Int, position: Offset) {
+    enqueueDown(pointerId, position)
     assertThat(getCurrentPosition(pointerId)).isEqualTo(position)
 }
 
@@ -32,20 +56,20 @@ internal fun AndroidInputDispatcher.movePointerAndCheck(pointerId: Int, position
     assertThat(getCurrentPosition(pointerId)).isEqualTo(position)
 }
 
-internal fun AndroidInputDispatcher.sendUpAndCheck(pointerId: Int, delay: Long? = null) {
+internal fun AndroidInputDispatcher.generateUpAndCheck(pointerId: Int, delay: Long? = null) {
     if (delay != null) {
-        sendUp(pointerId, delay)
+        enqueueUp(pointerId, delay)
     } else {
-        sendUp(pointerId)
+        enqueueUp(pointerId)
     }
     assertThat(getCurrentPosition(pointerId)).isNull()
 }
 
-internal fun AndroidInputDispatcher.sendCancelAndCheck(delay: Long? = null) {
+internal fun AndroidInputDispatcher.generateCancelAndCheck(delay: Long? = null) {
     if (delay != null) {
-        sendCancel(delay)
+        enqueueCancel(delay)
     } else {
-        sendCancel()
+        enqueueCancel()
     }
     verifyNoGestureInProgress()
 }

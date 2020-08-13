@@ -21,27 +21,22 @@ import android.view.MotionEvent.ACTION_DOWN
 import android.view.MotionEvent.ACTION_MOVE
 import android.view.MotionEvent.ACTION_POINTER_DOWN
 import android.view.MotionEvent.ACTION_POINTER_UP
-import androidx.test.filters.SmallTest
 import androidx.compose.ui.geometry.Offset
+import androidx.test.filters.SmallTest
 import androidx.ui.test.InputDispatcher.Companion.eventPeriod
-import androidx.ui.test.AndroidBaseInputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.android.AndroidInputDispatcher
-import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
 import androidx.ui.test.util.expectError
 import androidx.ui.test.util.verifyEvent
 import androidx.ui.test.util.verifyPointer
 import com.google.common.truth.Truth.assertThat
-import org.junit.After
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 
 /**
- * Tests if [AndroidInputDispatcher.movePointer] and [AndroidInputDispatcher.sendMove] work
+ * Tests if [AndroidInputDispatcher.movePointer] and [AndroidInputDispatcher.enqueueMove] work
  */
 @SmallTest
-class SendMoveTest {
+class SendMoveTest : InputDispatcherTest() {
     companion object {
         // pointerIds
         private const val pointer1 = 11
@@ -59,19 +54,8 @@ class SendMoveTest {
         private val position1_3 = Offset(13f, 13f)
     }
 
-    @get:Rule
-    val inputDispatcherRule: TestRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
-
-    private val recorder = MotionEventRecorder()
-    private val subject = AndroidInputDispatcher(recorder::recordEvent)
-
-    @After
-    fun tearDown() {
-        recorder.disposeEvents()
-    }
-
-    private fun AndroidInputDispatcher.sendCancelAndCheckPointers() {
-        sendCancelAndCheck()
+    private fun AndroidInputDispatcher.generateCancelAndCheckPointers() {
+        generateCancelAndCheck()
         assertThat(getCurrentPosition(pointer1)).isNull()
         assertThat(getCurrentPosition(pointer2)).isNull()
         assertThat(getCurrentPosition(pointer3)).isNull()
@@ -79,9 +63,10 @@ class SendMoveTest {
 
     @Test
     fun onePointer() {
-        subject.sendDownAndCheck(pointer1, position1_1)
+        subject.generateDownAndCheck(pointer1, position1_1)
         subject.movePointerAndCheck(pointer1, position1_2)
-        subject.sendMove()
+        subject.enqueueMove()
+        subject.sendAllSynchronous()
 
         var t = 0L
         recorder.assertHasValidEventTimes()
@@ -96,9 +81,10 @@ class SendMoveTest {
 
     @Test
     fun onePointerWithDelay() {
-        subject.sendDownAndCheck(pointer1, position1_1)
+        subject.generateDownAndCheck(pointer1, position1_1)
         subject.movePointerAndCheck(pointer1, position1_2)
-        subject.sendMove(2 * eventPeriod)
+        subject.enqueueMove(2 * eventPeriod)
+        subject.sendAllSynchronous()
 
         var t = 0L
         recorder.assertHasValidEventTimes()
@@ -114,12 +100,13 @@ class SendMoveTest {
     @Test
     fun twoPointers_downDownMoveMove() {
         // 2 fingers, both go down before they move
-        subject.sendDownAndCheck(pointer1, position1_1)
-        subject.sendDownAndCheck(pointer2, position2_1)
+        subject.generateDownAndCheck(pointer1, position1_1)
+        subject.generateDownAndCheck(pointer2, position2_1)
         subject.movePointerAndCheck(pointer1, position1_2)
-        subject.sendMove()
+        subject.enqueueMove()
         subject.movePointerAndCheck(pointer2, position2_2)
-        subject.sendMove()
+        subject.enqueueMove()
+        subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
@@ -148,12 +135,13 @@ class SendMoveTest {
     @Test
     fun twoPointers_downMoveDownMove() {
         // 2 fingers, 1st finger moves before 2nd finger goes down and moves
-        subject.sendDownAndCheck(pointer1, position1_1)
+        subject.generateDownAndCheck(pointer1, position1_1)
         subject.movePointerAndCheck(pointer1, position1_2)
-        subject.sendMove()
-        subject.sendDownAndCheck(pointer2, position2_1)
+        subject.enqueueMove()
+        subject.generateDownAndCheck(pointer2, position2_1)
         subject.movePointerAndCheck(pointer2, position2_2)
-        subject.sendMove()
+        subject.enqueueMove()
+        subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
@@ -181,11 +169,12 @@ class SendMoveTest {
     @Test
     fun movePointer_oneMovePerPointer() {
         // 2 fingers, use [movePointer] and [sendMove]
-        subject.sendDownAndCheck(pointer1, position1_1)
-        subject.sendDownAndCheck(pointer2, position2_1)
+        subject.generateDownAndCheck(pointer1, position1_1)
+        subject.generateDownAndCheck(pointer2, position2_1)
         subject.movePointerAndCheck(pointer1, position1_2)
         subject.movePointerAndCheck(pointer2, position2_2)
-        subject.sendMove()
+        subject.enqueueMove()
+        subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
@@ -209,11 +198,12 @@ class SendMoveTest {
     @Test
     fun movePointer_multipleMovesPerPointer() {
         // 2 fingers, do several [movePointer]s and then [sendMove]
-        subject.sendDownAndCheck(pointer1, position1_1)
-        subject.sendDownAndCheck(pointer2, position2_1)
+        subject.generateDownAndCheck(pointer1, position1_1)
+        subject.generateDownAndCheck(pointer2, position2_1)
         subject.movePointerAndCheck(pointer1, position1_2)
         subject.movePointerAndCheck(pointer1, position1_3)
-        subject.sendMove()
+        subject.enqueueMove()
+        subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
@@ -237,9 +227,10 @@ class SendMoveTest {
     @Test
     fun sendMoveWithoutMovePointer() {
         // 2 fingers, do [sendMove] without [movePointer]
-        subject.sendDownAndCheck(pointer1, position1_1)
-        subject.sendDownAndCheck(pointer2, position2_1)
-        subject.sendMove()
+        subject.generateDownAndCheck(pointer1, position1_1)
+        subject.generateDownAndCheck(pointer2, position2_1)
+        subject.enqueueMove()
+        subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
@@ -263,11 +254,12 @@ class SendMoveTest {
     @Test
     fun downFlushesPointerMovement() {
         // Movement from [movePointer] that hasn't been sent will be sent when sending DOWN
-        subject.sendDownAndCheck(pointer1, position1_1)
-        subject.sendDownAndCheck(pointer2, position2_1)
+        subject.generateDownAndCheck(pointer1, position1_1)
+        subject.generateDownAndCheck(pointer2, position2_1)
         subject.movePointerAndCheck(pointer1, position1_2)
         subject.movePointerAndCheck(pointer1, position1_3)
-        subject.sendDownAndCheck(pointer3, position3_1)
+        subject.generateDownAndCheck(pointer3, position3_1)
+        subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
@@ -296,11 +288,12 @@ class SendMoveTest {
     @Test
     fun upFlushesPointerMovement() {
         // Movement from [movePointer] that hasn't been sent will be sent when sending UP
-        subject.sendDownAndCheck(pointer1, position1_1)
-        subject.sendDownAndCheck(pointer2, position2_1)
+        subject.generateDownAndCheck(pointer1, position1_1)
+        subject.generateDownAndCheck(pointer2, position2_1)
         subject.movePointerAndCheck(pointer1, position1_2)
         subject.movePointerAndCheck(pointer1, position1_3)
-        subject.sendUpAndCheck(pointer1)
+        subject.generateUpAndCheck(pointer1)
+        subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
@@ -329,11 +322,12 @@ class SendMoveTest {
     fun cancelDoesNotFlushPointerMovement() {
         // 2 fingers, both with pending movement.
         // CANCEL doesn't force a MOVE, but _does_ reflect the latest positions
-        subject.sendDownAndCheck(pointer1, position1_1)
-        subject.sendDownAndCheck(pointer2, position2_1)
+        subject.generateDownAndCheck(pointer1, position1_1)
+        subject.generateDownAndCheck(pointer2, position2_1)
         subject.movePointerAndCheck(pointer1, position1_2)
         subject.movePointerAndCheck(pointer2, position2_2)
-        subject.sendCancelAndCheckPointers()
+        subject.generateCancelAndCheckPointers()
+        subject.sendAllSynchronous()
 
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
@@ -362,7 +356,7 @@ class SendMoveTest {
 
     @Test
     fun movePointerWrongPointerId() {
-        subject.sendDown(pointer1, position1_1)
+        subject.enqueueDown(pointer1, position1_1)
         expectError<IllegalArgumentException> {
             subject.movePointer(pointer2, position1_2)
         }
@@ -370,8 +364,8 @@ class SendMoveTest {
 
     @Test
     fun movePointerAfterUp() {
-        subject.sendDown(pointer1, position1_1)
-        subject.sendUp(pointer1)
+        subject.enqueueDown(pointer1, position1_1)
+        subject.enqueueUp(pointer1)
         expectError<IllegalStateException> {
             subject.movePointer(pointer1, position1_2)
         }
@@ -379,8 +373,8 @@ class SendMoveTest {
 
     @Test
     fun movePointerAfterCancel() {
-        subject.sendDown(pointer1, position1_1)
-        subject.sendCancel()
+        subject.enqueueDown(pointer1, position1_1)
+        subject.enqueueCancel()
         expectError<IllegalStateException> {
             subject.movePointer(pointer1, position1_2)
         }
@@ -389,25 +383,25 @@ class SendMoveTest {
     @Test
     fun sendMoveWithoutDown() {
         expectError<IllegalStateException> {
-            subject.sendMove()
+            subject.enqueueMove()
         }
     }
 
     @Test
     fun sendMoveAfterUp() {
-        subject.sendDown(pointer1, position1_1)
-        subject.sendUp(pointer1)
+        subject.enqueueDown(pointer1, position1_1)
+        subject.enqueueUp(pointer1)
         expectError<IllegalStateException> {
-            subject.sendMove()
+            subject.enqueueMove()
         }
     }
 
     @Test
     fun sendMoveAfterCancel() {
-        subject.sendDown(pointer1, position1_1)
-        subject.sendCancel()
+        subject.enqueueDown(pointer1, position1_1)
+        subject.enqueueCancel()
         expectError<IllegalStateException> {
-            subject.sendMove()
+            subject.enqueueMove()
         }
     }
 }

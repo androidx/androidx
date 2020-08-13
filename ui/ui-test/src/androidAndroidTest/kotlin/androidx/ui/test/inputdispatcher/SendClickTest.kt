@@ -17,28 +17,23 @@
 package androidx.ui.test.inputdispatcher
 
 import android.view.MotionEvent
-import androidx.test.filters.SmallTest
 import androidx.compose.ui.geometry.Offset
+import androidx.test.filters.SmallTest
 import androidx.ui.test.InputDispatcher.Companion.eventPeriod
-import androidx.ui.test.AndroidBaseInputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.android.AndroidInputDispatcher
-import androidx.ui.test.util.MotionEventRecorder
 import androidx.ui.test.util.assertHasValidEventTimes
 import androidx.ui.test.util.verify
 import com.google.common.truth.Truth.assertThat
-import org.junit.After
-import org.junit.Rule
 import org.junit.Test
-import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
 /**
- * Tests if [AndroidInputDispatcher.sendClick] works
+ * Tests if [AndroidInputDispatcher.enqueueClick] works
  */
 @SmallTest
 @RunWith(Parameterized::class)
-class SendClickTest(config: TestConfig) {
+class SendClickTest(config: TestConfig) : InputDispatcherTest() {
     data class TestConfig(
         val x: Float,
         val y: Float
@@ -56,22 +51,12 @@ class SendClickTest(config: TestConfig) {
         }
     }
 
-    @get:Rule
-    val inputDispatcherRule: TestRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
-
     private val position = Offset(config.x, config.y)
-
-    private val recorder = MotionEventRecorder()
-    private val subject = AndroidInputDispatcher(recorder::recordEvent)
-
-    @After
-    fun tearDown() {
-        recorder.disposeEvents()
-    }
 
     @Test
     fun testClick() {
-        subject.sendClick(position)
+        subject.enqueueClick(position)
+        subject.sendAllSynchronous()
         recorder.assertHasValidEventTimes()
         recorder.events.apply {
             assertThat(size).isEqualTo(3)

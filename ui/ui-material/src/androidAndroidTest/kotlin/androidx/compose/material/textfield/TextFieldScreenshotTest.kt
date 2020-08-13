@@ -33,9 +33,13 @@ import androidx.compose.runtime.Providers
 import androidx.compose.ui.platform.LayoutDirectionAmbient
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.ui.test.captureToBitmap
+import androidx.ui.test.center
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.down
+import androidx.ui.test.move
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.performClick
+import androidx.ui.test.performGesture
+import androidx.ui.test.up
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -93,7 +97,9 @@ class TextFieldScreenshotTest {
         }
 
         onNodeWithTag(TextFieldTag)
-            .performClick()
+            // split click into (down) and (move, up) to enforce a composition in between
+            .performGesture { down(center) }
+            .performGesture { move(); up() }
 
         assertAgainstGolden("filled_textField_focused")
     }
@@ -112,7 +118,9 @@ class TextFieldScreenshotTest {
         }
 
         onNodeWithTag(TextFieldTag)
-            .performClick()
+            // split click into (down) and (move, up) to enforce a composition in between
+            .performGesture { down(center) }
+            .performGesture { move(); up() }
 
         assertAgainstGolden("filled_textField_focused_rtl")
     }
