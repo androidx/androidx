@@ -27,8 +27,8 @@ import org.junit.runners.JUnit4
  * In each scenario, we start with a circle with radius 5, origin 0,0 - coordinates returned are
  * always relative to the center of the circle.
  *
- * See ui-material/src/test/bottom_app_bar_rounded_edges.png for what these calculated points
- * represent. This is generated from ui-material/src/test/bottom_app_bar_rounded_edges_graph.py
+ * See material/src/test/bottom_app_bar_rounded_edges.png for what these calculated points
+ * represent. This is generated from material/src/test/bottom_app_bar_rounded_edges_graph.py
  *
  * Note: on Android y = 0 is at the top of the screen, so positive values are lower down - as a
  * result all the y values in this test are inverted from the graph representation.

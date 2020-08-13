@@ -16,4 +16,4 @@
 
 package androidx.compose.material
 
-internal const val GOLDEN_MATERIAL = "ui/ui-material"
+internal const val GOLDEN_MATERIAL = "compose/material/material"
