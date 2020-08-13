@@ -25,7 +25,7 @@ import androidx.recyclerview.widget.RecyclerView;
  * No-op implementation of OnItemTouchListener suitable for use as a default
  * handler w/ ToolHandlerRegistery, or in tests.
  */
-final class DummyOnItemTouchListener implements RecyclerView.OnItemTouchListener {
+final class StubOnItemTouchListener implements RecyclerView.OnItemTouchListener {
     @Override
     public boolean onInterceptTouchEvent(
             @NonNull RecyclerView unused, @NonNull MotionEvent e) {
