@@ -31,6 +31,7 @@ class CameraGraphImpl @Inject constructor(
     private val graphProcessor: GraphProcessor,
     private val streamMap: StreamMap
 ) : CameraGraph {
+    private val debugId = Debug.debugIdsForGraph.incrementAndGet()
     // Only one session can be active at a time.
     private val sessionLock = TokenLockImpl(1)
     override val streams: Map<StreamConfig, Stream>
@@ -62,4 +63,6 @@ class CameraGraphImpl @Inject constructor(
         sessionLock.close()
         graphProcessor.close()
     }
+
+    override fun toString(): String = "CameraGraph-$debugId"
 }

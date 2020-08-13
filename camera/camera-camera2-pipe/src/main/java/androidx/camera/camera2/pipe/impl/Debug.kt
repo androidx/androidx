@@ -20,6 +20,7 @@ package androidx.camera.camera2.pipe.impl
 
 import android.os.Trace
 import android.os.Build
+import kotlinx.atomicfu.atomic
 
 /**
  * Internal debug utilities, constants, and checks.
@@ -67,6 +68,11 @@ object Debug {
             throw IllegalArgumentException(msg())
         }
     }
+
+    internal val debugIdsForGraph = atomic(0)
+    internal val debugIdsForGraphSession = atomic(0)
+    internal val debugIdsForCameraCallback = atomic(0)
+    internal val debugIdsForVirtualCamera = atomic(0)
 }
 
 /**

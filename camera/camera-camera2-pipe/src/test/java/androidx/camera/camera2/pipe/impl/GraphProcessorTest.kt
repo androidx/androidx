@@ -23,6 +23,7 @@ import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
 import androidx.camera.camera2.pipe.testing.Event
 import androidx.camera.camera2.pipe.testing.FakeRequestListener
 import androidx.camera.camera2.pipe.testing.FakeRequestProcessor
+import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Dispatchers
@@ -53,8 +54,8 @@ class GraphProcessorTest {
         // state of results.
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
+                FakeThreads.forTests,
                 this,
-                Dispatchers.Default,
                 arrayListOf(globalListener)
             )
             graphProcessor.start()
@@ -76,8 +77,8 @@ class GraphProcessorTest {
         // state of results.
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
+                FakeThreads.forTests,
                 this,
-                Dispatchers.Default,
                 arrayListOf(globalListener)
             )
             graphProcessor.start()
@@ -103,8 +104,8 @@ class GraphProcessorTest {
         // state of results.
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
+                FakeThreads.forTests,
                 this,
-                Dispatchers.Default,
                 arrayListOf(globalListener)
             )
             graphProcessor.start()
@@ -130,8 +131,8 @@ class GraphProcessorTest {
         // state of results.
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
+                FakeThreads.forTests,
                 this,
-                Dispatchers.Default,
                 arrayListOf(globalListener)
             )
             graphProcessor.start()
@@ -149,8 +150,8 @@ class GraphProcessorTest {
     fun graphProcessorDoesNotForgetRejectedRequests() {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
+                FakeThreads.forTests,
                 this,
-                Dispatchers.Default,
                 arrayListOf(globalListener)
             )
             graphProcessor.start()
@@ -179,8 +180,8 @@ class GraphProcessorTest {
     fun graphProcessorContinuesSubmittingRequestsWhenFirstRequestIsRejected() {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
+                FakeThreads.forTests,
                 this,
-                Dispatchers.Default,
                 arrayListOf(globalListener)
             )
             graphProcessor.start()
@@ -222,8 +223,8 @@ class GraphProcessorTest {
     fun graphProcessorSetsRepeatingRequest() {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
+                FakeThreads.forTests,
                 this,
-                Dispatchers.Default,
                 arrayListOf(globalListener)
             )
             graphProcessor.start()
@@ -240,8 +241,8 @@ class GraphProcessorTest {
     fun graphProcessorTracksRepeatingRequest() {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
+                FakeThreads.forTests,
                 this,
-                Dispatchers.Default,
                 arrayListOf(globalListener)
             )
             graphProcessor.start()
@@ -262,8 +263,8 @@ class GraphProcessorTest {
     fun graphProcessorTracksRejectedRepeatingRequests() {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
+                FakeThreads.forTests,
                 this,
-                Dispatchers.Default,
                 arrayListOf(globalListener)
             )
             graphProcessor.start()
@@ -283,8 +284,8 @@ class GraphProcessorTest {
     fun graphProcessorSubmitsRepeatingRequestAndQueuedRequests() {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
+                FakeThreads.forTests,
                 this,
-                Dispatchers.Default,
                 arrayListOf(globalListener)
             )
             graphProcessor.start()
@@ -303,8 +304,8 @@ class GraphProcessorTest {
     fun graphProcessorAbortsQueuedRequests() {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
+                FakeThreads.forTests,
                 this,
-                Dispatchers.Default,
                 arrayListOf(globalListener)
             )
             graphProcessor.start()
@@ -329,8 +330,8 @@ class GraphProcessorTest {
     fun closingGraphProcessorAbortsSubsequentRequests() {
         runBlocking(Dispatchers.Default) {
             val graphProcessor = GraphProcessorImpl(
+                FakeThreads.forTests,
                 this,
-                Dispatchers.Default,
                 arrayListOf(globalListener)
             )
             graphProcessor.start()

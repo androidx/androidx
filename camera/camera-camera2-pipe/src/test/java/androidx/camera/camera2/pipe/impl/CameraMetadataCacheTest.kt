@@ -20,6 +20,7 @@ import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
 import androidx.camera.camera2.pipe.testing.FakeCameras
+import androidx.camera.camera2.pipe.testing.FakeThreads
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
@@ -54,7 +55,11 @@ class CameraMetadataCacheTest {
             )
         )
 
-        val cache = CameraMetadataCache(FakeCameras.application)
+        val cache = CameraMetadataCache(
+            FakeCameras.application,
+            FakeThreads.forTests,
+            Permissions(FakeCameras.application)
+        )
 
         val metadata0 = cache.awaitMetadata(camera0)
         val metadata1 = cache.awaitMetadata(camera1)

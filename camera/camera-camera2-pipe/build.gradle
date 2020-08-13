@@ -52,6 +52,7 @@ dependencies {
     testImplementation(JUNIT)
     testImplementation(TRUTH)
     testImplementation(ROBOLECTRIC)
+    testImplementation(KOTLIN_COROUTINES_TEST)
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
