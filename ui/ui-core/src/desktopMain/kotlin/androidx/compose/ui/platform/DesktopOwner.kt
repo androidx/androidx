@@ -166,16 +166,23 @@ class DesktopOwner(
         container.invalidate()
     }
 
+    // Don't inline these variables into snapshotObserver.observeReads,
+    // because observeReads requires that onChanged should always be the same instance.
+    // Otherwise there will be a memory leak and FPS drop (see b/163905871)
+    private val onCommitAffectingLayout = ::onRequestRelayout
+    private val onCommitAffectingMeasure = ::onRequestMeasure
+    private val onCommitAffectingLayer = OwnedLayer::invalidate
+
     override fun observeLayoutModelReads(node: LayoutNode, block: () -> Unit) {
-        snapshotObserver.observeReads(node, ::onRequestRelayout, block)
+        snapshotObserver.observeReads(node, onCommitAffectingLayout, block)
     }
 
     override fun observeMeasureModelReads(node: LayoutNode, block: () -> Unit) {
-        snapshotObserver.observeReads(node, ::onRequestMeasure, block)
+        snapshotObserver.observeReads(node, onCommitAffectingMeasure, block)
     }
 
     private fun observeDrawModelReads(layer: SkijaLayer, block: () -> Unit) {
-        snapshotObserver.observeReads(layer, OwnedLayer::invalidate, block)
+        snapshotObserver.observeReads(layer, onCommitAffectingLayer, block)
     }
 
     override fun createLayer(
