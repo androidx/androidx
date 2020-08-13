@@ -85,26 +85,22 @@ class DataStoreFactoryTest {
 
         val migratedByte = 1
 
-        val migratePlus2 = {
-            object : DataMigration<Byte> {
+        val migratePlus2 = object : DataMigration<Byte> {
                 override suspend fun shouldMigrate(currentData: Byte) = true
                 override suspend fun migrate(currentData: Byte) = currentData.inc().inc()
                 override suspend fun cleanUp() {}
             }
-        }
-        val migrateMinus1 = {
-            object : DataMigration<Byte> {
+        val migrateMinus1 = object : DataMigration<Byte> {
                 override suspend fun shouldMigrate(currentData: Byte) = true
 
                 override suspend fun migrate(currentData: Byte) = currentData.dec()
 
                 override suspend fun cleanUp() {}
             }
-        }
 
         val store = factory.create(
             produceFile = { testFile },
-            migrationProducers = listOf(migratePlus2, migrateMinus1),
+            migrations = listOf(migratePlus2, migrateMinus1),
             scope = dataStoreScope,
             serializer = TestingSerializer()
         )

@@ -54,7 +54,7 @@ class DataMigrationInitializerTest {
         val store = newDataStore(
             initTasksList = listOf(
                 DataMigrationInitializer.getInitializer(
-                    listOf { migrateTo100 }
+                    listOf(migrateTo100)
                 )
             )
         )
@@ -70,7 +70,7 @@ class DataMigrationInitializerTest {
         val store = newDataStore(
             initTasksList = listOf(
                 DataMigrationInitializer.getInitializer(
-                    listOf({ migratePlus2 }, { migratePlus3 })
+                    listOf(migratePlus2, migratePlus3)
                 )
             )
         )
@@ -90,7 +90,7 @@ class DataMigrationInitializerTest {
 
         val store = newDataStore(
             initTasksList = listOf(
-                DataMigrationInitializer.getInitializer(listOf({ noOpMigration }))
+                DataMigrationInitializer.getInitializer(listOf(noOpMigration))
             )
         )
 
@@ -114,7 +114,7 @@ class DataMigrationInitializerTest {
 
         val store = newDataStore(
             initTasksList = listOf(
-                DataMigrationInitializer.getInitializer(listOf({ noOpMigration }))
+                DataMigrationInitializer.getInitializer(listOf(noOpMigration))
             )
         )
 
@@ -140,7 +140,7 @@ class DataMigrationInitializerTest {
         serializer.failingWrite = true
         val store = newDataStore(
             initTasksList = listOf(
-                DataMigrationInitializer.getInitializer(listOf({ noOpMigration }))
+                DataMigrationInitializer.getInitializer(listOf(noOpMigration))
             ),
             serializer = serializer
         )
@@ -162,7 +162,7 @@ class DataMigrationInitializerTest {
 
         val store = newDataStore(
             initTasksList = listOf(
-                DataMigrationInitializer.getInitializer(listOf({ cleanUpFailingMigration }))
+                DataMigrationInitializer.getInitializer(listOf(cleanUpFailingMigration))
             )
         )
 
@@ -175,40 +175,11 @@ class DataMigrationInitializerTest {
 
         val store = newDataStore(
             initTasksList = listOf(
-                DataMigrationInitializer.getInitializer(listOf({ neverRunMigration }))
+                DataMigrationInitializer.getInitializer(listOf(neverRunMigration))
             )
         )
 
         assertThat(store.data.first()).isEqualTo(0)
-    }
-
-    @Test
-    fun testNewDataMigrationUsedOnFailure() = runBlockingTest {
-        val migrationFactory =
-            {
-                var byte: Byte = 99
-                val migration = TestingDataMigration(migration = {
-                    val unmodifiedByte = byte
-                    byte = byte.inc()
-                    unmodifiedByte
-                })
-                migration
-            }
-
-        val store = newDataStore(
-            initTasksList = listOf(
-                DataMigrationInitializer.getInitializer(listOf(migrationFactory))
-            ),
-            serializer = serializer
-        )
-
-        serializer.failingWrite = true
-
-        assertThrows<IOException> { store.data.first() }
-
-        serializer.failingWrite = false
-
-        assertThat(store.data.first()).isEqualTo(99)
     }
 
     private fun newDataStore(

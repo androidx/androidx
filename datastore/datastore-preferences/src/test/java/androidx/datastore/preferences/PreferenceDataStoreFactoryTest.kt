@@ -91,30 +91,27 @@ class PreferenceDataStoreFactoryTest {
             .setBoolean("boolean_key", true)
             .build()
 
-        val migrateTo5 = {
-            object : DataMigration<Preferences> {
-                override suspend fun shouldMigrate(currentData: Preferences) = true
+        val migrateTo5 = object : DataMigration<Preferences> {
+            override suspend fun shouldMigrate(currentData: Preferences) = true
 
-                override suspend fun migrate(currentData: Preferences) =
-                    currentData.toBuilder().setString("string_key", "value").build()
+            override suspend fun migrate(currentData: Preferences) =
+                currentData.toBuilder().setString("string_key", "value").build()
 
-                override suspend fun cleanUp() {}
-            }
+            override suspend fun cleanUp() {}
         }
-        val migratePlus1 = {
-            object : DataMigration<Preferences> {
-                override suspend fun shouldMigrate(currentData: Preferences) = true
 
-                override suspend fun migrate(currentData: Preferences) =
-                    currentData.toBuilder().setBoolean("boolean_key", true).build()
+        val migratePlus1 = object : DataMigration<Preferences> {
+            override suspend fun shouldMigrate(currentData: Preferences) = true
 
-                override suspend fun cleanUp() {}
-            }
+            override suspend fun migrate(currentData: Preferences) =
+                currentData.toBuilder().setBoolean("boolean_key", true).build()
+
+            override suspend fun cleanUp() {}
         }
 
         val store = factory.create(
             produceFile = { testFile },
-            migrationProducers = listOf(migrateTo5, migratePlus1),
+            migrations = listOf(migrateTo5, migratePlus1),
             scope = dataStoreScope
         )
 
