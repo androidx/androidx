@@ -22,7 +22,6 @@ import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadResult
@@ -498,9 +497,9 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             }
 
             stateLock.withLock {
-                state.dropInfo(dropType, generationalHint.hint)?.let { info ->
-                    state.drop(dropType, info.pageCount, info.placeholdersRemaining)
-                    pageEventCh.send(Drop(dropType, info.pageCount, info.placeholdersRemaining))
+                state.dropEventOrNull(dropType, generationalHint.hint)?.let { event ->
+                    state.drop(event)
+                    pageEventCh.send(event)
                 }
 
                 loadKey = state.nextLoadKeyOrNull(loadType, generationalHint, itemsLoaded)

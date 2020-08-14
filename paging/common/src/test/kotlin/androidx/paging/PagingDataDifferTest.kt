@@ -16,8 +16,8 @@
 
 package androidx.paging
 
-import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadState.NotLoading
+import androidx.paging.LoadType.PREPEND
 import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.Insert.Companion.Append
 import androidx.paging.PageEvent.Insert.Companion.Prepend
@@ -152,7 +152,7 @@ class PagingDataDifferTest {
         val pageEventFlow = flowOf<PageEvent<Int>>(
             Refresh(listOf(), 0, 0, CombinedLoadStates.IDLE_SOURCE),
             Prepend(listOf(), 0, CombinedLoadStates.IDLE_SOURCE),
-            Drop(PREPEND, 0, 0),
+            Drop(PREPEND, -1, -1, 0),
             Refresh(listOf(TransformablePage(0, listOf(0))), 0, 0, CombinedLoadStates.IDLE_SOURCE)
         )
 
@@ -183,7 +183,7 @@ class PagingDataDifferTest {
         val pageEventFlow = flowOf<PageEvent<Int>>(
             Refresh(listOf(), 0, 0, CombinedLoadStates.IDLE_SOURCE),
             Prepend(listOf(), 0, CombinedLoadStates.IDLE_SOURCE),
-            Drop(PREPEND, 0, 0),
+            Drop(PREPEND, -1, -1, 0),
             Refresh(listOf(TransformablePage(0, listOf(0))), 0, 0, CombinedLoadStates.IDLE_SOURCE)
         )
 
@@ -205,7 +205,7 @@ class PagingDataDifferTest {
         job.cancel()
     }
 
-        @Test
+    @Test
     fun fetch_loadHintResentWhenUnfulfilled() = testScope.runBlockingTest {
         val differ = SimpleDiffer(dummyDifferCallback)
 
@@ -432,7 +432,14 @@ class PagingDataDifferTest {
 
         // Drop the previous page, which reset resendable index state in the PREPEND direction.
         // [null, null, [-1], [1], [3], null, null]
-        pageEventCh.offer(Drop(loadType = PREPEND, count = 1, placeholdersRemaining = 2))
+        pageEventCh.offer(
+            Drop(
+                loadType = PREPEND,
+                minPageOffset = -2,
+                maxPageOffset = -2,
+                placeholdersRemaining = 2
+            )
+        )
 
         // Re-insert the previous page, which should not trigger resending the index due to
         // previous page drop:
