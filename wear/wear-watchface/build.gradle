@@ -54,6 +54,7 @@ dependencies {
     testImplementation(ANDROIDX_TEST_CORE)
     testImplementation(ANDROIDX_TEST_RULES)
     testImplementation(MOCKITO_CORE)
+    testImplementation(MOCKITO_KOTLIN)
     testImplementation(ROBOLECTRIC)
     testImplementation(TRUTH)
 }

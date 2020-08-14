@@ -32,8 +32,8 @@ import android.support.wearable.watchface.WatchFaceStyle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
-import androidx.wear.watchfacestyle.UserStyleCategory
-import androidx.wear.watchfacestyle.UserStyleManager
+import androidx.wear.watchface.style.UserStyleCategory
+import androidx.wear.watchface.style.UserStyleManager
 import org.junit.runners.model.FrameworkMethod
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.internal.bytecode.InstrumentationConfiguration
@@ -262,5 +262,6 @@ class WatchFaceTestRunner(testClass: Class<*>) : RobolectricTestRunner(testClass
             .doNotInstrumentPackage("androidx.wear.complications")
             .doNotInstrumentPackage("androidx.wear.watchface")
             .doNotInstrumentPackage("androidx.wear.watchface.ui")
+            .doNotInstrumentPackage("androidx.wear.watchfacestyle")
             .build()
 }

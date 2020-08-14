@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.watchfacestyle
+package androidx.wear.watchface.style
 
 import com.google.common.truth.Truth
 import org.junit.Test
@@ -29,24 +29,24 @@ import org.robolectric.internal.bytecode.InstrumentationConfiguration
 class UserStyleManagerTestRunner(testClass: Class<*>) : RobolectricTestRunner(testClass) {
     override fun createClassLoaderConfig(method: FrameworkMethod): InstrumentationConfiguration =
         InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method))
-            .doNotInstrumentPackage("androidx.wear.watchfacestyle")
+            .doNotInstrumentPackage("androidx.wear.watchface.style")
             .build()
 }
 
 @RunWith(UserStyleManagerTestRunner::class)
 class UserStyleManagerTest {
     private val redStyleOption =
-        ListViewUserStyleCategory.ListViewOption("red_style", "Red", icon = null)
+        ListUserStyleCategory.ListOption("red_style", "Red", icon = null)
 
     private val greenStyleOption =
-        ListViewUserStyleCategory.ListViewOption("green_style", "Green", icon = null)
+        ListUserStyleCategory.ListOption("green_style", "Green", icon = null)
 
     private val blueStyleOption =
-        ListViewUserStyleCategory.ListViewOption("bluestyle", "Blue", icon = null)
+        ListUserStyleCategory.ListOption("bluestyle", "Blue", icon = null)
 
     private val colorStyleList = listOf(redStyleOption, greenStyleOption, blueStyleOption)
 
-    private val colorStyleCategory = ListViewUserStyleCategory(
+    private val colorStyleCategory = ListUserStyleCategory(
         "color_style_category",
         "Colors",
         "Watchface colorization", /* icon = */
@@ -55,18 +55,18 @@ class UserStyleManagerTest {
     )
 
     private val classicStyleOption =
-        ListViewUserStyleCategory.ListViewOption("classic_style", "Classic", icon = null)
+        ListUserStyleCategory.ListOption("classic_style", "Classic", icon = null)
 
     private val modernStyleOption =
-        ListViewUserStyleCategory.ListViewOption("modern_style", "Modern", icon = null)
+        ListUserStyleCategory.ListOption("modern_style", "Modern", icon = null)
 
     private val gothicStyleOption =
-        ListViewUserStyleCategory.ListViewOption("gothic_style", "Gothic", icon = null)
+        ListUserStyleCategory.ListOption("gothic_style", "Gothic", icon = null)
 
     private val watchHandStyleList =
         listOf(classicStyleOption, modernStyleOption, gothicStyleOption)
 
-    private val watchHandStyleCategory = ListViewUserStyleCategory(
+    private val watchHandStyleCategory = ListUserStyleCategory(
         "hand_style_category",
         "Hand Style",
         "Hand visual look", /* icon = */

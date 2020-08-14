@@ -41,8 +41,8 @@ import androidx.annotation.VisibleForTesting
 import androidx.wear.complications.SystemProviders
 import androidx.wear.watchface.ui.WatchFaceConfigActivity
 import androidx.wear.watchface.ui.WatchFaceConfigDelegate
-import androidx.wear.watchfacestyle.UserStyleCategory
-import androidx.wear.watchfacestyle.UserStyleManager
+import androidx.wear.watchface.style.UserStyleCategory
+import androidx.wear.watchface.style.UserStyleManager
 import java.io.FileNotFoundException
 import java.io.InputStreamReader
 import kotlin.math.max
@@ -353,7 +353,7 @@ open class WatchFace(
 
         WatchFaceConfigActivity.registerWatchFace(componentName, object : WatchFaceConfigDelegate {
             override fun getUserStyleSchema() =
-                UserStyleCategory.userStyleCategoryListToBundles(
+                UserStyleCategory.userStyleCategoriesToBundles(
                     userStyleManager.userStyleCategories
                 )
 

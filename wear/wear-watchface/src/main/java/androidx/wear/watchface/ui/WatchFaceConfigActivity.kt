@@ -27,14 +27,15 @@ import android.util.Log
 import android.view.View
 import android.view.accessibility.AccessibilityEvent
 import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.LIBRARY
 import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.wear.complications.ComplicationHelperActivity
-import androidx.wear.watchfacestyle.UserStyleCategory
+import androidx.wear.watchface.style.UserStyleCategory
 
 /** @hide */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(LIBRARY)
 internal interface FragmentController {
     /** Show the {@link ConfigFragment} which lets the user select what they want to configure. */
     fun showConfigFragment()
@@ -47,8 +48,9 @@ internal interface FragmentController {
 
     /** Show the {@link StyleConfigFragment} which lets the user configure the watch face style. */
     fun showStyleConfigFragment(
-        styleCategoryKey: String,
-        userStyleOptions: List<UserStyleCategory.Option>
+        categoryId: String,
+        styleSchema: List<UserStyleCategory>,
+        styleMap: Map<UserStyleCategory, UserStyleCategory.Option>
     )
 
     /** Lets the user configure the complication provider for a single complication slot. */
@@ -129,15 +131,11 @@ class WatchFaceConfigActivity : FragmentActivity() {
 
             @SuppressLint("SyntheticAccessor")
             override fun showStyleConfigFragment(
-                styleCategoryKey: String,
-                userStyleOptions: List<UserStyleCategory.Option>
+                categoryId: String,
+                styleSchema: List<UserStyleCategory>,
+                styleMap: Map<UserStyleCategory, UserStyleCategory.Option>
             ) {
-                showFragment(
-                    StyleConfigFragment.newInstance(
-                        styleCategoryKey,
-                        userStyleOptions
-                    )
-                )
+                showFragment(StyleConfigFragment.newInstance(categoryId, styleSchema, styleMap))
             }
 
             /**
@@ -209,8 +207,9 @@ class WatchFaceConfigActivity : FragmentActivity() {
             }
 
         styleSchema =
-            UserStyleCategory.bundlesToUserStyleCategoryLists(
-                watchFaceConfigDelegate.getUserStyleSchema())
+            UserStyleCategory.bundlesToUserStyleCategoryList(
+                watchFaceConfigDelegate.getUserStyleSchema()
+            )
 
         backgroundComplicationId = watchFaceConfigDelegate.getBackgroundComplicationId()
 
@@ -249,7 +248,11 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 val onlyStyleCategory = styleSchema.first()
                 fragmentController.showStyleConfigFragment(
                     onlyStyleCategory.id,
-                    onlyStyleCategory.options
+                    styleSchema,
+                    UserStyleCategory.bundleToStyleMap(
+                        watchFaceConfigDelegate.getUserStyle(),
+                        styleSchema
+                    )
                 )
             }
         }

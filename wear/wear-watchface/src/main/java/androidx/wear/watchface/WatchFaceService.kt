@@ -48,7 +48,7 @@ import android.view.Choreographer
 import android.view.SurfaceHolder
 import androidx.annotation.IntDef
 import androidx.wear.complications.SystemProviders.ProviderId
-import androidx.wear.watchfacestyle.UserStyleCategory
+import androidx.wear.watchface.style.UserStyleCategory
 
 /**
  * After user code finishes, we need up to 100ms of wake lock holding for the drawing to occur. This
@@ -911,7 +911,7 @@ abstract class WatchFaceService : WallpaperService() {
         override fun registerUserStyleSchema(styleSchema: List<UserStyleCategory>) {
             if (systemApiVersion >= 3) {
                 iWatchFaceService.registerUserStyleSchema(
-                    UserStyleCategory.userStyleCategoryListToBundles(styleSchema)
+                    UserStyleCategory.userStyleCategoriesToBundles(styleSchema)
                 )
             }
         }

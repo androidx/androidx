@@ -22,7 +22,7 @@ import android.graphics.Rect
 import android.icu.util.Calendar
 import android.view.SurfaceHolder
 import androidx.annotation.CallSuper
-import androidx.wear.watchfacestyle.UserStyleManager
+import androidx.wear.watchface.style.UserStyleManager
 
 /** The base class for {@link CanvasRenderer} and {@link Gles2Renderer}. */
 abstract class Renderer(

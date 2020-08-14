@@ -24,7 +24,7 @@ import android.icu.util.Calendar
 import android.util.Log
 import android.view.SurfaceHolder
 import androidx.annotation.IntDef
-import androidx.wear.watchfacestyle.UserStyleManager
+import androidx.wear.watchface.style.UserStyleManager
 
 /** @hide */
 @IntDef(
