@@ -178,6 +178,8 @@ package androidx.core.app {
   }
 
   public class NotificationChannelCompat {
+    method public boolean canBubble();
+    method public boolean canBypassDnd();
     method public boolean canShowBadge();
     method public android.media.AudioAttributes? getAudioAttributes();
     method public String? getConversationId();
@@ -186,12 +188,15 @@ package androidx.core.app {
     method public String getId();
     method public int getImportance();
     method public int getLightColor();
+    method public int getLockscreenVisibility();
     method public CharSequence? getName();
     method public String? getParentChannelId();
     method public android.net.Uri? getSound();
     method public long[]? getVibrationPattern();
+    method public boolean isImportantConversation();
     method public boolean shouldShowLights();
     method public boolean shouldVibrate();
+    method public androidx.core.app.NotificationChannelCompat.Builder toBuilder();
     field public static final String DEFAULT_CHANNEL_ID = "miscellaneous";
   }
 
@@ -212,9 +217,12 @@ package androidx.core.app {
   }
 
   public class NotificationChannelGroupCompat {
+    method public java.util.List<androidx.core.app.NotificationChannelCompat!> getChannels();
     method public String? getDescription();
     method public String getId();
     method public CharSequence? getName();
+    method public boolean isBlocked();
+    method public androidx.core.app.NotificationChannelGroupCompat.Builder toBuilder();
   }
 
   public static class NotificationChannelGroupCompat.Builder {
@@ -724,9 +732,14 @@ package androidx.core.app {
     method public int getImportance();
     method public android.app.NotificationChannel? getNotificationChannel(String);
     method public android.app.NotificationChannel? getNotificationChannel(String, String);
+    method public androidx.core.app.NotificationChannelCompat? getNotificationChannelCompat(String);
+    method public androidx.core.app.NotificationChannelCompat? getNotificationChannelCompat(String, String);
     method public android.app.NotificationChannelGroup? getNotificationChannelGroup(String);
+    method public androidx.core.app.NotificationChannelGroupCompat? getNotificationChannelGroupCompat(String);
     method public java.util.List<android.app.NotificationChannelGroup!> getNotificationChannelGroups();
+    method public java.util.List<androidx.core.app.NotificationChannelGroupCompat!> getNotificationChannelGroupsCompat();
     method public java.util.List<android.app.NotificationChannel!> getNotificationChannels();
+    method public java.util.List<androidx.core.app.NotificationChannelCompat!> getNotificationChannelsCompat();
     method public void notify(int, android.app.Notification);
     method public void notify(String?, int, android.app.Notification);
     field public static final String ACTION_BIND_SIDE_CHANNEL = "android.support.BIND_NOTIFICATION_SIDE_CHANNEL";

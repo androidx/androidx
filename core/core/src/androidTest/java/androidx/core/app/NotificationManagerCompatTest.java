@@ -16,6 +16,10 @@
 
 package androidx.core.app;
 
+import static androidx.core.app.NotificationChannelCompatTest.TestHelper.areEqual;
+import static androidx.core.app.NotificationChannelCompatTest.TestHelper.listContains;
+import static androidx.core.app.NotificationChannelCompatTest.TestHelper.listContainsCompat;
+import static androidx.core.app.NotificationChannelGroupCompatTest.TestHelper.findGroupCompat;
 import static androidx.core.app.NotificationManagerCompat.IMPORTANCE_DEFAULT;
 import static androidx.core.app.NotificationManagerCompat.IMPORTANCE_HIGH;
 import static androidx.core.app.NotificationManagerCompat.IMPORTANCE_LOW;
@@ -23,7 +27,6 @@ import static androidx.core.app.NotificationManagerCompat.IMPORTANCE_MAX;
 import static androidx.core.app.NotificationManagerCompat.IMPORTANCE_MIN;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -37,7 +40,6 @@ import android.media.AudioAttributes;
 import android.net.Uri;
 import android.os.Build;
 
-import androidx.core.app.NotificationChannelCompatTest.TestHelper;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
@@ -396,7 +398,7 @@ public class NotificationManagerCompatTest {
                 mPlatformNotificationManager.getNotificationChannel(channelId);
         assertNotNull(resultChannel);
         assertEquals(groupId, resultChannel.getGroup());
-        assertTrue(TestHelper.areEqual(notificationChannel, resultChannel));
+        assertTrue(areEqual(notificationChannel, resultChannel));
     }
 
 
@@ -417,7 +419,7 @@ public class NotificationManagerCompatTest {
         // check if channels were created
         List<NotificationChannel> result = mPlatformNotificationManager.getNotificationChannels();
         assertEquals(channelsBefore + channels.size(), result.size());
-        assertTrue(TestHelper.listContains(result, channels));
+        assertTrue(listContains(result, channels));
 
         // just to be sure
         NotificationChannel channel =
@@ -479,7 +481,7 @@ public class NotificationManagerCompatTest {
         NotificationChannel resultChannel =
                 mPlatformNotificationManager.getNotificationChannel(channelGroupOneId);
         assertEquals(groupOneId, resultChannel.getGroup());
-        assertTrue(TestHelper.areEqual(channelGroupOne, resultChannel));
+        assertTrue(areEqual(channelGroupOne, resultChannel));
 
         NotificationChannelGroup resultTwo = notificationManager.getNotificationChannelGroup(
                 groupTwo.getId());
@@ -487,7 +489,7 @@ public class NotificationManagerCompatTest {
         assertEquals(groupTwo.getName(), resultTwo.getName());
         if (Build.VERSION.SDK_INT >= 28) {
             assertEquals(2, resultTwo.getChannels().size());
-            assertTrue(TestHelper.listContains(resultTwo.getChannels(),
+            assertTrue(listContains(resultTwo.getChannels(),
                     Arrays.asList(channelGroupTwo, secondChannelGroupTwo)));
         } else {
             // TODO(b/34970783): On API < 28 NotificationChannelGroup#getChannels always returned an
@@ -495,7 +497,7 @@ public class NotificationManagerCompatTest {
             assertEquals(0, resultTwo.getChannels().size());
         }
 
-        assertTrue(TestHelper.listContains(
+        assertTrue(listContains(
                 mPlatformNotificationManager.getNotificationChannels(), channels));
     }
 
@@ -619,7 +621,7 @@ public class NotificationManagerCompatTest {
 
         assertNotNull(resultChannel);
         assertEquals(groupId, resultChannel.getGroup());
-        assertTrue(TestHelper.areEqual(
+        assertTrue(areEqual(
                 new NotificationChannelCompat.Builder(channelId, IMPORTANCE_LOW)
                         .setName("groupChannelName")
                         .setGroup(groupId)
@@ -655,7 +657,7 @@ public class NotificationManagerCompatTest {
             return;
         }
         assertEquals(channelsBefore + channels.size(), result.size());
-        assertTrue(TestHelper.listContainsCompat(result, channels));
+        assertTrue(listContainsCompat(result, channels));
 
         // just to be sure
         NotificationChannel channel = notificationManager.getNotificationChannel(channelOneId);
@@ -727,7 +729,7 @@ public class NotificationManagerCompatTest {
         assertEquals("groupOneName", resultOne.getName());
         if (Build.VERSION.SDK_INT >= 28) {
             assertEquals(1, resultOne.getChannels().size());
-            assertTrue(TestHelper.listContainsCompat(resultOne.getChannels(),
+            assertTrue(listContainsCompat(resultOne.getChannels(),
                     Collections.singletonList(channelGroupOne)));
         } else {
             // TODO(b/34970783): On API < 28 NotificationChannelGroup#getChannels always returned an
@@ -737,7 +739,7 @@ public class NotificationManagerCompatTest {
         NotificationChannel resultChannel =
                 notificationManager.getNotificationChannel(channelGroupOneId);
         assertEquals(groupOneId, resultChannel.getGroup());
-        assertTrue(TestHelper.areEqual(channelGroupOne, resultChannel));
+        assertTrue(areEqual(channelGroupOne, resultChannel));
 
         NotificationChannelGroup resultTwo = notificationManager.getNotificationChannelGroup(
                 groupTwo.getId());
@@ -745,14 +747,14 @@ public class NotificationManagerCompatTest {
         assertEquals("groupTwoName", resultTwo.getName());
         if (Build.VERSION.SDK_INT >= 28) {
             assertEquals(2, resultTwo.getChannels().size());
-            assertTrue(TestHelper.listContainsCompat(resultTwo.getChannels(),
+            assertTrue(listContainsCompat(resultTwo.getChannels(),
                     Arrays.asList(channelGroupTwo, secondChannelGroupTwo)));
         } else {
             // TODO(b/34970783): On API < 28 NotificationChannelGroup#getChannels always returned an
             //  empty list. A complete NotificationManagerCompat implementation could hide this bug.
             assertEquals(0, resultTwo.getChannels().size());
         }
-        assertTrue(TestHelper.listContainsCompat(
+        assertTrue(listContainsCompat(
                 notificationManager.getNotificationChannels(), channels));
     }
 
@@ -924,16 +926,69 @@ public class NotificationManagerCompatTest {
         }
 
         // Check behavior of getting the notification channel by the conversation
-        NotificationChannel result = notificationManager.getNotificationChannel(
-                parentId, shortcutId);
+        NotificationChannel result =
+                notificationManager.getNotificationChannel(parentId, shortcutId);
         if (Build.VERSION.SDK_INT >= 26) {
             assertNotNull(result);
             if (Build.VERSION.SDK_INT >= 30) {
-                assertNotEquals(parentId, result.getId());
+                assertEquals(childId, result.getId());
                 assertEquals(parentId, result.getParentChannelId());
                 assertEquals(shortcutId, result.getConversationId());
             } else {
                 assertEquals(parentId, result.getId());
+            }
+        } else {
+            assertNull(result);
+        }
+    }
+
+    @Test
+    public void testGetNotificationChannelWithShortcutCompat() {
+        NotificationManagerCompat nm = NotificationManagerCompat.from(mContext);
+        String parentId = genUniqueId(TYPE_CHANNEL);
+        String childId = genUniqueId(TYPE_CHANNEL);
+        String shortcutId = genUniqueId(TYPE_SHORTCUT);
+
+        // create channels
+        nm.createNotificationChannel(
+                new NotificationChannelCompat.Builder(parentId, IMPORTANCE_DEFAULT)
+                        .setName("channelName")
+                        .build());
+
+        if (Build.VERSION.SDK_INT >= 26) {
+            assertNotNull(nm.getNotificationChannelCompat(parentId));
+            // Always return the parent when no matching child exists (if support channels)
+            NotificationChannelCompat childResult =
+                    nm.getNotificationChannelCompat(parentId, shortcutId);
+            assertNotNull(childResult);
+            assertEquals(parentId, childResult.getId());
+        } else {
+            assertNull(nm.getNotificationChannelCompat(parentId));
+            assertNull(nm.getNotificationChannelCompat(parentId, shortcutId));
+        }
+
+        // Make a child channel ONLY on platforms that support conversations
+        if (Build.VERSION.SDK_INT >= 30) {
+            NotificationChannel child = new NotificationChannel(childId,
+                    "childName", IMPORTANCE_DEFAULT);
+            child.setConversationId(parentId, shortcutId);
+            nm.createNotificationChannel(child);
+            // make sure the child channel exists
+            assertNotNull(nm.getNotificationChannelCompat(childId));
+        }
+
+        // Check behavior of getting the notification channel by the conversation
+        NotificationChannelCompat result = nm.getNotificationChannelCompat(parentId, shortcutId);
+        if (Build.VERSION.SDK_INT >= 26) {
+            assertNotNull(result);
+            if (Build.VERSION.SDK_INT >= 30) {
+                assertEquals(childId, result.getId());
+                assertEquals(parentId, result.getParentChannelId());
+                assertEquals(shortcutId, result.getConversationId());
+            } else {
+                assertEquals(parentId, result.getId());
+                assertNull(result.getParentChannelId());
+                assertNull(result.getConversationId());
             }
         } else {
             assertNull(result);
@@ -964,6 +1019,36 @@ public class NotificationManagerCompatTest {
     }
 
     @Test
+    public void testGetNotificationChannelsCompat() {
+        NotificationManagerCompat nm = NotificationManagerCompat.from(mContext);
+
+        // create a channel, so we can get it later
+        String channelId = genUniqueId(TYPE_CHANNEL);
+        nm.createNotificationChannel(
+                new NotificationChannelCompat.Builder(channelId, IMPORTANCE_DEFAULT)
+                        .setName("channelName").build());
+
+        // test getNotificationChannelCompat(String) works as expected
+        if (Build.VERSION.SDK_INT >= 26) {
+            assertNotNull(nm.getNotificationChannelCompat(channelId));
+        } else {
+            assertNull(nm.getNotificationChannelCompat(channelId));
+        }
+
+        // test getNotificationChannelsCompat() works as expected
+        List<NotificationChannelCompat> compatChannels = nm.getNotificationChannelsCompat();
+        if (Build.VERSION.SDK_INT >= 26) {
+            List<NotificationChannel> platformChannels =
+                    mPlatformNotificationManager.getNotificationChannels();
+            assertEquals(platformChannels.size(), compatChannels.size());
+            assertTrue(listContainsCompat(platformChannels, compatChannels));
+        } else {
+            // list should be empty on SDKs which don't support Notification Channels
+            assertTrue(compatChannels.isEmpty());
+        }
+    }
+
+    @Test
     public void testGetNotificationChannelGroups() {
         // create a group, so we can get it later
         if (Build.VERSION.SDK_INT >= 26) {
@@ -989,6 +1074,51 @@ public class NotificationManagerCompatTest {
         } else {
             // list should be empty on SDKs which don't support Notification Channels
             assertTrue(groups.isEmpty());
+        }
+    }
+
+    @Test
+    public void testGetNotificationChannelGroupsCompat() {
+        NotificationManagerCompat nm = NotificationManagerCompat.from(mContext);
+
+        // create a group, so we can get it later
+        String groupId = genUniqueId(TYPE_GROUP);
+        nm.createNotificationChannelGroup(new NotificationChannelGroupCompat.Builder(groupId)
+                .setName("groupName").build());
+        // create a channel, so we can get it later
+        String channelId = genUniqueId(TYPE_CHANNEL);
+        nm.createNotificationChannel(
+                new NotificationChannelCompat.Builder(channelId, IMPORTANCE_DEFAULT)
+                        .setName("channelName").setGroup(groupId).build());
+
+        // test getNotificationChannelGroup(String)
+        NotificationChannelGroupCompat compatGroup = nm.getNotificationChannelGroupCompat(groupId);
+        if (Build.VERSION.SDK_INT >= 26) {
+            assertNotNull(compatGroup);
+            List<NotificationChannelCompat> compatChannels = compatGroup.getChannels();
+            assertEquals(1, compatChannels.size());
+            assertEquals(channelId, compatChannels.get(0).getId());
+            assertTrue(areEqual(compatChannels.get(0),
+                    mPlatformNotificationManager.getNotificationChannel(channelId)));
+        } else {
+            assertNull(compatGroup);
+        }
+
+        // test getNotificationChannelGroupsCompat() works as expected
+        List<NotificationChannelGroupCompat> compatGroups = nm.getNotificationChannelGroupsCompat();
+        if (Build.VERSION.SDK_INT >= 26) {
+            List<NotificationChannelGroup> platformGroups =
+                    mPlatformNotificationManager.getNotificationChannelGroups();
+            assertEquals(platformGroups.size(), compatGroups.size());
+            List<NotificationChannelCompat> compatChannels =
+                    findGroupCompat(compatGroups, groupId).getChannels();
+            assertEquals(1, compatChannels.size());
+            assertEquals(channelId, compatChannels.get(0).getId());
+            assertTrue(areEqual(compatChannels.get(0),
+                    mPlatformNotificationManager.getNotificationChannel(channelId)));
+        } else {
+            // list should be empty on SDKs which don't support Notification Channels
+            assertTrue(compatGroups.isEmpty());
         }
     }
 
