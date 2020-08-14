@@ -2867,6 +2867,7 @@ package androidx.core.view {
     method @Deprecated public static void setTranslationX(android.view.View!, float);
     method @Deprecated public static void setTranslationY(android.view.View!, float);
     method public static void setTranslationZ(android.view.View, float);
+    method public static void setWindowInsetsAnimationCallback(android.view.View, androidx.core.view.WindowInsetsAnimationCompat.Callback);
     method @Deprecated public static void setX(android.view.View!, float);
     method @Deprecated public static void setY(android.view.View!, float);
     method public static void setZ(android.view.View, float);
@@ -3037,6 +3038,59 @@ package androidx.core.view {
     field public static final int FEATURE_ACTION_MODE_OVERLAY = 10; // 0xa
   }
 
+  public final class WindowInsetsAnimationCompat {
+    ctor public WindowInsetsAnimationCompat(@androidx.core.view.WindowInsetsCompat.Type.InsetsType int, android.view.animation.Interpolator?, long);
+    method @FloatRange(from=0.0f, to=1.0f) public float getAlpha();
+    method public long getDurationMillis();
+    method @FloatRange(from=0.0f, to=1.0f) public float getFraction();
+    method public float getInterpolatedFraction();
+    method public android.view.animation.Interpolator? getInterpolator();
+    method @androidx.core.view.WindowInsetsCompat.Type.InsetsType public int getTypeMask();
+    method public void setAlpha(@FloatRange(from=0.0f, to=1.0f) float);
+    method public void setFraction(@FloatRange(from=0.0f, to=1.0f) float);
+  }
+
+  public static final class WindowInsetsAnimationCompat.Bounds {
+    ctor public WindowInsetsAnimationCompat.Bounds(androidx.core.graphics.Insets, androidx.core.graphics.Insets);
+    method public androidx.core.graphics.Insets getLowerBound();
+    method public androidx.core.graphics.Insets getUpperBound();
+    method public androidx.core.view.WindowInsetsAnimationCompat.Bounds inset(androidx.core.graphics.Insets);
+  }
+
+  public abstract static class WindowInsetsAnimationCompat.Callback {
+    ctor public WindowInsetsAnimationCompat.Callback(@androidx.core.view.WindowInsetsAnimationCompat.Callback.DispatchMode int);
+    method @androidx.core.view.WindowInsetsAnimationCompat.Callback.DispatchMode public final int getDispatchMode();
+    method public void onEnd(androidx.core.view.WindowInsetsAnimationCompat);
+    method public void onPrepare(androidx.core.view.WindowInsetsAnimationCompat);
+    method public abstract androidx.core.view.WindowInsetsCompat onProgress(androidx.core.view.WindowInsetsCompat, java.util.List<androidx.core.view.WindowInsetsAnimationCompat!>);
+    method public androidx.core.view.WindowInsetsAnimationCompat.Bounds onStart(androidx.core.view.WindowInsetsAnimationCompat, androidx.core.view.WindowInsetsAnimationCompat.Bounds);
+    field public static final int DISPATCH_MODE_CONTINUE_ON_SUBTREE = 1; // 0x1
+    field public static final int DISPATCH_MODE_STOP = 0; // 0x0
+  }
+
+  @IntDef({androidx.core.view.WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_STOP, androidx.core.view.WindowInsetsAnimationCompat.Callback.DISPATCH_MODE_CONTINUE_ON_SUBTREE}) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP) @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.SOURCE) public static @interface WindowInsetsAnimationCompat.Callback.DispatchMode {
+  }
+
+  public interface WindowInsetsAnimationControlListenerCompat {
+    method public void onCancelled(androidx.core.view.WindowInsetsAnimationControllerCompat?);
+    method public void onFinished(androidx.core.view.WindowInsetsAnimationControllerCompat);
+    method public void onReady(androidx.core.view.WindowInsetsAnimationControllerCompat, @androidx.core.view.WindowInsetsCompat.Type.InsetsType int);
+  }
+
+  public final class WindowInsetsAnimationControllerCompat {
+    method public void finish(boolean);
+    method public float getCurrentAlpha();
+    method @FloatRange(from=0.0f, to=1.0f) public float getCurrentFraction();
+    method public androidx.core.graphics.Insets getCurrentInsets();
+    method public androidx.core.graphics.Insets getHiddenStateInsets();
+    method public androidx.core.graphics.Insets getShownStateInsets();
+    method @androidx.core.view.WindowInsetsCompat.Type.InsetsType public int getTypes();
+    method public boolean isCancelled();
+    method public boolean isFinished();
+    method public boolean isReady();
+    method public void setInsetsAndAlpha(androidx.core.graphics.Insets?, @FloatRange(from=0.0f, to=1.0f) float, @FloatRange(from=0.0f, to=1.0f) float);
+  }
+
   public class WindowInsetsCompat {
     ctor public WindowInsetsCompat(androidx.core.view.WindowInsetsCompat?);
     method @Deprecated public androidx.core.view.WindowInsetsCompat consumeDisplayCutout();
@@ -3106,10 +3160,13 @@ package androidx.core.view {
 
   public final class WindowInsetsControllerCompat {
     ctor public WindowInsetsControllerCompat(android.view.Window, android.view.View);
+    method public void addOnControllableInsetsChangedListener(androidx.core.view.WindowInsetsControllerCompat.OnControllableInsetsChangedListener);
+    method public void controlWindowInsetsAnimation(@androidx.core.view.WindowInsetsCompat.Type.InsetsType int, long, android.view.animation.Interpolator?, android.os.CancellationSignal?, androidx.core.view.WindowInsetsAnimationControlListenerCompat);
     method public int getSystemBarsBehavior();
     method public void hide(@androidx.core.view.WindowInsetsCompat.Type.InsetsType int);
     method public boolean isAppearanceLightNavigationBars();
     method public boolean isAppearanceLightStatusBars();
+    method public void removeOnControllableInsetsChangedListener(androidx.core.view.WindowInsetsControllerCompat.OnControllableInsetsChangedListener);
     method public void setAppearanceLightNavigationBars(boolean);
     method public void setAppearanceLightStatusBars(boolean);
     method public void setSystemBarsBehavior(int);
@@ -3118,6 +3175,10 @@ package androidx.core.view {
     field public static final int BEHAVIOR_SHOW_BARS_BY_SWIPE = 1; // 0x1
     field public static final int BEHAVIOR_SHOW_BARS_BY_TOUCH = 0; // 0x0
     field public static final int BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE = 2; // 0x2
+  }
+
+  public static interface WindowInsetsControllerCompat.OnControllableInsetsChangedListener {
+    method public void onControllableInsetsChanged(androidx.core.view.WindowInsetsControllerCompat, @androidx.core.view.WindowInsetsCompat.Type.InsetsType int);
   }
 
 }

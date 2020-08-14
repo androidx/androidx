@@ -2696,6 +2696,21 @@ public class ViewCompat {
     }
 
     /**
+     * Sets a {@link WindowInsetsAnimationCompat.Callback} to be notified about animations of
+     * windows that cause insets.
+     * <p>
+     * The callback's {@link WindowInsetsAnimationCompat.Callback#getDispatchMode()
+     * dispatch mode} will affect whether animation callbacks are dispatched to the children of
+     * this view.
+     * </p>
+     *
+     * @param callback The callback to set.
+     */
+    public static void setWindowInsetsAnimationCallback(@NonNull View view,
+            @NonNull final WindowInsetsAnimationCompat.Callback callback) {
+    }
+
+    /**
      * Sets the listener to be used to handle insertion of content into the given view.
      *
      * <p>Depending on the type of view, this listener may be invoked for different scenarios. For
