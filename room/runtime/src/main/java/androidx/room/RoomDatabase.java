@@ -710,7 +710,11 @@ public abstract class RoomDatabase {
          * This method is not supported for an in memory database {@link Builder}.
          *
          * @param inputStreamCallable A callable that returns an InputStream from which to copy
-         *                            the database.
+         *                            the database. The callable will be invoked in a thread from
+         *                            the Executor set via {@link #setQueryExecutor(Executor)}. The
+         *                            callable is only invoked if Room needs to create and open the
+         *                            database from the pre-package database, usually the first time
+         *                            it is created or during a destructive migration.
          *
          * @return This {@link Builder} instance.
          */
@@ -740,7 +744,11 @@ public abstract class RoomDatabase {
          * This method is not supported for an in memory database {@link Builder}.
          *
          * @param inputStreamCallable A callable that returns an InputStream from which to copy
-         *                            the database.
+         *                            the database. The callable will be invoked in a thread from
+         *                            the Executor set via {@link #setQueryExecutor(Executor)}. The
+         *                            callable is only invoked if Room needs to create and open the
+         *                            database from the pre-package database, usually the first time
+         *                            it is created or during a destructive migration.
          * @param callback The pre-packaged callback.
          *
          * @return This {@link Builder} instance.
