@@ -54,6 +54,7 @@ class CameraPipeActivity : Activity() {
     private lateinit var dataListener: DataListener
     private lateinit var dataGenerator: DataGenerator
     private lateinit var paints: Paints
+    private lateinit var viewfinder: Viewfinder
 
     private lateinit var cameraPipe: CameraPipe
     private var currentCamera: SimpleCamera? = null
@@ -66,6 +67,7 @@ class CameraPipeActivity : Activity() {
         cameraPipe = (applicationContext as CameraPipeApplication).cameraPipe
 
         setContentView(R.layout.activity_main)
+        viewfinder = findViewById(R.id.viewfinder)
         paints = Paints(this)
 
         val beginTimeNanos = System.nanoTime()
@@ -99,7 +101,8 @@ class CameraPipeActivity : Activity() {
 
         if (currentCamera == null) {
             dataGenerator.runDataGenerators()
-            currentCamera = SimpleCamera.create(cameraPipe, listOf(object : Request.Listener {
+            currentCamera = SimpleCamera.create(cameraPipe, viewfinder, listOf(object : Request
+            .Listener {
                 override fun onStarted(
                     requestMetadata: RequestMetadata,
                     frameNumber: FrameNumber,
