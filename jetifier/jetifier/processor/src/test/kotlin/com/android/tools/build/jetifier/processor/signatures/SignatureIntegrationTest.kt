@@ -33,7 +33,7 @@ class SignatureIntegrationTest {
 
     @Test
     fun archiveWithSignature_notJetified_shouldBeOk() {
-        val processor = Processor.createProcessor3(
+        val processor = Processor.createProcessor4(
             // Since we give empty config, no jetification can happen. Thus jetifier thinks that
             // the library is not affected by it.
             Config.fromOptional()
@@ -59,7 +59,7 @@ class SignatureIntegrationTest {
 
     @Test
     fun archiveWithSignature_notJetified_stripRequired_shouldNotStrip() {
-        val processor = Processor.createProcessor3(
+        val processor = Processor.createProcessor4(
             Config.fromOptional(),
             stripSignatures = true)
 
@@ -82,7 +82,7 @@ class SignatureIntegrationTest {
 
     @Test(expected = SignatureFilesFoundJetifierException::class)
     fun archiveWithSignature_andJetified_shouldThrowError() {
-        val processor = Processor.createProcessor3(
+        val processor = Processor.createProcessor4(
             ConfigParser.loadDefaultConfig()!!
         )
 
@@ -94,7 +94,7 @@ class SignatureIntegrationTest {
 
     @Test
     fun archiveWithSignature_andJetified__stripRequired_shouldStrip() {
-        val processor = Processor.createProcessor3(
+        val processor = Processor.createProcessor4(
             ConfigParser.loadDefaultConfig()!!,
             stripSignatures = true
         )

@@ -158,7 +158,7 @@ class SingleFileJetificationTest {
         val config = Config.fromOptional(
             typesMap = typeMap
         )
-        val processor = Processor.createProcessor3(
+        val processor = Processor.createProcessor4(
             config = config,
             reversedMode = isReversed,
             rewritingSupportLib = false)

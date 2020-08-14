@@ -272,7 +272,7 @@ class ChangeDetectionTest {
         val sourceArchive = archive.writeSelfToFile(Files.createTempFile("test", ".zip"))
 
         val expectedFileIfRefactored = Files.createTempFile("testRefactored", ".zip")
-        val processor = Processor.createProcessor3(
+        val processor = Processor.createProcessor4(
             config = config)
         val resultFiles = processor.transform2(
             input = setOf(FileMapping(sourceArchive, expectedFileIfRefactored.toFile())),
@@ -299,9 +299,9 @@ class ChangeDetectionTest {
             }
         }
     }
+}
 
-    private fun File.toMd5(): ByteArray {
-        val md = MessageDigest.getInstance("MD5")
-        return md.digest(readBytes())
-    }
+internal fun File.toMd5(): ByteArray {
+    val md = MessageDigest.getInstance("MD5")
+    return md.digest(readBytes())
 }

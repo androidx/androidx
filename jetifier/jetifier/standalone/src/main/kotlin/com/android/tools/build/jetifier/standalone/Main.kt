@@ -20,6 +20,7 @@ import com.android.tools.build.jetifier.core.config.ConfigParser
 import com.android.tools.build.jetifier.core.utils.Log
 import com.android.tools.build.jetifier.processor.FileMapping
 import com.android.tools.build.jetifier.processor.Processor
+import com.android.tools.build.jetifier.processor.TimestampsPolicy
 import org.apache.commons.cli.CommandLine
 import org.apache.commons.cli.DefaultParser
 import org.apache.commons.cli.HelpFormatter
@@ -91,6 +92,15 @@ class Main {
             hasArgs = false,
             isRequired = false
         )
+        const val ELIGIBLE_TIMESTAMPS = "keepPrevious (default), epoch or now"
+        val OPTION_TIMESTAMPS = createOption(
+            argName = "t",
+            argNameLong = "timestampsPolicy",
+            desc = "Timestamps policy to use for the archived entries as their modified time. " +
+                    "Values: $ELIGIBLE_TIMESTAMPS.",
+            hasArgs = true,
+            isRequired = false
+        )
 
         private fun createOption(
             argName: String,
@@ -99,10 +109,10 @@ class Main {
             hasArgs: Boolean = true,
             isRequired: Boolean = true
         ): Option {
-            val op = Option(argName, argNameLong, hasArgs, desc)
-            op.isRequired = isRequired
-            OPTIONS.addOption(op)
-            return op
+            return Option(argName, argNameLong, hasArgs, desc).apply {
+                this.isRequired = isRequired
+                OPTIONS.addOption(this)
+            }
         }
 
         @JvmStatic fun main(args: Array<String>) {
@@ -126,6 +136,19 @@ class Main {
         val isStrict = cmd.hasOption(OPTION_STRICT.opt)
         val shouldStripSignatures = cmd.hasOption(OPTION_STRIP_SIGNATURES.opt)
 
+        val timestampsPolicy = if (cmd.hasOption(OPTION_TIMESTAMPS.opt)) {
+            when (val timestampOp = cmd.getOptionValue(OPTION_TIMESTAMPS.opt)) {
+                "now" -> TimestampsPolicy.NOW
+                "epoch" -> TimestampsPolicy.EPOCH
+                "keepPrevious" -> TimestampsPolicy.KEEP_PREVIOUS
+                else -> throw IllegalArgumentException("The provided value '$timestampOp' of " +
+                        "'${OPTION_TIMESTAMPS.longOpt}' argument is not recognized. Eligible " +
+                        "values are: $ELIGIBLE_TIMESTAMPS.")
+            }
+        } else {
+            TimestampsPolicy.KEEP_PREVIOUS
+        }
+
         val config = if (cmd.hasOption(OPTION_CONFIG.opt)) {
             val configPath = Paths.get(cmd.getOptionValue(OPTION_CONFIG.opt))
             ConfigParser.loadFromFile(configPath)
@@ -147,12 +170,14 @@ class Main {
             fileMappings.add(FileMapping(input, File(output)))
         }
 
-        val processor = Processor.createProcessor3(
+        val processor = Processor.createProcessor4(
             config = config,
             reversedMode = isReversed,
             rewritingSupportLib = rebuildTopOfTree,
             stripSignatures = shouldStripSignatures,
-            useFallbackIfTypeIsMissing = !isStrict)
+            useFallbackIfTypeIsMissing = !isStrict,
+            timestampsPolicy = timestampsPolicy
+        )
         val transformationResult = processor.transform2(fileMappings)
 
         val containsSingleJavaFiles = containsSingleJavaFiles(fileMappings)

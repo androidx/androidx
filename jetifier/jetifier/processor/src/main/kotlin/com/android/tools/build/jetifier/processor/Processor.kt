@@ -35,7 +35,6 @@ import com.android.tools.build.jetifier.processor.transform.proguard.ProGuardTra
 import com.android.tools.build.jetifier.processor.transform.resource.XmlResourcesTransformer
 import java.io.File
 import java.io.FileNotFoundException
-import java.lang.StringBuilder
 
 /**
  * The main entry point to the library. Extracts any given archive recursively and runs all
@@ -45,7 +44,8 @@ import java.lang.StringBuilder
 class Processor private constructor(
     private val context: TransformationContext,
     private val transformers: List<Transformer>,
-    private val stripSignatureFiles: Boolean = false
+    private val stripSignatureFiles: Boolean,
+    private val timestampsPolicy: TimestampsPolicy
 ) : ArchiveItemVisitor {
 
     companion object {
@@ -85,16 +85,20 @@ class Processor private constructor(
          * @param stripSignatures Don't throw an error when jetifying a signed library and strip
          * the signature files instead.
          * @param dataBindingVersion The versions to be used for data binding otherwise undefined.
+         * @param timestampsPolicy The policy to determine the modification time that should be
+         * set for the individual files in the result archive.
          */
-        fun createProcessor3(
+        fun createProcessor4(
             config: Config,
             reversedMode: Boolean = false,
             rewritingSupportLib: Boolean = false,
             useFallbackIfTypeIsMissing: Boolean = true,
             allowAmbiguousPackages: Boolean = false,
             stripSignatures: Boolean = false,
-            dataBindingVersion: String? = null
+            dataBindingVersion: String? = null,
+            timestampsPolicy: TimestampsPolicy = TimestampsPolicy.KEEP_PREVIOUS
         ): Processor {
+
             var newConfig = config
 
             val versionsMap = DependencyVersions
@@ -141,7 +145,45 @@ class Processor private constructor(
             return Processor(
                 context = context,
                 transformers = transformers,
-                stripSignatureFiles = stripSignatures)
+                stripSignatureFiles = stripSignatures,
+                timestampsPolicy = timestampsPolicy
+            )
+        }
+
+        /**
+         * Creates a new instance of the [Processor].
+         *
+         * @param config Transformation configuration
+         * @param reversedMode Whether the processor should run in reversed mode
+         * @param rewritingSupportLib Whether we are rewriting the support library itself
+         * @param useFallbackIfTypeIsMissing Use fallback for types resolving instead of crashing
+         * @param allowAmbiguousPackages Whether Jetifier should not crash when it attempts to
+         * rewrite ambiguous package reference such as android.support.v4.
+         * @param stripSignatures Don't throw an error when jetifying a signed library and strip
+         * the signature files instead.
+         * @param dataBindingVersion The versions to be used for data binding otherwise undefined.
+         */
+        @Deprecated(
+            message = "Legacy method that is missing 'timestampsPolicy' attribute",
+            replaceWith = ReplaceWith(expression = "Processor.createProcessor4"))
+        fun createProcessor3(
+            config: Config,
+            reversedMode: Boolean = false,
+            rewritingSupportLib: Boolean = false,
+            useFallbackIfTypeIsMissing: Boolean = true,
+            allowAmbiguousPackages: Boolean = false,
+            stripSignatures: Boolean = false,
+            dataBindingVersion: String? = null
+        ): Processor {
+            return createProcessor4(
+                config = config,
+                reversedMode = reversedMode,
+                rewritingSupportLib = rewritingSupportLib,
+                useFallbackIfTypeIsMissing = useFallbackIfTypeIsMissing,
+                allowAmbiguousPackages = allowAmbiguousPackages,
+                stripSignatures = stripSignatures,
+                dataBindingVersion = dataBindingVersion
+            )
         }
 
         /**
@@ -166,14 +208,15 @@ class Processor private constructor(
             allowAmbiguousPackages: Boolean = false,
             dataBindingVersion: String? = null
         ): Processor {
-            return createProcessor3(
+            return createProcessor4(
                 config = config,
                 reversedMode = reversedMode,
                 rewritingSupportLib = rewritingSupportLib,
                 useFallbackIfTypeIsMissing = useFallbackIfTypeIsMissing,
                 allowAmbiguousPackages = allowAmbiguousPackages,
                 stripSignatures = false,
-                dataBindingVersion = dataBindingVersion
+                dataBindingVersion = dataBindingVersion,
+                timestampsPolicy = TimestampsPolicy.KEEP_PREVIOUS
             )
         }
 
@@ -319,7 +362,7 @@ class Processor private constructor(
         var result = allLibraries
             .map {
                 when {
-                    it.wasChanged -> it.relativePath.toFile() to it.writeSelf()
+                    it.wasChanged -> it.relativePath.toFile() to it.writeSelf(timestampsPolicy)
                     copyUnmodifiedLibsAlso -> // Copy unmodified archives directly from the input
                         it.relativePath.toFile() to it.copySelfFromOriginToTarget()
                     else -> it.relativePath.toFile() to null
