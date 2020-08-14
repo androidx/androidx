@@ -44,8 +44,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.inspection.ArtToolInterface.EntryHook;
-import androidx.inspection.ArtToolInterface.ExitHook;
+import androidx.inspection.ArtTooling.EntryHook;
+import androidx.inspection.ArtTooling.ExitHook;
 import androidx.inspection.Connection;
 import androidx.inspection.Inspector;
 import androidx.inspection.InspectorEnvironment;
@@ -254,7 +254,8 @@ final class SqliteInspector extends Inspector {
         registerDatabaseClosedHooks(hookRegistry);
 
         // Check for database instances in memory
-        for (SQLiteDatabase instance : mEnvironment.artTI().findInstances(SQLiteDatabase.class)) {
+        for (SQLiteDatabase instance :
+                mEnvironment.artTooling().findInstances(SQLiteDatabase.class)) {
             /** the race condition here will be handled by mDatabaseRegistry */
             if (instance.isOpen()) {
                 onDatabaseOpened(instance);
@@ -264,7 +265,7 @@ final class SqliteInspector extends Inspector {
         }
 
         // Check for database instances on disk
-        for (Application instance : mEnvironment.artTI().findInstances(Application.class)) {
+        for (Application instance : mEnvironment.artTooling().findInstances(Application.class)) {
             for (String name : instance.databaseList()) {
                 File path = instance.getDatabasePath(name);
                 if (path.exists() && !isHelperSqliteFile(path)) {
@@ -318,12 +319,12 @@ final class SqliteInspector extends Inspector {
                     }
                 };
         for (String method : methods) {
-            mEnvironment.artTI().registerExitHook(SQLiteDatabase.class, method, hook);
+            mEnvironment.artTooling().registerExitHook(SQLiteDatabase.class, method, hook);
         }
     }
 
     private void registerReleaseReferenceHooks() {
-        mEnvironment.artTI().registerEntryHook(
+        mEnvironment.artTooling().registerEntryHook(
                 SQLiteClosable.class,
                 "releaseReference()V",
                 new EntryHook() {
@@ -376,7 +377,7 @@ final class SqliteInspector extends Inspector {
      * {@link SQLiteDatabase#setTransactionSuccessful} was called
      */
     private void registerInvalidationHooksTransaction(final RequestCollapsingThrottler throttler) {
-        mEnvironment.artTI().registerExitHook(SQLiteDatabase.class, "endTransaction()V",
+        mEnvironment.artTooling().registerExitHook(SQLiteDatabase.class, "endTransaction()V",
                 new ExitHook<Object>() {
                     @Override
                     public Object onExit(Object result) {
@@ -397,7 +398,7 @@ final class SqliteInspector extends Inspector {
     private void registerInvalidationHooksSqliteStatement(
             final RequestCollapsingThrottler throttler) {
         for (String method : SQLITE_STATEMENT_EXECUTE_METHODS_SIGNATURES) {
-            mEnvironment.artTI().registerExitHook(SQLiteStatement.class, method,
+            mEnvironment.artTooling().registerExitHook(SQLiteStatement.class, method,
                     new ExitHook<Object>() {
                         @Override
                         public Object onExit(Object result) {

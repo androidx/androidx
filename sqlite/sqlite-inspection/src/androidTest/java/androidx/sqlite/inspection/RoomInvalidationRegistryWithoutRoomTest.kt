@@ -16,7 +16,7 @@
 
 package androidx.sqlite.inspection
 
-import androidx.inspection.ArtToolInterface
+import androidx.inspection.ArtTooling
 import androidx.inspection.InspectorEnvironment
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
@@ -35,7 +35,7 @@ class RoomInvalidationRegistryWithoutRoomTest {
         // this does not really assert anything, we just want to make sure it does not crash and
         // never makes a call to the environment if Room is not available.
         val env = object : InspectorEnvironment {
-            override fun artTI(): ArtToolInterface {
+            override fun artTooling(): ArtTooling {
                 throw AssertionError("should never call environment")
             }
         }
