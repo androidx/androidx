@@ -45,8 +45,7 @@ rm reference/kotlin/sample -rf
 rm reference/kotlin/androidx/annotation -rf
 rm reference/kotlin/androidx/benchmark -rf
 rm reference/kotlin/androidx/tracing -rf
-rm -rf reference/kotlin/androidx/ui/androidview
-rm -rf reference/kotlin/androidx/ui/core/samples
+rm -rf reference/kotlin/androidx/compose/androidview
 mv reference/kotlin/package-list reference/kotlin/androidx/ui/.
 mv reference/kotlin/androidx/_toc.yaml reference/kotlin/androidx/ui/.
 mv reference/kotlin/androidx/packages.html reference/kotlin/androidx/ui/.
