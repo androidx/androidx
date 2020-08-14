@@ -96,6 +96,10 @@ public final class WindowInsetsControllerCompat {
     public WindowInsetsControllerCompat(@NonNull Window window, @NonNull View view) {
         if (SDK_INT >= 30) {
             mImpl = new Impl30(window);
+        } else if (SDK_INT >= 26) {
+            mImpl = new Impl26(window, view);
+        } else if (SDK_INT >= 23) {
+            mImpl = new Impl23(window, view);
         } else if (SDK_INT >= 20) {
             mImpl = new Impl20(window, view);
         } else {
@@ -158,6 +162,55 @@ public final class WindowInsetsControllerCompat {
         mImpl.hide(types);
     }
 
+
+    /**
+     * Checks if the foreground of the status bar is set to light.
+     * <p>
+     * This method always returns false on API < 23.
+     *
+     * @return true if the foreground is light
+     * @see #setAppearanceLightStatusBars(boolean)
+     */
+    public boolean isAppearanceLightStatusBars() {
+        return mImpl.isAppearanceLightStatusBars();
+    }
+
+    /**
+     * If true, changes the foreground color of the status bars to light so that the items on the
+     * bar can be read clearly. If false, reverts to the default appearance.
+     * <p>
+     * This method has no effect on API < 23.
+     *
+     * @see #isAppearanceLightStatusBars()
+     */
+    public void setAppearanceLightStatusBars(boolean isLight) {
+        mImpl.setAppearanceLightStatusBars(isLight);
+    }
+
+    /**
+     * Checks if the foreground of the navigation bar is set to light.
+     * <p>
+     * This method always returns false on API < 26.
+     *
+     * @return true if the foreground is light
+     * @see #setAppearanceLightNavigationBars(boolean)
+     */
+    public boolean isAppearanceLightNavigationBars() {
+        return mImpl.isAppearanceLightNavigationBars();
+    }
+
+    /**
+     * If true, changes the foreground color of the navigation bars to light so that the items on
+     * the bar can be read clearly. If false, reverts to the default appearance.
+     * <p>
+     * This method has no effect on API < 26.
+     *
+     * @see #isAppearanceLightNavigationBars()
+     */
+    public void setAppearanceLightNavigationBars(boolean isLight) {
+        mImpl.setAppearanceLightNavigationBars(isLight);
+    }
+
     /**
      * Controls the behavior of system bars.
      *
@@ -181,6 +234,7 @@ public final class WindowInsetsControllerCompat {
 
     private static class Impl {
         Impl() {
+            //privatex
         }
 
         void show(int types) {
@@ -195,13 +249,27 @@ public final class WindowInsetsControllerCompat {
         int getSystemBarsBehavior() {
             return 0;
         }
+
+        public boolean isAppearanceLightStatusBars() {
+            return false;
+        }
+
+        public void setAppearanceLightStatusBars(boolean isLight) {
+        }
+
+        public boolean isAppearanceLightNavigationBars() {
+            return false;
+        }
+
+        public void setAppearanceLightNavigationBars(boolean isLight) {
+        }
     }
 
     @RequiresApi(20)
     private static class Impl20 extends Impl {
 
         @NonNull
-        private final Window mWindow;
+        protected final Window mWindow;
 
         @Nullable
         private final View mView;
@@ -306,11 +374,11 @@ public final class WindowInsetsControllerCompat {
                             & ~systemUiFlag);
         }
 
-        private void setWindowFlag(int windowFlag) {
+        protected void setWindowFlag(int windowFlag) {
             mWindow.addFlags(windowFlag);
         }
 
-        private void unsetWindowFlag(int windowFlag) {
+        protected void unsetWindowFlag(int windowFlag) {
             mWindow.clearFlags(windowFlag);
         }
 
@@ -321,6 +389,56 @@ public final class WindowInsetsControllerCompat {
         @Override
         int getSystemBarsBehavior() {
             return 0;
+        }
+    }
+
+    @RequiresApi(23)
+    private static class Impl23 extends Impl20 {
+
+        Impl23(@NonNull Window window, @Nullable View view) {
+            super(window, view);
+        }
+
+        @Override
+        public boolean isAppearanceLightStatusBars() {
+            return (mWindow.getDecorView().getSystemUiVisibility()
+                    & View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR) != 0;
+        }
+
+        @Override
+        public void setAppearanceLightStatusBars(boolean isLight) {
+            if (isLight) {
+                unsetWindowFlag(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+                setWindowFlag(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                setSystemUiFlag(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            } else {
+                unsetSystemUiFlag(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+            }
+        }
+    }
+
+    @RequiresApi(26)
+    private static class Impl26 extends Impl23 {
+
+        Impl26(@NonNull Window window, @Nullable View view) {
+            super(window, view);
+        }
+
+        @Override
+        public boolean isAppearanceLightNavigationBars() {
+            return (mWindow.getDecorView().getSystemUiVisibility()
+                    & View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR) != 0;
+        }
+
+        @Override
+        public void setAppearanceLightNavigationBars(boolean isLight) {
+            if (isLight) {
+                unsetWindowFlag(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+                setWindowFlag(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+                setSystemUiFlag(View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+            } else {
+                unsetSystemUiFlag(View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR);
+            }
         }
     }
 
@@ -345,6 +463,44 @@ public final class WindowInsetsControllerCompat {
         @Override
         void hide(@InsetsType int types) {
             mInsetsController.hide(types);
+        }
+
+        @Override
+        public boolean isAppearanceLightStatusBars() {
+            return (mInsetsController.getSystemBarsAppearance()
+                    & WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS) != 0;
+        }
+
+        @Override
+        public void setAppearanceLightStatusBars(boolean isLight) {
+            if (isLight) {
+                mInsetsController.setSystemBarsAppearance(
+                        WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS,
+                        WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
+            } else {
+                mInsetsController.setSystemBarsAppearance(
+                        0,
+                        WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
+            }
+        }
+
+        @Override
+        public boolean isAppearanceLightNavigationBars() {
+            return (mInsetsController.getSystemBarsAppearance()
+                    & WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS) != 0;
+        }
+
+        @Override
+        public void setAppearanceLightNavigationBars(boolean isLight) {
+            if (isLight) {
+                mInsetsController.setSystemBarsAppearance(
+                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
+                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
+            } else {
+                mInsetsController.setSystemBarsAppearance(
+                        0,
+                        WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS);
+            }
         }
 
         /**
