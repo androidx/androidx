@@ -31,6 +31,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.Manifest;
+import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.SurfaceTexture;
@@ -63,6 +64,7 @@ import androidx.test.annotation.UiThreadTest;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
 import androidx.test.rule.GrantPermissionRule;
 
@@ -90,6 +92,8 @@ public class PreviewViewTest {
     @Rule
     public final GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
             Manifest.permission.CAMERA);
+
+    private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     @Rule
     public final ActivityTestRule<FakeActivity> mActivityRule = new ActivityTestRule<>(
             FakeActivity.class);
@@ -277,27 +281,171 @@ public class PreviewViewTest {
     }
 
     @Test
-    @UiThreadTest
-    public void canCreateMeteringPointFactory() {
+    public void canCreateValidMeteringPoint() throws Exception {
         final CameraInfo cameraInfo = createCameraInfo(90,
                 CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, CameraSelector.LENS_FACING_BACK);
 
         final PreviewView previewView = new PreviewView(mContext);
-        setContentView(previewView);
 
-        Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
-        mSurfaceRequest = createSurfaceRequest(cameraInfo);
-        surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+        mInstrumentation.runOnMainSync(() -> {
+            setContentView(previewView);
+            mSurfaceRequest = createSurfaceRequest(cameraInfo);
+            Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+            surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+        });
+
+        waitForLayoutReady(previewView);
+
+        MeteringPointFactory factory = previewView.getMeteringPointFactory();
+        MeteringPoint point = factory.createPoint(100, 100);
+        assertPointIsValid(point);
+    }
+
+    private void assertPointIsValid(MeteringPoint point) {
+        assertThat(point.getX() >= 0f && point.getX() <= 1.0f).isTrue();
+        assertThat(point.getY() >= 0f && point.getY() <= 1.0f).isTrue();
+    }
+
+    @Test
+    public void meteringPointFactoryAutoAdjusted_whenViewSizeChange() throws Exception {
+        final CameraInfo cameraInfo = createCameraInfo(90,
+                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, CameraSelector.LENS_FACING_BACK);
+
+        final PreviewView previewView = new PreviewView(mContext);
         MeteringPointFactory factory = previewView.getMeteringPointFactory();
 
-        MeteringPoint point = factory.createPoint(100, 100);
-        assertThat(point.getX() >= 0f || point.getX() <= 1.0f);
-        assertThat(point.getY() >= 0f || point.getY() <= 1.0f);
+        mInstrumentation.runOnMainSync(() -> {
+            setContentView(previewView);
+            mSurfaceRequest = createSurfaceRequest(cameraInfo);
+            Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+            surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+        });
+
+        changeViewSize(previewView, 1000, 1000);
+        MeteringPoint point1 = factory.createPoint(100, 100);
+
+        changeViewSize(previewView, 500, 400);
+
+        MeteringPoint point2 = factory.createPoint(100, 100);
+
+        assertPointIsValid(point1);
+        assertPointIsValid(point2);
+        // These points should be different because the layout is changed.
+        assertPointsAreDifferent(point1, point2);
+    }
+
+    private void changeViewSize(PreviewView previewView, int newWidth, int newHeight)
+            throws InterruptedException {
+        CountDownLatch latchToWaitForLayoutChange = new CountDownLatch(1);
+        mInstrumentation.runOnMainSync(() -> {
+            previewView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                @Override
+                public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                        int oldLeft,
+                        int oldTop, int oldRight, int oldBottom) {
+                    if (previewView.getWidth() == newWidth
+                            && previewView.getHeight() == newHeight) {
+                        latchToWaitForLayoutChange.countDown();
+                        previewView.removeOnLayoutChangeListener(this);
+                    }
+                }
+            });
+            previewView.setLayoutParams(new FrameLayout.LayoutParams(newWidth, newHeight));
+        });
+
+        // Wait until the new layout is changed.
+        assertThat(latchToWaitForLayoutChange.await(1, TimeUnit.SECONDS)).isTrue();
+    }
+
+    @Test
+    public void meteringPointFactoryAutoAdjusted_whenScaleTypeChanged() throws Exception {
+        final CameraInfo cameraInfo = createCameraInfo(90,
+                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, CameraSelector.LENS_FACING_BACK);
+
+        final PreviewView previewView = new PreviewView(mContext);
+        MeteringPointFactory factory = previewView.getMeteringPointFactory();
+
+        mInstrumentation.runOnMainSync(() -> {
+            setContentView(previewView);
+            mSurfaceRequest = createSurfaceRequest(cameraInfo);
+            Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+            surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+        });
+        // Surface resolution is 640x480 , set a different size for PreviewView.
+        changeViewSize(previewView, 800, 700);
+
+        previewView.setScaleType(PreviewView.ScaleType.FILL_CENTER);
+        MeteringPoint point1 = factory.createPoint(100, 100);
+
+        previewView.setScaleType(PreviewView.ScaleType.FIT_START);
+        MeteringPoint point2 = factory.createPoint(100, 100);
+
+        assertPointIsValid(point1);
+        assertPointIsValid(point2);
+        // These points should be different
+        assertPointsAreDifferent(point1, point2);
+    }
+
+    @Test
+    public void meteringPointFactoryAutoAdjusted_whenSurfaceRequestChanged() throws Exception {
+        final CameraInfo cameraInfo1 = createCameraInfo(90,
+                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, CameraSelector.LENS_FACING_BACK);
+        final CameraInfo cameraInfo2 = createCameraInfo(270,
+                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, CameraSelector.LENS_FACING_FRONT);
+
+        final PreviewView previewView = new PreviewView(mContext);
+        MeteringPointFactory factory = previewView.getMeteringPointFactory();
+
+        mInstrumentation.runOnMainSync(() -> {
+            setContentView(previewView);
+            mSurfaceRequest = createSurfaceRequest(cameraInfo1);
+            Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+            surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+        });
+
+        changeViewSize(previewView, 1000, 1000);
+
+        // get a MeteringPoint from a non-center point.
+        MeteringPoint point1 = factory.createPoint(100, 120);
+
+        mInstrumentation.runOnMainSync(() -> {
+            setContentView(previewView);
+            mSurfaceRequest = createSurfaceRequest(cameraInfo2);
+            Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+            surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+        });
+
+        MeteringPoint point2 = factory.createPoint(100, 120);
+
+        assertPointIsValid(point1);
+        assertPointIsValid(point2);
+        // These points should be different
+        assertPointsAreDifferent(point1, point2);
+    }
+
+    private void assertPointsAreDifferent(MeteringPoint point1, MeteringPoint point2) {
+        assertThat(point1.getX() != point2.getX() || point1.getY() != point2.getY()).isTrue();
+    }
+
+    private void waitForLayoutReady(PreviewView previewView) throws InterruptedException {
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+        previewView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom,
+                    int oldLeft,
+                    int oldTop, int oldRight, int oldBottom) {
+                if (v.getWidth() > 0 && v.getHeight() > 0) {
+                    countDownLatch.countDown();
+                    previewView.removeOnLayoutChangeListener(this);
+                }
+            }
+        });
+        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
     }
 
     @Test
     @UiThreadTest
-    public void createMeteringPointFactory_previewViewWidthOrHeightIs0() {
+    public void meteringPointInvalid_whenPreviewViewWidthOrHeightIs0() {
         final CameraInfo cameraInfo = createCameraInfo(90,
                 CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, CameraSelector.LENS_FACING_BACK);
 
@@ -311,13 +459,17 @@ public class PreviewViewTest {
         //Width and height is 0,  but surface is requested,
         //verifying the factory only creates invalid points.
         MeteringPoint point = factory.createPoint(100, 100);
-        assertThat(point.getX() < 0f || point.getX() > 1.0f);
-        assertThat(point.getY() < 0f || point.getY() > 1.0f);
+        assertPointIsInvalid(point);
+    }
+
+    private void assertPointIsInvalid(MeteringPoint point) {
+        assertThat(point.getX() < 0f || point.getX() > 1.0f).isTrue();
+        assertThat(point.getY() < 0f || point.getY() > 1.0f).isTrue();
     }
 
     @Test
     @UiThreadTest
-    public void createMeteringPointFactory_beforeCreatingSurfaceProvider() {
+    public void meteringPointInvalid_beforeCreatingSurfaceProvider() {
         final PreviewView previewView = new PreviewView(mContext);
         // make PreviewView.getWidth() getHeight not 0.
         setContentView(previewView);
@@ -325,8 +477,7 @@ public class PreviewViewTest {
 
         //verifying the factory only creates invalid points.
         MeteringPoint point = factory.createPoint(100, 100);
-        assertThat(point.getX() < 0f || point.getX() > 1.0f);
-        assertThat(point.getY() < 0f || point.getY() > 1.0f);
+        assertPointIsInvalid(point);
     }
 
     @Test
