@@ -176,7 +176,8 @@ class FlattenedPageEventStorageTest {
         list.add(
             Drop(
                 loadType = PREPEND,
-                count = 1,
+                minPageOffset = 0,
+                maxPageOffset = 0,
                 placeholdersRemaining = 6
             )
         )
@@ -212,7 +213,8 @@ class FlattenedPageEventStorageTest {
         list.add(
             Drop(
                 loadType = APPEND,
-                count = 1,
+                minPageOffset = 1,
+                maxPageOffset = 1,
                 placeholdersRemaining = 7
             )
         )

@@ -54,6 +54,7 @@ internal class CachedPageEventFlow<T : Any>(
      * This flag ensures that we do not try to collect from upstream more than once.
      */
     private val collectedFromSource = AtomicBoolean(false)
+
     /**
      * Shared upstream.
      * Note that, if upstream flow ends, re-subscribing to this will not re-collect from upstream
@@ -165,6 +166,7 @@ private class FlattenedPageController<T : Any> {
     private val list = FlattenedPageEventStorage<T>()
     private var snapshots = listOf<TemporaryDownstream<T>>()
     private val lock = Mutex()
+
     /**
      * Record the event.
      * This sends the event into storage but also into any other active TemporaryDownstream.
@@ -233,15 +235,11 @@ internal class FlattenedPageEventStorage<T : Any> {
         when (event.loadType) {
             LoadType.PREPEND -> {
                 placeholdersBefore = event.placeholdersRemaining
-                repeat(event.count) {
-                    pages.removeFirst()
-                }
+                repeat(event.pageCount) { pages.removeFirst() }
             }
             LoadType.APPEND -> {
                 placeholdersAfter = event.placeholdersRemaining
-                repeat(event.count) {
-                    pages.removeLast()
-                }
+                repeat(event.pageCount) { pages.removeLast() }
             }
             else -> throw IllegalArgumentException("Page drop type must be prepend or append")
         }

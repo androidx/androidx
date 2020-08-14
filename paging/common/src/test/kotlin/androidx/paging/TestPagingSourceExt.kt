@@ -68,8 +68,6 @@ private fun pages(
 ) = listOf(
     TransformablePage(
         originalPageOffset = pageOffset,
-        data = ITEMS.slice(range),
-        originalPageSize = range.count(),
-        originalIndices = null
+        data = ITEMS.slice(range)
     )
 )

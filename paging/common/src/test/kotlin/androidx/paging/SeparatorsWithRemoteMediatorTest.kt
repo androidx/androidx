@@ -170,10 +170,10 @@ private fun transformablePage(
     originalPageOffset: Int,
     data: List<String>
 ) = TransformablePage(
-    originalPageOffset = originalPageOffset,
+    originalPageOffsets = intArrayOf(originalPageOffset),
     data = data,
-    originalPageSize = data.size,
-    originalIndices = data.fold(mutableListOf()) { acc, s ->
+    hintOriginalPageOffset = originalPageOffset,
+    hintOriginalIndices = data.fold(mutableListOf()) { acc, s ->
         acc.apply {
             add(when {
                 acc.isEmpty() -> 0

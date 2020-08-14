@@ -99,8 +99,22 @@ class PageFetcherSnapshotStateTest {
         assertEquals(0, pagerState.placeholdersBefore)
         assertEquals(0, pagerState.placeholdersAfter)
 
-        pagerState.drop(loadType = PREPEND, pageCount = 1, placeholdersRemaining = 100)
-        pagerState.drop(loadType = APPEND, pageCount = 1, placeholdersRemaining = 100)
+        pagerState.drop(
+            event = PageEvent.Drop(
+                loadType = PREPEND,
+                minPageOffset = -2,
+                maxPageOffset = -2,
+                placeholdersRemaining = 100
+            )
+        )
+        pagerState.drop(
+            event = PageEvent.Drop(
+                loadType = APPEND,
+                minPageOffset = 2,
+                maxPageOffset = 2,
+                placeholdersRemaining = 100
+            )
+        )
 
         assertEquals(0, pagerState.placeholdersBefore)
         assertEquals(0, pagerState.placeholdersAfter)
@@ -184,8 +198,22 @@ class PageFetcherSnapshotStateTest {
         assertEquals(24, pagerState.placeholdersBefore)
         assertEquals(24, pagerState.placeholdersAfter)
 
-        pagerState.drop(loadType = PREPEND, pageCount = 1, placeholdersRemaining = 100)
-        pagerState.drop(loadType = APPEND, pageCount = 1, placeholdersRemaining = 100)
+        pagerState.drop(
+            event = PageEvent.Drop(
+                loadType = PREPEND,
+                minPageOffset = -2,
+                maxPageOffset = -2,
+                placeholdersRemaining = 100
+            )
+        )
+        pagerState.drop(
+            event = PageEvent.Drop(
+                loadType = APPEND,
+                minPageOffset = 2,
+                maxPageOffset = 2,
+                placeholdersRemaining = 100
+            )
+        )
 
         assertEquals(100, pagerState.placeholdersBefore)
         assertEquals(100, pagerState.placeholdersAfter)
