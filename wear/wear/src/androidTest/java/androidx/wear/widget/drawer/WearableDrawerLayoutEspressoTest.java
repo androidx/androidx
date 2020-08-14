@@ -31,7 +31,9 @@ import static androidx.wear.widget.util.AsyncViewActions.waitForMatchingView;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -247,6 +249,49 @@ public class WearableDrawerLayoutEspressoTest {
 
         // THEN the action drawer should be open
         onView(withId(R.id.action_drawer)).check(matches(isOpened(true)));
+    }
+
+    @Test
+    public void drawerContentViewShouldOnlyInflateOnceOpened() {
+        // GIVEN a launched activity with only an action drawer
+        activityRule.launchActivity(
+                new DrawerTestActivity.Builder()
+                        .setStyle(DrawerStyle.ONLY_ACTION_DRAWER_WITH_TITLE)
+                        .build());
+
+        final RecyclerView actionList =
+                activityRule.getActivity().findViewById(R.id.action_list);
+
+        // WHEN it is opened
+        WearableDrawerView actionDrawer = activityRule.getActivity().findViewById(
+                R.id.action_drawer);
+        openDrawer(actionDrawer);
+
+        // THEN the action drawer should be open and the items should all exist in the actionList
+        // adapter
+        onView(withId(R.id.action_drawer))
+                .perform(
+                        waitForMatchingView(
+                                allOf(withId(R.id.action_drawer), isOpened(true)),
+                                MAX_WAIT_MS));
+        assertEquals(7, actionList.getAdapter().getItemCount());
+    }
+
+    @Test
+    public void drawerContentViewShouldNotInflateAfterLaunch() {
+        // GIVEN a launched activity with only an action drawer
+        activityRule.launchActivity(
+                new DrawerTestActivity.Builder()
+                        .setStyle(DrawerStyle.ONLY_ACTION_DRAWER_WITH_TITLE)
+                        .build());
+
+        final RecyclerView actionList =
+                activityRule.getActivity().findViewById(R.id.action_list);
+
+        // THEN the drawer should not be visible and the draw action list should not have an
+        // adapter set
+        onView(allOf(withId(R.id.action_list), not(isDisplayed())));
+        assertNull(actionList.getAdapter());
     }
 
     @Test
