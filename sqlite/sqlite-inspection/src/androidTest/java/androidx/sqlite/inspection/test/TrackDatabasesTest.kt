@@ -20,7 +20,7 @@ import android.app.Application
 import android.database.sqlite.SQLiteClosable
 import android.database.sqlite.SQLiteDatabase
 import android.os.Build
-import androidx.inspection.InspectorEnvironment.ExitHook
+import androidx.inspection.ArtToolInterface.ExitHook
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Event
 import androidx.sqlite.inspection.SqliteInspectorProtocol.Response
 import androidx.sqlite.inspection.test.MessageFactory.createKeepDatabasesOpenCommand

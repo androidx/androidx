@@ -55,7 +55,7 @@ class SqlDelightInvalidation {
             return;
         }
         // invalidating all queries because we can't say which ones were actually affected.
-        List<?> queries = mEnvironment.findInstances(mQueryClass);
+        List<?> queries = mEnvironment.artTI().findInstances(mQueryClass);
         for (Object query: queries) {
             notifyDataChanged(query);
         }
