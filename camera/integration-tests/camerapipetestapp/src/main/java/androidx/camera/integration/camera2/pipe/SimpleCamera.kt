@@ -23,6 +23,7 @@ import android.media.ImageReader
 import android.os.Handler
 import android.util.Log
 import android.util.Size
+import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.Request
@@ -32,13 +33,17 @@ import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamType
 import kotlin.math.absoluteValue
 
-class SimpleCamera(private val cameraGraph: CameraGraph, private val imageReader: ImageReader) {
+class SimpleCamera(
+    private val cameraGraph: CameraGraph,
+    private val imageReader: ImageReader
+) {
     companion object {
         private val defaultResolution = Size(1280, 720)
         private const val defaultAspectRatio = 4.0 / 3.0
 
         fun create(
             cameraPipe: CameraPipe,
+            viewfinder: Viewfinder,
             listeners: List<Request.Listener> = emptyList()
         ): SimpleCamera {
             // TODO: It may be worthwhile to turn this into a suspending function to avoid running
@@ -70,14 +75,22 @@ class SimpleCamera(private val cameraGraph: CameraGraph, private val imageReader
 
             val yuvStreamConfig = StreamConfig(
                 yuvSize,
-                StreamFormat(ImageFormat.YUV_420_888),
+                StreamFormat.YUV_420_888,
                 cameraId,
                 StreamType.SURFACE
+            )
+
+            val viewfinderStreamConfig = StreamConfig(
+                yuvSize,
+                StreamFormat.UNKNOWN,
+                cameraId,
+                StreamType.SURFACE_VIEW
             )
 
             val config = CameraGraph.Config(
                 camera = cameraId,
                 streams = listOf(
+                    viewfinderStreamConfig,
                     yuvStreamConfig
                 ),
                 listeners = listeners,
@@ -86,13 +99,19 @@ class SimpleCamera(private val cameraGraph: CameraGraph, private val imageReader
 
             val cameraGraph = cameraPipe.create(config)
 
-            Log.i("CXCP-App", "Created $cameraGraph")
+            val viewfinderStream = cameraGraph.streams[viewfinderStreamConfig]!!
+            viewfinder.configure(viewfinderStream.size, object : Viewfinder.SurfaceListener {
+                override fun onSurfaceChanged(surface: Surface?, size: Size?) {
+                    Log.i("CXCP-App", "Viewfinder surface changed to $surface at $size")
+                    cameraGraph.setSurface(viewfinderStream.id, surface)
+                }
+            })
 
             val yuvStream = cameraGraph.streams[yuvStreamConfig]!!
             cameraGraph.acquireSessionOrNull()!!.use {
                 it.setRepeating(
                     Request(
-                        streams = listOf(yuvStream.id)
+                        streams = listOf(viewfinderStream.id, yuvStream.id)
                     )
                 )
             }
@@ -104,9 +123,6 @@ class SimpleCamera(private val cameraGraph: CameraGraph, private val imageReader
                 10
             )
             cameraGraph.setSurface(yuvStream.id, imageReader.surface)
-
-            Log.i("CXCP-App", "Configured ${yuvStream.id} to use ${imageReader.surface}")
-
             return SimpleCamera(cameraGraph, imageReader)
         }
     }
