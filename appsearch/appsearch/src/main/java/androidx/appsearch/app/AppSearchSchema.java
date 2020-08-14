@@ -16,18 +16,17 @@
 
 package androidx.appsearch.app;
 
+import android.os.Bundle;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.appsearch.exceptions.IllegalSchemaException;
 import androidx.collection.ArraySet;
 import androidx.core.util.Preconditions;
 
-import com.google.android.icing.proto.PropertyConfigProto;
-import com.google.android.icing.proto.SchemaTypeConfigProto;
-import com.google.android.icing.proto.TermMatchType;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.Set;
 
 /**
@@ -38,38 +37,41 @@ import java.util.Set;
  * <p>The schema consists of type information, properties, and config (like tokenization type).
  */
 public final class AppSearchSchema {
-    private final SchemaTypeConfigProto mProto;
+    static final String SCHEMA_TYPE_FIELD = "schemaType";
+    static final String PROPERTIES_FIELD = "properties";
 
-    AppSearchSchema(@NonNull SchemaTypeConfigProto proto) {
-        Preconditions.checkNotNull(proto);
-        mProto = proto;
+    private final Bundle mBundle;
+
+    AppSearchSchema(@NonNull Bundle bundle) {
+        Preconditions.checkNotNull(bundle);
+        mBundle = bundle;
     }
 
     /**
-     * Returns the {@link SchemaTypeConfigProto} populated by this builder.
+     * Returns the {@link Bundle} populated by this builder.
      * @hide
      */
     @NonNull
-    SchemaTypeConfigProto getProto() {
-        return mProto;
+    Bundle getBundle() {
+        return mBundle;
     }
 
     @Override
     public String toString() {
-        return mProto.toString();
+        return mBundle.toString();
     }
 
     /** Builder for {@link AppSearchSchema objects}. */
     public static final class Builder {
-        private final SchemaTypeConfigProto.Builder mProtoBuilder =
-                SchemaTypeConfigProto.newBuilder();
-
+        private final String mTypeName;
+        private final ArrayList<Bundle> mProperties = new ArrayList<>();
+        private final Set<String> mPropertyNames = new ArraySet<>();
         private boolean mBuilt = false;
 
         /** Creates a new {@link AppSearchSchema.Builder}. */
         public Builder(@NonNull String typeName) {
             Preconditions.checkNotNull(typeName);
-            mProtoBuilder.setSchemaType(typeName);
+            mTypeName = typeName;
         }
 
         /** Adds a property to the given type. */
@@ -77,7 +79,11 @@ public final class AppSearchSchema {
         public AppSearchSchema.Builder addProperty(@NonNull PropertyConfig propertyConfig) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(propertyConfig);
-            mProtoBuilder.addProperties(propertyConfig.mProto);
+            if (!mPropertyNames.add(propertyConfig.mName)) {
+                throw new IllegalSchemaException(
+                        "Property defined more than once: " + propertyConfig.mName);
+            }
+            mProperties.add(propertyConfig.mBundle);
             return this;
         }
 
@@ -89,16 +95,11 @@ public final class AppSearchSchema {
         @NonNull
         public AppSearchSchema build() {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            Set<String> propertyNames = new ArraySet<>();
-            for (PropertyConfigProto propertyConfigProto : mProtoBuilder.getPropertiesList()) {
-                if (!propertyNames.add(propertyConfigProto.getPropertyName())) {
-                    throw new IllegalSchemaException(
-                            "Property defined more than once: "
-                                    + propertyConfigProto.getPropertyName());
-                }
-            }
+            Bundle bundle = new Bundle();
+            bundle.putString(AppSearchSchema.SCHEMA_TYPE_FIELD, mTypeName);
+            bundle.putParcelableArrayList(AppSearchSchema.PROPERTIES_FIELD, mProperties);
             mBuilt = true;
-            return new AppSearchSchema(mProtoBuilder.build());
+            return new AppSearchSchema(bundle);
         }
     }
 
@@ -109,6 +110,13 @@ public final class AppSearchSchema {
      * a property.
      */
     public static final class PropertyConfig {
+        static final String NAME_FIELD = "name";
+        static final String DATA_TYPE_FIELD = "dataType";
+        static final String SCHEMA_TYPE_FIELD = "schemaType";
+        static final String CARDINALITY_FIELD = "cardinality";
+        static final String INDEXING_TYPE_FIELD = "indexingType";
+        static final String TOKENIZER_TYPE_FIELD = "tokenizerType";
+
         /**
          * Physical data-types of the contents of the property.
          * @hide
@@ -224,16 +232,17 @@ public final class AppSearchSchema {
         /** Tokenization for plain text. */
         public static final int TOKENIZER_TYPE_PLAIN = 1;
 
-        final PropertyConfigProto mProto;
+        final String mName;
+        final Bundle mBundle;
 
-        PropertyConfig(@NonNull PropertyConfigProto proto) {
-            Preconditions.checkNotNull(proto);
-            mProto = proto;
+        PropertyConfig(@NonNull String name, @NonNull Bundle bundle) {
+            mName = Preconditions.checkNotNull(name);
+            mBundle = Preconditions.checkNotNull(bundle);
         }
 
         @Override
         public String toString() {
-            return mProto.toString();
+            return mBundle.toString();
         }
 
         /**
@@ -250,18 +259,14 @@ public final class AppSearchSchema {
          * is also required.
          */
         public static final class Builder {
-            private final PropertyConfigProto.Builder mPropertyConfigProto =
-                    PropertyConfigProto.newBuilder();
-            private final com.google.android.icing.proto.IndexingConfig.Builder
-                    mIndexingConfigProto =
-                        com.google.android.icing.proto.IndexingConfig.newBuilder();
-
+            private final String mName;
+            private final Bundle mBundle = new Bundle();
             private boolean mBuilt = false;
 
             /** Creates a new {@link PropertyConfig.Builder}. */
             public Builder(@NonNull String propertyName) {
-                Preconditions.checkNotNull(propertyName);
-                mPropertyConfigProto.setPropertyName(propertyName);
+                mName = Preconditions.checkNotNull(propertyName);
+                mBundle.putString(NAME_FIELD, propertyName);
             }
 
             /**
@@ -272,12 +277,9 @@ public final class AppSearchSchema {
             @NonNull
             public PropertyConfig.Builder setDataType(@DataType int dataType) {
                 Preconditions.checkState(!mBuilt, "Builder has already been used");
-                PropertyConfigProto.DataType.Code dataTypeProto =
-                        PropertyConfigProto.DataType.Code.forNumber(dataType);
-                if (dataTypeProto == null) {
-                    throw new IllegalArgumentException("Invalid dataType: " + dataType);
-                }
-                mPropertyConfigProto.setDataType(dataTypeProto);
+                Preconditions.checkArgumentInRange(
+                        dataType, DATA_TYPE_STRING, DATA_TYPE_DOCUMENT, "dataType");
+                mBundle.putInt(DATA_TYPE_FIELD, dataType);
                 return this;
             }
 
@@ -291,7 +293,7 @@ public final class AppSearchSchema {
             public PropertyConfig.Builder setSchemaType(@NonNull String schemaType) {
                 Preconditions.checkState(!mBuilt, "Builder has already been used");
                 Preconditions.checkNotNull(schemaType);
-                mPropertyConfigProto.setSchemaType(schemaType);
+                mBundle.putString(SCHEMA_TYPE_FIELD, schemaType);
                 return this;
             }
 
@@ -303,12 +305,9 @@ public final class AppSearchSchema {
             @NonNull
             public PropertyConfig.Builder setCardinality(@Cardinality int cardinality) {
                 Preconditions.checkState(!mBuilt, "Builder has already been used");
-                PropertyConfigProto.Cardinality.Code cardinalityProto =
-                        PropertyConfigProto.Cardinality.Code.forNumber(cardinality);
-                if (cardinalityProto == null) {
-                    throw new IllegalArgumentException("Invalid cardinality: " + cardinality);
-                }
-                mPropertyConfigProto.setCardinality(cardinalityProto);
+                Preconditions.checkArgumentInRange(
+                        cardinality, CARDINALITY_REPEATED, CARDINALITY_REQUIRED, "cardinality");
+                mBundle.putInt(CARDINALITY_FIELD, cardinality);
                 return this;
             }
 
@@ -318,21 +317,9 @@ public final class AppSearchSchema {
             @NonNull
             public PropertyConfig.Builder setIndexingType(@IndexingType int indexingType) {
                 Preconditions.checkState(!mBuilt, "Builder has already been used");
-                TermMatchType.Code termMatchTypeProto;
-                switch (indexingType) {
-                    case INDEXING_TYPE_NONE:
-                        termMatchTypeProto = TermMatchType.Code.UNKNOWN;
-                        break;
-                    case INDEXING_TYPE_EXACT_TERMS:
-                        termMatchTypeProto = TermMatchType.Code.EXACT_ONLY;
-                        break;
-                    case INDEXING_TYPE_PREFIXES:
-                        termMatchTypeProto = TermMatchType.Code.PREFIX;
-                        break;
-                    default:
-                        throw new IllegalArgumentException("Invalid indexingType: " + indexingType);
-                }
-                mIndexingConfigProto.setTermMatchType(termMatchTypeProto);
+                Preconditions.checkArgumentInRange(
+                        indexingType, INDEXING_TYPE_NONE, INDEXING_TYPE_PREFIXES, "indexingType");
+                mBundle.putInt(INDEXING_TYPE_FIELD, indexingType);
                 return this;
             }
 
@@ -340,14 +327,9 @@ public final class AppSearchSchema {
             @NonNull
             public PropertyConfig.Builder setTokenizerType(@TokenizerType int tokenizerType) {
                 Preconditions.checkState(!mBuilt, "Builder has already been used");
-                com.google.android.icing.proto.IndexingConfig.TokenizerType.Code
-                        tokenizerTypeProto =
-                            com.google.android.icing.proto.IndexingConfig
-                                .TokenizerType.Code.forNumber(tokenizerType);
-                if (tokenizerTypeProto == null) {
-                    throw new IllegalArgumentException("Invalid tokenizerType: " + tokenizerType);
-                }
-                mIndexingConfigProto.setTokenizerType(tokenizerTypeProto);
+                Preconditions.checkArgumentInRange(
+                        tokenizerType, TOKENIZER_TYPE_NONE, TOKENIZER_TYPE_PLAIN, "tokenizerType");
+                mBundle.putInt(TOKENIZER_TYPE_FIELD, tokenizerType);
                 return this;
             }
 
@@ -362,26 +344,22 @@ public final class AppSearchSchema {
             @NonNull
             public PropertyConfig build() {
                 Preconditions.checkState(!mBuilt, "Builder has already been used");
-                mPropertyConfigProto.setIndexingConfig(mIndexingConfigProto);
                 // TODO(b/147692920): Send the schema to Icing Lib for official validation, instead
                 //     of partially reimplementing some of the validation Icing does here.
-                if (mPropertyConfigProto.getDataType()
-                        == PropertyConfigProto.DataType.Code.UNKNOWN) {
+                if (!mBundle.containsKey(DATA_TYPE_FIELD)) {
                     throw new IllegalSchemaException("Missing field: dataType");
                 }
-                if (mPropertyConfigProto.getSchemaType().isEmpty()
-                        && mPropertyConfigProto.getDataType()
-                            == PropertyConfigProto.DataType.Code.DOCUMENT) {
+                if (mBundle.getString(SCHEMA_TYPE_FIELD, "").isEmpty()
+                        && mBundle.getInt(DATA_TYPE_FIELD) == DATA_TYPE_DOCUMENT) {
                     throw new IllegalSchemaException(
                             "Missing field: schemaType (required for configs with "
                                     + "dataType = DOCUMENT)");
                 }
-                if (mPropertyConfigProto.getCardinality()
-                        == PropertyConfigProto.Cardinality.Code.UNKNOWN) {
+                if (!mBundle.containsKey(CARDINALITY_FIELD)) {
                     throw new IllegalSchemaException("Missing field: cardinality");
                 }
                 mBuilt = true;
-                return new PropertyConfig(mPropertyConfigProto.build());
+                return new PropertyConfig(mName, mBundle);
             }
         }
     }

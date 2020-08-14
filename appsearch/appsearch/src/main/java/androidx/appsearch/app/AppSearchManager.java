@@ -31,6 +31,7 @@ import androidx.core.util.Preconditions;
 
 import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.SchemaProto;
+import com.google.android.icing.proto.SchemaTypeConfigProto;
 import com.google.android.icing.proto.SearchResultProto;
 import com.google.android.icing.proto.SearchSpecProto;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -298,7 +299,8 @@ public class AppSearchManager {
         return execute(() -> {
             SchemaProto.Builder schemaProtoBuilder = SchemaProto.newBuilder();
             for (AppSearchSchema schema : request.mSchemas) {
-                schemaProtoBuilder.addTypes(schema.getProto());
+                SchemaTypeConfigProto schemaTypeProto = SchemaToProtoConverter.convert(schema);
+                schemaProtoBuilder.addTypes(schemaTypeProto);
             }
             try {
                 mAppSearchImpl.setSchema(mDatabaseName, schemaProtoBuilder.build(),
