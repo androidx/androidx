@@ -202,7 +202,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
             notifyRequestFailed(requestId, REASON_INVALID_COMMAND);
             return;
         }
-        sessionRecord.release();
+        sessionRecord.release(/*shouldUnselect=*/true);
     }
 
     @Override
@@ -502,7 +502,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
             sessionRecord = mSessionRecords.remove(sessionId);
         }
         if (sessionRecord != null) {
-            sessionRecord.release();
+            sessionRecord.release(/*shouldUnselect=*/false);
         }
     }
 
@@ -747,7 +747,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
             }
         }
 
-        public void release() {
+        public void release(boolean shouldUnselect) {
             if (!mIsReleased) {
                 // Release member controllers
                 if ((mFlags & (SESSION_FLAG_MR2 | SESSION_FLAG_GROUP))
@@ -755,7 +755,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                     updateMemberRouteControllers(null, mSessionInfo, null);
                 }
 
-                if ((mFlags & SESSION_FLAG_MR2) != 0) {
+                if (shouldUnselect) {
                     mController.onUnselect(MediaRouter.UNSELECT_REASON_STOPPED);
                     mController.onRelease();
                 }
