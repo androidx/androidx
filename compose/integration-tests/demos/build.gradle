@@ -12,7 +12,7 @@ plugins {
 dependencies {
     kotlinPlugin project(path: ":compose:compose-compiler")
 
-    implementation project(":compose:android-view:android-view:integration-tests:android-view-demos")
+    implementation project(":compose:androidview:androidview:integration-tests:androidview-demos")
     implementation project(":compose:animation:animation:integration-tests:animation-demos")
     implementation project(":compose:foundation:foundation:integration-tests:foundation-demos")
     implementation project(":compose:ui:ui:integration-tests:ui-demos")
@@ -25,7 +25,7 @@ dependencies {
     implementation(KOTLIN_STDLIB)
 
     implementation project(":compose:runtime:runtime")
-    implementation project(":compose:android-view:android-view")
+    implementation project(":compose:androidview:androidview")
     implementation project(":compose:ui:ui")
     implementation project(":compose:foundation:foundation-layout")
     implementation project(":compose:foundation:foundation-text")
@@ -38,7 +38,7 @@ dependencies {
     androidTestImplementation project(":ui:ui-test")
 
     // TODO: presumably shouldn't need to specify these again? figure out why this is needed.
-    androidTestImplementation project(":compose:android-view:android-view:integration-tests:android-view-demos")
+    androidTestImplementation project(":compose:androidview:androidview:integration-tests:androidview-demos")
     androidTestImplementation project(":compose:animation:animation:integration-tests:animation-demos")
     androidTestImplementation project(":compose:foundation:foundation:integration-tests:foundation-demos")
     androidTestImplementation project(":compose:ui:ui:integration-tests:ui-demos")
