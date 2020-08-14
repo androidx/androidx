@@ -50,19 +50,28 @@ public final class WindowManager {
      * context.
      * @param context A visual context, such as an {@link Activity} or a {@link ContextWrapper}
      *                around one, to use for initialization.
-     * @param windowBackend Backing server class that will provide information for this instance.
-     *                      Pass a custom {@link WindowBackend} implementation for testing,
-     *                      or {@code null} to use the default implementation.
      */
-    public WindowManager(@NonNull Context context, @Nullable WindowBackend windowBackend) {
+    public WindowManager(@NonNull Context context) {
+        this(context, ExtensionWindowBackend.getInstance(context));
+    }
+
+    /**
+     * Gets an instance of the class initialized with and connected to the provided {@link Context}.
+     * All methods of this class will return information that is associated with this visual
+     * context.
+     * @param context A visual context, such as an {@link Activity} or a {@link ContextWrapper}
+     *                around one, to use for initialization.
+     * @param windowBackend Backing server class that will provide information for this instance.
+     *                      Pass a custom {@link WindowBackend} implementation for testing.
+     */
+    public WindowManager(@NonNull Context context, @NonNull WindowBackend windowBackend) {
         if (getActivityFromContext(context) == null) {
             throw new IllegalArgumentException("Used non-visual Context to obtain an instance of "
                     + "WindowManager. Please use an Activity or a ContextWrapper around one "
                     + "instead.");
         }
         mContext = context;
-        mWindowBackend = new InitialValueWindowBackendDecorator(windowBackend != null
-                ? windowBackend : ExtensionWindowBackend.getInstance(context));
+        mWindowBackend = windowBackend;
     }
 
     /**
