@@ -60,9 +60,7 @@ kotlin {
             resources.srcDirs += new File(SupportConfigKt.getExternalProjectPath(project), "noto-fonts/other/")
             resources.srcDirs += "src/jvmTest/res"
             dependencies {
-                implementation(SKIKO_WINDOWS)
-                implementation(SKIKO_LINUX)
-                implementation(SKIKO_MACOS)
+                implementation(SKIKO_CURRENT_OS)
                 implementation(TRUTH)
             }
         }
