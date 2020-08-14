@@ -38,23 +38,20 @@ actual class DefaultAnimationClock(
     }
 
     override fun subscribe(observer: AnimationClockObserver) {
+        if (!scheduled) {
+            dispatcher.scheduleCallbackWithDelay(delay, ::frameCallback)
+            scheduled = true
+        }
         super.subscribe(observer)
-        scheduleIfNeeded()
     }
 
     override fun dispatchTime(frameTimeMillis: Long) {
         super.dispatchTime(frameTimeMillis)
-        scheduleIfNeeded()
-    }
-
-    private fun scheduleIfNeeded() {
-        when {
-            scheduled -> return
-            !hasObservers() -> return
-            else -> {
-                scheduled = true
-                dispatcher.scheduleCallbackWithDelay(delay, ::frameCallback)
-            }
+        scheduled = if (hasObservers()) {
+            dispatcher.scheduleCallbackWithDelay(delay, ::frameCallback)
+            true
+        } else {
+            false
         }
     }
 }
