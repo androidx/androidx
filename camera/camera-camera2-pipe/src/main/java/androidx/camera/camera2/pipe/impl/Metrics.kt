@@ -19,6 +19,7 @@
 package androidx.camera.camera2.pipe.impl
 
 import android.os.SystemClock
+import java.util.Locale
 
 object Metrics {
     inline fun monotonicNanos(): Long = SystemClock.elapsedRealtimeNanos()
@@ -26,3 +27,7 @@ object Metrics {
     inline fun nanosToMillis(duration: Long): Long = duration / 1_000_000
     inline fun nanosToMillisDouble(duration: Long): Double = duration.toDouble() / 1_000_000.0
 }
+
+inline fun Double.formatMilliTime(decimals: Int = 4) = "%.${decimals}f ms".format(Locale.ROOT, this)
+inline fun Long.formatNanoTime(decimals: Int = 4) =
+    (this / 1_000_000.0).formatMilliTime(decimals)

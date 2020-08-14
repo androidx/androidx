@@ -26,12 +26,23 @@ import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CameraManager
 import android.os.Handler
 import android.os.Looper
+import android.util.Size
+import androidx.camera.camera2.pipe.CameraGraph
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
+import androidx.camera.camera2.pipe.CameraPipe
+import androidx.camera.camera2.pipe.RequestTemplate
+import androidx.camera.camera2.pipe.StreamConfig
+import androidx.camera.camera2.pipe.StreamFormat
+import androidx.camera.camera2.pipe.StreamType
+import androidx.camera.camera2.pipe.impl.CameraGraphModules
 import androidx.camera.camera2.pipe.impl.CameraMetadataImpl
+import androidx.camera.camera2.pipe.impl.CameraPipeModules
 import androidx.camera.camera2.pipe.wrapper.AndroidCameraDevice
 import androidx.camera.camera2.pipe.wrapper.CameraDeviceWrapper
 import androidx.test.core.app.ApplicationProvider
+import dagger.Module
+import dagger.Provides
 import kotlinx.atomicfu.atomic
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.shadow.api.Shadow
@@ -39,6 +50,7 @@ import org.robolectric.shadows.ShadowApplication
 import org.robolectric.shadows.ShadowCameraCharacteristics
 import org.robolectric.shadows.ShadowCameraManager
 import java.lang.UnsupportedOperationException
+import javax.inject.Singleton
 
 /**
  * Utility class for creating, configuring, and interacting with FakeCamera objects via Robolectric
@@ -163,5 +175,38 @@ object FakeCameras {
         ) {
             throw UnsupportedOperationException("onError is not expected for Robolectric Camera")
         }
+    }
+
+    /**
+     * Utility module for testing the Dagger generated graph with a a reasonable default config.
+     */
+    @Module(
+        includes = [
+            CameraPipeModules::class,
+            CameraGraphModules::class
+        ]
+    )
+    class FakeCameraGraphModule(
+        private val context: Context,
+        private val fakeCamera: FakeCamera
+    ) {
+        @Provides
+        @Singleton
+        fun provideFakeCameraPipeConfig() = CameraPipe.Config(context)
+
+        @Provides
+        @Singleton
+        fun provideFakeGraphConfig() = CameraGraph.Config(
+            camera = fakeCamera.cameraId,
+            streams = listOf(
+                StreamConfig(
+                    Size(640, 480),
+                    StreamFormat.YUV_420_888,
+                    fakeCamera.cameraId,
+                    StreamType.SURFACE
+                )
+            ),
+            template = RequestTemplate(0)
+        )
     }
 }

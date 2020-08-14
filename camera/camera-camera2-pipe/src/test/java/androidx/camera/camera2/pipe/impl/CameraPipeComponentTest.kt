@@ -41,8 +41,8 @@ class CameraPipeComponentTest {
 
         val builder = DaggerCameraPipeComponent.builder()
         val config = CameraPipe.Config(context)
-        val module = CameraPipeModule(config)
-        builder.cameraPipeModule(module)
+        val module = CameraPipeConfigModule(config)
+        builder.cameraPipeConfigModule(module)
         val component = builder.build()
         assertThat(component).isNotNull()
     }
@@ -51,7 +51,7 @@ class CameraPipeComponentTest {
     fun createCameraGraphComponent() {
         val context = ApplicationProvider.getApplicationContext() as Context
         val component = DaggerCameraPipeComponent.builder()
-            .cameraPipeModule(CameraPipeModule(CameraPipe.Config(context)))
+            .cameraPipeConfigModule(CameraPipeConfigModule(CameraPipe.Config(context)))
             .build()
 
         val cameraId = CameraId("0")
@@ -60,9 +60,9 @@ class CameraPipeComponentTest {
             streams = listOf(),
             template = RequestTemplate(0)
         )
-        val module = CameraGraphModule(config)
+        val module = CameraGraphConfigModule(config)
         val builder = component.cameraGraphComponentBuilder()
-        builder.cameraGraphModule(module)
+        builder.cameraGraphConfigModule(module)
         val graphComponent = builder.build()
         assertThat(graphComponent).isNotNull()
     }
@@ -71,12 +71,12 @@ class CameraPipeComponentTest {
     fun createCameraGraph() {
         val context = ApplicationProvider.getApplicationContext() as Context
         val component = DaggerCameraPipeComponent.builder()
-            .cameraPipeModule(CameraPipeModule(CameraPipe.Config(context)))
+            .cameraPipeConfigModule(CameraPipeConfigModule(CameraPipe.Config(context)))
             .build()
 
         val graphComponent = component.cameraGraphComponentBuilder()
-            .cameraGraphModule(
-                CameraGraphModule(
+            .cameraGraphConfigModule(
+                CameraGraphConfigModule(
                     CameraGraph.Config(
                         camera = CameraId("0"),
                         streams = listOf(),
