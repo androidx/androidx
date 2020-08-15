@@ -22,6 +22,7 @@ import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.javac.kotlin.KmType
 import com.google.auto.common.GeneratedAnnotations
 import com.google.auto.common.MoreTypes
 import java.util.Locale
@@ -63,7 +64,8 @@ internal class JavacProcessingEnv(
         PRIMITIVE_TYPES[qName]?.let {
             return wrap(
                 typeMirror = typeUtils.getPrimitiveType(it),
-                nullability = XNullability.NONNULL
+                kotlinType = null,
+                elementNullability = XNullability.NONNULL
             )
         }
         return findTypeElement(qName)?.type
@@ -101,34 +103,70 @@ internal class JavacProcessingEnv(
         })
         return wrap<JavacDeclaredType>(
             typeMirror = typeUtils.getDeclaredType(type.element, *args),
-            nullability = type.element.nullability
+            // type elements cannot have nullability hence we don't synthesize anything here
+            kotlinType = null,
+            elementNullability = type.element.nullability
         )
     }
 
     // maybe cache here ?
     fun wrapTypeElement(element: TypeElement) = JavacTypeElement(this, element)
 
+    /**
+     * Wraps the given java processing type into an XType.
+     *
+     * @param typeMirror TypeMirror from java processor
+     * @param kotlinType If the type is derived from a kotlin source code, the KmType information
+     *                   parsed from kotlin metadata
+     * @param elementNullability The nullability information parsed from the code. This value is
+     *                           ignored if [kotlinType] is provided.
+     */
     inline fun <reified T : JavacType> wrap(
         typeMirror: TypeMirror,
-        nullability: XNullability
+        kotlinType: KmType?,
+        elementNullability: XNullability
     ): T {
         return when (typeMirror.kind) {
-            TypeKind.ARRAY -> JavacArrayType(
-                env = this,
-                typeMirror = MoreTypes.asArray(typeMirror),
-                nullability = nullability,
-                knownComponentNullability = null
-            )
-            TypeKind.DECLARED -> JavacDeclaredType(
-                env = this,
-                typeMirror = MoreTypes.asDeclared(typeMirror),
-                nullability = nullability
-            )
-            else -> DefaultJavacType(
-                env = this,
-                typeMirror = typeMirror,
-                nullability = nullability
-            )
+            TypeKind.ARRAY -> if (kotlinType == null) {
+                JavacArrayType(
+                    env = this,
+                    typeMirror = MoreTypes.asArray(typeMirror),
+                    nullability = elementNullability,
+                    knownComponentNullability = null
+                )
+            } else {
+                JavacArrayType(
+                    env = this,
+                    typeMirror = MoreTypes.asArray(typeMirror),
+                    kotlinType = kotlinType
+                )
+            }
+            TypeKind.DECLARED -> if (kotlinType == null) {
+                JavacDeclaredType(
+                    env = this,
+                    typeMirror = MoreTypes.asDeclared(typeMirror),
+                    nullability = elementNullability
+                )
+            } else {
+                JavacDeclaredType(
+                    env = this,
+                    typeMirror = MoreTypes.asDeclared(typeMirror),
+                    kotlinType = kotlinType
+                )
+            }
+            else -> if (kotlinType == null) {
+                DefaultJavacType(
+                    env = this,
+                    typeMirror = typeMirror,
+                    nullability = elementNullability
+                )
+            } else {
+                DefaultJavacType(
+                    env = this,
+                    typeMirror = typeMirror,
+                    kotlinType = kotlinType
+                )
+            }
         } as T
     }
 

@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XConstructorElement
+import androidx.room.compiler.processing.javac.kotlin.KmConstructor
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
 
@@ -33,5 +34,9 @@ internal class JavacConstructorElement(
         check(element.kind == ElementKind.CONSTRUCTOR) {
             "Constructor element is constructed with invalid type: $element"
         }
+    }
+
+    override val kotlinMetadata: KmConstructor? by lazy {
+        (enclosingElement as? JavacTypeElement)?.kotlinMetadata?.getConstructorMetadata(element)
     }
 }

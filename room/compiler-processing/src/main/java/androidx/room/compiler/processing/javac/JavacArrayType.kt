@@ -19,17 +19,43 @@ package androidx.room.compiler.processing.javac
 import androidx.room.compiler.processing.XArrayType
 import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.javac.kotlin.KmType
 import javax.lang.model.type.ArrayType
 
-internal class JavacArrayType(
+internal class JavacArrayType private constructor(
     env: JavacProcessingEnv,
     override val typeMirror: ArrayType,
     override val nullability: XNullability,
-    private val knownComponentNullability: XNullability?
+    private val knownComponentNullability: XNullability?,
+    override val kotlinType: KmType?
 ) : JavacType(
     env,
     typeMirror
 ), XArrayType {
+    constructor(
+        env: JavacProcessingEnv,
+        typeMirror: ArrayType,
+        kotlinType: KmType
+    ) : this(
+        env = env,
+        typeMirror = typeMirror,
+        nullability = kotlinType.nullability,
+        knownComponentNullability = kotlinType.typeArguments.firstOrNull()?.nullability,
+        kotlinType = kotlinType
+    )
+
+    constructor(
+        env: JavacProcessingEnv,
+        typeMirror: ArrayType,
+        nullability: XNullability,
+        knownComponentNullability: XNullability?
+    ) : this(
+        env = env,
+        typeMirror = typeMirror,
+        nullability = nullability,
+        knownComponentNullability = knownComponentNullability,
+        kotlinType = null
+    )
 
     override val equalityItems: Array<out Any?> by lazy {
         arrayOf(typeMirror)
@@ -42,6 +68,9 @@ internal class JavacArrayType(
             } else {
                 XNullability.UNKNOWN
             }
-        env.wrap<JavacType>(componentType, componentTypeNullability)
+        env.wrap<JavacType>(
+            typeMirror = componentType,
+            kotlinType = kotlinType?.typeArguments?.firstOrNull(),
+            elementNullability = componentTypeNullability)
     }
 }

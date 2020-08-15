@@ -328,6 +328,105 @@ class KotlinMetadataElementTest {
         }
     }
 
+    @Test
+    fun kotlinArrayKmType() {
+        val src = Source.kotlin("Subject.kt", """
+            interface Subject {
+                val nullableArrayWithNonNullComponent : Array<Int>?
+                val nullableArrayWithNullableComponent : Array<Int?>?
+                val nonNullArrayWithNonNullComponent : Array<Int>
+                val nonNullArrayWithNullableComponent : Array<Int?>
+            }
+        """.trimIndent())
+        simpleRun(listOf(src)) { invocation ->
+            val (_, metadata) = getMetadataElement(
+                invocation,
+                "Subject"
+            )
+            val propertyNames = listOf(
+                "nullableArrayWithNonNullComponent",
+                "nullableArrayWithNullableComponent",
+                "nonNullArrayWithNonNullComponent",
+                "nonNullArrayWithNullableComponent"
+            )
+            assertThat(
+                propertyNames
+                    .mapNotNull(metadata::getPropertyMetadata)
+                    .map {
+                        Triple(it.name, it.isNullable(), it.typeParameters.single().isNullable())
+                    }
+            ).containsExactly(
+                Triple("nullableArrayWithNonNullComponent", true, false),
+                Triple("nullableArrayWithNullableComponent", true, true),
+                Triple("nonNullArrayWithNonNullComponent", false, false),
+                Triple("nonNullArrayWithNullableComponent", false, true)
+            )
+        }
+    }
+
+    @Test
+    fun kotlinClassMetadataToKmType() {
+        val src = Source.kotlin("Subject.kt", """
+            class Simple {
+            }
+            class TwoArgGeneric<Arg1, Arg2>{
+            }
+            // KotlinMetadata does not seem to be giving any type information for Arg2:Any?
+            //  probably because it is equal to default. On the other hand though, Arg1 : Any
+            //  return false for isNullable :/.
+            class WithUpperBounds<Arg1 : Any, Arg2 : List<Any>?>{
+            }
+
+            abstract class WithSuperType : Map<String, Int?> {}
+        """.trimIndent())
+        simpleRun(listOf(src)) { invocation ->
+            val (_, simple) = getMetadataElement(invocation, "Simple")
+            assertThat(simple.kmType.isNullable()).isFalse()
+            assertThat(simple.kmType.typeArguments).isEmpty()
+
+            val (_, twoArgGeneric) = getMetadataElement(invocation, "TwoArgGeneric")
+            assertThat(twoArgGeneric.kmType.isNullable()).isFalse()
+            assertThat(twoArgGeneric.kmType.typeArguments).hasSize(2)
+            assertThat(twoArgGeneric.kmType.typeArguments[0].isNullable()).isFalse()
+            assertThat(twoArgGeneric.kmType.typeArguments[1].isNullable()).isFalse()
+
+            val (_, withUpperBounds) = getMetadataElement(invocation, "WithUpperBounds")
+            assertThat(withUpperBounds.kmType.typeArguments).hasSize(2)
+            assertThat(withUpperBounds.kmType.typeArguments[0].extendsBound?.isNullable()).isFalse()
+            assertThat(withUpperBounds.kmType.typeArguments[1].extendsBound?.isNullable()).isTrue()
+
+            val (_, withSuperType) = getMetadataElement(invocation, "WithSuperType")
+            assertThat(withSuperType.superType?.typeArguments?.get(0)?.isNullable()).isFalse()
+            assertThat(withSuperType.superType?.typeArguments?.get(1)?.isNullable()).isTrue()
+        }
+    }
+
+    @Test
+    fun erasure() {
+        val src = Source.kotlin("Subject.kt", """
+            object Subject {
+                val simple : String = "foo"
+                val nullableGeneric: List<Int>? = TODO()
+                val nonNullGeneric: List<Int> = TODO()
+            }
+        """.trimIndent())
+        simpleRun(listOf(src)) { invocation ->
+            val (_, subject) = getMetadataElement(invocation, "Subject")
+            subject.getPropertyMetadata("simple")!!.type.erasure().let {
+                assertThat(it.isNullable()).isFalse()
+                assertThat(it.typeArguments).isEmpty()
+            }
+            subject.getPropertyMetadata("nullableGeneric")!!.type.erasure().let {
+                assertThat(it.isNullable()).isTrue()
+                assertThat(it.typeArguments).isEmpty()
+            }
+            subject.getPropertyMetadata("nonNullGeneric")!!.type.erasure().let {
+                assertThat(it.isNullable()).isFalse()
+                assertThat(it.typeArguments).isEmpty()
+            }
+        }
+    }
+
     private fun TypeElement.getDeclaredMethods() = ElementFilter.methodsIn(enclosedElements)
 
     private fun TypeElement.getDeclaredMethod(name: String) = getDeclaredMethods().first {

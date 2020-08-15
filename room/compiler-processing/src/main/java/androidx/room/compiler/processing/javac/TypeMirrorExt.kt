@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,14 @@
 
 package androidx.room.compiler.processing.javac
 
-import androidx.room.compiler.processing.javac.kotlin.KmType
-import androidx.room.compiler.processing.javac.kotlin.KmValueParameter
-import javax.lang.model.element.VariableElement
+import javax.lang.model.type.TypeMirror
+import javax.lang.model.type.WildcardType
+import javax.lang.model.util.SimpleTypeVisitor7
 
-internal class JavacMethodParameter(
-    env: JavacProcessingEnv,
-    containing: JavacTypeElement,
-    element: VariableElement,
-    val kotlinMetadata: KmValueParameter?
-) : JavacVariableElement(env, containing, element) {
-    override val name: String
-        get() = kotlinMetadata?.name ?: super.name
-    override val kotlinType: KmType?
-        get() = kotlinMetadata?.type
+internal fun TypeMirror.extendsBound(): TypeMirror? {
+    return this.accept(object : SimpleTypeVisitor7<TypeMirror?, Void?>() {
+        override fun visitWildcard(type: WildcardType, ignored: Void?): TypeMirror? {
+            return type.extendsBound ?: type.superBound
+        }
+    }, null)
 }
