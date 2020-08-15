@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,18 +16,12 @@
 
 package androidx.room.compiler.processing.javac
 
+import androidx.room.compiler.processing.XNullability
 import androidx.room.compiler.processing.javac.kotlin.KmType
-import androidx.room.compiler.processing.javac.kotlin.KmValueParameter
-import javax.lang.model.element.VariableElement
 
-internal class JavacMethodParameter(
-    env: JavacProcessingEnv,
-    containing: JavacTypeElement,
-    element: VariableElement,
-    val kotlinMetadata: KmValueParameter?
-) : JavacVariableElement(env, containing, element) {
-    override val name: String
-        get() = kotlinMetadata?.name ?: super.name
-    override val kotlinType: KmType?
-        get() = kotlinMetadata?.type
-}
+internal val KmType.nullability: XNullability
+    get() = if (isNullable()) {
+        XNullability.NULLABLE
+    } else {
+        XNullability.NONNULL
+    }
