@@ -16,13 +16,19 @@
 
 package androidx.core.app;
 
+import android.app.NotificationChannel;
 import android.app.NotificationChannelGroup;
 import android.content.Intent;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.util.Preconditions;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A grouping of related notification channels. e.g., channels that all belong to a single account.
@@ -32,15 +38,20 @@ import androidx.core.util.Preconditions;
  * This class doesn't do anything on older SDKs which don't support Notification Channels.
  */
 public class NotificationChannelGroupCompat {
+    // These fields are settable theough the builder
     final String mId;
     CharSequence mName;
     String mDescription;
+
+    // These fields are read-only
+    private boolean mBlocked;
+    private List<NotificationChannelCompat> mChannels = Collections.emptyList();
 
     /**
      * Builder class for {@link NotificationChannelGroupCompat} objects.
      */
     public static class Builder {
-        private final NotificationChannelGroupCompat mGroup;
+        final NotificationChannelGroupCompat mGroup;
 
         /**
          * Creates a notification channel group.
@@ -93,6 +104,42 @@ public class NotificationChannelGroupCompat {
         mId = Preconditions.checkNotNull(id);
     }
 
+    @RequiresApi(28)
+    NotificationChannelGroupCompat(@NonNull NotificationChannelGroup group) {
+        this(group, Collections.<NotificationChannel>emptyList());
+    }
+
+    @RequiresApi(26)
+    NotificationChannelGroupCompat(@NonNull NotificationChannelGroup group,
+            @NonNull List<NotificationChannel> allChannels) {
+        this(group.getId());
+        // Populate all builder-editable fields
+        mName = group.getName();
+        if (Build.VERSION.SDK_INT >= 28) {
+            mDescription = group.getDescription();
+        }
+        // Populate all read-only fields
+        if (Build.VERSION.SDK_INT >= 28) {
+            mBlocked = group.isBlocked();
+            mChannels = getChannelsCompat(group.getChannels());
+        } else {
+            // On API 26 and 27, the NotificationChannelGroup.getChannels() method was broken,
+            // so we collect this information from the full list of channels at construction.
+            mChannels = getChannelsCompat(allChannels);
+        }
+    }
+
+    @RequiresApi(26)
+    private List<NotificationChannelCompat> getChannelsCompat(List<NotificationChannel> channels) {
+        List<NotificationChannelCompat> channelsCompat = new ArrayList<>();
+        for (NotificationChannel channel : channels) {
+            if (mId.equals(channel.getGroup())) {
+                channelsCompat.add(new NotificationChannelCompat(channel));
+            }
+        }
+        return channelsCompat;
+    }
+
     /**
      * Gets the platform notification channel group object.
      *
@@ -107,6 +154,16 @@ public class NotificationChannelGroupCompat {
             group.setDescription(mDescription);
         }
         return group;
+    }
+
+    /**
+     * Creates a {@link Builder} instance with all the writeable property values of this instance.
+     */
+    @NonNull
+    public Builder toBuilder() {
+        return new Builder(mId)
+                .setName(mName)
+                .setDescription(mDescription);
     }
 
     /**
@@ -131,5 +188,31 @@ public class NotificationChannelGroupCompat {
     @Nullable
     public String getDescription() {
         return mDescription;
+    }
+
+    /**
+     * Returns whether or not notifications posted to {@link NotificationChannelCompat} belonging
+     * to this group are blocked. This value is independent of
+     * {@link NotificationManagerCompat#areNotificationsEnabled()} and
+     * {@link NotificationChannelCompat#getImportance()}.
+     *
+     * <p>This value is always {@code false} before {@link android.os.Build.VERSION_CODES#P}
+     *
+     * <p>This is a read-only property which is only valid on instances fetched from the
+     * {@link NotificationManagerCompat}.
+     */
+    public boolean isBlocked() {
+        return mBlocked;
+    }
+
+    /**
+     * Returns the list of channels that belong to this group.
+     *
+     * <p>This is a read-only property which is only valid on instances fetched from the
+     * {@link NotificationManagerCompat}.
+     */
+    @NonNull
+    public List<NotificationChannelCompat> getChannels() {
+        return mChannels;
     }
 }

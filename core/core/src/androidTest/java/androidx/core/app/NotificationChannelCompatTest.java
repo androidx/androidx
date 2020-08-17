@@ -20,6 +20,7 @@ import static androidx.core.app.NotificationManagerCompat.IMPORTANCE_HIGH;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertTrue;
 
 import android.app.NotificationChannel;
@@ -27,6 +28,7 @@ import android.media.AudioAttributes;
 import android.net.Uri;
 import android.os.Build;
 
+import androidx.core.app.NotificationChannelCompat.Builder;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
@@ -57,15 +59,19 @@ public class NotificationChannelCompatTest {
         NotificationChannel platformChannel =
                 new NotificationChannel(channelId, channelName, IMPORTANCE_HIGH);
 
-        NotificationChannelCompat.Builder builder =
-                new NotificationChannelCompat.Builder(channelId, IMPORTANCE_HIGH)
-                        .setName(channelName);
+        Builder builder = new Builder(channelId, IMPORTANCE_HIGH)
+                .setName(channelName);
 
         NotificationChannelCompat compatChannel = builder.build();
         TestHelper.assertChannelEquals(platformChannel, compatChannel);
 
         NotificationChannel builderChannel = compatChannel.getNotificationChannel();
         assertEquals(platformChannel, builderChannel);
+
+        // Test that the toBuilder().build() cycle causes all editable fields to remain equal.
+        NotificationChannelCompat rebuilt = compatChannel.toBuilder().build();
+        assertNotSame(compatChannel, rebuilt);
+        TestHelper.assertChannelEquals(platformChannel, rebuilt);
     }
 
     /**
@@ -103,16 +109,15 @@ public class NotificationChannelCompatTest {
             platformChannel.setConversationId(parentChannelId, shortcutId);
         }
 
-        NotificationChannelCompat.Builder builder =
-                new NotificationChannelCompat.Builder(channelId, IMPORTANCE_HIGH)
-                        .setName(channelName)
-                        .setGroup(groupId)
-                        .setDescription(channelDescription)
-                        .setLightColor(lightColor)
-                        .setLightsEnabled(true)
-                        .setShowBadge(false)
-                        .setSound(soundUri, audioAttributes)
-                        .setVibrationPattern(vibrationPattern);
+        Builder builder = new Builder(channelId, IMPORTANCE_HIGH)
+                .setName(channelName)
+                .setGroup(groupId)
+                .setDescription(channelDescription)
+                .setLightColor(lightColor)
+                .setLightsEnabled(true)
+                .setShowBadge(false)
+                .setSound(soundUri, audioAttributes)
+                .setVibrationPattern(vibrationPattern);
         if (Build.VERSION.SDK_INT >= 30) {
             builder.setConversationId(parentChannelId, shortcutId);
         }
@@ -122,6 +127,11 @@ public class NotificationChannelCompatTest {
 
         NotificationChannel builderChannel = compatChannel.getNotificationChannel();
         assertEquals(platformChannel, builderChannel);
+
+        // Test that the toBuilder().build() cycle causes all editable fields to remain equal.
+        NotificationChannelCompat rebuilt = compatChannel.toBuilder().build();
+        assertNotSame(compatChannel, rebuilt);
+        TestHelper.assertChannelEquals(platformChannel, rebuilt);
     }
 
     /*
