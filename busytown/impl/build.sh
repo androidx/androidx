@@ -4,8 +4,8 @@ set -e
 # This script runs frameworks/support/gradlew and frameworks/support/ui/gradlew , each with the same arguments
 
 function echoAndDo() {
-  echo "cd $(pwd)"
-  echo "$*"
+  echo "cd $(pwd)" >&2
+  echo "$*" >&2
   if eval "$*"; then
     echo "Succeeded: $*" >&2
   else

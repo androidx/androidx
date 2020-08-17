@@ -7,8 +7,8 @@ cd "$(dirname $0)"
 
 # Run Gradle
 time impl/build.sh --no-daemon listTaskOutputs "$@"
+time impl/build.sh allProperties "$@" >/dev/null
 time impl/build.sh --no-daemon buildOnServer checkExternalLicenses \
-    allProperties \
     -PverifyUpToDate \
     -Pandroidx.coverageEnabled=true \
     -Pandroidx.allWarningsAsErrors --profile "$@"

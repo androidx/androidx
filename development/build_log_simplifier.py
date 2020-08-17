@@ -13,17 +13,18 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import sys
+import argparse, sys
 
-def usage():
-    print("""USAGE:
+parser = argparse.ArgumentParser(
+    description="""USAGE:
     Simplifies a build.log from hundreds of megabytes to <100 lines. Prints output to terminal.
     Pass this script a filepath to parse. You should be able to type "python3 build_log_simplifier.py"
     And then drag-and-drop a log file onto the terminal window to get its path.
 
     Sample usage: python3 development/build_log_simplifier.py Users/owengray/Desktop/build.log
     """)
-    exit(1)
+parser.add_argument("--validate", action="store_true", help="Validate that no unrecognized messages exist in the given log")
+parser.add_argument("log_path", help="Filepath of log to process", nargs=1)
 
 def select_failing_task_output(lines):
     tasks_of_interest = []
@@ -156,21 +157,36 @@ def collapse_tasks_having_no_output(lines):
             result.append(line)
     return result
 
-try:
-    build_log_loc = sys.argv[1]
+def process(log_path):
+    try:
+        infile = open(log_path)
+        lines = infile.readlines()
+        infile.close()
 
-    infile = open(build_log_loc)
-    lines = infile.readlines()
-    infile.close()
+        lines = select_failing_task_output(lines)
+        lines = shorten_uninteresting_stack_frames(lines)
+        lines = remove_known_uninteresting_lines(lines)
+        lines = collapse_consecutive_blank_lines(lines)
+        lines = collapse_tasks_having_no_output(lines)
 
-    lines = select_failing_task_output(lines)
-    lines = shorten_uninteresting_stack_frames(lines)
-    lines = remove_known_uninteresting_lines(lines)
-    lines = collapse_consecutive_blank_lines(lines)
-    lines = collapse_tasks_having_no_output(lines)
+        return lines
+    except Exception as e:
+        print("An error occurred! "+str(e))
+        exit(1)
 
-    print(len(lines))
-    print(''.join(lines))
-except Exception as e:
-    print("An error occurred! "+str(e))
-    usage()
+def main():
+    arguments = parser.parse_args()
+
+    log_path = arguments.log_path[0]
+    simplified = process(log_path)
+    if arguments.validate:
+        if len(simplified) != 0:
+            print("Found new messages!")
+            print("".join(simplified))
+            print("Error: " + str(len(simplified)) + " new messages found")
+            exit(1)
+    else:
+        print("".join(simplified))
+
+if __name__ == "__main__":
+    main()
