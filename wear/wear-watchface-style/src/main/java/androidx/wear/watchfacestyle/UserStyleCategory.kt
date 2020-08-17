@@ -133,6 +133,7 @@ abstract class UserStyleCategory(
          * Constructs a  Map<{@link UserStyleCategory}, {@link Option}> from a map of
          * UserStyleCategory id to Option id.
          */
+        @JvmStatic
         fun idMapToStyleMap(idMap: Map<String, String>, schema: List<UserStyleCategory>) =
             HashMap<UserStyleCategory, Option>().apply {
                 for (styleCategory in schema) {

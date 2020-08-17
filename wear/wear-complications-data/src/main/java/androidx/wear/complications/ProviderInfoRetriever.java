@@ -128,11 +128,11 @@ public class ProviderInfoRetriever implements AutoCloseable {
      * <p>This will only work if the package of the current app is the same as the package of the
      * specified watch face.
      *
-     * @param watchFaceComponent the ComponentName of the
-     *     androidx.wear.watchface.WatchFaceService for which info is being requested
+     * @param watchFaceComponent the ComponentName of the WatchFaceService for which info is
+     *     being requested
      * @param watchFaceComplicationIds ids of the complications that info is being requested for
      * @return A {@link ListenableFuture} for the requested provider info. If the look up fails
-     * null will be returned
+     *     null will be returned
      */
     @NonNull
     public ListenableFuture<ProviderInfo> retrieveProviderInfo(

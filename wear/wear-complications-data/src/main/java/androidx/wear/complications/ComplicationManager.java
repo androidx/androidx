@@ -19,7 +19,6 @@ package androidx.wear.complications;
 import android.os.RemoteException;
 import android.support.wearable.complications.ComplicationData;
 import android.support.wearable.complications.IComplicationManager;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -64,6 +63,7 @@ public class ComplicationManager {
      *
      * @param complicationId The ID of the complication to update
      * @param data The {@link ComplicationData} to send to the watch face
+     * @throws RemoteException If it failed to send complication data
      */
     public void updateComplicationData(int complicationId, @NonNull ComplicationData data)
             throws RemoteException {
@@ -73,11 +73,7 @@ public class ComplicationManager {
                     "Cannot send data of TYPE_NOT_CONFIGURED or "
                             + "TYPE_EMPTY. Use TYPE_NO_DATA instead.");
         }
-        try {
-            mService.updateComplicationData(complicationId, data);
-        } catch (RemoteException e) {
-            Log.w(TAG, "Failed to send complication data.", e);
-        }
+        mService.updateComplicationData(complicationId, data);
     }
 
     /**

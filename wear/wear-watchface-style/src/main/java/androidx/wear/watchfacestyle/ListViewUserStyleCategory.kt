@@ -31,13 +31,13 @@ open class ListViewUserStyleCategory : UserStyleCategory {
         /** Identifier for the element, must be unique. */
         id: String,
 
-        /** Localized human readable name for the element, used in the style selection UI. */
+        /** Localized human readable name for the element, used in the userStyle selection UI. */
         displayName: String,
 
         /** Localized description string displayed under the displayName. */
         description: String,
 
-        /** Icon for use in the style selection UI. */
+        /** Icon for use in the userStyle selection UI. */
         icon: Icon?,
 
         /** List of all options for this ListViewUserStyleCategory. */
@@ -47,14 +47,14 @@ open class ListViewUserStyleCategory : UserStyleCategory {
     internal constructor(bundle: Bundle) : super(bundle)
 
     /**
-     * Represents a ListView choice within a style category, these must be enumerated up front.
+     * Represents a ListView choice within a userStyle category, these must be enumerated up front.
      */
     open class ListViewOption : Option {
-        /** Localized human readable name for the setting, used in the style selection UI. */
+        /** Localized human readable name for the setting, used in the userStyle selection UI. */
         val displayName: String
 
         /**
-         * Icon for use in the style selection UI.
+         * Icon for use in the userStyle selection UI.
          */
         val icon: Icon?
 

@@ -431,6 +431,8 @@ public class ComplicationStyle {
         }
 
         /**
+         * Sets the background color.
+         *
          * @param backgroundColor The color to set
          * @return the {@link Builder}.
          */
@@ -441,6 +443,8 @@ public class ComplicationStyle {
         }
 
         /**
+         * Sets the {@link Drawable} to render in the background.
+         *
          * @param backgroundDrawable The {@link Drawable} to render in the background
          * @return the {@link Builder}.
          */
@@ -451,6 +455,8 @@ public class ComplicationStyle {
         }
 
         /**
+         * Sets the color to render the text with.
+         *
          * @param textColor The color to render the text with
          * @return the {@link Builder}.
          */
@@ -461,6 +467,8 @@ public class ComplicationStyle {
         }
 
         /**
+         * Sets the color to render the title with.
+         *
          * @param titleColor The color to render the title with
          * @return the {@link Builder}.
          */
@@ -471,6 +479,8 @@ public class ComplicationStyle {
         }
 
         /**
+         * Sets the  {@link ColorFilter} to use.
+         *
          * @param colorFilter The {@link ColorFilter} to use
          * @return the {@link Builder}.
          */
@@ -481,6 +491,8 @@ public class ComplicationStyle {
         }
 
         /**
+         * Sets the color to render the icon with.
+         *
          * @param iconColor The color to render the icon with
          * @return the {@link Builder}.
          */
@@ -491,6 +503,8 @@ public class ComplicationStyle {
         }
 
         /**
+         * Sets {@link Typeface} to render the text with.
+         *
          * @param textTypeface The {@link Typeface} to render the text with
          * @return the {@link Builder}.
          */
@@ -501,6 +515,8 @@ public class ComplicationStyle {
         }
 
         /**
+         * Sets the {@link Typeface} to render the title with.
+         *
          * @param titleTypeface The {@link Typeface} to render the title with
          * @return the {@link Builder}.
          */
@@ -511,6 +527,8 @@ public class ComplicationStyle {
         }
 
         /**
+         * Sets the size of the text.
+         *
          * @param textSize The size of the text
          * @return the {@link Builder}.
          */
@@ -521,6 +539,8 @@ public class ComplicationStyle {
         }
 
         /**
+         * Sets the  size of the title text.
+         *
          * @param titleSize The size of the title text
          * @return the {@link Builder}.
          */
@@ -531,6 +551,8 @@ public class ComplicationStyle {
         }
 
         /**
+         * Sets the color to render the complication border with.
+         *
          * @param borderColor The color to render the complication border with
          * @return the {@link Builder}.
          */
@@ -541,6 +563,8 @@ public class ComplicationStyle {
         }
 
         /**
+         * Sets the style to render the complication border with.
+         *
          * @param borderStyle The style to render the complication border with
          * @return the {@link Builder}.
          */
@@ -560,6 +584,8 @@ public class ComplicationStyle {
         }
 
         /**
+         * Sets dash widths to render the complication border with.
+         *
          * @param borderDashWidth The dash widths to render the complication border with
          * @return the {@link Builder}.
          */
@@ -570,6 +596,8 @@ public class ComplicationStyle {
         }
 
         /**
+         * Sets the dash gap render the complication border with.
+         *
          * @param borderDashGap The dash gap render the complication border with
          * @return the {@link Builder}.
          */
@@ -580,6 +608,8 @@ public class ComplicationStyle {
         }
 
         /**
+         * Sets the radius to render the complication border with.
+         *
          * @param borderRadius The radius to render the complication border with
          * @return the {@link Builder}.
          */
@@ -590,6 +620,8 @@ public class ComplicationStyle {
         }
 
         /**
+         * Sets the width to render the complication border with.
+         *
          * @param borderWidth The width to render the complication border with
          * @return the {@link Builder}.
          */
@@ -600,6 +632,8 @@ public class ComplicationStyle {
         }
 
         /**
+         * Sets the width to render the ranged value ring with.
+         *
          * @param rangedValueRingWidth The width to render the ranged value ring with
          * @return the {@link Builder}.
          */
@@ -610,6 +644,8 @@ public class ComplicationStyle {
         }
 
         /**
+         * Sets the main color to render the ranged value text with.
+         *
          * @param rangedValuePrimaryColor The main color to render the ranged value text with
          * @return the {@link Builder}.
          */
@@ -620,6 +656,8 @@ public class ComplicationStyle {
         }
 
         /**
+         * Sets the secondary color to render the ranged value text with.
+         *
          * @param rangedValueSecondaryColor The secondary color to render the ranged value text with
          * @return the {@link Builder}.
          */
@@ -630,6 +668,8 @@ public class ComplicationStyle {
         }
 
         /**
+         * Sets the background color to use when the complication is highlighted.
+         *
          * @param highlightColor The background color to use when the complication is highlighted
          * @return the {@link Builder}.
          */
@@ -640,6 +680,8 @@ public class ComplicationStyle {
         }
 
         /**
+         * Constructs a {@link ComplicationStyle} based on the builder's state.
+         *
          * @return A {@link ComplicationStyle} constructed from the parameters passed to the builder
          */
         @NonNull
