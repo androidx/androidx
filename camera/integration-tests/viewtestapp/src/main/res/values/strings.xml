@@ -19,6 +19,14 @@ limitations under the License.
 
     <string name="preview">Preview</string>
     <string name="btn_capture">Capture</string>
+    <string name="btn_video_record">Record</string>
+    <string name="btn_video_stop_recording">Stop recording</string>
+    <string name="toggle_video_enabled">Video enabled</string>
+    <string name="toggle_video_disabled">Video disabled</string>
+    <string name="toggle_capture_enabled">Capture enabled</string>
+    <string name="toggle_capture_disabled">Capture disabled</string>
+    <string name="toggle_camera_front">Front</string>
+    <string name="toggle_camera_back">Back</string>
     <string name="btn_remove_or_add">Remove/Add</string>
     <string name="btn_shrink">Shrink</string>
     <string name="btn_switch">Switch</string>
@@ -27,5 +35,8 @@ limitations under the License.
     <string name="camera_view">Camera View</string>
     <string name="preview_view">Preview View</string>
     <string name="camera_controller">Camera Controller</string>
+    <string name="flash_mode_auto">flash auto</string>
+    <string name="flash_mode_on">flash on</string>
+    <string name="flash_mode_off">flash off</string>
 
 </resources>

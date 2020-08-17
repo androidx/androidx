@@ -30,7 +30,6 @@
     </FrameLayout>
 
     <LinearLayout
-        android:id="@+id/control_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <Button
@@ -43,5 +42,52 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/btn_shrink" />
+        <ToggleButton
+            android:id="@+id/camera_toggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOff="@string/toggle_camera_front"
+            android:textOn="@string/toggle_camera_back" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ToggleButton
+            android:id="@+id/capture_enabled"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOff="@string/toggle_capture_disabled"
+            android:textOn="@string/toggle_capture_enabled" />
+        <Button
+            android:id="@+id/flash_mode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <Button
+            android:id="@+id/capture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_capture" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ToggleButton
+            android:id="@+id/video_enabled"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOff="@string/toggle_video_disabled"
+            android:textOn="@string/toggle_video_enabled" />
+        <Button
+            android:id="@+id/video_record"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_video_record" />
+        <Button
+            android:id="@+id/video_stop_recording"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_video_stop_recording"/>
     </LinearLayout>
 </LinearLayout>
