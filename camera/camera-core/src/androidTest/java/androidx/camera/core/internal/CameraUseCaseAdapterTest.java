@@ -181,6 +181,7 @@ public class CameraUseCaseAdapterTest {
     }
 
     @Test
+    @MediumTest
     public void addExistingUseCase_viewPortUpdated()
             throws CameraUseCaseAdapter.CameraException {
         Rational aspectRatio1 = new Rational(1, 1);
