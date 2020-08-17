@@ -79,7 +79,7 @@ public final class CameraXTest {
         mConfigBuilder =
                 new CameraXConfig.Builder()
                         .setCameraFactoryProvider((ignored0, ignored1) -> mFakeCameraFactory)
-                        .setDeviceSurfaceManagerProvider(ignored ->
+                        .setDeviceSurfaceManagerProvider((ignored0, ignore1) ->
                                 new FakeCameraDeviceSurfaceManager())
                         .setUseCaseConfigFactoryProvider(ignored -> mUseCaseConfigFactory);
 

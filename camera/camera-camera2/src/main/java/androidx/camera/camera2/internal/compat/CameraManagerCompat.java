@@ -23,6 +23,7 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraManager;
 import android.os.Build;
 import android.os.Handler;
+import android.util.ArrayMap;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -30,6 +31,7 @@ import androidx.annotation.RequiresApi;
 import androidx.annotation.RequiresPermission;
 import androidx.camera.core.impl.utils.MainThreadAsyncHandler;
 
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 /**
@@ -39,10 +41,13 @@ import java.util.concurrent.Executor;
 public final class CameraManagerCompat {
     private final CameraManagerCompatImpl mImpl;
 
+    @GuardedBy("mCameraCharacteristicsMap")
+    private final Map<String, CameraCharacteristicsCompat> mCameraCharacteristicsMap =
+            new ArrayMap<>(4);
+
     private CameraManagerCompat(CameraManagerCompatImpl impl) {
         mImpl = impl;
     }
-
 
     /** Get a {@link CameraManagerCompat} instance for a provided context. */
     @NonNull
@@ -140,10 +145,10 @@ public final class CameraManagerCompat {
      * {@link CameraManager#getCameraCharacteristics(String)}.
      *
      * @param cameraId The id of the camera device to query. This could be either a standalone
-     * camera ID which can be directly opened by {@link #openCamera}, or a physical camera ID that
-     * can only used as part of a logical multi-camera.
+     *                 camera ID which can be directly opened by {@link #openCamera}, or a
+     *                 physical camera ID that
+     *                 can only used as part of a logical multi-camera.
      * @return The properties of the given camera
-     *
      * @throws IllegalArgumentException    if the cameraId does not match any known camera device.
      * @throws CameraAccessExceptionCompat if the camera device has been disconnected or the
      *                                     device is in Do Not Disturb mode with an early version
@@ -164,6 +169,42 @@ public final class CameraManagerCompat {
                     e.getMessage(), e);
         }
     }
+
+    /**
+     * Returns a {@link CameraCharacteristicsCompat} associated with the given camera id.
+     *
+     * <p>It will return cached instance if the {@link CameraCharacteristicsCompat} has been
+     * retrieved by the same camera id. If cached instance is returned, it won't throw any
+     * {@link CameraAccessExceptionCompat} exception even when camera is disconnected.
+     *
+     * <p>The returned {@link CameraCharacteristicsCompat} will also cache the retrieved values to
+     * speed up the subsequent query.
+     *
+     * @param cameraId The id of the camera device to query. This could be either a standalone
+     *                 camera ID which can be directly opened by {@link #openCamera}, or a
+     *                 physical camera ID that can only used as part of a logical multi-camera.
+     * @return a {@link CameraCharacteristicsCompat} associated with the given camera id.
+     * @throws IllegalArgumentException    if the cameraId does not match any known camera device.
+     * @throws CameraAccessExceptionCompat if the camera device has been disconnected or the
+     *                                     device is in Do Not Disturb mode with an early version
+     *                                     of Android P.
+     */
+    @NonNull
+    public CameraCharacteristicsCompat getCameraCharacteristicsCompat(@NonNull String cameraId)
+            throws CameraAccessExceptionCompat {
+        CameraCharacteristicsCompat characteristics;
+        synchronized (mCameraCharacteristicsMap) {
+            characteristics = mCameraCharacteristicsMap.get(cameraId);
+            if (characteristics == null) {
+                characteristics =
+                        CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+                                mImpl.getCameraCharacteristics(cameraId));
+                mCameraCharacteristicsMap.put(cameraId, characteristics);
+            }
+        }
+        return characteristics;
+    }
+
 
     /**
      * Open a connection to a camera with the given ID.

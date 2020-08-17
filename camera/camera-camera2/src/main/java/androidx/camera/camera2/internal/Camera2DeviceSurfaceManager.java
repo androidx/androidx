@@ -61,24 +61,33 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
      * @hide
      */
     @RestrictTo(Scope.LIBRARY)
-    public Camera2DeviceSurfaceManager(@NonNull Context context) throws CameraUnavailableException {
-        this(context, CamcorderProfile::hasProfile);
+    public Camera2DeviceSurfaceManager(@NonNull Context context,
+            @Nullable Object cameraManager) throws CameraUnavailableException {
+        this(context, CamcorderProfile::hasProfile, cameraManager);
     }
 
     Camera2DeviceSurfaceManager(@NonNull Context context,
-            @NonNull CamcorderProfileHelper camcorderProfileHelper)
+            @NonNull CamcorderProfileHelper camcorderProfileHelper,
+            @Nullable Object cameraManager)
             throws CameraUnavailableException {
         Preconditions.checkNotNull(camcorderProfileHelper);
         mCamcorderProfileHelper = camcorderProfileHelper;
-        init(context);
+
+        CameraManagerCompat cameraManagerCompat;
+        if (cameraManager instanceof CameraManagerCompat) {
+            cameraManagerCompat = (CameraManagerCompat) cameraManager;
+        } else {
+            cameraManagerCompat = CameraManagerCompat.from(context);
+        }
+        init(context, cameraManagerCompat);
     }
 
     /**
      * Prepare necessary resources for the surface manager.
      */
-    private void init(@NonNull Context context) throws CameraUnavailableException {
+    private void init(@NonNull Context context, @NonNull CameraManagerCompat cameraManager)
+            throws CameraUnavailableException {
         Preconditions.checkNotNull(context);
-        CameraManagerCompat cameraManager = CameraManagerCompat.from(context);
 
         try {
             for (String cameraId : cameraManager.getCameraIdList()) {

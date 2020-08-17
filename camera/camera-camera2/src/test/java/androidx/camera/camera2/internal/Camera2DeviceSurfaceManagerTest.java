@@ -35,6 +35,7 @@ import android.os.Build;
 import android.util.Size;
 import android.view.WindowManager;
 
+import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraUnavailableException;
@@ -589,13 +590,16 @@ public final class Camera2DeviceSurfaceManagerTest {
     private CameraXConfig createFakeAppConfig() {
 
         // Create the DeviceSurfaceManager for Camera2
-        CameraDeviceSurfaceManager.Provider surfaceManagerProvider = context -> {
-            try {
-                return new Camera2DeviceSurfaceManager(mContext, mMockCamcorderProfileHelper);
-            } catch (CameraUnavailableException e) {
-                throw new InitializationException(e);
-            }
-        };
+        CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
+                (context, cameraManager) -> {
+                    try {
+                        return new Camera2DeviceSurfaceManager(mContext,
+                                mMockCamcorderProfileHelper,
+                                (CameraManagerCompat) cameraManager);
+                    } catch (CameraUnavailableException e) {
+                        throw new InitializationException(e);
+                    }
+                };
 
         // Create default configuration factory
         UseCaseConfigFactory.Provider factoryProvider = context -> {

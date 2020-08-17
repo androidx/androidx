@@ -27,7 +27,8 @@ import androidx.camera.core.impl.UseCaseConfig
  * Provide the guaranteed supported stream capabilities provided by CameraPipe.
  * @constructor Creates a CameraPipeDeviceSurfaceManager from the provided [Context].
  */
-class CameraPipeDeviceSurfaceManager(context: Context) : CameraDeviceSurfaceManager {
+class CameraPipeDeviceSurfaceManager(context: Context, cameraManager: Any?) :
+    CameraDeviceSurfaceManager {
     companion object {
         private const val TAG = "CameraPipeSurfaceMgr"
         private val DEBUG = Log.isLoggable(TAG, Log.DEBUG)
@@ -37,7 +38,10 @@ class CameraPipeDeviceSurfaceManager(context: Context) : CameraDeviceSurfaceMana
 
     init {
         if (DEBUG) {
-            Log.d(TAG, "Initialized CameraFactory [Context: $context, CameraPipe: $cameraPipe]")
+            Log.d(
+                TAG, "Initialized CameraDeviceSurfaceManager [Context: $context, CameraManager:" +
+                        " $cameraManager, CameraPipe: $cameraPipe]"
+            )
         }
     }
 

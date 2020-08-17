@@ -560,7 +560,8 @@ public final class CameraX {
                             "Invalid app configuration provided. Missing "
                                     + "CameraDeviceSurfaceManager."));
                 }
-                mSurfaceManager = surfaceManagerProvider.newInstance(mAppContext);
+                mSurfaceManager = surfaceManagerProvider.newInstance(mAppContext,
+                        mCameraFactory.getCameraManager());
 
                 UseCaseConfigFactory.Provider configFactoryProvider =
                         mCameraXConfig.getUseCaseConfigFactoryProvider(null);
