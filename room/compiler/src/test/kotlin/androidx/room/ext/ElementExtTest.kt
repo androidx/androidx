@@ -59,7 +59,7 @@ class ElementExtTest {
         """.trimIndent()
         )
         simpleRun(
-            jfos = *arrayOf(parentCode, childCode)
+            jfos = arrayOf(parentCode, childCode)
         ) {
             val parent = it.processingEnv.requireTypeElement("foo.bar.Parent")
             val child = it.processingEnv.requireTypeElement("foo.bar.Child")
@@ -134,7 +134,7 @@ class ElementExtTest {
         """.trimIndent()
         )
         simpleRun(
-            jfos = *arrayOf(parentCode, childCode)
+            jfos = arrayOf(parentCode, childCode)
         ) {
             val parent = it.processingEnv.requireTypeElement("foo.bar.Parent")
             val child = it.processingEnv.requireTypeElement("foo.bar.Child")
@@ -187,7 +187,7 @@ class ElementExtTest {
         """.trimIndent()
         )
         simpleRun(
-            jfos = *arrayOf(testCode)
+            jfos = arrayOf(testCode)
         ) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             val field = element.getAllFieldsIncludingPrivateSupers()

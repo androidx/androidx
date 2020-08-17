@@ -32,9 +32,9 @@ internal class PagePresenter<T : Any>(
     override var storageCount: Int = insertEvent.pages.fullCount()
         private set
     private val originalPageOffsetFirst: Int
-        get() = pages.first().originalPageOffsets.min()!!
+        get() = pages.first().originalPageOffsets.minOrNull()!!
     private val originalPageOffsetLast: Int
-        get() = pages.last().originalPageOffsets.max()!!
+        get() = pages.last().originalPageOffsets.maxOrNull()!!
     override var placeholdersBefore: Int = insertEvent.placeholdersBefore
         private set
     override var placeholdersAfter: Int = insertEvent.placeholdersAfter

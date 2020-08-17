@@ -65,7 +65,9 @@ class ViewModelTest {
 
         runBlocking {
             try {
-                @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER")
+                @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER",
+                    "IMPLICIT_NOTHING_TYPE_ARGUMENT_IN_RETURN_POSITION"
+                )
                 failingDeferred.await()
             } catch (e: Error) {
             }
