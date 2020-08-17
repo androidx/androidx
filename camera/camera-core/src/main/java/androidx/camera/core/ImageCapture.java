@@ -131,6 +131,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A use case for taking a picture.
@@ -250,12 +251,16 @@ public final class ImageCapture extends UseCase {
      */
     private final boolean mEnableCheck3AConverged;
 
+    @GuardedBy("mLockedFlashMode")
+    private final AtomicReference<Integer> mLockedFlashMode = new AtomicReference<>(null);
+
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase lifetime dynamic] - Dynamic variables which could change during anytime during
     // the UseCase lifetime.
     ////////////////////////////////////////////////////////////////////////////////////////////
 
     /** Current flash mode. */
+    @GuardedBy("mLockedFlashMode")
     @FlashMode
     private int mFlashMode = FLASH_MODE_UNKNOWN;
     private Rational mCropAspectRatio = null;
@@ -444,7 +449,7 @@ public final class ImageCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     protected void onCameraControlReady() {
-        getCameraControl().setFlashMode(getFlashMode());
+        trySetFlashModeToCameraControl();
     }
 
     /**
@@ -455,8 +460,10 @@ public final class ImageCapture extends UseCase {
      */
     @FlashMode
     public int getFlashMode() {
-        return mFlashMode != FLASH_MODE_UNKNOWN ? mFlashMode
-                : ((ImageCaptureConfig) getUseCaseConfig()).getFlashMode(DEFAULT_FLASH_MODE);
+        synchronized (mLockedFlashMode) {
+            return mFlashMode != FLASH_MODE_UNKNOWN ? mFlashMode
+                    : ((ImageCaptureConfig) getUseCaseConfig()).getFlashMode(DEFAULT_FLASH_MODE);
+        }
     }
 
     /**
@@ -480,15 +487,9 @@ public final class ImageCapture extends UseCase {
             throw new IllegalArgumentException("Invalid flash mode: " + flashMode);
         }
 
-        this.mFlashMode = flashMode;
-        // The camera control will be ready after the use case is attached. The {@link
-        // CameraSelector} containing camera id info is also generated at meanwhile. Developers
-        // may update flash mode before the use case is bound. If the camera control has been
-        // ready, directly updating the flash mode into camera control. If the camera control has
-        // been not ready yet, just saving the flash mode and updating into camera control when
-        // camera control ready callback is called.
-        if (getCamera() != null) {
-            getCameraControl().setFlashMode(flashMode);
+        synchronized (mLockedFlashMode) {
+            mFlashMode = flashMode;
+            trySetFlashModeToCameraControl();
         }
     }
 
@@ -773,6 +774,40 @@ public final class ImageCapture extends UseCase {
         mImageCaptureRequestProcessor.sendRequest(new ImageCaptureRequest(
                 getRelativeRotation(attachedCamera), getJpegQuality(), mCropAspectRatio,
                 getViewPortCropRect(), callbackExecutor, callback));
+    }
+
+    private void lockFlashMode() {
+        synchronized (mLockedFlashMode) {
+            if (mLockedFlashMode.get() != null) {
+                // FlashMode is locked.
+                return;
+            }
+            mLockedFlashMode.set(getFlashMode());
+        }
+    }
+
+    private void unlockFlashMode() {
+        synchronized (mLockedFlashMode) {
+            Integer lockedFlashMode = mLockedFlashMode.getAndSet(null);
+            if (lockedFlashMode == null) {
+                // FlashMode is not locked yet.
+                return;
+            }
+            if (lockedFlashMode.intValue() != getFlashMode()) {
+                // Flash Mode is changed during lock session.
+                trySetFlashModeToCameraControl();
+            }
+        }
+    }
+
+    private void trySetFlashModeToCameraControl() {
+        synchronized (mLockedFlashMode) {
+            if (mLockedFlashMode.get() != null) {
+                // Flash Mode is locked.
+                return;
+            }
+            getCameraControl().setFlashMode(getFlashMode());
+        }
     }
 
     /**
@@ -1106,6 +1141,7 @@ public final class ImageCapture extends UseCase {
      * <p>For example, trigger 3A scan, open torch and check 3A converged if necessary.
      */
     private ListenableFuture<Void> preTakePicture(final TakePictureState state) {
+        lockFlashMode();
         return FutureChain.from(getPreCaptureStateIfNeeded())
                 .transformAsync(captureResult -> {
                     state.mPreCaptureState = captureResult;
@@ -1128,6 +1164,7 @@ public final class ImageCapture extends UseCase {
      */
     void postTakePicture(final TakePictureState state) {
         cancelAfAeTrigger(state);
+        unlockFlashMode();
     }
 
     /**
