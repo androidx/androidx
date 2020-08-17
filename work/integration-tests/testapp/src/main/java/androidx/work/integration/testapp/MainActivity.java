@@ -23,6 +23,7 @@ import android.app.PendingIntent;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -417,6 +418,16 @@ public class MainActivity extends AppCompatActivity {
                         } else {
                             Log.d(TAG, "No work to cancel");
                         }
+                    }
+                });
+
+        findViewById(R.id.enqueue_work_multi_process).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Context context = MainActivity.this;
+                        Intent intent = RemoteService.Companion.enqueueIntent(context);
+                        context.startService(intent);
                     }
                 });
 

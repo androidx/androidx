@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,9 +29,6 @@ plugins {
 }
 
 android {
-    buildFeatures {
-        aidl = true
-    }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_7
         targetCompatibility = JavaVersion.VERSION_1_7
@@ -44,51 +41,28 @@ android {
             testCoverageEnabled = false // b/130307237 test coverage breaks robolectric
         }
     }
-    defaultConfig {
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments = [
-                        "room.incremental"     : "true",
-                        "room.expandProjection": "true",
-                        "room.schemaLocation"  : "$projectDir/src/schemas".toString()
-                ]
-            }
-        }
-    }
-    sourceSets {
-        androidTest.assets.srcDirs += files("$projectDir/src/schemas".toString())
-    }
 }
 
 dependencies {
-    annotationProcessor("androidx.room:room-compiler:2.2.5")
-    implementation("androidx.room:room-runtime:2.2.5")
-    androidTestImplementation("androidx.room:room-testing:2.2.5")
-    implementation("androidx.sqlite:sqlite:2.1.0")
-    implementation("androidx.sqlite:sqlite-framework:2.1.0")
+    api project(':work:work-runtime')
     api(GUAVA_LISTENABLE_FUTURE)
-    api("androidx.lifecycle:lifecycle-livedata:2.1.0")
-    implementation("androidx.core:core:1.1.0")
-    implementation("androidx.lifecycle:lifecycle-service:2.1.0")
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
-    androidTestImplementation("androidx.arch.core:core-testing:2.1.0")
-    androidTestImplementation(projectOrArtifact(":lifecycle:lifecycle-runtime-testing"))
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(ESPRESSO_CORE)
     androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has its own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has its own MockMaker
     androidTestImplementation project(':internal-testutils-runtime')
+    testImplementation(KOTLIN_STDLIB)
     testImplementation(JUNIT)
-    lintPublish(project(':work:work-runtime-lint'))
 }
 
 androidx {
-    name = "Android WorkManager Runtime"
-    publish = Publish.SNAPSHOT_AND_RELEASE
+    name = "Android WorkManager Multiprocess Implementation"
+    publish = Publish.NONE
     mavenGroup = LibraryGroups.WORK
-    inceptionYear = "2018"
+    inceptionYear = "2020"
     description = "Android WorkManager runtime library"
     failOnDeprecationWarnings = false
 }
