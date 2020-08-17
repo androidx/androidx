@@ -79,6 +79,22 @@ repositories {
         maven(url="https://androidx.dev/metalava/builds/${metalavaBuildId}/artifacts/repo/m2repository")
     }
 
+    val allowBintray: String? = findProperty("allowBintray") as String?
+    if (allowBintray != null) {
+        maven {
+            url = uri("https://dl.bintray.com/kotlin/kotlin-dev/")
+            metadataSources {
+                artifact()
+            }
+        }
+        maven {
+            url = uri("https://dl.bintray.com/kotlin/kotlinx/")
+            metadataSources {
+                artifact()
+            }
+        }
+    }
+
     ivy {
         setUrl("https://download.jetbrains.com/kotlin/native/builds/releases")
         patternLayout {
