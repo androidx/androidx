@@ -1,3 +1,0 @@
-// Baseline format: 1.0
-RemovedDeprecatedMethod: androidx.navigation.NavController#getViewModelStore(int):
-    Removed deprecated method androidx.navigation.NavController.getViewModelStore(int)
