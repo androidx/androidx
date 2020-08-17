@@ -66,6 +66,8 @@ public final class Configuration {
     @SuppressWarnings("WeakerAccess")
     final @Nullable InitializationExceptionHandler mExceptionHandler;
     @SuppressWarnings("WeakerAccess")
+    final @Nullable String mDefaultProcessName;
+    @SuppressWarnings("WeakerAccess")
     final int mLoggingLevel;
     @SuppressWarnings("WeakerAccess")
     final int mMinJobSchedulerId;
@@ -116,6 +118,7 @@ public final class Configuration {
         mMaxJobSchedulerId = builder.mMaxJobSchedulerId;
         mMaxSchedulerLimit = builder.mMaxSchedulerLimit;
         mExceptionHandler = builder.mExceptionHandler;
+        mDefaultProcessName = builder.mDefaultProcessName;
     }
 
     /**
@@ -206,6 +209,14 @@ public final class Configuration {
     }
 
     /**
+     * @return The {@link String} name of the process where work should be scheduled.
+     */
+    @Nullable
+    public String getDefaultProcessName() {
+        return mDefaultProcessName;
+    }
+
+    /**
      * Gets the maximum number of system requests that can be made by {@link WorkManager} when using
      * {@link android.app.job.JobScheduler} or {@link android.app.AlarmManager}.
      *
@@ -261,6 +272,7 @@ public final class Configuration {
         Executor mTaskExecutor;
         RunnableScheduler mRunnableScheduler;
         @Nullable InitializationExceptionHandler mExceptionHandler;
+        @Nullable String mDefaultProcessName;
 
         int mLoggingLevel;
         int mMinJobSchedulerId;
@@ -298,6 +310,7 @@ public final class Configuration {
             mMaxSchedulerLimit = configuration.mMaxSchedulerLimit;
             mRunnableScheduler = configuration.mRunnableScheduler;
             mExceptionHandler = configuration.mExceptionHandler;
+            mDefaultProcessName = configuration.mDefaultProcessName;
         }
 
         /**
@@ -455,6 +468,18 @@ public final class Configuration {
         public Builder setInitializationExceptionHandler(
                 @NonNull InitializationExceptionHandler exceptionHandler) {
             mExceptionHandler = exceptionHandler;
+            return this;
+        }
+
+        /**
+         * Designates the primary process that {@link WorkManager} should schedule work in.
+         *
+         * @param processName The {@link String} process name.
+         * @return This {@link Builder} instance
+         */
+        @NonNull
+        public Builder setDefaultProcessName(@NonNull String processName) {
+            mDefaultProcessName = processName;
             return this;
         }
 
