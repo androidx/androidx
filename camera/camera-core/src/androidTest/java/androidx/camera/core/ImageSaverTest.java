@@ -37,7 +37,6 @@ import android.os.Environment;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Base64;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -142,7 +141,7 @@ public class ImageSaverTest {
                 @Override
                 public void onError(SaveError saveError, String message,
                         @Nullable Throwable cause) {
-                    Log.d(TAG, message, cause);
+                    Logger.d(TAG, message, cause);
                     mMockCallback.onError(saveError, message, cause);
                     mSemaphore.release();
                 }

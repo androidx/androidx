@@ -16,13 +16,12 @@
 
 package androidx.camera.core.impl;
 
-import android.util.Log;
-
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.WorkerThread;
 import androidx.camera.core.Camera;
+import androidx.camera.core.Logger;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -43,8 +42,7 @@ import java.util.concurrent.RejectedExecutionException;
  */
 public final class CameraStateRegistry {
     private static final String TAG = "CameraStateRegistry";
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
-    private StringBuilder mDebugString = DEBUG ? new StringBuilder() : null;
+    private final StringBuilder mDebugString = new StringBuilder();
 
     private final Object mLock = new Object();
 
@@ -80,7 +78,6 @@ public final class CameraStateRegistry {
      * {@link CameraInternal.State#RELEASED} state.
      *
      * @param camera The camera to register.
-     * @param cameraAvailableListener
      */
     public void registerCamera(@NonNull Camera camera, @NonNull Executor notifyExecutor,
             @NonNull OnOpenAvailableListener cameraAvailableListener) {
@@ -112,7 +109,7 @@ public final class CameraStateRegistry {
             CameraRegistration registration = Preconditions.checkNotNull(mCameraStates.get(camera),
                     "Camera must first be registered with registerCamera()");
             boolean success = false;
-            if (DEBUG) {
+            if (Logger.isDebugEnabled(TAG)) {
                 mDebugString.setLength(0);
                 mDebugString.append(String.format(Locale.US, "tryOpenCamera(%s) [Available "
                                 + "Cameras: %d, Already Open: %b (Previous state: %s)]",
@@ -125,10 +122,10 @@ public final class CameraStateRegistry {
                 success = true;
             }
 
-            if (DEBUG) {
+            if (Logger.isDebugEnabled(TAG)) {
                 mDebugString.append(
                         String.format(Locale.US, " --> %s", success ? "SUCCESS" : "FAIL"));
-                Log.d(TAG, mDebugString.toString());
+                Logger.d(TAG, mDebugString.toString());
             }
 
             if (success) {
@@ -231,7 +228,7 @@ public final class CameraStateRegistry {
     @WorkerThread
     @GuardedBy("mLock")
     private void recalculateAvailableCameras() {
-        if (DEBUG) {
+        if (Logger.isDebugEnabled(TAG)) {
             mDebugString.setLength(0);
             mDebugString.append("Recalculating open cameras:\n");
             mDebugString.append(String.format(Locale.US, "%-45s%-22s\n", "Camera", "State"));
@@ -244,7 +241,7 @@ public final class CameraStateRegistry {
         // state may have previously been open, so we will count them as open.
         int openCount = 0;
         for (Map.Entry<Camera, CameraRegistration> entry : mCameraStates.entrySet()) {
-            if (DEBUG) {
+            if (Logger.isDebugEnabled(TAG)) {
                 String stateString =
                         entry.getValue().getState() != null ? entry.getValue().getState().toString()
                                 : "UNKNOWN";
@@ -256,13 +253,13 @@ public final class CameraStateRegistry {
                 openCount++;
             }
         }
-        if (DEBUG) {
+        if (Logger.isDebugEnabled(TAG)) {
             mDebugString.append(
                     "-------------------------------------------------------------------\n");
             mDebugString.append(String.format(Locale.US, "Open count: %d (Max allowed: %d)",
                     openCount,
                     mMaxAllowedOpenedCameras));
-            Log.d(TAG, mDebugString.toString());
+            Logger.d(TAG, mDebugString.toString());
         }
 
         // Calculate available cameras value (clamped to 0 or more)
@@ -312,7 +309,7 @@ public final class CameraStateRegistry {
             try {
                 mNotifyExecutor.execute(mCameraAvailableListener::onOpenAvailable);
             } catch (RejectedExecutionException e) {
-                Log.e(TAG, "Unable to notify camera.", e);
+                Logger.e(TAG, "Unable to notify camera.", e);
             }
         }
     }

@@ -17,13 +17,13 @@
 package androidx.camera.core.internal;
 
 import android.graphics.Rect;
-import android.util.Log;
 import android.util.Size;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.experimental.UseExperimental;
+import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.CameraControlInternal;
@@ -157,7 +157,7 @@ public final class CameraUseCaseAdapter {
 
             for (UseCase useCase : useCases) {
                 if (mUseCases.contains(useCase)) {
-                    Log.d(TAG, "Attempting to attach already attached UseCase");
+                    Logger.d(TAG, "Attempting to attach already attached UseCase");
                 } else {
                     useCaseListAfterUpdate.add(useCase);
                     newUseCases.add(useCase);
@@ -226,7 +226,7 @@ public final class CameraUseCaseAdapter {
                     useCase.onDetach(mCameraInternal);
                     useCase.onDestroy();
                 } else {
-                    Log.e(TAG, "Attempting to detach non-attached UseCase: " + useCase);
+                    Logger.e(TAG, "Attempting to detach non-attached UseCase: " + useCase);
                 }
             }
 

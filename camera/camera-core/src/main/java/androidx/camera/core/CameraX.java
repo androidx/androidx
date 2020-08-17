@@ -24,7 +24,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
 import android.os.SystemClock;
-import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.MainThread;
@@ -248,7 +247,7 @@ public final class CameraX {
                     @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void onFailure(Throwable t) {
-                        Log.w(TAG, "CameraX initialize() failed", t);
+                        Logger.w(TAG, "CameraX initialize() failed", t);
                         // Call shutdown() automatically, if initialization fails.
                         synchronized (INSTANCE_LOCK) {
                             // Make sure it is the same instance to prevent reinitialization
@@ -439,7 +438,7 @@ public final class CameraX {
                     | NoSuchMethodException
                     | IllegalAccessException
                     | NullPointerException e) {
-                Log.e(TAG, "Failed to retrieve default CameraXConfig.Provider from "
+                Logger.e(TAG, "Failed to retrieve default CameraXConfig.Provider from "
                         + "resources", e);
             }
         }
@@ -616,7 +615,7 @@ public final class CameraX {
             } catch (InitializationException | RuntimeException e) {
                 if (SystemClock.elapsedRealtime() - startMs
                         < WAIT_INITIALIZED_TIMEOUT_MILLIS - RETRY_SLEEP_MILLIS) {
-                    Log.w(TAG, "Retry init. Start time " + startMs + " current time "
+                    Logger.w(TAG, "Retry init. Start time " + startMs + " current time "
                             + SystemClock.elapsedRealtime(), e);
                     HandlerCompat.postDelayed(mSchedulerHandler, () -> initAndRetryRecursively(
                             cameraExecutor, startMs, context, completer), RETRY_TOKEN,
