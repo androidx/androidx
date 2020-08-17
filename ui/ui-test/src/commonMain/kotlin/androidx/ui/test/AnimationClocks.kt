@@ -17,6 +17,10 @@
 package androidx.ui.test
 
 import androidx.compose.animation.core.AnimationClockObservable
+import androidx.compose.animation.core.MonotonicFrameAnimationClock
+import androidx.compose.runtime.dispatch.MonotonicFrameClock
+import kotlinx.coroutines.CoroutineScope
+import kotlin.coroutines.CoroutineContext
 
 /**
  * Interface for animation clocks that can report their idleness and can switch between ticking
@@ -60,3 +64,18 @@ interface TestAnimationClock : AnimationClockObservable {
      */
     fun advanceClock(milliseconds: Long)
 }
+
+/**
+ * Creates a [MonotonicFrameAnimationClock] from the given [clock]. A new coroutine scope is
+ * created from the [coroutineContext], dispatching on the main thread and using the [clock] as
+ * the frame clock.
+ *
+ * @see MonotonicFrameAnimationClock
+ */
+fun monotonicFrameAnimationClockOf(
+    coroutineContext: CoroutineContext,
+    clock: MonotonicFrameClock
+): MonotonicFrameAnimationClock =
+    MonotonicFrameAnimationClock(
+        CoroutineScope(coroutineContext + TestUiDispatcher.Main + clock)
+    )
