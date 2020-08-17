@@ -28,47 +28,41 @@ import android.util.Log
  * Log.debug { "This is a log message with a $value" }
  */
 object Log {
-    const val TAG = "CameraPipe"
+    const val TAG = "CXCP"
 
     private const val LOG_LEVEL_DEBUG = 1
     private const val LOG_LEVEL_INFO = 2
     private const val LOG_LEVEL_WARN = 3
     private const val LOG_LEVEL_ERROR = 4
 
-    // This indicates the lowest log level that can be enabled.
-    private const val LOG_LEVEL =
-        LOG_LEVEL_ERROR
+    // This indicates the lowest log level that will always log.
+    private const val LOG_LEVEL = LOG_LEVEL_INFO
 
-    const val DEBUG_ENABLED = Debug.ENABLE_LOGGING && LOG_LEVEL <= LOG_LEVEL_DEBUG
-    const val INFO_ENABLED = Debug.ENABLE_LOGGING && LOG_LEVEL <= LOG_LEVEL_INFO
-    const val WARN_ENABLED = Debug.ENABLE_LOGGING && LOG_LEVEL <= LOG_LEVEL_WARN
-    const val ERROR_ENABLED = Debug.ENABLE_LOGGING && LOG_LEVEL <= LOG_LEVEL_ERROR
-
-    val DEBUG_LOGGABLE = Log.isLoggable(TAG, Log.DEBUG)
-    val INFO_LOGGABLE = Log.isLoggable(TAG, Log.INFO)
-    val WARN_LOGGABLE = Log.isLoggable(TAG, Log.WARN)
-    val ERROR_LOGGABLE = Log.isLoggable(TAG, Log.ERROR)
+    val DEBUG_LOGGABLE = Log.isLoggable(TAG, Log.DEBUG) || LOG_LEVEL <= LOG_LEVEL_DEBUG
+    val INFO_LOGGABLE = Log.isLoggable(TAG, Log.INFO) || LOG_LEVEL <= LOG_LEVEL_INFO
+    val WARN_LOGGABLE = Log.isLoggable(TAG, Log.WARN) || LOG_LEVEL <= LOG_LEVEL_WARN
+    val ERROR_LOGGABLE = Log.isLoggable(TAG, Log.ERROR) || LOG_LEVEL <= LOG_LEVEL_ERROR
 
     /**
      * Debug functions log noisy information related to the internals of the system.
      */
     inline fun debug(crossinline msg: () -> String) {
-        if (DEBUG_ENABLED && DEBUG_LOGGABLE) Log.d(TAG, msg())
+        if (Debug.ENABLE_LOGGING && DEBUG_LOGGABLE) Log.d(TAG, msg())
     }
 
     inline fun debug(throwable: Throwable, crossinline msg: () -> String) {
-        if (DEBUG_ENABLED && DEBUG_LOGGABLE) Log.d(TAG, msg(), throwable)
+        if (Debug.ENABLE_LOGGING && DEBUG_LOGGABLE) Log.d(TAG, msg(), throwable)
     }
 
     /**
      * Info functions log standard, useful information about the state of the system.
      */
     inline fun info(crossinline msg: () -> String) {
-        if (INFO_ENABLED && INFO_LOGGABLE) Log.i(TAG, msg())
+        if (Debug.ENABLE_LOGGING && INFO_LOGGABLE) Log.i(TAG, msg())
     }
 
     inline fun info(throwable: Throwable, crossinline msg: () -> String) {
-        if (INFO_ENABLED && INFO_LOGGABLE) Log.i(TAG, msg(), throwable)
+        if (Debug.ENABLE_LOGGING && INFO_LOGGABLE) Log.i(TAG, msg(), throwable)
     }
 
     /**
@@ -76,21 +70,21 @@ object Log {
      * later on as a result if the unusual circumstances
      */
     inline fun warn(crossinline msg: () -> String) {
-        if (WARN_ENABLED && WARN_LOGGABLE) Log.w(TAG, msg())
+        if (Debug.ENABLE_LOGGING && WARN_LOGGABLE) Log.w(TAG, msg())
     }
 
     inline fun warn(throwable: Throwable, crossinline msg: () -> String) {
-        if (WARN_ENABLED && WARN_LOGGABLE) Log.w(TAG, msg(), throwable)
+        if (Debug.ENABLE_LOGGING && WARN_LOGGABLE) Log.w(TAG, msg(), throwable)
     }
 
     /**
      * Error functions are reserved for something unexpected that will lead to a crash or data loss.
      */
     inline fun error(crossinline msg: () -> String) {
-        if (ERROR_ENABLED && ERROR_LOGGABLE) Log.e(TAG, msg())
+        if (Debug.ENABLE_LOGGING && ERROR_LOGGABLE) Log.e(TAG, msg())
     }
 
     inline fun error(throwable: Throwable, crossinline msg: () -> String) {
-        if (ERROR_ENABLED && ERROR_LOGGABLE) Log.e(TAG, msg(), throwable)
+        if (Debug.ENABLE_LOGGING && ERROR_LOGGABLE) Log.e(TAG, msg(), throwable)
     }
 }
