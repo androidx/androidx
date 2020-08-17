@@ -17,6 +17,10 @@ ForbiddenSuperClass: androidx.wear.activity.ConfirmationActivity:
     ConfirmationActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
 
 
+HiddenSuperclass: androidx.wear.widget.SwipeDismissFrameLayout:
+    Public class androidx.wear.widget.SwipeDismissFrameLayout stripped of unavailable superclass androidx.wear.widget.SwipeDismissLayout
+
+
 MissingNullability: androidx.wear.activity.ConfirmationActivity#onCreate(android.os.Bundle) parameter #0:
     Missing nullability on parameter `savedInstanceState` in method `onCreate`
 MissingNullability: androidx.wear.ambient.AmbientMode#attachAmbientSupport(T):
