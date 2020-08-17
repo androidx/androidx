@@ -57,7 +57,7 @@ class WorkManagerInspector(
     private val workManager: WorkManagerImpl
     private val executor = Executors.newSingleThreadExecutor()
 
-    private val stackTraceMap = mutableMapOf<String, Array<StackTraceElement>>()
+    private val stackTraceMap = mutableMapOf<String, List<StackTraceElement>>()
 
     init {
         workManager = environment.artTI().findInstances(Application::class.java).first()
@@ -73,7 +73,7 @@ class WorkManagerInspector(
             val stackTrace = Throwable().stackTrace
             executor.submit {
                 (obj as? WorkContinuationImpl)?.allIds?.forEach { id ->
-                    stackTraceMap[id] = stackTrace.prune()
+                    stackTraceMap[id] = stackTrace.toList().prune()
                 }
             }
         }
@@ -135,15 +135,19 @@ class WorkManagerInspector(
     }
 
     /**
-     * Prune internal [StackTraceElement]s with classes from work manager libraries.
+     * Prune internal [StackTraceElement]s above [WorkContinuationImpl.enqueue] or from
+     * work manager libraries.
      */
-    private fun Array<StackTraceElement>.prune(): Array<StackTraceElement> {
-        // Find the first element outside work manager libraries.
-        val validIndex = indexOfFirst {
-            !it.className.startsWith("androidx.work")
+    private fun List<StackTraceElement>.prune(): List<StackTraceElement> {
+        val entryHookIndex = indexOfFirst {
+            it.className.startsWith("androidx.work.impl.WorkContinuationImpl") &&
+                    it.methodName == "enqueue"
         }
-
-        return toList().subList(validIndex, size).toTypedArray()
+        if (entryHookIndex != -1) {
+            return subList(entryHookIndex + 1, size)
+                .dropWhile { it.className.startsWith("androidx.work") }
+        }
+        return this
     }
 
     private fun createWorkInfoProto(id: String): WorkManagerInspectorProtocol.WorkInfo {
