@@ -17,16 +17,23 @@
 package androidx.core.app;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 
 import android.app.NotificationChannelGroup;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
+import androidx.core.app.NotificationChannelGroupCompat.Builder;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import java.util.Collection;
+
+import javax.annotation.Nullable;
 
 
 @RunWith(AndroidJUnit4.class)
@@ -46,15 +53,19 @@ public class NotificationChannelGroupCompatTest {
 
         NotificationChannelGroup platformGroup = new NotificationChannelGroup(groupId, groupName);
 
-        NotificationChannelGroupCompat.Builder builder =
-                new NotificationChannelGroupCompat.Builder(groupId)
-                        .setName(groupName);
+        Builder builder = new Builder(groupId)
+                .setName(groupName);
 
         NotificationChannelGroupCompat groupCompat = builder.build();
         TestHelper.assertGroupEquals(platformGroup, groupCompat);
 
         NotificationChannelGroup builderGroup = groupCompat.getNotificationChannelGroup();
         assertEquals(platformGroup, builderGroup);
+
+        // Test that the toBuilder().build() cycle causes all editable fields to remain equal.
+        NotificationChannelGroupCompat rebuilt = groupCompat.toBuilder().build();
+        assertNotSame(groupCompat, rebuilt);
+        TestHelper.assertGroupEquals(platformGroup, rebuilt);
     }
 
     /**
@@ -74,16 +85,20 @@ public class NotificationChannelGroupCompatTest {
             platformGroup.setDescription(groupDescription);
         }
 
-        NotificationChannelGroupCompat.Builder builder =
-                new NotificationChannelGroupCompat.Builder(groupId)
-                        .setName(groupName)
-                        .setDescription(groupDescription);
+        Builder builder = new Builder(groupId)
+                .setName(groupName)
+                .setDescription(groupDescription);
 
         NotificationChannelGroupCompat groupCompat = builder.build();
         TestHelper.assertGroupEquals(platformGroup, groupCompat);
 
         NotificationChannelGroup builderGroup = groupCompat.getNotificationChannelGroup();
         assertEquals(platformGroup, builderGroup);
+
+        // Test that the toBuilder().build() cycle causes all editable fields to remain equal.
+        NotificationChannelGroupCompat rebuilt = groupCompat.toBuilder().build();
+        assertNotSame(groupCompat, rebuilt);
+        TestHelper.assertGroupEquals(platformGroup, rebuilt);
     }
 
     /*
@@ -93,13 +108,25 @@ public class NotificationChannelGroupCompatTest {
      * To work around this, we use a separate inner class that provides static helper methods
      */
     static class TestHelper {
-        private static void assertGroupEquals(NotificationChannelGroup expected,
-                NotificationChannelGroupCompat actual) {
+        private static void assertGroupEquals(@NonNull NotificationChannelGroup expected,
+                @NonNull NotificationChannelGroupCompat actual) {
             assertEquals(expected.getId(), actual.getId());
             assertEquals(expected.getName(), actual.getName());
             if (Build.VERSION.SDK_INT >= 28) {
                 assertEquals(expected.getDescription(), actual.getDescription());
             }
+        }
+
+        @Nullable
+        static NotificationChannelGroupCompat findGroupCompat(
+                @NonNull Collection<NotificationChannelGroupCompat> groups,
+                @NonNull String groupId) {
+            for (NotificationChannelGroupCompat group : groups) {
+                if (groupId.equals(group.getId())) {
+                    return group;
+                }
+            }
+            return null;
         }
     }
 
