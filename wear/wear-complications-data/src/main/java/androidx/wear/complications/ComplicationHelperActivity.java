@@ -203,7 +203,7 @@ public class ComplicationHelperActivity extends Activity
             @NonNull Context context,
             @NonNull ComponentName watchFace,
             int watchFaceComplicationId,
-            @NonNull @ComplicationData.ComplicationType int... supportedTypes) {
+            @NonNull int[] supportedTypes) {
         Intent intent = new Intent(context, ComplicationHelperActivity.class);
         intent.setAction(ACTION_START_PROVIDER_CHOOSER);
         intent.putExtra(ProviderChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME, watchFace);
