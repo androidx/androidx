@@ -16,14 +16,12 @@
 
 package com.example.androidx.webkit;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.os.Bundle;
 import android.webkit.ValueCallback;
 import android.webkit.WebView;
 import android.widget.CompoundButton;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
@@ -51,7 +49,7 @@ public class AllowlistActivity extends AppCompatActivity {
         setTitle(R.string.allowlist_activity_title);
         WebkitHelpers.appendWebViewVersionToTitle(this);
 
-        if (!isSafeBrowsingAllowlistSupported()) {
+        if (!WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_ALLOWLIST)) {
             WebkitHelpers.showMessageInActivity(this, R.string.webkit_api_not_available);
             return;
         }
@@ -102,25 +100,11 @@ public class AllowlistActivity extends AppCompatActivity {
         }
     }
 
-    // TODO(b/160326030): remove SuppressLint and inline when we unhide
-    // WebViewCompat.setSafeBrowsingAllowlist
-    @SuppressLint("RestrictedApi")
-    private void setSafeBrowsingAllowlist(@NonNull Set<String> hosts,
-            @Nullable ValueCallback<Boolean> callback) {
-        WebViewCompat.setSafeBrowsingAllowlist(hosts, callback);
-    }
-
-    // TODO(b/160326030): remove SuppressLint and inline when we unhide
-    // WebViewCompat.setSafeBrowsingAllowlist
-    @SuppressLint("RestrictedApi")
-    private boolean isSafeBrowsingAllowlistSupported() {
-        return WebViewFeature.isFeatureSupported(WebViewFeature.SAFE_BROWSING_ALLOWLIST);
-    }
-
     private void clearAllowlist() {
         // To clear the allowlist (and check all domains with Safe Browsing), pass an empty list.
         final Activity activity = this;
-        setSafeBrowsingAllowlist(Collections.emptySet(), new ValueCallback<Boolean>() {
+        WebViewCompat.setSafeBrowsingAllowlist(
+                    Collections.emptySet(), new ValueCallback<Boolean>() {
             @Override
             public void onReceiveValue(Boolean success) {
                 if (!success) {
@@ -137,7 +121,7 @@ public class AllowlistActivity extends AppCompatActivity {
         final Set<String> allowlist = new HashSet<>();
         allowlist.add(SafeBrowsingHelpers.TEST_SAFE_BROWSING_DOMAIN);
         final Activity activity = this;
-        setSafeBrowsingAllowlist(allowlist, new ValueCallback<Boolean>() {
+        WebViewCompat.setSafeBrowsingAllowlist(allowlist, new ValueCallback<Boolean>() {
             @Override
             public void onReceiveValue(Boolean success) {
                 if (success) {
