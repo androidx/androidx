@@ -35,7 +35,7 @@ import androidx.recyclerview.widget.RecyclerView;
  */
 final class MouseInputHandler<K> extends MotionInputHandler<K> {
 
-    private static final String TAG = "MouseInputDelegate";
+    private static final String TAG = "MouseInputHandler";
 
     private final ItemDetailsLookup<K> mDetailsLookup;
     private final OnContextClickListener mOnContextClickListener;

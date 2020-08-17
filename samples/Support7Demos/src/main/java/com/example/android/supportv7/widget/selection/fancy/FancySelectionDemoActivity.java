@@ -422,7 +422,7 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
         }
     }
 
-    private static final class OnDragInitiatedListener implements
+    private final class OnDragInitiatedListener implements
             androidx.recyclerview.selection.OnDragInitiatedListener {
 
         private final Context mContext;
@@ -433,8 +433,11 @@ public class FancySelectionDemoActivity extends AppCompatActivity {
 
         @Override
         public boolean onDragInitiated(@NonNull MotionEvent e) {
-            toast(mContext, "onDragInitiated received.");
-            return true;
+            if (!mSwipeDuringSelectionEnabled) {
+                toast(mContext, "onDragInitiated received.");
+                return true;
+            }
+            return false;
         }
     }
 }
