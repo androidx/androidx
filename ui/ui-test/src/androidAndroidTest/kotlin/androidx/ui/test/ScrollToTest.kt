@@ -16,101 +16,299 @@
 
 package androidx.ui.test
 
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Layout
+import androidx.compose.ui.MeasureBlock
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.platform.testTag
-import androidx.compose.foundation.Box
-import androidx.compose.foundation.Canvas
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.semantics.scrollBy
-import androidx.compose.ui.unit.dp
-import com.google.common.truth.Truth
-import org.junit.Assert
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.unit.Constraints
+import androidx.ui.test.ScrollToTest.Orientation.Horizontal
+import androidx.ui.test.ScrollToTest.Orientation.Vertical
+import androidx.ui.test.util.ClickableTestBox
+import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 
 class ScrollToTest {
+    companion object {
+        private const val tag = "target"
+        private const val crossAxisSize = 100
+    }
+
+    enum class Orientation { Horizontal, Vertical }
+
     @get:Rule
     val composeTestRule = createComposeRule(disableTransitions = true)
 
-    @Test
-    fun checkSemanticsAction_scrollTo_isCalled() {
-        var wasScrollToCalled = false
-        val tag = "myTag"
+    private val recorder = mutableListOf<Offset>()
 
-        composeTestRule.setContent {
-            Box(Modifier.semantics {
-                scrollBy(action = { _, _ ->
-                    wasScrollToCalled = true
-                    return@scrollBy true
-                })
-            }) {
-                Box(Modifier.testTag(tag))
-            }
-        }
-
-        runOnIdle {
-            Assert.assertTrue(!wasScrollToCalled)
-        }
-
-        onNodeWithTag(tag)
-            .performScrollTo()
-
-        runOnIdle {
-            Assert.assertTrue(wasScrollToCalled)
-        }
-    }
-
-    @Test
-    fun checkSemanticsAction_scrollTo_coordAreCorrect() {
-        var currentScrollPositionY = 0.0f
-        var currentScrollPositionX = 0.0f
-        var elementHeight = 0.0f
-        val tag = "myTag"
-
-        val drawRect = @Composable { modifier: Modifier, color: Color ->
-            Canvas(modifier.preferredSize(100.dp)) {
-                drawRect(color)
-
-                elementHeight = size.height
-            }
-        }
-
-        composeTestRule.setContent {
-            val red = Color(alpha = 0xFF, red = 0xFF, green = 0, blue = 0)
-            val blue = Color(alpha = 0xFF, red = 0, green = 0, blue = 0xFF)
-            val green = Color(alpha = 0xFF, red = 0, green = 0xFF, blue = 0)
-
-            Box(Modifier.semantics {
-                scrollBy(action = { x, y ->
-                    currentScrollPositionY += y
-                    currentScrollPositionX += x
-                    return@scrollBy true
-                })
-            }) {
-                Column {
-                    drawRect(Modifier, red)
-                    drawRect(Modifier, blue)
-                    drawRect(Modifier.testTag(tag), green)
+    private fun horizontalLayout(offset: Int, columnWidth: Int): MeasureBlock {
+        return { measurables, constraints ->
+            val childConstraints = constraints.copy(minWidth = 0, maxWidth = Constraints.Infinity)
+            val placeables = measurables.map { it.measure(childConstraints) }
+            layout(columnWidth, crossAxisSize) {
+                var placeOffset = -offset
+                placeables.forEach {
+                    it.place(placeOffset, 0)
+                    placeOffset += it.width
                 }
             }
         }
+    }
 
-        runOnIdle {
-            Truth.assertThat(currentScrollPositionY).isEqualTo(0.0f)
-            Truth.assertThat(currentScrollPositionX).isEqualTo(0.0f)
+    private fun verticalLayout(offset: Int, columnHeight: Int): MeasureBlock {
+        return { measurables, constraints ->
+            val childConstraints = constraints.copy(minHeight = 0, maxHeight = Constraints.Infinity)
+            val placeables = measurables.map { it.measure(childConstraints) }
+            layout(crossAxisSize, columnHeight) {
+                var placeOffset = -offset
+                placeables.forEach {
+                    it.place(0, placeOffset)
+                    placeOffset += it.height
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun SimpleColumn(
+        modifier: Modifier,
+        offset: Int,
+        columnHeight: Int,
+        children: @Composable () -> Unit
+    ) {
+        with(DensityAmbient.current) {
+            Layout(
+                children,
+                modifier.size(crossAxisSize.toDp(), columnHeight.toDp()),
+                verticalLayout(offset, columnHeight)
+            )
+        }
+    }
+
+    @Composable
+    private fun SimpleRow(
+        modifier: Modifier,
+        offset: Int,
+        rowWidth: Int,
+        children: @Composable () -> Unit
+    ) {
+        with(DensityAmbient.current) {
+            Layout(
+                children,
+                modifier.size(rowWidth.toDp(), crossAxisSize.toDp()),
+                horizontalLayout(offset, rowWidth)
+            )
+        }
+    }
+
+    @Composable
+    private fun BoxesWithOffset(
+        modifier: Modifier,
+        orientation: Orientation,
+        offset: Int,
+        mainAxisSize: Int,
+        boxes: @Composable () -> Unit
+    ) {
+        when (orientation) {
+            Horizontal -> SimpleRow(modifier, offset, mainAxisSize, boxes)
+            Vertical -> SimpleColumn(modifier, offset, mainAxisSize, boxes)
+        }
+    }
+
+    /**
+     * Creates a row or column (depending on the [orientation]) of 5 boxes in a viewport of size
+     * [mainAxisSizePx] and [crossAxisSize], offset by the given [scrollOffsetPx] and tests if
+     * [performScrollTo] scrolls by the expected amount of pixels when called on the middle of
+     * the 5 boxes. Each box is 100x100 pixels.
+     */
+    private fun test(
+        orientation: Orientation,
+        scrollOffsetPx: Int,
+        mainAxisSizePx: Int,
+        expectedScrollX: Float = 0f,
+        expectedScrollY: Float = 0f
+    ) {
+        composeTestRule.setContent {
+            BoxesWithOffset(
+                modifier = Modifier.semantics {
+                    scrollBy(action = { x, y -> recorder.add(Offset(x, y)) })
+                },
+                orientation = orientation,
+                offset = scrollOffsetPx,
+                mainAxisSize = mainAxisSizePx
+            ) {
+                ClickableTestBox(color = Color.Blue)
+                ClickableTestBox(color = Color.Red)
+                ClickableTestBox(color = Color.Yellow, tag = tag)
+                ClickableTestBox(color = Color.Green)
+                ClickableTestBox(color = Color.Cyan)
+            }
         }
 
-        onNodeWithTag(tag)
-            .performScrollTo() // scroll to third element
+        waitForIdle()
+        assertThat(recorder).isEmpty()
 
-        runOnIdle {
-            val expected = elementHeight * 2
-            Truth.assertThat(currentScrollPositionY).isEqualTo(expected)
-            Truth.assertThat(currentScrollPositionX).isEqualTo(0.0f)
-        }
+        onNodeWithTag(tag).performScrollTo()
+
+        waitForIdle()
+        assertThat(recorder).containsExactly(Offset(expectedScrollX, expectedScrollY))
+    }
+
+    /* VERTICAL */
+
+    /* Tests with a viewport larger than the target (target fits in the viewport) */
+
+    @Test
+    fun vertical_largerViewport_targetCompletelyBelowViewport() {
+        test(Vertical, scrollOffsetPx = 0, mainAxisSizePx = 150, expectedScrollY = 150f)
+    }
+
+    @Test
+    fun vertical_largerViewport_targetPartlyBelowViewport() {
+        test(Vertical, scrollOffsetPx = 100, mainAxisSizePx = 150, expectedScrollY = 50f)
+    }
+
+    @Test
+    fun vertical_largerViewport_targetBottomAlignedInViewport() {
+        test(Vertical, scrollOffsetPx = 150, mainAxisSizePx = 150, expectedScrollY = 0f)
+    }
+
+    @Test
+    fun vertical_largerViewport_targetCenterAlignedInViewport() {
+        test(Vertical, scrollOffsetPx = 175, mainAxisSizePx = 150, expectedScrollY = 0f)
+    }
+
+    @Test
+    fun vertical_largerViewport_targetTopAlignedInViewport() {
+        test(Vertical, scrollOffsetPx = 200, mainAxisSizePx = 150, expectedScrollY = 0f)
+    }
+
+    @Test
+    fun vertical_largerViewport_targetPartlyAboveViewport() {
+        test(Vertical, scrollOffsetPx = 250, mainAxisSizePx = 150, expectedScrollY = -50f)
+    }
+
+    @Test
+    fun vertical_largerViewport_targetCompletelyAboveViewport() {
+        test(Vertical, scrollOffsetPx = 350, mainAxisSizePx = 150, expectedScrollY = -150f)
+    }
+
+    /* Tests with a viewport smaller than the target (target does not fit in the viewport) */
+
+    @Test
+    fun vertical_smallerViewport_targetCompletelyBelowViewport() {
+        test(Vertical, scrollOffsetPx = 0, mainAxisSizePx = 80, expectedScrollY = 200f)
+    }
+
+    @Test
+    fun vertical_smallerViewport_targetPartlyBelowViewport() {
+        test(Vertical, scrollOffsetPx = 150, mainAxisSizePx = 80, expectedScrollY = 50f)
+    }
+
+    @Test
+    fun vertical_smallerViewport_targetTopAlignedInViewport() {
+        test(Vertical, scrollOffsetPx = 200, mainAxisSizePx = 80, expectedScrollY = 0f)
+    }
+
+    @Test
+    fun vertical_smallerViewport_targetCenterAlignedInViewport() {
+        test(Vertical, scrollOffsetPx = 210, mainAxisSizePx = 80, expectedScrollY = 0f)
+    }
+
+    @Test
+    fun vertical_smallerViewport_targetBottomAlignedInViewport() {
+        test(Vertical, scrollOffsetPx = 220, mainAxisSizePx = 80, expectedScrollY = 0f)
+    }
+
+    @Test
+    fun vertical_smallerViewport_targetPartlyAboveViewport() {
+        test(Vertical, scrollOffsetPx = 250, mainAxisSizePx = 80, expectedScrollY = -30f)
+    }
+
+    @Test
+    fun vertical_smallerViewport_targetCompletelyAboveViewport() {
+        test(Vertical, scrollOffsetPx = 420, mainAxisSizePx = 80, expectedScrollY = -200f)
+    }
+
+    /* HORIZONTAL */
+
+    /* Tests with a viewport larger than the target (target fits in the viewport) */
+
+    @Test
+    fun horizontal_largerViewport_targetCompletelyRightOfViewport() {
+        test(Horizontal, scrollOffsetPx = 0, mainAxisSizePx = 150, expectedScrollX = 150f)
+    }
+
+    @Test
+    fun horizontal_largerViewport_targetPartlyRightOfViewport() {
+        test(Horizontal, scrollOffsetPx = 100, mainAxisSizePx = 150, expectedScrollX = 50f)
+    }
+
+    @Test
+    fun horizontal_largerViewport_targetRightAlignedInViewport() {
+        test(Horizontal, scrollOffsetPx = 150, mainAxisSizePx = 150, expectedScrollX = 0f)
+    }
+
+    @Test
+    fun horizontal_largerViewport_targetCenterAlignedInViewport() {
+        test(Horizontal, scrollOffsetPx = 175, mainAxisSizePx = 150, expectedScrollX = 0f)
+    }
+
+    @Test
+    fun horizontal_largerViewport_targetLeftAlignedInViewport() {
+        test(Horizontal, scrollOffsetPx = 200, mainAxisSizePx = 150, expectedScrollX = 0f)
+    }
+
+    @Test
+    fun horizontal_largerViewport_targetPartlyLeftOfViewport() {
+        test(Horizontal, scrollOffsetPx = 250, mainAxisSizePx = 150, expectedScrollX = -50f)
+    }
+
+    @Test
+    fun horizontal_largerViewport_targetCompletelyLeftOfViewport() {
+        test(Horizontal, scrollOffsetPx = 350, mainAxisSizePx = 150, expectedScrollX = -150f)
+    }
+
+    /* Tests with a viewport smaller than the target (target does not fit in the viewport) */
+
+    @Test
+    fun horizontal_smallerViewport_targetCompletelyRightOfViewport() {
+        test(Horizontal, scrollOffsetPx = 0, mainAxisSizePx = 80, expectedScrollX = 200f)
+    }
+
+    @Test
+    fun horizontal_smallerViewport_targetPartlyRightOfViewport() {
+        test(Horizontal, scrollOffsetPx = 150, mainAxisSizePx = 80, expectedScrollX = 50f)
+    }
+
+    @Test
+    fun horizontal_smallerViewport_targetLeftAlignedInViewport() {
+        test(Horizontal, scrollOffsetPx = 200, mainAxisSizePx = 80, expectedScrollX = 0f)
+    }
+
+    @Test
+    fun horizontal_smallerViewport_targetCenterAlignedInViewport() {
+        test(Horizontal, scrollOffsetPx = 210, mainAxisSizePx = 80, expectedScrollX = 0f)
+    }
+
+    @Test
+    fun horizontal_smallerViewport_targetRightAlignedInViewport() {
+        test(Horizontal, scrollOffsetPx = 220, mainAxisSizePx = 80, expectedScrollX = 0f)
+    }
+
+    @Test
+    fun horizontal_smallerViewport_targetPartlyLeftOfViewport() {
+        test(Horizontal, scrollOffsetPx = 250, mainAxisSizePx = 80, expectedScrollX = -30f)
+    }
+
+    @Test
+    fun horizontal_smallerViewport_targetCompletelyLeftOfViewport() {
+        test(Horizontal, scrollOffsetPx = 420, mainAxisSizePx = 80, expectedScrollX = -200f)
     }
 }
