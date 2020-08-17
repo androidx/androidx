@@ -20,17 +20,23 @@ import static org.junit.Assert.assertEquals;
 
 import android.view.MotionEvent;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
 import androidx.recyclerview.selection.OnItemActivatedListener;
 
 public final class TestOnItemActivatedListener<K> implements OnItemActivatedListener<K> {
 
+    private boolean mReturnValue = true;
     private ItemDetails<K> mActivated;
 
     @Override
-    public boolean onItemActivated(ItemDetails<K> item, MotionEvent e) {
+    public boolean onItemActivated(@NonNull ItemDetails<K> item, @NonNull MotionEvent e) {
         mActivated = item;
-        return true;
+        return mReturnValue;
+    }
+
+    public void setReturnValue(boolean value) {
+        mReturnValue = value;
     }
 
     public void assertActivated(ItemDetails<K> expected) {

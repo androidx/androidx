@@ -18,6 +18,7 @@ package com.example.android.supportv7.widget.selection.fancy;
 import android.content.Context;
 import android.graphics.Rect;
 import android.net.Uri;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +34,7 @@ import com.example.android.supportv7.R;
 
 final class DemoItemHolder extends DemoHolder {
 
+    private static final String TAG = "SelectionDemos";
     private final LinearLayout mContainer;
     private final TextView mSelector;
     private final TextView mLabel;
@@ -77,6 +79,14 @@ final class DemoItemHolder extends DemoHolder {
                 return DemoItemHolder.this.toString();
             }
         };
+
+        mLabel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                view.setBackgroundColor(0xAA000000);
+                Log.d(TAG, "Unexpected click received on item: " + mDetails.getSelectionKey());
+            }
+        });
     }
 
     @Override
