@@ -44,8 +44,6 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.icu.util.Calendar;
-import android.os.Parcel;
-import android.os.Parcelable;
 import android.support.wearable.complications.ComplicationData;
 import android.support.wearable.complications.ComplicationText;
 import android.view.SurfaceHolder;
@@ -543,151 +541,6 @@ public class ComplicationDrawableTest {
     }
 
     @Test
-    public void basicParcelUnparcel() {
-        Rect bounds = new Rect(12, 24, 34, 56);
-        boolean hideRangedProgress = false;
-
-        mComplicationDrawable.setContext(ApplicationProvider.getApplicationContext());
-        mComplicationDrawable.setBounds(new Rect(12, 24, 34, 56));
-        mComplicationDrawable.setRangedValueProgressHidden(hideRangedProgress);
-
-        ComplicationDrawable unparceled = parcelAndUnparcel(mComplicationDrawable);
-        assertThat(unparceled.getBounds()).isEqualTo(bounds);
-        assertThat(unparceled.isRangedValueProgressHidden()).isEqualTo(hideRangedProgress);
-    }
-
-    @Test
-    public void parcelUnparcelFieldsNotResetAfterContextSet() {
-        Rect bounds = new Rect(12, 24, 34, 56);
-        long highlightDuration = 5000;
-        String noDataText = "nowt";
-        boolean hideRangedProgress = true;
-
-        int bgColor = Color.BLUE;
-        int borderColor = Color.RED;
-        int borderDashGap = 3;
-        int borderDashWidth = 4;
-        int borderRadius = 12;
-        int borderStyle = BORDER_STYLE_NONE;
-        int borderWidth = 8;
-        int highlightColor = Color.GREEN;
-        int iconColor = Color.YELLOW;
-        int rangedValuePrimaryColor = Color.CYAN;
-        int rangedValueRingWidth = 3;
-        int rangedValueSecondaryColor = Color.BLACK;
-        int textColor = Color.WHITE;
-        int textSize = 34;
-        int titleColor = Color.MAGENTA;
-        int titleSize = 18;
-
-        int bgColorAmbient = 128;
-        int borderColorAmbient = 244;
-        int borderDashGapAmbient = 9;
-        int borderDashWidthAmbient = 14;
-        int borderRadiusAmbient = 3;
-        int borderStyleAmbient = BORDER_STYLE_DASHED;
-        int borderWidthAmbient = 18;
-        int highlightColorAmbient = 123;
-        int iconColorAmbient = 144;
-        int rangedValuePrimaryColorAmbient = 24;
-        int rangedValueRingWidthAmbient = 34;
-        int rangedValueSecondaryColorAmbient = 111;
-        int textColorAmbient = 222;
-        int textSizeAmbient = 12;
-        int titleColorAmbient = 55;
-        int titleSizeAmbient = 7;
-
-        mComplicationDrawable.setContext(ApplicationProvider.getApplicationContext());
-        mComplicationDrawable.setBounds(new Rect(12, 24, 34, 56));
-        mComplicationDrawable.setHighlightDuration(highlightDuration);
-        mComplicationDrawable.setNoDataText(noDataText);
-        mComplicationDrawable.setRangedValueProgressHidden(hideRangedProgress);
-
-        mComplicationDrawable.setBackgroundColorActive(bgColor);
-        mComplicationDrawable.setBorderColorActive(borderColor);
-        mComplicationDrawable.setBorderDashGapActive(borderDashGap);
-        mComplicationDrawable.setBorderDashWidthActive(borderDashWidth);
-        mComplicationDrawable.setBorderRadiusActive(borderRadius);
-        mComplicationDrawable.setBorderStyleActive(borderStyle);
-        mComplicationDrawable.setBorderWidthActive(borderWidth);
-        mComplicationDrawable.setHighlightColorActive(highlightColor);
-        mComplicationDrawable.setIconColorActive(iconColor);
-        mComplicationDrawable.setRangedValuePrimaryColorActive(rangedValuePrimaryColor);
-        mComplicationDrawable.setRangedValueRingWidthActive(rangedValueRingWidth);
-        mComplicationDrawable.setRangedValueSecondaryColorActive(rangedValueSecondaryColor);
-        mComplicationDrawable.setTextColorActive(textColor);
-        mComplicationDrawable.setTextSizeActive(textSize);
-        mComplicationDrawable.setTitleColorActive(titleColor);
-        mComplicationDrawable.setTitleSizeActive(titleSize);
-
-        mComplicationDrawable.setBackgroundColorAmbient(bgColorAmbient);
-        mComplicationDrawable.setBorderColorAmbient(borderColorAmbient);
-        mComplicationDrawable.setBorderDashGapAmbient(borderDashGapAmbient);
-        mComplicationDrawable.setBorderDashWidthAmbient(borderDashWidthAmbient);
-        mComplicationDrawable.setBorderRadiusAmbient(borderRadiusAmbient);
-        mComplicationDrawable.setBorderStyleAmbient(borderStyleAmbient);
-        mComplicationDrawable.setBorderWidthAmbient(borderWidthAmbient);
-        mComplicationDrawable.setHighlightColorAmbient(highlightColorAmbient);
-        mComplicationDrawable.setIconColorAmbient(iconColorAmbient);
-        mComplicationDrawable.setRangedValuePrimaryColorAmbient(rangedValuePrimaryColorAmbient);
-        mComplicationDrawable.setRangedValueRingWidthAmbient(rangedValueRingWidthAmbient);
-        mComplicationDrawable.setRangedValueSecondaryColorAmbient(rangedValueSecondaryColorAmbient);
-        mComplicationDrawable.setTextColorAmbient(textColorAmbient);
-        mComplicationDrawable.setTextSizeAmbient(textSizeAmbient);
-        mComplicationDrawable.setTitleColorAmbient(titleColorAmbient);
-        mComplicationDrawable.setTitleSizeAmbient(titleSizeAmbient);
-
-        ComplicationDrawable unparceled = parcelAndUnparcel(mComplicationDrawable);
-
-        assertThat(unparceled.getBounds()).isEqualTo(bounds);
-        assertThat(unparceled.getHighlightDuration()).isEqualTo(highlightDuration);
-        assertThat(unparceled.getNoDataText()).isEqualTo(noDataText);
-        assertThat(unparceled.isRangedValueProgressHidden()).isEqualTo(hideRangedProgress);
-
-        assertThat(unparceled.getActiveStyle().getBackgroundColor()).isEqualTo(bgColor);
-        assertThat(unparceled.getActiveStyle().getBorderColor()).isEqualTo(borderColor);
-        assertThat(unparceled.getActiveStyle().getBorderDashGap()).isEqualTo(borderDashGap);
-        assertThat(unparceled.getActiveStyle().getBorderDashWidth()).isEqualTo(borderDashWidth);
-        assertThat(unparceled.getActiveStyle().getBorderRadius()).isEqualTo(borderRadius);
-        assertThat(unparceled.getActiveStyle().getBorderStyle()).isEqualTo(borderStyle);
-        assertThat(unparceled.getActiveStyle().getBorderWidth()).isEqualTo(borderWidth);
-        assertThat(unparceled.getActiveStyle().getHighlightColor()).isEqualTo(highlightColor);
-        assertThat(unparceled.getActiveStyle().getIconColor()).isEqualTo(iconColor);
-        assertThat(unparceled.getActiveStyle().getRangedValuePrimaryColor())
-                .isEqualTo(rangedValuePrimaryColor);
-        assertThat(unparceled.getActiveStyle().getRangedValueRingWidth())
-                .isEqualTo(rangedValueRingWidth);
-        assertThat(unparceled.getActiveStyle().getRangedValueSecondaryColor())
-                .isEqualTo(rangedValueSecondaryColor);
-        assertThat(unparceled.getActiveStyle().getTextColor()).isEqualTo(textColor);
-        assertThat(unparceled.getActiveStyle().getTextSize()).isEqualTo(textSize);
-        assertThat(unparceled.getActiveStyle().getTitleColor()).isEqualTo(titleColor);
-        assertThat(unparceled.getActiveStyle().getTitleSize()).isEqualTo(titleSize);
-
-        assertThat(unparceled.getAmbientStyle().getBackgroundColor()).isEqualTo(bgColorAmbient);
-        assertThat(unparceled.getAmbientStyle().getBorderColor()).isEqualTo(borderColorAmbient);
-        assertThat(unparceled.getAmbientStyle().getBorderDashGap()).isEqualTo(borderDashGapAmbient);
-        assertThat(unparceled.getAmbientStyle().getBorderDashWidth())
-                .isEqualTo(borderDashWidthAmbient);
-        assertThat(unparceled.getAmbientStyle().getBorderRadius()).isEqualTo(borderRadiusAmbient);
-        assertThat(unparceled.getAmbientStyle().getBorderStyle()).isEqualTo(borderStyleAmbient);
-        assertThat(unparceled.getAmbientStyle().getBorderWidth()).isEqualTo(borderWidthAmbient);
-        assertThat(unparceled.getAmbientStyle().getHighlightColor())
-                .isEqualTo(highlightColorAmbient);
-        assertThat(unparceled.getAmbientStyle().getIconColor()).isEqualTo(iconColorAmbient);
-        assertThat(unparceled.getAmbientStyle().getRangedValuePrimaryColor())
-                .isEqualTo(rangedValuePrimaryColorAmbient);
-        assertThat(unparceled.getAmbientStyle().getRangedValueRingWidth())
-                .isEqualTo(rangedValueRingWidthAmbient);
-        assertThat(unparceled.getAmbientStyle().getRangedValueSecondaryColor())
-                .isEqualTo(rangedValueSecondaryColorAmbient);
-        assertThat(unparceled.getAmbientStyle().getTextColor()).isEqualTo(textColorAmbient);
-        assertThat(unparceled.getAmbientStyle().getTextSize()).isEqualTo(textSizeAmbient);
-        assertThat(unparceled.getAmbientStyle().getTitleColor()).isEqualTo(titleColorAmbient);
-        assertThat(unparceled.getAmbientStyle().getTitleSize()).isEqualTo(titleSizeAmbient);
-    }
-
-    @Test
     public void copyConstructorCopiesAllFields() {
         Rect bounds = new Rect(12, 24, 34, 56);
         long highlightDuration = 5000;
@@ -814,19 +667,6 @@ public class ComplicationDrawableTest {
         assertThat(copy.getAmbientStyle().getTextSize()).isEqualTo(textSizeAmbient);
         assertThat(copy.getAmbientStyle().getTitleColor()).isEqualTo(titleColorAmbient);
         assertThat(copy.getAmbientStyle().getTitleSize()).isEqualTo(titleSizeAmbient);
-    }
-
-    /** Writes {@code in} to a {@link Parcel} and reads it back, returning the result. */
-    @SuppressWarnings("unchecked")
-    private static <T extends Parcelable> T parcelAndUnparcel(T in) {
-        Parcel parcel = Parcel.obtain();
-        try {
-            parcel.writeValue(in);
-            parcel.setDataPosition(0);
-            return (T) parcel.readValue(in.getClass().getClassLoader());
-        } finally {
-            parcel.recycle();
-        }
     }
 
     /** Proxies necessary methods to Robolectric application. */

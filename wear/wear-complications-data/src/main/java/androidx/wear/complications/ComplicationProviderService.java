@@ -16,6 +16,7 @@
 
 package androidx.wear.complications;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Service;
 import android.content.ComponentName;
@@ -127,9 +128,10 @@ public abstract class ComplicationProviderService extends Service {
     private static final String RETAIL_CLASS =
             "com.google.android.clockwork.settings.RetailStatusService";
 
-    private IComplicationProviderWrapper mWrapper;
-    final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
+    @Nullable private IComplicationProviderWrapper mWrapper;
+    private final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
 
+    @SuppressLint("SyntheticAccessor")
     @Override
     @Nullable
     public IBinder onBind(@NonNull Intent intent) {
@@ -203,7 +205,8 @@ public abstract class ComplicationProviderService extends Service {
                 == PackageManager.COMPONENT_ENABLED_STATE_ENABLED);
     }
 
-    class IComplicationProviderWrapper extends IComplicationProvider.Stub {
+    private class IComplicationProviderWrapper extends IComplicationProvider.Stub {
+        @SuppressLint("SyntheticAccessor")
         @Override
         public void onUpdate(final int complicationId, final int type, IBinder manager) {
             final ComplicationManager complicationManager =
@@ -213,6 +216,7 @@ public abstract class ComplicationProviderService extends Service {
         }
 
         @Override
+        @SuppressLint("SyntheticAccessor")
         public void onComplicationDeactivated(final int complicationId) {
             mMainThreadHandler.post(
                     () ->
@@ -221,6 +225,7 @@ public abstract class ComplicationProviderService extends Service {
         }
 
         @Override
+        @SuppressLint("SyntheticAccessor")
         public void onComplicationActivated(
                 final int complicationId, final int type, IBinder manager) {
             final ComplicationManager complicationManager =

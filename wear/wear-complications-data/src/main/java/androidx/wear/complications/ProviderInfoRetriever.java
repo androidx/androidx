@@ -105,7 +105,7 @@ public class ProviderInfoRetriever implements AutoCloseable {
     @SuppressLint("SyntheticAccessor")
     private final ServiceConnection mConn = new ProviderInfoServiceConnection();
 
-    private final Context mContext;
+    @NonNull private final Context mContext;
 
     private final ResolvableFuture<IProviderInfoService> mServiceFuture = ResolvableFuture.create();
 

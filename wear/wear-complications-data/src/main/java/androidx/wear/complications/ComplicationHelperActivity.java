@@ -82,9 +82,9 @@ public class ComplicationHelperActivity extends Activity
     private static final String COMPLICATIONS_PERMISSION_PRIVILEGED =
             "com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA_PRIVILEGED";
 
-    private ComponentName mWatchFace;
+    @Nullable private ComponentName mWatchFace;
     private int mWfComplicationId;
-    @ComplicationData.ComplicationType private int[] mTypes;
+    @Nullable @ComplicationData.ComplicationType private int[] mTypes;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
