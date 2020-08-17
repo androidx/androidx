@@ -22,6 +22,7 @@ import android.util.Rational;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.ExposureState;
 
@@ -32,11 +33,11 @@ import androidx.camera.core.ExposureState;
 class ExposureStateImpl implements ExposureState {
 
     private final Object mLock = new Object();
-    private final CameraCharacteristics mCameraCharacteristics;
+    private final CameraCharacteristicsCompat mCameraCharacteristics;
     @GuardedBy("mLock")
     private int mExposureCompensation;
 
-    ExposureStateImpl(CameraCharacteristics characteristics, int exposureCompensation) {
+    ExposureStateImpl(CameraCharacteristicsCompat characteristics, int exposureCompensation) {
         mCameraCharacteristics = characteristics;
         mExposureCompensation = exposureCompensation;
     }

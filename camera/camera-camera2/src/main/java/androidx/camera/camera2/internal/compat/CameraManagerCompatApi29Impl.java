@@ -31,8 +31,7 @@ import java.util.concurrent.Executor;
 class CameraManagerCompatApi29Impl extends CameraManagerCompatApi28Impl {
 
     CameraManagerCompatApi29Impl(@NonNull Context context) {
-        // No extra params needed for this API level
-        super(context, /*cameraManagerParams=*/ null);
+        super(context);
     }
 
     @RequiresPermission(android.Manifest.permission.CAMERA)

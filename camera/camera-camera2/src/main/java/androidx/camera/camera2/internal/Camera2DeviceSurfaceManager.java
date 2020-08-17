@@ -94,7 +94,7 @@ public final class Camera2DeviceSurfaceManager implements CameraDeviceSurfaceMan
                 mCameraSupportedSurfaceCombinationMap.put(
                         cameraId,
                         new SupportedSurfaceCombination(
-                                context, cameraId, mCamcorderProfileHelper));
+                                context, cameraId, cameraManager, mCamcorderProfileHelper));
             }
         } catch (CameraAccessExceptionCompat e) {
             throw CameraUnavailableExceptionHelper.createFrom(e);

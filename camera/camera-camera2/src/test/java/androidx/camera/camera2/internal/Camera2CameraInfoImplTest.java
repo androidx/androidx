@@ -29,6 +29,7 @@ import android.hardware.camera2.CameraManager;
 import android.os.Build;
 import android.view.Surface;
 
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.TorchState;
@@ -75,9 +76,8 @@ public class Camera2CameraInfoImplTest {
     private static final int CAMERA1_LENS_FACING_INT = CameraCharacteristics.LENS_FACING_FRONT;
     private static final boolean CAMERA1_FLASH_INFO_BOOLEAN = false;
 
-    private CameraManager mCameraManager;
-    private CameraCharacteristics mCameraCharacteristics0;
-    private CameraCharacteristics mCameraCharacteristics1;
+    private CameraCharacteristicsCompat mCameraCharacteristics0;
+    private CameraCharacteristicsCompat mCameraCharacteristics1;
     private ZoomControl mMockZoomControl;
     private TorchControl mMockTorchControl;
     private Camera2CameraControlImpl mMockCameraControl;
@@ -86,12 +86,16 @@ public class Camera2CameraInfoImplTest {
     public void setUp() throws CameraAccessException {
         initCameras();
 
-        mCameraManager =
+        CameraManager cameraManager =
                 (CameraManager) ApplicationProvider.getApplicationContext().getSystemService(
                         Context.CAMERA_SERVICE);
 
-        mCameraCharacteristics0 = mCameraManager.getCameraCharacteristics(CAMERA0_ID);
-        mCameraCharacteristics1 = mCameraManager.getCameraCharacteristics(CAMERA1_ID);
+        mCameraCharacteristics0 =
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+                        cameraManager.getCameraCharacteristics(CAMERA0_ID));
+        mCameraCharacteristics1 =
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+                        cameraManager.getCameraCharacteristics(CAMERA1_ID));
 
         mMockZoomControl = mock(ZoomControl.class);
         mMockTorchControl = mock(TorchControl.class);

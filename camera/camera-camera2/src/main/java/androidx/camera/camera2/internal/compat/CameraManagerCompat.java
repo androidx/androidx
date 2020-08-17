@@ -138,39 +138,6 @@ public final class CameraManagerCompat {
     }
 
     /**
-     * Query the capabilities of a camera device. These capabilities are immutable for a given
-     * camera.
-     *
-     * <p>The behavior of this method matches that of
-     * {@link CameraManager#getCameraCharacteristics(String)}.
-     *
-     * @param cameraId The id of the camera device to query. This could be either a standalone
-     *                 camera ID which can be directly opened by {@link #openCamera}, or a
-     *                 physical camera ID that
-     *                 can only used as part of a logical multi-camera.
-     * @return The properties of the given camera
-     * @throws IllegalArgumentException    if the cameraId does not match any known camera device.
-     * @throws CameraAccessExceptionCompat if the camera device has been disconnected or the
-     *                                     device is in Do Not Disturb mode with an early version
-     *                                     of Android P.
-     */
-    @NonNull
-    public CameraCharacteristics getCameraCharacteristics(@NonNull String cameraId)
-            throws CameraAccessExceptionCompat {
-
-        try {
-            return mImpl.getCameraCharacteristics(cameraId);
-        } catch (AssertionError e) {
-            // Some devices may throw AssertionError when creating CameraCharacteristics and FPS
-            // ranges are null. Catch the AssertionError and throw a CameraAccessExceptionCompat
-            // to make the app be able to receive an exception to gracefully handle it.
-            throw new CameraAccessExceptionCompat(
-                    CameraAccessExceptionCompat.CAMERA_CHARACTERISTICS_CREATION_ERROR,
-                    e.getMessage(), e);
-        }
-    }
-
-    /**
      * Returns a {@link CameraCharacteristicsCompat} associated with the given camera id.
      *
      * <p>It will return cached instance if the {@link CameraCharacteristicsCompat} has been

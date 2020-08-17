@@ -34,6 +34,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraUnavailableException;
@@ -82,7 +83,7 @@ final class SupportedSurfaceCombination {
     private final Map<Integer, Size> mMaxSizeCache = new HashMap<>();
     private final String mCameraId;
     private final CamcorderProfileHelper mCamcorderProfileHelper;
-    private final CameraCharacteristics mCharacteristics;
+    private final CameraCharacteristicsCompat mCharacteristics;
     private final int mHardwareLevel;
     private final boolean mIsSensorLandscapeResolution;
     private final Map<Integer, List<Size>> mExcludedSizeListCache = new HashMap<>();
@@ -90,18 +91,17 @@ final class SupportedSurfaceCombination {
     private boolean mIsBurstCaptureSupported = false;
     private SurfaceSizeDefinition mSurfaceSizeDefinition;
     private Map<Integer, Size[]> mOutputSizesCache = new HashMap<>();
-    private StreamConfigurationMap mStreamConfigurationMap;
 
     SupportedSurfaceCombination(@NonNull Context context, @NonNull String cameraId,
+            @NonNull CameraManagerCompat cameraManagerCompat,
             @NonNull CamcorderProfileHelper camcorderProfileHelper)
             throws CameraUnavailableException {
         mCameraId = Preconditions.checkNotNull(cameraId);
         mCamcorderProfileHelper = Preconditions.checkNotNull(camcorderProfileHelper);
-        CameraManagerCompat cameraManager = CameraManagerCompat.from(context);
         WindowManager windowManager =
                 (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         try {
-            mCharacteristics = cameraManager.getCameraCharacteristics(mCameraId);
+            mCharacteristics = cameraManagerCompat.getCameraCharacteristicsCompat(mCameraId);
             Integer keyValue = mCharacteristics.get(
                     CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
             mHardwareLevel = keyValue != null ? keyValue
@@ -113,18 +113,6 @@ final class SupportedSurfaceCombination {
         generateSupportedCombinationList();
         generateSurfaceSizeDefinition(windowManager);
         checkCustomization();
-    }
-
-    private StreamConfigurationMap getStreamConfigurationMap() {
-        if (mStreamConfigurationMap == null) {
-            mStreamConfigurationMap =
-                    mCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
-        }
-
-        if (mStreamConfigurationMap == null) {
-            throw new IllegalArgumentException("Can not retrieve SCALER_STREAM_CONFIGURATION_MAP");
-        }
-        return mStreamConfigurationMap;
     }
 
     String getCameraId() {
@@ -584,7 +572,7 @@ final class SupportedSurfaceCombination {
      * can be removed so that they won't be selected to use.
      *
      * @param supportedSizesList The list should have been sorted in descending order.
-     * @param targetSize The target size used to remove unnecessary sizes.
+     * @param targetSize         The target size used to remove unnecessary sizes.
      */
     private void removeSupportedSizesByTargetSize(List<Size> supportedSizesList,
             Size targetSize) {
@@ -695,7 +683,7 @@ final class SupportedSurfaceCombination {
             }
         }
 
-        if  (outputSizes != null) {
+        if (outputSizes != null) {
             outputSizes = excludeProblematicSizes(outputSizes, imageFormat);
 
             // Sort the output sizes. The Comparator result must be reversed to have a descending
@@ -721,7 +709,12 @@ final class SupportedSurfaceCombination {
     private Size[] doGetAllOutputSizesByFormat(int imageFormat) {
         Size[] outputSizes;
 
-        StreamConfigurationMap map = getStreamConfigurationMap();
+        StreamConfigurationMap map =
+                mCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+
+        if (map == null) {
+            throw new IllegalArgumentException("Can not retrieve SCALER_STREAM_CONFIGURATION_MAP");
+        }
 
         if (Build.VERSION.SDK_INT < 23
                 && imageFormat == ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE) {

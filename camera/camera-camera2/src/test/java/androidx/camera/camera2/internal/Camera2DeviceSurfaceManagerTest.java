@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.graphics.ImageFormat;
+import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.params.StreamConfigurationMap;
@@ -35,6 +36,7 @@ import android.os.Build;
 import android.util.Size;
 import android.view.WindowManager;
 
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
@@ -107,7 +109,6 @@ public final class Camera2DeviceSurfaceManagerTest {
     private final Size mMaximumVideoSize = new Size(1920, 1080);
     private final CamcorderProfileHelper mMockCamcorderProfileHelper =
             Mockito.mock(CamcorderProfileHelper.class);
-
     /**
      * Except for ImageFormat.JPEG or ImageFormat.YUV, other image formats will be mapped to
      * ImageFormat.PRIVATE (0x22) including SurfaceTexture or MediaCodec classes. Before Android
@@ -156,12 +157,27 @@ public final class Camera2DeviceSurfaceManagerTest {
         CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
+    private CameraManagerCompat getCameraManagerCompat() {
+        return CameraManagerCompat.from(ApplicationProvider.getApplicationContext());
+    }
+
+    private CameraCharacteristicsCompat getCameraCharacteristicsCompat(String cameraId)
+            throws CameraAccessException {
+        CameraManager cameraManager =
+                (CameraManager) ApplicationProvider.getApplicationContext().getSystemService(
+                        Context.CAMERA_SERVICE);
+
+        return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+                cameraManager.getCameraCharacteristics(cameraId));
+    }
+
     @Test
     public void checkLegacySurfaceCombinationSupportedInLegacyDevice()
-            throws CameraUnavailableException {
+            throws Exception {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
-                        mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
+                        mContext, LEGACY_CAMERA_ID, getCameraManagerCompat(),
+                        mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLegacySupportedCombinationList();
@@ -176,10 +192,11 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     @Test
     public void checkLimitedSurfaceCombinationNotSupportedInLegacyDevice()
-            throws CameraUnavailableException {
+            throws Exception {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
-                        mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
+                        mContext, LEGACY_CAMERA_ID, getCameraManagerCompat(),
+                        mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLimitedSupportedCombinationList();
@@ -194,10 +211,11 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     @Test
     public void checkFullSurfaceCombinationNotSupportedInLegacyDevice()
-            throws CameraUnavailableException {
+            throws Exception {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
-                        mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
+                        mContext, LEGACY_CAMERA_ID, getCameraManagerCompat(),
+                        mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getFullSupportedCombinationList();
@@ -212,10 +230,11 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     @Test
     public void checkLevel3SurfaceCombinationNotSupportedInLegacyDevice()
-            throws CameraUnavailableException {
+            throws Exception {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
-                        mContext, LEGACY_CAMERA_ID, mMockCamcorderProfileHelper);
+                        mContext, LEGACY_CAMERA_ID, getCameraManagerCompat(),
+                        mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLevel3SupportedCombinationList();
@@ -230,10 +249,11 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     @Test
     public void checkLimitedSurfaceCombinationSupportedInLimitedDevice()
-            throws CameraUnavailableException {
+            throws Exception {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
-                        mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
+                        mContext, LIMITED_CAMERA_ID, getCameraManagerCompat(),
+                        mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLimitedSupportedCombinationList();
@@ -248,10 +268,11 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     @Test
     public void checkFullSurfaceCombinationNotSupportedInLimitedDevice()
-            throws CameraUnavailableException {
+            throws Exception {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
-                        mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
+                        mContext, LIMITED_CAMERA_ID, getCameraManagerCompat(),
+                        mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getFullSupportedCombinationList();
@@ -266,10 +287,11 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     @Test
     public void checkLevel3SurfaceCombinationNotSupportedInLimitedDevice()
-            throws CameraUnavailableException {
+            throws Exception {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
-                        mContext, LIMITED_CAMERA_ID, mMockCamcorderProfileHelper);
+                        mContext, LIMITED_CAMERA_ID, getCameraManagerCompat(),
+                        mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLevel3SupportedCombinationList();
@@ -284,10 +306,11 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     @Test
     public void checkFullSurfaceCombinationSupportedInFullDevice()
-            throws CameraUnavailableException {
+            throws Exception {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
-                        mContext, FULL_CAMERA_ID, mMockCamcorderProfileHelper);
+                        mContext, FULL_CAMERA_ID, getCameraManagerCompat(),
+                        mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getFullSupportedCombinationList();
@@ -302,10 +325,11 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     @Test
     public void checkLevel3SurfaceCombinationNotSupportedInFullDevice()
-            throws CameraUnavailableException {
+            throws Exception {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
-                        mContext, FULL_CAMERA_ID, mMockCamcorderProfileHelper);
+                        mContext, FULL_CAMERA_ID, getCameraManagerCompat(),
+                        mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLevel3SupportedCombinationList();
@@ -320,10 +344,11 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     @Test
     public void checkLevel3SurfaceCombinationSupportedInLevel3Device()
-            throws CameraUnavailableException {
+            throws Exception {
         SupportedSurfaceCombination supportedSurfaceCombination =
                 new SupportedSurfaceCombination(
-                        mContext, LEVEL3_CAMERA_ID, mMockCamcorderProfileHelper);
+                        mContext, LEVEL3_CAMERA_ID, getCameraManagerCompat(),
+                        mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLevel3SupportedCombinationList();
@@ -570,7 +595,8 @@ public final class Camera2DeviceSurfaceManagerTest {
         @CameraSelector.LensFacing int lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(
                 lensFacing);
         mCameraFactory.insertCamera(lensFacingEnum, cameraId, () -> new FakeCamera(cameraId, null,
-                new Camera2CameraInfoImpl(cameraId, characteristics,
+                new Camera2CameraInfoImpl(cameraId,
+                        getCameraCharacteristicsCompat(cameraId),
                         mock(Camera2CameraControlImpl.class))));
     }
 

@@ -22,6 +22,7 @@ import android.util.Range;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 
 /**
  * Specifies proper CONTROL_AE_TARGET_FPS_RANGE to ensure exposure is good on devices.
@@ -29,7 +30,7 @@ import androidx.camera.camera2.impl.Camera2ImplConfig;
 final class AeFpsRange {
     private Range<Integer> mAeTargetFpsRange = null;
 
-    AeFpsRange(CameraCharacteristics cameraCharacteristics) {
+    AeFpsRange(CameraCharacteristicsCompat cameraCharacteristics) {
         // Only specify AE Target FPS range on legacy devices because these devices always set
         // target fps range to [30,30] which might cause under-exposed issue.
         Integer hardwareLevel =

@@ -36,6 +36,7 @@ import android.hardware.camera2.TotalCaptureResult;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -91,13 +92,14 @@ public class ZoomControlTest {
                         Context.CAMERA_SERVICE);
 
         CameraCharacteristics cameraCharacteristics =
-                cameraManager.getCameraCharacteristics(
-                        CAMERA0_ID);
+                cameraManager.getCameraCharacteristics(CAMERA0_ID);
+        CameraCharacteristicsCompat characteristicsCompat =
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics);
 
-        mCamera2CameraControlImpl = spy(new Camera2CameraControlImpl(cameraCharacteristics,
+        mCamera2CameraControlImpl = spy(new Camera2CameraControlImpl(characteristicsCompat,
                 CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
                 mock(CameraControlInternal.ControlUpdateCallback.class)));
-        mZoomControl = new ZoomControl(mCamera2CameraControlImpl, cameraCharacteristics,
+        mZoomControl = new ZoomControl(mCamera2CameraControlImpl, characteristicsCompat,
                 CameraXExecutors.mainThreadExecutor());
         mZoomControl.setActive(true);
 
@@ -390,20 +392,26 @@ public class ZoomControlTest {
         assertThat(t).isInstanceOf(CameraControl.OperationCanceledException.class);
     }
 
-    @Test
-    public void setZoomRatioLargerThan1_WhenZoomNotSupported_zoomIsMin()
+    private CameraCharacteristicsCompat getCameraCharacteristicsCompat(String cameraId)
             throws CameraAccessException {
         CameraManager cameraManager =
                 (CameraManager) ApplicationProvider.getApplicationContext().getSystemService(
                         Context.CAMERA_SERVICE);
 
-        CameraCharacteristics cameraCharacteristics =
-                cameraManager.getCameraCharacteristics(CAMERA1_ID);
+        return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+                cameraManager.getCameraCharacteristics(cameraId));
+    }
 
-        mCamera2CameraControlImpl = new Camera2CameraControlImpl(cameraCharacteristics,
+    @Test
+    public void setZoomRatioLargerThan1_WhenZoomNotSupported_zoomIsMin()
+            throws CameraAccessException {
+        CameraCharacteristicsCompat characteristicsCompat =
+                getCameraCharacteristicsCompat(CAMERA1_ID);
+
+        mCamera2CameraControlImpl = new Camera2CameraControlImpl(characteristicsCompat,
                 CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
                 mock(CameraControlInternal.ControlUpdateCallback.class));
-        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControlImpl, cameraCharacteristics,
+        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControlImpl, characteristicsCompat,
                 CameraXExecutors.mainThreadExecutor());
         // setActive() is called from executor thread (main thread in this case). No need to idle.
         zoomControl.setActive(true);
@@ -418,17 +426,13 @@ public class ZoomControlTest {
     @Test
     public void setZoomRatioSmallerThan1_WhenZoomNotSupported_zoomIsMin()
             throws CameraAccessException {
-        CameraManager cameraManager =
-                (CameraManager) ApplicationProvider.getApplicationContext().getSystemService(
-                        Context.CAMERA_SERVICE);
+        CameraCharacteristicsCompat characteristicsCompat =
+                getCameraCharacteristicsCompat(CAMERA1_ID);
 
-        CameraCharacteristics cameraCharacteristics =
-                cameraManager.getCameraCharacteristics(CAMERA1_ID);
-
-        mCamera2CameraControlImpl = new Camera2CameraControlImpl(cameraCharacteristics,
+        mCamera2CameraControlImpl = new Camera2CameraControlImpl(characteristicsCompat,
                 CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
                 mock(CameraControlInternal.ControlUpdateCallback.class));
-        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControlImpl, cameraCharacteristics,
+        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControlImpl, characteristicsCompat,
                 CameraXExecutors.mainThreadExecutor());
         // setActive() is called from executor thread (main thread in this case). No need to idle.
         zoomControl.setActive(true);
@@ -444,17 +448,13 @@ public class ZoomControlTest {
     @Test
     public void setLinearZoomValidValue_WhenZoomNotSupported_zoomIsMin()
             throws CameraAccessException {
-        CameraManager cameraManager =
-                (CameraManager) ApplicationProvider.getApplicationContext().getSystemService(
-                        Context.CAMERA_SERVICE);
+        CameraCharacteristicsCompat characteristicsCompat =
+                getCameraCharacteristicsCompat(CAMERA1_ID);
 
-        CameraCharacteristics cameraCharacteristics =
-                cameraManager.getCameraCharacteristics(CAMERA1_ID);
-
-        mCamera2CameraControlImpl = new Camera2CameraControlImpl(cameraCharacteristics,
+        mCamera2CameraControlImpl = new Camera2CameraControlImpl(characteristicsCompat,
                 CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
                 mock(CameraControlInternal.ControlUpdateCallback.class));
-        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControlImpl, cameraCharacteristics,
+        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControlImpl, characteristicsCompat,
                 CameraXExecutors.mainThreadExecutor());
         // setActive() is called from executor thread (main thread in this case). No need to idle.
         zoomControl.setActive(true);
@@ -470,17 +470,13 @@ public class ZoomControlTest {
     @Test
     public void setLinearZoomSmallerThan0_WhenZoomNotSupported_zoomIsMin()
             throws CameraAccessException {
-        CameraManager cameraManager =
-                (CameraManager) ApplicationProvider.getApplicationContext().getSystemService(
-                        Context.CAMERA_SERVICE);
+        CameraCharacteristicsCompat characteristicsCompat =
+                getCameraCharacteristicsCompat(CAMERA1_ID);
 
-        CameraCharacteristics cameraCharacteristics =
-                cameraManager.getCameraCharacteristics(CAMERA1_ID);
-
-        mCamera2CameraControlImpl = new Camera2CameraControlImpl(cameraCharacteristics,
+        mCamera2CameraControlImpl = new Camera2CameraControlImpl(characteristicsCompat,
                 CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
                 mock(CameraControlInternal.ControlUpdateCallback.class));
-        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControlImpl, cameraCharacteristics,
+        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControlImpl, characteristicsCompat,
                 CameraXExecutors.mainThreadExecutor());
         // setActive() is called from executor thread (main thread in this case). No need to idle.
         zoomControl.setActive(true);
@@ -497,17 +493,13 @@ public class ZoomControlTest {
     @Test
     public void setLinearZoomLargerThan1_WhenZoomNotSupported_zoomIsMin()
             throws CameraAccessException {
-        CameraManager cameraManager =
-                (CameraManager) ApplicationProvider.getApplicationContext().getSystemService(
-                        Context.CAMERA_SERVICE);
+        CameraCharacteristicsCompat characteristicsCompat =
+                getCameraCharacteristicsCompat(CAMERA1_ID);
 
-        CameraCharacteristics cameraCharacteristics =
-                cameraManager.getCameraCharacteristics(CAMERA1_ID);
-
-        mCamera2CameraControlImpl = new Camera2CameraControlImpl(cameraCharacteristics,
+        mCamera2CameraControlImpl = new Camera2CameraControlImpl(characteristicsCompat,
                 CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
                 mock(CameraControlInternal.ControlUpdateCallback.class));
-        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControlImpl, cameraCharacteristics,
+        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControlImpl, characteristicsCompat,
                 CameraXExecutors.mainThreadExecutor());
         // setActive() is called from executor thread (main thread in this case). No need to idle.
         zoomControl.setActive(true);
