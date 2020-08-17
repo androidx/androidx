@@ -75,13 +75,15 @@ abstract class ExtensionVersion {
 
     /** An implementation that calls into the vendor provided implementation. */
     private static class VendorExtenderVersioning extends ExtensionVersion {
-        private ExtensionVersionImpl mImpl;
+        private static ExtensionVersionImpl sImpl;
         private Version mRuntimeVersion;
 
         VendorExtenderVersioning() {
-            mImpl = new ExtensionVersionImpl();
+            if (sImpl == null) {
+                sImpl = new ExtensionVersionImpl();
+            }
 
-            String vendorVersion = mImpl.checkApiVersion(
+            String vendorVersion = sImpl.checkApiVersion(
                     VersionName.getCurrentVersion().toVersionString());
             Version vendorVersionObj = Version.parse(vendorVersion);
             if (vendorVersionObj != null
