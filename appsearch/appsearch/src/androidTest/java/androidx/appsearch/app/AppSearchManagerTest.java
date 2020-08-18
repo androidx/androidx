@@ -805,7 +805,7 @@ public class AppSearchManagerTest {
     }
 
     @Test
-    public void testDeleteAll_TwoInstances() throws Exception {
+    public void testRemoveAll_TwoInstances() throws Exception {
         // Schema registration
         checkIsResultSuccess(mDb1.setSchema(new SetSchemaRequest.Builder()
                 .addSchema(AppSearchEmail.SCHEMA).build()));
@@ -851,6 +851,50 @@ public class AppSearchManagerTest {
                 new GetDocumentsRequest.Builder().addUris("uri2").build()).get();
         assertThat(getResult.isSuccess()).isTrue();
         assertThat(getResult.getSuccesses().get("uri2")).isEqualTo(email2);
+    }
+
+    @Test
+    public void testRemoveAllAfterEmpty() throws Exception {
+        // Schema registration
+        checkIsResultSuccess(mDb1.setSchema(new SetSchemaRequest.Builder()
+                .addSchema(AppSearchEmail.SCHEMA).build()));
+
+        // Index documents
+        AppSearchEmail email1 =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("namespace")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(email1).build()));
+
+        // Check the presence of the documents
+        assertThat(doGet(mDb1, "namespace", "uri1")).hasSize(1);
+
+        // Remove the document
+        checkIsBatchResultSuccess(
+                mDb1.removeDocuments(new RemoveDocumentsRequest.Builder()
+                        .setNamespace("namespace").addUris("uri1").build()));
+
+        // Make sure it's really gone
+        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getDocuments(
+                new GetDocumentsRequest.Builder().addUris("uri1").build()).get();
+        assertThat(getResult.isSuccess()).isFalse();
+        assertThat(getResult.getFailures().get("uri1").getResultCode())
+                .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+
+        // Delete the all documents
+        checkIsResultSuccess(mDb1.removeAll());
+
+        // Make sure it's still gone
+        getResult = mDb1.getDocuments(
+                new GetDocumentsRequest.Builder().addUris("uri1").build()).get();
+        assertThat(getResult.isSuccess()).isFalse();
+        assertThat(getResult.getFailures().get("uri1").getResultCode())
+                .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
     }
 
     @Test
