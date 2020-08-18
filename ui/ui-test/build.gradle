@@ -80,6 +80,7 @@ kotlin {
 android {
     tasks.withType(KotlinCompile).configureEach {
         kotlinOptions {
+            freeCompilerArgs += ["-XXLanguage:-NewInference"]
             useIR = true
         }
     }
