@@ -129,7 +129,7 @@ class LazyStateRestorationTest(
         adapter.stateRestorationPolicy = PREVENT_WHEN_EMPTY
         recyclerView.adapter = adapter
         measureAndLayout()
-        // test sanity
+        // Assumption check
         assertThat(recyclerView.collectChildCoordinates()).isEmpty()
         adapter.items = items
         adapter.notifyDataSetChanged()
@@ -148,7 +148,7 @@ class LazyStateRestorationTest(
         val adapter = recyclerView.adapter as LazyStateAdapter
         adapter.stateRestorationPolicy = PREVENT
         measureAndLayout()
-        // test sanity, we should layout whatever is available
+        // Assumption check, we should layout whatever is available
         assertThat(recyclerView.collectChildCoordinates()).isNotEmpty()
         // make sure we didn't restore
         assertThat(recyclerView.collectChildCoordinates()).isNotEqualTo(coordinates)
