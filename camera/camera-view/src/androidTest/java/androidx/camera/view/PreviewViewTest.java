@@ -34,11 +34,13 @@ import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.PixelFormat;
 import android.graphics.SurfaceTexture;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.util.Size;
 import android.view.LayoutInflater;
+import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
@@ -53,7 +55,10 @@ import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceRequest;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
+import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.testing.SurfaceFormatUtil;
 import androidx.camera.testing.fakes.FakeActivity;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
@@ -102,15 +107,21 @@ public class PreviewViewTest {
     private PreviewView mPreviewView;
     private MeteringPointFactory mMeteringPointFactory;
 
-    private SurfaceRequest createSurfaceRequest(CameraInfo cameraInfo) {
-        return createSurfaceRequest(DEFAULT_SURFACE_SIZE, cameraInfo);
+    private SurfaceRequest createSurfaceRequest(CameraInfo cameraInfo,
+            boolean isRGBA8888Required) {
+        return createSurfaceRequest(DEFAULT_SURFACE_SIZE, cameraInfo, isRGBA8888Required);
     }
 
-    private SurfaceRequest createSurfaceRequest(Size size, CameraInfo cameraInfo) {
+    private SurfaceRequest createSurfaceRequest(CameraInfo cameraInfo) {
+        return createSurfaceRequest(DEFAULT_SURFACE_SIZE, cameraInfo, false);
+    }
+
+    private SurfaceRequest createSurfaceRequest(Size size, CameraInfo cameraInfo,
+            boolean isRGBA8888Required) {
         FakeCamera fakeCamera = spy(new FakeCamera());
         when(fakeCamera.getCameraInfo()).thenReturn(cameraInfo);
 
-        return new SurfaceRequest(size, fakeCamera);
+        return new SurfaceRequest(size, fakeCamera, isRGBA8888Required);
     }
 
     private CountDownLatch mCountDownLatch = new CountDownLatch(1);
@@ -280,6 +291,45 @@ public class PreviewViewTest {
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
 
         assertThat(previewView.mImplementation).isInstanceOf(TextureViewImplementation.class);
+    }
+
+    @Test
+    public void correctSurfacePixelFormat_whenRGBA8888IsRequired()
+            throws Throwable {
+
+        final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
+        mSurfaceRequest = createSurfaceRequest(cameraInfo, true);
+        ListenableFuture<Surface> future = mSurfaceRequest.getDeferrableSurface().getSurface();
+
+        mActivityRule.runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+
+                final PreviewView previewView = new PreviewView(mContext);
+                setContentView(previewView);
+
+                previewView.setImplementationMode(PERFORMANCE);
+                Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
+                surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+            }
+        });
+        final Surface[] surface = new Surface[1];
+        CountDownLatch countDownLatch = new CountDownLatch(1);
+
+        Futures.addCallback(future, new FutureCallback<Surface>() {
+            @Override
+            public void onSuccess(@Nullable Surface result) {
+                surface[0] = result;
+                countDownLatch.countDown();
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+            }
+        }, CameraXExecutors.directExecutor());
+
+        assertThat(countDownLatch.await(1, TimeUnit.SECONDS)).isTrue();
+        assertThat(SurfaceFormatUtil.getSurfaceFormat(surface[0])).isEqualTo(PixelFormat.RGBA_8888);
     }
 
     @Test
@@ -616,9 +666,8 @@ public class PreviewViewTest {
             container.get().setLayoutParams(layoutParams);
 
             // Creates surface provider and request surface for 1080p surface size.
-            Preview.SurfaceProvider surfaceProvider =
-                    previewView.get().getSurfaceProvider();
-            mSurfaceRequest = createSurfaceRequest(bufferSize, cameraInfo);
+            Preview.SurfaceProvider surfaceProvider = previewView.get().getSurfaceProvider();
+            mSurfaceRequest = createSurfaceRequest(bufferSize, cameraInfo, false);
             surfaceProvider.onSurfaceRequested(mSurfaceRequest);
 
             // Retrieves the TextureView
