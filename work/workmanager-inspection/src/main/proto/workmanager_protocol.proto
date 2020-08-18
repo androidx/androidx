@@ -29,12 +29,18 @@ message Command {
   // Wrapped specialised Command.
   oneof OneOf {
     TrackWorkManagerCommand track_work_manager = 1;
+    CancelWorkCommand cancel_work = 2;
   }
 }
 
 // Request for the Inspector to listen to the WorkManager
 // for work related updates.
 message TrackWorkManagerCommand {}
+
+// Request for the Inspector to cancel a work request.
+message CancelWorkCommand {
+    string id = 1;
+}
 
 // --- Responses ---
 
@@ -43,12 +49,16 @@ message TrackWorkManagerCommand {}
 message Response {
     oneof OneOf {
         TrackWorkManagerResponse track_work_manager = 1;
+        CancelWorkResponse cancel_response = 2;
         ErrorResponse error = 400;
     }
 }
 
 // Object expected as a response to TrackWorkManagerCommand.
 message TrackWorkManagerResponse {}
+
+// Object expected as a response to CancelWorkCommand.
+message CancelWorkResponse{}
 
 // General Error message.
 message ErrorResponse {

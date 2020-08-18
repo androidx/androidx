@@ -32,6 +32,7 @@ import androidx.work.impl.WorkContinuationImpl
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.model.WorkSpec
 import androidx.work.inspection.WorkManagerInspectorProtocol.Command
+import androidx.work.inspection.WorkManagerInspectorProtocol.Command.OneOfCase.CANCEL_WORK
 import androidx.work.inspection.WorkManagerInspectorProtocol.Command.OneOfCase.TRACK_WORK_MANAGER
 import androidx.work.inspection.WorkManagerInspectorProtocol.ErrorResponse
 import androidx.work.inspection.WorkManagerInspectorProtocol.Event
@@ -93,6 +94,13 @@ class WorkManagerInspector(
                         updateWorkIdList(oldList ?: listOf(), newList)
                     }
                 callback.reply(response.toByteArray())
+            }
+            CANCEL_WORK -> {
+                val response = Response.newBuilder()
+                    .setTrackWorkManager(TrackWorkManagerResponse.getDefaultInstance())
+                    .build()
+                workManager.cancelWorkById(UUID.fromString(command.cancelWork.id)).result
+                    .addListener(Runnable { callback.reply(response.toByteArray()) }, executor)
             }
             else -> {
                 val errorResponse = ErrorResponse.newBuilder()

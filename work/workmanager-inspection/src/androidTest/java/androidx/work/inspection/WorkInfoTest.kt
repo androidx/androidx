@@ -27,6 +27,7 @@ import androidx.work.inspection.WorkManagerInspectorProtocol.DataEntry
 import androidx.work.inspection.WorkManagerInspectorProtocol.TrackWorkManagerCommand
 import androidx.work.inspection.WorkManagerInspectorProtocol.WorkInfo.State
 import androidx.work.inspection.worker.EmptyWorker
+import androidx.work.inspection.worker.IdleWorker
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
 import org.junit.Rule
@@ -184,6 +185,26 @@ class WorkInfoTest {
                     assertThat(workInfo.getPrerequisites(0)).isEqualTo(work1.stringId)
                 }
             }
+        }
+    }
+
+    @Test
+    fun cancelWork() = runBlocking {
+        inspectWorkManager()
+        val request = OneTimeWorkRequestBuilder<IdleWorker>().build()
+        testEnvironment.workManager.enqueue(request)
+
+        val cancelCommand = WorkManagerInspectorProtocol.CancelWorkCommand
+            .newBuilder()
+            .setId(request.stringId)
+            .build()
+        val command = Command.newBuilder().setCancelWork(cancelCommand).build()
+        testEnvironment.sendCommand(command)
+
+        testEnvironment.receiveFilteredEvent { event ->
+            event.hasWorkUpdated() && event.workUpdated.state == State.CANCELLED
+        }.let { event ->
+            assertThat(event.workUpdated.id).isEqualTo(request.stringId)
         }
     }
 }
