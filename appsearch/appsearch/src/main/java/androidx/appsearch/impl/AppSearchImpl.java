@@ -454,8 +454,8 @@ public final class AppSearchImpl {
     /**
      * Removes all documents in given database.
      *
-     * <p>The schemas will be remained. To delete schemas, please use
-     * {@link #setSchema(String, SchemaProto, boolean)}.
+     * <p>The schemas will remain. To clear everything including schemas, please call
+     * {@link #setSchema} with an empty schema and {@code forceOverride} set to true.
      *
      * <p>This method belongs to mutate group.
      *
@@ -475,7 +475,12 @@ public final class AppSearchImpl {
             for (String namespace : existingNamespaces) {
                 DeleteByNamespaceResultProto deleteByNamespaceResultProto =
                         mIcingSearchEngine.deleteByNamespace(namespace);
-                checkSuccess(deleteByNamespaceResultProto.getStatus());
+                // There's no way for AppSearch to know that all documents in a particular
+                // namespace have been deleted, but if you try to delete an empty namespace, Icing
+                // returns NOT_FOUND. Just ignore that code.
+                checkCodeOneOf(
+                        deleteByNamespaceResultProto.getStatus(),
+                        StatusProto.Code.OK, StatusProto.Code.NOT_FOUND);
             }
             mNamespaceMap.remove(databaseName);
             checkForOptimize(/* force= */true);
@@ -679,9 +684,11 @@ public final class AppSearchImpl {
     }
 
     @VisibleForTesting
-    SchemaProto getSchemaProto() {
+    SchemaProto getSchemaProto() throws AppSearchException {
         GetSchemaResultProto schemaProto = mIcingSearchEngine.getSchema();
-        //TODO(b/161935693) check GetSchemaResultProto is success or not. Call reset() if it's not.
+        // TODO(b/161935693) check GetSchemaResultProto is success or not. Call reset() if it's not.
+        // TODO(b/161935693) only allow GetSchemaResultProto NOT_FOUND on first run
+        checkCodeOneOf(schemaProto.getStatus(), StatusProto.Code.OK, StatusProto.Code.NOT_FOUND);
         return schemaProto.getSchema();
     }
 
@@ -742,9 +749,20 @@ public final class AppSearchImpl {
      * @throws AppSearchException on error codes.
      */
     private void checkSuccess(StatusProto statusProto) throws AppSearchException {
-        if (statusProto.getCode() == StatusProto.Code.OK) {
-            // Everything's good
-            return;
+        checkCodeOneOf(statusProto, StatusProto.Code.OK);
+    }
+
+    /**
+     * Checks the given status code is one of the provided codes, and throws an
+     * {@link AppSearchException} if it is not.
+     */
+    private void checkCodeOneOf(StatusProto statusProto, StatusProto.Code... codes)
+            throws AppSearchException {
+        for (int i = 0; i < codes.length; i++) {
+            if (codes[i] == statusProto.getCode()) {
+                // Everything's good
+                return;
+            }
         }
 
         if (statusProto.getCode() == StatusProto.Code.WARNING_DATA_LOSS) {
