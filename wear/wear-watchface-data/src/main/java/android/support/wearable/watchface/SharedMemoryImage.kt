@@ -28,6 +28,9 @@ import java.nio.ByteBuffer
 /** @hide */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class SharedMemoryImage {
+    // Not instantiable.
+    private constructor()
+
     companion object {
         /**
          * WebP compresses a {@link Bitmap} with the specified quality (100 = lossless) which is
