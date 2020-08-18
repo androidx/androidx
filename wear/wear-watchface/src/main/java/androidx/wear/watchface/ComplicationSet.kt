@@ -37,13 +37,13 @@ private fun getComponentName(context: Context) = ComponentName(
  * complications isn't supported, however complications can be enabled and disabled, perhaps as
  * part of a user style see {@link UserStyleCategory} and {@link Renderer#onStyleChanged}.
  */
-class ComplicationSlots(
+class ComplicationSet(
     /**
      * The complications associated with the watch face, may be empty.
      */
     complicationCollection: Collection<Complication>
 ) {
-    interface ComplicationListener {
+    interface TapListener {
         /**
          * Called when the user single taps on a complication.
          *
@@ -60,7 +60,7 @@ class ComplicationSlots(
         fun onComplicationDoubleTapped(complicationId: Int) {}
     }
 
-    private lateinit var systemApi: SystemApi
+    private lateinit var watchFaceHostApi: WatchFaceHostApi
     private lateinit var calendar: Calendar
     private lateinit var renderer: Renderer
     private lateinit var pendingUpdateActiveComplications: CancellableUniqueTask
@@ -69,7 +69,7 @@ class ComplicationSlots(
     val complications: Map<Int, Complication> =
         complicationCollection.associateBy(Complication::id)
 
-    private val complicationListeners = HashSet<ComplicationListener>()
+    private val complicationListeners = HashSet<TapListener>()
 
     @VisibleForTesting
     constructor(
@@ -80,15 +80,15 @@ class ComplicationSlots(
     }
 
     internal fun init(
-        systemApi: SystemApi,
+        watchFaceHostApi: WatchFaceHostApi,
         calendar: Calendar,
         renderer: Renderer,
         complicationInvalidateCallback: ComplicationRenderer.InvalidateCallback
     ) {
-        this.systemApi = systemApi
+        this.watchFaceHostApi = watchFaceHostApi
         this.calendar = calendar
         this.renderer = renderer
-        pendingUpdateActiveComplications = CancellableUniqueTask(systemApi.getHandler())
+        pendingUpdateActiveComplications = CancellableUniqueTask(watchFaceHostApi.getHandler())
 
         for ((_, complication) in complications) {
             complication.init(this, complicationInvalidateCallback)
@@ -96,7 +96,7 @@ class ComplicationSlots(
             if (!complication.defaultProvider.isEmpty() &&
                 complication.defaultProviderType != WatchFace.DEFAULT_PROVIDER_TYPE_NONE
             ) {
-                this.systemApi.setDefaultComplicationProviderWithFallbacks(
+                this.watchFaceHostApi.setDefaultComplicationProviderWithFallbacks(
                     complication.id,
                     complication.defaultProvider.providers,
                     complication.defaultProvider.systemProviderFallback,
@@ -127,7 +127,7 @@ class ComplicationSlots(
             ContentDescriptionLabel(
                 renderer.getMainClockElementBounds(),
                 AccessibilityUtils.makeTimeAsComplicationText(
-                    systemApi.getContext()
+                    watchFaceHostApi.getContext()
                 )
             )
         )
@@ -137,47 +137,47 @@ class ComplicationSlots(
                 activeKeys.add(id)
 
                 // Generate a ContentDescriptionLabel and send complication bounds for
-                // non-background  complications.
-                val data = complication.complicationData
+                // non-background complications.
+                val data = complication.data
                 val complicationBounds = complication.boundsProvider.computeBounds(
-                    complication, renderer.screenBounds, calendar
+                    complication, renderer.screenBounds
                 )
 
-                if (complication.boundsProvider is BackgroundComplicationBounds) {
-                    systemApi.setComplicationDetails(
+                if (complication.boundsProvider is BackgroundComplicationBoundsProvider) {
+                    watchFaceHostApi.setComplicationDetails(
                         id,
                         complicationBounds,
-                        ComplicationSlotType.BACKGROUND
+                        ComplicationBoundsType.BACKGROUND
                     )
                 } else {
                     if (data != null) {
                         labels.add(
                             ContentDescriptionLabel(
-                                systemApi.getContext(),
+                                watchFaceHostApi.getContext(),
                                 complicationBounds,
                                 data
                             )
                         )
                     }
 
-                    systemApi.setComplicationDetails(
+                    watchFaceHostApi.setComplicationDetails(
                         id,
                         complicationBounds,
-                        ComplicationSlotType.ROUND_RECT
+                        ComplicationBoundsType.ROUND_RECT
                     )
                 }
 
-                systemApi.setComplicationSupportedTypes(
+                watchFaceHostApi.setComplicationSupportedTypes(
                     id,
-                    complication.supportedComplicationDataTypes
+                    complication.supportedTypes
                 )
             }
         }
 
-        systemApi.setActiveComplications(activeKeys.toIntArray())
+        watchFaceHostApi.setActiveComplications(activeKeys.toIntArray())
 
         // Register ContentDescriptionLabels which are used to provide accessibility data.
-        systemApi.setContentDescriptionLabels(labels.toTypedArray())
+        watchFaceHostApi.setContentDescriptionLabels(labels.toTypedArray())
     }
 
     /**
@@ -188,7 +188,7 @@ class ComplicationSlots(
      * @param data The {@link ComplicationData} that should be displayed in the complication.
      */
     internal fun onComplicationDataUpdate(watchFaceComplicationId: Int, data: ComplicationData) {
-        complications[watchFaceComplicationId]?.complicationData = data
+        complications[watchFaceComplicationId]?.data = data
     }
 
     /**
@@ -201,14 +201,14 @@ class ComplicationSlots(
         val complication = requireNotNull(complications[complicationId]) {
             "No complication found with ID $complicationId"
         }
-        complication.complicationRenderer.setIsHighlighted(true)
+        complication.setIsHighlighted(true)
 
         val weakRef = WeakReference(this)
-        systemApi.getHandler().postDelayed(
+        watchFaceHostApi.getHandler().postDelayed(
             {
                 // The watch face might go away before this can run.
                 if (weakRef.get() != null) {
-                    complication.complicationRenderer.setIsHighlighted(false)
+                    complication.setIsHighlighted(false)
                 }
             },
             WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS
@@ -220,16 +220,14 @@ class ComplicationSlots(
      *
      * @param x The x coordinate of the point to perform a hit test
      * @param y The y coordinate of the point to perform a hit test
-     * @param calendar The current {@link Calendar}, necessary if complications animate
      * @return The complication at coordinates x, y or {@code null} if there isn't one
      */
-    fun getComplicationAt(x: Int, y: Int, calendar: Calendar): Complication? {
+    fun getComplicationAt(x: Int, y: Int): Complication? {
         return complications.entries.firstOrNull {
-            it.value.enabled && it.value.boundsProvider !is BackgroundComplicationBounds &&
+            it.value.enabled && it.value.boundsProvider !is BackgroundComplicationBoundsProvider &&
                     it.value.boundsProvider.computeBounds(
                         it.value,
-                        renderer.screenBounds,
-                        calendar
+                        renderer.screenBounds
                     ).contains(x, y)
         }?.value
     }
@@ -241,7 +239,7 @@ class ComplicationSlots(
      */
     fun getBackgroundComplication(): Complication? {
         return complications.entries.firstOrNull {
-            it.value.boundsProvider is BackgroundComplicationBounds
+            it.value.boundsProvider is BackgroundComplicationBoundsProvider
         }?.value
     }
 
@@ -254,12 +252,12 @@ class ComplicationSlots(
     @SuppressWarnings("SyntheticAccessor")
     internal fun onComplicationSingleTapped(complicationId: Int) {
         // Check if the complication is missing permissions.
-        val data = complications[complicationId]?.complicationData ?: return
+        val data = complications[complicationId]?.data ?: return
         if (data.type == ComplicationData.TYPE_NO_PERMISSION) {
-            systemApi.getContext().startActivity(
+            watchFaceHostApi.getContext().startActivity(
                 ComplicationHelperActivity.createPermissionRequestHelperIntent(
-                    systemApi.getContext(),
-                    getComponentName(systemApi.getContext())
+                    watchFaceHostApi.getContext(),
+                    getComponentName(watchFaceHostApi.getContext())
                 ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             )
             return
@@ -281,22 +279,22 @@ class ComplicationSlots(
     internal fun onComplicationDoubleTapped(complicationId: Int) {
         // Check if the complication is missing permissions.
         val complication = complications[complicationId] ?: return
-        val data = complication.complicationData ?: return
+        val data = complication.data ?: return
         if (data.type == ComplicationData.TYPE_NO_PERMISSION) {
-            systemApi.getContext().startActivity(
+            watchFaceHostApi.getContext().startActivity(
                 ComplicationHelperActivity.createPermissionRequestHelperIntent(
-                    systemApi.getContext(),
-                    getComponentName(systemApi.getContext())
+                    watchFaceHostApi.getContext(),
+                    getComponentName(watchFaceHostApi.getContext())
                 )
             )
             return
         }
-        systemApi.getContext().startActivity(
+        watchFaceHostApi.getContext().startActivity(
             ComplicationHelperActivity.createProviderChooserHelperIntent(
-                systemApi.getContext(),
-                getComponentName(systemApi.getContext()),
+                watchFaceHostApi.getContext(),
+                getComponentName(watchFaceHostApi.getContext()),
                 complicationId,
-                complication.supportedComplicationDataTypes
+                complication.supportedTypes
             ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         )
         for (complicationListener in complicationListeners) {
@@ -305,17 +303,17 @@ class ComplicationSlots(
     }
 
     /**
-     * Adds a {@link ComplicationListener} which is called whenever the user interacts with a
+     * Adds a {@link TapListener} which is called whenever the user interacts with a
      * complication.
      */
-    fun addComplicationListener(complicationListener: ComplicationListener) {
-        complicationListeners.add(complicationListener)
+    fun addTapListener(tapListener: TapListener) {
+        complicationListeners.add(tapListener)
     }
 
     /**
-     * Removes a {@link ComplicationListener} previously added by {@link #addComplicationListener}.
+     * Removes a {@link TapListener} previously added by {@link #addComplicationListener}.
      */
-    fun removeComplicationListener(complicationListener: ComplicationListener) {
-        complicationListeners.remove(complicationListener)
+    fun removeTapListener(tapListener: TapListener) {
+        complicationListeners.remove(tapListener)
     }
 }

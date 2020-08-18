@@ -29,13 +29,13 @@ import androidx.wear.watchface.style.UserStyleCategory
 /** @hide */
 @IntDef(
     value = [
-        ComplicationSlotType.ROUND_RECT,
-        ComplicationSlotType.BACKGROUND,
-        ComplicationSlotType.EDGE
+        ComplicationBoundsType.ROUND_RECT,
+        ComplicationBoundsType.BACKGROUND,
+        ComplicationBoundsType.EDGE
     ]
 )
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-annotation class ComplicationSlotType {
+annotation class ComplicationBoundsType {
     companion object {
         /** The default, most complications are either circular or rounded rectangles. */
         const val ROUND_RECT = 0
@@ -50,8 +50,10 @@ annotation class ComplicationSlotType {
 
 /**
  * The API {@link WatchFace} uses to communicate with the system.
+ * @hide
  */
-interface SystemApi {
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+interface WatchFaceHostApi {
     /** Returns the watch face's {@link Context}. */
     fun getContext(): Context
 
@@ -73,7 +75,7 @@ interface SystemApi {
     ): Map<UserStyleCategory, UserStyleCategory.Option>?
 
     /** Registers the current bounds of the specified complication with the system. */
-    fun setComplicationDetails(complicationId: Int, bounds: Rect, @ComplicationSlotType type: Int)
+    fun setComplicationDetails(complicationId: Int, bounds: Rect, @ComplicationBoundsType type: Int)
 
     /** Registers the supported complication types of the specified complication. */
     fun setComplicationSupportedTypes(complicationId: Int, types: IntArray)
@@ -95,8 +97,6 @@ interface SystemApi {
      *
      * <p>This is a fairly expensive operation so use it sparingly (e.g. do not call it in
      * onDraw()).
-     *
-     * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     fun setContentDescriptionLabels(labels: Array<ContentDescriptionLabel>)
@@ -157,4 +157,11 @@ interface SystemApi {
      * the main thread.
      */
     fun invalidate()
+}
+
+/**
+ * An opaque holder for the internal API {@link WatchFace} for it's host service.
+ */
+class WatchFaceHost {
+    internal var api: WatchFaceHostApi? = null
 }

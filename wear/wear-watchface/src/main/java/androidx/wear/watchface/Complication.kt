@@ -27,7 +27,7 @@ import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.rendering.ComplicationDrawable
 
 /**
- * Complications own a ComplicationBoundsProvider which is used to compute its bounds.
+ * Complications use a ComplicationBoundsProvider to compute their bounds.
  */
 interface ComplicationBoundsProvider {
     /**
@@ -35,41 +35,53 @@ interface ComplicationBoundsProvider {
      *
      * @param complication The {@link Complication} to compute bounds for
      * @param screen A {@link Rect} describing the bounds of the screen
-     * @param calendar The current {@link Calendar}, required for animating complications
      */
-    fun computeBounds(complication: Complication, screen: Rect, calendar: Calendar): Rect
+    fun computeBounds(complication: Complication, screen: Rect): Rect
 }
 
 /**
- * Some watch faces may wish to support an optional background image complication covering the
- * whole screen. This complication isn't clickable and at most one may be present in the list of
- * complications. If a BackgroundComplication is present then WatchFaceConfigActivity will
- * display a ListView asking the user to select between selecting a complication to configure
- * or the background complication.
+ * A {@link ComplicationBoundsProvider} for watch faces that wish to have a full screen user
+ * selectable backdrop. This sort of complication isn't clickable and at most one may be present in
+ * the list of complications.
  */
-class BackgroundComplicationBounds : ComplicationBoundsProvider {
+class BackgroundComplicationBoundsProvider : ComplicationBoundsProvider {
     /** {@inheritDoc} */
     override fun computeBounds(
         complication: Complication,
-        screen: Rect,
-        calendar: Calendar
+        screen: Rect
     ) = screen // A BackgroundComplication covers the whole screen.
 }
 
-/** Helper for complications that don't animate. */
-class FixedBounds(
+/**
+ * A {@link ComplicationBoundsProvider} which converts bounds provided in the unit square [0..1] to
+ * device pixels. NB 0 and 1 are included in the unit square.
+ */
+class UnitSquareBoundsProvider(
     /**
-     * Fractional bounds for the complication which get converted to screen space coordinates.
+     * Fractional bounds for the complication (clamped to the unit square.) which get converted
+     * to screen space coordinates.
      */
-    private val unitSquareBounds: RectF
+    unitSquareBounds: RectF
 ) : ComplicationBoundsProvider {
+
+    private companion object {
+        private val unitSquare = RectF(0f, 0f, 1f, 1f)
+    }
+
+    private val clampedUnitSquareBounds = RectF().apply {
+        setIntersect(
+            unitSquareBounds,
+            unitSquare
+        )
+    }
+
     /** {@inheritDoc} */
-    override fun computeBounds(complication: Complication, screen: Rect, calendar: Calendar) =
+    override fun computeBounds(complication: Complication, screen: Rect) =
         Rect(
-            (unitSquareBounds.left * screen.width()).toInt(),
-            (unitSquareBounds.top * screen.height()).toInt(),
-            (unitSquareBounds.right * screen.width()).toInt(),
-            (unitSquareBounds.bottom * screen.height()).toInt()
+            (clampedUnitSquareBounds.left * screen.width()).toInt(),
+            (clampedUnitSquareBounds.top * screen.height()).toInt(),
+            (clampedUnitSquareBounds.right * screen.width()).toInt(),
+            (clampedUnitSquareBounds.bottom * screen.height()).toInt()
         )
 }
 
@@ -116,12 +128,12 @@ interface ComplicationRenderer {
      *
      * @param data The {@link ComplicationData}
      */
-    fun setComplicationData(data: ComplicationData?)
+    fun setData(data: ComplicationData?)
 
     /**
-     * Returns the current ComplicationData associated with the ComplicationRenderer.
+     * Returns the current {@link ComplicationData} associated with the ComplicationRenderer.
      */
-    fun getComplicationData(): ComplicationData?
+    fun getData(): ComplicationData?
 
     interface InvalidateCallback {
         /** Requests redraw. */
@@ -144,10 +156,10 @@ open class ComplicationDrawableRenderer(
     /** The actual complication. */
     protected val drawable: ComplicationDrawable,
 
-    private val systemState: SystemState
+    private val watchState: WatchState
 ) : ComplicationRenderer {
 
-    private inner class SystemStateListener : SystemState.Listener {
+    private inner class SystemStateListener : WatchState.Listener {
         override fun onAmbientModeChanged(isAmbient: Boolean) {
             drawable.setInAmbientMode(isAmbient)
         }
@@ -159,16 +171,16 @@ open class ComplicationDrawableRenderer(
 
     /** {@inheritDoc} */
     override fun onAttach() {
-        drawable.setInAmbientMode(systemState.isAmbient)
-        drawable.setLowBitAmbient(systemState.hasLowBitAmbient)
-        drawable.setBurnInProtection(systemState.hasBurnInProtection)
+        drawable.setInAmbientMode(watchState.isAmbient)
+        drawable.setLowBitAmbient(watchState.hasLowBitAmbient)
+        drawable.setBurnInProtection(watchState.hasBurnInProtection)
 
-        systemState.addListener(systemStateListener)
+        watchState.addListener(systemStateListener)
     }
 
     /** {@inheritDoc} */
     override fun onDetach() {
-        systemState.removeListener(systemStateListener)
+        watchState.removeListener(systemStateListener)
     }
 
     /** {@inheritDoc} */
@@ -191,13 +203,13 @@ open class ComplicationDrawableRenderer(
     }
 
     /** {@inheritDoc} */
-    override fun setComplicationData(data: ComplicationData?) {
+    override fun setData(data: ComplicationData?) {
         drawable.setComplicationData(data)
         complicationData = data
     }
 
     /** {@inheritDoc} */
-    override fun getComplicationData() = complicationData
+    override fun getData() = complicationData
 
     /** {@inheritDoc} */
     override fun setInvalidateCallback(callback: ComplicationRenderer.InvalidateCallback) {
@@ -215,28 +227,27 @@ open class ComplicationDrawableRenderer(
 }
 
 /**
- * Represents an individual complication.
+ * Represents a individual complication on the screen. The number of complications is fixed
+ * (see {@link ComplicationSet}) but complications can be enabled or disabled as needed.
  */
 class Complication @JvmOverloads constructor(
     /** The watch face's ID for this complication. */
-    val id: Int,
+    internal val id: Int,
 
-    /**
-     * An interface that can provide the bounds for this complication. Helps avoid multiple
-     * inheritance.
-     */
+    /**  An interface that can provide the bounds for this Complication. */
     val boundsProvider: ComplicationBoundsProvider,
 
     /**
-     * The renderer for this complication. Renderers may not be sharable between complications.
+     * The renderer for this Complication. Renderers may not be sharable between complications.
      */
-    complicationRenderer: ComplicationRenderer,
+    internal var renderer: ComplicationRenderer,
 
     /**
-     * Passed into ComplicationHelperActivity.createProviderChooserHelperIntent during
-     * complication configuration.
+     * The types of complication supported by this Complication. Passed into {@link
+     * ComplicationHelperActivity#createProviderChooserHelperIntent} during complication
+     * configuration.
      */
-    internal val supportedComplicationDataTypes: IntArray,
+    internal val supportedTypes: IntArray,
 
     /** Default complication provider. */
     internal val defaultProvider: DefaultComplicationProvider,
@@ -245,7 +256,7 @@ class Complication @JvmOverloads constructor(
     internal val defaultProviderType: Int = WatchFace.DEFAULT_PROVIDER_TYPE_NONE
 ) {
     init {
-        complicationRenderer.onAttach()
+        renderer.onAttach()
     }
 
     /**
@@ -270,19 +281,8 @@ class Complication @JvmOverloads constructor(
             providers.isEmpty() && systemProviderFallback == WatchFace.NO_DEFAULT_PROVIDER
     }
 
-    private lateinit var complicationSlots: ComplicationSlots
-    private lateinit var complicationInvalidateCallback: ComplicationRenderer.InvalidateCallback
-
-    private var _complicationRenderer: ComplicationRenderer = complicationRenderer
-    var complicationRenderer: ComplicationRenderer
-        get() = _complicationRenderer
-        set(value) {
-            complicationRenderer.onDetach()
-            _complicationRenderer = value
-            complicationRenderer.onAttach()
-            initRenderer()
-        }
-
+    private lateinit var complicationSet: ComplicationSet
+    private lateinit var invalidateCallback: ComplicationRenderer.InvalidateCallback
     private var _enabled = true
 
     var enabled: Boolean
@@ -292,24 +292,35 @@ class Complication @JvmOverloads constructor(
 
             // The caller might enable/disable a number of complications. For efficiency we need
             // to coalesce these into one update task.
-            complicationSlots.scheduleUpdateActiveComplications()
+            complicationSet.scheduleUpdateActiveComplications()
         }
 
     /** Any data for the complication. */
-    private var _complicationData: ComplicationData? = null
+    private var _data: ComplicationData? = null
 
-    var complicationData: ComplicationData?
-        get() = _complicationData
+    var data: ComplicationData?
+        get() = _data
         internal set(value) {
-            _complicationData = value
-            complicationRenderer.setComplicationData(_complicationData)
+            _data = value
+            renderer.setData(_data)
 
             // In tests this may not be initialized.
-            if (this::complicationSlots.isInitialized) {
+            if (this::complicationSet.isInitialized) {
                 // Update active complications to ensure accessibility data is up to date.
-                complicationSlots.scheduleUpdateActiveComplications()
+                complicationSet.scheduleUpdateActiveComplications()
             }
         }
+
+    /**
+     * Sets the current {@link ComplicationRenderer}. This is useful if based on the style the
+     * watch face needs to use a different renderer.
+     */
+    fun setRenderer(renderer: ComplicationRenderer) {
+        renderer.onDetach()
+        this.renderer = renderer
+        renderer.onAttach()
+        initRenderer()
+    }
 
     /**
      * Watch faces should use this method to render a complication. Note the system may call this.
@@ -325,38 +336,37 @@ class Complication @JvmOverloads constructor(
     ) {
         val bounds = boundsProvider.computeBounds(
             this,
-            Rect(0, 0, canvas.width, canvas.height), calendar
+            Rect(0, 0, canvas.width, canvas.height)
         )
-        complicationRenderer.onDraw(canvas, bounds, calendar, drawMode)
+        renderer.onDraw(canvas, bounds, calendar, drawMode)
     }
 
     /**
-     * Returns {@code true} if the complication doesn't have any data or it's not configured.
+     * Sets whether the complication should be drawn highlighted or not. This is to provide visual
+     * feedback when the user taps on a complication.
      *
-     * @return {@code true} if the complication doesn't have any data or it's not configured
+     * @param highlight Whether or not the complication should be drawn highlighted.
      */
-    fun isEmpty(): Boolean {
-        val data = this.complicationData
-        return data == null || data.type == ComplicationData.TYPE_EMPTY ||
-                data.type == ComplicationData.TYPE_NOT_CONFIGURED
+    internal fun setIsHighlighted(highlight: Boolean) {
+        renderer.setIsHighlighted(highlight)
     }
 
     private fun initRenderer() {
-        complicationRenderer.setComplicationData(complicationData)
+        renderer.setData(data)
 
         // Renderers may register a user style listener during their initializer which can call
         // setComplicationRenderer() before complicationInvalidateCallback has been initialized.
-        if (this::complicationInvalidateCallback.isInitialized) {
-            complicationRenderer.setInvalidateCallback(complicationInvalidateCallback)
+        if (this::invalidateCallback.isInitialized) {
+            renderer.setInvalidateCallback(invalidateCallback)
         }
     }
 
     internal fun init(
-        complicationSlots: ComplicationSlots,
-        complicationInvalidateCallback: ComplicationRenderer.InvalidateCallback
+        complicationSet: ComplicationSet,
+        invalidateCallback: ComplicationRenderer.InvalidateCallback
     ) {
-        this.complicationSlots = complicationSlots
-        this.complicationInvalidateCallback = complicationInvalidateCallback
+        this.complicationSet = complicationSet
+        this.invalidateCallback = invalidateCallback
         initRenderer()
     }
 }

@@ -50,7 +50,7 @@ abstract class UserStyleCategory(
 ) {
     companion object {
         private const val KEY_CATEGORY_TYPE = "KEY_CATEGORY_TYPE"
-        private const val KEY_DEFAULT_ID = "KEY_DEFAULT_ID"
+        private const val KEY_DEFAULT_OPTION = "KEY_DEFAULT_OPTION"
         private const val KEY_DESCRIPTION = "KEY_DESCRIPTION"
         private const val KEY_DISPLAY_NAME = "KEY_DISPLAY_NAME"
         private const val KEY_ICON = "KEY_ICON"
@@ -126,26 +126,34 @@ abstract class UserStyleCategory(
          * Only categories from the schema are deserialized.
          */
         @JvmStatic
-        fun bundleToStyleMap(bundle: Bundle, schema: List<UserStyleCategory>) =
-            HashMap<UserStyleCategory, Option>().apply {
+        fun bundleToStyleMap(
+            bundle: Bundle,
+            schema: List<UserStyleCategory>
+        ): MutableMap<UserStyleCategory, Option> {
+            return HashMap<UserStyleCategory, Option>().apply {
                 for (styleCategory in schema) {
                     this[styleCategory] =
                         styleCategory.getCategoryOptionForId(bundle.getString(styleCategory.id))
                 }
             }
+        }
 
         /**
          * Constructs a  Map<{@link UserStyleCategory}, {@link Option}> from a map of
          * UserStyleCategory id to Option id.
          */
         @JvmStatic
-        fun idMapToStyleMap(idMap: Map<String, String>, schema: List<UserStyleCategory>) =
-            HashMap<UserStyleCategory, Option>().apply {
+        fun idMapToStyleMap(
+            idMap: Map<String, String>,
+            schema: List<UserStyleCategory>
+        ): MutableMap<UserStyleCategory, Option> {
+            return HashMap<UserStyleCategory, Option>().apply {
                 for (styleCategory in schema) {
                     this[styleCategory] =
                         styleCategory.getCategoryOptionForId(idMap[styleCategory.id])
                 }
             }
+        }
     }
 
     private fun getCategoryOptionForId(id: String?) =
@@ -155,17 +163,13 @@ abstract class UserStyleCategory(
             getOptionForId(id)
         }
 
-    internal constructor(
-        bundle: Bundle,
-        optionsList: List<Option> = readOptionsListFromBundle(bundle),
-        defaultId: String = bundle.getString(KEY_DEFAULT_ID)!!
-    ) : this(
+    internal constructor(bundle: Bundle) : this(
         bundle.getString(KEY_STYLE_CATEGORY_ID)!!,
         bundle.getString(KEY_DISPLAY_NAME)!!,
         bundle.getString(KEY_DESCRIPTION)!!,
         bundle.getParcelable(KEY_ICON),
-        optionsList,
-        optionsList.find { it.id == defaultId }!!
+        readOptionsListFromBundle(bundle),
+        Option.createFromBundle(bundle.getBundle(KEY_DEFAULT_OPTION)!!)
     )
 
     @CallSuper
@@ -175,7 +179,10 @@ abstract class UserStyleCategory(
         bundle.putString(KEY_DISPLAY_NAME, displayName)
         bundle.putString(KEY_DESCRIPTION, description)
         bundle.putParcelable(KEY_ICON, icon)
-        bundle.putString(KEY_DEFAULT_ID, defaultOption.id)
+        bundle.putBundle(
+            KEY_DEFAULT_OPTION,
+            Bundle().apply { defaultOption.writeToBundle(this) }
+        )
         writeOptionListToBundle(options, bundle)
     }
 

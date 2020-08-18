@@ -235,7 +235,7 @@ abstract class Gles2Renderer (
      */
     open fun onGlSurfaceCreated(width: Int, height: Int) {}
 
-    override fun onDrawInternal(
+    internal override fun onDrawInternal(
         calendar: Calendar
     ) {
         makeContextCurrent()
@@ -245,6 +245,7 @@ abstract class Gles2Renderer (
         }
     }
 
+    /** {@inheritDoc} */
     override fun takeScreenshot(
         calendar: Calendar,
         @DrawMode drawMode: Int

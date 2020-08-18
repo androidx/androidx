@@ -187,7 +187,7 @@ internal class ConfigFragment : Fragment() {
                             watchFaceConfigActivity.backgroundComplicationId!!]!!
                 watchFaceConfigActivity.fragmentController.showComplicationConfig(
                     backgroundComplication.id,
-                    *backgroundComplication.supportedComplicationDataTypes
+                    *backgroundComplication.supportedTypes
                 )
             }
 
