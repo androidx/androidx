@@ -78,8 +78,11 @@ class SqlDelightInvalidationTest {
             val job = this.coroutineContext[Job]!!
             val tester = InspectorTester(
                 inspectorId = "androidx.sqlite.inspection",
-                environment = TestInspectorEnvironment(sqliteDb, listOf(query),
-                            job)
+                environment =
+                    DefaultTestInspectorEnvironment(
+                        TestInspectorExecutors(job),
+                        TestArtToolInterface(sqliteDb, listOf(query))
+                    )
             )
             val updates = query.asFlow().mapToList().take(2).produceIn(this)
 
@@ -134,11 +137,10 @@ private fun SupportSQLiteDatabase.getSqliteDb(): SQLiteDatabase {
 }
 
 @Suppress("UNCHECKED_CAST")
-class TestInspectorEnvironment(
+class TestArtToolInterface(
     private val sqliteDb: SQLiteDatabase,
-    private val queries: List<Query<*>>,
-    job: Job
-) : DefaultTestInspectorEnvironment(TestInspectorExecutors(job)) {
+    private val queries: List<Query<*>>
+) : ArtToolInterface {
     override fun registerEntryHook(
         originClass: Class<*>,
         originMethod: String,

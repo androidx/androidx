@@ -137,10 +137,16 @@ internal class CommandCallbackImpl(
  * or create [TestInspectorExecutors] scoped to given job, than those executors will be shutdown
  * once job is complete.
  */
-open class DefaultTestInspectorEnvironment(
-    private val testInspectorExecutors: InspectorExecutors
+class DefaultTestInspectorEnvironment(
+    private val testInspectorExecutors: InspectorExecutors,
+    private val artTooling: ArtToolInterface = DefaultArtToolInterface()
 ) : InspectorEnvironment {
+    override fun artTI() = artTooling
 
+    override fun executors() = testInspectorExecutors
+}
+
+class DefaultArtToolInterface : ArtToolInterface {
     override fun registerEntryHook(
         originClass: Class<*>,
         originMethod: String,
@@ -160,8 +166,6 @@ open class DefaultTestInspectorEnvironment(
     ) {
         throw UnsupportedOperationException()
     }
-
-    override fun executors() = testInspectorExecutors
 }
 
 private class ConnectionImpl(
