@@ -60,10 +60,12 @@ class PagingState<Key : Any, Value : Any> constructor(
         if (pages.all { it.data.isEmpty() }) return null
 
         anchorPositionToPagedIndices(anchorPosition) { pageIndex, index ->
+            val firstNonEmptyPage = pages.first { it.data.isNotEmpty() }
+            val lastNonEmptyPage = pages.last { it.data.isNotEmpty() }
             return when {
-                index < 0 -> pages.first().data.first()
+                index < 0 -> firstNonEmptyPage.data.first()
                 pageIndex == pages.lastIndex && index > pages.last().data.lastIndex -> {
-                    pages.last().data.last()
+                    lastNonEmptyPage.data.last()
                 }
                 else -> pages[pageIndex].data[index]
             }
