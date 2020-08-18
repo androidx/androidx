@@ -447,19 +447,22 @@ package androidx.core.app {
   }
 
   public static final class NotificationCompat.BubbleMetadata {
-    method @RequiresApi(29) public static androidx.core.app.NotificationCompat.BubbleMetadata? fromPlatform(android.app.Notification.BubbleMetadata?);
+    method public static androidx.core.app.NotificationCompat.BubbleMetadata? fromPlatform(android.app.Notification.BubbleMetadata?);
     method public boolean getAutoExpandBubble();
     method public android.app.PendingIntent? getDeleteIntent();
     method @Dimension(unit=androidx.annotation.Dimension.DP) public int getDesiredHeight();
     method @DimenRes public int getDesiredHeightResId();
-    method public androidx.core.graphics.drawable.IconCompat getIcon();
-    method public android.app.PendingIntent getIntent();
+    method public androidx.core.graphics.drawable.IconCompat? getIcon();
+    method public android.app.PendingIntent? getIntent();
+    method public String? getShortcutId();
     method public boolean isNotificationSuppressed();
-    method @RequiresApi(29) public static android.app.Notification.BubbleMetadata? toPlatform(androidx.core.app.NotificationCompat.BubbleMetadata?);
+    method public static android.app.Notification.BubbleMetadata? toPlatform(androidx.core.app.NotificationCompat.BubbleMetadata?);
   }
 
   public static final class NotificationCompat.BubbleMetadata.Builder {
-    ctor public NotificationCompat.BubbleMetadata.Builder();
+    ctor @Deprecated public NotificationCompat.BubbleMetadata.Builder();
+    ctor @RequiresApi(30) public NotificationCompat.BubbleMetadata.Builder(String);
+    ctor public NotificationCompat.BubbleMetadata.Builder(android.app.PendingIntent, androidx.core.graphics.drawable.IconCompat);
     method public androidx.core.app.NotificationCompat.BubbleMetadata build();
     method public androidx.core.app.NotificationCompat.BubbleMetadata.Builder setAutoExpandBubble(boolean);
     method public androidx.core.app.NotificationCompat.BubbleMetadata.Builder setDeleteIntent(android.app.PendingIntent?);
