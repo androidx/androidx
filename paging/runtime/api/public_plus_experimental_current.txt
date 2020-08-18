@@ -117,6 +117,7 @@ package androidx.paging {
     method @Deprecated @androidx.paging.ExperimentalPagingApi public final void removeDataRefreshListener(kotlin.jvm.functions.Function1<? super java.lang.Boolean,kotlin.Unit> listener);
     method public final void removeLoadStateListener(kotlin.jvm.functions.Function1<? super androidx.paging.CombinedLoadStates,kotlin.Unit> listener);
     method public final void retry();
+    method public final void setHasStableIds(boolean hasStableIds);
     method public final androidx.paging.ItemSnapshotList<T> snapshot();
     method public final suspend Object? submitData(androidx.paging.PagingData<T> pagingData, kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public final void submitData(androidx.lifecycle.Lifecycle lifecycle, androidx.paging.PagingData<T> pagingData);
