@@ -160,10 +160,10 @@ internal class ComposeViewAdapter : FrameLayout {
     }
 
     private val Group.fileName: String
-        get() = (key as? String)?.substringBefore(":") ?: ""
+        get() = location?.sourceFile ?: ""
 
     private val Group.lineNumber: Int
-        get() = ((key as? String)?.substringAfter(":") ?: "-1").toInt()
+        get() = location?.lineNumber ?: -1
 
     /**
      * Returns true if this [Group] has no source position information
