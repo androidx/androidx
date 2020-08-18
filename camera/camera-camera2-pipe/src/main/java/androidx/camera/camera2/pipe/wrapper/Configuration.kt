@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.wrapper
 
 import android.graphics.SurfaceTexture
-import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.OutputConfiguration
 import android.os.Build
 import android.util.Size
@@ -27,11 +26,10 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.StreamType
 import androidx.camera.camera2.pipe.UnsafeWrapper
-import androidx.camera.camera2.pipe.wrapper.OutputConfigurationWrapper.Companion.SURFACE_GROUP_ID_NONE
 import androidx.camera.camera2.pipe.impl.checkNOrHigher
 import androidx.camera.camera2.pipe.impl.checkOOrHigher
 import androidx.camera.camera2.pipe.impl.checkPOrHigher
-import java.lang.IllegalStateException
+import androidx.camera.camera2.pipe.wrapper.OutputConfigurationWrapper.Companion.SURFACE_GROUP_ID_NONE
 import java.util.concurrent.Executor
 
 /**
@@ -47,7 +45,7 @@ data class SessionConfigData(
     val stateCallback: CameraCaptureSessionWrapper.StateCallback,
 
     val sessionTemplateId: Int,
-    val sessionParameters: Map<CaptureRequest.Key<*>, Any>
+    val sessionParameters: Map<*, Any>
 ) {
     companion object {
         /* NOTE: These must keep in sync with their SessionConfiguration values. */
@@ -152,9 +150,6 @@ class AndroidOutputConfiguration(
                     OutputConfiguration(surface)
                 }
             } else {
-                check(surface != null) {
-                    "Surface must not be null when creating a $streamType OutputConfiguration."
-                }
                 check(size != null) {
                     "Size must not be null when creating a $streamType OutputConfiguration."
                 }

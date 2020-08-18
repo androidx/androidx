@@ -54,6 +54,8 @@ dependencies {
     testImplementation(ROBOLECTRIC)
     testImplementation(KOTLIN_COROUTINES_TEST)
 
+    kaptTest(DAGGER_COMPILER)
+
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(TRUTH)

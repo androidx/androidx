@@ -39,23 +39,27 @@ import javax.inject.Singleton
 annotation class ForCameraPipe
 
 @Singleton
-@Component(modules = [CameraPipeModule::class])
+@Component(
+    modules = [
+        CameraPipeModules::class,
+        CameraPipeConfigModule::class
+    ]
+)
 interface CameraPipeComponent {
     fun cameraGraphComponentBuilder(): CameraGraphComponent.Builder
     fun cameras(): Cameras
 }
 
 @Module(
-    includes = [CameraPipeBindings::class],
     subcomponents = [CameraGraphComponent::class]
 )
-class CameraPipeModule(private val config: CameraPipe.Config) {
+class CameraPipeConfigModule(private val config: CameraPipe.Config) {
     @Provides
     fun provideCameraPipeConfig(): CameraPipe.Config = config
 }
 
 @Module
-abstract class CameraPipeBindings {
+abstract class CameraPipeModules {
     @Binds
     abstract fun bindCameras(impl: CamerasImpl): Cameras
 
