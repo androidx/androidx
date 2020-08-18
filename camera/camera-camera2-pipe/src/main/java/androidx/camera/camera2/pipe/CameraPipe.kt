@@ -18,9 +18,9 @@ package androidx.camera.camera2.pipe
 
 import android.content.Context
 import android.os.HandlerThread
-import androidx.camera.camera2.pipe.impl.CameraGraphModule
+import androidx.camera.camera2.pipe.impl.CameraGraphConfigModule
 import androidx.camera.camera2.pipe.impl.CameraPipeComponent
-import androidx.camera.camera2.pipe.impl.CameraPipeModule
+import androidx.camera.camera2.pipe.impl.CameraPipeConfigModule
 import androidx.camera.camera2.pipe.impl.DaggerCameraPipeComponent
 
 /**
@@ -34,7 +34,7 @@ import androidx.camera.camera2.pipe.impl.DaggerCameraPipeComponent
  */
 class CameraPipe(config: Config) {
     private val component: CameraPipeComponent = DaggerCameraPipeComponent.builder()
-        .cameraPipeModule(CameraPipeModule(config))
+        .cameraPipeConfigModule(CameraPipeConfigModule(config))
         .build()
 
     /**
@@ -43,7 +43,7 @@ class CameraPipe(config: Config) {
      */
     fun create(config: CameraGraph.Config): CameraGraph {
         return component.cameraGraphComponentBuilder()
-            .cameraGraphModule(CameraGraphModule(config))
+            .cameraGraphConfigModule(CameraGraphConfigModule(config))
             .build()
             .cameraGraph()
     }

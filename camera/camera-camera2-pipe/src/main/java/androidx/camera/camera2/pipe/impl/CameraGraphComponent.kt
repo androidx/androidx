@@ -34,54 +34,57 @@ annotation class CameraGraphScope
 annotation class ForCameraGraph
 
 @CameraGraphScope
-@Subcomponent(modules = [CameraGraphModule::class])
+@Subcomponent(
+    modules = [
+        CameraGraphModules::class,
+        CameraGraphConfigModule::class]
+)
 interface CameraGraphComponent {
     fun cameraGraph(): CameraGraph
 
     @Subcomponent.Builder
     interface Builder {
-        fun cameraGraphModule(module: CameraGraphModule): Builder
+        fun cameraGraphConfigModule(config: CameraGraphConfigModule): Builder
         fun build(): CameraGraphComponent
     }
 }
 
-@Module(
-    includes = [
-        CameraGraphBindings::class,
-        CameraGraphProviders::class]
-)
-class CameraGraphModule(private val config: CameraGraph.Config) {
+@Module
+class CameraGraphConfigModule(private val config: CameraGraph.Config) {
     @Provides
     fun provideCameraGraphConfig(): CameraGraph.Config = config
 }
 
-@Module
-abstract class CameraGraphBindings {
+@Module(
+    includes = [
+        SessionFactoryModule::class
+    ]
+)
+abstract class CameraGraphModules {
     @Binds
     abstract fun bindCameraGraph(cameraGraph: CameraGraphImpl): CameraGraph
 
     @Binds
     abstract fun bindGraphProcessor(graphProcessor: GraphProcessorImpl): GraphProcessor
-}
 
-@Module
-object CameraGraphProviders {
-    @CameraGraphScope
-    @Provides
-    @ForCameraGraph
-    fun provideCameraGraphCoroutineScope(threads: Threads): CoroutineScope {
-        return CoroutineScope(threads.defaultDispatcher.plus(CoroutineName("CXCP-Graph")))
-    }
+    companion object {
+        @CameraGraphScope
+        @Provides
+        @ForCameraGraph
+        fun provideCameraGraphCoroutineScope(threads: Threads): CoroutineScope {
+            return CoroutineScope(threads.defaultDispatcher.plus(CoroutineName("CXCP-Graph")))
+        }
 
-    @CameraGraphScope
-    @Provides
-    @ForCameraGraph
-    fun provideRequestListeners(
-        graphConfig: CameraGraph.Config
-    ): java.util.ArrayList<Request.Listener> {
-        // TODO: Dagger doesn't appear to like standard kotlin lists. Replace this with a standard
-        //   Kotlin list interfaces when dagger compiles with them.
-        // TODO: Add internal listeners before adding external global listeners.
-        return java.util.ArrayList(graphConfig.listeners)
+        @CameraGraphScope
+        @Provides
+        @ForCameraGraph
+        fun provideRequestListeners(
+            graphConfig: CameraGraph.Config
+        ): java.util.ArrayList<Request.Listener> {
+            // TODO: Dagger doesn't appear to like standard kotlin lists. Replace this with a standard
+            //   Kotlin list interfaces when dagger compiles with them.
+            // TODO: Add internal listeners before adding external global listeners.
+            return java.util.ArrayList(graphConfig.listeners)
+        }
     }
 }
