@@ -38,13 +38,13 @@ private const val WORK_MANAGER_INSPECTOR_ID = "androidx.work.inspection"
 
 class WorkManagerInspectorTestEnvironment : ExternalResource() {
     private lateinit var inspectorTester: InspectorTester
-    private lateinit var environment: FakeInspectorEnvironment
+    private lateinit var artTooling: FakeArtToolInterface
     private val job = Job()
     lateinit var workManager: WorkManager
         private set
 
     override fun before() {
-        environment = FakeInspectorEnvironment(job)
+        artTooling = FakeArtToolInterface()
         val application = InstrumentationRegistry
             .getInstrumentation()
             .targetContext
@@ -55,7 +55,10 @@ class WorkManagerInspectorTestEnvironment : ExternalResource() {
         inspectorTester = runBlocking {
             InspectorTester(
                 inspectorId = WORK_MANAGER_INSPECTOR_ID,
-                environment = environment
+                environment = DefaultTestInspectorEnvironment(
+                    testInspectorExecutors = TestInspectorExecutors(job),
+                    artTooling = artTooling
+                )
             )
         }
     }
@@ -97,11 +100,11 @@ class WorkManagerInspectorTestEnvironment : ExternalResource() {
     }
 
     private fun registerApplication(application: Application) {
-        environment.registerInstancesToFind(listOf(application))
+        artTooling.registerInstancesToFind(listOf(application))
     }
 
     fun consumeRegisteredHooks(): List<Hook> =
-        environment.consumeRegisteredHooks()
+        artTooling.consumeRegisteredHooks()
 }
 
 /**
@@ -110,9 +113,7 @@ class WorkManagerInspectorTestEnvironment : ExternalResource() {
  * - [registerEntryHook] and [registerExitHook] record the calls which can later be
  * retrieved in [consumeRegisteredHooks].
  */
-private class FakeInspectorEnvironment(
-    job: Job
-) : DefaultTestInspectorEnvironment(TestInspectorExecutors(job)) {
+private class FakeArtToolInterface : ArtToolInterface {
     private val instancesToFind = mutableListOf<Any>()
     private val registeredHooks = mutableListOf<Hook>()
 
@@ -128,6 +129,13 @@ private class FakeInspectorEnvironment(
     // TODO: implement actual findInstances behaviour
     override fun <T : Any?> findInstances(clazz: Class<T>): List<T> =
         instancesToFind.filter { clazz.isInstance(it) }.map { it as T }.toList()
+
+    override fun <T : Any?> registerExitHook(
+        originClass: Class<*>,
+        originMethod: String,
+        exitHook: ArtToolInterface.ExitHook<T>
+    ) {
+    }
 
     override fun registerEntryHook(
         originClass: Class<*>,
