@@ -78,12 +78,12 @@ interface ComplicationRenderer {
     /**
      * Called when the ComplicationRenderer attaches to a {@link Complication}.
      */
-    fun onAttatch()
+    fun onAttach()
 
     /**
      * Called when the ComplicationRenderer detaches from a {@link Complication}.
      */
-    fun onDetatch()
+    fun onDetach()
 
     /**
      * Draws the complication into the canvas with the specified bounds. This will usually be
@@ -158,7 +158,7 @@ open class ComplicationDrawableRenderer(
     private var complicationData: ComplicationData? = null
 
     /** {@inheritDoc} */
-    override fun onAttatch() {
+    override fun onAttach() {
         drawable.setInAmbientMode(systemState.isAmbient)
         drawable.setLowBitAmbient(systemState.hasLowBitAmbient)
         drawable.setBurnInProtection(systemState.hasBurnInProtection)
@@ -167,7 +167,7 @@ open class ComplicationDrawableRenderer(
     }
 
     /** {@inheritDoc} */
-    override fun onDetatch() {
+    override fun onDetach() {
         systemState.removeListener(systemStateListener)
     }
 
@@ -245,7 +245,7 @@ class Complication @JvmOverloads constructor(
     internal val defaultProviderType: Int = WatchFace.DEFAULT_PROVIDER_TYPE_NONE
 ) {
     init {
-        complicationRenderer.onAttatch()
+        complicationRenderer.onAttach()
     }
 
     /**
@@ -277,9 +277,9 @@ class Complication @JvmOverloads constructor(
     var complicationRenderer: ComplicationRenderer
         get() = _complicationRenderer
         set(value) {
-            complicationRenderer.onDetatch()
+            complicationRenderer.onDetach()
             _complicationRenderer = value
-            complicationRenderer.onAttatch()
+            complicationRenderer.onAttach()
             initRenderer()
         }
 

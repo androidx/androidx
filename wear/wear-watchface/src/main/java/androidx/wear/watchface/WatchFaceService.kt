@@ -288,11 +288,12 @@ abstract class WatchFaceService : WallpaperService() {
 
     final override fun onCreateEngine() = EngineWrapper(getHandler()) as Engine
 
+    // This is open to allow mocking.
     internal open fun getHandler() = Handler(Looper.getMainLooper())
 
+    // This is open to allow mocking.
     internal open fun getSystemState() = SystemState()
 
-    // This is open to allow mocking.
     internal inner class EngineWrapper(
         private val _handler: Handler
     ) : WallpaperService.Engine(), SystemApi, IWatchFaceCommand {

@@ -26,6 +26,9 @@ import androidx.annotation.RestrictTo
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class Constants {
+    // Not instantiable.
+    private constructor()
+
     companion object {
         // Keys for {@link ContentDescriptionLabel}.
         const val KEY_BOUNDS = "KEY_BOUNDS"
