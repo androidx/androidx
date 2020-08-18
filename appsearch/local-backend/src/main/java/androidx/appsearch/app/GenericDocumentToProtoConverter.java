@@ -16,11 +16,18 @@
 
 package androidx.appsearch.app;
 
+import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.Preconditions;
 
 import com.google.android.icing.proto.DocumentProto;
+import com.google.android.icing.proto.PropertyProto;
+import com.google.android.icing.protobuf.ByteString;
+
+import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * Translates a {@link GenericDocument} into a {@link DocumentProto}.
@@ -32,15 +39,112 @@ public final class GenericDocumentToProtoConverter {
 
     /** Converts a {@link GenericDocument} into a {@link DocumentProto}. */
     @NonNull
+    @SuppressWarnings("unchecked")
     public static DocumentProto convert(@NonNull GenericDocument document) {
         Preconditions.checkNotNull(document);
-        return document.getProto();
+        DocumentProto.Builder mProtoBuilder = DocumentProto.newBuilder();
+        mProtoBuilder.setUri(document.getUri())
+                .setSchema(document.getSchemaType())
+                .setNamespace(document.getNamespace())
+                .setScore(document.getScore())
+                .setTtlMs(document.getTtlMillis())
+                .setCreationTimestampMs(document.getCreationTimestampMillis());
+        ArrayList<String> keys = new ArrayList<>(document.mProperties.keySet());
+        Collections.sort(keys);
+        for (int i = 0; i < keys.size(); i++) {
+            String name = keys.get(i);
+            Object values = document.mProperties.get(name);
+            PropertyProto.Builder propertyProto = PropertyProto.newBuilder().setName(name);
+            if (values instanceof boolean[]) {
+                for (boolean value : (boolean[]) values) {
+                    propertyProto.addBooleanValues(value);
+                }
+            } else if (values instanceof long[]) {
+                for (long value : (long[]) values) {
+                    propertyProto.addInt64Values(value);
+                }
+            } else if (values instanceof double[]) {
+                for (double value : (double[]) values) {
+                    propertyProto.addDoubleValues(value);
+                }
+            } else if (values instanceof String[]) {
+                for (String value : (String[]) values) {
+                    propertyProto.addStringValues(value);
+                }
+            } else if (values instanceof ArrayList) {
+                for (Bundle bundle : (ArrayList<Bundle>) values) {
+                    propertyProto.addBytesValues(ByteString.copyFrom(
+                            bundle.getByteArray(GenericDocument.BYTE_ARRAY_FIELD)));
+                }
+            } else if (values instanceof Bundle[]) {
+                for (Bundle bundle : (Bundle[]) values) {
+                    propertyProto.addDocumentValues(convert(new GenericDocument(bundle)));
+                }
+            } else {
+                throw new IllegalStateException(
+                        "Property \"" + name + "\" has unsupported value type \""
+                                + values.getClass().getSimpleName() + "\"");
+            }
+            mProtoBuilder.addProperties(propertyProto);
+        }
+        return mProtoBuilder.build();
     }
 
     /** Converts a {@link DocumentProto} into a {@link GenericDocument}. */
     @NonNull
     public static GenericDocument convert(@NonNull DocumentProto proto) {
         Preconditions.checkNotNull(proto);
-        return new GenericDocument(proto);
+        GenericDocument.Builder documentBuilder =
+                new GenericDocument.Builder<>(proto.getUri(), proto.getSchema())
+                        .setNamespace(proto.getNamespace())
+                        .setScore(proto.getScore())
+                        .setTtlMillis(proto.getTtlMs())
+                        .setCreationTimestampMillis(proto.getCreationTimestampMs());
+
+        for (int i = 0; i < proto.getPropertiesCount(); i++) {
+            PropertyProto property = proto.getProperties(i);
+            String name = property.getName();
+            if (property.getBooleanValuesCount() > 0) {
+                boolean[] values = new boolean[property.getBooleanValuesCount()];
+                for (int j = 0; j < values.length; j++) {
+                    values[j] = property.getBooleanValues(j);
+                }
+                documentBuilder.setProperty(name, values);
+            } else if (property.getInt64ValuesCount() > 0) {
+                long[] values = new long[property.getInt64ValuesCount()];
+                for (int j = 0; j < values.length; j++) {
+                    values[j] = property.getInt64Values(j);
+                }
+                documentBuilder.setProperty(name, values);
+            } else if (property.getDoubleValuesCount() > 0) {
+                double[] values = new double[property.getDoubleValuesCount()];
+                for (int j = 0; j < values.length; j++) {
+                    values[j] = property.getDoubleValues(j);
+                }
+                documentBuilder.setProperty(name, values);
+            } else if (property.getStringValuesCount() > 0) {
+                String[] values = new String[property.getStringValuesCount()];
+                for (int j = 0; j < values.length; j++) {
+                    values[j] = property.getStringValues(j);
+                }
+                documentBuilder.setProperty(name, values);
+            } else if (property.getBytesValuesCount() > 0) {
+                byte[][] values = new byte[property.getBytesValuesCount()][];
+                for (int j = 0; j < values.length; j++) {
+                    values[j] = property.getBytesValues(j).toByteArray();
+                }
+                documentBuilder.setProperty(name, values);
+            } else if (property.getDocumentValuesCount() > 0) {
+                GenericDocument[] values =
+                        new GenericDocument[property.getDocumentValuesCount()];
+                for (int j = 0; j < values.length; j++) {
+                    values[j] = new GenericDocument(convert(property.getDocumentValues(j)));
+                }
+                documentBuilder.setProperty(name, values);
+            } else {
+                throw new IllegalStateException("Unknown type of value: " + name);
+            }
+        }
+        return documentBuilder.build();
     }
 }
