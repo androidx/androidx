@@ -73,6 +73,19 @@ abstract class PagingDataAdapter<T : Any, VH : RecyclerView.ViewHolder> @JvmOver
     }
 
     /**
+     * Stable ids are unsupported by [PagingDataAdapter]. Calling this method is an error and will
+     * result in an [UnsupportedOperationException].
+     *
+     * @param hasStableIds Whether items in data set have unique identifiers or not.
+     *
+     * @throws UnsupportedOperationException Always thrown, since this is unsupported by
+     * [PagingDataAdapter].
+     */
+    final override fun setHasStableIds(hasStableIds: Boolean) {
+        throw UnsupportedOperationException("Stable ids are unsupported on PagingDataAdapter.")
+    }
+
+    /**
      * Present a [PagingData] until it is invalidated by a call to [refresh] or
      * [PagingSource.invalidate].
      *
