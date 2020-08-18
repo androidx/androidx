@@ -97,13 +97,29 @@ public class CustomTabsCallback {
      * The same as {@link #extraCallback}, except that this method allows the custom tabs provider
      * to return a result.
      *
-     * The return bundle should contain a boolean value {@code true} with key
-     * {@link CustomTabsService#KEY_SUCCESS} to signify that the client knows how to handle the
-     * request.
+     * A return value of {@code null} will be used to signify that the client does not know how to
+     * handle the callback.
+     *
+     * As optional best practices, {@link CustomTabsService#KEY_SUCCESS} could be use to identify
+     * that callback was *successfully* handled. For example, when returning a message with result:
+     * <pre><code>
+     *     Bundle result = new Bundle();
+     *     result.putString("message", message);
+     *     if (success)
+     *         result.putBoolean(CustomTabsService#KEY_SUCCESS, true);
+     *     return result;
+     * </code></pre>
+     * The caller side:
+     * <pre><code>
+     *     Bundle result = extraCallbackWithResult(callbackName, args);
+     *     if (result.getBoolean(CustomTabsService#KEY_SUCCESS)) {
+     *         // callback was successfully handled
+     *     }
+     * </code></pre>
      */
-    @NonNull
+    @Nullable
     public Bundle extraCallbackWithResult(@NonNull String callbackName, @Nullable Bundle args) {
-        return Bundle.EMPTY;
+        return null;
     }
 
     /**

@@ -383,19 +383,36 @@ public abstract class TrustedWebActivityService extends Service {
      * an additional API to use in advanced. This call can be used for testing or experimental
      * purposes.
      *
-     * The return bundle should contain a boolean value {@code true} with key
-     * {@link #KEY_SUCCESS} to signify that the client knows how to handle the request.
+     * A return value of {@code null} will be used to signify that the client does not know how to
+     * handle the request.
+     *
+     * As optional best practices, {@link #KEY_SUCCESS} could be use to identify
+     * that command was *successfully* handled. For example, when returning a message with result:
+     * <pre><code>
+     *     Bundle result = new Bundle();
+     *     result.putString("message", message);
+     *     if (success)
+     *         result.putBoolean(KEY_SUCCESS, true);
+     *     return result;
+     * </code></pre>
+     * On the caller side:
+     * <pre><code>
+     *     Bundle result = service.extraCommand(commandName, args);
+     *     if (result.getBoolean(service.KEY_SUCCESS)) {
+     *         // Command was successfully handled
+     *     }
+     * </code></pre>
      *
      * @param commandName    Name of the command to execute.
      * @param args           Arguments to the command.
      * @param callbackRemote Contains the callback that passed with the command.
-     * @return The result {@link Bundle}.
+     * @return The result {@link Bundle} or {@code null}.
      */
     @BinderThread
-    @NonNull
+    @Nullable
     public Bundle onExtraCommand(@NonNull String commandName, @NonNull Bundle args,
             @Nullable TrustedWebActivityCallbackRemote callbackRemote) {
-        return Bundle.EMPTY;
+        return null;
     }
 
     private static String channelNameToId(String name) {
