@@ -327,7 +327,6 @@ open class WatchFace(
     private val systemStateListener = SystemStateListener()
 
     init {
-
         // We need to inhibit an immediate callback during initialization because members are not
         // fully constructed and it will fail. It's also superfluous because we're going to render
         // anyway.
