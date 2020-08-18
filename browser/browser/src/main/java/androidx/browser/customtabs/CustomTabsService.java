@@ -98,7 +98,7 @@ public abstract class CustomTabsService extends Service {
 
     /**
      * The key to use to store a boolean in the returns bundle of {@link #extraCommand} method,
-     * to indicate whether the command is executed successfully.
+     * to indicate the command is executed successfully.
      */
     public static final String KEY_SUCCESS = "androidx.browser.customtabs.SUCCESS";
 
@@ -351,14 +351,31 @@ public abstract class CustomTabsService extends Service {
      * <p> This call can be used by implementations to add extra commands, for testing or
      * experimental purposes.
      *
-     * The return bundle should contain a boolean value {@code true} with key
-     * {@link #KEY_SUCCESS} to signify that the client knows how to handle the request.
+     * A return value of {@code null} will be used to signify that the client does not know how to
+     * handle the request.
+     *
+     * As optional best practices, {@link #KEY_SUCCESS} could be use to identify
+     * that command was *successfully* handled. For example, when returning a message with result:
+     * <pre><code>
+     *     Bundle result = new Bundle();
+     *     result.putString("message", message);
+     *     if (success)
+     *         result.putBoolean(KEY_SUCCESS, true);
+     *     return result;
+     * </code></pre>
+     * The caller side:
+     * <pre><code>
+     *     Bundle result = service.extraCommand(commandName, args);
+     *     if (result.getBoolean(service.KEY_SUCCESS)) {
+     *         // Command was successfully handled
+     *     }
+     * </code></pre>
      *
      * @param commandName Name of the extra command to execute.
      * @param args        Arguments for the command
-     * @return The result {@link Bundle}.
+     * @return The result {@link Bundle}, or {@code null}.
      */
-    @NonNull
+    @Nullable
     protected abstract Bundle extraCommand(@NonNull String commandName, @Nullable Bundle args);
 
     /**

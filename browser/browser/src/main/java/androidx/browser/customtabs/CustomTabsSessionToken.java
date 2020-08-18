@@ -60,7 +60,7 @@ public class CustomTabsSessionToken {
         @SuppressWarnings("NullAway")  // TODO: b/142938599
         @Override
         public Bundle extraCallbackWithResult(String callbackName, Bundle args) {
-            return Bundle.EMPTY;
+            return null;
         }
 
         @Override
@@ -149,7 +149,7 @@ public class CustomTabsSessionToken {
                     return mCallbackBinder.extraCallbackWithResult(callbackName, args);
                 } catch (RemoteException e) {
                     Log.e(TAG, "RemoteException during ICustomTabsCallback transaction");
-                    return Bundle.EMPTY;
+                    return null;
                 }
             }
 
