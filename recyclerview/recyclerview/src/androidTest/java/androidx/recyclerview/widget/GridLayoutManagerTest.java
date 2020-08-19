@@ -751,7 +751,7 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
         });
         waitForFirstLayout(recyclerView);
         checkForMainThreadException();
-        assertTrue("test sanity", mGlm.supportsPredictiveItemAnimations());
+        assertTrue("Assumption check", mGlm.supportsPredictiveItemAnimations());
         mGlm.expectLayout(2);
         int deleteCnt = 10 - remaining;
         int deleteStart = removeFromStart ? 0 : remaining;
@@ -1165,8 +1165,8 @@ public class GridLayoutManagerTest extends BaseGridLayoutManagerTest {
                 toBeMoved.add(holder);
             }
         }
-        assertNotNull("test sanity", toBeRemoved);
-        assertEquals("test sanity", childCount - 1, toBeMoved.size());
+        assertNotNull("Assumption check", toBeRemoved);
+        assertEquals("Assumption check", childCount - 1, toBeMoved.size());
         LoggingItemAnimator loggingItemAnimator = new LoggingItemAnimator();
         mRecyclerView.setItemAnimator(loggingItemAnimator);
         loggingItemAnimator.reset();

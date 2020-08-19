@@ -141,7 +141,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
     public void forceLayoutOnDetach() throws Throwable {
         setupByConfig(new Config(VERTICAL, false, 3, GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS));
         waitFirstLayout();
-        assertFalse("test sanity", mRecyclerView.isLayoutRequested());
+        assertFalse("Assumption check", mRecyclerView.isLayoutRequested());
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -261,7 +261,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
             }
         };
         waitFirstLayout();
-        assertTrue("[test sanity] some views should be laid out", sizeMap.size() > 0);
+        assertTrue("[Assumption check] some views should be laid out", sizeMap.size() > 0);
         for (int i = 0; i < mRecyclerView.getChildCount(); i++) {
             View child = mRecyclerView.getChildAt(i);
             final int size = config.mOrientation == HORIZONTAL ? child.getWidth()
@@ -378,7 +378,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         RecyclerView.ViewHolder lastViewHolder = mRecyclerView.getChildViewHolder(lastChild);
         View subChildToFocus = lastChild.getChildAt(0);
         requestFocus(subChildToFocus, true);
-        assertThat("test sanity", subChildToFocus.isFocused(), CoreMatchers.is(true));
+        assertThat("Assumption check", subChildToFocus.isFocused(), CoreMatchers.is(true));
         focusSearch(subChildToFocus, View.FOCUS_FORWARD);
         waitForIdleScroll(mRecyclerView);
         checkForMainThreadException();
@@ -1086,7 +1086,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         mAdapter.mFullSpanItems.add(fullSpanIndex);
         waitFirstLayout();
         smoothScrollToPosition(fullSpanIndex + 100); // go far away
-        assertNull("test sanity. full span item should not be visible",
+        assertNull("Assumption check. full span item should not be visible",
                 mRecyclerView.findViewHolderForAdapterPosition(fullSpanIndex));
         mLayoutManager.expectLayouts(1);
         mAdapter.deleteAndNotify(fullSpanIndex + 1, 3);
@@ -1179,11 +1179,11 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
         scrollToPosition(400);
         mLayoutManager.waitForLayout(2);
         View view400 = mLayoutManager.findViewByPosition(400);
-        assertNotNull("test sanity, scrollToPos should succeed", view400);
-        assertTrue("test sanity, view should be visible top",
+        assertNotNull("Assumption check, scrollToPos should succeed", view400);
+        assertTrue("Assumption check, view should be visible top",
                 mLayoutManager.mPrimaryOrientation.getDecoratedStart(view400) >=
                         mLayoutManager.mPrimaryOrientation.getStartAfterPadding());
-        assertTrue("test sanity, view should be visible bottom",
+        assertTrue("Assumption check, view should be visible bottom",
                 mLayoutManager.mPrimaryOrientation.getDecoratedEnd(view400) <=
                         mLayoutManager.mPrimaryOrientation.getEndAfterPadding());
         mLayoutManager.expectLayouts(2);
@@ -1298,7 +1298,7 @@ public class StaggeredGridLayoutManagerTest extends BaseStaggeredGridLayoutManag
 
         // delete an item before visible area
         int deletedPosition = mLayoutManager.getPosition(mLayoutManager.getChildAt(0)) - 2;
-        assertTrue("test sanity", deletedPosition >= 0);
+        assertTrue("Assumption check", deletedPosition >= 0);
         Map<Item, Rect> before = mLayoutManager.collectChildCoordinates();
         if (DEBUG) {
             Log.d(TAG, "before:");
