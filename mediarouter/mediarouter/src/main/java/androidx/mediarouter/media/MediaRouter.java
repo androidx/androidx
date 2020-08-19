@@ -2283,9 +2283,24 @@ public final class MediaRouter {
             mSelector = MediaRouteSelector.EMPTY;
         }
 
-        public boolean filterRouteEvent(RouteInfo route) {
-            return (mFlags & CALLBACK_FLAG_UNFILTERED_EVENTS) != 0
-                    || route.matchesSelector(mSelector);
+        public boolean filterRouteEvent(RouteInfo route, int what, RouteInfo optionalRoute,
+                int reason) {
+            if ((mFlags & CALLBACK_FLAG_UNFILTERED_EVENTS) != 0
+                    || route.matchesSelector(mSelector)) {
+                return true;
+            }
+
+            // In order to notify the app of cast-to-phone event, the onRouteSelected(phone)
+            // should be called regaredless of the callbakck's control category.
+            if (isTransferToLocalEnabled() && route.isDefaultOrBluetooth()
+                    && what == GlobalMediaRouter.CallbackHandler.MSG_ROUTE_SELECTED
+                    && reason == UNSELECT_REASON_ROUTE_CHANGED
+                    && optionalRoute != null) {
+                // Check the previously selected route is remote route.
+                return !optionalRoute.isDefaultOrBluetooth();
+            }
+
+            return false;
         }
     }
 
@@ -3127,6 +3142,7 @@ public final class MediaRouter {
                 }
             }
 
+            RouteInfo unselectedRoute = mSelectedRoute;
             notifyTransferAndUnselectSelectedRoute(route, unselectReason);
 
             mSelectedRouteController = route.getProviderInstance().onCreateRouteController(
@@ -3139,8 +3155,9 @@ public final class MediaRouter {
             if (DEBUG) {
                 Log.d(TAG, "Route selected: " + mSelectedRoute);
             }
-            mCallbackHandler.post(CallbackHandler.MSG_ROUTE_SELECTED, mSelectedRoute,
-                    unselectReason);
+
+            mCallbackHandler.post(CallbackHandler.MSG_ROUTE_SELECTED,
+                    new Pair<>(unselectedRoute, mSelectedRoute), unselectReason);
 
             mRouteControllerMap.clear();
             maybeUpdateMemberRouteControllers();
@@ -3634,6 +3651,7 @@ public final class MediaRouter {
                 }
             }
 
+            @SuppressWarnings("unchecked") // Using Pair<RouteInfo, RouteInfo>
             private void syncWithSystemProvider(int what, Object obj) {
                 switch (what) {
                     case MSG_ROUTE_ADDED:
@@ -3646,7 +3664,8 @@ public final class MediaRouter {
                         mSystemProvider.onSyncRouteChanged((RouteInfo) obj);
                         break;
                     case MSG_ROUTE_SELECTED:
-                        mSystemProvider.onSyncRouteSelected((RouteInfo) obj);
+                        mSystemProvider.onSyncRouteSelected(
+                                ((Pair<RouteInfo, RouteInfo>) obj).second);
                         break;
                 }
             }
@@ -3657,9 +3676,14 @@ public final class MediaRouter {
                 final MediaRouter.Callback callback = record.mCallback;
                 switch (what & MSG_TYPE_MASK) {
                     case MSG_TYPE_ROUTE: {
-                        final RouteInfo route = (what == MSG_ROUTE_ANOTHER_SELECTED)
+                        final RouteInfo route =
+                                (what == MSG_ROUTE_ANOTHER_SELECTED || what == MSG_ROUTE_SELECTED)
                                 ? ((Pair<RouteInfo, RouteInfo>) obj).second : (RouteInfo) obj;
-                        if (route == null || !record.filterRouteEvent(route)) {
+                        final RouteInfo optionalRoute =
+                                (what == MSG_ROUTE_ANOTHER_SELECTED || what == MSG_ROUTE_SELECTED)
+                                ? ((Pair<RouteInfo, RouteInfo>) obj).first : null;
+                        if (route == null || !record.filterRouteEvent(
+                                route, what, optionalRoute, arg)) {
                             break;
                         }
                         switch (what) {
@@ -3685,8 +3709,7 @@ public final class MediaRouter {
                                 callback.onRouteUnselected(router, route, arg);
                                 break;
                             case MSG_ROUTE_ANOTHER_SELECTED:
-                                callback.onRouteSelected(router, route, arg,
-                                        ((Pair<RouteInfo, RouteInfo>) obj).first);
+                                callback.onRouteSelected(router, route, arg, optionalRoute);
                                 break;
                         }
                         break;
