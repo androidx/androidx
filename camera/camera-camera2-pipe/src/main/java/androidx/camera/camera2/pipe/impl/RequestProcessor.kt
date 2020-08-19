@@ -139,6 +139,11 @@ interface RequestProcessor {
     fun stop()
 }
 
+/** An interface for an object that defines which surface to use for a specific stream */
+interface SurfaceMap {
+    operator fun get(streamId: StreamId): Surface?
+}
+
 /**
  * This class is designed to synchronously handle interactions with the Camera CaptureSession.
  */
@@ -147,7 +152,7 @@ class StandardRequestProcessor(
     private val session: CameraCaptureSessionWrapper,
     private val threads: Threads,
     private val graphConfig: CameraGraph.Config,
-    private val streamMap: StreamMap,
+    private val surfaceMap: SurfaceMap,
     private val graphListeners: List<Request.Listener>
 ) : RequestProcessor {
     private val inFlightRequests = mutableListOf<CaptureSequence>()
@@ -242,7 +247,7 @@ class StandardRequestProcessor(
                     continue
                 }
 
-                val surface = streamMap[stream]
+                val surface = surfaceMap[stream]
                 if (surface != null) {
                     // TODO(codelogic) There should be a more efficient way to do these lookups than
                     // having two maps.

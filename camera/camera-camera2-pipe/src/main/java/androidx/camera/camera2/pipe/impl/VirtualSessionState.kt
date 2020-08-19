@@ -16,12 +16,15 @@
 
 package androidx.camera.camera2.pipe.impl
 
+import android.view.Surface
+import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.wrapper.CameraCaptureSessionWrapper
 import kotlinx.atomicfu.atomic
 
 internal val virtualSessionDebugIds = atomic(0)
-class VirtualSessionState : CameraCaptureSessionWrapper.StateCallback {
+class VirtualSessionState : CameraCaptureSessionWrapper.StateCallback, SurfaceMap {
     private val debugId = virtualSessionDebugIds.incrementAndGet()
+    var surfaceMap: Map<StreamId, Surface>? = null
 
     override fun onActive(session: CameraCaptureSessionWrapper) {
         Log.debug { "$this Active" }
@@ -45,6 +48,11 @@ class VirtualSessionState : CameraCaptureSessionWrapper.StateCallback {
 
     override fun onCaptureQueueEmpty(session: CameraCaptureSessionWrapper) {
         Log.debug { "$this Active" }
+    }
+
+    /** Return a Surface that should be used for a specific stream */
+    override fun get(streamId: StreamId): Surface? {
+        TODO("Implemented in a future change.")
     }
 
     /**

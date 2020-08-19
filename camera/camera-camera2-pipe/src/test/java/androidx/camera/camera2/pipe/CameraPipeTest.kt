@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe
 import android.content.Context
 import android.os.Build
 import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
+import androidx.camera.camera2.pipe.testing.FakeCameras
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -42,11 +43,12 @@ class CameraPipeTest {
 
     @Test
     fun createCameraGraph() {
+        val fakeCameraId = FakeCameras.create()
         val context = ApplicationProvider.getApplicationContext() as Context
         val cameraPipe = CameraPipe(CameraPipe.Config(context))
         val cameraGraph = cameraPipe.create(
             CameraGraph.Config(
-                camera = CameraId("0"),
+                camera = fakeCameraId,
                 streams = listOf(),
                 template = RequestTemplate(0)
             )
@@ -56,12 +58,14 @@ class CameraPipeTest {
 
     @Test
     fun iterateCameraIds() {
+        val fakeCameraId = FakeCameras.create()
         val context = ApplicationProvider.getApplicationContext() as Context
         val cameraPipe = CameraPipe(CameraPipe.Config(context))
         val cameras = cameraPipe.cameras()
         val cameraList = cameras.findAll()
 
         assertThat(cameraList).isNotNull()
-        assertThat(cameraList.size).isEqualTo(0) // Robolectric does not report cameras.
+        assertThat(cameraList.size).isEqualTo(1)
+        assertThat(cameraList).contains(fakeCameraId)
     }
 }
