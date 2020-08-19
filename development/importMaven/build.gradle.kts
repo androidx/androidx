@@ -88,6 +88,12 @@ repositories {
             }
         }
         maven {
+            url = uri("https://dl.bintray.com/kotlin/kotlin-eap/")
+            metadataSources {
+                artifact()
+            }
+        }
+        maven {
             url = uri("https://dl.bintray.com/kotlin/kotlinx/")
             metadataSources {
                 artifact()
