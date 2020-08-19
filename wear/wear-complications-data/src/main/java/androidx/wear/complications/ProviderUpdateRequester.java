@@ -48,8 +48,8 @@ public class ProviderUpdateRequester {
     private static final String EXTRA_COMPLICATION_IDS =
             "android.support.wearable.complications.EXTRA_COMPLICATION_IDS";
 
-    private final Context mContext;
-    private final ComponentName mProviderComponent;
+    @NonNull private final Context mContext;
+    @NonNull private final ComponentName mProviderComponent;
 
     /**
      * @param context The provider's context
