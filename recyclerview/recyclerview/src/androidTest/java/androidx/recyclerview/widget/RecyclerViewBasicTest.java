@@ -350,7 +350,7 @@ public class RecyclerViewBasicTest {
         measure();
         layout();
         View view = mRecyclerView.getChildAt(0);
-        assertNotNull("test sanity", view);
+        assertNotNull("Assumption check", view);
         LoggingView loggingView = (LoggingView) view;
         SparseArray<Parcelable> container = new SparseArray<Parcelable>();
         mRecyclerView.saveHierarchyState(container);

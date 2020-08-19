@@ -75,7 +75,7 @@ public class StaggeredGridLayoutManagerGapTest extends BaseStaggeredGridLayoutMa
         smoothScrollToPosition(mConfig.mItemCount / 2);
         checkForMainThreadException();
         // assert to be deleted child is not visible
-        assertNull(" test sanity, to be deleted child should be invisible",
+        assertNull(" Assumption check, to be deleted child should be invisible",
                 mRecyclerView.findViewHolderForLayoutPosition(mDeletePosition));
         // delete the child and notify
 
