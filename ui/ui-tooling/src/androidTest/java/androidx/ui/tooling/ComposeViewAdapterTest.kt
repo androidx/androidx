@@ -134,17 +134,21 @@ class ComposeViewAdapterTest {
 
         activityTestRule.runOnUiThread {
             // Verify all calls, generate the correct line number information
-            assertArrayEquals(arrayOf(36, 37, 38, 40, 43, 44, 44, 45, 45),
-                viewInfos
-                    .map { it.location?.lineNumber ?: -1 }
-                    .sorted()
-                    .toTypedArray())
+            val lines = viewInfos
+                .map { it.location?.lineNumber ?: -1 }
+                .sorted()
+                .toTypedArray()
+            assertArrayEquals(arrayOf(36, 37, 38, 40, 40, 40, 43, 44, 44, 45, 45), lines)
+
             // Verify that all calls generate the correct offset information
-            assertArrayEquals(arrayOf(1221, 1258, 1279, 1407, 1455, 1477, 1494, 1517, 1534),
-                viewInfos
-                    .map { it.location?.offset ?: -1 }
-                    .sorted()
-                    .toTypedArray())
+            val offsets = viewInfos
+                .map { it.location?.offset ?: -1 }
+                .sorted()
+                .toTypedArray()
+            assertArrayEquals(
+                arrayOf(1221, 1258, 1279, 1407, 1407, 1407, 1455, 1477, 1494, 1517, 1534),
+                offsets
+            )
         }
     }
 
