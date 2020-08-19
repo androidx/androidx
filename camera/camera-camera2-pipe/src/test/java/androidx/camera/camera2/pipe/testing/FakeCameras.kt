@@ -139,7 +139,11 @@ object FakeCameras {
             cameraManager
         ) as ShadowCameraManager
         for (cameraId in initializedCameraIds) {
-            shadowCameraManager.removeCamera(cameraId.value)
+            try {
+                shadowCameraManager.removeCamera(cameraId.value)
+            } catch (e: Throwable) {
+                // Ignored - This is a cleanup task.
+            }
         }
         initializedCameraIds.clear()
     }

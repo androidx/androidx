@@ -60,7 +60,8 @@ open class FakeMetadata(metadata: Map<Metadata.Key<*>, Any?> = emptyMap()) : Met
  */
 class FakeCameraMetadata(
     characteristics: Map<CameraCharacteristics.Key<*>, Any?> = emptyMap(),
-    metadata: Map<Metadata.Key<*>, Any?> = emptyMap()
+    metadata: Map<Metadata.Key<*>, Any?> = emptyMap(),
+    cameraId: CameraId = CameraId("Fake")
 ) : FakeMetadata(metadata), CameraMetadata {
 
     private val values = characteristics.toMap()
@@ -69,7 +70,7 @@ class FakeCameraMetadata(
     override fun <T> getOrDefault(key: CameraCharacteristics.Key<T>, default: T): T =
         get(key) ?: default
 
-    override val camera = CameraId("Fake")
+    override val camera = cameraId
     override val isRedacted = false
     override val keys: Set<CameraCharacteristics.Key<*>> = emptySet()
     override val requestKeys: Set<CaptureRequest.Key<*>> = emptySet()

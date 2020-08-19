@@ -19,10 +19,10 @@ package androidx.camera.camera2.pipe.impl
 import android.content.Context
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraGraph
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
+import androidx.camera.camera2.pipe.testing.FakeCameras
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
 import com.google.common.truth.Truth.assertThat
@@ -34,6 +34,8 @@ import org.robolectric.annotation.Config
 @RunWith(CameraPipeRobolectricTestRunner::class)
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class CameraPipeComponentTest {
+    private val fakeCameraId = FakeCameras.create()
+
     @Test
     fun createCameraPipeComponent() {
         val context = ApplicationProvider.getApplicationContext() as Context
@@ -54,7 +56,7 @@ class CameraPipeComponentTest {
             .cameraPipeConfigModule(CameraPipeConfigModule(CameraPipe.Config(context)))
             .build()
 
-        val cameraId = CameraId("0")
+        val cameraId = fakeCameraId
         val config = CameraGraph.Config(
             camera = cameraId,
             streams = listOf(),
@@ -78,7 +80,7 @@ class CameraPipeComponentTest {
             .cameraGraphConfigModule(
                 CameraGraphConfigModule(
                     CameraGraph.Config(
-                        camera = CameraId("0"),
+                        camera = fakeCameraId,
                         streams = listOf(),
                         template = RequestTemplate(0)
                     )

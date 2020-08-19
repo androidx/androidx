@@ -17,6 +17,7 @@
 package androidx.camera.camera2.pipe.impl
 
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Request
 import dagger.Binds
 import dagger.Module
@@ -73,6 +74,14 @@ abstract class CameraGraphModules {
         @ForCameraGraph
         fun provideCameraGraphCoroutineScope(threads: Threads): CoroutineScope {
             return CoroutineScope(threads.defaultDispatcher.plus(CoroutineName("CXCP-Graph")))
+        }
+
+        @Provides
+        fun provideCameraMetadata(
+            graphConfig: CameraGraph.Config,
+            cache: CameraMetadataCache
+        ): CameraMetadata {
+            return cache.awaitMetadata(graphConfig.camera)
         }
 
         @CameraGraphScope
