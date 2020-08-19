@@ -33,7 +33,9 @@ open class AndroidXExtension(val project: Project) {
         }
     var mavenGroup: LibraryGroup? = null
         set(value) {
+            check(value != null)
             field = value
+            project.group = value.group
             chooseProjectVersion()
         }
 
