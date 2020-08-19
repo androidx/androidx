@@ -55,6 +55,40 @@ class PagingStateTest {
     }
 
     @Test
+    fun closestItemToPosition_withEmptyPages() {
+        val pagingState = PagingState(
+            pages = listOf(
+                listOf(),
+                List(10) { it },
+                listOf()
+            ).asPages(),
+            anchorPosition = 10,
+            config = PagingConfig(pageSize = 10),
+            leadingPlaceholderCount = 10
+        )
+
+        assertEquals(0, pagingState.closestItemToPosition(5))
+        assertEquals(5, pagingState.closestItemToPosition(15))
+        assertEquals(9, pagingState.closestItemToPosition(25))
+    }
+
+    @Test
+    fun closestItemToPosition_onlyEmptyPages() {
+        val pagingState = PagingState(
+            pages = listOf<List<Int>>(
+                listOf(),
+                listOf()
+            ).asPages(),
+            anchorPosition = 10,
+            config = PagingConfig(pageSize = 10),
+            leadingPlaceholderCount = 10
+        )
+
+        assertEquals(null, pagingState.closestItemToPosition(5))
+        assertEquals(null, pagingState.closestItemToPosition(25))
+    }
+
+    @Test
     fun closestPageToPosition_withoutPlaceholders() {
         val pages = List(10) { listOf(it) }.asPages()
         val pagingState = PagingState(
@@ -82,6 +116,42 @@ class PagingStateTest {
         assertEquals(pages.first(), pagingState.closestPageToPosition(5))
         assertEquals(pages[5], pagingState.closestPageToPosition(15))
         assertEquals(pages.last(), pagingState.closestPageToPosition(25))
+    }
+
+    @Test
+    fun closestPageToPosition_withEmptyPages() {
+        val pages = List(10) {
+            when {
+                it % 3 == 0 -> listOf()
+                else -> listOf(it)
+            }
+        }.asPages()
+        val pagingState = PagingState(
+            pages = pages,
+            anchorPosition = 10,
+            config = PagingConfig(pageSize = 10),
+            leadingPlaceholderCount = 10
+        )
+
+        assertEquals(pages.first(), pagingState.closestPageToPosition(5))
+        assertEquals(pages[5], pagingState.closestPageToPosition(13)) // pages[5].data == [5]
+        assertEquals(pages.last(), pagingState.closestPageToPosition(25))
+    }
+
+    @Test
+    fun closestPageToPosition_onlyEmptyPages() {
+        val pagingState = PagingState(
+            pages = listOf<List<Int>>(
+                listOf(),
+                listOf()
+            ).asPages(),
+            anchorPosition = 10,
+            config = PagingConfig(pageSize = 10),
+            leadingPlaceholderCount = 10
+        )
+
+        assertEquals(null, pagingState.closestPageToPosition(5))
+        assertEquals(null, pagingState.closestPageToPosition(25))
     }
 
     @Test
