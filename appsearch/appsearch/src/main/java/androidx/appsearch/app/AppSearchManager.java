@@ -16,27 +16,15 @@
 
 package androidx.appsearch.app;
 
-import static androidx.appsearch.app.AppSearchResult.newFailedResult;
-
-import android.content.Context;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 import androidx.appsearch.exceptions.AppSearchException;
-import androidx.appsearch.impl.AppSearchImpl;
 import androidx.collection.ArraySet;
 import androidx.concurrent.futures.ResolvableFuture;
 import androidx.core.util.Preconditions;
 
-import com.google.android.icing.proto.DocumentProto;
-import com.google.android.icing.proto.SchemaProto;
-import com.google.android.icing.proto.SchemaTypeConfigProto;
-import com.google.android.icing.proto.SearchResultProto;
-import com.google.android.icing.proto.SearchSpecProto;
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -64,7 +52,7 @@ public class AppSearchManager {
     public static final String DEFAULT_DATABASE_NAME = "";
 
     private final String mDatabaseName;
-    private final AppSearchImpl mAppSearchImpl;
+    private final AppSearchBackend mBackend;
     // Never call Executor.shutdownNow(), it will cancel the futures it's returned. And since
     // execute() won't return anything, we will hang forever waiting for the execution.
     // AppSearch multi-thread execution is guarded by Read & Write Lock in AppSearchImpl, all
@@ -73,22 +61,17 @@ public class AppSearchManager {
 
     /** Builder class for {@link AppSearchManager} objects. */
     public static final class Builder {
-        private final Context mContext;
+        private AppSearchBackend mBackend;
         private String mDatabaseName = DEFAULT_DATABASE_NAME;
         private boolean mBuilt = false;
-
-        /** Constructs a new Builder with default settings using the provided {@code context}. */
-        public Builder(@NonNull Context context) {
-            Preconditions.checkNotNull(context);
-            mContext = context;
-        }
 
         /**
          * Sets the name of the database to create or open.
          *
-         * <p>Database name cannot contain {@code '/'}.
          * <p>Databases with different names are fully separate with distinct types, namespaces, and
          * data.
+         *
+         * <p>Database name cannot contain {@code '/'}.
          *
          * <p>If not specified, defaults to {@link #DEFAULT_DATABASE_NAME}.
          * @param databaseName The name of the database.
@@ -105,6 +88,15 @@ public class AppSearchManager {
             return this;
         }
 
+        /** Sets the backend where this {@link AppSearchManager} will store its data. */
+        @NonNull
+        public Builder setBackend(@NonNull AppSearchBackend backend) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            Preconditions.checkNotNull(backend);
+            mBackend = backend;
+            return this;
+        }
+
         /**
          * Connects to the AppSearch database per this builder's configuration, and asynchronously
          * returns the initialized instance.
@@ -112,42 +104,35 @@ public class AppSearchManager {
         @NonNull
         public ListenableFuture<AppSearchResult<AppSearchManager>> build() {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
+            Preconditions.checkState(mBackend != null, "setBackend() has never been called");
             mBuilt = true;
-            AppSearchManager appSearchManager = new AppSearchManager(mDatabaseName);
-            return appSearchManager.initialize(mContext);
+            AppSearchManager appSearchManager = new AppSearchManager(mDatabaseName, mBackend);
+            return appSearchManager.initialize();
         }
     }
 
-    /**
-     * Gets a instance of {@link AppSearchManager} with the name of it.
-     *
-     * <p>Documents, schemas and types are fully isolated between different databases.
-     *
-     * @param databaseName The name of this database.
-     */
-    AppSearchManager(@NonNull String databaseName) {
+    AppSearchManager(@NonNull String databaseName, @NonNull AppSearchBackend backend) {
         mDatabaseName = databaseName;
-        mAppSearchImpl = AppSearchImpl.getInstance();
+        mBackend = backend;
     }
 
-    ListenableFuture<AppSearchResult<AppSearchManager>> initialize(
-            @NonNull Context context) {
-        if (mAppSearchImpl.isInitialized()) {
+    ListenableFuture<AppSearchResult<AppSearchManager>> initialize() {
+        if (mBackend.isInitialized()) {
             // Already initialized, nothing to do.
             ResolvableFuture<AppSearchResult<AppSearchManager>> resolvableFuture =
                     ResolvableFuture.create();
             resolvableFuture.set(AppSearchResult.newSuccessfulResult(this));
             return resolvableFuture;
         }
-
         return execute(() -> {
-            try {
-                mAppSearchImpl.initialize(context);
-                return AppSearchResult.newSuccessfulResult(this);
-            } catch (Throwable t) {
-                return throwableToFailedResult(t);
+            if (!mBackend.isInitialized()) {
+                AppSearchResult<Void> initResult = mBackend.initialize();
+                if (!initResult.isSuccess()) {
+                    return AppSearchResult.newFailedResult(
+                            initResult.getResultCode(), initResult.getErrorMessage());
+                }
             }
-
+            return AppSearchResult.newSuccessfulResult(this);
         });
     }
 
@@ -157,12 +142,25 @@ public class AppSearchManager {
      * @see AppSearchManager#setSchema
      */
     public static final class SetSchemaRequest {
-        final Set<AppSearchSchema> mSchemas;
-        final boolean mForceOverride;
+        private final Set<AppSearchSchema> mSchemas;
+        private final boolean mForceOverride;
 
         SetSchemaRequest(Set<AppSearchSchema> schemas, boolean forceOverride) {
             mSchemas = schemas;
             mForceOverride = forceOverride;
+        }
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @NonNull
+        public Set<AppSearchSchema> getSchemas() {
+            return mSchemas;
+        }
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public boolean isForceOverride() {
+            return mForceOverride;
         }
 
         /** Builder for {@link SetSchemaRequest} objects. */
@@ -296,20 +294,7 @@ public class AppSearchManager {
     @NonNull
     public ListenableFuture<AppSearchResult<Void>> setSchema(@NonNull SetSchemaRequest request) {
         Preconditions.checkNotNull(request);
-        return execute(() -> {
-            SchemaProto.Builder schemaProtoBuilder = SchemaProto.newBuilder();
-            for (AppSearchSchema schema : request.mSchemas) {
-                SchemaTypeConfigProto schemaTypeProto = SchemaToProtoConverter.convert(schema);
-                schemaProtoBuilder.addTypes(schemaTypeProto);
-            }
-            try {
-                mAppSearchImpl.setSchema(mDatabaseName, schemaProtoBuilder.build(),
-                        request.mForceOverride);
-                return AppSearchResult.newSuccessfulResult(/*value=*/ null);
-            } catch (Throwable t) {
-                return throwableToFailedResult(t);
-            }
-        });
+        return execute(() -> mBackend.setSchema(mDatabaseName, request));
     }
 
     /**
@@ -318,10 +303,17 @@ public class AppSearchManager {
      * @see AppSearchManager#putDocuments
      */
     public static final class PutDocumentsRequest {
-        final List<GenericDocument> mDocuments;
+        private final List<GenericDocument> mDocuments;
 
         PutDocumentsRequest(List<GenericDocument> documents) {
             mDocuments = documents;
+        }
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @NonNull
+        public List<GenericDocument> getDocuments() {
+            return mDocuments;
         }
 
         /** Builder for {@link PutDocumentsRequest} objects. */
@@ -412,20 +404,7 @@ public class AppSearchManager {
         // TODO(b/146386470): Transmit these documents as a RemoteStream instead of sending them in
         // one big list.
         Preconditions.checkNotNull(request);
-        return execute(() -> {
-            AppSearchBatchResult.Builder<String, Void> resultBuilder =
-                    new AppSearchBatchResult.Builder<>();
-            for (int i = 0; i < request.mDocuments.size(); i++) {
-                GenericDocument document = request.mDocuments.get(i);
-                try {
-                    mAppSearchImpl.putDocument(mDatabaseName, document.getProto());
-                    resultBuilder.setSuccess(document.getUri(), /*result=*/ null);
-                } catch (Throwable t) {
-                    resultBuilder.setResult(document.getUri(), throwableToFailedResult(t));
-                }
-            }
-            return resultBuilder.build();
-        });
+        return execute(() -> mBackend.putDocuments(mDatabaseName, request));
     }
 
     /**
@@ -434,12 +413,26 @@ public class AppSearchManager {
      * @see AppSearchManager#getDocuments
      */
     public static final class GetDocumentsRequest {
-        final String mNamespace;
-        final Set<String> mUris;
+        private final String mNamespace;
+        private final Set<String> mUris;
 
-        GetDocumentsRequest(String namespace, Set<String> uris) {
+        GetDocumentsRequest(@NonNull String namespace, @NonNull Set<String> uris) {
             mNamespace = namespace;
             mUris = uris;
+        }
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @NonNull
+        public String getNamespace() {
+            return mNamespace;
+        }
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @NonNull
+        public Set<String> getUris() {
+            return mUris;
         }
 
         /** Builder for {@link GetDocumentsRequest} objects. */
@@ -503,28 +496,7 @@ public class AppSearchManager {
         // TODO(b/146386470): Transmit the result documents as a RemoteStream instead of sending
         //     them in one big list.
         Preconditions.checkNotNull(request);
-        return execute(() -> {
-            AppSearchBatchResult.Builder<String, GenericDocument> resultBuilder =
-                    new AppSearchBatchResult.Builder<>();
-            for (String uri : request.mUris) {
-                try {
-                    DocumentProto documentProto =
-                            mAppSearchImpl.getDocument(mDatabaseName, request.mNamespace, uri);
-                    try {
-                        GenericDocument document = new GenericDocument(documentProto);
-                        resultBuilder.setSuccess(uri, document);
-                    } catch (Throwable t) {
-                        // These documents went through validation, so how could this fail?
-                        // We must have done something wrong.
-                        resultBuilder.setFailure(
-                                uri, AppSearchResult.RESULT_INTERNAL_ERROR, t.getMessage());
-                    }
-                } catch (Throwable t) {
-                    resultBuilder.setResult(uri, throwableToFailedResult(t));
-                }
-            }
-            return resultBuilder.build();
-        });
+        return execute(() -> mBackend.getDocuments(mDatabaseName, request));
     }
 
     /**
@@ -574,20 +546,7 @@ public class AppSearchManager {
         //     them in one big list.
         Preconditions.checkNotNull(queryExpression);
         Preconditions.checkNotNull(searchSpec);
-        return execute(() -> {
-            try {
-                SearchSpecProto searchSpecProto = searchSpec.getSearchSpecProto();
-                searchSpecProto = searchSpecProto.toBuilder().setQuery(queryExpression).build();
-                SearchResultProto searchResultProto = mAppSearchImpl.query(mDatabaseName,
-                        searchSpecProto, searchSpec.getResultSpecProto(),
-                        searchSpec.getScoringSpecProto());
-
-                return AppSearchResult.newSuccessfulResult(
-                        new SearchResults(searchResultProto));
-            } catch (Throwable t) {
-                return throwableToFailedResult(t);
-            }
-        });
+        return execute(() -> mBackend.query(mDatabaseName, queryExpression, searchSpec));
     }
 
     /**
@@ -596,12 +555,26 @@ public class AppSearchManager {
      * @see AppSearchManager#removeDocuments
      */
     public static final class RemoveDocumentsRequest {
-        final String mNamespace;
-        final Set<String> mUris;
+        private final String mNamespace;
+        private final Set<String> mUris;
 
         RemoveDocumentsRequest(String namespace, Set<String> uris) {
             mNamespace = namespace;
             mUris = uris;
+        }
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @NonNull
+        public String getNamespace() {
+            return mNamespace;
+        }
+
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        @NonNull
+        public Set<String> getUris() {
+            return mUris;
         }
 
         /** Builder for {@link RemoveDocumentsRequest} objects. */
@@ -652,7 +625,7 @@ public class AppSearchManager {
     /**
      * Removes {@link GenericDocument}s from the index by URI.
      *
-     * @param request {@link GetDocumentsRequest} containing URIs to be removed.
+     * @param request Request containing URIs to be removed.
      * @return The pending result of performing this operation. The keys of the returned
      * {@link AppSearchBatchResult} are the input URIs. The values are {@code null} on success,
      * or a failed {@link AppSearchResult} otherwise. URIs that are not found will return a
@@ -663,19 +636,7 @@ public class AppSearchManager {
     public ListenableFuture<AppSearchBatchResult<String, Void>> removeDocuments(
             @NonNull RemoveDocumentsRequest request) {
         Preconditions.checkNotNull(request);
-        return execute(() -> {
-            AppSearchBatchResult.Builder<String, Void> resultBuilder =
-                    new AppSearchBatchResult.Builder<>();
-            for (String uri : request.mUris) {
-                try {
-                    mAppSearchImpl.remove(mDatabaseName, request.mNamespace, uri);
-                    resultBuilder.setSuccess(uri, /*result= */null);
-                } catch (Throwable t) {
-                    resultBuilder.setResult(uri, throwableToFailedResult(t));
-                }
-            }
-            return resultBuilder.build();
-        });
+        return execute(() -> mBackend.removeDocuments(mDatabaseName, request));
     }
 
     /**
@@ -709,20 +670,7 @@ public class AppSearchManager {
     public ListenableFuture<AppSearchBatchResult<String, Void>> removeByType(
             @NonNull List<String> schemaTypes) {
         Preconditions.checkNotNull(schemaTypes);
-        return execute(() -> {
-            AppSearchBatchResult.Builder<String, Void> resultBuilder =
-                    new AppSearchBatchResult.Builder<>();
-            for (int i = 0; i < schemaTypes.size(); i++) {
-                String schemaType = schemaTypes.get(i);
-                try {
-                    mAppSearchImpl.removeByType(mDatabaseName, schemaType);
-                    resultBuilder.setSuccess(schemaType, /*result=*/ null);
-                } catch (Throwable t) {
-                    resultBuilder.setResult(schemaType, throwableToFailedResult(t));
-                }
-            }
-            return resultBuilder.build();
-        });
+        return execute(() -> mBackend.removeByType(mDatabaseName, schemaTypes));
     }
 
     /**
@@ -756,49 +704,20 @@ public class AppSearchManager {
     public ListenableFuture<AppSearchBatchResult<String, Void>> removeByNamespace(
             @NonNull List<String> namespaces) {
         Preconditions.checkNotNull(namespaces);
-        return execute(() -> {
-            AppSearchBatchResult.Builder<String, Void> resultBuilder =
-                    new AppSearchBatchResult.Builder<>();
-            for (int i = 0; i < namespaces.size(); i++) {
-                String namespace = namespaces.get(i);
-                try {
-                    mAppSearchImpl.removeByNamespace(mDatabaseName, namespace);
-                    resultBuilder.setSuccess(namespace, /*result=*/ null);
-                } catch (Throwable t) {
-                    resultBuilder.setResult(namespace, throwableToFailedResult(t));
-                }
-            }
-            return resultBuilder.build();
-        });
+        return execute(() -> mBackend.removeByNamespace(mDatabaseName, namespaces));
     }
 
     /**
      * Removes all documents owned by this instance.
      *
+     * <p>The schemas will remain. To clear everything including schemas, please call
+     * {@link #setSchema} with an empty schema and {@code forceOverride} set to true.
+     *
      * @return The pending result of performing this operation.
      */
     @NonNull
     public ListenableFuture<AppSearchResult<Void>> removeAll() {
-        return execute(() -> {
-            try {
-                mAppSearchImpl.removeAll(mDatabaseName);
-                return AppSearchResult.newSuccessfulResult(null);
-            } catch (Throwable t) {
-                return throwableToFailedResult(t);
-            }
-        });
-    }
-
-    @VisibleForTesting
-    ListenableFuture<AppSearchResult<Void>> resetAllInstances() {
-        return execute(() -> {
-            try {
-                mAppSearchImpl.reset();
-                return AppSearchResult.newSuccessfulResult(null);
-            } catch (Throwable t) {
-                return throwableToFailedResult(t);
-            }
-        });
+        return execute(() -> mBackend.removeAll(mDatabaseName));
     }
 
     /** Executes the callable task and set result to ListenableFuture. */
@@ -814,24 +733,5 @@ public class AppSearchManager {
             }
         });
         return future;
-    }
-
-    private <ValueType> AppSearchResult<ValueType> throwableToFailedResult(
-            @NonNull Throwable t) {
-        if (t instanceof AppSearchException) {
-            return ((AppSearchException) t).toAppSearchResult();
-        }
-
-        @AppSearchResult.ResultCode int resultCode;
-        if (t instanceof IllegalStateException) {
-            resultCode = AppSearchResult.RESULT_INTERNAL_ERROR;
-        } else if (t instanceof IllegalArgumentException) {
-            resultCode = AppSearchResult.RESULT_INVALID_ARGUMENT;
-        } else if (t instanceof IOException) {
-            resultCode = AppSearchResult.RESULT_IO_ERROR;
-        } else {
-            resultCode = AppSearchResult.RESULT_UNKNOWN_ERROR;
-        }
-        return newFailedResult(resultCode, t.toString());
     }
 }

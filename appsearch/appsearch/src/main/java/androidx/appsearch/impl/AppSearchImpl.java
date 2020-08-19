@@ -452,7 +452,7 @@ public final class AppSearchImpl {
     }
 
     /**
-     * Removes all documents in given database.
+     * Clears the given database by removing all documents and types.
      *
      * <p>The schemas will remain. To clear everything including schemas, please call
      * {@link #setSchema} with an empty schema and {@code forceOverride} set to true.
