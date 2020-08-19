@@ -212,7 +212,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
      * #mTimeDependentText} is not null, getText will return this text with {@code ^1} replaced by
      * the time-dependent string.
      */
-    private final CharSequence mSurroundingText;
+    @Nullable private final CharSequence mSurroundingText;
 
     /**
      * The time-dependent part of the complication text. If {@link #mSurroundingText} is null, this
@@ -291,6 +291,12 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
         }
     }
 
+    /**
+     * Writes this {@link ComplicationProviderInfo} to a {@link Parcel}.
+     *
+     * @param out The {@link Parcel} to write to
+     * @param flags Flags for writing the {@link Parcel}
+     */
     @Override
     public void writeToParcel(@NonNull Parcel out, int flags) {
         Bundle bundle = new Bundle();
@@ -327,7 +333,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
      * {@code referencePeriodEnd} then the text returned will represent the time difference
      * between {@code referencePeriodStart} and {@code dateTimeMillis}.
      *
-     * @param resources      {@link Resources} from the current {@link Context}
+     * @param resources {@link Resources} from the current {@link Context}
      * @param dateTimeMillis milliseconds since epoch, e.g. from {@link System#currentTimeMillis}
      * @return Text appropriate for the given date time.
      */
@@ -356,6 +362,18 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
         return TextUtils.expandTemplate(mSurroundingText, mTemplateValues);
     }
 
+    /**
+     * Returns The text within which the time difference is displayed.
+     */
+    @Nullable
+    CharSequence getSurroundingText() {
+        return mSurroundingText;
+    }
+
+    /**
+     * Returns true if the result of {@link #getText} will be the same for both {@code
+     * firstDateTimeMillis} and {@code secondDateTimeMillis}.
+     */
     @Override
     public boolean returnsSameText(long firstDateTimeMillis, long secondDateTimeMillis) {
         if (mTimeDependentText == null) {
@@ -365,6 +383,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
         return mTimeDependentText.returnsSameText(firstDateTimeMillis, secondDateTimeMillis);
     }
 
+    /** Returns the next time after {@code fromTime} at which the text may change. */
     @Override
     public long getNextChangeTime(long fromTime) {
         if (mTimeDependentText == null) {
@@ -443,18 +462,13 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
         TimeDifferenceBuilder() {
         }
 
-        TimeDifferenceBuilder(
-                /**
-                 * The start of the reference period (in milliseconds since the epoch) from which
-                 * the time difference will be calculated.
-                 */
-                long referencePeriodStartMillis,
-
-                /**
-                 * The end of the reference period (in milliseconds since the epoch) from which
-                 * the time difference will be calculated.
-                 */
-                long referencePeriodEndMillis) {
+        /**
+         * @param referencePeriodStartMillis The start of the reference period (in milliseconds
+         *     since the epoch) from which the time difference will be calculated.
+         * @param referencePeriodEndMillis The end of the reference period (in milliseconds since
+         *     the epoch) from whichthe time difference will be calculated.
+         */
+        TimeDifferenceBuilder(long referencePeriodStartMillis, long referencePeriodEndMillis) {
             mReferencePeriodStartMillis = referencePeriodStartMillis;
             mReferencePeriodEndMillis = referencePeriodEndMillis;
         }
@@ -590,10 +604,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
 
         /** Returns the default value for the 'show now text' option for the given {@code style}. */
         private static boolean getDefaultShowNowTextForStyle(int style) {
-            if (style == DIFFERENCE_STYLE_STOPWATCH) {
-                return false;
-            }
-            return true;
+            return style != DIFFERENCE_STYLE_STOPWATCH;
         }
     }
 
