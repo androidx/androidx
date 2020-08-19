@@ -17,12 +17,15 @@
 package androidx.camera.camera2.pipe.impl
 
 import android.content.Context
+import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL
+import android.hardware.camera2.CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL
 import android.os.Build
 import androidx.camera.camera2.pipe.CameraGraph
-import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.testing.CameraPipeRobolectricTestRunner
+import androidx.camera.camera2.pipe.testing.FakeCameraMetadata
+import androidx.camera.camera2.pipe.testing.FakeCameras
 import androidx.camera.camera2.pipe.testing.FakeGraphProcessor
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
@@ -39,18 +42,23 @@ import org.robolectric.annotation.internal.DoNotInstrument
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class CameraGraphImplTest {
+    private val fakeCameraId = FakeCameras.create()
+    private val fakeMetadata = FakeCameraMetadata(
+        mapOf(INFO_SUPPORTED_HARDWARE_LEVEL to INFO_SUPPORTED_HARDWARE_LEVEL_FULL),
+        cameraId = fakeCameraId
+    )
     private val graphProcessor = FakeGraphProcessor()
     private lateinit var impl: CameraGraphImpl
 
     @Before
     fun setUp() {
         val config = CameraGraph.Config(
-            camera = CameraId("0"),
+            camera = fakeCameraId,
             streams = listOf(),
             template = RequestTemplate(0)
         )
         val context = ApplicationProvider.getApplicationContext() as Context
-        impl = CameraGraphImpl(context, config, graphProcessor, StreamMap(config))
+        impl = CameraGraphImpl(context, config, graphProcessor, StreamMap(fakeMetadata, config))
     }
 
     @Test
