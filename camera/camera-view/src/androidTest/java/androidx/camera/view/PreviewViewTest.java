@@ -226,7 +226,7 @@ public class PreviewViewTest {
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
         previewView.setImplementationMode(PERFORMANCE);
-        Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+        Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
 
@@ -242,7 +242,7 @@ public class PreviewViewTest {
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
         previewView.setImplementationMode(PERFORMANCE);
-        Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+        Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
 
@@ -258,7 +258,7 @@ public class PreviewViewTest {
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
         previewView.setImplementationMode(PERFORMANCE);
-        Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+        Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
 
@@ -273,7 +273,7 @@ public class PreviewViewTest {
         final PreviewView previewView = new PreviewView(mContext);
         setContentView(previewView);
         previewView.setImplementationMode(COMPATIBLE);
-        Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+        Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
 
@@ -290,7 +290,7 @@ public class PreviewViewTest {
         mInstrumentation.runOnMainSync(() -> {
             setContentView(previewView);
             mSurfaceRequest = createSurfaceRequest(cameraInfo);
-            Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+            Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
             surfaceProvider.onSurfaceRequested(mSurfaceRequest);
         });
 
@@ -317,7 +317,7 @@ public class PreviewViewTest {
         mInstrumentation.runOnMainSync(() -> {
             setContentView(previewView);
             mSurfaceRequest = createSurfaceRequest(cameraInfo);
-            Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+            Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
             surfaceProvider.onSurfaceRequested(mSurfaceRequest);
         });
 
@@ -368,7 +368,7 @@ public class PreviewViewTest {
         mInstrumentation.runOnMainSync(() -> {
             setContentView(previewView);
             mSurfaceRequest = createSurfaceRequest(cameraInfo);
-            Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+            Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
             surfaceProvider.onSurfaceRequested(mSurfaceRequest);
         });
         // Surface resolution is 640x480 , set a different size for PreviewView.
@@ -399,7 +399,7 @@ public class PreviewViewTest {
         mInstrumentation.runOnMainSync(() -> {
             setContentView(previewView);
             mSurfaceRequest = createSurfaceRequest(cameraInfo1);
-            Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+            Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
             surfaceProvider.onSurfaceRequested(mSurfaceRequest);
         });
 
@@ -411,7 +411,7 @@ public class PreviewViewTest {
         mInstrumentation.runOnMainSync(() -> {
             setContentView(previewView);
             mSurfaceRequest = createSurfaceRequest(cameraInfo2);
-            Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+            Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
             surfaceProvider.onSurfaceRequested(mSurfaceRequest);
         });
 
@@ -450,7 +450,7 @@ public class PreviewViewTest {
                 CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, CameraSelector.LENS_FACING_BACK);
 
         final PreviewView previewView = new PreviewView(mContext);
-        Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+        Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
 
@@ -619,7 +619,7 @@ public class PreviewViewTest {
 
             // Creates surface provider and request surface for 1080p surface size.
             Preview.SurfaceProvider surfaceProvider =
-                    previewView.get().createSurfaceProvider();
+                    previewView.get().getSurfaceProvider();
             mSurfaceRequest = createSurfaceRequest(bufferSize, cameraInfo);
             surfaceProvider.onSurfaceRequested(mSurfaceRequest);
 
@@ -692,13 +692,13 @@ public class PreviewViewTest {
         setContentView(previewView);
 
         // Start a preview stream
-        final Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+        final Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
         final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
 
         // Create a new surfaceProvider
-        previewView.createSurfaceProvider();
+        previewView.getSurfaceProvider();
 
         // Assert PreviewView doesn't remove the current preview TextureView/SurfaceView
         boolean wasPreviewRemoved = true;

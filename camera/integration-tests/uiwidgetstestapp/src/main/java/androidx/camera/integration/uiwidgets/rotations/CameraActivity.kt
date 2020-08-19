@@ -105,7 +105,7 @@ open class CameraActivity : AppCompatActivity() {
         val preview = Preview.Builder()
             .build()
             .apply {
-                setSurfaceProvider(previewView.createSurfaceProvider())
+                setSurfaceProvider(previewView.getSurfaceProvider())
             }
         mImageAnalysis = ImageAnalysis.Builder()
             .build()
