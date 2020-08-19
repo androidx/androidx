@@ -42,11 +42,8 @@ import java.util.concurrent.Executors;
  *
  * <p>AppSearch support multi-thread execute for query but we should use single thread for mutate
  * requests(put, delete, etc..) to avoid data manipulation conflict.
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 // TODO(b/148046169): This class header needs a detailed example/tutorial.
-// TODO(b/149787478): Rename this class to AppSearch.
 public class AppSearchManager {
     /** The default empty database name.*/
     public static final String DEFAULT_DATABASE_NAME = "";
@@ -88,7 +85,10 @@ public class AppSearchManager {
             return this;
         }
 
-        /** Sets the backend where this {@link AppSearchManager} will store its data. */
+        /**
+         * Sets the backend where this {@link AppSearchManager} will store its data.
+         * @hide
+         */
         @NonNull
         public Builder setBackend(@NonNull AppSearchBackend backend) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
@@ -140,6 +140,7 @@ public class AppSearchManager {
      * Encapsulates a request to update the schema of an {@link AppSearchManager} database.
      *
      * @see AppSearchManager#setSchema
+     * @hide
      */
     public static final class SetSchemaRequest {
         private final Set<AppSearchSchema> mSchemas;
@@ -290,6 +291,7 @@ public class AppSearchManager {
      *
      * @param request The schema update request.
      * @return The pending result of performing this operation.
+     * @hide
      */
     @NonNull
     public ListenableFuture<AppSearchResult<Void>> setSchema(@NonNull SetSchemaRequest request) {
@@ -301,6 +303,7 @@ public class AppSearchManager {
      * Encapsulates a request to index a document into an {@link AppSearchManager} database.
      *
      * @see AppSearchManager#putDocuments
+     * @hide
      */
     public static final class PutDocumentsRequest {
         private final List<GenericDocument> mDocuments;
@@ -397,6 +400,7 @@ public class AppSearchManager {
      * {@link AppSearchBatchResult} are the URIs of the input documents. The values are
      * {@code null} if they were successfully indexed, or a failed {@link AppSearchResult}
      * otherwise.
+     * @hide
      */
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, Void>> putDocuments(
@@ -411,6 +415,7 @@ public class AppSearchManager {
      * Encapsulates a request to retrieve documents by namespace and URI.
      *
      * @see AppSearchManager#getDocuments
+     * @hide
      */
     public static final class GetDocumentsRequest {
         private final String mNamespace;
@@ -489,6 +494,7 @@ public class AppSearchManager {
      * {@link GenericDocument}s on success, or a failed {@link AppSearchResult} otherwise.
      * URIs that are not found will return a failed {@link AppSearchResult} with a result code
      * of {@link AppSearchResult#RESULT_NOT_FOUND}.
+     * @hide
      */
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getDocuments(
@@ -537,6 +543,7 @@ public class AppSearchManager {
      * @param queryExpression Query String to search.
      * @param searchSpec      Spec for setting filters, raw query etc.
      * @return The pending result of performing this operation.
+     * @hide
      */
     @NonNull
     public ListenableFuture<AppSearchResult<SearchResults>> query(
@@ -553,6 +560,7 @@ public class AppSearchManager {
      * Encapsulates a request to remove documents by namespace and URI.
      *
      * @see AppSearchManager#removeDocuments
+     * @hide
      */
     public static final class RemoveDocumentsRequest {
         private final String mNamespace;
@@ -631,6 +639,7 @@ public class AppSearchManager {
      * or a failed {@link AppSearchResult} otherwise. URIs that are not found will return a
      * failed {@link AppSearchResult} with a result code of
      * {@link AppSearchResult#RESULT_NOT_FOUND}.
+     * @hide
      */
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, Void>> removeDocuments(
@@ -648,6 +657,7 @@ public class AppSearchManager {
      * success, or a failed {@link AppSearchResult} otherwise. Types that are not found will
      * return a failed {@link AppSearchResult} with a result code of
      * {@link AppSearchResult#RESULT_NOT_FOUND}.
+     * @hide
      */
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, Void>> removeByType(
@@ -665,6 +675,7 @@ public class AppSearchManager {
      * success, or a failed {@link AppSearchResult} otherwise. Types that are not found will
      * return a failed {@link AppSearchResult} with a result code of
      * {@link AppSearchResult#RESULT_NOT_FOUND}.
+     * @hide
      */
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, Void>> removeByType(
@@ -682,6 +693,7 @@ public class AppSearchManager {
      * success, or a failed {@link AppSearchResult} otherwise. Namespaces that are not found
      * will return a failed {@link AppSearchResult} with a result code of
      * {@link AppSearchResult#RESULT_NOT_FOUND}.
+     * @hide
      */
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, Void>> removeByNamespace(
@@ -699,6 +711,7 @@ public class AppSearchManager {
      * success, or a failed {@link AppSearchResult} otherwise. Namespaces that are not found
      * will return a failed {@link AppSearchResult} with a result code of
      * {@link AppSearchResult#RESULT_NOT_FOUND}.
+     * @hide
      */
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, Void>> removeByNamespace(
@@ -714,6 +727,7 @@ public class AppSearchManager {
      * {@link #setSchema} with an empty schema and {@code forceOverride} set to true.
      *
      * @return The pending result of performing this operation.
+     * @hide
      */
     @NonNull
     public ListenableFuture<AppSearchResult<Void>> removeAll() {
