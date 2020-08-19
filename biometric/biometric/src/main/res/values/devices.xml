@@ -22,15 +22,11 @@
     to using FingerprintDialogFragment and FingerprintHelperFragment when crypto-based
     authentication is invoked by calling BiometricPrompt#authenticate(PromptInfo, CryptoObject) on
     affected Android versions.
+
+    Devices from a vendor that is listed in crypto_fingerprint_fallback_vendors should already
+    exhibit this fallback behavior and do NOT need to be added to this list.
     -->
     <string-array name="crypto_fingerprint_fallback_prefixes">
-        <item>SM-G95</item> <!-- Samsung Galaxy S8/S8+ -->
-        <item>SM-G96</item> <!-- Samsung Galaxy S9/S9+ -->
-        <item>SM-G97</item> <!-- Samsung Galaxy S10/S10+ -->
-        <item>SM-N95</item> <!-- Samsung Galaxy Note 8 -->
-        <item>SM-N96</item> <!-- Samsung Galaxy Note 9 -->
-        <item>SM-N97</item> <!-- Samsung Galaxy Note 10/10+ -->
-        <item>SM-A20</item> <!-- Samsung Galaxy A20/A20e -->
     </string-array>
 
     <!--
@@ -50,20 +46,23 @@
     but which display a custom UI, such as an overlay, when FingerprintManager is invoked.
     -->
     <string-array name="hide_fingerprint_instantly_prefixes">
-        <!-- Samsung Galaxy S10/S10+ -->
-        <item>SM-G97</item>
-        <item>SC-03L</item>
-        <item>SC-04L</item>
-        <item>SC-05L</item>
-        <item>SCV41</item>
-        <item>SCV42</item>
-
-        <!-- Samsung Galaxy Note 10/10+ -->
-        <item>SM-N97</item>
-        <item>SC-01M</item>
-        <item>SCV45</item>
-
         <item>SM-A50</item> <!-- Samsung Galaxy A50 -->
+        <item>SM-G973</item> <!-- Samsung Galaxy S10 -->
+        <item>SM-G975</item> <!-- Samsung Galaxy S10+ -->
+        <item>SM-G977</item> <!-- Samsung Galaxy S10 5G -->
+        <item>SM-G770</item> <!-- Samsung Galaxy S10 Lite -->
+        <item>SM-N970</item> <!-- Samsung Galaxy Note10 -->
+        <item>SM-N971</item> <!-- Samsung Galaxy Note10 5G -->
+        <item>SM-N975</item> <!-- Samsung Galaxy Note10+ -->
+        <item>SM-N976</item> <!-- Samsung Galaxy Note10+ 5G -->
+        <item>SM-N770</item> <!-- Samsung Galaxy Note10 Lite -->
+        <item>SC-03L</item> <!-- Samsung Galaxy S10 (NTT Docomo) -->
+        <item>SC-04L</item> <!-- Samsung Galaxy S10+ (NTT Docomo) -->
+        <item>SC-05L</item> <!-- Samsung Galaxy S10+ (NTT Docomo, Olympic Games Edition) -->
+        <item>SC-01M</item> <!-- Samsung Galaxy Note10+ (NTT Docomo) -->
+        <item>SCV41</item> <!-- Samsung Galaxy S10 (au) -->
+        <item>SCV42</item> <!-- Samsung Galaxy S10+ (au) -->
+        <item>SCV45</item> <!-- Samsung Galaxy Note10+ (au) -->
     </string-array>
 
     <!--
