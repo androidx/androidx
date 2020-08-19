@@ -29,6 +29,7 @@ import android.content.Context;
 
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.customer.EmailDataClass;
+import androidx.appsearch.impl.LocalBackend;
 import androidx.test.core.app.ApplicationProvider;
 
 import junit.framework.AssertionFailedError;
@@ -47,13 +48,14 @@ public class AppSearchManagerTest {
     @Before
     public void setUp() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-        mDb1 = checkIsResultSuccess(
-                new AppSearchManager.Builder(context).setDatabaseName("testDb1").build());
-        mDb2 = checkIsResultSuccess(
-                new AppSearchManager.Builder(context).setDatabaseName("testDb2").build());
+        LocalBackend backend = new LocalBackend.Builder(context).build().getResultValue();
+        mDb1 = checkIsResultSuccess(new AppSearchManager.Builder()
+                .setDatabaseName("testDb1").setBackend(backend).build());
+        mDb2 = checkIsResultSuccess(new AppSearchManager.Builder()
+                .setDatabaseName("testDb2").setBackend(backend).build());
 
         // Remove all documents from any instances that may have been created in the tests.
-        mDb1.resetAllInstances().get().getResultValue();
+        backend.resetAllDatabases().getResultValue();
     }
 
     @Test
@@ -902,8 +904,7 @@ public class AppSearchManagerTest {
         // Test special character can present in AppSearchManager's name. When a special
         // character is banned in instance'name, add checker in AppSearchManager.builder and
         // reflect it in java doc.
-        AppSearchManager.Builder appSearchBuilder =
-                new AppSearchManager.Builder(ApplicationProvider.getApplicationContext());
+        AppSearchManager.Builder appSearchBuilder = new AppSearchManager.Builder();
 
         IllegalArgumentException e = assertThrows(IllegalArgumentException.class,
                 () -> appSearchBuilder.setDatabaseName("testDatabaseNameEndWith/"));
