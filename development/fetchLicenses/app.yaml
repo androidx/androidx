@@ -1,2 +1,2 @@
-runtime: nodejs8
+runtime: nodejs12
 instance_class: F4_1G
