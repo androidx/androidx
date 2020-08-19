@@ -367,7 +367,7 @@ public class SliceStyle {
         int height = 0;
         for (int i = 0; i < listItems.size(); i++) {
             SliceContent listItem = listItems.get(i);
-            if (i == 0 && shouldSkipFirstListItem(listItem)) {
+            if (i == 0 && shouldSkipFirstListItem(listItems)) {
                 continue;
             }
             height += listItem.getHeight(this, policy);
@@ -398,7 +398,7 @@ public class SliceStyle {
         int rowCount = list.getRowItems().size();
         for (int i = 0; i < rowCount; i++) {
             SliceContent listItem = list.getRowItems().get(i);
-            if (i == 0 && shouldSkipFirstListItem(listItem)) {
+            if (i == 0 && shouldSkipFirstListItem(list.getRowItems())) {
                 continue;
             }
             int itemHeight = listItem.getHeight(this, policy);
@@ -449,16 +449,16 @@ public class SliceStyle {
     @NonNull
     public List<SliceContent> getListItemsToDisplay(@NonNull ListContent list) {
         List<SliceContent> rowItems = list.getRowItems();
-        if (rowItems.size() > 0 && shouldSkipFirstListItem(rowItems.get(0))) {
+        if (rowItems.size() > 0 && shouldSkipFirstListItem(rowItems)) {
             return rowItems.subList(1, rowItems.size());
         }
         return rowItems;
     }
 
     /** Returns true if the first item of a list should be skipped. */
-    private boolean shouldSkipFirstListItem(SliceContent firstListItem) {
-        // Hide header row if requested.
-        return getHideHeaderRow() && firstListItem instanceof RowContent
-                && ((RowContent) firstListItem).getIsHeader();
+    private boolean shouldSkipFirstListItem(List<SliceContent> rowItems) {
+        // Hide header row if requested, but only if there is at least one non-header row.
+        return getHideHeaderRow() && rowItems.size() > 1 && rowItems.get(0) instanceof RowContent
+                && ((RowContent) rowItems.get(0)).getIsHeader();
     }
 }
