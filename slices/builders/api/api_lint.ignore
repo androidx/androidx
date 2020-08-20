@@ -1,4 +1,22 @@
 // Baseline format: 1.0
+ExecutorRegistration: androidx.slice.builders.GridRowBuilder#setSeeMoreAction(androidx.remotecallback.RemoteCallback):
+    Registration methods should have overload that accepts delivery Executor: `setSeeMoreAction`
+ExecutorRegistration: androidx.slice.builders.GridRowBuilder.CellBuilder#setContentIntent(androidx.remotecallback.RemoteCallback):
+    Registration methods should have overload that accepts delivery Executor: `setContentIntent`
+ExecutorRegistration: androidx.slice.builders.ListBuilder#setSeeMoreAction(androidx.remotecallback.RemoteCallback):
+    Registration methods should have overload that accepts delivery Executor: `setSeeMoreAction`
+ExecutorRegistration: androidx.slice.builders.ListBuilder.InputRangeBuilder#setInputAction(androidx.remotecallback.RemoteCallback):
+    Registration methods should have overload that accepts delivery Executor: `setInputAction`
+ExecutorRegistration: androidx.slice.builders.SelectionBuilder#setInputAction(androidx.remotecallback.RemoteCallback):
+    Registration methods should have overload that accepts delivery Executor: `setInputAction`
+ExecutorRegistration: androidx.slice.builders.SliceAction#create(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, int, CharSequence):
+    Registration methods should have overload that accepts delivery Executor: `create`
+ExecutorRegistration: androidx.slice.builders.SliceAction#createDeeplink(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, int, CharSequence):
+    Registration methods should have overload that accepts delivery Executor: `createDeeplink`
+ExecutorRegistration: androidx.slice.builders.SliceAction#createToggle(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, CharSequence, boolean):
+    Registration methods should have overload that accepts delivery Executor: `createToggle`
+
+
 ListenerLast: androidx.slice.builders.SliceAction#create(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, int, CharSequence) parameter #1:
     Listeners should always be at end of argument list (method `create`)
 ListenerLast: androidx.slice.builders.SliceAction#create(androidx.remotecallback.RemoteCallback, androidx.core.graphics.drawable.IconCompat, int, CharSequence) parameter #2:

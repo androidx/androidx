@@ -177,6 +177,18 @@ ContextFirst: androidx.core.view.ViewConfigurationCompat#shouldShowMenuShortcuts
     Context is distinct, so it must be the first argument (method `shouldShowMenuShortcutsWhenKeyboardPresent`)
 
 
+ExecutorRegistration: androidx.core.content.res.ResourcesCompat#getFont(android.content.Context, int, androidx.core.content.res.ResourcesCompat.FontCallback, android.os.Handler):
+    Registration methods should have overload that accepts delivery Executor: `getFont`
+ExecutorRegistration: androidx.core.hardware.fingerprint.FingerprintManagerCompat#authenticate(androidx.core.hardware.fingerprint.FingerprintManagerCompat.CryptoObject, int, androidx.core.os.CancellationSignal, androidx.core.hardware.fingerprint.FingerprintManagerCompat.AuthenticationCallback, android.os.Handler):
+    Registration methods should have overload that accepts delivery Executor: `authenticate`
+ExecutorRegistration: androidx.core.os.CancellationSignal#setOnCancelListener(androidx.core.os.CancellationSignal.OnCancelListener):
+    Registration methods should have overload that accepts delivery Executor: `setOnCancelListener`
+ExecutorRegistration: androidx.core.os.HandlerCompat#createAsync(android.os.Looper, android.os.Handler.Callback):
+    Registration methods should have overload that accepts delivery Executor: `createAsync`
+ExecutorRegistration: androidx.core.provider.FontsContractCompat#requestFont(android.content.Context, androidx.core.provider.FontRequest, androidx.core.provider.FontsContractCompat.FontRequestCallback, android.os.Handler):
+    Registration methods should have overload that accepts delivery Executor: `requestFont`
+
+
 KotlinOperator: androidx.core.os.LocaleListCompat#get(int):
     Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
 
