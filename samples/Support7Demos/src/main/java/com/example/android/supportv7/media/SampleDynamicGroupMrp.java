@@ -72,13 +72,28 @@ final class SampleDynamicGroupMrp extends SampleMediaRouteProvider {
             return null;
         }
 
-        SampleRouteController controller = new SampleRouteController(routeId);
+        return new SampleRouteController(routeId);
+    }
 
-        //TODO: Handle multiple dynamic route controllers
-        if (mDynamicRouteController != null) {
-            mDynamicRouteController.addAndSyncMemberController(routeId, controller);
+    @Override
+    public RouteController onCreateRouteController(@NonNull String routeId,
+            @NonNull String groupId) {
+        // Handle a static group exceptionally
+        if (groupId.equals(STATIC_GROUP_ROUTE_ID)) {
+            return onCreateRouteController(routeId);
         }
 
+        //TODO: Handle multiple dynamic route controllers
+        // The below check filters invalid group IDs
+        if (mDynamicRouteController == null
+                || !groupId.equals(mDynamicRouteController.getGroupDescriptor().getId())) {
+            return null;
+        }
+        RouteController controller = onCreateRouteController(routeId);
+        if (controller != null) {
+            mDynamicRouteController.addAndSyncMemberController(routeId,
+                    (SampleRouteController) controller);
+        }
         return controller;
     }
 
