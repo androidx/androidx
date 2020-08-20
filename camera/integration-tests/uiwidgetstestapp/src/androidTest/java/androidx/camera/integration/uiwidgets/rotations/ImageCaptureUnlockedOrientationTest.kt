@@ -16,47 +16,69 @@
 
 package androidx.camera.integration.uiwidgets.rotations
 
-import android.content.pm.ActivityInfo
-import android.content.res.Configuration
-import androidx.camera.integration.uiwidgets.rotations.UnlockedOrientationActivity.Companion.mCreated
-import androidx.test.core.app.ActivityScenario
+import android.app.Instrumentation
+import androidx.camera.core.CameraSelector
+import androidx.camera.integration.uiwidgets.rotations.CameraActivity.Companion.IMAGE_CAPTURE_MODE_FILE
+import androidx.camera.integration.uiwidgets.rotations.CameraActivity.Companion.IMAGE_CAPTURE_MODE_IN_MEMORY
+import androidx.camera.integration.uiwidgets.rotations.CameraActivity.Companion.IMAGE_CAPTURE_MODE_MEDIA_STORE
+import androidx.camera.integration.uiwidgets.rotations.CameraActivity.Companion.IMAGE_CAPTURE_MODE_OUTPUT_STREAM
 import androidx.test.filters.LargeTest
+import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
-import androidx.testutils.withActivity
-import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
-import java.util.concurrent.Semaphore
-import java.util.concurrent.TimeUnit
 
 @RunWith(Parameterized::class)
 @LargeTest
 class ImageCaptureUnlockedOrientationTest(
     private val lensFacing: Int,
-    private val orientation: Int,
-    private val captureMode: Int
+    private val captureMode: Int,
+    private val rotation: RotationUnlocked,
+    private val testName: String
 ) : ImageCaptureBaseTest<UnlockedOrientationActivity>() {
 
     companion object {
-        val ORIENTATION_MAP = hashMapOf(
-            ActivityInfo.SCREEN_ORIENTATION_PORTRAIT to Configuration.ORIENTATION_PORTRAIT,
-            ActivityInfo.SCREEN_ORIENTATION_REVERSE_PORTRAIT to Configuration.ORIENTATION_PORTRAIT,
-            ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE to Configuration.ORIENTATION_LANDSCAPE,
-            ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE to Configuration.ORIENTATION_LANDSCAPE
-        )
-
         @JvmStatic
-        @Parameterized.Parameters(name = "lensFacing={0}, orientation={1}, captureMode={2}")
+        @Parameterized.Parameters(name = "{3}")
         fun data() = mutableListOf<Array<Any?>>().apply {
             lensFacing.forEach { lens ->
-                ORIENTATION_MAP.keys.forEach { orientation ->
-                    captureModes.forEach { mode ->
-                        add(arrayOf(lens, orientation, mode))
+                captureModes.forEach { mode ->
+                    val lensName = if (lens == CameraSelector.LENS_FACING_BACK) {
+                        "Back lens"
+                    } else {
+                        "Front lens"
                     }
+
+                    val captureModeName = when (mode) {
+                        IMAGE_CAPTURE_MODE_IN_MEMORY -> "In memory"
+                        IMAGE_CAPTURE_MODE_FILE -> "File"
+                        IMAGE_CAPTURE_MODE_OUTPUT_STREAM -> "Output stream"
+                        IMAGE_CAPTURE_MODE_MEDIA_STORE -> "Media store"
+                        else -> "Invalid capture mode"
+                    }
+
+                    add(
+                        arrayOf(
+                            lens, mode, RotationUnlocked.Natural,
+                            "$lensName - $captureModeName - Natural"
+                        )
+                    )
+                    add(
+                        arrayOf(
+                            lens, mode, RotationUnlocked.Left,
+                            "$lensName - $captureModeName - Left"
+                        )
+                    )
+                    add(
+                        arrayOf(
+                            lens, mode, RotationUnlocked.Right,
+                            "$lensName - $captureModeName - Right"
+                        )
+                    )
                 }
             }
         }
@@ -79,25 +101,28 @@ class ImageCaptureUnlockedOrientationTest(
     @Test
     fun verifyRotation() {
         verifyRotation<UnlockedOrientationActivity>(lensFacing, captureMode) {
-            if (rotate(orientation)) {
-
-                // Wait for the rotation to occur
-                waitForRotation()
+            if (rotation.shouldRotate) {
+                rotateDeviceAndWait()
             }
         }
     }
 
-    private fun ActivityScenario<UnlockedOrientationActivity>.rotate(orientation: Int): Boolean {
-        val currentOrientation = withActivity { resources.configuration.orientation }
-        val didRotate = ORIENTATION_MAP[orientation] != currentOrientation
-        mCreated = Semaphore(0)
-        onActivity { activity ->
-            activity.requestedOrientation = orientation
-        }
-        return didRotate
-    }
+    private fun rotateDeviceAndWait() {
+        val monitor = Instrumentation.ActivityMonitor(
+            UnlockedOrientationActivity::class.java.name,
+            null,
+            false
+        )
+        InstrumentationRegistry.getInstrumentation().addMonitor(monitor)
 
-    private fun waitForRotation() {
-        assertThat(mCreated.tryAcquire(5, TimeUnit.SECONDS)).isTrue()
+        // Rotate
+        rotation.rotate(mDevice)
+
+        // Wait for the activity to be recreated after rotation
+        InstrumentationRegistry.getInstrumentation().waitForMonitorWithTimeout(
+            monitor,
+            2000L
+        )
+        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     }
 }
