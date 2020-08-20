@@ -26,7 +26,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.complications.ComplicationText
-import android.support.wearable.watchface.IWatchFaceCommand
 import android.support.wearable.watchface.IWatchFaceService
 import android.support.wearable.watchface.WatchFaceStyle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
@@ -199,8 +198,8 @@ class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceService) :
         iWatchFaceService.registerWatchFaceType(watchFaceType)
     }
 
-    override fun registerIWatchFaceCommand(iWatchFaceCommand: IWatchFaceCommand) {
-        iWatchFaceService.registerIWatchFaceCommand(iWatchFaceCommand)
+    override fun registerIWatchFaceCommand(iWatchFaceCommandBundle: Bundle) {
+        iWatchFaceService.registerIWatchFaceCommand(iWatchFaceCommandBundle)
     }
 }
 
