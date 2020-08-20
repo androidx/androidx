@@ -35,9 +35,11 @@ import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATIO
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
 import androidx.wear.watchface.samples.ExampleCanvasRenderer
 import androidx.wear.watchface.samples.R
-import androidx.wear.watchface.samples.WatchFaceStyle
-import androidx.wear.watchfacestyle.ListViewUserStyleCategory
-import androidx.wear.watchfacestyle.UserStyleManager
+import androidx.wear.watchface.samples.WatchFaceColorStyle
+import androidx.wear.watchface.style.BooleanUserStyleCategory
+import androidx.wear.watchface.style.ListUserStyleCategory
+import androidx.wear.watchface.style.DoubleRangeUserStyleCategory
+import androidx.wear.watchface.style.UserStyleManager
 
 /** A simple test watch face for integration tests. */
 internal class TestWatchFaceService(
@@ -58,27 +60,45 @@ internal class TestWatchFaceService(
         // Override is necessary because the watch face isn't visible in this test.
         systemState.onVisibilityChanged(true)
 
-        val watchFaceStyle = WatchFaceStyle.create(this, "red_style")
-        val colorStyleCategory = ListViewUserStyleCategory(
+        val watchFaceStyle = WatchFaceColorStyle.create(this, "red_style")
+        val colorStyleCategory = ListUserStyleCategory(
             "color_style_category",
             "Colors",
             "Watchface colorization",
             icon = null,
             options = listOf(
-                ListViewUserStyleCategory.ListViewOption(
+                ListUserStyleCategory.ListOption(
                     "red_style",
                     "Red",
                     Icon.createWithResource(this, R.drawable.red_style)
                 ),
-                ListViewUserStyleCategory.ListViewOption(
+                ListUserStyleCategory.ListOption(
                     "green_style",
                     "Green",
                     Icon.createWithResource(this, R.drawable.green_style)
                 )
             )
         )
+        val drawHourPipsStyleCategory =
+            BooleanUserStyleCategory(
+                "draw_hour_pips_style_category",
+                "Hour Pips",
+                "Whether or not hour pips should be drawn",
+                null,
+                true
+            )
+        val watchHandLengthStyleCategory =
+            DoubleRangeUserStyleCategory(
+                "watch_hand_length_style_category",
+                "Hand length",
+                "How long the watch hands should be",
+                null,
+                0.25,
+                1.0,
+                1.0
+            )
         val styleManager = UserStyleManager(
-            listOf(colorStyleCategory)
+            listOf(colorStyleCategory, drawHourPipsStyleCategory, watchHandLengthStyleCategory)
         )
         val complicationSlots = ComplicationSlots(
             listOf(
@@ -119,6 +139,8 @@ internal class TestWatchFaceService(
             styleManager,
             systemState,
             colorStyleCategory,
+            drawHourPipsStyleCategory,
+            watchHandLengthStyleCategory,
             complicationSlots
         )
 

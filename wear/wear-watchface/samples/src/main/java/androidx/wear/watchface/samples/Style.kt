@@ -68,14 +68,14 @@ class ColorStyle(
     }
 }
 
-class WatchFaceStyle(
+class WatchFaceColorStyle(
     val activeStyle: ColorStyle,
     val ambientStyle: ColorStyle,
     private val complicationResourceId: Int
 ) {
     companion object {
         fun create(context: Context, baseStyleName: String) =
-            WatchFaceStyle(
+            WatchFaceColorStyle(
                 ColorStyle.create(context, baseStyleName + "_active"),
                 ColorStyle.create(context, baseStyleName + "_ambient"),
                 getComplicationResourceId(context, baseStyleName)

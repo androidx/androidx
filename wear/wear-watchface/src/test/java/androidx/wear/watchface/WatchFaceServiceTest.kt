@@ -38,9 +38,9 @@ import android.view.ViewConfiguration
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.rendering.ComplicationDrawable
-import androidx.wear.watchfacestyle.ListViewUserStyleCategory
-import androidx.wear.watchfacestyle.UserStyleCategory
-import androidx.wear.watchfacestyle.UserStyleManager
+import androidx.wear.watchface.style.ListUserStyleCategory
+import androidx.wear.watchface.style.UserStyleCategory
+import androidx.wear.watchface.style.UserStyleManager
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
@@ -88,17 +88,17 @@ class WatchFaceServiceTest {
     private val complicationDrawableRight = ComplicationDrawable(context)
 
     private val redStyleOption =
-        ListViewUserStyleCategory.ListViewOption("red_style", "Red", icon = null)
+        ListUserStyleCategory.ListOption("red_style", "Red", icon = null)
 
     private val greenStyleOption =
-        ListViewUserStyleCategory.ListViewOption("green_style", "Green", icon = null)
+        ListUserStyleCategory.ListOption("green_style", "Green", icon = null)
 
     private val blueStyleOption =
-        ListViewUserStyleCategory.ListViewOption("bluestyle", "Blue", icon = null)
+        ListUserStyleCategory.ListOption("bluestyle", "Blue", icon = null)
 
     private val colorStyleList = listOf(redStyleOption, greenStyleOption, blueStyleOption)
 
-    private val colorStyleCategory = ListViewUserStyleCategory(
+    private val colorStyleCategory = ListUserStyleCategory(
         "color_style_category",
         "Colors",
         "Watchface colorization", /* icon = */
@@ -107,18 +107,18 @@ class WatchFaceServiceTest {
     )
 
     private val classicStyleOption =
-        ListViewUserStyleCategory.ListViewOption("classic_style", "Classic", icon = null)
+        ListUserStyleCategory.ListOption("classic_style", "Classic", icon = null)
 
     private val modernStyleOption =
-        ListViewUserStyleCategory.ListViewOption("modern_style", "Modern", icon = null)
+        ListUserStyleCategory.ListOption("modern_style", "Modern", icon = null)
 
     private val gothicStyleOption =
-        ListViewUserStyleCategory.ListViewOption("gothic_style", "Gothic", icon = null)
+        ListUserStyleCategory.ListOption("gothic_style", "Gothic", icon = null)
 
     private val watchHandStyleList =
         listOf(classicStyleOption, modernStyleOption, gothicStyleOption)
 
-    private val watchHandStyleCategory = ListViewUserStyleCategory(
+    private val watchHandStyleCategory = ListUserStyleCategory(
         "hand_style_category",
         "Hand Style",
         "Hand visual look", /* icon = */
@@ -127,7 +127,7 @@ class WatchFaceServiceTest {
     )
 
     private val badStyleOption =
-        ListViewUserStyleCategory.ListViewOption("bad_option", "Bad", icon = null)
+        ListUserStyleCategory.ListOption("bad_option", "Bad", icon = null)
 
     private val leftComplication =
         Complication(
@@ -202,7 +202,8 @@ class WatchFaceServiceTest {
         apiVersion: Int = 2
     ) {
         complicationSlots = ComplicationSlots(complications)
-        userStyleManager = UserStyleManager(userStyleCategories)
+        userStyleManager =
+            UserStyleManager(userStyleCategories)
         renderer = TestRenderer(surfaceHolder, userStyleManager, systemState)
         val service = TestWatchFaceService(
             watchFaceType,
@@ -1021,7 +1022,8 @@ class WatchFaceServiceTest {
 
     @Test
     fun requestStyleBeforeSetBinder() {
-        var styleManager = UserStyleManager(emptyList())
+        var styleManager =
+            UserStyleManager(emptyList())
         var testRenderer = TestRenderer(surfaceHolder, styleManager, systemState)
         val service = TestWatchFaceService(
             WatchFaceType.ANALOG,

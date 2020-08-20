@@ -58,7 +58,7 @@ import androidx.wear.watchface.SystemState;
 import androidx.wear.watchface.WatchFace;
 import androidx.wear.watchface.WatchFaceService;
 import androidx.wear.watchface.WatchFaceType;
-import androidx.wear.watchfacestyle.UserStyleManager;
+import androidx.wear.watchface.style.UserStyleManager;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;

@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package androidx.wear.watchfacestyle
+package androidx.wear.watchface.style
 
 import android.graphics.drawable.Icon
 import android.os.Bundle
 
-/** A ListViewUserStyleCategory represents a category with options selected from a ListView. */
-open class ListViewUserStyleCategory : UserStyleCategory {
+/** A ListStyleCategory represents a category with options selected from a List. */
+open class ListUserStyleCategory :
+    UserStyleCategory {
 
     internal companion object {
-        internal const val CATEGORY_TYPE = "ListViewUserStyleCategory"
-        internal const val OPTION_TYPE = "ListViewOption"
+        internal const val CATEGORY_TYPE = "ListUserStyleCategory"
+        internal const val OPTION_TYPE = "ListOption"
     }
 
+    @JvmOverloads
     constructor (
         /** Identifier for the element, must be unique. */
         id: String,
@@ -40,16 +42,19 @@ open class ListViewUserStyleCategory : UserStyleCategory {
         /** Icon for use in the userStyle selection UI. */
         icon: Icon?,
 
-        /** List of all options for this ListViewUserStyleCategory. */
-        options: List<ListViewOption>
-    ) : super(id, displayName, description, icon, options)
+        /** List of all options for this ListUserStyleCategory. */
+        options: List<ListOption>,
+
+        /** The default option, used when data isn't persisted. */
+        defaultOption: ListOption = options.first()
+    ) : super(id, displayName, description, icon, options, defaultOption)
 
     internal constructor(bundle: Bundle) : super(bundle)
 
     /**
-     * Represents a ListView choice within a userStyle category, these must be enumerated up front.
+     * Represents choice within a {@link ListUserStyleCategory}, these must be enumerated up front.
      */
-    open class ListViewOption : Option {
+    open class ListOption : Option {
         /** Localized human readable name for the setting, used in the userStyle selection UI. */
         val displayName: String
 
@@ -79,8 +84,10 @@ open class ListViewUserStyleCategory : UserStyleCategory {
             bundle.putParcelable(KEY_ICON, icon)
         }
 
-        override fun getOptionType() = OPTION_TYPE
+        override fun getOptionType() =
+            OPTION_TYPE
     }
 
-    override fun getCategoryType() = CATEGORY_TYPE
+    override fun getCategoryType() =
+        CATEGORY_TYPE
 }

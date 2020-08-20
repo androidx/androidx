@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.watchfacestyle
+package androidx.wear.watchface.style
 
 import android.graphics.drawable.Icon
 import android.os.Bundle
@@ -43,15 +43,19 @@ abstract class UserStyleCategory(
      * may be an exhaustive list, or just examples to populate a ListView in case the
      * UserStyleCategory isn't supported by the UI (e.g. a new WatchFace with an old Companion).
      */
-    val options: List<Option>
+    val options: List<Option>,
+
+    /** The default option if nothing has been selected. Must be in the {@link #options} list.*/
+    val defaultOption: Option
 ) {
     companion object {
         private const val KEY_CATEGORY_TYPE = "KEY_CATEGORY_TYPE"
-        private const val KEY_STYLE_CATEGORY_ID = "KEY_STYLE_CATEGORY_ID"
-        private const val KEY_DISPLAY_NAME = "KEY_DISPLAY_NAME"
+        private const val KEY_DEFAULT_ID = "KEY_DEFAULT_ID"
         private const val KEY_DESCRIPTION = "KEY_DESCRIPTION"
+        private const val KEY_DISPLAY_NAME = "KEY_DISPLAY_NAME"
         private const val KEY_ICON = "KEY_ICON"
         private const val KEY_OPTIONS = "KEY_OPTIONS"
+        private const val KEY_STYLE_CATEGORY_ID = "KEY_STYLE_CATEGORY_ID"
 
         /**
          * Constructs an {@link UserStyleCategory} serialized in a {@link Bundle}.
@@ -63,7 +67,10 @@ abstract class UserStyleCategory(
         @JvmStatic
         fun createFromBundle(bundle: Bundle): UserStyleCategory {
             return when (val styleCategoryClass = bundle.getString(KEY_CATEGORY_TYPE)!!) {
-                ListViewUserStyleCategory.CATEGORY_TYPE -> ListViewUserStyleCategory(bundle)
+                BooleanUserStyleCategory.CATEGORY_TYPE -> BooleanUserStyleCategory(bundle)
+                DoubleRangeUserStyleCategory.CATEGORY_TYPE -> DoubleRangeUserStyleCategory(bundle)
+                ListUserStyleCategory.CATEGORY_TYPE -> ListUserStyleCategory(bundle)
+                LongRangeUserStyleCategory.CATEGORY_TYPE -> LongRangeUserStyleCategory(bundle)
                 else -> throw IllegalArgumentException(
                     "Unknown UserStyleCategory class " + styleCategoryClass
                 )
@@ -90,17 +97,17 @@ abstract class UserStyleCategory(
                 .map { Option.createFromBundle(it) }
 
         /**
-         * Serializes a List<{@link UserStyleCategory}> to the provided bundle.
+         * Serializes a Collection<{@link UserStyleCategory}> to a list of Bundles.
          */
         @JvmStatic
-        fun userStyleCategoryListToBundles(categories: List<UserStyleCategory>) =
+        fun userStyleCategoriesToBundles(categories: Collection<UserStyleCategory>) =
             categories.map { Bundle().apply { it.writeToBundle(this) } }
 
         /**
-         * Deserializes a List<{@link UserStyleCategory}> from the provided bundle.
+         * Deserializes a Collection<{@link UserStyleCategory}> from the provided bundle.
          */
         @JvmStatic
-        fun bundlesToUserStyleCategoryLists(categories: List<Bundle>) =
+        fun bundlesToUserStyleCategoryList(categories: Collection<Bundle>) =
             categories.map { createFromBundle(it) }
 
         /**
@@ -122,10 +129,8 @@ abstract class UserStyleCategory(
         fun bundleToStyleMap(bundle: Bundle, schema: List<UserStyleCategory>) =
             HashMap<UserStyleCategory, Option>().apply {
                 for (styleCategory in schema) {
-                    val optionId =
-                        bundle.getString(styleCategory.id) ?: styleCategory.options.first().id
-                    val option = styleCategory.getOptionForId(optionId)
-                    this[styleCategory] = option
+                    this[styleCategory] =
+                        styleCategory.getCategoryOptionForId(bundle.getString(styleCategory.id))
                 }
             }
 
@@ -137,19 +142,30 @@ abstract class UserStyleCategory(
         fun idMapToStyleMap(idMap: Map<String, String>, schema: List<UserStyleCategory>) =
             HashMap<UserStyleCategory, Option>().apply {
                 for (styleCategory in schema) {
-                    val optionId = idMap[styleCategory.id] ?: styleCategory.options.first().id
-                    val option = styleCategory.getOptionForId(optionId)
-                    this[styleCategory] = option
+                    this[styleCategory] =
+                        styleCategory.getCategoryOptionForId(idMap[styleCategory.id])
                 }
             }
     }
 
-    internal constructor(bundle: Bundle) : this(
+    private fun getCategoryOptionForId(id: String?) =
+        if (id == null) {
+            defaultOption
+        } else {
+            getOptionForId(id)
+        }
+
+    internal constructor(
+        bundle: Bundle,
+        optionsList: List<Option> = readOptionsListFromBundle(bundle),
+        defaultId: String = bundle.getString(KEY_DEFAULT_ID)!!
+    ) : this(
         bundle.getString(KEY_STYLE_CATEGORY_ID)!!,
         bundle.getString(KEY_DISPLAY_NAME)!!,
         bundle.getString(KEY_DESCRIPTION)!!,
         bundle.getParcelable(KEY_ICON),
-        readOptionsListFromBundle(bundle)
+        optionsList,
+        optionsList.find { it.id == defaultId }!!
     )
 
     @CallSuper
@@ -159,6 +175,7 @@ abstract class UserStyleCategory(
         bundle.putString(KEY_DISPLAY_NAME, displayName)
         bundle.putString(KEY_DESCRIPTION, description)
         bundle.putParcelable(KEY_ICON, icon)
+        bundle.putString(KEY_DEFAULT_ID, defaultOption.id)
         writeOptionListToBundle(options, bundle)
     }
 
@@ -185,8 +202,14 @@ abstract class UserStyleCategory(
             @JvmStatic
             fun createFromBundle(bundle: Bundle): Option {
                 return when (val optionClass = bundle.getString(KEY_OPTION_TYPE)!!) {
-                    ListViewUserStyleCategory.OPTION_TYPE ->
-                        ListViewUserStyleCategory.ListViewOption(bundle)
+                    BooleanUserStyleCategory.OPTION_TYPE ->
+                        BooleanUserStyleCategory.BooleanOption(bundle)
+                    DoubleRangeUserStyleCategory.OPTION_TYPE ->
+                        DoubleRangeUserStyleCategory.DoubleRangeOption(bundle)
+                    ListUserStyleCategory.OPTION_TYPE ->
+                        ListUserStyleCategory.ListOption(bundle)
+                    LongRangeUserStyleCategory.OPTION_TYPE ->
+                        LongRangeUserStyleCategory.LongRangeOption(bundle)
                     else -> throw IllegalArgumentException(
                         "Unknown UserStyleCategory.Option class " + optionClass
                     )
@@ -217,7 +240,7 @@ abstract class UserStyleCategory(
      *     category should be returned.
      */
     open fun getOptionForId(optionId: String) =
-        options.find { it.id == optionId } ?: options.first()
+        options.find { it.id == optionId } ?: defaultOption
 
     /** @return The type name which is used by the UI to work out which widget to use. */
     abstract fun getCategoryType(): String
