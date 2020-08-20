@@ -361,6 +361,7 @@ package androidx.work {
 package androidx.work.multiprocess {
 
   public abstract class RemoteWorkManager {
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> enqueue(androidx.work.WorkRequest);
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> enqueue(java.util.List<androidx.work.WorkRequest!>);
     method public static androidx.work.multiprocess.RemoteWorkManager getInstance(android.content.Context);
   }
