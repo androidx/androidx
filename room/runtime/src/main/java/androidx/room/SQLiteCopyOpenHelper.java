@@ -212,8 +212,8 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
                     + destinationFile.getAbsolutePath());
         }
 
-        // Temporarily open intermediate file database using FrameworkSQLiteOpenHelper and call
-        // open pre-packaged callback. If it fails then intermediate file won't be copied making
+        // Temporarily open intermediate database file using FrameworkSQLiteOpenHelper and dispatch
+        // the open pre-packaged callback. If it fails then intermediate file won't be copied making
         // invoking pre-packaged callback a transactional operation.
         dispatchOnOpenPrepackagedDatabase(intermediateFile, writable);
 
@@ -225,7 +225,8 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
     }
 
     private void dispatchOnOpenPrepackagedDatabase(File databaseFile, boolean writable) {
-        if (mDatabaseConfiguration.prepackagedCallback == null) {
+        if (mDatabaseConfiguration == null
+                || mDatabaseConfiguration.prepackagedDatabaseCallback == null) {
             return;
         }
 
@@ -233,8 +234,7 @@ class SQLiteCopyOpenHelper implements SupportSQLiteOpenHelper {
         try {
             SupportSQLiteDatabase db = writable ? helper.getWritableDatabase() :
                     helper.getReadableDatabase();
-
-            mDatabaseConfiguration.prepackagedCallback.onOpenPrepackagedDatabase(db);
+            mDatabaseConfiguration.prepackagedDatabaseCallback.onOpenPrepackagedDatabase(db);
         } finally {
             // Close the db and let Room re-open it through a normal path
             helper.close();
