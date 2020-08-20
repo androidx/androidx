@@ -49,7 +49,7 @@ dependencies {
 androidx {
     name = "Android WorkManager Inspector"
     publish = Publish.NONE
-    mavenGroup = LibraryGroups.INSPECTION_EXTENSIONS
+    mavenGroup = LibraryGroups.WORK
     inceptionYear = "2020"
     toolingProject = true
     description = "The implementation of WorkManager Inspector."
