@@ -20,8 +20,7 @@ import android.annotation.SuppressLint
 import androidx.activity.ComponentActivity
 import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.animation.transitionsEnabled
-import androidx.compose.foundation.InternalFoundationApi
-import androidx.compose.foundation.blinkingCursorEnabled
+import androidx.compose.foundation.text.blinkingCursorEnabled
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.platform.setContent
@@ -123,8 +122,9 @@ class AndroidComposeTestRule<T : ComponentActivity>(
 
     internal var disposeContentHook: (() -> Unit)? = null
 
-    override val density: Density get() =
-        Density(getActivity().resources.displayMetrics.density)
+    override val density: Density
+        get() =
+            Density(getActivity().resources.displayMetrics.density)
 
     override val displaySize by lazy {
         getActivity().resources.displayMetrics.let {
@@ -217,7 +217,7 @@ class AndroidComposeTestRule<T : ComponentActivity>(
             }
         }
 
-        @OptIn(InternalFoundationApi::class, InternalAnimationApi::class, InternalTextApi::class)
+        @OptIn(InternalTextApi::class, InternalAnimationApi::class)
         private fun beforeEvaluate() {
             transitionsEnabled = !disableTransitions
             blinkingCursorEnabled = !disableBlinkingCursor
@@ -230,7 +230,7 @@ class AndroidComposeTestRule<T : ComponentActivity>(
             }
         }
 
-        @OptIn(InternalFoundationApi::class, InternalAnimationApi::class)
+        @OptIn(InternalTextApi::class, InternalAnimationApi::class)
         private fun afterEvaluate() {
             transitionsEnabled = true
             blinkingCursorEnabled = true
