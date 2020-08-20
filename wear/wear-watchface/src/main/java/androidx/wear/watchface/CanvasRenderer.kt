@@ -58,11 +58,11 @@ abstract class CanvasRenderer(
     userStyleManager: UserStyleManager,
 
     /** The associated {@link WatchState}. */
-    private val watchState: WatchState,
+    watchState: WatchState,
 
     /** The type of canvas to use. */
     @CanvasType private val canvasType: Int
-) : Renderer(surfaceHolder, userStyleManager) {
+) : Renderer(surfaceHolder, userStyleManager, watchState) {
     private companion object {
         private const val TAG = "CanvasRenderer"
     }

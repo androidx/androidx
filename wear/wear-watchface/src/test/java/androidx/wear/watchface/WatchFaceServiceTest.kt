@@ -176,7 +176,8 @@ class WatchFaceServiceTest {
     private lateinit var renderer: TestRenderer
     private lateinit var complicationSet: ComplicationSet
     private lateinit var userStyleManager: UserStyleManager
-    private lateinit var watchFace: TestWatchFace
+    private lateinit var watchFace: WatchFace
+    private lateinit var testWatchFaceService: TestWatchFaceService
     private lateinit var engineWrapper: WatchFaceService.EngineWrapper
 
     private class Task(val runTimeMillis: Long, val runnable: Runnable) : Comparable<Task> {
@@ -205,7 +206,7 @@ class WatchFaceServiceTest {
         userStyleManager =
             UserStyleManager(userStyleCategories)
         renderer = TestRenderer(surfaceHolder, userStyleManager, systemState)
-        val service = TestWatchFaceService(
+        testWatchFaceService = TestWatchFaceService(
             watchFaceType,
             this.complicationSet,
             renderer,
@@ -214,12 +215,12 @@ class WatchFaceServiceTest {
             handler,
             INTERACTIVE_UPDATE_RATE_MS
         )
-        engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper = testWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
         engineWrapper.onCreate(surfaceHolder)
         // Trigger watch face creation.
         engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engineWrapper, apiVersion)
-        watchFace = service.watchFace
+        watchFace = testWatchFaceService.watchFace
     }
 
     private fun sendBinder(engine: WatchFaceService.EngineWrapper, apiVersion: Int) {
@@ -355,7 +356,7 @@ class WatchFaceServiceTest {
     fun onDraw_calendar_setFromSystemTime() {
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
 
-        watchFace.mockSystemTimeMillis = 1000L
+        testWatchFaceService.mockSystemTimeMillis = 1000L
         watchFace.onDraw()
         assertThat(watchFace.calendar.timeInMillis).isEqualTo(1000L)
     }
@@ -363,7 +364,7 @@ class WatchFaceServiceTest {
     @Test
     fun onDraw_calendar_affectedCorrectly_with2xMockTime() {
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
-        watchFace.mockSystemTimeMillis = 1000L
+        testWatchFaceService.mockSystemTimeMillis = 1000L
 
         watchFace.mockTimeReceiver.onReceive(
             context,
@@ -378,7 +379,7 @@ class WatchFaceServiceTest {
         assertThat(watchFace.calendar.timeInMillis).isEqualTo(1000L)
 
         // However 1000ms of real time should result in 2000ms observed by onDraw.
-        watchFace.mockSystemTimeMillis = 2000L
+        testWatchFaceService.mockSystemTimeMillis = 2000L
         watchFace.onDraw()
         assertThat(watchFace.calendar.timeInMillis).isEqualTo(3000L)
     }
@@ -386,7 +387,7 @@ class WatchFaceServiceTest {
     @Test
     fun onDraw_calendar_affectedCorrectly_withMockTimeWrapping() {
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
-        watchFace.mockSystemTimeMillis = 1000L
+        testWatchFaceService.mockSystemTimeMillis = 1000L
 
         watchFace.mockTimeReceiver.onReceive(
             context,
@@ -401,27 +402,27 @@ class WatchFaceServiceTest {
         watchFace.onDraw()
         assertThat(watchFace.calendar.timeInMillis).isEqualTo(1000L)
 
-        watchFace.mockSystemTimeMillis = 1250L
+        testWatchFaceService.mockSystemTimeMillis = 1250L
         watchFace.onDraw()
         assertThat(watchFace.calendar.timeInMillis).isEqualTo(1500L)
 
-        watchFace.mockSystemTimeMillis = 1499L
+        testWatchFaceService.mockSystemTimeMillis = 1499L
         watchFace.onDraw()
         assertThat(watchFace.calendar.timeInMillis).isEqualTo(1998L)
 
-        watchFace.mockSystemTimeMillis = 1500L
+        testWatchFaceService.mockSystemTimeMillis = 1500L
         watchFace.onDraw()
         assertThat(watchFace.calendar.timeInMillis).isEqualTo(1000L)
 
-        watchFace.mockSystemTimeMillis = 1750L
+        testWatchFaceService.mockSystemTimeMillis = 1750L
         watchFace.onDraw()
         assertThat(watchFace.calendar.timeInMillis).isEqualTo(1500L)
 
-        watchFace.mockSystemTimeMillis = 1999L
+        testWatchFaceService.mockSystemTimeMillis = 1999L
         watchFace.onDraw()
         assertThat(watchFace.calendar.timeInMillis).isEqualTo(1998L)
 
-        watchFace.mockSystemTimeMillis = 2000L
+        testWatchFaceService.mockSystemTimeMillis = 2000L
         watchFace.onDraw()
         assertThat(watchFace.calendar.timeInMillis).isEqualTo(1000L)
     }
@@ -462,26 +463,26 @@ class WatchFaceServiceTest {
         tapAt(30, 50)
         assertThat(complicationDrawableLeft.highlighted).isTrue()
         runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
-        assertThat(watchFace.complicationSingleTapped).isEqualTo(LEFT_COMPLICATION_ID)
+        assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(LEFT_COMPLICATION_ID)
 
         runPostedTasksFor(WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
         assertThat(complicationDrawableLeft.highlighted).isFalse()
 
         // Tap right complication.
-        watchFace.reset()
+        testWatchFaceService.reset()
         tapAt(70, 50)
         assertThat(complicationDrawableRight.highlighted).isTrue()
         runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
-        assertThat(watchFace.complicationSingleTapped).isEqualTo(RIGHT_COMPLICATION_ID)
+        assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(RIGHT_COMPLICATION_ID)
 
         runPostedTasksFor(WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
         assertThat(complicationDrawableLeft.highlighted).isFalse()
 
         // Tap on blank space.
-        watchFace.reset()
+        testWatchFaceService.reset()
         tapAt(1, 1)
         runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
-        assertThat(watchFace.complicationSingleTapped).isNull()
+        assertThat(testWatchFaceService.complicationSingleTapped).isNull()
 
         runPostedTasksFor(WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
         assertThat(complicationDrawableLeft.highlighted).isFalse()
@@ -496,25 +497,25 @@ class WatchFaceServiceTest {
 
         // Tap left complication.
         doubleTapAt(30, 50, ViewConfiguration.getDoubleTapTimeout().toLong() / 2)
-        assertThat(watchFace.complicationDoubleTapped).isEqualTo(LEFT_COMPLICATION_ID)
+        assertThat(testWatchFaceService.complicationDoubleTapped).isEqualTo(LEFT_COMPLICATION_ID)
         assertThat(complicationDrawableLeft.highlighted).isTrue()
 
         runPostedTasksFor(WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
         assertThat(complicationDrawableLeft.highlighted).isFalse()
 
         // Tap right complication.
-        watchFace.reset()
+        testWatchFaceService.reset()
         doubleTapAt(70, 50, ViewConfiguration.getDoubleTapTimeout().toLong() / 2)
-        assertThat(watchFace.complicationDoubleTapped).isEqualTo(RIGHT_COMPLICATION_ID)
+        assertThat(testWatchFaceService.complicationDoubleTapped).isEqualTo(RIGHT_COMPLICATION_ID)
         assertThat(complicationDrawableRight.highlighted).isTrue()
 
         runPostedTasksFor(WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
         assertThat(complicationDrawableRight.highlighted).isFalse()
 
         // Tap on blank space.
-        watchFace.reset()
+        testWatchFaceService.reset()
         doubleTapAt(1, 1, ViewConfiguration.getDoubleTapTimeout().toLong() / 2)
-        assertThat(watchFace.complicationDoubleTapped).isNull()
+        assertThat(testWatchFaceService.complicationDoubleTapped).isNull()
 
         runPostedTasksFor(WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
         assertThat(complicationDrawableLeft.highlighted).isFalse()
@@ -536,8 +537,8 @@ class WatchFaceServiceTest {
         // nor onComplicationDoubleTapped fire.
         assertThat(complicationDrawableLeft.highlighted).isTrue()
         assertThat(complicationDrawableRight.highlighted).isTrue()
-        assertThat(watchFace.complicationSingleTapped).isNull()
-        assertThat(watchFace.complicationDoubleTapped).isNull()
+        assertThat(testWatchFaceService.complicationSingleTapped).isNull()
+        assertThat(testWatchFaceService.complicationDoubleTapped).isNull()
 
         runPostedTasksFor(WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
         assertThat(complicationDrawableLeft.highlighted).isFalse()
@@ -554,8 +555,8 @@ class WatchFaceServiceTest {
         // Slowly tap left complication twice.
         doubleTapAt(30, 50, ViewConfiguration.getDoubleTapTimeout().toLong() * 2)
 
-        assertThat(watchFace.complicationSingleTapped).isEqualTo(LEFT_COMPLICATION_ID)
-        assertThat(watchFace.complicationDoubleTapped).isNull()
+        assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(LEFT_COMPLICATION_ID)
+        assertThat(testWatchFaceService.complicationDoubleTapped).isNull()
     }
 
     @Test
@@ -568,26 +569,26 @@ class WatchFaceServiceTest {
         // Quickly tap left complication thrice.
         tripleTapAt(30, 50, ViewConfiguration.getDoubleTapTimeout().toLong() / 2)
 
-        assertThat(watchFace.complicationSingleTapped).isNull()
-        assertThat(watchFace.complicationDoubleTapped).isEqualTo(LEFT_COMPLICATION_ID)
+        assertThat(testWatchFaceService.complicationSingleTapped).isNull()
+        assertThat(testWatchFaceService.complicationDoubleTapped).isEqualTo(LEFT_COMPLICATION_ID)
     }
 
     @Test
     fun tapCancel_after_tapDown_at_same_location_HandledAsSingleTap() {
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
 
-        watchFace.reset()
+        testWatchFaceService.reset()
         // Tap/Cancel left complication
         tapCancelAt(30, 50)
         runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
-        assertThat(watchFace.complicationSingleTapped).isEqualTo(LEFT_COMPLICATION_ID)
+        assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(LEFT_COMPLICATION_ID)
     }
 
     @Test
     fun tapDown_then_tapDown_tapCancel_HandledAsSingleTap() {
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
 
-        watchFace.reset()
+        testWatchFaceService.reset()
         // Tap down left Complication
         watchFace.onTapCommand(TapType.TOUCH, 30, 50)
 
@@ -597,22 +598,22 @@ class WatchFaceServiceTest {
         // Now Tap cancel at the second position
         watchFace.onTapCommand(TapType.TOUCH_CANCEL, 70, 50)
         runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
-        assertThat(watchFace.complicationSingleTapped).isEqualTo(RIGHT_COMPLICATION_ID)
+        assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(RIGHT_COMPLICATION_ID)
     }
 
     @Test
     fun tapDown_tapCancel_different_positions_CancelsTap() {
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
 
-        watchFace.reset()
+        testWatchFaceService.reset()
         // Tap down at a position in left Complication
         watchFace.onTapCommand(TapType.TOUCH, 30, 50)
         // Tap cancel at different position stillin left Complication
         watchFace.onTapCommand(TapType.TOUCH_CANCEL, 32, 50)
 
         runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
-        assertThat(watchFace.complicationSingleTapped).isNull()
-        assertThat(watchFace.complicationDoubleTapped).isNull()
+        assertThat(testWatchFaceService.complicationSingleTapped).isNull()
+        assertThat(testWatchFaceService.complicationDoubleTapped).isNull()
     }
 
     @Test
@@ -623,7 +624,7 @@ class WatchFaceServiceTest {
         tripleTapAt(70, 50, ViewConfiguration.getDoubleTapTimeout().toLong() / 2)
 
         // Wait a bit for the condition to reset and clear our detection state.
-        watchFace.clearTappedState()
+        testWatchFaceService.clearTappedState()
         runPostedTasksFor(WatchFace.CANCEL_COMPLICATION_HIGHLIGHTED_DELAY_MS)
         assertThat(complicationDrawableLeft.highlighted).isFalse()
         assertThat(complicationDrawableRight.highlighted).isFalse()
@@ -632,8 +633,8 @@ class WatchFaceServiceTest {
         tapAt(70, 50)
         assertThat(complicationDrawableRight.highlighted).isTrue()
         runPostedTasksFor(ViewConfiguration.getDoubleTapTimeout().toLong())
-        assertThat(watchFace.complicationSingleTapped).isEqualTo(RIGHT_COMPLICATION_ID)
-        assertThat(watchFace.complicationDoubleTapped).isNull()
+        assertThat(testWatchFaceService.complicationSingleTapped).isEqualTo(RIGHT_COMPLICATION_ID)
+        assertThat(testWatchFaceService.complicationDoubleTapped).isNull()
     }
 
     @Test
@@ -847,7 +848,7 @@ class WatchFaceServiceTest {
             3
         )
 
-        assertThat(watchFace.lastUserStyle!![watchHandStyleCategory])
+        assertThat(testWatchFaceService.lastUserStyle!![watchHandStyleCategory])
             .isEqualTo(watchHandStyleList.first())
     }
 

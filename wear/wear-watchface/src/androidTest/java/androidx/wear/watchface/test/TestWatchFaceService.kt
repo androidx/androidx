@@ -25,6 +25,7 @@ import android.view.SurfaceHolder
 import androidx.wear.complications.SystemProviders
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationSet
+import androidx.wear.watchface.NoInvalidateWatchFaceHostApi
 import androidx.wear.watchface.UnitSquareBoundsProvider
 import androidx.wear.watchface.WatchFaceHost
 import androidx.wear.watchface.WatchState
@@ -144,22 +145,20 @@ internal class TestWatchFaceService(
             complicationSlots
         )
 
-        return object : WatchFace(
+        return WatchFace.Builder(
             WatchFaceType.ANALOG,
-            /** mInteractiveUpdateRateMillis */
             16,
             styleManager,
             complicationSlots,
             renderer,
-            watchFaceHost,
+            // We want full control over when frames are produced.
+            NoInvalidateWatchFaceHostApi.create(watchFaceHost),
             watchState
-        ) {
-            override fun getSystemTimeMillis() = mockSystemTimeMillis
-
-            override fun invalidate() {
-                // Do nothing. We don't want unexpected rendering.
+        ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
+            override fun getSystemTimeMillis(): Long {
+                return mockSystemTimeMillis
             }
-        }
+        }).build()
     }
 
     override fun getHandler() = handler

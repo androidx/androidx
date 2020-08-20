@@ -30,7 +30,10 @@ abstract class Renderer(
     _surfaceHolder: SurfaceHolder,
 
     /** The associated {@link UserStyleManager}. */
-    protected val userStyleManager: UserStyleManager
+    internal val userStyleManager: UserStyleManager,
+
+    /** The associated {@link WatchState}. */
+    internal val watchState: WatchState
 ) {
     protected var surfaceHolder = _surfaceHolder
         private set
@@ -52,9 +55,10 @@ abstract class Renderer(
     var drawMode: Int
         get() = _drawMode ?: DrawMode.INTERACTIVE
         internal set(value) {
-            if (value != _drawMode) {
-                _drawMode = value
-                onDrawModeChanged(value)
+            val newDrawMode = maybeOverrideDrawMode(value)
+            if (newDrawMode != _drawMode) {
+                _drawMode = newDrawMode
+                onDrawModeChanged(newDrawMode)
             }
         }
 
@@ -146,4 +150,27 @@ abstract class Renderer(
         )
         canvas.drawBitmap(bitmap, screenBounds, bounds, null)
     }
+
+    /**
+     * The system periodically (at least once per minute) calls onTimeTick() to trigger a display
+     * update. If the watch face needs to animate with an interactive frame rate, calls to
+     * invalidate must be scheduled. This method controls whether or not we should do that.
+     *
+     * By default we remain at an interactive frame rate when the watch face is visible and we're
+     * not in ambient mode. Watchfaces with animated transitions for entering ambient mode may
+     * need to override this to ensure they play smoothly.
+     *
+     * @return Whether we should schedule an onDraw call to maintain an interactive frame rate
+     */
+    open fun shouldAnimate() = watchState.isVisible && !watchState.isAmbient
+
+    /**
+     * The {@link DrawMode} is recomputed before every onDraw call. This method allows the subclass
+     * to override the {@link DrawMode}. e.g. to support enter/exit ambient animations which may
+     * wish to defer rendering changes.
+     *
+     * @param proposedDrawMode The proposed {@link DrawMode} to use for rendering based
+     * @return The {@link DrawMode} to actually use for rendering
+     */
+    open fun maybeOverrideDrawMode(@DrawMode proposedDrawMode: Int) = proposedDrawMode
 }
