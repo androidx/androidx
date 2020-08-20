@@ -40,19 +40,20 @@ import java.util.concurrent.TimeUnit
  */
 abstract class ImageAnalysisBaseTest<A : CameraActivity> {
 
+    protected val mDevice: UiDevice =
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
     protected fun setUp(lensFacing: Int) {
         CoreAppTestUtil.assumeCompatibleDevice()
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
 
         // Clear the device's UI and ensure it's in a natural orientation
         CoreAppTestUtil.clearDeviceUI(InstrumentationRegistry.getInstrumentation())
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        device.setOrientationNatural()
+        mDevice.setOrientationNatural()
     }
 
     protected fun tearDown() {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        device.unfreezeRotation()
+        mDevice.unfreezeRotation()
     }
 
     protected inline fun <reified A : CameraActivity> verifyRotation(
