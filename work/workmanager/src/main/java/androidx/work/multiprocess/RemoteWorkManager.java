@@ -43,12 +43,21 @@ public abstract class RemoteWorkManager {
     }
 
     /**
-     * Enqueues a {@link List} of {@link WorkRequest}s.
-     * <p>
-     * Similar to the {@link androidx.work.WorkManager#enqueue(List)} API.
+     * Enqueues one item for background processing.
      *
-     * @param requests The {@link List} of {@link WorkRequest}s.
-     * @return a {@link ListenableFuture}
+     * @param request The {@link WorkRequest} to enqueue
+     * @return An {@link ListenableFuture} that can be used to determine when the enqueue has
+     * completed
+     */
+    @NonNull
+    public abstract ListenableFuture<Void> enqueue(@NonNull WorkRequest request);
+
+    /**
+     * Enqueues one or more items for background processing.
+     *
+     * @param requests One or more {@link WorkRequest} to enqueue
+     * @return An {@link ListenableFuture} that can be used to determine when the enqueue has
+     * completed
      */
     @NonNull
     public abstract ListenableFuture<Void> enqueue(@NonNull List<WorkRequest> requests);
