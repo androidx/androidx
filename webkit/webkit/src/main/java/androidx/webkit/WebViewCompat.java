@@ -244,11 +244,7 @@ public class WebViewCompat {
      * @param callback will be called with {@code true} if hosts are successfully added to the
      * allowlist, {@code false} if any hosts are malformed. The callback will be run on the UI
      * thread
-     *
-     * @hide
      */
-    // TODO(b/160326030): unhide this API and deprecate setSafeBrowsingWhitelist
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_ALLOWLIST,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
@@ -299,8 +295,10 @@ public class WebViewCompat {
      * @param callback will be called with {@code true} if hosts are successfully added to the
      * allowlist. It will be called with {@code false} if any hosts are malformed. The callback
      * will be run on the UI thread
+     *
+     * @deprecated Please use {@link #setSafeBrowsingAllowlist(Set, ValueCallback)} instead.
      */
-    // TODO(b/160326030): unhide setSafeBrowsingAllowlist and deprecate this API
+    @Deprecated
     @SuppressLint("NewApi")
     @RequiresFeature(name = WebViewFeature.SAFE_BROWSING_WHITELIST,
             enforcement = "androidx.webkit.WebViewFeature#isFeatureSupported")
