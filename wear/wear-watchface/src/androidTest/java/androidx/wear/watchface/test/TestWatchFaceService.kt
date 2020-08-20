@@ -24,10 +24,10 @@ import android.support.wearable.complications.ComplicationData
 import android.view.SurfaceHolder
 import androidx.wear.complications.SystemProviders
 import androidx.wear.watchface.Complication
-import androidx.wear.watchface.ComplicationSlots
-import androidx.wear.watchface.FixedBounds
-import androidx.wear.watchface.SystemApi
-import androidx.wear.watchface.SystemState
+import androidx.wear.watchface.ComplicationSet
+import androidx.wear.watchface.UnitSquareBoundsProvider
+import androidx.wear.watchface.WatchFaceHost
+import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
@@ -54,11 +54,11 @@ internal class TestWatchFaceService(
 
     override fun createWatchFace(
         surfaceHolder: SurfaceHolder,
-        systemApi: SystemApi,
-        systemState: SystemState
+        watchFaceHost: WatchFaceHost,
+        watchState: WatchState
     ): WatchFace {
         // Override is necessary because the watch face isn't visible in this test.
-        systemState.onVisibilityChanged(true)
+        watchState.onVisibilityChanged(true)
 
         val watchFaceStyle = WatchFaceColorStyle.create(this, "red_style")
         val colorStyleCategory = ListUserStyleCategory(
@@ -100,12 +100,12 @@ internal class TestWatchFaceService(
         val styleManager = UserStyleManager(
             listOf(colorStyleCategory, drawHourPipsStyleCategory, watchHandLengthStyleCategory)
         )
-        val complicationSlots = ComplicationSlots(
+        val complicationSlots = ComplicationSet(
             listOf(
                 Complication(
                     EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                    FixedBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f)),
-                    watchFaceStyle.getComplicationDrawableRenderer(this, systemState),
+                    UnitSquareBoundsProvider(RectF(0.2f, 0.4f, 0.4f, 0.6f)),
+                    watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
                     intArrayOf(
                         ComplicationData.TYPE_RANGED_VALUE,
                         ComplicationData.TYPE_LONG_TEXT,
@@ -118,8 +118,8 @@ internal class TestWatchFaceService(
                 ),
                 Complication(
                     EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
-                    FixedBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f)),
-                    watchFaceStyle.getComplicationDrawableRenderer(this, systemState),
+                    UnitSquareBoundsProvider(RectF(0.6f, 0.4f, 0.8f, 0.6f)),
+                    watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
                     intArrayOf(
                         ComplicationData.TYPE_RANGED_VALUE,
                         ComplicationData.TYPE_LONG_TEXT,
@@ -137,7 +137,7 @@ internal class TestWatchFaceService(
             this,
             watchFaceStyle,
             styleManager,
-            systemState,
+            watchState,
             colorStyleCategory,
             drawHourPipsStyleCategory,
             watchHandLengthStyleCategory,
@@ -151,8 +151,8 @@ internal class TestWatchFaceService(
             styleManager,
             complicationSlots,
             renderer,
-            systemApi,
-            systemState
+            watchFaceHost,
+            watchState
         ) {
             override fun getSystemTimeMillis() = mockSystemTimeMillis
 

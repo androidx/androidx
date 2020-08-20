@@ -101,8 +101,6 @@ internal class ConfigView(
         var eventType: Int
     )
 
-    // We snapshot time in case the watch face animates complications which would make selecting
-    // them annoying.
     private val snapshottedTime = Calendar.getInstance().apply {
         timeZone = watchFaceConfigActivity.watchFaceConfigDelegate.getCalendar().timeZone
         timeInMillis = watchFaceConfigActivity.watchFaceConfigDelegate.getCalendar().timeInMillis
@@ -124,7 +122,7 @@ internal class ConfigView(
 
         @SuppressWarnings("SyntheticAccessor")
         override fun onSingleTapUp(e: MotionEvent): Boolean {
-            return if (onTap(e.x.toInt(), e.y.toInt(), snapshottedTime)) {
+            return if (onTap(e.x.toInt(), e.y.toInt())) {
                 invalidate()
                 true
             } else {
@@ -142,20 +140,19 @@ internal class ConfigView(
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun onTap(
         tapX: Int,
-        tapY: Int,
-        calendar: Calendar
+        tapY: Int
     ): Boolean {
         var iWatchFaceConfig = watchFaceConfigActivity.watchFaceConfigDelegate
         // Check if the user tapped on any of the complications, but with the supplied calendar.
         // This is to support freezing of animated complications while the user selects one to
         // configure.
         val complicationId =
-            iWatchFaceConfig.getComplicationIdAt(tapX, tapY, calendar) ?: return false
+            iWatchFaceConfig.getComplicationIdAt(tapX, tapY) ?: return false
         val complication = iWatchFaceConfig.getComplicationsMap()[complicationId]!!
         iWatchFaceConfig.brieflyHighlightComplicationId(complicationId)
         watchFaceConfigActivity.fragmentController.showComplicationConfig(
             complicationId,
-            *complication.supportedComplicationDataTypes
+            *complication.supportedTypes
         )
         return true
     }
@@ -171,7 +168,7 @@ internal class ConfigView(
                     (abs(it.eventPositionX - event.rawX.toInt()) < 1) &&
                     (abs(it.eventPositionY - event.rawY.toInt()) < 1)
                 ) {
-                    onTap(event.rawX.toInt(), event.rawY.toInt(), snapshottedTime)
+                    onTap(event.rawX.toInt(), event.rawY.toInt())
                 }
             }
             lastEventInfo = null

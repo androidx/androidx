@@ -32,11 +32,11 @@ import androidx.wear.complications.SystemProviders
 import androidx.wear.watchface.CanvasRenderer
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Complication
-import androidx.wear.watchface.ComplicationSlots
+import androidx.wear.watchface.ComplicationSet
 import androidx.wear.watchface.DrawMode
-import androidx.wear.watchface.FixedBounds
-import androidx.wear.watchface.SystemApi
-import androidx.wear.watchface.SystemState
+import androidx.wear.watchface.UnitSquareBoundsProvider
+import androidx.wear.watchface.WatchFaceHost
+import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
@@ -69,8 +69,8 @@ private const val NUMBER_RADIUS_FRACTION = 0.45f
 class ExampleCanvasWatchFaceService : WatchFaceService() {
     override fun createWatchFace(
         surfaceHolder: SurfaceHolder,
-        systemApi: SystemApi,
-        systemState: SystemState
+        watchFaceHost: WatchFaceHost,
+        watchState: WatchState
     ): WatchFace {
         val watchFaceStyle = WatchFaceColorStyle.create(this, "red_style")
         val colorStyleCategory = ListUserStyleCategory(
@@ -112,12 +112,12 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
         val styleManager = UserStyleManager(
             listOf(colorStyleCategory, drawHourPipsStyleCategory, watchHandLengthStyleCategory)
         )
-        val complicationSlots = ComplicationSlots(
+        val complicationSlots = ComplicationSet(
             listOf(
                 Complication(
                     EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                    FixedBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f)),
-                    watchFaceStyle.getComplicationDrawableRenderer(this, systemState),
+                    UnitSquareBoundsProvider(RectF(0.2f, 0.4f, 0.4f, 0.6f)),
+                    watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
                     intArrayOf(
                         ComplicationData.TYPE_RANGED_VALUE,
                         ComplicationData.TYPE_LONG_TEXT,
@@ -130,8 +130,8 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
                 ),
                 Complication(
                     EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
-                    FixedBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f)),
-                    watchFaceStyle.getComplicationDrawableRenderer(this, systemState),
+                    UnitSquareBoundsProvider(RectF(0.6f, 0.4f, 0.8f, 0.6f)),
+                    watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
                     intArrayOf(
                         ComplicationData.TYPE_RANGED_VALUE,
                         ComplicationData.TYPE_LONG_TEXT,
@@ -149,7 +149,7 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
             this,
             watchFaceStyle,
             styleManager,
-            systemState,
+            watchState,
             colorStyleCategory,
             drawHourPipsStyleCategory,
             watchHandLengthStyleCategory,
@@ -163,8 +163,8 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
             styleManager,
             complicationSlots,
             renderer,
-            systemApi,
-            systemState
+            watchFaceHost,
+            watchState
         )
     }
 }
@@ -177,12 +177,12 @@ class ExampleCanvasRenderer(
     private val context: Context,
     private var watchFaceColorStyle: WatchFaceColorStyle,
     userStyleManager: UserStyleManager,
-    private val systemState: SystemState,
+    private val watchState: WatchState,
     private val colorStyleCategory: ListUserStyleCategory,
     private val drawPipsStyleCategory: BooleanUserStyleCategory,
     private val watchHandLengthStyleCategoryDouble: DoubleRangeUserStyleCategory,
-    private val complicationSlots: ComplicationSlots
-) : CanvasRenderer(surfaceHolder, userStyleManager, systemState, CanvasType.HARDWARE) {
+    private val complicationSet: ComplicationSet
+) : CanvasRenderer(surfaceHolder, userStyleManager, watchState, CanvasType.HARDWARE) {
 
     private val clockHandPaint = Paint().apply {
         isAntiAlias = true
@@ -237,12 +237,10 @@ class ExampleCanvasRenderer(
 
                     // Apply the userStyle to the complications. ComplicationDrawables for each of the
                     // styles are defined in XML so we need to replace the complication's drawables.
-                    for ((_, complication) in complicationSlots.complications) {
-                        complication.complicationRenderer =
-                            watchFaceColorStyle.getComplicationDrawableRenderer(
-                                context,
-                                systemState
-                            )
+                    for ((_, complication) in complicationSet.complications) {
+                        complication.setRenderer(
+                            watchFaceColorStyle.getComplicationDrawableRenderer(context, watchState)
+                        )
                     }
 
                     val drawPipsOption =
@@ -463,12 +461,12 @@ class ExampleCanvasRenderer(
 
     private fun drawComplications(canvas: Canvas, calendar: Calendar) {
         val screen = Rect(0, 0, canvas.width, canvas.height)
-        for ((_, complication) in complicationSlots.complications) {
+        for ((_, complication) in complicationSet.complications) {
             complication.draw(canvas, calendar, drawMode)
             if (drawMode == DrawMode.COMPLICATION_SELECT) {
                 drawComplicationSelectDashBorders(
                     canvas,
-                    complication.boundsProvider.computeBounds(complication, screen, calendar)
+                    complication.boundsProvider.computeBounds(complication, screen)
                 )
             }
         }

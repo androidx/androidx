@@ -196,7 +196,7 @@ class PaintModes(private val array: Map<Int, Paint>) {
  * Some watch faces support different configurations (number & position) of complications and this
  * can be achieved by rendering a subset and only marking the ones you need as active. Most watch
  * faces will not animate the location of complications so its recommended to use the
- * WatchFace.FixedBounds helper.
+ * WatchFace.UnitSquareBoundsProvider helper.
  *
  * Many watch faces support styles, typically controlling the color and visual look of watch face
  * elements such as numeric fonts, watch hands and ticks. WatchFaceService doesn't take an
@@ -282,8 +282,8 @@ abstract class WatchFaceService : WallpaperService() {
     /** Override this factory method to create your WatchFace. */
     protected abstract fun createWatchFace(
         surfaceHolder: SurfaceHolder,
-        systemApi: SystemApi,
-        systemState: SystemState
+        watchFaceHost: WatchFaceHost,
+        watchState: WatchState
     ): WatchFace
 
     final override fun onCreateEngine() = EngineWrapper(getHandler()) as Engine
@@ -292,11 +292,11 @@ abstract class WatchFaceService : WallpaperService() {
     internal open fun getHandler() = Handler(Looper.getMainLooper())
 
     // This is open to allow mocking.
-    internal open fun getSystemState() = SystemState()
+    internal open fun getSystemState() = WatchState()
 
     internal inner class EngineWrapper(
         private val _handler: Handler
-    ) : WallpaperService.Engine(), SystemApi, IWatchFaceCommand {
+    ) : WallpaperService.Engine(), WatchFaceHostApi, IWatchFaceCommand {
         private val _context = this@WatchFaceService as Context
 
         private lateinit var currentSurfaceHolder: SurfaceHolder
@@ -573,23 +573,22 @@ abstract class WatchFaceService : WallpaperService() {
             val calendar = Calendar.getInstance().apply {
                 timeInMillis = calendarTimeMillis
             }
-            var complication = watchFace.complicationSlots[complicationId]
+            val complication = watchFace.complicationSet[complicationId]
             return if (complication != null) {
-                var bounds = complication.boundsProvider.computeBounds(
+                val bounds = complication.boundsProvider.computeBounds(
                     complication,
-                    watchFace.renderer.screenBounds,
-                    calendar
+                    watchFace.renderer.screenBounds
                 )
-                var complicationBitmap =
+                val complicationBitmap =
                     Bitmap.createBitmap(bounds.width(), bounds.height(), Bitmap.Config.ARGB_8888)
 
                 var prevComplicationData: ComplicationData? = null
                 if (complicationData != null) {
-                    prevComplicationData = complication.complicationRenderer.getComplicationData()
-                    complication.complicationRenderer.setComplicationData(complicationData)
+                    prevComplicationData = complication.renderer.getData()
+                    complication.renderer.setData(complicationData)
                 }
 
-                complication.complicationRenderer.onDraw(
+                complication.renderer.onDraw(
                     Canvas(complicationBitmap),
                     Rect(0, 0, bounds.width(), bounds.height()),
                     calendar,
@@ -598,7 +597,7 @@ abstract class WatchFaceService : WallpaperService() {
 
                 // Restore previous ComplicationData if required.
                 if (complicationData != null) {
-                    complication.complicationRenderer.setComplicationData(prevComplicationData)
+                    complication.renderer.setData(prevComplicationData)
                 }
 
                 SharedMemoryImage.bitmapToAshmemCompressedImageBundle(
@@ -700,7 +699,9 @@ abstract class WatchFaceService : WallpaperService() {
             if (this::currentSurfaceHolder.isInitialized &&
                 this::iWatchFaceService.isInitialized && !watchFaceCreated()
             ) {
-                watchFace = createWatchFace(currentSurfaceHolder, this, systemState)
+                val host = WatchFaceHost()
+                host.api = this
+                watchFace = createWatchFace(currentSurfaceHolder, host, systemState)
 
                 val backgroundAction = pendingBackgroundAction
                 if (backgroundAction != null) {
@@ -939,7 +940,7 @@ abstract class WatchFaceService : WallpaperService() {
         override fun setComplicationDetails(
             complicationId: Int,
             bounds: Rect,
-            @ComplicationSlotType type: Int
+            @ComplicationBoundsType type: Int
         ) {
             if (systemApiVersion >= 3) {
                 iWatchFaceService.setComplicationDetails(complicationId, bounds, type)

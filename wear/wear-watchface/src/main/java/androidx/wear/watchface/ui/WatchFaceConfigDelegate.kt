@@ -60,10 +60,9 @@ interface WatchFaceConfigDelegate {
     fun getCalendar(): Calendar
 
     /**
-     * Returns the id of the complication at the given coordinates and the specified
-     * {@link Calendar}.
+     * Returns the id of the complication at the given coordinates.
      */
-    fun getComplicationIdAt(tapX: Int, tapY: Int, calendar: Calendar): Int?
+    fun getComplicationIdAt(tapX: Int, tapY: Int): Int?
 
     /**
      * Requests that the specified complication is highlighted for a short duration.

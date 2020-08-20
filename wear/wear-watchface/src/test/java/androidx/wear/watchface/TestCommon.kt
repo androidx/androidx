@@ -40,10 +40,10 @@ import org.robolectric.internal.bytecode.InstrumentationConfiguration
 
 class TestWatchFaceService(
     @WatchFaceType private val watchFaceType: Int,
-    private val complicationSlots: ComplicationSlots,
+    private val complicationSet: ComplicationSet,
     private val renderer: TestRenderer,
     private val userStyleManager: UserStyleManager,
-    private val systemState: SystemState,
+    private val watchState: WatchState,
     private val handler: Handler,
     private val interactiveFrameRateMs: Long
 ) : WatchFaceService() {
@@ -56,16 +56,16 @@ class TestWatchFaceService(
 
     override fun createWatchFace(
         surfaceHolder: SurfaceHolder,
-        systemApi: SystemApi,
-        systemState: SystemState
+        watchFaceHost: WatchFaceHost,
+        watchState: WatchState
     ): WatchFace {
         watchFace = TestWatchFace(
             watchFaceType,
-            complicationSlots,
+            complicationSet,
             renderer,
             userStyleManager,
-            systemApi,
-            systemState,
+            watchFaceHost,
+            watchState,
             interactiveFrameRateMs
         )
         return watchFace
@@ -73,7 +73,7 @@ class TestWatchFaceService(
 
     override fun getHandler() = handler
 
-    override fun getSystemState() = systemState
+    override fun getSystemState() = watchState
 }
 
 /**
@@ -94,7 +94,7 @@ class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceService) :
         iWatchFaceService.setActiveComplications(ids, updateAll)
     }
 
-    override fun setComplicationDetails(id: Int, bounds: Rect?, @ComplicationSlotType type: Int) {
+    override fun setComplicationDetails(id: Int, bounds: Rect?, @ComplicationBoundsType type: Int) {
         iWatchFaceService.setComplicationDetails(id, bounds, type)
     }
 
@@ -163,9 +163,9 @@ class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceService) :
 class TestRenderer(
     surfaceHolder: SurfaceHolder,
     userStyleManager: UserStyleManager,
-    systemState: SystemState
+    watchState: WatchState
 ) :
-    CanvasRenderer(surfaceHolder, userStyleManager, systemState, CanvasType.HARDWARE) {
+    CanvasRenderer(surfaceHolder, userStyleManager, watchState, CanvasType.HARDWARE) {
     var lastOnDrawCalendar: Calendar? = null
 
     override fun onDraw(
@@ -179,20 +179,20 @@ class TestRenderer(
 
 open class TestWatchFace(
     @WatchFaceType watchFaceType: Int,
-    complicationSlots: ComplicationSlots,
+    complicationSet: ComplicationSet,
     private val testRenderer: TestRenderer,
     userStyleManager: UserStyleManager,
-    systemApi: SystemApi,
-    systemState: SystemState,
+    watchFaceHost: WatchFaceHost,
+    watchState: WatchState,
     interactiveFrameRateMs: Long
 ) : WatchFace(
     watchFaceType,
     interactiveFrameRateMs,
     userStyleManager,
-    complicationSlots,
+    complicationSet,
     testRenderer,
-    systemApi,
-    systemState
+    watchFaceHost,
+    watchState
 ) {
     var complicationSingleTapped: Int? = null
     var complicationDoubleTapped: Int? = null
@@ -211,8 +211,8 @@ open class TestWatchFace(
             }
         )
 
-        complicationSlots.addComplicationListener(
-            object : ComplicationSlots.ComplicationListener {
+        complicationSet.addTapListener(
+            object : ComplicationSet.TapListener {
                 override fun onComplicationSingleTapped(complicationId: Int) {
                     complicationSingleTapped = complicationId
                 }

@@ -31,10 +31,10 @@ import androidx.wear.watchface.CanvasRenderer
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationDrawableRenderer
-import androidx.wear.watchface.ComplicationSlots
-import androidx.wear.watchface.FixedBounds
-import androidx.wear.watchface.SystemApi
-import androidx.wear.watchface.SystemState
+import androidx.wear.watchface.ComplicationSet
+import androidx.wear.watchface.UnitSquareBoundsProvider
+import androidx.wear.watchface.WatchFaceHost
+import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
@@ -48,8 +48,8 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
     class ExampleCanvasWatchFaceService : WatchFaceService() {
         override fun createWatchFace(
             surfaceHolder: SurfaceHolder,
-            systemApi: SystemApi,
-            systemState: SystemState
+            watchFaceHost: WatchFaceHost,
+            watchState: WatchState
         ): WatchFace {
             val styleManager = UserStyleManager(
                 listOf(
@@ -97,14 +97,14 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                     )
                 )
             )
-            val complicationSlots = ComplicationSlots(
+            val complicationSlots = ComplicationSet(
                 listOf(
                     Complication(
                         /*id */ 0,
-                        FixedBounds(RectF(0.15625f, 0.1875f, 0.84375f, 0.3125f)),
+                        UnitSquareBoundsProvider(RectF(0.15625f, 0.1875f, 0.84375f, 0.3125f)),
                         ComplicationDrawableRenderer(
                             ComplicationDrawable(this),
-                            systemState
+                            watchState
                         ),
                         intArrayOf(
                             ComplicationData.TYPE_RANGED_VALUE,
@@ -118,12 +118,12 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                     ),
                     Complication(
                         /*id */ 1,
-                        FixedBounds(
+                        UnitSquareBoundsProvider(
                             RectF(0.1f, 0.5625f, 0.35f, 0.8125f)
                         ),
                         ComplicationDrawableRenderer(
                             ComplicationDrawable(this),
-                            systemState
+                            watchState
                         ),
                         intArrayOf(
                             ComplicationData.TYPE_RANGED_VALUE,
@@ -141,7 +141,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
             val renderer = object : CanvasRenderer(
                 surfaceHolder,
                 styleManager,
-                systemState,
+                watchState,
                 CanvasType.HARDWARE
             ) {
                 init {
@@ -170,8 +170,8 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                 styleManager,
                 complicationSlots,
                 renderer,
-                systemApi,
-                systemState
+                watchFaceHost,
+                watchState
             ) {}
         }
     }
