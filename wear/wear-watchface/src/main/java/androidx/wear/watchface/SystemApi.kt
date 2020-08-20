@@ -24,7 +24,7 @@ import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.wear.complications.SystemProviders
-import androidx.wear.watchfacestyle.UserStyleCategory
+import androidx.wear.watchface.style.UserStyleCategory
 
 /** @hide */
 @IntDef(

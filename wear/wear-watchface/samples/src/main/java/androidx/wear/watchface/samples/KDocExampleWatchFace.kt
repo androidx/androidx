@@ -38,9 +38,9 @@ import androidx.wear.watchface.SystemState
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
-import androidx.wear.watchfacestyle.ListViewUserStyleCategory
-import androidx.wear.watchfacestyle.UserStyleCategory
-import androidx.wear.watchfacestyle.UserStyleManager
+import androidx.wear.watchface.style.ListUserStyleCategory
+import androidx.wear.watchface.style.UserStyleCategory
+import androidx.wear.watchface.style.UserStyleManager
 
 @Sampled
 fun kDocCreateExampleWatchFaceService(): WatchFaceService {
@@ -53,42 +53,42 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
         ): WatchFace {
             val styleManager = UserStyleManager(
                 listOf(
-                    ListViewUserStyleCategory(
+                    ListUserStyleCategory(
                         "color_style_category",
                         "Colors",
                         "Watchface colorization",
                         icon = null,
                         options = listOf(
-                            ListViewUserStyleCategory.ListViewOption(
+                            ListUserStyleCategory.ListOption(
                                 "red_style",
                                 "Red",
                                 icon = null
                             ),
-                            ListViewUserStyleCategory.ListViewOption(
+                            ListUserStyleCategory.ListOption(
                                 "green_style",
                                 "Green",
                                 icon = null
                             ),
-                            ListViewUserStyleCategory.ListViewOption(
+                            ListUserStyleCategory.ListOption(
                                 "bluestyle",
                                 "Blue",
                                 icon = null
                             )
                         )
                     ),
-                    ListViewUserStyleCategory(
+                    ListUserStyleCategory(
                         "hand_style_category",
                         "Hand Style",
                         "Hand visual look",
                         icon = null,
                         options = listOf(
-                            ListViewUserStyleCategory.ListViewOption(
+                            ListUserStyleCategory.ListOption(
                                 "classic_style", "Classic", icon = null
                             ),
-                            ListViewUserStyleCategory.ListViewOption(
+                            ListUserStyleCategory.ListOption(
                                 "modern_style", "Modern", icon = null
                             ),
-                            ListViewUserStyleCategory.ListViewOption(
+                            ListUserStyleCategory.ListOption(
                                 "gothic_style",
                                 "Gothic",
                                 icon = null

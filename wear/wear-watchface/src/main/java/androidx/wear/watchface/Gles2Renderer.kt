@@ -27,7 +27,7 @@ import android.opengl.GLES20
 import android.util.Log
 import android.view.SurfaceHolder
 import androidx.annotation.CallSuper
-import androidx.wear.watchfacestyle.UserStyleManager
+import androidx.wear.watchface.style.UserStyleManager
 
 import java.nio.ByteBuffer
 

@@ -38,7 +38,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.complications.ProviderInfoRetriever
 import androidx.wear.watchface.R
-import androidx.wear.watchfacestyle.ListViewUserStyleCategory
+import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.widget.SwipeDismissFrameLayout
 import androidx.wear.widget.WearableLinearLayoutManager
 import androidx.wear.widget.WearableRecyclerView
@@ -192,12 +192,13 @@ internal class ConfigFragment : Fragment() {
             }
 
             else -> {
-                val category =
-                    watchFaceConfigActivity.styleSchema.first { it.id == configKey }
-                            as ListViewUserStyleCategory
                 watchFaceConfigActivity.fragmentController.showStyleConfigFragment(
                     configKey,
-                    category.options
+                    watchFaceConfigActivity.styleSchema,
+                    UserStyleCategory.bundleToStyleMap(
+                        watchFaceConfigActivity.watchFaceConfigDelegate.getUserStyle(),
+                        watchFaceConfigActivity.styleSchema
+                    )
                 )
             }
         }

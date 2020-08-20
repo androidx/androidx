@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.watchfacestyle
+package androidx.wear.watchface.style
 
 /**
  * In memory storage for user style choices which allows listeners to be registered to observe

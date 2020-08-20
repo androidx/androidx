@@ -21,6 +21,7 @@ import android.graphics.Rect
 import android.icu.util.Calendar
 import android.os.Bundle
 import androidx.annotation.RestrictTo
+import androidx.annotation.RestrictTo.Scope.LIBRARY
 import androidx.wear.watchface.Complication
 
 /**
@@ -28,11 +29,11 @@ import androidx.wear.watchface.Complication
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
+@RestrictTo(LIBRARY)
 interface WatchFaceConfigDelegate {
     /**
      * Returns a list of UserStyleCategories serialized into bundles. See {@link
-     * UserStyleCategory.bundlesToUserStyleCategoryLists}.
+     * UserStyleCategory.bundleToUserStyleCategoryLists}.
      */
     fun getUserStyleSchema(): List<Bundle>
 

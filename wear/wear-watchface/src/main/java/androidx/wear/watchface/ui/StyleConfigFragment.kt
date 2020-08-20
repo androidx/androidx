@@ -23,15 +23,19 @@ import android.os.Looper
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SeekBar
 import android.widget.TextView
+import android.widget.ToggleButton
 import androidx.annotation.RestrictTo
-import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
+import androidx.annotation.RestrictTo.Scope.LIBRARY
 import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.watchface.R
-import androidx.wear.watchfacestyle.ListViewUserStyleCategory
-import androidx.wear.watchfacestyle.UserStyleCategory
+import androidx.wear.watchface.style.BooleanUserStyleCategory
+import androidx.wear.watchface.style.DoubleRangeUserStyleCategory
+import androidx.wear.watchface.style.ListUserStyleCategory
+import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.widget.SwipeDismissFrameLayout
 import androidx.wear.widget.WearableLinearLayoutManager
 import androidx.wear.widget.WearableRecyclerView
@@ -41,26 +45,34 @@ import androidx.wear.widget.WearableRecyclerView
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(LIBRARY)
 internal class StyleConfigFragment : Fragment(),
     StyleSettingViewAdapter.ClickListener {
 
-    @RestrictTo(LIBRARY_GROUP)
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     internal lateinit var watchFaceConfigActivity: WatchFaceConfigActivity
-    internal lateinit var categoryKey: String
-    private lateinit var styleOptions: List<ListViewUserStyleCategory.ListViewOption>
+    private lateinit var categoryId: String
+    private lateinit var styleSchema: List<UserStyleCategory>
+    private lateinit var styleCategory: UserStyleCategory
+    private lateinit var styleMap: MutableMap<UserStyleCategory, UserStyleCategory.Option>
 
     companion object {
-        const val CATEGORY_KEY = "CATEGORY_KEY"
+        const val CATEGORY_ID = "CATEGORY_ID"
+        const val STYLE_MAP = "STYLE_MAP"
+        const val STYLE_SCHEMA = "STYLE_SCHEMA"
 
         fun newInstance(
-            categoryKey: String,
-            userStyleOptions: List<UserStyleCategory.Option>
+            categoryId: String,
+            styleSchema: List<UserStyleCategory>,
+            styleMap: Map<UserStyleCategory, UserStyleCategory.Option>
         ) = StyleConfigFragment().apply {
             arguments = Bundle().apply {
-                putCharSequence(CATEGORY_KEY, categoryKey)
-                UserStyleCategory.writeOptionListToBundle(userStyleOptions, this)
+                putCharSequence(CATEGORY_ID, categoryId)
+                putParcelableArrayList(
+                    STYLE_SCHEMA,
+                    ArrayList(styleSchema.map { Bundle().apply { it.writeToBundle(this) } })
+                )
+                putBundle(STYLE_MAP, UserStyleCategory.styleMapToBundle(styleMap))
             }
         }
     }
@@ -81,14 +93,79 @@ internal class StyleConfigFragment : Fragment(),
             inflater.inflate(R.layout.style_options_layout, container, false)
                     as SwipeDismissFrameLayout
 
-        view.findViewById<WearableRecyclerView>(R.id.styleOptionsList).apply {
-            adapter =
-                StyleSettingViewAdapter(
-                    context,
-                    styleOptions,
-                    this@StyleConfigFragment
+        val styleOptions = styleCategory.options
+        val booleanUserStyleCategory =
+            styleOptions.filterIsInstance<BooleanUserStyleCategory.BooleanOption>()
+        val ListUserStyleCategory =
+            styleOptions.filterIsInstance<ListUserStyleCategory.ListOption>()
+        val rangeUserStyleCategory =
+            styleOptions.filterIsInstance<DoubleRangeUserStyleCategory.DoubleRangeOption>()
+
+        val booleanStyle = view.findViewById<ToggleButton>(R.id.styleToggle)
+        val styleOptionsList = view.findViewById<WearableRecyclerView>(R.id.styleOptionsList)
+        val rangedStyle = view.findViewById<SeekBar>(R.id.styleRange)
+
+        when {
+            booleanUserStyleCategory.isNotEmpty() -> {
+                booleanStyle.isChecked = styleMap[styleCategory]!!.id.toBoolean()
+                booleanStyle.setOnCheckedChangeListener { _, isChecked ->
+                    setUserStyleOption(styleCategory.getOptionForId(isChecked.toString()))
+                }
+                styleOptionsList.visibility = View.GONE
+                styleOptionsList.isEnabled = false
+                rangedStyle.visibility = View.GONE
+                rangedStyle.isEnabled = false
+            }
+
+            ListUserStyleCategory.isNotEmpty() -> {
+                booleanStyle.isEnabled = false
+                booleanStyle.visibility = View.GONE
+                styleOptionsList.adapter =
+                    StyleSettingViewAdapter(
+                        requireContext(),
+                        ListUserStyleCategory,
+                        this@StyleConfigFragment
+                    )
+                styleOptionsList.layoutManager = WearableLinearLayoutManager(context)
+                rangedStyle.isEnabled = false
+                rangedStyle.visibility = View.GONE
+            }
+
+            rangeUserStyleCategory.isNotEmpty() -> {
+                val rangedStyleCategory = styleCategory as DoubleRangeUserStyleCategory
+                val minValue =
+                    (rangedStyleCategory.options.first() as
+                            DoubleRangeUserStyleCategory.DoubleRangeOption).value
+                val maxValue =
+                    (rangedStyleCategory.options.last() as
+                            DoubleRangeUserStyleCategory.DoubleRangeOption).value
+                val delta = (maxValue - minValue) / 100.0f
+                val value = styleMap[styleCategory]!!.id.toFloat()
+                rangedStyle.progress = ((value - minValue) / delta).toInt()
+                rangedStyle.setOnSeekBarChangeListener(
+                    object : SeekBar.OnSeekBarChangeListener {
+                        override fun onProgressChanged(
+                            seekBar: SeekBar,
+                            progress: Int,
+                            fromUser: Boolean
+                        ) {
+                            setUserStyleOption(
+                                rangedStyleCategory.getOptionForId(
+                                    (minValue + delta * progress.toFloat()).toString()
+                                )
+                            )
+                        }
+
+                        override fun onStartTrackingTouch(seekBar: SeekBar) {}
+
+                        override fun onStopTrackingTouch(seekBar: SeekBar) {}
+                    }
                 )
-            layoutManager = WearableLinearLayoutManager(context)
+                booleanStyle.isEnabled = false
+                booleanStyle.visibility = View.GONE
+                styleOptionsList.isEnabled = false
+                styleOptionsList.visibility = View.GONE
+            }
         }
 
         view.addCallback(object : SwipeDismissFrameLayout.Callback() {
@@ -100,26 +177,32 @@ internal class StyleConfigFragment : Fragment(),
         return view
     }
 
-    fun readOptionsFromArguments() {
-        categoryKey = requireArguments().getCharSequence(CATEGORY_KEY).toString()
-        styleOptions = UserStyleCategory.readOptionsListFromBundle(requireArguments())
-            .filterIsInstance<ListViewUserStyleCategory.ListViewOption>()
-    }
+    internal fun readOptionsFromArguments() {
+        categoryId = requireArguments().getCharSequence(CATEGORY_ID).toString()
 
-    override fun onItemClick(userStyleOption: UserStyleCategory.Option) {
-        // These will become IPCs eventually, hence the use of Bundles.
-        val styleMap = UserStyleCategory.bundleToStyleMap(
-            watchFaceConfigActivity.watchFaceConfigDelegate.getUserStyle(),
-            watchFaceConfigActivity.styleSchema
+        styleSchema =
+            (requireArguments().getParcelableArrayList<Bundle>(STYLE_SCHEMA))!!
+                .map { UserStyleCategory.createFromBundle(it) }
+
+        styleMap = UserStyleCategory.bundleToStyleMap(
+            requireArguments().getBundle(STYLE_MAP)!!,
+            styleSchema
         )
 
-        val category = styleMap.keys.first { it.id == categoryKey }
-        styleMap[category] = userStyleOption
+        styleCategory = styleSchema.first { it.id == categoryId }
+    }
 
+    internal fun setUserStyleOption(userStyleOption: UserStyleCategory.Option) {
+        styleMap[styleCategory] = userStyleOption
+
+        // These will become IPCs eventually, hence the use of Bundles.
         watchFaceConfigActivity.watchFaceConfigDelegate.setUserStyle(
             UserStyleCategory.styleMapToBundle(styleMap)
         )
+    }
 
+    override fun onItemClick(userStyleOption: UserStyleCategory.Option) {
+        setUserStyleOption(userStyleOption)
         activity?.finish()
     }
 }
@@ -133,10 +216,10 @@ internal class StyleSettingViewHolder(view: View) : RecyclerView.ViewHolder(view
  *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@RestrictTo(LIBRARY)
 internal class StyleSettingViewAdapter(
     private val context: Context,
-    private val styleOptions: List<ListViewUserStyleCategory.ListViewOption>,
+    private val styleOptions: List<ListUserStyleCategory.ListOption>,
     private val clickListener: ClickListener
 ) :
     RecyclerView.Adapter<StyleSettingViewHolder>() {

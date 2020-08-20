@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.watchfacestyle
+package androidx.wear.watchface.style
 
 import android.graphics.drawable.Icon
 import android.os.Bundle
@@ -30,7 +30,7 @@ import org.robolectric.internal.bytecode.InstrumentationConfiguration
 class WatchFaceServiceTestRunner(testClass: Class<*>) : RobolectricTestRunner(testClass) {
     override fun createClassLoaderConfig(method: FrameworkMethod): InstrumentationConfiguration =
         InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method))
-            .doNotInstrumentPackage("androidx.wear.watchfacestyle")
+            .doNotInstrumentPackage("androidx.wear.watchface.style")
             .build()
 }
 
@@ -41,15 +41,15 @@ class UserStyleCategoryTest {
     private val icon2 = Icon.createWithContentUri("icon2")
     private val icon3 = Icon.createWithContentUri("icon3")
     private val icon4 = Icon.createWithContentUri("icon4")
-    private val option1 = ListViewUserStyleCategory.ListViewOption("1", "one", icon1)
-    private val option2 = ListViewUserStyleCategory.ListViewOption("2", "two", icon2)
-    private val option3 = ListViewUserStyleCategory.ListViewOption("3", "three", icon3)
-    private val option4 = ListViewUserStyleCategory.ListViewOption("4", "four", icon4)
+    private val option1 = ListUserStyleCategory.ListOption("1", "one", icon1)
+    private val option2 = ListUserStyleCategory.ListOption("2", "two", icon2)
+    private val option3 = ListUserStyleCategory.ListOption("3", "three", icon3)
+    private val option4 = ListUserStyleCategory.ListOption("4", "four", icon4)
 
     @Test
     fun bundleAndUnbundleStyleCategoryAndOption() {
         val categoryIcon = Icon.createWithContentUri("categoryIcon")
-        val styleCategory = ListViewUserStyleCategory(
+        val styleCategory = ListUserStyleCategory(
             "id", "displayName", "description", categoryIcon, listOf(option1, option2, option3)
         )
 
@@ -57,14 +57,14 @@ class UserStyleCategoryTest {
         styleCategory.writeToBundle(bundle)
 
         val unbundled = UserStyleCategory.createFromBundle(bundle)
-        assert(unbundled is ListViewUserStyleCategory)
+        assert(unbundled is ListUserStyleCategory)
 
         assertThat(unbundled.id).isEqualTo("id")
         assertThat(unbundled.displayName).isEqualTo("displayName")
         assertThat(unbundled.description).isEqualTo("description")
         assertThat(unbundled.icon!!.uri.toString()).isEqualTo("categoryIcon")
         val optionArray =
-            unbundled.options.filterIsInstance<ListViewUserStyleCategory.ListViewOption>()
+            unbundled.options.filterIsInstance<ListUserStyleCategory.ListOption>()
                 .toTypedArray()
         assertThat(optionArray.size).isEqualTo(3)
         assertThat(optionArray[0].id).isEqualTo("1")
@@ -84,7 +84,7 @@ class UserStyleCategoryTest {
         UserStyleCategory.writeOptionListToBundle(listOf(option1, option2, option3), bundle)
 
         val unbundled = UserStyleCategory.readOptionsListFromBundle(bundle)
-        val optionArray = unbundled.filterIsInstance<ListViewUserStyleCategory.ListViewOption>()
+        val optionArray = unbundled.filterIsInstance<ListUserStyleCategory.ListOption>()
                 .toTypedArray()
 
         assertThat(optionArray.size).isEqualTo(3)
@@ -103,26 +103,26 @@ class UserStyleCategoryTest {
     fun bundleAndUnbundleStyleCategoryList() {
         val categoryIcon1 = Icon.createWithContentUri("categoryIcon1")
         val categoryIcon2 = Icon.createWithContentUri("categoryIcon2")
-        val styleCategory1 = ListViewUserStyleCategory(
+        val styleCategory1 = ListUserStyleCategory(
             "id1", "displayName1", "description1", categoryIcon1, listOf(option1, option2)
         )
-        val styleCategory2 = ListViewUserStyleCategory(
+        val styleCategory2 = ListUserStyleCategory(
             "id2", "displayName2", "description2", categoryIcon2, listOf(option3, option4)
         )
 
-        val bundles = UserStyleCategory.userStyleCategoryListToBundles(
+        val bundles = UserStyleCategory.userStyleCategoriesToBundles(
             listOf(styleCategory1, styleCategory2)
         )
 
-        val unbundled = UserStyleCategory.bundlesToUserStyleCategoryLists(bundles)
+        val unbundled = UserStyleCategory.bundlesToUserStyleCategoryList(bundles)
 
-        assert(unbundled[0] is ListViewUserStyleCategory)
+        assert(unbundled[0] is ListUserStyleCategory)
         assertThat(unbundled[0].id).isEqualTo("id1")
         assertThat(unbundled[0].displayName).isEqualTo("displayName1")
         assertThat(unbundled[0].description).isEqualTo("description1")
         assertThat(unbundled[0].icon!!.uri.toString()).isEqualTo("categoryIcon1")
         val optionArray1 =
-            unbundled[0].options.filterIsInstance<ListViewUserStyleCategory.ListViewOption>()
+            unbundled[0].options.filterIsInstance<ListUserStyleCategory.ListOption>()
                 .toTypedArray()
         assertThat(optionArray1.size).isEqualTo(2)
         assertThat(optionArray1[0].id).isEqualTo("1")
@@ -132,13 +132,13 @@ class UserStyleCategoryTest {
         assertThat(optionArray1[1].displayName).isEqualTo("two")
         assertThat(optionArray1[1].icon!!.uri.toString()).isEqualTo("icon2")
 
-        assert(unbundled[1] is ListViewUserStyleCategory)
+        assert(unbundled[1] is ListUserStyleCategory)
         assertThat(unbundled[1].id).isEqualTo("id2")
         assertThat(unbundled[1].displayName).isEqualTo("displayName2")
         assertThat(unbundled[1].description).isEqualTo("description2")
         assertThat(unbundled[1].icon!!.uri.toString()).isEqualTo("categoryIcon2")
         val optionArray2 =
-            unbundled[1].options.filterIsInstance<ListViewUserStyleCategory.ListViewOption>()
+            unbundled[1].options.filterIsInstance<ListUserStyleCategory.ListOption>()
                 .toTypedArray()
         assertThat(optionArray2.size).isEqualTo(2)
         assertThat(optionArray2[0].id).isEqualTo("3")
@@ -153,10 +153,10 @@ class UserStyleCategoryTest {
     fun bundleAndUnbundleStyleMap() {
         val categoryIcon1 = Icon.createWithContentUri("categoryIcon1")
         val categoryIcon2 = Icon.createWithContentUri("categoryIcon2")
-        val styleCategory1 = ListViewUserStyleCategory(
+        val styleCategory1 = ListUserStyleCategory(
             "id1", "displayName1", "description1", categoryIcon1, listOf(option1, option2)
         )
-        val styleCategory2 = ListViewUserStyleCategory(
+        val styleCategory2 = ListUserStyleCategory(
             "id2", "displayName2", "description2", categoryIcon2, listOf(option3, option4)
         )
         val schema = listOf(styleCategory1, styleCategory2)
@@ -170,5 +170,53 @@ class UserStyleCategoryTest {
         assertThat(unbundled.size).isEqualTo(2)
         assertThat(unbundled[styleCategory1]!!.id).isEqualTo(option2.id)
         assertThat(unbundled[styleCategory2]!!.id).isEqualTo(option3.id)
+    }
+
+    @Test
+    fun rangedUserStyleCategory_getOptionForId_returns_default_for_bad_input() {
+        val defaultValue = 0.75
+        val rangedUserStyleCategory =
+            DoubleRangeUserStyleCategory(
+                "example_category",
+                "Example Ranged Category",
+                "An example category",
+                null,
+                0.0,
+                1.0,
+                defaultValue
+            )
+
+        assertThat(rangedUserStyleCategory.getOptionForId("not a number").id)
+            .isEqualTo(defaultValue.toString())
+
+        assertThat(rangedUserStyleCategory.getOptionForId("-1").id)
+            .isEqualTo(defaultValue.toString())
+
+        assertThat(rangedUserStyleCategory.getOptionForId("10").id)
+            .isEqualTo(defaultValue.toString())
+    }
+
+    @Test
+    fun rangedUserStyleCategory_getOptionForId() {
+        val defaultValue = 0.75
+        val rangedUserStyleCategory =
+            DoubleRangeUserStyleCategory(
+                "example_category",
+                "Example Ranged Category",
+                "An example category",
+                null,
+                0.0,
+                1.0,
+                defaultValue
+            )
+
+        assertThat(rangedUserStyleCategory.getOptionForId("0").id)
+            .isEqualTo("0.0")
+
+        assertThat(rangedUserStyleCategory.getOptionForId("0.5").id)
+            .isEqualTo("0.5")
+
+        assertThat(rangedUserStyleCategory.getOptionForId("1").id)
+            .isEqualTo("1.0")
     }
 }
