@@ -105,7 +105,6 @@ private fun Method.invokeComposableMethod(
     val changedParams = changedParamCount(realParams, thisParams)
     val totalParamsWithoutDefaults = realParams +
             1 + // composer
-            1 + // key
             changedParams
     val totalParams = parameterTypes.size
     val isDefault = totalParams != totalParamsWithoutDefaults
@@ -117,14 +116,12 @@ private fun Method.invokeComposableMethod(
     check(
         realParams +
         1 + // composer
-        1 + // key
         changedParams +
         defaultParams ==
                 totalParams
     )
 
-    val keyIndex = composerIndex + 1
-    val changedStartIndex = keyIndex + 1
+    val changedStartIndex = composerIndex + 1
     val defaultStartIndex = changedStartIndex + changedParams
 
     val arguments = Array(totalParams) { idx ->
@@ -134,7 +131,6 @@ private fun Method.invokeComposableMethod(
             // the composer is the first synthetic parameter
             composerIndex -> composer
             // since this is the root we don't need to be anything unique. 0 should suffice.
-            keyIndex -> 0
             // changed parameters should be 0 to indicate "uncertain"
             in changedStartIndex until defaultStartIndex -> 0
             // Default values mask, all parameters set to use defaults

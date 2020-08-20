@@ -83,13 +83,13 @@ class BoundsTest : ToolingTest() {
 
             with(Density(activityTestRule.activity)) {
                 println(boundingBoxes.contentDeepToString())
-                Assert.assertArrayEquals(
-                    arrayOf(
-                        0.dp.toIntPx(), // Root
-                        10.dp.toIntPx(), // Column
-                        15.dp.toIntPx()), // Text
-                    boundingBoxes
-                )
+                arrayOf(
+                    0.dp.toIntPx(), // Root
+                    10.dp.toIntPx(), // Column
+                    15.dp.toIntPx() // Text
+                ).forEachIndexed { index, value ->
+                    Assert.assertTrue(boundingBoxes[index] in value - 1..value + 1)
+                }
             }
         }
     }

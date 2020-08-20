@@ -26,7 +26,6 @@ import androidx.ui.tooling.Inspectable
 import androidx.ui.tooling.SlotTableRecord
 import androidx.ui.tooling.ToolingTest
 import androidx.ui.tooling.asTree
-import androidx.ui.tooling.position
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import com.google.common.truth.Truth.assertThat
@@ -78,8 +77,6 @@ class InlineClassConverterTest : ToolingTest() {
 
     private fun find(groups: Sequence<Group>, calleeName: String) =
         groups.first {
-            it.parameters.isNotEmpty() &&
-                    it.position?.contains(InlineClassConverterTest::class.java.name) ?: false &&
-                    it.children.any { callee -> callee.position?.contains(calleeName) ?: false }
+            it.parameters.isNotEmpty() && it.name == calleeName
         }
 }
