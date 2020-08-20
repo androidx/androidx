@@ -29,13 +29,13 @@ import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.rendering.ComplicationDrawable
-import androidx.wear.watchface.BackgroundComplicationBounds
+import androidx.wear.watchface.BackgroundComplicationBoundsProvider
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationDrawableRenderer
-import androidx.wear.watchface.ComplicationSlots
-import androidx.wear.watchface.FixedBounds
+import androidx.wear.watchface.ComplicationSet
+import androidx.wear.watchface.UnitSquareBoundsProvider
 import androidx.wear.watchface.Renderer
-import androidx.wear.watchface.SystemState
+import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.WatchFaceTestRunner
 import androidx.wear.watchface.createComplicationData
 import androidx.wear.watchface.style.ListUserStyleCategory
@@ -68,7 +68,7 @@ class WatchFaceConfigUiTest {
     private val watchFaceConfigDelegate = Mockito.mock(WatchFaceConfigDelegate::class.java)
     private val fragmentController = Mockito.mock(FragmentController::class.java)
     private val surfaceHolder = Mockito.mock(SurfaceHolder::class.java)
-    private val systemState = SystemState()
+    private val systemState = WatchState()
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val complicationDrawableLeft = ComplicationDrawable(context)
@@ -116,7 +116,7 @@ class WatchFaceConfigUiTest {
     private val leftComplication =
         Complication(
             LEFT_COMPLICATION_ID,
-            FixedBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f)),
+            UnitSquareBoundsProvider(RectF(0.2f, 0.4f, 0.4f, 0.6f)),
             ComplicationDrawableRenderer(complicationDrawableLeft, systemState),
             intArrayOf(
                 ComplicationData.TYPE_RANGED_VALUE,
@@ -127,12 +127,12 @@ class WatchFaceConfigUiTest {
             ),
             Complication.DefaultComplicationProvider(SystemProviders.SUNRISE_SUNSET),
             ComplicationData.TYPE_SHORT_TEXT
-        ).apply { complicationData = createComplicationData() }
+        ).apply { data = createComplicationData() }
 
     private val rightComplication =
         Complication(
             RIGHT_COMPLICATION_ID,
-            FixedBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f)),
+            UnitSquareBoundsProvider(RectF(0.6f, 0.4f, 0.8f, 0.6f)),
             ComplicationDrawableRenderer(complicationDrawableRight, systemState),
             intArrayOf(
                 ComplicationData.TYPE_RANGED_VALUE,
@@ -143,19 +143,19 @@ class WatchFaceConfigUiTest {
             ),
             Complication.DefaultComplicationProvider(SystemProviders.DAY_OF_WEEK),
             ComplicationData.TYPE_SHORT_TEXT
-        ).apply { complicationData = createComplicationData() }
+        ).apply { data = createComplicationData() }
 
     private val backgroundComplication =
         Complication(
             BACKGROUND_COMPLICATION_ID,
-            BackgroundComplicationBounds(),
+            BackgroundComplicationBoundsProvider(),
             ComplicationDrawableRenderer(complicationDrawableRight, systemState),
             intArrayOf(
                 ComplicationData.TYPE_LARGE_IMAGE
             ),
             Complication.DefaultComplicationProvider(),
             ComplicationData.TYPE_LARGE_IMAGE
-        ).apply { complicationData = createComplicationData() }
+        ).apply { data = createComplicationData() }
 
     private val calendar = Calendar.getInstance().apply {
         timeInMillis = 1000L
@@ -175,7 +175,7 @@ class WatchFaceConfigUiTest {
         userStyleManager =
             UserStyleManager(userStyleCategories)
 
-        val complicationSlots = ComplicationSlots(
+        val complicationSet = ComplicationSet(
             complications,
             object : Renderer(surfaceHolder, userStyleManager) {
                 override fun onDrawInternal(calendar: Calendar) {}
@@ -204,14 +204,14 @@ class WatchFaceConfigUiTest {
                 }
 
                 override fun getBackgroundComplicationId() =
-                    complicationSlots.getBackgroundComplication()?.id
+                    complicationSet.getBackgroundComplication()?.id
 
-                override fun getComplicationsMap() = complicationSlots.complications
+                override fun getComplicationsMap() = complicationSet.complications
 
                 override fun getCalendar() = calendar
 
-                override fun getComplicationIdAt(tapX: Int, tapY: Int, calendar: Calendar) =
-                    complicationSlots.getComplicationAt(tapX, tapY, calendar)?.id
+                override fun getComplicationIdAt(tapX: Int, tapY: Int) =
+                    complicationSet.getComplicationAt(tapX, tapY)?.id
 
                 override fun brieflyHighlightComplicationId(complicationId: Int) {
                     watchFaceConfigDelegate.brieflyHighlightComplicationId(complicationId)
@@ -240,11 +240,11 @@ class WatchFaceConfigUiTest {
         val view = ConfigView(context, configActivity)
 
         // Tap left complication.
-        view.onTap(30, 50, calendar)
+        view.onTap(30, 50)
         verify(watchFaceConfigDelegate).brieflyHighlightComplicationId(LEFT_COMPLICATION_ID)
 
         // Tap right complication.
-        view.onTap(70, 50, calendar)
+        view.onTap(70, 50)
         verify(watchFaceConfigDelegate).brieflyHighlightComplicationId(RIGHT_COMPLICATION_ID)
     }
 
@@ -254,7 +254,7 @@ class WatchFaceConfigUiTest {
         val view = ConfigView(context, configActivity)
 
         // Tap on blank space.
-        view.onTap(1, 1, calendar)
+        view.onTap(1, 1)
         verify(watchFaceConfigDelegate, times(0)).brieflyHighlightComplicationId(anyInt())
     }
 
@@ -264,7 +264,7 @@ class WatchFaceConfigUiTest {
 
         verify(fragmentController).showComplicationConfig(
             LEFT_COMPLICATION_ID,
-            *leftComplication.supportedComplicationDataTypes
+            *leftComplication.supportedTypes
         )
     }
 
@@ -274,7 +274,7 @@ class WatchFaceConfigUiTest {
 
         verify(fragmentController).showComplicationConfig(
             BACKGROUND_COMPLICATION_ID,
-            *backgroundComplication.supportedComplicationDataTypes
+            *backgroundComplication.supportedTypes
         )
     }
 

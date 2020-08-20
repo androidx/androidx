@@ -51,13 +51,13 @@ import android.view.SurfaceHolder;
 import androidx.annotation.NonNull;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.wear.complications.ComplicationHelperActivity;
-import androidx.wear.watchface.ComplicationSlots;
+import androidx.wear.watchface.ComplicationSet;
 import androidx.wear.watchface.Renderer;
-import androidx.wear.watchface.SystemApi;
-import androidx.wear.watchface.SystemState;
 import androidx.wear.watchface.WatchFace;
+import androidx.wear.watchface.WatchFaceHost;
 import androidx.wear.watchface.WatchFaceService;
 import androidx.wear.watchface.WatchFaceType;
+import androidx.wear.watchface.WatchState;
 import androidx.wear.watchface.style.UserStyleManager;
 
 import org.jetbrains.annotations.NotNull;
@@ -691,14 +691,14 @@ public class ComplicationDrawableTest {
         @Override
         protected WatchFace createWatchFace(
                 @NotNull SurfaceHolder surfaceHolder,
-                @NotNull SystemApi systemApi,
-                @NotNull SystemState systemState) {
+                @NotNull WatchFaceHost watchFaceHost,
+                @NotNull WatchState watchState) {
             UserStyleManager styleManager = new UserStyleManager(new ArrayList<>());
             return new WatchFace(
                     WatchFaceType.ANALOG,
                     100,
                     styleManager,
-                    new ComplicationSlots(new ArrayList<>()),
+                    new ComplicationSet(new ArrayList<>()),
                     new Renderer(surfaceHolder, styleManager) {
                         @NotNull
                         @Override
@@ -711,8 +711,8 @@ public class ComplicationDrawableTest {
                                 @NotNull Calendar calendar) {
                         }
                     },
-                    systemApi,
-                    systemState
+                    watchFaceHost,
+                    watchState
             );
         }
     }

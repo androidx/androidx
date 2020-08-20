@@ -73,7 +73,7 @@ class WatchFaceServiceTest {
     private val handler = mock(Handler::class.java)
     private val iWatchFaceService = mock(IWatchFaceService::class.java)
     private val surfaceHolder = mock(SurfaceHolder::class.java)
-    private val systemState = SystemState()
+    private val systemState = WatchState()
 
     init {
         `when`(surfaceHolder.surfaceFrame).thenReturn(ONE_HUNDRED_BY_ONE_HUNDRED_RECT)
@@ -132,7 +132,7 @@ class WatchFaceServiceTest {
     private val leftComplication =
         Complication(
             LEFT_COMPLICATION_ID,
-            FixedBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f)),
+            UnitSquareBoundsProvider(RectF(0.2f, 0.4f, 0.4f, 0.6f)),
             ComplicationDrawableRenderer(complicationDrawableLeft, systemState),
             intArrayOf(
                 ComplicationData.TYPE_RANGED_VALUE,
@@ -143,12 +143,12 @@ class WatchFaceServiceTest {
             ),
             Complication.DefaultComplicationProvider(SystemProviders.SUNRISE_SUNSET),
             ComplicationData.TYPE_SHORT_TEXT
-        ).apply { complicationData = createComplicationData() }
+        ).apply { data = createComplicationData() }
 
     private val rightComplication =
         Complication(
             RIGHT_COMPLICATION_ID,
-            FixedBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f)),
+            UnitSquareBoundsProvider(RectF(0.6f, 0.4f, 0.8f, 0.6f)),
             ComplicationDrawableRenderer(complicationDrawableRight, systemState),
             intArrayOf(
                 ComplicationData.TYPE_RANGED_VALUE,
@@ -159,22 +159,22 @@ class WatchFaceServiceTest {
             ),
             Complication.DefaultComplicationProvider(SystemProviders.DAY_OF_WEEK),
             ComplicationData.TYPE_SHORT_TEXT
-        ).apply { complicationData = createComplicationData() }
+        ).apply { data = createComplicationData() }
 
     private val backgroundComplication =
         Complication(
             BACKGROUND_COMPLICATION_ID,
-            BackgroundComplicationBounds(),
+            BackgroundComplicationBoundsProvider(),
             ComplicationDrawableRenderer(complicationDrawableRight, systemState),
             intArrayOf(
                 ComplicationData.TYPE_LARGE_IMAGE
             ),
             Complication.DefaultComplicationProvider(),
             ComplicationData.TYPE_LARGE_IMAGE
-        ).apply { complicationData = createComplicationData() }
+        ).apply { data = createComplicationData() }
 
     private lateinit var renderer: TestRenderer
-    private lateinit var complicationSlots: ComplicationSlots
+    private lateinit var complicationSet: ComplicationSet
     private lateinit var userStyleManager: UserStyleManager
     private lateinit var watchFace: TestWatchFace
     private lateinit var engineWrapper: WatchFaceService.EngineWrapper
@@ -201,13 +201,13 @@ class WatchFaceServiceTest {
         userStyleCategories: List<UserStyleCategory>,
         apiVersion: Int = 2
     ) {
-        complicationSlots = ComplicationSlots(complications)
+        this.complicationSet = ComplicationSet(complications)
         userStyleManager =
             UserStyleManager(userStyleCategories)
         renderer = TestRenderer(surfaceHolder, userStyleManager, systemState)
         val service = TestWatchFaceService(
             watchFaceType,
-            complicationSlots,
+            this.complicationSet,
             renderer,
             userStyleManager,
             systemState,
@@ -705,34 +705,30 @@ class WatchFaceServiceTest {
     fun getComplicationIdAt_returnsCorrectComplications() {
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
 
-        assertThat(complicationSlots.getComplicationAt(30, 50, watchFace.calendar)!!.id)
-            .isEqualTo(
-                LEFT_COMPLICATION_ID
-            )
+        assertThat(complicationSet.getComplicationAt(30, 50)!!.id)
+            .isEqualTo(LEFT_COMPLICATION_ID)
         leftComplication.enabled = false
-        assertThat(complicationSlots.getComplicationAt(30, 50, watchFace.calendar)).isNull()
+        assertThat(complicationSet.getComplicationAt(30, 50)).isNull()
 
-        assertThat(complicationSlots.getComplicationAt(70, 50, watchFace.calendar)!!.id)
-            .isEqualTo(
-                RIGHT_COMPLICATION_ID
-            )
-        assertThat(complicationSlots.getComplicationAt(1, 1, watchFace.calendar)).isNull()
+        assertThat(complicationSet.getComplicationAt(70, 50)!!.id)
+            .isEqualTo(RIGHT_COMPLICATION_ID)
+        assertThat(complicationSet.getComplicationAt(1, 1)).isNull()
     }
 
     @Test
     fun getBackgroundComplicationId_returnsCorrectId() {
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
-        assertThat(complicationSlots.getBackgroundComplication()).isNull()
+        assertThat(complicationSet.getBackgroundComplication()).isNull()
 
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication), emptyList())
-        assertThat(complicationSlots.getBackgroundComplication()).isNull()
+        assertThat(complicationSet.getBackgroundComplication()).isNull()
 
         initEngine(
             WatchFaceType.ANALOG,
             listOf(leftComplication, backgroundComplication),
             emptyList()
         )
-        assertThat(complicationSlots.getBackgroundComplication()!!.id).isEqualTo(
+        assertThat(complicationSet.getBackgroundComplication()!!.id).isEqualTo(
             BACKGROUND_COMPLICATION_ID
         )
     }
@@ -740,7 +736,7 @@ class WatchFaceServiceTest {
     @Test
     fun getStoredUserStyleNotSupported_userStyle_isPersisted() {
         // The style should get persisted in a file because the API is old and
-        // {@link SystemApi#getStoredUserStyle} returns null.
+        // {@link WatchFaceHostApi#getStoredUserStyle} returns null.
         `when`(iWatchFaceService.getStoredUserStyle()).thenReturn(null)
 
         initEngine(
@@ -763,7 +759,7 @@ class WatchFaceServiceTest {
         val testRenderer2 = TestRenderer(surfaceHolder, styleManager2, systemState)
         val service2 = TestWatchFaceService(
             WatchFaceType.ANALOG,
-            ComplicationSlots(emptyList()),
+            ComplicationSet(emptyList()),
             testRenderer2,
             styleManager2,
             systemState,
@@ -818,7 +814,7 @@ class WatchFaceServiceTest {
         val testRenderer2 = TestRenderer(surfaceHolder, styleManager2, systemState)
         val service2 = TestWatchFaceService(
             WatchFaceType.ANALOG,
-            ComplicationSlots(emptyList()),
+            ComplicationSet(emptyList()),
             testRenderer2,
             styleManager2,
             systemState,
@@ -867,7 +863,7 @@ class WatchFaceServiceTest {
             putBoolean(Constants.STATUS_KEYGUARD_LOCKED, false)
         }
 
-        val systemStateListener = mock(SystemState.Listener::class.java)
+        val systemStateListener = mock(WatchState.Listener::class.java)
         systemState.addListener(systemStateListener)
 
         // Every indicator onXyz method should be called upon the initial update.
@@ -905,7 +901,7 @@ class WatchFaceServiceTest {
             putBoolean(Constants.PROPERTY_BURN_IN_PROTECTION, false)
         }
 
-        val systemStateListener = mock(SystemState.Listener::class.java)
+        val systemStateListener = mock(WatchState.Listener::class.java)
         systemState.addListener(systemStateListener)
 
         // Check all the right methods are called on initial onPropertiesChanged call.
@@ -1027,7 +1023,7 @@ class WatchFaceServiceTest {
         var testRenderer = TestRenderer(surfaceHolder, styleManager, systemState)
         val service = TestWatchFaceService(
             WatchFaceType.ANALOG,
-            ComplicationSlots(
+            ComplicationSet(
                 listOf(leftComplication, rightComplication, backgroundComplication)
             ),
             testRenderer,
@@ -1057,7 +1053,7 @@ class WatchFaceServiceTest {
         val provider2 = ComponentName("com.app2", "com.app2.App2")
         val complication = Complication(
             LEFT_COMPLICATION_ID,
-            FixedBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f)),
+            UnitSquareBoundsProvider(RectF(0.2f, 0.4f, 0.4f, 0.6f)),
             ComplicationDrawableRenderer(complicationDrawableLeft, systemState),
             intArrayOf(),
             Complication.DefaultComplicationProvider(
@@ -1082,7 +1078,7 @@ class WatchFaceServiceTest {
         val provider2 = ComponentName("com.app2", "com.app2.App2")
         val complication = Complication(
             LEFT_COMPLICATION_ID,
-            FixedBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f)),
+            UnitSquareBoundsProvider(RectF(0.2f, 0.4f, 0.4f, 0.6f)),
             ComplicationDrawableRenderer(complicationDrawableLeft, systemState),
             intArrayOf(),
             Complication.DefaultComplicationProvider(

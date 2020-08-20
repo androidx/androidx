@@ -20,7 +20,7 @@ import android.content.Context
 import android.graphics.Color
 import androidx.wear.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.ComplicationDrawableRenderer
-import androidx.wear.watchface.SystemState
+import androidx.wear.watchface.WatchState
 
 private fun Context.getStyleResourceId(
     styleResourceId: Int,
@@ -90,9 +90,9 @@ class WatchFaceColorStyle(
         }
     }
 
-    fun getComplicationDrawableRenderer(context: Context, systemState: SystemState) =
+    fun getComplicationDrawableRenderer(context: Context, watchState: WatchState) =
         ComplicationDrawableRenderer(
             ComplicationDrawable.getDrawable(context, complicationResourceId)!!,
-            systemState
+            watchState
         )
 }

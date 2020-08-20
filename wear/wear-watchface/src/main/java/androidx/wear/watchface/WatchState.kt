@@ -19,7 +19,7 @@ package androidx.wear.watchface
 import android.app.NotificationManager
 
 /** An observer for changes in system state which are relevant to watch faces. */
-class SystemState {
+class WatchState {
     /** The current user interruption settings. See {@link NotificationManager}. */
     var interruptionFilter = NotificationManager.INTERRUPTION_FILTER_ALL
         private set

@@ -57,8 +57,8 @@ abstract class CanvasRenderer(
     /** The associated {@link UserStyleManager}. */
     userStyleManager: UserStyleManager,
 
-    /** The associated {@link SystemState}. */
-    private val systemState: SystemState,
+    /** The associated {@link WatchState}. */
+    private val watchState: WatchState,
 
     /** The type of canvas to use. */
     @CanvasType private val canvasType: Int
@@ -67,7 +67,7 @@ abstract class CanvasRenderer(
         private const val TAG = "CanvasRenderer"
     }
 
-    override fun onDrawInternal(
+    internal override fun onDrawInternal(
         calendar: Calendar
     ) {
         val canvas = if (canvasType == CanvasType.HARDWARE) {
@@ -80,7 +80,7 @@ abstract class CanvasRenderer(
             return
         }
         try {
-            if (systemState.isVisible) {
+            if (watchState.isVisible) {
                 onDraw(canvas, surfaceHolder.surfaceFrame, calendar)
             } else {
                 canvas.drawColor(Color.BLACK)
@@ -90,6 +90,7 @@ abstract class CanvasRenderer(
         }
     }
 
+    /** {@inheritDoc} */
     override fun takeScreenshot(
         calendar: Calendar,
         @DrawMode drawMode: Int

@@ -235,7 +235,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 val onlyComplication = watchFaceConfigDelegate.getComplicationsMap().values.first()
                 fragmentController.showComplicationConfig(
                     onlyComplication.id,
-                    *onlyComplication.supportedComplicationDataTypes
+                    *onlyComplication.supportedTypes
                 )
             }
 
