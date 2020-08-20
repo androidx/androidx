@@ -164,7 +164,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                 }
             }
 
-            return object : WatchFace(
+            return WatchFace.Builder(
                 WatchFaceType.ANALOG,
                 /* interactiveUpdateRateMillis */ 16,
                 styleManager,
@@ -172,7 +172,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                 renderer,
                 watchFaceHost,
                 watchState
-            ) {}
+            ).build()
         }
     }
 

@@ -59,8 +59,11 @@ abstract class Gles2Renderer (
     surfaceHolder: SurfaceHolder,
 
     /** The associated {@link UserStyleManager}. */
-    userStyleManager: UserStyleManager
-) : Renderer(surfaceHolder, userStyleManager) {
+    userStyleManager: UserStyleManager,
+
+    /** The associated {@link WatchState}. */
+    watchState: WatchState
+) : Renderer(surfaceHolder, userStyleManager, watchState) {
     private companion object {
         private const val TAG = "Gles2WatchFace"
     }

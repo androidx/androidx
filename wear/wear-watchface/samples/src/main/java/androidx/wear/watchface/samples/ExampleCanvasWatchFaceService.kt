@@ -156,7 +156,7 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
             complicationSlots
         )
 
-        return WatchFace(
+        return WatchFace.Builder(
             WatchFaceType.ANALOG,
             /** mInteractiveUpdateRateMillis */
             16,
@@ -165,7 +165,7 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
             renderer,
             watchFaceHost,
             watchState
-        )
+        ).build()
     }
 }
 
