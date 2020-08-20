@@ -47,27 +47,71 @@ class TestWatchFaceService(
     private val handler: Handler,
     private val interactiveFrameRateMs: Long
 ) : WatchFaceService() {
+    var complicationSingleTapped: Int? = null
+    var complicationDoubleTapped: Int? = null
+    var complicationSelected: Int? = null
+    var mockSystemTimeMillis = 0L
+    var lastUserStyle: Map<UserStyleCategory, UserStyleCategory.Option>? = null
+
+    init {
+        userStyleManager.addUserStyleListener(
+            object : UserStyleManager.UserStyleListener {
+                override fun onUserStyleChanged(
+                    userStyle: Map<UserStyleCategory, UserStyleCategory.Option>
+                ) {
+                    lastUserStyle = userStyle
+                }
+            }
+        )
+
+        complicationSet.addTapListener(
+            object : ComplicationSet.TapListener {
+                override fun onComplicationSingleTapped(complicationId: Int) {
+                    complicationSingleTapped = complicationId
+                }
+
+                override fun onComplicationDoubleTapped(complicationId: Int) {
+                    complicationDoubleTapped = complicationId
+                }
+            })
+    }
+
+    fun reset() {
+        clearTappedState()
+        complicationSelected = null
+        renderer.lastOnDrawCalendar = null
+        mockSystemTimeMillis = 0L
+    }
+
+    fun clearTappedState() {
+        complicationSingleTapped = null
+        complicationDoubleTapped = null
+    }
 
     init {
         attachBaseContext(ApplicationProvider.getApplicationContext())
     }
 
-    lateinit var watchFace: TestWatchFace
+    lateinit var watchFace: WatchFace
 
     override fun createWatchFace(
         surfaceHolder: SurfaceHolder,
         watchFaceHost: WatchFaceHost,
         watchState: WatchState
     ): WatchFace {
-        watchFace = TestWatchFace(
+        watchFace = WatchFace.Builder(
             watchFaceType,
+            interactiveFrameRateMs,
+            userStyleManager,
             complicationSet,
             renderer,
-            userStyleManager,
             watchFaceHost,
-            watchState,
-            interactiveFrameRateMs
-        )
+            watchState
+        ).setSystemTimeProvider(object : WatchFace.SystemTimeProvider {
+            override fun getSystemTimeMillis(): Long {
+                return mockSystemTimeMillis
+            }
+        }).build()
         return watchFace
     }
 
@@ -174,69 +218,6 @@ class TestRenderer(
         calendar: Calendar
     ) {
         lastOnDrawCalendar = calendar
-    }
-}
-
-open class TestWatchFace(
-    @WatchFaceType watchFaceType: Int,
-    complicationSet: ComplicationSet,
-    private val testRenderer: TestRenderer,
-    userStyleManager: UserStyleManager,
-    watchFaceHost: WatchFaceHost,
-    watchState: WatchState,
-    interactiveFrameRateMs: Long
-) : WatchFace(
-    watchFaceType,
-    interactiveFrameRateMs,
-    userStyleManager,
-    complicationSet,
-    testRenderer,
-    watchFaceHost,
-    watchState
-) {
-    var complicationSingleTapped: Int? = null
-    var complicationDoubleTapped: Int? = null
-    var complicationSelected: Int? = null
-    var mockSystemTimeMillis = 0L
-    var lastUserStyle: Map<UserStyleCategory, UserStyleCategory.Option>? = null
-
-    init {
-        userStyleManager.addUserStyleListener(
-            object : UserStyleManager.UserStyleListener {
-                override fun onUserStyleChanged(
-                    userStyle: Map<UserStyleCategory, UserStyleCategory.Option>
-                ) {
-                    lastUserStyle = userStyle
-                }
-            }
-        )
-
-        complicationSet.addTapListener(
-            object : ComplicationSet.TapListener {
-                override fun onComplicationSingleTapped(complicationId: Int) {
-                    complicationSingleTapped = complicationId
-                }
-
-                override fun onComplicationDoubleTapped(complicationId: Int) {
-                    complicationDoubleTapped = complicationId
-                }
-            })
-    }
-
-    fun reset() {
-        clearTappedState()
-        complicationSelected = null
-        testRenderer.lastOnDrawCalendar = null
-        mockSystemTimeMillis = 0L
-    }
-
-    fun clearTappedState() {
-        complicationSingleTapped = null
-        complicationDoubleTapped = null
-    }
-
-    override fun getSystemTimeMillis(): Long {
-        return mockSystemTimeMillis
     }
 }
 

@@ -40,7 +40,6 @@ import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.IWatchFaceCommand
 import android.support.wearable.watchface.IWatchFaceService
 import android.support.wearable.watchface.SharedMemoryImage
-import android.support.wearable.watchface.WatchFaceStyle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.util.ArrayMap
 import android.util.Log
@@ -525,13 +524,8 @@ abstract class WatchFaceService : WallpaperService() {
         }
 
         override fun requestWatchFaceStyle() {
-            val watchFaceStyleBuilder =
-                WatchFaceStyle.Builder(
-                    ComponentName(this@WatchFaceService, WatchFaceService::class.java)
-                )
-            watchFace.onCreateWatchFaceStyle(watchFaceStyleBuilder)
             try {
-                iWatchFaceService.setStyle(watchFaceStyleBuilder.build())
+                iWatchFaceService.setStyle(watchFace.watchFaceStyle)
             } catch (e: RemoteException) {
                 Log.e(TAG, "Failed to set WatchFaceStyle: ", e)
             }

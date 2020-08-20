@@ -177,7 +177,7 @@ class WatchFaceConfigUiTest {
 
         val complicationSet = ComplicationSet(
             complications,
-            object : Renderer(surfaceHolder, userStyleManager) {
+            object : Renderer(surfaceHolder, userStyleManager, WatchState()) {
                 override fun onDrawInternal(calendar: Calendar) {}
 
                 override fun takeScreenshot(calendar: Calendar, drawMode: Int): Bitmap {

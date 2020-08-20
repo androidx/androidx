@@ -22,6 +22,7 @@ import android.os.Bundle
 import android.os.Parcel
 import android.os.Parcelable
 import androidx.annotation.ColorInt
+import androidx.annotation.RestrictTo
 
 /**
  * A style descriptor for watch faces.
@@ -31,8 +32,11 @@ import androidx.annotation.ColorInt
  * onCreate} method of your {@link WatchFaceService.Engine#onCreate} override.
  *
  * <p>To construct a WatchFaceStyle use {@link WatchFaceStyle.Builder}.
+ *
+ * @hide
  */
 @SuppressWarnings("BanParcelableUsage")
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 class WatchFaceStyle(
     val component: ComponentName,
     val viewProtectionMode: Int,
@@ -127,101 +131,5 @@ class WatchFaceStyle(
 
             override fun newArray(size: Int) = arrayOfNulls<WatchFaceStyle?>(size)
         }
-    }
-
-    class Builder(private val componentName: ComponentName) {
-        private var viewProtectionMode: Int = 0
-        private var statusBarGravity: Int = 0
-        @ColorInt
-        private var accentColor: Int = DEFAULT_ACCENT_COLOR
-        private var showUnreadCountIndicator: Boolean = false
-        private var hideNotificationIndicator: Boolean = false
-        private var acceptsTapEvents: Boolean = true
-
-        /**
-         * @param viewProtectionMode The view protection mode bit field, must be a combination of
-         *     zero or more of {@link #PROTECT_STATUS_BAR}, {@link #PROTECT_HOTWORD_INDICATOR},
-         *     {@link #PROTECT_WHOLE_SCREEN}.
-         * @throws IllegalArgumentException if viewProtectionMode has an unexpected value
-         */
-        fun setViewProtectionMode(viewProtectionMode: Int) = apply {
-            if (viewProtectionMode < 0 ||
-                viewProtectionMode >
-                PROTECT_STATUS_BAR + PROTECT_HOTWORD_INDICATOR + PROTECT_WHOLE_SCREEN
-            ) {
-                throw IllegalArgumentException(
-                    "View protection must be combination " +
-                            "PROTECT_STATUS_BAR, PROTECT_HOTWORD_INDICATOR or PROTECT_WHOLE_SCREEN"
-                )
-            }
-            this.viewProtectionMode = viewProtectionMode
-        }
-
-        /**
-         * Sets position of status icons (battery state, lack of connection) on the screen.
-         *
-         * @param statusBarGravity This must be any combination of horizontal Gravity constant ({@link
-         *     Gravity#LEFT}, {@link Gravity#CENTER_HORIZONTAL}, {@link Gravity#RIGHT}) and vertical
-         *     Gravity constants ({@link Gravity#TOP}, {@link Gravity#CENTER_VERTICAL}, {@link
-         *     Gravity#BOTTOM}), e.g. {@code Gravity.LEFT | Gravity.BOTTOM}. On circular screens, only
-         *     the vertical gravity is respected.
-         */
-        fun setStatusBarGravity(statusBarGravity: Int) = apply {
-            this.statusBarGravity = statusBarGravity
-        }
-
-        /**
-         * Sets the accent color which can be set by developers to customise watch face. It will be used
-         * when drawing the unread notification indicator. Default color is white.
-         */
-        fun setAccentColor(@ColorInt accentColor: Int) = apply {
-            this.accentColor = accentColor
-        }
-
-        /**
-         * Sets whether to add an indicator of how many unread cards there are in the stream. The
-         * indicator will be displayed next to status icons (battery state, lack of connection).
-         *
-         * @param showUnreadCountIndicator if true an indicator will be shown
-         */
-        fun setShowUnreadCountIndicator(showUnreadCountIndicator: Boolean) = apply {
-            this.showUnreadCountIndicator = showUnreadCountIndicator
-        }
-
-        /**
-         * Sets whether to hide the dot indicator that is displayed at the bottom of the watch face if
-         * there are any unread notifications. The default value is false, but note that the dot will
-         * not be displayed if the numerical unread count indicator is being shown (i.e. if {@link
-         * #getShowUnreadCountIndicator} is true).
-         *
-         * @param hideNotificationIndicator if true an indicator will be hidden
-         */
-        fun setHideNotificationIndicator(hideNotificationIndicator: Boolean) = apply {
-            this.hideNotificationIndicator = hideNotificationIndicator
-        }
-
-        /**
-         * Sets whether this watchface accepts tap events. The default is false.
-         *
-         * <p>Watchfaces that set this {@code true} are indicating they are prepared to receive {@link
-         * android.support.wearable.watchface.WatchFaceService#TAP_TYPE_TOUCH}, {@link
-         * android.support.wearable.watchface.WatchFaceService#TAP_TYPE_TOUCH_CANCEL}, and {@link
-         * android.support.wearable.watchface.WatchFaceService#TAP_TYPE_TAP} events.
-         *
-         * @param acceptsTapEvents whether to receive touch events.
-         */
-        fun setAcceptsTapEvents(acceptsTapEvents: Boolean) = apply {
-            this.acceptsTapEvents = acceptsTapEvents
-        }
-
-        fun build() = WatchFaceStyle(
-            componentName,
-            viewProtectionMode,
-            statusBarGravity,
-            accentColor,
-            showUnreadCountIndicator,
-            hideNotificationIndicator,
-            acceptsTapEvents
-        )
     }
 }

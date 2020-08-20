@@ -694,12 +694,12 @@ public class ComplicationDrawableTest {
                 @NotNull WatchFaceHost watchFaceHost,
                 @NotNull WatchState watchState) {
             UserStyleManager styleManager = new UserStyleManager(new ArrayList<>());
-            return new WatchFace(
+            return new WatchFace.Builder(
                     WatchFaceType.ANALOG,
                     100,
                     styleManager,
                     new ComplicationSet(new ArrayList<>()),
-                    new Renderer(surfaceHolder, styleManager) {
+                    new Renderer(surfaceHolder, styleManager, watchState) {
                         @NotNull
                         @Override
                         public Bitmap takeScreenshot(@NotNull Calendar calendar, int drawMode) {
@@ -713,7 +713,7 @@ public class ComplicationDrawableTest {
                     },
                     watchFaceHost,
                     watchState
-            );
+            ).build();
         }
     }
 }
