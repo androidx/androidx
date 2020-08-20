@@ -37,6 +37,16 @@ package androidx.appsearch.app {
     method public boolean isSuccess();
   }
 
+  public class AppSearchManager {
+    field public static final String DEFAULT_DATABASE_NAME = "";
+  }
+
+  public static final class AppSearchManager.Builder {
+    ctor public AppSearchManager.Builder();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchResult<androidx.appsearch.app.AppSearchManager!>!> build();
+    method public androidx.appsearch.app.AppSearchManager.Builder setDatabaseName(String);
+  }
+
   public final class AppSearchResult<ValueType> {
     method public String? getErrorMessage();
     method public int getResultCode();
