@@ -71,6 +71,12 @@ ConcreteCollection: androidx.browser.browseractions.BrowserActionsIntent.Builder
     Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
 
 
+ExecutorRegistration: androidx.browser.customtabs.CustomTabsClient#newSession(androidx.browser.customtabs.CustomTabsCallback, int):
+    Registration methods should have overload that accepts delivery Executor: `newSession`
+ExecutorRegistration: androidx.browser.trusted.TrustedWebActivityServiceConnection#sendExtraCommand(String, android.os.Bundle, androidx.browser.trusted.TrustedWebActivityCallback):
+    Registration methods should have overload that accepts delivery Executor: `sendExtraCommand`
+
+
 IntentName: androidx.browser.browseractions.BrowserActionsIntent#KEY_ACTION:
     Intent action constant name must be ACTION_FOO: KEY_ACTION
 

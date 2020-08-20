@@ -9,6 +9,12 @@ ActionValue: androidx.contentpager.content.ContentPager#EXTRA_TOTAL_COUNT:
     Inconsistent extra value; expected `androidx.contentpager.content.extra.TOTAL_COUNT`, was `android.content.extra.TOTAL_COUNT`
 
 
+ExecutorRegistration: androidx.contentpager.content.ContentPager#query(android.net.Uri, String[], android.os.Bundle, android.os.CancellationSignal, androidx.contentpager.content.ContentPager.ContentCallback):
+    Registration methods should have overload that accepts delivery Executor: `query`
+ExecutorRegistration: androidx.contentpager.content.ContentPager.QueryRunner#query(androidx.contentpager.content.Query, androidx.contentpager.content.ContentPager.QueryRunner.Callback):
+    Registration methods should have overload that accepts delivery Executor: `query`
+
+
 MissingNullability: androidx.contentpager.content.ContentPager#ContentPager(android.content.ContentResolver, androidx.contentpager.content.ContentPager.QueryRunner) parameter #0:
     Missing nullability on parameter `resolver` in method `ContentPager`
 MissingNullability: androidx.contentpager.content.ContentPager#ContentPager(android.content.ContentResolver, androidx.contentpager.content.ContentPager.QueryRunner) parameter #1:

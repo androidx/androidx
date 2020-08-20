@@ -1,4 +1,12 @@
 // Baseline format: 1.0
+ExecutorRegistration: androidx.activity.OnBackPressedDispatcher#addCallback(androidx.lifecycle.LifecycleOwner, androidx.activity.OnBackPressedCallback):
+    Registration methods should have overload that accepts delivery Executor: `addCallback`
+ExecutorRegistration: androidx.activity.contextaware.ContextAware#addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener):
+    Registration methods should have overload that accepts delivery Executor: `addOnContextAvailableListener`
+ExecutorRegistration: androidx.activity.contextaware.ContextAwareHelper#addOnContextAvailableListener(androidx.activity.contextaware.OnContextAvailableListener):
+    Registration methods should have overload that accepts delivery Executor: `addOnContextAvailableListener`
+
+
 ForbiddenSuperClass: androidx.activity.ComponentActivity:
     ComponentActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
 

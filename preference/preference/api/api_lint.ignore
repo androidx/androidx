@@ -19,6 +19,22 @@ ArrayReturn: androidx.preference.MultiSelectListPreference#setEntryValues(CharSe
     Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
 
 
+ExecutorRegistration: androidx.preference.EditTextPreference#setOnBindEditTextListener(androidx.preference.EditTextPreference.OnBindEditTextListener):
+    Registration methods should have overload that accepts delivery Executor: `setOnBindEditTextListener`
+ExecutorRegistration: androidx.preference.Preference#setOnPreferenceChangeListener(androidx.preference.Preference.OnPreferenceChangeListener):
+    Registration methods should have overload that accepts delivery Executor: `setOnPreferenceChangeListener`
+ExecutorRegistration: androidx.preference.Preference#setOnPreferenceClickListener(androidx.preference.Preference.OnPreferenceClickListener):
+    Registration methods should have overload that accepts delivery Executor: `setOnPreferenceClickListener`
+ExecutorRegistration: androidx.preference.PreferenceManager#setOnDisplayPreferenceDialogListener(androidx.preference.PreferenceManager.OnDisplayPreferenceDialogListener):
+    Registration methods should have overload that accepts delivery Executor: `setOnDisplayPreferenceDialogListener`
+ExecutorRegistration: androidx.preference.PreferenceManager#setOnNavigateToScreenListener(androidx.preference.PreferenceManager.OnNavigateToScreenListener):
+    Registration methods should have overload that accepts delivery Executor: `setOnNavigateToScreenListener`
+ExecutorRegistration: androidx.preference.PreferenceManager#setOnPreferenceTreeClickListener(androidx.preference.PreferenceManager.OnPreferenceTreeClickListener):
+    Registration methods should have overload that accepts delivery Executor: `setOnPreferenceTreeClickListener`
+ExecutorRegistration: androidx.preference.PreferenceManager#setPreferenceComparisonCallback(androidx.preference.PreferenceManager.PreferenceComparisonCallback):
+    Registration methods should have overload that accepts delivery Executor: `setPreferenceComparisonCallback`
+
+
 InternalField: androidx.preference.TwoStatePreference#mChecked:
     Internal field mChecked must not be exposed
 
