@@ -139,34 +139,31 @@ class AndroidOutputConfiguration(
 
             // Create the OutputConfiguration using the groupId via the constructor (if set)
             val configuration: OutputConfiguration
-            if (streamType == StreamType.SURFACE) {
-                check(surface != null) {
-                    "Surface must not be null when creating an $streamType typed " +
-                            "OutputConfiguration."
-                }
+            if (surface != null) {
                 configuration = if (surfaceGroupId != SURFACE_GROUP_ID_NONE) {
                     OutputConfiguration(surfaceGroupId, surface)
                 } else {
                     OutputConfiguration(surface)
                 }
             } else {
-                check(size != null) {
-                    "Size must not be null when creating a $streamType OutputConfiguration."
-                }
-
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                     throw IllegalStateException(
-                        "OutputConfiguration is not supported on API ${Build.VERSION.SDK_INT} " +
-                                "(requires API ${Build.VERSION_CODES.O})"
+                        "Deferred OutputConfigurations are not supported on API " +
+                                "${Build.VERSION.SDK_INT} (requires API ${Build.VERSION_CODES.O})"
                     )
                 }
+
+                check(size != null) {
+                    "Size must defined when creating a deferred OutputConfiguration."
+                }
+
                 configuration = OutputConfiguration(
                     size,
                     when (streamType) {
                         StreamType.SURFACE_TEXTURE -> SurfaceTexture::class.java
                         StreamType.SURFACE_VIEW -> SurfaceHolder::class.java
                         StreamType.SURFACE -> throw IllegalArgumentException(
-                            " is not supported for  deferred OutputConfigurations"
+                            "StreamType.Surface is not supported for deferred OutputConfigurations"
                         )
                     }
                 )

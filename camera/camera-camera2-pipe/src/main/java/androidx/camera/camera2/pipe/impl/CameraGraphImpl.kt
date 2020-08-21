@@ -16,33 +16,46 @@
 
 package androidx.camera.camera2.pipe.impl
 
-import android.content.Context
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.Stream
 import androidx.camera.camera2.pipe.StreamConfig
 import androidx.camera.camera2.pipe.StreamId
+import kotlinx.atomicfu.atomic
 import javax.inject.Inject
+
+internal val cameraGraphIds = atomic(0)
 
 @CameraGraphScope
 class CameraGraphImpl @Inject constructor(
-    private val context: Context,
-    private val config: CameraGraph.Config,
+    graphConfig: CameraGraph.Config,
+    metadata: CameraMetadata,
     private val graphProcessor: GraphProcessor,
-    private val streamMap: StreamMap
+    private val streamMap: StreamMap,
+    private val graphState: GraphState
 ) : CameraGraph {
-    private val debugId = Debug.debugIdsForGraph.incrementAndGet()
+    private val debugId = cameraGraphIds.incrementAndGet()
+
     // Only one session can be active at a time.
     private val sessionLock = TokenLockImpl(1)
+
+    init {
+        // Log out the configuration of the camera graph when it is created.
+        Debug.logConfiguration(this.toString(), metadata, graphConfig, streamMap)
+    }
+
     override val streams: Map<StreamConfig, Stream>
         get() = streamMap.streamConfigMap
 
     override fun start() {
-        graphProcessor.start()
+        Log.info { "Starting $this" }
+        graphState.start()
     }
 
     override fun stop() {
-        graphProcessor.stop()
+        Log.info { "Stopping $this" }
+        graphState.stop()
     }
 
     override suspend fun acquireSession(): CameraGraph.Session {
@@ -60,8 +73,10 @@ class CameraGraphImpl @Inject constructor(
     }
 
     override fun close() {
+        Log.info { "Closing $this" }
         sessionLock.close()
         graphProcessor.close()
+        graphState.stop()
     }
 
     override fun toString(): String = "CameraGraph-$debugId"

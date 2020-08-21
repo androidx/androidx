@@ -36,12 +36,12 @@ object Log {
     private const val LOG_LEVEL_ERROR = 4
 
     // This indicates the lowest log level that will always log.
-    private const val LOG_LEVEL = LOG_LEVEL_INFO
+    private const val LOG_LEVEL = LOG_LEVEL_DEBUG
 
-    val DEBUG_LOGGABLE = Log.isLoggable(TAG, Log.DEBUG) || LOG_LEVEL <= LOG_LEVEL_DEBUG
-    val INFO_LOGGABLE = Log.isLoggable(TAG, Log.INFO) || LOG_LEVEL <= LOG_LEVEL_INFO
-    val WARN_LOGGABLE = Log.isLoggable(TAG, Log.WARN) || LOG_LEVEL <= LOG_LEVEL_WARN
-    val ERROR_LOGGABLE = Log.isLoggable(TAG, Log.ERROR) || LOG_LEVEL <= LOG_LEVEL_ERROR
+    val DEBUG_LOGGABLE = LOG_LEVEL <= LOG_LEVEL_DEBUG || Log.isLoggable(TAG, Log.DEBUG)
+    val INFO_LOGGABLE = LOG_LEVEL <= LOG_LEVEL_INFO || Log.isLoggable(TAG, Log.INFO)
+    val WARN_LOGGABLE = LOG_LEVEL <= LOG_LEVEL_WARN || Log.isLoggable(TAG, Log.WARN)
+    val ERROR_LOGGABLE = LOG_LEVEL <= LOG_LEVEL_ERROR || Log.isLoggable(TAG, Log.ERROR)
 
     /**
      * Debug functions log noisy information related to the internals of the system.

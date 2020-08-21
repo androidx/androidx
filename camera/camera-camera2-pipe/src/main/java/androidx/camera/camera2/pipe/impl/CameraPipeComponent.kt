@@ -19,6 +19,7 @@ package androidx.camera.camera2.pipe.impl
 import android.content.Context
 import android.hardware.camera2.CameraManager
 import android.os.Handler
+import android.os.HandlerThread
 import android.os.Process
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.Cameras
@@ -93,10 +94,17 @@ abstract class CameraPipeModules {
                 }
             }
             val cameraDispatcher = cameraExecutor.asCoroutineDispatcher()
+            val lazyCameraHandlerThread = lazy {
+                HandlerThread("CXCP-Hndlr").also {
+                    it.start()
+                }
+            }
             val cameraHandlerProvider =
                 {
                     @Suppress("DEPRECATION")
-                    config.cameraThread?.let { Handler(it.looper) } ?: Handler()
+                    config.cameraThread?.let { Handler(it.looper) } ?: Handler(
+                        lazyCameraHandlerThread.value.looper
+                    )
                 }
             val ioExecutor = Executors.newFixedThreadPool(8) {
                 object : Thread(it) {
