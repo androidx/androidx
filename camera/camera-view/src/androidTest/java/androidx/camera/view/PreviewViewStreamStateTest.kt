@@ -114,7 +114,7 @@ class PreviewViewStreamStateTest(private val implMode: PreviewView.Implementatio
         val preview = Preview.Builder().build()
         val imageAnalysis = ImageAnalysis.Builder().build()
         mInstrumentation.runOnMainSync {
-            preview.setSurfaceProvider(previewView.createSurfaceProvider())
+            preview.setSurfaceProvider(previewView.getSurfaceProvider())
             mCameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview, imageAnalysis)
         }
 

@@ -76,7 +76,7 @@ class CameraFragment : Fragment() {
 
         preview_textureview.implementationMode =
             PreviewView.ImplementationMode.COMPATIBLE
-        preview.setSurfaceProvider(preview_textureview.createSurfaceProvider())
+        preview.setSurfaceProvider(preview_textureview.getSurfaceProvider())
     }
 
     private fun getCameraSelector(): CameraSelector {

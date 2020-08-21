@@ -123,10 +123,44 @@ public class PreviewView extends FrameLayout {
             boolean isSizeChanged =
                     right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop;
             if (mCameraController != null && isSizeChanged) {
-                mCameraController.attachPreviewSurface(createSurfaceProvider(), getWidth(),
+                mCameraController.attachPreviewSurface(getSurfaceProvider(), getWidth(),
                         getHeight());
             }
         }
+    };
+
+    private final Preview.SurfaceProvider mSurfaceProvider = surfaceRequest -> {
+        Logger.d(TAG, "Surface requested by Preview.");
+        CameraInternal camera = (CameraInternal) surfaceRequest.getCamera();
+        mPreviewTransform.setSensorDimensionFlipNeeded(
+                isSensorDimensionFlipNeeded(camera.getCameraInfo()));
+        mImplementation = shouldUseTextureView(camera.getCameraInfo(), mImplementationMode)
+                ? new TextureViewImplementation() : new SurfaceViewImplementation();
+        mImplementation.init(this, mPreviewTransform);
+
+        PreviewStreamStateObserver streamStateObserver =
+                new PreviewStreamStateObserver((CameraInfoInternal) camera.getCameraInfo(),
+                        mPreviewStreamStateLiveData, mImplementation);
+        mActiveStreamStateObserver.set(streamStateObserver);
+
+        camera.getCameraState().addObserver(
+                ContextCompat.getMainExecutor(getContext()), streamStateObserver);
+
+        mPreviewViewMeteringPointFactory.setViewImplementationResolution(
+                surfaceRequest.getResolution());
+        mPreviewViewMeteringPointFactory.setCameraInfo(camera.getCameraInfo());
+
+        mImplementation.onSurfaceRequested(surfaceRequest, () -> {
+            // We've no longer needed this observer, if there is no new StreamStateObserver
+            // (another SurfaceRequest), reset the streamState to IDLE.
+            // This is needed for the case when unbinding preview while other use cases are
+            // still bound.
+            if (mActiveStreamStateObserver.compareAndSet(streamStateObserver, null)) {
+                streamStateObserver.updatePreviewStreamState(StreamState.IDLE);
+            }
+            streamStateObserver.clear();
+            camera.getCameraState().removeObserver(streamStateObserver);
+        });
     };
 
     public PreviewView(@NonNull Context context) {
@@ -176,7 +210,7 @@ public class PreviewView extends FrameLayout {
         }
         mPreviewViewMeteringPointFactory.setDisplay(getDisplay());
         if (mCameraController != null) {
-            mCameraController.attachPreviewSurface(createSurfaceProvider(), getWidth(),
+            mCameraController.attachPreviewSurface(getSurfaceProvider(), getWidth(),
                     getHeight());
         }
     }
@@ -228,46 +262,14 @@ public class PreviewView extends FrameLayout {
      * the camera that's either managed by a {@link TextureView} or {@link SurfaceView} depending
      * on the {@link ImplementationMode}.
      *
-     * @see ImplementationMode
      * @return A {@link Preview.SurfaceProvider} used to start the camera preview.
+     * @see ImplementationMode
      */
     @NonNull
     @UiThread
-    public Preview.SurfaceProvider createSurfaceProvider() {
+    public Preview.SurfaceProvider getSurfaceProvider() {
         Threads.checkMainThread();
-        return surfaceRequest -> {
-            Logger.d(TAG, "Surface requested by Preview.");
-            CameraInternal camera = (CameraInternal) surfaceRequest.getCamera();
-            mPreviewTransform.setSensorDimensionFlipNeeded(
-                    isSensorDimensionFlipNeeded(camera.getCameraInfo()));
-            mImplementation = shouldUseTextureView(camera.getCameraInfo(), mImplementationMode)
-                    ? new TextureViewImplementation() : new SurfaceViewImplementation();
-            mImplementation.init(this, mPreviewTransform);
-
-            PreviewStreamStateObserver streamStateObserver =
-                    new PreviewStreamStateObserver((CameraInfoInternal) camera.getCameraInfo(),
-                            mPreviewStreamStateLiveData, mImplementation);
-            mActiveStreamStateObserver.set(streamStateObserver);
-
-            camera.getCameraState().addObserver(
-                    ContextCompat.getMainExecutor(getContext()), streamStateObserver);
-
-            mPreviewViewMeteringPointFactory.setViewImplementationResolution(
-                    surfaceRequest.getResolution());
-            mPreviewViewMeteringPointFactory.setCameraInfo(camera.getCameraInfo());
-
-            mImplementation.onSurfaceRequested(surfaceRequest, () -> {
-                // We've no longer needed this observer, if there is no new StreamStateObserver
-                // (another SurfaceRequest), reset the streamState to IDLE.
-                // This is needed for the case when unbinding preview while other use cases are
-                // still bound.
-                if (mActiveStreamStateObserver.compareAndSet(streamStateObserver, null)) {
-                    streamStateObserver.updatePreviewStreamState(StreamState.IDLE);
-                }
-                streamStateObserver.clear();
-                camera.getCameraState().removeObserver(streamStateObserver);
-            });
-        };
+        return mSurfaceProvider;
     }
 
     /**
@@ -630,7 +632,7 @@ public class PreviewView extends FrameLayout {
         }
         mCameraController = cameraController;
         if (mCameraController != null) {
-            mCameraController.attachPreviewSurface(createSurfaceProvider(), getWidth(),
+            mCameraController.attachPreviewSurface(getSurfaceProvider(), getWidth(),
                     getHeight());
         }
     }
