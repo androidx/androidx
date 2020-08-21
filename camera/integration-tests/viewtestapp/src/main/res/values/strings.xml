@@ -21,6 +21,10 @@ limitations under the License.
     <string name="btn_capture">Capture</string>
     <string name="btn_video_record">Record</string>
     <string name="btn_video_stop_recording">Stop recording</string>
+    <string name="pinch_to_zoom">Pinch to zoom</string>
+    <string name="tap_to_focus">Tap to focus</string>
+    <string name="torch">Torch</string>
+    <string name="linear_zoom">Linear zoom</string>
     <string name="toggle_video_enabled">Video enabled</string>
     <string name="toggle_video_disabled">Video disabled</string>
     <string name="toggle_capture_enabled">Capture enabled</string>
