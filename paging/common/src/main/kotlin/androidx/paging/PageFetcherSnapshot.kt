@@ -701,15 +701,4 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
  * Generation of cancel token not [PageFetcherSnapshot]. [generationId] is used to differentiate
  * between loads from jobs that have been cancelled, but continued to run to completion.
  */
-private data class GenerationalViewportHint(val generationId: Int, val hint: ViewportHint) {
-    companion object {
-        val PREPEND_INITIAL_VALUE = GenerationalViewportHint(
-            0,
-            ViewportHint(Int.MAX_VALUE, Int.MAX_VALUE, 0, 0, 0, 0)
-        )
-        val APPEND_INITIAL_VALUE = GenerationalViewportHint(
-            0,
-            ViewportHint(Int.MIN_VALUE, Int.MIN_VALUE, 0, 0, 0, 0)
-        )
-    }
-}
+private data class GenerationalViewportHint(val generationId: Int, val hint: ViewportHint)
