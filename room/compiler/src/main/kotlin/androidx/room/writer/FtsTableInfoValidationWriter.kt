@@ -24,13 +24,15 @@ import androidx.room.ext.S
 import androidx.room.ext.T
 import androidx.room.ext.typeName
 import androidx.room.vo.FtsEntity
+import capitalize
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import stripNonJava
+import java.util.Locale
 
 class FtsTableInfoValidationWriter(val entity: FtsEntity) : ValidationWriter() {
     override fun write(dbParam: ParameterSpec, scope: CountingCodeGenScope) {
-        val suffix = entity.tableName.stripNonJava().capitalize()
+        val suffix = entity.tableName.stripNonJava().capitalize(Locale.US)
         val expectedInfoVar = scope.getTmpVar("_info$suffix")
         scope.builder().apply {
             val columnListVar = scope.getTmpVar("_columns$suffix")

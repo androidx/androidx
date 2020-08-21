@@ -18,6 +18,7 @@ package androidx.build
 
 import org.gradle.api.Project
 import java.io.File
+import java.util.Locale
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
@@ -42,13 +43,13 @@ data class Version(
 
     fun isSnapshot(): Boolean = "-SNAPSHOT" == extra
 
-    fun isAlpha(): Boolean = extra?.toLowerCase()?.startsWith("-alpha") ?: false
+    fun isAlpha(): Boolean = extra?.toLowerCase(Locale.US)?.startsWith("-alpha") ?: false
 
-    fun isBeta(): Boolean = extra?.toLowerCase()?.startsWith("-beta") ?: false
+    fun isBeta(): Boolean = extra?.toLowerCase(Locale.US)?.startsWith("-beta") ?: false
 
-    fun isDev(): Boolean = extra?.toLowerCase()?.startsWith("-dev") ?: false
+    fun isDev(): Boolean = extra?.toLowerCase(Locale.US)?.startsWith("-dev") ?: false
 
-    fun isRC(): Boolean = extra?.toLowerCase()?.startsWith("-rc") ?: false
+    fun isRC(): Boolean = extra?.toLowerCase(Locale.US)?.startsWith("-rc") ?: false
 
     fun isStable(): Boolean = (extra == null)
 

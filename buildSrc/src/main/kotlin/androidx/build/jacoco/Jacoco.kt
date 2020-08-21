@@ -16,6 +16,7 @@
 
 package androidx.build.jacoco
 
+import androidx.build.capitalize
 import androidx.build.getDistributionDirectory
 import androidx.build.getRootOutDirectory
 import androidx.build.gradle.isRoot
@@ -27,6 +28,7 @@ import org.gradle.api.file.ConfigurableFileTree
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
 import org.gradle.api.tasks.bundling.Zip
+import java.util.Locale
 
 object Jacoco {
     const val VERSION = "0.8.3"
@@ -57,7 +59,7 @@ object Jacoco {
             if (v.buildType.isTestCoverageEnabled &&
                 v.sourceSets.any { it.javaDirectories.isNotEmpty() }) {
                 val jarifyTask = project.tasks.register(
-                    "package${v.name.capitalize()}ClassFilesForCoverageReport",
+                    "package${v.name.capitalize(Locale.US)}ClassFilesForCoverageReport",
                     Jar::class.java
                 ) {
                     it.dependsOn(v.testedVariant.javaCompileProvider)

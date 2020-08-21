@@ -31,13 +31,15 @@ import org.gradle.kotlin.dsl.extra
 import org.gradle.kotlin.dsl.getPlugin
 import org.gradle.kotlin.dsl.named
 import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
+import java.util.Locale
 
 /**
  * Sets up a source jar task for an Android library project.
  */
 fun Project.configureSourceJarForAndroid(extension: LibraryExtension) {
     extension.defaultPublishVariant { variant ->
-        val sourceJar = tasks.register("sourceJar${variant.name.capitalize()}", Jar::class.java) {
+        val sourceJar = tasks.register(
+            "sourceJar${variant.name.capitalize(Locale.US)}", Jar::class.java) {
             it.archiveClassifier.set("sources")
             it.from(extension.sourceSets.getByName("main").java.srcDirs)
         }
@@ -49,7 +51,8 @@ fun Project.configureSourceJarForAndroid(extension: LibraryExtension) {
             extension.defaultPublishVariant { variant ->
                 val kotlinExt = project.extensions.getByName("kotlin") as KotlinProjectExtension
                 val sourceJar =
-                    project.tasks.named("sourceJar${variant.name.capitalize()}", Jar::class.java)
+                    project.tasks.named(
+                        "sourceJar${variant.name.capitalize(Locale.US)}", Jar::class.java)
                 // multiplatform projects use different source sets, so we need to modify the task
                 sourceJar.configure { sourceJarTask ->
                     // use an inclusion list of source sets, because that is the preferred policy

@@ -37,6 +37,7 @@ import androidx.room.solver.query.result.SingleColumnRowAdapter
 import androidx.room.verifier.DatabaseVerificationErrors
 import androidx.room.writer.QueryWriter
 import androidx.room.writer.RelationCollectorMethodWriter
+import capitalize
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.ParameterizedTypeName
@@ -45,6 +46,7 @@ import stripNonJava
 import java.nio.ByteBuffer
 import java.util.ArrayList
 import java.util.HashSet
+import java.util.Locale
 
 /**
  * Internal class that is used to manage fetching 1/N to N relationships.
@@ -66,7 +68,7 @@ data class RelationCollector(
 
     fun writeInitCode(scope: CodeGenScope) {
         varName = scope.getTmpVar(
-                "_collection${relation.field.getPath().stripNonJava().capitalize()}")
+                "_collection${relation.field.getPath().stripNonJava().capitalize(Locale.US)}")
         scope.builder().apply {
             addStatement("final $T $L = new $T()", mapTypeName, varName, mapTypeName)
         }
@@ -85,7 +87,7 @@ data class RelationCollector(
             readKey(cursorVarName, indexVar, scope) { tmpVar ->
                 if (relationTypeIsCollection) {
                     val tmpCollectionVar = scope.getTmpVar(
-                        "_tmp${relation.field.name.stripNonJava().capitalize()}Collection")
+                        "_tmp${relation.field.name.stripNonJava().capitalize(Locale.US)}Collection")
                     addStatement("$T $L = $L.get($L)", relationTypeName, tmpCollectionVar,
                         varName, tmpVar)
                     beginControlFlow("if ($L == null)", tmpCollectionVar).apply {
@@ -111,7 +113,7 @@ data class RelationCollector(
         }?.indexVar
         val tmpvarNameSuffix = if (relationTypeIsCollection) "Collection" else ""
         val tmpRelationVar = scope.getTmpVar(
-                "_tmp${relation.field.name.stripNonJava().capitalize()}$tmpvarNameSuffix")
+                "_tmp${relation.field.name.stripNonJava().capitalize(Locale.US)}$tmpvarNameSuffix")
         scope.builder().apply {
             addStatement("$T $L = null", relationTypeName, tmpRelationVar)
             readKey(cursorVarName, indexVar, scope) { tmpVar ->

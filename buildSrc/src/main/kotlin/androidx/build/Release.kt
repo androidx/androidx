@@ -24,6 +24,7 @@ import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Zip
 import java.io.File
+import java.util.Locale
 import java.util.TreeSet
 
 /**
@@ -309,7 +310,7 @@ private fun groupToTaskNameSuffix(group: String): String {
     return group
             .split('.')
             .joinToString("") {
-                it.capitalize()
+                it.capitalize(Locale.US)
             }
 }
 /**
@@ -319,6 +320,6 @@ private fun projectToNameSuffix(project: Project): String {
     return project.path
             .split(":", "-")
             .joinToString("") {
-                it.capitalize()
+                it.capitalize(Locale.US)
             }
 }

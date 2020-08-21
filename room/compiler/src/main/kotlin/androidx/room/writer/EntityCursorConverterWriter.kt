@@ -24,11 +24,13 @@ import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.Entity
 import androidx.room.vo.FieldWithIndex
+import capitalize
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.TypeName
 import stripNonJava
+import java.util.Locale
 import javax.lang.model.element.Modifier.PRIVATE
 
 class EntityCursorConverterWriter(val entity: Entity) : ClassWriter.SharedMethodSpec(
@@ -55,7 +57,7 @@ class EntityCursorConverterWriter(val entity: Entity) : ClassWriter.SharedMethod
             scope.builder().addStatement("final $T $L", entity.typeName, entityVar)
             val fieldsWithIndices = entity.fields.map {
                 val indexVar = scope.getTmpVar(
-                        "_cursorIndexOf${it.name.stripNonJava().capitalize()}")
+                        "_cursorIndexOf${it.name.stripNonJava().capitalize(Locale.US)}")
                 scope.builder().addStatement("final $T $L = $N.getColumnIndex($S)",
                         TypeName.INT, indexVar, cursorParam, it.columnName)
                 FieldWithIndex(field = it,

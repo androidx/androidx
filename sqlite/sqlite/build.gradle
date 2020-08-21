@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+
+import androidx.build.StringUtils
 import static androidx.build.dependencies.DependenciesKt.*
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
@@ -34,7 +36,7 @@ dependencies {
 // Used by testImplementation in room-compiler
 android.libraryVariants.all { variant ->
     def name = variant.name
-    def suffix = name.capitalize()
+    def suffix = StringUtils.capitalize(name, Locale.US)
     def jarTask = project.tasks.create(name: "jar${suffix}", type: Jar){
         dependsOn variant.javaCompileProvider.get()
         from variant.javaCompileProvider.get().destinationDir
