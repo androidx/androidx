@@ -28,7 +28,6 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.core.content.ContextCompat;
@@ -43,13 +42,15 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
 public final class SurfaceRequestTest {
 
     private static final Size FAKE_SIZE = new Size(0, 0);
-    private static final Rect FAKE_VIEW_PORT_RECT = new Rect(0, 0, 640, 480);
+    private static final SurfaceRequest.TransformationInfo FAKE_INFO =
+            SurfaceRequest.TransformationInfo.of(new Rect(), 0);
     private static final Consumer<SurfaceRequest.Result> NO_OP_RESULT_LISTENER = ignored -> {
     };
     private static final Surface MOCK_SURFACE = mock(Surface.class);
@@ -191,28 +192,38 @@ public final class SurfaceRequestTest {
     }
 
     @Test
-    public void createSurfaceRequestWithViewPort_cropRectIsSet() {
-        assertThat(createNewRequest(FAKE_SIZE, FAKE_VIEW_PORT_RECT).getCropRect()).isEqualTo(
-                FAKE_VIEW_PORT_RECT);
+    public void setListenerWhenTransformationAvailable_receivesImmediately() {
+        // Arrange.
+        SurfaceRequest request = createNewRequest(FAKE_SIZE);
+        request.updateTransformationInfo(FAKE_INFO);
+        AtomicReference<SurfaceRequest.TransformationInfo> infoReference = new AtomicReference<>();
+
+        // Act.
+        request.setTransformationInfoListener(CameraXExecutors.directExecutor(),
+                infoReference::set);
+
+        // Assert.
+        assertThat(infoReference.get()).isEqualTo(FAKE_INFO);
     }
 
     @Test
-    public void createSurfaceRequestWithNullViewPort_cropRectIsFullSize() {
+    public void setListener_receivesCallbackWhenAvailable() {
         // Arrange.
-        Size size = new Size(200, 100);
+        SurfaceRequest request = createNewRequest(FAKE_SIZE);
+        AtomicReference<SurfaceRequest.TransformationInfo> infoReference = new AtomicReference<>();
+        request.setTransformationInfoListener(CameraXExecutors.directExecutor(),
+                infoReference::set);
+        assertThat(infoReference.get()).isNull();
+
+        // Act.
+        request.updateTransformationInfo(FAKE_INFO);
 
         // Assert.
-        assertThat(createNewRequest(size, null).getCropRect()).isEqualTo(
-                new Rect(0, 0, size.getWidth(), size.getHeight()));
+        assertThat(infoReference.get()).isEqualTo(FAKE_INFO);
     }
 
     private SurfaceRequest createNewRequest(@NonNull Size size) {
-        return createNewRequest(size, FAKE_VIEW_PORT_RECT);
-    }
-
-    private SurfaceRequest createNewRequest(@NonNull Size size, @Nullable Rect viewPortRect) {
-        SurfaceRequest request = new SurfaceRequest(size, new FakeCamera(),
-                viewPortRect);
+        SurfaceRequest request = new SurfaceRequest(size, new FakeCamera());
         mSurfaceRequests.add(request);
         return request;
     }

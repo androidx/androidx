@@ -108,7 +108,7 @@ public class PreviewViewTest {
         FakeCamera fakeCamera = spy(new FakeCamera());
         when(fakeCamera.getCameraInfo()).thenReturn(cameraInfo);
 
-        return new SurfaceRequest(size, fakeCamera, null);
+        return new SurfaceRequest(size, fakeCamera);
     }
 
     private CountDownLatch mCountDownLatch = new CountDownLatch(1);

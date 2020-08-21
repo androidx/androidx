@@ -41,10 +41,10 @@ import java.lang.annotation.RetentionPolicy;
  *
  * <p> For {@link ImageAnalysis} and in-memory {@link ImageCapture}, the output crop rect is
  * {@link ImageProxy#getCropRect()}; for on-disk {@link ImageCapture}, the image is cropped before
- * saving; for {@link Preview}, the crop rect is {@link SurfaceRequest#getCropRect()}. Caller
- * should transform the output in a way that only the area defined by the crop rect is visible
- * to end users. Once the crop rect is applied, all the use cases will produce the same image
- * with possibly different resolutions.
+ * saving; for {@link Preview}, the crop rect is
+ * {@link SurfaceRequest.TransformationInfo#getCropRect()}. Caller should transform the output in
+ * a way that only the area defined by the crop rect is visible to end users. Once the crop rect
+ * is applied, all the use cases will produce the same image with possibly different resolutions.
  */
 @ExperimentalUseCaseGroup
 public final class ViewPort {

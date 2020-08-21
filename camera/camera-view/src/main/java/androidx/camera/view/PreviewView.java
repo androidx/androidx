@@ -39,7 +39,9 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.CameraInfo;
+import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.Logger;
 import androidx.camera.core.MeteringPoint;
@@ -96,11 +98,11 @@ public class PreviewView extends FrameLayout {
     PreviewTransform mPreviewTransform = new PreviewTransform();
 
     @NonNull
-    private MutableLiveData<StreamState> mPreviewStreamStateLiveData =
+    private final MutableLiveData<StreamState> mPreviewStreamStateLiveData =
             new MutableLiveData<>(StreamState.IDLE);
 
     @Nullable
-    private AtomicReference<PreviewStreamStateObserver> mActiveStreamStateObserver =
+    private final AtomicReference<PreviewStreamStateObserver> mActiveStreamStateObserver =
             new AtomicReference<>();
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
@@ -267,6 +269,7 @@ public class PreviewView extends FrameLayout {
      */
     @NonNull
     @UiThread
+    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
     public Preview.SurfaceProvider getSurfaceProvider() {
         Threads.checkMainThread();
         return mSurfaceProvider;
