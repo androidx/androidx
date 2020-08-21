@@ -39,11 +39,14 @@ import android.util.Log;
 import android.util.Range;
 import android.util.Rational;
 import android.view.Display;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.view.ViewStub;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
@@ -76,6 +79,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.lifecycle.ExperimentalUseCaseGroupLifecycle;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.core.content.ContextCompat;
+import androidx.core.math.MathUtils;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.test.espresso.IdlingResource;
@@ -154,6 +158,8 @@ public class CameraXActivity extends AppCompatActivity {
     private ToggleButton mCaptureQualityToggle;
     private Button mPlusEV;
     private Button mDecEV;
+    private TextView mZoomRatioLabel;
+    private SeekBar mZoomSeekBar;
 
     private OpenGLRenderer mPreviewRenderer;
     private DisplayManager.DisplayListener mDisplayListener;
@@ -548,10 +554,13 @@ public class CameraXActivity extends AppCompatActivity {
         mCaptureQualityToggle = findViewById(R.id.capture_quality);
         mPlusEV = findViewById(R.id.plus_ev_toggle);
         mDecEV = findViewById(R.id.dec_ev_toggle);
+        mZoomSeekBar = findViewById(R.id.seekBar);
+        mZoomRatioLabel = findViewById(R.id.zoomRatio);
 
         mTextView = findViewById(R.id.textView);
 
         setUpButtonEvents();
+        setupPinchToZoom();
 
         mImageAnalysisResult.observe(
                 this,
@@ -828,7 +837,122 @@ public class CameraXActivity extends AppCompatActivity {
         }
         mCamera = mCameraProvider.bindToLifecycle(this, mCurrentCameraSelector,
                 useCaseGroupBuilder.build());
+        setupZoomSeeker();
         return mCamera;
+    }
+
+    private static final int MAX_SEEKBAR_VALUE = 100000;
+
+    void showZoomRatioIsAlive() {
+        mZoomRatioLabel.setTextColor(getResources().getColor(R.color.zoom_ratio_activated));
+    }
+
+    void showNormalZoomRatio() {
+        mZoomRatioLabel.setTextColor(getResources().getColor(R.color.zoom_ratio_set));
+    }
+
+    ScaleGestureDetector.SimpleOnScaleGestureListener mScaleGestureListener =
+            new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                @Override
+                public boolean onScale(ScaleGestureDetector detector) {
+                    if (mCamera == null) {
+                        return true;
+                    }
+
+                    CameraInfo cameraInfo = mCamera.getCameraInfo();
+                    CameraControl cameraControl = mCamera.getCameraControl();
+                    float newZoom =
+                            cameraInfo.getZoomState().getValue().getZoomRatio()
+                                    * detector.getScaleFactor();
+                    float clampedNewZoom = MathUtils.clamp(newZoom,
+                            cameraInfo.getZoomState().getValue().getMinZoomRatio(),
+                            cameraInfo.getZoomState().getValue().getMaxZoomRatio());
+
+                    Log.d(TAG, "setZoomRatio ratio: " + clampedNewZoom);
+                    showNormalZoomRatio();
+                    ListenableFuture<Void> listenableFuture = cameraControl.setZoomRatio(
+                            clampedNewZoom);
+                    Futures.addCallback(listenableFuture, new FutureCallback<Void>() {
+                        @Override
+                        public void onSuccess(@Nullable Void result) {
+                            Log.d(TAG, "setZoomRatio onSuccess: " + clampedNewZoom);
+                            showZoomRatioIsAlive();
+                        }
+
+                        @Override
+                        public void onFailure(Throwable t) {
+                            Log.d(TAG, "setZoomRatio failed, " + t);
+                        }
+                    }, ContextCompat.getMainExecutor(CameraXActivity.this));
+                    return true;
+                }
+            };
+
+    private void setupPinchToZoom() {
+        ScaleGestureDetector scaleDetector = new ScaleGestureDetector(this, mScaleGestureListener);
+        mViewFinder.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                scaleDetector.onTouchEvent(motionEvent);
+
+                return true;
+            }
+        });
+
+
+    }
+
+    private void setupZoomSeeker() {
+        CameraControl cameraControl = mCamera.getCameraControl();
+        CameraInfo cameraInfo = mCamera.getCameraInfo();
+
+        mZoomSeekBar.setMax(MAX_SEEKBAR_VALUE);
+        mZoomSeekBar.setProgress(
+                (int) (cameraInfo.getZoomState().getValue().getLinearZoom() * MAX_SEEKBAR_VALUE));
+        mZoomSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (!fromUser) {
+                    return;
+                }
+
+                float percentage = (float) progress / MAX_SEEKBAR_VALUE;
+                showNormalZoomRatio();
+                ListenableFuture<Void> listenableFuture =
+                        cameraControl.setLinearZoom(percentage);
+
+                Futures.addCallback(listenableFuture, new FutureCallback<Void>() {
+                    @Override
+                    public void onSuccess(@Nullable Void result) {
+                        Log.d(TAG, "setZoomPercentage " + percentage + " onSuccess");
+                        showZoomRatioIsAlive();
+                    }
+
+                    @Override
+                    public void onFailure(Throwable t) {
+                        Log.d(TAG, "setZoomPercentage " + percentage + " failed, " + t);
+                    }
+                }, ContextCompat.getMainExecutor(CameraXActivity.this));
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+
+        cameraInfo.getZoomState().removeObservers(this);
+        cameraInfo.getZoomState().observe(this,
+                state -> {
+                String str = String.format("%.2fx", state.getZoomRatio());
+                mZoomRatioLabel.setText(str);
+                mZoomSeekBar.setProgress((int) (MAX_SEEKBAR_VALUE * state.getLinearZoom()));
+            });
     }
 
     /** Gets the absolute path from a Uri. */

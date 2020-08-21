@@ -246,4 +246,33 @@ limitations under the License.
         app:layout_constraintLeft_toRightOf="@id/plus_ev_toggle"
         app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
 
+    <SeekBar
+        android:id="@+id/seekBar"
+        android:layout_width="250dp"
+        android:layout_height="60dp"
+        android:elevation="3dp"
+
+        app:layout_constraintBottom_toTopOf="@+id/textView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.612"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <TextView
+        android:id="@+id/zoomRatio"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:elevation="3dp"
+        android:shadowColor="#000000"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius= "1"
+        android:text="1x"
+        android:textSize="20dp"
+        android:textColor="#FFFFFF"
+        android:layout_marginRight="10dp"
+        app:layout_constraintBottom_toBottomOf="@+id/seekBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/seekBar"
+        app:layout_constraintTop_toTopOf="@+id/seekBar" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
