@@ -73,14 +73,30 @@ class CameraMetadataCache @Inject constructor(
     }
 
     private fun createCameraMetadata(cameraId: CameraId, redacted: Boolean): CameraMetadataImpl {
-        try {
-            val cameraManager =
-                context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-            val characteristics =
-                cameraManager.getCameraCharacteristics(cameraId.value)
-            return CameraMetadataImpl(cameraId, redacted, characteristics, emptyMap())
-        } catch (e: Throwable) {
-            throw IllegalStateException("Failed to load camera characteristics for $cameraId", e)
+        val start = Metrics.monotonicNanos()
+
+        return Debug.trace("CameraCharacteristics_$cameraId") {
+            try {
+                val cameraManager =
+                    context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+                val characteristics =
+                    cameraManager.getCameraCharacteristics(cameraId.value)
+                val cameraMetadata =
+                    CameraMetadataImpl(cameraId, redacted, characteristics, emptyMap())
+
+                Log.info {
+                    val duration = Metrics.nanosToMillisDouble(Metrics.monotonicNanos() - start)
+                    val redactedString = when (redacted) {
+                        false -> ""
+                        true -> " (redacted)"
+                    }
+                    "Loaded metadata for $cameraId in ${duration.formatMilliTime()}$redactedString"
+                }
+
+                return@trace cameraMetadata
+            } catch (e: Throwable) {
+                throw IllegalStateException("Failed to load metadata for $cameraId", e)
+            }
         }
     }
 

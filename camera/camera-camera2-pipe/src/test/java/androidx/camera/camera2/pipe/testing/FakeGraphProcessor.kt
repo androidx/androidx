@@ -24,7 +24,7 @@ import androidx.camera.camera2.pipe.impl.RequestProcessor
  * Fake implementation of a [GraphProcessor] for tests.
  */
 class FakeGraphProcessor : GraphProcessor {
-    var active = false
+    var active = true
         private set
     var closed = false
         private set
@@ -34,18 +34,7 @@ class FakeGraphProcessor : GraphProcessor {
         get() = _requestQueue
 
     private val _requestQueue = mutableListOf<List<Request>>()
-
-    override var requestProcessor: RequestProcessor? = null
-
-    override fun start() {
-        if (!closed) {
-            active = true
-        }
-    }
-
-    override fun stop() {
-        active = false
-    }
+    private var processor: RequestProcessor? = null
 
     override fun setRepeating(request: Request) {
         repeatingRequest = request
@@ -70,5 +59,22 @@ class FakeGraphProcessor : GraphProcessor {
         closed = true
         active = false
         _requestQueue.clear()
+    }
+
+    override fun attach(requestProcessor: RequestProcessor) {
+        val old = processor
+        processor = requestProcessor
+        old?.close()
+    }
+
+    override fun detach(requestProcessor: RequestProcessor) {
+        val old = processor
+        if (requestProcessor === old) {
+            processor = null
+            old.close()
+        }
+    }
+
+    override fun retry() {
     }
 }

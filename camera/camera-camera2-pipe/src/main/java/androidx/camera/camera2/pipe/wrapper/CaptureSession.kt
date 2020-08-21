@@ -25,6 +25,7 @@ import android.view.Surface
 import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.UnsafeWrapper
 import androidx.camera.camera2.pipe.impl.Log
+import kotlinx.atomicfu.atomic
 import java.io.Closeable
 
 /**
@@ -176,38 +177,43 @@ class AndroidCaptureSessionStateCallback(
     private val device: CameraDeviceWrapper,
     private val stateCallback: CameraCaptureSessionWrapper.StateCallback
 ) : CameraCaptureSession.StateCallback() {
-    private var captureSession: CameraCaptureSessionWrapper? = null
+    private val captureSession = atomic<CameraCaptureSessionWrapper?>(null)
 
     override fun onConfigured(session: CameraCaptureSession) {
-        check(captureSession == null) {
-            "captureSession was configured multiple times. Old: $captureSession, New: $session"
-        }
-        captureSession = wrapSession(session)
-        stateCallback.onConfigured(checkNotNull(captureSession))
+        stateCallback.onConfigured(getWrapped(session))
     }
 
     override fun onConfigureFailed(session: CameraCaptureSession) {
-        check(captureSession == null) {
-            "captureSession was configured multiple times. Old: $captureSession, New: $session"
-        }
-        captureSession = wrapSession(session)
-        stateCallback.onConfigureFailed(checkNotNull(captureSession))
+        stateCallback.onConfigureFailed(getWrapped(session))
     }
 
     override fun onReady(session: CameraCaptureSession) {
-        stateCallback.onReady(checkNotNull(captureSession))
+        stateCallback.onReady(getWrapped(session))
     }
 
     override fun onActive(session: CameraCaptureSession) {
-        stateCallback.onActive(checkNotNull(captureSession))
+        stateCallback.onActive(getWrapped(session))
     }
 
     override fun onClosed(session: CameraCaptureSession) {
-        stateCallback.onClosed(checkNotNull(captureSession))
+        stateCallback.onClosed(getWrapped(session))
     }
 
     override fun onCaptureQueueEmpty(session: CameraCaptureSession) {
-        stateCallback.onCaptureQueueEmpty(checkNotNull(captureSession))
+        stateCallback.onCaptureQueueEmpty(getWrapped(session))
+    }
+
+    private fun getWrapped(session: CameraCaptureSession): CameraCaptureSessionWrapper {
+        var local = captureSession.value
+        if (local != null) {
+            return local
+        }
+
+        local = wrapSession(session)
+        if (captureSession.compareAndSet(null, local)) {
+            return local
+        }
+        return captureSession.value!!
     }
 
     private fun wrapSession(session: CameraCaptureSession): CameraCaptureSessionWrapper {

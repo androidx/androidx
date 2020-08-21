@@ -18,9 +18,15 @@
 
 package androidx.camera.camera2.pipe.impl
 
-import android.os.Trace
+import android.hardware.camera2.CameraCharacteristics
+import android.hardware.camera2.CameraCharacteristics.LENS_FACING
+import android.hardware.camera2.CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES
+import android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
+import android.hardware.camera2.CaptureRequest
 import android.os.Build
-import kotlinx.atomicfu.atomic
+import android.os.Trace
+import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraMetadata
 
 /**
  * Internal debug utilities, constants, and checks.
@@ -69,10 +75,65 @@ object Debug {
         }
     }
 
-    internal val debugIdsForGraph = atomic(0)
-    internal val debugIdsForGraphSession = atomic(0)
-    internal val debugIdsForCameraCallback = atomic(0)
-    internal val debugIdsForVirtualCamera = atomic(0)
+    fun logConfiguration(
+        graphId: String,
+        metadata: CameraMetadata,
+        graphConfig: CameraGraph.Config,
+        streamMap: StreamMap
+    ) {
+        Log.info {
+            val lensFacing = when (metadata[LENS_FACING]) {
+                CameraCharacteristics.LENS_FACING_FRONT -> "Front"
+                CameraCharacteristics.LENS_FACING_BACK -> "Back"
+                CameraCharacteristics.LENS_FACING_EXTERNAL -> "External"
+                else -> "Unknown"
+            }
+
+            val operatingMode = when (graphConfig.operatingMode) {
+                CameraGraph.OperatingMode.HIGH_SPEED -> "High Speed"
+                CameraGraph.OperatingMode.NORMAL -> "Normal"
+            }
+
+            val capabilities = metadata[REQUEST_AVAILABLE_CAPABILITIES]
+            val cameraType = if (capabilities != null &&
+                capabilities.contains(
+                    REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
+                )
+            ) {
+                "Logical"
+            } else {
+                "Physical"
+            }
+
+            StringBuilder().apply {
+                append("$graphId (Camera ${graphConfig.camera.value})\n")
+                append("  Facing:    $lensFacing ($cameraType)\n")
+                append("  Mode:      $operatingMode\n")
+                append("Streams:\n")
+                for (stream in streamMap.streamConfigMap) {
+                    append("  ")
+                    append(stream.value.id.toString().padEnd(12, ' '))
+                    append(stream.value.size.toString().padEnd(12, ' '))
+                    append(stream.value.format.name.padEnd(16, ' '))
+                    append(stream.value.type.toString().padEnd(16, ' '))
+                    append("\n")
+                }
+
+                if (graphConfig.defaultParameters.isEmpty()) {
+                    append("Default Parameters: (None)")
+                } else {
+                    append("Default Parameters:\n")
+                    for (parameter in graphConfig.defaultParameters.filter {
+                        it is CaptureRequest.Key<*>
+                    }) {
+                        append("  ")
+                        append((parameter.key as CaptureRequest.Key<*>).name.padEnd(50, ' '))
+                        append(parameter.value)
+                    }
+                }
+            }.toString()
+        }
+    }
 }
 
 /**

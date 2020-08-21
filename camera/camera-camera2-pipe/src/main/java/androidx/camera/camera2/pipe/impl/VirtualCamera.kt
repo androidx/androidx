@@ -25,6 +25,7 @@ import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.wrapper.AndroidCameraDevice
 import androidx.camera.camera2.pipe.wrapper.CameraDeviceWrapper
 import androidx.camera.camera2.pipe.wrapper.closeWithTrace
+import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -94,10 +95,12 @@ interface VirtualCamera {
     fun disconnect()
 }
 
+internal val virtualCameraDebugIds = atomic(0)
+
 class VirtualCameraState(
     val cameraId: CameraId
 ) : VirtualCamera {
-    private val debugId = Debug.debugIdsForVirtualCamera.incrementAndGet()
+    private val debugId = virtualCameraDebugIds.incrementAndGet()
     private val lock = Any()
 
     @GuardedBy("lock")
@@ -153,13 +156,15 @@ class VirtualCameraState(
     override fun toString(): String = "VirtualCamera-$debugId"
 }
 
+internal val androidCameraDebugIds = atomic(0)
+
 internal class AndroidCameraState(
     val cameraId: CameraId,
     val metadata: CameraMetadata,
     private val attemptNumber: Int,
     private val attemptTimestampNanos: Long
 ) : CameraDevice.StateCallback() {
-    private val debugId = Debug.debugIdsForCameraCallback.incrementAndGet()
+    private val debugId = androidCameraDebugIds.incrementAndGet()
     private val lock = Any()
 
     @GuardedBy("lock")
@@ -176,7 +181,7 @@ internal class AndroidCameraState(
         get() = _state
 
     init {
-        Log.debug { "$cameraId: Opening" }
+        Log.info { "Opening $cameraId" }
         requestTimestampNanos =
             if (attemptNumber == 1) {
                 attemptTimestampNanos
@@ -193,8 +198,6 @@ internal class AndroidCameraState(
             null
         }
 
-        Log.info { "About to close $device" }
-
         closeWith(
             device?.unwrap(),
             ClosingInfo(ClosedReason.APP_CLOSED)
@@ -209,14 +212,15 @@ internal class AndroidCameraState(
         check(cameraDevice.id == cameraId.value)
         val openedTimestamp = Metrics.monotonicNanos()
         openTimestampNanos = openedTimestamp
-        val attemptDuration = Metrics.nanosToMillis(openedTimestamp - requestTimestampNanos)
-        val totalDuration = Metrics.nanosToMillis(openedTimestamp - attemptTimestampNanos)
-        Log.debug {
+
+        Log.info {
+            val attemptDuration = openedTimestamp - requestTimestampNanos
+            val totalDuration = openedTimestamp - attemptTimestampNanos
             if (attemptNumber == 1) {
-                "$cameraId: onOpened after ${attemptDuration}ms"
+                "Opened $cameraId in ${attemptDuration.formatNanoTime()}"
             } else {
-                "$cameraId: onOpened after ${attemptDuration}ms " +
-                        "(${totalDuration}ms total) and $attemptNumber attempts."
+                "Opened $cameraId in ${attemptDuration.formatNanoTime()} " +
+                        "(${totalDuration.formatNanoTime()} total) after $attemptNumber attempts."
             }
         }
 

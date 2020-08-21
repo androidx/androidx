@@ -48,6 +48,8 @@ internal data class RequestClose(
 
 internal object RequestCloseAll : CameraRequest()
 
+private const val requestQueueDepth = 8
+
 @Suppress("EXPERIMENTAL_API_USAGE")
 @Singleton
 class VirtualCameraManager @Inject constructor(
@@ -56,7 +58,7 @@ class VirtualCameraManager @Inject constructor(
     private val permissions: Permissions,
     private val threads: Threads
 ) {
-    private val requestQueue: Channel<CameraRequest> = Channel(8)
+    private val requestQueue: Channel<CameraRequest> = Channel(requestQueueDepth)
     private val activeCameras: MutableSet<ActiveCamera> = mutableSetOf()
 
     init {
@@ -74,7 +76,9 @@ class VirtualCameraManager @Inject constructor(
     }
 
     private fun offerChecked(request: CameraRequest) {
-        check(requestQueue.offer(request)) { " There are more than 8 requests buffered!" }
+        check(requestQueue.offer(request)) {
+            "There are more than $requestQueueDepth requests buffered!"
+        }
     }
 
     private suspend fun requestLoop() = coroutineScope {
@@ -89,16 +93,13 @@ class VirtualCameraManager @Inject constructor(
             val closeRequest = requests.firstOrNull { it is RequestClose } as? RequestClose
             if (closeRequest != null) {
                 requests.remove(closeRequest)
-                Log.info { "CloseRequest: $closeRequest" }
                 if (activeCameras.contains(closeRequest.activeCamera)) {
                     activeCameras.remove(closeRequest.activeCamera)
                 }
 
                 launch {
-                    Log.info { "Closing active camera" }
                     closeRequest.activeCamera.close()
                 }
-                Log.info { "Waiting for active camera to close" }
                 closeRequest.activeCamera.awaitClosed()
                 continue
             }
@@ -347,7 +348,6 @@ class VirtualCameraManager @Inject constructor(
             scope,
             timeout = 1000,
             callback = {
-                Log.debug { "Wakelock expired." }
                 channel.offer(RequestClose(this))
             })
 
@@ -355,7 +355,6 @@ class VirtualCameraManager @Inject constructor(
             listenerJob = scope.launch {
                 androidCameraState.state.collect {
                     if (it is CameraStateClosing || it is CameraStateClosed) {
-                        Log.debug { " Camera is in $it state, releasing wakelock" }
                         wakelock.release()
                         this.cancel()
                     }

@@ -106,7 +106,6 @@ class SimpleCamera(
                     cameraGraph.setSurface(viewfinderStream.id, surface)
                 }
             })
-
             val yuvStream = cameraGraph.streams[yuvStreamConfig]!!
             cameraGraph.acquireSessionOrNull()!!.use {
                 it.setRepeating(
