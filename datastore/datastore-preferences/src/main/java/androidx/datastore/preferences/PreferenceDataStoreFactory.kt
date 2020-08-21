@@ -16,6 +16,7 @@
 
 package androidx.datastore.preferences
 
+import android.content.Context
 import androidx.datastore.CorruptionException
 import androidx.datastore.DataMigration
 import androidx.datastore.DataStore
@@ -29,33 +30,30 @@ import java.io.File
 /**
  * Public factory for creating PreferenceDataStore instances.
  */
-class PreferenceDataStoreFactory {
-    private val dataStoreFactory = DataStoreFactory()
-
+object PreferenceDataStoreFactory {
     /**
      * Create an instance of SingleProcessDataStore. The user is responsible for ensuring that
      * there is never more than one instance of SingleProcessDataStore acting on a file at a time.
      *
-     * @param produceFile Function which returns the file that the new DataStore will act on. The function
-     * must return the same path every time. No two instances of PreferenceDataStore
+     * @param produceFile Function which returns the file that the new DataStore will act on.
+     * The function must return the same path every time. No two instances of PreferenceDataStore
      * should act on the same file at the same time. The file must have the extension
      * preferences_pb.
-     * @param corruptionHandler The corruptionHandler is invoked if DataStore encounters a [CorruptionException] when
-     * attempting to read data. CorruptionExceptions are thrown by serializers when data can
-     * not be de-serialized.
-     * @param migrations are run before any access to data can occur. Each
-     * producer and migration may be run more than once whether or not it already succeeded
-     * (potentially because another migration failed or a write to disk failed.)
+     * @param corruptionHandler The corruptionHandler is invoked if DataStore encounters a
+     * [CorruptionException] when attempting to read data. CorruptionExceptions are thrown by
+     * serializers when data cannot be de-serialized.
+     * @param migrations are run before any access to data can occur. Each producer and migration
+     * may be run more than once whether or not it already succeeded (potentially because another
+     * migration failed or a write to disk failed.)
      * @param scope The scope in which IO operations and transform functions will execute.
      */
-    @JvmOverloads // Generate methods for default params for java users.
     fun create(
         produceFile: () -> File,
         corruptionHandler: ReplaceFileCorruptionHandler<Preferences>? = null,
         migrations: List<DataMigration<Preferences>> = listOf(),
         scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
     ): DataStore<Preferences> =
-        dataStoreFactory.create(
+        DataStoreFactory.create(
             produceFile = {
                 val file = produceFile()
                 check(file.extension == PreferencesSerializer.fileExtension) {
@@ -70,3 +68,32 @@ class PreferenceDataStoreFactory {
             scope = scope
         )
 }
+
+/**
+ * Create an instance of SingleProcessDataStore. The user is responsible for ensuring that
+ * there is never more than one instance of SingleProcessDataStore acting on a file at a time.
+ *
+ * @param name The name of the preferences. The preferences will be stored in a file obtained
+ * by calling: File(context.filesDir, "datastore/" + name + ".preferences_pb")
+ * @param corruptionHandler The corruptionHandler is invoked if DataStore encounters a
+ * [CorruptionException] when attempting to read data. CorruptionExceptions are thrown by
+ * serializers when data can not be de-serialized.
+ * @param migrations are run before any access to data can occur. Each producer and migration
+ * may be run more than once whether or not it already succeeded (potentially because another
+ * migration failed or a write to disk failed.)
+ * @param scope The scope in which IO operations and transform functions will execute.
+ */
+fun Context.createDataStore(
+    name: String,
+    corruptionHandler: ReplaceFileCorruptionHandler<Preferences>? = null,
+    migrations: List<DataMigration<Preferences>> = listOf(),
+    scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+): DataStore<Preferences> =
+    PreferenceDataStoreFactory.create(
+        produceFile = {
+            File(this.filesDir, "datastore/$name.preferences_pb")
+        },
+        corruptionHandler = corruptionHandler,
+        migrations = migrations,
+        scope = scope
+    )
