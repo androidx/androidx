@@ -30,6 +30,7 @@ import android.os.RemoteException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.work.Logger;
 import androidx.work.WorkRequest;
 import androidx.work.impl.utils.futures.SettableFuture;
@@ -38,6 +39,7 @@ import androidx.work.multiprocess.parcelable.ParcelableWorkRequests;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
@@ -68,6 +70,12 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
 
     @NonNull
     @Override
+    public ListenableFuture<Void> enqueue(@NonNull WorkRequest request) {
+        return enqueue(Collections.singletonList(request));
+    }
+
+    @NonNull
+    @Override
     public ListenableFuture<Void> enqueue(@NonNull final List<WorkRequest> requests) {
         return execute(new RemoteDispatcher() {
             @Override
@@ -88,8 +96,24 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
      */
     @NonNull
     public ListenableFuture<Void> execute(@NonNull final RemoteDispatcher dispatcher) {
-        final ListenableFuture<IWorkManagerImpl> session = getSession();
-        final RemoteCallback callback = new RemoteCallback();
+        return execute(getSession(), dispatcher, new RemoteCallback());
+    }
+
+    /**
+     * Gets a handle to an instance of {@link IWorkManagerImpl} by binding to the
+     * {@link RemoteWorkManagerService} if necessary.
+     */
+    @NonNull
+    public ListenableFuture<IWorkManagerImpl> getSession() {
+        return getSession(newIntent(mContext));
+    }
+
+    @NonNull
+    @VisibleForTesting
+    ListenableFuture<Void> execute(
+            @NonNull ListenableFuture<IWorkManagerImpl> session,
+            @NonNull final RemoteDispatcher dispatcher,
+            @NonNull final RemoteCallback callback) {
         try {
             final IWorkManagerImpl iWorkManager = session.get();
             // Set the binder to scope the request
@@ -113,22 +137,20 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
         return callback.getFuture();
     }
 
-    /**
-     * Gets a handle to an instance of {@link IWorkManagerImpl} by binding to the
-     * {@link RemoteWorkManagerService} if necessary.
-     */
     @NonNull
-    public ListenableFuture<IWorkManagerImpl> getSession() {
+    @VisibleForTesting
+    ListenableFuture<IWorkManagerImpl> getSession(@NonNull Intent intent) {
         synchronized (mLock) {
             if (mSession == null) {
                 Logger.get().debug(TAG, "Creating a new session");
                 mSession = new Session(this);
-                boolean bound =
-                        mContext.bindService(newIntent(mContext), mSession, BIND_AUTO_CREATE);
-                if (!bound) {
-                    String message = "Unable to bind to service";
-                    Logger.get().error(TAG, message);
-                    mSession.mFuture.setException(new RuntimeException(message));
+                try {
+                    boolean bound = mContext.bindService(intent, mSession, BIND_AUTO_CREATE);
+                    if (!bound) {
+                        unableToBind(mSession, new RuntimeException("Unable to bind to service"));
+                    }
+                } catch (Throwable throwable) {
+                    unableToBind(mSession, throwable);
                 }
             }
             return mSession.mFuture;
@@ -144,6 +166,11 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
             Logger.get().debug(TAG, "Cleaning up.");
             mSession = null;
         }
+    }
+
+    private void unableToBind(@NonNull Session session, @NonNull Throwable throwable) {
+        Logger.get().error(TAG, "Unable to bind to service", throwable);
+        session.mFuture.setException(throwable);
     }
 
     /**
