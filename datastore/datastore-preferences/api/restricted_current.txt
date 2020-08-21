@@ -2,11 +2,12 @@
 package androidx.datastore.preferences {
 
   public final class PreferenceDataStoreFactory {
-    ctor public PreferenceDataStoreFactory();
     method public androidx.datastore.DataStore<androidx.datastore.preferences.Preferences> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.Preferences>? corruptionHandler = null, java.util.List<? extends androidx.datastore.DataMigration<androidx.datastore.preferences.Preferences>> migrations = listOf(), kotlinx.coroutines.CoroutineScope scope = CoroutineScope(Dispatchers.IO + SupervisorJob()));
-    method public androidx.datastore.DataStore<androidx.datastore.preferences.Preferences> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.Preferences>? corruptionHandler = null, java.util.List<? extends androidx.datastore.DataMigration<androidx.datastore.preferences.Preferences>> migrations = listOf());
-    method public androidx.datastore.DataStore<androidx.datastore.preferences.Preferences> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, androidx.datastore.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.Preferences>? corruptionHandler = null);
-    method public androidx.datastore.DataStore<androidx.datastore.preferences.Preferences> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile);
+    field public static final androidx.datastore.preferences.PreferenceDataStoreFactory INSTANCE;
+  }
+
+  public final class PreferenceDataStoreFactoryKt {
+    method public static androidx.datastore.DataStore<androidx.datastore.preferences.Preferences> createDataStore(android.content.Context, String name, androidx.datastore.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.Preferences>? corruptionHandler = null, java.util.List<? extends androidx.datastore.DataMigration<androidx.datastore.preferences.Preferences>> migrations = listOf(), kotlinx.coroutines.CoroutineScope scope = CoroutineScope(Dispatchers.IO + SupervisorJob()));
   }
 
   public final class Preferences {

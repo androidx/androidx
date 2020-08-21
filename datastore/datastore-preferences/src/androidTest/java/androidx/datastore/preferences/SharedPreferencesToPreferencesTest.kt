@@ -393,7 +393,7 @@ class SharedPreferencesToPreferencesTest {
     private fun getDataStoreWithMigrations(
         migrations: List<DataMigration<Preferences>>
     ): DataStore<Preferences> {
-        return PreferenceDataStoreFactory().create(
+        return PreferenceDataStoreFactory.create(
             produceFile = { datastoreFile },
             migrations = migrations,
             scope = TestCoroutineScope()

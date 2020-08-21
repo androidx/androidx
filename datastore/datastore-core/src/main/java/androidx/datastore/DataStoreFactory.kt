@@ -16,6 +16,7 @@
 
 package androidx.datastore
 
+import android.content.Context
 import androidx.datastore.handlers.NoOpCorruptionHandler
 import androidx.datastore.handlers.ReplaceFileCorruptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -26,7 +27,7 @@ import java.io.File
 /**
  * Public factory for creating DataStore instances.
  */
-class DataStoreFactory {
+object DataStoreFactory {
     /**
      * Create an instance of SingleProcessDataStore. The user is responsible for ensuring that
      * there is never more than one DataStore acting on a file at a time.
@@ -64,3 +65,33 @@ class DataStoreFactory {
             scope = scope
         )
 }
+
+/**
+ * Create an instance of SingleProcessDataStore. The user is responsible for ensuring that
+ * there is never more than one instance of SingleProcessDataStore acting on a file at a time.
+ *
+ * @param fileName the filename relative to Context.filesDir that DataStore acts on. The File is
+ * obtained by calling File(context.filesDir, fileName). No two instances of DataStore should
+ * act on the same file at the same time.
+ * @param corruptionHandler The corruptionHandler is invoked if DataStore encounters a
+ * [CorruptionException] when attempting to read data. CorruptionExceptions are thrown by
+ * serializers when data can not be de-serialized.
+ * @param migrations are run before any access to data can occur. Each producer and migration
+ * may be run more than once whether or not it already succeeded (potentially because another
+ * migration failed or a write to disk failed.)
+ * @param scope The scope in which IO operations and transform functions will execute.
+ */
+fun <T> Context.createDataStore(
+    fileName: String,
+    serializer: Serializer<T>,
+    corruptionHandler: ReplaceFileCorruptionHandler<T>? = null,
+    migrations: List<DataMigration<T>> = listOf(),
+    scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+): DataStore<T> =
+    DataStoreFactory.create(
+        produceFile = { File(this.filesDir, "datastore/$fileName") },
+        serializer = serializer,
+        corruptionHandler = corruptionHandler,
+        migrations = migrations,
+        scope = scope
+    )
