@@ -90,4 +90,50 @@
             android:layout_height="wrap_content"
             android:text="@string/btn_video_stop_recording"/>
     </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:gravity="center_vertical">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/linear_zoom"/>
+        <SeekBar
+            android:id="@+id/linear_zoom_slider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:max="100"/>
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ToggleButton
+            android:id="@+id/pinch_to_zoom_toggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOff="@string/pinch_to_zoom"
+            android:textOn="@string/pinch_to_zoom"/>
+        <ToggleButton
+            android:id="@+id/tap_to_focus_toggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOff="@string/tap_to_focus"
+            android:textOn="@string/tap_to_focus"/>
+        <ToggleButton
+            android:id="@+id/torch_toggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textOff="@string/torch"
+            android:textOn="@string/torch"/>
+    </LinearLayout>
+    <TextView
+        android:id="@+id/zoom_state_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:lines="2"/>
+    <TextView
+        android:id="@+id/torch_state_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
 </LinearLayout>
