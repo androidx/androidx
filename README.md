@@ -76,7 +76,7 @@ cd path/to/checkout/frameworks/support/
 ./studiow
 ```
 
-and accept the license agreement when prompted. Now you're ready edit, run, and test!
+and accept the license agreement when prompted. Now you're ready to edit, run, and test!
 
 If you get “Unregistered VCS root detected” click “Add root” to enable git integration for Android Studio.
 
