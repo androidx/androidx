@@ -102,7 +102,7 @@ public class PreviewViewTest {
         Shadows.shadowOf(windowManager.getDefaultDisplay()).setDisplayId(secondDisplayId);
 
         previewView.setImplementationMode(PreviewView.ImplementationMode.PERFORMANCE);
-        Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+        Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
         assertThat(previewView.mImplementation).isInstanceOf(TextureViewImplementation.class);
@@ -128,7 +128,7 @@ public class PreviewViewTest {
         Shadows.shadowOf(windowManager.getDefaultDisplay()).setDisplayId(secondDisplayId);
 
         previewView.setImplementationMode(PreviewView.ImplementationMode.PERFORMANCE);
-        Preview.SurfaceProvider surfaceProvider = previewView.createSurfaceProvider();
+        Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
         assertThat(previewView.mImplementation).isInstanceOf(TextureViewImplementation.class);

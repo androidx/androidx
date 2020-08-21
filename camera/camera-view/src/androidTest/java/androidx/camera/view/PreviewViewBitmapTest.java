@@ -268,7 +268,7 @@ public class PreviewViewBitmapTest {
         lifecycleOwner.startAndResume();
 
         runOnMainThread(() -> {
-            preview.setSurfaceProvider(previewView.createSurfaceProvider());
+            preview.setSurfaceProvider(previewView.getSurfaceProvider());
             mCameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview);
         });
     }

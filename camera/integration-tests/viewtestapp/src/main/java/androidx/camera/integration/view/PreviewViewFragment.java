@@ -252,7 +252,7 @@ public class PreviewViewFragment extends Fragment {
                 .setTargetName("Preview")
                 .build();
         mPreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
-        preview.setSurfaceProvider(mPreviewView.createSurfaceProvider());
+        preview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
         final Camera camera = cameraProvider.bindToLifecycle(this, getCurrentCameraSelector(),
                 preview);
         setUpFocusAndMetering(camera);
