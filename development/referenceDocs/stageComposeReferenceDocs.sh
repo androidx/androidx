@@ -60,8 +60,6 @@ sed -i "s/path: \/reference\/kotlin\/androidx\/classes.html/path: \/reference\/k
 sed -i "s/path: \/reference\/kotlin\/androidx\/packages.html/path: \/reference\/kotlin\/androidx\/ui\/packages.html/g" reference/kotlin/androidx/ui/_toc.yaml
 sed -i "s/href=\"animation\/package-summary.html\">androidx.animation/href=\"..\/animation\/package-summary.html\">androidx.animation/g" reference/kotlin/androidx/ui/packages.html
 
-grep -rl "{% setvar book_path %}/reference/kotlin/androidx/_book.yaml{% endsetvar %}" reference/kotlin/androidx/animation | xargs sed -i "s/{% setvar book_path %}\/reference\/kotlin\/androidx\/_book.yaml{% endsetvar %}/{% setvar book_path %}\/reference\/kotlin\/androidx\/ui\/_book.yaml{% endsetvar %}/g"
-
 grep -rl "{% setvar book_path %}/reference/kotlin/androidx/_book.yaml{% endsetvar %}" reference/kotlin/androidx/compose | xargs sed -i "s/{% setvar book_path %}\/reference\/kotlin\/androidx\/_book.yaml{% endsetvar %}/{% setvar book_path %}\/reference\/kotlin\/androidx\/ui\/_book.yaml{% endsetvar %}/g"
 
 grep -rl "{% setvar book_path %}/reference/kotlin/androidx/_book.yaml{% endsetvar %}" reference/kotlin/androidx/ui | xargs sed -i "s/{% setvar book_path %}\/reference\/kotlin\/androidx\/_book.yaml{% endsetvar %}/{% setvar book_path %}\/reference\/kotlin\/androidx\/ui\/_book.yaml{% endsetvar %}/g"
