@@ -166,61 +166,84 @@ limitations under the License.
         />
 
     <ImageButton
-        android:id="@+id/torch_toggle"
+        android:id="@+id/direction_toggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:scaleType="fitXY"
-        android:src="@drawable/ic_flashlight"
-        android:translationZ="1dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="1dp"
         android:background="@android:drawable/btn_default"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.05"
-        app:layout_constraintStart_toStartOf="@id/constraintLayout"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.7" />
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_camera_switch"
+        android:translationZ="1dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
 
     <ImageButton
         android:id="@+id/flash_toggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="1dp"
+        android:background="@android:drawable/btn_default"
         android:scaleType="fitXY"
         android:src="@drawable/ic_flash_off"
         android:translationZ="1dp"
-        android:background="@android:drawable/btn_default"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.05"
-        app:layout_constraintStart_toStartOf="@id/constraintLayout"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.5" />
+        app:layout_constraintLeft_toRightOf="@id/direction_toggle"
+        app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
 
     <ImageButton
-        android:id="@+id/direction_toggle"
+        android:id="@+id/torch_toggle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:scaleType="fitXY"
-        android:src="@drawable/ic_camera_switch"
-        android:translationZ="1dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="1dp"
         android:background="@android:drawable/btn_default"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.05"
-        app:layout_constraintStart_toStartOf="@id/constraintLayout"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.3" />
+        android:scaleType="fitXY"
+        android:src="@drawable/ic_flashlight"
+        android:translationZ="1dp"
+        app:layout_constraintLeft_toRightOf="@id/flash_toggle"
+        app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
 
     <ToggleButton
         android:id="@+id/capture_quality"
         android:layout_width="46dp"
         android:layout_height="wrap_content"
-        android:translationZ="1dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="1dp"
         android:background="@android:drawable/btn_default"
-        android:textSize="11dp"
-        android:layout_marginTop="12dp"
         android:textOn="@string/toggle_capture_quality_on"
         android:textOff="@string/toggle_capture_quality_off"
-        app:layout_constraintStart_toStartOf="@id/torch_toggle"
-        app:layout_constraintTop_toBottomOf="@id/torch_toggle" />
+        android:textSize="11dp"
+        android:translationZ="1dp"
+        app:layout_constraintLeft_toRightOf="@id/torch_toggle"
+        app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
+
+    <Button
+        android:id="@+id/plus_ev_toggle"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="1dp"
+        android:background="@android:drawable/btn_default"
+        android:scaleType="fitXY"
+        android:text="@string/toggle_plus_ev"
+        android:textSize="10sp"
+        android:translationZ="1dp"
+        app:layout_constraintLeft_toRightOf="@id/capture_quality"
+        app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
+
+    <Button
+        android:id="@+id/dec_ev_toggle"
+        android:layout_width="46dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="1dp"
+        android:background="@android:drawable/btn_default"
+        android:scaleType="fitXY"
+        android:text="@string/toggle_dec_ev"
+        android:textSize="10sp"
+        android:translationZ="1dp"
+        app:layout_constraintLeft_toRightOf="@id/plus_ev_toggle"
+        app:layout_constraintTop_toBottomOf="@id/VideoToggle" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

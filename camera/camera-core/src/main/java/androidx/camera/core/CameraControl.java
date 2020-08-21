@@ -150,6 +150,36 @@ public interface CameraControl {
     ListenableFuture<Void> setLinearZoom(@FloatRange(from = 0f, to = 1f) float linearZoom);
 
     /**
+     * Set the exposure compensation value for the camera.
+     *
+     * <p>Only one {@link #setExposureCompensationIndex} is allowed to run at the same time. If
+     * multiple {@link #setExposureCompensationIndex} are executed in a row, only the latest one
+     * setting will be kept in the camera. The other actions will be cancelled and the
+     * ListenableFuture will fail with the {@link OperationCanceledException}. After all the
+     * previous actions is cancelled, the camera device will adjust the brightness according to
+     * the latest setting.
+     *
+     * @param value the exposure compensation value to set on the camera which must be within
+     *              the range of ExposureState#getExposureCompensationRange(). If the exposure
+     *              compensation value is not in the range defined above, the returned
+     *              {@link ListenableFuture} will fail with {@link IllegalArgumentException} and
+     *              the value from ExposureState#getExposureCompensationIndex will not change.
+     * @return a {@link ListenableFuture} which is finished when the camera reaches the newly
+     * requested exposure target. Cancellation of this future is a no-op. The result of the
+     * ListenableFuture is the new target exposure value, or cancelled with the following
+     * exceptions,
+     * <ul>
+     * <li>{@link OperationCanceledException} when the camera is closed or a
+     * new {@link #setExposureCompensationIndex} is called.
+     * <li>{@link IllegalArgumentException} while the exposure compensation value to ranging
+     * within {@link ExposureState#getExposureCompensationRange}.
+     * </ul>
+     */
+    @NonNull
+    @ExperimentalExposureCompensation
+    ListenableFuture<Integer> setExposureCompensationIndex(int value);
+
+    /**
      * An exception representing a failure that the operation is canceled which might be caused by
      * a new value is set or camera is closed.
      *
