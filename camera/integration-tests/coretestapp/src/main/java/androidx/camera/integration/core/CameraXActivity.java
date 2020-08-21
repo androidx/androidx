@@ -36,6 +36,7 @@ import android.os.StrictMode;
 import android.os.SystemClock;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.util.Range;
 import android.util.Rational;
 import android.view.Display;
 import android.view.View;
@@ -60,6 +61,7 @@ import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExperimentalUseCaseGroup;
+import androidx.camera.core.ExposureState;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageCaptureException;
@@ -150,6 +152,8 @@ public class CameraXActivity extends AppCompatActivity {
     private TextView mTextView;
     private ImageButton mTorchButton;
     private ToggleButton mCaptureQualityToggle;
+    private Button mPlusEV;
+    private Button mDecEV;
 
     private OpenGLRenderer mPreviewRenderer;
     private DisplayManager.DisplayListener mDisplayListener;
@@ -173,6 +177,28 @@ public class CameraXActivity extends AppCompatActivity {
                 Log.e(TAG, "Unexpected counter decrement");
             }
             image.close();
+        }
+    };
+
+    private FutureCallback<Integer> mEVFutureCallback = new FutureCallback<Integer>() {
+
+        @Override
+        @UseExperimental(markerClass = androidx.camera.core.ExperimentalExposureCompensation.class)
+        public void onSuccess(@Nullable Integer result) {
+            CameraInfo cameraInfo = getCameraInfo();
+            if (cameraInfo != null) {
+                ExposureState exposureState = cameraInfo.getExposureState();
+                float ev = result * exposureState.getExposureCompensationStep().floatValue();
+                Log.d(TAG, "success new EV: " + ev);
+                Toast.makeText(getApplicationContext(), String.format("EV: %.2f", ev),
+                        Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        @Override
+        public void onFailure(@NonNull Throwable t) {
+            Log.d(TAG, "failed " + t);
+            Toast.makeText(getApplicationContext(), "Fail to set EV", Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -270,6 +296,13 @@ public class CameraXActivity extends AppCompatActivity {
     private boolean isFlashAvailable() {
         CameraInfo cameraInfo = getCameraInfo();
         return mPhotoToggle.isChecked() && cameraInfo != null && cameraInfo.hasFlashUnit();
+    }
+
+    @UseExperimental(markerClass = androidx.camera.core.ExperimentalExposureCompensation.class)
+    private boolean isExposureCompensationSupported() {
+        CameraInfo cameraInfo = getCameraInfo();
+        return cameraInfo != null
+                && cameraInfo.getExposureState().isExposureCompensationSupported();
     }
 
     private void setUpFlashButton() {
@@ -404,6 +437,51 @@ public class CameraXActivity extends AppCompatActivity {
         });
     }
 
+    @UseExperimental(markerClass = androidx.camera.core.ExperimentalExposureCompensation.class)
+    private void setUpEVButton() {
+        mPlusEV.setOnClickListener(v -> {
+            Objects.requireNonNull(getCameraInfo());
+            Objects.requireNonNull(getCameraControl());
+
+            ExposureState exposureState = getCameraInfo().getExposureState();
+            Range<Integer> range = exposureState.getExposureCompensationRange();
+            int ec = exposureState.getExposureCompensationIndex();
+
+            if (range.contains(ec + 1)) {
+                ListenableFuture<Integer> future =
+                        getCameraControl().setExposureCompensationIndex(ec + 1);
+                Futures.addCallback(future, mEVFutureCallback,
+                        CameraXExecutors.mainThreadExecutor());
+            } else {
+                Toast.makeText(getApplicationContext(), String.format("EV: %.2f",
+                        range.getUpper()
+                                * exposureState.getExposureCompensationStep().floatValue()),
+                        Toast.LENGTH_LONG).show();
+            }
+        });
+
+        mDecEV.setOnClickListener(v -> {
+            Objects.requireNonNull(getCameraInfo());
+            Objects.requireNonNull(getCameraControl());
+
+            ExposureState exposureState = getCameraInfo().getExposureState();
+            Range<Integer> range = exposureState.getExposureCompensationRange();
+            int ec = exposureState.getExposureCompensationIndex();
+
+            if (range.contains(ec - 1)) {
+                ListenableFuture<Integer> future =
+                        getCameraControl().setExposureCompensationIndex(ec - 1);
+                Futures.addCallback(future, mEVFutureCallback,
+                        CameraXExecutors.mainThreadExecutor());
+            } else {
+                Toast.makeText(getApplicationContext(), String.format("EV: %.2f",
+                        range.getLower()
+                                * exposureState.getExposureCompensationStep().floatValue()),
+                        Toast.LENGTH_LONG).show();
+            }
+        });
+    }
+
     private void updateButtonsUi() {
         mRecord.setEnabled(mVideoToggle.isChecked());
         mTakePicture.setEnabled(mPhotoToggle.isChecked());
@@ -425,6 +503,8 @@ public class CameraXActivity extends AppCompatActivity {
                     break;
             }
         }
+        mPlusEV.setEnabled(isExposureCompensationSupported());
+        mDecEV.setEnabled(isExposureCompensationSupported());
     }
 
     private void setUpButtonEvents() {
@@ -438,6 +518,7 @@ public class CameraXActivity extends AppCompatActivity {
         setUpTakePictureButton();
         setUpCameraDirectionButton();
         setUpTorchButton();
+        setUpEVButton();
         mCaptureQualityToggle.setOnCheckedChangeListener(mOnCheckedChangeListener);
     }
 
@@ -465,6 +546,8 @@ public class CameraXActivity extends AppCompatActivity {
         mCameraDirectionButton = findViewById(R.id.direction_toggle);
         mTorchButton = findViewById(R.id.torch_toggle);
         mCaptureQualityToggle = findViewById(R.id.capture_quality);
+        mPlusEV = findViewById(R.id.plus_ev_toggle);
+        mDecEV = findViewById(R.id.dec_ev_toggle);
 
         mTextView = findViewById(R.id.textView);
 

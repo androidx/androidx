@@ -133,6 +133,15 @@ public interface CameraInfo {
     LiveData<ZoomState> getZoomState();
 
     /**
+     * Returns a {@link ExposureState}.
+     *
+     * <p>The {@link ExposureState} contains the current exposure related information.
+     */
+    @NonNull
+    @ExperimentalExposureCompensation
+    ExposureState getExposureState();
+
+    /**
      * Returns the implementation type of the camera, this depends on the {@link CameraXConfig}
      * used in the initialization of CameraX.
      *

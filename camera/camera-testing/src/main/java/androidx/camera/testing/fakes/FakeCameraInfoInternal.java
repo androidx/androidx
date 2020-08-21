@@ -16,11 +16,15 @@
 
 package androidx.camera.testing.fakes;
 
+import android.util.Range;
+import android.util.Rational;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ExperimentalExposureCompensation;
+import androidx.camera.core.ExposureState;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.CameraCaptureCallback;
@@ -115,6 +119,35 @@ public final class FakeCameraInfoInternal implements CameraInfoInternal {
     @Override
     public LiveData<ZoomState> getZoomState() {
         return mZoomLiveData;
+    }
+
+    @NonNull
+    @Override
+    @ExperimentalExposureCompensation
+    public ExposureState getExposureState() {
+        return new ExposureState() {
+            @Override
+            public int getExposureCompensationIndex() {
+                return 0;
+            }
+
+            @NonNull
+            @Override
+            public Range<Integer> getExposureCompensationRange() {
+                return Range.create(0, 0);
+            }
+
+            @NonNull
+            @Override
+            public Rational getExposureCompensationStep() {
+                return Rational.ZERO;
+            }
+
+            @Override
+            public boolean isExposureCompensationSupported() {
+                return true;
+            }
+        };
     }
 
     @NonNull

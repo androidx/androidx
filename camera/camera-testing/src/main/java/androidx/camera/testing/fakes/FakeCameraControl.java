@@ -24,6 +24,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
@@ -136,6 +137,13 @@ public final class FakeCameraControl implements CameraControlInternal {
             final boolean cancelAePrecaptureTrigger) {
         Log.d(TAG, "cancelAfAeTrigger(" + cancelAfTrigger + ", "
                 + cancelAePrecaptureTrigger + ")");
+    }
+
+    @NonNull
+    @Override
+    @ExperimentalExposureCompensation
+    public ListenableFuture<Integer> setExposureCompensationIndex(int exposure) {
+        return Futures.immediateFuture(null);
     }
 
     @Override
