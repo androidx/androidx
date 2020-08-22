@@ -37,8 +37,7 @@ import org.jetbrains.kotlin.gradle.dsl.KotlinProjectExtension
  */
 fun Project.configureSourceJarForAndroid(extension: LibraryExtension) {
     extension.defaultPublishVariant { variant ->
-        val sourceJar = tasks.register(
-            "sourceJar${variant.name.capitalize()}", Jar::class.java) {
+        val sourceJar = tasks.register("sourceJar${variant.name.capitalize()}", Jar::class.java) {
             it.archiveClassifier.set("sources")
             it.from(extension.sourceSets.getByName("main").java.srcDirs)
         }
