@@ -20,7 +20,6 @@ package androidx.build.dokka
 
 import androidx.build.AndroidXExtension
 import androidx.build.DiffAndDocs
-import androidx.build.capitalize
 import androidx.build.dependencies.GUAVA_VERSION
 import androidx.build.getBuildId
 import androidx.build.getDistributionDirectory
@@ -37,11 +36,10 @@ import org.jetbrains.dokka.gradle.DokkaAndroidTask
 import org.jetbrains.dokka.gradle.PackageOptions
 import java.io.File
 import java.net.URL
-import java.util.Locale
 
 object Dokka {
     fun generatorTaskNameForType(docsType: String, language: String = ""): String {
-        val formattedLangauage = language.toLowerCase(Locale.US).capitalize(Locale.US)
+        val formattedLangauage = language.toLowerCase().capitalize()
         return "dokka${formattedLangauage}${docsType}Docs"
     }
 

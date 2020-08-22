@@ -158,7 +158,7 @@ class AndroidXPlugin : Plugin<Project> {
         val report = task.reports.junitXml
         if (report.isEnabled) {
             val zipTask = project.tasks.register(
-                "zipResultsOf${task.name.capitalize(Locale.US)}",
+                "zipResultsOf${task.name.capitalize()}",
                 Zip::class.java
             ) {
                 it.destinationDirectory.set(project.getHostTestResultDirectory())
