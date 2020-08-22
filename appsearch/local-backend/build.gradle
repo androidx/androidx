@@ -30,11 +30,38 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+    buildTypes.all {
+        // TODO(b/161836669): Minifiation is currently disabled because if it is on, the aar gets
+        //   desugared twice in some workflows, which fails. Decide how to handle this (e.g.
+        //   splitting targets, continuing with the consumerProguardFiles solution here, fixing the
+        //   flows that perform duplicate desugaring, or something else).
+        minifyEnabled false
+        consumerProguardFiles 'proguard-rules.pro'
+    }
+    // TODO(b/161205849): We've had to move libicing.so compilation into appsearch:appsearch to get
+    //  it included into the exported aar. Find a proper solution for bundling libicing.so into
+    //  appsearch-release.aar and move compilation of libicing.so back into the external/icing tree.
+    sourceSets {
+        androidTest.java.srcDir '../../../../external/icing/java/tests/instrumentation/'
+    }
+    defaultConfig {
+        externalNativeBuild {
+            cmake {
+                cppFlags "-std=c++17"
+                arguments "-DCMAKE_VERBOSE_MAKEFILE=ON"
+                targets "icing"
+            }
+        }
+    }
+    externalNativeBuild {
+        cmake {
+            version '3.10.2'
+            path '../../../../external/icing/CMakeLists.txt'
+        }
+    }
 }
 
 // Add :icing as jarjar dependency
-// TODO(b/163453135): this code should be ported to use bundles instead of protos, and this
-//  dependency removed. It should exist ONLY inside appsearch:local-backend.
 android.libraryVariants.all { variant ->
     def variantName = variant.name
     def suffix = variantName.capitalize()
@@ -50,38 +77,23 @@ android.libraryVariants.all { variant ->
 dependencies {
     api('androidx.annotation:annotation:1.1.0')
 
-    implementation('androidx.concurrent:concurrent-futures:1.0.0')
+    implementation project(':appsearch:appsearch')
     implementation('androidx.core:core:1.2.0')
 
-    androidTestAnnotationProcessor project(':appsearch:appsearch-compiler')
-    androidTestImplementation project(':appsearch:appsearch-local-backend')
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RULES)
     androidTestImplementation(TRUTH)
     //TODO(b/149787478) upgrade and link to Dependencies.kt
     androidTestImplementation("junit:junit:4.13")
-    // This dependency is unused by the test implementation, but it's here to validate that
-    // icing's jarjar'ing of the Protobuf_lite doesn't conflict with external dependencies.
-    androidTestImplementation(PROTOBUF_LITE)
-
-}
-
-// Create a jar for use by appsearch-compiler:test
-android.libraryVariants.all { variant ->
-    def name = variant.name
-    def suffix = name.capitalize()
-    project.tasks.create(name: "jar${suffix}", type: Jar) {
-        dependsOn variant.javaCompileProvider.get()
-        from variant.javaCompileProvider.get().destinationDir
-        destinationDir new File(project.buildDir, "libJar")
-    }
 }
 
 androidx {
-    name = 'AndroidX AppSearch'
+    name = 'AppSearch Local Backend'
     publish = Publish.SNAPSHOT_AND_RELEASE
     mavenGroup = LibraryGroups.APPSEARCH
     mavenVersion = LibraryVersions.APPSEARCH
-    inceptionYear = '2019'
-    description = 'AndroidX AppSearch - App Indexing'
+    inceptionYear = '2020'
+    description =
+        'A backend for appsearch which uses local app storage and a local copy of the search '
+        'library'
 }

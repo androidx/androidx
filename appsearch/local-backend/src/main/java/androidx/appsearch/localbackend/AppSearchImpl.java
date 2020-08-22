@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.impl;
+package androidx.appsearch.localbackend;
 
 import android.content.Context;
 import android.util.Log;

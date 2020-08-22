@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.impl;
+package androidx.appsearch.localbackend;
 
 import static com.google.common.truth.Truth.assertThat;
 
