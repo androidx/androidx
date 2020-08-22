@@ -1,6 +1,13 @@
 // Signature format: 3.0
 package androidx.paging {
 
+  public final class ListenableFuturePagingDataKt {
+    method @CheckResult public static <T> androidx.paging.PagingData<T> filterFuture(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends com.google.common.util.concurrent.ListenableFuture<java.lang.Boolean>> predicate);
+    method @CheckResult public static <T, R> androidx.paging.PagingData<R> flatMapFuture(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends com.google.common.util.concurrent.ListenableFuture<java.lang.Iterable<R>>> transform);
+    method @CheckResult public static <T extends R, R> androidx.paging.PagingData<R> insertSeparatorsFuture(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super T,? extends com.google.common.util.concurrent.ListenableFuture<R>> generator);
+    method @CheckResult public static <T, R> androidx.paging.PagingData<R> mapFuture(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends com.google.common.util.concurrent.ListenableFuture<R>> transform);
+  }
+
   public abstract class ListenableFuturePagingSource<Key, Value> extends androidx.paging.PagingSource<Key,Value> {
     ctor public ListenableFuturePagingSource();
     method public suspend Object? load(androidx.paging.PagingSource.LoadParams<Key> p, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>> $completion);

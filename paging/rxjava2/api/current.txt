@@ -36,6 +36,13 @@ package androidx.paging.rxjava2 {
     method public static <Key, Value> io.reactivex.Observable<androidx.paging.PagingData<Value>> getObservable(androidx.paging.Pager<Key,Value>);
   }
 
+  public final class RxPagingDataKt {
+    method @CheckResult public static <T> androidx.paging.PagingData<T> filterRx(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.Single<java.lang.Boolean>> predicate);
+    method @CheckResult public static <T, R> androidx.paging.PagingData<R> flatMapRx(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.Single<java.lang.Iterable<R>>> transform);
+    method @CheckResult public static <T extends R, R> androidx.paging.PagingData<R> insertSeparatorsRx(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super T,? extends io.reactivex.Maybe<R>> generator);
+    method @CheckResult public static <T, R> androidx.paging.PagingData<R> mapRx(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends io.reactivex.Single<R>> transform);
+  }
+
   public abstract class RxPagingSource<Key, Value> extends androidx.paging.PagingSource<Key,Value> {
     ctor public RxPagingSource();
     method public final suspend Object? load(androidx.paging.PagingSource.LoadParams<Key> params, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>> p);
