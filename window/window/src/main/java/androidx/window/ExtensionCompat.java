@@ -70,9 +70,9 @@ final class ExtensionCompat implements ExtensionInterfaceCompat {
 
             @Override
             @SuppressLint("SyntheticAccessor")
-            public void onWindowLayoutChanged(@NonNull IBinder windowToken,
+            public void onWindowLayoutChanged(@NonNull Context context,
                     @NonNull ExtensionWindowLayoutInfo newLayout) {
-                extensionCallback.onWindowLayoutChanged(windowToken,
+                extensionCallback.onWindowLayoutChanged(context,
                         windowLayoutInfoFromExtension(newLayout));
             }
         });
@@ -80,20 +80,20 @@ final class ExtensionCompat implements ExtensionInterfaceCompat {
 
     @NonNull
     @Override
-    public WindowLayoutInfo getWindowLayoutInfo(@NonNull IBinder windowToken) {
+    public WindowLayoutInfo getWindowLayoutInfo(@NonNull Context context) {
         ExtensionWindowLayoutInfo windowLayoutInfo =
-                mWindowExtension.getWindowLayoutInfo(windowToken);
+                mWindowExtension.getWindowLayoutInfo(context);
         return windowLayoutInfoFromExtension(windowLayoutInfo);
     }
 
     @Override
-    public void onWindowLayoutChangeListenerAdded(@NonNull IBinder windowToken) {
-        mWindowExtension.onWindowLayoutChangeListenerAdded(windowToken);
+    public void onWindowLayoutChangeListenerAdded(@NonNull Context context) {
+        mWindowExtension.onWindowLayoutChangeListenerAdded(context);
     }
 
     @Override
-    public void onWindowLayoutChangeListenerRemoved(@NonNull IBinder windowToken) {
-        mWindowExtension.onWindowLayoutChangeListenerRemoved(windowToken);
+    public void onWindowLayoutChangeListenerRemoved(@NonNull Context context) {
+        mWindowExtension.onWindowLayoutChangeListenerRemoved(context);
     }
 
     @NonNull

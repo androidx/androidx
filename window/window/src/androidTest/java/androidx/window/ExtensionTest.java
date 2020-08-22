@@ -25,7 +25,6 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assume.assumeTrue;
 
@@ -33,7 +32,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Rect;
-import android.os.IBinder;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -109,11 +107,9 @@ public final class ExtensionTest extends WindowTestBase {
         ExtensionInterfaceCompat extension = initAndVerifyExtension(mContext);
 
         TestActivity activity = mActivityTestRule.launchActivity(new Intent());
-        IBinder windowToken = getActivityWindowToken(activity);
-        assertNotNull(windowToken);
 
         assertTrue("Layout must happen after launch", activity.waitForLayout());
-        WindowLayoutInfo windowLayoutInfo = extension.getWindowLayoutInfo(windowToken);
+        WindowLayoutInfo windowLayoutInfo = extension.getWindowLayoutInfo(activity);
         if (windowLayoutInfo.getDisplayFeatures().isEmpty()) {
             return;
         }
@@ -140,11 +136,9 @@ public final class ExtensionTest extends WindowTestBase {
         ExtensionInterfaceCompat extension = initAndVerifyExtension(mContext);
 
         TestActivity activity = mActivityTestRule.launchActivity(new Intent());
-        IBinder windowToken = getActivityWindowToken(activity);
-        assertNotNull(windowToken);
 
-        extension.onWindowLayoutChangeListenerAdded(windowToken);
-        extension.onWindowLayoutChangeListenerRemoved(windowToken);
+        extension.onWindowLayoutChangeListenerAdded(activity);
+        extension.onWindowLayoutChangeListenerRemoved(activity);
     }
 
     @Test
@@ -154,14 +148,12 @@ public final class ExtensionTest extends WindowTestBase {
 
         TestConfigChangeHandlingActivity activity =
                 mConfigHandlingActivityTestRule.launchActivity(new Intent());
-        IBinder windowToken = getActivityWindowToken(activity);
-        assertNotNull(windowToken);
 
         activity.resetLayoutCounter();
         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         activity.waitForLayout();
-        WindowLayoutInfo portraitWindowLayoutInfo = extension.getWindowLayoutInfo(windowToken);
+        WindowLayoutInfo portraitWindowLayoutInfo = extension.getWindowLayoutInfo(activity);
         if (portraitWindowLayoutInfo.getDisplayFeatures().isEmpty()) {
             // No display feature to compare, finish test early
             return;
@@ -172,7 +164,7 @@ public final class ExtensionTest extends WindowTestBase {
 
         assertTrue("Layout must happen after orientation change", activity.waitForLayout());
         WindowLayoutInfo landscapeWindowLayoutInfo =
-                extension.getWindowLayoutInfo(windowToken);
+                extension.getWindowLayoutInfo(activity);
 
         assertNotEquals(portraitWindowLayoutInfo, landscapeWindowLayoutInfo);
     }
@@ -188,11 +180,9 @@ public final class ExtensionTest extends WindowTestBase {
         activity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         activity = mActivityTestRule.getActivity();
-        IBinder windowToken = getActivityWindowToken(activity);
-        assertNotNull(windowToken);
 
         activity.waitForLayout();
-        WindowLayoutInfo portraitWindowLayoutInfo = extension.getWindowLayoutInfo(windowToken);
+        WindowLayoutInfo portraitWindowLayoutInfo = extension.getWindowLayoutInfo(activity);
         if (portraitWindowLayoutInfo.getDisplayFeatures().isEmpty()) {
             // No display feature to compare, finish test early
             return;
@@ -203,11 +193,9 @@ public final class ExtensionTest extends WindowTestBase {
         TestActivity.waitForOnResume();
 
         activity = mActivityTestRule.getActivity();
-        windowToken = getActivityWindowToken(activity);
-        assertNotNull(windowToken);
 
         activity.waitForLayout();
-        WindowLayoutInfo landscapeWindowLayoutInfo = extension.getWindowLayoutInfo(windowToken);
+        WindowLayoutInfo landscapeWindowLayoutInfo = extension.getWindowLayoutInfo(activity);
 
         assertNotEquals(portraitWindowLayoutInfo, landscapeWindowLayoutInfo);
     }

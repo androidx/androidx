@@ -21,16 +21,16 @@ package androidx.window.extensions {
 
   public interface ExtensionInterface {
     method public androidx.window.extensions.ExtensionDeviceState getDeviceState();
-    method public androidx.window.extensions.ExtensionWindowLayoutInfo getWindowLayoutInfo(android.os.IBinder);
+    method public androidx.window.extensions.ExtensionWindowLayoutInfo getWindowLayoutInfo(android.content.Context);
     method public void onDeviceStateListenersChanged(boolean);
-    method public void onWindowLayoutChangeListenerAdded(android.os.IBinder);
-    method public void onWindowLayoutChangeListenerRemoved(android.os.IBinder);
+    method public void onWindowLayoutChangeListenerAdded(android.content.Context);
+    method public void onWindowLayoutChangeListenerRemoved(android.content.Context);
     method public void setExtensionCallback(androidx.window.extensions.ExtensionInterface.ExtensionCallback);
   }
 
   public static interface ExtensionInterface.ExtensionCallback {
     method public void onDeviceStateChanged(androidx.window.extensions.ExtensionDeviceState);
-    method public void onWindowLayoutChanged(android.os.IBinder, androidx.window.extensions.ExtensionWindowLayoutInfo);
+    method public void onWindowLayoutChanged(android.content.Context, androidx.window.extensions.ExtensionWindowLayoutInfo);
   }
 
   public final class ExtensionProvider {
