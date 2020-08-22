@@ -19,9 +19,15 @@
 package androidx.paging.samples
 
 import androidx.annotation.Sampled
+import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.paging.PagingData
 import androidx.paging.insertSeparators
+import androidx.paging.insertSeparatorsFuture
 import androidx.paging.map
+import androidx.paging.rxjava2.insertSeparatorsRx
+import androidx.paging.rxjava2.mapRx
+import io.reactivex.Maybe
+import io.reactivex.Single
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -62,6 +68,78 @@ fun insertSeparatorsUiModelSample() {
                 } else {
                     // no separator - either end of list, or first letters of before/after are the same
                     null
+                }
+            }
+    }
+}
+
+@Sampled
+fun insertSeparatorsUiModelRxSample() {
+    open class UiModel
+    data class ItemUiModel(val item: Item) : UiModel()
+    data class SeparatorUiModel(val char: Char) : UiModel()
+
+    /*
+     * Create letter separators in an alphabetically sorted list of Items, with UiModel objects.
+     *
+     * For example, if the input is (each an `Item`):
+     *     "apple", "apricot", "banana", "carrot"
+     *
+     * The operator would output a list of UiModels corresponding to:
+     *     "A", "apple", "apricot", "B", "banana", "C", "carrot"
+     */
+    pagingDataStream.map { pagingData ->
+        // map outer stream, so we can perform transformations on each paging generation
+        pagingData
+            .map { item ->
+                ItemUiModel(item) // convert items in stream to ItemUiModel
+            }
+            .insertSeparatorsRx<ItemUiModel, UiModel> { before: ItemUiModel?, after: ItemUiModel? ->
+                // normally Maybe generation would be more sophisticated
+                Maybe.fromCallable<UiModel> {
+                    if (after != null && before?.item?.label?.first() != after.item.label.first()) {
+                        // separator - after is first item that starts with its first letter
+                        SeparatorUiModel(after.item.label.first().toUpperCase())
+                    } else {
+                        // no separator - either end of list, or first letters of before/after are the same
+                        null
+                    }
+                }
+            }
+    }
+}
+
+@Sampled
+fun insertSeparatorsUiModelFutureSample() {
+    open class UiModel
+    data class ItemUiModel(val item: Item) : UiModel()
+    data class SeparatorUiModel(val char: Char) : UiModel()
+
+    /*
+     * Create letter separators in an alphabetically sorted list of Items, with UiModel objects.
+     *
+     * For example, if the input is (each an `Item`):
+     *     "apple", "apricot", "banana", "carrot"
+     *
+     * The operator would output a list of UiModels corresponding to:
+     *     "A", "apple", "apricot", "B", "banana", "C", "carrot"
+     */
+    pagingDataStream.map { pagingData ->
+        // map outer stream, so we can perform transformations on each paging generation
+        pagingData
+            .map { item ->
+                ItemUiModel(item) // convert items in stream to ItemUiModel
+            }
+            .insertSeparatorsFuture<ItemUiModel, UiModel> { before: ItemUiModel?, after: ItemUiModel? ->
+                // normally ListenableFuture generation would be more sophisticated
+                CallbackToFutureAdapter.getFuture { completer ->
+                    if (after != null && before?.item?.label?.first() != after.item.label.first()) {
+                        // separator - after is first item that starts with its first letter
+                        completer.set(SeparatorUiModel(after.item.label.first().toUpperCase()))
+                    } else {
+                        // no separator - either end of list, or first letters of before/after are the same
+                        completer.set(null)
+                    }
                 }
             }
     }

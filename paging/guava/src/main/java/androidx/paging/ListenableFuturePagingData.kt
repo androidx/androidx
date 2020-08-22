@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("PagingFuture")
+
 package androidx.paging
 
 import androidx.annotation.CheckResult
@@ -53,10 +55,10 @@ fun <T : Any> PagingData<T>.filterFuture(
  * Note that this transform is applied asynchronously, as pages are loaded. Potential separators
  * between pages are only computed once both pages are loaded.
  *
- * @sample androidx.paging.samples.insertSeparatorsSample
- * @sample androidx.paging.samples.insertSeparatorsUiModelSample
+ * @sample androidx.paging.samples.insertSeparatorsFutureSample
+ * @sample androidx.paging.samples.insertSeparatorsUiModelFutureSample
  */
 @CheckResult
 fun <T : R, R : Any> PagingData<T>.insertSeparatorsFuture(
     generator: (T?, T?) -> ListenableFuture<R?>
-): PagingData<R> = insertSeparators { left, right -> generator(left, right).await() }
+): PagingData<R> = insertSeparators { before, after -> generator(before, after).await() }

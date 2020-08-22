@@ -19,8 +19,12 @@
 package androidx.paging.samples
 
 import androidx.annotation.Sampled
+import androidx.concurrent.futures.CallbackToFutureAdapter
 import androidx.paging.PagingData
 import androidx.paging.insertSeparators
+import androidx.paging.insertSeparatorsFuture
+import androidx.paging.rxjava2.insertSeparatorsRx
+import io.reactivex.Maybe
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -46,6 +50,62 @@ fun insertSeparatorsSample() {
             } else {
                 // no separator - either end of list, or first letters of before/after are the same
                 null
+            }
+        }
+    }
+}
+
+@Sampled
+fun insertSeparatorsRxSample() {
+    /*
+     * Create letter separators in an alphabetically sorted list.
+     *
+     * For example, if the input is:
+     *     "apple", "apricot", "banana", "carrot"
+     *
+     * The operator would output:
+     *     "A", "apple", "apricot", "B", "banana", "C", "carrot"
+     */
+    pagingDataStream.map { pagingData ->
+        // map outer stream, so we can perform transformations on each paging generation
+        pagingData.insertSeparatorsRx { before: String?, after: String? ->
+            // normally Maybe generation would be more sophisticated
+            Maybe.fromCallable<String> {
+                if (after != null && before?.first() != after.first()) {
+                    // separator - after is first item that starts with its first letter
+                    after.first().toUpperCase().toString()
+                } else {
+                    // no separator - either end of list, or first letters of before/after are the same
+                    null
+                }
+            }
+        }
+    }
+}
+
+@Sampled
+fun insertSeparatorsFutureSample() {
+    /*
+     * Create letter separators in an alphabetically sorted list.
+     *
+     * For example, if the input is:
+     *     "apple", "apricot", "banana", "carrot"
+     *
+     * The operator would output:
+     *     "A", "apple", "apricot", "B", "banana", "C", "carrot"
+     */
+    pagingDataStream.map { pagingData ->
+        // map outer stream, so we can perform transformations on each paging generation
+        pagingData.insertSeparatorsFuture { before: String?, after: String? ->
+            // normally ListenableFuture generation would be more sophisticated
+            CallbackToFutureAdapter.getFuture { completer ->
+                if (after != null && before?.first() != after.first()) {
+                    // separator - after is first item that starts with its first letter
+                    completer.set(after.first().toUpperCase().toString())
+                } else {
+                    // no separator - either end of list, or first letters of before/after are the same
+                    completer.set(null)
+                }
             }
         }
     }

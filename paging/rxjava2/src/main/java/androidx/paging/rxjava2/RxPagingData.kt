@@ -14,6 +14,9 @@
  * limitations under the License.
  */
 
+@file:JvmName("PagingRx")
+@file:JvmMultifileClass
+
 package androidx.paging.rxjava2
 
 import androidx.annotation.CheckResult
@@ -59,10 +62,10 @@ fun <T : Any> PagingData<T>.filterRx(
  * Note that this transform is applied asynchronously, as pages are loaded. Potential separators
  * between pages are only computed once both pages are loaded.
  *
- * @sample androidx.paging.samples.insertSeparatorsSample
- * @sample androidx.paging.samples.insertSeparatorsUiModelSample
+ * @sample androidx.paging.samples.insertSeparatorsRxSample
+ * @sample androidx.paging.samples.insertSeparatorsUiModelRxSample
  */
 @CheckResult
 fun <T : R, R : Any> PagingData<T>.insertSeparatorsRx(
     generator: (T?, T?) -> Maybe<R>
-): PagingData<R> = insertSeparators { left, right -> generator(left, right).await() }
+): PagingData<R> = insertSeparators { before, after -> generator(before, after).await() }
