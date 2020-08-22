@@ -52,7 +52,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -129,7 +128,8 @@ public abstract class RoomDatabase {
     }
 
 
-    private final Map<String, Object> mBackingFieldMap = new ConcurrentHashMap<>();
+    private final Map<String, Object> mBackingFieldMap =
+            Collections.synchronizedMap(new HashMap<>());
 
     /**
      * Gets the map for storing extension properties of Kotlin type.
