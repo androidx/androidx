@@ -31,7 +31,7 @@ import javax.annotation.processing.ProcessingEnvironment
 import javax.lang.model.element.Modifier
 
 /**
- * Source generator to support Hilt injection of Workers.
+ * Source generator to support Hilt injection of ViewModels.
  *
  * Should generate:
  * ```
