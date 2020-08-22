@@ -23,15 +23,10 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.concurrent.futures.ResolvableFuture;
 
-import com.google.android.icing.proto.SearchResultProto;
-import com.google.android.icing.proto.SnippetMatchProto;
-import com.google.android.icing.proto.SnippetProto;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 
@@ -96,13 +91,22 @@ public final class SearchResults implements Closeable {
      * which matched the specified query string and specifications.
      */
     public static final class Result {
-        private final SearchResultProto.ResultProto mResultProto;
 
-        @Nullable
+        @NonNull
         private GenericDocument mDocument;
 
-        public Result(@NonNull SearchResultProto.ResultProto resultProto) {
-            mResultProto = resultProto;
+        /**
+         * The list of Snippets that matched the request. Only populated when requested in
+         * {@link SearchSpec.Builder#setMaxSnippetSize}.
+         *
+         * @see #getMatchInfo()
+         */
+        @Nullable
+        private final List<MatchInfo> mMatchInfos;
+
+        Result(@NonNull GenericDocument document, @Nullable List<MatchInfo> matchInfos) {
+            mDocument = document;
+            mMatchInfos = matchInfos;
         }
 
         /**
@@ -111,9 +115,6 @@ public final class SearchResults implements Closeable {
          */
         @NonNull
         public GenericDocument getDocument() {
-            if (mDocument == null) {
-                mDocument = new GenericDocument(mResultProto.getDocument());
-            }
             return mDocument;
         }
 
@@ -126,24 +127,9 @@ public final class SearchResults implements Closeable {
          * {@link SearchSpec.Builder#setNumMatchesPerProperty}, for all results after that value
          * this method will return {@code null}.
          */
-        // TODO(sidchhabra): Replace Document with proper constructor.
         @Nullable
         public List<MatchInfo> getMatchInfo() {
-            if (!mResultProto.hasSnippet()) {
-                return null;
-            }
-            GenericDocument document = getDocument();
-            List<MatchInfo> matchList = new ArrayList<>();
-            for (Iterator entryProtoIterator = mResultProto.getSnippet()
-                    .getEntriesList().iterator(); entryProtoIterator.hasNext(); ) {
-                SnippetProto.EntryProto entry = (SnippetProto.EntryProto) entryProtoIterator.next();
-                for (Iterator snippetMatchProtoIterator = entry.getSnippetMatchesList().iterator();
-                        snippetMatchProtoIterator.hasNext(); ) {
-                    matchList.add(new MatchInfo(entry.getPropertyName(),
-                            (SnippetMatchProto) snippetMatchProtoIterator.next(), document));
-                }
-            }
-            return matchList;
+            return mMatchInfos;
         }
     }
 }
