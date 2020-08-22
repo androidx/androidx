@@ -29,7 +29,7 @@ import android.content.Context;
 
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.app.customer.EmailDataClass;
-import androidx.appsearch.impl.LocalBackend;
+import androidx.appsearch.localbackend.LocalBackend;
 import androidx.test.core.app.ApplicationProvider;
 
 import junit.framework.AssertionFailedError;
