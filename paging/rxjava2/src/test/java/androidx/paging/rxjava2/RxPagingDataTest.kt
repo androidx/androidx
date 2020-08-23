@@ -17,41 +17,52 @@
 package androidx.paging.rxjava2
 
 import androidx.paging.PagingData
+import androidx.paging.TestPagingDataDiffer
 import io.reactivex.Maybe
 import io.reactivex.Single
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class RxPagingDataTest {
     private val original = PagingData.from(listOf("a", "b", "c"))
 
+    private val testDispatcher = TestCoroutineDispatcher()
+    private val differ = TestPagingDataDiffer<String>(testDispatcher)
+
     @Test
-    fun map() = runBlocking {
+    fun map() = testDispatcher.runBlockingTest {
         val transformed = original.mapRx { Single.just(it + it) }
-        assertEquals(listOf("aa", "bb", "cc"), transformed.getFirstPageData())
+        differ.collectFrom(transformed)
+        assertEquals(listOf("aa", "bb", "cc"), differ.currentList)
     }
 
     @Test
-    fun flatMap() = runBlocking {
+    fun flatMap() = testDispatcher.runBlockingTest {
         val transformed = original.flatMapRx { Single.just(listOf(it, it) as Iterable<String>) }
-        assertEquals(listOf("a", "a", "b", "b", "c", "c"), transformed.getFirstPageData())
+        differ.collectFrom(transformed)
+        assertEquals(listOf("a", "a", "b", "b", "c", "c"), differ.currentList)
     }
 
     @Test
-    fun filter() = runBlocking {
+    fun filter() = testDispatcher.runBlockingTest {
         val filtered = original.filterRx { Single.just(it != "b") }
-        assertEquals(listOf("a", "c"), filtered.getFirstPageData())
+        differ.collectFrom(filtered)
+        assertEquals(listOf("a", "c"), differ.currentList)
     }
 
     @Test
-    fun insertSeparators() = runBlocking {
+    fun insertSeparators() = testDispatcher.runBlockingTest {
         val separated = original.insertSeparatorsRx { left, right ->
             if (left == null || right == null) Maybe.empty() else Maybe.just("|")
         }
-        assertEquals(listOf("a", "|", "b", "|", "c"), separated.getFirstPageData())
+        differ.collectFrom(separated)
+        assertEquals(listOf("a", "|", "b", "|", "c"), differ.currentList)
     }
 }

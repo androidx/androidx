@@ -17,48 +17,58 @@
 package androidx.paging
 
 import androidx.concurrent.futures.CallbackToFutureAdapter
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestCoroutineDispatcher
+import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(JUnit4::class)
 class ListenableFuturePagingDataTest {
     private val original = PagingData.from(listOf("a", "b", "c"))
 
+    private val testDispatcher = TestCoroutineDispatcher()
+    private val differ = TestPagingDataDiffer<String>(testDispatcher)
+
     @Test
-    fun map() = runBlocking {
+    fun map() = testDispatcher.runBlockingTest {
         val transformed = original.mapFuture {
             CallbackToFutureAdapter.getFuture<String> { completer -> completer.set(it + it) }
         }
-        assertEquals(listOf("aa", "bb", "cc"), transformed.getFirstPageData())
+        differ.collectFrom(transformed)
+        assertEquals(listOf("aa", "bb", "cc"), differ.currentList)
     }
 
     @Test
-    fun flatMap() = runBlocking {
+    fun flatMap() = testDispatcher.runBlockingTest {
         val transformed = original.flatMapFuture {
             CallbackToFutureAdapter.getFuture<Iterable<String>> { completer ->
                 completer.set(listOf(it, it)) }
         }
-        assertEquals(listOf("a", "a", "b", "b", "c", "c"), transformed.getFirstPageData())
+        differ.collectFrom(transformed)
+        assertEquals(listOf("a", "a", "b", "b", "c", "c"), differ.currentList)
     }
 
     @Test
-    fun filter() = runBlocking {
+    fun filter() = testDispatcher.runBlockingTest {
         val filtered = original.filterFuture {
             CallbackToFutureAdapter.getFuture { completer -> completer.set(it != "b") }
         }
-        assertEquals(listOf("a", "c"), filtered.getFirstPageData())
+        differ.collectFrom(filtered)
+        assertEquals(listOf("a", "c"), differ.currentList)
     }
 
     @Test
-    fun insertSeparators() = runBlocking {
+    fun insertSeparators() = testDispatcher.runBlockingTest {
         val separated = original.insertSeparatorsFuture { left, right ->
             CallbackToFutureAdapter.getFuture<String?> { completer ->
                 completer.set(if (left == null || right == null) null else "|")
             }
         }
-        assertEquals(listOf("a", "|", "b", "|", "c"), separated.getFirstPageData())
+        differ.collectFrom(separated)
+        assertEquals(listOf("a", "|", "b", "|", "c"), differ.currentList)
     }
 }

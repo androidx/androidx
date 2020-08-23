@@ -17,12 +17,7 @@
 package androidx.paging
 
 import androidx.annotation.CheckResult
-import androidx.annotation.RestrictTo
-import androidx.annotation.VisibleForTesting
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
@@ -109,13 +104,6 @@ class PagingData<T : Any> internal constructor(
     @CheckResult
     fun insertFooterItem(item: T) = insertSeparators { _, after ->
         if (after == null) item else null
-    }
-
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
-    suspend fun getFirstPageData(): List<T> {
-        val pageEvent = flow.filterIsInstance<PageEvent.Insert<T>>().firstOrNull()
-        return pageEvent?.pages?.firstOrNull()?.data ?: emptyList()
     }
 
     companion object {
