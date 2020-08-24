@@ -287,12 +287,16 @@ class FragmentLifecycleTest {
             .commitNow()
 
         assertThat(fragment.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        val view = fragment.requireView()
+        assertThat(view.parent).isNotNull()
 
         fm.beginTransaction()
             .setMaxLifecycle(fragment, Lifecycle.State.CREATED)
             .commitNow()
 
         assertThat(fragment.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(fragment.view).isNull()
+        assertThat(view.parent).isNull()
     }
 
     @Test
