@@ -63,7 +63,7 @@ public class DatabaseConfiguration {
     public final List<RoomDatabase.Callback> callbacks;
 
     @Nullable
-    public final RoomDatabase.PrepackagedCallback prepackagedCallback;
+    public final RoomDatabase.PrepackagedDatabaseCallback prepackagedDatabaseCallback;
 
     /**
      * Whether Room should throw an exception for queries run on the main thread.
@@ -136,7 +136,7 @@ public class DatabaseConfiguration {
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
      * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
      * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
-     * Callable)}
+     * Callable, RoomDatabase.PrepackagedDatabaseCallback)}
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
@@ -175,7 +175,7 @@ public class DatabaseConfiguration {
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
      * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
      * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
-     * Callable)}
+     * Callable, RoomDatabase.PrepackagedDatabaseCallback)}
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
@@ -221,7 +221,7 @@ public class DatabaseConfiguration {
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
      * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
      * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
-     * Callable)}
+     * Callable, RoomDatabase.PrepackagedDatabaseCallback)}
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
@@ -271,7 +271,7 @@ public class DatabaseConfiguration {
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
      * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
      * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
-     * Callable, RoomDatabase.PrepackagedCallback)}
+     * Callable, RoomDatabase.PrepackagedDatabaseCallback)}
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
@@ -341,7 +341,7 @@ public class DatabaseConfiguration {
      * @param copyFromFile The pre-packaged database file.
      * @param copyFromInputStream The callable to get the input stream from which a
      *                            pre-package database file will be copied from.
-     * @param prepackagedCallback The pre-packaged callback.
+     * @param prepackagedDatabaseCallback The pre-packaged callback.
      *
      * @hide
      */
@@ -362,7 +362,7 @@ public class DatabaseConfiguration {
             @Nullable String copyFromAssetPath,
             @Nullable File copyFromFile,
             @Nullable Callable<InputStream> copyFromInputStream,
-            @Nullable RoomDatabase.PrepackagedCallback prepackagedCallback) {
+            @Nullable RoomDatabase.PrepackagedDatabaseCallback prepackagedDatabaseCallback) {
         this.sqliteOpenHelperFactory = sqliteOpenHelperFactory;
         this.context = context;
         this.name = name;
@@ -379,7 +379,7 @@ public class DatabaseConfiguration {
         this.copyFromAssetPath = copyFromAssetPath;
         this.copyFromFile = copyFromFile;
         this.copyFromInputStream = copyFromInputStream;
-        this.prepackagedCallback = prepackagedCallback;
+        this.prepackagedDatabaseCallback = prepackagedDatabaseCallback;
     }
 
     /**
