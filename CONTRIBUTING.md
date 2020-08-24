@@ -84,10 +84,7 @@ cd room
 ./gradlew test connectedCheck
 
 # Run additional checks
-./gradlew buildOnServer
-
-# Run coding standard & guideline checks
-./gradlew ktlint
+./gradlew buildOnServer ktlint
 
 # If you are testing on an emulator, you can disable benchmark tests as
 # follows since they require a real device to run
