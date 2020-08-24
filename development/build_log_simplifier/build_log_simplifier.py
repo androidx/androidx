@@ -111,9 +111,12 @@ def remove_known_uninteresting_lines(lines):
           result.append(line)
   return result
 
+def get_suppressions_path():
+    return os.path.join(dir_of_this_script, "build_log_simplifier/messages.ignore")
+
 # returns a list of regular expressions for lines of output that we want to ignore
 def load_suppressions():
-    suppressions_path = os.path.join(dir_of_this_script, "build_log_simplifier/messages.ignore")
+    suppressions_path = get_suppressions_path()
     infile = open(suppressions_path)
     lines = infile.readlines()
     infile.close()
@@ -237,6 +240,29 @@ def normalize_paths(lines):
         result.append(line)
     return result
 
+def generate_suggested_suppressions(messages, dest_path):
+    # load existing suppressions
+    infile = open(get_suppressions_path())
+    suppression_lines = infile.readlines()
+    infile.close()
+
+    # generate new suggestions
+    for line in messages:
+        stripped = line.strip()
+        if stripped.startswith("> Task"):
+            # Don't need suppressions for task names; we automatically suppress them if we're suppressing their content
+            continue
+        escaped = re.escape(stripped)
+        escaped = escaped.replace("\ ", " ") # spaces don't need to be escaped
+        escaped = escaped + "\n"
+        if not escaped in suppression_lines:
+            suppression_lines.append(escaped)
+
+    # write
+    dest_file = open(dest_path, 'w')
+    dest_file.write("".join(suppression_lines))
+    dest_file.close()
+
 def main():
     arguments = parser.parse_args()
 
@@ -262,7 +288,17 @@ def main():
             print("build_log_simplifier.py: Error: Found new messages!")
             print("")
             print("".join(lines))
-            print("Error: build_log_simplifier.py found " + str(len(lines)) + " new messages found in " + log_path)
+            print("Error: build_log_simplifier.py found " + str(len(lines)) + " new messages found in " + log_path + ".")
+            new_suppressions_path = log_path + ".ignore"
+            generate_suggested_suppressions(lines, new_suppressions_path)
+            print("")
+            print("Please fix or suppress these new messages in the tool that generates them.")
+            print("If you cannot, then you can exempt them by doing:")
+            print("")
+            print("  1. cp " + new_suppressions_path + " " + get_suppressions_path())
+            print("  2. modify the new lines to be appropriately generalized")
+            print("")
+            print("Note that if you exempt these messages by updating the exemption file, it will only take affect for CI builds and not for Android Studio.")
             exit(1)
     else:
         print("".join(lines))
