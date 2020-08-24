@@ -27,11 +27,11 @@ CallbackName: androidx.room.InvalidationTracker.Observer:
 
 ExecutorRegistration: androidx.room.RoomDatabase.Builder#addCallback(androidx.room.RoomDatabase.Callback):
     Registration methods should have overload that accepts delivery Executor: `addCallback`
-ExecutorRegistration: androidx.room.RoomDatabase.Builder#createFromAsset(String, androidx.room.RoomDatabase.PrepackagedCallback):
+ExecutorRegistration: androidx.room.RoomDatabase.Builder#createFromAsset(String, androidx.room.RoomDatabase.PrepackagedDatabaseCallback):
     Registration methods should have overload that accepts delivery Executor: `createFromAsset`
-ExecutorRegistration: androidx.room.RoomDatabase.Builder#createFromFile(java.io.File, androidx.room.RoomDatabase.PrepackagedCallback):
+ExecutorRegistration: androidx.room.RoomDatabase.Builder#createFromFile(java.io.File, androidx.room.RoomDatabase.PrepackagedDatabaseCallback):
     Registration methods should have overload that accepts delivery Executor: `createFromFile`
-ExecutorRegistration: androidx.room.RoomDatabase.Builder#createFromInputStream(java.util.concurrent.Callable<java.io.InputStream>, androidx.room.RoomDatabase.PrepackagedCallback):
+ExecutorRegistration: androidx.room.RoomDatabase.Builder#createFromInputStream(java.util.concurrent.Callable<java.io.InputStream>, androidx.room.RoomDatabase.PrepackagedDatabaseCallback):
     Registration methods should have overload that accepts delivery Executor: `createFromInputStream`
 
 
