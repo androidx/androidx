@@ -38,6 +38,7 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import org.mockito.Mockito.mock
 import simpleRun
+import java.util.Locale
 
 @Suppress("HasPlatformType")
 @RunWith(JUnit4::class)
@@ -181,7 +182,7 @@ class FieldProcessorTest {
     fun primitiveArray() {
         ALL_PRIMITIVES.forEach { primitive ->
             singleEntity("@TypeConverters(foo.bar.MyConverter.class) " +
-                    "${primitive.toString().toLowerCase()}[] arr;") { field, invocation ->
+                    "${primitive.toString().toLowerCase(Locale.US)}[] arr;") { field, invocation ->
                 assertThat(field, `is`(
                         Field(name = "arr",
                                 type = invocation.processingEnv.getArrayType(primitive),

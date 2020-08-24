@@ -24,7 +24,10 @@ import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XVariableElement
 import androidx.room.solver.types.CursorValueReader
 import androidx.room.solver.types.StatementValueBinder
+import capitalize
 import com.squareup.javapoet.TypeName
+import decapitalize
+import java.util.Locale
 
 // used in cache matching, must stay as a data class or implement equals
 data class Field(
@@ -93,15 +96,15 @@ data class Field(
                 result.add(name.substring(1))
             }
             if (name.startsWith("m") && name[1].isUpperCase()) {
-                result.add(name.substring(1).decapitalize())
+                result.add(name.substring(1).decapitalize(Locale.US))
             }
 
             if (typeName == TypeName.BOOLEAN || typeName == TypeName.BOOLEAN.box()) {
                 if (name.length > 2 && name.startsWith("is") && name[2].isUpperCase()) {
-                    result.add(name.substring(2).decapitalize())
+                    result.add(name.substring(2).decapitalize(Locale.US))
                 }
                 if (name.length > 3 && name.startsWith("has") && name[3].isUpperCase()) {
-                    result.add(name.substring(3).decapitalize())
+                    result.add(name.substring(3).decapitalize(Locale.US))
                 }
             }
         }
@@ -109,10 +112,10 @@ data class Field(
     }
 
     val getterNameWithVariations by lazy {
-        nameWithVariations.map { "get${it.capitalize()}" } +
+        nameWithVariations.map { "get${it.capitalize(Locale.US)}" } +
                 if (typeName == TypeName.BOOLEAN || typeName == TypeName.BOOLEAN.box()) {
                     nameWithVariations.flatMap {
-                        listOf("is${it.capitalize()}", "has${it.capitalize()}")
+                        listOf("is${it.capitalize(Locale.US)}", "has${it.capitalize(Locale.US)}")
                     }
                 } else {
                     emptyList()
@@ -120,7 +123,7 @@ data class Field(
     }
 
     val setterNameWithVariations by lazy {
-        nameWithVariations.map { "set${it.capitalize()}" }
+        nameWithVariations.map { "set${it.capitalize(Locale.US)}" }
     }
 
     /**

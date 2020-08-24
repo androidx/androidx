@@ -28,6 +28,7 @@ import loadJavaCode
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.Locale
 import javax.tools.JavaFileObject
 
 @RunWith(JUnit4::class)
@@ -41,6 +42,17 @@ class DaoWriterTest {
         ).compilesWithoutError().and().generatesSources(
                 loadJavaCode("daoWriter/output/ComplexDao.java", "foo.bar.ComplexDao_Impl")
         )
+    }
+
+    @Test
+    fun complexDao_turkishLocale() {
+        val originalLocale = Locale.getDefault()
+        try {
+            Locale.setDefault(Locale("tr")) // Turkish has special upper/lowercase i chars
+            complexDao()
+        } finally {
+            Locale.setDefault(originalLocale)
+        }
     }
 
     @Test
