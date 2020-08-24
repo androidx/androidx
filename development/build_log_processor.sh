@@ -53,6 +53,13 @@ fi
 mkdir -p "$LOG_DIR"
 logFile="$LOG_DIR/gradle.log"
 rm -f "$logFile"
+# Save OUT_DIR and some other variables into the log file so build_log_simplifier.py can
+# identify them later
+echo "OUT_DIR=$OUT_DIR" | tee -a $logFile
+if [ "$DIST_DIR" == "" ]; then
+  DIST_DIR="$OUT_DIR/dist"
+fi
+echo "DIST_DIR=$DIST_DIR" | tee -a $logFile
 programName="$1"
 shift
 echo Running "$programName" "$@"

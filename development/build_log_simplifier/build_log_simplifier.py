@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import argparse, sys
+import argparse, collections, pathlib, os, sys
 
 parser = argparse.ArgumentParser(
     description="""USAGE:
@@ -147,45 +147,81 @@ def collapse_tasks_having_no_output(lines):
               result.append(line)
         else:
             if len(pending_tasks) > 0:
-                result += pending_tasks[0]
+                result.append(pending_tasks[0])
                 if len(pending_tasks) > 2:
-                    result += "> Task ...\n"
+                    result.append("> Task ...\n")
                 if len(pending_tasks) > 1:
-                    result += pending_tasks[-1]
+                    result.append(pending_tasks[-1])
                 pending_tasks = []
             result.append(line)
     return result
 
-def process(log_path):
-    try:
-        infile = open(log_path)
-        lines = infile.readlines()
-        infile.close()
+# Normalizes some filepaths to more easily simplify/skip some messages
+def normalize_paths(lines):
+    # get path of this script
+    dir_of_this_script = pathlib.Path(__file__).parent.absolute()
+    repository_root = os.path.dirname(dir_of_this_script)
+    checkout_root = os.path.abspath(os.path.join(repository_root, "../.."))
 
-        lines = select_failing_task_output(lines)
-        lines = shorten_uninteresting_stack_frames(lines)
-        lines = remove_known_uninteresting_lines(lines)
-        lines = collapse_consecutive_blank_lines(lines)
-        lines = collapse_tasks_having_no_output(lines)
+    # get OUT_DIR and DIST_DIR
+    out_dir = None
+    dist_dir = None
+    out_marker = "OUT_DIR="
+    dist_marker = "DIST_DIR="
+    for line in lines:
+        if out_marker in line:
+            out_dir = line.split(out_marker)[1].strip()
+            continue
+        if dist_marker in line:
+            dist_dir = line.split(dist_marker)[1].strip()
+            continue
+        if out_dir is not None and dist_dir is not None:
+            break
 
-        return lines
-    except Exception as e:
-        print("An error occurred! "+str(e))
-        exit(1)
+    # Remove any mentions of these paths, and replace them with consistent values
+    remove_paths = collections.OrderedDict()
+    if dist_dir is not None:
+       remove_paths[dist_dir] = "$DIST_DIR"
+    if out_dir is not None:
+       remove_paths[out_dir] = "$OUT_DIR"
+    remove_paths[repository_root] = "$SUPPORT"
+    remove_paths[checkout_root] = "$CHECKOUT"
+    result = []
+    for line in lines:
+        for path in remove_paths:
+            if path in line:
+                replacement = remove_paths[path]
+                line = line.replace(path + "/", replacement + "/")
+                line = line.replace(path, replacement)
+        result.append(line)
+    return result
 
 def main():
     arguments = parser.parse_args()
 
+    # read file
     log_path = arguments.log_path[0]
-    simplified = process(log_path)
+    infile = open(log_path)
+    lines = infile.readlines()
+    infile.close()
+    # remove lines we're not interested in
+    if not arguments.validate:
+        lines = select_failing_task_output(lines)
+    lines = normalize_paths(lines)
+    lines = shorten_uninteresting_stack_frames(lines)
+    lines = remove_known_uninteresting_lines(lines)
+    lines = collapse_consecutive_blank_lines(lines)
+    lines = collapse_tasks_having_no_output(lines)
+
+    # process results
     if arguments.validate:
-        if len(simplified) != 0:
+        if len(lines) != 0:
             print("Found new messages!")
-            print("".join(simplified))
-            print("Error: " + str(len(simplified)) + " new messages found")
+            print("".join(lines))
+            print("Error: " + str(len(lines)) + " new messages found in " + log_path)
             exit(1)
     else:
-        print("".join(simplified))
+        print("".join(lines))
 
 if __name__ == "__main__":
     main()
