@@ -726,6 +726,9 @@ class FragmentStateManager {
     }
 
     void destroyFragmentView() {
+        if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
+            Log.d(TAG, "movefrom CREATE_VIEW: " + mFragment);
+        }
         mFragment.performDestroyView();
         mDispatcher.dispatchOnFragmentViewDestroyed(mFragment, false);
         mFragment.mContainer = null;
