@@ -13,7 +13,9 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import argparse, collections, pathlib, os, sys
+import argparse, collections, pathlib, os, re, sys
+
+dir_of_this_script = str(pathlib.Path(__file__).parent.absolute())
 
 parser = argparse.ArgumentParser(
     description="""USAGE:
@@ -108,6 +110,45 @@ def remove_known_uninteresting_lines(lines):
       if include:
           result.append(line)
   return result
+
+# returns a list of regular expressions for lines of output that we want to ignore
+def load_suppressions():
+    suppressions_path = os.path.join(dir_of_this_script, "build_log_simplifier/messages.ignore")
+    infile = open(suppressions_path)
+    lines = infile.readlines()
+    infile.close()
+    lines = [line.replace("\n", "") for line in lines]
+    regexes = []
+    for line in lines:
+        line = line.strip()
+        if line.startswith("#") or line == "":
+            # skip comments
+            continue
+        regexes.append((line, re.compile(line)))
+    return regexes
+
+def remove_configured_uninteresting_lines(lines, validate_no_duplicates):
+    suppressions = load_suppressions()
+    result = []
+    for line in lines:
+        stripped = line.strip()
+        matching_suppressions = []
+        for suppression_text, suppression_regex in suppressions:
+            if suppression_regex.fullmatch(stripped):
+                matching_suppressions.append(suppression_text)
+        if validate_no_duplicates and len(matching_suppressions) > 1:
+           print("")
+           print("build_log_simplifier.py: Invalid configuration: multiple message suppressions match the same message. Are some suppressions too broad?")
+           print("")
+           print("Line: '" + stripped + "'")
+           print("")
+           print(str(len(matching_suppressions)) + " Matching suppressions:")
+           for suppression_text in matching_suppressions:
+               print("'" + suppression_text + "'")
+           exit(1)
+        if len(matching_suppressions) < 1:
+            result.append(line)
+    return result
 
 def collapse_consecutive_blank_lines(lines):
     result = []
@@ -210,15 +251,18 @@ def main():
     lines = normalize_paths(lines)
     lines = shorten_uninteresting_stack_frames(lines)
     lines = remove_known_uninteresting_lines(lines)
+    lines = remove_configured_uninteresting_lines(lines, arguments.validate)
     lines = collapse_consecutive_blank_lines(lines)
     lines = collapse_tasks_having_no_output(lines)
 
     # process results
     if arguments.validate:
         if len(lines) != 0:
-            print("Found new messages!")
+            print("")
+            print("build_log_simplifier.py: Error: Found new messages!")
+            print("")
             print("".join(lines))
-            print("Error: " + str(len(lines)) + " new messages found in " + log_path)
+            print("Error: build_log_simplifier.py found " + str(len(lines)) + " new messages found in " + log_path)
             exit(1)
     else:
         print("".join(lines))

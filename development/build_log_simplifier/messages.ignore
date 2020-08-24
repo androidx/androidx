@@ -1,0 +1,5 @@
+# This file is a list of regexes of messages that are permitted to appear in stdout/stderr
+# Comments and blank lines are ignored
+# Before adding a suppression to this file, please attempt to suppress the output inside the generating tool instead
+
+Lint found .*
