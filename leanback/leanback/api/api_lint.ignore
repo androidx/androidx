@@ -67,6 +67,22 @@ BuilderSetStyle: androidx.leanback.widget.ShadowOverlayHelper.Builder#preferZOrd
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.leanback.widget.ShadowOverlayHelper.Builder.preferZOrder(boolean)
 
 
+CallbackMethodName: androidx.leanback.widget.DiffCallback#areContentsTheSame(Value, Value):
+    Callback method names must follow the on<Something> style: areContentsTheSame
+CallbackMethodName: androidx.leanback.widget.DiffCallback#areItemsTheSame(Value, Value):
+    Callback method names must follow the on<Something> style: areItemsTheSame
+CallbackMethodName: androidx.leanback.widget.DiffCallback#getChangePayload(Value, Value):
+    Callback method names must follow the on<Something> style: getChangePayload
+CallbackMethodName: androidx.leanback.widget.GuidedActionDiffCallback#areContentsTheSame(androidx.leanback.widget.GuidedAction, androidx.leanback.widget.GuidedAction):
+    Callback method names must follow the on<Something> style: areContentsTheSame
+CallbackMethodName: androidx.leanback.widget.GuidedActionDiffCallback#areItemsTheSame(androidx.leanback.widget.GuidedAction, androidx.leanback.widget.GuidedAction):
+    Callback method names must follow the on<Something> style: areItemsTheSame
+CallbackMethodName: androidx.leanback.widget.SearchBar.SearchBarPermissionListener#requestAudioPermission():
+    Listener method names must follow the on<Something> style: requestAudioPermission
+CallbackMethodName: androidx.leanback.widget.SpeechRecognitionCallback#recognizeSpeech():
+    Callback method names must follow the on<Something> style: recognizeSpeech
+
+
 CallbackName: androidx.leanback.widget.ObjectAdapter.DataObserver:
     Class should be named DataCallback
 

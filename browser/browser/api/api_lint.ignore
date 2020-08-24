@@ -63,6 +63,12 @@ BuilderSetStyle: androidx.browser.trusted.TrustedWebActivityIntentBuilder#buildC
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.browser.trusted.TrustedWebActivityIntentBuilder.buildCustomTabsIntent()
 
 
+CallbackMethodName: androidx.browser.customtabs.CustomTabsCallback#extraCallback(String, android.os.Bundle):
+    Callback method names must follow the on<Something> style: extraCallback
+CallbackMethodName: androidx.browser.customtabs.CustomTabsCallback#extraCallbackWithResult(String, android.os.Bundle):
+    Callback method names must follow the on<Something> style: extraCallbackWithResult
+
+
 ConcreteCollection: androidx.browser.browseractions.BrowserActionsIntent#openBrowserAction(android.content.Context, android.net.Uri, int, java.util.ArrayList<androidx.browser.browseractions.BrowserActionItem>, android.app.PendingIntent) parameter #3:
     Parameter type is concrete collection (`java.util.ArrayList`); must be higher-level interface
 ConcreteCollection: androidx.browser.browseractions.BrowserActionsIntent#parseBrowserActionItems(java.util.ArrayList<android.os.Bundle>) parameter #0:
