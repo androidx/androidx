@@ -19,6 +19,20 @@ ArrayReturn: androidx.preference.MultiSelectListPreference#setEntryValues(CharSe
     Method parameter should be Collection<CharSequence> (or subclass) instead of raw array; was `java.lang.CharSequence[]`
 
 
+CallbackMethodName: androidx.preference.PreferenceGroup.PreferencePositionCallback#getPreferenceAdapterPosition(String):
+    Callback method names must follow the on<Something> style: getPreferenceAdapterPosition
+CallbackMethodName: androidx.preference.PreferenceGroup.PreferencePositionCallback#getPreferenceAdapterPosition(androidx.preference.Preference):
+    Callback method names must follow the on<Something> style: getPreferenceAdapterPosition
+CallbackMethodName: androidx.preference.PreferenceManager.PreferenceComparisonCallback#arePreferenceContentsTheSame(androidx.preference.Preference, androidx.preference.Preference):
+    Callback method names must follow the on<Something> style: arePreferenceContentsTheSame
+CallbackMethodName: androidx.preference.PreferenceManager.PreferenceComparisonCallback#arePreferenceItemsTheSame(androidx.preference.Preference, androidx.preference.Preference):
+    Callback method names must follow the on<Something> style: arePreferenceItemsTheSame
+CallbackMethodName: androidx.preference.PreferenceManager.SimplePreferenceComparisonCallback#arePreferenceContentsTheSame(androidx.preference.Preference, androidx.preference.Preference):
+    Callback method names must follow the on<Something> style: arePreferenceContentsTheSame
+CallbackMethodName: androidx.preference.PreferenceManager.SimplePreferenceComparisonCallback#arePreferenceItemsTheSame(androidx.preference.Preference, androidx.preference.Preference):
+    Callback method names must follow the on<Something> style: arePreferenceItemsTheSame
+
+
 ExecutorRegistration: androidx.preference.EditTextPreference#setOnBindEditTextListener(androidx.preference.EditTextPreference.OnBindEditTextListener):
     Registration methods should have overload that accepts delivery Executor: `setOnBindEditTextListener`
 ExecutorRegistration: androidx.preference.Preference#setOnPreferenceChangeListener(androidx.preference.Preference.OnPreferenceChangeListener):

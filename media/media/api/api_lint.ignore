@@ -33,6 +33,10 @@ BuilderSetStyle: android.support.v4.media.MediaMetadataCompat.Builder#putText(St
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method android.support.v4.media.MediaMetadataCompat.Builder.putText(String,CharSequence)
 
 
+CallbackMethodName: android.support.v4.media.session.MediaControllerCompat.Callback#binderDied():
+    Callback method names must follow the on<Something> style: binderDied
+
+
 ContextNameSuffix: androidx.media.MediaBrowserServiceCompat:
     Inconsistent class name; should be `<Foo>Service`, was `MediaBrowserServiceCompat`
 
