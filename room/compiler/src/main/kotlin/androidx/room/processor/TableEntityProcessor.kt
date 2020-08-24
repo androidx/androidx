@@ -20,6 +20,7 @@ import androidx.room.parser.SQLTypeAffinity
 import androidx.room.parser.SqlParser
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.ext.isNotNone
 import androidx.room.processor.EntityProcessor.Companion.createIndexName
 import androidx.room.processor.EntityProcessor.Companion.extractForeignKeys
 import androidx.room.processor.EntityProcessor.Companion.extractIndices

@@ -221,7 +221,6 @@ class ElementExtTest {
             val processingEnv = invocation.processingEnv
             primitiveTypeNames.forEach { primitiveTypeName ->
                 val typeMirror = processingEnv.requireType(primitiveTypeName)
-                assertThat(typeMirror.isPrimitive()).isTrue()
                 assertThat(typeMirror.typeName).isEqualTo(primitiveTypeName)
                 assertThat(
                     typeMirror.boxed().typeName

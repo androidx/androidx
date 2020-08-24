@@ -62,11 +62,6 @@ interface XType {
     // TODO these is<Type> checks may need to be moved into the implementation.
     //  It is not yet clear how we will model some types in Kotlin (e.g. primitives)
     /**
-     * Returns `true` if this is not `byte` type.
-     */
-    fun isNotByte() = !isByte()
-
-    /**
      * Returns `true` if this is an error type.
      */
     fun isError(): Boolean
@@ -80,8 +75,6 @@ interface XType {
     /**
      * Returns boxed version of this type if it is a primitive or itself if it is not a primitive
      * type.
-     *
-     * @see isPrimitive
      */
     fun boxed(): XType
 
@@ -91,36 +84,14 @@ interface XType {
     fun asArray(): XArrayType = this as XArrayType
 
     /**
-     * Returns `true` if this is an `int`
-     */
-    fun isPrimitiveInt(): Boolean {
-        return typeName == TypeName.INT
-    }
-
-    /**
-     * Returns `true` if this type represents a boxed int (java.lang.Integer)
-     */
-    fun isBoxedInt() = typeName == TypeName.INT.box()
-
-    /**
      * Returns `true` if this is a primitive or boxed it
      */
-    fun isInt() = isPrimitiveInt() || isBoxedInt()
-
-    /**
-     * Returns `true` if this is `long`
-     */
-    fun isPrimitiveLong() = typeName == TypeName.LONG
-
-    /**
-     * Returns `true` if this is a boxed long (java.lang.Long)
-     */
-    fun isBoxedLong() = typeName == TypeName.LONG.box()
+    fun isInt(): Boolean
 
     /**
      * Returns `true` if this is a primitive or boxed long
      */
-    fun isLong() = isPrimitiveLong() || isBoxedLong()
+    fun isLong(): Boolean
 
     /**
      * Returns `true` if this is a [List]
@@ -138,39 +109,19 @@ interface XType {
     fun isVoidObject(): Boolean = isType() && isTypeOf(Void::class)
 
     /**
-     * Returns `true` if this represents a primitive type
-     */
-    fun isPrimitive() = typeName.isPrimitive
-
-    /**
      * Returns `true` if this is the kotlin [Unit] type.
      */
     fun isKotlinUnit(): Boolean = isType() && isTypeOf(Unit::class)
 
     /**
-     * Returns `true` if this is not `void`.
-     */
-    fun isNotVoid() = !isVoid()
-
-    /**
-     * Returns `true` if this type represents a valid resolvable type.
-     */
-    fun isNotError() = !isError()
-
-    /**
      * Returns `true` if this represents a `byte`.
      */
-    fun isByte() = typeName == TypeName.BYTE
+    fun isByte(): Boolean
 
     /**
      * Returns `true` if this is the None type.
      */
     fun isNone(): Boolean
-
-    /**
-     * Returns `true` if this is not the None type.
-     */
-    fun isNotNone() = !isNone()
 
     /**
      * Returns true if this represented by a [XTypeElement].
