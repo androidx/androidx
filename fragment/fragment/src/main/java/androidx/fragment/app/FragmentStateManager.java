@@ -176,6 +176,24 @@ class FragmentStateManager {
         // Assume the Fragment can go as high as the FragmentManager's state
         int maxState = mFragmentManagerState;
 
+        // Don't allow the Fragment to go above its max lifecycle state
+        switch (mFragment.mMaxState) {
+            case RESUMED:
+                // maxState can't go any higher than RESUMED, so there's nothing to do here
+                break;
+            case STARTED:
+                maxState = Math.min(maxState, Fragment.STARTED);
+                break;
+            case CREATED:
+                maxState = Math.min(maxState, Fragment.CREATED);
+                break;
+            case INITIALIZED:
+                maxState = Math.min(maxState, Fragment.ATTACHED);
+                break;
+            default:
+                maxState = Math.min(maxState, Fragment.INITIALIZING);
+        }
+
         // For fragments that are created from a layout using the <fragment> tag (mFromLayout)
         if (mFragment.mFromLayout) {
             if (mFragment.mInLayout) {
@@ -226,23 +244,6 @@ class FragmentStateManager {
         // if it's not already started.
         if (mFragment.mDeferStart && mFragment.mState < Fragment.STARTED) {
             maxState = Math.min(maxState, Fragment.ACTIVITY_CREATED);
-        }
-        // Don't allow the Fragment to go above its max lifecycle state
-        switch (mFragment.mMaxState) {
-            case RESUMED:
-                // maxState can't go any higher than RESUMED, so there's nothing to do here
-                break;
-            case STARTED:
-                maxState = Math.min(maxState, Fragment.STARTED);
-                break;
-            case CREATED:
-                maxState = Math.min(maxState, Fragment.CREATED);
-                break;
-            case INITIALIZED:
-                maxState = Math.min(maxState, Fragment.ATTACHED);
-                break;
-            default:
-                maxState = Math.min(maxState, Fragment.INITIALIZING);
         }
         return maxState;
     }
