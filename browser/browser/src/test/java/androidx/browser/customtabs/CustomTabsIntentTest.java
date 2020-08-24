@@ -150,6 +150,116 @@ public class CustomTabsIntentTest {
                 CustomTabsIntent.EXTRA_NAVIGATION_BAR_DIVIDER_COLOR, 0));
     }
 
+    public void throwsError_WhenInvalidShareStateSet() {
+        try {
+            new CustomTabsIntent.Builder().setShareState(-1);
+            fail("Underflow arguments are expected to throw an exception");
+        } catch (IllegalArgumentException exception) {
+        }
+
+        try {
+            new CustomTabsIntent.Builder().setShareState(42);
+            fail("Overflow arguments are expected to throw an exception");
+        } catch (IllegalArgumentException exception) {
+        }
+    }
+
+    @Test
+    public void hasShareState_WhenValidShareStateSet() {
+        final int[] shareStateValues = new int[]{
+                CustomTabsIntent.SHARE_STATE_DEFAULT,
+                CustomTabsIntent.SHARE_STATE_ON,
+                CustomTabsIntent.SHARE_STATE_OFF
+        };
+
+        for (int value : shareStateValues) {
+            Intent intent =
+                    new CustomTabsIntent.Builder().setShareState(value).build().intent;
+            assertEquals(value, intent.getIntExtra(CustomTabsIntent.EXTRA_SHARE_STATE, -1));
+        }
+    }
+
+    @Test
+    public void hasDefaultShareStateAndNoShareMenuItem_WhenBuiltWithDefaultConstructor() {
+        Intent intent = new CustomTabsIntent.Builder().build().intent;
+
+        assertEquals(CustomTabsIntent.SHARE_STATE_DEFAULT,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_SHARE_STATE, -1));
+        assertFalse(intent.hasExtra(CustomTabsIntent.EXTRA_DEFAULT_SHARE_MENU_ITEM));
+    }
+
+    @Test
+    public void hasDefaultShareStateAndNoShareMenuItem_WhenShareStateSetToDefault() {
+        Intent intent = new CustomTabsIntent.Builder().setShareState(
+                CustomTabsIntent.SHARE_STATE_DEFAULT).build().intent;
+
+        assertEquals(CustomTabsIntent.SHARE_STATE_DEFAULT,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_SHARE_STATE, -1));
+        assertFalse(intent.hasExtra(CustomTabsIntent.EXTRA_DEFAULT_SHARE_MENU_ITEM));
+    }
+
+    @Test
+    public void hasShareStateOffAndShareMenuItemFalse_WhenShareStateSetToOff() {
+        Intent intent = new CustomTabsIntent.Builder().setShareState(
+                CustomTabsIntent.SHARE_STATE_OFF).build().intent;
+
+        assertEquals(CustomTabsIntent.SHARE_STATE_OFF,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_SHARE_STATE, -1));
+        assertFalse(intent.getBooleanExtra(CustomTabsIntent.EXTRA_DEFAULT_SHARE_MENU_ITEM, false));
+    }
+
+    @Test
+    public void hasShareStateOnAndShareMenuItemTrue_WhenShareStateSetToOn() {
+        Intent intent = new CustomTabsIntent.Builder().setShareState(
+                CustomTabsIntent.SHARE_STATE_ON).build().intent;
+
+        assertEquals(CustomTabsIntent.SHARE_STATE_ON,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_SHARE_STATE, -1));
+        assertTrue(intent.getBooleanExtra(CustomTabsIntent.EXTRA_DEFAULT_SHARE_MENU_ITEM, false));
+    }
+
+    @Test
+    public void hasShareStateOnAndShareMenuItemTrue_WhenAddDefaultShareMenuItemIsCalled() {
+        Intent intent = new CustomTabsIntent.Builder().addDefaultShareMenuItem().build().intent;
+
+        assertEquals(CustomTabsIntent.SHARE_STATE_ON,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_SHARE_STATE, -1));
+        assertTrue(intent.getBooleanExtra(CustomTabsIntent.EXTRA_DEFAULT_SHARE_MENU_ITEM, false));
+    }
+
+    @Test
+    public void hasShareStateDefaultAndNoShareMenuItem_WhenShareStateChangedToDefault() {
+        Intent intent = new CustomTabsIntent.Builder()
+                .setShareState(CustomTabsIntent.SHARE_STATE_OFF)
+                .setShareState(CustomTabsIntent.SHARE_STATE_DEFAULT)
+                .build()
+                .intent;
+
+        assertEquals(CustomTabsIntent.SHARE_STATE_DEFAULT,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_SHARE_STATE, -1));
+        assertFalse(intent.hasExtra(CustomTabsIntent.EXTRA_DEFAULT_SHARE_MENU_ITEM));
+    }
+
+    @Test
+    public void hasShareStateOnAndShareMenuItem_WhenSetDefaultShareMenuItemIsTrue() {
+        Intent intent =
+                new CustomTabsIntent.Builder().setDefaultShareMenuItemEnabled(true).build().intent;
+
+        assertEquals(CustomTabsIntent.SHARE_STATE_ON,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_SHARE_STATE, -1));
+        assertTrue(intent.getBooleanExtra(CustomTabsIntent.EXTRA_DEFAULT_SHARE_MENU_ITEM, false));
+    }
+
+    @Test
+    public void hasShareStateOffAndShareMenuItemFalse_WhenSetDefaultShareMenuItemIsFalse() {
+        Intent intent =
+                new CustomTabsIntent.Builder().setDefaultShareMenuItemEnabled(false).build().intent;
+
+        assertEquals(CustomTabsIntent.SHARE_STATE_OFF,
+                intent.getIntExtra(CustomTabsIntent.EXTRA_SHARE_STATE, -1));
+        assertFalse(intent.getBooleanExtra(CustomTabsIntent.EXTRA_DEFAULT_SHARE_MENU_ITEM, false));
+    }
+
     @Test
     public void hasNullSessionExtra_WhenBuiltWithDefaultConstructor() {
         Intent intent = new CustomTabsIntent.Builder().build().intent;

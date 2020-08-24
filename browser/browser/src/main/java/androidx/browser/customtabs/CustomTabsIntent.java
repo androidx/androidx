@@ -228,8 +228,46 @@ public final class CustomTabsIntent {
             "android.support.customtabs.extra.EXIT_ANIMATION_BUNDLE";
 
     /**
-     * Boolean extra that specifies whether a default share button will be shown in the menu.
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({SHARE_STATE_DEFAULT, SHARE_STATE_ON, SHARE_STATE_OFF})
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ShareState {
+    }
+
+    /**
+     * Applies the default share settings depending on the browser.
+     */
+    public static final int SHARE_STATE_DEFAULT = 0;
+
+    /**
+     * Shows a share option in the tab.
+     */
+    public static final int SHARE_STATE_ON = 1;
+
+    /**
+     * Explicitly does not show a share option in the tab.
+     */
+    public static final int SHARE_STATE_OFF = 2;
+
+    /**
+     * Maximum value for the SHARE_STATE_* configuration options. For validation purposes only.
+     */
+    private static final int SHARE_STATE_MAX = 2;
+
+    /**
+     * Extra (int) that specifies which share state should be applied to the custom tab. Default is
+     * {@link CustomTabsIntent#SHARE_STATE_DEFAULT}.
+     */
+    public static final String EXTRA_SHARE_STATE = "androidx.browser.customtabs.extra.SHARE_STATE";
+
+    /**
+     * Boolean extra that specifies whether a default share button will be shown in the menu.
+     *
+     * @deprecated Use {@link CustomTabsIntent#EXTRA_SHARE_STATE} instead.
+     */
+    @Deprecated
     public static final String EXTRA_DEFAULT_SHARE_MENU_ITEM =
             "android.support.customtabs.extra.SHARE_MENU_ITEM";
 
@@ -354,11 +392,10 @@ public final class CustomTabsIntent {
         @Nullable private ArrayList<Bundle> mMenuItems;
         @Nullable private Bundle mStartAnimationBundle;
         @Nullable private ArrayList<Bundle> mActionButtons;
+        @Nullable private SparseArray<Bundle> mColorSchemeParamBundles;
+        @Nullable private Bundle mDefaultColorSchemeBundle;
+        @ShareState private int mShareState = SHARE_STATE_DEFAULT;
         private boolean mInstantAppsEnabled = true;
-        @Nullable
-        private SparseArray<Bundle> mColorSchemeParamBundles;
-        @Nullable
-        private Bundle mDefaultColorSchemeBundle;
 
         /**
          * Creates a {@link CustomTabsIntent.Builder} object associated with no
@@ -502,12 +539,13 @@ public final class CustomTabsIntent {
 
         /**
          * Adds a default share item to the menu.
-         * @deprecated Use {@link #setDefaultShareMenuItemEnabled(boolean)} instead.
+         * @deprecated Use {@link #setShareState(int)} instead. This will set the share state to
+         * {@link CustomTabsIntent#SHARE_STATE_ON}.
          */
         @Deprecated
         @NonNull
         public Builder addDefaultShareMenuItem() {
-            mIntent.putExtra(EXTRA_DEFAULT_SHARE_MENU_ITEM, true);
+            setShareState(SHARE_STATE_ON);
             return this;
         }
 
@@ -515,10 +553,45 @@ public final class CustomTabsIntent {
          * Set whether a default share item is added to the menu.
          *
          * @param enabled Whether default share item is added.
+         * @deprecated Use {@link #setShareState(int)} instead. This will set the share state to
+         * {@link CustomTabsIntent#SHARE_STATE_ON} or {@link CustomTabsIntent#SHARE_STATE_OFF}
+         * based on {@code enabled}.
          */
+        @Deprecated
         @NonNull
         public Builder setDefaultShareMenuItemEnabled(boolean enabled) {
-            mIntent.putExtra(EXTRA_DEFAULT_SHARE_MENU_ITEM, enabled);
+            if (enabled) {
+                setShareState(SHARE_STATE_ON);
+            } else {
+                setShareState(SHARE_STATE_OFF);
+            }
+            return this;
+        }
+
+        /**
+         * Sets the share state that should be applied to the custom tab.
+         *
+         * @param shareState Desired share state.
+         *
+         * @see CustomTabsIntent#SHARE_STATE_DEFAULT
+         * @see CustomTabsIntent#SHARE_STATE_ON
+         * @see CustomTabsIntent#SHARE_STATE_OFF
+         */
+        @NonNull
+        public Builder setShareState(@ShareState int shareState) {
+            if (shareState < 0 || shareState > SHARE_STATE_MAX) {
+                throw new IllegalArgumentException("Invalid value for the shareState argument");
+            }
+            mShareState = shareState;
+            // Add share menu item extra for backwards compatibility with {@link
+            // #addDefaultShareMenuItem} and {@link #setDefaultShareMenuItemEnabled}.
+            if (shareState == SHARE_STATE_ON) {
+                mIntent.putExtra(EXTRA_DEFAULT_SHARE_MENU_ITEM, true);
+            } else if (shareState == SHARE_STATE_OFF) {
+                mIntent.putExtra(EXTRA_DEFAULT_SHARE_MENU_ITEM, false);
+            } else {
+                mIntent.removeExtra(EXTRA_DEFAULT_SHARE_MENU_ITEM);
+            }
             return this;
         }
 
@@ -824,6 +897,7 @@ public final class CustomTabsIntent {
                         mColorSchemeParamBundles);
                 mIntent.putExtras(bundle);
             }
+            mIntent.putExtra(EXTRA_SHARE_STATE, mShareState);
 
             return new CustomTabsIntent(mIntent, mStartAnimationBundle);
         }
