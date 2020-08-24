@@ -40,6 +40,7 @@ import androidx.room.vo.ShortcutEntity
 import androidx.room.vo.ShortcutMethod
 import androidx.room.vo.TransactionMethod
 import androidx.room.vo.WriteQueryMethod
+import capitalize
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.CodeBlock
 import com.squareup.javapoet.FieldSpec
@@ -49,6 +50,7 @@ import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import stripNonJava
+import java.util.Locale
 import javax.lang.model.element.Modifier.FINAL
 import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.PUBLIC
@@ -508,7 +510,7 @@ class DaoWriter(
     }
 
     class PreparedStatementField(val method: QueryMethod) : SharedFieldSpec(
-        "preparedStmtOf${method.name.capitalize()}", RoomTypeNames.SHARED_SQLITE_STMT
+        "preparedStmtOf${method.name.capitalize(Locale.US)}", RoomTypeNames.SHARED_SQLITE_STMT
     ) {
         override fun prepare(writer: ClassWriter, builder: FieldSpec.Builder) {
             builder.addModifiers(PRIVATE, FINAL)

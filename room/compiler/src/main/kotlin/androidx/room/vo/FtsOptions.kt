@@ -19,6 +19,7 @@ package androidx.room.vo
 import androidx.room.FtsOptions.MatchInfo
 import androidx.room.FtsOptions.Order
 import androidx.room.migration.bundle.FtsOptionsBundle
+import java.util.Locale
 
 data class FtsOptions(
     val tokenizer: String,
@@ -62,7 +63,7 @@ data class FtsOptions(
             }
 
             if (matchInfo != MatchInfo.FTS4) {
-                add("matchinfo=${matchInfo.name.toLowerCase()}")
+                add("matchinfo=${matchInfo.name.toLowerCase(Locale.US)}")
             }
 
             notIndexedColumns.forEach {
