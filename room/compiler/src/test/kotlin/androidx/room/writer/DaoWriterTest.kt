@@ -44,7 +44,6 @@ class DaoWriterTest {
         )
     }
 
-
     @Test
     fun complexDao_turkishLocale() {
         val originalLocale = Locale.getDefault()
