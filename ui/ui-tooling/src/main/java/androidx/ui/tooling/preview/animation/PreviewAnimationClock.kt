@@ -41,7 +41,10 @@ import androidx.compose.animation.tooling.ComposeAnimationType
  * @suppress
  */
 @OptIn(InternalAnimationApi::class)
-internal open class PreviewAnimationClock(private val initialTimeMs: Long = 0L) :
+internal open class PreviewAnimationClock(
+    private val initialTimeMs: Long = 0L,
+    private val setClockTimeCallback: () -> Unit = {}
+) :
     AnimationClockObservable {
 
     private val TAG = "PreviewAnimationClock"
@@ -205,6 +208,7 @@ internal open class PreviewAnimationClock(private val initialTimeMs: Long = 0L) 
      */
     fun setClockTime(animationTimeMs: Long) {
         clock.clockTimeMillis = initialTimeMs + animationTimeMs
+        setClockTimeCallback.invoke()
     }
 
     fun dispose() {

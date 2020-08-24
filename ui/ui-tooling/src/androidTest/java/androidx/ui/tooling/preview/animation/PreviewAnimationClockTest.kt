@@ -228,6 +228,16 @@ class PreviewAnimationClockTest {
         assertEquals("Offset", offsetAnimation.label)
     }
 
+    @Test
+    fun callbackCalledWhenSettingClockTime() {
+        var callbackCalledCount = 0
+        val clock = TestPreviewAnimationClock { callbackCalledCount++ }
+        clock.setClockTime(10)
+        clock.setClockTime(20)
+
+        assertEquals(2, callbackCalledCount)
+    }
+
     // Sets up a transition animation scenario, going from RotationColor.RC1 to RotationColor.RC3.
     private fun setUpRotationColorScenario(): ComposeAnimation {
         TransitionAnimation(rotationColorDef, testClock).toState(RotationColor.RC2)
@@ -248,7 +258,8 @@ class PreviewAnimationClockTest {
         return composeAnimation
     }
 
-    private inner class TestPreviewAnimationClock : PreviewAnimationClock(0) {
+    private class TestPreviewAnimationClock(setClockTimeCallback: () -> Unit = {}) :
+        PreviewAnimationClock(0, setClockTimeCallback) {
         lateinit var subscribedAnimation: ComposeAnimation
         lateinit var unsubscribedAnimation: ComposeAnimation
         var subscribeCount = 0
