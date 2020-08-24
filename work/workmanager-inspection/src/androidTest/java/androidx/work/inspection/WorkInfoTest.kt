@@ -156,8 +156,13 @@ class WorkInfoTest {
 
         testEnvironment.receiveEvent().let { event ->
             val workInfo = event.workAdded.work
-            assertThat(workInfo.callStack.framesList[0].fileName)
-                .isEqualTo("ContinuationImpl.kt")
+            val topCallStack = workInfo.callStack.framesList[0]
+            assertThat(topCallStack.className)
+                .startsWith("androidx.work.inspection.WorkManagerInspector")
+            assertThat(topCallStack.fileName)
+                .isEqualTo("WorkManagerInspector.kt")
+            assertThat(topCallStack.methodName)
+                .isEqualTo("onEntry")
         }
     }
 
