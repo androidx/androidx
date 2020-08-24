@@ -27,7 +27,10 @@ import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.preferredSize
+import androidx.compose.material.Button
+import androidx.compose.material.ModalDrawerLayout
 import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.ui.onPositioned
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
@@ -39,6 +42,8 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 
 @SmallTest
 @RunWith(JUnit4::class)
@@ -339,6 +344,45 @@ class InspectableTests : ToolingTest() {
                 "maxLines, inlineContent, onTextLayout, style",
             names.joinToString()
         )
+    }
+
+    @OptIn(InternalComposeApi::class)
+    @Test // regression test for b/162092315
+    fun inspectingModalDrawerLayout() {
+        val positioned = CountDownLatch(1)
+        val tables = showAndRecord {
+            ModalDrawerLayout(
+                drawerContent = { Text("Something") },
+                bodyContent = {
+                    Column(Modifier.onPositioned {
+                        positioned.countDown()
+                    }) {
+                        Text(text = "Hello World", color = Color.Green)
+                        Button(onClick = {}) { Text(text = "OK") }
+                    }
+                }
+            )
+        }
+
+        assertTrue(positioned.await(2, TimeUnit.SECONDS))
+
+        // Wait for composition to complete
+        activity.runOnUiThread { }
+
+        assertFalse(tables.isNullOrEmpty())
+        assertTrue(tables!!.size > 1)
+
+        val calls = tables.flatMap { table ->
+            if (table.size > 0) table.asTree().asList() else emptyList()
+        }.filter {
+            val location = it.location
+            location != null && location.sourceFile == "InspectableTests.kt"
+        }.map {
+            it.name
+        }
+        assertTrue(calls.contains("Column"))
+        assertTrue(calls.contains("Text"))
+        assertTrue(calls.contains("Button"))
     }
 }
 

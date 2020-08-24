@@ -18,14 +18,20 @@ package androidx.ui.tooling
 
 import android.os.Handler
 import android.os.Looper
+import android.view.ViewGroup
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.onPositioned
 import androidx.compose.ui.platform.setContent
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.SlotTable
+import androidx.compose.ui.R
+import androidx.compose.ui.platform.AndroidOwner
 import org.junit.Before
 import org.junit.Rule
+import java.util.Collections
+import java.util.WeakHashMap
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -63,6 +69,38 @@ open class ToolingTest {
 
         // Wait for the UI thread to complete its current work so we know that layout is done.
         activityTestRule.onUiThread { }
+    }
+
+    internal fun showAndRecord(content: @Composable () -> Unit): MutableSet<SlotTable>? {
+
+        positionedLatch = CountDownLatch(1)
+        val map: MutableSet<SlotTable> = Collections.newSetFromMap(
+            WeakHashMap<SlotTable, Boolean>()
+        )
+        activityTestRule.onUiThread {
+            val activity = activity
+            val owner = AndroidOwner(activity, activity, activity).also {
+                activity.setContentView(it.view, ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT
+                ))
+            }
+
+            owner.view.setTag(R.id.inspection_slot_table_set, map)
+            activity.setContent {
+                Box(
+                    Modifier.onPositioned { positionedLatch.countDown() }.fillMaxSize(),
+                    children = content
+                )
+            }
+
+            // Wait for the layout to be performed
+            positionedLatch.await(1, TimeUnit.SECONDS)
+
+            // Wait for the UI thread to complete its current work so we know that layout is done.
+            activityTestRule.onUiThread { }
+        }
+        return map
     }
 }
 
