@@ -19,12 +19,16 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.Fragment.STARTED
+import androidx.fragment.app.Fragment.VIEW_CREATED
 import androidx.fragment.app.test.FragmentTestActivity
 import androidx.fragment.test.R
 import androidx.lifecycle.Lifecycle
+import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SmallTest
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assert.fail
@@ -907,6 +911,38 @@ class FragmentViewTest {
         assertThat(fragment2.requireView().visibility).isEqualTo(View.GONE)
     }
 
+    // Test that adding a fragment and making its view invisible in onStart is still invisible
+    @Test
+    fun makeFragmentInvisibleInOnStart() {
+        with(ActivityScenario.launch(FragmentTestActivity::class.java)) {
+            val container = withActivity { findViewById<View>(R.id.content) as ViewGroup }
+
+            val fm = withActivity { supportFragmentManager }
+
+            val fragment1 = InvisibleFragment(STARTED)
+            fm.beginTransaction()
+                .add(R.id.content, fragment1)
+                .addToBackStack(null)
+                .commit()
+            executePendingTransactions()
+
+            assertChildren(container, fragment1)
+
+            assertThat(fragment1.requireView().visibility).isEqualTo(View.INVISIBLE)
+
+            val fragment2 = InvisibleFragment()
+            fragment2.visibility = View.GONE
+            fm.beginTransaction()
+                .replace(R.id.content, fragment2)
+                .addToBackStack(null)
+                .commit()
+            executePendingTransactions()
+            assertChildren(container, fragment2)
+
+            assertThat(fragment2.requireView().visibility).isEqualTo(View.GONE)
+        }
+    }
+
     // Test to ensure that popping and adding a fragment properly track the fragments added
     // and removed.
     @Test
@@ -1050,12 +1086,21 @@ class FragmentViewTest {
         return activityRule.activity.findViewById(viewId)
     }
 
-    class InvisibleFragment : StrictViewFragment() {
+    class InvisibleFragment(val state: Int = VIEW_CREATED) : StrictViewFragment() {
         var visibility = View.INVISIBLE
 
         override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-            view.visibility = visibility
+            if (state == VIEW_CREATED) {
+                view.visibility = visibility
+            }
             super.onViewCreated(view, savedInstanceState)
+        }
+
+        override fun onStart() {
+            if (state == STARTED) {
+                view?.visibility = visibility
+            }
+            super.onStart()
         }
     }
 

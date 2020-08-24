@@ -196,6 +196,7 @@ abstract class SpecialEffectsController {
 
     void markPostponedState() {
         synchronized (mPendingOperations) {
+            updateFinalState(false);
             // Default to not postponed
             mIsContainerPostponed = false;
             for (int index = mPendingOperations.size() - 1; index >= 0; index--) {
@@ -227,6 +228,8 @@ abstract class SpecialEffectsController {
             return;
         }
         synchronized (mPendingOperations) {
+            updateFinalState(true);
+
             if (!mPendingOperations.isEmpty()) {
                 executeOperations(new ArrayList<>(mPendingOperations), mOperationDirectionIsPop);
                 mPendingOperations.clear();
@@ -237,6 +240,8 @@ abstract class SpecialEffectsController {
 
     void forceCompleteAllOperations() {
         synchronized (mPendingOperations) {
+            updateFinalState(true);
+
             for (Operation operation : mAwaitingCompletionOperations.values()) {
                 operation.getCancellationSignal().cancel();
                 operation.getFinalState().applyState(operation.getFragment().mView);
@@ -246,6 +251,27 @@ abstract class SpecialEffectsController {
             // mPendingOperations is a subset of mAwaitingCompletionOperations
             // so cancellation is already done, we just need to clear out the operations
             mPendingOperations.clear();
+        }
+    }
+
+    private void updateFinalState(boolean updateAlpha) {
+        for (Operation operation: mPendingOperations) {
+            // update the final state of adding operations
+            if (operation.getLifecycleImpact() == Operation.LifecycleImpact.ADDING) {
+                Fragment fragment = operation.getFragment();
+                View view = fragment.requireView();
+                Operation.State finalState = Operation.State.from(view.getVisibility());
+                operation.mergeWith(finalState, Operation.LifecycleImpact.NONE,
+                        operation.getCancellationSignal());
+                // Change the view alphas back to their original values before we execute our
+                // transitions.
+                if (updateAlpha) {
+                    if (view.getAlpha() == 0f && view.getVisibility() == View.VISIBLE) {
+                        view.setVisibility(View.INVISIBLE);
+                    }
+                    view.setAlpha(fragment.getPostOnViewCreatedAlpha());
+                }
+            }
         }
     }
 
@@ -305,6 +331,10 @@ abstract class SpecialEffectsController {
              */
             @NonNull
             static State from(@NonNull View view) {
+                // We should consider views with an alpha of 0 as INVISIBLE.
+                if (view.getAlpha() == 0f && view.getVisibility() == View.VISIBLE) {
+                    return INVISIBLE;
+                }
                 return from(view.getVisibility());
             }
 
