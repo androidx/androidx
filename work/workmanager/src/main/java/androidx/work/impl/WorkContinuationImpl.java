@@ -106,7 +106,7 @@ public class WorkContinuationImpl extends WorkContinuation {
         return mParents;
     }
 
-    WorkContinuationImpl(
+    public WorkContinuationImpl(
             @NonNull WorkManagerImpl workManagerImpl,
             @NonNull List<? extends WorkRequest> work) {
         this(
@@ -117,17 +117,17 @@ public class WorkContinuationImpl extends WorkContinuation {
                 null);
     }
 
-    WorkContinuationImpl(
+    public WorkContinuationImpl(
             @NonNull WorkManagerImpl workManagerImpl,
-            String name,
-            ExistingWorkPolicy existingWorkPolicy,
+            @Nullable String name,
+            @NonNull ExistingWorkPolicy existingWorkPolicy,
             @NonNull List<? extends WorkRequest> work) {
         this(workManagerImpl, name, existingWorkPolicy, work, null);
     }
 
-    WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
-            String name,
-            ExistingWorkPolicy existingWorkPolicy,
+    public WorkContinuationImpl(@NonNull WorkManagerImpl workManagerImpl,
+            @Nullable String name,
+            @NonNull ExistingWorkPolicy existingWorkPolicy,
             @NonNull List<? extends WorkRequest> work,
             @Nullable List<WorkContinuationImpl> parents) {
         mWorkManagerImpl = workManagerImpl;
