@@ -13,6 +13,8 @@ You can start contributing to any of the following library groups from GitHub:
   - [Room](https://developer.android.com/topic/libraries/architecture/room)
   - [WorkManager](https://developer.android.com/topic/libraries/architecture/workmanager)
 
+Not sure where to start? Take a look at the official [feature/bug bounty list](http://goo.gle/androidx-bug-bounty).
+
 Our tooling currently supports **macOS and Linux**. This new setup is a **work-in-progress**, so it might have some rough edges. Please bear with us while we streamline this workflow.
 
 ## Getting Started
