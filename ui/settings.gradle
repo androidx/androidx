@@ -52,9 +52,9 @@ includeProject(":compose:animation:animation-core", "../compose/animation/animat
 includeProject(":compose:animation:animation-core:samples", "../compose/animation/animation-core/samples")
 includeProject(":compose:animation:animation:integration-tests:animation-demos", "../compose/animation/animation/integration-tests/animation-demos")
 includeProject(":compose:animation:animation:samples", "../compose/animation/animation/samples")
-includeProject(":compose:compose-compiler", "../compose/compose-compiler")
-includeProject(":compose:compose-compiler-hosted", "../compose/compose-compiler-hosted")
-includeProject(":compose:compose-compiler-hosted:integration-tests", "../compose/compose-compiler-hosted/integration-tests")
+includeProject(":compose:compiler:compiler", "../compose/compiler/compiler")
+includeProject(":compose:compiler:compiler-hosted", "../compose/compiler/compiler-hosted")
+includeProject(":compose:compiler:compiler-hosted:integration-tests", "../compose/compiler/compiler-hosted/integration-tests")
 if (!startParameter.projectProperties.containsKey('compose.desktop.disable')) {
     includeProject(":compose:desktop", "../compose/desktop")
     includeProject(":compose:desktop:desktop", "../compose/desktop/desktop")
