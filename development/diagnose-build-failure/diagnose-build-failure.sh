@@ -65,6 +65,7 @@ if [ ! -e "$workingDir/gradlew" ]; then
 fi
 
 scriptPath="$(cd $(dirname $0) && pwd)"
+vgrep="$scriptPath/impl/vgrep.sh"
 supportRoot="$(cd $scriptPath/../.. && pwd)"
 checkoutRoot="$(cd $supportRoot/../.. && pwd)"
 tempDir="$checkoutRoot/diagnose-build-failure/"
@@ -92,29 +93,28 @@ function checkStatus() {
   fi
 }
 
-function runBuild() {
+function getBuildComand() {
   if [ "$expectedMessage" == "" ]; then
-    echo -e "$COLOR_GREEN"
     testCommand="$*"
-    returnOnSuccess=0
-    returnOnFailure=1
   else
-    testCommand="$* 2>&1 | grep '$expectedMessage'"
-    # invert the return value because the presence of this message indicates a problem in the build
-    returnOnSuccess=1
-    returnOnFailure=0
+    testCommand="$* 2>&1 | $vgrep '$expectedMessage'"
   fi
+  echo "$testCommand"
+}
+
+function runBuild() {
+  testCommand="$(getBuildCommand $*)"
   cd "$workingDir"
   if eval $testCommand; then
     echo -e "$COLOR_WHITE"
     echo
     echo '`'$testCommand'`' succeeded
-    return $returnOnSuccess
+    return 0
   else
     echo -e "$COLOR_WHITE"
     echo
     echo '`'$testCommand'`' failed
-    return $returnOnFailure
+    return 1
   fi
 }
 
@@ -230,7 +230,8 @@ echo
 echo "Binary-searching the contents of the two output directories until the relevant differences are identified."
 echo "This may take a while."
 echo
-if runBuild "$supportRoot/development/file-utils/diff-filterer.py --assume-no-side-effects --assume-input-states-are-correct --work-path $tempDir $successState $tempDir/prev \"$scriptPath/impl/restore-state.sh . $workingDir && cd $workingDir && ./gradlew --no-daemon $gradleArgs\""; then
+filtererCommand="$(getBuildCommand \"$scriptPath/impl/restore-state.sh . $workingDir && cd $workingDir && ./gradlew --no-daemon $gradleArgs\")"
+if $supportRoot/development/file-utils/diff-filterer.py --assume-no-side-effects --assume-input-states-are-correct --work-path $tempDir $successState $tempDir/prev "$filtererCommand"; then
   echo
   echo "There should be something wrong with the above file state"
   echo "Hopefully the output from diff-filterer.py above is enough information for you to figure out what is wrong"
