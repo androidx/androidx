@@ -14,6 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from build_log_simplifier import collapse_consecutive_blank_lines
 from build_log_simplifier import normalize_paths
 from build_log_simplifier import regexes_matcher
 import re
@@ -23,6 +24,7 @@ def fail(message):
     exit(1)
 
 def test_regexes_matcher():
+    print("test_regexes_matcher")
     # For each of the given queries, we ask a regexes_matcher to identify which regexes
     # match them, and compare to the right answer
     queries = ["", "a", "aa", "aaa", "b", "bb", "ab", "c", "a*"]
@@ -156,7 +158,34 @@ def test_collapse_tasks_having_no_output():
     if (actual != expected):
         fail("collapse_tasks_having_no_output gave incorrect error. Expected: " + str(expected) + ", actual = " + str(actual))
 
+def test_collapse_consecutive_blank_lines():
+    print("test_collapse_consecutive_blank_lines")
+    lines = [
+        "",
+        "> Task :a",
+        "",
+        "   ",
+        "\n\n",
+        "> Task :b",
+        " ",
+        ""
+    ]
+    expected_collapsed = [
+        "> Task :a",
+        "",
+        "> Task :b",
+        " "
+    ]
+    actual_collapsed = collapse_consecutive_blank_lines(lines)
+    if actual_collapsed != expected_collapsed:
+        fail("collapse_consecutive_blank_lines returned incorrect response.\n"
+            "Input: " + lines + "\n" +
+            "Output: " + actual_collapsed + "\n" +
+            "Expected output: " + expected_collapsed
+        )
+
 def main():
+    test_collapse_consecutive_blank_lines()
     test_normalize_paths()
     test_regexes_matcher()
 

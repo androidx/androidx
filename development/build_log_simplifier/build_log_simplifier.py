@@ -204,7 +204,7 @@ def remove_configured_uninteresting_lines(lines, validate_no_duplicates):
 
 def collapse_consecutive_blank_lines(lines):
     result = []
-    prev_blank = False
+    prev_blank = True
     for line in lines:
         if line.strip() == "":
             if not prev_blank:
@@ -347,8 +347,8 @@ def main():
     lines = shorten_uninteresting_stack_frames(lines)
     lines = remove_known_uninteresting_lines(lines)
     lines = remove_configured_uninteresting_lines(lines, arguments.validate)
-    lines = collapse_consecutive_blank_lines(lines)
     lines = collapse_tasks_having_no_output(lines)
+    lines = collapse_consecutive_blank_lines(lines)
 
     # process results
     if arguments.validate:
