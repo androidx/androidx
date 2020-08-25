@@ -62,6 +62,7 @@ public abstract class ActivityResultRegistry {
     private final AtomicInteger mNextRc = new AtomicInteger(0x00010000);
     private final Map<Integer, String> mRcToKey = new HashMap<>();
     private final Map<String, Integer> mKeyToRc = new HashMap<>();
+    private final Map<String, LifecycleContainer> mKeyToLifecycleContainers = new HashMap<>();
 
     private final transient Map<String, CallbackAndContract<?>> mKeyToCallback = new HashMap<>();
 
@@ -116,9 +117,13 @@ public abstract class ActivityResultRegistry {
         mKeyToCallback.put(key, new CallbackAndContract<>(callback, contract));
 
         final ActivityResult pendingResult = mPendingResults.getParcelable(key);
+        LifecycleContainer lifecycleContainer = mKeyToLifecycleContainers.get(key);
+        if (lifecycleContainer == null) {
+            lifecycleContainer = new LifecycleContainer(lifecycle);
+        }
         if (pendingResult != null) {
             mPendingResults.remove(key);
-            lifecycle.addObserver(new LifecycleEventObserver() {
+            LifecycleEventObserver observer = new LifecycleEventObserver() {
                 @Override
                 public void onStateChanged(
                         @NonNull LifecycleOwner lifecycleOwner,
@@ -129,10 +134,12 @@ public abstract class ActivityResultRegistry {
                                 pendingResult.getData()));
                     }
                 }
-            });
+            };
+            lifecycleContainer.addObserver(observer);
+            mKeyToLifecycleContainers.put(key, lifecycleContainer);
         }
 
-        lifecycle.addObserver(new LifecycleEventObserver() {
+        LifecycleEventObserver observer = new LifecycleEventObserver() {
             @Override
             public void onStateChanged(@NonNull LifecycleOwner lifecycleOwner,
                     @NonNull Lifecycle.Event event) {
@@ -140,7 +147,8 @@ public abstract class ActivityResultRegistry {
                     unregister(key);
                 }
             }
-        });
+        };
+        lifecycleContainer.addObserver(observer);
 
         return new ActivityResultLauncher<I>() {
             @Override
@@ -229,6 +237,11 @@ public abstract class ActivityResultRegistry {
             Log.w(LOG_TAG, "Dropping pending result for request " + key + ": "
                     + mPendingResults.<ActivityResult>getParcelable(key));
             mPendingResults.remove(key);
+        }
+        LifecycleContainer lifecycleContainer = mKeyToLifecycleContainers.get(key);
+        if (lifecycleContainer != null) {
+            lifecycleContainer.clearObservers();
+            mKeyToLifecycleContainers.remove(key);
         }
     }
 
@@ -353,6 +366,28 @@ public abstract class ActivityResultRegistry {
                 ActivityResultContract<?, O> contract) {
             mCallback = callback;
             mContract = contract;
+        }
+    }
+
+    private static class LifecycleContainer {
+        final Lifecycle mLifecycle;
+        private final ArrayList<LifecycleEventObserver> mObservers;
+
+        LifecycleContainer(@NonNull Lifecycle lifecycle) {
+            mLifecycle = lifecycle;
+            mObservers = new ArrayList<>();
+        }
+
+        void addObserver(@NonNull LifecycleEventObserver observer) {
+            mLifecycle.addObserver(observer);
+            mObservers.add(observer);
+        }
+
+        void clearObservers() {
+            for (LifecycleEventObserver observer: mObservers) {
+                mLifecycle.removeObserver(observer);
+            }
+            mObservers.clear();
         }
     }
 }

@@ -153,6 +153,45 @@ class ActivityResultRegistryTest {
     }
 
     @Test
+    fun testLifecycleOwnerCallbackUnregistered() {
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
+
+        // register for the result
+        val activityResult = registry.register("test", lifecycleOwner,
+            TakePicturePreview(), ActivityResultCallback {})
+
+        // saved the state of the registry
+        val state = Bundle()
+        registry.onSaveInstanceState(state)
+
+        // unregister the callback to simulate process death
+        activityResult.unregister()
+
+        // restore the state of the registry
+        registry.onRestoreInstanceState(state)
+
+        // launch the result
+        activityResult.launch(null)
+
+        var resultReturned = false
+        // re-register for the result that should have been saved
+        registry.register("test", lifecycleOwner, TakePicturePreview(), ActivityResultCallback {
+            resultReturned = true
+        })
+
+        // move to CREATED and make sure the callback is not fired
+        lifecycleOwner.currentState = Lifecycle.State.CREATED
+        assertThat(resultReturned).isFalse()
+
+        // unregister the callback
+        registry.unregister("test")
+
+        // move to STARTED and make sure the callback is not fired
+        lifecycleOwner.currentState = Lifecycle.State.STARTED
+        assertThat(resultReturned).isFalse()
+    }
+
+    @Test
     fun testOnRestoreInstanceState() {
         registry.register("key", StartActivityForResult()) {}
 
