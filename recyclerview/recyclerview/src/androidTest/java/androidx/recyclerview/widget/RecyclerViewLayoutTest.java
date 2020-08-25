@@ -2707,11 +2707,14 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
 
         // Arrange
 
+        TestLayoutManager layoutManager = new SimpleTestLayoutManager();
+
         RecyclerView recyclerView = new RecyclerView(getActivity());
         recyclerView.setAdapter(new TestAdapter(1000));
-        recyclerView.setLayoutManager(new TestLayoutManager());
+        recyclerView.setLayoutManager(layoutManager);
+        layoutManager.expectLayouts(1);
         setRecyclerView(recyclerView);
-        getInstrumentation().waitForIdleSync();
+        layoutManager.waitForLayout(2);
 
         final int[] onScrolledCallCount = new int[1];
         final int[] onScrolledTotalScrolled = new int[1];
@@ -2749,7 +2752,8 @@ public class RecyclerViewLayoutTest extends BaseRecyclerViewInstrumentationTest 
                 assertEquals(SCROLL_STATE_SETTLING, (int) onScrollStateChangedStates.get(0));
             }
         });
-        latch.await(5, TimeUnit.SECONDS);
+        assertTrue("smoothScrollBy did not complete within 5 seconds",
+                latch.await(5, TimeUnit.SECONDS));
 
         // Assert that we did indeed finish
         assertEquals(100, onScrolledTotalScrolled[0]);
