@@ -29,6 +29,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.CoreAppTestUtil;
 import androidx.camera.view.PreviewView;
+import androidx.fragment.app.FragmentFactory;
 import androidx.fragment.app.testing.FragmentScenario;
 import androidx.lifecycle.Lifecycle;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -217,7 +218,7 @@ public final class PreviewViewFragmentTest {
     @NonNull
     private FragmentScenario<PreviewViewFragment> createScenario() {
         return FragmentScenario.launchInContainer(PreviewViewFragment.class, null, R.style.AppTheme,
-                null);
+                new FragmentFactory());
     }
 
     private void assertPreviewUpdating(@NonNull FragmentScenario<PreviewViewFragment> scenario) {

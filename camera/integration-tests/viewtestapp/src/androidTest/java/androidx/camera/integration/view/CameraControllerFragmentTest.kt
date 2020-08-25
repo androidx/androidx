@@ -409,7 +409,7 @@ class CameraControllerFragmentTest {
         )
     }
 
-    private fun createFragmentScenario(): FragmentScenario<CameraControllerFragment?> {
+    private fun createFragmentScenario(): FragmentScenario<CameraControllerFragment> {
         return FragmentScenario.launchInContainer(
             CameraControllerFragment::class.java, null, R.style.AppTheme,
             null
@@ -419,7 +419,7 @@ class CameraControllerFragmentTest {
         }
     }
 
-    private fun FragmentScenario<CameraControllerFragment?>.getFragment():
+    private fun FragmentScenario<CameraControllerFragment>.getFragment():
         CameraControllerFragment {
             var fragment: CameraControllerFragment? = null
             this.onFragment { newValue: CameraControllerFragment -> fragment = newValue }
