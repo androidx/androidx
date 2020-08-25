@@ -28,6 +28,57 @@ parser = argparse.ArgumentParser(
 parser.add_argument("--validate", action="store_true", help="Validate that no unrecognized messages exist in the given log")
 parser.add_argument("log_path", help="Filepath of log to process", nargs=1)
 
+# a regexes_matcher can quickly identify which of a set of regexes matches a given text
+class regexes_matcher(object):
+    def __init__(self, regexes):
+        self.regex_texts = regexes
+        self.children = None
+        self.matcher = None
+
+    # returns a regex object that corresponds to the union of the given regex queries
+    def compile(self, regex_texts):
+        fulltext = "(?:" + ")|(?:".join(regex_texts) + ")"
+        return re.compile(fulltext)
+
+    # returns a list of regexes that match the given text
+    def get_matching_regexes(self, text, expect_match=True):
+        if expect_match and len(self.regex_texts) > 1:
+            # If we already expect our matcher to match, we can directly jump to asking our children
+            return self.query_children(text)
+        # It takes more time to match lots of regexes than to match one composite regex
+        # So, we try to match one composite regex first
+        if self.matcher is None:
+            self.matcher = self.compile(self.regex_texts)
+        if self.matcher.fullmatch(text):
+            if len(self.regex_texts) > 1:
+                # At least one child regex matches, so we have to determine which ones
+                return self.query_children(text)
+            else:
+                return self.regex_texts
+        # Our composite regex yielded no matches
+        return []
+
+    # queries our children for regexes that match <text>
+    def query_children(self, text):
+        # Create children if they don't yet exist
+        if self.children is None:
+            # It takes more time to compile a longer regex, but it also takes more time to
+            # test lots of small regexes.
+            # In practice, this number of children seems to result in fast execution
+            num_children = min(len(self.regex_texts), 32)
+            child_start = 0
+            self.children = []
+            for i in range(num_children):
+                child_end = int(len(self.regex_texts) * (i + 1) / num_children)
+                self.children.append(regexes_matcher(self.regex_texts[child_start:child_end]))
+                child_start = child_end
+        # query children and join their results
+        results = []
+        for child in self.children:
+            results += child.get_matching_regexes(text, False)
+        return results
+
+
 def select_failing_task_output(lines):
     tasks_of_interest = []
     # first, find tasks of interest
@@ -127,18 +178,16 @@ def load_suppressions():
         if line.startswith("#") or line == "":
             # skip comments
             continue
-        regexes.append((line, re.compile(line)))
+        regexes.append(line)
     return regexes
 
 def remove_configured_uninteresting_lines(lines, validate_no_duplicates):
     suppressions = load_suppressions()
+    fast_matcher = regexes_matcher(sorted(suppressions))
     result = []
     for line in lines:
         stripped = line.strip()
-        matching_suppressions = []
-        for suppression_text, suppression_regex in suppressions:
-            if suppression_regex.fullmatch(stripped):
-                matching_suppressions.append(suppression_text)
+        matching_suppressions = fast_matcher.get_matching_regexes(stripped, expect_match=True)
         if validate_no_duplicates and len(matching_suppressions) > 1:
            print("")
            print("build_log_simplifier.py: Invalid configuration: multiple message suppressions match the same message. Are some suppressions too broad?")
