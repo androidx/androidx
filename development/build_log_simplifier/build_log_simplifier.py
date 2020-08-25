@@ -491,7 +491,7 @@ def main():
     elif arguments.update:
         if len(lines) != 0:
             update_path = get_exemptions_path()
-            suggested = generate_suggested_exemptions(lines, configuration_lines)
+            suggested = generate_suggested_exemptions(lines, exemption_regexes_from_file)
             writelines(update_path, suggested)
             print("build_log_simplifier.py updated exemptions " + update_path)
     else:

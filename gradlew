@@ -231,7 +231,7 @@ function tryToDiagnosePossibleDaemonFailure() {
 
 function runGradle() {
   processOutput=false
-  if [[ " ${@} " =~ " -Pandroidx.validateNoExtraMessages " ]]; then
+  if [[ " ${@} " =~ " -Pandroidx.validateNoUnrecognizedMessages " ]]; then
     processOutput=true
   fi
   if [[ " ${@} " =~ " -Pandroidx.summarizeStderr " ]]; then
