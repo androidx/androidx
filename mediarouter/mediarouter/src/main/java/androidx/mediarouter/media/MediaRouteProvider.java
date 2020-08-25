@@ -587,9 +587,15 @@ public abstract class MediaRouteProvider {
          * dynamic group state.
          * </p>
          * @param groupRoute The media route descriptor describing the dynamic group.
-         *                   The name, description, and volume information are used.
+         *                   The {@link MediaRouter#getSelectedRoute() selected route} of the
+         *                   media router will contain this information.
+         *                   If it is {@link MediaRouteDescriptor#isEnabled() disabled},
+         *                   the media router will unselect the dynamic group and release
+         *                   the route controller.
          * @param dynamicRoutes The dynamic route descriptors for published routes.
          *                      At least a selected or selecting route must be included.
+         * @throws IllegalArgumentException if {@code dynamicRoutes} doesn't contain a selected
+         *                                  or selecting route.
          */
         public final void notifyDynamicRoutesChanged(
                 @NonNull MediaRouteDescriptor groupRoute,
@@ -599,6 +605,18 @@ public abstract class MediaRouteProvider {
             }
             if (dynamicRoutes == null) {
                 throw new NullPointerException("dynamicRoutes must not be null");
+            }
+            boolean hasSelectedRoute = false;
+            for (DynamicRouteDescriptor descriptor : dynamicRoutes) {
+                if (descriptor.mSelectionState == DynamicRouteDescriptor.SELECTING
+                        || descriptor.mSelectionState == DynamicRouteDescriptor.SELECTED) {
+                    hasSelectedRoute = true;
+                    break;
+                }
+            }
+            if (!hasSelectedRoute) {
+                throw new IllegalArgumentException("dynamicRoutes must have a selected or "
+                        + "selecting route.");
             }
             synchronized (mLock) {
                 if (mExecutor != null) {
