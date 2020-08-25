@@ -240,6 +240,20 @@ def normalize_paths(lines):
         result.append(line)
     return result
 
+# Given a regex with hashes in it like ".gradle/caches/transforms-2/files-2.1/73f631f487bd87cfd8cb2aabafbac6a8",
+# tries to return a more generalized regex like ".gradle/caches/transforms-2/files-2.1/[0-9a-f]{32}"
+def generalize_hashes(message):
+    hash_matcher = "[0-9a-f]{32}"
+    return re.sub(hash_matcher, hash_matcher, message)
+
+# Given a regex with numbers in it like ".gradle/caches/transforms-2/files-2.1/73f631f487bd87cfd8cb2aabafbac6a8"
+# tries to return a more generalized regex like ".gradle/caches/transforms-[0-9]*/files-[0-9]*.[0-9]*/73f631f487bd87cfd8cb2aabafbac6a8"
+def generalize_numbers(message):
+    matcher = "[0-9]+"
+    generalized = re.sub(matcher, matcher, message)
+    # the above replacement corrupts strings of the form "[0-9a-f]{32}", so we fix them before returning
+    return generalized.replace("[[0-9]+-[0-9]+a-f]{[0-9]+}", "[0-9a-f]{32}")
+
 def generate_suggested_suppressions(messages, dest_path):
     # load existing suppressions
     infile = open(get_suppressions_path())
@@ -252,9 +266,12 @@ def generate_suggested_suppressions(messages, dest_path):
         if stripped.startswith("> Task"):
             # Don't need suppressions for task names; we automatically suppress them if we're suppressing their content
             continue
+        # escape message
         escaped = re.escape(stripped)
         escaped = escaped.replace("\ ", " ") # spaces don't need to be escaped
         escaped = escaped + "\n"
+        escaped = generalize_hashes(escaped)
+        escaped = generalize_numbers(escaped)
         if not escaped in suppression_lines:
             suppression_lines.append(escaped)
 
@@ -299,6 +316,7 @@ def main():
             print("  2. modify the new lines to be appropriately generalized")
             print("")
             print("Note that if you exempt these messages by updating the exemption file, it will only take affect for CI builds and not for Android Studio.")
+            print("Additionally, adding more exemptions to this exemption file runs more slowly than fixing or suppressing the message where it is generated.")
             exit(1)
     else:
         print("".join(lines))
