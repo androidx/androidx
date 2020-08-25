@@ -522,7 +522,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
     @Override
     public List<MediaItem> getPlaylist() {
         synchronized (mLock) {
-            return new ArrayList<>(mPlaylist);
+            return mPlaylist == null ? null : new ArrayList<>(mPlaylist);
         }
     }
 

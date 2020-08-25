@@ -613,6 +613,7 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         mRemoteSession2.getMockPlayer().setPlaylist(null);
         mRemoteSession2.getMockPlayer().notifyPlaylistChanged();
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertNull(controller.getPlaylist());
     }
 
     @Test
