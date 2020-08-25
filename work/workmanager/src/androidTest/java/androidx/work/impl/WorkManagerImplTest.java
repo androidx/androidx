@@ -506,6 +506,7 @@ public class WorkManagerImplTest {
     public void testEnqueued_periodicWork_setsPeriodStartTime()
             throws ExecutionException, InterruptedException {
 
+        long now = System.currentTimeMillis();
         PeriodicWorkRequest periodicWork = new PeriodicWorkRequest.Builder(
                 TestWorker.class,
                 PeriodicWorkRequest.MIN_PERIODIC_INTERVAL_MILLIS,
@@ -520,7 +521,7 @@ public class WorkManagerImplTest {
                 .get();
 
         WorkSpec workSpec = mDatabase.workSpecDao().getWorkSpec(periodicWork.getStringId());
-        assertThat(workSpec.periodStartTime, is(0L));
+        assertThat(workSpec.periodStartTime, greaterThanOrEqualTo(now));
     }
 
     @Test
