@@ -442,7 +442,7 @@ public class AppSearchManagerTest {
 
         // Set number of results per page is 7.
         SearchResults searchResults = mDb1.query("body",
-                SearchSpec.newBuilder()
+                new SearchSpec.Builder()
                         .setTermMatchType(SearchSpec.TERM_MATCH_TYPE_EXACT_ONLY)
                         .setNumPerPage(7)
                         .build());
@@ -980,7 +980,7 @@ public class AppSearchManagerTest {
             AppSearchManager instance, String queryExpression, String... schemaTypes)
             throws Exception {
         SearchResults searchResults = instance.query(queryExpression,
-                SearchSpec.newBuilder()
+                new SearchSpec.Builder()
                         .setSchemaTypes(schemaTypes)
                         .setTermMatchType(SearchSpec.TERM_MATCH_TYPE_EXACT_ONLY)
                         .build());
