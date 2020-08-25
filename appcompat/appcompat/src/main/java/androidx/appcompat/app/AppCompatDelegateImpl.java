@@ -2710,7 +2710,7 @@ class AppCompatDelegateImpl extends AppCompatDelegate
                         } else if (mActionModeView.getParent() instanceof View) {
                             ViewCompat.requestApplyInsets((View) mActionModeView.getParent());
                         }
-                        mActionModeView.removeAllViews();
+                        mActionModeView.killMode();
                         mFadeAnim.setListener(null);
                         mFadeAnim = null;
                         ViewCompat.requestApplyInsets(mSubDecor);
