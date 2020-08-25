@@ -226,6 +226,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
         // Create a route selector for the type of routes that we care about.
         mSelector = new MediaRouteSelector.Builder()
                 .addControlCategory(MediaControlIntent.CATEGORY_REMOTE_PLAYBACK)
+                .addControlCategory(MediaControlIntent.CATEGORY_LIVE_AUDIO)
                 .addControlCategory(SampleMediaRouteProvider.CATEGORY_SAMPLE_ROUTE)
                 .build();
 
@@ -644,12 +645,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
 
         @Override
         public int onPrepareCallbackFlags() {
-            // Add the CALLBACK_FLAG_UNFILTERED_EVENTS flag to ensure that we will
-            // observe and log all route events including those that are for routes
-            // that do not match our selector.  This is only for demonstration purposes
-            // and should not be needed by most applications.
-            return super.onPrepareCallbackFlags()
-                    | MediaRouter.CALLBACK_FLAG_UNFILTERED_EVENTS;
+            return super.onPrepareCallbackFlags();
         }
     }
 
