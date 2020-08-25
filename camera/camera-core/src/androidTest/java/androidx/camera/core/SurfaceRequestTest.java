@@ -50,7 +50,7 @@ public final class SurfaceRequestTest {
 
     private static final Size FAKE_SIZE = new Size(0, 0);
     private static final SurfaceRequest.TransformationInfo FAKE_INFO =
-            SurfaceRequest.TransformationInfo.of(new Rect(), 0);
+            SurfaceRequest.TransformationInfo.of(new Rect(), 0, Surface.ROTATION_0);
     private static final Consumer<SurfaceRequest.Result> NO_OP_RESULT_LISTENER = ignored -> {
     };
     private static final Surface MOCK_SURFACE = mock(Surface.class);
