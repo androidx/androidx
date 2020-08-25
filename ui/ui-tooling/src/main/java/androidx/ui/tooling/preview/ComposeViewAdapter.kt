@@ -23,6 +23,7 @@ import android.graphics.Paint
 import android.os.Bundle
 import android.util.AttributeSet
 import android.util.Log
+import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.annotation.VisibleForTesting
 import androidx.compose.animation.TransitionModel
@@ -389,7 +390,12 @@ internal class ComposeViewAdapter : FrameLayout {
                     // Provide a custom clock when animation inspection is enabled, i.e. when a
                     // valid `animationClockStartTime` is passed. This clock will control the
                     // animations defined in this `ComposeViewAdapter` from Android Studio.
-                    clock = PreviewAnimationClock(animationClockStartTime)
+                    clock = PreviewAnimationClock(animationClockStartTime) {
+                        // Invalidate the ComposeViewAdapter's descendants when setting the clock
+                        // time to make sure the Compose Preview will animate when the states are
+                        // read inside the draw scope.
+                        invalidateDescendants()
+                    }
                     Providers(AnimationClockAmbient provides clock) {
                         composable()
                     }
@@ -397,6 +403,17 @@ internal class ComposeViewAdapter : FrameLayout {
                     composable()
                 }
             }
+        }
+    }
+
+    /**
+     * Invalidate the [ViewGroup]'s descendants. This should only be called from the UI thread.
+     */
+    private fun ViewGroup.invalidateDescendants() {
+        for (i in 0 until childCount) {
+            val child = getChildAt(i)
+            // Recursively invalidate descendants
+            (child as? ViewGroup)?.invalidateDescendants() ?: child.invalidate()
         }
     }
 
