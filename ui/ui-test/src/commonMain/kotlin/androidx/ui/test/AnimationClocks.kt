@@ -72,6 +72,7 @@ interface TestAnimationClock : AnimationClockObservable {
  *
  * @see MonotonicFrameAnimationClock
  */
+@ExperimentalTesting
 fun monotonicFrameAnimationClockOf(
     coroutineContext: CoroutineContext,
     clock: MonotonicFrameClock
