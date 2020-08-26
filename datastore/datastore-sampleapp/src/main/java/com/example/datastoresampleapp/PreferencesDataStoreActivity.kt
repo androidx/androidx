@@ -24,8 +24,12 @@ import android.widget.TextView
 import androidx.annotation.Sampled
 import androidx.appcompat.app.AppCompatActivity
 import androidx.datastore.DataStore
+import androidx.datastore.createDataStore
 import androidx.datastore.preferences.Preferences
 import androidx.datastore.preferences.createDataStore
+import androidx.datastore.preferences.edit
+import androidx.datastore.preferences.emptyPreferences
+import androidx.datastore.preferences.preferencesKey
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collect
@@ -39,7 +43,7 @@ class PreferencesDataStoreActivity : AppCompatActivity() {
     private val TAG = "PreferencesActivity"
 
     private val PREFERENCE_STORE_FILE_NAME = "datastore_test_app"
-    private val COUNTER_KEY = "counter"
+    private val COUNTER_KEY = preferencesKey<Int>("counter")
 
     private val preferenceStore: DataStore<Preferences> by lazy {
         applicationContext.createDataStore(PREFERENCE_STORE_FILE_NAME)
@@ -67,18 +71,16 @@ class PreferencesDataStoreActivity : AppCompatActivity() {
         // Using preferenceStore:
         findViewById<Button>(R.id.counter_dec).setOnClickListener {
             lifecycleScope.launch {
-                preferenceStore.updateData { currentPrefs ->
-                    val currentValue = currentPrefs.getInt(COUNTER_KEY, defaultValue = 0)
-                    currentPrefs.toBuilder().setInt(COUNTER_KEY, currentValue - 1).build()
+                preferenceStore.edit { prefs ->
+                    prefs[COUNTER_KEY] = prefs[COUNTER_KEY] ?: 0 - 1
                 }
             }
         }
 
         findViewById<Button>(R.id.counter_inc).setOnClickListener {
             lifecycleScope.launch {
-                preferenceStore.updateData { currentPrefs ->
-                    val currentValue = currentPrefs.getInt(COUNTER_KEY, defaultValue = 0)
-                    currentPrefs.toBuilder().setInt(COUNTER_KEY, currentValue + 1).build()
+                preferenceStore.edit { prefs ->
+                    prefs[COUNTER_KEY] = prefs[COUNTER_KEY] ?: 0 + 1
                 }
             }
         }
@@ -88,12 +90,12 @@ class PreferencesDataStoreActivity : AppCompatActivity() {
                 .catch { e ->
                     if (e is IOException) {
                         Log.e(TAG, "Error reading preferences.", e)
-                        emit(Preferences.empty())
+                        emit(emptyPreferences())
                     } else {
                         throw e
                     }
                 }
-                .map { it.getInt(COUNTER_KEY, defaultValue = 0) }
+                .map { it[COUNTER_KEY] ?: 0 }
                 .distinctUntilChanged()
                 .collect { counterValue ->
                     findViewById<TextView>(R.id.counter_text_view).text = counterValue.toString()

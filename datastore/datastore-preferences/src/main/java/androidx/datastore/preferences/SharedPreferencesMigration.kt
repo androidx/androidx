@@ -54,28 +54,33 @@ fun SharedPreferencesMigration(
         shouldRunMigration = { prefs ->
             // If any key hasn't been migrated to currentData, we can't skip the migration. If
             // the key set is not specified, we can't skip the migration.
-            keysToMigrate?.any { it !in prefs } ?: true
+            val allKeys = prefs.asMap().keys.map { it.name }
+            keysToMigrate?.any { it !in allKeys } ?: true
         },
         migrate = { sharedPrefs: SharedPreferencesView, currentData: Preferences ->
-            // prefs.getAll is already filtered to our key set.
-            val preferencesToMigrate =
-                sharedPrefs.getAll().filter { (key, _) -> key !in currentData }
+            // prefs.getAll is already filtered to our key set, but we don't want to overwrite
+            // already existing keys.
+            val currentKeys = currentData.asMap().keys.map { it.name }
 
-            val preferencesBuilder = currentData.toBuilder()
-            for ((key, value) in preferencesToMigrate) {
+            val filteredSharedPreferences =
+                sharedPrefs.getAll().filter { (key, _) -> key !in currentKeys }
+
+            val mutablePreferences = currentData.toMutablePreferences()
+            for ((key, value) in filteredSharedPreferences) {
                 when (value) {
-                    is Boolean -> preferencesBuilder.setBoolean(key, value)
-                    is Float -> preferencesBuilder.setFloat(key, value)
-                    is Int -> preferencesBuilder.setInt(key, value)
-                    is Long -> preferencesBuilder.setLong(key, value)
-                    is String -> preferencesBuilder.setString(key, value)
-                    is Set<*> ->
+                    is Boolean -> mutablePreferences[preferencesKey(key)] = value
+                    is Float -> mutablePreferences[preferencesKey(key)] = value
+                    is Int -> mutablePreferences[preferencesKey(key)] = value
+                    is Long -> mutablePreferences[preferencesKey(key)] = value
+                    is String -> mutablePreferences[preferencesKey(key)] = value
+                    is Set<*> -> {
                         @Suppress("UNCHECKED_CAST")
-                        preferencesBuilder.setStringSet(key, value.toSet() as Set<String>)
+                        mutablePreferences[preferencesSetKey<String>(key)] = value as Set<String>
+                    }
                 }
             }
 
-            preferencesBuilder.build()
+            mutablePreferences.toPreferences()
         })
 }
 

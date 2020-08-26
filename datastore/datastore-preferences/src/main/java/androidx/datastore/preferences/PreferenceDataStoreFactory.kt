@@ -52,8 +52,8 @@ object PreferenceDataStoreFactory {
         corruptionHandler: ReplaceFileCorruptionHandler<Preferences>? = null,
         migrations: List<DataMigration<Preferences>> = listOf(),
         scope: CoroutineScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
-    ): DataStore<Preferences> =
-        DataStoreFactory.create(
+    ): DataStore<Preferences> {
+        val delegate = DataStoreFactory.create(
             produceFile = {
                 val file = produceFile()
                 check(file.extension == PreferencesSerializer.fileExtension) {
@@ -67,6 +67,8 @@ object PreferenceDataStoreFactory {
             migrations = migrations,
             scope = scope
         )
+        return PreferenceDataStore(delegate)
+    }
 }
 
 /**
@@ -97,3 +99,14 @@ fun Context.createDataStore(
         migrations = migrations,
         scope = scope
     )
+
+internal class PreferenceDataStore(private val delegate: DataStore<Preferences>) :
+    DataStore<Preferences> by delegate {
+    override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences):
+            Preferences {
+        return delegate.updateData {
+            // Make a defensive copy
+            transform(it).toPreferences()
+        }
+    }
+}
