@@ -4230,16 +4230,31 @@ public class ViewCompat {
         if (!accessibilityManager.isEnabled()) {
             return;
         }
-        boolean isAccessibilityPane = getAccessibilityPaneTitle(view) != null;
+        boolean isVisibleAccessibilityPane = getAccessibilityPaneTitle(view) != null
+                && view.getVisibility() == View.VISIBLE;
         // If this is a live region or accessibilityPane, we should send a subtree change event
         // from this view immediately. Otherwise, we can let it propagate up.
         if ((getAccessibilityLiveRegion(view) != ACCESSIBILITY_LIVE_REGION_NONE)
-                || (isAccessibilityPane && view.getVisibility() == View.VISIBLE)) {
+                || isVisibleAccessibilityPane) {
             final AccessibilityEvent event = AccessibilityEvent.obtain();
-            event.setEventType(isAccessibilityPane ? AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
+            event.setEventType(isVisibleAccessibilityPane
+                    ? AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
                     : AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED);
             event.setContentChangeTypes(changeType);
+            if (isVisibleAccessibilityPane) {
+                event.getText().add(getAccessibilityPaneTitle(view));
+                setViewImportanceForAccessibilityIfNeeded(view);
+            }
             view.sendAccessibilityEventUnchecked(event);
+        } else if (changeType == AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_DISAPPEARED) {
+            final AccessibilityEvent event = AccessibilityEvent.obtain();
+            view.onInitializeAccessibilityEvent(event);
+            event.setEventType(AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED);
+            event.setContentChangeTypes(changeType);
+            event.setSource(view);
+            view.onPopulateAccessibilityEvent(event);
+            event.getText().add(getAccessibilityPaneTitle(view));
+            accessibilityManager.sendAccessibilityEvent(event);
         } else if (view.getParent() != null) {
             try {
                 view.getParent().notifySubtreeAccessibilityStateChanged(view, view, changeType);
@@ -4247,6 +4262,25 @@ public class ViewCompat {
                 Log.e(TAG, view.getParent().getClass().getSimpleName()
                         + " does not fully implement ViewParent", e);
             }
+        }
+    }
+
+    private static void setViewImportanceForAccessibilityIfNeeded(View view) {
+        if (ViewCompat.getImportantForAccessibility(view)
+                == ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO) {
+            ViewCompat.setImportantForAccessibility(view,
+                    ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES);
+        }
+        // Check parent mode to ensure we're not hidden.
+        ViewParent parent = view.getParent();
+        while (parent instanceof View) {
+            if (ViewCompat.getImportantForAccessibility((View) parent)
+                    == ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS) {
+                ViewCompat.setImportantForAccessibility(view,
+                        ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_NO);
+                break;
+            }
+            parent = parent.getParent();
         }
     }
 
@@ -4260,8 +4294,10 @@ public class ViewCompat {
         @RequiresApi(19)
         @Override
         public void onGlobalLayout() {
-            for (Map.Entry<View, Boolean> entry : mPanesToVisible.entrySet()) {
-                checkPaneVisibility(entry.getKey(), entry.getValue());
+            if (Build.VERSION.SDK_INT < 28) {
+                for (Map.Entry<View, Boolean> entry : mPanesToVisible.entrySet()) {
+                    checkPaneVisibility(entry.getKey(), entry.getValue());
+                }
             }
         }
 
@@ -4297,10 +4333,10 @@ public class ViewCompat {
         private void checkPaneVisibility(View pane, boolean oldVisibility) {
             boolean newVisibility = pane.getVisibility() == View.VISIBLE;
             if (oldVisibility != newVisibility) {
-                if (newVisibility) {
-                    notifyViewAccessibilityStateChangedIfNeeded(pane,
-                            AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_APPEARED);
-                }
+                int contentChangeType = newVisibility
+                        ? AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_APPEARED
+                        : AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_DISAPPEARED;
+                notifyViewAccessibilityStateChangedIfNeeded(pane, contentChangeType);
                 mPanesToVisible.put(pane, newVisibility);
             }
         }
