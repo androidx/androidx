@@ -60,7 +60,6 @@ dependencies {
     api("androidx.preference:preference:1.1.0")
 
     implementation(PROTOBUF_LITE)
-
     implementation(KOTLIN_STDLIB)
 
     implementation(MATERIAL)

@@ -38,20 +38,22 @@ internal object PreferencesSerializer : Serializer<Preferences> {
     override fun readFrom(input: InputStream): Preferences {
         val preferencesProto = PreferencesMapCompat.readFrom(input)
 
-        val preferencesMap = preferencesProto.preferencesMap.mapValues {
-            convertProtoToObject(it.value)
+        val mutablePreferences = mutablePreferencesOf()
+
+        preferencesProto.preferencesMap.forEach { (name, value) ->
+            addProtoEntryToPreferences(name, value, mutablePreferences)
         }
 
-        return Preferences(preferencesMap)
+        return mutablePreferences.toPreferences()
     }
 
     @Throws(IOException::class, CorruptionException::class)
     override fun writeTo(t: Preferences, output: OutputStream) {
-        val preferences = t.getAll()
+        val preferences = t.asMap()
         val protoBuilder = PreferenceMap.newBuilder()
 
         for ((key, value) in preferences) {
-            protoBuilder.putPreferences(key, getValueProto(value))
+            protoBuilder.putPreferences(key.name, getValueProto(value))
         }
 
         protoBuilder.build().writeTo(output)
@@ -75,14 +77,19 @@ internal object PreferencesSerializer : Serializer<Preferences> {
         }
     }
 
-    private fun convertProtoToObject(value: Value): Any {
+    private fun addProtoEntryToPreferences(
+        name: String,
+        value: Value,
+        mutablePreferences: MutablePreferences
+    ) {
         return when (value.valueCase) {
-            Value.ValueCase.BOOLEAN -> value.boolean
-            Value.ValueCase.FLOAT -> value.float
-            Value.ValueCase.INTEGER -> value.integer
-            Value.ValueCase.LONG -> value.long
-            Value.ValueCase.STRING -> value.string
-            Value.ValueCase.STRING_SET -> value.stringSet.stringsList.toSet()
+            Value.ValueCase.BOOLEAN -> mutablePreferences[preferencesKey(name)] = value.boolean
+            Value.ValueCase.FLOAT -> mutablePreferences[preferencesKey(name)] = value.float
+            Value.ValueCase.INTEGER -> mutablePreferences[preferencesKey(name)] = value.integer
+            Value.ValueCase.LONG -> mutablePreferences[preferencesKey(name)] = value.long
+            Value.ValueCase.STRING -> mutablePreferences[preferencesKey(name)] = value.string
+            Value.ValueCase.STRING_SET -> mutablePreferences[preferencesSetKey<String>(name)] =
+                value.stringSet.stringsList.toSet()
             Value.ValueCase.VALUE_NOT_SET ->
                 throw CorruptionException("Value not set.")
             null -> throw CorruptionException("Value case is null.")
