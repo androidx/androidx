@@ -14,39 +14,39 @@
  * limitations under the License.
  */
 
-@file:JvmName("PagingFuture")
+@file:JvmName("PagingDataFutures")
 
 package androidx.paging
 
 import androidx.annotation.CheckResult
 import androidx.concurrent.futures.await
-import com.google.common.util.concurrent.ListenableFuture
+import com.google.common.util.concurrent.AsyncFunction
 
 /**
  * Returns a [PagingData] containing the result of applying the given [transform] to each
  * element, as it is loaded.
  */
 @CheckResult
-fun <T : Any, R : Any> PagingData<T>.mapFuture(
-    transform: (T) -> ListenableFuture<R>
-): PagingData<R> = map { transform(it).await() }
+fun <T : Any, R : Any> PagingData<T>.mapAsync(
+    transform: AsyncFunction<T, R>
+): PagingData<R> = map { transform.apply(it).await() }
 
 /**
  * Returns a [PagingData] of all elements returned from applying the given [transform] to each
  * element, as it is loaded.
  */
 @CheckResult
-fun <T : Any, R : Any> PagingData<T>.flatMapFuture(
-    transform: (T) -> ListenableFuture<Iterable<R>>
-): PagingData<R> = flatMap { transform(it).await() }
+fun <T : Any, R : Any> PagingData<T>.flatMapAsync(
+    transform: AsyncFunction<T, Iterable<R>>
+): PagingData<R> = flatMap { transform.apply(it).await() }
 
 /**
  * Returns a [PagingData] containing only elements matching the given [predicate].
  */
 @CheckResult
-fun <T : Any> PagingData<T>.filterFuture(
-    predicate: (T) -> ListenableFuture<Boolean>
-): PagingData<T> = filter { predicate(it).await() }
+fun <T : Any> PagingData<T>.filterAsync(
+    predicate: AsyncFunction<T, Boolean>
+): PagingData<T> = filter { predicate.apply(it).await() }
 
 /**
  * Returns a [PagingData] containing each original element, with an optional separator generated
@@ -59,6 +59,14 @@ fun <T : Any> PagingData<T>.filterFuture(
  * @sample androidx.paging.samples.insertSeparatorsUiModelFutureSample
  */
 @CheckResult
-fun <T : R, R : Any> PagingData<T>.insertSeparatorsFuture(
-    generator: (T?, T?) -> ListenableFuture<R?>
-): PagingData<R> = insertSeparators { before, after -> generator(before, after).await() }
+fun <T : R, R : Any> PagingData<T>.insertSeparatorsAsync(
+    generator: AsyncFunction<ElementPair<T>, R?>
+): PagingData<R> = insertSeparators { before, after ->
+    generator.apply(ElementPair(before, after)).await()
+}
+
+/**
+ * Represents a pair of elements that are next to each other. Null values are used to signal
+ * boundary conditions.
+ */
+data class ElementPair<T>(val before: T?, val after: T?)

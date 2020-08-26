@@ -19,17 +19,20 @@
 package androidx.paging.samples
 
 import androidx.annotation.Sampled
-import androidx.concurrent.futures.CallbackToFutureAdapter
+import androidx.paging.ElementPair
 import androidx.paging.PagingData
 import androidx.paging.insertSeparators
-import androidx.paging.insertSeparatorsFuture
+import androidx.paging.insertSeparatorsAsync
 import androidx.paging.map
 import androidx.paging.rxjava2.insertSeparatorsRx
-import androidx.paging.rxjava2.mapRx
+import com.google.common.util.concurrent.AsyncFunction
+import com.google.common.util.concurrent.Futures
 import io.reactivex.Maybe
-import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import java.util.concurrent.Callable
+import java.util.concurrent.Executors
 
 class Item(
     @JvmField
@@ -95,7 +98,6 @@ fun insertSeparatorsUiModelRxSample() {
                 ItemUiModel(item) // convert items in stream to ItemUiModel
             }
             .insertSeparatorsRx<ItemUiModel, UiModel> { before: ItemUiModel?, after: ItemUiModel? ->
-                // normally Maybe generation would be more sophisticated
                 Maybe.fromCallable<UiModel> {
                     if (after != null && before?.item?.label?.first() != after.item.label.first()) {
                         // separator - after is first item that starts with its first letter
@@ -104,11 +106,14 @@ fun insertSeparatorsUiModelRxSample() {
                         // no separator - either end of list, or first letters of before/after are the same
                         null
                     }
-                }
+                }.subscribeOn(Schedulers.computation())
             }
     }
 }
 
+private val executor = Executors.newSingleThreadExecutor()
+
+@Suppress("UnstableApiUsage")
 @Sampled
 fun insertSeparatorsUiModelFutureSample() {
     open class UiModel
@@ -130,17 +135,17 @@ fun insertSeparatorsUiModelFutureSample() {
             .map { item ->
                 ItemUiModel(item) // convert items in stream to ItemUiModel
             }
-            .insertSeparatorsFuture<ItemUiModel, UiModel> { before: ItemUiModel?, after: ItemUiModel? ->
-                // normally ListenableFuture generation would be more sophisticated
-                CallbackToFutureAdapter.getFuture { completer ->
+            .insertSeparatorsAsync(AsyncFunction<ElementPair<ItemUiModel>, UiModel?> {
+                Futures.submit(Callable<UiModel> {
+                    val (before, after) = it!!
                     if (after != null && before?.item?.label?.first() != after.item.label.first()) {
                         // separator - after is first item that starts with its first letter
-                        completer.set(SeparatorUiModel(after.item.label.first().toUpperCase()))
+                        SeparatorUiModel(after.item.label.first().toUpperCase())
                     } else {
                         // no separator - either end of list, or first letters of before/after are the same
-                        completer.set(null)
+                        null
                     }
-                }
-            }
+                }, executor)
+            })
     }
 }

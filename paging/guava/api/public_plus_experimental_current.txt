@@ -1,11 +1,13 @@
 // Signature format: 3.0
 package androidx.paging {
 
-  public final class ListenableFuturePagingDataKt {
-    method @CheckResult public static <T> androidx.paging.PagingData<T> filterFuture(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends com.google.common.util.concurrent.ListenableFuture<java.lang.Boolean>> predicate);
-    method @CheckResult public static <T, R> androidx.paging.PagingData<R> flatMapFuture(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends com.google.common.util.concurrent.ListenableFuture<java.lang.Iterable<R>>> transform);
-    method @CheckResult public static <T extends R, R> androidx.paging.PagingData<R> insertSeparatorsFuture(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function2<? super T,? super T,? extends com.google.common.util.concurrent.ListenableFuture<R>> generator);
-    method @CheckResult public static <T, R> androidx.paging.PagingData<R> mapFuture(androidx.paging.PagingData<T>, kotlin.jvm.functions.Function1<? super T,? extends com.google.common.util.concurrent.ListenableFuture<R>> transform);
+  public final class ElementPair<T> {
+    ctor public ElementPair(T? before, T? after);
+    method public T? component1();
+    method public T? component2();
+    method public androidx.paging.ElementPair<T> copy(T? before, T? after);
+    method public T? getAfter();
+    method public T? getBefore();
   }
 
   public abstract class ListenableFuturePagingSource<Key, Value> extends androidx.paging.PagingSource<Key,Value> {
@@ -20,6 +22,13 @@ package androidx.paging {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.paging.RemoteMediator.InitializeAction> initializeFuture();
     method public final suspend Object? load(androidx.paging.LoadType loadType, androidx.paging.PagingState<Key,Value> state, kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.MediatorResult> p);
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.paging.RemoteMediator.MediatorResult> loadFuture(androidx.paging.LoadType loadType, androidx.paging.PagingState<Key,Value> state);
+  }
+
+  public final class PagingDataFutures {
+    method @CheckResult public static <T> androidx.paging.PagingData<T> filterAsync(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<T,java.lang.Boolean> predicate);
+    method @CheckResult public static <T, R> androidx.paging.PagingData<R> flatMapAsync(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<T,java.lang.Iterable<R>> transform);
+    method @CheckResult public static <T extends R, R> androidx.paging.PagingData<R> insertSeparatorsAsync(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<androidx.paging.ElementPair<T>,R> generator);
+    method @CheckResult public static <T, R> androidx.paging.PagingData<R> mapAsync(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<T,R> transform);
   }
 
 }

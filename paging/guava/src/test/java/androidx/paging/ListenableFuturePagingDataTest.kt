@@ -16,7 +16,8 @@
 
 package androidx.paging
 
-import androidx.concurrent.futures.CallbackToFutureAdapter
+import com.google.common.util.concurrent.AsyncFunction
+import com.google.common.util.concurrent.Futures
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
@@ -35,39 +36,37 @@ class ListenableFuturePagingDataTest {
 
     @Test
     fun map() = testDispatcher.runBlockingTest {
-        val transformed = original.mapFuture {
-            CallbackToFutureAdapter.getFuture<String> { completer -> completer.set(it + it) }
-        }
+        val transformed = original.mapAsync(AsyncFunction<String, String> {
+            Futures.immediateFuture(it + it)
+        })
         differ.collectFrom(transformed)
         assertEquals(listOf("aa", "bb", "cc"), differ.currentList)
     }
 
     @Test
     fun flatMap() = testDispatcher.runBlockingTest {
-        val transformed = original.flatMapFuture {
-            CallbackToFutureAdapter.getFuture<Iterable<String>> { completer ->
-                completer.set(listOf(it, it)) }
-        }
+        val transformed = original.flatMapAsync(AsyncFunction<String, Iterable<String>> {
+            Futures.immediateFuture(listOf(it!!, it))
+        })
         differ.collectFrom(transformed)
         assertEquals(listOf("a", "a", "b", "b", "c", "c"), differ.currentList)
     }
 
     @Test
     fun filter() = testDispatcher.runBlockingTest {
-        val filtered = original.filterFuture {
-            CallbackToFutureAdapter.getFuture { completer -> completer.set(it != "b") }
-        }
+        val filtered = original.filterAsync(AsyncFunction {
+            Futures.immediateFuture(it != "b")
+        })
         differ.collectFrom(filtered)
         assertEquals(listOf("a", "c"), differ.currentList)
     }
 
     @Test
     fun insertSeparators() = testDispatcher.runBlockingTest {
-        val separated = original.insertSeparatorsFuture { left, right ->
-            CallbackToFutureAdapter.getFuture<String?> { completer ->
-                completer.set(if (left == null || right == null) null else "|")
-            }
-        }
+        val separated = original.insertSeparatorsAsync(AsyncFunction<ElementPair<String>, String?> {
+            val (before, after) = it!!
+            Futures.immediateFuture(if (before == null || after == null) null else "|")
+        })
         differ.collectFrom(separated)
         assertEquals(listOf("a", "|", "b", "|", "c"), differ.currentList)
     }
