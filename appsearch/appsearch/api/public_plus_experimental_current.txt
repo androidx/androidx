@@ -38,6 +38,9 @@ package androidx.appsearch.app {
   }
 
   public class AppSearchManager {
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,androidx.appsearch.app.GenericDocument!>!> getDocuments(androidx.appsearch.app.AppSearchManager.GetDocumentsRequest);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchBatchResult<java.lang.String!,java.lang.Void!>!> putDocuments(androidx.appsearch.app.AppSearchManager.PutDocumentsRequest);
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchResult<java.lang.Void!>!> setSchema(androidx.appsearch.app.AppSearchManager.SetSchemaRequest);
     field public static final String DEFAULT_DATABASE_NAME = "";
   }
 
@@ -45,6 +48,42 @@ package androidx.appsearch.app {
     ctor public AppSearchManager.Builder();
     method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchResult<androidx.appsearch.app.AppSearchManager!>!> build();
     method public androidx.appsearch.app.AppSearchManager.Builder setDatabaseName(String);
+  }
+
+  public static final class AppSearchManager.GetDocumentsRequest {
+  }
+
+  public static final class AppSearchManager.GetDocumentsRequest.Builder {
+    ctor public AppSearchManager.GetDocumentsRequest.Builder();
+    method public androidx.appsearch.app.AppSearchManager.GetDocumentsRequest.Builder addUris(java.lang.String!...);
+    method public androidx.appsearch.app.AppSearchManager.GetDocumentsRequest.Builder addUris(java.util.Collection<java.lang.String!>);
+    method public androidx.appsearch.app.AppSearchManager.GetDocumentsRequest build();
+    method public androidx.appsearch.app.AppSearchManager.GetDocumentsRequest.Builder setNamespace(String);
+  }
+
+  public static final class AppSearchManager.PutDocumentsRequest {
+  }
+
+  public static final class AppSearchManager.PutDocumentsRequest.Builder {
+    ctor public AppSearchManager.PutDocumentsRequest.Builder();
+    method public androidx.appsearch.app.AppSearchManager.PutDocumentsRequest.Builder addDataClass(java.lang.Object!...) throws androidx.appsearch.exceptions.AppSearchException;
+    method public androidx.appsearch.app.AppSearchManager.PutDocumentsRequest.Builder addDataClass(java.util.Collection<java.lang.Object!>) throws androidx.appsearch.exceptions.AppSearchException;
+    method public androidx.appsearch.app.AppSearchManager.PutDocumentsRequest.Builder addGenericDocument(androidx.appsearch.app.GenericDocument!...);
+    method public androidx.appsearch.app.AppSearchManager.PutDocumentsRequest.Builder addGenericDocument(java.util.Collection<androidx.appsearch.app.GenericDocument!>);
+    method public androidx.appsearch.app.AppSearchManager.PutDocumentsRequest build();
+  }
+
+  public static final class AppSearchManager.SetSchemaRequest {
+  }
+
+  public static final class AppSearchManager.SetSchemaRequest.Builder {
+    ctor public AppSearchManager.SetSchemaRequest.Builder();
+    method public androidx.appsearch.app.AppSearchManager.SetSchemaRequest.Builder addDataClass(Class<?>!...) throws androidx.appsearch.exceptions.AppSearchException;
+    method public androidx.appsearch.app.AppSearchManager.SetSchemaRequest.Builder addDataClass(java.util.Collection<java.lang.Class<?>!>) throws androidx.appsearch.exceptions.AppSearchException;
+    method public androidx.appsearch.app.AppSearchManager.SetSchemaRequest.Builder addSchema(androidx.appsearch.app.AppSearchSchema!...);
+    method public androidx.appsearch.app.AppSearchManager.SetSchemaRequest.Builder addSchema(java.util.Collection<androidx.appsearch.app.AppSearchSchema!>);
+    method public androidx.appsearch.app.AppSearchManager.SetSchemaRequest build();
+    method public androidx.appsearch.app.AppSearchManager.SetSchemaRequest.Builder setForceOverride(boolean);
   }
 
   public final class AppSearchResult<ValueType> {
