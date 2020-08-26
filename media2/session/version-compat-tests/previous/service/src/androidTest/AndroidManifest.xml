@@ -18,6 +18,10 @@
           package="androidx.media2.test.service.test">
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
+    <queries>
+        <package android:name="androidx.media2.test.client.test" />
+    </queries>
+
     <application>
         <receiver android:name="androidx.media.session.MediaButtonReceiver" >
             <intent-filter>
