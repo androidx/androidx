@@ -431,6 +431,36 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
+        findViewById(R.id.enqueue_continuation_multi_process).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Context context = MainActivity.this;
+                        Intent intent = RemoteService.Companion.enqueueContinuationIntent(context);
+                        context.startService(intent);
+                    }
+                });
+
+        findViewById(R.id.cancel_work_tag_multiprocess).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Context context = MainActivity.this;
+                        Intent intent = RemoteService.Companion.cancelWorkByTagIntent(context);
+                        context.startService(intent);
+                    }
+                });
+
+        findViewById(R.id.cancel_all_work_multiprocess).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Context context = MainActivity.this;
+                        Intent intent = RemoteService.Companion.cancelAllWorkIntent(context);
+                        context.startService(intent);
+                    }
+                });
+
         findViewById(R.id.crash_app).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
