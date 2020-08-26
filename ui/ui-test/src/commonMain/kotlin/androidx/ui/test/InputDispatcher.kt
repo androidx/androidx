@@ -98,11 +98,15 @@ internal abstract class InputDispatcher {
  * @param nextDownTime The downTime of the start of the next gesture, when chaining gestures.
  * This property will only be restored if an incomplete gesture was in progress when the state of
  * the [InputDispatcher] was saved.
+ * @param gestureLateness The time difference in milliseconds between enqueuing the first event
+ * of the gesture and dispatching it. Depending on the implementation of [InputDispatcher], this
+ * may or may not be used.
  * @param partialGesture The state of an incomplete gesture. If no gesture was in progress
  * when the state of the [InputDispatcher] was saved, this will be `null`.
  */
 internal data class InputDispatcherState(
     val nextDownTime: Long,
+    var gestureLateness: Long?,
     val partialGesture: PartialGesture?
 )
 
