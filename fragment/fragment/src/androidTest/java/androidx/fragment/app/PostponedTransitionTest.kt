@@ -145,6 +145,42 @@ class PostponedTransitionTest(private val stateManager: StateManager) {
             fragment, beginningFragment)
     }
 
+    @Test
+    fun changePostponedFragmentVisibility() {
+        if (stateManager == OldStateManager) {
+            return
+        }
+        val fm = activityRule.activity.supportFragmentManager
+        val startBlue = activityRule.findBlue()
+
+        val fragment = PostponedFragment1()
+        fm.beginTransaction()
+            .addSharedElement(startBlue, "blueSquare")
+            .replace(R.id.fragmentContainer, fragment)
+            .addToBackStack(null)
+            .setReorderingAllowed(true)
+            .commit()
+
+        activityRule.waitForExecution()
+
+        fragment.requireView().visibility = View.INVISIBLE
+
+        activityRule.waitForExecution(1)
+
+        // should be postponed now
+        assertPostponedTransition(beginningFragment, fragment, toFragmentVisible = false)
+
+        // should be invisible
+        assertThat(fragment.requireView().visibility).isEqualTo(View.INVISIBLE)
+
+        // start the postponed transition
+        fragment.startPostponedEnterTransition()
+
+        // nothing should run since the fragment is INVISIBLE
+        verifyNoOtherTransitions(beginningFragment)
+        verifyNoOtherTransitions(fragment)
+    }
+
     // Ensure that replacing a fragment doesn't cause problems with the back stack nesting level
     @Test
     fun backStackNestingLevel() {
@@ -1144,7 +1180,8 @@ class PostponedTransitionTest(private val stateManager: StateManager) {
     private fun assertPostponedTransition(
         fromFragment: TransitionFragment,
         toFragment: TransitionFragment,
-        removedFragment: TransitionFragment? = null
+        removedFragment: TransitionFragment? = null,
+        toFragmentVisible: Boolean = true
     ) {
         if (removedFragment != null) {
             assertThat(removedFragment.view).isNull()
@@ -1157,13 +1194,13 @@ class PostponedTransitionTest(private val stateManager: StateManager) {
         assertThat(fromFragment.requireView().isAttachedToWindow).isTrue()
         assertThat(toFragment.requireView().isAttachedToWindow).isTrue()
         assertThat(fromFragment.requireView().visibility).isEqualTo(View.VISIBLE)
-
-        if (stateManager is NewStateManager) {
-            assertThat(toFragment.requireView().visibility).isEqualTo(View.INVISIBLE)
-        } else {
+        if (toFragmentVisible) {
             assertThat(toFragment.requireView().visibility).isEqualTo(View.VISIBLE)
-            assertThat(toFragment.requireView().alpha).isWithin(0f).of(0f)
+        } else {
+            assertThat(toFragment.requireView().visibility).isEqualTo(View.INVISIBLE)
         }
+        assertThat(toFragment.requireView().alpha).isWithin(0f).of(0f)
+
         verifyNoOtherTransitions(fromFragment)
         verifyNoOtherTransitions(toFragment)
         if (stateManager is NewStateManager) {

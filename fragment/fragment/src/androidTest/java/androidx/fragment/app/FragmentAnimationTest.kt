@@ -761,12 +761,8 @@ class FragmentAnimationTest {
 
     private fun assertPostponed(fragment: AnimationFragment, expectedAnimators: Int) {
         assertThat(fragment.onCreateViewCalled).isTrue()
-        if (FragmentManager.USE_STATE_MANAGER) {
-            assertThat(fragment.requireView().visibility).isEqualTo(View.INVISIBLE)
-        } else {
-            assertThat(fragment.requireView().visibility).isEqualTo(View.VISIBLE)
-            assertThat(fragment.requireView().alpha).isWithin(0f).of(0f)
-        }
+        assertThat(fragment.requireView().visibility).isEqualTo(View.VISIBLE)
+        assertThat(fragment.requireView().alpha).isWithin(0f).of(0f)
         assertThat(fragment.numAnimators).isEqualTo(expectedAnimators)
     }
 

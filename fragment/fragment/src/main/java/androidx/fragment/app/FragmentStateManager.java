@@ -300,7 +300,7 @@ class FragmentStateManager {
                                     mHiddenAnimationCancellationSignal.cancel();
                                 }
                                 mEnterAnimationCancellationSignal = new CancellationSignal();
-                                int visibility = mFragment.getPostOnViewCreatedVisibility();
+                                int visibility = mFragment.mView.getVisibility();
                                 SpecialEffectsController.Operation.State finalState =
                                         SpecialEffectsController.Operation.State.from(visibility);
                                 controller.enqueueAdd(finalState, this,
@@ -576,13 +576,14 @@ class FragmentStateManager {
             mDispatcher.dispatchOnFragmentViewCreated(
                     mFragment, mFragment.mView, mFragment.mSavedFragmentState, false);
             int postOnViewCreatedVisibility = mFragment.mView.getVisibility();
+            float postOnViewCreatedAlpha = mFragment.mView.getAlpha();
             if (FragmentManager.USE_STATE_MANAGER) {
-                mFragment.setPostOnViewCreatedVisibility(postOnViewCreatedVisibility);
+                mFragment.setPostOnViewCreatedAlpha(postOnViewCreatedAlpha);
                 if (mFragment.mContainer != null && postOnViewCreatedVisibility == View.VISIBLE) {
                     // Save the focused view if one was set via requestFocus()
                     mFragment.setFocusedView(mFragment.mView.findFocus());
-                    // Set the view to INVISIBLE to allow for postponed animations
-                    mFragment.mView.setVisibility(View.INVISIBLE);
+                    // Set the view alpha to 0
+                    mFragment.mView.setAlpha(0f);
                 }
             } else {
                 // Only animate the view if it is visible. This is done after
