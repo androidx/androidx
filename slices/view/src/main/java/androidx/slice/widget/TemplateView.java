@@ -230,6 +230,10 @@ public class TemplateView extends SliceChildView implements
 
     @Override
     public void onScrollingChanged(boolean newScrolling) {
+        // Disable nested scrolling if the slice isn't scrollable. This allows inertial
+        // scrolling if the slice is inside a ScrollView.
+        mRecyclerView.setNestedScrollingEnabled(newScrolling);
+
         if (mListContent != null) {
             updateDisplayedItems(mListContent.getHeight(mSliceStyle, mViewPolicy));
         }
