@@ -26,6 +26,7 @@ parser = argparse.ArgumentParser(
     Sample usage: python3 development/build_log_simplifier.py Users/owengray/Desktop/build.log
     """)
 parser.add_argument("--validate", action="store_true", help="Validate that no unrecognized messages exist in the given log")
+parser.add_argument("--update", action="store_true", help="Update our list of recognized messages to include all messages from the given log")
 parser.add_argument("log_path", help="Filepath of log to process", nargs=1)
 
 # a regexes_matcher can quickly identify which of a set of regexes matches a given text
@@ -462,6 +463,12 @@ def main():
             print("Note that if you exempt these messages by updating the exemption file, it will only take affect for CI builds and not for Android Studio.")
             print("Additionally, adding more exemptions to this exemption file runs more slowly than fixing or suppressing the message where it is generated.")
             exit(1)
+    elif arguments.update:
+        if len(lines) != 0:
+            update_path = get_exemptions_path()
+            suggested = generate_suggested_exemptions(lines, configuration_lines)
+            writelines(update_path, suggested)
+            print("build_log_simplifier.py updated exemptions " + update_path)
     else:
         print("".join(lines))
 
