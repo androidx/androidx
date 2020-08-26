@@ -1,5 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
+<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="        synchronized void updateInputEOSTime(long timestampNs) {"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/heifwriter/HeifEncoder.java"
+            line="826"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="        synchronized boolean updateLastInputAndEncoderTime(long inputTimeNs, long encoderTimeUs) {"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/heifwriter/HeifEncoder.java"
+            line="841"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="        synchronized void updateLastOutputTime(long outputTimeUs) {"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/heifwriter/HeifEncoder.java"
+            line="854"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="        synchronized void waitForResult(long timeoutMs) throws Exception {"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/heifwriter/HeifWriter.java"
+            line="663"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="        synchronized void signalResult(@Nullable Exception e) {"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/heifwriter/HeifWriter.java"
+            line="693"
+            column="9"/>
+    </issue>
 
     <issue
         id="UnknownNullness"
@@ -96,7 +151,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/heifwriter/HeifEncoder.java"
-            line="444"
+            line="448"
             column="34"/>
     </issue>
 
@@ -107,7 +162,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/heifwriter/HeifWriter.java"
-            line="206"
+            line="208"
             column="16"/>
     </issue>
 
@@ -118,7 +173,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/heifwriter/HeifWriter.java"
-            line="221"
+            line="223"
             column="16"/>
     </issue>
 
@@ -129,7 +184,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/heifwriter/HeifWriter.java"
-            line="233"
+            line="235"
             column="16"/>
     </issue>
 
@@ -140,7 +195,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/heifwriter/HeifWriter.java"
-            line="252"
+            line="254"
             column="16"/>
     </issue>
 
@@ -151,7 +206,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/heifwriter/HeifWriter.java"
-            line="267"
+            line="269"
             column="16"/>
     </issue>
 
@@ -162,7 +217,7 @@
         errorLine2="               ~~~~~~~">
         <location
             file="src/main/java/androidx/heifwriter/HeifWriter.java"
-            line="283"
+            line="285"
             column="16"/>
     </issue>
 
@@ -173,7 +228,7 @@
         errorLine2="               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/heifwriter/HeifWriter.java"
-            line="295"
+            line="297"
             column="16"/>
     </issue>
 

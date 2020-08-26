@@ -1,5 +1,467 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
+<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
+            line="61"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
+            line="66"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
+            line="72"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
+            line="77"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
+            line="82"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
+            line="87"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
+            line="92"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="        @Override"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
+            line="107"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="        @Override"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
+            line="112"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="        @Override"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
+            line="117"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageProxy.java"
+            line="130"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
+            line="51"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
+            line="74"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
+            line="101"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
+            line="106"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
+            line="111"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
+            line="116"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
+            line="121"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Nullable"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
+            line="126"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
+            line="132"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/AndroidImageReaderProxy.java"
+            line="144"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
+            line="63"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
+            line="69"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
+            line="74"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
+            line="79"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
+            line="84"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
+            line="89"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
+            line="95"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
+            line="101"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/ForwardingImageProxy.java"
+            line="107"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/ImageAnalysisNonBlockingAnalyzer.java"
+            line="73"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/ImageAnalysisNonBlockingAnalyzer.java"
+            line="82"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/ImageAnalysisNonBlockingAnalyzer.java"
+            line="91"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/ImageAnalysisNonBlockingAnalyzer.java"
+            line="102"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="        @Override"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/camera/core/ImageProxyDownsampler.java"
+            line="237"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="        @Override"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/camera/core/ImageProxyDownsampler.java"
+            line="242"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="        @Override"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/camera/core/ImageProxyDownsampler.java"
+            line="247"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @NonNull"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/SettableImageProxy.java"
+            line="66"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/SettableImageProxy.java"
+            line="76"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/SettableImageProxy.java"
+            line="87"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/SettableImageProxy.java"
+            line="92"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/camera/core/SingleCloseImageProxy.java"
+            line="36"
+            column="5"/>
+    </issue>
 
     <issue
         id="PrivateConstructorForUtilityClass"
@@ -19,7 +481,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CaptureConfig.java"
-            line="305"
+            line="306"
             column="17"/>
     </issue>
 
@@ -41,7 +503,7 @@
         errorLine2="                           ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="60"
+            line="59"
             column="28"/>
     </issue>
 
@@ -52,7 +514,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="60"
+            line="59"
             column="45"/>
     </issue>
 
@@ -63,7 +525,7 @@
         errorLine2="    ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="70"
+            line="69"
             column="5"/>
     </issue>
 
@@ -74,7 +536,7 @@
         errorLine2="                                         ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="70"
+            line="69"
             column="42"/>
     </issue>
 
@@ -85,7 +547,7 @@
         errorLine2="                                                                           ~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="70"
+            line="69"
             column="76"/>
     </issue>
 
@@ -96,7 +558,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="80"
+            line="79"
             column="27"/>
     </issue>
 
@@ -107,7 +569,7 @@
         errorLine2="    ~~~~">
         <location
             file="src/main/java/androidx/camera/core/impl/CameraDeviceSurfaceManager.java"
-            line="108"
+            line="107"
             column="5"/>
     </issue>
 
@@ -448,19 +910,8 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/UseCase.java"
-            line="357"
+            line="395"
             column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public VideoCapture(VideoCaptureConfig config) {"
-        errorLine2="                        ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/core/VideoCapture.java"
-            line="173"
-            column="25"/>
     </issue>
 
 </issues>

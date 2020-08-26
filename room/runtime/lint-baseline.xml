@@ -1,5 +1,60 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
+<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/room/SQLiteCopyOpenHelper.java"
+            line="91"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/room/SQLiteCopyOpenHelper.java"
+            line="100"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/room/SQLiteCopyOpenHelper.java"
+            line="109"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/room/TransactionExecutor.java"
+            line="41"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @SuppressWarnings(&quot;WeakerAccess&quot;)"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/room/TransactionExecutor.java"
+            line="58"
+            column="5"/>
+    </issue>
 
     <issue
         id="PrivateConstructorForUtilityClass"
@@ -19,7 +74,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="152"
+            line="166"
             column="13"/>
     </issue>
 
@@ -30,7 +85,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="196"
+            line="211"
             column="13"/>
     </issue>
 
@@ -41,7 +96,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="240"
+            line="261"
             column="13"/>
     </issue>
 
@@ -85,7 +140,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="149"
+            line="163"
             column="13"/>
     </issue>
 
@@ -96,7 +151,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="190"
+            line="205"
             column="13"/>
     </issue>
 
@@ -107,7 +162,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/DatabaseConfiguration.java"
-            line="232"
+            line="253"
             column="13"/>
     </issue>
 
@@ -778,7 +833,7 @@
         errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="201"
+            line="203"
             column="65"/>
     </issue>
 
@@ -789,7 +844,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="338"
+            line="340"
             column="12"/>
     </issue>
 
@@ -800,7 +855,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="428"
+            line="430"
             column="16"/>
     </issue>
 
@@ -811,7 +866,7 @@
         errorLine2="                                                             ~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="851"
+            line="991"
             column="62"/>
     </issue>
 

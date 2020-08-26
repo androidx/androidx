@@ -1,5 +1,115 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
+<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    public static synchronized void preload() {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"
+            line="58"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"
+            line="462"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    public synchronized Drawable getDrawable(@NonNull Context context, @DrawableRes int resId) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"
+            line="474"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    synchronized Drawable getDrawable(@NonNull Context context, @DrawableRes int resId,"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"
+            line="478"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    public synchronized void onConfigurationChanged(@NonNull Context context) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"
+            line="483"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    synchronized Drawable onDrawableLoadedFromResources(@NonNull Context context,"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"
+            line="487"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    synchronized ColorStateList getTintList(@NonNull Context context, @DrawableRes int resId) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"
+            line="497"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    public static synchronized PorterDuffColorFilter getPorterDuffColorFilter("
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"
+            line="505"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/AppCompatRatingBar.java"
+            line="59"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    @Override"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/AppCompatSeekBar.java"
+            line="58"
+            column="5"/>
+    </issue>
 
     <issue
         id="KotlinPropertyAccess"
@@ -34,11 +144,11 @@
         errorLine2="                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="141"
+            line="162"
             column="22"/>
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="161"
+            line="182"
             column="17"/>
     </issue>
 
@@ -1029,7 +1139,7 @@
         errorLine2="                              ~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContextView.java"
-            line="101"
+            line="102"
             column="31"/>
     </issue>
 
@@ -1040,7 +1150,7 @@
         errorLine2="                         ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContextView.java"
-            line="116"
+            line="117"
             column="26"/>
     </issue>
 
@@ -1051,7 +1161,7 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContextView.java"
-            line="121"
+            line="122"
             column="29"/>
     </issue>
 
@@ -1062,7 +1172,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContextView.java"
-            line="126"
+            line="127"
             column="12"/>
     </issue>
 
@@ -1073,7 +1183,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContextView.java"
-            line="130"
+            line="131"
             column="12"/>
     </issue>
 
@@ -1084,7 +1194,7 @@
         errorLine2="                                  ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContextView.java"
-            line="161"
+            line="162"
             column="35"/>
     </issue>
 
@@ -1095,7 +1205,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContextView.java"
-            line="231"
+            line="236"
             column="15"/>
     </issue>
 
@@ -1106,7 +1216,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContextView.java"
-            line="238"
+            line="243"
             column="12"/>
     </issue>
 
@@ -1117,7 +1227,7 @@
         errorLine2="                                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContextView.java"
-            line="238"
+            line="243"
             column="56"/>
     </issue>
 
@@ -1128,7 +1238,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ActionBarContextView.java"
-            line="359"
+            line="364"
             column="48"/>
     </issue>
 
@@ -4274,7 +4384,7 @@
         errorLine2="                                     ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="109"
+            line="138"
             column="38"/>
     </issue>
 
@@ -4285,7 +4395,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="178"
+            line="199"
             column="32"/>
     </issue>
 
@@ -4296,7 +4406,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="184"
+            line="205"
             column="32"/>
     </issue>
 
@@ -4307,7 +4417,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="184"
+            line="205"
             column="43"/>
     </issue>
 
@@ -4318,7 +4428,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="190"
+            line="211"
             column="32"/>
     </issue>
 
@@ -4329,7 +4439,7 @@
         errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="190"
+            line="211"
             column="43"/>
     </issue>
 
@@ -4340,7 +4450,7 @@
         errorLine2="                            ~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="237"
+            line="258"
             column="29"/>
     </issue>
 
@@ -4351,7 +4461,7 @@
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="262"
+            line="283"
             column="35"/>
     </issue>
 
@@ -4362,7 +4472,7 @@
         errorLine2="                                               ~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="542"
+            line="563"
             column="48"/>
     </issue>
 
@@ -4373,7 +4483,7 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="575"
+            line="590"
             column="37"/>
     </issue>
 
@@ -4384,7 +4494,7 @@
         errorLine2="           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="588"
+            line="603"
             column="12"/>
     </issue>
 
@@ -4395,7 +4505,7 @@
         errorLine2="                                          ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/app/AppCompatActivity.java"
-            line="617"
+            line="632"
             column="43"/>
     </issue>
 
@@ -4934,7 +5044,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"
-            line="396"
+            line="465"
             column="32"/>
     </issue>
 
@@ -4945,7 +5055,7 @@
         errorLine2="                        ~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"
-            line="405"
+            line="474"
             column="25"/>
     </issue>
 
@@ -4956,7 +5066,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"
-            line="436"
+            line="505"
             column="32"/>
     </issue>
 
@@ -4967,7 +5077,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatDrawableManager.java"
-            line="437"
+            line="506"
             column="24"/>
     </issue>
 
@@ -5253,7 +5363,7 @@
         errorLine2="                                  ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextView.java"
-            line="187"
+            line="189"
             column="35"/>
     </issue>
 
@@ -5264,7 +5374,7 @@
         errorLine2="                                 ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextView.java"
-            line="225"
+            line="227"
             column="34"/>
     </issue>
 
@@ -5275,7 +5385,7 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextView.java"
-            line="386"
+            line="388"
             column="12"/>
     </issue>
 
@@ -5286,7 +5396,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextView.java"
-            line="398"
+            line="400"
             column="12"/>
     </issue>
 
@@ -5297,7 +5407,7 @@
         errorLine2="                                                   ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextView.java"
-            line="398"
+            line="400"
             column="52"/>
     </issue>
 
@@ -5308,7 +5418,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextView.java"
-            line="443"
+            line="445"
             column="54"/>
     </issue>
 
@@ -5319,7 +5429,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextView.java"
-            line="497"
+            line="499"
             column="12"/>
     </issue>
 
@@ -6001,7 +6111,7 @@
         errorLine2="                                         ~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ContentFrameLayout.java"
-            line="78"
+            line="77"
             column="42"/>
     </issue>
 
@@ -6012,7 +6122,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ContentFrameLayout.java"
-            line="82"
+            line="81"
             column="35"/>
     </issue>
 
@@ -6023,7 +6133,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ContentFrameLayout.java"
-            line="177"
+            line="176"
             column="12"/>
     </issue>
 
@@ -6034,7 +6144,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ContentFrameLayout.java"
-            line="182"
+            line="181"
             column="12"/>
     </issue>
 
@@ -6045,7 +6155,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ContentFrameLayout.java"
-            line="187"
+            line="186"
             column="12"/>
     </issue>
 
@@ -6056,7 +6166,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ContentFrameLayout.java"
-            line="192"
+            line="191"
             column="12"/>
     </issue>
 
@@ -6067,7 +6177,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ContentFrameLayout.java"
-            line="197"
+            line="196"
             column="12"/>
     </issue>
 
@@ -6078,7 +6188,7 @@
         errorLine2="           ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/ContentFrameLayout.java"
-            line="202"
+            line="201"
             column="12"/>
     </issue>
 
@@ -6980,7 +7090,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/LinearLayoutCompat.java"
-            line="1798"
+            line="1784"
             column="29"/>
     </issue>
 
@@ -6991,7 +7101,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/LinearLayoutCompat.java"
-            line="1798"
+            line="1784"
             column="40"/>
     </issue>
 
@@ -7002,7 +7112,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/LinearLayoutCompat.java"
-            line="1835"
+            line="1812"
             column="29"/>
     </issue>
 
@@ -7013,18 +7123,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/LinearLayoutCompat.java"
-            line="1842"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public LayoutParams(LayoutParams source) {"
-        errorLine2="                            ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/appcompat/widget/LinearLayoutCompat.java"
-            line="1852"
+            line="1819"
             column="29"/>
     </issue>
 
