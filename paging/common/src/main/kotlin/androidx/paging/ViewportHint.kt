@@ -16,6 +16,8 @@
 
 package androidx.paging
 
+import androidx.paging.PagingSource.LoadResult.Page
+
 /**
  * Load access information blob, containing information from presenter.
  */
@@ -23,11 +25,13 @@ internal data class ViewportHint(
     /** Page index offset from initial load */
     val pageOffset: Int,
     /**
-     * Distance from hint to first loaded item: `anchorPosition - firstLoadedItemPosition`
+     * Original index of item in the [Page] with [pageOffset].
      *
-     * Zero indicates access at boundary
-     * Positive -> Within loaded range or in placeholders if greater than size of last page.
-     * Negative -> placeholder access.
+     * Three cases to consider:
+     *  - [indexInPage] in Page.data.indices -> Hint references original item directly
+     *  - [indexInPage] > Page.data.indices -> Hint references a placeholder after the last
+     *    presented item.
+     *  - [indexInPage] < 0 -> Hint references a placeholder before the first presented item.
      */
     val indexInPage: Int,
     /**
@@ -39,7 +43,7 @@ internal data class ViewportHint(
      */
     val presentedItemsBefore: Int,
     /**
-     * Distance from hint to first presented item: `anchorPosition - firstLoadedItemPosition`
+     * Distance from hint to last presented item: `size - index - placeholdersAfter - 1`
      *
      * Zero indicates access at boundary
      * Positive -> Within loaded range or in placeholders if greater than size of last page.
