@@ -864,7 +864,7 @@ public class WindowInsetsCompat {
         void setRootWindowInsets(@Nullable WindowInsetsCompat rootWindowInsets) {
         }
 
-        void setRootViewData(@NonNull Rect visibleFrame, int height) {
+        void setRootViewData(@NonNull Insets visibleInsets) {
         }
 
         void copyWindowDataInto(@NonNull WindowInsetsCompat other) {
@@ -880,8 +880,7 @@ public class WindowInsetsCompat {
         private Insets mSystemWindowInsets = null;
 
         private WindowInsetsCompat mRootWindowInsets;
-        private Rect mRootViewVisibleFrame;
-        private int mRootViewHeight;
+        private Insets mRootViewVisibleInsets;
 
         Impl20(@NonNull WindowInsetsCompat host, @NonNull WindowInsets insets) {
             super(host);
@@ -987,12 +986,12 @@ public class WindowInsetsCompat {
                         // This handles the adjustResize case on < API 30, since
                         // systemWindow.bottom is probably going to be the IME
                         return Insets.of(0, 0, 0, systemWindow.bottom);
-                    } else if (mRootViewVisibleFrame != null && !mRootViewVisibleFrame.isEmpty()) {
+                    } else if (mRootViewVisibleInsets != null
+                            && !mRootViewVisibleInsets.equals(Insets.NONE)) {
                         // This handles the adjustPan case on < API 30. We look at the root view's
                         // visible rect and check it's bottom against the root stable insets
-                        int coveredRootView = mRootViewHeight - mRootViewVisibleFrame.bottom;
-                        if (coveredRootView > rootStable.bottom) {
-                            return Insets.of(0, 0, 0, coveredRootView);
+                        if (mRootViewVisibleInsets.bottom > rootStable.bottom) {
+                            return Insets.of(0, 0, 0, mRootViewVisibleInsets.bottom);
                         }
                     }
                     return Insets.NONE;
@@ -1067,7 +1066,7 @@ public class WindowInsetsCompat {
         @Override
         void copyWindowDataInto(@NonNull WindowInsetsCompat other) {
             other.setRootWindowInsets(mRootWindowInsets);
-            other.setRootViewData(mRootViewVisibleFrame, mRootViewHeight);
+            other.setRootViewData(mRootViewVisibleInsets);
         }
 
         @Override
@@ -1076,9 +1075,8 @@ public class WindowInsetsCompat {
         }
 
         @Override
-        void setRootViewData(@NonNull Rect visibleFrame, int height) {
-            mRootViewVisibleFrame = visibleFrame;
-            mRootViewHeight = height;
+        void setRootViewData(@NonNull Insets visibleInsets) {
+            mRootViewVisibleInsets = visibleInsets;
         }
 
         @SuppressWarnings("deprecation")
@@ -1958,21 +1956,16 @@ public class WindowInsetsCompat {
         mImpl.setRootWindowInsets(rootWindowInsets);
     }
 
-    void setRootViewData(@NonNull Rect visibleFrame, int height) {
-        mImpl.setRootViewData(visibleFrame, height);
+    void setRootViewData(@NonNull Insets visibleInsets) {
+        mImpl.setRootViewData(visibleInsets);
     }
 
     void copyRootViewBounds(@NonNull View rootView) {
-        Rect visibleInsets = getVisibleInsets(rootView);
-        int width = rootView.getWidth();
-        int height = rootView.getHeight();
+        Insets visibleInsets = getVisibleInsets(rootView);
         if (visibleInsets == null) {
-            visibleInsets = new Rect(0, 0, width, height);
-        } else {
-            visibleInsets.set(visibleInsets.left, visibleInsets.top, width - visibleInsets.right,
-                    height - visibleInsets.bottom);
+            visibleInsets = Insets.NONE;
         }
-        setRootViewData(visibleInsets, rootView.getHeight());
+        setRootViewData(visibleInsets);
     }
 
 
@@ -1982,7 +1975,7 @@ public class WindowInsetsCompat {
      * @return a copy of the provided view's AttachInfo.mVisibleRect or null if anything fails
      */
     @Nullable
-    private Rect getVisibleInsets(@NonNull View rootView) {
+    private Insets getVisibleInsets(@NonNull View rootView) {
         if (!sVisibleRectReflectionFetched) {
             loadReflectionField();
         }
@@ -2003,7 +1996,8 @@ public class WindowInsetsCompat {
                 return null;
             } else {
                 Object mAttachInfo = sAttachInfoField.get(viewRootImpl);
-                return new Rect((Rect) sVisibleInsetsField.get(mAttachInfo));
+                Rect visibleRect = (Rect) sVisibleInsetsField.get(mAttachInfo);
+                return visibleRect != null ? Insets.of(visibleRect) : null;
             }
         } catch (IllegalAccessException e) {
             logReflectionError(e);
