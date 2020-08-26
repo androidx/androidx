@@ -15,6 +15,7 @@
 # limitations under the License.
 
 from build_log_simplifier import collapse_consecutive_blank_lines
+from build_log_simplifier import generate_suggested_exemptions
 from build_log_simplifier import normalize_paths
 from build_log_simplifier import regexes_matcher
 import re
@@ -23,8 +24,8 @@ def fail(message):
     print(message)
     exit(1)
 
-def test_regexes_matcher():
-    print("test_regexes_matcher")
+def test_regexes_matcher_get_matching_regexes():
+    print("test_regexes_matcher_get_matching_regexes")
     # For each of the given queries, we ask a regexes_matcher to identify which regexes
     # match them, and compare to the right answer
     queries = ["", "a", "aa", "aaa", "b", "bb", "ab", "c", "a*"]
@@ -184,10 +185,86 @@ def test_collapse_consecutive_blank_lines():
             "Expected output: " + expected_collapsed
         )
 
+def test_regexes_matcher_index_first_matching_regex():
+    print("test_regexes_matcher_index_first_matching_regex")
+    regexes = ["first", "double", "single", "double"]
+    matcher = regexes_matcher(regexes)
+    assert(matcher.index_first_matching_regex("first") == 0)
+    assert(matcher.index_first_matching_regex("double") == 1)
+    assert(matcher.index_first_matching_regex("single") == 2)
+    assert(matcher.index_first_matching_regex("absent") is None)
+
+def validate_suggested_exemptions(lines, config, expected_config):
+    suggested_config = generate_suggested_exemptions(lines, config)
+    if suggested_config != expected_config:
+        fail("generate_suggested_exemptions incorrect response.\n" +
+             "Lines: " + str(lines) + ",\n" +
+             "config: " + str(config) + ",\n" +
+             "expected suggestion: " + str(expected_config) + ",\n"
+             "actual suggestion  : " + str(suggested_config))
+
+
+def test_generate_suggested_exemptions():
+    print("test_generate_suggested_exemptions")
+    lines = [
+        "> Task :one",
+        "task one message one",
+        "task one message two",
+        "> Task :two",
+        "task two message one",
+        "duplicate line",
+        "> Task :three",
+        "task three message one",
+        "duplicate line"
+    ]
+
+    expect_config = [
+        "# > Task :one",
+        "task one message one",
+        "task one message two",
+        "# > Task :two",
+        "task two message one",
+        "duplicate line",
+        "# > Task :three",
+        "task three message one"
+    ]
+
+    # generate config starting with nothing
+    validate_suggested_exemptions(lines, [], expect_config)
+
+    # remove one line from config, regenerate config, line should return
+    config2 = expect_config[:1] + expect_config[2:]
+    validate_suggested_exemptions(lines, config2, expect_config)
+
+    # if there is an existing config with the tasks in the other order, the tasks should stay in that order
+    # and the new line should be inserted after the previous matching line
+    config3 = [
+        "# > Task :two",
+        "task two message one",
+	"duplicate line",
+        "# > Task :one",
+        "task one message two",
+        "# > Task :three",
+        "task three message one"
+    ]
+    expect_config3 = [
+        "# > Task :two",
+        "task two message one",
+	"duplicate line",
+        "# > Task :one",
+        "task one message one",
+        "task one message two",
+        "# > Task :three",
+        "task three message one"
+    ]
+    validate_suggested_exemptions(lines, config3, expect_config3)
+
 def main():
     test_collapse_consecutive_blank_lines()
+    test_generate_suggested_exemptions()
     test_normalize_paths()
-    test_regexes_matcher()
+    test_regexes_matcher_get_matching_regexes()
+    test_regexes_matcher_index_first_matching_regex()
 
 if __name__ == "__main__":
     main()

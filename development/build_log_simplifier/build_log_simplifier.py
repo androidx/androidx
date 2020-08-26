@@ -35,32 +35,51 @@ class regexes_matcher(object):
         self.children = None
         self.matcher = None
 
-    # returns a regex object that corresponds to the union of the given regex queries
-    def compile(self, regex_texts):
-        fulltext = "(?:" + ")|(?:".join(regex_texts) + ")"
-        return re.compile(fulltext)
-
     # returns a list of regexes that match the given text
     def get_matching_regexes(self, text, expect_match=True):
         if expect_match and len(self.regex_texts) > 1:
             # If we already expect our matcher to match, we can directly jump to asking our children
-            return self.query_children(text)
+            return self.query_children_for_matching_regexes(text)
         # It takes more time to match lots of regexes than to match one composite regex
         # So, we try to match one composite regex first
-        if self.matcher is None:
-            self.matcher = self.compile(self.regex_texts)
-        if self.matcher.fullmatch(text):
+        if self.matches(text):
             if len(self.regex_texts) > 1:
                 # At least one child regex matches, so we have to determine which ones
-                return self.query_children(text)
+                return self.query_children_for_matching_regexes(text)
             else:
                 return self.regex_texts
         # Our composite regex yielded no matches
         return []
 
     # queries our children for regexes that match <text>
-    def query_children(self, text):
+    def query_children_for_matching_regexes(self, text):
         # Create children if they don't yet exist
+        self.ensure_split()
+        # query children and join their results
+        results = []
+        for child in self.children:
+            results += child.get_matching_regexes(text, False)
+        return results
+
+    # Returns the index of the first regex matching this string, or None of not found
+    def index_first_matching_regex(self, text):
+        if len(self.regex_texts) <= 1:
+            if len(self.regex_texts) == 0:
+                return None
+            if self.matches(text):
+                return 0
+            return None
+        self.ensure_split()
+        count = 0
+        for child in self.children:
+            child_index = child.index_first_matching_regex(text)
+            if child_index is not None:
+                return count + child_index
+            count += len(child.regex_texts)
+        return None
+
+    # Create children if they don't yet exist
+    def ensure_split(self):
         if self.children is None:
             # It takes more time to compile a longer regex, but it also takes more time to
             # test lots of small regexes.
@@ -72,11 +91,13 @@ class regexes_matcher(object):
                 child_end = int(len(self.regex_texts) * (i + 1) / num_children)
                 self.children.append(regexes_matcher(self.regex_texts[child_start:child_end]))
                 child_start = child_end
-        # query children and join their results
-        results = []
-        for child in self.children:
-            results += child.get_matching_regexes(text, False)
-        return results
+
+
+    def matches(self, text):
+        if self.matcher is None:
+            full_regex_text = "(?:" + ")|(?:".join(self.regex_texts) + ")"
+            self.matcher = re.compile(full_regex_text)
+        return self.matcher.fullmatch(text)
 
 
 def select_failing_task_output(lines):
@@ -162,43 +183,54 @@ def remove_known_uninteresting_lines(lines):
           result.append(line)
   return result
 
-def get_suppressions_path():
+def get_exemptions_path():
     return os.path.join(dir_of_this_script, "build_log_simplifier/messages.ignore")
 
-# returns a list of regular expressions for lines of output that we want to ignore
-def load_suppressions():
-    suppressions_path = get_suppressions_path()
-    infile = open(suppressions_path)
-    lines = infile.readlines()
-    infile.close()
-    lines = [line.replace("\n", "") for line in lines]
+
+# Returns a regexes_matcher that matches what is described by our config file
+# Ignores comments and ordering in our config file
+def build_exemptions_matcher(config_lines):
+    config_lines = [line.replace("\n", "") for line in config_lines]
     regexes = []
-    for line in lines:
+    for line in config_lines:
         line = line.strip()
         if line.startswith("#") or line == "":
             # skip comments
             continue
         regexes.append(line)
-    return regexes
+    return regexes_matcher(sorted(regexes))
 
-def remove_configured_uninteresting_lines(lines, validate_no_duplicates):
-    suppressions = load_suppressions()
-    fast_matcher = regexes_matcher(sorted(suppressions))
+# Returns a regexes_matcher that matches the content of our config file
+# Can match comments
+# Respects ordering in the config
+# This is used for editing the config file itself
+def build_exemptions_code_matcher(config_lines):
+    config_lines = [line.strip() for line in config_lines]
+    regexes = []
+    for line in config_lines:
+        line = line.strip()
+        if line == "":
+            continue
+        regexes.append(line)
+    return regexes_matcher(regexes)
+
+def remove_configured_uninteresting_lines(lines, config_lines, validate_no_duplicates):
+    fast_matcher = build_exemptions_matcher(config_lines)
     result = []
     for line in lines:
         stripped = line.strip()
-        matching_suppressions = fast_matcher.get_matching_regexes(stripped, expect_match=True)
-        if validate_no_duplicates and len(matching_suppressions) > 1:
+        matching_exemptions = fast_matcher.get_matching_regexes(stripped, expect_match=True)
+        if validate_no_duplicates and len(matching_exemptions) > 1:
            print("")
-           print("build_log_simplifier.py: Invalid configuration: multiple message suppressions match the same message. Are some suppressions too broad?")
+           print("build_log_simplifier.py: Invalid configuration: multiple message exemptions match the same message. Are some exemptions too broad?")
            print("")
            print("Line: '" + stripped + "'")
            print("")
-           print(str(len(matching_suppressions)) + " Matching suppressions:")
-           for suppression_text in matching_suppressions:
-               print("'" + suppression_text + "'")
+           print(str(len(matching_exemptions)) + " Matching exemptions:")
+           for exemption_text in matching_exemptions:
+               print("'" + exemption_text + "'")
            exit(1)
-        if len(matching_suppressions) < 1:
+        if len(matching_exemptions) < 1:
             result.append(line)
     return result
 
@@ -306,47 +338,106 @@ def generalize_numbers(message):
     # the above replacement corrupts strings of the form "[0-9a-f]{32}", so we fix them before returning
     return generalized.replace("[[0-9]+-[0-9]+a-f]{[0-9]+}", "[0-9a-f]{32}")
 
-def generate_suggested_suppressions(messages, dest_path):
-    # load existing suppressions
-    infile = open(get_suppressions_path())
-    suppression_lines = infile.readlines()
-    infile.close()
-
+# Given a list of output messages and a list of existing exemption lines,
+# generates an augmented list of exemption lines and writes that to <dest_path>
+def generate_suggested_exemptions(messages, config_lines):
+    # given a message, finds the index of the existing exemption for that message, if any
+    existing_matcher = build_exemptions_code_matcher(config_lines)
+    # the index of the previously matched exemption
+    previous_found_index = -1
+    # map from line index to list of lines to insert there
+    insertions_by_position = collections.defaultdict(lambda: [])
+    insertions_by_task_name = collections.OrderedDict()
+    # current task generating any subsequent output
+    pending_task_line = None
+    # new, suggested exemptions
+    new_suggestions = set()
     # generate new suggestions
     for line in messages:
-        stripped = line.strip()
-        if stripped.startswith("> Task"):
-            # Don't need suppressions for task names; we automatically suppress them if we're suppressing their content
+        line = line.strip()
+        if line == "":
             continue
+        # save task name
+        is_task = False
+        if line.startswith("> Task :"):
+            # If a task creates output, we record its name
+            line = "# " + line
+            pending_task_line = line
+            is_task = True
+        # determine where to put task name
+        current_found_index = existing_matcher.index_first_matching_regex(line)
+        if current_found_index is not None:
+            # We already have a mention of this line
+            # We don't need to exempt it again, but this informs where to insert our next exemption
+            previous_found_index = current_found_index
+            pending_task_line = None
+            continue
+        # skip outputting task names for tasks that don't output anything
+        if is_task:
+            continue
+
         # escape message
-        escaped = re.escape(stripped)
+        escaped = re.escape(line)
         escaped = escaped.replace("\ ", " ") # spaces don't need to be escaped
-        escaped = escaped + "\n"
         escaped = generalize_hashes(escaped)
         escaped = generalize_numbers(escaped)
-        if not escaped in suppression_lines:
-            suppression_lines.append(escaped)
+        # confirm that we haven't already inserted this message
+        if escaped in new_suggestions:
+            continue
+        # insert this regex into an appropriate position
+        if pending_task_line is not None:
+            # We know which task this line came from, and it's a task that didn't previously make output
+            if pending_task_line not in insertions_by_task_name:
+                insertions_by_task_name[pending_task_line] = []
+            insertions_by_task_name[pending_task_line].append(escaped)
+        else:
+            # This line of output didn't come from a new task
+            # So we append it after the previous line that we found
+            insertions_by_position[previous_found_index].append(escaped)
+        new_suggestions.add(escaped)
 
-    # write
-    dest_file = open(dest_path, 'w')
-    dest_file.write("".join(suppression_lines))
-    dest_file.close()
+    # for each regex for which we chose a position in the file, insert it there
+    exemption_lines = []
+    for i in range(len(existing_matcher.regex_texts)):
+        exemption_lines.append(existing_matcher.regex_texts[i])
+        if i in insertions_by_position:
+            exemption_lines += insertions_by_position[i]
+    # for regexes that could not be assigned to a task, insert them next
+    if -1 in insertions_by_position:
+        exemption_lines += insertions_by_position[-1]
+    # for regexes that were simply assigned to certain task names, insert the there, grouped by task
+    for task_name in insertions_by_task_name:
+        exemption_lines.append(task_name)
+        exemption_lines += insertions_by_task_name[task_name]
+    return exemption_lines
+
+# opens a file and reads the lines in it
+def readlines(path):
+    infile = open(path)
+    lines = infile.readlines()
+    infile.close()
+    return lines
+
+def writelines(path, lines):
+    destfile = open(path, 'w')
+    destfile.write("\n".join(lines))
+    destfile.close()
 
 def main():
     arguments = parser.parse_args()
 
     # read file
     log_path = arguments.log_path[0]
-    infile = open(log_path)
-    lines = infile.readlines()
-    infile.close()
+    lines = readlines(log_path)
+    lines = normalize_paths(lines)
+    # load configuration
+    exemption_regexes_from_file = readlines(get_exemptions_path())
     # remove lines we're not interested in
     if not arguments.validate:
         lines = select_failing_task_output(lines)
-    lines = normalize_paths(lines)
     lines = shorten_uninteresting_stack_frames(lines)
     lines = remove_known_uninteresting_lines(lines)
-    lines = remove_configured_uninteresting_lines(lines, arguments.validate)
+    lines = remove_configured_uninteresting_lines(lines, exemption_regexes_from_file, arguments.validate)
     lines = collapse_tasks_having_no_output(lines)
     lines = collapse_consecutive_blank_lines(lines)
 
@@ -358,13 +449,14 @@ def main():
             print("")
             print("".join(lines))
             print("Error: build_log_simplifier.py found " + str(len(lines)) + " new messages found in " + log_path + ".")
-            new_suppressions_path = log_path + ".ignore"
-            generate_suggested_suppressions(lines, new_suppressions_path)
+            new_exemptions_path = log_path + ".ignore"
+            suggested = generate_suggested_exemptions(lines, exemption_regexes_from_file)
+            writelines(new_exemptions_path, suggested)
             print("")
             print("Please fix or suppress these new messages in the tool that generates them.")
             print("If you cannot, then you can exempt them by doing:")
             print("")
-            print("  1. cp " + new_suppressions_path + " " + get_suppressions_path())
+            print("  1. cp " + new_exemptions_path + " " + get_exemptions_path())
             print("  2. modify the new lines to be appropriately generalized")
             print("")
             print("Note that if you exempt these messages by updating the exemption file, it will only take affect for CI builds and not for Android Studio.")
