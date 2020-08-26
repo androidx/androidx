@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 import com.google.android.icing.proto.SearchResultProto;
+import com.google.android.icing.proto.SnippetMatchProto;
 import com.google.android.icing.proto.SnippetProto;
 
 import java.util.ArrayList;
@@ -44,12 +45,25 @@ public class SearchResultToProtoConverter {
             for (int i = 0; i < proto.getSnippet().getEntriesCount(); i++) {
                 SnippetProto.EntryProto entry = proto.getSnippet().getEntries(i);
                 for (int j = 0; j < entry.getSnippetMatchesCount(); j++) {
-                    matchList.add(new MatchInfo(entry.getPropertyName(),
-                            entry.getSnippetMatches(j), document));
+                    matchList.add(convertToMatchInfo(
+                            entry.getSnippetMatches(j), entry.getPropertyName(), document));
                 }
             }
         }
         return new SearchResults.Result(document, matchList);
+    }
+
+    private static MatchInfo convertToMatchInfo(SnippetMatchProto snippetMatchProto,
+            String propertyName, GenericDocument document) {
+        return new MatchInfo.Builder(document)
+                .setPropertyPath(propertyName)
+                .setValuesIndex(snippetMatchProto.getValuesIndex())
+                .setExactMatchPositionRange(snippetMatchProto.getExactMatchPosition(),
+                        snippetMatchProto.getExactMatchPosition()
+                                + snippetMatchProto.getExactMatchBytes())
+                .setWindowPositionRange(snippetMatchProto.getWindowPosition(),
+                        snippetMatchProto.getWindowPosition() + snippetMatchProto.getWindowBytes())
+                .build();
     }
 
     /** Translates a {@link SearchResultProto} into a list of {@link SearchResults.Result}. */
