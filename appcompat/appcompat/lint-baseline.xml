@@ -349,7 +349,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="232"
+            line="235"
             column="19"/>
     </issue>
 
@@ -360,7 +360,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="236"
+            line="239"
             column="23"/>
     </issue>
 
@@ -371,7 +371,7 @@
         errorLine2="                                                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="236"
+            line="239"
             column="49"/>
     </issue>
 
@@ -382,7 +382,7 @@
         errorLine2="                      ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="240"
+            line="243"
             column="23"/>
     </issue>
 
@@ -393,7 +393,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="240"
+            line="243"
             column="44"/>
     </issue>
 
@@ -404,7 +404,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="253"
+            line="256"
             column="31"/>
     </issue>
 
@@ -415,7 +415,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="256"
+            line="259"
             column="31"/>
     </issue>
 
@@ -426,7 +426,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="262"
+            line="265"
             column="31"/>
     </issue>
 
@@ -437,7 +437,7 @@
         errorLine2="                                                    ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="364"
+            line="367"
             column="53"/>
     </issue>
 
@@ -448,7 +448,7 @@
         errorLine2="                                                     ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="382"
+            line="385"
             column="54"/>
     </issue>
 
@@ -459,7 +459,7 @@
         errorLine2="                                                 ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="401"
+            line="404"
             column="50"/>
     </issue>
 
@@ -470,7 +470,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="492"
+            line="495"
             column="23"/>
     </issue>
 
@@ -481,7 +481,7 @@
         errorLine2="                                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="520"
+            line="523"
             column="60"/>
     </issue>
 
@@ -492,7 +492,7 @@
         errorLine2="                                                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="660"
+            line="663"
             column="50"/>
     </issue>
 
@@ -503,7 +503,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="661"
+            line="664"
             column="19"/>
     </issue>
 
@@ -514,7 +514,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="671"
+            line="674"
             column="54"/>
     </issue>
 
@@ -525,7 +525,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextHelper.java"
-            line="673"
+            line="676"
             column="27"/>
     </issue>
 
@@ -536,7 +536,7 @@
         errorLine2="                                       ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="662"
+            line="664"
             column="40"/>
     </issue>
 
@@ -547,7 +547,7 @@
         errorLine2="                                                                     ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="751"
+            line="753"
             column="70"/>
     </issue>
 
@@ -558,7 +558,7 @@
         errorLine2="                                                                        ~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="777"
+            line="779"
             column="73"/>
     </issue>
 
@@ -569,7 +569,7 @@
         errorLine2="                      ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="780"
+            line="782"
             column="23"/>
     </issue>
 
@@ -580,7 +580,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="781"
+            line="783"
             column="18"/>
     </issue>
 
@@ -591,7 +591,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="782"
+            line="784"
             column="35"/>
     </issue>
 
@@ -602,7 +602,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="783"
+            line="785"
             column="35"/>
     </issue>
 
@@ -613,7 +613,7 @@
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="784"
+            line="786"
             column="42"/>
     </issue>
 
@@ -624,7 +624,7 @@
         errorLine2="                 ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="784"
+            line="786"
             column="18"/>
     </issue>
 
@@ -635,7 +635,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="785"
+            line="787"
             column="18"/>
     </issue>
 
@@ -646,7 +646,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="785"
+            line="787"
             column="45"/>
     </issue>
 
@@ -657,7 +657,7 @@
         errorLine2="                 ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="786"
+            line="788"
             column="18"/>
     </issue>
 
@@ -668,7 +668,7 @@
         errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="786"
+            line="788"
             column="52"/>
     </issue>
 
@@ -679,7 +679,7 @@
         errorLine2="                 ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="787"
+            line="789"
             column="18"/>
     </issue>
 
@@ -690,7 +690,7 @@
         errorLine2="                             ~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="797"
+            line="799"
             column="30"/>
     </issue>
 
@@ -701,7 +701,7 @@
         errorLine2="                                                      ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="803"
+            line="805"
             column="55"/>
     </issue>
 
@@ -712,7 +712,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="804"
+            line="806"
             column="48"/>
     </issue>
 
@@ -723,7 +723,7 @@
         errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextViewAutoSizeHelper.java"
-            line="805"
+            line="807"
             column="46"/>
     </issue>
 
@@ -5979,7 +5979,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatEditText.java"
-            line="230"
+            line="231"
             column="54"/>
     </issue>
 
@@ -6276,7 +6276,7 @@
         errorLine2="                                                     ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextView.java"
-            line="445"
+            line="446"
             column="54"/>
     </issue>
 
@@ -6287,7 +6287,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/widget/AppCompatTextView.java"
-            line="499"
+            line="500"
             column="12"/>
     </issue>
 
