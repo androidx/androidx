@@ -48,7 +48,7 @@ package androidx.ui.test {
   }
 
   public final class AnimationClocksKt {
-    method public static androidx.compose.animation.core.MonotonicFrameAnimationClock monotonicFrameAnimationClockOf(kotlin.coroutines.CoroutineContext coroutineContext, androidx.compose.runtime.dispatch.MonotonicFrameClock clock);
+    method @androidx.ui.test.ExperimentalTesting public static androidx.compose.animation.core.MonotonicFrameAnimationClock monotonicFrameAnimationClockOf(kotlin.coroutines.CoroutineContext coroutineContext, androidx.compose.runtime.dispatch.MonotonicFrameClock clock);
   }
 
   public final class AssertionsKt {
@@ -106,7 +106,7 @@ package androidx.ui.test {
   }
 
   public final class CoroutineBuildersKt {
-    method public static <R> void runBlockingWithManualClock(boolean compatibleWithManualAnimationClock = false, kotlin.jvm.functions.Function3<? super kotlinx.coroutines.CoroutineScope,? super androidx.compose.animation.core.ManualFrameClock,? super kotlin.coroutines.Continuation<? super R>,?> block);
+    method @androidx.ui.test.ExperimentalTesting public static <R> void runBlockingWithManualClock(boolean compatibleWithManualAnimationClock = false, kotlin.jvm.functions.Function3<? super kotlinx.coroutines.CoroutineScope,? super androidx.compose.animation.core.ManualFrameClock,? super kotlin.coroutines.Continuation<? super R>,?> block);
   }
 
   public final class DisableTransitions implements org.junit.rules.TestRule {
@@ -316,7 +316,7 @@ package androidx.ui.test {
     property public abstract boolean isPaused;
   }
 
-  public final class TestUiDispatcher {
+  @androidx.ui.test.ExperimentalTesting public final class TestUiDispatcher {
     method public kotlin.coroutines.CoroutineContext getMain();
     property public final kotlin.coroutines.CoroutineContext Main;
     field public static final androidx.ui.test.TestUiDispatcher INSTANCE;

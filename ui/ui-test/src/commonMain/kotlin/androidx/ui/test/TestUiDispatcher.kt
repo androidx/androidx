@@ -19,6 +19,8 @@ package androidx.ui.test
 import androidx.compose.runtime.EmbeddingContext
 import kotlin.coroutines.CoroutineContext
 
+// Experimental because it isn't yet clear if the behavior on Robolectric is correct
+@ExperimentalTesting
 object TestUiDispatcher {
     /**
      * The dispatcher to use if you need to dispatch coroutines on the main thread in tests.
