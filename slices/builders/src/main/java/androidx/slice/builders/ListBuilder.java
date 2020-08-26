@@ -1191,6 +1191,7 @@ public class ListBuilder extends TemplateSliceBuilder {
     public static class RowBuilder {
 
         private final Uri mUri;
+        private boolean mIsEndOfSection;
         private boolean mHasEndActionOrToggle;
         private boolean mHasEndImage;
         private boolean mHasDefaultToggle;
@@ -1241,6 +1242,15 @@ public class ListBuilder extends TemplateSliceBuilder {
          */
         public RowBuilder(Uri uri) {
             mUri = uri;
+        }
+
+        /**
+         * Indicate that this row is an end for a section.
+         */
+        @NonNull
+        public RowBuilder setEndOfSection(boolean isEndOfSection) {
+            mIsEndOfSection = isEndOfSection;
+            return this;
         }
 
         /**
@@ -1523,6 +1533,14 @@ public class ListBuilder extends TemplateSliceBuilder {
         @RestrictTo(LIBRARY)
         public Uri getUri() {
             return mUri;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public boolean isEndOfSection() {
+            return mIsEndOfSection;
         }
 
         /**

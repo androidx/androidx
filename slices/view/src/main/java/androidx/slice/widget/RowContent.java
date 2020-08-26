@@ -35,6 +35,7 @@ import static android.app.slice.SliceItem.FORMAT_REMOTE_INPUT;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
+import static androidx.slice.core.SliceHints.HINT_END_OF_SECTION;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION_OPTION_KEY;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION_OPTION_VALUE;
@@ -87,6 +88,10 @@ public class RowContent extends SliceContent {
      * @return whether this row has content that is valid to display.
      */
     private boolean populate(SliceItem rowSlice, boolean isHeader) {
+        if (rowSlice.hasHint(HINT_END_OF_SECTION)) {
+            showBottomDivider(true);
+        }
+
         mIsHeader = isHeader;
         if (!isValidRow(rowSlice)) {
             Log.w(TAG, "Provided SliceItem is invalid for RowContent");
