@@ -33,14 +33,18 @@ import androidx.ui.test.PartialGesture
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import kotlin.math.max
 
 internal class AndroidInputDispatcher(
     private val sendEvent: (MotionEvent) -> Unit
 ) : AndroidBaseInputDispatcher() {
 
     private val batchLock = Any()
-    private var batchedEvents = mutableListOf<MotionEvent>()
+    // Batched events are generated just-in-time, given the "lateness" of the dispatching (see
+    // sendAllSynchronous), so enqueue generators rather than instantiated events
+    private var batchedEvents = mutableListOf<(Long) -> MotionEvent>()
     private var acceptEvents = true
+    private var firstEventTime = Long.MAX_VALUE
 
     override val now: Long get() = SystemClock.uptimeMillis()
 
@@ -106,10 +110,13 @@ internal class AndroidInputDispatcher(
                         "coordinates=$coordinates" +
                         "), events have already been (or are being) dispatched or disposed"
             }
-            batchedEvents.add(
+            if (firstEventTime == Long.MAX_VALUE) {
+                firstEventTime = eventTime
+            }
+            batchedEvents.add { lateness ->
                 MotionEvent.obtain(
-                    /* downTime = */ downTime,
-                    /* eventTime = */ eventTime,
+                    /* downTime = */ lateness + downTime,
+                    /* eventTime = */ lateness + eventTime,
                     /* action = */ action + (actionIndex shl ACTION_POINTER_INDEX_SHIFT),
                     /* pointerCount = */ coordinates.size,
                     /* pointerProperties = */ Array(coordinates.size) {
@@ -130,7 +137,7 @@ internal class AndroidInputDispatcher(
                     /* source = */ 0,
                     /* flags = */ 0
                 )
-            )
+            }
         }
     }
 
@@ -138,34 +145,23 @@ internal class AndroidInputDispatcher(
         runBlocking {
             withContext(AndroidUiDispatcher.Main) {
                 checkAndStopAcceptingEvents()
-                val copy = batchedEvents.toList()
-                batchedEvents.clear()
-                val iterator = copy.iterator()
-                try {
-                    while (iterator.hasNext()) {
-                        val event = iterator.next()
-                        sendAndRecycleEvent(event)
-                    }
-                } finally {
-                    // In case we were cancelled, or an exception was thrown,
-                    // stop injecting and recycle all left over events
-                    while (iterator.hasNext()) {
-                        try {
-                            iterator.next().recycle()
-                        } catch (ignore: Throwable) {
-                            // ignore all errors, just continue recycling
-                        }
-                    }
+
+                // Use gestureLateness if already calculated; calculate, store and use it otherwise
+                val lateness = gestureLateness ?: max(0, now - firstEventTime).also {
+                    gestureLateness = it
+                }
+
+                batchedEvents.forEach {
+                    sendAndRecycleEvent(it(lateness))
                 }
             }
         }
+        // Each invocation of performGesture (Actions.kt) uses a new instance of an input
+        // dispatcher, so we don't have to reset firstEventTime after use
     }
 
     override fun dispose() {
-        if (stopAcceptingEvents()) {
-            batchedEvents.forEach { it.recycle() }
-            batchedEvents.clear()
-        }
+        stopAcceptingEvents()
     }
 
     private fun checkAndStopAcceptingEvents() {

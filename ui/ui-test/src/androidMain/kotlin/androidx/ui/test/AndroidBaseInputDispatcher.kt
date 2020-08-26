@@ -78,11 +78,27 @@ internal abstract class AndroidBaseInputDispatcher : InputDispatcher() {
 
     override fun saveState(owner: Owner?) {
         if (owner != null && AndroidOwnerRegistry.getUnfilteredOwners().contains(owner)) {
-            states[owner] = InputDispatcherState(nextDownTime, partialGesture)
+            states[owner] = InputDispatcherState(nextDownTime, gestureLateness, partialGesture)
         }
     }
 
     internal var nextDownTime = DownTimeNotSet
+
+    /**
+     * The time difference between enqueuing the first event of the gesture and dispatching it.
+     *
+     * When the first event of a gesture is enqueued, its eventTime is fixed to the current time.
+     * However, there is inevitably some time between enqueuing and dispatching of that event.
+     * This means that event is going to be "late" by [gestureLateness] milliseconds when it is
+     * dispatched. Because the dispatcher wants to align events with the current time, it will
+     * dispatch all events that are late immediately and without delay, until it has reached an
+     * event whose eventTime is in the future (i.e. an event that is "early").
+     *
+     * The [gestureLateness] will be used to offset all events, effectively aligning the first
+     * event with the dispatch time.
+     */
+    internal var gestureLateness: Long? = null
+
     internal var partialGesture: PartialGesture? = null
 
     /**
@@ -577,6 +593,7 @@ internal actual fun InputDispatcher(owner: Owner): InputDispatcher {
             // TODO(b/157653315): Move restore state to constructor
             if (it.partialGesture != null) {
                 nextDownTime = it.nextDownTime
+                gestureLateness = it.gestureLateness
                 partialGesture = it.partialGesture
             }
         }
