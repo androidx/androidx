@@ -36,7 +36,6 @@
             android:layout_height="match_parent"
             android:scaleType="centerInside" />
     </FrameLayout>
-
     <HorizontalScrollView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
@@ -64,6 +63,10 @@
                 android:id="@+id/scale_type"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent" />
+            <Button
+                android:id="@+id/target_rotation"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"/>
         </LinearLayout>
     </HorizontalScrollView>
 </LinearLayout>

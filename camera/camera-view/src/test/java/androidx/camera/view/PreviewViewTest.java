@@ -26,7 +26,6 @@ import static org.mockito.Mockito.when;
 import android.content.Context;
 import android.os.Build;
 import android.util.Size;
-import android.view.Surface;
 import android.view.WindowManager;
 
 import androidx.camera.core.CameraInfo;
@@ -51,13 +50,8 @@ import org.robolectric.shadows.ShadowDisplayManager;
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class PreviewViewTest {
-    // Queries rotation value from view automatically.
-    static final int ROTATION_AUTOMATIC = -1;
 
     private final Context mContext = ApplicationProvider.getApplicationContext();
-
-    private final int[] mPossibleRotations = {Surface.ROTATION_0, Surface.ROTATION_90,
-            Surface.ROTATION_180, Surface.ROTATION_270};
 
     private SurfaceRequest mSurfaceRequest;
 
@@ -132,38 +126,6 @@ public class PreviewViewTest {
         mSurfaceRequest = createSurfaceRequest(cameraInfo);
         surfaceProvider.onSurfaceRequested(mSurfaceRequest);
         assertThat(previewView.mImplementation).isInstanceOf(TextureViewImplementation.class);
-    }
-
-    @Config(maxSdk = 25) // The remote display simulation can only work from sdk 21 to 25.
-    @Test
-    public void canSetDeviceRotation_whenInRemoteDisplayMode() {
-        final PreviewView previewView = new PreviewView(mContext);
-
-        // Simulates the remote display mode by adding an additional display and returns the
-        // second display's id when PreviewView is querying the default display's id.
-        int secondDisplayId = addNewDisplay();
-        WindowManager windowManager =
-                (WindowManager) ApplicationProvider.getApplicationContext().getSystemService(
-                        Context.WINDOW_SERVICE);
-        Shadows.shadowOf(windowManager.getDefaultDisplay()).setDisplayId(secondDisplayId);
-
-        // Only remote display mode can set device rotation successfully.
-        for (int rotation : mPossibleRotations) {
-            previewView.setDeviceRotationForRemoteDisplayMode(rotation);
-            assertThat(previewView.getDeviceRotationForRemoteDisplayMode()).isEqualTo(rotation);
-        }
-    }
-
-    @Test
-    public void canNotSetDeviceRotation_whenNotInRemoteDisplayMode() {
-        final PreviewView previewView = new PreviewView(mContext);
-
-        // Device rotation value will be kept as -1 when it is not remote display mode.
-        for (int rotation : mPossibleRotations) {
-            previewView.setDeviceRotationForRemoteDisplayMode(rotation);
-            assertThat(previewView.getDeviceRotationForRemoteDisplayMode()).isEqualTo(
-                    ROTATION_AUTOMATIC);
-        }
     }
 
     private int addNewDisplay() {
