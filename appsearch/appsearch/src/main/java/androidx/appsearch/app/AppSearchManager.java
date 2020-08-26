@@ -140,7 +140,6 @@ public class AppSearchManager {
      * Encapsulates a request to update the schema of an {@link AppSearchManager} database.
      *
      * @see AppSearchManager#setSchema
-     * @hide
      */
     public static final class SetSchemaRequest {
         private final Set<AppSearchSchema> mSchemas;
@@ -191,6 +190,8 @@ public class AppSearchManager {
              *
              * @param dataClasses non-inner classes annotated with
              *                    {@link androidx.appsearch.annotation.AppSearchDocument}.
+             * @throws AppSearchException if {@link androidx.appsearch.compiler.AppSearchCompiler}
+             *                            has not generated a schema for the given data classes.
              */
             @NonNull
             public Builder addDataClass(@NonNull Class<?>... dataClasses)
@@ -204,6 +205,8 @@ public class AppSearchManager {
              *
              * @param dataClasses non-inner classes annotated with
              *                    {@link androidx.appsearch.annotation.AppSearchDocument}.
+             * @throws AppSearchException if {@link androidx.appsearch.compiler.AppSearchCompiler}
+             *                            has not generated a schema for the given data classes.
              */
             @NonNull
             public Builder addDataClass(@NonNull Collection<Class<?>> dataClasses)
@@ -291,7 +294,6 @@ public class AppSearchManager {
      *
      * @param request The schema update request.
      * @return The pending result of performing this operation.
-     * @hide
      */
     @NonNull
     public ListenableFuture<AppSearchResult<Void>> setSchema(@NonNull SetSchemaRequest request) {
@@ -303,7 +305,6 @@ public class AppSearchManager {
      * Encapsulates a request to index a document into an {@link AppSearchManager} database.
      *
      * @see AppSearchManager#putDocuments
-     * @hide
      */
     public static final class PutDocumentsRequest {
         private final List<GenericDocument> mDocuments;
@@ -345,6 +346,8 @@ public class AppSearchManager {
              *
              * @param dataClasses non-inner classes annotated with
              *                    {@link androidx.appsearch.annotation.AppSearchDocument}.
+             * @throws AppSearchException if an error occurs converting a data class into a
+             *                            {@link GenericDocument}.
              */
             @NonNull
             public Builder addDataClass(@NonNull Object... dataClasses) throws AppSearchException {
@@ -357,6 +360,8 @@ public class AppSearchManager {
              *
              * @param dataClasses non-inner classes annotated with
              *                    {@link androidx.appsearch.annotation.AppSearchDocument}.
+             * @throws AppSearchException if an error occurs converting a data class into a
+             *                            {@link GenericDocument}.
              */
             @NonNull
             public Builder addDataClass(@NonNull Collection<Object> dataClasses)
@@ -400,7 +405,6 @@ public class AppSearchManager {
      * {@link AppSearchBatchResult} are the URIs of the input documents. The values are
      * {@code null} if they were successfully indexed, or a failed {@link AppSearchResult}
      * otherwise.
-     * @hide
      */
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, Void>> putDocuments(
@@ -415,7 +419,6 @@ public class AppSearchManager {
      * Encapsulates a request to retrieve documents by namespace and URI.
      *
      * @see AppSearchManager#getDocuments
-     * @hide
      */
     public static final class GetDocumentsRequest {
         private final String mNamespace;
@@ -494,7 +497,6 @@ public class AppSearchManager {
      * {@link GenericDocument}s on success, or a failed {@link AppSearchResult} otherwise.
      * URIs that are not found will return a failed {@link AppSearchResult} with a result code
      * of {@link AppSearchResult#RESULT_NOT_FOUND}.
-     * @hide
      */
     @NonNull
     public ListenableFuture<AppSearchBatchResult<String, GenericDocument>> getDocuments(
