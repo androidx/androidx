@@ -118,7 +118,6 @@ final class Camera2CameraControlImpl implements CameraControlInternal {
     private volatile int mFlashMode = FLASH_MODE_OFF;
 
     //******************** Should only be accessed by executor *****************************//
-    private Rect mCropRect = null;
     private final CameraCaptureCallbackSet mCameraCaptureCallbackSet =
             new CameraCaptureCallbackSet();
     //**************************************************************************************//
@@ -281,16 +280,6 @@ final class Camera2CameraControlImpl implements CameraControlInternal {
         return Futures.nonCancellationPropagating(mZoomControl.setLinearZoom(linearZoom));
     }
 
-    /** {@inheritDoc} */
-    @Override
-    public void setCropRegion(@Nullable final Rect crop) {
-        if (!isControlInUse()) {
-            Log.w(TAG, "Camera is not active.");
-            return;
-        }
-        mExecutor.execute(() -> setCropRegionInternal(crop));
-    }
-
     @ImageCapture.FlashMode
     @Override
     public int getFlashMode() {
@@ -413,21 +402,10 @@ final class Camera2CameraControlImpl implements CameraControlInternal {
         mControlUpdateCallback.onCameraControlUpdateSessionConfig(mSessionConfigBuilder.build());
     }
 
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    @ExecutedBy("mExecutor")
-    void setCropRegionInternal(final Rect crop) {
-        mCropRect = crop;
-        updateSessionConfig();
-    }
-
     @ExecutedBy("mExecutor")
     @NonNull
     Rect getCropSensorRegion() {
-        Rect cropRect = mCropRect;
-        if (cropRect == null) {
-            cropRect = getSensorRect();
-        }
-        return cropRect;
+        return mZoomControl.getCropSensorRegion();
     }
 
     @Override
@@ -508,6 +486,8 @@ final class Camera2CameraControlImpl implements CameraControlInternal {
 
         mAeFpsRange.addAeFpsRangeOptions(builder);
 
+        mZoomControl.addZoomOption(builder);
+
         int aeMode = CaptureRequest.CONTROL_AE_MODE_ON;
         if (mIsTorchOn) {
             builder.setCaptureRequestOption(CaptureRequest.FLASH_MODE,
@@ -530,10 +510,6 @@ final class Camera2CameraControlImpl implements CameraControlInternal {
         builder.setCaptureRequestOption(
                 CaptureRequest.CONTROL_AWB_MODE,
                 getSupportedAwbMode(CaptureRequest.CONTROL_AWB_MODE_AUTO));
-
-        if (mCropRect != null) {
-            builder.setCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION, mCropRect);
-        }
 
         mExposureControl.setCaptureRequestOption(builder);
 

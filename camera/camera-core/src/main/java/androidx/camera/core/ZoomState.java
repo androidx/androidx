@@ -22,13 +22,20 @@ package androidx.camera.core;
  * <p>Applications can retrieve an instance via {@link CameraInfo#getZoomState()}.
  */
 public interface ZoomState {
-    /** Returns the zoom ratio. */
+    /**
+     * Returns the zoom ratio. The value is 1.0 by default.
+     */
     float getZoomRatio();
 
     /** Returns the maximum zoom ratio. */
     float getMaxZoomRatio();
 
-    /** Returns the minimum zoom ratio. */
+    /**
+     * Returns the minimum zoom ratio.
+     *
+     * <p>Typically 1.0, but can be less than 1.0 if the camera device supports zoom-out (only on
+     * android 11 or later).
+     */
     float getMinZoomRatio();
 
     /**

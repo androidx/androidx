@@ -21,7 +21,6 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.FocusMeteringAction;
@@ -41,15 +40,6 @@ import java.util.List;
  * AF/AE.
  */
 public interface CameraControlInternal extends CameraControl {
-    /**
-     * Set the desired crop region of the sensor to read out for all capture requests.
-     *
-     * <p>This crop region can be used to implement digital zoom. It is applied to every single and
-     * re peating requests.
-     *
-     * @param crop rectangle with dimensions in sensor pixel coordinate.
-     */
-    void setCropRegion(@Nullable Rect crop);
 
     /** Returns the current flash mode. */
     @FlashMode
@@ -107,10 +97,6 @@ public interface CameraControlInternal extends CameraControl {
     Rect getSensorRect();
 
     CameraControlInternal DEFAULT_EMPTY_INSTANCE = new CameraControlInternal() {
-        @Override
-        public void setCropRegion(@Nullable Rect crop) {
-        }
-
         @FlashMode
         @Override
         public int getFlashMode() {
@@ -203,6 +189,7 @@ public interface CameraControlInternal extends CameraControl {
     final class CameraControlException extends Exception {
         @NonNull
         private CameraCaptureFailure mCameraCaptureFailure;
+
         public CameraControlException(@NonNull CameraCaptureFailure failure) {
             super();
             mCameraCaptureFailure = failure;

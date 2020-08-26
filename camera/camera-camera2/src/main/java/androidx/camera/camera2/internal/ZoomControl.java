@@ -18,14 +18,14 @@ package androidx.camera.camera2.internal;
 
 import android.graphics.Rect;
 import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
+import android.os.Build;
 import android.os.Looper;
 
 import androidx.annotation.FloatRange;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
-import androidx.annotation.VisibleForTesting;
+import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.core.CameraControl.OperationCanceledException;
 import androidx.camera.core.ZoomState;
@@ -66,7 +66,6 @@ import java.util.concurrent.Executor;
 final class ZoomControl {
     private static final String TAG = "ZoomControl";
     public static final float DEFAULT_ZOOM_RATIO = 1.0f;
-    public static final float MIN_ZOOM = DEFAULT_ZOOM_RATIO;
 
     private final Camera2CameraControlImpl mCamera2CameraControlImpl;
     @CameraExecutor
@@ -75,10 +74,9 @@ final class ZoomControl {
     private final ZoomStateImpl mCurrentZoomState;
     private final MutableLiveData<ZoomState> mZoomStateLiveData;
 
+    @NonNull
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    CallbackToFutureAdapter.Completer<Void> mPendingZoomRatioCompleter;
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    Rect mPendingZoomCropRegion = null;
+    final ZoomImpl mZoomImpl;
 
     /**
      * true if it is ready to accept zoom operation. Any zoom operation during inactive state will
@@ -91,13 +89,36 @@ final class ZoomControl {
             @CameraExecutor @NonNull Executor executor) {
         mCamera2CameraControlImpl = camera2CameraControlImpl;
         mExecutor = executor;
-
-        mCurrentZoomState = new ZoomStateImpl(getMaxDigitalZoom(cameraCharacteristics), MIN_ZOOM);
-
+        mZoomImpl = createZoomImpl(cameraCharacteristics);
+        mCurrentZoomState = new ZoomStateImpl(mZoomImpl.getMaxZoom(), mZoomImpl.getMinZoom());
         mCurrentZoomState.setZoomRatio(DEFAULT_ZOOM_RATIO);
         mZoomStateLiveData = new MutableLiveData<>(ImmutableZoomState.create(mCurrentZoomState));
 
         camera2CameraControlImpl.addCaptureResultListener(mCaptureResultListener);
+    }
+
+    private ZoomImpl createZoomImpl(@NonNull CameraCharacteristics cameraCharacteristics) {
+        if (isAndroidRZoomSupported(cameraCharacteristics)) {
+            return new AndroidRZoomImpl(cameraCharacteristics);
+        } else {
+            return new CropRegionZoomImpl(cameraCharacteristics);
+        }
+    }
+
+    private boolean isAndroidRZoomSupported(CameraCharacteristics cameraCharacteristics) {
+        return Build.VERSION.SDK_INT >= 30 && cameraCharacteristics.get(
+                CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE) != null;
+    }
+
+    @ExecutedBy("mExecutor")
+    void addZoomOption(@NonNull Camera2ImplConfig.Builder builder) {
+        mZoomImpl.addRequestOption(builder);
+    }
+
+    @ExecutedBy("mExecutor")
+    @NonNull
+    Rect getCropSensorRegion() {
+        return mZoomImpl.getCropSensorRegion();
     }
 
     /**
@@ -124,15 +145,8 @@ final class ZoomControl {
             }
             updateLiveData(zoomState);
 
-            mPendingZoomCropRegion = null;
-            mCamera2CameraControlImpl.setCropRegionInternal(null);
-
-            // Fails the pending ListenableFuture.
-            if (mPendingZoomRatioCompleter != null) {
-                mPendingZoomRatioCompleter
-                        .setException(new OperationCanceledException("Camera is not active."));
-                mPendingZoomRatioCompleter = null;
-            }
+            mZoomImpl.resetZoom();
+            mCamera2CameraControlImpl.updateSessionConfig();
         }
     }
 
@@ -141,20 +155,7 @@ final class ZoomControl {
                 @ExecutedBy("mExecutor")
                 @Override
                 public boolean onCaptureResult(@NonNull TotalCaptureResult captureResult) {
-                    // Compare the requested crop region, not the result's crop region because HAL
-                    // could modify the requested crop region.
-                    if (mPendingZoomRatioCompleter != null) {
-                        CaptureRequest request = captureResult.getRequest();
-                        Rect cropRect = (request == null) ? null :
-                                request.get(CaptureRequest.SCALER_CROP_REGION);
-
-                        if (mPendingZoomCropRegion != null
-                                && mPendingZoomCropRegion.equals(cropRect)) {
-                            mPendingZoomRatioCompleter.set(null);
-                            mPendingZoomRatioCompleter = null;
-                            mPendingZoomCropRegion = null;
-                        }
-                    }
+                    mZoomImpl.onCaptureResult(captureResult);
                     return false; // continue checking
                 }
             };
@@ -196,17 +197,6 @@ final class ZoomControl {
         });
     }
 
-    @NonNull
-    @VisibleForTesting
-    static Rect getCropRectByRatio(@NonNull Rect sensorRect, float ratio) {
-        float cropWidth = (sensorRect.width() / ratio);
-        float cropHeight = (sensorRect.height() / ratio);
-        float left = ((sensorRect.width() - cropWidth) / 2.0f);
-        float top = ((sensorRect.height() - cropHeight) / 2.0f);
-        return new Rect((int) left, (int) top, (int) (left + cropWidth),
-                (int) (top + cropHeight));
-    }
-
     /**
      * Submits the request for updating the zoom ratio of the underlying camera instance.
      *
@@ -228,15 +218,8 @@ final class ZoomControl {
 
         updateLiveData(zoomState);
 
-        Rect sensorRect = mCamera2CameraControlImpl.getSensorRect();
-        mPendingZoomCropRegion = getCropRectByRatio(sensorRect, zoomState.getZoomRatio());
-        mCamera2CameraControlImpl.setCropRegionInternal(mPendingZoomCropRegion);
-
-        if (mPendingZoomRatioCompleter != null) {
-            mPendingZoomRatioCompleter.setException(
-                    new OperationCanceledException("There is a new zoomRatio being set"));
-        }
-        mPendingZoomRatioCompleter = completer;
+        mZoomImpl.setZoomRatio(zoomState.getZoomRatio(), completer);
+        mCamera2CameraControlImpl.updateSessionConfig();
     }
 
     /**
@@ -297,14 +280,51 @@ final class ZoomControl {
         return mZoomStateLiveData;
     }
 
-    private static float getMaxDigitalZoom(CameraCharacteristics cameraCharacteristics) {
-        Float maxZoom = cameraCharacteristics.get(
-                CameraCharacteristics.SCALER_AVAILABLE_MAX_DIGITAL_ZOOM);
 
-        if (maxZoom == null) {
-            return MIN_ZOOM;
-        }
+    /**
+     * A interface for implementing a zoom function. Note that there is no guarantee for the
+     * implementation to be thread-safe so we should call these functions from the same thread
+     * (One exception is that getMaxZoom() and getMinZoom() are okay to be called at any thread.)
+     */
+    interface ZoomImpl {
+        /** Returns minimum zoom ratio. */
+        float getMinZoom();
 
-        return maxZoom;
+        /** Returns maximum zoom ratio. */
+        float getMaxZoom();
+
+        /**
+         * Appends the required request options to the session config builder to activate
+         * current zoom value.
+         */
+        void addRequestOption(@NonNull Camera2ImplConfig.Builder builder);
+
+        /**
+         * Resets current zoom to 1.0. Note that it won't trigger a update of current session.
+         */
+        void resetZoom();
+
+        /**
+         * Sets the zoom ratio. The given
+         * {@link androidx.concurrent.futures.CallbackToFutureAdapter.Completer} will complete
+         * when the zoom value is reflected on the capture result. Note that it won't trigger a
+         * update of current session.
+         */
+        void setZoomRatio(float zoomRatio,
+                @NonNull CallbackToFutureAdapter.Completer<Void> completer);
+
+        /**
+         * Notifies the current capture result so that the zoomImpl can determine whether the
+         * setZoomRatio action should complete or not.
+         */
+        void onCaptureResult(@NonNull TotalCaptureResult captureResult);
+
+        /**
+         * Returns the current crop sensor region which would be used for converting
+         * {@link androidx.camera.core.MeteringPoint} to sensor coordinates. Returns the sensor
+         * rect if there is no crop region being set.
+         */
+        @NonNull
+        Rect getCropSensorRegion();
     }
 }
