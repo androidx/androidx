@@ -24,12 +24,14 @@ import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import org.jetbrains.kotlin.ksp.processing.CodeGenerator
 import org.jetbrains.kotlin.ksp.processing.KSPLogger
+import org.jetbrains.kotlin.ksp.processing.Resolver
 import javax.annotation.processing.Filer
 
 internal class KspProcessingEnv(
     override val options: Map<String, String>,
     private val codeGenerator: CodeGenerator,
-    private val logger: KSPLogger
+    private val logger: KSPLogger,
+    val resolver: Resolver
 ) : XProcessingEnv {
     override val messager: XMessager
         get() = TODO("Not yet implemented")

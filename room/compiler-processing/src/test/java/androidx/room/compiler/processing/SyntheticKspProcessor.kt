@@ -51,7 +51,8 @@ class SyntheticKspProcessor(
                     processingEnv = KspProcessingEnv(
                         options,
                         codeGenerator,
-                        logger
+                        logger,
+                        resolver
                     )
                 )
             )

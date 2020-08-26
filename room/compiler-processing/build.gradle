@@ -41,6 +41,7 @@ dependencies {
     testImplementation(JUNIT)
     testImplementation(JSR250)
     testImplementation(KOTLIN_COMPILE_TESTING)
+    testImplementation(KOTLIN_KSP) // force exact KSP version
 }
 
 compileKotlin {
