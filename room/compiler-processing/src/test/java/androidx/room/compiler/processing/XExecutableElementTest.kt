@@ -22,6 +22,7 @@ import androidx.room.compiler.processing.util.getMethod
 import androidx.room.compiler.processing.util.getParameter
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.TypeName
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -38,8 +39,8 @@ class XExecutableElementTest {
                 package foo.bar;
                 public class Baz {
                     private void foo() {}
-                    public int bar(int param1) {
-                        return 3;
+                    public String bar(String[] param1) {
+                        return "";
                     }
                 }
             """.trimIndent()
@@ -59,10 +60,13 @@ class XExecutableElementTest {
             element.getDeclaredMethod("bar").let { method ->
                 assertThat(method.isOverrideableIgnoringContainer()).isTrue()
                 assertThat(method.parameters).hasSize(1)
+                val stringTypeName = ClassName.get("java.lang", "String")
                 method.getParameter("param1").let { param ->
-                    assertThat(param.type.isPrimitiveInt()).isTrue()
+                    assertThat(param.type.isArray()).isTrue()
+                    assertThat(param.type.asArray().componentType.typeName)
+                        .isEqualTo(stringTypeName)
                 }
-                assertThat(method.returnType.isPrimitiveInt()).isTrue()
+                assertThat(method.returnType.typeName).isEqualTo(stringTypeName)
             }
         }
     }
