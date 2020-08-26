@@ -133,8 +133,10 @@ open class AsyncPagedListDiffer<T : Any> {
     @Suppress("DEPRECATION")
     @VisibleForTesting
     internal val listeners = CopyOnWriteArrayList<PagedListListener<T>>()
+
     @Suppress("DEPRECATION")
     private var pagedList: PagedList<T>? = null
+
     @Suppress("DEPRECATION")
     private var snapshot: PagedList<T>? = null
 
@@ -145,12 +147,13 @@ open class AsyncPagedListDiffer<T : Any> {
     internal var maxScheduledGeneration: Int = 0
 
     @Suppress("DEPRECATION")
-    private val loadStateManager = object : PagedList.LoadStateManager() {
-        override fun onStateChanged(type: LoadType, state: LoadState) {
-            // Don't need to post - PagedList will already have done that
-            loadStateListeners.forEach { it(type, state) }
+    private val loadStateManager: PagedList.LoadStateManager =
+        object : PagedList.LoadStateManager() {
+            override fun onStateChanged(type: LoadType, state: LoadState) {
+                // Don't need to post - PagedList will already have done that
+                loadStateListeners.forEach { it(type, state) }
+            }
         }
-    }
 
     private val loadStateListener = loadStateManager::onStateChanged
 
@@ -158,7 +161,7 @@ open class AsyncPagedListDiffer<T : Any> {
         CopyOnWriteArrayList()
 
     @Suppress("DEPRECATION")
-    private val pagedListCallback = object : PagedList.Callback() {
+    private val pagedListCallback: PagedList.Callback = object : PagedList.Callback() {
         override fun onInserted(position: Int, count: Int) =
             updateCallback.onInserted(position, count)
 
