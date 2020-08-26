@@ -25,6 +25,7 @@ import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.asDeclaredType
 import androidx.room.compiler.processing.isArray
 import androidx.room.compiler.processing.isDeclared
+import androidx.room.ext.isNotByte
 import androidx.room.processor.Context
 import androidx.room.processor.EntityProcessor
 import androidx.room.processor.FieldProcessor

@@ -25,6 +25,7 @@ import androidx.room.parser.SqlParser
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
+import androidx.room.ext.isNotError
 import androidx.room.solver.query.result.PojoRowAdapter
 import androidx.room.verifier.DatabaseVerificationErrors
 import androidx.room.verifier.DatabaseVerifier
