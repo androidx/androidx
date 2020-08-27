@@ -38,6 +38,7 @@ dependencies {
         exclude group: 'androidx.appcompat', module: 'appcompat'
         exclude group: 'androidx.core', module: 'core'
     }
+    androidTestImplementation(MULTIDEX)
 
     testImplementation(KOTLIN_STDLIB)
     testImplementation(ANDROIDX_TEST_CORE)
@@ -56,6 +57,7 @@ android {
     defaultConfig {
         // This disables the builds tools automatic vector -> PNG generation
         generatedDensities = []
+        multiDexEnabled = true
     }
 
     sourceSets {

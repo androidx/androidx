@@ -385,7 +385,7 @@ private fun generateRandomTest(
     val currentItems: MutableList<String> = initialItems.toMutableList()
     val actions: MutableList<Action> = mutableListOf()
 
-    val nextValue = AtomicInteger(initialItems.map { it.toInt() + 1 }.max() ?: 0)
+    val nextValue = AtomicInteger(initialItems.map { it.toInt() + 1 }.maxOrNull() ?: 0)
     (0..random.nextInt(5)).forEach {
         val choice = random.nextInt(3)
         when {

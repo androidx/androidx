@@ -246,7 +246,7 @@ class AutoValuePojoProcessorDelegateTest {
                     $autoValuePojoCode
                     $FOOTER
                     """,
-                jfos = *jfos,
+                jfos = jfos,
                 classpathFiles = classpathFiles,
                 handler = handler
         )

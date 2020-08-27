@@ -66,7 +66,7 @@ class SimpleCamera(
             }
 
             // Find the size that is the least different
-            val yuvSize = yuv43Sizes.minBy {
+            val yuvSize = yuv43Sizes.minByOrNull {
                 ((it.width * it.height) - (defaultResolution.width *
                         defaultResolution.height)).absoluteValue
             }!!

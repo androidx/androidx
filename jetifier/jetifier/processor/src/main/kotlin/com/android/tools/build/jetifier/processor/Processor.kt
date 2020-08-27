@@ -449,12 +449,12 @@ class Processor private constructor(
                 library.findAllFiles({ isSignatureFile(it) }, foundSignatures)
                 if (foundSignatures.all.isNotEmpty()) {
                     wereSignaturesDetected = true
-                    sb.appendln()
-                    sb.appendln("Found following signature files for '${library.relativePath}':")
+                    sb.appendLine()
+                    sb.appendLine("Found following signature files for '${library.relativePath}':")
                     foundSignatures.all
                         .sortedBy { it.relativePath.toString() }
                         .forEach { file ->
-                            sb.appendln("- ${file.relativePath}")
+                            sb.appendLine("- ${file.relativePath}")
                             file.markedForRemoval = true
                     }
                 }

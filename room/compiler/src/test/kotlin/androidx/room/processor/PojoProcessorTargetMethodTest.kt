@@ -424,7 +424,7 @@ class PojoProcessorTargetMethodTest {
                     $autoValuePojoCode
                     $FOOTER
                     """,
-                jfos = *jfos
+                jfos = jfos
         )
     }
 

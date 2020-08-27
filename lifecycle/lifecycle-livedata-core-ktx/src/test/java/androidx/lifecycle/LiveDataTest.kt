@@ -35,7 +35,7 @@ class LiveDataTest {
 
         val liveData = MutableLiveData<String>()
         var value = ""
-        liveData.observe(lifecycleOwner) { newValue ->
+        liveData.observe<String>(lifecycleOwner) { newValue ->
             value = newValue
         }
 

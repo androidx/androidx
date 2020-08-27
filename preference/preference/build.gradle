@@ -42,6 +42,7 @@ dependencies {
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(TRUTH)
+    androidTestImplementation(MULTIDEX)
 }
 
 android {
@@ -58,10 +59,7 @@ android {
 
     defaultConfig {
         vectorDrawables.useSupportLibrary = true
-        // TODO(b/153189766): remove this 'if', always set multiDexEnabled
-        if (project.hasProperty("useMaxDepVersions")) {
-            multiDexEnabled true
-        }
+        multiDexEnabled true
     }
 
     buildTypes.all {

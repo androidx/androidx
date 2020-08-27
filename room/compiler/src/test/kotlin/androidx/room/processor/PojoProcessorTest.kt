@@ -1636,7 +1636,7 @@ class PojoProcessorTest {
                 """
         return singleRunFullClass(
             code = pojoCode,
-            jfos = *jfos,
+            jfos = jfos,
             classpathFiles = classpathFiles,
             handler = handler
         )
