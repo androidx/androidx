@@ -295,14 +295,15 @@ abstract class WatchFaceService : WallpaperService() {
 
     internal inner class EngineWrapper(
         private val _handler: Handler
-    ) : WallpaperService.Engine(), WatchFaceHostApi, IWatchFaceCommand {
+    ) : WallpaperService.Engine(), WatchFaceHostApi {
         private val _context = this@WatchFaceService as Context
 
         private lateinit var currentSurfaceHolder: SurfaceHolder
-        private lateinit var iWatchFaceService: IWatchFaceService
-        private lateinit var watchFace: WatchFace
 
-        private val systemState = getSystemState().apply {
+        internal lateinit var iWatchFaceService: IWatchFaceService
+        internal lateinit var watchFace: WatchFace
+
+        internal val systemState = getSystemState().apply {
             onVisibilityChanged(isVisible)
         }
 
@@ -316,7 +317,7 @@ abstract class WatchFaceService : WallpaperService() {
 
         private var destroyed = false
 
-        private lateinit var ambientUpdateWakelock: PowerManager.WakeLock
+        internal lateinit var ambientUpdateWakelock: PowerManager.WakeLock
 
         private val choreographer = Choreographer.getInstance()
 
@@ -349,15 +350,205 @@ abstract class WatchFaceService : WallpaperService() {
             addAction(Intent.ACTION_TIME_TICK)
         }
 
+        private val watchFaceCommand = object : IWatchFaceCommand.Stub() {
+            override fun getApiVersion() = IWatchFaceCommand.WATCHFACE_COMMAND_API_VERSION
+
+            override fun ambientUpdate() {
+                if (systemState.isAmbient) {
+                    ambientUpdateWakelock.acquire()
+                    watchFace.invalidate()
+                    ambientUpdateWakelock.acquire(SURFACE_DRAW_TIMEOUT_MS)
+                }
+            }
+
+            override fun setSystemState(
+                inAmbientMode: Boolean,
+                interruptionFilter: Int,
+                unreadCount: Int,
+                notificationCount: Int
+            ) {
+                if (firstSetSystemState || inAmbientMode != systemState.isAmbient) {
+                    systemState.onAmbientModeChanged(inAmbientMode)
+                    updateTimeTickReceiver()
+                }
+
+                if (firstSetSystemState || interruptionFilter != systemState.interruptionFilter) {
+                    systemState.onInterruptionFilterChanged(interruptionFilter)
+                }
+
+                if (firstSetSystemState || unreadCount != systemState.unreadNotificationCount) {
+                    systemState.onUnreadNotificationCountChanged(unreadCount)
+                }
+
+                if (firstSetSystemState || notificationCount != systemState.notificationCount) {
+                    systemState.onNotificationCountChanged(notificationCount)
+                }
+
+                firstSetSystemState = false
+            }
+
+            override fun setIndicatorState(
+                isCharging: Boolean,
+                inAirplaneMode: Boolean,
+                isConnectedToCompanion: Boolean,
+                inTheaterMode: Boolean,
+                isGpsActive: Boolean,
+                isKeyguardLocked: Boolean
+            ) {
+                if (firstIndicatorState || isCharging != systemState.isCharging) {
+                    systemState.onIsChargingChanged(isCharging)
+                }
+
+                if (firstIndicatorState || inAirplaneMode != systemState.inAirplaneMode) {
+                    systemState.onInAirplaneModeChanged(inAirplaneMode)
+                }
+
+                if (firstIndicatorState || isConnectedToCompanion !=
+                    systemState.isConnectedToCompanion
+                ) {
+                    systemState.onIsConnectedToCompanionChanged(isConnectedToCompanion)
+                }
+
+                if (firstIndicatorState || inTheaterMode != systemState.isInTheaterMode) {
+                    systemState.onInTheaterModeChanged(inTheaterMode)
+                }
+
+                if (firstIndicatorState || isGpsActive != systemState.isGpsActive) {
+                    systemState.onIsGpsActiveChanged(isGpsActive)
+                }
+
+                if (firstIndicatorState || isKeyguardLocked != systemState.isKeyguardLocked) {
+                    systemState.onIsKeyguardLockedChanged(isKeyguardLocked)
+                }
+
+                firstIndicatorState = false
+            }
+
+            override fun setUserStyle(userStyle: Bundle) {
+                watchFace.onSetStyleInternal(
+                    UserStyleCategory.bundleToStyleMap(
+                        userStyle,
+                        watchFace.userStyleManager.userStyleCategories
+                    )
+                )
+            }
+
+            override fun setImmutableSystemState(
+                hasLowBitAmbient: Boolean,
+                hasBurnInProtection: Boolean
+            ) {
+                // These properties never change so set them once only.
+                if (immutableSystemStateDone) {
+                    return
+                }
+
+                systemState.setHasLowBitAmbient(hasLowBitAmbient)
+                systemState.setHasBurnInProtection(hasBurnInProtection)
+
+                immutableSystemStateDone = true
+            }
+
+            override fun setComplicationData(complicationId: Int, data: ComplicationData) {
+                watchFace.onComplicationDataUpdate(complicationId, data)
+            }
+
+            override fun requestWatchFaceStyle() {
+                try {
+                    iWatchFaceService.setStyle(watchFace.watchFaceStyle)
+                } catch (e: RemoteException) {
+                    Log.e(TAG, "Failed to set WatchFaceStyle: ", e)
+                }
+
+                val activeComplications = lastActiveComplications
+                if (activeComplications != null) {
+                    setActiveComplications(activeComplications)
+                }
+
+                val a11yLabels = lastA11yLabels
+                if (a11yLabels != null) {
+                    setContentDescriptionLabels(a11yLabels)
+                }
+            }
+
+            override fun takeWatchfaceScreenshot(
+                drawMode: Int,
+                compressionQuality: Int,
+                calendarTimeMillis: Long
+            ): Bundle {
+                return SharedMemoryImage.bitmapToAshmemCompressedImageBundle(
+                    watchFace.renderer.takeScreenshot(
+                        Calendar.getInstance().apply {
+                            timeInMillis = calendarTimeMillis
+                        },
+                        drawMode
+                    ),
+                    compressionQuality
+                )
+            }
+
+            override fun takeComplicationScreenshot(
+                complicationId: Int,
+                drawMode: Int,
+                compressionQuality: Int,
+                calendarTimeMillis: Long,
+                complicationData: ComplicationData?
+            ): Bundle? {
+                val calendar = Calendar.getInstance().apply {
+                    timeInMillis = calendarTimeMillis
+                }
+                val complication = watchFace.complicationSet[complicationId]
+                return if (complication != null) {
+                    val bounds = complication.boundsProvider.computeBounds(
+                        complication,
+                        watchFace.renderer.screenBounds
+                    )
+                    val complicationBitmap =
+                        Bitmap.createBitmap(bounds.width(), bounds.height(),
+                            Bitmap.Config.ARGB_8888)
+
+                    var prevComplicationData: ComplicationData? = null
+                    if (complicationData != null) {
+                        prevComplicationData = complication.renderer.getData()
+                        complication.renderer.setData(complicationData)
+                    }
+
+                    complication.renderer.onDraw(
+                        Canvas(complicationBitmap),
+                        Rect(0, 0, bounds.width(), bounds.height()),
+                        calendar,
+                        drawMode
+                    )
+
+                    // Restore previous ComplicationData if required.
+                    if (complicationData != null) {
+                        complication.renderer.setData(prevComplicationData)
+                    }
+
+                    SharedMemoryImage.bitmapToAshmemCompressedImageBundle(
+                        complicationBitmap,
+                        compressionQuality
+                    )
+                } else {
+                    null
+                }
+            }
+
+            override fun sendTouchEvent(xPos: Int, yPos: Int, tapType: Int) {
+                if (watchFaceCreated()) {
+                    watchFace.onTapCommand(tapType, xPos, yPos)
+                }
+            }
+        }
+
         // Only valid after onSetBinder has been called.
         private var systemApiVersion = -1
 
-        private var firstSetSystemState = true
-        private var firstIndicatorState = true
-        private var immutableSystemStateDone = false
+        internal var firstSetSystemState = true
+        internal var firstIndicatorState = true
+        internal var immutableSystemStateDone = false
 
-        private var lastActiveComplications: IntArray? = null
-        private var lastA11yLabels: Array<ContentDescriptionLabel>? = null
+        internal var lastActiveComplications: IntArray? = null
+        internal var lastA11yLabels: Array<ContentDescriptionLabel>? = null
 
         private var pendingBackgroundAction: Bundle? = null
         private var pendingProperties: Bundle? = null
@@ -406,212 +597,24 @@ abstract class WatchFaceService : WallpaperService() {
             resultRequested: Boolean
         ): Bundle? {
             when (action) {
-                Constants.COMMAND_AMBIENT_UPDATE -> ambientUpdate()
+                Constants.COMMAND_AMBIENT_UPDATE -> watchFaceCommand.ambientUpdate()
                 Constants.COMMAND_BACKGROUND_ACTION -> onBackgroundAction(extras!!)
                 Constants.COMMAND_COMPLICATION_DATA -> onComplicationDataUpdate(extras!!)
                 Constants.COMMAND_REQUEST_STYLE -> onRequestStyle()
                 Constants.COMMAND_SET_BINDER -> onSetBinder(extras!!)
                 Constants.COMMAND_SET_PROPERTIES -> onPropertiesChanged(extras!!)
-                Constants.COMMAND_SET_USER_STYLE -> setUserStyle(extras!!)
-                Constants.COMMAND_TAP -> sendTouchEvent(x, y, TapType.TAP)
-                Constants.COMMAND_TOUCH -> sendTouchEvent(x, y, TapType.TOUCH)
-                Constants.COMMAND_TOUCH_CANCEL -> sendTouchEvent(x, y, TapType.TOUCH_CANCEL)
+                Constants.COMMAND_SET_USER_STYLE -> watchFaceCommand.setUserStyle(extras!!)
+                Constants.COMMAND_TAP -> watchFaceCommand.sendTouchEvent(x, y, TapType.TAP)
+                Constants.COMMAND_TOUCH -> watchFaceCommand.sendTouchEvent(x, y, TapType.TOUCH)
+                Constants.COMMAND_TOUCH_CANCEL -> watchFaceCommand.sendTouchEvent(x, y, TapType
+                    .TOUCH_CANCEL)
                 else -> {
                 }
             }
             return null
         }
 
-        override fun getApiVersion() = IWatchFaceCommand.WATCHFACE_COMMAND_API_VERSION
-
-        override fun ambientUpdate() {
-            if (systemState.isAmbient) {
-                ambientUpdateWakelock.acquire()
-                watchFace.invalidate()
-                ambientUpdateWakelock.acquire(SURFACE_DRAW_TIMEOUT_MS)
-            }
-        }
-
-        override fun setSystemState(
-            inAmbientMode: Boolean,
-            interruptionFilter: Int,
-            unreadCount: Int,
-            notificationCount: Int
-        ) {
-            if (firstSetSystemState || inAmbientMode != systemState.isAmbient) {
-                systemState.onAmbientModeChanged(inAmbientMode)
-                updateTimeTickReceiver()
-            }
-
-            if (firstSetSystemState || interruptionFilter != systemState.interruptionFilter) {
-                systemState.onInterruptionFilterChanged(interruptionFilter)
-            }
-
-            if (firstSetSystemState || unreadCount != systemState.unreadNotificationCount) {
-                systemState.onUnreadNotificationCountChanged(unreadCount)
-            }
-
-            if (firstSetSystemState || notificationCount != systemState.notificationCount) {
-                systemState.onNotificationCountChanged(notificationCount)
-            }
-
-            firstSetSystemState = false
-        }
-
-        override fun setIndicatorState(
-            isCharging: Boolean,
-            inAirplaneMode: Boolean,
-            isConnectedToCompanion: Boolean,
-            inTheaterMode: Boolean,
-            isGpsActive: Boolean,
-            isKeyguardLocked: Boolean
-        ) {
-            if (firstIndicatorState || isCharging != systemState.isCharging) {
-                systemState.onIsChargingChanged(isCharging)
-            }
-
-            if (firstIndicatorState || inAirplaneMode != systemState.inAirplaneMode) {
-                systemState.onInAirplaneModeChanged(inAirplaneMode)
-            }
-
-            if (firstIndicatorState || isConnectedToCompanion !=
-                systemState.isConnectedToCompanion
-            ) {
-                systemState.onIsConnectedToCompanionChanged(isConnectedToCompanion)
-            }
-
-            if (firstIndicatorState || inTheaterMode != systemState.isInTheaterMode) {
-                systemState.onInTheaterModeChanged(inTheaterMode)
-            }
-
-            if (firstIndicatorState || isGpsActive != systemState.isGpsActive) {
-                systemState.onIsGpsActiveChanged(isGpsActive)
-            }
-
-            if (firstIndicatorState || isKeyguardLocked != systemState.isKeyguardLocked) {
-                systemState.onIsKeyguardLockedChanged(isKeyguardLocked)
-            }
-
-            firstIndicatorState = false
-        }
-
-        override fun setUserStyle(userStyle: Bundle) {
-            watchFace.onSetStyleInternal(
-                UserStyleCategory.bundleToStyleMap(
-                    userStyle,
-                    watchFace.userStyleManager.userStyleCategories
-                )
-            )
-        }
-
-        override fun setImmutableSystemState(
-            hasLowBitAmbient: Boolean,
-            hasBurnInProtection: Boolean
-        ) {
-            // These properties never change so set them once only.
-            if (immutableSystemStateDone) {
-                return
-            }
-
-            systemState.setHasLowBitAmbient(hasLowBitAmbient)
-            systemState.setHasBurnInProtection(hasBurnInProtection)
-
-            immutableSystemStateDone = true
-        }
-
-        override fun setComplicationData(complicationId: Int, data: ComplicationData) {
-            watchFace.onComplicationDataUpdate(complicationId, data)
-        }
-
-        override fun requestWatchFaceStyle() {
-            try {
-                iWatchFaceService.setStyle(watchFace.watchFaceStyle)
-            } catch (e: RemoteException) {
-                Log.e(TAG, "Failed to set WatchFaceStyle: ", e)
-            }
-
-            val activeComplications = lastActiveComplications
-            if (activeComplications != null) {
-                setActiveComplications(activeComplications)
-            }
-
-            val allyLabels = lastA11yLabels
-            if (allyLabels != null) {
-                setContentDescriptionLabels(allyLabels)
-            }
-        }
-
-        override fun takeWatchfaceScreenshot(
-            drawMode: Int,
-            compressionQuality: Int,
-            calendarTimeMillis: Long
-        ): Bundle {
-            return SharedMemoryImage.bitmapToAshmemCompressedImageBundle(
-                watchFace.renderer.takeScreenshot(
-                    Calendar.getInstance().apply {
-                        timeInMillis = calendarTimeMillis
-                    },
-                    drawMode
-                ),
-                compressionQuality
-            )
-        }
-
-        override fun takeComplicationScreenshot(
-            complicationId: Int,
-            drawMode: Int,
-            compressionQuality: Int,
-            calendarTimeMillis: Long,
-            complicationData: ComplicationData?
-        ): Bundle? {
-            val calendar = Calendar.getInstance().apply {
-                timeInMillis = calendarTimeMillis
-            }
-            val complication = watchFace.complicationSet[complicationId]
-            return if (complication != null) {
-                val bounds = complication.boundsProvider.computeBounds(
-                    complication,
-                    watchFace.renderer.screenBounds
-                )
-                val complicationBitmap =
-                    Bitmap.createBitmap(bounds.width(), bounds.height(), Bitmap.Config.ARGB_8888)
-
-                var prevComplicationData: ComplicationData? = null
-                if (complicationData != null) {
-                    prevComplicationData = complication.renderer.getData()
-                    complication.renderer.setData(complicationData)
-                }
-
-                complication.renderer.onDraw(
-                    Canvas(complicationBitmap),
-                    Rect(0, 0, bounds.width(), bounds.height()),
-                    calendar,
-                    drawMode
-                )
-
-                // Restore previous ComplicationData if required.
-                if (complicationData != null) {
-                    complication.renderer.setData(prevComplicationData)
-                }
-
-                SharedMemoryImage.bitmapToAshmemCompressedImageBundle(
-                    complicationBitmap,
-                    compressionQuality
-                )
-            } else {
-                null
-            }
-        }
-
-        override fun asBinder() = null
-
-        override fun sendTouchEvent(xPos: Int, yPos: Int, tapType: Int) {
-            if (watchFaceCreated()) {
-                watchFace.onTapCommand(tapType, xPos, yPos)
-            }
-        }
-
-        internal fun onBackgroundAction(extras: Bundle) {
+        fun onBackgroundAction(extras: Bundle) {
             // We can't guarantee the binder has been set and onSurfaceChanged called before this
             // command.
             if (!watchFaceCreated()) {
@@ -619,7 +622,7 @@ abstract class WatchFaceService : WallpaperService() {
                 return
             }
 
-            setSystemState(
+            watchFaceCommand.setSystemState(
                 extras.getBoolean(Constants.EXTRA_AMBIENT_MODE, systemState.isAmbient),
                 extras.getInt(Constants.EXTRA_INTERRUPTION_FILTER, systemState.interruptionFilter),
                 extras.getInt(Constants.EXTRA_UNREAD_COUNT, systemState.unreadNotificationCount),
@@ -628,7 +631,7 @@ abstract class WatchFaceService : WallpaperService() {
 
             val statusBundle = extras.getBundle(Constants.EXTRA_INDICATOR_STATUS)
             if (statusBundle != null) {
-                setIndicatorState(
+                watchFaceCommand.setIndicatorState(
                     statusBundle.getBoolean(Constants.STATUS_CHARGING),
                     statusBundle.getBoolean(Constants.STATUS_AIRPLANE_MODE),
                     statusBundle.getBoolean(Constants.STATUS_CONNECTED),
@@ -659,7 +662,11 @@ abstract class WatchFaceService : WallpaperService() {
             }
 
             if (systemApiVersion >= 3) {
-                iWatchFaceService.registerIWatchFaceCommand(this)
+                val bundle = Bundle().apply {
+                    putBinder(Constants.EXTRA_WATCH_FACE_COMMAND_BINDER,
+                        watchFaceCommand.asBinder())
+                    }
+                iWatchFaceService.registerIWatchFaceCommand(bundle)
             }
 
             maybeCreateWatchFace()
@@ -728,7 +735,7 @@ abstract class WatchFaceService : WallpaperService() {
                 pendingSetWatchFaceStyle = true
                 return
             }
-            requestWatchFaceStyle()
+            watchFaceCommand.requestWatchFaceStyle()
             pendingSetWatchFaceStyle = false
         }
 
@@ -737,7 +744,7 @@ abstract class WatchFaceService : WallpaperService() {
          * unregisters it if it shouldn't be registered but currently is. It also applies the right
          * intent filter depending on whether we are in ambient mode or not.
          */
-        private fun updateTimeTickReceiver() {
+        internal fun updateTimeTickReceiver() {
             if (timeTickRegistered) {
                 unregisterReceiver(timeTickReceiver)
                 timeTickRegistered = false
@@ -819,7 +826,7 @@ abstract class WatchFaceService : WallpaperService() {
                 return
             }
             extras.classLoader = ComplicationData::class.java.classLoader
-            setComplicationData(
+            watchFaceCommand.setComplicationData(
                 extras.getInt(Constants.EXTRA_COMPLICATION_ID),
                 (extras.getParcelable(Constants.EXTRA_COMPLICATION_DATA) as ComplicationData?)!!
             )
@@ -831,13 +838,13 @@ abstract class WatchFaceService : WallpaperService() {
                 return
             }
 
-            setImmutableSystemState(
+            watchFaceCommand.setImmutableSystemState(
                 properties.getBoolean(Constants.PROPERTY_LOW_BIT_AMBIENT),
                 properties.getBoolean(Constants.PROPERTY_BURN_IN_PROTECTION)
             )
         }
 
-        private fun watchFaceCreated() = this::watchFace.isInitialized
+        internal fun watchFaceCreated() = this::watchFace.isInitialized
 
         override fun setDefaultComplicationProviderWithFallbacks(
             watchFaceComplicationId: Int,

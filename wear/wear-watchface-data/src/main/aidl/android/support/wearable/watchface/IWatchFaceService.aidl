@@ -17,6 +17,7 @@
 package android.support.wearable.watchface;
 
 import android.content.ComponentName;
+import android.os.Bundle;
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel;
 import android.support.wearable.watchface.IWatchFaceCommand;
 import android.support.wearable.watchface.WatchFaceStyle;
@@ -139,5 +140,5 @@ interface IWatchFaceService {
      * Registers the {@link IWatchFaceCommand} with the system. This is a cleaner alternative to the
      * deprecated wallpaper commands. Supported from API version 3.
      */
-    void registerIWatchFaceCommand(in IWatchFaceCommand iWatchFaceCommand) = 14;
+    void registerIWatchFaceCommand(in Bundle bundle) = 14;
 }
