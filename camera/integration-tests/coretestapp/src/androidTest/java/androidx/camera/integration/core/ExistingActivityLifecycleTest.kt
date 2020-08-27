@@ -40,6 +40,7 @@ import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 
 private const val HOME_TIMEOUT_MS = 3000L
@@ -54,9 +55,11 @@ class ExistingActivityLifecycleTest {
     private val mLauncherPackageName = mDevice.launcherPackageName
 
     @get:Rule
+    val mUseCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+
+    @get:Rule
     val mPermissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
-            Manifest.permission.CAMERA,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO
         )
