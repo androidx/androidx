@@ -195,6 +195,11 @@ public class MediaRouterParams {
          * MediaRouter.Callback#onRouteSelected(MediaRouter, MediaRouter.RouteInfo, int) callback}
          * properly. Default value is {@code false}.
          * <p>
+         * When this is enabled, {@link MediaRouter.Callback#onRouteSelected(MediaRouter,
+         * MediaRouter.RouteInfo, int, MediaRouter.RouteInfo)} will be called whenever the
+         * 'remote to local' transfer happens, regardless of the selector provided in
+         * {@link MediaRouter#addCallback(MediaRouteSelector, MediaRouter.Callback)}.
+         * <p>
          * Note: This method will be no-op for Android versions earlier than Android R. It has
          * effect only when {@link MediaTransferReceiver media transfer is enabled}.
          */
