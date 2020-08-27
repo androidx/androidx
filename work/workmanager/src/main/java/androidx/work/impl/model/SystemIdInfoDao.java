@@ -24,6 +24,8 @@ import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
 
+import java.util.List;
+
 /**
  * A Data Access Object for {@link SystemIdInfo}.
  */
@@ -52,4 +54,11 @@ public interface SystemIdInfoDao {
      */
     @Query("DELETE FROM SystemIdInfo where work_spec_id=:workSpecId")
     void removeSystemIdInfo(@NonNull String workSpecId);
+
+    /**
+     * @return The {@link List} of {@link WorkSpec} ids.
+     */
+    @NonNull
+    @Query("SELECT DISTINCT work_spec_id FROM SystemIdInfo")
+    List<String> getWorkSpecIds();
 }
