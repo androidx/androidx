@@ -501,6 +501,19 @@ public final class Preview extends UseCase {
     }
 
     /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @Override
+    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
+    @RestrictTo(Scope.LIBRARY)
+    public void setViewPortCropRect(@Nullable Rect viewPortCropRect) {
+        super.setViewPortCropRect(viewPortCropRect);
+        sendTransformationInfoIfReady();
+    }
+
+    /**
      * A interface implemented by the application to provide a {@link Surface} for {@link Preview}.
      *
      * <p> This interface is implemented by the application to provide a {@link Surface}. This
