@@ -18,6 +18,7 @@ package androidx.core.graphics;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Typeface;
@@ -35,7 +36,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Implementation of the Typeface compat methods for API 14 and above.
@@ -49,8 +49,9 @@ class TypefaceCompatBaseImpl {
     /**
      * Maps a unique identifier from a Typeface to it's family
      */
-    private ConcurrentHashMap<Long, FontFamilyFilesResourceEntry> mFontFamilies =
-            new ConcurrentHashMap<>();
+    @SuppressLint("BanConcurrentHashMap")
+    private java.util.concurrent.ConcurrentHashMap<Long, FontFamilyFilesResourceEntry>
+            mFontFamilies = new java.util.concurrent.ConcurrentHashMap<>();
 
     private interface StyleExtractor<T> {
         int getWeight(T t);
