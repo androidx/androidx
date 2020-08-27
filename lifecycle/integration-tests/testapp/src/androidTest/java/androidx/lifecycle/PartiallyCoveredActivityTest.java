@@ -39,7 +39,6 @@ import android.app.Instrumentation;
 import android.content.Intent;
 import android.os.Build;
 
-import androidx.core.util.Pair;
 import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.testapp.CollectingLifecycleOwner;
 import androidx.lifecycle.testapp.CollectingSupportActivity;
@@ -60,6 +59,8 @@ import org.junit.runners.Parameterized;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
+import kotlin.Pair;
 
 /**
  * Runs tests about the state when an activity is partially covered by another activity. Pre
