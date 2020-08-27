@@ -223,7 +223,7 @@ public final class SurfaceRequestTest {
     }
 
     private SurfaceRequest createNewRequest(@NonNull Size size) {
-        SurfaceRequest request = new SurfaceRequest(size, new FakeCamera());
+        SurfaceRequest request = new SurfaceRequest(size, new FakeCamera(), false);
         mSurfaceRequests.add(request);
         return request;
     }

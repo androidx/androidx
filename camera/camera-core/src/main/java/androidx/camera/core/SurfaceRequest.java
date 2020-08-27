@@ -61,6 +61,7 @@ public final class SurfaceRequest {
 
     private final Size mResolution;
     private final Camera mCamera;
+    private final boolean mRGBA8888Required;
 
     // For the camera to retrieve the surface from the user
     @SuppressWarnings("WeakerAccess") /*synthetic accessor */
@@ -94,10 +95,12 @@ public final class SurfaceRequest {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public SurfaceRequest(
             @NonNull Size resolution,
-            @NonNull Camera camera) {
+            @NonNull Camera camera,
+            boolean isRGBA8888Required) {
         super();
         mResolution = resolution;
         mCamera = camera;
+        mRGBA8888Required = isRGBA8888Required;
 
         // To ensure concurrency and ordering, operations are chained. Completion can only be
         // triggered externally by the top-level completer (mSurfaceCompleter). The other future
@@ -248,6 +251,18 @@ public final class SurfaceRequest {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public Camera getCamera() {
         return mCamera;
+    }
+
+    /**
+     * Returns whether a surface of RGBA_8888 pixel format is required.
+     *
+     * @return true if a surface of RGBA_8888 pixel format is required.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public boolean isRGBA8888Required() {
+        return mRGBA8888Required;
     }
 
     /**
