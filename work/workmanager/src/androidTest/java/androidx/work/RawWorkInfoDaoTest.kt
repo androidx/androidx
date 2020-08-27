@@ -88,6 +88,27 @@ class RawWorkInfoDaoTest : DatabaseTest() {
 
     @Test
     @SmallTest
+    fun idsOnlyTest1() {
+        val test = OneTimeWorkRequest.from(TestWorker::class.java)
+        val retry = OneTimeWorkRequest.from(RetryWorker::class.java)
+
+        insertWork(test)
+        insertWork(retry)
+
+        val querySpec = WorkQuery.Builder
+            .fromIds(listOf(test.id))
+            .build()
+
+        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(
+            RawQueries
+                .workQueryToRawQuery(querySpec)
+        )
+        assertThat(pojos.size, `is`(1))
+        assertThat(pojos[0].id, `is`(test.stringId))
+    }
+
+    @Test
+    @SmallTest
     fun tagsOnlyTest1() {
         val test = OneTimeWorkRequest.from(TestWorker::class.java)
         val retry = OneTimeWorkRequest.from(RetryWorker::class.java)
@@ -172,6 +193,31 @@ class RawWorkInfoDaoTest : DatabaseTest() {
 
     @Test
     @SmallTest
+    fun idsAndTagsTest1() {
+        val test = OneTimeWorkRequest.from(TestWorker::class.java)
+        val retry = OneTimeWorkRequest.from(RetryWorker::class.java)
+
+        insertWork(test)
+        insertTags(test)
+
+        insertWork(retry)
+        insertTags(retry)
+
+        val querySpec = WorkQuery.Builder
+            .fromIds(listOf(test.id, retry.id))
+            .addTags(listOf(TestWorker::class.java.name))
+            .build()
+
+        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(
+            RawQueries
+                .workQueryToRawQuery(querySpec)
+        )
+        assertThat(pojos.size, `is`(1))
+        assertThat(pojos[0].id, `is`(test.stringId))
+    }
+
+    @Test
+    @SmallTest
     fun statesAndTags1() {
         val test = OneTimeWorkRequest.Builder(TestWorker::class.java)
             .setInitialState(WorkInfo.State.RUNNING)
@@ -223,6 +269,35 @@ class RawWorkInfoDaoTest : DatabaseTest() {
         )
         assertThat(pojos.size, `is`(1))
         assertThat(pojos[0].id, `is`(test.stringId))
+    }
+
+    @Test
+    @SmallTest
+    fun idsAndName() {
+        val test = OneTimeWorkRequest.Builder(TestWorker::class.java)
+            .setInitialState(WorkInfo.State.RUNNING)
+            .build()
+
+        val retry = OneTimeWorkRequest.from(RetryWorker::class.java)
+
+        insertWork(test)
+        insertTags(test)
+
+        insertWork(retry)
+        insertTags(retry)
+        insertName("name", retry)
+
+        val querySpec = WorkQuery.Builder
+            .fromIds(listOf(retry.id, test.id))
+            .addUniqueWorkNames(listOf("name"))
+            .build()
+
+        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(
+            RawQueries
+                .workQueryToRawQuery(querySpec)
+        )
+        assertThat(pojos.size, `is`(1))
+        assertThat(pojos[0].id, `is`(retry.stringId))
     }
 
     @Test
@@ -308,6 +383,44 @@ class RawWorkInfoDaoTest : DatabaseTest() {
 
         val querySpec = WorkQuery.Builder
             .fromStates(listOf(WorkInfo.State.ENQUEUED))
+            .addTags(listOf(TestWorker::class.java.name, RetryWorker::class.java.name))
+            .addUniqueWorkNames(listOf("name"))
+            .build()
+
+        val pojos = mDatabase.rawWorkInfoDao().getWorkInfoPojos(
+            RawQueries
+                .workQueryToRawQuery(querySpec)
+        )
+        assertThat(pojos.size, `is`(1))
+        assertThat(pojos[0].id, `is`(test1.stringId))
+    }
+
+    @Test
+    @SmallTest
+    fun idsStatesTagsAndName() {
+        val test1 = OneTimeWorkRequest.Builder(TestWorker::class.java)
+            .setInitialState(WorkInfo.State.ENQUEUED)
+            .build()
+
+        val test2 = OneTimeWorkRequest.Builder(TestWorker::class.java)
+            .setInitialState(WorkInfo.State.RUNNING)
+            .build()
+
+        val retry = OneTimeWorkRequest.from(RetryWorker::class.java)
+
+        insertWork(test1)
+        insertTags(test1)
+        insertName("name", test1)
+
+        insertWork(test2)
+        insertTags(test2)
+
+        insertWork(retry)
+        insertTags(retry)
+
+        val querySpec = WorkQuery.Builder
+            .fromStates(listOf(WorkInfo.State.ENQUEUED))
+            .addIds(listOf(test1.id, test2.id, retry.id))
             .addTags(listOf(TestWorker::class.java.name, RetryWorker::class.java.name))
             .addUniqueWorkNames(listOf("name"))
             .build()

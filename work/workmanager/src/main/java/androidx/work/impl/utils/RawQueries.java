@@ -25,6 +25,7 @@ import androidx.work.impl.model.WorkTypeConverters;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * A helper to build raw SQLite Queries.
@@ -57,6 +58,20 @@ public final class RawQueries {
             bindings(builder, stateIds.size());
             builder.append(")");
             arguments.addAll(stateIds);
+            conjunction = " AND";
+        }
+
+        List<UUID> ids = querySpec.getIds();
+        if (!ids.isEmpty()) {
+            List<String> workSpecIds = new ArrayList<>(ids.size());
+            for (UUID id : ids) {
+                workSpecIds.add(id.toString());
+            }
+            builder.append(conjunction)
+                    .append(" id IN (");
+            bindings(builder, ids.size());
+            builder.append(")");
+            arguments.addAll(workSpecIds);
             conjunction = " AND";
         }
 
