@@ -85,7 +85,7 @@ final class ImageSaver implements Runnable {
         Uri outputUri = null;
         try {
             // Create a temp file if the save location is not a file. This is necessary because
-            // ExifInterface only supports File.
+            // ExifInterface only supports saving to File.
             file = isSaveToFile() ? mOutputFileOptions.getFile() :
                     File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
         } catch (IOException e) {
