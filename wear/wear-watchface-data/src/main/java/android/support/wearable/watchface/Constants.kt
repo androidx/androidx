@@ -124,6 +124,9 @@ class Constants {
         @SuppressWarnings("ActionValue")
         const val EXTRA_WATCH_FACE_VISIBLE = "watch_face_visible"
 
+        @SuppressWarnings("ActionValue")
+        const val EXTRA_WATCH_FACE_COMMAND_BINDER = "watch_face_command_binder"
+
         /**
          * Property in bundle passed to {@link Engine#onPropertiesChanged} to indicate whether burn-in
          * protection is required. When this property is set to true, views are shifted around

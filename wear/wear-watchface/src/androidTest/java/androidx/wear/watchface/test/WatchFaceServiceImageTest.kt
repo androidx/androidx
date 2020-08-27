@@ -91,8 +91,9 @@ private class WatchFaceServiceStub(
     ) {
     }
 
-    override fun registerIWatchFaceCommand(iWatchFaceCommand: IWatchFaceCommand?) {
-        this.iWatchFaceCommand = iWatchFaceCommand
+    override fun registerIWatchFaceCommand(iWatchFaceCommandBundle: Bundle?) {
+        this.iWatchFaceCommand = IWatchFaceCommand.Stub.asInterface(iWatchFaceCommandBundle
+            ?.getBinder(Constants.EXTRA_WATCH_FACE_COMMAND_BINDER))
     }
 
     override fun setContentDescriptionLabels(labels: Array<ContentDescriptionLabel>) {
