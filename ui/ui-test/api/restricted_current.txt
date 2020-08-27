@@ -176,6 +176,8 @@ package androidx.ui.test {
 
   public final class GestureScope {
     ctor public GestureScope(androidx.compose.ui.semantics.SemanticsNode node);
+    method public long getVisibleSize();
+    property public final long visibleSize;
   }
 
   public final class GestureScopeKt {
@@ -196,7 +198,6 @@ package androidx.ui.test {
     method public static inline int getHeight(androidx.ui.test.GestureScope);
     method public static inline float getLeft(androidx.ui.test.GestureScope);
     method public static inline float getRight(androidx.ui.test.GestureScope);
-    method public static long getSize(androidx.ui.test.GestureScope);
     method public static inline float getTop(androidx.ui.test.GestureScope);
     method public static long getTopCenter(androidx.ui.test.GestureScope);
     method public static long getTopLeft(androidx.ui.test.GestureScope);

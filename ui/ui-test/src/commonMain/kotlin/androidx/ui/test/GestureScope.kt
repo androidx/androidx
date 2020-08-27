@@ -16,19 +16,20 @@
 
 package androidx.ui.test
 
-import androidx.compose.ui.gesture.DoubleTapTimeout
-import androidx.compose.ui.gesture.LongPressTimeout
-import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.lerp
+import androidx.compose.ui.gesture.DoubleTapTimeout
+import androidx.compose.ui.gesture.LongPressTimeout
+import androidx.compose.ui.layout.globalBounds
 import androidx.compose.ui.node.ExperimentalLayoutNodeApi
-import androidx.ui.test.InputDispatcher.Companion.eventPeriod
+import androidx.compose.ui.semantics.SemanticsNode
 import androidx.compose.ui.unit.Duration
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.inMilliseconds
 import androidx.compose.ui.unit.milliseconds
 import androidx.compose.ui.util.annotation.FloatRange
 import androidx.compose.ui.util.lerp
+import androidx.ui.test.InputDispatcher.Companion.eventPeriod
 import kotlin.math.atan2
 import kotlin.math.ceil
 import kotlin.math.cos
@@ -117,6 +118,15 @@ class GestureScope(node: SemanticsNode) {
             "Can't send gesture, (Partial)GestureScope has already been disposed"
         }
 
+    /**
+     * Returns the size of the visible part of the node we're interacting with. This is contrary
+     * to [SemanticsNode.size], which returns the unclipped size of the node.
+     */
+    val visibleSize: IntSize by lazy {
+        val bounds = semanticsNode.boundsInRoot
+        IntSize(bounds.width.roundToInt(), bounds.height.roundToInt())
+    }
+
     internal fun dispose() {
         inputDispatcher.saveState(owner)
         inputDispatcher.dispose()
@@ -126,22 +136,16 @@ class GestureScope(node: SemanticsNode) {
 }
 
 /**
- * Returns the size of the node we're interacting with
- */
-val GestureScope.size: IntSize
-    get() = semanticsNode.size
-
-/**
  * Shorthand for `size.width`
  */
 inline val GestureScope.width: Int
-    get() = size.width
+    get() = visibleSize.width
 
 /**
  * Shorthand for `size.height`
  */
 inline val GestureScope.height: Int
-    get() = size.height
+    get() = visibleSize.height
 
 /**
  * Returns the x-coordinate for the left edge of the node we're interacting with, in the
@@ -285,7 +289,7 @@ fun GestureScope.percentOffset(
  */
 fun GestureScope.localToGlobal(position: Offset): Offset {
     @OptIn(ExperimentalLayoutNodeApi::class)
-    return semanticsNode.componentNode.coordinates.localToGlobal(position)
+    return position + semanticsNode.componentNode.coordinates.globalBounds.topLeft
 }
 
 /**
@@ -466,7 +470,7 @@ fun GestureScope.swipeWithVelocity(
  */
 fun GestureScope.swipeUp() {
     val x = center.x
-    val y0 = (size.height * (1 - edgeFuzzFactor)).roundToInt().toFloat()
+    val y0 = (visibleSize.height * (1 - edgeFuzzFactor)).roundToInt().toFloat()
     val y1 = 0.0f
     val start = Offset(x, y0)
     val end = Offset(x, y1)
@@ -479,8 +483,8 @@ fun GestureScope.swipeUp() {
  */
 fun GestureScope.swipeDown() {
     val x = center.x
-    val y0 = (size.height * edgeFuzzFactor).roundToInt().toFloat()
-    val y1 = size.height.toFloat()
+    val y0 = (visibleSize.height * edgeFuzzFactor).roundToInt().toFloat()
+    val y1 = visibleSize.height.toFloat()
     val start = Offset(x, y0)
     val end = Offset(x, y1)
     swipe(start, end, 200.milliseconds)
@@ -491,7 +495,7 @@ fun GestureScope.swipeDown() {
  * the right side of the node and ends at the left side.
  */
 fun GestureScope.swipeLeft() {
-    val x0 = (size.width * (1 - edgeFuzzFactor)).roundToInt().toFloat()
+    val x0 = (visibleSize.width * (1 - edgeFuzzFactor)).roundToInt().toFloat()
     val x1 = 0.0f
     val y = center.y
     val start = Offset(x0, y)
@@ -504,8 +508,8 @@ fun GestureScope.swipeLeft() {
  * the left side of the node and ends at the right side.
  */
 fun GestureScope.swipeRight() {
-    val x0 = (size.width * edgeFuzzFactor).roundToInt().toFloat()
-    val x1 = size.width.toFloat()
+    val x0 = (visibleSize.width * edgeFuzzFactor).roundToInt().toFloat()
+    val x1 = visibleSize.width.toFloat()
     val y = center.y
     val start = Offset(x0, y)
     val end = Offset(x1, y)
