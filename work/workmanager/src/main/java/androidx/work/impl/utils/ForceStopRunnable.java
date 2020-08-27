@@ -162,11 +162,13 @@ public class ForceStopRunnable implements Runnable {
      */
     @VisibleForTesting
     public boolean cleanUp() {
-        // Mitigation for faulty implementations of JobScheduler (b/134058261
+        boolean needsReconciling = false;
         if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
-            SystemJobScheduler.cancelInvalidJobs(mContext);
+            // Mitigation for faulty implementations of JobScheduler (b/134058261) and
+            // Mitigation for a platform bug, which causes jobs to get dropped when binding to
+            // SystemJobService fails.
+            needsReconciling = SystemJobScheduler.reconcileJobs(mContext, mWorkManager);
         }
-
         // Reset previously unfinished work.
         WorkDatabase workDatabase = mWorkManager.getWorkDatabase();
         WorkSpecDao workSpecDao = workDatabase.workSpecDao();
@@ -194,7 +196,7 @@ public class ForceStopRunnable implements Runnable {
         } finally {
             workDatabase.endTransaction();
         }
-        return needsScheduling;
+        return needsScheduling || needsReconciling;
     }
 
     /**
