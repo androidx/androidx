@@ -8,6 +8,7 @@ cd "$(dirname $0)"
 impl/build.sh --no-daemon test jacocoTestReport zipEcFiles --offline \
     -Pandroidx.enableAffectedModuleDetection \
     -Pandroidx.ignoreTestFailures \
+    -Pandroidx.displayTestOutput=false \
     -Pandroidx.coverageEnabled=true \
     -Pandroidx.allWarningsAsErrors "$@"
 
