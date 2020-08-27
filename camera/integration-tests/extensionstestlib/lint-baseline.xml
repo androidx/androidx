@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
+<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
 
     <issue
         id="UnknownNullness"
@@ -943,7 +943,7 @@
         errorLine2="                       ~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="173"
+            line="220"
             column="24"/>
     </issue>
 
@@ -954,7 +954,7 @@
         errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="173"
+            line="220"
             column="41"/>
     </issue>
 
@@ -965,7 +965,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="174"
+            line="221"
             column="13"/>
     </issue>
 
@@ -976,7 +976,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="184"
+            line="231"
             column="12"/>
     </issue>
 
@@ -987,7 +987,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="190"
+            line="237"
             column="12"/>
     </issue>
 
@@ -998,7 +998,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="196"
+            line="243"
             column="12"/>
     </issue>
 
@@ -1009,7 +1009,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
-            line="207"
+            line="254"
             column="12"/>
     </issue>
 

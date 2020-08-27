@@ -1,5 +1,126 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
+<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="        /**"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/appcompat/graphics/drawable/DrawableContainer.java"
+            line="1128"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    /**"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="89"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    public synchronized void setHooks(ResourceManagerHooks hooks) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="127"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    public synchronized Drawable getDrawable(@NonNull Context context, @DrawableRes int resId) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="131"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    synchronized Drawable getDrawable(@NonNull Context context, @DrawableRes int resId,"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="135"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    public synchronized void onConfigurationChanged(@NonNull Context context) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="158"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    private synchronized Drawable getCachedDrawable(@NonNull final Context context,"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="313"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    private synchronized boolean addDrawableToCache(@NonNull final Context context, final long key,"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="334"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    synchronized Drawable onDrawableLoadedFromResources(@NonNull Context context,"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="349"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    synchronized ColorStateList getTintList(@NonNull Context context, @DrawableRes int resId) {"
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="377"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="    public static synchronized PorterDuffColorFilter getPorterDuffColorFilter("
+        errorLine2="    ^">
+        <location
+            file="src/main/java/androidx/appcompat/widget/ResourceManagerInternal.java"
+            line="467"
+            column="5"/>
+    </issue>
 
     <issue
         id="KotlinPropertyAccess"
@@ -67,7 +188,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/appcompat/content/res/AppCompatResources.java"
-            line="47"
+            line="66"
             column="19"/>
     </issue>
 

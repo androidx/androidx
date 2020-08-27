@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
+<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
+
+    <issue
+        id="BanSynchronizedMethods"
+        message="Use of synchronized methods is not recommended"
+        errorLine1="        /**"
+        errorLine2="        ^">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceLiveData.java"
+            line="210"
+            column="9"/>
+    </issue>
 
     <issue
         id="UnknownNullness"
@@ -19,7 +30,7 @@
         errorLine2="                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/GridContent.java"
-            line="66"
+            line="67"
             column="24"/>
     </issue>
 
@@ -30,7 +41,7 @@
         errorLine2="                         ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/GridContent.java"
-            line="227"
+            line="228"
             column="26"/>
     </issue>
 
@@ -41,7 +52,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/GridContent.java"
-            line="227"
+            line="228"
             column="44"/>
     </issue>
 
@@ -52,7 +63,7 @@
         errorLine2="                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/GridContent.java"
-            line="245"
+            line="247"
             column="28"/>
     </issue>
 
@@ -63,7 +74,7 @@
         errorLine2="                                ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/GridContent.java"
-            line="252"
+            line="254"
             column="33"/>
     </issue>
 
@@ -74,7 +85,7 @@
         errorLine2="               ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/GridContent.java"
-            line="305"
+            line="321"
             column="16"/>
     </issue>
 
@@ -85,7 +96,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/GridContent.java"
-            line="312"
+            line="328"
             column="16"/>
     </issue>
 
@@ -151,7 +162,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/GridRowView.java"
-            line="495"
+            line="524"
             column="25"/>
     </issue>
 
@@ -162,7 +173,7 @@
         errorLine2="                           ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/GridRowView.java"
-            line="516"
+            line="545"
             column="28"/>
     </issue>
 
@@ -173,7 +184,7 @@
         errorLine2="                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/GridRowView.java"
-            line="516"
+            line="545"
             column="39"/>
     </issue>
 
@@ -213,8 +224,8 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ArrayList&lt;SliceContent> getRowItems(int availableHeight, SliceStyle style,"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~">
+        errorLine1="    public List&lt;SliceContent> getRowItems(int availableHeight, SliceStyle style,"
+        errorLine2="           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/ListContent.java"
             line="144"
@@ -224,12 +235,12 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ArrayList&lt;SliceContent> getRowItems(int availableHeight, SliceStyle style,"
-        errorLine2="                                                                    ~~~~~~~~~~">
+        errorLine1="    public List&lt;SliceContent> getRowItems(int availableHeight, SliceStyle style,"
+        errorLine2="                                                               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/ListContent.java"
             line="144"
-            column="69"/>
+            column="64"/>
     </issue>
 
     <issue
@@ -723,7 +734,7 @@
         errorLine2="                    ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowStyle.java"
-            line="54"
+            line="56"
             column="21"/>
     </issue>
 
@@ -734,7 +745,7 @@
         errorLine2="              ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="134"
+            line="136"
             column="15"/>
     </issue>
 
@@ -745,7 +756,7 @@
         errorLine2="                   ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="182"
+            line="185"
             column="20"/>
     </issue>
 
@@ -756,7 +767,7 @@
         errorLine2="                         ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="208"
+            line="211"
             column="26"/>
     </issue>
 
@@ -767,7 +778,7 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="314"
+            line="317"
             column="33"/>
     </issue>
 
@@ -778,7 +789,7 @@
         errorLine2="                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="408"
+            line="411"
             column="30"/>
     </issue>
 
@@ -789,7 +800,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="409"
+            line="412"
             column="27"/>
     </issue>
 
@@ -800,7 +811,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="990"
+            line="1002"
             column="35"/>
     </issue>
 
@@ -811,7 +822,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="1002"
+            line="1014"
             column="25"/>
     </issue>
 
@@ -822,7 +833,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="1041"
+            line="1053"
             column="32"/>
     </issue>
 
@@ -833,7 +844,7 @@
         errorLine2="                                                      ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="1041"
+            line="1053"
             column="55"/>
     </issue>
 
@@ -844,7 +855,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowView.java"
-            line="1076"
+            line="1088"
             column="35"/>
     </issue>
 
@@ -895,12 +906,23 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public SliceActionView(Context context) {"
+        errorLine1="    public SliceActionView(Context context, SliceStyle style) {"
         errorLine2="                           ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceActionView.java"
-            line="80"
+            line="83"
             column="28"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="    public SliceActionView(Context context, SliceStyle style) {"
+        errorLine2="                                            ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/SliceActionView.java"
+            line="83"
+            column="45"/>
     </issue>
 
     <issue
@@ -910,7 +932,7 @@
         errorLine2="                                                           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceActionView.java"
-            line="90"
+            line="100"
             column="60"/>
     </issue>
 
@@ -921,7 +943,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceActionView.java"
-            line="91"
+            line="101"
             column="13"/>
     </issue>
 
@@ -932,7 +954,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceActionView.java"
-            line="92"
+            line="102"
             column="13"/>
     </issue>
 
@@ -943,19 +965,8 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceActionView.java"
-            line="219"
+            line="233"
             column="25"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {"
-        errorLine2="                                 ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/widget/SliceActionView.java"
-            line="227"
-            column="34"/>
     </issue>
 
     <issue
@@ -1130,7 +1141,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="352"
+            line="353"
             column="29"/>
     </issue>
 
@@ -1141,7 +1152,7 @@
         errorLine2="                               ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="360"
+            line="361"
             column="32"/>
     </issue>
 
@@ -1152,7 +1163,7 @@
         errorLine2="                                       ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceAdapter.java"
-            line="360"
+            line="361"
             column="40"/>
     </issue>
 
@@ -1548,7 +1559,7 @@
         errorLine2="                      ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="83"
+            line="84"
             column="23"/>
     </issue>
 
@@ -1559,7 +1570,7 @@
         errorLine2="                                       ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="83"
+            line="84"
             column="40"/>
     </issue>
 
@@ -1570,7 +1581,7 @@
         errorLine2="           ~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="228"
+            line="250"
             column="12"/>
     </issue>
 
@@ -1581,7 +1592,7 @@
         errorLine2="                            ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="240"
+            line="270"
             column="29"/>
     </issue>
 
@@ -1592,7 +1603,7 @@
         errorLine2="                                            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="240"
+            line="270"
             column="45"/>
     </issue>
 
@@ -1603,7 +1614,7 @@
         errorLine2="                             ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="274"
+            line="304"
             column="30"/>
     </issue>
 
@@ -1614,7 +1625,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="274"
+            line="304"
             column="48"/>
     </issue>
 
@@ -1625,7 +1636,7 @@
         errorLine2="                             ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="302"
+            line="332"
             column="30"/>
     </issue>
 
@@ -1636,7 +1647,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="302"
+            line="332"
             column="48"/>
     </issue>
 
@@ -1647,7 +1658,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="332"
+            line="362"
             column="35"/>
     </issue>
 
@@ -1658,7 +1669,7 @@
         errorLine2="                                                                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="332"
+            line="362"
             column="65"/>
     </issue>
 
@@ -1669,7 +1680,7 @@
         errorLine2="                                                                   ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="361"
+            line="389"
             column="68"/>
     </issue>
 
@@ -1680,7 +1691,7 @@
         errorLine2="                                                                    ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceStyle.java"
-            line="363"
+            line="391"
             column="69"/>
     </issue>
 
@@ -2010,7 +2021,7 @@
         errorLine2="                  ~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceView.java"
-            line="820"
+            line="823"
             column="19"/>
     </issue>
 
@@ -2021,7 +2032,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/slice/widget/SliceView.java"
-            line="861"
+            line="864"
             column="40"/>
     </issue>
 
