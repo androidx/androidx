@@ -34,6 +34,7 @@ import static androidx.slice.Slice.SUBTYPE_RANGE_MODE;
 import static androidx.slice.core.SliceHints.HINT_RAW;
 import static androidx.slice.core.SliceHints.HINT_SELECTION_OPTION;
 import static androidx.slice.core.SliceHints.INDETERMINATE_RANGE;
+import static androidx.slice.core.SliceHints.STAR_RATING;
 import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION_OPTION_KEY;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION_OPTION_VALUE;
@@ -50,8 +51,10 @@ import static androidx.slice.widget.SliceView.MODE_SMALL;
 import android.app.PendingIntent.CanceledException;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Handler;
 import android.text.SpannableString;
@@ -61,6 +64,7 @@ import android.text.style.StyleSpan;
 import android.util.ArrayMap;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,6 +74,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RatingBar;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -113,26 +118,30 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     // How frequently (ms) intent can be sent in response to slider moving.
     private static final int SLIDER_INTERVAL = 200;
 
+    // The index for star rating's layer drawable's foreground
+    private static final int STAR_COLOR_INDEX = 2;
+
     // On versions before M, SeekBar won't render properly if stretched taller than the default
     // size.
     private static final boolean sCanSpecifyLargerRangeBarHeight =
             Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
 
-    private LinearLayout mRootView;
-    private LinearLayout mStartContainer;
-    private LinearLayout mContent;
-    private LinearLayout mSubContent;
-    private TextView mPrimaryText;
-    private TextView mSecondaryText;
-    private TextView mLastUpdatedText;
-    private View mBottomDivider;
-    private View mActionDivider;
-    private ArrayMap<SliceActionImpl, SliceActionView> mToggles = new ArrayMap<>();
-    private ArrayMap<SliceActionImpl, SliceActionView> mActions = new ArrayMap<>();
-    private LinearLayout mEndContainer;
+    private final LinearLayout mRootView;
+    private final LinearLayout mStartContainer;
+    private final LinearLayout mContent;
+    private final LinearLayout mSubContent;
+    private final TextView mPrimaryText;
+    private final TextView mSecondaryText;
+    private final TextView mLastUpdatedText;
+    private final View mBottomDivider;
+    private final View mActionDivider;
+    private final ArrayMap<SliceActionImpl, SliceActionView> mToggles = new ArrayMap<>();
+    private final ArrayMap<SliceActionImpl, SliceActionView> mActions = new ArrayMap<>();
+    private final LinearLayout mEndContainer;
     private View mSeeMoreView;
-    private ProgressBar mRangeBar;
-    private ProgressBar mActionSpinner;
+    private View mRangeBar;
+    private boolean mIsStarRating;
+    private final ProgressBar mActionSpinner;
     protected Set<SliceItem> mLoadingActions = new HashSet<>();
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     boolean mShowActionSpinner;
@@ -377,9 +386,10 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         }
 
         childWidth = Math.max(childWidth + mInsetStart + mInsetEnd, getSuggestedMinimumWidth());
-        int totalHeight = mRowContent != null ? mRowContent.getHeight(mSliceStyle, mViewPolicy) : 0;
+        int rowContentHeight = mRowContent != null ? mRowContent.getHeight(mSliceStyle,
+                mViewPolicy) : 0;
         setMeasuredDimension(resolveSizeAndState(childWidth, widthMeasureSpec, 0),
-                totalHeight + mInsetTop + mInsetBottom);
+                rowContentHeight + mInsetTop + mInsetBottom);
     }
 
     @Override
@@ -392,7 +402,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
             // mMeasuredRangeHeight can (and probably will) be smaller than the ideal height, so we
             // need to add some padding to make mRangeBar look like it's the larger size.
             int verticalPadding = (mSliceStyle.getRowRangeHeight() - mMeasuredRangeHeight) / 2;
-            int top = getRowContentHeight() + verticalPadding + mInsetTop;
+            int top = (getRowContentHeight() + verticalPadding + mInsetTop);
             int bottom = top + mMeasuredRangeHeight;
             mRangeBar.layout(leftPadding, top, mRangeBar.getMeasuredWidth() + leftPadding, bottom);
         } else if (mSelectionSpinner != null) {
@@ -488,9 +498,13 @@ public class RowView extends SliceChildView implements View.OnClickListener,
                 setViewClickable(mRootView, true);
             }
             mRangeItem = range;
+            SliceItem mode = SliceQuery.findSubtype(mRangeItem, FORMAT_INT, SUBTYPE_RANGE_MODE);
+            if (mode != null) {
+                mIsStarRating = mode.getInt() == STAR_RATING;
+            }
             if (!skipSliderUpdate) {
-                setRangeBounds();
-                addRange();
+                initRangeBar();
+                addRangeView();
             }
             // if mStartItem is not null, then RowView should update end items.
             if (mStartItem == null) {
@@ -677,7 +691,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         }
     }
 
-    private void setRangeBounds() {
+    private void initRangeBar() {
         SliceItem min = SliceQuery.findSubtype(mRangeItem, FORMAT_INT, SUBTYPE_MIN);
         int minValue = 0;
         if (min != null) {
@@ -686,7 +700,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         mRangeMinValue = minValue;
 
         SliceItem max = SliceQuery.findSubtype(mRangeItem, FORMAT_INT, SUBTYPE_MAX);
-        int maxValue = 100;  // TODO: This default shouldn't be hardcoded here.
+        int maxValue = mIsStarRating ? 5 : 100;
         if (max != null) {
             maxValue = max.getInt();
         }
@@ -701,27 +715,35 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     }
 
     @SuppressWarnings("deprecation")
-    private void addRange() {
+    private void addRangeView() {
         if (mHandler == null) {
             mHandler = new Handler();
         }
+        if (mIsStarRating) {
+            addRatingBarView();
+            return;
+        }
 
+        // add either input slider or progress bar view
         SliceItem style = SliceQuery.findSubtype(mRangeItem, FORMAT_INT, SUBTYPE_RANGE_MODE);
         final boolean isIndeterminate = style != null && style.getInt() == INDETERMINATE_RANGE;
         final boolean isSeekBar = FORMAT_ACTION.equals(mRangeItem.getFormat());
         final boolean renderInNewLine = mStartItem == null;
-        final ProgressBar progressBar;
+        ProgressBar progressBar;
         if (isSeekBar) {
+            // If action and not star rating, must be input range.
             if (renderInNewLine) {
                 progressBar = new SeekBar(getContext());
             } else {
                 progressBar = (SeekBar) LayoutInflater.from(getContext()).inflate(
                         R.layout.abc_slice_seekbar_view, this, false);
                 if (mSliceStyle != null && mSliceStyle.getRowStyle() != null) {
-                    setViewWidth(progressBar, mSliceStyle.getRowStyle().getSeekBarInlineWidth());
+                    setViewWidth(progressBar,
+                            mSliceStyle.getRowStyle().getSeekBarInlineWidth());
                 }
             }
         } else {
+            // non interactive progress bar
             if (renderInNewLine) {
                 progressBar = new ProgressBar(getContext(), null,
                         android.R.attr.progressBarStyleHorizontal);
@@ -780,6 +802,26 @@ public class RowView extends SliceChildView implements View.OnClickListener,
             }
             seekBar.setOnSeekBarChangeListener(mSeekBarChangeListener);
         }
+    }
+
+    private void addRatingBarView() {
+        RatingBar ratingBar = new RatingBar(getContext());
+        LayerDrawable starDrawable = (LayerDrawable) ratingBar.getProgressDrawable();
+        starDrawable.getDrawable(STAR_COLOR_INDEX).setColorFilter(mTintColor,
+                PorterDuff.Mode.SRC_IN);
+        ratingBar.setStepSize(1.0f);
+        ratingBar.setNumStars(mRangeMaxValue);
+        ratingBar.setRating(mRangeValue);
+        ratingBar.setVisibility(View.VISIBLE);
+        LinearLayout ratingBarContainer = new LinearLayout(getContext());
+        ratingBarContainer.setGravity(Gravity.CENTER);
+        ratingBarContainer.setVisibility(View.VISIBLE);
+        ratingBarContainer.addView(ratingBar,
+                new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+        addView(ratingBarContainer, new LayoutParams(LayoutParams.MATCH_PARENT,
+                LayoutParams.WRAP_CONTENT));
+        ratingBar.setOnRatingBarChangeListener(mRatingBarChangeListener);
+        mRangeBar = ratingBarContainer;
     }
 
     void sendSliderValue() {
@@ -1157,7 +1199,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
         }
     };
 
-    private SeekBar.OnSeekBarChangeListener mSeekBarChangeListener =
+    private final SeekBar.OnSeekBarChangeListener mSeekBarChangeListener =
             new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -1187,6 +1229,23 @@ public class RowView extends SliceChildView implements View.OnClickListener,
                         mHandler.removeCallbacks(mRangeUpdater);
                         mRangeValue = seekBar.getProgress() + mRangeMinValue;
                         sendSliderValue();
+                    }
+                }
+            };
+
+    private final RatingBar.OnRatingBarChangeListener mRatingBarChangeListener =
+            new RatingBar.OnRatingBarChangeListener() {
+                @Override
+                public void onRatingChanged(RatingBar ratingBar, float rating, boolean fromUser) {
+                    mRangeValue = Math.round(rating + mRangeMinValue);
+                    final long now = System.currentTimeMillis();
+                    if (mLastSentRangeUpdate != 0 && now - mLastSentRangeUpdate > SLIDER_INTERVAL) {
+                        mRangeUpdaterRunning = false;
+                        mHandler.removeCallbacks(mRangeUpdater);
+                        sendSliderValue();
+                    } else if (!mRangeUpdaterRunning) {
+                        mRangeUpdaterRunning = true;
+                        mHandler.postDelayed(mRangeUpdater, SLIDER_INTERVAL);
                     }
                 }
             };

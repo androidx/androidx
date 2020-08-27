@@ -30,6 +30,7 @@ import androidx.slice.builders.GridRowBuilder;
 import androidx.slice.builders.ListBuilder.HeaderBuilder;
 import androidx.slice.builders.ListBuilder.InputRangeBuilder;
 import androidx.slice.builders.ListBuilder.RangeBuilder;
+import androidx.slice.builders.ListBuilder.RatingBuilder;
 import androidx.slice.builders.ListBuilder.RowBuilder;
 import androidx.slice.builders.SelectionBuilder;
 import androidx.slice.builders.SliceAction;
@@ -67,6 +68,11 @@ public interface ListBuilder {
      * may be shown on the template in large or small formats.
      */
     void addAction(@NonNull SliceAction action);
+
+    /**
+     * Add an star rating row to the list builder.
+     */
+    void addRating(@NonNull RatingBuilder builder);
 
     /**
      * Add an input range row to the list builder.

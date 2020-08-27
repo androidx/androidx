@@ -20,9 +20,9 @@ import static android.app.slice.Slice.EXTRA_RANGE_VALUE;
 import static android.app.slice.Slice.EXTRA_TOGGLE_STATE;
 
 import static androidx.slice.test.SampleSliceProvider.EXTRA_ITEM_INDEX;
+import static androidx.slice.test.SampleSliceProvider.STAR_RATING;
 import static androidx.slice.test.SampleSliceProvider.getUri;
 import static androidx.slice.test.SampleSliceProvider.sGroceryList;
-import static androidx.slice.test.SampleSliceProvider.sStarRating;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -70,10 +70,15 @@ public class SliceBroadcastReceiver extends BroadcastReceiver {
                 break;
             case SampleSliceProvider.ACTION_TOAST_RANGE_VALUE:
                 int range = i.getExtras().getInt(EXTRA_RANGE_VALUE, 0);
-                sStarRating = range;
+                STAR_RATING = range;
                 Toast.makeText(context, "value: " + range, Toast.LENGTH_SHORT).show();
                 context.getContentResolver().notifyChange(getUri("inputrange", context), null);
                 context.getContentResolver().notifyChange(getUri("richinputrange", context), null);
+                context.getContentResolver().notifyChange(getUri("indeterminateprogress3", context),
+                        null);
+                context.getContentResolver().notifyChange(getUri("starrating",
+                        context),
+                        null);
                 break;
             case SampleSliceProvider.ACTION_PLAY_TTS:
                 context.getContentResolver().notifyChange(getUri("tts", context), null);

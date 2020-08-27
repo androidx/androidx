@@ -19,6 +19,7 @@ package androidx.slice.builders;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.drawable.Icon;
@@ -77,6 +78,9 @@ import java.util.Set;
  *     <li>{@link InputRangeBuilder} - An input range row supports displaying a horizontal slider
  *     allowing slider input (e.g. brightness or volume slider).
  *     </li>
+ *     <li>{@link RatingBuilder} - An star rating row supports displaying a horizontal star
+ *     rating input (e.g. rating 4/5 stars)
+ *     </li>
  * </ul>
  * </p>
  * <b>Handling modes</b>
@@ -131,6 +135,7 @@ import java.util.Set;
  * @see GridRowBuilder
  * @see RangeBuilder
  * @see InputRangeBuilder
+ * @see RatingBuilder
  * @see SliceAction
  * @see androidx.slice.SliceProvider
  * @see androidx.slice.SliceProvider#onBindSlice(Uri)
@@ -196,14 +201,9 @@ public class ListBuilder extends TemplateSliceBuilder {
     public @interface LayoutDirection{}
 
     /**
-     * @hide
+     * Indicates that the progress bar should be presented as a star rating.
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
-    @IntDef({
-            RANGE_MODE_DETERMINATE, RANGE_MODE_INDETERMINATE
-    })
-    @Retention(RetentionPolicy.SOURCE)
-    public @interface RangeMode{}
+    public static final int RANGE_MODE_STAR_RATING = SliceHints.STAR_RATING;
 
     /**
      * Indicates that the progress bar should be presented in determinate mode.
@@ -213,6 +213,19 @@ public class ListBuilder extends TemplateSliceBuilder {
      * Indicates that the progress bar should be presented in indeterminate mode.
      */
     public static final int RANGE_MODE_INDETERMINATE = SliceHints.INDETERMINATE_RANGE;
+
+    /**
+     * Add an star rating row to the list builder.
+     * <p>
+     * If {@link RatingBuilder#setValue(float)} is not between
+     * {@link RatingBuilder#setMin(int)} and {@link RatingBuilder#setMax(int)}, this
+     * will show all stars as unselected.
+     */
+    @NonNull
+    public ListBuilder addRating(@NonNull RatingBuilder b) {
+        mImpl.addRating(b);
+        return this;
+    }
 
     /**
      * Create a ListBuilder for constructing slice content.
@@ -497,6 +510,17 @@ public class ListBuilder extends TemplateSliceBuilder {
     @NonNull
     public androidx.slice.builders.impl.ListBuilder getImpl() {
         return mImpl;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    @IntDef({
+            RANGE_MODE_DETERMINATE, RANGE_MODE_INDETERMINATE, RANGE_MODE_STAR_RATING
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface RangeMode {
     }
 
     /**
@@ -799,6 +823,287 @@ public class ListBuilder extends TemplateSliceBuilder {
     }
 
     /**
+     * Builder to construct a input star rating.
+     * <p>
+     * An star rating row supports displaying a horizontal tappable stars allowing rating input.
+     *
+     * @see ListBuilder#addRating(RatingBuilder)
+     */
+    @SuppressLint("MissingBuildMethod")
+    public static final class RatingBuilder {
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public static final int TYPE_ACTION = 2;
+        private int mMin = 0;
+        private int mMax = 5;
+        private int mValue = 0;
+        private boolean mValueSet = false;
+        private CharSequence mContentDescription;
+        private PendingIntent mAction;
+        private PendingIntent mInputAction;
+        private CharSequence mTitle;
+        private CharSequence mSubtitle;
+        private SliceAction mPrimaryAction;
+        private IconCompat mTitleIcon;
+        private int mTitleImageMode;
+        private boolean mTitleItemLoading;
+
+        /**
+         * Builder to construct a star rating row.
+         * <p>
+         * An star rating row supports displaying a horizontal slider allowing slider input.
+         *
+         * @see ListBuilder#addRating(RatingBuilder)
+         */
+        public RatingBuilder() {
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public int getMin() {
+            return mMin;
+        }
+
+        /**
+         * Set the lower limit of the range. The default is 0.
+         */
+        @NonNull
+        public RatingBuilder setMin(int min) {
+            mMin = min;
+            return this;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public int getMax() {
+            return mMax;
+        }
+
+        /**
+         * Set the upper limit of the range. The default is 100.
+         */
+        @NonNull
+        public RatingBuilder setMax(int max) {
+            mMax = max;
+            return this;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public float getValue() {
+            return mValue;
+        }
+
+        /**
+         * Set the current value of the range.
+         *
+         * @param value the value of the range, between {@link #setMin(int)}
+         *              and {@link #setMax(int)}. Will be rounded to the nearest integer.
+         */
+        @NonNull
+        public RatingBuilder setValue(float value) {
+            mValueSet = true;
+            mValue = Math.round(value);
+            return this;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public boolean isValueSet() {
+            return mValueSet;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        @Nullable
+        public PendingIntent getAction() {
+            return mAction;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        @Nullable
+        public CharSequence getContentDescription() {
+            return mContentDescription;
+        }
+
+        /**
+         * Set the title.
+         */
+        @NonNull
+        public RatingBuilder setTitle(@NonNull CharSequence title) {
+            mTitle = title;
+            return this;
+        }
+
+        /**
+         * Set the subtitle.
+         */
+        @NonNull
+        public RatingBuilder setSubtitle(@NonNull CharSequence title) {
+            mSubtitle = title;
+            return this;
+        }
+
+        /**
+         * Set the primary action for this row.
+         * <p>
+         * The action specified here will be sent when the whole row is clicked. If this
+         * is the first row in a {@link ListBuilder} this action will also be used to define
+         * the {@link androidx.slice.widget.SliceView#MODE_SHORTCUT} representation of the slice.
+         */
+        @NonNull
+        public RatingBuilder setPrimaryAction(@NonNull SliceAction action) {
+            mPrimaryAction = action;
+            return this;
+        }
+
+        /**
+         * Sets the title item to be the provided icon. There can only be one title item, this
+         * will replace any other title items that may have been set.
+         *
+         * @param icon the image to display.
+         * @param imageMode the mode that image should be displayed in.
+         *
+         * @see #ICON_IMAGE
+         * @see #SMALL_IMAGE
+         * @see #LARGE_IMAGE
+         */
+        @NonNull
+        public RatingBuilder setTitleItem(@NonNull IconCompat icon,
+                @ImageMode int imageMode) {
+            return setTitleItem(icon, imageMode, false /* isLoading */);
+        }
+        /**
+         * Sets the title item to be the provided icon. There can only be one title item, this
+         * will replace any other title items that may have been set.
+         * <p>
+         * When set to true, the parameter {@code isLoading} indicates that the app is doing work
+         * to load this content in the background, in this case the template displays a placeholder
+         * until updated.
+         *
+         * @param icon the image to display.
+         * @param imageMode the mode that image should be displayed in.
+         * @param isLoading whether this content is being loaded in the background.
+         *
+         * @see #ICON_IMAGE
+         * @see #SMALL_IMAGE
+         * @see #LARGE_IMAGE
+         */
+        @NonNull
+        public RatingBuilder setTitleItem(@NonNull IconCompat icon, @ImageMode int imageMode,
+                boolean isLoading) {
+            mTitleIcon = icon;
+            mTitleImageMode = imageMode;
+            mTitleItemLoading = isLoading;
+            return this;
+        }
+
+        /**
+         * Sets the content description.
+         */
+        @NonNull
+        public RatingBuilder setContentDescription(@NonNull CharSequence description) {
+            mContentDescription = description;
+            return this;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        @Nullable
+        public PendingIntent getInputAction() {
+            return mInputAction;
+        }
+
+        /**
+         * Set the {@link PendingIntent} to send when the current value is updated.
+         */
+        @SuppressLint("ExecutorRegistration")
+        @NonNull
+        public RatingBuilder setInputAction(@NonNull PendingIntent action) {
+            mInputAction = action;
+            return this;
+        }
+
+        /**
+         * Set the {@link PendingIntent} to send when the current value is updated.
+         */
+        @SuppressLint("ExecutorRegistration")
+        @NonNull
+        public RatingBuilder setInputAction(@NonNull RemoteCallback callback) {
+            mInputAction = callback.toPendingIntent();
+            return this;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        @Nullable
+        public CharSequence getTitle() {
+            return mTitle;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        @Nullable
+        public CharSequence getSubtitle() {
+            return mSubtitle;
+        }
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        @Nullable
+        public SliceAction getPrimaryAction() {
+            return mPrimaryAction;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public boolean isTitleItemLoading() {
+            return mTitleItemLoading;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        public int getTitleImageMode() {
+            return mTitleImageMode;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY)
+        @Nullable
+        public IconCompat getTitleIcon() {
+            return mTitleIcon;
+        }
+    }
+
+    /**
      * Builder to construct a input range row.
      * <p>
      * An input range row supports displaying a horizontal slider allowing slider input.
@@ -823,9 +1128,9 @@ public class ListBuilder extends TemplateSliceBuilder {
         private int mTitleImageMode;
         private boolean mTitleItemLoading;
         private boolean mHasDefaultToggle;
-        private List<Object> mEndItems = new ArrayList<>();
-        private List<Integer> mEndTypes = new ArrayList<>();
-        private List<Boolean> mEndLoads = new ArrayList<>();
+        private final List<Object> mEndItems = new ArrayList<>();
+        private final List<Integer> mEndTypes = new ArrayList<>();
+        private final List<Boolean> mEndLoads = new ArrayList<>();
 
         /**
          * Builder to construct a input range row.
@@ -1240,9 +1545,9 @@ public class ListBuilder extends TemplateSliceBuilder {
         private boolean mSubtitleLoading;
         private CharSequence mContentDescription;
         private int mLayoutDirection = -1;
-        private List<Object> mEndItems = new ArrayList<>();
-        private List<Integer> mEndTypes = new ArrayList<>();
-        private List<Boolean> mEndLoads = new ArrayList<>();
+        private final List<Object> mEndItems = new ArrayList<>();
+        private final List<Integer> mEndTypes = new ArrayList<>();
+        private final List<Boolean> mEndLoads = new ArrayList<>();
         private boolean mTitleActionLoading;
 
         /**

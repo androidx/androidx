@@ -42,6 +42,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.slice.Slice.SUBTYPE_RANGE_MODE;
 import static androidx.slice.builders.ListBuilder.INFINITY;
 import static androidx.slice.builders.ListBuilder.RANGE_MODE_DETERMINATE;
+import static androidx.slice.builders.ListBuilder.RANGE_MODE_STAR_RATING;
 import static androidx.slice.core.SliceHints.HINT_END_OF_SECTION;
 import static androidx.slice.core.SliceHints.SUBTYPE_HOST_EXTRAS;
 import static androidx.slice.core.SliceHints.SUBTYPE_MILLIS;
@@ -70,6 +71,7 @@ import androidx.slice.builders.GridRowBuilder;
 import androidx.slice.builders.ListBuilder.HeaderBuilder;
 import androidx.slice.builders.ListBuilder.InputRangeBuilder;
 import androidx.slice.builders.ListBuilder.RangeBuilder;
+import androidx.slice.builders.ListBuilder.RatingBuilder;
 import androidx.slice.builders.ListBuilder.RowBuilder;
 import androidx.slice.builders.SelectionBuilder;
 import androidx.slice.builders.SliceAction;
@@ -218,6 +220,13 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
         }
         Slice.Builder b = new Slice.Builder(getBuilder()).addHints(HINT_ACTIONS);
         mSliceActions.add(action.buildSlice(b));
+    }
+
+    @Override
+    public void addRating(@NonNull final RatingBuilder builder) {
+        RatingBuilderImpl impl = new RatingBuilderImpl(createChildBuilder(), builder);
+        checkRow(true, impl.hasText());
+        getBuilder().addSubSlice(impl.build(), SUBTYPE_RANGE);
     }
 
     @Override
@@ -426,10 +435,10 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
      * Builder to construct an input range row.
      */
     public static class InputRangeBuilderImpl extends RangeBuilderImpl {
-        private PendingIntent mAction;
-        private IconCompat mThumb;
+        private final PendingIntent mAction;
+        private final IconCompat mThumb;
         private Slice mStartItem;
-        private ArrayList<Slice> mEndItems = new ArrayList<>();
+        private final ArrayList<Slice> mEndItems = new ArrayList<>();
 
         InputRangeBuilderImpl(Slice.Builder sb, InputRangeBuilder builder) {
             super(sb, null);
@@ -497,6 +506,92 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
     }
 
     /**
+     * Builder to construct an input range row.
+     */
+    public static class RatingBuilderImpl extends TemplateBuilderImpl {
+        private final PendingIntent mAction;
+        protected int mMin = 0;
+        protected int mMax = 100;
+        protected int mValue = 0;
+        @Nullable
+        protected CharSequence mTitle;
+        @Nullable
+        protected CharSequence mSubtitle;
+        @Nullable
+        protected CharSequence mContentDescr;
+        @Nullable
+        protected SliceAction mPrimaryAction;
+        protected boolean mValueSet = false;
+        private Slice mStartItem;
+
+        RatingBuilderImpl(Slice.Builder sb, RatingBuilder builder) {
+            super(sb, null);
+            mValueSet = builder.isValueSet();
+            mMin = builder.getMin();
+            mMax = builder.getMax();
+            mValue = (int) builder.getValue();
+            mTitle = builder.getTitle();
+            mSubtitle = builder.getSubtitle();
+            mContentDescr = builder.getContentDescription();
+            mPrimaryAction = builder.getPrimaryAction();
+            mAction = builder.getInputAction();
+            if (builder.getTitleIcon() != null) {
+                setTitleItem(builder.getTitleIcon(), builder.getTitleImageMode(),
+                        builder.isTitleItemLoading());
+            }
+        }
+
+        void setTitleItem(IconCompat icon, int imageMode, boolean isLoading) {
+            Slice.Builder sb = new Slice.Builder(getBuilder())
+                    .addIcon(icon, null, parseImageMode(imageMode, isLoading));
+            if (isLoading) {
+                sb.addHints(HINT_PARTIAL);
+            }
+            mStartItem = sb.addHints(HINT_TITLE).build();
+        }
+
+        @Override
+        public void apply(@NonNull Slice.Builder builder) {
+            if (mAction == null) {
+                throw new IllegalStateException("Star rating must have an associated action.");
+            }
+
+            if (!mValueSet) {
+                // Unset, make it outside whatever min is, to represent an unset value
+                mValue = mMin - 1;
+            }
+            if (mTitle != null) {
+                builder.addText(mTitle, null, HINT_TITLE);
+            }
+            if (mSubtitle != null) {
+                builder.addText(mSubtitle, null);
+            }
+            if (mContentDescr != null) {
+                builder.addText(mContentDescr, SUBTYPE_CONTENT_DESCRIPTION);
+            }
+            if (mPrimaryAction != null) {
+                mPrimaryAction.setPrimaryAction(builder);
+            }
+            if (mStartItem != null) {
+                builder.addSubSlice(mStartItem);
+            }
+            Slice.Builder sb = new Slice.Builder(builder);
+
+            sb.addHints(HINT_LIST_ITEM)
+                    .addInt(mMin, SUBTYPE_MIN)
+                    .addInt(mMax, SUBTYPE_MAX)
+                    .addInt(mValue, SUBTYPE_VALUE)
+                    .addInt(RANGE_MODE_STAR_RATING, SUBTYPE_RANGE_MODE);
+            builder.addAction(mAction, sb.build(), SUBTYPE_RANGE).addHints(HINT_LIST_ITEM);
+        }
+
+        boolean hasText() {
+            return mTitle != null || mSubtitle != null;
+        }
+    }
+
+    /**
+     *
      */
     public static class RowBuilderImpl extends TemplateBuilderImpl {
 
@@ -505,7 +600,7 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
         private SliceItem mTitleItem;
         private SliceItem mSubtitleItem;
         private Slice mStartItem;
-        private ArrayList<Slice> mEndItems = new ArrayList<>();
+        private final ArrayList<Slice> mEndItems = new ArrayList<>();
         private CharSequence mContentDescr;
 
         /**
@@ -642,7 +737,7 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
          */
         protected void addEndItem(long timeStamp) {
             mEndItems.add(new Slice.Builder(getBuilder()).addTimestamp(timeStamp,
-                    null, new String[0]).build());
+                    null).build());
         }
 
         /**
