@@ -508,6 +508,7 @@ public class AppSearchCompilerTest {
         // TODO(b/156296904): Uncomment Gift and GenericDocument when it's supported
         Compilation compilation = compile(
                 "import java.util.*;\n"
+                        + "import androidx.appsearch.app.GenericDocument;\n"
                         + "@AppSearchDocument\n"
                         + "public class Gift {\n"
                         + "  @Uri String uri;\n"
@@ -520,7 +521,7 @@ public class AppSearchCompilerTest {
                         + "  @Property Collection<Boolean> collectBoolean;\n"   // 1a
                         + "  @Property Collection<byte[]> collectByteArr;\n"    // 1a
                         + "  @Property Collection<String> collectString;\n"     // 1b
-                        //+ "  @Property Collection<GenericDocument> collectGenDoc;\n" // 1b
+                        + "  @Property Collection<GenericDocument> collectGenDoc;\n" // 1b
                         //+ "  @Property Collection<Gift> collectGift;\n"         // 1c
                         + "\n"
                         + "  // Arrays\n"

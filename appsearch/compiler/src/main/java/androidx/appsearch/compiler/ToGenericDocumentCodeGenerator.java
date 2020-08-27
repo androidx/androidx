@@ -245,7 +245,7 @@ class ToGenericDocumentCodeGenerator {
             body.addStatement(
                     "boolean[] $NConv = new boolean[$NCopy.size()]", fieldName, fieldName);
 
-        } else if (typeUtil.isSameType(propertyType, mHelper.mByteArrayType)) {
+        } else if (typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)) {
             body.addStatement(
                     "byte[][] $NConv = new byte[$NCopy.size()][]", fieldName, fieldName);
 
@@ -283,10 +283,14 @@ class ToGenericDocumentCodeGenerator {
         CodeBlock.Builder body = CodeBlock.builder()
                 .add("if ($NCopy != null) {\n", fieldName).indent();
 
-        // TODO(b/156296904): Handle GenericDocument
         if (typeUtil.isSameType(propertyType, mHelper.mStringType)) {
             body.addStatement(
                     "String[] $NConv = $NCopy.toArray(new String[0])", fieldName, fieldName);
+
+        } else if (typeUtil.isSameType(propertyType, mHelper.mGenericDocumentType)) {
+            body.addStatement(
+                    "GenericDocument[] $NConv = $NCopy.toArray(new GenericDocument[0])", fieldName,
+                    fieldName);
 
         } else {
             // This is not a type 1b collection.
@@ -314,7 +318,7 @@ class ToGenericDocumentCodeGenerator {
         if (property.asType().getKind() != TypeKind.ARRAY
                 // Byte arrays have a native representation in Icing, so they are not considered a
                 // "repeated" type
-                || typeUtil.isSameType(property.asType(), mHelper.mByteArrayType)) {
+                || typeUtil.isSameType(property.asType(), mHelper.mBytePrimitiveArrayType)) {
             return false;  // This is not a scenario 2 array
         }
 
@@ -413,7 +417,7 @@ class ToGenericDocumentCodeGenerator {
                 && !typeUtil.isSameType(propertyType, mHelper.mLongPrimitiveType)
                 && !typeUtil.isSameType(propertyType, mHelper.mDoublePrimitiveType)
                 && !typeUtil.isSameType(propertyType, mHelper.mBooleanPrimitiveType)
-                && !typeUtil.isSameType(propertyType, mHelper.mByteArrayType)) {
+                && !typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)) {
             // This is not a type 2b array.
             return false;
         }
@@ -475,7 +479,7 @@ class ToGenericDocumentCodeGenerator {
                 && !typeUtil.isSameType(propertyType, mHelper.mDoubleBoxType)
                 && !typeUtil.isSameType(propertyType, mHelper.mFloatBoxType)
                 && !typeUtil.isSameType(propertyType, mHelper.mBooleanBoxType)
-                && !typeUtil.isSameType(propertyType, mHelper.mByteArrayType)) {
+                && !typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)) {
             // This is not a type 3a field
             return false;
         }

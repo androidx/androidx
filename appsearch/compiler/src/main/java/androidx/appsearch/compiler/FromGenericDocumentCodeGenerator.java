@@ -247,7 +247,7 @@ class FromGenericDocumentCodeGenerator {
                     "boolean[] $NCopy = genericDoc.getPropertyBooleanArray($S)",
                     fieldName, propertyName);
 
-        } else if (typeUtil.isSameType(propertyType, mHelper.mByteArrayType)) {
+        } else if (typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)) {
             body.addStatement(
                     "byte[][] $NCopy = genericDoc.getPropertyBytesArray($S)",
                     fieldName, propertyName);
@@ -288,12 +288,15 @@ class FromGenericDocumentCodeGenerator {
         Types typeUtil = mEnv.getTypeUtils();
         CodeBlock.Builder body = CodeBlock.builder();
 
-        // TODO(b/156296904): Handle GenericDocument
         if (typeUtil.isSameType(propertyType, mHelper.mStringType)) {
             body.addStatement(
                     "String[] $NCopy = genericDoc.getPropertyStringArray($S)",
                     fieldName, propertyName);
 
+        } else if (typeUtil.isSameType(propertyType, mHelper.mGenericDocumentType)) {
+            body.addStatement(
+                    "GenericDocument[] $NCopy = genericDoc.getPropertyDocumentArray($S)",
+                    fieldName, propertyName);
         } else {
             // This is not a type 1b list.
             return false;
@@ -328,7 +331,7 @@ class FromGenericDocumentCodeGenerator {
         if (property.asType().getKind() != TypeKind.ARRAY
                 // Byte arrays have a native representation in Icing, so they are not considered a
                 // "repeated" type
-                || typeUtil.isSameType(property.asType(), mHelper.mByteArrayType)) {
+                || typeUtil.isSameType(property.asType(), mHelper.mBytePrimitiveArrayType)) {
             return false;  // This is not a scenario 2 array
         }
 
@@ -441,7 +444,7 @@ class FromGenericDocumentCodeGenerator {
                     "boolean[] $NConv = genericDoc.getPropertyBooleanArray($S)",
                     fieldName, propertyName);
 
-        } else if (typeUtil.isSameType(propertyType, mHelper.mByteArrayType)) {
+        } else if (typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)) {
             body.addStatement(
                     "byte[][] $NConv = genericDoc.getPropertyBytesArray($S)",
                     fieldName, propertyName);
@@ -516,7 +519,7 @@ class FromGenericDocumentCodeGenerator {
                     "boolean[] $NCopy = genericDoc.getPropertyBooleanArray($S)",
                     fieldName, propertyName);
 
-        } else if (typeUtil.isSameType(propertyType, mHelper.mByteArrayType)) {
+        } else if (typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)) {
             body.addStatement(
                     "byte[][] $NCopy = genericDoc.getPropertyBytesArray($S)",
                     fieldName, propertyName);
