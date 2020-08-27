@@ -99,6 +99,8 @@ public class PreviewViewTest {
             FakeActivity.class);
     private final Context mContext = ApplicationProvider.getApplicationContext();
     private SurfaceRequest mSurfaceRequest;
+    private PreviewView mPreviewView;
+    private MeteringPointFactory mMeteringPointFactory;
 
     private SurfaceRequest createSurfaceRequest(CameraInfo cameraInfo) {
         return createSurfaceRequest(DEFAULT_SURFACE_SIZE, cameraInfo);
@@ -285,18 +287,17 @@ public class PreviewViewTest {
         final CameraInfo cameraInfo = createCameraInfo(90,
                 CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, CameraSelector.LENS_FACING_BACK);
 
-        final PreviewView previewView = new PreviewView(mContext);
-
         mInstrumentation.runOnMainSync(() -> {
-            setContentView(previewView);
+            mPreviewView = new PreviewView(mContext);
+            setContentView(mPreviewView);
             mSurfaceRequest = createSurfaceRequest(cameraInfo);
-            Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
+            Preview.SurfaceProvider surfaceProvider = mPreviewView.getSurfaceProvider();
             surfaceProvider.onSurfaceRequested(mSurfaceRequest);
         });
 
-        waitForLayoutReady(previewView);
+        waitForLayoutReady(mPreviewView);
 
-        MeteringPointFactory factory = previewView.getMeteringPointFactory();
+        MeteringPointFactory factory = mPreviewView.getMeteringPointFactory();
         MeteringPoint point = factory.createPoint(100, 100);
         assertPointIsValid(point);
     }
@@ -311,22 +312,22 @@ public class PreviewViewTest {
         final CameraInfo cameraInfo = createCameraInfo(90,
                 CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, CameraSelector.LENS_FACING_BACK);
 
-        final PreviewView previewView = new PreviewView(mContext);
-        MeteringPointFactory factory = previewView.getMeteringPointFactory();
-
         mInstrumentation.runOnMainSync(() -> {
-            setContentView(previewView);
+            mPreviewView = new PreviewView(mContext);
+            mMeteringPointFactory = mPreviewView.getMeteringPointFactory();
+
+            setContentView(mPreviewView);
             mSurfaceRequest = createSurfaceRequest(cameraInfo);
-            Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
+            Preview.SurfaceProvider surfaceProvider = mPreviewView.getSurfaceProvider();
             surfaceProvider.onSurfaceRequested(mSurfaceRequest);
         });
 
-        changeViewSize(previewView, 1000, 1000);
-        MeteringPoint point1 = factory.createPoint(100, 100);
+        changeViewSize(mPreviewView, 1000, 1000);
+        MeteringPoint point1 = mMeteringPointFactory.createPoint(100, 100);
 
-        changeViewSize(previewView, 500, 400);
+        changeViewSize(mPreviewView, 500, 400);
 
-        MeteringPoint point2 = factory.createPoint(100, 100);
+        MeteringPoint point2 = mMeteringPointFactory.createPoint(100, 100);
 
         assertPointIsValid(point1);
         assertPointIsValid(point2);
@@ -361,24 +362,22 @@ public class PreviewViewTest {
     public void meteringPointFactoryAutoAdjusted_whenScaleTypeChanged() throws Exception {
         final CameraInfo cameraInfo = createCameraInfo(90,
                 CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, CameraSelector.LENS_FACING_BACK);
-
-        final PreviewView previewView = new PreviewView(mContext);
-        MeteringPointFactory factory = previewView.getMeteringPointFactory();
-
         mInstrumentation.runOnMainSync(() -> {
-            setContentView(previewView);
+            mPreviewView = new PreviewView(mContext);
+            mMeteringPointFactory = mPreviewView.getMeteringPointFactory();
+            setContentView(mPreviewView);
             mSurfaceRequest = createSurfaceRequest(cameraInfo);
-            Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
+            Preview.SurfaceProvider surfaceProvider = mPreviewView.getSurfaceProvider();
             surfaceProvider.onSurfaceRequested(mSurfaceRequest);
         });
         // Surface resolution is 640x480 , set a different size for PreviewView.
-        changeViewSize(previewView, 800, 700);
+        changeViewSize(mPreviewView, 800, 700);
 
-        previewView.setScaleType(PreviewView.ScaleType.FILL_CENTER);
-        MeteringPoint point1 = factory.createPoint(100, 100);
+        mPreviewView.setScaleType(PreviewView.ScaleType.FILL_CENTER);
+        MeteringPoint point1 = mMeteringPointFactory.createPoint(100, 100);
 
-        previewView.setScaleType(PreviewView.ScaleType.FIT_START);
-        MeteringPoint point2 = factory.createPoint(100, 100);
+        mPreviewView.setScaleType(PreviewView.ScaleType.FIT_START);
+        MeteringPoint point2 = mMeteringPointFactory.createPoint(100, 100);
 
         assertPointIsValid(point1);
         assertPointIsValid(point2);
@@ -393,29 +392,28 @@ public class PreviewViewTest {
         final CameraInfo cameraInfo2 = createCameraInfo(270,
                 CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, CameraSelector.LENS_FACING_FRONT);
 
-        final PreviewView previewView = new PreviewView(mContext);
-        MeteringPointFactory factory = previewView.getMeteringPointFactory();
-
         mInstrumentation.runOnMainSync(() -> {
-            setContentView(previewView);
+            mPreviewView = new PreviewView(mContext);
+            mMeteringPointFactory = mPreviewView.getMeteringPointFactory();
+            setContentView(mPreviewView);
             mSurfaceRequest = createSurfaceRequest(cameraInfo1);
-            Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
+            Preview.SurfaceProvider surfaceProvider = mPreviewView.getSurfaceProvider();
             surfaceProvider.onSurfaceRequested(mSurfaceRequest);
         });
 
-        changeViewSize(previewView, 1000, 1000);
+        changeViewSize(mPreviewView, 1000, 1000);
 
         // get a MeteringPoint from a non-center point.
-        MeteringPoint point1 = factory.createPoint(100, 120);
+        MeteringPoint point1 = mMeteringPointFactory.createPoint(100, 120);
 
         mInstrumentation.runOnMainSync(() -> {
-            setContentView(previewView);
+            setContentView(mPreviewView);
             mSurfaceRequest = createSurfaceRequest(cameraInfo2);
-            Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
+            Preview.SurfaceProvider surfaceProvider = mPreviewView.getSurfaceProvider();
             surfaceProvider.onSurfaceRequested(mSurfaceRequest);
         });
 
-        MeteringPoint point2 = factory.createPoint(100, 120);
+        MeteringPoint point2 = mMeteringPointFactory.createPoint(100, 120);
 
         assertPointIsValid(point1);
         assertPointIsValid(point2);
