@@ -18,7 +18,8 @@
           package="androidx.customview.test">
 
     <application android:supportsRtl="true">
-        <activity android:name="androidx.customview.widget.ExploreByTouchHelperTestActivity"/>
+        <activity android:name="androidx.customview.widget.ExploreByTouchHelperTestActivity" />
+        <activity android:name="androidx.customview.widget.TestActivity" />
     </application>
 
 </manifest>
