@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
+<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
 
     <issue
         id="UnknownNullness"
@@ -63,7 +63,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/GridRowBuilder.java"
-            line="424"
+            line="459"
             column="16"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/GridRowBuilder.java"
-            line="432"
+            line="467"
             column="16"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/GridRowBuilder.java"
-            line="440"
+            line="475"
             column="16"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/GridRowBuilder.java"
-            line="448"
+            line="483"
             column="16"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/GridRowBuilder.java"
-            line="456"
+            line="491"
             column="16"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="                                                                     ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="55"
+            line="56"
             column="70"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="                      ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="79"
+            line="80"
             column="23"/>
     </issue>
 
@@ -140,7 +140,7 @@
         errorLine2="                        ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="88"
+            line="89"
             column="25"/>
     </issue>
 
@@ -151,7 +151,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="105"
+            line="106"
             column="34"/>
     </issue>
 
@@ -162,7 +162,7 @@
         errorLine2="                                 ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="112"
+            line="113"
             column="34"/>
     </issue>
 
@@ -173,7 +173,7 @@
         errorLine2="                                      ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="118"
+            line="119"
             column="39"/>
     </issue>
 
@@ -184,7 +184,7 @@
         errorLine2="                             ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="143"
+            line="144"
             column="30"/>
     </issue>
 
@@ -195,7 +195,7 @@
         errorLine2="                          ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="216"
+            line="233"
             column="27"/>
     </issue>
 

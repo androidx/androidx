@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
+<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
 
     <issue
         id="RestrictedApi"
@@ -8,7 +8,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/LifecycleRegistry.java"
-            line="57"
+            line="52"
             column="13"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                         ~~~~">
         <location
             file="src/main/java/androidx/lifecycle/LifecycleRegistry.java"
-            line="150"
+            line="153"
             column="26"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                                                 ~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/LifecycleRegistry.java"
-            line="153"
+            line="156"
             column="50"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                                                 ~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/LifecycleRegistry.java"
-            line="154"
+            line="157"
             column="50"/>
     </issue>
 
@@ -52,7 +52,7 @@
         errorLine2="                                                                            ~~~~">
         <location
             file="src/main/java/androidx/lifecycle/LifecycleRegistry.java"
-            line="159"
+            line="162"
             column="77"/>
     </issue>
 
@@ -63,7 +63,7 @@
         errorLine2="                                                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/LifecycleRegistry.java"
-            line="171"
+            line="175"
             column="51"/>
     </issue>
 
@@ -74,7 +74,7 @@
         errorLine2="                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/LifecycleRegistry.java"
-            line="186"
+            line="190"
             column="33"/>
     </issue>
 
@@ -85,7 +85,7 @@
         errorLine2="                     ~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/LifecycleRegistry.java"
-            line="223"
+            line="232"
             column="22"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="                            ~~~~">
         <location
             file="src/main/java/androidx/lifecycle/LifecycleRegistry.java"
-            line="233"
+            line="243"
             column="29"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/LifecycleRegistry.java"
-            line="293"
+            line="254"
             column="30"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/LifecycleRegistry.java"
-            line="298"
+            line="259"
             column="37"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="                             ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/LifecycleRegistry.java"
-            line="308"
+            line="273"
             column="30"/>
     </issue>
 
@@ -140,7 +140,7 @@
         errorLine2="                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/LifecycleRegistry.java"
-            line="313"
+            line="278"
             column="37"/>
     </issue>
 
@@ -151,7 +151,7 @@
         errorLine2="                                              ~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/LifecycleRegistry.java"
-            line="333"
+            line="301"
             column="47"/>
     </issue>
 
@@ -162,7 +162,7 @@
         errorLine2="                                                                              ~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/LifecycleRegistry.java"
-            line="336"
+            line="304"
             column="79"/>
     </issue>
 

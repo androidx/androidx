@@ -1,49 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
-
-    <issue
-        id="RestrictedApi"
-        message="MessagingSliceBuilder can only be called from within the same library group prefix (referenced groupId=`androidx.slice` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        MessagingSliceBuilder b = new MessagingSliceBuilder(getContext(), sliceUri);"
-        errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="539"
-            column="35"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MessagingSliceBuilder.add can only be called from within the same library group prefix (referenced groupId=`androidx.slice` with prefix androidx from groupId=`androidx`)"
-        errorLine1="        return b.add(new MessagingSliceBuilder.MessageBuilder(b)"
-        errorLine2="                 ~~~">
-        <location
-            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="540"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MessagingSliceBuilder.add can only be called from within the same library group prefix (referenced groupId=`androidx.slice` with prefix androidx from groupId=`androidx`)"
-        errorLine1="                .add(new MessagingSliceBuilder.MessageBuilder(b)"
-        errorLine2="                 ~~~">
-        <location
-            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="544"
-            column="18"/>
-    </issue>
-
-    <issue
-        id="RestrictedApi"
-        message="MessagingSliceBuilder.add can only be called from within the same library group prefix (referenced groupId=`androidx.slice` with prefix androidx from groupId=`androidx`)"
-        errorLine1="                .add(new MessagingSliceBuilder.MessageBuilder(b)"
-        errorLine2="                 ~~~">
-        <location
-            file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="547"
-            column="18"/>
-    </issue>
+<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
 
     <issue
         id="UnknownNullness"
@@ -52,7 +8,7 @@
         errorLine2="                  ~~~">
         <location
             file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="125"
+            line="127"
             column="19"/>
     </issue>
 
@@ -63,7 +19,7 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="125"
+            line="127"
             column="30"/>
     </issue>
 
@@ -74,7 +30,7 @@
         errorLine2="                                          ~~~~~~~">
         <location
             file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="125"
+            line="127"
             column="43"/>
     </issue>
 
@@ -85,7 +41,7 @@
         errorLine2="           ~~~~~">
         <location
             file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="145"
+            line="147"
             column="12"/>
     </issue>
 
@@ -96,7 +52,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/test/SampleSliceProvider.java"
-            line="576"
+            line="654"
             column="19"/>
     </issue>
 

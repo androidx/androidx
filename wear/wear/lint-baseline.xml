@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
+<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
 
     <issue
         id="KotlinPropertyAccess"
@@ -1762,7 +1762,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerView.java"
-            line="219"
+            line="222"
             column="40"/>
     </issue>
 
@@ -1773,7 +1773,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerView.java"
-            line="235"
+            line="238"
             column="44"/>
     </issue>
 
@@ -1784,7 +1784,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/wear/widget/drawer/WearableActionDrawerView.java"
-            line="317"
+            line="320"
             column="12"/>
     </issue>
 
@@ -1905,7 +1905,7 @@
         errorLine2="           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
-            line="324"
+            line="323"
             column="12"/>
     </issue>
 
@@ -1916,7 +1916,7 @@
         errorLine2="                                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
-            line="324"
+            line="323"
             column="45"/>
     </issue>
 
@@ -1927,7 +1927,7 @@
         errorLine2="                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
-            line="498"
+            line="497"
             column="42"/>
     </issue>
 
@@ -1938,7 +1938,7 @@
         errorLine2="                                ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
-            line="517"
+            line="516"
             column="33"/>
     </issue>
 
@@ -1949,7 +1949,7 @@
         errorLine2="                        ~~~~">
         <location
             file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
-            line="540"
+            line="539"
             column="25"/>
     </issue>
 
@@ -1960,7 +1960,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
-            line="540"
+            line="539"
             column="48"/>
     </issue>
 
@@ -1971,7 +1971,7 @@
         errorLine2="            ~~~~">
         <location
             file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
-            line="574"
+            line="573"
             column="13"/>
     </issue>
 
@@ -1982,7 +1982,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
-            line="601"
+            line="600"
             column="40"/>
     </issue>
 
@@ -1993,7 +1993,7 @@
         errorLine2="                                ~~~~">
         <location
             file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
-            line="639"
+            line="638"
             column="33"/>
     </issue>
 
@@ -2004,7 +2004,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
-            line="919"
+            line="918"
             column="36"/>
     </issue>
 
@@ -2015,7 +2015,7 @@
         errorLine2="                                                                ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
-            line="919"
+            line="918"
             column="65"/>
     </issue>
 
@@ -2026,7 +2026,7 @@
         errorLine2="                                   ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
-            line="925"
+            line="924"
             column="36"/>
     </issue>
 
@@ -2037,7 +2037,7 @@
         errorLine2="                                                                ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
-            line="925"
+            line="924"
             column="65"/>
     </issue>
 
@@ -2048,7 +2048,7 @@
         errorLine2="                                         ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/wear/widget/drawer/WearableDrawerLayout.java"
-            line="933"
+            line="932"
             column="42"/>
     </issue>
 

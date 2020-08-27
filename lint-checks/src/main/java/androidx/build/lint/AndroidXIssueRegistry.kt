@@ -41,6 +41,7 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 SampledAnnotationEnforcer.MULTIPLE_FUNCTIONS_FOUND,
                 SampledAnnotationEnforcer.INVALID_SAMPLES_LOCATION,
                 ObsoleteBuildCompatUsageDetector.ISSUE,
+                BanSynchronizedMethods.ISSUE,
                 MetadataTagInsideApplicationTagDetector.ISSUE,
                 PrivateConstructorForUtilityClass.ISSUE
             )
