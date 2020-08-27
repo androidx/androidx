@@ -25,10 +25,13 @@ import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.view.Display;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.widget.FrameLayout;
 
@@ -53,6 +56,7 @@ import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.view.preview.transform.PreviewTransform;
 import androidx.core.content.ContextCompat;
+import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -111,6 +115,14 @@ public class PreviewView extends FrameLayout {
     @NonNull
     PreviewViewMeteringPointFactory mPreviewViewMeteringPointFactory =
             new PreviewViewMeteringPointFactory();
+
+    // Detector for zoom-to-scale.
+    @NonNull
+    private final ScaleGestureDetector mScaleGestureDetector;
+
+    // Coordinates of the touchdown event for tap-to-focus.
+    private float mDownX = 0F;
+    private float mDownY = 0F;
 
     private final OnLayoutChangeListener mOnLayoutChangeListener = new OnLayoutChangeListener() {
         @Override
@@ -196,6 +208,9 @@ public class PreviewView extends FrameLayout {
             attributes.recycle();
         }
 
+        mScaleGestureDetector = new ScaleGestureDetector(
+                context, new PinchToZoomOnScaleGestureListener());
+
         // Set background only if it wasn't already set. A default background prevents the content
         // behind the PreviewView from being visible before the preview starts streaming.
         if (getBackground() == null) {
@@ -228,6 +243,52 @@ public class PreviewView extends FrameLayout {
         if (mCameraController != null) {
             mCameraController.clearPreviewSurface();
         }
+    }
+
+    @Override
+    public boolean onTouchEvent(@NonNull MotionEvent event) {
+        if (mCameraController == null) {
+            // Do not handle touch event if no controller.
+            return false;
+        }
+        // Detect pinch-to-zoom
+        mScaleGestureDetector.onTouchEvent(event);
+
+        // Detect tap-to-focus.
+        if (event.getPointerCount() >= 2) {
+            // Do not handle touch event if it's not a single finger touch.
+            return false;
+        }
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                mDownX = event.getX();
+                mDownY = event.getY();
+                return true;
+            case MotionEvent.ACTION_UP:
+                if (isTapEvent(event)) {
+                    mCameraController.onTapToFocus(
+                            mPreviewViewMeteringPointFactory.createPoint(event.getX(),
+                                    event.getY()));
+                }
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Checks if the up event is a tap on the view.
+     */
+    private boolean isTapEvent(MotionEvent event) {
+        Preconditions.checkArgument(event.getAction() == MotionEvent.ACTION_UP);
+        // Elapsed time since last touch down.
+        long elapsedTime = event.getEventTime() - event.getDownTime();
+        // Distance since last touch down.
+        float distance = (float) Math.hypot(event.getX() - mDownX, event.getY() - mDownY);
+        // This should be ViewConfiguration#getTapTimeout(), but system time out is 100ms which
+        // is too short.
+        return elapsedTime < ViewConfiguration.getLongPressTimeout()
+                && distance < ViewConfiguration.get(getContext()).getScaledTouchSlop();
     }
 
     /**
@@ -613,6 +674,20 @@ public class PreviewView extends FrameLayout {
          * {@link ImplementationMode#PERFORMANCE} mode via {@link #setImplementationMode}.
          */
         STREAMING
+    }
+
+    /**
+     * GestureListener that speeds up scale factor and sends it to controller.
+     */
+    class PinchToZoomOnScaleGestureListener extends
+            ScaleGestureDetector.SimpleOnScaleGestureListener {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            if (mCameraController != null) {
+                mCameraController.onPinchToZoom(detector.getScaleFactor());
+            }
+            return true;
+        }
     }
 
     /**

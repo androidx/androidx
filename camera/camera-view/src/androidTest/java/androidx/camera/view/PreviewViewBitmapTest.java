@@ -51,6 +51,7 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -252,12 +253,15 @@ public class PreviewViewBitmapTest {
     @NonNull
     private PreviewView setUpPreviewView(@NonNull PreviewView.ImplementationMode mode,
             @NonNull PreviewView.ScaleType scaleType) {
-        final Context context = ApplicationProvider.getApplicationContext();
-        final PreviewView previewView = new PreviewView(context);
-        previewView.setImplementationMode(mode);
-        previewView.setScaleType(scaleType);
-        runOnMainThread(() -> mActivityRule.getActivity().setContentView(previewView));
-        return previewView;
+        AtomicReference<PreviewView> previewViewAtomicReference = new AtomicReference<>();
+        runOnMainThread(() -> {
+            PreviewView previewView = new PreviewView(ApplicationProvider.getApplicationContext());
+            previewView.setImplementationMode(mode);
+            previewView.setScaleType(scaleType);
+            mActivityRule.getActivity().setContentView(previewView);
+            previewViewAtomicReference.set(previewView);
+        });
+        return previewViewAtomicReference.get();
     }
 
     private void startPreview(@NonNull final PreviewView previewView) {

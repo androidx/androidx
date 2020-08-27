@@ -30,8 +30,11 @@ import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExperimentalUseCaseGroup;
+import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.Logger;
+import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.Preview;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.UseCase;
@@ -112,7 +115,6 @@ abstract class CameraController {
     @Nullable
     ProcessCameraProvider mCameraProvider;
 
-    // TODO(b/148791439): Update PreviewView to support pinch-to-zoom and tap-to-focus.
     private boolean mPinchToZoomEnabled = true;
     private boolean mTapToFocusEnabled = true;
 
@@ -521,6 +523,50 @@ abstract class CameraController {
     }
 
     /**
+     * Called by {@link PreviewView} for a pinch-to-zoom event.
+     */
+    @SuppressWarnings("FutureReturnValueIgnored")
+    void onPinchToZoom(float pinchToZoomScale) {
+        if (mCamera == null || !mPinchToZoomEnabled) {
+            Logger.d(TAG, "Pinch to zoom disabled.");
+            return;
+        }
+        Logger.d(TAG, "Pinch to zoom with scale: " + pinchToZoomScale);
+
+        ZoomState zoomState = getZoomState().getValue();
+        if (zoomState == null) {
+            return;
+        }
+        float clampedRatio = zoomState.getZoomRatio() * speedUpZoomBy2X(pinchToZoomScale);
+        // Clamp the ratio with the zoom range.
+        clampedRatio = Math.min(Math.max(clampedRatio, zoomState.getMinZoomRatio()),
+                zoomState.getMaxZoomRatio());
+        setZoomRatio(clampedRatio);
+    }
+
+    private float speedUpZoomBy2X(float scaleFactor) {
+        if (scaleFactor > 1f) {
+            return 1.0f + (scaleFactor - 1.0f) * 2;
+        } else {
+            return 1.0f - (1.0f - scaleFactor) * 2;
+        }
+    }
+
+    /**
+     * Called by {@link PreviewView} for a tap-to-focus event.
+     */
+    @SuppressWarnings("FutureReturnValueIgnored")
+    void onTapToFocus(MeteringPoint meteringPoint) {
+        if (mCamera == null || !mTapToFocusEnabled) {
+            Logger.d(TAG, "Tap to focus disabled. ");
+            return;
+        }
+        Logger.d(TAG, "Tap to focus: " + meteringPoint.getX() + "x" + meteringPoint.getY());
+        mCamera.getCameraControl().startFocusAndMetering(
+                new FocusMeteringAction.Builder(meteringPoint).build());
+    }
+
+    /**
      * Returns whether tap-to-focus is enabled.
      *
      * <p> By default tap-to-focus is enabled.
@@ -545,7 +591,6 @@ abstract class CameraController {
         Threads.checkMainThread();
         mTapToFocusEnabled = enabled;
     }
-
 
     /**
      * Returns a {@link LiveData} of {@link ZoomState}.
