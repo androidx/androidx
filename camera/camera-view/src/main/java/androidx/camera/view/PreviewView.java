@@ -148,8 +148,9 @@ public class PreviewView extends FrameLayout {
         CameraInternal camera = (CameraInternal) surfaceRequest.getCamera();
         mPreviewTransform.setSensorDimensionFlipNeeded(
                 isSensorDimensionFlipNeeded(camera.getCameraInfo()));
-        mImplementation = shouldUseTextureView(camera.getCameraInfo(), mImplementationMode)
-                ? new TextureViewImplementation() : new SurfaceViewImplementation();
+        mImplementation = surfaceRequest.isRGBA8888Required() || shouldUseTextureView(
+                camera.getCameraInfo(), mImplementationMode) ? new TextureViewImplementation()
+                : new SurfaceViewImplementation();
         mImplementation.init(this, mPreviewTransform);
 
         PreviewStreamStateObserver streamStateObserver =
