@@ -25,12 +25,13 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
-import androidx.core.util.Pair;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Lifecycle;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import kotlin.Pair;
 
 /**
  * A support fragment that collects all of its events.
