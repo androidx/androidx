@@ -593,9 +593,7 @@ public abstract class MediaRouteProvider {
          *                   the media router will unselect the dynamic group and release
          *                   the route controller.
          * @param dynamicRoutes The dynamic route descriptors for published routes.
-         *                      At least a selected or selecting route must be included.
-         * @throws IllegalArgumentException if {@code dynamicRoutes} doesn't contain a selected
-         *                                  or selecting route.
+         *                      At least a selected or selecting route should be included.
          */
         public final void notifyDynamicRoutesChanged(
                 @NonNull MediaRouteDescriptor groupRoute,
@@ -605,18 +603,6 @@ public abstract class MediaRouteProvider {
             }
             if (dynamicRoutes == null) {
                 throw new NullPointerException("dynamicRoutes must not be null");
-            }
-            boolean hasSelectedRoute = false;
-            for (DynamicRouteDescriptor descriptor : dynamicRoutes) {
-                if (descriptor.mSelectionState == DynamicRouteDescriptor.SELECTING
-                        || descriptor.mSelectionState == DynamicRouteDescriptor.SELECTED) {
-                    hasSelectedRoute = true;
-                    break;
-                }
-            }
-            if (!hasSelectedRoute) {
-                throw new IllegalArgumentException("dynamicRoutes must have a selected or "
-                        + "selecting route.");
             }
             synchronized (mLock) {
                 if (mExecutor != null) {

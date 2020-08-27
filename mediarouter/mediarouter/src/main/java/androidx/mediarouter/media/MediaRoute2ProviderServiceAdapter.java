@@ -713,7 +713,11 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                 builder.setControlHints(controlHints);
             }
 
+            mSessionInfo = builder.build();
+
             if (dynamicRouteDescriptors != null && !dynamicRouteDescriptors.isEmpty()) {
+                boolean hasSelectedRoute = false;
+
                 builder.clearSelectedRoutes();
                 builder.clearSelectableRoutes();
                 builder.clearDeselectableRoutes();
@@ -724,6 +728,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                     if (descriptor.mSelectionState == DynamicRouteDescriptor.SELECTING
                             || descriptor.mSelectionState == DynamicRouteDescriptor.SELECTED) {
                         builder.addSelectedRoute(routeId);
+                        hasSelectedRoute = true;
                     }
                     if (descriptor.isGroupable()) {
                         builder.addSelectableRoute(routeId);
@@ -735,9 +740,13 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                         builder.addTransferableRoute(routeId);
                     }
                 }
+                // Update the session info only when we have a selected route to prevent
+                // IllegalArgumentException.
+                if (hasSelectedRoute) {
+                    mSessionInfo = builder.build();
+                }
             }
 
-            mSessionInfo = builder.build();
             if ((mFlags & (SESSION_FLAG_MR2 | SESSION_FLAG_DYNAMIC))
                     == (SESSION_FLAG_MR2 | SESSION_FLAG_DYNAMIC) && groupRoute != null) {
                 updateMemberRouteControllers(groupRoute.getId(), sessionInfo, mSessionInfo);
