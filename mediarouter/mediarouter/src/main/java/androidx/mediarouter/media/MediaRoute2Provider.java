@@ -436,6 +436,9 @@ class MediaRoute2Provider extends MediaRouteProvider {
     }
 
     private class GroupRouteController extends DynamicGroupRouteController {
+        // Time to clear mOptimisticVolume
+        private static final long OPTIMISTIC_VOLUME_TIMEOUT_MS = 1_000;
+
         final String mInitialMemberRouteId;
         final MediaRouter2.RoutingController mRoutingController;
         @Nullable
@@ -443,8 +446,12 @@ class MediaRoute2Provider extends MediaRouteProvider {
         @Nullable
         final Messenger mReceiveMessenger;
         final SparseArray<ControlRequestCallback> mPendingCallbacks = new SparseArray<>();
-
+        final Handler mControllerHandler;
         AtomicInteger mNextRequestId = new AtomicInteger(1);
+
+        private final Runnable mClearOptimisticVolumeRunnable = () -> mOptimisticVolume = -1;
+        // The possible current volume set by the user recently or -1 if not.
+        int mOptimisticVolume = -1;
 
         GroupRouteController(@NonNull MediaRouter2.RoutingController routingController,
                 @NonNull String initialMemberRouteId) {
@@ -453,6 +460,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
             mServiceMessenger = getMessengerFromRoutingController(routingController);
             mReceiveMessenger = mServiceMessenger == null ? null :
                     new Messenger(new ReceiveHandler());
+            mControllerHandler = new Handler(Looper.getMainLooper());
         }
 
         @Override
@@ -461,6 +469,8 @@ class MediaRoute2Provider extends MediaRouteProvider {
                 return;
             }
             mRoutingController.setVolume(volume);
+            mOptimisticVolume = volume;
+            scheduleClearOptimisticVolume();
         }
 
         @Override
@@ -468,7 +478,12 @@ class MediaRoute2Provider extends MediaRouteProvider {
             if (mRoutingController == null) {
                 return;
             }
-            mRoutingController.setVolume(mRoutingController.getVolume() + delta);
+            int volumeBefore = mOptimisticVolume < 0 ? mRoutingController.getVolume() :
+                    mOptimisticVolume;
+            mOptimisticVolume = Math.max(0, Math.min(volumeBefore + delta,
+                    mRoutingController.getVolumeMax()));
+            mRoutingController.setVolume(mOptimisticVolume);
+            scheduleClearOptimisticVolume();
         }
 
         @Override
@@ -552,6 +567,12 @@ class MediaRoute2Provider extends MediaRouteProvider {
             }
 
             mRoutingController.deselectRoute(route);
+        }
+
+        private void scheduleClearOptimisticVolume() {
+            mControllerHandler.removeCallbacks(mClearOptimisticVolumeRunnable);
+            mControllerHandler.postDelayed(mClearOptimisticVolumeRunnable,
+                    OPTIMISTIC_VOLUME_TIMEOUT_MS);
         }
 
         void setMemberRouteVolume(@NonNull String memberRouteOriginalId, int volume) {
