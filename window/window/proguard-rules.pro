@@ -18,5 +18,9 @@
 # be tracked in b/165268619.
 -keep class androidx.window.extensions.** { *; }
 
+# Keep the whole library for now since there is a crash with a missing method.
+# TODO(b/165268619) Make a narrow rule
+-keepnames class androidx.window.window.** { *; }
+
 # We also neep to keep sidecar.** for the same reason.
 -keep class androidx.window.sidecar.** { *; }
