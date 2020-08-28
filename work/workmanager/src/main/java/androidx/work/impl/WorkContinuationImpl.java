@@ -271,6 +271,7 @@ public class WorkContinuationImpl extends WorkContinuation {
      *
      * @hide
      */
+    @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public static Set<String> prerequisitesFor(WorkContinuationImpl continuation) {
         Set<String> preRequisites = new HashSet<>();

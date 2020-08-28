@@ -32,15 +32,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.work.Logger;
+import androidx.work.WorkContinuation;
 import androidx.work.WorkRequest;
+import androidx.work.impl.WorkContinuationImpl;
 import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.multiprocess.parcelable.ParcelConverters;
+import androidx.work.multiprocess.parcelable.ParcelableWorkContinuationImpl;
 import androidx.work.multiprocess.parcelable.ParcelableWorkRequests;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
@@ -84,6 +88,69 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
                     @NonNull IWorkManagerImplCallback callback) throws RemoteException {
                 byte[] request = ParcelConverters.marshall(new ParcelableWorkRequests(requests));
                 iWorkManagerImpl.enqueueWorkRequests(request, callback);
+            }
+        });
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<Void> enqueue(@NonNull final WorkContinuation continuation) {
+        return execute(new RemoteDispatcher() {
+            @Override
+            public void execute(@NonNull IWorkManagerImpl iWorkManagerImpl,
+                    @NonNull IWorkManagerImplCallback callback) throws Throwable {
+                WorkContinuationImpl workContinuation = (WorkContinuationImpl) continuation;
+                byte[] request = ParcelConverters.marshall(
+                        new ParcelableWorkContinuationImpl(workContinuation));
+                iWorkManagerImpl.enqueueContinuation(request, callback);
+            }
+        });
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<Void> cancelWorkById(@NonNull final UUID id) {
+        return execute(new RemoteDispatcher() {
+            @Override
+            public void execute(@NonNull IWorkManagerImpl iWorkManagerImpl,
+                    @NonNull IWorkManagerImplCallback callback) throws Throwable  {
+                iWorkManagerImpl.cancelWorkById(id.toString(), callback);
+            }
+        });
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<Void> cancelAllWorkByTag(@NonNull final String tag) {
+        return execute(new RemoteDispatcher() {
+            @Override
+            public void execute(@NonNull IWorkManagerImpl iWorkManagerImpl,
+                    @NonNull IWorkManagerImplCallback callback) throws Throwable {
+                iWorkManagerImpl.cancelAllWorkByTag(tag, callback);
+            }
+        });
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<Void> cancelUniqueWork(@NonNull final String uniqueWorkName) {
+        return execute(new RemoteDispatcher() {
+            @Override
+            public void execute(@NonNull IWorkManagerImpl iWorkManagerImpl,
+                    @NonNull IWorkManagerImplCallback callback) throws Throwable {
+                iWorkManagerImpl.cancelUniqueWork(uniqueWorkName, callback);
+            }
+        });
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<Void> cancelAllWork() {
+        return execute(new RemoteDispatcher() {
+            @Override
+            public void execute(@NonNull IWorkManagerImpl iWorkManagerImpl,
+                    @NonNull IWorkManagerImplCallback callback) throws Throwable {
+                iWorkManagerImpl.cancelAllWork(callback);
             }
         });
     }

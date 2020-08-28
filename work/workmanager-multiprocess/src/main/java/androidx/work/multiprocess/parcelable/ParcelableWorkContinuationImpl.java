@@ -154,6 +154,18 @@ public class ParcelableWorkContinuationImpl implements Parcelable {
     }
 
     /**
+     * Converts an instance of {@link ParcelableWorkContinuationImpl} to a
+     * {@link WorkContinuationImpl}.
+     *
+     * @param workManager The {@link  WorkManagerImpl} instance.
+     * @return The {@link WorkContinuationImpl} instance
+     */
+    @NonNull
+    public WorkContinuationImpl toWorkContinuationImpl(@NonNull WorkManagerImpl workManager) {
+        return mInfo.toWorkContinuationImpl(workManager);
+    }
+
+    /**
      * Holds all the information that needs to be tracked inside a
      * {@link androidx.work.WorkContinuation}.
      */
