@@ -23,6 +23,7 @@ import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.Rule
 import org.junit.Test
 
+@Suppress("DEPRECATION")
 class TransformationsTest {
 
     @get:Rule
