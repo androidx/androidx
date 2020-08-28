@@ -91,7 +91,7 @@ public abstract class TemplateBuilderImpl {
      * @hide
      */
     @RestrictTo(LIBRARY)
-    public abstract void apply(Slice.Builder builder);
+    public abstract void apply(@NonNull Slice.Builder builder);
 
     /**
      * @hide

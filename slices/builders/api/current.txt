@@ -39,7 +39,7 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder setAccentColor(@ColorInt int);
     method public androidx.slice.builders.ListBuilder setHeader(androidx.slice.builders.ListBuilder.HeaderBuilder);
     method public androidx.slice.builders.ListBuilder setIsError(boolean);
-    method public androidx.slice.builders.ListBuilder setKeywords(java.util.Set<java.lang.String!>!);
+    method public androidx.slice.builders.ListBuilder setKeywords(java.util.Set<java.lang.String!>);
     method public androidx.slice.builders.ListBuilder setLayoutDirection(int);
     method public androidx.slice.builders.ListBuilder setSeeMoreAction(android.app.PendingIntent);
     method public androidx.slice.builders.ListBuilder setSeeMoreAction(androidx.remotecallback.RemoteCallback);
@@ -103,7 +103,7 @@ package androidx.slice.builders {
 
   public static class ListBuilder.RowBuilder {
     ctor public ListBuilder.RowBuilder();
-    ctor public ListBuilder.RowBuilder(android.net.Uri!);
+    ctor public ListBuilder.RowBuilder(android.net.Uri);
     method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(long);
     method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(androidx.core.graphics.drawable.IconCompat, int);
     method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(androidx.core.graphics.drawable.IconCompat?, int, boolean);
@@ -117,7 +117,7 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder.RowBuilder setTitle(CharSequence);
     method public androidx.slice.builders.ListBuilder.RowBuilder setTitle(CharSequence?, boolean);
     method public androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(long);
-    method public androidx.slice.builders.ListBuilder.RowBuilder! setTitleItem(androidx.core.graphics.drawable.IconCompat, int);
+    method public androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(androidx.core.graphics.drawable.IconCompat, int);
     method public androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(androidx.core.graphics.drawable.IconCompat?, int, boolean);
     method public androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(androidx.slice.builders.SliceAction);
     method public androidx.slice.builders.ListBuilder.RowBuilder setTitleItem(androidx.slice.builders.SliceAction, boolean);

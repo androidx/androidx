@@ -26,6 +26,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.IconCompat;
@@ -50,7 +51,7 @@ public class MessagingBasicImpl extends TemplateBuilderImpl implements
     /**
      */
     @Override
-    public void apply(Slice.Builder builder) {
+    public void apply(@NonNull Slice.Builder builder) {
         if (mLastMessage != null) {
             Slice.Builder sb = new Slice.Builder(getBuilder()).addHints(HINT_LIST_ITEM);
             if (Build.VERSION.SDK_INT >= 23) {
@@ -130,7 +131,7 @@ public class MessagingBasicImpl extends TemplateBuilderImpl implements
         /**
          */
         @Override
-        public void apply(Slice.Builder builder) {
+        public void apply(@NonNull Slice.Builder builder) {
         }
     }
 }

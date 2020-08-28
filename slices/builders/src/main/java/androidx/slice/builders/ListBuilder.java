@@ -365,7 +365,7 @@ public class ListBuilder extends TemplateSliceBuilder {
      * Sets keywords to associate with this slice.
      */
     @NonNull
-    public ListBuilder setKeywords(Set<String> keywords) {
+    public ListBuilder setKeywords(@NonNull final Set<String> keywords) {
         mImpl.setKeywords(keywords);
         return this;
     }
@@ -464,6 +464,7 @@ public class ListBuilder extends TemplateSliceBuilder {
      */
     @RestrictTo(LIBRARY)
     @Override
+    @Nullable
     protected TemplateBuilderImpl selectImpl() {
         if (checkCompatible(SliceSpecs.LIST_V2)) {
             return new ListBuilderImpl(getBuilder(), SliceSpecs.LIST_V2, getClock());
@@ -479,6 +480,7 @@ public class ListBuilder extends TemplateSliceBuilder {
      * @hide
      */
     @RestrictTo(LIBRARY)
+    @NonNull
     public androidx.slice.builders.impl.ListBuilder getImpl() {
         return mImpl;
     }
@@ -700,6 +702,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public IconCompat getTitleIcon() {
             return mTitleIcon;
         }
@@ -732,6 +735,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public CharSequence getTitle() {
             return mTitle;
         }
@@ -740,6 +744,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public CharSequence getSubtitle() {
             return mSubtitle;
         }
@@ -748,6 +753,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public SliceAction getPrimaryAction() {
             return mPrimaryAction;
         }
@@ -756,6 +762,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public CharSequence getContentDescription() {
             return mContentDescription;
         }
@@ -1024,6 +1031,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public IconCompat getTitleIcon() {
             return mTitleIcon;
         }
@@ -1038,6 +1046,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @NonNull
         public List<Object> getEndItems() {
             return mEndItems;
         }
@@ -1046,6 +1055,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @NonNull
         public List<Integer> getEndTypes() {
             return mEndTypes;
         }
@@ -1054,6 +1064,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @NonNull
         public List<Boolean> getEndLoads() {
             return mEndLoads;
         }
@@ -1094,6 +1105,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public CharSequence getTitle() {
             return mTitle;
         }
@@ -1102,6 +1114,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public CharSequence getSubtitle() {
             return mSubtitle;
         }
@@ -1110,6 +1123,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public PendingIntent getAction() {
             return mAction;
         }
@@ -1118,6 +1132,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public PendingIntent getInputAction() {
             return mInputAction;
         }
@@ -1126,6 +1141,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public IconCompat getThumb() {
             return mThumb;
         }
@@ -1134,6 +1150,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public SliceAction getPrimaryAction() {
             return mPrimaryAction;
         }
@@ -1142,6 +1159,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public CharSequence getContentDescription() {
             return mContentDescription;
         }
@@ -1239,7 +1257,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * Builder to construct a normal row.
          * @param uri Uri to tag for this slice.
          */
-        public RowBuilder(Uri uri) {
+        public RowBuilder(@NonNull final Uri uri) {
             mUri = uri;
         }
 
@@ -1272,6 +1290,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @see #SMALL_IMAGE
          * @see #LARGE_IMAGE
          */
+        @NonNull
         public RowBuilder setTitleItem(@NonNull IconCompat icon, @ImageMode int imageMode) {
             return setTitleItem(icon, imageMode, false /* isLoading */);
         }
@@ -1521,6 +1540,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public Uri getUri() {
             return mUri;
         }
@@ -1585,6 +1605,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public IconCompat getTitleIcon() {
             return mTitleIcon;
         }
@@ -1593,6 +1614,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public SliceAction getTitleAction() {
             return mTitleAction;
         }
@@ -1601,6 +1623,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public SliceAction getPrimaryAction() {
             return mPrimaryAction;
         }
@@ -1609,6 +1632,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public CharSequence getTitle() {
             return mTitle;
         }
@@ -1625,6 +1649,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public CharSequence getSubtitle() {
             return mSubtitle;
         }
@@ -1641,6 +1666,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public CharSequence getContentDescription() {
             return mContentDescription;
         }
@@ -1657,6 +1683,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @NonNull
         public List<Object> getEndItems() {
             return mEndItems;
         }
@@ -1665,6 +1692,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @NonNull
         public List<Integer> getEndTypes() {
             return mEndTypes;
         }
@@ -1673,6 +1701,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @NonNull
         public List<Boolean> getEndLoads() {
             return mEndLoads;
         }
@@ -1733,7 +1762,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
-        public HeaderBuilder(Uri uri) {
+        public HeaderBuilder(@NonNull final Uri uri) {
             mUri = uri;
         }
 
@@ -1857,6 +1886,7 @@ public class ListBuilder extends TemplateSliceBuilder {
          * @hide
          */
         @RestrictTo(LIBRARY)
+        @Nullable
         public Uri getUri() {
             return mUri;
         }

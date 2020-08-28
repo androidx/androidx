@@ -77,7 +77,7 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
     /**
      */
     @Override
-    public void apply(Slice.Builder builder) {
+    public void apply(@NonNull Slice.Builder builder) {
         builder.addHints(HINT_HORIZONTAL);
         if (mPrimaryAction != null) {
             mPrimaryAction.setPrimaryAction(builder);
@@ -230,7 +230,7 @@ public class GridRowBuilderListV1Impl extends TemplateBuilderImpl {
          */
         @RestrictTo(LIBRARY)
         @Override
-        public void apply(Slice.Builder b) {
+        public void apply(@NonNull Slice.Builder b) {
             getBuilder().addHints(HINT_HORIZONTAL);
             if (mContentIntent != null) {
                 b.addAction(mContentIntent, getBuilder().build(), null);
