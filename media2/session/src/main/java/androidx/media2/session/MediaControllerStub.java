@@ -315,7 +315,8 @@ class MediaControllerStub extends IMediaController.Stub {
                     result.getPreviousMediaItemIndex(), result.getNextMediaItemIndex(),
                     result.getTokenExtras(), result.getVideoSize(), result.getTracks(),
                     result.getSelectedVideoTrack(), result.getSelectedAudioTrack(),
-                    result.getSelectedSubtitleTrack(), result.getSelectedMetadataTrack());
+                    result.getSelectedSubtitleTrack(), result.getSelectedMetadataTrack(),
+                    result.getPlaylistMetadata(), result.getBufferingState());
         } finally {
             Binder.restoreCallingIdentity(token);
         }
