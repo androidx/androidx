@@ -192,8 +192,8 @@ public class ComplicationDataTest {
                         .build();
 
         // WHEN getLongTitle is called
-        // THEN IllegalStateException is thrown.
-        assertThrows(IllegalStateException.class, data::getLongTitle);
+        // THEN null is returned.
+        assertNull(data.getLongTitle());
     }
 
     @Test
@@ -206,8 +206,8 @@ public class ComplicationDataTest {
                         .build();
 
         // WHEN getValue is called
-        // THEN IllegalStateException is thrown.
-        assertThrows(IllegalStateException.class, data::getRangedValue);
+        // THEN zero is returned.
+        assertEquals(data.getRangedValue(), 0.0f, 0);
     }
 
     @Test
@@ -220,8 +220,8 @@ public class ComplicationDataTest {
                         .build();
 
         // WHEN getValue is called
-        // THEN IllegalStateException is thrown.
-        assertThrows(IllegalStateException.class, data::getRangedValue);
+        // THEN zero is returned.
+        assertEquals(data.getRangedValue(), 0.0f, 0);
     }
 
     @Test
@@ -234,8 +234,8 @@ public class ComplicationDataTest {
                         .build();
 
         // WHEN getShortTitle is called
-        // THEN IllegalStateException is thrown.
-        assertThrows(IllegalStateException.class, data::getShortTitle);
+        // THEN null is returned.
+        assertNull(data.getShortTitle());
     }
 
     @Test
@@ -249,8 +249,8 @@ public class ComplicationDataTest {
                         .build();
 
         // WHEN getLongTitle is called
-        // THEN IllegalStateException is thrown.
-        assertThrows(IllegalStateException.class, data::getLongTitle);
+        // THEN null is returned.
+        assertNull(data.getLongTitle());
     }
 
     @Test
@@ -273,9 +273,9 @@ public class ComplicationDataTest {
                         .setIcon(Icon.createWithContentUri("someuri"))
                         .build();
 
-        // WHEN getLongTitle is called
-        // THEN IllegalStateException is thrown.
-        assertThrows(IllegalStateException.class, data::getShortText);
+        // WHEN getShortText is called
+        // THEN null is returned.
+        assertNull(data.getShortText());
     }
 
     @Test
@@ -287,8 +287,8 @@ public class ComplicationDataTest {
                         .build();
 
         // WHEN getLongText is called
-        // THEN IllegalStateException is thrown.
-        assertThrows(IllegalStateException.class, data::getLongText);
+        // THEN null is returned.
+        assertNull(data.getLongText());
     }
 
     @Test
@@ -365,10 +365,9 @@ public class ComplicationDataTest {
         // GIVEN complication data of the EMPTY type...
         ComplicationData data = new ComplicationData.Builder(ComplicationData.TYPE_EMPTY).build();
 
-        // WHEN getLongTitle is called
-        // THEN IllegalStateException is thrown.
-        assertThrows(
-                IllegalStateException.class, data::getLongText);
+        // WHEN getLongText is called
+        // THEN null is returned.
+        assertNull(data.getLongText());
     }
 
     @Test
@@ -404,8 +403,8 @@ public class ComplicationDataTest {
                 new ComplicationData.Builder(ComplicationData.TYPE_NOT_CONFIGURED).build();
 
         // WHEN getLongText is called
-        // THEN IllegalStateException is thrown.
-        assertThrows(IllegalStateException.class, data::getLongText);
+        // THEN null is returned.
+        assertNull(data.getLongText());
     }
 
     @Test
@@ -463,7 +462,7 @@ public class ComplicationDataTest {
 
         // WHEN getShortText is called
         // THEN null is returned.
-        assertThrows(IllegalStateException.class, data::getShortText);
+        assertNull(data.getShortText());
     }
 
     @Test
@@ -520,8 +519,8 @@ public class ComplicationDataTest {
                         .build();
 
         // WHEN getLongText is called
-        // THEN IllegalStateException is thrown.
-        assertThrows(IllegalStateException.class, data::getLongText);
+        // THEN null is returned.
+        assertNull(data.getLongText());
     }
 
     @Test
