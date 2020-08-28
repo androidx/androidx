@@ -3177,6 +3177,8 @@ public final class MediaRouter {
             mRequestedRoute = null;
             mRequestedRouteController = null;
 
+            // In order to exclude the group route in the route list, we don't post
+            // MSG_ROUTE_ADDED here. Instead we only call mSystemProvider.onSyncRouteAdded() later.
             mCallbackHandler.post(CallbackHandler.MSG_ROUTE_ANOTHER_SELECTED,
                     new Pair<>(requestedRoute, selectedRoute), UNSELECT_REASON_ROUTE_CHANGED);
 
@@ -3584,6 +3586,7 @@ public final class MediaRouter {
         private final class CallbackHandler extends Handler {
             private final ArrayList<CallbackRecord> mTempCallbackRecords =
                     new ArrayList<CallbackRecord>();
+            private final List<RouteInfo> mDynamicGroupRoutes = new ArrayList<>();
 
             private static final int MSG_TYPE_MASK = 0xff00;
             private static final int MSG_TYPE_ROUTE = 0x0100;
@@ -3663,10 +3666,24 @@ public final class MediaRouter {
                     case MSG_ROUTE_CHANGED:
                         mSystemProvider.onSyncRouteChanged((RouteInfo) obj);
                         break;
-                    case MSG_ROUTE_SELECTED:
-                        mSystemProvider.onSyncRouteSelected(
-                                ((Pair<RouteInfo, RouteInfo>) obj).second);
+                    case MSG_ROUTE_SELECTED: {
+                        RouteInfo selectedRoute = ((Pair<RouteInfo, RouteInfo>) obj).second;
+                        mSystemProvider.onSyncRouteSelected(selectedRoute);
+                        if (selectedRoute.isDefaultOrBluetooth()) {
+                            for (RouteInfo prevGroupRoute : mDynamicGroupRoutes) {
+                                mSystemProvider.onSyncRouteRemoved(prevGroupRoute);
+                            }
+                            mDynamicGroupRoutes.clear();
+                        }
                         break;
+                    }
+                    case MSG_ROUTE_ANOTHER_SELECTED: {
+                        RouteInfo groupRoute = ((Pair<RouteInfo, RouteInfo>) obj).second;
+                        mDynamicGroupRoutes.add(groupRoute);
+                        mSystemProvider.onSyncRouteAdded(groupRoute);
+                        mSystemProvider.onSyncRouteSelected(groupRoute);
+                        break;
+                    }
                 }
             }
 
