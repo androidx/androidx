@@ -54,6 +54,7 @@ public class RowStyle {
     private int mProgressBarInlineWidth = UNBOUNDED;
     private int mProgressBarStartPadding = UNBOUNDED;
     private int mProgressBarEndPadding = UNBOUNDED;
+    private int mTextActionPadding  = UNBOUNDED;
     private int mIconSize = UNBOUNDED;
     private boolean mDisableRecyclerViewItemAnimator = false;
     private int mImageSize;
@@ -75,44 +76,45 @@ public class RowStyle {
         TypedArray a = context.getTheme().obtainStyledAttributes(resId, R.styleable.RowStyle);
         try {
             mTitleItemStartPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_titleItemStartPadding, mTitleItemStartPadding);
+                    R.styleable.RowStyle_titleItemStartPadding, UNBOUNDED);
             mTitleItemEndPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_titleItemEndPadding, mTitleItemEndPadding);
+                    R.styleable.RowStyle_titleItemEndPadding, UNBOUNDED);
             mContentStartPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_contentStartPadding, mContentStartPadding);
+                    R.styleable.RowStyle_contentStartPadding, UNBOUNDED);
             mContentEndPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_contentEndPadding, mContentEndPadding);
+                    R.styleable.RowStyle_contentEndPadding, UNBOUNDED);
             mTitleStartPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_titleStartPadding, mTitleStartPadding);
+                    R.styleable.RowStyle_titleStartPadding, UNBOUNDED);
             mTitleEndPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_titleEndPadding, mTitleEndPadding);
+                    R.styleable.RowStyle_titleEndPadding, UNBOUNDED);
             mSubContentStartPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_subContentStartPadding, mSubContentStartPadding);
+                    R.styleable.RowStyle_subContentStartPadding, UNBOUNDED);
             mSubContentEndPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_subContentEndPadding, mSubContentEndPadding);
+                    R.styleable.RowStyle_subContentEndPadding, UNBOUNDED);
             mEndItemStartPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_endItemStartPadding, mEndItemStartPadding);
+                    R.styleable.RowStyle_endItemStartPadding, UNBOUNDED);
             mEndItemEndPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_endItemEndPadding, mEndItemEndPadding);
+                    R.styleable.RowStyle_endItemEndPadding, UNBOUNDED);
             mBottomDividerStartPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_bottomDividerStartPadding, mBottomDividerStartPadding);
+                    R.styleable.RowStyle_bottomDividerStartPadding, UNBOUNDED);
             mBottomDividerEndPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_bottomDividerEndPadding, mBottomDividerEndPadding);
+                    R.styleable.RowStyle_bottomDividerEndPadding, UNBOUNDED);
             mActionDividerHeight = (int) a.getDimension(
-                    R.styleable.RowStyle_actionDividerHeight, mActionDividerHeight);
+                    R.styleable.RowStyle_actionDividerHeight, UNBOUNDED);
             mSeekBarInlineWidth = (int) a.getDimension(
-                    R.styleable.RowStyle_seekBarInlineWidth, mSeekBarInlineWidth);
+                    R.styleable.RowStyle_seekBarInlineWidth, UNBOUNDED);
             mProgressBarInlineWidth = (int) a.getDimension(
-                    R.styleable.RowStyle_progressBarInlineWidth, mProgressBarInlineWidth);
+                    R.styleable.RowStyle_progressBarInlineWidth, UNBOUNDED);
             mProgressBarStartPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_progressBarStartPadding, mProgressBarStartPadding);
+                    R.styleable.RowStyle_progressBarStartPadding, UNBOUNDED);
             mProgressBarEndPadding = (int) a.getDimension(
-                    R.styleable.RowStyle_progressBarEndPadding, mProgressBarEndPadding);
+                    R.styleable.RowStyle_progressBarEndPadding, UNBOUNDED);
+            mTextActionPadding = (int) a.getDimension(
+                    R.styleable.RowStyle_textActionPadding, 10);
             mIconSize = (int) a.getDimension(
-                    R.styleable.RowStyle_iconSize, mIconSize);
+                    R.styleable.RowStyle_iconSize, UNBOUNDED);
             mDisableRecyclerViewItemAnimator = a.getBoolean(
-                    R.styleable.RowStyle_disableRecyclerViewItemAnimator,
-                    mDisableRecyclerViewItemAnimator);
+                    R.styleable.RowStyle_disableRecyclerViewItemAnimator, false);
             mImageSize = (int) a.getDimension(
                     R.styleable.RowStyle_imageSize,
                     context.getResources().getDimensionPixelSize(
@@ -193,6 +195,10 @@ public class RowStyle {
 
     public int getProgressBarEndPadding() {
         return mProgressBarEndPadding;
+    }
+
+    public int getTextActionPadding() {
+        return mTextActionPadding;
     }
 
     public int getIconSize() {

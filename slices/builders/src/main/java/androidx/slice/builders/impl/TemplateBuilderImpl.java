@@ -21,11 +21,13 @@ import static android.app.slice.Slice.HINT_NO_TINT;
 import static android.app.slice.Slice.HINT_PARTIAL;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
+import static androidx.slice.builders.ListBuilder.ACTION_WITH_LABEL;
 import static androidx.slice.builders.ListBuilder.ICON_IMAGE;
 import static androidx.slice.builders.ListBuilder.LARGE_IMAGE;
 import static androidx.slice.builders.ListBuilder.RAW_IMAGE_LARGE;
 import static androidx.slice.builders.ListBuilder.RAW_IMAGE_SMALL;
 import static androidx.slice.core.SliceHints.HINT_RAW;
+import static androidx.slice.core.SliceHints.HINT_SHOW_LABEL;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -116,6 +118,9 @@ public abstract class TemplateBuilderImpl {
     @NonNull
     protected ArrayList<String> parseImageMode(int imageMode, boolean isLoading) {
         ArrayList<String> hints = new ArrayList<>();
+        if (imageMode == ACTION_WITH_LABEL) {
+            hints.add(HINT_SHOW_LABEL);
+        }
         if (imageMode != ICON_IMAGE) {
             hints.add(HINT_NO_TINT);
         }
