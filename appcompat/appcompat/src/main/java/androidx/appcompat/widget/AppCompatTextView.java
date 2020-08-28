@@ -398,8 +398,9 @@ public class AppCompatTextView extends TextView implements TintableBackgroundVie
 
     @Override
     public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
-        return AppCompatHintHelper.onCreateInputConnection(super.onCreateInputConnection(outAttrs),
-                outAttrs, this);
+        InputConnection ic = super.onCreateInputConnection(outAttrs);
+        mTextHelper.populateSurroundingTextIfNeeded(this, ic, outAttrs);
+        return AppCompatHintHelper.onCreateInputConnection(ic, outAttrs, this);
     }
 
     @Override
