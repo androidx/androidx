@@ -212,6 +212,7 @@ public class AppCompatEditText extends EditText implements TintableBackgroundVie
     @Override
     public InputConnection onCreateInputConnection(EditorInfo outAttrs) {
         InputConnection ic = super.onCreateInputConnection(outAttrs);
+        mTextHelper.populateSurroundingTextIfNeeded(this, ic, outAttrs);
         ic = AppCompatHintHelper.onCreateInputConnection(ic, outAttrs, this);
         if (ic != null && mRichContentReceiverCompat != null) {
             mRichContentReceiverCompat.populateEditorInfoContentMimeTypes(ic, outAttrs);

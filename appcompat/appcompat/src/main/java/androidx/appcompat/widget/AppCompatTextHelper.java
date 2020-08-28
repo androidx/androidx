@@ -31,6 +31,8 @@ import android.os.LocaleList;
 import android.text.method.PasswordTransformationMethod;
 import android.util.AttributeSet;
 import android.util.TypedValue;
+import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputConnection;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -39,6 +41,7 @@ import androidx.annotation.RestrictTo;
 import androidx.appcompat.R;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.inputmethod.EditorInfoCompat;
 import androidx.core.widget.TextViewCompat;
 
 import java.lang.ref.WeakReference;
@@ -687,6 +690,27 @@ class AppCompatTextHelper {
                     drawableRight != null ? drawableRight : existingAbs[2],
                     drawableBottom != null ? drawableBottom : existingAbs[3]
             );
+        }
+    }
+
+    /**
+     * For SDK < R(API 30), populates the {@link EditorInfo}'s initial surrounding text from the
+     * given {@link TextView} if it created an {@link InputConnection}.
+     *
+     * <p>
+     * Use {@link EditorInfoCompat#setInitialSurroundingText(EditorInfo, CharSequence)} to provide
+     * initial input text when {@link TextView#onCreateInputConnection(EditorInfo). This method
+     * would only be used when running on < R since {@link TextView} already does this on R.
+     *
+     * @param textView the {@code TextView} to extract the initial surrounding text from
+     * @param editorInfo the {@link EditorInfo} on which to set the surrounding text
+     */
+    void populateSurroundingTextIfNeeded(
+            @NonNull TextView textView,
+            @Nullable InputConnection inputConnection,
+            @NonNull EditorInfo editorInfo) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R && inputConnection != null) {
+            EditorInfoCompat.setInitialSurroundingText(editorInfo, textView.getText());
         }
     }
 }
