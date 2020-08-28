@@ -20,6 +20,8 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.work.ListenableWorker;
+import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
 import androidx.work.WorkRequest;
 import androidx.work.impl.WorkManagerImpl;
@@ -27,13 +29,13 @@ import androidx.work.impl.WorkManagerImpl;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * A subset of {@link androidx.work.WorkManager} APIs that are available for apps that use
  * multiple processes.
  */
 public abstract class RemoteWorkManager {
-
     /**
      * @hide
      */
@@ -46,7 +48,7 @@ public abstract class RemoteWorkManager {
      * Enqueues one item for background processing.
      *
      * @param request The {@link WorkRequest} to enqueue
-     * @return An {@link ListenableFuture} that can be used to determine when the enqueue has
+     * @return A {@link ListenableFuture} that can be used to determine when the enqueue has
      * completed
      */
     @NonNull
@@ -56,11 +58,70 @@ public abstract class RemoteWorkManager {
      * Enqueues one or more items for background processing.
      *
      * @param requests One or more {@link WorkRequest} to enqueue
-     * @return An {@link ListenableFuture} that can be used to determine when the enqueue has
+     * @return A {@link ListenableFuture} that can be used to determine when the enqueue has
      * completed
      */
     @NonNull
     public abstract ListenableFuture<Void> enqueue(@NonNull List<WorkRequest> requests);
+
+    /**
+     * Enqueues the instance of {@link WorkContinuation} for background processing.
+     *
+     * @return A {@link ListenableFuture} that can be used to determine when the enqueue has
+     * completed
+     */
+    @NonNull
+    public abstract ListenableFuture<Void> enqueue(@NonNull WorkContinuation continuation);
+
+    /**
+     * Cancels work with the given id if it isn't finished.  Note that cancellation is a best-effort
+     * policy and work that is already executing may continue to run.  Upon cancellation,
+     * {@link ListenableWorker#onStopped()} will be invoked for any affected workers.
+     *
+     * @param id The id of the work
+     * @return A {@link ListenableFuture} that can be used to determine when the enqueue has
+     * completed
+     */
+    @NonNull
+    public abstract ListenableFuture<Void> cancelWorkById(@NonNull UUID id);
+
+    /**
+     * Cancels all unfinished work with the given tag.  Note that cancellation is a best-effort
+     * policy and work that is already executing may continue to run.  Upon cancellation,
+     * {@link ListenableWorker#onStopped()} will be invoked for any affected workers.
+     *
+     * @param tag The tag used to identify the work
+     * @return A {@link ListenableFuture} that can be used to determine when the enqueue has
+     * completed
+     */
+    @NonNull
+    public abstract ListenableFuture<Void> cancelAllWorkByTag(@NonNull String tag);
+
+    /**
+     * Cancels all unfinished work in the work chain with the given name.  Note that cancellation is
+     * a best-effort policy and work that is already executing may continue to run.  Upon
+     * cancellation, {@link ListenableWorker#onStopped()} will be invoked for any affected workers.
+     *
+     * @param uniqueWorkName The unique name used to identify the chain of work
+     * @return A {@link ListenableFuture} that can be used to determine when the enqueue has
+     * completed
+     */
+    @NonNull
+    public abstract ListenableFuture<Void> cancelUniqueWork(@NonNull String uniqueWorkName);
+
+    /**
+     * Cancels all unfinished work.  <b>Use this method with extreme caution!</b>  By invoking it,
+     * you will potentially affect other modules or libraries in your codebase.  It is strongly
+     * recommended that you use one of the other cancellation methods at your disposal.
+     * <p>
+     * Upon cancellation, {@link ListenableWorker#onStopped()} will be invoked for any affected
+     * workers.
+     *
+     * @return A {@link ListenableFuture} that can be used to determine when the enqueue has
+     * completed
+     */
+    @NonNull
+    public abstract ListenableFuture<Void> cancelAllWork();
 
     /**
      * Gets the instance of {@link RemoteWorkManager} which provides a subset of

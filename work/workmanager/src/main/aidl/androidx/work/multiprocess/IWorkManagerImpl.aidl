@@ -19,10 +19,18 @@ package androidx.work.multiprocess;
 import androidx.work.multiprocess.IWorkManagerImplCallback;
 
 /**
- * Implewmentation for {@link IWorkManager}.
+ * Implementation for {@link IWorkManager}.
  *
  * @hide
  */
 oneway interface IWorkManagerImpl {
+    // Enqueues WorkRequests
     void enqueueWorkRequests(in byte[] request, IWorkManagerImplCallback callback);
+    // Enqueues WorkContinuations
+    void enqueueContinuation(in byte[] request, IWorkManagerImplCallback callback);
+    // Cancel APIs
+    void cancelWorkById(String id, IWorkManagerImplCallback callback);
+    void cancelAllWorkByTag(String tag, IWorkManagerImplCallback callback);
+    void cancelUniqueWork(String name, IWorkManagerImplCallback callback);
+    void cancelAllWork(IWorkManagerImplCallback callback);
 }

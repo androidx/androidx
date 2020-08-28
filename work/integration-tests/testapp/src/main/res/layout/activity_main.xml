@@ -239,6 +239,30 @@
             android:layout_marginLeft="16dp"
             android:layout_marginStart="16dp"/>
 
+        <Button android:text="@string/enqueue_continuation_multi_process"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/enqueue_continuation_multi_process"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
+        <Button android:text="@string/cancel_work_tag_multiprocess"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/cancel_work_tag_multiprocess"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
+        <Button android:text="@string/cancel_all_work_multiprocess"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/cancel_all_work_multiprocess"
+            android:layout_marginTop="12dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginStart="16dp"/>
+
         <Button android:text="@string/crash_app"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

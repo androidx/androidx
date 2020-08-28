@@ -364,8 +364,13 @@ package androidx.work {
 package androidx.work.multiprocess {
 
   public abstract class RemoteWorkManager {
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> cancelAllWork();
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> cancelAllWorkByTag(String);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> cancelUniqueWork(String);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> cancelWorkById(java.util.UUID);
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> enqueue(androidx.work.WorkRequest);
     method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> enqueue(java.util.List<androidx.work.WorkRequest!>);
+    method public abstract com.google.common.util.concurrent.ListenableFuture<java.lang.Void!> enqueue(androidx.work.WorkContinuation);
     method public static androidx.work.multiprocess.RemoteWorkManager getInstance(android.content.Context);
   }
 
