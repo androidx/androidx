@@ -36,6 +36,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -230,7 +231,8 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
 
     private CharSequence mDependentTextCache;
 
-    private ComplicationText(@Nullable CharSequence surroundingText,
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public ComplicationText(@Nullable CharSequence surroundingText,
             @Nullable TimeDependentText timeDependentText) {
         mSurroundingText = surroundingText;
         mTimeDependentText = timeDependentText;
@@ -459,7 +461,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
         private Boolean mShowNowText;
         private TimeUnit mMinimumUnit;
 
-        TimeDifferenceBuilder() {
+        public TimeDifferenceBuilder() {
         }
 
         /**
@@ -468,7 +470,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
          * @param referencePeriodEndMillis The end of the reference period (in milliseconds since
          *     the epoch) from whichthe time difference will be calculated.
          */
-        TimeDifferenceBuilder(long referencePeriodStartMillis, long referencePeriodEndMillis) {
+        public TimeDifferenceBuilder(long referencePeriodStartMillis, long referencePeriodEndMillis) {
             mReferencePeriodStartMillis = referencePeriodStartMillis;
             mReferencePeriodEndMillis = referencePeriodEndMillis;
         }

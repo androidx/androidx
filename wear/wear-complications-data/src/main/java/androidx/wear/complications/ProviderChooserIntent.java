@@ -34,7 +34,7 @@ import androidx.annotation.RestrictTo;
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class ProviderChooserIntent {
+public class ProviderChooserIntent {
 
     /**
      * The intent action used to open the provider chooser activity.
@@ -45,30 +45,42 @@ class ProviderChooserIntent {
 
     /**
      * Key for an extra used to provide the watch face component.
+     *
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressWarnings("ActionValue")
-    static final String EXTRA_WATCH_FACE_COMPONENT_NAME =
+    public static final String EXTRA_WATCH_FACE_COMPONENT_NAME =
             "android.support.wearable.complications.EXTRA_WATCH_FACE_COMPONENT_NAME";
 
     /**
      * Key for an extra holding a pending intent used to verify the caller.
+     *
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressWarnings("ActionValue")
-    private static final String EXTRA_PENDING_INTENT =
+    public static final String EXTRA_PENDING_INTENT =
             "android.support.wearable.complications.EXTRA_PENDING_INTENT";
 
     /**
      * Key for an extra used to provide the watch face supported types.
+     *
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressWarnings("ActionValue")
-    static final String EXTRA_SUPPORTED_TYPES =
+    public static final String EXTRA_SUPPORTED_TYPES =
             "android.support.wearable.complications.EXTRA_SUPPORTED_TYPES";
 
     /**
      * Key for an extra that holds the watch face complication id.
+     *
+     * @hide
      */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @SuppressWarnings("ActionValue")
-    static final String EXTRA_COMPLICATION_ID =
+    public static final String EXTRA_COMPLICATION_ID =
             "android.support.wearable.complications.EXTRA_COMPLICATION_ID";
 
     /**
