@@ -38,7 +38,6 @@ import androidx.annotation.RequiresApi;
  */
 @RequiresApi(19)
 public class SliceBroadcastReceiver extends BroadcastReceiver {
-
     @SuppressWarnings("deprecation")
     @Override
     public void onReceive(final Context context, Intent i) {
@@ -75,6 +74,9 @@ public class SliceBroadcastReceiver extends BroadcastReceiver {
                 Toast.makeText(context, "value: " + range, Toast.LENGTH_SHORT).show();
                 context.getContentResolver().notifyChange(getUri("inputrange", context), null);
                 context.getContentResolver().notifyChange(getUri("richinputrange", context), null);
+                break;
+            case SampleSliceProvider.ACTION_PLAY_TTS:
+                context.getContentResolver().notifyChange(getUri("tts", context), null);
                 break;
         }
     }

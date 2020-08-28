@@ -119,6 +119,8 @@ public class SliceHints {
      */
     public static final String SUBTYPE_SELECTION_OPTION_VALUE = "selection_option_value";
 
+    public static final String SUBTYPE_HOST_EXTRAS = "host_extras";
+
     @IntDef({
             LARGE_IMAGE, SMALL_IMAGE, ICON_IMAGE, RAW_IMAGE_SMALL, RAW_IMAGE_LARGE, UNKNOWN_IMAGE
     })

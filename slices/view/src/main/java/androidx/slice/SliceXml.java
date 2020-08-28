@@ -195,6 +195,9 @@ class SliceXml {
                         v = parser.getText();
                         b.addLong(Long.parseLong(v), subtype, hints);
                         break;
+                    case android.app.slice.SliceItem.FORMAT_BUNDLE:
+                        // Nothing for now
+                        break;
                     default:
                         throw new IllegalArgumentException("Unrecognized format " + format);
                 }
@@ -326,6 +329,9 @@ class SliceXml {
                 break;
             case android.app.slice.SliceItem.FORMAT_LONG:
                 serializer.text(String.valueOf(item.getLong()));
+                break;
+            case android.app.slice.SliceItem.FORMAT_BUNDLE:
+                // Nothing for now
                 break;
             default:
                 throw new IllegalArgumentException("Unrecognized format " + format);

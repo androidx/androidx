@@ -22,15 +22,19 @@ import static android.app.slice.Slice.HINT_TITLE;
 import static android.app.slice.Slice.HINT_TTL;
 import static android.app.slice.Slice.SUBTYPE_COLOR;
 import static android.app.slice.Slice.SUBTYPE_LAYOUT_DIRECTION;
+import static android.app.slice.SliceItem.FORMAT_BUNDLE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.slice.builders.ListBuilder.INFINITY;
+import static androidx.slice.core.SliceHints.SUBTYPE_HOST_EXTRAS;
 import static androidx.slice.core.SliceHints.SUBTYPE_MILLIS;
 
 import android.app.PendingIntent;
+import android.os.Bundle;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
@@ -63,6 +67,7 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
     private CharSequence mSubtitle;
     private SliceAction mSliceAction;
     private IconCompat mIconCompat;
+    private Bundle mHostExtras;
 
     /**
      */
@@ -237,6 +242,14 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
         getBuilder().addInt(layoutDirection, SUBTYPE_LAYOUT_DIRECTION);
     }
 
+    @Override
+    public void setHostExtra(@NonNull String key, @NonNull String value) {
+        if (mHostExtras == null) {
+            mHostExtras = new Bundle();
+        }
+        mHostExtras.putString(key, value);
+    }
+
     /**
      */
     @Override
@@ -270,6 +283,11 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
 
         if (mIconCompat != null) {
             builder.addIcon(mIconCompat, null, new String[] { HINT_TITLE });
+        }
+
+        if (mHostExtras != null) {
+            slice.addItem(
+                    new SliceItem(mHostExtras, FORMAT_BUNDLE, SUBTYPE_HOST_EXTRAS, new String[0]));
         }
         builder.addSubSlice(slice.build());
     }
