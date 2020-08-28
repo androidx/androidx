@@ -22,8 +22,13 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 /**
- * A <code>ContextAware</code> class is associated with a {@link Context} as
- * a part of its lifecycle.
+ * A <code>ContextAware</code> class is associated with a {@link Context} sometime after
+ * the class is instantiated. By adding a {@link OnContextAvailableListener}, you can
+ * receive a callback for that event.
+ * <p>
+ * Classes implementing {@link ContextAware} are strongly recommended to also implement
+ * {@link androidx.lifecycle.LifecycleOwner} for providing a more general purpose API for
+ * listening for creation and destruction events.
  *
  * @see ContextAwareHelper
  */
