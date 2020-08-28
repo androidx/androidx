@@ -1145,6 +1145,46 @@ class FragmentTransitionTest(
         assertThat(endGreen.transitionName).isEqualTo("greenSquare")
     }
 
+    // Test to ensure fragments don't leak in the container's tags
+    @Test
+    fun leakingFragmentInTags() {
+        // First set up scene1 which should not be in the back stack
+        val fragment1 = TransitionFragment(R.layout.scene1)
+
+        fragmentManager.beginTransaction()
+            .setReorderingAllowed(reorderingAllowed)
+            .add(R.id.fragmentContainer, fragment1)
+            .commit()
+
+        activityRule.waitForExecution()
+
+        // Now do a transition to scene2
+        val fragment2 = TransitionFragment(R.layout.scene2)
+
+        fragmentManager.beginTransaction()
+            .setReorderingAllowed(reorderingAllowed)
+            .detach(fragment1)
+            .add(R.id.fragmentContainer, fragment2)
+            .commit()
+
+        activityRule.waitForExecution()
+        fragment2.waitForTransition()
+
+        val fragmentContainer = activityRule.activity
+            .findViewById<View>(R.id.fragmentContainer)
+
+        assertThat(fragmentContainer.getTag(R.id.visible_removing_fragment_view_tag)).isNull()
+
+        // Now we remove fragment1 which is detached
+        fragmentManager.beginTransaction()
+            .setReorderingAllowed(reorderingAllowed)
+            .remove(fragment1)
+            .commit()
+        activityRule.waitForExecution()
+
+        assertThat(fragmentContainer.getTag(R.id.visible_removing_fragment_view_tag)).isNull()
+    }
+
     private fun setupInitialFragment(): TransitionFragment {
         val fragment1 = TransitionFragment(R.layout.scene1)
         fragmentManager.beginTransaction()
