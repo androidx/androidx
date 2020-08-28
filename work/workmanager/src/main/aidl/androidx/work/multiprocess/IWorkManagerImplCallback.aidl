@@ -22,6 +22,6 @@ package androidx.work.multiprocess;
  * @hide
  */
 oneway interface IWorkManagerImplCallback {
-    void onSuccess();
+    void onSuccess(in byte[] response);
     void onFailure(String error);
 }

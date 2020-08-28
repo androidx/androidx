@@ -461,6 +461,16 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
+        findViewById(R.id.query_work_multiprocess).setOnClickListener(
+                new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Context context = MainActivity.this;
+                        Intent intent = RemoteService.Companion.queryWorkInfoIntent(context);
+                        context.startService(intent);
+                    }
+                });
+
         findViewById(R.id.crash_app).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

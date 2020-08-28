@@ -56,10 +56,7 @@ public class ParcelableWorkRequest implements Parcelable {
         // id
         String id = in.readString();
         // tags
-        int tagsLength = in.readInt();
-        List<String> tags = new ArrayList<>(tagsLength);
-        in.readStringList(tags);
-        Set<String> tagsSet = new HashSet<>(tags);
+        Set<String> tagsSet = new HashSet<>(in.createStringArrayList());
         // workerClassName
         String workerClassName = in.readString();
         WorkSpec workSpec = new WorkSpec(id, workerClassName);
@@ -68,15 +65,9 @@ public class ParcelableWorkRequest implements Parcelable {
         // state
         workSpec.state = intToState(in.readInt());
         // inputData
-        int inputLength = in.readInt();
-        byte[] inputDataBytes = new byte[inputLength];
-        in.readByteArray(inputDataBytes);
-        workSpec.input = Data.fromByteArray(inputDataBytes);
+        workSpec.input = Data.fromByteArray(in.createByteArray());
         // outputData
-        int outputLength = in.readInt();
-        byte[] outputDataBytes = new byte[outputLength];
-        in.readByteArray(outputDataBytes);
-        workSpec.output = Data.fromByteArray(outputDataBytes);
+        workSpec.output = Data.fromByteArray(in.createByteArray());
         // initialDelay
         workSpec.initialDelay = in.readLong();
         // intervalDuration
@@ -125,7 +116,6 @@ public class ParcelableWorkRequest implements Parcelable {
         parcel.writeString(mWorkRequest.getStringId());
         // tags
         List<String> tags = new ArrayList<>(mWorkRequest.getTags());
-        parcel.writeInt(tags.size());
         parcel.writeStringList(tags);
         WorkSpec workSpec = mWorkRequest.getWorkSpec();
         // workerClassName
@@ -136,11 +126,9 @@ public class ParcelableWorkRequest implements Parcelable {
         parcel.writeInt(stateToInt(workSpec.state));
         // inputData
         byte[] inputData = workSpec.input.toByteArray();
-        parcel.writeInt(inputData.length);
         parcel.writeByteArray(inputData);
         // outputData
         byte[] outputData = workSpec.output.toByteArray();
-        parcel.writeInt(outputData.length);
         parcel.writeByteArray(outputData);
         // initialDelay
         parcel.writeLong(workSpec.initialDelay);
