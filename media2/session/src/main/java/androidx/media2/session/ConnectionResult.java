@@ -22,7 +22,9 @@ import android.os.IBinder;
 import android.os.SystemClock;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.media2.common.MediaItem;
+import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.ParcelImplListSlice;
 import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.common.VideoSize;
@@ -101,14 +103,19 @@ class ConnectionResult extends CustomVersionedParcelable {
     TrackInfo mSelectedSubtitleTrack;
     @ParcelField(24)
     TrackInfo mSelectedMetadataTrack;
+    @ParcelField(25)
+    MediaMetadata mPlaylistMetadata;
+    @ParcelField(26)
+    int mBufferingState;
 
     // For versioned parcelable
     ConnectionResult() {
         // no-op
     }
 
-    ConnectionResult(MediaSessionStub sessionStub, MediaSession.MediaSessionImpl sessionImpl,
-            SessionCommandGroup allowedCommands) {
+    ConnectionResult(@NonNull MediaSessionStub sessionStub,
+            @NonNull MediaSession.MediaSessionImpl sessionImpl,
+            @NonNull SessionCommandGroup allowedCommands) {
         mSessionStub = sessionStub;
         mPlayerState = sessionImpl.getPlayerState();
         mCurrentMediaItem = sessionImpl.getCurrentMediaItem();
@@ -130,13 +137,20 @@ class ConnectionResult extends CustomVersionedParcelable {
         mSelectedAudioTrack = sessionImpl.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_AUDIO);
         mSelectedSubtitleTrack = sessionImpl.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE);
         mSelectedMetadataTrack = sessionImpl.getSelectedTrack(TrackInfo.MEDIA_TRACK_TYPE_METADATA);
-        if (allowedCommands != null
-                && allowedCommands.hasCommand(SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST)) {
+        if (allowedCommands.hasCommand(SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST)) {
             List<MediaItem> playlist = sessionImpl.getPlaylist();
             mPlaylistSlice = MediaUtils.convertMediaItemListToParcelImplListSlice(playlist);
         } else {
             mPlaylistSlice = null;
         }
+        if (allowedCommands.hasCommand(SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST)
+                || allowedCommands.hasCommand(
+                        SessionCommand.COMMAND_CODE_PLAYER_GET_PLAYLIST_METADATA)) {
+            mPlaylistMetadata = sessionImpl.getPlaylistMetadata();
+        } else {
+            mPlaylistMetadata = null;
+        }
+        mBufferingState = sessionImpl.getBufferingState();
         mAllowedCommands = allowedCommands;
         mVersion = MediaUtils.CURRENT_VERSION;
     }
@@ -236,6 +250,15 @@ class ConnectionResult extends CustomVersionedParcelable {
 
     public TrackInfo getSelectedMetadataTrack() {
         return mSelectedMetadataTrack;
+    }
+
+    @Nullable
+    public MediaMetadata getPlaylistMetadata() {
+        return mPlaylistMetadata;
+    }
+
+    public int getBufferingState() {
+        return mBufferingState;
     }
 
     @Override
