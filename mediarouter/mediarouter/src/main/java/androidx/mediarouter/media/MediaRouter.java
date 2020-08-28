@@ -3654,7 +3654,8 @@ public final class MediaRouter {
                 }
             }
 
-            @SuppressWarnings("unchecked") // Using Pair<RouteInfo, RouteInfo>
+            // Using Pair<RouteInfo, RouteInfo>
+            @SuppressWarnings({"unchecked", "SyntheticAccessor"})
             private void syncWithSystemProvider(int what, Object obj) {
                 switch (what) {
                     case MSG_ROUTE_ADDED:
@@ -3669,7 +3670,8 @@ public final class MediaRouter {
                     case MSG_ROUTE_SELECTED: {
                         RouteInfo selectedRoute = ((Pair<RouteInfo, RouteInfo>) obj).second;
                         mSystemProvider.onSyncRouteSelected(selectedRoute);
-                        if (selectedRoute.isDefaultOrBluetooth()) {
+                        // TODO(b/166794092): Remove this nullness check
+                        if (mDefaultRoute != null && selectedRoute.isDefaultOrBluetooth()) {
                             for (RouteInfo prevGroupRoute : mDynamicGroupRoutes) {
                                 mSystemProvider.onSyncRouteRemoved(prevGroupRoute);
                             }
