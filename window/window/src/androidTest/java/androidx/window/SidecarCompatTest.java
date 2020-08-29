@@ -38,6 +38,7 @@ import androidx.window.sidecar.SidecarDisplayFeature;
 import androidx.window.sidecar.SidecarInterface;
 import androidx.window.sidecar.SidecarWindowLayoutInfo;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,13 +57,15 @@ import java.util.List;
 @RunWith(AndroidJUnit4.class)
 public final class SidecarCompatTest extends SidecarCompatDeviceTest
         implements CompatTestInterface {
+    private static final Rect WINDOW_BOUNDS = new Rect(1, 1, 50, 100);
+
     private Activity mActivity;
 
     @Before
     public void setUp() {
+        mActivity = mock(Activity.class);
         mSidecarCompat = new SidecarCompat(mock(SidecarInterface.class));
 
-        mActivity = mock(Activity.class);
         when(mActivity.getResources())
                 .thenReturn(ApplicationProvider.getApplicationContext().getResources());
 
@@ -70,20 +73,27 @@ public final class SidecarCompatTest extends SidecarCompatDeviceTest
         window.getAttributes().token = mock(IBinder.class);
         when(mActivity.getWindow()).thenReturn(window);
 
+        TestWindowBoundsHelper mWindowBoundsHelper = new TestWindowBoundsHelper();
+        mWindowBoundsHelper.setCurrentBounds(WINDOW_BOUNDS);
+        WindowBoundsHelper.setForTesting(mWindowBoundsHelper);
+
         // Setup mocked sidecar responses
         SidecarDeviceState defaultDeviceState = new SidecarDeviceState();
         defaultDeviceState.posture = SidecarDeviceState.POSTURE_HALF_OPENED;
         when(mSidecarCompat.mSidecar.getDeviceState()).thenReturn(defaultDeviceState);
 
-        SidecarDisplayFeature sidecarDisplayFeature = new SidecarDisplayFeature();
-        sidecarDisplayFeature.setType(SidecarDisplayFeature.TYPE_HINGE);
-        Rect bounds = new Rect(1, 2, 3, 4);
-        sidecarDisplayFeature.setRect(bounds);
+        SidecarDisplayFeature sidecarDisplayFeature = newDisplayFeature(
+                new Rect(0, 1, WINDOW_BOUNDS.width(), 1), SidecarDisplayFeature.TYPE_HINGE);
         SidecarWindowLayoutInfo sidecarWindowLayoutInfo = new SidecarWindowLayoutInfo();
         sidecarWindowLayoutInfo.displayFeatures = new ArrayList<>();
         sidecarWindowLayoutInfo.displayFeatures.add(sidecarDisplayFeature);
         when(mSidecarCompat.mSidecar.getWindowLayoutInfo(any()))
                 .thenReturn(sidecarWindowLayoutInfo);
+    }
+
+    @After
+    public void tearDown() {
+        WindowBoundsHelper.setForTesting(null);
     }
 
     @Test
@@ -101,6 +111,75 @@ public final class SidecarCompatTest extends SidecarCompatDeviceTest
         WindowLayoutInfo windowLayoutInfo = mSidecarCompat.getWindowLayoutInfo(mActivity);
 
         assertEquals(sidecarDisplayFeatures.size() - 1,
+                windowLayoutInfo.getDisplayFeatures().size());
+    }
+
+    @Test
+    public void testGetWindowLayout_foldWithNonZeroArea() {
+        SidecarWindowLayoutInfo originalWindowLayoutInfo =
+                mSidecarCompat.mSidecar.getWindowLayoutInfo(mock(IBinder.class));
+        List<SidecarDisplayFeature> sidecarDisplayFeatures =
+                originalWindowLayoutInfo.displayFeatures;
+        // Horizontal fold.
+        sidecarDisplayFeatures.add(
+                newDisplayFeature(new Rect(0, 1, WINDOW_BOUNDS.width(), 2),
+                        SidecarDisplayFeature.TYPE_FOLD));
+        // Vertical fold.
+        sidecarDisplayFeatures.add(
+                newDisplayFeature(new Rect(1, 0, 2, WINDOW_BOUNDS.height()),
+                        SidecarDisplayFeature.TYPE_FOLD));
+
+        // Verify that these features are skipped.
+        WindowLayoutInfo windowLayoutInfo =
+                mSidecarCompat.getWindowLayoutInfo(mActivity);
+
+        assertEquals(sidecarDisplayFeatures.size() - 2,
+                windowLayoutInfo.getDisplayFeatures().size());
+    }
+
+    @Test
+    public void testGetWindowLayout_hingeNotSpanningEntireWindow() {
+        SidecarWindowLayoutInfo originalWindowLayoutInfo =
+                mSidecarCompat.mSidecar.getWindowLayoutInfo(mock(IBinder.class));
+        List<SidecarDisplayFeature> sidecarDisplayFeatures =
+                originalWindowLayoutInfo.displayFeatures;
+        // Horizontal hinge.
+        sidecarDisplayFeatures.add(
+                newDisplayFeature(new Rect(0, 1, WINDOW_BOUNDS.width() - 1, 2),
+                        SidecarDisplayFeature.TYPE_FOLD));
+        // Vertical hinge.
+        sidecarDisplayFeatures.add(
+                newDisplayFeature(new Rect(1, 0, 2, WINDOW_BOUNDS.height() - 1),
+                        SidecarDisplayFeature.TYPE_FOLD));
+
+        // Verify that these features are skipped.
+        WindowLayoutInfo windowLayoutInfo =
+                mSidecarCompat.getWindowLayoutInfo(mActivity);
+
+        assertEquals(sidecarDisplayFeatures.size() - 2,
+                windowLayoutInfo.getDisplayFeatures().size());
+    }
+
+    @Test
+    public void testGetWindowLayout_foldNotSpanningEntireWindow() {
+        SidecarWindowLayoutInfo originalWindowLayoutInfo =
+                mSidecarCompat.mSidecar.getWindowLayoutInfo(mock(IBinder.class));
+        List<SidecarDisplayFeature> sidecarDisplayFeatures =
+                originalWindowLayoutInfo.displayFeatures;
+        // Horizontal fold.
+        sidecarDisplayFeatures.add(
+                newDisplayFeature(new Rect(0, 1, WINDOW_BOUNDS.width() - 1, 2),
+                        SidecarDisplayFeature.TYPE_FOLD));
+        // Vertical fold.
+        sidecarDisplayFeatures.add(
+                newDisplayFeature(new Rect(1, 0, 2, WINDOW_BOUNDS.height() - 1),
+                        SidecarDisplayFeature.TYPE_FOLD));
+
+        // Verify that these features are skipped.
+        WindowLayoutInfo windowLayoutInfo =
+                mSidecarCompat.getWindowLayoutInfo(mActivity);
+
+        assertEquals(sidecarDisplayFeatures.size() - 2,
                 windowLayoutInfo.getDisplayFeatures().size());
     }
 
@@ -129,10 +208,9 @@ public final class SidecarCompatTest extends SidecarCompatDeviceTest
         // Verify that the callback set for sidecar propagates the window layout callback when a
         // window layout changed listener has been added.
         mSidecarCompat.onWindowLayoutChangeListenerAdded(mActivity);
-        SidecarDisplayFeature sidecarDisplayFeature = new SidecarDisplayFeature();
-        sidecarDisplayFeature.setType(SidecarDisplayFeature.TYPE_HINGE);
-        Rect bounds = new Rect(1, 2, 3, 4);
-        sidecarDisplayFeature.setRect(bounds);
+        Rect bounds = new Rect(0, 1, WINDOW_BOUNDS.width(), 1);
+        SidecarDisplayFeature sidecarDisplayFeature = newDisplayFeature(bounds,
+                SidecarDisplayFeature.TYPE_HINGE);
         SidecarWindowLayoutInfo sidecarWindowLayoutInfo = new SidecarWindowLayoutInfo();
         sidecarWindowLayoutInfo.displayFeatures = new ArrayList<>();
         sidecarWindowLayoutInfo.displayFeatures.add(sidecarDisplayFeature);
@@ -199,5 +277,12 @@ public final class SidecarCompatTest extends SidecarCompatDeviceTest
     public void testOnDeviceStateListenersChanged() {
         mSidecarCompat.onDeviceStateListenersChanged(true);
         verify(mSidecarCompat.mSidecar).onDeviceStateListenersChanged(eq(true));
+    }
+
+    private static SidecarDisplayFeature newDisplayFeature(Rect rect, int type) {
+        SidecarDisplayFeature feature = new SidecarDisplayFeature();
+        feature.setRect(rect);
+        feature.setType(type);
+        return feature;
     }
 }

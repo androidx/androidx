@@ -71,6 +71,8 @@ public class SidecarCompatDeviceTest extends WindowTestBase implements CompatDev
                 mSidecarCompat.mSidecar.getWindowLayoutInfo(windowToken);
         WindowLayoutInfo windowLayoutInfo = mSidecarCompat.getWindowLayoutInfo(activity);
 
+        assertEquals(windowLayoutInfo.getDisplayFeatures().size(),
+                sidecarWindowLayoutInfo.displayFeatures.size());
         for (int i = 0; i < windowLayoutInfo.getDisplayFeatures().size(); i++) {
             DisplayFeature feature = windowLayoutInfo.getDisplayFeatures().get(i);
             SidecarDisplayFeature sidecarDisplayFeature =

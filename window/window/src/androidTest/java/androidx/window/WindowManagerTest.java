@@ -86,7 +86,7 @@ public final class WindowManagerTest extends WindowTestBase {
     @Test
     public void testRegisterLayoutChangeCallback() {
         WindowBackend backend = mock(WindowBackend.class);
-        Rect rect = new Rect(1, 2, 3, 4);
+        Rect rect = new Rect(1, 0, 1, 4);
         DisplayFeature feature = new DisplayFeature(rect, DisplayFeature.TYPE_FOLD);
         WindowLayoutInfo info = new WindowLayoutInfo(Collections.singletonList(feature));
         when(backend.getWindowLayoutInfo(any())).thenReturn(info);

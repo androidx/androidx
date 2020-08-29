@@ -293,11 +293,11 @@ public final class ExtensionWindowBackendTest extends WindowTestBase {
 
         DisplayFeature.Builder featureBuilder = new DisplayFeature.Builder();
         featureBuilder.setType(DisplayFeature.TYPE_HINGE);
-        featureBuilder.setBounds(new Rect(1, 2, 3, 4));
+        featureBuilder.setBounds(new Rect(0, 2, 3, 4));
         DisplayFeature feature1 = featureBuilder.build();
 
         featureBuilder = new DisplayFeature.Builder();
-        featureBuilder.setBounds(new Rect(5, 6, 7, 8));
+        featureBuilder.setBounds(new Rect(0, 1, 5, 1));
         DisplayFeature feature2 = featureBuilder.build();
 
         List<DisplayFeature> displayFeatures = new ArrayList<>();
