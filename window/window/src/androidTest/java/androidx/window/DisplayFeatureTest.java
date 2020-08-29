@@ -37,10 +37,45 @@ public final class DisplayFeatureTest {
         new DisplayFeature.Builder().build();
     }
 
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuilder_foldWithNonZeroArea() {
+        DisplayFeature feature = new DisplayFeature.Builder()
+                .setBounds(new Rect(10, 0, 20, 30))
+                .setType(DisplayFeature.TYPE_FOLD).build();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuilder_horizontalHingeWithNonZeroOrigin() {
+        DisplayFeature horizontalHinge = new DisplayFeature.Builder()
+                .setBounds(new Rect(1, 10, 20, 10))
+                .setType(DisplayFeature.TYPE_HINGE).build();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuilder_verticalHingeWithNonZeroOrigin() {
+        DisplayFeature verticalHinge = new DisplayFeature.Builder()
+                .setBounds(new Rect(10, 1, 10, 20))
+                .setType(DisplayFeature.TYPE_HINGE).build();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuilder_horizontalFoldWithNonZeroOrigin() {
+        DisplayFeature horizontalFold = new DisplayFeature.Builder()
+                .setBounds(new Rect(1, 10, 20, 10))
+                .setType(DisplayFeature.TYPE_FOLD).build();
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void testBuilder_verticalFoldWithNonZeroOrigin() {
+        DisplayFeature verticalFold = new DisplayFeature.Builder()
+                .setBounds(new Rect(10, 1, 10, 20))
+                .setType(DisplayFeature.TYPE_FOLD).build();
+    }
+
     @Test
     public void testBuilder_setBoundsAndType() {
         DisplayFeature.Builder builder = new DisplayFeature.Builder();
-        Rect bounds = new Rect(1, 2, 3, 4);
+        Rect bounds = new Rect(0, 10, 30, 10);
         builder.setBounds(bounds);
         builder.setType(DisplayFeature.TYPE_HINGE);
         DisplayFeature feature = builder.build();
@@ -51,20 +86,20 @@ public final class DisplayFeatureTest {
 
     @Test
     public void testEquals_sameAttributes() {
-        Rect nonEmptyRect = new Rect(-1, 1, 1, -1);
-        int type = 1;
+        Rect bounds = new Rect(1, 0, 1, 10);
+        int type = DisplayFeature.TYPE_FOLD;
 
-        DisplayFeature original = new DisplayFeature(nonEmptyRect, type);
-        DisplayFeature copy = new DisplayFeature(nonEmptyRect, type);
+        DisplayFeature original = new DisplayFeature(bounds, type);
+        DisplayFeature copy = new DisplayFeature(bounds, type);
 
         assertEquals(original, copy);
     }
 
     @Test
     public void testEquals_differentRect() {
-        Rect originalRect = new Rect(-1, 1, 1, -1);
-        Rect otherRect = new Rect(-3, 3, 3, -3);
-        int type = 1;
+        Rect originalRect = new Rect(1, 0, 1, 10);
+        Rect otherRect = new Rect(2, 0, 2, 10);
+        int type = DisplayFeature.TYPE_FOLD;
 
         DisplayFeature original = new DisplayFeature(originalRect, type);
         DisplayFeature other = new DisplayFeature(otherRect, type);
@@ -74,9 +109,9 @@ public final class DisplayFeatureTest {
 
     @Test
     public void testEquals_differentType() {
-        Rect rect = new Rect(-1, 1, 1, -1);
-        int originalType = 1;
-        int otherType = 2;
+        Rect rect = new Rect(1, 0, 1, 10);
+        int originalType = DisplayFeature.TYPE_FOLD;
+        int otherType = DisplayFeature.TYPE_HINGE;
 
         DisplayFeature original = new DisplayFeature(rect, originalType);
         DisplayFeature other = new DisplayFeature(rect, otherType);
@@ -86,9 +121,9 @@ public final class DisplayFeatureTest {
 
     @Test
     public void testHashCode_matchesIfEqual() {
-        Rect originalRect = new Rect(-1, 2, 3, -1);
-        Rect matchingRect = new Rect(-1, 2, 3, -1);
-        int type = 1;
+        Rect originalRect = new Rect(1, 0, 1, 10);
+        Rect matchingRect = new Rect(1, 0, 1, 10);
+        int type = DisplayFeature.TYPE_FOLD;
 
         DisplayFeature original = new DisplayFeature(originalRect, type);
         DisplayFeature matching = new DisplayFeature(matchingRect, type);

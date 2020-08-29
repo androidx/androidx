@@ -32,6 +32,13 @@ public class ExtensionDisplayFeature {
     /**
      * The bounding rectangle of the feature within the application window in the window
      * coordinate space.
+     *
+     * <p>The bounds for features of type {@link #TYPE_FOLD fold} must be zero-high (for
+     * horizontal folds) or zero-wide (for vertical folds) and span the entire window.
+     *
+     * <p>The bounds for features of type {@link #TYPE_HINGE hinge} must span the entire window
+     * but, unlike folds, can have a non-zero area which represents the region that is occluded by
+     * the hinge and not visible to the user.
      */
     @NonNull
     private final Rect mBounds;

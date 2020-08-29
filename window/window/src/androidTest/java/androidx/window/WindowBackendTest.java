@@ -58,7 +58,7 @@ public final class WindowBackendTest extends WindowTestBase {
     private WindowLayoutInfo newTestWindowLayout() {
         List<DisplayFeature> displayFeatureList = new ArrayList<>();
         DisplayFeature displayFeature = new DisplayFeature(
-                new Rect(10, 10, 100, 100), DisplayFeature.TYPE_HINGE);
+                new Rect(10, 0, 10, 100), DisplayFeature.TYPE_HINGE);
         displayFeatureList.add(displayFeature);
         return new WindowLayoutInfo(displayFeatureList);
     }
