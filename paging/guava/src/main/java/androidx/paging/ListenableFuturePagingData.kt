@@ -60,13 +60,12 @@ fun <T : Any> PagingData<T>.filterAsync(
  */
 @CheckResult
 fun <T : R, R : Any> PagingData<T>.insertSeparatorsAsync(
-    generator: AsyncFunction<ElementPair<T>, R?>
+    generator: AsyncFunction<AdjacentItems<T>, R?>
 ): PagingData<R> = insertSeparators { before, after ->
-    generator.apply(ElementPair(before, after)).await()
+    generator.apply(AdjacentItems(before, after)).await()
 }
 
 /**
- * Represents a pair of elements that are next to each other. Null values are used to signal
- * boundary conditions.
+ * Represents a pair of adjacent items, null values are used to signal boundary conditions.
  */
-data class ElementPair<T>(val before: T?, val after: T?)
+data class AdjacentItems<T>(val before: T?, val after: T?)

@@ -1,11 +1,11 @@
 // Signature format: 3.0
 package androidx.paging {
 
-  public final class ElementPair<T> {
-    ctor public ElementPair(T? before, T? after);
+  public final class AdjacentItems<T> {
+    ctor public AdjacentItems(T? before, T? after);
     method public T? component1();
     method public T? component2();
-    method public androidx.paging.ElementPair<T> copy(T? before, T? after);
+    method public androidx.paging.AdjacentItems<T> copy(T? before, T? after);
     method public T? getAfter();
     method public T? getBefore();
   }
@@ -27,7 +27,7 @@ package androidx.paging {
   public final class PagingDataFutures {
     method @CheckResult public static <T> androidx.paging.PagingData<T> filterAsync(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<T,java.lang.Boolean> predicate);
     method @CheckResult public static <T, R> androidx.paging.PagingData<R> flatMapAsync(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<T,java.lang.Iterable<R>> transform);
-    method @CheckResult public static <T extends R, R> androidx.paging.PagingData<R> insertSeparatorsAsync(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<androidx.paging.ElementPair<T>,R> generator);
+    method @CheckResult public static <T extends R, R> androidx.paging.PagingData<R> insertSeparatorsAsync(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<androidx.paging.AdjacentItems<T>,R> generator);
     method @CheckResult public static <T, R> androidx.paging.PagingData<R> mapAsync(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<T,R> transform);
   }
 

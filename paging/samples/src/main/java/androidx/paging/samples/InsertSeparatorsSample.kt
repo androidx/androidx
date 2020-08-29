@@ -19,7 +19,7 @@
 package androidx.paging.samples
 
 import androidx.annotation.Sampled
-import androidx.paging.ElementPair
+import androidx.paging.AdjacentItems
 import androidx.paging.PagingData
 import androidx.paging.insertSeparators
 import androidx.paging.insertSeparatorsAsync
@@ -103,7 +103,7 @@ fun insertSeparatorsFutureSample() {
      */
     pagingDataStream.map { pagingData ->
         // map outer stream, so we can perform transformations on each paging generation
-        pagingData.insertSeparatorsAsync(AsyncFunction<ElementPair<String>, String?> {
+        pagingData.insertSeparatorsAsync(AsyncFunction<AdjacentItems<String>, String?> {
             Futures.submit(Callable<String?> {
                 val (before, after) = it!!
                 if (after != null && before?.first() != after.first()) {

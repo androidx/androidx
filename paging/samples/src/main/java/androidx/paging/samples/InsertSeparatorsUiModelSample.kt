@@ -19,7 +19,7 @@
 package androidx.paging.samples
 
 import androidx.annotation.Sampled
-import androidx.paging.ElementPair
+import androidx.paging.AdjacentItems
 import androidx.paging.PagingData
 import androidx.paging.insertSeparators
 import androidx.paging.insertSeparatorsAsync
@@ -135,7 +135,7 @@ fun insertSeparatorsUiModelFutureSample() {
             .map { item ->
                 ItemUiModel(item) // convert items in stream to ItemUiModel
             }
-            .insertSeparatorsAsync(AsyncFunction<ElementPair<ItemUiModel>, UiModel?> {
+            .insertSeparatorsAsync(AsyncFunction<AdjacentItems<ItemUiModel>, UiModel?> {
                 Futures.submit(Callable<UiModel> {
                     val (before, after) = it!!
                     if (after != null && before?.item?.label?.first() != after.item.label.first()) {

@@ -63,10 +63,12 @@ class ListenableFuturePagingDataTest {
 
     @Test
     fun insertSeparators() = testDispatcher.runBlockingTest {
-        val separated = original.insertSeparatorsAsync(AsyncFunction<ElementPair<String>, String?> {
-            val (before, after) = it!!
-            Futures.immediateFuture(if (before == null || after == null) null else "|")
-        })
+        val separated = original.insertSeparatorsAsync(
+            AsyncFunction<AdjacentItems<String>, String?> {
+                val (before, after) = it!!
+                Futures.immediateFuture(if (before == null || after == null) null else "|")
+            }
+        )
         differ.collectFrom(separated)
         assertEquals(listOf("a", "|", "b", "|", "c"), differ.currentList)
     }
