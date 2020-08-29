@@ -38,8 +38,7 @@ class RxCallableQueryResultBinderProvider private constructor(
         declared.typeArguments.size == 1 && matchesRxType(declared)
 
     private fun matchesRxType(declared: XDeclaredType): Boolean {
-        val erasure = declared.erasure()
-        return erasure.typeName == rxType.className
+        return declared.rawType.typeName == rxType.className
     }
 
     companion object {

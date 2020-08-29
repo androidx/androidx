@@ -34,6 +34,11 @@ interface XType {
     val typeName: TypeName
 
     /**
+     * Returns the rawType of this type. (e.g. `List<String>` to `List`.
+     */
+    val rawType: XRawType
+
+    /**
      * Nullability declared in the code.
      * For Kotlin types, it will be inferred from type declaration.
      * For Java types, it will be inferred from annotations.
@@ -152,11 +157,6 @@ interface XType {
     }
 
     /**
-     * Returns the erasure of this type. (e.g. `List<String>` to `List`.
-     */
-    fun erasure(): XType
-
-    /**
      * If this is a wildcard with an extends bound, returns that bounded typed.
      */
     fun extendsBound(): XType?
@@ -214,7 +214,7 @@ private fun isAssignableWithoutVariance(from: XType, to: XType): Boolean {
         return false
     }
     // check erasure version first, if it does not match, no reason to proceed
-    if (!to.erasure().isAssignableFrom(from.erasure())) {
+    if (!to.rawType.isAssignableFrom(from)) {
         return false
     }
     // convert from args to their upper bounds if it exists

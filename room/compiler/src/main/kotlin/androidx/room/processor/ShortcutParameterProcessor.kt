@@ -78,7 +78,7 @@ class ShortcutParameterProcessor(
         }
 
         val iterableType = processingEnv
-                .requireType("java.lang.Iterable").erasure()
+            .requireType("java.lang.Iterable").rawType
         if (iterableType.isAssignableFrom(typeMirror)) {
             val declared = typeMirror.asDeclaredType()
             val pojo = extractPojoTypeFromIterator(declared)

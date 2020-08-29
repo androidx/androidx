@@ -18,6 +18,7 @@ package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XNullability
+import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.javac.kotlin.KmType
@@ -34,6 +35,10 @@ internal abstract class JavacType(
 ) : XType, XEquality {
     // Kotlin type information about the type if this type is driven from kotlin code.
     abstract val kotlinType: KmType?
+
+    override val rawType: XRawType by lazy {
+        JavacRawType(env, this)
+    }
 
     override fun isError() = typeMirror.kind == TypeKind.ERROR
 
@@ -110,14 +115,6 @@ internal abstract class JavacType(
         return other is JavacType && env.typeUtils.isAssignable(
             other.typeMirror,
             typeMirror
-        )
-    }
-
-    override fun erasure(): JavacType {
-        return env.wrap(
-            typeMirror = env.typeUtils.erasure(typeMirror),
-            kotlinType = kotlinType?.erasure(),
-            elementNullability = nullability
         )
     }
 
