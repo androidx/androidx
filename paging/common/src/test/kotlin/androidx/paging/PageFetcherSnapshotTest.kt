@@ -1316,10 +1316,7 @@ class PageFetcherSnapshotTest {
                 )
                 retryCh.offer(Unit)
                 advanceUntilIdle()
-                assertThat(state.newEvents()).isEqualTo(
-                    listOf<PageEvent<Int>>(
-                    )
-                )
+                assertTrue { state.newEvents().isEmpty() }
 
             }
         }
@@ -1372,10 +1369,7 @@ class PageFetcherSnapshotTest {
                 )
                 retryCh.offer(Unit)
                 advanceUntilIdle()
-                assertThat(state.newEvents()).isEqualTo(
-                    listOf<PageEvent<Int>>(
-                    )
-                )
+                assertTrue { state.newEvents().isEmpty() }
 
             }
         }
@@ -1678,10 +1672,8 @@ class PageFetcherSnapshotTest {
                     )
                 )
                 advanceUntilIdle()
-                assertThat(state.newEvents()).isEqualTo(
-                    listOf<PageEvent<Int>>(
-                    )
-                )
+                assertTrue { state.newEvents().isEmpty() }
+
                 retryCh.offer(Unit)
                 advanceUntilIdle()
                 assertThat(state.newEvents()).isEqualTo(
