@@ -16,81 +16,85 @@
 
 package androidx.work.multiprocess;
 
-import android.annotation.SuppressLint;
 import android.os.RemoteException;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.work.Logger;
-import androidx.work.Operation;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.Executor;
 
 /**
- * Takes an {@link androidx.work.Operation} and dispatches
+ * Takes an {@link com.google.common.util.concurrent.ListenableFuture} and dispatches
  * {@link androidx.work.multiprocess.IWorkManagerImplCallback}s.
  *
+ * @param <I> represents the result returned by the {@link ListenableFuture}
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public class OperationCallback {
+public abstract class ListenableCallback<I> {
+    // Synthetic access
+    final Executor mExecutor;
+    // Synthetic access
+    final IWorkManagerImplCallback mCallback;
+    // Synthetic access
+    final ListenableFuture<I> mFuture;
 
-    private final Operation mOperation;
-    private final Executor mExecutor;
-    private final IWorkManagerImplCallback mCallback;
-
-    public OperationCallback(
-            @NonNull Operation operation,
+    public ListenableCallback(
             @NonNull Executor executor,
-            @NonNull IWorkManagerImplCallback callback) {
-        mOperation = operation;
+            @NonNull IWorkManagerImplCallback callback,
+            @NonNull ListenableFuture<I> future) {
         mExecutor = executor;
         mCallback = callback;
+        mFuture = future;
     }
+
+    /**
+     * Transforms the result of the {@link ListenableFuture} to a byte array.
+     */
+    @NonNull
+    public abstract byte[] toByteArray(@NonNull I result);
 
     /**
      * Dispatches callbacks safely while handling {@link android.os.RemoteException}s.
      */
-    public void dispatchCallbacksSafely() {
-        ListenableFuture<Operation.State.SUCCESS> future = mOperation.getResult();
-        future.addListener(new OperationCallbackRunnable(future, mCallback), mExecutor);
+    public void dispatchCallbackSafely() {
+        mFuture.addListener(new ListenableCallbackRunnable<I>(this), mExecutor);
     }
 
     /**
+     * @param <I> represents the result returned by the {@link ListenableFuture}
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public static class OperationCallbackRunnable implements Runnable {
-        private static final String TAG = Logger.tagWithPrefix("OperationCallbackRbl");
-        private final ListenableFuture<Operation.State.SUCCESS> mFuture;
-        private final IWorkManagerImplCallback mCallback;
+    public static class ListenableCallbackRunnable<I> implements Runnable {
+        private static final String TAG = Logger.tagWithPrefix("ListenableCallbackRbl");
+        private final ListenableCallback<I> mCallback;
 
-        @SuppressLint("LambdaLast")
-        public OperationCallbackRunnable(
-                @NonNull ListenableFuture<Operation.State.SUCCESS> future,
-                @NonNull IWorkManagerImplCallback callback) {
-            mFuture = future;
+        public ListenableCallbackRunnable(@NonNull ListenableCallback<I> callback) {
             mCallback = callback;
         }
 
         @Override
         public void run() {
             try {
-                mFuture.get();
-                successCallback(mCallback);
-            } catch (Throwable exception) {
-                failureCallback(mCallback, exception);
+                I result = mCallback.mFuture.get();
+                successCallback(mCallback.mCallback, mCallback.toByteArray(result));
+            } catch (Throwable throwable) {
+                failureCallback(mCallback.mCallback, throwable);
             }
         }
 
         /**
          * Dispatches successful callbacks safely.
          */
-        public static void successCallback(@NonNull IWorkManagerImplCallback callback) {
+        public static void successCallback(
+                @NonNull IWorkManagerImplCallback callback,
+                @NonNull byte[] response) {
             try {
-                callback.onSuccess();
+                callback.onSuccess(response);
             } catch (RemoteException exception) {
                 Logger.get().error(TAG, "Unable to notify successful operation", exception);
             }

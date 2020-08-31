@@ -18,7 +18,7 @@ package androidx.work.multiprocess;
 
 import static android.content.Context.BIND_AUTO_CREATE;
 
-import static androidx.work.multiprocess.OperationCallback.OperationCallbackRunnable.failureCallback;
+import static androidx.work.multiprocess.ListenableCallback.ListenableCallbackRunnable.failureCallback;
 
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
@@ -31,13 +31,18 @@ import android.os.RemoteException;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.arch.core.util.Function;
 import androidx.work.Logger;
 import androidx.work.WorkContinuation;
+import androidx.work.WorkInfo;
+import androidx.work.WorkQuery;
 import androidx.work.WorkRequest;
 import androidx.work.impl.WorkContinuationImpl;
 import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.multiprocess.parcelable.ParcelConverters;
 import androidx.work.multiprocess.parcelable.ParcelableWorkContinuationImpl;
+import androidx.work.multiprocess.parcelable.ParcelableWorkInfos;
+import androidx.work.multiprocess.parcelable.ParcelableWorkQuery;
 import androidx.work.multiprocess.parcelable.ParcelableWorkRequests;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -81,7 +86,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     @NonNull
     @Override
     public ListenableFuture<Void> enqueue(@NonNull final List<WorkRequest> requests) {
-        return execute(new RemoteDispatcher() {
+        ListenableFuture<byte[]> result = execute(new RemoteDispatcher() {
             @Override
             public void execute(
                     @NonNull IWorkManagerImpl iWorkManagerImpl,
@@ -90,12 +95,13 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
                 iWorkManagerImpl.enqueueWorkRequests(request, callback);
             }
         });
+        return map(result, sVoidMapper, mExecutor);
     }
 
     @NonNull
     @Override
     public ListenableFuture<Void> enqueue(@NonNull final WorkContinuation continuation) {
-        return execute(new RemoteDispatcher() {
+        ListenableFuture<byte[]> result = execute(new RemoteDispatcher() {
             @Override
             public void execute(@NonNull IWorkManagerImpl iWorkManagerImpl,
                     @NonNull IWorkManagerImplCallback callback) throws Throwable {
@@ -105,54 +111,81 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
                 iWorkManagerImpl.enqueueContinuation(request, callback);
             }
         });
+        return map(result, sVoidMapper, mExecutor);
     }
 
     @NonNull
     @Override
     public ListenableFuture<Void> cancelWorkById(@NonNull final UUID id) {
-        return execute(new RemoteDispatcher() {
+        ListenableFuture<byte[]> result = execute(new RemoteDispatcher() {
             @Override
             public void execute(@NonNull IWorkManagerImpl iWorkManagerImpl,
-                    @NonNull IWorkManagerImplCallback callback) throws Throwable  {
+                    @NonNull IWorkManagerImplCallback callback) throws Throwable {
                 iWorkManagerImpl.cancelWorkById(id.toString(), callback);
             }
         });
+        return map(result, sVoidMapper, mExecutor);
     }
 
     @NonNull
     @Override
     public ListenableFuture<Void> cancelAllWorkByTag(@NonNull final String tag) {
-        return execute(new RemoteDispatcher() {
+        ListenableFuture<byte[]> result = execute(new RemoteDispatcher() {
             @Override
             public void execute(@NonNull IWorkManagerImpl iWorkManagerImpl,
                     @NonNull IWorkManagerImplCallback callback) throws Throwable {
                 iWorkManagerImpl.cancelAllWorkByTag(tag, callback);
             }
         });
+        return map(result, sVoidMapper, mExecutor);
     }
 
     @NonNull
     @Override
     public ListenableFuture<Void> cancelUniqueWork(@NonNull final String uniqueWorkName) {
-        return execute(new RemoteDispatcher() {
+        ListenableFuture<byte[]> result = execute(new RemoteDispatcher() {
             @Override
             public void execute(@NonNull IWorkManagerImpl iWorkManagerImpl,
                     @NonNull IWorkManagerImplCallback callback) throws Throwable {
                 iWorkManagerImpl.cancelUniqueWork(uniqueWorkName, callback);
             }
         });
+        return map(result, sVoidMapper, mExecutor);
     }
 
     @NonNull
     @Override
     public ListenableFuture<Void> cancelAllWork() {
-        return execute(new RemoteDispatcher() {
+        ListenableFuture<byte[]> result = execute(new RemoteDispatcher() {
             @Override
             public void execute(@NonNull IWorkManagerImpl iWorkManagerImpl,
                     @NonNull IWorkManagerImplCallback callback) throws Throwable {
                 iWorkManagerImpl.cancelAllWork(callback);
             }
         });
+        return map(result, sVoidMapper, mExecutor);
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<List<WorkInfo>> getWorkInfos(@NonNull final WorkQuery workQuery) {
+        ListenableFuture<byte[]> result = execute(new RemoteDispatcher() {
+            @Override
+            public void execute(
+                    @NonNull IWorkManagerImpl iWorkManagerImpl,
+                    @NonNull IWorkManagerImplCallback callback) throws Throwable {
+                byte[] request = ParcelConverters.marshall(new ParcelableWorkQuery(workQuery));
+                iWorkManagerImpl.queryWorkInfo(request, callback);
+            }
+        });
+        return map(result, new Function<byte[], List<WorkInfo>>() {
+            @Override
+            public List<WorkInfo> apply(byte[] input) {
+                ParcelableWorkInfos infos =
+                        ParcelConverters.unmarshall(input, ParcelableWorkInfos.CREATOR);
+                return infos.getWorkInfos();
+            }
+        }, mExecutor);
     }
 
     /**
@@ -162,7 +195,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
      * @return The {@link ListenableFuture} instance.
      */
     @NonNull
-    public ListenableFuture<Void> execute(@NonNull final RemoteDispatcher dispatcher) {
+    public ListenableFuture<byte[]> execute(@NonNull final RemoteDispatcher dispatcher) {
         return execute(getSession(), dispatcher, new RemoteCallback());
     }
 
@@ -177,7 +210,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
 
     @NonNull
     @VisibleForTesting
-    ListenableFuture<Void> execute(
+    ListenableFuture<byte[]> execute(
             @NonNull ListenableFuture<IWorkManagerImpl> session,
             @NonNull final RemoteDispatcher dispatcher,
             @NonNull final RemoteCallback callback) {
@@ -245,6 +278,39 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
      */
     private static Intent newIntent(@NonNull Context context) {
         return new Intent(context, RemoteWorkManagerService.class);
+    }
+
+    /**
+     * A mapper that essentially drops the byte[].
+     */
+    private static final Function<byte[], Void> sVoidMapper = new Function<byte[], Void>() {
+        @Override
+        public Void apply(byte[] input) {
+            return null;
+        }
+    };
+
+    private static <I, O> ListenableFuture<O> map(
+            @NonNull final ListenableFuture<I> input,
+            @NonNull final Function<I, O> transformation,
+            @NonNull Executor executor) {
+
+        final SettableFuture<O> output = SettableFuture.create();
+        input.addListener(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    I in = input.get();
+                    O out = transformation.apply(in);
+                    output.set(out);
+                } catch (Throwable throwable) {
+                    Throwable cause = throwable.getCause();
+                    cause = cause == null ? throwable : cause;
+                    output.setException(cause);
+                }
+            }
+        }, executor);
+        return output;
     }
 
     /**
