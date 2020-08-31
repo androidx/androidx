@@ -32,6 +32,8 @@ import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.futures.Futures;
 
@@ -52,6 +54,7 @@ public final class FakeCameraControl implements CameraControlInternal {
     private int mFlashMode = FLASH_MODE_OFF;
     private ArrayList<CaptureConfig> mSubmittedCaptureRequests = new ArrayList<>();
     private OnNewCaptureRequestListener mOnNewCaptureRequestListener;
+    private MutableOptionsBundle mInteropConfig = MutableOptionsBundle.create();
 
     public FakeCameraControl(@NonNull ControlUpdateCallback controlUpdateCallback) {
         mControlUpdateCallback = controlUpdateCallback;
@@ -186,6 +189,26 @@ public final class FakeCameraControl implements CameraControlInternal {
     @Override
     public ListenableFuture<Void> setLinearZoom(float linearZoom) {
         return Futures.immediateFuture(null);
+    }
+
+    @Override
+    public void addInteropConfig(@NonNull Config config) {
+        for (Config.Option<?> option : config.listOptions()) {
+            @SuppressWarnings("unchecked")
+            Config.Option<Object> objectOpt = (Config.Option<Object>) option;
+            mInteropConfig.insertOption(objectOpt, config.retrieveOption(objectOpt));
+        }
+    }
+
+    @Override
+    public void clearInteropConfig() {
+        mInteropConfig = MutableOptionsBundle.create();
+    }
+
+    @NonNull
+    @Override
+    public Config getInteropConfig() {
+        return mInteropConfig;
     }
 
     /** A listener which are used to notify when there are new submitted capture requests */

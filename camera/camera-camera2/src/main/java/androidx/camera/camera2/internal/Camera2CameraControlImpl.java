@@ -41,6 +41,7 @@ import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.workaround.AeFpsRange;
 import androidx.camera.camera2.internal.compat.workaround.AutoFlashAEModeDisabler;
 import androidx.camera.camera2.interop.Camera2CameraControl;
+import androidx.camera.camera2.interop.CaptureRequestOptions;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.FocusMeteringAction;
@@ -56,6 +57,7 @@ import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.annotation.ExecutedBy;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -240,6 +242,37 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
     @NonNull
     public Camera2CameraControl getCamera2CameraControl() {
         return mCamera2CameraControl;
+    }
+
+    @Override
+    public void addInteropConfig(@NonNull Config config) {
+        CaptureRequestOptions.Builder bundleBuilder = new CaptureRequestOptions.Builder();
+        config.findOptions(
+                Camera2ImplConfig.CAPTURE_REQUEST_ID_STEM,
+                option -> {
+                    @SuppressWarnings("unchecked")
+                    Config.Option<Object> objectOpt = (Config.Option<Object>) option;
+                    bundleBuilder.getMutableConfig().insertOption(objectOpt,
+                            config.retrieveOption(objectOpt));
+                    return true;
+                });
+        ListenableFuture<Void> future = mCamera2CameraControl.addCaptureRequestOptions(
+                bundleBuilder.build());
+        future.addListener(() -> {
+        }, CameraXExecutors.directExecutor());
+    }
+
+    @Override
+    public void clearInteropConfig() {
+        ListenableFuture<Void> future = mCamera2CameraControl.clearCaptureRequestOptions();
+        future.addListener(() -> {
+        }, CameraXExecutors.directExecutor());
+    }
+
+    @NonNull
+    @Override
+    public Config getInteropConfig() {
+        return mCamera2CameraControl.getCamera2ImplConfig();
     }
 
     /**

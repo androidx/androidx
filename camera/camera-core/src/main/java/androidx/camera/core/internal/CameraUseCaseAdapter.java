@@ -34,9 +34,11 @@ import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraConfigs;
+import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
@@ -88,6 +90,10 @@ public final class CameraUseCaseAdapter implements Camera {
     // actually been attached to the CameraInternal instance.
     @GuardedBy("mLock")
     private boolean mAttached = true;
+
+    // This holds the cached Interop config from CameraControlInternal.
+    @GuardedBy("mLock")
+    private Config mInteropConfig = null;
 
     /**
      * Create a new {@link CameraUseCaseAdapter} instance.
@@ -252,11 +258,14 @@ public final class CameraUseCaseAdapter implements Camera {
      * data if they are active.
      *
      * <p> This will start the underlying {@link CameraInternal} instance.
+     *
+     * <p> This will restore the cached Interop config to the {@link CameraInternal}.
      */
     public void attachUseCases() {
         synchronized (mLock) {
             if (!mAttached) {
                 mCameraInternal.attachUseCases(mUseCases);
+                restoreInteropConfig();
 
                 // Notify to update the use case's active state because it may be cleared if the
                 // use case was ever detached from a camera previously.
@@ -273,13 +282,39 @@ public final class CameraUseCaseAdapter implements Camera {
      * Detach the UseCases from the {@link CameraInternal} so that the UseCases stop receiving data.
      *
      * <p> This will stop the underlying {@link CameraInternal} instance.
+     *
+     * <p> This will cache the Interop config from the {@link CameraInternal}.
      */
     public void detachUseCases() {
         synchronized (mLock) {
             if (mAttached) {
+                cacheInteropConfig();
                 mCameraInternal.detachUseCases(new ArrayList<>(mUseCases));
                 mAttached = false;
             }
+        }
+    }
+
+    /**
+     * Restores the cached InteropConfig to the camera.
+     */
+    private void restoreInteropConfig() {
+        synchronized (mLock) {
+            if (mInteropConfig != null) {
+                mCameraInternal.getCameraControlInternal().addInteropConfig(mInteropConfig);
+            }
+        }
+    }
+
+    /**
+     * Caches and clears the InteropConfig from the camera.
+     */
+    private void cacheInteropConfig() {
+        synchronized (mLock) {
+            CameraControlInternal cameraControlInternal =
+                    mCameraInternal.getCameraControlInternal();
+            mInteropConfig = cameraControlInternal.getInteropConfig();
+            cameraControlInternal.clearInteropConfig();
         }
     }
 
