@@ -16,49 +16,79 @@
 
 package androidx.appsearch.app;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.concurrent.futures.ResolvableFuture;
 
 import com.google.android.icing.proto.SearchResultProto;
 import com.google.android.icing.proto.SnippetMatchProto;
 import com.google.android.icing.proto.SnippetProto;
+import com.google.common.util.concurrent.ListenableFuture;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.concurrent.ExecutorService;
 
 /**
- * SearchResults are a list of results that are returned from a query. Each result from this
- * list contains a document and may contain other fields like snippets based on request.
- * This iterator class is not thread safe.
+ * SearchResults are a returned object from a query API. It contains multiple pages of
+ * {@link Result}.
+ * <p>Each {@link Result} contains a document and may contain other fields like snippets based on
+ * request.
+ * <p>Should close this object after finish fetching results.
+ * <p>This class is not thread safe.
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public final class SearchResults implements Iterator<SearchResults.Result> {
+public final class SearchResults implements Closeable {
 
-    private final SearchResultProto mSearchResultProto;
-    private int mNextIdx;
+    private static final String TAG = "AppSearch-SearchResults";
+    private final ExecutorService mExecutorService;
+    private final AppSearchBackend.BackendSearchResults mBackendSearchResults;
 
-    public SearchResults(@NonNull SearchResultProto searchResultProto) {
-        mSearchResultProto = searchResultProto;
+    public SearchResults(@NonNull ExecutorService executorService,
+            @NonNull AppSearchBackend.BackendSearchResults backendSearchResults)  {
+        mExecutorService = executorService;
+        mBackendSearchResults = backendSearchResults;
     }
 
-    @Override
-    public boolean hasNext() {
-        return mNextIdx < mSearchResultProto.getResultsCount();
-    }
-
+    /**
+     * Gets a whole page of {@link Result}.
+     * <p>Re-called this method to get next page of {@link Result}, until it return an empty list.
+     * <p>The page size is set by {@link SearchSpec.Builder#setNumPerPage(int)}.
+     * @return The pending result of performing this operation.
+     */
     @NonNull
+    public ListenableFuture<AppSearchResult<List<Result>>> getNextPage() {
+        ResolvableFuture<AppSearchResult<List<Result>>> future = ResolvableFuture.create();
+        mExecutorService.execute(() -> {
+            if (!future.isCancelled()) {
+                try {
+                    future.set(mBackendSearchResults.getNextPage());
+                } catch (Throwable t) {
+                    future.setException(t);
+                }
+            }
+        });
+        return future;
+    }
+
     @Override
-    public Result next() {
-        if (!hasNext()) {
-            throw new NoSuchElementException();
-        }
-        Result result = new Result(mSearchResultProto.getResults(mNextIdx));
-        mNextIdx++;
-        return result;
+    public void close() {
+        // Close the SearchResult in the backend thread. No future is needed here since the
+        // method is void.
+        mExecutorService.execute(() -> {
+            try {
+                mBackendSearchResults.close();
+            } catch (IOException e) {
+                Log.w(TAG, "Fail to close the SearchResults.", e);
+            }
+        });
     }
 
     /**
@@ -71,7 +101,7 @@ public final class SearchResults implements Iterator<SearchResults.Result> {
         @Nullable
         private GenericDocument mDocument;
 
-        Result(@NonNull SearchResultProto.ResultProto resultProto) {
+        public Result(@NonNull SearchResultProto.ResultProto resultProto) {
             mResultProto = resultProto;
         }
 
@@ -115,10 +145,5 @@ public final class SearchResults implements Iterator<SearchResults.Result> {
             }
             return matchList;
         }
-    }
-
-    @Override
-    public String toString() {
-        return mSearchResultProto.toString();
     }
 }

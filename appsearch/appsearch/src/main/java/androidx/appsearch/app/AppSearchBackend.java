@@ -20,6 +20,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 
+import java.io.Closeable;
 import java.util.List;
 
 /**
@@ -70,11 +71,12 @@ public interface AppSearchBackend {
 
     /**
      * Searches a document based on a given query string.
-     *
+     * <p> This method is lightweight. The heavy work will be done in
+     * {@link BackendSearchResults#getNextPage()}.
      * @see AppSearchManager#query
      */
     @NonNull
-    AppSearchResult<SearchResults> query(
+    BackendSearchResults query(
             @NonNull String databaseName,
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec);
@@ -118,4 +120,18 @@ public interface AppSearchBackend {
     @VisibleForTesting
     @NonNull
     AppSearchResult<Void> resetAllDatabases();
+
+    /**
+     * Abstracts a returned search results object, where the pagination of the results can be
+     * implemented.
+     */
+    interface BackendSearchResults extends Closeable {
+
+        /**
+         * Fetches the next page of results of a previously executed query. Results can be empty if
+         * next-page token is invalid or all pages have been returned.
+         */
+        @NonNull
+        AppSearchResult<List<androidx.appsearch.app.SearchResults.Result>> getNextPage();
+    }
 }
