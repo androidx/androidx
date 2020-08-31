@@ -23,6 +23,7 @@ import androidx.build.RunApiTasks
 plugins {
     id("AndroidXPlugin")
     id("com.android.library")
+    id("kotlin-android")
 }
 
 dependencies {
@@ -46,12 +47,14 @@ dependencies {
 
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
+    androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RULES)
-    androidTestImplementation(TRUTH)
-    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has its own MockMaker
     androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has its own MockMaker
+    androidTestImplementation(KOTLIN_STDLIB)
+    androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has its own MockMaker
+    androidTestImplementation(TRUTH)
     androidTestImplementation(project(":camera:camera-testing"))
-
+    androidTestImplementation(project(":internal-testutils-truth"))
     androidTestImplementation(project(":camera:integration-tests:camera-testlib-extensions"))
     // To use the testlib to have the implementation of the extensions-stub interface.
 }
