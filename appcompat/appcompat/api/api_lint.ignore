@@ -37,6 +37,10 @@ ForbiddenSuperClass: androidx.appcompat.app.AppCompatActivity:
     AppCompatActivity should not extend `Activity`. Activity subclasses are impossible to compose. Expose a composable API instead.
 
 
+GetterOnBuilder: androidx.appcompat.app.AlertDialog.Builder#getContext():
+    Getter should be on the built object, not the builder: method androidx.appcompat.app.AlertDialog.Builder.getContext()
+
+
 ListenerLast: androidx.appcompat.app.AlertDialog.Builder#setCursor(android.database.Cursor, android.content.DialogInterface.OnClickListener, String) parameter #2:
     Listeners should always be at end of argument list (method `setCursor`)
 

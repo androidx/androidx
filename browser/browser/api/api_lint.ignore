@@ -83,6 +83,12 @@ ExecutorRegistration: androidx.browser.trusted.TrustedWebActivityServiceConnecti
     Registration methods should have overload that accepts delivery Executor: `sendExtraCommand`
 
 
+GetterOnBuilder: androidx.browser.trusted.TrustedWebActivityIntentBuilder#getDisplayMode():
+    Getter should be on the built object, not the builder: method androidx.browser.trusted.TrustedWebActivityIntentBuilder.getDisplayMode()
+GetterOnBuilder: androidx.browser.trusted.TrustedWebActivityIntentBuilder#getUri():
+    Getter should be on the built object, not the builder: method androidx.browser.trusted.TrustedWebActivityIntentBuilder.getUri()
+
+
 IntentName: androidx.browser.browseractions.BrowserActionsIntent#KEY_ACTION:
     Intent action constant name must be ACTION_FOO: KEY_ACTION
 
