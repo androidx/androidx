@@ -16,9 +16,9 @@
 
 package androidx.camera.core.impl.utils;
 
-import android.util.Log;
 import android.view.Surface;
 
+import androidx.camera.core.Logger;
 import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
 
 /**
@@ -26,7 +26,6 @@ import androidx.camera.core.impl.ImageOutputConfig.RotationValue;
  */
 public final class CameraOrientationUtil {
     private static final String TAG = "CameraOrientationUtil";
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     // Do not allow instantiation
     private CameraOrientationUtil() {
@@ -53,8 +52,8 @@ public final class CameraOrientationUtil {
         } else {
             result = (sourceRotationDegrees + destRotationDegrees) % 360;
         }
-        if (DEBUG) {
-            Log.d(
+        if (Logger.isDebugEnabled(TAG)) {
+            Logger.d(
                     TAG,
                     String.format(
                             "getRelativeImageRotation: destRotationDegrees=%s, "

@@ -17,7 +17,6 @@
 package androidx.camera.core;
 
 import android.media.ImageReader;
-import android.util.Log;
 import android.util.LongSparseArray;
 import android.view.Surface;
 
@@ -271,7 +270,7 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
                 listener = mListener;
                 executor = mExecutor;
             } else {
-                Log.d("TAG", "Maximum image number reached.");
+                Logger.d("TAG", "Maximum image number reached.");
                 image.close();
                 listener = null;
                 executor = null;
@@ -320,7 +319,7 @@ class MetadataImageReader implements ImageReaderProxy, ForwardingImageProxy.OnIm
                 try {
                     image = imageReader.acquireNextImage();
                 } catch (IllegalStateException e) {
-                    Log.d(TAG, "Failed to acquire next image.", e);
+                    Logger.d(TAG, "Failed to acquire next image.", e);
                 } finally {
                     if (image != null) {
                         numAcquired++;
