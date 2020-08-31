@@ -21,6 +21,44 @@ DocumentExceptions: androidx.navigation.NavGraphBuilder#build():
     Method NavGraphBuilder.build appears to be throwing java.lang.IllegalStateException; this should be listed in the documentation; see https://android.github.io/kotlin-guides/interop.html#document-exceptions
 
 
+GetterOnBuilder: androidx.navigation.AnimBuilder#getEnter():
+    Getter should be on the built object, not the builder: method androidx.navigation.AnimBuilder.getEnter()
+GetterOnBuilder: androidx.navigation.AnimBuilder#getExit():
+    Getter should be on the built object, not the builder: method androidx.navigation.AnimBuilder.getExit()
+GetterOnBuilder: androidx.navigation.AnimBuilder#getPopEnter():
+    Getter should be on the built object, not the builder: method androidx.navigation.AnimBuilder.getPopEnter()
+GetterOnBuilder: androidx.navigation.AnimBuilder#getPopExit():
+    Getter should be on the built object, not the builder: method androidx.navigation.AnimBuilder.getPopExit()
+GetterOnBuilder: androidx.navigation.NavActionBuilder#getDefaultArguments():
+    Getter should be on the built object, not the builder: method androidx.navigation.NavActionBuilder.getDefaultArguments()
+GetterOnBuilder: androidx.navigation.NavActionBuilder#getDestinationId():
+    Getter should be on the built object, not the builder: method androidx.navigation.NavActionBuilder.getDestinationId()
+GetterOnBuilder: androidx.navigation.NavArgumentBuilder#getDefaultValue():
+    Getter should be on the built object, not the builder: method androidx.navigation.NavArgumentBuilder.getDefaultValue()
+GetterOnBuilder: androidx.navigation.NavArgumentBuilder#getNullable():
+    Getter should be on the built object, not the builder: method androidx.navigation.NavArgumentBuilder.getNullable()
+GetterOnBuilder: androidx.navigation.NavArgumentBuilder#getType():
+    Getter should be on the built object, not the builder: method androidx.navigation.NavArgumentBuilder.getType()
+GetterOnBuilder: androidx.navigation.NavDeepLinkDslBuilder#getAction():
+    Getter should be on the built object, not the builder: method androidx.navigation.NavDeepLinkDslBuilder.getAction()
+GetterOnBuilder: androidx.navigation.NavDeepLinkDslBuilder#getMimeType():
+    Getter should be on the built object, not the builder: method androidx.navigation.NavDeepLinkDslBuilder.getMimeType()
+GetterOnBuilder: androidx.navigation.NavDeepLinkDslBuilder#getUriPattern():
+    Getter should be on the built object, not the builder: method androidx.navigation.NavDeepLinkDslBuilder.getUriPattern()
+GetterOnBuilder: androidx.navigation.NavDestinationBuilder#getId():
+    Getter should be on the built object, not the builder: method androidx.navigation.NavDestinationBuilder.getId()
+GetterOnBuilder: androidx.navigation.NavDestinationBuilder#getLabel():
+    Getter should be on the built object, not the builder: method androidx.navigation.NavDestinationBuilder.getLabel()
+GetterOnBuilder: androidx.navigation.NavDestinationBuilder#getNavigator():
+    Getter should be on the built object, not the builder: method androidx.navigation.NavDestinationBuilder.getNavigator()
+GetterOnBuilder: androidx.navigation.NavOptionsBuilder#getLaunchSingleTop():
+    Getter should be on the built object, not the builder: method androidx.navigation.NavOptionsBuilder.getLaunchSingleTop()
+GetterOnBuilder: androidx.navigation.NavOptionsBuilder#getPopUpTo():
+    Getter should be on the built object, not the builder: method androidx.navigation.NavOptionsBuilder.getPopUpTo()
+GetterOnBuilder: androidx.navigation.PopUpToBuilder#getInclusive():
+    Getter should be on the built object, not the builder: method androidx.navigation.PopUpToBuilder.getInclusive()
+
+
 MissingBuildMethod: androidx.navigation.AnimBuilder:
     androidx.navigation.AnimBuilder does not declare a `build()` method, but builder classes are expected to
 MissingBuildMethod: androidx.navigation.NavActionBuilder:
