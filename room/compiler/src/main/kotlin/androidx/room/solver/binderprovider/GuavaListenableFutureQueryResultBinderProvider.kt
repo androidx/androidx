@@ -59,5 +59,5 @@ class GuavaListenableFutureQueryResultBinderProviderImpl(
      */
     override fun matches(declared: XDeclaredType): Boolean =
         declared.typeArguments.size == 1 &&
-                declared.erasure().typeName == GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
+                declared.rawType.typeName == GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE
 }

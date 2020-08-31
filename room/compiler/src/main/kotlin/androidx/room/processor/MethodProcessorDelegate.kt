@@ -160,9 +160,9 @@ class SuspendMethodProcessorDelegate(
 
     private val continuationParam: XVariableElement by lazy {
         val continuationType = context.processingEnv
-            .requireType(KotlinTypeNames.CONTINUATION.toString()).erasure()
+            .requireType(KotlinTypeNames.CONTINUATION.toString()).rawType
         executableElement.parameters.last {
-            it.type.erasure().isSameType(continuationType)
+            it.type.rawType == continuationType
         }
     }
 
