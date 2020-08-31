@@ -44,7 +44,7 @@ import java.util.stream.Collectors;
  */
 final class RegisteredMediaRouteProviderWatcher {
     private final Context mContext;
-    private final Callback mCallback;
+    final Callback mCallback;
     private final Handler mHandler;
     private final PackageManager mPackageManager;
 
@@ -121,6 +121,8 @@ final class RegisteredMediaRouteProviderWatcher {
             if (sourceIndex < 0) {
                 RegisteredMediaRouteProvider provider = new RegisteredMediaRouteProvider(
                         mContext, new ComponentName(serviceInfo.packageName, serviceInfo.name));
+                provider.setControllerCallback(
+                        controller -> mCallback.releaseProviderController(provider, controller));
                 provider.start();
                 mProviders.add(targetIndex++, provider);
                 mCallback.addProvider(provider);
@@ -138,6 +140,7 @@ final class RegisteredMediaRouteProviderWatcher {
                 RegisteredMediaRouteProvider provider = mProviders.get(i);
                 mCallback.removeProvider(provider);
                 mProviders.remove(provider);
+                provider.setControllerCallback(null);
                 provider.stop();
             }
         }
@@ -192,5 +195,7 @@ final class RegisteredMediaRouteProviderWatcher {
     public interface Callback {
         void addProvider(MediaRouteProvider provider);
         void removeProvider(MediaRouteProvider provider);
+        void releaseProviderController(@NonNull RegisteredMediaRouteProvider provider,
+                @NonNull MediaRouteProvider.RouteController controller);
     }
 }

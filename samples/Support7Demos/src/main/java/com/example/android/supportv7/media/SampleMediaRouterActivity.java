@@ -142,7 +142,7 @@ public class SampleMediaRouterActivity extends AppCompatActivity {
                 mPlayer.updatePresentation();
             }
             mSessionManager.setPlayer(mPlayer);
-            if (reason == MediaRouter.UNSELECT_REASON_STOPPED) {
+            if (reason != MediaRouter.UNSELECT_REASON_ROUTE_CHANGED) {
                 mSessionManager.stop();
             } else {
                 mSessionManager.unsuspend();
