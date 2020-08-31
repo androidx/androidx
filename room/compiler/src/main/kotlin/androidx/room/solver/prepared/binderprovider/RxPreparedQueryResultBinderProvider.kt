@@ -20,6 +20,7 @@ import androidx.room.ext.L
 import androidx.room.ext.T
 import androidx.room.parser.ParsedQuery
 import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
 import androidx.room.processor.Context
 import androidx.room.solver.RxType
@@ -39,8 +40,7 @@ open class RxPreparedQueryResultBinderProvider internal constructor(
         declared.typeArguments.size == 1 && matchesRxType(declared)
 
     private fun matchesRxType(declared: XDeclaredType): Boolean {
-        val erasure = declared.erasure()
-        return erasure.typeName == rxType.className
+        return declared.rawType.typeName == rxType.className
     }
 
     override fun provide(declared: XDeclaredType, query: ParsedQuery): PreparedQueryResultBinder {
@@ -75,16 +75,15 @@ private class RxCompletablePreparedQueryResultBinderProvider(
     rxType: RxType
 ) : RxPreparedQueryResultBinderProvider(context, rxType) {
 
-    private val completableType: XType? by lazy {
-        context.processingEnv.findType(rxType.className)
+    private val completableType: XRawType? by lazy {
+        context.processingEnv.findType(rxType.className)?.rawType
     }
 
     override fun matches(declared: XDeclaredType): Boolean {
         if (completableType == null) {
             return false
         }
-        val erasure = declared.erasure()
-        return erasure.isAssignableFrom(completableType!!)
+        return declared.rawType.isAssignableFrom(completableType!!)
     }
 
     override fun extractTypeArg(declared: XDeclaredType) = context.COMMON_TYPES.VOID

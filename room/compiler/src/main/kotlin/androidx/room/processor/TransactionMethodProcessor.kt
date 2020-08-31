@@ -41,11 +41,11 @@ class TransactionMethodProcessor(
                 executableElement, ProcessorErrors.TRANSACTION_METHOD_MODIFIERS)
 
         val returnType = delegate.extractReturnType()
-        val erasureReturnType = returnType.erasure()
+        val rawReturnType = returnType.rawType
 
         DEFERRED_TYPES.firstOrNull { className ->
             context.processingEnv.findType(className)?.let {
-                erasureReturnType.isAssignableFrom(it)
+                rawReturnType.isAssignableFrom(it)
             } ?: false
         }?.let { returnTypeName ->
             context.logger.e(

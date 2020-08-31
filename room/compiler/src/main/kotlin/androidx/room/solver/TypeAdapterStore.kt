@@ -378,13 +378,13 @@ class TypeAdapterStore private constructor(
             if (typeMirror.typeArguments.isEmpty()) {
                 val rowAdapter = findRowAdapter(typeMirror, query) ?: return null
                 return SingleEntityQueryResultAdapter(rowAdapter)
-            } else if (typeMirror.erasure().typeName == GuavaBaseTypeNames.OPTIONAL) {
+            } else if (typeMirror.rawType.typeName == GuavaBaseTypeNames.OPTIONAL) {
                 // Handle Guava Optional by unpacking its generic type argument and adapting that.
                 // The Optional adapter will reappend the Optional type.
                 val typeArg = typeMirror.typeArguments.first()
                 val rowAdapter = findRowAdapter(typeArg, query) ?: return null
                 return GuavaOptionalQueryResultAdapter(SingleEntityQueryResultAdapter(rowAdapter))
-            } else if (typeMirror.erasure().typeName == CommonTypeNames.OPTIONAL) {
+            } else if (typeMirror.rawType.typeName == CommonTypeNames.OPTIONAL) {
                 // Handle java.util.Optional similarly.
                 val typeArg = typeMirror.typeArguments.first()
                 val rowAdapter = findRowAdapter(typeArg, query) ?: return null
@@ -496,7 +496,7 @@ class TypeAdapterStore private constructor(
 
     fun findQueryParameterAdapter(typeMirror: XType): QueryParameterAdapter? {
         if (typeMirror.isType() &&
-            context.COMMON_TYPES.COLLECTION.erasure().isAssignableFrom(typeMirror)) {
+            context.COMMON_TYPES.COLLECTION.rawType.isAssignableFrom(typeMirror)) {
             val declared = typeMirror.asDeclaredType()
             val binder = findStatementValueBinder(
                 declared.typeArguments.first().extendsBoundOrSelf(), null)

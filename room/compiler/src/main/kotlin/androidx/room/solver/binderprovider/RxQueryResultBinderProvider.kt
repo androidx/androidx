@@ -17,6 +17,7 @@
 package androidx.room.solver.binderprovider
 
 import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
 import androidx.room.processor.Context
 import androidx.room.solver.ObservableQueryResultBinderProvider
@@ -29,8 +30,8 @@ class RxQueryResultBinderProvider private constructor(
     context: Context,
     private val rxType: RxType
 ) : ObservableQueryResultBinderProvider(context) {
-    private val typeMirror: XType? by lazy {
-        context.processingEnv.findType(rxType.className)
+    private val rawRxType: XRawType? by lazy {
+        context.processingEnv.findType(rxType.className)?.rawType
     }
 
     override fun extractTypeArg(declared: XDeclaredType): XType = declared.typeArguments.first()
@@ -52,11 +53,10 @@ class RxQueryResultBinderProvider private constructor(
         declared.typeArguments.size == 1 && matchesRxType(declared)
 
     private fun matchesRxType(declared: XDeclaredType): Boolean {
-        if (typeMirror == null) {
+        if (rawRxType == null) {
             return false
         }
-        val erasure = declared.erasure()
-        return erasure.isAssignableFrom(typeMirror!!)
+        return declared.rawType.isAssignableFrom(rawRxType!!)
     }
 
     companion object {
