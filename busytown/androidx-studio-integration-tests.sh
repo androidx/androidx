@@ -17,7 +17,7 @@ echo "Using basepath $BASE_PATH"
 
 echo "Starting $0 at $(date)"
 
-time $SCRIPT_PATH/androidx_snapshot.sh
+$SCRIPT_PATH/androidx_snapshot.sh
 
 mkdir -p $M2REPO_DIR
 # Copy internal and the output to prebuilts/tools/common/androidx-integration
