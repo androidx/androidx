@@ -2808,6 +2808,16 @@ public final class MediaRouter {
             }
         }
 
+        @Override
+        public void releaseProviderController(@NonNull RegisteredMediaRouteProvider provider,
+                @NonNull RouteController controller) {
+            if (mSelectedRouteController == controller) {
+                selectRoute(chooseFallbackRoute(), UNSELECT_REASON_STOPPED);
+            }
+            //TODO: Maybe release a member route controller if the given controller is a member of
+            // the selected route.
+        }
+
         void updateProviderDescriptor(MediaRouteProvider providerInstance,
                 MediaRouteProviderDescriptor descriptor) {
             ProviderInfo provider = findProviderInfo(providerInstance);

@@ -50,6 +50,7 @@ import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_GENERIC_FAILURE;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_GENERIC_SUCCESS;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_REGISTERED;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_RELEASE_CONTROLLER;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_VERSION_1;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.isValidRemoteMessenger;
 
@@ -95,6 +96,7 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
     private boolean mBound;
     private Connection mActiveConnection;
     private boolean mConnectionReady;
+    private ControllerCallback mControllerCallback;
 
     public RegisteredMediaRouteProvider(Context context, ComponentName componentName) {
         super(context, new ProviderMetadata(componentName));
@@ -210,6 +212,10 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
             unbind();
             bind();
         }
+    }
+
+    public void setControllerCallback(@Nullable ControllerCallback controllerCallback) {
+        mControllerCallback = controllerCallback;
     }
 
     private void updateBinding() {
@@ -373,6 +379,15 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
             if (controller instanceof RegisteredDynamicController) {
                 ((RegisteredDynamicController) controller)
                         .onDynamicRoutesChanged(groupRouteDescriptor, descriptors);
+            }
+        }
+    }
+
+    void onConnectionRequestReleaseController(Connection connection, int controllerId) {
+        if (mActiveConnection == connection) {
+            ControllerConnection controller = findControllerById(controllerId);
+            if (mControllerCallback != null && controller instanceof RouteController) {
+                mControllerCallback.onRequestReleaseController(((RouteController) controller));
             }
         }
     }
@@ -835,6 +850,10 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
             }
         }
 
+        public void onRequestReleaseController(int controllerId) {
+            onConnectionRequestReleaseController(this, controllerId);
+        }
+
         @Override
         public void binderDied() {
             mPrivateHandler.post(new Runnable() {
@@ -1055,8 +1074,16 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
                         Log.w(TAG, "No further information on the dynamic group controller");
                     }
                     break;
+
+                case SERVICE_MSG_RELEASE_CONTROLLER:
+                    connection.onRequestReleaseController(arg /* controllerId */);
+                    break;
             }
             return false;
         }
+    }
+
+    interface ControllerCallback {
+        void onRequestReleaseController(RouteController controller);
     }
 }
