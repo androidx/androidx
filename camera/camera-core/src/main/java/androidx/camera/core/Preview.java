@@ -301,7 +301,7 @@ public final class Preview extends UseCase {
         SurfaceRequest surfaceRequest = mCurrentSurfaceRequest;
         if (cameraInternal != null && surfaceProvider != null && cropRect != null) {
             surfaceRequest.updateTransformationInfo(SurfaceRequest.TransformationInfo.of(cropRect,
-                    getRelativeRotation(cameraInternal)));
+                    getRelativeRotation(cameraInternal), getTargetRotation()));
         }
     }
 

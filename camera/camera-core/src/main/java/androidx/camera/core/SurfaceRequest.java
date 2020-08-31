@@ -22,6 +22,7 @@ import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCharacteristics;
 import android.util.Size;
+import android.view.Display;
 import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.TextureView;
@@ -257,7 +258,6 @@ public final class SurfaceRequest {
      * Returns whether a surface of RGBA_8888 pixel format is required.
      *
      * @return true if a surface of RGBA_8888 pixel format is required.
-     *
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
@@ -696,10 +696,32 @@ public final class SurfaceRequest {
         @ImageOutputConfig.RotationDegreesValue
         public abstract int getRotationDegrees();
 
+        /**
+         * The {@linkplain Preview#getTargetRotation() target rotation} of the {@link Preview}.
+         *
+         * <p>Used to correct preview for {@link TextureView}.
+         * {@link #getRotationDegrees()} is a function of 1)
+         * {@link CameraCharacteristics#SENSOR_ORIENTATION}, 2) camera lens facing direction and 3)
+         * target rotation. {@link TextureView} handles 1) & 2) automatically,
+         * while still needs the target rotation to correct the display.
+         *
+         * <p>The API is internal for PreviewView to use. For external users, the value
+         * is usually {@link Display#getRotation()} in practice. If that's not the case, they can
+         * always obtain the value from {@link Preview#getTargetRotation()}.
+         *
+         * @hide
+         * @see CameraCharacteristics#SENSOR_ORIENTATION
+         */
+        @ImageOutputConfig.RotationValue
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public abstract int getTargetRotation();
+
         @NonNull
         static TransformationInfo of(@NonNull Rect cropRect,
-                @ImageOutputConfig.RotationDegreesValue int rotationDegrees) {
-            return new AutoValue_SurfaceRequest_TransformationInfo(cropRect, rotationDegrees);
+                @ImageOutputConfig.RotationDegreesValue int rotationDegrees,
+                @ImageOutputConfig.RotationValue int targetRotation) {
+            return new AutoValue_SurfaceRequest_TransformationInfo(cropRect, rotationDegrees,
+                    targetRotation);
         }
 
         // Hides public constructor.
