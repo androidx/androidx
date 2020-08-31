@@ -44,6 +44,7 @@ import com.google.android.icing.proto.SearchResultProto;
 import com.google.android.icing.proto.SearchSpecProto;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -54,7 +55,7 @@ import java.util.List;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class LocalBackend implements AppSearchBackend {
     private final Context mContext;
-    private final AppSearchImpl mAppSearchImpl;
+    final AppSearchImpl mAppSearchImpl;
 
     /** Builder class for {@link LocalBackend} objects. */
     public static final class Builder {
@@ -174,27 +175,16 @@ public class LocalBackend implements AppSearchBackend {
 
     @Override
     @NonNull
-    public AppSearchResult<SearchResults> query(
+    public BackendSearchResults query(
             @NonNull String databaseName,
             @NonNull String queryExpression,
             @NonNull SearchSpec searchSpec) {
         Preconditions.checkNotNull(databaseName);
         Preconditions.checkNotNull(queryExpression);
         Preconditions.checkNotNull(searchSpec);
-        try {
-            SearchSpecProto searchSpecProto =
-                    SearchSpecToProtoConverter.toSearchSpecProto(searchSpec);
-            searchSpecProto = searchSpecProto.toBuilder().setQuery(queryExpression).build();
-            SearchResultProto searchResultProto = mAppSearchImpl.query(
-                    databaseName,
-                    searchSpecProto,
-                    SearchSpecToProtoConverter.toResultSpecProto(searchSpec),
-                    SearchSpecToProtoConverter.toScoringSpecProto(searchSpec));
-            return AppSearchResult.newSuccessfulResult(new SearchResults(searchResultProto));
-        } catch (Throwable t) {
-            return throwableToFailedResult(t);
-        }
+        return new LocalBackendSearchResults(databaseName, queryExpression, searchSpec);
     }
+
 
     @Override
     @NonNull
@@ -281,7 +271,7 @@ public class LocalBackend implements AppSearchBackend {
     }
 
     @NonNull
-    private <ValueType> AppSearchResult<ValueType> throwableToFailedResult(
+    <ValueType> AppSearchResult<ValueType> throwableToFailedResult(
             @NonNull Throwable t) {
         if (t instanceof AppSearchException) {
             return ((AppSearchException) t).toAppSearchResult();
@@ -298,5 +288,80 @@ public class LocalBackend implements AppSearchBackend {
             resultCode = AppSearchResult.RESULT_UNKNOWN_ERROR;
         }
         return newFailedResult(resultCode, t.toString());
+    }
+
+    /**
+     * An implement of {@link AppSearchBackend.BackendSearchResults}, which presents the search
+     * results in the app's locally storage space using a bundled version of the search native
+     * library.
+     */
+    private class LocalBackendSearchResults implements BackendSearchResults {
+        private long mNextPageToken;
+        private final String mDatabaseName;
+        private final SearchSpec mSearchSpec;
+        private final String mQueryExpression;
+        private boolean mIsFirstLoad = true;
+
+        LocalBackendSearchResults(@NonNull String databaseName,
+                @NonNull String queryExpression,
+                @NonNull SearchSpec searchSpec)  {
+            Preconditions.checkNotNull(databaseName);
+            Preconditions.checkNotNull(queryExpression);
+            Preconditions.checkNotNull(searchSpec);
+            mDatabaseName = databaseName;
+            mQueryExpression = queryExpression;
+            mSearchSpec = searchSpec;
+        }
+
+        @Override
+        @NonNull
+        public AppSearchResult<List<SearchResults.Result>> getNextPage() {
+            try {
+                if (mIsFirstLoad) {
+                    mIsFirstLoad = false;
+                    SearchSpecProto searchSpecProto =
+                            SearchSpecToProtoConverter.toSearchSpecProto(mSearchSpec);
+                    searchSpecProto = searchSpecProto.toBuilder()
+                            .setQuery(mQueryExpression).build();
+                    SearchResultProto searchResultProto = mAppSearchImpl.query(
+                            mDatabaseName,
+                            searchSpecProto,
+                            SearchSpecToProtoConverter.toResultSpecProto(mSearchSpec),
+                            SearchSpecToProtoConverter.toScoringSpecProto(mSearchSpec));
+                    mNextPageToken = searchResultProto.getNextPageToken();
+                    return AppSearchResult.newSuccessfulResult(
+                            toResults(searchResultProto));
+                } else {
+                    SearchResultProto searchResultProto = mAppSearchImpl.getNextPage(mDatabaseName,
+                            mNextPageToken);
+                    mNextPageToken = searchResultProto.getNextPageToken();
+                    return AppSearchResult.newSuccessfulResult(
+                            toResults(searchResultProto));
+                }
+            } catch (Throwable t) {
+                return throwableToFailedResult(t);
+            }
+        }
+
+        @Override
+        public void close() throws IOException {
+            try {
+                mAppSearchImpl.invalidateNextPageToken(mNextPageToken);
+            } catch (AppSearchException | InterruptedException e) {
+                throw new IOException(e);
+            }
+        }
+
+        private List<SearchResults.Result> toResults(
+                @NonNull SearchResultProto searchResultProto) {
+            // TODO(b/163453135) Move this method to SearchResultToProtoConverter.
+            List<SearchResults.Result> results =
+                    new ArrayList<>(searchResultProto.getResultsCount());
+            for (int i = 0; i < searchResultProto.getResultsCount(); i++) {
+                results.add(new SearchResults.Result(
+                        searchResultProto.getResults(i)));
+            }
+            return results;
+        }
     }
 }

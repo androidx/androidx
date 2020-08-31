@@ -16,47 +16,14 @@
 
 package androidx.appsearch.app;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import static org.junit.Assert.assertThrows;
 
 import androidx.test.filters.SmallTest;
-
-import com.google.android.icing.proto.DocumentProto;
-import com.google.android.icing.proto.SearchResultProto;
 
 import org.junit.Test;
 
 @SmallTest
 public class SearchResultsTest {
-
-    @Test
-    public void testSearchResultsEqual() {
-        final String uri = "testUri";
-        final String schemaType = "testSchema";
-        SearchResultProto.ResultProto result1 = SearchResultProto.ResultProto.newBuilder()
-                .setDocument(DocumentProto.newBuilder()
-                        .setUri(uri)
-                        .setSchema(schemaType)
-                        .build())
-                .build();
-        SearchResultProto searchResults1 = SearchResultProto.newBuilder()
-                .addResults(result1)
-                .build();
-        SearchResults res1 = new SearchResults(searchResults1);
-        SearchResultProto.ResultProto result2 = SearchResultProto.ResultProto.newBuilder()
-                .setDocument(DocumentProto.newBuilder()
-                        .setUri(uri)
-                        .setSchema(schemaType)
-                        .build())
-                .build();
-        SearchResultProto searchResults2 = SearchResultProto.newBuilder()
-                .addResults(result2)
-                .build();
-        SearchResults res2 = new SearchResults(searchResults2);
-        assertThat(res1.toString()).isEqualTo(res2.toString());
-    }
-
     @Test
     public void buildSearchSpecWithoutTermMatchType() {
         assertThrows(RuntimeException.class, () -> SearchSpec.newBuilder()
