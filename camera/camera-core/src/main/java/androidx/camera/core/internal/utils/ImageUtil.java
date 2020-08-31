@@ -22,7 +22,6 @@ import android.graphics.BitmapRegionDecoder;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.graphics.YuvImage;
-import android.util.Log;
 import android.util.Rational;
 import android.util.Size;
 
@@ -30,6 +29,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.Logger;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -68,7 +68,7 @@ public final class ImageUtil {
         } else if (image.getFormat() == ImageFormat.YUV_420_888) {
             data = yuvImageToJpegByteArray(image);
         } else {
-            Log.w(TAG, "Unrecognized image format: " + image.getFormat());
+            Logger.w(TAG, "Unrecognized image format: " + image.getFormat());
         }
         return data;
     }
@@ -133,7 +133,7 @@ public final class ImageUtil {
     public static Rect computeCropRectFromAspectRatio(@NonNull Size sourceSize,
             @NonNull Rational aspectRatio) {
         if (!isAspectRatioValid(aspectRatio)) {
-            Log.w(TAG, "Invalid view ratio.");
+            Logger.w(TAG, "Invalid view ratio.");
             return null;
         }
 

@@ -51,7 +51,6 @@ import android.net.Uri;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.util.Pair;
 import android.util.Rational;
 import android.util.Size;
@@ -120,6 +119,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CancellationException;
@@ -208,7 +208,6 @@ public final class ImageCapture extends UseCase {
     public static final Defaults DEFAULT_CONFIG = new Defaults();
     private static final String TAG = "ImageCapture";
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
     private static final long CHECK_3A_TIMEOUT_IN_MS = 1000L;
     private static final int MAX_IMAGES = 2;
     // TODO(b/149336664) Move the quality to a compatibility class when there is a per device case.
@@ -262,9 +261,9 @@ public final class ImageCapture extends UseCase {
 
     private final ImageReaderProxy.OnImageAvailableListener mClosingListener = (imageReader -> {
         try (ImageProxy image = imageReader.acquireLatestImage()) {
-            Log.d(TAG, "Discarding ImageProxy which was inadvertently acquired: " + image);
+            Logger.d(TAG, "Discarding ImageProxy which was inadvertently acquired: " + image);
         } catch (IllegalStateException e) {
-            Log.e(TAG, "Failed to acquire latest image.", e);
+            Logger.e(TAG, "Failed to acquire latest image.", e);
         }
     });
 
@@ -879,7 +878,7 @@ public final class ImageCapture extends UseCase {
         public void sendRequest(@NonNull ImageCaptureRequest imageCaptureRequest) {
             synchronized (mLock) {
                 mPendingRequests.offer(imageCaptureRequest);
-                Log.d(TAG, String.format(
+                Logger.d(TAG, String.format(Locale.US,
                         "Send image capture request [current, pending] = [%d, %d]",
                         mCurrentRequest != null ? 1 : 0, mPendingRequests.size()));
                 processNextRequest();
@@ -927,7 +926,8 @@ public final class ImageCapture extends UseCase {
 
                 // Unable to issue request if the ImageReader has no available image buffer left.
                 if (mOutstandingImages >= mMaxImages) {
-                    Log.w(TAG, "Too many acquire images. Close image to be able to process next.");
+                    Logger.w(TAG,
+                            "Too many acquire images. Close image to be able to process next.");
                     return;
                 }
 
@@ -1091,8 +1091,8 @@ public final class ImageCapture extends UseCase {
                         @Override
                         public CameraCaptureResult check(
                                 @NonNull CameraCaptureResult captureResult) {
-                            if (DEBUG) {
-                                Log.d(TAG, "preCaptureState, AE=" + captureResult.getAeState()
+                            if (Logger.isDebugEnabled(TAG)) {
+                                Logger.d(TAG, "preCaptureState, AE=" + captureResult.getAeState()
                                         + " AF =" + captureResult.getAfState()
                                         + " AWB=" + captureResult.getAwbState());
                             }
@@ -1126,8 +1126,8 @@ public final class ImageCapture extends UseCase {
                 new CaptureCallbackChecker.CaptureResultChecker<Boolean>() {
                     @Override
                     public Boolean check(@NonNull CameraCaptureResult captureResult) {
-                        if (DEBUG) {
-                            Log.d(TAG, "checkCaptureResult, AE=" + captureResult.getAeState()
+                        if (Logger.isDebugEnabled(TAG)) {
+                            Logger.d(TAG, "checkCaptureResult, AE=" + captureResult.getAeState()
                                     + " AF =" + captureResult.getAfState()
                                     + " AWB=" + captureResult.getAwbState());
                         }
@@ -1188,7 +1188,7 @@ public final class ImageCapture extends UseCase {
 
     /** Issues a request to start auto focus scan. */
     private void triggerAf(TakePictureState state) {
-        if (DEBUG) Log.d(TAG, "triggerAf");
+        Logger.d(TAG, "triggerAf");
         state.mIsAfTriggered = true;
         ListenableFuture<CameraCaptureResult> future = getCameraControl().triggerAf();
         // Add listener to avoid FutureReturnValueIgnored error.
@@ -1198,7 +1198,7 @@ public final class ImageCapture extends UseCase {
 
     /** Issues a request to start auto exposure scan. */
     ListenableFuture<CameraCaptureResult> triggerAePrecapture(TakePictureState state) {
-        if (DEBUG) Log.d(TAG, "triggerAePrecapture");
+        Logger.d(TAG, "triggerAePrecapture");
         state.mIsAePrecaptureTriggered = true;
         return getCameraControl().triggerAePrecapture();
     }
@@ -1224,7 +1224,7 @@ public final class ImageCapture extends UseCase {
      * is safe to reset or modify the 3A state.
      */
     ListenableFuture<Void> issueTakePicture(@NonNull ImageCaptureRequest imageCaptureRequest) {
-        if (DEBUG) Log.d(TAG, "issueTakePicture");
+        Logger.d(TAG, "issueTakePicture");
 
         final List<ListenableFuture<Void>> futureList = new ArrayList<>();
         final List<CaptureConfig> captureConfigs = new ArrayList<>();
@@ -2024,7 +2024,7 @@ public final class ImageCapture extends UseCase {
                     mCallback.onCaptureSuccess(dispatchedImageProxy);
                 });
             } catch (RejectedExecutionException e) {
-                Log.e(TAG, "Unable to post to the supplied executor.");
+                Logger.e(TAG, "Unable to post to the supplied executor.");
 
                 // Unable to execute on the supplied executor, close the image.
                 image.close();
@@ -2042,7 +2042,7 @@ public final class ImageCapture extends UseCase {
                 mListenerExecutor.execute(() -> mCallback.onError(
                         new ImageCaptureException(imageCaptureError, message, cause)));
             } catch (RejectedExecutionException e) {
-                Log.e(TAG, "Unable to post to the supplied executor.");
+                Logger.e(TAG, "Unable to post to the supplied executor.");
             }
         }
     }

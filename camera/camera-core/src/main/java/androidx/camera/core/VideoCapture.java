@@ -60,7 +60,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.util.Pair;
 import android.util.Size;
 import android.view.Display;
@@ -301,7 +300,7 @@ public final class VideoCapture extends UseCase {
     public void startRecording(
             @NonNull OutputFileOptions outputFileOptions, @NonNull Executor executor,
             @NonNull OnVideoSavedCallback callback) {
-        Log.i(TAG, "startRecording");
+        Logger.i(TAG, "startRecording");
         mIsFirstVideoSampleWrite.set(false);
         mIsFirstAudioSampleWrite.set(false);
 
@@ -328,16 +327,15 @@ public final class VideoCapture extends UseCase {
         Size resolution = getAttachedSurfaceResolution();
         try {
             // video encoder start
-            Log.i(TAG, "videoEncoder start");
+            Logger.i(TAG, "videoEncoder start");
             mVideoEncoder.start();
             // audio encoder start
-            Log.i(TAG, "audioEncoder start");
+            Logger.i(TAG, "audioEncoder start");
             mAudioEncoder.start();
 
         } catch (IllegalStateException e) {
             setupEncoder(cameraId, resolution);
-            postListener.onError(ERROR_ENCODER, "Audio/Video encoder start fail",
-                    e);
+            postListener.onError(ERROR_ENCODER, "Audio/Video encoder start fail", e);
             return;
         }
 
@@ -397,7 +395,7 @@ public final class VideoCapture extends UseCase {
      * before startRecording.
      */
     public void stopRecording() {
-        Log.i(TAG, "stopRecording");
+        Logger.i(TAG, "stopRecording");
         notifyInactive();
         if (!mEndOfAudioVideoSignal.get() && mIsRecording) {
             // stop audio encoder thread, and wait video encoder and muxer stop.
@@ -554,7 +552,7 @@ public final class VideoCapture extends UseCase {
         mAudioRecorder = autoConfigAudioRecordSource(config);
         // check mAudioRecorder
         if (mAudioRecorder == null) {
-            Log.e(TAG, "AudioRecord object cannot initialized correctly!");
+            Logger.e(TAG, "AudioRecord object cannot initialized correctly!");
         }
 
         mVideoTrackIndex = -1;
@@ -570,7 +568,7 @@ public final class VideoCapture extends UseCase {
      */
     private boolean writeVideoEncodedBuffer(int bufferIndex) {
         if (bufferIndex < 0) {
-            Log.e(TAG, "Output buffer should not have negative index: " + bufferIndex);
+            Logger.e(TAG, "Output buffer should not have negative index: " + bufferIndex);
             return false;
         }
         // Get data from buffer
@@ -578,7 +576,7 @@ public final class VideoCapture extends UseCase {
 
         // Check if buffer is valid, if not then return
         if (outputBuffer == null) {
-            Log.d(TAG, "OutputBuffer was null.");
+            Logger.d(TAG, "OutputBuffer was null.");
             return false;
         }
 
@@ -590,7 +588,7 @@ public final class VideoCapture extends UseCase {
 
             synchronized (mMuxerLock) {
                 if (!mIsFirstVideoSampleWrite.get()) {
-                    Log.i(TAG, "First video sample written.");
+                    Logger.i(TAG, "First video sample written.");
                     mIsFirstVideoSampleWrite.set(true);
                 }
                 mMuxer.writeSampleData(mVideoTrackIndex, outputBuffer, mVideoBufferInfo);
@@ -614,13 +612,13 @@ public final class VideoCapture extends UseCase {
             try {
                 synchronized (mMuxerLock) {
                     if (!mIsFirstAudioSampleWrite.get()) {
-                        Log.i(TAG, "First audio sample written.");
+                        Logger.i(TAG, "First audio sample written.");
                         mIsFirstAudioSampleWrite.set(true);
                     }
                     mMuxer.writeSampleData(mAudioTrackIndex, buffer, mAudioBufferInfo);
                 }
             } catch (Exception e) {
-                Log.e(
+                Logger.e(
                         TAG,
                         "audio error:size="
                                 + mAudioBufferInfo.size
@@ -670,7 +668,7 @@ public final class VideoCapture extends UseCase {
                         mVideoTrackIndex = mMuxer.addTrack(mVideoEncoder.getOutputFormat());
                         if (mAudioTrackIndex >= 0 && mVideoTrackIndex >= 0) {
                             mMuxerStarted = true;
-                            Log.i(TAG, "media mMuxer start");
+                            Logger.i(TAG, "media mMuxer start");
                             mMuxer.start();
                         }
                     }
@@ -683,7 +681,7 @@ public final class VideoCapture extends UseCase {
         }
 
         try {
-            Log.i(TAG, "videoEncoder stop");
+            Logger.i(TAG, "videoEncoder stop");
             mVideoEncoder.stop();
         } catch (IllegalStateException e) {
             videoSavedCallback.onError(ERROR_ENCODER,
@@ -727,7 +725,7 @@ public final class VideoCapture extends UseCase {
         // notify the UI thread that the video recording has finished
         mEndOfAudioVideoSignal.set(true);
 
-        Log.i(TAG, "Video encode thread end.");
+        Logger.i(TAG, "Video encode thread end.");
         return errorOccurred;
     }
 
@@ -783,7 +781,7 @@ public final class VideoCapture extends UseCase {
 
         // Audio Stop
         try {
-            Log.i(TAG, "audioRecorder stop");
+            Logger.i(TAG, "audioRecorder stop");
             mAudioRecorder.stop();
         } catch (IllegalStateException e) {
             videoSavedCallback.onError(
@@ -797,7 +795,7 @@ public final class VideoCapture extends UseCase {
                     "Audio encoder stop failed!", e);
         }
 
-        Log.i(TAG, "Audio encode thread end");
+        Logger.i(TAG, "Audio encode thread end");
         // Use AtomicBoolean to signal because MediaCodec.signalEndOfInputStream() is not thread
         // safe
         mEndOfVideoStreamSignal.set(true);
@@ -854,7 +852,7 @@ public final class VideoCapture extends UseCase {
 
                 if (recorder.getState() == AudioRecord.STATE_INITIALIZED) {
                     mAudioBufferSize = bufferSize;
-                    Log.i(
+                    Logger.i(
                             TAG,
                             "source: "
                                     + source
@@ -869,7 +867,7 @@ public final class VideoCapture extends UseCase {
                     return recorder;
                 }
             } catch (Exception e) {
-                Log.e(TAG, "Exception, keep trying.", e);
+                Logger.e(TAG, "Exception, keep trying.", e);
             }
         }
 
@@ -938,7 +936,7 @@ public final class VideoCapture extends UseCase {
                     String savedLocationPath = VideoUtil.getAbsolutePathFromUri(
                             outputFileOptions.getContentResolver(), mSavedVideoUri);
 
-                    Log.i(TAG, "Saved Location Path: " + savedLocationPath);
+                    Logger.i(TAG, "Saved Location Path: " + savedLocationPath);
                     mediaMuxer = new MediaMuxer(savedLocationPath,
                             MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
                 } else {
@@ -1070,7 +1068,7 @@ public final class VideoCapture extends UseCase {
             try {
                 mExecutor.execute(() -> mOnVideoSavedCallback.onVideoSaved(outputFileResults));
             } catch (RejectedExecutionException e) {
-                Log.e(TAG, "Unable to post to the supplied executor.");
+                Logger.e(TAG, "Unable to post to the supplied executor.");
             }
         }
 
@@ -1081,7 +1079,7 @@ public final class VideoCapture extends UseCase {
                 mExecutor.execute(
                         () -> mOnVideoSavedCallback.onError(videoCaptureError, message, cause));
             } catch (RejectedExecutionException e) {
-                Log.e(TAG, "Unable to post to the supplied executor.");
+                Logger.e(TAG, "Unable to post to the supplied executor.");
             }
         }
 

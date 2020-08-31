@@ -20,10 +20,10 @@ import android.content.ContentResolver;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.Logger;
 import androidx.core.util.Preconditions;
 
 /**
@@ -51,7 +51,7 @@ public final class VideoUtil {
             cursor.moveToFirst();
             return cursor.getString(columnIndex);
         } catch (RuntimeException e) {
-            Log.e(TAG, String.format(
+            Logger.e(TAG, String.format(
                     "Failed in getting absolute path for Uri %s with Exception %s",
                     contentUri.toString(), e.toString()));
             return "";
