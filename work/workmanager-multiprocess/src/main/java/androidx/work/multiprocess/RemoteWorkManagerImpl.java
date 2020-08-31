@@ -16,7 +16,8 @@
 
 package androidx.work.multiprocess;
 
-import static androidx.work.multiprocess.OperationCallback.OperationCallbackRunnable.failureCallback;
+
+import static androidx.work.multiprocess.ListenableCallback.ListenableCallbackRunnable.failureCallback;
 
 import android.content.Context;
 
@@ -24,12 +25,17 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.work.Operation;
+import androidx.work.WorkInfo;
 import androidx.work.WorkRequest;
 import androidx.work.impl.WorkContinuationImpl;
 import androidx.work.impl.WorkManagerImpl;
 import androidx.work.multiprocess.parcelable.ParcelConverters;
 import androidx.work.multiprocess.parcelable.ParcelableWorkContinuationImpl;
+import androidx.work.multiprocess.parcelable.ParcelableWorkInfos;
+import androidx.work.multiprocess.parcelable.ParcelableWorkQuery;
 import androidx.work.multiprocess.parcelable.ParcelableWorkRequests;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.List;
 import java.util.UUID;
@@ -43,6 +49,9 @@ import java.util.concurrent.Executor;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
+
+    // Synthetic access
+    static byte[] sEMPTY = new byte[0];
 
     private final WorkManagerImpl mWorkManager;
 
@@ -61,9 +70,16 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
             List<WorkRequest> workRequests = parcelledRequests.getRequests();
             final Operation operation = mWorkManager.enqueue(workRequests);
             final Executor executor = mWorkManager.getWorkTaskExecutor().getBackgroundExecutor();
-            final OperationCallback operationCallback =
-                    new OperationCallback(operation, executor, callback);
-            operationCallback.dispatchCallbacksSafely();
+            final ListenableCallback<Operation.State.SUCCESS> listenableCallback =
+                    new ListenableCallback<Operation.State.SUCCESS>(executor, callback,
+                            operation.getResult()) {
+                        @NonNull
+                        @Override
+                        public byte[] toByteArray(@NonNull Operation.State.SUCCESS result) {
+                            return sEMPTY;
+                        }
+                    };
+            listenableCallback.dispatchCallbackSafely();
         } catch (Throwable throwable) {
             failureCallback(callback, throwable);
         }
@@ -80,9 +96,16 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
                     parcelledRequest.toWorkContinuationImpl(mWorkManager);
             final Operation operation = continuation.enqueue();
             final Executor executor = mWorkManager.getWorkTaskExecutor().getBackgroundExecutor();
-            final OperationCallback operationCallback =
-                    new OperationCallback(operation, executor, callback);
-            operationCallback.dispatchCallbacksSafely();
+            final ListenableCallback<Operation.State.SUCCESS> listenableCallback =
+                    new ListenableCallback<Operation.State.SUCCESS>(executor, callback,
+                            operation.getResult()) {
+                        @NonNull
+                        @Override
+                        public byte[] toByteArray(@NonNull Operation.State.SUCCESS result) {
+                            return sEMPTY;
+                        }
+                    };
+            listenableCallback.dispatchCallbackSafely();
         } catch (Throwable throwable) {
             failureCallback(callback, throwable);
         }
@@ -93,9 +116,16 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
         try {
             final Operation operation = mWorkManager.cancelWorkById(UUID.fromString(id));
             final Executor executor = mWorkManager.getWorkTaskExecutor().getBackgroundExecutor();
-            final OperationCallback operationCallback =
-                    new OperationCallback(operation, executor, callback);
-            operationCallback.dispatchCallbacksSafely();
+            final ListenableCallback<Operation.State.SUCCESS> listenableCallback =
+                    new ListenableCallback<Operation.State.SUCCESS>(executor, callback,
+                            operation.getResult()) {
+                        @NonNull
+                        @Override
+                        public byte[] toByteArray(@NonNull Operation.State.SUCCESS result) {
+                            return sEMPTY;
+                        }
+                    };
+            listenableCallback.dispatchCallbackSafely();
         } catch (Throwable throwable) {
             failureCallback(callback, throwable);
         }
@@ -108,9 +138,16 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
         try {
             final Operation operation = mWorkManager.cancelAllWorkByTag(tag);
             final Executor executor = mWorkManager.getWorkTaskExecutor().getBackgroundExecutor();
-            final OperationCallback operationCallback =
-                    new OperationCallback(operation, executor, callback);
-            operationCallback.dispatchCallbacksSafely();
+            final ListenableCallback<Operation.State.SUCCESS> listenableCallback =
+                    new ListenableCallback<Operation.State.SUCCESS>(executor, callback,
+                            operation.getResult()) {
+                        @NonNull
+                        @Override
+                        public byte[] toByteArray(@NonNull Operation.State.SUCCESS result) {
+                            return sEMPTY;
+                        }
+                    };
+            listenableCallback.dispatchCallbackSafely();
         } catch (Throwable throwable) {
             failureCallback(callback, throwable);
         }
@@ -123,9 +160,16 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
         try {
             final Operation operation = mWorkManager.cancelUniqueWork(name);
             final Executor executor = mWorkManager.getWorkTaskExecutor().getBackgroundExecutor();
-            final OperationCallback operationCallback =
-                    new OperationCallback(operation, executor, callback);
-            operationCallback.dispatchCallbacksSafely();
+            final ListenableCallback<Operation.State.SUCCESS> listenableCallback =
+                    new ListenableCallback<Operation.State.SUCCESS>(executor, callback,
+                            operation.getResult()) {
+                        @NonNull
+                        @Override
+                        public byte[] toByteArray(@NonNull Operation.State.SUCCESS result) {
+                            return sEMPTY;
+                        }
+                    };
+            listenableCallback.dispatchCallbackSafely();
         } catch (Throwable throwable) {
             failureCallback(callback, throwable);
         }
@@ -136,9 +180,39 @@ public class RemoteWorkManagerImpl extends IWorkManagerImpl.Stub {
         try {
             final Operation operation = mWorkManager.cancelAllWork();
             final Executor executor = mWorkManager.getWorkTaskExecutor().getBackgroundExecutor();
-            final OperationCallback operationCallback =
-                    new OperationCallback(operation, executor, callback);
-            operationCallback.dispatchCallbacksSafely();
+            final ListenableCallback<Operation.State.SUCCESS> listenableCallback =
+                    new ListenableCallback<Operation.State.SUCCESS>(executor, callback,
+                            operation.getResult()) {
+                        @NonNull
+                        @Override
+                        public byte[] toByteArray(@NonNull Operation.State.SUCCESS result) {
+                            return sEMPTY;
+                        }
+                    };
+            listenableCallback.dispatchCallbackSafely();
+        } catch (Throwable throwable) {
+            failureCallback(callback, throwable);
+        }
+    }
+
+    @Override
+    public void queryWorkInfo(@NonNull byte[] request, @NonNull IWorkManagerImplCallback callback) {
+        try {
+            ParcelableWorkQuery parcelled =
+                    ParcelConverters.unmarshall(request, ParcelableWorkQuery.CREATOR);
+            final Executor executor = mWorkManager.getWorkTaskExecutor().getBackgroundExecutor();
+            final ListenableFuture<List<WorkInfo>> future =
+                    mWorkManager.getWorkInfos(parcelled.getWorkQuery());
+            final ListenableCallback<List<WorkInfo>> listenableCallback =
+                    new ListenableCallback<List<WorkInfo>>(executor, callback, future) {
+                        @NonNull
+                        @Override
+                        public byte[] toByteArray(@NonNull List<WorkInfo> result) {
+                            ParcelableWorkInfos parcelables = new ParcelableWorkInfos(result);
+                            return ParcelConverters.marshall(parcelables);
+                        }
+                    };
+            listenableCallback.dispatchCallbackSafely();
         } catch (Throwable throwable) {
             failureCallback(callback, throwable);
         }

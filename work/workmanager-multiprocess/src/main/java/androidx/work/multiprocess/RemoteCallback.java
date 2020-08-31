@@ -32,14 +32,14 @@ import com.google.common.util.concurrent.ListenableFuture;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 public class RemoteCallback extends IWorkManagerImplCallback.Stub {
-    private final SettableFuture<Void> mFuture;
+    private final SettableFuture<byte[]> mFuture;
 
     // The binder represents scope of the request
     private IBinder mBinder;
     private final IBinder.DeathRecipient mRecipient;
 
     @NonNull
-    public ListenableFuture<Void> getFuture() {
+    public ListenableFuture<byte[]> getFuture() {
         return mFuture;
     }
 
@@ -64,8 +64,8 @@ public class RemoteCallback extends IWorkManagerImplCallback.Stub {
     }
 
     @Override
-    public void onSuccess() throws RemoteException {
-        mFuture.set(null);
+    public void onSuccess(@NonNull byte[] result) throws RemoteException {
+        mFuture.set(result);
         unlinkToDeath();
     }
 

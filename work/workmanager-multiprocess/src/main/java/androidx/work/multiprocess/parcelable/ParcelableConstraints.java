@@ -74,10 +74,8 @@ public class ParcelableConstraints implements Parcelable {
         if (Build.VERSION.SDK_INT >= 24) {
             boolean hasTriggers = readBooleanValue(in);
             if (hasTriggers) {
-                int serializedLength = in.readInt();
-                byte[] serialized = new byte[serializedLength];
-                in.readByteArray(serialized);
-                ContentUriTriggers contentUriTriggers = byteArrayToContentUriTriggers(serialized);
+                ContentUriTriggers contentUriTriggers =
+                        byteArrayToContentUriTriggers(in.createByteArray());
                 for (ContentUriTriggers.Trigger trigger : contentUriTriggers.getTriggers()) {
                     builder.addContentUriTrigger(trigger.getUri(),
                             trigger.shouldTriggerForDescendants());
@@ -133,7 +131,6 @@ public class ParcelableConstraints implements Parcelable {
             if (hasTriggers) {
                 ContentUriTriggers contentUriTriggers = mConstraints.getContentUriTriggers();
                 byte[] serializedTriggers = contentUriTriggersToByteArray(contentUriTriggers);
-                parcel.writeInt(serializedTriggers.length);
                 parcel.writeByteArray(serializedTriggers);
             }
             // triggerMaxContentDelay

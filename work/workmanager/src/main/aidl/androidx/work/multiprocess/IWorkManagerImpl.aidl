@@ -33,4 +33,6 @@ oneway interface IWorkManagerImpl {
     void cancelAllWorkByTag(String tag, IWorkManagerImplCallback callback);
     void cancelUniqueWork(String name, IWorkManagerImplCallback callback);
     void cancelAllWork(IWorkManagerImplCallback callback);
+    // Query APIs
+    void queryWorkInfo(in byte[] request, IWorkManagerImplCallback callback);
 }

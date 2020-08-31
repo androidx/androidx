@@ -22,7 +22,9 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.work.ListenableWorker;
 import androidx.work.WorkContinuation;
+import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
+import androidx.work.WorkQuery;
 import androidx.work.WorkRequest;
 import androidx.work.impl.WorkManagerImpl;
 
@@ -122,6 +124,17 @@ public abstract class RemoteWorkManager {
      */
     @NonNull
     public abstract ListenableFuture<Void> cancelAllWork();
+
+    /**
+     * Gets the {@link ListenableFuture} of the {@link List} of {@link WorkInfo} for all work
+     * referenced by the {@link WorkQuery} specification.
+     *
+     * @param workQuery The work query specification
+     * @return A {@link ListenableFuture} of the {@link List} of {@link WorkInfo} for work
+     * referenced by this {@link WorkQuery}.
+     */
+    public abstract @NonNull ListenableFuture<List<WorkInfo>> getWorkInfos(
+            @NonNull WorkQuery workQuery);
 
     /**
      * Gets the instance of {@link RemoteWorkManager} which provides a subset of
