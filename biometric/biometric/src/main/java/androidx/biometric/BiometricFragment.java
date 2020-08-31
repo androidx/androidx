@@ -372,13 +372,13 @@ public class BiometricFragment extends Fragment {
      */
     @SuppressWarnings("deprecation")
     private void showFingerprintDialogForAuthentication() {
-        final Context context = requireContext();
+        final Context context = requireContext().getApplicationContext();
         androidx.core.hardware.fingerprint.FingerprintManagerCompat fingerprintManagerCompat =
                 androidx.core.hardware.fingerprint.FingerprintManagerCompat.from(context);
         final int errorCode = checkForFingerprintPreAuthenticationErrors(fingerprintManagerCompat);
         if (errorCode != 0) {
             sendErrorAndDismiss(
-                    errorCode, ErrorUtils.getFingerprintErrorString(getContext(), errorCode));
+                    errorCode, ErrorUtils.getFingerprintErrorString(context, errorCode));
             return;
         }
 
