@@ -581,7 +581,14 @@ class FragmentStateManager {
                 mFragment.setPostOnViewCreatedAlpha(postOnViewCreatedAlpha);
                 if (mFragment.mContainer != null && postOnViewCreatedVisibility == View.VISIBLE) {
                     // Save the focused view if one was set via requestFocus()
-                    mFragment.setFocusedView(mFragment.mView.findFocus());
+                    View focusedView = mFragment.mView.findFocus();
+                    if (focusedView != null) {
+                        mFragment.setFocusedView(focusedView);
+                        if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                            Log.v(TAG, "requestFocus: Saved focused view " + focusedView
+                                    + " for Fragment " + mFragment);
+                        }
+                    }
                     // Set the view alpha to 0
                     mFragment.mView.setAlpha(0f);
                 }
