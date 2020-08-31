@@ -181,12 +181,39 @@ class PreviewTest {
     }
 
     @Test
+    fun setTargetRotation_transformationInfoUpdated() {
+        // Arrange: set up preview and verify target rotation in TransformationInfo.
+        val preview = Preview.Builder().setTargetRotation(Surface.ROTATION_0).build()
+        val cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(
+            ApplicationProvider.getApplicationContext(), CameraSelector.DEFAULT_BACK_CAMERA
+        )
+        cameraUseCaseAdapter.addUseCases(Collections.singleton<UseCase>(preview))
+        var receivedTransformationInfo: SurfaceRequest.TransformationInfo? = null
+        preview.setSurfaceProvider { request ->
+            request.setTransformationInfoListener(
+                CameraXExecutors.directExecutor(),
+                SurfaceRequest.TransformationInfoListener {
+                    receivedTransformationInfo = it
+                })
+        }
+        shadowOf(getMainLooper()).idle()
+        assertThat(receivedTransformationInfo!!.targetRotation).isEqualTo(Surface.ROTATION_0)
+
+        // Act: set target rotation to a different value.
+        preview.targetRotation = Surface.ROTATION_180
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: target rotation changed.
+        assertThat(receivedTransformationInfo!!.targetRotation).isEqualTo(Surface.ROTATION_180)
+    }
+
+    @Test
     fun setSurfaceProviderAfterAttachment_receivesSurfaceProviderCallbacks() {
         // Arrange: attach Preview without a SurfaceProvider.
         val preview = Preview.Builder().setTargetRotation(Surface.ROTATION_0).build()
         val cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(
             ApplicationProvider
-                .getApplicationContext<Context>(), CameraSelector.DEFAULT_BACK_CAMERA
+                .getApplicationContext(), CameraSelector.DEFAULT_BACK_CAMERA
         )
         cameraUseCaseAdapter.addUseCases(Collections.singleton<UseCase>(preview))
 
