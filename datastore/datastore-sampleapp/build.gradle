@@ -24,31 +24,8 @@ import static androidx.build.dependencies.DependenciesKt.KOTLIN_STDLIB
 plugins {
     id("AndroidXPlugin")
     id('com.android.application')
-    id('kotlin-android')
+    id("org.jetbrains.kotlin.android")
     id("com.google.protobuf")
-}
-
-android {
-    compileSdkVersion 29
-    buildToolsVersion "29.0.3"
-
-    defaultConfig {
-        applicationId "com.example.datastoresampleapp"
-        minSdkVersion 16
-        targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
-
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-    }
-
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-    }
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
 }
 
 dependencies {
@@ -64,7 +41,7 @@ dependencies {
 
     implementation(MATERIAL)
     implementation(CONSTRAINT_LAYOUT, { transitive = true })
-    implementation('androidx.navigation:navigation-fragment-ktx:2.2.2')
+    implementation(project(":fragment:fragment-ktx"))
     implementation project(":annotation:annotation-sampled")
 }
 
