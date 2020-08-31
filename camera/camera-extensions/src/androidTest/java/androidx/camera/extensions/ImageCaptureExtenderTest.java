@@ -103,6 +103,7 @@ public class ImageCaptureExtenderTest {
     @After
     public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
         CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+        ExtensionsManager.deinit().get();
     }
 
     @Test

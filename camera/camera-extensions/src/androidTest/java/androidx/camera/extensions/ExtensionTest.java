@@ -120,6 +120,7 @@ public class ExtensionTest {
     @After
     public void cleanUp() throws InterruptedException, ExecutionException, TimeoutException {
         CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+        ExtensionsManager.deinit().get();
     }
 
     @Test

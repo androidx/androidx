@@ -126,6 +126,7 @@ public class PreviewExtenderTest {
     @After
     public void cleanUp() throws ExecutionException, InterruptedException, TimeoutException {
         CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+        ExtensionsManager.deinit().get();
     }
 
     @Test
