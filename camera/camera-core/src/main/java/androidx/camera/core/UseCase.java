@@ -54,14 +54,46 @@ import java.util.Set;
  */
 public abstract class UseCase {
 
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // [UseCase lifetime constant] - Stays constant for the lifetime of the UseCase. Which means
+    // they could be created in the constructor.
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
     /**
      * The set of {@link StateChangeCallback} that are currently listening state transitions of this
      * use case.
      */
     private final Set<StateChangeCallback> mStateChangeCallbacks = new HashSet<>();
 
-    // The currently attached session config
-    private SessionConfig mAttachedSessionConfig = SessionConfig.defaultEmptySessionConfig();
+    /**
+     * Store the initial {@link UseCaseConfig} used to create the use case.
+     */
+    private final UseCaseConfig<?> mInitialUseCaseConfig;
+    private final Object mCameraLock = new Object();
+
+    /**
+     * The default target rotation value is determined when the use case is created. Detaching
+     * and attaching the use case won't change the use case's default target rotation value.
+     */
+    @ImageOutputConfig.RotationValue
+    private final int mDefaultTargetRotation;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // [UseCase lifetime dynamic] - Dynamic variables which could change during anytime during
+    // the UseCase lifetime.
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
+    private State mState = State.INACTIVE;
+
+    /** The target rotation setting set via {@link #setTargetRotationInternal(int)}. */
+    @ImageOutputConfig.RotationValue
+    private int mTargetRotation;
+
+    private UseCaseConfig<?> mUseCaseConfig;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // [UseCase attached constant] - Is only valid when the UseCase is attached to a camera.
+    ////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * The resolution assigned to the {@link UseCase} based on the attached camera.
@@ -74,25 +106,15 @@ public abstract class UseCase {
     @Nullable
     private Rect mViewPortCropRect;
 
-    private State mState = State.INACTIVE;
-
-    private final UseCaseConfig<?> mInitialUseCaseConfig;
-    private UseCaseConfig<?> mUseCaseConfig;
-
-    private final Object mCameraLock = new Object();
     @GuardedBy("mCameraLock")
     private CameraInternal mCamera;
 
-    /**
-     * The default target rotation value is determined when the use case is created. Detaching
-     * and attaching the use case won't change the use case's default target rotation value.
-     */
-    @ImageOutputConfig.RotationValue
-    private final int mDefaultTargetRotation;
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
+    ////////////////////////////////////////////////////////////////////////////////////////////
 
-    /** The target rotation setting set via {@link #setTargetRotationInternal(int)}. */
-    @ImageOutputConfig.RotationValue
-    private int mTargetRotation;
+    // The currently attached session config
+    private SessionConfig mAttachedSessionConfig = SessionConfig.defaultEmptySessionConfig();
 
     /**
      * Creates a named instance of the use case.
@@ -103,6 +125,7 @@ public abstract class UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected UseCase(@NonNull UseCaseConfig<?> useCaseConfig) {
         mInitialUseCaseConfig = useCaseConfig;
+        mUseCaseConfig = useCaseConfig;
 
         // Determine the use case's target rotation value. If it has been provided in the
         // useCaseConfig, extract it. Otherwise, obtain it from the default config provider.
@@ -116,7 +139,6 @@ public abstract class UseCase {
         }
 
         mTargetRotation = mDefaultTargetRotation;
-        updateUseCaseConfig(useCaseConfig);
     }
 
     /**
@@ -153,14 +175,25 @@ public abstract class UseCase {
      *
      * @param useCaseConfig Configuration which will be applied on top of use case defaults, if a
      *                      default builder is provided by {@link #getDefaultBuilder}.
+     * @throws IllegalStateException if this function is called when the UseCase is not attached
+     * to a camera.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected final void updateUseCaseConfig(@NonNull UseCaseConfig<?> useCaseConfig) {
-        // Attempt to retrieve builder containing defaults for this use case's config
+        // updateUseCaseConfig() can only be called after the use case is attached to a camera
+        // and then the settings will only be applied to the use case config. This is to make the
+        // use case config static.
         CameraInternal camera = getCamera();
+
+        if (camera == null) {
+            throw new IllegalStateException("Disallow to call updateUseCaseConfig() before the "
+                    + "use case is attached to a camera.");
+        }
+
+        // Attempt to retrieve builder containing defaults for this use case's config
         UseCaseConfig.Builder<?, ?, ?> defaultBuilder = getDefaultBuilder(
-                camera == null ? null : camera.getCameraInfoInternal());
+                camera.getCameraInfoInternal());
 
         // Combine with default configuration.
         mUseCaseConfig = applyDefaults(useCaseConfig, defaultBuilder);
@@ -231,13 +264,33 @@ public abstract class UseCase {
         ImageOutputConfig oldConfig = (ImageOutputConfig) getUseCaseConfig();
         int oldRotation = oldConfig.getTargetRotation(ImageOutputConfig.INVALID_ROTATION);
         if (oldRotation == ImageOutputConfig.INVALID_ROTATION || oldRotation != targetRotation) {
-            UseCaseConfig.Builder<?, ?, ?> builder = getUseCaseConfigBuilder();
-            UseCaseConfigUtil.updateTargetRotationAndRelatedConfigs(builder, targetRotation);
-            updateUseCaseConfig(builder.getUseCaseConfig());
+            // Camera is not null if the use case has been attached to a camera. Only calling
+            // updateUseCaseConfig() when the use case has been attached to a camera. So that
+            // some default config will be applied to the use case config.
+            if (getCamera() != null) {
+                UseCaseConfig.Builder<?, ?, ?> builder = getUseCaseConfigBuilder();
+                UseCaseConfigUtil.updateTargetRotationAndRelatedConfigs(builder, targetRotation);
+                updateUseCaseConfig(builder.getUseCaseConfig());
+            }
+
             mTargetRotation = targetRotation;
             return true;
         }
         return false;
+    }
+
+    /**
+     * Returns the rotation that the intended target resolution is expressed in.
+     *
+     * @return The rotation of the intended target.
+     *
+     * @hide
+     */
+    @SuppressLint("WrongConstant")
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @ImageOutputConfig.RotationValue
+    protected int getTargetRotationInternal() {
+        return mTargetRotation;
     }
 
     /**
@@ -248,8 +301,7 @@ public abstract class UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @IntRange(from = 0, to = 359)
     protected int getRelativeRotation(@NonNull CameraInternal cameraInternal) {
-        return cameraInternal.getCameraInfoInternal().getSensorRotationDegrees(
-                ((ImageOutputConfig) getUseCaseConfig()).getTargetRotation(Surface.ROTATION_0));
+        return cameraInternal.getCameraInfoInternal().getSensorRotationDegrees(mTargetRotation);
     }
 
     /**
@@ -484,13 +536,19 @@ public abstract class UseCase {
      *
      * @hide
      */
+    @SuppressLint("WrongConstant")
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void onAttach(@NonNull CameraInternal camera) {
         synchronized (mCameraLock) {
             mCamera = camera;
             addStateChangeCallback(camera);
         }
+
         updateUseCaseConfig(mUseCaseConfig);
+
+        // Updates the user persistent target rotation setting to the use case config.
+        setTargetRotationInternal(mTargetRotation);
+
         EventCallback eventCallback = mUseCaseConfig.getUseCaseEventCallback(null);
         if (eventCallback != null) {
             eventCallback.onBind(camera.getCameraInfoInternal().getCameraId());
@@ -500,6 +558,13 @@ public abstract class UseCase {
 
     /**
      * Called in the end of onAttach().
+     *
+     * <p>Called after the use case is attached to a camera. After the use case is attached, the
+     * default config settings are also applied to the use case config. The sub classes should
+     * create the necessary objects to make the use case work correctly.
+     *
+     * <p>When onAttached is called, then UseCase should run setup to make sure that the UseCase
+     * sets up the pipeline to receive data from the camera.
      *
      * @hide
      */
@@ -512,7 +577,6 @@ public abstract class UseCase {
      *
      * @hide
      */
-    @SuppressLint("WrongConstant")
     @RestrictTo(Scope.LIBRARY)
     public void onDetach(@NonNull CameraInternal camera) {
         // Do any cleanup required by the UseCase implementation
@@ -535,10 +599,7 @@ public abstract class UseCase {
 
         // Resets the mUseCaseConfig to the initial status when the use case was created to make
         // the use case reusable.
-        updateUseCaseConfig(mInitialUseCaseConfig);
-
-        // Restore user persistent settings for reusable use case.
-        setTargetRotationInternal(mTargetRotation);
+        mUseCaseConfig = mInitialUseCaseConfig;
     }
 
     /**

@@ -45,7 +45,6 @@ import androidx.camera.camera2.internal.util.SemaphoreReleasingCamera2Callbacks;
 import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
-import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.UseCase;
@@ -60,7 +59,6 @@ import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.SessionConfig;
-import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.HandlerUtil;
@@ -623,7 +621,8 @@ public final class Camera2CameraImplTest {
 
     private UseCase createUseCase() {
         FakeUseCaseConfig.Builder configBuilder =
-                new FakeUseCaseConfig.Builder().setTargetName("UseCase");
+                new FakeUseCaseConfig.Builder().setSessionOptionUnpacker(
+                        new Camera2SessionOptionUnpacker()).setTargetName("UseCase");
         new Camera2Interop.Extender<>(configBuilder).setSessionStateCallback(mSessionStateCallback);
         CameraSelector selector =
                 new CameraSelector.Builder().requireLensFacing(
@@ -793,14 +792,6 @@ public final class Camera2CameraImplTest {
         public void onDetached() {
             super.onDetached();
             close();
-        }
-
-        // we need to set Camera2OptionUnpacker to the Config to enable the camera2 callback hookup.
-        @Override
-        public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(
-                @Nullable CameraInfo cameraInfo) {
-            return new FakeUseCaseConfig.Builder()
-                    .setSessionOptionUnpacker(new Camera2SessionOptionUnpacker());
         }
 
         @Override

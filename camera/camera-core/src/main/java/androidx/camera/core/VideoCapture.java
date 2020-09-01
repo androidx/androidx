@@ -112,6 +112,11 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @RestrictTo(Scope.LIBRARY_GROUP)
 public final class VideoCapture extends UseCase {
 
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // [UseCase lifetime constant] - Stays constant for the lifetime of the UseCase. Which means
+    // they could be created in the constructor.
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
     /**
      * An unknown error occurred.
      *
@@ -164,14 +169,9 @@ public final class VideoCapture extends UseCase {
             AudioFormat.ENCODING_PCM_8BIT,
             AudioFormat.ENCODING_PCM_FLOAT
     };
+
     private final BufferInfo mVideoBufferInfo = new BufferInfo();
     private final Object mMuxerLock = new Object();
-    /** Thread on which all encoding occurs. */
-    private HandlerThread mVideoHandlerThread;
-    private Handler mVideoHandler;
-    /** Thread on which audio encoding occurs. */
-    private HandlerThread mAudioHandlerThread;
-    private Handler mAudioHandler;
     private final AtomicBoolean mEndOfVideoStreamSignal = new AtomicBoolean(true);
     private final AtomicBoolean mEndOfAudioStreamSignal = new AtomicBoolean(true);
     private final AtomicBoolean mEndOfAudioVideoSignal = new AtomicBoolean(true);
@@ -179,13 +179,27 @@ public final class VideoCapture extends UseCase {
     /** For record the first sample written time. */
     private final AtomicBoolean mIsFirstVideoSampleWrite = new AtomicBoolean(false);
     private final AtomicBoolean mIsFirstAudioSampleWrite = new AtomicBoolean(false);
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    Uri mSavedVideoUri;
-    private ParcelFileDescriptor mParcelFileDescriptor;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // [UseCase attached constant] - Is only valid when the UseCase is attached to a camera.
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
+    /** Thread on which all encoding occurs. */
+    private HandlerThread mVideoHandlerThread;
+    private Handler mVideoHandler;
+    /** Thread on which audio encoding occurs. */
+    private HandlerThread mAudioHandlerThread;
+    private Handler mAudioHandler;
+
     @NonNull
     MediaCodec mVideoEncoder;
     @NonNull
     private MediaCodec mAudioEncoder;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
     /** The muxer that writes the encoding data to file. */
     @GuardedBy("mMuxerLock")
     private MediaMuxer mMuxer;
@@ -206,6 +220,9 @@ public final class VideoCapture extends UseCase {
     private int mAudioSampleRate;
     private int mAudioBitRate;
     private DeferrableSurface mDeferrableSurface;
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    Uri mSavedVideoUri;
+    private ParcelFileDescriptor mParcelFileDescriptor;
 
     /**
      * Creates a new video capture use case from the given configuration.

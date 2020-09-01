@@ -16,8 +16,7 @@
 
 package androidx.camera.camera2;
 
-import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
-import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_SESSION_CONFIG;
+import static androidx.camera.core.ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -39,9 +38,8 @@ import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.ImageAnalysis.Analyzer;
 import androidx.camera.core.ImageAnalysis.BackpressureStrategy;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageProxy;
-import androidx.camera.core.impl.Config;
-import androidx.camera.core.impl.ImageAnalysisConfig;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -187,7 +185,7 @@ public final class ImageAnalysisTest {
     @Test
     public void analyzesImages_withKEEP_ONLY_LATEST_whenCameraIsOpen()
             throws InterruptedException {
-        analyzerAnalyzesImagesWithStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST);
+        analyzerAnalyzesImagesWithStrategy(STRATEGY_KEEP_ONLY_LATEST);
     }
 
     @Test
@@ -230,30 +228,23 @@ public final class ImageAnalysisTest {
     }
 
     @Test
-    public void defaultsIncludeBackpressureStrategy() {
-        ImageAnalysisConfig defaultConfig = ImageAnalysis.DEFAULT_CONFIG.getConfig(null);
-
-        // Will throw if strategy does not exist
-        @BackpressureStrategy int strategy = defaultConfig.getBackpressureStrategy();
-
-        // Should not be null
-        assertThat(strategy).isNotNull();
+    public void canObtainDefaultBackpressureStrategy() {
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
+        assertThat(imageAnalysis.getBackpressureStrategy()).isEqualTo(STRATEGY_KEEP_ONLY_LATEST);
     }
 
     @Test
-    public void defaultsIncludeImageQueueDepth() {
-        ImageAnalysisConfig defaultConfig = ImageAnalysis.DEFAULT_CONFIG.getConfig(null);
-
-        // Will throw if depth does not exist
-        int depth = defaultConfig.getImageQueueDepth();
+    public void canObtainDefaultImageQueueDepth() {
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
 
         // Should not be less than 1
-        assertThat(depth).isAtLeast(1);
+        assertThat(imageAnalysis.getImageQueueDepth()).isAtLeast(1);
     }
 
     @Test
     public void defaultAspectRatioWillBeSet_whenTargetResolutionIsNotSet() {
         ImageAnalysis useCase = new ImageAnalysis.Builder().build();
+        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, useCase);
         ImageOutputConfig config = (ImageOutputConfig) useCase.getUseCaseConfig();
         assertThat(config.getTargetAspectRatio()).isEqualTo(AspectRatio.RATIO_4_3);
     }
@@ -286,6 +277,7 @@ public final class ImageAnalysisTest {
     public void targetResolutionIsUpdatedAfterTargetRotationIsUpdated() {
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().setTargetResolution(
                 GUARANTEED_RESOLUTION).setTargetRotation(Surface.ROTATION_0).build();
+        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, imageAnalysis);
 
         // Updates target rotation from ROTATION_0 to ROTATION_90.
         imageAnalysis.setTargetRotation(Surface.ROTATION_90);
@@ -302,7 +294,7 @@ public final class ImageAnalysisTest {
     @Test
     public void analyzerSetMultipleTimesInKeepOnlyLatestMode() throws Exception {
         ImageAnalysis useCase = new ImageAnalysis.Builder().setBackpressureStrategy(
-                ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST).build();
+                STRATEGY_KEEP_ONLY_LATEST).build();
         CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, useCase);
 
         useCase.setAnalyzer(CameraXExecutors.newHandlerExecutor(mHandler), mAnalyzer);
@@ -345,22 +337,7 @@ public final class ImageAnalysisTest {
         });
 
         UseCaseConfig<?> configAfterUnbinding = useCase.getUseCaseConfig();
-
-        // After detaching from a camera the options from getUseCaseConfig() should be restored
-        // to those prior to attaching to the camera. The option list should have the same option
-        // list as the initial config after the use case is unbound.
-        for (Config.Option<?> opt : configAfterUnbinding.listOptions()) {
-            // There is no equivalence relation between two SessionConfig or CaptureConfig
-            // objects. Therefore, only checking that the default SessionConfig or CaptureConfig
-            // also exists in initialConfig when it exists in configAfterUnbinding.
-            if (opt.equals(OPTION_DEFAULT_SESSION_CONFIG) || opt.equals(
-                    OPTION_DEFAULT_CAPTURE_CONFIG)) {
-                assertThat(initialConfig.containsOption(opt)).isTrue();
-            } else {
-                assertThat(initialConfig.retrieveOption(opt).equals(
-                        configAfterUnbinding.retrieveOption(opt))).isTrue();
-            }
-        }
+        assertThat(initialConfig.equals(configAfterUnbinding)).isTrue();
     }
 
     @Test
@@ -427,6 +404,21 @@ public final class ImageAnalysisTest {
                 useCase);
 
         assertThat(mAnalysisResultsSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
+    }
+
+    @Test
+    public void returnValidTargetRotation_afterUseCaseIsCreated() {
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
+        assertThat(imageCapture.getTargetRotation()).isNotEqualTo(
+                ImageOutputConfig.INVALID_ROTATION);
+    }
+
+    @Test
+    public void returnCorrectTargetRotation_afterUseCaseIsAttached() {
+        ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().setTargetRotation(
+                Surface.ROTATION_180).build();
+        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, imageAnalysis);
+        assertThat(imageAnalysis.getTargetRotation()).isEqualTo(Surface.ROTATION_180);
     }
 
     private static class ImageProperties {

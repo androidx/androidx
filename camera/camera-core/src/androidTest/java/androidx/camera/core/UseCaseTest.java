@@ -124,8 +124,15 @@ public class UseCaseTest {
         verify(mMockCameraInternal, times(1)).onUseCaseReset(testUseCase);
     }
 
+    @Test(expected = IllegalStateException.class)
+    public void updateUseCaseConfig_beforeUseCaseIsAttached_throwException() {
+        FakeUseCaseConfig.Builder configBuilder = new FakeUseCaseConfig.Builder();
+        TestUseCase testUseCase = new TestUseCase(configBuilder.getUseCaseConfig());
+        testUseCase.updateUseCaseConfig(configBuilder.getUseCaseConfig());
+    }
+
     @Test
-    public void useCaseConfig_canBeUpdated() {
+    public void updateUseCaseConfig_afterUseCaseIsAttached() {
         String originalName = "UseCase";
         FakeUseCaseConfig.Builder configBuilder =
                 new FakeUseCaseConfig.Builder().setTargetName(originalName);
@@ -137,6 +144,7 @@ public class UseCaseTest {
         // we'll do it here for the sake of this test.
         String newName = "UseCase-New";
         configBuilder.setTargetName(newName);
+        testUseCase.onAttach(mMockCameraInternal);
         testUseCase.updateUseCaseConfig(configBuilder.getUseCaseConfig());
         String newRetrievedName = testUseCase.getUseCaseConfig().getTargetName();
 

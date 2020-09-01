@@ -51,6 +51,7 @@ import android.net.Uri;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.util.Pair;
 import android.util.Rational;
 import android.util.Size;
@@ -150,6 +151,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public final class ImageCapture extends UseCase {
 
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // [UseCase lifetime constant] - Stays constant for the lifetime of the UseCase. Which means
+    // they could be created in the constructor.
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
     /**
      * An unknown error occurred.
      *
@@ -193,6 +199,7 @@ public final class ImageCapture extends UseCase {
      * Auto flash. The flash will be used according to the camera system's determination when taking
      * a picture.
      */
+    private static final int FLASH_MODE_UNKNOWN = -1;
     public static final int FLASH_MODE_AUTO = 0;
     /** Always flash. The flash will always be used when taking a picture. */
     public static final int FLASH_MODE_ON = 1;
@@ -213,27 +220,71 @@ public final class ImageCapture extends UseCase {
     // TODO(b/149336664) Move the quality to a compatibility class when there is a per device case.
     private static final byte JPEG_QUALITY_MAXIMIZE_QUALITY_MODE = 100;
     private static final byte JPEG_QUALITY_MINIMIZE_LATENCY_MODE = 95;
+    @CaptureMode
+    private static final int DEFAULT_CAPTURE_MODE = CAPTURE_MODE_MINIMIZE_LATENCY;
+    @FlashMode
+    private static final int DEFAULT_FLASH_MODE = FLASH_MODE_OFF;
 
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-            SessionConfig.Builder mSessionConfigBuilder;
-    private final CaptureConfig mCaptureConfig;
-    private ExecutorService mExecutor;
+    private final CaptureCallbackChecker mSessionCallbackChecker = new CaptureCallbackChecker();
+
+    private final ImageReaderProxy.OnImageAvailableListener mClosingListener = (imageReader -> {
+        try (ImageProxy image = imageReader.acquireLatestImage()) {
+            Log.d(TAG, "Discarding ImageProxy which was inadvertently acquired: " + image);
+        } catch (IllegalStateException e) {
+            Log.e(TAG, "Failed to acquire latest image.", e);
+        }
+    });
+
     @NonNull
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Executor mIoExecutor;
-    private final CaptureCallbackChecker mSessionCallbackChecker = new CaptureCallbackChecker();
     @CaptureMode
     private final int mCaptureMode;
 
+    /**
+     * A flag to check 3A converged or not.
+     *
+     * <p>In order to speed up the taking picture process, trigger AF / AE should be skipped when
+     * the flag is disabled. Set it to be enabled in the maximum quality mode and disabled in the
+     * minimum latency mode.
+     */
+    private final boolean mEnableCheck3AConverged;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // [UseCase lifetime dynamic] - Dynamic variables which could change during anytime during
+    // the UseCase lifetime.
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
+    /** Current flash mode. */
+    @FlashMode
+    private int mFlashMode = FLASH_MODE_UNKNOWN;
+    private Rational mCropAspectRatio = null;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // [UseCase attached constant] - Is only valid when the UseCase is attached to a camera.
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
+    private ExecutorService mExecutor;
+
+    private CaptureConfig mCaptureConfig;
+
     /** The set of requests that will be sent to the camera for the final captured image. */
-    private final CaptureBundle mCaptureBundle;
-    private final int mMaxCaptureStages;
+    private CaptureBundle mCaptureBundle;
+    private int mMaxCaptureStages;
 
     /**
      * Processing that gets done to the mCaptureBundle to produce the final image that is produced
      * by {@link #takePicture(Executor, OnImageCapturedCallback)}
      */
-    private final CaptureProcessor mCaptureProcessor;
+    private CaptureProcessor mCaptureProcessor;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+            SessionConfig.Builder mSessionConfigBuilder;
+
     /** synthetic accessor */
     @SuppressWarnings("WeakerAccess")
     SafeCloseImageReaderProxy mImageReader;
@@ -245,27 +296,6 @@ public final class ImageCapture extends UseCase {
     private CameraCaptureCallback mMetadataMatchingCaptureCallback;
     private DeferrableSurface mDeferrableSurface;
     private ImageCaptureRequestProcessor mImageCaptureRequestProcessor;
-    private Rational mCropAspectRatio;
-
-    private final ImageReaderProxy.OnImageAvailableListener mClosingListener = (imageReader -> {
-        try (ImageProxy image = imageReader.acquireLatestImage()) {
-            Logger.d(TAG, "Discarding ImageProxy which was inadvertently acquired: " + image);
-        } catch (IllegalStateException e) {
-            Logger.e(TAG, "Failed to acquire latest image.", e);
-        }
-    });
-
-    /**
-     * A flag to check 3A converged or not.
-     *
-     * <p>In order to speed up the taking picture process, trigger AF / AE should be skipped when
-     * the flag is disabled. Set it to be enabled in the maximum quality mode and disabled in the
-     * minimum latency mode.
-     */
-    private final boolean mEnableCheck3AConverged;
-    /** Current flash mode. */
-    @FlashMode
-    private int mFlashMode;
 
     /**
      * Creates a new image capture use case from the given configuration.
@@ -275,18 +305,14 @@ public final class ImageCapture extends UseCase {
      */
     ImageCapture(@NonNull ImageCaptureConfig userConfig) {
         super(userConfig);
-        // Ensure we're using the combined configuration (user config + defaults)
+
         ImageCaptureConfig useCaseConfig = (ImageCaptureConfig) getUseCaseConfig();
-        mCaptureMode = useCaseConfig.getCaptureMode();
-        mFlashMode = useCaseConfig.getFlashMode();
 
-        mCaptureProcessor = useCaseConfig.getCaptureProcessor(null);
-        mMaxCaptureStages = useCaseConfig.getMaxCaptureStages(MAX_IMAGES);
-        Preconditions.checkArgument(mMaxCaptureStages >= 1,
-                "Maximum outstanding image count must be at least 1");
-
-        mCaptureBundle = useCaseConfig.getCaptureBundle(
-                CaptureBundles.singleDefaultCaptureBundle());
+        if (useCaseConfig.containsOption(OPTION_IMAGE_CAPTURE_MODE)) {
+            mCaptureMode = useCaseConfig.getCaptureMode();
+        } else {
+            mCaptureMode = DEFAULT_CAPTURE_MODE;
+        }
 
         mIoExecutor = Preconditions.checkNotNull(
                 useCaseConfig.getIoExecutor(CameraXExecutors.ioExecutor()));
@@ -296,9 +322,6 @@ public final class ImageCapture extends UseCase {
         } else {
             mEnableCheck3AConverged = false; // skip 3A convergence in MIN_LATENCY mode
         }
-
-        CaptureConfig.Builder captureBuilder = CaptureConfig.Builder.createFrom(useCaseConfig);
-        mCaptureConfig = captureBuilder.build();
     }
 
     @UiThread
@@ -422,7 +445,7 @@ public final class ImageCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     protected void onCameraControlReady() {
-        getCameraControl().setFlashMode(mFlashMode);
+        getCameraControl().setFlashMode(getFlashMode());
     }
 
     /**
@@ -433,7 +456,8 @@ public final class ImageCapture extends UseCase {
      */
     @FlashMode
     public int getFlashMode() {
-        return mFlashMode;
+        return mFlashMode != FLASH_MODE_UNKNOWN ? mFlashMode
+                : ((ImageCaptureConfig) getUseCaseConfig()).getFlashMode(DEFAULT_FLASH_MODE);
     }
 
     /**
@@ -452,6 +476,11 @@ public final class ImageCapture extends UseCase {
      *                  or {@link #FLASH_MODE_OFF}.
      */
     public void setFlashMode(@FlashMode int flashMode) {
+        if (flashMode != FLASH_MODE_AUTO && flashMode != FLASH_MODE_ON
+                && flashMode != FLASH_MODE_OFF) {
+            throw new IllegalArgumentException("Invalid flash mode: " + flashMode);
+        }
+
         this.mFlashMode = flashMode;
         // The camera control will be ready after the use case is attached. The {@link
         // CameraSelector} containing camera id info is also generated at meanwhile. Developers
@@ -511,10 +540,12 @@ public final class ImageCapture extends UseCase {
      * <p>If no target rotation is set by the application, it is set to the value of
      * {@link Display#getRotation()} of the default display at the time the use case is
      * created. The use case is fully created once it has been attached to a camera.
+     *
+     * @return The rotation of the intended target.
      */
     @RotationValue
     public int getTargetRotation() {
-        return ((ImageOutputConfig) getUseCaseConfig()).getTargetRotation();
+        return getTargetRotationInternal();
     }
 
     /**
@@ -1016,6 +1047,17 @@ public final class ImageCapture extends UseCase {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void onAttached() {
+        ImageCaptureConfig useCaseConfig = (ImageCaptureConfig) getUseCaseConfig();
+
+        CaptureConfig.Builder captureBuilder = CaptureConfig.Builder.createFrom(useCaseConfig);
+        mCaptureConfig = captureBuilder.build();
+
+        // Retrieve camera specific settings.
+        mCaptureProcessor = useCaseConfig.getCaptureProcessor(null);
+        mMaxCaptureStages = useCaseConfig.getMaxCaptureStages(MAX_IMAGES);
+        mCaptureBundle = useCaseConfig.getCaptureBundle(
+                CaptureBundles.singleDefaultCaptureBundle());
+
         mExecutor =
                 Executors.newFixedThreadPool(
                         1,
@@ -1401,7 +1443,7 @@ public final class ImageCapture extends UseCase {
      *
      * @hide
      */
-    @IntDef({FLASH_MODE_AUTO, FLASH_MODE_ON, FLASH_MODE_OFF})
+    @IntDef({FLASH_MODE_UNKNOWN, FLASH_MODE_AUTO, FLASH_MODE_ON, FLASH_MODE_OFF})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @interface FlashMode {
@@ -1479,20 +1521,13 @@ public final class ImageCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults
             implements ConfigProvider<ImageCaptureConfig> {
-        @CaptureMode
-        private static final int DEFAULT_CAPTURE_MODE = CAPTURE_MODE_MINIMIZE_LATENCY;
-        @FlashMode
-        private static final int DEFAULT_FLASH_MODE = FLASH_MODE_OFF;
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 4;
 
         private static final ImageCaptureConfig DEFAULT_CONFIG;
 
         static {
-            Builder builder =
-                    new Builder()
-                            .setCaptureMode(DEFAULT_CAPTURE_MODE)
-                            .setFlashMode(DEFAULT_FLASH_MODE)
-                            .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
+            Builder builder = new Builder().setSurfaceOccupancyPriority(
+                    DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
 
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
@@ -2171,6 +2206,23 @@ public final class ImageCapture extends UseCase {
             if (targetResolution != null) {
                 imageCapture.setCropAspectRatio(new Rational(targetResolution.getWidth(),
                         targetResolution.getHeight()));
+            }
+
+            Preconditions.checkArgument(
+                    getMutableConfig().retrieveOption(OPTION_MAX_CAPTURE_STAGES, MAX_IMAGES) >= 1,
+                    "Maximum outstanding image count must be at least 1");
+
+            Preconditions.checkNotNull(getMutableConfig().retrieveOption(OPTION_IO_EXECUTOR,
+                    CameraXExecutors.ioExecutor()), "The IO executor can't be null");
+
+            if (getMutableConfig().containsOption(OPTION_FLASH_MODE)) {
+                int flashMode = getMutableConfig().retrieveOption(OPTION_FLASH_MODE);
+
+                if (flashMode != FLASH_MODE_AUTO && flashMode != FLASH_MODE_ON
+                        && flashMode != FLASH_MODE_OFF) {
+                    throw new IllegalArgumentException(
+                            "The flash mode is not allowed to set: " + flashMode);
+                }
             }
 
             return imageCapture;

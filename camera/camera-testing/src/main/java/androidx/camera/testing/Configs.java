@@ -17,26 +17,35 @@
 package androidx.camera.testing;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.UseCaseConfig;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Utility functions related to operating on androidx.camera.core.impl.Config instances.
  */
 public final class Configs {
-    /** Return a list of UseCaseConfig from a list of {@link UseCase}. */
+    /** Return a map that associates UseCases to UseCaseConfigs with default settings. */
     @NonNull
-    public static List<UseCaseConfig<?>> useCaseConfigListFromUseCaseList(
-            @NonNull List<UseCase> useCases) {
-        List<UseCaseConfig<?>> useCaseConfigs = new ArrayList<>();
+    public static Map<UseCase, UseCaseConfig<?>> useCaseConfigMapWithDefaultSettingsFromUseCaseList(
+            @NonNull List<UseCase> useCases, @Nullable CameraInfo cameraInfo) {
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap = new HashMap<>();
+
         for (UseCase useCase : useCases) {
-            useCaseConfigs.add(useCase.getUseCaseConfig());
+            UseCaseConfig.Builder<?, ?, ?> defaultBuilder = useCase.getDefaultBuilder(cameraInfo);
+
+            // Combine with default configuration.
+            UseCaseConfig<?> combinedUseCaseConfig = useCase.applyDefaults(
+                    useCase.getUseCaseConfig(), defaultBuilder);
+            useCaseToConfigMap.put(useCase, combinedUseCaseConfig);
         }
 
-        return useCaseConfigs;
+        return useCaseToConfigMap;
     }
 
     private Configs() {

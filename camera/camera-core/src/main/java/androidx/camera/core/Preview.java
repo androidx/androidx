@@ -131,6 +131,11 @@ import java.util.concurrent.Executor;
  */
 public final class Preview extends UseCase {
 
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // [UseCase lifetime constant] - Stays constant for the lifetime of the UseCase. Which means
+    // they could be created in the constructor.
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
     /**
      * Provides a static configuration with implementation-agnostic options.
      *
@@ -142,14 +147,25 @@ public final class Preview extends UseCase {
     private static final Executor DEFAULT_SURFACE_PROVIDER_EXECUTOR =
             CameraXExecutors.mainThreadExecutor();
 
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // [UseCase lifetime dynamic] - Dynamic variables which could change during anytime during
+    // the UseCase lifetime.
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Nullable
+    private SurfaceProvider mSurfaceProvider;
+
+    @NonNull
+    private Executor mSurfaceProviderExecutor = DEFAULT_SURFACE_PROVIDER_EXECUTOR;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
     @Nullable
     private HandlerThread mProcessingPreviewThread;
     @Nullable
     private Handler mProcessingPreviewHandler;
-    @Nullable
-    private SurfaceProvider mSurfaceProvider;
-    @NonNull
-    private Executor mSurfaceProviderExecutor = DEFAULT_SURFACE_PROVIDER_EXECUTOR;
 
     private DeferrableSurface mSessionDeferrableSurface;
 
@@ -416,7 +432,7 @@ public final class Preview extends UseCase {
      */
     @ImageOutputConfig.RotationValue
     public int getTargetRotation() {
-        return ((PreviewConfig) getUseCaseConfig()).getTargetRotation();
+        return getTargetRotationInternal();
     }
 
     @NonNull

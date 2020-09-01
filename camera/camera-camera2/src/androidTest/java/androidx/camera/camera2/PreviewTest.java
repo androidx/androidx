@@ -16,8 +16,6 @@
 
 package androidx.camera.camera2;
 
-import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
-import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_SESSION_CONFIG;
 import static androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextureProvider;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -43,9 +41,9 @@ import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceRequest;
-import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -350,6 +348,7 @@ public final class PreviewTest {
     @Test
     public void defaultAspectRatioWillBeSet_whenTargetResolutionIsNotSet() {
         Preview useCase = new Preview.Builder().build();
+        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, useCase);
         ImageOutputConfig config = (ImageOutputConfig) useCase.getUseCaseConfig();
         assertThat(config.getTargetAspectRatio()).isEqualTo(AspectRatio.RATIO_4_3);
     }
@@ -381,22 +380,7 @@ public final class PreviewTest {
         });
 
         UseCaseConfig<?> configAfterUnbinding = preview.getUseCaseConfig();
-
-        // After detaching from a camera the options from getUseCaseConfig() should be restored
-        // to those prior to attaching to the camera. The option list should have the same option
-        // list as the initial config after the use case is unbound.
-        for (Config.Option<?> opt : configAfterUnbinding.listOptions()) {
-            // There is no equivalence relation between two SessionConfig or CaptureConfig
-            // objects. Therefore, only checking that the default SessionConfig or CaptureConfig
-            // also exists in initialConfig when it exists in configAfterUnbinding.
-            if (opt.equals(OPTION_DEFAULT_SESSION_CONFIG) || opt.equals(
-                    OPTION_DEFAULT_CAPTURE_CONFIG)) {
-                assertThat(initialConfig.containsOption(opt)).isTrue();
-            } else {
-                assertThat(initialConfig.retrieveOption(opt).equals(
-                        configAfterUnbinding.retrieveOption(opt))).isTrue();
-            }
-        }
+        assertThat(initialConfig.equals(configAfterUnbinding)).isTrue();
     }
 
     @Test
@@ -485,6 +469,21 @@ public final class PreviewTest {
 
         // Check the frame available callback can be called after reusing the use case.
         assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
+    }
+
+    @Test
+    public void returnValidTargetRotation_afterUseCaseIsCreated() {
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
+        assertThat(imageCapture.getTargetRotation()).isNotEqualTo(
+                ImageOutputConfig.INVALID_ROTATION);
+    }
+
+    @Test
+    public void returnCorrectTargetRotation_afterUseCaseIsAttached() {
+        Preview preview = new Preview.Builder().setTargetRotation(
+                Surface.ROTATION_180).build();
+        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+        assertThat(preview.getTargetRotation()).isEqualTo(Surface.ROTATION_180);
     }
 
     private Executor getWorkExecutorWithNamedThread() {
