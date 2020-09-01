@@ -412,12 +412,12 @@ class ToGenericDocumentCodeGenerator {
         CodeBlock.Builder body = CodeBlock.builder()
                 .add("if ($NCopy != null) {\n", fieldName).indent();
 
-        // TODO(b/156296904): Handle GenericDocument
         if (!typeUtil.isSameType(propertyType, mHelper.mStringType)
                 && !typeUtil.isSameType(propertyType, mHelper.mLongPrimitiveType)
                 && !typeUtil.isSameType(propertyType, mHelper.mDoublePrimitiveType)
                 && !typeUtil.isSameType(propertyType, mHelper.mBooleanPrimitiveType)
-                && !typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)) {
+                && !typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)
+                && !typeUtil.isSameType(propertyType, mHelper.mGenericDocumentType)) {
             // This is not a type 2b array.
             return false;
         }
