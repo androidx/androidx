@@ -2,6 +2,171 @@
 <issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
 
     <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                            mImageWriter = ImageWriter.newInstance(surface, 1);"
+        errorLine2="                                                       ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
+            line="93"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                                Image image = mImageWriter.dequeueInputImage();"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
+            line="109"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                                mImageWriter.queueInputImage(image);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/AutoImageCaptureExtenderImpl.java"
+            line="121"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                            mImageWriter = ImageWriter.newInstance(surface, 1);"
+        errorLine2="                                                       ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
+            line="98"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                                Image image = mImageWriter.dequeueInputImage();"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
+            line="114"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                                mImageWriter.queueInputImage(image);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BeautyImageCaptureExtenderImpl.java"
+            line="126"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                            mImageWriter = ImageWriter.newInstance(surface, 1);"
+        errorLine2="                                                       ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
+            line="93"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                                Image image = mImageWriter.dequeueInputImage();"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
+            line="110"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                                mImageWriter.queueInputImage(image);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/BokehImageCaptureExtenderImpl.java"
+            line="122"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                            mImageWriter = ImageWriter.newInstance(surface, 1);"
+        errorLine2="                                                       ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
+            line="104"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                            Image outputImage = mImageWriter.dequeueInputImage();"
+        errorLine2="                                                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
+            line="140"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                            mImageWriter.queueInputImage(outputImage);"
+        errorLine2="                                         ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/HdrImageCaptureExtenderImpl.java"
+            line="200"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                            mImageWriter = ImageWriter.newInstance(surface, 1);"
+        errorLine2="                                                       ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
+            line="93"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                                Image image = mImageWriter.dequeueInputImage();"
+        errorLine2="                                                           ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
+            line="109"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class null is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="                                mImageWriter.queueInputImage(image);"
+        errorLine2="                                             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/extensions/impl/NightImageCaptureExtenderImpl.java"
+            line="121"
+            column="46"/>
+    </issue>
+
+    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void init(String cameraId, CameraCharacteristics cameraCharacteristics) {"

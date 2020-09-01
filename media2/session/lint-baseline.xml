@@ -2,6 +2,105 @@
 <issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
 
     <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.media2.session.MediaControllerImplLegacy is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="                mHandlerThread.quitSafely();"
+        errorLine2="                               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaControllerImplLegacy.java"
+            line="199"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.media2.session.MediaNotificationHandler is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="            return PendingIntent.getForegroundService("
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaNotificationHandler.java"
+            line="207"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.media2.session.MediaNotificationHandler is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="                || mNotificationManager.getNotificationChannel(NOTIFICATION_CHANNEL_ID) != null) {"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaNotificationHandler.java"
+            line="217"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.media2.session.MediaNotificationHandler is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="        NotificationChannel channel = new NotificationChannel(NOTIFICATION_CHANNEL_ID,"
+        errorLine2="                                      ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaNotificationHandler.java"
+            line="221"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.media2.session.MediaNotificationHandler is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="        mNotificationManager.createNotificationChannel(channel);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaNotificationHandler.java"
+            line="223"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.media2.session.MediaSessionImplBase is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="                mMediaButtonIntent = PendingIntent.getForegroundService(mContext, 0, intent, 0);"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaSessionImplBase.java"
+            line="219"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.media2.session.MediaSessionImplBase is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            if (Build.VERSION.SDK_INT >= 21 &amp;&amp; mAudioManager.isVolumeFixed()) {"
+        errorLine2="                                                             ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaSessionImplBase.java"
+            line="314"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.media2.session.MediaSessionImplBase is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="                    mHandlerThread.quitSafely();"
+        errorLine2="                                   ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/MediaSessionImplBase.java"
+            line="378"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.media2.session.SessionToken is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="            thread.quitSafely();"
+        errorLine2="                   ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/session/SessionToken.java"
+            line="349"
+            column="20"/>
+    </issue>
+
+    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void setTimeDiff(Long timeDiff) {"

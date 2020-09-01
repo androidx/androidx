@@ -13,6 +13,336 @@
     </issue>
 
     <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class androidx.transition.AnimatorUtils is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="            animator.addPauseListener(listener);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/AnimatorUtils.java"
+            line="32"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class androidx.transition.AnimatorUtils is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="            animator.pause();"
+        errorLine2="                     ~~~~~">
+        <location
+            file="src/main/java/androidx/transition/AnimatorUtils.java"
+            line="38"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class androidx.transition.AnimatorUtils is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="            animator.resume();"
+        errorLine2="                     ~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/AnimatorUtils.java"
+            line="54"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 29, the call containing class androidx.transition.CanvasUtils is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        errorLine1="                canvas.enableZ();"
+        errorLine2="                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/CanvasUtils.java"
+            line="45"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 29, the call containing class androidx.transition.CanvasUtils is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        errorLine1="                canvas.disableZ();"
+        errorLine2="                       ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/CanvasUtils.java"
+            line="47"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.transition.GhostViewHolder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            if (view.getZ() != comparedWith.getZ()) {"
+        errorLine2="                     ~~~~">
+        <location
+            file="src/main/java/androidx/transition/GhostViewHolder.java"
+            line="176"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.transition.GhostViewHolder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            if (view.getZ() != comparedWith.getZ()) {"
+        errorLine2="                                            ~~~~">
+        <location
+            file="src/main/java/androidx/transition/GhostViewHolder.java"
+            line="176"
+            column="45"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.transition.GhostViewHolder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                return view.getZ() > comparedWith.getZ();"
+        errorLine2="                            ~~~~">
+        <location
+            file="src/main/java/androidx/transition/GhostViewHolder.java"
+            line="177"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.transition.GhostViewHolder is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                return view.getZ() > comparedWith.getZ();"
+        errorLine2="                                                  ~~~~">
+        <location
+            file="src/main/java/androidx/transition/GhostViewHolder.java"
+            line="177"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 29, the call containing class androidx.transition.ImageViewUtils is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        errorLine1="            view.animateTransform(matrix);"
+        errorLine2="                 ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/ImageViewUtils.java"
+            line="46"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 29, the call containing class androidx.transition.ImageViewUtils is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        errorLine1="                view.animateTransform(matrix);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/ImageViewUtils.java"
+            line="92"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.transition.ObjectAnimatorUtils is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            return ObjectAnimator.ofObject(target, property, null, path);"
+        errorLine2="                                  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/ObjectAnimatorUtils.java"
+            line="29"
+            column="35"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.transition.PropertyValuesHolderUtils is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            return PropertyValuesHolder.ofObject(property, null, path);"
+        errorLine2="                                        ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/PropertyValuesHolderUtils.java"
+            line="39"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class androidx.transition.TransitionUtils is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="            addToOverlay = !view.isAttachedToWindow();"
+        errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/TransitionUtils.java"
+            line="94"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class androidx.transition.TransitionUtils is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="            sceneRootIsAttached = sceneRoot == null ? false : sceneRoot.isAttachedToWindow();"
+        errorLine2="                                                                        ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/TransitionUtils.java"
+            line="95"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.transition.TransitionUtils is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="            sceneRoot.getOverlay().add(view);"
+        errorLine2="                      ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/TransitionUtils.java"
+            line="108"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.transition.TransitionUtils is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="            sceneRoot.getOverlay().add(view);"
+        errorLine2="                                   ~~~">
+        <location
+            file="src/main/java/androidx/transition/TransitionUtils.java"
+            line="108"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.transition.TransitionUtils is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                bitmap = Bitmap.createBitmap(picture);"
+        errorLine2="                                ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/TransitionUtils.java"
+            line="127"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.transition.TransitionUtils is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="            sceneRoot.getOverlay().remove(view);"
+        errorLine2="                      ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/TransitionUtils.java"
+            line="137"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.transition.TransitionUtils is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="            sceneRoot.getOverlay().remove(view);"
+        errorLine2="                                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/TransitionUtils.java"
+            line="137"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 29, the call containing class androidx.transition.ViewGroupUtils is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        errorLine1="            group.suppressLayout(suppress);"
+        errorLine2="                  ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/ViewGroupUtils.java"
+            line="57"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 29, the call containing class androidx.transition.ViewGroupUtils is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        errorLine1="                group.suppressLayout(suppress);"
+        errorLine2="                      ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/ViewGroupUtils.java"
+            line="72"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 29, the call containing class androidx.transition.ViewGroupUtils is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        errorLine1="            return viewGroup.getChildDrawingOrder(i);"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/ViewGroupUtils.java"
+            line="84"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 29, the call containing class androidx.transition.ViewUtilsApi19 is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        errorLine1="                view.setTransitionAlpha(alpha);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/ViewUtilsApi19.java"
+            line="40"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 29, the call containing class androidx.transition.ViewUtilsApi19 is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        errorLine1="                return view.getTransitionAlpha();"
+        errorLine2="                            ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/ViewUtilsApi19.java"
+            line="56"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 29, the call containing class androidx.transition.ViewUtilsApi21 is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        errorLine1="                view.transformMatrixToGlobal(matrix);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/ViewUtilsApi21.java"
+            line="50"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 29, the call containing class androidx.transition.ViewUtilsApi21 is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        errorLine1="                view.transformMatrixToLocal(matrix);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/ViewUtilsApi21.java"
+            line="64"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 29, the call containing class androidx.transition.ViewUtilsApi21 is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        errorLine1="                view.setAnimationMatrix(matrix);"
+        errorLine2="                     ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/ViewUtilsApi21.java"
+            line="78"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 29, the call containing class androidx.transition.ViewUtilsApi22 is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        errorLine1="                v.setLeftTopRightBottom(left, top, right, bottom);"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/ViewUtilsApi22.java"
+            line="40"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 29, the call containing class androidx.transition.ViewUtilsApi23 is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        errorLine1="                    view.setTransitionVisibility(visibility);"
+        errorLine2="                         ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/transition/ViewUtilsApi23.java"
+            line="45"
+            column="26"/>
+    </issue>
+
+    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public long getStartDelay(ViewGroup sceneRoot, Transition transition,"

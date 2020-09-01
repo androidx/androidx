@@ -25,6 +25,7 @@ plugins {
 
 dependencies {
     compileOnly LINT_API_LATEST
+    compileOnly LINT_CHECKS_LATEST
     compileOnly KOTLIN_STDLIB
 
     testImplementation KOTLIN_STDLIB

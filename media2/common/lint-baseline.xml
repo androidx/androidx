@@ -2,6 +2,17 @@
 <issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
 
     <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class androidx.media2.common.MediaMetadata.BitmapEntry is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="                return bitmap.getAllocationByteCount();"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/media2/common/MediaMetadata.java"
+            line="1299"
+            column="31"/>
+    </issue>
+
+    <issue
         id="KotlinPropertyAccess"
         message="This method should be called `getMediaItem` such that `mediaItem` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
         errorLine1="    public abstract MediaItem getCurrentMediaItem();"
