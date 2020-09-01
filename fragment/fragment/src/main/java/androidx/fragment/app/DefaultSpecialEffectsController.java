@@ -138,20 +138,6 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
             transitions.add(new TransitionInfo(operation, transitionCancellationSignal, isPop,
                     isPop ? operation == firstOut : operation == lastIn));
 
-            // When the operation completes, make sure that the view that had requested
-            // focus before the operation started has its focus requested again
-            operation.addCompletionListener(new Runnable() {
-                @Override
-                public void run() {
-                    if (operation.getFinalState() == Operation.State.VISIBLE) {
-                        View focusedView = operation.getFragment().getFocusedView();
-                        if (focusedView != null) {
-                            focusedView.requestFocus();
-                            operation.getFragment().setFocusedView(null);
-                        }
-                    }
-                }
-            });
             // Ensure that if the Operation is synchronously complete, we still
             // apply the container changes before the Operation completes
             operation.addCompletionListener(new Runnable() {
@@ -160,6 +146,29 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                     if (awaitingContainerChanges.contains(operation)) {
                         awaitingContainerChanges.remove(operation);
                         applyContainerChanges(operation);
+                    }
+                }
+            });
+
+            // When the operation completes, make sure that the view that had requested
+            // focus before the operation started has its focus requested again
+            operation.addCompletionListener(new Runnable() {
+                @Override
+                public void run() {
+                    if (operation.getFinalState() == Operation.State.VISIBLE) {
+                        Fragment fragment = operation.getFragment();
+                        View focusedView = fragment.getFocusedView();
+                        if (focusedView != null) {
+                            boolean success = focusedView.requestFocus();
+                            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                                Log.v(FragmentManager.TAG, "requestFocus: Restoring focused view"
+                                        + " " + focusedView + " "
+                                        + (success ? "succeeded" : "failed")
+                                        + " on Fragment " + fragment + " resulting in focused view "
+                                        + fragment.mView.findFocus());
+                            }
+                            fragment.setFocusedView(null);
+                        }
                     }
                 }
             });
