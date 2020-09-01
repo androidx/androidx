@@ -93,6 +93,17 @@ public final class ImageCaptureConfig implements UseCaseConfig<ImageCapture>, Im
     /**
      * Returns the {@link ImageCapture.FlashMode}.
      *
+     * @param valueIfMissing The value to return if this configuration option has not been set.
+     * @return The stored value, if it exists in this configuration.
+     */
+    @ImageCapture.FlashMode
+    public int getFlashMode(@ImageCapture.FlashMode int valueIfMissing) {
+        return retrieveOption(OPTION_FLASH_MODE, valueIfMissing);
+    }
+
+    /**
+     * Returns the {@link ImageCapture.FlashMode}.
+     *
      * @return The stored value, if it exists in this configuration.
      * @throws IllegalArgumentException if the option does not exist in this configuration.
      */

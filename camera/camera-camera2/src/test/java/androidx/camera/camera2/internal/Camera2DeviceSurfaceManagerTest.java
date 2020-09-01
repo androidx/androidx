@@ -334,7 +334,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         }
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice() {
         ImageCapture imageCapture = new ImageCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
@@ -351,17 +351,13 @@ public final class Camera2DeviceSurfaceManagerTest {
         useCases.add(videoCapture);
         useCases.add(preview);
 
-        boolean exceptionHappened = false;
-
-        try {
-            // Will throw IllegalArgumentException
-            mSurfaceManager.getSuggestedResolutions(LEGACY_CAMERA_ID, Collections.emptyList(),
-                    Configs.useCaseConfigListFromUseCaseList(useCases));
-        } catch (IllegalArgumentException e) {
-            exceptionHappened = true;
-        }
-
-        assertTrue(exceptionHappened);
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases, null);
+        // A legacy level camera device can't support JPEG (ImageCapture) + PRIV (VideoCapture) +
+        // PRIV (Preview) combination. An IllegalArgumentException will be thrown when trying to
+        // bind these use cases at the same time.
+        mSurfaceManager.getSuggestedResolutions(LEGACY_CAMERA_ID, Collections.emptyList(),
+                new ArrayList<>(useCaseToConfigMap.values()));
     }
 
     @Test
@@ -380,16 +376,20 @@ public final class Camera2DeviceSurfaceManagerTest {
         useCases.add(imageCapture);
         useCases.add(videoCapture);
         useCases.add(preview);
+
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases, null);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 mSurfaceManager.getSuggestedResolutions(LIMITED_CAMERA_ID, Collections.emptyList(),
-                        Configs.useCaseConfigListFromUseCaseList(useCases));
+                        new ArrayList<>(useCaseToConfigMap.values()));
 
         // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD)
-        assertThat(suggestedResolutionMap).containsEntry(imageCapture.getUseCaseConfig(),
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(imageCapture),
                 mRecordSize);
-        assertThat(suggestedResolutionMap).containsEntry(videoCapture.getUseCaseConfig(),
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(videoCapture),
                 mMaximumVideoSize);
-        assertThat(suggestedResolutionMap).containsEntry(preview.getUseCaseConfig(), mPreviewSize);
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(preview),
+                mPreviewSize);
     }
 
     @Test

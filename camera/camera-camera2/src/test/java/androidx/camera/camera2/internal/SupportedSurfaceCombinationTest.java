@@ -487,10 +487,13 @@ public final class SupportedSurfaceCombinationTest {
 
         List<UseCase> useCases = new ArrayList<>();
         useCases.add(fakeUseCase);
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases, null);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
-                        Configs.useCaseConfigListFromUseCaseList(useCases));
-        Size selectedSize = suggestedResolutionMap.get(fakeUseCase.getUseCaseConfig());
+                        new ArrayList<>(useCaseToConfigMap.values()));
+        Size selectedSize =
+                suggestedResolutionMap.get(useCaseToConfigMap.get(fakeUseCase));
         Rational resultAspectRatio = new Rational(selectedSize.getWidth(),
                 selectedSize.getHeight());
 
@@ -593,13 +596,15 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(preview);
         useCases.add(imageCapture);
         useCases.add(imageAnalysis);
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases, null);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
-                        Configs.useCaseConfigListFromUseCaseList(useCases));
+                        new ArrayList<>(useCaseToConfigMap.values()));
 
-        Size previewSize = suggestedResolutionMap.get(preview.getUseCaseConfig());
-        Size imageCaptureSize = suggestedResolutionMap.get(imageCapture.getUseCaseConfig());
-        Size imageAnalysisSize = suggestedResolutionMap.get(imageAnalysis.getUseCaseConfig());
+        Size previewSize = suggestedResolutionMap.get(useCaseToConfigMap.get(preview));
+        Size imageCaptureSize = suggestedResolutionMap.get(useCaseToConfigMap.get(imageCapture));
+        Size imageAnalysisSize = suggestedResolutionMap.get(useCaseToConfigMap.get(imageAnalysis));
 
         Rational previewAspectRatio = new Rational(previewSize.getWidth(), previewSize.getHeight());
         Rational imageCaptureAspectRatio = new Rational(imageCaptureSize.getWidth(),
@@ -638,9 +643,11 @@ public final class SupportedSurfaceCombinationTest {
 
         List<UseCase> useCases = new ArrayList<>();
         useCases.add(preview);
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases, null);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
-                        Configs.useCaseConfigListFromUseCaseList(useCases));
+                        new ArrayList<>(useCaseToConfigMap.values()));
 
         // Checks the preconditions.
         final Size preconditionSize = new Size(256, 144);
@@ -653,7 +660,7 @@ public final class SupportedSurfaceCombinationTest {
         }
 
         // Checks the mechanism has filtered out the sizes which are smaller than default size 480p.
-        Size previewSize = suggestedResolutionMap.get(preview.getUseCaseConfig());
+        Size previewSize = suggestedResolutionMap.get(useCaseToConfigMap.get(preview));
         assertThat(previewSize).isNotEqualTo(preconditionSize);
     }
 
@@ -725,9 +732,11 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(imageCapture);
         useCases.add(videoCapture);
         useCases.add(preview);
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases, null);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
-                        Configs.useCaseConfigListFromUseCaseList(useCases));
+                        new ArrayList<>(useCaseToConfigMap.values()));
 
         assertThat(suggestedResolutionMap).isNotEqualTo(3);
     }
@@ -753,16 +762,20 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(imageCapture);
         useCases.add(videoCapture);
         useCases.add(preview);
+
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases, null);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
-                        Configs.useCaseConfigListFromUseCaseList(useCases));
+                        new ArrayList<>(useCaseToConfigMap.values()));
 
         // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD)
-        assertThat(suggestedResolutionMap).containsEntry(imageCapture.getUseCaseConfig(),
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(imageCapture),
                 mRecordSize);
-        assertThat(suggestedResolutionMap).containsEntry(videoCapture.getUseCaseConfig(),
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(videoCapture),
                 mMaximumVideoSize);
-        assertThat(suggestedResolutionMap).containsEntry(preview.getUseCaseConfig(), mPreviewSize);
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(preview),
+                mPreviewSize);
     }
 
     @Test
@@ -792,14 +805,17 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(imageCapture);
         useCases.add(preview);
         useCases.add(imageAnalysis);
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases, null);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
-                        Configs.useCaseConfigListFromUseCaseList(useCases));
+                        new ArrayList<>(useCaseToConfigMap.values()));
 
-        assertThat(suggestedResolutionMap).containsEntry(imageCapture.getUseCaseConfig(),
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(imageCapture),
                 mPreviewSize);
-        assertThat(suggestedResolutionMap).containsEntry(preview.getUseCaseConfig(), mPreviewSize);
-        assertThat(suggestedResolutionMap).containsEntry(imageAnalysis.getUseCaseConfig(),
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(preview),
+                mPreviewSize);
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(imageAnalysis),
                 mPreviewSize);
     }
 
@@ -823,13 +839,15 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(imageCapture);
         useCases.add(preview);
         useCases.add(imageAnalysis);
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases, null);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
-                        Configs.useCaseConfigListFromUseCaseList(useCases));
+                        new ArrayList<>(useCaseToConfigMap.values()));
 
-        Size previewSize = suggestedResolutionMap.get(preview.getUseCaseConfig());
-        Size imageCaptureSize = suggestedResolutionMap.get(imageCapture.getUseCaseConfig());
-        Size imageAnalysisSize = suggestedResolutionMap.get(imageAnalysis.getUseCaseConfig());
+        Size previewSize = suggestedResolutionMap.get(useCaseToConfigMap.get(preview));
+        Size imageCaptureSize = suggestedResolutionMap.get(useCaseToConfigMap.get(imageCapture));
+        Size imageAnalysisSize = suggestedResolutionMap.get(useCaseToConfigMap.get(imageAnalysis));
 
         assertThat(hasMatchingAspectRatio(previewSize, ASPECT_RATIO_16_9)).isTrue();
         assertThat(hasMatchingAspectRatio(imageCaptureSize, ASPECT_RATIO_16_9)).isTrue();
@@ -902,16 +920,19 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(imageCapture);
         useCases.add(videoCapture);
         useCases.add(preview);
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases, null);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
-                        Configs.useCaseConfigListFromUseCaseList(useCases));
+                        new ArrayList<>(useCaseToConfigMap.values()));
 
         // Checks all suggested resolutions will become 640x480.
-        assertThat(suggestedResolutionMap).containsEntry(imageCapture.getUseCaseConfig(),
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(imageCapture),
                 mAnalysisSize);
-        assertThat(suggestedResolutionMap).containsEntry(videoCapture.getUseCaseConfig(),
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(videoCapture),
                 mAnalysisSize);
-        assertThat(suggestedResolutionMap).containsEntry(preview.getUseCaseConfig(), mAnalysisSize);
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(preview),
+                mAnalysisSize);
     }
 
     @Test
@@ -1079,12 +1100,15 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(preview);
         useCases.add(imageCapture);
 
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases, null);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
-                        Configs.useCaseConfigListFromUseCaseList(useCases));
+                        new ArrayList<>(useCaseToConfigMap.values()));
 
-        assertThat(suggestedResolutionMap).containsEntry(preview.getUseCaseConfig(), mMod16Size);
-        assertThat(suggestedResolutionMap).containsEntry(imageCapture.getUseCaseConfig(),
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(preview),
+                mMod16Size);
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(imageCapture),
                 mMod16Size);
     }
 
@@ -1839,9 +1863,12 @@ public final class SupportedSurfaceCombinationTest {
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetResolution(
                 new Size(1080, 2016)).build();
 
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(Arrays.asList(useCase),
+                        null);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
-                        Configs.useCaseConfigListFromUseCaseList(Arrays.asList(useCase)));
+                        new ArrayList<>(useCaseToConfigMap.values()));
 
         List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
                 useCase.getUseCaseConfig());
