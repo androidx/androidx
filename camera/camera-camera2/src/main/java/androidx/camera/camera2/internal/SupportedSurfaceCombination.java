@@ -84,6 +84,7 @@ final class SupportedSurfaceCombination {
     private final CamcorderProfileHelper mCamcorderProfileHelper;
     private final CameraCharacteristics mCharacteristics;
     private final int mHardwareLevel;
+    private final boolean mIsSensorLandscapeResolution;
     private final Map<Integer, List<Size>> mExcludedSizeListCache = new HashMap<>();
     private boolean mIsRawSupported = false;
     private boolean mIsBurstCaptureSupported = false;
@@ -105,6 +106,7 @@ final class SupportedSurfaceCombination {
                     CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
             mHardwareLevel = keyValue != null ? keyValue
                     : CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
+            mIsSensorLandscapeResolution = isSensorLandscapeResolution();
         } catch (CameraAccessExceptionCompat e) {
             throw CameraUnavailableExceptionHelper.createFrom(e);
         }
@@ -372,18 +374,15 @@ final class SupportedSurfaceCombination {
         Rational aspectRatio = getCorrectedAspectRatio();
         if (aspectRatio == null) {
             if (imageOutputConfig.hasTargetAspectRatio()) {
-                // Checks the sensor orientation.
-                boolean isSensorLandscapeOrientation = isRotationNeeded(Surface.ROTATION_0);
                 @AspectRatio.Ratio int targetAspectRatio = imageOutputConfig.getTargetAspectRatio();
                 switch (targetAspectRatio) {
                     case AspectRatio.RATIO_4_3:
                         aspectRatio =
-                                isSensorLandscapeOrientation ? ASPECT_RATIO_4_3 : ASPECT_RATIO_3_4;
+                                mIsSensorLandscapeResolution ? ASPECT_RATIO_4_3 : ASPECT_RATIO_3_4;
                         break;
                     case AspectRatio.RATIO_16_9:
-                        aspectRatio =
-                                isSensorLandscapeOrientation ? ASPECT_RATIO_16_9
-                                        : ASPECT_RATIO_9_16;
+                        aspectRatio = mIsSensorLandscapeResolution ? ASPECT_RATIO_16_9
+                                : ASPECT_RATIO_9_16;
                         break;
                     default:
                         // Unhandled event.
@@ -473,6 +472,15 @@ final class SupportedSurfaceCombination {
                 sensorOrientation,
                 isOppositeFacingScreen);
         return sensorRotationDegrees == 90 || sensorRotationDegrees == 270;
+    }
+
+    private boolean isSensorLandscapeResolution() {
+        Size pixelArraySize =
+                mCharacteristics.get(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE);
+
+        // Make the default value is true since usually the sensor resolution is landscape.
+        return pixelArraySize != null ? pixelArraySize.getWidth() >= pixelArraySize.getHeight()
+                : true;
     }
 
     static boolean hasMatchingAspectRatio(Size resolution, Rational aspectRatio) {
