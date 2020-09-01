@@ -269,7 +269,10 @@ public class AccessibilityDelegateCompatTest extends
                 // onInitializeA11yEvent was not called in 28, so package name was not set
                 boolean isFromThisPackage = Build.VERSION.SDK_INT == 28
                         || TextUtils.equals(event.getPackageName(), activity.getPackageName());
-                boolean hasTitleText = event.getText().get(0).equals(title);
+                boolean hasTitleText = false;
+                if (event.getText().size() > 0) {
+                    hasTitleText = event.getText().get(0).equals(title);
+                }
                 return isWindowStateChanged
                         && (isPaneTitle != 0)
                         && isFromThisPackage
