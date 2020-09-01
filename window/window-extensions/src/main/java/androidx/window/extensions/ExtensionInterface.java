@@ -38,19 +38,25 @@ public interface ExtensionInterface {
 
     /**
      * Gets current information about the display features present within the application window.
+     *
+     * @param context an instance of {@link android.app.Activity}
      */
     @NonNull
     ExtensionWindowLayoutInfo getWindowLayoutInfo(@NonNull Context context);
 
     /**
      * Notifies extension that a listener for display feature layout changes was registered for the
-     * given activity or window context.
+     * given activity context.
+     *
+     * @param context an instance of {@link android.app.Activity}
      */
     void onWindowLayoutChangeListenerAdded(@NonNull Context context);
 
     /**
      * Notifies extension that a listener for display feature layout changes was removed for the
-     * given activity or window context.
+     * given activity context.
+     *
+     * @param context an instance of {@link android.app.Activity}
      */
     void onWindowLayoutChangeListenerRemoved(@NonNull Context context);
 
