@@ -482,7 +482,7 @@ class UnsafeNewApiCallsDetector : Detector(), SourceCodeScanner {
                     androidx.core.view.WindowInsetsCompat${'$'}*Impl* {
                   <methods>;
                 }
-                This will still allow them to be removed, buf if they are kept, they will not be 
+                This will still allow them to be removed, but if they are kept, they will not be
                 inlined.
                 Failure to do the above may result in overall performance degradation.
             """.trimIndent(),
