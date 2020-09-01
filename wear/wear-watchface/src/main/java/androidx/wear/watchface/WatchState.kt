@@ -217,7 +217,7 @@ class WatchState {
          * @param hasBurnInProtection Whether or not the device has burn in protection
          */
         @UiThread
-        fun setHasBurnInProtection(hasBurnInProtection: Boolean) {}
+        fun onSetHasBurnInProtection(hasBurnInProtection: Boolean) {}
 
         /**
          * Called when we've determined if the device has a lower bit depth in ambient mode or not.
@@ -225,7 +225,7 @@ class WatchState {
          * @param hasLowBitAmbient Whether or not the device has a lower bit depth in ambient mode
          */
         @UiThread
-        fun setHasLowBitAmbient(hasLowBitAmbient: Boolean) {}
+        fun onSetHasLowBitAmbient(hasLowBitAmbient: Boolean) {}
     }
 
     /**
@@ -349,7 +349,7 @@ class WatchState {
     internal fun setHasBurnInProtection(hasBurnInProtection: Boolean) {
         this.hasBurnInProtection = hasBurnInProtection
         for (listener in mListeners) {
-            listener.setHasBurnInProtection(hasBurnInProtection)
+            listener.onSetHasBurnInProtection(hasBurnInProtection)
         }
     }
 
@@ -357,7 +357,7 @@ class WatchState {
     internal fun setHasLowBitAmbient(hasLowBitAmbient: Boolean) {
         this.hasLowBitAmbient = hasLowBitAmbient
         for (listener in mListeners) {
-            listener.setHasLowBitAmbient(hasLowBitAmbient)
+            listener.onSetHasLowBitAmbient(hasLowBitAmbient)
         }
     }
 }
