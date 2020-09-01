@@ -23,7 +23,10 @@ import android.os.Build
 import android.os.IBinder
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
+import androidx.work.impl.WorkManagerImpl
+import androidx.work.impl.utils.SerialExecutor
 import androidx.work.impl.utils.futures.SettableFuture
+import androidx.work.impl.utils.taskexecutor.TaskExecutor
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertTrue
@@ -44,17 +47,23 @@ import java.util.concurrent.Executor
 class RemoteWorkManagerClientTest {
 
     private lateinit var mContext: Context
+    private lateinit var mWorkManager: WorkManagerImpl
     private lateinit var mExecutor: Executor
     private lateinit var mClient: RemoteWorkManagerClient
 
     @Before
     fun setUp() {
         mContext = mock(Context::class.java)
+        mWorkManager = mock(WorkManagerImpl::class.java)
         `when`(mContext.applicationContext).thenReturn(mContext)
         mExecutor = Executor {
             it.run()
         }
-        mClient = spy(RemoteWorkManagerClient(mContext, mExecutor))
+
+        val taskExecutor = mock(TaskExecutor::class.java)
+        `when`(taskExecutor.backgroundExecutor).thenReturn(SerialExecutor(mExecutor))
+        `when`(mWorkManager.workTaskExecutor).thenReturn(taskExecutor)
+        mClient = spy(RemoteWorkManagerClient(mContext, mWorkManager))
     }
 
     @Test

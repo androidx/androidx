@@ -20,7 +20,11 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.ExistingWorkPolicy;
 import androidx.work.ListenableWorker;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
@@ -30,6 +34,7 @@ import androidx.work.impl.WorkManagerImpl;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -67,12 +72,191 @@ public abstract class RemoteWorkManager {
     public abstract ListenableFuture<Void> enqueue(@NonNull List<WorkRequest> requests);
 
     /**
-     * Enqueues the instance of {@link WorkContinuation} for background processing.
+     * This method allows you to enqueue {@code work} requests to a uniquely-named
+     * {@link RemoteWorkContinuation}, where only one continuation of a particular name can be
+     * active at a time. For example, you may only want one sync operation to be active. If there
+     * is one pending, you can choose to let it run or replace it with your new work.
+     * <p>
+     * The {@code uniqueWorkName} uniquely identifies this {@link RemoteWorkContinuation}.
      *
+     * @param uniqueWorkName A unique name which for this operation
+     * @param existingWorkPolicy An {@link ExistingWorkPolicy}; see below for more information
+     * @param work The {@link OneTimeWorkRequest}s to enqueue. {@code REPLACE} ensures that if there
+     *             is pending work labelled with {@code uniqueWorkName}, it will be cancelled and
+     *             the new work will run. {@code KEEP} will run the new OneTimeWorkRequests only if
+     *             there is no pending work labelled with {@code uniqueWorkName}.  {@code APPEND}
+     *             will append the OneTimeWorkRequests as leaf nodes labelled with
+     *             {@code uniqueWorkName}.
      * @return A {@link ListenableFuture} that can be used to determine when the enqueue has
      * completed
      */
     @NonNull
+    public final ListenableFuture<Void> enqueueUniqueWork(
+            @NonNull String uniqueWorkName,
+            @NonNull ExistingWorkPolicy existingWorkPolicy,
+            @NonNull OneTimeWorkRequest work) {
+        return enqueueUniqueWork(
+                uniqueWorkName,
+                existingWorkPolicy,
+                Collections.singletonList(work));
+    }
+
+    /**
+     * This method allows you to enqueue {@code work} requests to a uniquely-named
+     * {@link RemoteWorkContinuation}, where only one continuation of a particular name can be
+     * active at a time. For example, you may only want one sync operation to be active. If there
+     * is one pending, you can choose to let it run or replace it with your new work.
+     * <p>
+     * The {@code uniqueWorkName} uniquely identifies this {@link RemoteWorkContinuation}.
+     *
+     * @param uniqueWorkName A unique name which for this operation
+     * @param existingWorkPolicy An {@link ExistingWorkPolicy}
+     * @param work {@link OneTimeWorkRequest}s to enqueue. {@code REPLACE} ensures
+     *                     that if there is pending work labelled with {@code uniqueWorkName}, it
+     *                     will be cancelled and the new work will run. {@code KEEP} will run the
+     *                     new OneTimeWorkRequests only if there is no pending work labelled with
+     *                     {@code uniqueWorkName}. {@code APPEND} will append the
+     *                     OneTimeWorkRequests as leaf nodes labelled with {@code uniqueWorkName}.
+     * @return A {@link ListenableFuture} that can be used to determine when the enqueue has
+     * completed
+     */
+    @NonNull
+    public abstract ListenableFuture<Void> enqueueUniqueWork(
+            @NonNull String uniqueWorkName,
+            @NonNull ExistingWorkPolicy existingWorkPolicy,
+            @NonNull List<OneTimeWorkRequest> work);
+
+    /**
+     * This method allows you to enqueue a uniquely-named {@link PeriodicWorkRequest}, where only
+     * one PeriodicWorkRequest of a particular name can be active at a time.  For example, you may
+     * only want one sync operation to be active.  If there is one pending, you can choose to let it
+     * run or replace it with your new work.
+     * <p>
+     * The {@code uniqueWorkName} uniquely identifies this PeriodicWorkRequest.
+     *
+     * @param uniqueWorkName A unique name which for this operation
+     * @param existingPeriodicWorkPolicy An {@link ExistingPeriodicWorkPolicy}
+     * @param periodicWork A {@link PeriodicWorkRequest} to enqueue. {@code REPLACE} ensures that if
+     *                     there is pending work labelled with {@code uniqueWorkName}, it will be
+     *                     cancelled and the new work will run. {@code KEEP} will run the new
+     *                     PeriodicWorkRequest only if there is no pending work labelled with
+     *                     {@code uniqueWorkName}.
+     * @return An {@link ListenableFuture} that can be used to determine when the enqueue has
+     * completed
+     */
+    @NonNull
+    public abstract ListenableFuture<Void> enqueueUniquePeriodicWork(
+            @NonNull String uniqueWorkName,
+            @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
+            @NonNull PeriodicWorkRequest periodicWork);
+
+    /**
+     * Begins a chain with one or more {@link OneTimeWorkRequest}s, which can be enqueued together
+     * in the future using {@link RemoteWorkContinuation#enqueue()}.
+     * <p>
+     * If any work in the chain fails or is cancelled, all of its dependent work inherits that state
+     * and will never run.
+     *
+     * @param work One or more {@link OneTimeWorkRequest} to start a chain of work
+     * @return A {@link RemoteWorkContinuation} that allows for further chaining of dependent
+     * {@link OneTimeWorkRequest}
+     */
+    @NonNull
+    public final RemoteWorkContinuation beginWith(@NonNull OneTimeWorkRequest work) {
+        return beginWith(Collections.singletonList(work));
+    }
+
+    /**
+     * Begins a chain with one or more {@link OneTimeWorkRequest}s, which can be enqueued together
+     * in the future using {@link RemoteWorkContinuation#enqueue()}.
+     * <p>
+     * If any work in the chain fails or is cancelled, all of its dependent work inherits that state
+     * and will never run.
+     *
+     * @param work One or more {@link OneTimeWorkRequest} to start a chain of work
+     * @return A {@link RemoteWorkContinuation} that allows for further chaining of dependent
+     * {@link OneTimeWorkRequest}
+     */
+    @NonNull
+    public abstract RemoteWorkContinuation beginWith(@NonNull List<OneTimeWorkRequest> work);
+
+    /**
+     * This method allows you to begin unique chains of work for situations where you only want one
+     * chain with a given name to be active at a time.  For example, you may only want one sync
+     * operation to be active.  If there is one pending, you can choose to let it run or replace it
+     * with your new work.
+     * <p>
+     * The {@code uniqueWorkName} uniquely identifies this set of work.
+     * <p>
+     * If this method determines that new work should be enqueued and run, all records of previous
+     * work with {@code uniqueWorkName} will be pruned.  If this method determines that new work
+     * should NOT be run, then the entire chain will be considered a no-op.
+     * <p>
+     * If any work in the chain fails or is cancelled, all of its dependent work inherits that state
+     * and will never run.  This is particularly important if you are using {@code APPEND} as your
+     * {@link ExistingWorkPolicy}.
+     *
+     * @param uniqueWorkName A unique name which for this chain of work
+     * @param existingWorkPolicy An {@link ExistingWorkPolicy}
+     * @param work The {@link OneTimeWorkRequest} to enqueue. {@code REPLACE} ensures that if there
+     *             is pending work labelled with {@code uniqueWorkName}, it will be cancelled and
+     *             the new work will run. {@code KEEP} will run the new sequence of work only if
+     *             there is no pending work labelled with {@code uniqueWorkName}.  {@code APPEND}
+     *             will create a new sequence of work if there is no existing work with
+     *             {@code uniqueWorkName}; otherwise, {@code work} will be added as a child of all
+     *             leaf nodes labelled with {@code uniqueWorkName}.
+     * @return A {@link RemoteWorkContinuation} that allows further chaining
+     */
+    @NonNull
+    public final RemoteWorkContinuation beginUniqueWork(
+            @NonNull String uniqueWorkName,
+            @NonNull ExistingWorkPolicy existingWorkPolicy,
+            @NonNull OneTimeWorkRequest work) {
+        return beginUniqueWork(uniqueWorkName, existingWorkPolicy, Collections.singletonList(work));
+    }
+
+    /**
+     * This method allows you to begin unique chains of work for situations where you only want one
+     * chain with a given name to be active at a time.  For example, you may only want one sync
+     * operation to be active.  If there is one pending, you can choose to let it run or replace it
+     * with your new work.
+     * <p>
+     * The {@code uniqueWorkName} uniquely identifies this set of work.
+     * <p>
+     * If this method determines that new work should be enqueued and run, all records of previous
+     * work with {@code uniqueWorkName} will be pruned.  If this method determines that new work
+     * should NOT be run, then the entire chain will be considered a no-op.
+     * <p>
+     * If any work in the chain fails or is cancelled, all of its dependent work inherits that state
+     * and will never run.  This is particularly important if you are using {@code APPEND} as your
+     * {@link ExistingWorkPolicy}.
+     *
+     * @param uniqueWorkName A unique name which for this chain of work
+     * @param existingWorkPolicy An {@link ExistingWorkPolicy}; see below for more information
+     * @param work One or more {@link OneTimeWorkRequest} to enqueue. {@code REPLACE} ensures that
+     *             if there is pending work labelled with {@code uniqueWorkName}, it will be
+     *             cancelled and the new work will run. {@code KEEP} will run the new sequence of
+     *             work only if there is no pending work labelled with {@code uniqueWorkName}.
+     *             {@code APPEND} will create a new sequence of work if there is no
+     *             existing work with {@code uniqueWorkName}; otherwise, {@code work} will be added
+     *             as a child of all leaf nodes labelled with {@code uniqueWorkName}.
+     * @return A {@link RemoteWorkContinuation} that allows further chaining
+     */
+    @NonNull
+    public abstract RemoteWorkContinuation beginUniqueWork(
+            @NonNull String uniqueWorkName,
+            @NonNull ExistingWorkPolicy existingWorkPolicy,
+            @NonNull List<OneTimeWorkRequest> work);
+
+    /**
+     * Enqueues the instance of {@link WorkContinuation} for background processing.
+     *
+     * @return A {@link ListenableFuture} that can be used to determine when the enqueue has
+     * completed
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public abstract ListenableFuture<Void> enqueue(@NonNull WorkContinuation continuation);
 
     /**
