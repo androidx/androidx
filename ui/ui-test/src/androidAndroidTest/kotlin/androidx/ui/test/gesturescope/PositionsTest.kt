@@ -16,9 +16,14 @@
 
 package androidx.ui.test.gesturescope
 
-import androidx.test.filters.MediumTest
+import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.ScrollableRow
+import androidx.compose.foundation.layout.size
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.ui.test.percentOffset
+import androidx.compose.ui.platform.DensityAmbient
+import androidx.compose.ui.platform.testTag
+import androidx.test.filters.MediumTest
 import androidx.ui.test.bottom
 import androidx.ui.test.bottomCenter
 import androidx.ui.test.bottomLeft
@@ -29,10 +34,13 @@ import androidx.ui.test.centerRight
 import androidx.ui.test.centerX
 import androidx.ui.test.centerY
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.performGesture
-import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.height
 import androidx.ui.test.left
+import androidx.ui.test.localToGlobal
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.onRoot
+import androidx.ui.test.percentOffset
+import androidx.ui.test.performGesture
 import androidx.ui.test.right
 import androidx.ui.test.top
 import androidx.ui.test.topCenter
@@ -89,6 +97,58 @@ class PositionsTest {
             assertThat(percentOffset(.25f, -.5f)).isEqualTo(Offset(25f, -50f))
             assertThat(percentOffset(0f, .5f)).isEqualTo(Offset(0f, 50f))
             assertThat(percentOffset(2f, -2f)).isEqualTo(Offset(200f, -200f))
+        }
+    }
+
+    @Test
+    fun testSizeInViewport_column_startAtStart() {
+        testPositionsInViewport(isVertical = true, reverseScrollDirection = false)
+    }
+
+    @Test
+    fun testSizeInViewport_column_startAtEnd() {
+        testPositionsInViewport(isVertical = true, reverseScrollDirection = true)
+    }
+
+    @Test
+    fun testSizeInViewport_row_startAtStart() {
+        testPositionsInViewport(isVertical = false, reverseScrollDirection = false)
+    }
+
+    @Test
+    fun testSizeInViewport_row_startAtEnd() {
+        testPositionsInViewport(isVertical = false, reverseScrollDirection = true)
+    }
+
+    private fun testPositionsInViewport(isVertical: Boolean, reverseScrollDirection: Boolean) {
+        composeTestRule.setContent {
+            with(DensityAmbient.current) {
+                if (isVertical) {
+                    ScrollableColumn(
+                        Modifier.size(100.toDp(), 100.toDp()).testTag("viewport"),
+                        reverseScrollDirection = reverseScrollDirection
+                    ) {
+                        ClickableTestBox(width = 200f, height = 200f)
+                        ClickableTestBox(width = 200f, height = 200f)
+                    }
+                } else {
+                    ScrollableRow(
+                        Modifier.size(100.toDp(), 100.toDp()).testTag("viewport"),
+                        reverseScrollDirection = reverseScrollDirection
+                    ) {
+                        ClickableTestBox(width = 200f, height = 200f)
+                        ClickableTestBox(width = 200f, height = 200f)
+                    }
+                }
+            }
+        }
+
+        val globalRoot = onRoot().fetchSemanticsNode("Failed to get root").globalPosition
+        onNodeWithTag("viewport").performGesture {
+            assertThat(width).isEqualTo(100)
+            assertThat(height).isEqualTo(100)
+            assertThat(center).isEqualTo(Offset(50f, 50f))
+            assertThat(localToGlobal(topLeft)).isEqualTo(globalRoot)
         }
     }
 }
