@@ -10,21 +10,21 @@ set -e
 
 # --------- androidx specific code needed for build server. ------------------
 
-SCRIPT_PATH="$(cd $(dirname $0) && pwd)"
+SCRIPT_PATH="$(cd $(dirname $0) && pwd -P)"
 if [ -n "$OUT_DIR" ] ; then
     mkdir -p "$OUT_DIR"
-    OUT_DIR="$(cd $OUT_DIR && pwd)"
+    OUT_DIR="$(cd $OUT_DIR && pwd -P)"
     export GRADLE_USER_HOME="$OUT_DIR/.gradle"
     export TMPDIR=$OUT_DIR
 else
-    CHECKOUT_ROOT="$(cd $SCRIPT_PATH/../.. && pwd)"
+    CHECKOUT_ROOT="$(cd $SCRIPT_PATH/../.. && pwd -P)"
     export OUT_DIR="$CHECKOUT_ROOT/out"
 fi
 
 XMX_ARG="$(cd $SCRIPT_PATH && grep org.gradle.jvmargs gradle.properties | sed 's/^/-D/')"
 if [ -n "$DIST_DIR" ]; then
     mkdir -p "$DIST_DIR"
-    DIST_DIR="$(cd $DIST_DIR && pwd)"
+    DIST_DIR="$(cd $DIST_DIR && pwd -P)"
     export LINT_PRINT_STACKTRACE=true
 
     #Set the initial heap size to match the max heap size,
