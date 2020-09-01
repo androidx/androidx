@@ -61,10 +61,17 @@ public final class PreviewConfigProvider implements ConfigProvider<PreviewConfig
         captureBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         builder.setDefaultCaptureConfig(captureBuilder.build());
         builder.setCaptureOptionUnpacker(Camera2CaptureOptionUnpacker.INSTANCE);
-
-        int targetRotation = mWindowManager.getDefaultDisplay().getRotation();
-        builder.setTargetRotation(targetRotation);
         builder.setTargetAspectRatio(AspectRatio.RATIO_4_3);
+
+        // Add options that requires camera info to UseCaseConfig. The function may be called
+        // multiple times. The cameraInfo will be non-null after the use case is attached. The
+        // options determined after the use cause is attached should be put inside the "if" block
+        // to make it reusable.
+        // TODO(b/160477756): Make UseCase default config providers only provider static configs
+        if (cameraInfo != null) {
+            int targetRotation = mWindowManager.getDefaultDisplay().getRotation();
+            builder.setTargetRotation(targetRotation);
+        }
 
         return builder.getUseCaseConfig();
     }

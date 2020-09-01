@@ -217,19 +217,7 @@ public final class ImageCapture extends UseCase {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
             SessionConfig.Builder mSessionConfigBuilder;
     private final CaptureConfig mCaptureConfig;
-    private final ExecutorService mExecutor =
-            Executors.newFixedThreadPool(
-                    1,
-                    new ThreadFactory() {
-                        private final AtomicInteger mId = new AtomicInteger(0);
-
-                        @Override
-                        public Thread newThread(@NonNull Runnable r) {
-                            return new Thread(
-                                    r,
-                                    CameraXThreads.TAG + "image_capture_" + mId.getAndIncrement());
-                        }
-                    });
+    private ExecutorService mExecutor;
     @NonNull
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Executor mIoExecutor;
@@ -274,7 +262,7 @@ public final class ImageCapture extends UseCase {
      * the flag is disabled. Set it to be enabled in the maximum quality mode and disabled in the
      * minimum latency mode.
      */
-    private boolean mEnableCheck3AConverged;
+    private final boolean mEnableCheck3AConverged;
     /** Current flash mode. */
     @FlashMode
     private int mFlashMode;
@@ -305,7 +293,7 @@ public final class ImageCapture extends UseCase {
 
         if (mCaptureMode == CAPTURE_MODE_MAXIMIZE_QUALITY) {
             mEnableCheck3AConverged = true; // check 3A convergence in MAX_QUALITY mode
-        } else if (mCaptureMode == CAPTURE_MODE_MINIMIZE_LATENCY) {
+        } else {
             mEnableCheck3AConverged = false; // skip 3A convergence in MIN_LATENCY mode
         }
 
@@ -1014,10 +1002,34 @@ public final class ImageCapture extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public void clear() {
+    public void onDetached() {
         abortImageCaptureRequests();
         clearPipeline();
         mExecutor.shutdown();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void onAttached() {
+        mExecutor =
+                Executors.newFixedThreadPool(
+                        1,
+                        new ThreadFactory() {
+                            private final AtomicInteger mId = new AtomicInteger(0);
+
+                            @Override
+                            public Thread newThread(@NonNull Runnable r) {
+                                return new Thread(
+                                        r,
+                                        CameraXThreads.TAG + "image_capture_"
+                                                + mId.getAndIncrement());
+                            }
+                        });
     }
 
     /**

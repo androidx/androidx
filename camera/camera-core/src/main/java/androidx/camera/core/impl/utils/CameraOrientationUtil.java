@@ -65,19 +65,20 @@ public final class CameraOrientationUtil {
     }
 
     /**
-     * Converts rotation values enumerated in {@link Surface} to their equivalent in degrees.
+     * Converts rotation constant values defined in {@link Surface} to their equivalent in
+     * degrees.
      *
      * <p>Valid values for the relative rotation are {@link Surface#ROTATION_0}, {@link
      * Surface#ROTATION_90}, {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}.
      *
-     * @param rotationEnum One of the enumerated rotation values from {@link Surface}.
+     * @param rotation One of the rotation constant values from {@link Surface}.
      * @return The equivalent rotation value in degrees.
-     * @throws IllegalArgumentException If the provided rotation enum is not one of those defined in
-     *                                  {@link Surface}.
+     * @throws IllegalArgumentException If the provided rotation value is not one of those
+     * defined in {@link Surface}.
      */
-    public static int surfaceRotationToDegrees(@RotationValue int rotationEnum) {
+    public static int surfaceRotationToDegrees(@RotationValue int rotation) {
         int rotationDegrees;
-        switch (rotationEnum) {
+        switch (rotation) {
             case Surface.ROTATION_0:
                 rotationDegrees = 0;
                 break;
@@ -91,20 +92,20 @@ public final class CameraOrientationUtil {
                 rotationDegrees = 270;
                 break;
             default:
-                throw new IllegalArgumentException("Unsupported surface rotation: " + rotationEnum);
+                throw new IllegalArgumentException("Unsupported surface rotation: " + rotation);
         }
 
         return rotationDegrees;
     }
 
     /**
-     * Converts rotation degrees to their equivalent in values enumerated in {@link Surface}.
+     * Converts rotation degrees to their equivalent in values defined in {@link Surface}.
      *
      * <p>Valid values for the relative rotation are {@link Surface#ROTATION_0}, {@link
      * Surface#ROTATION_90}, {@link Surface#ROTATION_180}, {@link Surface#ROTATION_270}.
      *
      * @param degrees The rotation value in degrees.
-     * @return One of the enumerated rotation values from {@link Surface}.
+     * @return One of the constant rotation values defined in {@link Surface}.
      * @throws IllegalArgumentException If the provided rotation degrees doesn't fall into any
      *                                  one of those defined in {@link Surface}.
      */

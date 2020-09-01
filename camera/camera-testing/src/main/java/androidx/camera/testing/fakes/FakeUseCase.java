@@ -29,7 +29,7 @@ import androidx.camera.core.impl.UseCaseConfig;
  * A fake {@link UseCase}.
  */
 public class FakeUseCase extends UseCase {
-    private volatile boolean mIsCleared = false;
+    private volatile boolean mIsDetached = false;
 
     /**
      * Creates a new instance of a {@link FakeUseCase} with a given configuration.
@@ -58,9 +58,9 @@ public class FakeUseCase extends UseCase {
     }
 
     @Override
-    public void clear() {
-        super.clear();
-        mIsCleared = true;
+    public void onDetached() {
+        super.onDetached();
+        mIsDetached = true;
     }
 
     @NonNull
@@ -76,9 +76,9 @@ public class FakeUseCase extends UseCase {
     }
 
     /**
-     * Returns true if {@link #clear()} has been called previously.
+     * Returns true if {@link #onDetached()} has been called previously.
      */
-    public boolean isCleared() {
-        return mIsCleared;
+    public boolean isDetached() {
+        return mIsDetached;
     }
 }

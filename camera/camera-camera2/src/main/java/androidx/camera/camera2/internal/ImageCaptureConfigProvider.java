@@ -62,10 +62,17 @@ public final class ImageCaptureConfigProvider implements ConfigProvider<ImageCap
         captureConfig.setTemplateType(CameraDevice.TEMPLATE_STILL_CAPTURE);
         builder.setDefaultCaptureConfig(captureConfig.build());
         builder.setCaptureOptionUnpacker(ImageCaptureOptionUnpacker.INSTANCE);
-
-        int targetRotation = mWindowManager.getDefaultDisplay().getRotation();
-        builder.setTargetRotation(targetRotation);
         builder.setTargetAspectRatio(AspectRatio.RATIO_4_3);
+
+        // Add options that requires camera info to UseCaseConfig. The function may be called
+        // multiple times. The cameraInfo will be non-null after the use case is attached. The
+        // options determined after the use cause is attached should be put inside the "if" block
+        // to make it reusable.
+        // TODO(b/160477756): Make UseCase default config providers only provider static configs
+        if (cameraInfo != null) {
+            int targetRotation = mWindowManager.getDefaultDisplay().getRotation();
+            builder.setTargetRotation(targetRotation);
+        }
 
         return builder.getUseCaseConfig();
     }
