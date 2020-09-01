@@ -31,6 +31,7 @@ import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
 import androidx.appsearch.app.GenericDocumentToProtoConverter;
 import androidx.appsearch.app.SchemaToProtoConverter;
+import androidx.appsearch.app.SearchResultToProtoConverter;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
 import androidx.appsearch.app.SearchSpecToProtoConverter;
@@ -44,7 +45,6 @@ import com.google.android.icing.proto.SearchResultProto;
 import com.google.android.icing.proto.SearchSpecProto;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -330,13 +330,13 @@ public class LocalBackend implements AppSearchBackend {
                             SearchSpecToProtoConverter.toScoringSpecProto(mSearchSpec));
                     mNextPageToken = searchResultProto.getNextPageToken();
                     return AppSearchResult.newSuccessfulResult(
-                            toResults(searchResultProto));
+                            SearchResultToProtoConverter.toResults(searchResultProto));
                 } else {
                     SearchResultProto searchResultProto = mAppSearchImpl.getNextPage(mDatabaseName,
                             mNextPageToken);
                     mNextPageToken = searchResultProto.getNextPageToken();
                     return AppSearchResult.newSuccessfulResult(
-                            toResults(searchResultProto));
+                            SearchResultToProtoConverter.toResults(searchResultProto));
                 }
             } catch (Throwable t) {
                 return throwableToFailedResult(t);
@@ -350,18 +350,6 @@ public class LocalBackend implements AppSearchBackend {
             } catch (AppSearchException | InterruptedException e) {
                 throw new IOException(e);
             }
-        }
-
-        private List<SearchResults.Result> toResults(
-                @NonNull SearchResultProto searchResultProto) {
-            // TODO(b/163453135) Move this method to SearchResultToProtoConverter.
-            List<SearchResults.Result> results =
-                    new ArrayList<>(searchResultProto.getResultsCount());
-            for (int i = 0; i < searchResultProto.getResultsCount(); i++) {
-                results.add(new SearchResults.Result(
-                        searchResultProto.getResults(i)));
-            }
-            return results;
         }
     }
 }

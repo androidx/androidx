@@ -78,7 +78,8 @@ public class SnippetTest {
 
         // Making ResultReader and getting Snippet values.
         for (SearchResultProto.ResultProto proto : searchResultProto.getResultsList()) {
-            SearchResults.Result result = new SearchResults.Result(proto);
+            SearchResults.Result result =
+                    SearchResultToProtoConverter.convert(proto);
             MatchInfo match = result.getMatchInfo().get(0);
             assertThat(match.getPropertyPath()).isEqualTo(propertyKeyString);
             assertThat(match.getFullText()).isEqualTo(propertyValueString);
@@ -124,7 +125,8 @@ public class SnippetTest {
                 .build();
 
         for (SearchResultProto.ResultProto proto : searchResultProto.getResultsList()) {
-            SearchResults.Result result = new SearchResults.Result(proto);
+            SearchResults.Result result =
+                    SearchResultToProtoConverter.convert(proto);
             assertThat(result.getMatchInfo()).isEqualTo(null);
         }
     }
@@ -185,7 +187,8 @@ public class SnippetTest {
 
         // Making ResultReader and getting Snippet values.
         for (SearchResultProto.ResultProto proto : searchResultProto.getResultsList()) {
-            SearchResults.Result result = new SearchResults.Result(proto);
+            SearchResults.Result result =
+                    SearchResultToProtoConverter.convert(proto);
 
             MatchInfo match1 = result.getMatchInfo().get(0);
             assertThat(match1.getPropertyPath()).isEqualTo("sender.name");
