@@ -23,7 +23,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.ui.test.AndroidBaseInputDispatcher.InputDispatcherTestRule
+import androidx.ui.test.android.AndroidInputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performGesture
 import androidx.ui.test.onNodeWithTag

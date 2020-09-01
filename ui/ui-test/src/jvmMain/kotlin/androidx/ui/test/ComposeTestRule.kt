@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,11 +16,9 @@
 
 package androidx.ui.test
 
-import android.util.DisplayMetrics
-import androidx.activity.ComponentActivity
 import androidx.compose.runtime.Composable
-import androidx.ui.test.android.createAndroidComposeRule
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
 import org.junit.rules.TestRule
 
 /**
@@ -53,7 +51,7 @@ interface ComposeTestRule : TestRule {
     fun setContent(composable: @Composable () -> Unit)
 
     // TODO(pavlis): Provide better abstraction for host side reusability
-    val displayMetrics: DisplayMetrics get
+    val displaySize: IntSize get
 }
 
 /**
@@ -66,10 +64,7 @@ interface ComposeTestRule : TestRule {
  * reference to this activity into the manifest file of the corresponding tests (usually in
  * androidTest/AndroidManifest.xml).
  */
-fun createComposeRule(
+expect fun createComposeRule(
     disableTransitions: Boolean = false,
     disableBlinkingCursor: Boolean = true
-): ComposeTestRule = createAndroidComposeRule<ComponentActivity>(
-    disableTransitions,
-    disableBlinkingCursor
-)
+): ComposeTestRule

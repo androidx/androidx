@@ -9,10 +9,11 @@ package androidx.ui.test {
     method public static void performSemanticsAction(androidx.ui.test.SemanticsNodeInteraction, androidx.compose.ui.semantics.SemanticsPropertyKey<androidx.compose.ui.semantics.AccessibilityAction<kotlin.jvm.functions.Function0<java.lang.Boolean>>> key);
   }
 
-  public final class AndroidAssertionsKt {
+  public final class AndroidAnimationClockTestRuleKt {
+    method public static androidx.ui.test.AnimationClockTestRule createAnimationClockRule();
   }
 
-  public final class AndroidBaseInputDispatcherKt {
+  public final class AndroidAssertionsKt {
   }
 
   public final class AndroidBitmapHelpersKt {
@@ -26,6 +27,31 @@ package androidx.ui.test {
     method public static boolean contains-ej0GBII(androidx.compose.ui.graphics.Path, long offset);
   }
 
+  public final class AndroidComposeTestRule<T extends androidx.activity.ComponentActivity> implements androidx.ui.test.ComposeTestRule {
+    ctor public AndroidComposeTestRule(androidx.test.ext.junit.rules.ActivityScenarioRule<T> activityRule, boolean disableTransitions, boolean disableBlinkingCursor);
+    method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
+    method public androidx.test.ext.junit.rules.ActivityScenarioRule<T> getActivityRule();
+    method public androidx.ui.test.AnimationClockTestRule getClockTestRule();
+    method public androidx.compose.ui.unit.Density getDensity();
+    method public long getDisplaySize();
+    method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+    property public androidx.ui.test.AnimationClockTestRule clockTestRule;
+    property public androidx.compose.ui.unit.Density density;
+    property public long displaySize;
+  }
+
+  public final class AndroidComposeTestRule.AndroidComposeStatement extends org.junit.runners.model.Statement {
+    ctor public AndroidComposeTestRule.AndroidComposeStatement(org.junit.runners.model.Statement base);
+    method public void evaluate();
+  }
+
+  public final class AndroidComposeTestRuleKt {
+    method public static androidx.ui.test.ComposeTestRule createComposeRule(boolean disableTransitions, boolean disableBlinkingCursor);
+  }
+
+  public final class AndroidInputDispatcherKt {
+  }
+
   public final class AndroidOutputKt {
   }
 
@@ -35,16 +61,14 @@ package androidx.ui.test {
   public final class AndroidSynchronizationKt {
   }
 
-  public final class AnimationClockTestRule implements org.junit.rules.TestRule {
-    ctor public AnimationClockTestRule();
-    method public void advanceClock(long milliseconds);
-    method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
+  public interface AnimationClockTestRule extends org.junit.rules.TestRule {
+    method public default void advanceClock(long milliseconds);
     method public androidx.ui.test.TestAnimationClock getClock();
     method public boolean isPaused();
     method public void pauseClock();
-    method public void resumeClock();
-    property public final androidx.ui.test.TestAnimationClock clock;
-    property public final boolean isPaused;
+    method public default void resumeClock();
+    property public abstract androidx.ui.test.TestAnimationClock clock;
+    property public abstract boolean isPaused;
   }
 
   public final class AnimationClocksKt {
@@ -94,15 +118,11 @@ package androidx.ui.test {
   public interface ComposeTestRule extends org.junit.rules.TestRule {
     method public androidx.ui.test.AnimationClockTestRule getClockTestRule();
     method public androidx.compose.ui.unit.Density getDensity();
-    method public android.util.DisplayMetrics getDisplayMetrics();
+    method public long getDisplaySize();
     method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
     property public abstract androidx.ui.test.AnimationClockTestRule clockTestRule;
     property public abstract androidx.compose.ui.unit.Density density;
-    property public abstract android.util.DisplayMetrics displayMetrics;
-  }
-
-  public final class ComposeTestRuleKt {
-    method public static androidx.ui.test.ComposeTestRule createComposeRule(boolean disableTransitions = false, boolean disableBlinkingCursor = true);
+    property public abstract long displaySize;
   }
 
   public final class CoroutineBuildersKt {
@@ -336,27 +356,9 @@ package androidx.ui.test {
 
 package androidx.ui.test.android {
 
-  public final class AndroidComposeTestRule<T extends androidx.activity.ComponentActivity> implements androidx.ui.test.ComposeTestRule {
-    ctor public AndroidComposeTestRule(androidx.test.ext.junit.rules.ActivityScenarioRule<T> activityRule, boolean disableTransitions, boolean disableBlinkingCursor);
-    method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
-    method public androidx.test.ext.junit.rules.ActivityScenarioRule<T> getActivityRule();
-    method public androidx.ui.test.AnimationClockTestRule getClockTestRule();
-    method public androidx.compose.ui.unit.Density getDensity();
-    method public android.util.DisplayMetrics getDisplayMetrics();
-    method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
-    property public androidx.ui.test.AnimationClockTestRule clockTestRule;
-    property public androidx.compose.ui.unit.Density density;
-    property public android.util.DisplayMetrics displayMetrics;
-  }
-
-  public final class AndroidComposeTestRule.AndroidComposeStatement extends org.junit.runners.model.Statement {
-    ctor public AndroidComposeTestRule.AndroidComposeStatement(org.junit.runners.model.Statement base);
-    method public void evaluate();
-  }
-
   public final class AndroidComposeTestRuleKt {
-    method public static <T extends androidx.activity.ComponentActivity> androidx.ui.test.android.AndroidComposeTestRule<T> createAndroidComposeRule(Class<T> activityClass, boolean disableTransitions = false, boolean disableBlinkingCursor = true);
-    method public static inline <reified T extends androidx.activity.ComponentActivity> androidx.ui.test.android.AndroidComposeTestRule<T>! createAndroidComposeRule(boolean disableTransitions = false, boolean disableBlinkingCursor = true);
+    method public static <T extends androidx.activity.ComponentActivity> androidx.ui.test.AndroidComposeTestRule<T> createAndroidComposeRule(Class<T> activityClass, boolean disableTransitions = false, boolean disableBlinkingCursor = true);
+    method public static inline <reified T extends androidx.activity.ComponentActivity> androidx.ui.test.AndroidComposeTestRule<T>! createAndroidComposeRule(boolean disableTransitions = false, boolean disableBlinkingCursor = true);
   }
 
   public final class ComposeIdlingResourceKt {
