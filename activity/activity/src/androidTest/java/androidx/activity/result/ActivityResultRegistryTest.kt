@@ -28,6 +28,7 @@ import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -66,8 +67,8 @@ class ActivityResultRegistryTest {
     }
 
     @Test
-    fun testLifecycleOwnerCallbackAlreadyStarted() {
-        val lifecycleOwner = TestLifecycleOwner()
+    fun testLifecycleOwnerCallbackRestoredThenStarted() {
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.CREATED)
 
         // register for the result
         val activityResult = registry.register("test", lifecycleOwner,
@@ -92,7 +93,27 @@ class ActivityResultRegistryTest {
             resultReturned = true
         })
 
+        lifecycleOwner.currentState = Lifecycle.State.STARTED
+
         assertThat(resultReturned).isTrue()
+    }
+
+    @Test
+    fun testLifecycleOwnerRegisterWhenStarted() {
+        val lifecycleOwner = TestLifecycleOwner()
+
+        try {
+            // register for the result
+            registry.register("test", lifecycleOwner,
+                TakePicturePreview(), ActivityResultCallback {})
+            fail("Registering for activity result after Lifecycle ON_CREATE should fail")
+        } catch (e: IllegalStateException) {
+            assertThat(e).hasMessageThat().contains(
+                "LifecycleOwner $lifecycleOwner is attempting to register while current state " +
+                        "is " + lifecycleOwner.currentState + ". LifecycleOwners must call " +
+                        "register before they are STARTED."
+            )
+        }
     }
 
     @Test

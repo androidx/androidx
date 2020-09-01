@@ -33,15 +33,9 @@ class ActivityResultCallerTest {
     @Test
     fun getContractTest() {
         with(ActivityScenario.launch(EmptyContentActivity::class.java)) {
-            val contract = StartActivityForResult()
-
-            val javaLauncher = withActivity {
-                registerForActivityResult(contract) { }
-            }
-
-            val kotlinLauncher = withActivity {
-                registerForActivityResult(contract, Intent()) { }
-            }
+            val contract = withActivity { contract }
+            val javaLauncher = withActivity { javaLauncher }
+            val kotlinLauncher = withActivity { kotlinLauncher }
 
             assertThat(javaLauncher.contract).isSameInstanceAs(contract)
             assertThat(kotlinLauncher.contract).isNotSameInstanceAs(contract)
@@ -49,4 +43,8 @@ class ActivityResultCallerTest {
     }
 }
 
-class EmptyContentActivity : ComponentActivity()
+class EmptyContentActivity : ComponentActivity() {
+    val contract = StartActivityForResult()
+    val javaLauncher = registerForActivityResult(contract) { }
+    val kotlinLauncher = registerForActivityResult(contract, Intent()) { }
+}
