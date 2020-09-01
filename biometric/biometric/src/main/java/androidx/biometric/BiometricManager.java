@@ -215,7 +215,7 @@ public class BiometricManager {
          * @param context The application or activity context.
          */
         DefaultInjector(@NonNull Context context) {
-            mContext = context;
+            mContext = context.getApplicationContext();
         }
 
         @Override
