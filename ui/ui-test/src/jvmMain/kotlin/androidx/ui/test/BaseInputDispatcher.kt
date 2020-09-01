@@ -144,6 +144,7 @@ internal abstract class BaseInputDispatcher : InputDispatcher {
     ) {
         val startTime = 0L
         val endTime = duration.inMilliseconds()
+
         // Validate input
         require(duration >= 1.milliseconds) {
             "duration must be at least 1 millisecond, not $duration"
@@ -155,10 +156,12 @@ internal abstract class BaseInputDispatcher : InputDispatcher {
         require(keyTimes.asSequence().zipWithNext { a, b -> a <= b }.all { it }) {
             "keyTimes must be sorted: $keyTimes"
         }
+
         // Send down events
         curves.forEachIndexed { i, curve ->
             enqueueDown(i, curve(startTime))
         }
+
         // Send move events between each consecutive pair in [t0, ..keyTimes, tN]
         var currTime = startTime
         var key = 0
@@ -172,6 +175,7 @@ internal abstract class BaseInputDispatcher : InputDispatcher {
             sendPartialSwipes(curves, currTime, tNext)
             currTime = tNext
         }
+
         // And end with up events
         repeat(curves.size) {
             enqueueUp(it)
@@ -198,6 +202,7 @@ internal abstract class BaseInputDispatcher : InputDispatcher {
         // How many steps will we take between t0 and tN? At least 1, and a number that will
         // bring as as close to eventPeriod as possible
         val steps = max(1, ((tN - t0) / InputDispatcher.eventPeriod.toFloat()).roundToInt())
+
         var tPrev = t0
         while (step++ < steps) {
             val progress = step / steps.toFloat()
@@ -216,11 +221,14 @@ internal abstract class BaseInputDispatcher : InputDispatcher {
 
     override fun enqueueDown(pointerId: Int, position: Offset) {
         var gesture = partialGesture
+
         // Check if this pointer is not already down
         require(gesture == null || !gesture.lastPositions.containsKey(pointerId)) {
             "Cannot send DOWN event, a gesture is already in progress for pointer $pointerId"
         }
+
         gesture?.flushPointerUpdates()
+
         // Start a new gesture, or add the pointerId to the existing gesture
         if (gesture == null) {
             gesture = PartialGesture(generateDownTime(0.milliseconds), position, pointerId)
@@ -228,12 +236,14 @@ internal abstract class BaseInputDispatcher : InputDispatcher {
         } else {
             gesture.lastPositions.put(pointerId, position)
         }
+
         // Send the DOWN event
         gesture.enqueueDown(pointerId)
     }
 
     override fun movePointer(pointerId: Int, position: Offset) {
         val gesture = partialGesture
+
         // Check if this pointer is in the gesture
         check(gesture != null) {
             "Cannot move pointers, no gesture is in progress"
@@ -241,6 +251,7 @@ internal abstract class BaseInputDispatcher : InputDispatcher {
         require(gesture.lastPositions.containsKey(pointerId)) {
             "Cannot move pointer $pointerId, it is not active in the current gesture"
         }
+
         gesture.lastPositions.put(pointerId, position)
         gesture.hasPointerUpdates = true
     }
@@ -252,6 +263,7 @@ internal abstract class BaseInputDispatcher : InputDispatcher {
         require(delay >= 0) {
             "Cannot send MOVE event with a delay of $delay ms"
         }
+
         gesture.increaseEventTime(delay)
         gesture.enqueueMove()
         gesture.hasPointerUpdates = false
@@ -259,6 +271,7 @@ internal abstract class BaseInputDispatcher : InputDispatcher {
 
     override fun enqueueUp(pointerId: Int, delay: Long) {
         val gesture = partialGesture
+
         // Check if this pointer is in the gesture
         check(gesture != null) {
             "Cannot send UP event, no gesture is in progress"
@@ -269,10 +282,13 @@ internal abstract class BaseInputDispatcher : InputDispatcher {
         require(delay >= 0) {
             "Cannot send UP event with a delay of $delay ms"
         }
+
         gesture.flushPointerUpdates()
         gesture.increaseEventTime(delay)
+
         // First send the UP event
         gesture.enqueueUp(pointerId)
+
         // Then remove the pointer, and end the gesture if no pointers are left
         gesture.lastPositions.remove(pointerId)
         if (gesture.lastPositions.isEmpty) {
@@ -287,6 +303,7 @@ internal abstract class BaseInputDispatcher : InputDispatcher {
         require(delay >= 0) {
             "Cannot send CANCEL event with a delay of $delay ms"
         }
+
         gesture.increaseEventTime(delay)
         gesture.enqueueCancel()
         partialGesture = null
