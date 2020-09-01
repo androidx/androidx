@@ -161,8 +161,6 @@ public final class CameraX {
      * the user-provided configuration used to create a use case.
      *
      * @param configType the configuration type
-     * @param cameraInfo The {@link CameraInfo} of the camera that the default configuration
-     *                   will target to, null if it doesn't target to any camera.
      * @return the default configuration for the given configuration type
      * @throws IllegalStateException if CameraX has not yet been initialized.
      * @hide
@@ -170,11 +168,10 @@ public final class CameraX {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public static <C extends UseCaseConfig<?>> C getDefaultUseCaseConfig(
-            @NonNull Class<C> configType,
-            @Nullable CameraInfo cameraInfo) {
+            @NonNull Class<C> configType) {
         CameraX cameraX = checkInitialized();
 
-        return cameraX.getDefaultConfigFactory().getConfig(configType, cameraInfo);
+        return cameraX.getDefaultConfigFactory().getConfig(configType);
     }
 
     /**

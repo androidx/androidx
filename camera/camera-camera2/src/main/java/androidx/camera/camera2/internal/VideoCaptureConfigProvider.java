@@ -21,9 +21,7 @@ import android.hardware.camera2.CameraDevice;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.camera.core.AspectRatio;
-import androidx.camera.core.CameraInfo;
 import androidx.camera.core.VideoCapture;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.ConfigProvider;
@@ -45,9 +43,9 @@ public final class VideoCaptureConfigProvider implements ConfigProvider<VideoCap
     @Override
     @NonNull
     @SuppressWarnings("deprecation") /* defaultDisplay */
-    public VideoCaptureConfig getConfig(@Nullable CameraInfo cameraInfo) {
+    public VideoCaptureConfig getConfig() {
         VideoCapture.Builder builder = VideoCapture.Builder.fromConfig(
-                VideoCapture.DEFAULT_CONFIG.getConfig(cameraInfo));
+                VideoCapture.DEFAULT_CONFIG.getConfig());
 
         // SessionConfig containing all intrinsic properties needed for VideoCapture
         SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();

@@ -302,8 +302,7 @@ public final class CameraUseCaseAdapter {
         if (!newUseCases.isEmpty()) {
             Map<UseCaseConfig<?>, UseCase> configToUseCaseMap = new HashMap<>();
             for (UseCase useCase : newUseCases) {
-                UseCaseConfig.Builder<?, ?, ?> defaultBuilder = useCase.getDefaultBuilder(
-                        mCameraInternal.getCameraInfoInternal());
+                UseCaseConfig.Builder<?, ?, ?> defaultBuilder = useCase.getDefaultBuilder();
 
                 // Combine with default configuration.
                 UseCaseConfig<?> combinedUseCaseConfig =

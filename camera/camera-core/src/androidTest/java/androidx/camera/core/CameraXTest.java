@@ -71,7 +71,7 @@ public final class CameraXTest {
 
         ExtendableUseCaseConfigFactory defaultConfigFactory = new ExtendableUseCaseConfigFactory();
         defaultConfigFactory.installDefaultProvider(FakeUseCaseConfig.class,
-                cameraInfo -> new FakeUseCaseConfig.Builder().getUseCaseConfig());
+                () -> new FakeUseCaseConfig.Builder().getUseCaseConfig());
         mUseCaseConfigFactory = defaultConfigFactory;
         mFakeCameraFactory = new FakeCameraFactory();
         mCameraInternal = new FakeCamera(mock(CameraControlInternal.class),
@@ -223,7 +223,7 @@ public final class CameraXTest {
     public void requestingDefaultConfiguration_returnsDefaultConfiguration() {
         initCameraX();
         // Requesting a default configuration will throw if CameraX is not initialized.
-        FakeUseCaseConfig config = CameraX.getDefaultUseCaseConfig(FakeUseCaseConfig.class, null);
+        FakeUseCaseConfig config = CameraX.getDefaultUseCaseConfig(FakeUseCaseConfig.class);
         assertThat(config).isNotNull();
         assertThat(config.getTargetClass(null)).isEqualTo(FakeUseCase.class);
     }

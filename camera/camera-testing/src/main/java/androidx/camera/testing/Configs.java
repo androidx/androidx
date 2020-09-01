@@ -17,8 +17,6 @@
 package androidx.camera.testing;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.camera.core.CameraInfo;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.UseCaseConfig;
 
@@ -33,11 +31,11 @@ public final class Configs {
     /** Return a map that associates UseCases to UseCaseConfigs with default settings. */
     @NonNull
     public static Map<UseCase, UseCaseConfig<?>> useCaseConfigMapWithDefaultSettingsFromUseCaseList(
-            @NonNull List<UseCase> useCases, @Nullable CameraInfo cameraInfo) {
+            @NonNull List<UseCase> useCases) {
         Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap = new HashMap<>();
 
         for (UseCase useCase : useCases) {
-            UseCaseConfig.Builder<?, ?, ?> defaultBuilder = useCase.getDefaultBuilder(cameraInfo);
+            UseCaseConfig.Builder<?, ?, ?> defaultBuilder = useCase.getDefaultBuilder();
 
             // Combine with default configuration.
             UseCaseConfig<?> combinedUseCaseConfig = useCase.applyDefaults(

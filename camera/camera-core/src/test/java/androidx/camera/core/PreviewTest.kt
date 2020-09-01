@@ -26,6 +26,8 @@ import android.view.Surface
 import android.view.Surface.ROTATION_0
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
+import androidx.camera.core.impl.SessionConfig
+import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.fakes.FakeAppConfig
@@ -42,9 +44,9 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import org.robolectric.Shadows.shadowOf
 import java.util.Collections
 import java.util.concurrent.ExecutionException
 
@@ -144,7 +146,12 @@ class PreviewTest {
     fun attachUseCase_transformationInfoUpdates() {
         // Arrange: attach Preview without a SurfaceProvider.
         // Build and bind use case.
-        val preview = Preview.Builder().setTargetRotation(ROTATION_0).build()
+        val sessionOptionUnpacker =
+            { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
+        val preview = Preview.Builder()
+            .setTargetRotation(ROTATION_0)
+            .setSessionOptionUnpacker(sessionOptionUnpacker)
+            .build()
         val cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(
             ApplicationProvider
                 .getApplicationContext<Context>(), CameraSelector.DEFAULT_BACK_CAMERA
@@ -183,7 +190,12 @@ class PreviewTest {
     @Test
     fun setTargetRotation_transformationInfoUpdated() {
         // Arrange: set up preview and verify target rotation in TransformationInfo.
-        val preview = Preview.Builder().setTargetRotation(Surface.ROTATION_0).build()
+        val sessionOptionUnpacker =
+            { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
+        val preview = Preview.Builder()
+            .setTargetRotation(ROTATION_0)
+            .setSessionOptionUnpacker(sessionOptionUnpacker)
+            .build()
         val cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(
             ApplicationProvider.getApplicationContext(), CameraSelector.DEFAULT_BACK_CAMERA
         )
@@ -210,7 +222,12 @@ class PreviewTest {
     @Test
     fun setSurfaceProviderAfterAttachment_receivesSurfaceProviderCallbacks() {
         // Arrange: attach Preview without a SurfaceProvider.
-        val preview = Preview.Builder().setTargetRotation(Surface.ROTATION_0).build()
+        val sessionOptionUnpacker =
+            { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
+        val preview = Preview.Builder()
+            .setTargetRotation(Surface.ROTATION_0)
+            .setSessionOptionUnpacker(sessionOptionUnpacker)
+            .build()
         val cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(
             ApplicationProvider
                 .getApplicationContext(), CameraSelector.DEFAULT_BACK_CAMERA
@@ -264,7 +281,12 @@ class PreviewTest {
     private fun bindToLifecycleAndGetResult(viewPort: ViewPort?): Pair<SurfaceRequest,
             SurfaceRequest.TransformationInfo> {
         // Arrange.
-        val preview = Preview.Builder().setTargetRotation(Surface.ROTATION_0).build()
+        val sessionOptionUnpacker =
+            { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
+        val preview = Preview.Builder()
+            .setTargetRotation(Surface.ROTATION_0)
+            .setSessionOptionUnpacker(sessionOptionUnpacker)
+            .build()
         var surfaceRequest: SurfaceRequest? = null
         var transformationInfo: SurfaceRequest.TransformationInfo? = null
         preview.setSurfaceProvider { request ->
