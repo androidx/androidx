@@ -35,7 +35,7 @@ open class InputDispatcherTest(eventPeriodOverride: Long? = null) {
     )
 
     internal val recorder = MotionEventRecorder()
-    internal val subject = AndroidInputDispatcher(recorder::recordEvent)
+    internal val subject = AndroidInputDispatcher(null, recorder::recordEvent)
 
     @After
     fun tearDown() {
