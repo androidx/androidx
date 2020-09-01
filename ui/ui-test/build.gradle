@@ -34,6 +34,8 @@ dependencies {
 
 kotlin {
     android()
+    jvm("desktop")
+
     sourceSets {
         commonMain.dependencies {
             api project(":compose:animation:animation-core")
@@ -51,6 +53,11 @@ kotlin {
             implementation project(":compose:foundation:foundation-text")
             implementation project(":compose:runtime:runtime")
             implementation project(":compose:runtime:runtime-saved-instance-state")
+        }
+
+        jvmMain.dependencies {
+            implementation "androidx.collection:collection:1.1.0"
+            implementation(JUNIT)
         }
 
         androidMain.dependencies {
@@ -74,6 +81,14 @@ kotlin {
             implementation project(':compose:material:material')
             implementation project(":compose:ui:ui")
         }
+
+        desktopMain.dependencies {
+            implementation(JUNIT)
+            implementation(TRUTH)
+            implementation(SKIKO)
+        }
+
+        desktopMain.dependsOn jvmMain
     }
 }
 

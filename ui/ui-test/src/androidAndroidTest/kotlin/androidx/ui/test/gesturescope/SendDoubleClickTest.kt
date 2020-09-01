@@ -21,7 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.gesture.doubleTapGestureFilter
 import androidx.compose.ui.geometry.Offset
 import androidx.ui.test.InputDispatcher.Companion.eventPeriod
-import androidx.ui.test.AndroidBaseInputDispatcher.InputDispatcherTestRule
+import androidx.ui.test.android.AndroidInputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.performGesture
 import androidx.ui.test.onNodeWithTag

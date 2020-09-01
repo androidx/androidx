@@ -13,15 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.compose.desktop.test
 
-import androidx.compose.desktop.initCompose
+package androidx.ui.test
+
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.DesktopOwner
 import androidx.compose.ui.platform.DesktopOwners
 import androidx.compose.ui.platform.setContent
 import org.jetbrains.skija.Canvas
 import org.jetbrains.skija.Surface
+import org.jetbrains.skiko.Library
 import java.awt.Component
 
 // TODO(demin): replace by androidx.compose.ui.test.TestComposeWindow when it will be
@@ -39,7 +40,10 @@ class TestSkiaWindow(
 
     companion object {
         init {
-            initCompose()
+            Library.load("/", "skiko")
+            // Until https://github.com/Kotlin/kotlinx.coroutines/issues/2039 is resolved
+            // we have to set this property manually for coroutines to work.
+            System.getProperties().setProperty("kotlinx.coroutines.fast.service.loader", "false")
         }
     }
 
