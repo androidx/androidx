@@ -42,6 +42,7 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -69,6 +70,8 @@ import java.util.concurrent.TimeoutException;
 public final class CameraUtil {
     private CameraUtil() {
     }
+
+    private static final String LOG_TAG = "CameraUtil";
 
     /** Amount of time to wait before timing out when trying to open a {@link CameraDevice}. */
     private static final int CAMERA_OPEN_TIMEOUT_SECONDS = 2;
@@ -333,7 +336,7 @@ public final class CameraUtil {
             try {
                 numberOfCamera = getCameraIdListOrThrow().size();
             } catch (IllegalStateException e) {
-                Log.e(CameraUtil.class.getSimpleName(), "Unable to check camera availability.", e);
+                Log.e(LOG_TAG, "Unable to check camera availability.", e);
             }
         } else {
             numberOfCamera = android.hardware.Camera.getNumberOfCameras();
@@ -588,16 +591,21 @@ public final class CameraUtil {
                 public void evaluate() throws Throwable {
                     boolean backStatus = true;
                     if (hasCameraWithLensFacing(CameraSelector.LENS_FACING_BACK)) {
-                        Log.w(CameraUtil.class.getSimpleName(), "Fail to open the back camera");
-                        backStatus = tryOpenCamera(CameraSelector.LENS_FACING_BACK);
+                        RetryCameraOpener opener =
+                                new RetryCameraOpener(CameraSelector.LENS_FACING_BACK);
+                        backStatus = opener.openWithRetry(5, 5000);
+                        opener.shutdown();
                     }
 
                     boolean frontStatus = true;
                     if (hasCameraWithLensFacing(CameraSelector.LENS_FACING_FRONT)) {
-                        Log.w(CameraUtil.class.getSimpleName(), "Fail to open the front camera");
-                        frontStatus = tryOpenCamera(CameraSelector.LENS_FACING_FRONT);
+                        RetryCameraOpener opener =
+                                new RetryCameraOpener(CameraSelector.LENS_FACING_FRONT);
+                        frontStatus = opener.openWithRetry(5, 5000);
+                        opener.shutdown();
                     }
                     boolean canOpenCamera = backStatus && frontStatus;
+                    Log.d(LOG_TAG, "PreTest Open camera result " + backStatus + " " + frontStatus);
 
                     if (canOpenCamera) {
                         base.evaluate();
@@ -607,8 +615,7 @@ public final class CameraUtil {
                                     "CameraX_cannot_test_with_failed_camera, model:" + Build.MODEL);
                         } else {
                             // Ignore the test, so we only print a log without calling
-                            Log.w(CameraUtil.class.getSimpleName(),
-                                    "Camera fail, on test " + description.getDisplayName());
+                            Log.w(LOG_TAG, "Camera fail, on test " + description.getDisplayName());
                             base.evaluate();
                         }
                     }
@@ -620,17 +627,11 @@ public final class CameraUtil {
     /**
      * Try to open the camera, and close it immediately.
      *
-     * @param lensFacing the lensFacing of the camera to test
+     * @param cameraId the id of the camera to test
      * @return true if the camera can be opened successfully
      */
     @SuppressLint("MissingPermission")
-    public static boolean tryOpenCamera(@CameraSelector.LensFacing int lensFacing) {
-        String cameraId = getCameraIdWithLensFacing(lensFacing);
-
-        if (cameraId == null) {
-            return false;
-        }
-
+    public static boolean tryOpenCamera(@NonNull String cameraId) {
         CameraDeviceHolder deviceHolder = null;
         boolean ret = true;
         try {
@@ -645,11 +646,160 @@ public final class CameraUtil {
                 try {
                     releaseCameraDevice(deviceHolder);
                 } catch (Exception e) {
-                    Log.e(CameraUtil.class.getSimpleName(), "Cannot close cameraDevice.", e);
+                    Log.e(LOG_TAG, "Cannot close cameraDevice.", e);
                 }
             }
         }
 
         return ret;
+    }
+
+    /**
+     * Helper to verify the camera can be opened or not.
+     *
+     * <p>Call {@link #openWithRetry(int, long)} to start the test on the camera.
+     *
+     * <p>Call {@link #shutdown()} after finish the test.
+     */
+    public static class RetryCameraOpener {
+        private static final int RETRY_DELAY_MS = 1000;
+        private CameraAvailability mCameraAvailability;
+        private HandlerThread mHandlerThread;
+        @Nullable
+        private String mCameraId;
+
+        /**
+         * @param lensFacing The camera lens facing to be tested.
+         */
+        public RetryCameraOpener(@CameraSelector.LensFacing int lensFacing) {
+            mCameraId = getCameraIdWithLensFacing(lensFacing);
+            Log.d(LOG_TAG, "PreTest init Camera lensFacing: " + lensFacing + " id: " + mCameraId);
+            if (mCameraId == null) {
+                return;
+            }
+            mCameraAvailability = new CameraAvailability(mCameraId);
+            mHandlerThread = new HandlerThread(String.format("CameraThread-%s", mCameraId));
+            mHandlerThread.start();
+
+            getCameraManager().registerAvailabilityCallback(mCameraAvailability,
+                    new Handler(mHandlerThread.getLooper()));
+        }
+
+        /**
+         * Test to open the camera
+         *
+         * @param retryCount        the retry count when it cannot open camera.
+         * @param waitCameraTimeout the time to wait if camera unavailable. In milliseconds.
+         * @return true if camera can be opened, otherwise false.
+         */
+        public boolean openWithRetry(int retryCount, long waitCameraTimeout) {
+            if (mCameraId == null) {
+                return false;
+            }
+            if (!waitForCameraAvailable(waitCameraTimeout)) {
+                return false;
+            }
+
+            for (int i = 0; i < retryCount; i++) {
+                if (tryOpenCamera(mCameraId)) {
+                    return true;
+                }
+                Log.d(LOG_TAG, "Cannot open camera with camera id: " + mCameraId + " retry:" + i);
+                if (!waitForCameraAvailable(waitCameraTimeout)) {
+                    return false;
+                }
+
+                try {
+                    Thread.sleep(RETRY_DELAY_MS);
+                } catch (InterruptedException e) {
+                    // do nothing
+                }
+            }
+            return false;
+        }
+
+        private boolean waitForCameraAvailable(long waitCameraTimeout) {
+            try {
+                mCameraAvailability.observeAvailable().get(waitCameraTimeout,
+                        TimeUnit.MILLISECONDS);
+                return true;
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Wait for camera available timeout camera id:" + mCameraId);
+                return false;
+            }
+        }
+
+        /**
+         * Close the opener and release resource.
+         */
+        public void shutdown() {
+            if (mCameraId == null) {
+                return;
+            }
+            mCameraId = null;
+            getCameraManager().unregisterAvailabilityCallback(mCameraAvailability);
+            mHandlerThread.quitSafely();
+        }
+
+        static class CameraAvailability extends CameraManager.AvailabilityCallback {
+            private final Object mLock = new Object();
+            private final String mCameraId;
+
+            @GuardedBy("mLock")
+            private boolean mCameraAvailable = false;
+            @GuardedBy("mLock")
+            private CallbackToFutureAdapter.Completer<Void> mCompleter;
+
+            CameraAvailability(@NonNull String cameraId) {
+                mCameraId = cameraId;
+            }
+
+            ListenableFuture<Void> observeAvailable() {
+                synchronized (mLock) {
+                    if (mCameraAvailable) {
+                        return Futures.immediateFuture(null);
+                    }
+                    return CallbackToFutureAdapter.getFuture(
+                            completer -> {
+                                synchronized (mLock) {
+                                    if (mCompleter != null) {
+                                        mCompleter.setCancelled();
+                                    }
+                                    mCompleter = completer;
+                                }
+                                return "observeCameraAvailable_" + mCameraId;
+                            });
+                }
+            }
+
+            @Override
+            public void onCameraAvailable(@NonNull String cameraId) {
+                Log.d(LOG_TAG, "Camera id " + cameraId + " onCameraAvailable callback");
+                if (!mCameraId.equals(cameraId)) {
+                    // Ignore availability for other cameras
+                    return;
+                }
+
+                synchronized (mLock) {
+                    Log.d(LOG_TAG, "Camera id " + mCameraId + " onCameraAvailable");
+                    mCameraAvailable = true;
+                    if (mCompleter != null) {
+                        mCompleter.set(null);
+                    }
+                }
+            }
+
+            @Override
+            public void onCameraUnavailable(@NonNull String cameraId) {
+                if (!mCameraId.equals(cameraId)) {
+                    // Ignore availability for other cameras
+                    return;
+                }
+                synchronized (mLock) {
+                    Log.d(LOG_TAG, "Camera id " + mCameraId + " onCameraUnavailable");
+                    mCameraAvailable = false;
+                }
+            }
+        }
     }
 }
