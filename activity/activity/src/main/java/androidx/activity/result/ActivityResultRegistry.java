@@ -103,32 +103,33 @@ public abstract class ActivityResultRegistry {
             @NonNull final ActivityResultContract<I, O> contract,
             @NonNull final ActivityResultCallback<O> callback) {
 
+        Lifecycle lifecycle = lifecycleOwner.getLifecycle();
+
+        if (lifecycle.getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
+            throw new IllegalStateException("LifecycleOwner " + lifecycleOwner + " is "
+                    + "attempting to register while current state is "
+                    + lifecycle.getCurrentState() + ". LifecycleOwners must call register before "
+                    + "they are STARTED.");
+        }
+
         final int requestCode = registerKey(key);
         mKeyToCallback.put(key, new CallbackAndContract<>(callback, contract));
-
-        Lifecycle lifecycle = lifecycleOwner.getLifecycle();
 
         final ActivityResult pendingResult = mPendingResults.getParcelable(key);
         if (pendingResult != null) {
             mPendingResults.remove(key);
-            if (lifecycle.getCurrentState().isAtLeast(Lifecycle.State.STARTED)) {
-                callback.onActivityResult(contract.parseResult(
-                        pendingResult.getResultCode(),
-                        pendingResult.getData()));
-            } else {
-                lifecycle.addObserver(new LifecycleEventObserver() {
-                    @Override
-                    public void onStateChanged(
-                            @NonNull LifecycleOwner lifecycleOwner,
-                            @NonNull Lifecycle.Event event) {
-                        if (Lifecycle.Event.ON_START.equals(event)) {
-                            callback.onActivityResult(contract.parseResult(
-                                    pendingResult.getResultCode(),
-                                    pendingResult.getData()));
-                        }
+            lifecycle.addObserver(new LifecycleEventObserver() {
+                @Override
+                public void onStateChanged(
+                        @NonNull LifecycleOwner lifecycleOwner,
+                        @NonNull Lifecycle.Event event) {
+                    if (Lifecycle.Event.ON_START.equals(event)) {
+                        callback.onActivityResult(contract.parseResult(
+                                pendingResult.getResultCode(),
+                                pendingResult.getData()));
                     }
-                });
-            }
+                }
+            });
         }
 
         lifecycle.addObserver(new LifecycleEventObserver() {
