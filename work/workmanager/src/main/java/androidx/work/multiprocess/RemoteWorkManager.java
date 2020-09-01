@@ -81,7 +81,7 @@ public abstract class RemoteWorkManager {
      * {@link ListenableWorker#onStopped()} will be invoked for any affected workers.
      *
      * @param id The id of the work
-     * @return A {@link ListenableFuture} that can be used to determine when the enqueue has
+     * @return A {@link ListenableFuture} that can be used to determine when the cancelWorkById has
      * completed
      */
     @NonNull
@@ -93,8 +93,8 @@ public abstract class RemoteWorkManager {
      * {@link ListenableWorker#onStopped()} will be invoked for any affected workers.
      *
      * @param tag The tag used to identify the work
-     * @return A {@link ListenableFuture} that can be used to determine when the enqueue has
-     * completed
+     * @return An {@link ListenableFuture} that can be used to determine when the
+     * cancelAllWorkByTag has completed
      */
     @NonNull
     public abstract ListenableFuture<Void> cancelAllWorkByTag(@NonNull String tag);
@@ -105,8 +105,8 @@ public abstract class RemoteWorkManager {
      * cancellation, {@link ListenableWorker#onStopped()} will be invoked for any affected workers.
      *
      * @param uniqueWorkName The unique name used to identify the chain of work
-     * @return A {@link ListenableFuture} that can be used to determine when the enqueue has
-     * completed
+     * @return A {@link ListenableFuture} that can be used to determine when the cancelUniqueWork
+     * has completed
      */
     @NonNull
     public abstract ListenableFuture<Void> cancelUniqueWork(@NonNull String uniqueWorkName);
@@ -119,7 +119,7 @@ public abstract class RemoteWorkManager {
      * Upon cancellation, {@link ListenableWorker#onStopped()} will be invoked for any affected
      * workers.
      *
-     * @return A {@link ListenableFuture} that can be used to determine when the enqueue has
+     * @return A {@link ListenableFuture} that can be used to determine when the cancelAllWork has
      * completed
      */
     @NonNull
