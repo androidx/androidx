@@ -30,6 +30,7 @@ import android.support.wearable.complications.ComplicationProviderInfo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityCompat;
 
 import java.util.Objects;
@@ -57,16 +58,24 @@ import java.util.Objects;
 public class ComplicationHelperActivity extends Activity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
 
-    private static final String ACTION_REQUEST_UPDATE_ALL_ACTIVE =
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String ACTION_REQUEST_UPDATE_ALL_ACTIVE =
             "android.support.wearable.complications.ACTION_REQUEST_UPDATE_ALL_ACTIVE";
 
-    private static final String EXTRA_WATCH_FACE_COMPONENT =
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String EXTRA_WATCH_FACE_COMPONENT =
             "android.support.wearable.complications.EXTRA_WATCH_FACE_COMPONENT";
 
-    private static final String ACTION_START_PROVIDER_CHOOSER =
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String ACTION_START_PROVIDER_CHOOSER =
             "android.support.wearable.complications.ACTION_START_PROVIDER_CHOOSER";
 
-    private static final String ACTION_PERMISSION_REQUEST_ONLY =
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String ACTION_PERMISSION_REQUEST_ONLY =
             "android.support.wearable.complications.ACTION_PERMISSION_REQUEST_ONLY";
 
     /** The package of the service that accepts provider requests. */

@@ -32,6 +32,7 @@ import android.support.wearable.complications.IComplicationProvider;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 
 /**
  * Class for providers of complication data.
@@ -127,6 +128,130 @@ public abstract class ComplicationProviderService extends Service {
     private static final String RETAIL_PACKAGE = "com.google.android.apps.wearable.settings";
     private static final String RETAIL_CLASS =
             "com.google.android.clockwork.settings.RetailStatusService";
+
+    /**
+     * Metadata key used to declare supported complication types.
+     *
+     * <p>A ComplicationProviderService must include a {@code meta-data} tag with this name in its
+     * manifest entry. The value of this tag should be a comma separated list of types supported by
+     * the provider. Types should be given as named as per the type fields in the {@link
+     * ComplicationData}, but omitting the "TYPE_" prefix, e.g. {@code SHORT_TEXT},
+     * {@code LONG_TEXT}, {@code RANGED_VALUE}.
+     *
+     * <p>The order in which types are listed has no significance. In the case where a watch face
+     * supports multiple types in a single complication slot, the watch face will determine which
+     * types it prefers.
+     *
+     * <p>For example, a provider that supports the RANGED_VALUE, SHORT_TEXT, and ICON types would
+     * include the following in its manifest entry:
+     *
+     * <pre class="prettyprint">
+     * &lt;meta-data android:name="android.support.wearable.complications.SUPPORTED_TYPES"
+     *         android:value="RANGED_VALUE,SHORT_TEXT,ICON"/&gt;</pre>
+     */
+    public static final String METADATA_KEY_SUPPORTED_TYPES =
+        "android.support.wearable.complications.SUPPORTED_TYPES";
+
+    /**
+     * Metadata key used to declare the requested frequency of update requests.
+     *
+     * <p>A ComplicationProviderService should include a {@code meta-data} tag with this name in its
+     * manifest entry. The value of this tag is the number of seconds the provider would like to
+     * elapse between update requests.
+     *
+     * <p>Note that update requests are not guaranteed to be sent with this frequency.
+     *
+     * <p>If a provider never needs to receive update requests beyond the one sent when a
+     * complication is activated, the value of this tag should be 0.
+     *
+     * <p>For example, a provider that would like to update every ten minutes should include the
+     * following in its manifest entry:
+     *
+     * <pre class="prettyprint">
+     * &lt;meta-data android:name="android.support.wearable.complications.UPDATE_PERIOD_SECONDS"
+     *         android:value="600"/&gt;</pre>
+     */
+    public static final String METADATA_KEY_UPDATE_PERIOD_SECONDS =
+        "android.support.wearable.complications.UPDATE_PERIOD_SECONDS";
+
+    /**
+     * Metadata key used to declare a list of watch faces that may receive data from a provider
+     * before they are granted the RECEIVE_COMPLICATION_DATA permission. This allows the listed watch
+     * faces to set the provider as a default and have the complication populate when the watch face
+     * is first seen.
+     *
+     * <p>Only trusted watch faces that will set this provider as a default should be included in
+     * this list.
+     *
+     * <p>Note that if a watch face is in the same app package as the provider, it does not need to
+     * be added to this list.
+     *
+     * <p>The value of this tag should be a comma separated list of watch faces or packages. An entry
+     * can be a flattened component, as if {@link ComponentName#flattenToString()} had been called,
+     * to declare a specific watch face as safe. An entry can also be a package name, as if {@link
+     * ComponentName#getPackageName()} had been called, in which case any watch face under the app
+     * with that package name will be considered safe for this provider.
+     */
+    public static final String METADATA_KEY_SAFE_WATCH_FACES =
+        "android.support.wearable.complications.SAFE_WATCH_FACES";
+
+    /**
+     * Metadata key used to declare that the provider should be hidden from the provider chooser
+     * interface. If set to "true", users will not be able to select this provider. The provider may
+     * still be specified as a default provider by watch faces.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public static final String METADATA_KEY_HIDDEN =
+        "android.support.wearable.complications.HIDDEN";
+
+    /**
+     * Metadata key used to declare an action for a configuration activity for a provider.
+     *
+     * <p>A ComplicationProviderService can include a {@code meta-data} tag with this name in its
+     * manifest entry to cause a configuration activity to be shown when the provider is selected.
+     *
+     * <p>The configuration activity must reside in the same package as the provider, and must
+     * register an intent filter for the action specified here, including {@link
+     * #CATEGORY_PROVIDER_CONFIG_ACTION} as well as {@link Intent#CATEGORY_DEFAULT} as categories.
+     *
+     * <p>The complication id being configured will be included in the intent that starts the config
+     * activity using the extra key {@link #EXTRA_CONFIG_COMPLICATION_ID}.
+     *
+     * <p>The complication type that will be requested from the provider will also be included, using
+     * the extra key {@link #EXTRA_CONFIG_COMPLICATION_TYPE}.
+     *
+     * <p>The provider's {@link ComponentName} will also be included in the intent that starts the
+     * config activity, using the extra key {@link #EXTRA_CONFIG_PROVIDER_COMPONENT}.
+     *
+     * <p>The config activity must call {@link Activity#setResult} with either {@link
+     * Activity#RESULT_OK} or {@link Activity#RESULT_CANCELED} before it is finished, to tell the
+     * system whether or not the provider should be set on the given complication.
+     */
+    public static final String METADATA_KEY_PROVIDER_CONFIG_ACTION =
+        "android.support.wearable.complications.PROVIDER_CONFIG_ACTION";
+
+    /**
+     * Category for provider config activities. The configuration activity for a complication
+     * provider must specify this category in its intent filter.
+     *
+     * @see #METADATA_KEY_PROVIDER_CONFIG_ACTION
+     */
+    public static final String CATEGORY_PROVIDER_CONFIG_ACTION =
+        "android.support.wearable.complications.category.PROVIDER_CONFIG";
+
+    /** Extra used to supply the complication id to a provider configuration activity. */
+    public static final String EXTRA_CONFIG_COMPLICATION_ID =
+        "android.support.wearable.complications.EXTRA_CONFIG_COMPLICATION_ID";
+
+    /** Extra used to supply the complication type to a provider configuration activity. */
+    public static final String EXTRA_CONFIG_COMPLICATION_TYPE =
+        "android.support.wearable.complications.EXTRA_CONFIG_COMPLICATION_TYPE";
+
+    /** Extra used to supply the provider component to a provider configuration activity. */
+    public static final String EXTRA_CONFIG_PROVIDER_COMPONENT =
+        "android.support.wearable.complications.EXTRA_CONFIG_PROVIDER_COMPONENT";
 
     @Nullable private IComplicationProviderWrapper mWrapper;
     private final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
