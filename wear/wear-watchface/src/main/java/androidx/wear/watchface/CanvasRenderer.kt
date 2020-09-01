@@ -24,6 +24,7 @@ import android.icu.util.Calendar
 import android.util.Log
 import android.view.SurfaceHolder
 import androidx.annotation.IntDef
+import androidx.annotation.UiThread
 import androidx.wear.watchface.style.UserStyleManager
 
 /** @hide */
@@ -46,10 +47,7 @@ annotation class CanvasType {
     }
 }
 
-/**
- * The base class for {@link Canvas} WatchFace rendering. This class's methods should be called on
- * the main thread only.
- */
+/** The base class for {@link Canvas} WatchFace rendering. */
 abstract class CanvasRenderer(
     /** The {@link SurfaceHolder} that {@link onDraw} will draw into. */
     surfaceHolder: SurfaceHolder,
@@ -108,16 +106,16 @@ abstract class CanvasRenderer(
     }
 
     /**
-     * Called on the main thread. Sub-classes should override this to implement their rendering
-     * logic which should respect the current {@link DrawMode}. For correct functioning watch
-     * faces must use the supplied {@link Calendar} and avoid using any other ways of getting the
-     * time.
+     * Sub-classes should override this to implement their rendering logic which should respect
+     * the current {@link DrawMode}. For correct functioning watch faces must use the supplied
+     * {@link Calendar} and avoid using any other ways of getting the time.
      *
      * @param canvas The {@link Canvas} to render into. Don't assume this is always the canvas from
      *     the {@link SurfaceHolder} backing the display
      * @param bounds A {@link Rect} describing the bonds of the canvas to draw into
      * @param calendar The current {@link Calendar}
      */
+    @UiThread
     protected abstract fun onDraw(
         canvas: Canvas,
         bounds: Rect,

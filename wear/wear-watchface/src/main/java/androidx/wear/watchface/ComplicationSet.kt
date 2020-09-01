@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface
 
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -23,6 +24,7 @@ import android.icu.util.Calendar
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.watchface.accessibility.AccessibilityUtils
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
+import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.complications.ComplicationHelperActivity
 import java.lang.ref.WeakReference
@@ -187,6 +189,7 @@ class ComplicationSet(
      *     will be an id that was previously sent in a call to {@link #setActiveComplications}.
      * @param data The {@link ComplicationData} that should be displayed in the complication.
      */
+    @UiThread
     internal fun onComplicationDataUpdate(watchFaceComplicationId: Int, data: ComplicationData) {
         complications[watchFaceComplicationId]?.data = data
     }
@@ -197,6 +200,7 @@ class ComplicationSet(
      *
      * @param complicationId The watch face's ID of the complication to briefly highlight
      */
+    @UiThread
     fun brieflyHighlightComplication(complicationId: Int) {
         val complication = requireNotNull(complications[complicationId]) {
             "No complication found with ID $complicationId"
@@ -250,6 +254,7 @@ class ComplicationSet(
      * @param complicationId The watch face's id for the complication single tapped
      */
     @SuppressWarnings("SyntheticAccessor")
+    @UiThread
     internal fun onComplicationSingleTapped(complicationId: Int) {
         // Check if the complication is missing permissions.
         val data = complications[complicationId]?.data ?: return
@@ -276,6 +281,7 @@ class ComplicationSet(
      * @param complicationId The watch face's id for the complication double tapped
      */
     @SuppressWarnings("SyntheticAccessor")
+    @UiThread
     internal fun onComplicationDoubleTapped(complicationId: Int) {
         // Check if the complication is missing permissions.
         val complication = complications[complicationId] ?: return
@@ -306,6 +312,8 @@ class ComplicationSet(
      * Adds a {@link TapListener} which is called whenever the user interacts with a
      * complication.
      */
+    @UiThread
+    @SuppressLint("ExecutorRegistration")
     fun addTapListener(tapListener: TapListener) {
         complicationListeners.add(tapListener)
     }
@@ -313,6 +321,7 @@ class ComplicationSet(
     /**
      * Removes a {@link TapListener} previously added by {@link #addComplicationListener}.
      */
+    @UiThread
     fun removeTapListener(tapListener: TapListener) {
         complicationListeners.remove(tapListener)
     }
