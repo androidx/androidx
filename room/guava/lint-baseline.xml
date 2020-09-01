@@ -2,6 +2,17 @@
 <issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
 
     <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class null is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="                        cancellationSignal.cancel();"
+        errorLine2="                                           ~~~~~~">
+        <location
+            file="src/main/java/androidx/room/guava/GuavaRoom.java"
+            line="125"
+            column="44"/>
+    </issue>
+
+    <issue
         id="LambdaLast"
         message="Functional interface parameters (such as parameter 1, &quot;callable&quot;, in androidx.room.guava.GuavaRoom.createListenableFuture) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
         errorLine1="            final boolean releaseQuery) {"

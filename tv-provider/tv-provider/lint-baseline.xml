@@ -13,6 +13,72 @@
     </issue>
 
     <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.tvprovider.media.tv.TvContractCompat is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="            return TvContract.buildRecordedProgramUri(recordedProgramId);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
+            line="457"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.tvprovider.media.tv.TvContractCompat is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="            return TvContract.isChannelUri(uri);"
+        errorLine2="                              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
+            line="518"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.tvprovider.media.tv.TvContractCompat is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="            return TvContract.isChannelUriForTunerInput(uri);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
+            line="529"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.tvprovider.media.tv.TvContractCompat is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="            return TvContract.isChannelUriForPassthroughInput(uri);"
+        errorLine2="                              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
+            line="540"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.tvprovider.media.tv.TvContractCompat is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="            return TvContract.isProgramUri(uri);"
+        errorLine2="                              ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
+            line="551"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.tvprovider.media.tv.TvContractCompat is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="            TvContract.requestChannelBrowsable(context, channelId);"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/tvprovider/media/tv/TvContractCompat.java"
+            line="579"
+            column="24"/>
+    </issue>
+
+    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public String getInternalProviderId() {"

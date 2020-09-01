@@ -79,6 +79,347 @@
     </issue>
 
     <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class androidx.work.impl.background.systemalarm.Alarms is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="                alarmManager.setExact(RTC_WAKEUP, triggerAtMillis, pendingIntent);"
+        errorLine2="                             ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/background/systemalarm/Alarms.java"
+            line="128"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.work.Constraints.Builder is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="            mTriggerContentUpdateDelay = duration.toMillis();"
+        errorLine2="                                                  ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/Constraints.java"
+            line="408"
+            column="51"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.work.Constraints.Builder is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="            mTriggerContentMaxDelay = duration.toMillis();"
+        errorLine2="                                               ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/Constraints.java"
+            line="443"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class androidx.work.impl.utils.ForceStopRunnable is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="                alarmManager.setExact(RTC_WAKEUP, triggerAt, pendingIntent);"
+        errorLine2="                             ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
+            line="252"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.work.impl.constraints.trackers.NetworkStateTracker is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="                mConnectivityManager.registerDefaultNetworkCallback(mNetworkCallback);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/constraints/trackers/NetworkStateTracker.java"
+            line="89"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.work.impl.constraints.trackers.NetworkStateTracker is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                mConnectivityManager.unregisterNetworkCallback(mNetworkCallback);"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/constraints/trackers/NetworkStateTracker.java"
+            line="112"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.work.impl.constraints.trackers.NetworkStateTracker is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="            Network network = mConnectivityManager.getActiveNetwork();"
+        errorLine2="                                                   ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/constraints/trackers/NetworkStateTracker.java"
+            line="151"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.work.impl.constraints.trackers.NetworkStateTracker is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            NetworkCapabilities capabilities = mConnectivityManager.getNetworkCapabilities(network);"
+        errorLine2="                                                                    ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/constraints/trackers/NetworkStateTracker.java"
+            line="152"
+            column="69"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.work.impl.constraints.trackers.NetworkStateTracker is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                    &amp;&amp; capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);"
+        errorLine2="                                    ~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/constraints/trackers/NetworkStateTracker.java"
+            line="154"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.work.PeriodicWorkRequest.Builder is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="            mWorkSpec.setPeriodic(repeatInterval.toMillis());"
+        errorLine2="                                                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/PeriodicWorkRequest.java"
+            line="118"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.work.PeriodicWorkRequest.Builder is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="            mWorkSpec.setPeriodic(repeatInterval.toMillis(), flexInterval.toMillis());"
+        errorLine2="                                                 ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/PeriodicWorkRequest.java"
+            line="181"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.work.PeriodicWorkRequest.Builder is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="            mWorkSpec.setPeriodic(repeatInterval.toMillis(), flexInterval.toMillis());"
+        errorLine2="                                                                          ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/PeriodicWorkRequest.java"
+            line="181"
+            column="75"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.work.impl.utils.ProcessUtils is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="            return Application.getProcessName();"
+        errorLine2="                               ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/utils/ProcessUtils.java"
+            line="74"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 29, the call containing class null is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        errorLine1="                    startForeground(notificationId, notification, notificationType);"
+        errorLine2="                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/foreground/SystemForegroundService.java"
+            line="137"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                builder.setImportantWhileForeground(true);"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
+            line="102"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="                builder.addTriggerContentUri(convertContentUriTrigger(trigger));"
+        errorLine2="                        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
+            line="109"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="            builder.setTriggerContentUpdateDelay(constraints.getTriggerContentUpdateDelay());"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
+            line="111"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="            builder.setTriggerContentMaxDelay(constraints.getTriggerMaxContentDelay());"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
+            line="112"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="            builder.setRequiresBatteryNotLow(constraints.requiresBatteryNotLow());"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
+            line="119"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="            builder.setRequiresStorageNotLow(constraints.requiresStorageNotLow());"
+        errorLine2="                    ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
+            line="120"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.work.impl.background.systemjob.SystemJobInfoConverter is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="        return new JobInfo.TriggerContentUri(trigger.getUri(), flag);"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobInfoConverter.java"
+            line="130"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.work.impl.background.systemjob.SystemJobService is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="            if (params.getTriggeredContentUris() != null) {"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobService.java"
+            line="125"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.work.impl.background.systemjob.SystemJobService is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="                        Arrays.asList(params.getTriggeredContentUris());"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobService.java"
+            line="127"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.work.impl.background.systemjob.SystemJobService is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="            if (params.getTriggeredContentAuthorities() != null) {"
+        errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobService.java"
+            line="129"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.work.impl.background.systemjob.SystemJobService is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="                        Arrays.asList(params.getTriggeredContentAuthorities());"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobService.java"
+            line="131"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.work.impl.background.systemjob.SystemJobService is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                runtimeExtras.network = params.getNetwork();"
+        errorLine2="                                               ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/background/systemjob/SystemJobService.java"
+            line="134"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.work.impl.WorkDatabasePathHelper is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="        return new File(context.getNoBackupFilesDir(), filePath);"
+        errorLine2="                                ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/WorkDatabasePathHelper.java"
+            line="145"
+            column="33"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.work.impl.WorkManagerImpl is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &amp;&amp; context.isDeviceProtectedStorage()) {"
+        errorLine2="                                                                      ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/impl/WorkManagerImpl.java"
+            line="756"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.work.WorkRequest.Builder is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="            mWorkSpec.setBackoffDelayDuration(duration.toMillis());"
+        errorLine2="                                                       ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/WorkRequest.java"
+            line="174"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.work.WorkRequest.Builder is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="            mWorkSpec.minimumRetentionDuration = duration.toMillis();"
+        errorLine2="                                                          ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/WorkRequest.java"
+            line="251"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.work.WorkRequest.Builder is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="            mWorkSpec.initialDelay = duration.toMillis();"
+        errorLine2="                                              ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/work/WorkRequest.java"
+            line="283"
+            column="47"/>
+    </issue>
+
+    <issue
         id="KotlinPropertyAccess"
         message="This method should be called `getState` such that `state` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
         errorLine1="    public abstract T getInitialState();"
@@ -621,7 +962,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="269"
+            line="271"
             column="31"/>
     </issue>
 
@@ -632,7 +973,7 @@
         errorLine2="                                               ~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/utils/ForceStopRunnable.java"
-            line="269"
+            line="271"
             column="48"/>
     </issue>
 
@@ -1325,7 +1666,7 @@
         errorLine2="            ~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="72"
+            line="77"
             column="13"/>
     </issue>
 
@@ -1336,7 +1677,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="73"
+            line="78"
             column="13"/>
     </issue>
 
@@ -1347,7 +1688,7 @@
         errorLine2="            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="74"
+            line="79"
             column="13"/>
     </issue>
 
@@ -1358,7 +1699,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="75"
+            line="80"
             column="13"/>
     </issue>
 
@@ -1369,7 +1710,7 @@
         errorLine2="                                 ~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/background/systemjob/SystemJobScheduler.java"
-            line="175"
+            line="180"
             column="34"/>
     </issue>
 

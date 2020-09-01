@@ -68,6 +68,28 @@
     </issue>
 
     <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.room.util.DBUtil is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            return new CancellationSignal();"
+        errorLine2="                   ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/util/DBUtil.java"
+            line="168"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class androidx.room.RoomDatabase.JournalMode is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="                return activityManager.isLowRamDevice();"
+        errorLine2="                                       ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/room/RoomDatabase.java"
+            line="529"
+            column="40"/>
+    </issue>
+
+    <issue
         id="LambdaLast"
         message="Functional interface parameters (such as parameter 3, &quot;sqliteOpenHelperFactory&quot;, in androidx.room.DatabaseConfiguration.DatabaseConfiguration) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
         errorLine1="            @Nullable Set&lt;Integer> migrationNotRequiredFrom) {"

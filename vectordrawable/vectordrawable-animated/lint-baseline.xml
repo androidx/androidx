@@ -2,6 +2,50 @@
 <issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
 
     <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="        return dr.unregisterAnimationCallback(callback.getPlatformCallback());"
+        errorLine2="                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"
+            line="759"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="        avd.registerAnimationCallback(callback.getPlatformCallback());"
+        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"
+            line="822"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="            ((AnimatedVectorDrawable) mDelegateDrawable).clearAnimationCallbacks();"
+        errorLine2="                                                         ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"
+            line="860"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.vectordrawable.graphics.drawable.AnimatedVectorDrawableCompat is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="            ((AnimatedVectorDrawable) dr).clearAnimationCallbacks();"
+        errorLine2="                                          ~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/vectordrawable/graphics/drawable/AnimatedVectorDrawableCompat.java"
+            line="926"
+            column="43"/>
+    </issue>
+
+    <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="        public void onAnimationStart(Drawable drawable) {};"

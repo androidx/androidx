@@ -475,6 +475,17 @@
     </issue>
 
     <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.camera.core.VideoCapture is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="                    mediaMuxer = new MediaMuxer(mParcelFileDescriptor.getFileDescriptor(),"
+        errorLine2="                                 ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/camera/core/VideoCapture.java"
+            line="948"
+            column="34"/>
+    </issue>
+
+    <issue
         id="KotlinPropertyAccess"
         message="This getter should be public such that `useRepeatingSurface` can be accessed as a property from Kotlin; see https://android.github.io/kotlin-guides/interop.html#property-prefixes"
         errorLine1="        boolean isUseRepeatingSurface() {"

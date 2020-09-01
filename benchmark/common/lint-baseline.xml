@@ -45,4 +45,81 @@
             column="5"/>
     </issue>
 
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 29, the call containing class androidx.benchmark.Errors is not annotated with @RequiresApi(x) where x is at least 29. Either annotate the containing class with at least @RequiresApi(29) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(29)."
+        errorLine1="                Build.VERSION.SDK_INT >= 29 &amp;&amp; !context.applicationInfo.isProfileableByShell"
+        errorLine2="                                                                        ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/Errors.kt"
+            line="198"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.benchmark.IsolationActivity.Companion is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="                powerManager.isSustainedPerformanceModeSupported"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/IsolationActivity.kt"
+            line="162"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class null is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="                    activity.window.setSustainedPerformanceMode(true)"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/IsolationActivity.kt"
+            line="171"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class null is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="                    keyguardManager.requestDismissKeyguard(activity, null)"
+        errorLine2="                                    ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/IsolationActivity.kt"
+            line="178"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 27, the call containing class null is not annotated with @RequiresApi(x) where x is at least 27. Either annotate the containing class with at least @RequiresApi(27) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(27)."
+        errorLine1="                    activity.setShowWhenLocked(true)"
+        errorLine2="                             ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/IsolationActivity.kt"
+            line="179"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 27, the call containing class null is not annotated with @RequiresApi(x) where x is at least 27. Either annotate the containing class with at least @RequiresApi(27) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(27)."
+        errorLine1="                    activity.setTurnScreenOn(true)"
+        errorLine2="                             ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/IsolationActivity.kt"
+            line="180"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.benchmark.ProfilerKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="        Debug.startMethodTracingSampling(path, bufferSize, Arguments.profilerSampleFrequency)"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/benchmark/Profiler.kt"
+            line="99"
+            column="15"/>
+    </issue>
+
 </issues>

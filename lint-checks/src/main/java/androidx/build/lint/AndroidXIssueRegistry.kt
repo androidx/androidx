@@ -43,8 +43,9 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 SampledAnnotationEnforcer.INVALID_SAMPLES_LOCATION,
                 ObsoleteBuildCompatUsageDetector.ISSUE,
                 BanSynchronizedMethods.ISSUE,
+                MetadataTagInsideApplicationTagDetector.ISSUE,
                 PrivateConstructorForUtilityClass.ISSUE,
-                MetadataTagInsideApplicationTagDetector.ISSUE
+                UnsafeNewApiCallsDetector.ISSUE
             )
         }
     }

@@ -46,6 +46,50 @@
     </issue>
 
     <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class androidx.slice.compat.CompatPermissionManager.PermissionState is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="                if (!Objects.equals(path[i], prefix[i])) {"
+        errorLine2="                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/compat/CompatPermissionManager.java"
+            line="197"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.slice.Slice is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="        return SliceConvert.wrap(context.getSystemService(SliceManager.class)"
+        errorLine2="                                         ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="638"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.slice.Slice is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="                .bindSlice(uri, unwrap(supportedSpecs)), context);"
+        errorLine2="                 ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/Slice.java"
+            line="639"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.slice.compat.SliceProviderCompat.ProviderHolder is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="                mProvider.close();"
+        errorLine2="                          ~~~~~">
+        <location
+            file="src/main/java/androidx/slice/compat/SliceProviderCompat.java"
+            line="709"
+            column="27"/>
+    </issue>
+
+    <issue
         id="LambdaLast"
         message="Functional interface parameters (such as parameter 1, &quot;action&quot;, in androidx.slice.Slice.Builder.addAction) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions"
         errorLine1="                @NonNull Slice s, @Nullable String subType) {"
