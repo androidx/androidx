@@ -895,6 +895,10 @@ class MediaControllerImplBase implements MediaControllerImpl {
                     && currentMediaItemIndex < mPlaylist.size()) {
                 mPlaylist.set(currentMediaItemIndex, item);
             }
+            // Reset position to zero as a stopgap. media2-session 1.0.x didn't notify new position
+            // when current item changes.
+            mPositionEventTimeMs = SystemClock.elapsedRealtime();
+            mPositionMs = 0;
         }
         mInstance.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
             @Override

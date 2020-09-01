@@ -42,6 +42,7 @@ import android.os.Bundle;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.MediaItem;
 import androidx.media2.common.MediaMetadata;
@@ -436,6 +437,36 @@ public class MediaControllerCallbackTest extends MediaSessionTestBase {
         mRemoteSession2.getMockPlayer().setCurrentMediaItemMetadata(testMetadata);
 
         assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @Test
+    public void onCurrentMediaItemChanged_resetsCurrentPosition() throws Exception {
+        int testCurrentItemIndex = 1;
+        String testCurrentItemId = TestUtils.getMediaIdInFakeList(testCurrentItemIndex);
+
+        mRemoteSession2.getMockPlayer().setPlayerState(SessionPlayer.PLAYER_STATE_PAUSED);
+        mRemoteSession2.getMockPlayer().createAndSetFakePlaylist(/* size= */ 2);
+        mRemoteSession2.getMockPlayer().setCurrentPosition(123L);
+
+        CountDownLatch latch = new CountDownLatch(1);
+        MediaController controller = createController(mRemoteSession2.getToken(),
+                /* waitForConnect= */ true, /* connectionHints= */ null,
+                new MediaController.ControllerCallback() {
+                    @Override
+                    public void onCurrentMediaItemChanged(@NonNull MediaController controller,
+                            @Nullable MediaItem currentMediaItem) {
+                        if (currentMediaItem != null
+                                && testCurrentItemId.equals(currentMediaItem.getMediaId())) {
+                            controller.setTimeDiff(0L);
+                            latch.countDown();
+                        }
+                    }
+                });
+        mRemoteSession2.getMockPlayer().setCurrentMediaItem(testCurrentItemIndex);
+        mRemoteSession2.getMockPlayer().notifyCurrentMediaItemChanged(testCurrentItemIndex);
+
+        assertTrue(latch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        assertEquals(0L, controller.getCurrentPosition());
     }
 
     /**
