@@ -97,9 +97,12 @@ import java.util.concurrent.TimeoutException;
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public final class SupportedSurfaceCombinationTest {
     private static final String CAMERA_ID = "0";
-    private static final int DEFAULT_SENSOR_ORIENTATION = 90;
+    private static final int SENSOR_ORIENTATION_0 = 0;
+    private static final int SENSOR_ORIENTATION_90 = 90;
     private static final Rational ASPECT_RATIO_4_3 = new Rational(4, 3);
     private static final Rational ASPECT_RATIO_16_9 = new Rational(16, 9);
+    private static final Size LANDSCAPE_PIXEL_ARRAY_SIZE = new Size(4032, 3024);
+    private static final Size PORTRAIT_PIXEL_ARRAY_SIZE = new Size(3024, 4032);
     private final Size mDisplaySize = new Size(720, 1280);
     private final Size mAnalysisSize = new Size(640, 480);
     private final Size mPreviewSize = new Size(1280, 720);
@@ -1883,19 +1886,191 @@ public final class SupportedSurfaceCombinationTest {
         assertThat(resultList).isEqualTo(expectedList);
     }
 
+    @Test
+    public void getSupportedOutputSizesWithPortraitPixelArraySize_aspectRatio16x9()
+            throws CameraUnavailableException {
+        Size[] supportedSizes = new Size[]{
+                new Size(1080, 1920),
+                new Size(1080, 1440),
+                new Size(960, 1280),
+                new Size(720, 1280),
+                new Size(1280, 720),
+                new Size(480, 640),
+                new Size(640, 480),
+                new Size(360, 480)
+        };
+
+        // Sets the sensor orientation as 0 and pixel array size as a portrait size to simulate a
+        // phone device which majorly supports portrait output sizes.
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
+                SENSOR_ORIENTATION_0, PORTRAIT_PIXEL_ARRAY_SIZE, supportedSizes, null);
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+
+        FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetAspectRatio(
+                AspectRatio.RATIO_16_9).build();
+
+        // There is default minimum size 640x480 setting. Sizes smaller than 640x480 will be
+        // removed. Due to the pixel array size is portrait, sizes of aspect ratio 9/16 will be in
+        // front of the returned sizes list and the list is sorted in descending order. Other
+        // items will be put in the following that are sorted by aspect ratio delta and then area
+        // size.
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
+        List<Size> expectedList = Arrays.asList(new Size[]{
+                // Matched AspectRatio items, sorted by area size.
+                new Size(1080, 1920),
+                new Size(720, 1280),
+
+                // Mismatched AspectRatio items, sorted by aspect ratio delta then area size.
+                new Size(1080, 1440),
+                new Size(960, 1280),
+                new Size(480, 640),
+                new Size(640, 480),
+                new Size(1280, 720)
+        });
+        assertThat(resultList).isEqualTo(expectedList);
+    }
+
+    @Test
+    public void getSupportedOutputSizesOnTabletWithPortraitPixelArraySize_aspectRatio16x9()
+            throws CameraUnavailableException {
+        Size[] supportedSizes = new Size[]{
+                new Size(1080, 1920),
+                new Size(1080, 1440),
+                new Size(960, 1280),
+                new Size(720, 1280),
+                new Size(1280, 720),
+                new Size(480, 640),
+                new Size(640, 480),
+                new Size(360, 480)
+        };
+
+        // Sets the sensor orientation as 90 and pixel array size as a portrait size to simulate a
+        // tablet device which majorly supports portrait output sizes.
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
+                SENSOR_ORIENTATION_90, PORTRAIT_PIXEL_ARRAY_SIZE, supportedSizes, null);
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+
+        FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetAspectRatio(
+                AspectRatio.RATIO_16_9).build();
+
+        // There is default minimum size 640x480 setting. Sizes smaller than 640x480 will be
+        // removed. Due to the pixel array size is portrait, sizes of aspect ratio 9/16 will be in
+        // front of the returned sizes list and the list is sorted in descending order. Other
+        // items will be put in the following that are sorted by aspect ratio delta and then area
+        // size.
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
+        List<Size> expectedList = Arrays.asList(new Size[]{
+                // Matched AspectRatio items, sorted by area size.
+                new Size(1080, 1920),
+                new Size(720, 1280),
+
+                // Mismatched AspectRatio items, sorted by aspect ratio delta then area size.
+                new Size(1080, 1440),
+                new Size(960, 1280),
+                new Size(480, 640),
+                new Size(640, 480),
+                new Size(1280, 720)
+        });
+        assertThat(resultList).isEqualTo(expectedList);
+    }
+
+    @Test
+    public void getSupportedOutputSizesOnTablet_aspectRatio16x9()
+            throws CameraUnavailableException {
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
+                SENSOR_ORIENTATION_0, LANDSCAPE_PIXEL_ARRAY_SIZE, mSupportedSizes, null);
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+
+        FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetAspectRatio(
+                AspectRatio.RATIO_16_9).build();
+
+        // There is default minimum size 640x480 setting. Sizes smaller than 640x480 will be
+        // removed. Sizes of aspect ratio 16/9 will be in front of the returned sizes list and the
+        // list is sorted in descending order. Other items will be put in the following that are
+        // sorted by aspect ratio delta and then area size.
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
+        List<Size> expectedList = Arrays.asList(new Size[]{
+                // Matched AspectRatio items, sorted by area size.
+                new Size(3840, 2160),
+                new Size(1920, 1080),
+                new Size(1280, 720),
+                new Size(960, 544),
+                new Size(800, 450),
+
+                // Mismatched AspectRatio items, sorted by aspect ratio delta then area size.
+                new Size(4032, 3024),
+                new Size(1920, 1440),
+                new Size(1280, 960),
+                new Size(640, 480)
+        });
+        assertThat(resultList).isEqualTo(expectedList);
+    }
+
+    @Test
+    public void getSupportedOutputSizesOnTabletWithPortraitSizes_aspectRatio16x9()
+            throws CameraUnavailableException {
+        Size[] supportedSizes = new Size[]{
+                new Size(1920, 1080),
+                new Size(1440, 1080),
+                new Size(1280, 960),
+                new Size(1280, 720),
+                new Size(720, 1280),
+                new Size(640, 480),
+                new Size(480, 640),
+                new Size(480, 360)
+        };
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
+                SENSOR_ORIENTATION_0, LANDSCAPE_PIXEL_ARRAY_SIZE, supportedSizes, null);
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+
+        FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetAspectRatio(
+                AspectRatio.RATIO_16_9).build();
+
+        // There is default minimum size 640x480 setting. Sizes smaller than 640x480 will be
+        // removed. Sizes of aspect ratio 16/9 will be in front of the returned sizes list and the
+        // list is sorted in descending order. Other items will be put in the following that are
+        // sorted by aspect ratio delta and then area size.
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
+        List<Size> expectedList = Arrays.asList(new Size[]{
+                // Matched AspectRatio items, sorted by area size.
+                new Size(1920, 1080),
+                new Size(1280, 720),
+
+                // Mismatched AspectRatio items, sorted by aspect ratio delta then area size.
+                new Size(1440, 1080),
+                new Size(1280, 960),
+                new Size(640, 480),
+                new Size(480, 640),
+                new Size(720, 1280)
+        });
+        assertThat(resultList).isEqualTo(expectedList);
+    }
+
     private void setupCamera(int hardwareLevel) {
-        setupCamera(hardwareLevel, mSupportedSizes, null);
+        setupCamera(hardwareLevel, SENSOR_ORIENTATION_90, LANDSCAPE_PIXEL_ARRAY_SIZE,
+                mSupportedSizes, null);
     }
 
     private void setupCamera(int hardwareLevel, int[] capabilities) {
-        setupCamera(hardwareLevel, mSupportedSizes, capabilities);
+        setupCamera(hardwareLevel, SENSOR_ORIENTATION_90, LANDSCAPE_PIXEL_ARRAY_SIZE,
+                mSupportedSizes, capabilities);
     }
 
     private void setupCamera(int hardwareLevel, Size[] supportedSizes) {
-        setupCamera(hardwareLevel, supportedSizes, null);
+        setupCamera(hardwareLevel, SENSOR_ORIENTATION_90, LANDSCAPE_PIXEL_ARRAY_SIZE,
+                supportedSizes, null);
     }
 
-    private void setupCamera(int hardwareLevel, Size[] supportedSizes, int[] capabilities) {
+    private void setupCamera(int hardwareLevel, int sensorOrientation, Size pixelArraySize,
+            Size[] supportedSizes, int[] capabilities) {
         mCameraFactory = new FakeCameraFactory();
         CameraCharacteristics characteristics =
                 ShadowCameraCharacteristics.newCameraCharacteristics();
@@ -1907,8 +2082,9 @@ public final class SupportedSurfaceCombinationTest {
         shadowCharacteristics.set(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL, hardwareLevel);
 
-        shadowCharacteristics.set(
-                CameraCharacteristics.SENSOR_ORIENTATION, DEFAULT_SENSOR_ORIENTATION);
+        shadowCharacteristics.set(CameraCharacteristics.SENSOR_ORIENTATION, sensorOrientation);
+        shadowCharacteristics.set(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE,
+                pixelArraySize);
 
         if (capabilities != null) {
             shadowCharacteristics.set(
