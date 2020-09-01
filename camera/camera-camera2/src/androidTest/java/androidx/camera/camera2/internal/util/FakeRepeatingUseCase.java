@@ -25,10 +25,8 @@ import android.os.Looper;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
-import androidx.camera.core.CameraInfo;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.SessionConfig;
@@ -52,7 +50,7 @@ public class FakeRepeatingUseCase extends FakeUseCase {
     }
 
     @Override
-    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
+    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder() {
         return new FakeUseCaseConfig.Builder()
                 .setSessionOptionUnpacker(
                         (useCaseConfig, sessionConfigBuilder) -> {

@@ -488,7 +488,7 @@ public final class SupportedSurfaceCombinationTest {
         List<UseCase> useCases = new ArrayList<>();
         useCases.add(fakeUseCase);
         Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
-                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases, null);
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
                         new ArrayList<>(useCaseToConfigMap.values()));
@@ -597,7 +597,7 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(imageCapture);
         useCases.add(imageAnalysis);
         Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
-                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases, null);
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
                         new ArrayList<>(useCaseToConfigMap.values()));
@@ -644,7 +644,7 @@ public final class SupportedSurfaceCombinationTest {
         List<UseCase> useCases = new ArrayList<>();
         useCases.add(preview);
         Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
-                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases, null);
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
                         new ArrayList<>(useCaseToConfigMap.values()));
@@ -733,7 +733,7 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(videoCapture);
         useCases.add(preview);
         Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
-                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases, null);
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
                         new ArrayList<>(useCaseToConfigMap.values()));
@@ -764,7 +764,7 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(preview);
 
         Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
-                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases, null);
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
                         new ArrayList<>(useCaseToConfigMap.values()));
@@ -806,7 +806,7 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(preview);
         useCases.add(imageAnalysis);
         Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
-                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases, null);
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
                         new ArrayList<>(useCaseToConfigMap.values()));
@@ -840,7 +840,7 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(preview);
         useCases.add(imageAnalysis);
         Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
-                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases, null);
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
                         new ArrayList<>(useCaseToConfigMap.values()));
@@ -921,7 +921,7 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(videoCapture);
         useCases.add(preview);
         Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
-                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases, null);
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
                         new ArrayList<>(useCaseToConfigMap.values()));
@@ -1101,7 +1101,7 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(imageCapture);
 
         Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
-                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases, null);
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
                         new ArrayList<>(useCaseToConfigMap.values()));
@@ -1864,8 +1864,7 @@ public final class SupportedSurfaceCombinationTest {
                 new Size(1080, 2016)).build();
 
         Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
-                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(Arrays.asList(useCase),
-                        null);
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(Arrays.asList(useCase));
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
                         new ArrayList<>(useCaseToConfigMap.values()));

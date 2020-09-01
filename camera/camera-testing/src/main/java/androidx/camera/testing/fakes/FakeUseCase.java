@@ -20,7 +20,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.CameraInfo;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -47,7 +46,7 @@ public class FakeUseCase extends UseCase {
 
     @Override
     @Nullable
-    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
+    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder() {
         return new FakeUseCaseConfig.Builder()
                 .setSessionOptionUnpacker(new SessionConfig.OptionUnpacker() {
                     @Override

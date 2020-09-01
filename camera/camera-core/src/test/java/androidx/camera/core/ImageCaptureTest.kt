@@ -32,6 +32,7 @@ import androidx.camera.core.ImageCapture.ImageCaptureRequestProcessor.ImageCapto
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
 import androidx.camera.core.impl.CaptureConfig
+import androidx.camera.core.impl.SessionConfig
 import androidx.camera.core.impl.TagBundle
 import androidx.camera.core.impl.UseCaseConfig
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
@@ -346,6 +347,8 @@ class ImageCaptureTest {
 
     private fun bindImageCapture(viewPort: ViewPort?): ImageCapture {
         // Arrange.
+        val sessionOptionUnpacker =
+            { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
         val imageCapture = ImageCapture.Builder()
             // Set non jpg format so it doesn't trigger the exif code path.
             .setBufferFormat(ImageFormat.YUV_420_888)
@@ -354,6 +357,7 @@ class ImageCaptureTest {
             .setFlashMode(ImageCapture.FLASH_MODE_OFF)
             .setCaptureOptionUnpacker { _: UseCaseConfig<*>?, _: CaptureConfig.Builder? -> }
             .setImageReaderProxyProvider(getImageReaderProxyProvider())
+            .setSessionOptionUnpacker(sessionOptionUnpacker)
             .build()
 
         cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(ApplicationProvider

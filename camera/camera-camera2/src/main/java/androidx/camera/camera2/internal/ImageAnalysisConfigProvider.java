@@ -21,9 +21,7 @@ import android.hardware.camera2.CameraDevice;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.camera.core.AspectRatio;
-import androidx.camera.core.CameraInfo;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.ConfigProvider;
@@ -45,9 +43,9 @@ public final class ImageAnalysisConfigProvider implements ConfigProvider<ImageAn
     @Override
     @NonNull
     @SuppressWarnings("deprecation") /* defaultDisplay */
-    public ImageAnalysisConfig getConfig(@Nullable CameraInfo cameraInfo) {
+    public ImageAnalysisConfig getConfig() {
         ImageAnalysis.Builder builder = ImageAnalysis.Builder.fromConfig(
-                ImageAnalysis.DEFAULT_CONFIG.getConfig(cameraInfo));
+                ImageAnalysis.DEFAULT_CONFIG.getConfig());
 
         // SessionConfig containing all intrinsic properties needed for ImageAnalysis
         SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();

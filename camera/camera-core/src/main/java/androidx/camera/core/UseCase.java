@@ -132,7 +132,7 @@ public abstract class UseCase {
         if (useCaseConfig.containsOption(OPTION_TARGET_ROTATION)) {
             mDefaultTargetRotation = useCaseConfig.retrieveOption(OPTION_TARGET_ROTATION);
         } else {
-            UseCaseConfig.Builder<?, ?, ?> defaultBuilder = getDefaultBuilder(null);
+            UseCaseConfig.Builder<?, ?, ?> defaultBuilder = getDefaultBuilder();
             mDefaultTargetRotation =
                     defaultBuilder != null ? defaultBuilder.getUseCaseConfig().retrieveOption(
                             OPTION_TARGET_ROTATION, Surface.ROTATION_0) : Surface.ROTATION_0;
@@ -150,14 +150,12 @@ public abstract class UseCase {
      * the pre-populated builder. If <code>null</code> is returned, then the user-supplied
      * configuration will be used directly.
      *
-     * @param cameraInfo The {@link CameraInfo} of the camera that the default builder will
-     *                   target to, null if it doesn't target to any camera.
      * @return A builder pre-populated with use case default options.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
+    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder() {
         return null;
     }
 
@@ -192,8 +190,7 @@ public abstract class UseCase {
         }
 
         // Attempt to retrieve builder containing defaults for this use case's config
-        UseCaseConfig.Builder<?, ?, ?> defaultBuilder = getDefaultBuilder(
-                camera.getCameraInfoInternal());
+        UseCaseConfig.Builder<?, ?, ?> defaultBuilder = getDefaultBuilder();
 
         // Combine with default configuration.
         mUseCaseConfig = applyDefaults(useCaseConfig, defaultBuilder);

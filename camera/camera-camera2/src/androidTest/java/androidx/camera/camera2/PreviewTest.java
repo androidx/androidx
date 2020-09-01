@@ -98,7 +98,7 @@ public final class PreviewTest {
         CameraX.initialize(mContext, cameraXConfig).get();
 
         // init CameraX before creating Preview to get preview size with CameraX's context
-        mDefaultBuilder = Preview.Builder.fromConfig(Preview.DEFAULT_CONFIG.getConfig(null));
+        mDefaultBuilder = Preview.Builder.fromConfig(Preview.DEFAULT_CONFIG.getConfig());
         mSurfaceFutureSemaphore = new Semaphore(/*permits=*/ 0);
         mSafeToReleaseSemaphore = new Semaphore(/*permits=*/ 0);
     }

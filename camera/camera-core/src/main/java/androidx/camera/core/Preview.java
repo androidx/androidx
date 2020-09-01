@@ -449,8 +449,8 @@ public final class Preview extends UseCase {
     @Override
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
-        PreviewConfig defaults = CameraX.getDefaultUseCaseConfig(PreviewConfig.class, cameraInfo);
+    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder() {
+        PreviewConfig defaults = CameraX.getDefaultUseCaseConfig(PreviewConfig.class);
         if (defaults != null) {
             return Builder.fromConfig(defaults);
         }
@@ -613,7 +613,7 @@ public final class Preview extends UseCase {
 
         @NonNull
         @Override
-        public PreviewConfig getConfig(@Nullable CameraInfo cameraInfo) {
+        public PreviewConfig getConfig() {
             return DEFAULT_CONFIG;
         }
     }
