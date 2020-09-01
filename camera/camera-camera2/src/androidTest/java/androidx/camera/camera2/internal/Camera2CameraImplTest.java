@@ -174,7 +174,7 @@ public final class Camera2CameraImplTest {
         }
 
         for (FakeUseCase fakeUseCase : mFakeUseCases) {
-            fakeUseCase.clear();
+            fakeUseCase.onDetached();
         }
     }
 
@@ -790,8 +790,8 @@ public final class Camera2CameraImplTest {
         }
 
         @Override
-        public void clear() {
-            super.clear();
+        public void onDetached() {
+            super.onDetached();
             close();
         }
 

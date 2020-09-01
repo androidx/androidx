@@ -16,6 +16,9 @@
 
 package androidx.camera.camera2;
 
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_CAPTURE_CONFIG;
+import static androidx.camera.core.impl.UseCaseConfig.OPTION_DEFAULT_SESSION_CONFIG;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertEquals;
@@ -68,8 +71,10 @@ import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
+import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.ImageOutputConfig;
+import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.camera.core.impl.utils.Exif;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
@@ -676,17 +681,29 @@ public final class ImageCaptureTest {
         CameraUtil.getCameraAndAttachUseCase(mContext, CameraSelector.DEFAULT_BACK_CAMERA,
                 imageCapture);
 
-        CountingCallback callback = new CountingCallback(3, 500);
+        // After the use case can be reused, the capture requests can only be cancelled after the
+        // onStateAttached() callback has been received. In the normal code flow, the
+        // onStateDetached() should also come after onStateAttached(). There is no API to
+        // directly know  onStateAttached() callback has been received. Therefore, taking a
+        // picture and waiting for the capture success callback to know the use case's
+        // onStateAttached() callback has been received.
+        OnImageCapturedCallback callback = mock(OnImageCapturedCallback.class);
+        imageCapture.takePicture(mMainExecutor, callback);
+        // Wait for the signal that the image has been captured.
+        verify(callback, timeout(10000)).onCaptureSuccess(any(ImageProxy.class));
 
-        imageCapture.takePicture(mMainExecutor, callback);
-        imageCapture.takePicture(mMainExecutor, callback);
-        imageCapture.takePicture(mMainExecutor, callback);
+        CountingCallback countingCallback = new CountingCallback(3, 500);
+
+        imageCapture.takePicture(mMainExecutor, countingCallback);
+        imageCapture.takePicture(mMainExecutor, countingCallback);
+        imageCapture.takePicture(mMainExecutor, countingCallback);
 
         mInstrumentation.runOnMainSync(imageCapture::onStateDetached);
 
-        assertThat(callback.getNumOnCaptureSuccess() + callback.getNumOnError()).isEqualTo(3);
+        assertThat(countingCallback.getNumOnCaptureSuccess()
+                + countingCallback.getNumOnError()).isEqualTo(3);
 
-        for (Integer imageCaptureError : callback.getImageCaptureErrors()) {
+        for (Integer imageCaptureError : countingCallback.getImageCaptureErrors()) {
             assertThat(imageCaptureError).isEqualTo(ImageCapture.ERROR_CAMERA_CLOSED);
         }
     }
@@ -963,6 +980,160 @@ public final class ImageCaptureTest {
         double aspectRatioThreshold = 0.01;
         assertThat(Math.abs(resultCroppingRatio.doubleValue()
                 - targetCroppingAspectRatio.doubleValue())).isLessThan(aspectRatioThreshold);
+    }
+
+    @Test
+    public void useCaseConfigCanBeReset_afterUnbind() {
+        final ImageCapture useCase = mDefaultBuilder.build();
+        UseCaseConfig<?> initialConfig = useCase.getUseCaseConfig();
+
+        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR,
+                useCase);
+
+        mInstrumentation.runOnMainSync(() -> {
+            camera.removeUseCases(Collections.singleton(useCase));
+        });
+
+        UseCaseConfig<?> configAfterUnbinding = useCase.getUseCaseConfig();
+
+        // After detaching from a camera the options from getUseCaseConfig() should be restored
+        // to those prior to attaching to the camera. The option list should have the same option
+        // list as the initial config after the use case is unbound.
+        for (Config.Option<?> opt : configAfterUnbinding.listOptions()) {
+            // There is no equivalence relation between two SessionConfig or CaptureConfig
+            // objects. Therefore, only checking that the default SessionConfig or CaptureConfig
+            // also exists in initialConfig when it exists in configAfterUnbinding.
+            if (opt.equals(OPTION_DEFAULT_SESSION_CONFIG) || opt.equals(
+                    OPTION_DEFAULT_CAPTURE_CONFIG)) {
+                assertThat(initialConfig.containsOption(opt)).isTrue();
+            } else {
+                assertThat(initialConfig.retrieveOption(opt).equals(
+                        configAfterUnbinding.retrieveOption(opt))).isTrue();
+            }
+        }
+    }
+
+    @Test
+    public void targetRotationIsRetained_whenUseCaseIsReused() {
+        ImageCapture useCase = mDefaultBuilder.build();
+
+        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR,
+                useCase);
+
+        // Generally, the device can't be rotated to Surface.ROTATION_180. Therefore,
+        // use it to do the test.
+        useCase.setTargetRotation(Surface.ROTATION_180);
+
+        mInstrumentation.runOnMainSync(() -> {
+            // Unbind the use case.
+            camera.removeUseCases(Collections.singleton(useCase));
+        });
+
+        // Check the target rotation is kept when the use case is unbound.
+        assertThat(useCase.getTargetRotation()).isEqualTo(Surface.ROTATION_180);
+
+        // Check the target rotation is kept when the use case is rebound to the
+        // lifecycle.
+        CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
+        assertThat(useCase.getTargetRotation()).isEqualTo(Surface.ROTATION_180);
+    }
+
+    @Test
+    public void cropAspectRatioIsRetained_whenUseCaseIsReused() throws ExecutionException,
+            InterruptedException {
+        ImageCapture useCase = mDefaultBuilder.build();
+        Rational cropAspectRatio = new Rational(1, 1);
+
+        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext,
+                BACK_SELECTOR, useCase);
+        useCase.setCropAspectRatio(cropAspectRatio);
+
+        mInstrumentation.runOnMainSync(() -> {
+            // Unbind the use case.
+            camera.removeUseCases(Collections.singleton(useCase));
+        });
+
+        // Rebind the use case.
+        CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
+
+        ResolvableFuture<ImageProperties> imagePropertiesFuture = ResolvableFuture.create();
+        OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imagePropertiesFuture);
+        useCase.takePicture(mMainExecutor, callback);
+        // Wait for the signal that the image has been captured.
+        verify(callback, timeout(10000)).onCaptureSuccess(any(ImageProxy.class));
+
+        ImageProperties imageProperties = imagePropertiesFuture.get();
+        Rect cropRect = imageProperties.cropRect;
+        Rational cropRectAspectRatio = new Rational(cropRect.height(), cropRect.width());
+
+        // The crop aspect ratio could be kept after the use case is reused. So that the aspect
+        // of the result cropRect is 1:1.
+        assertThat(cropRectAspectRatio).isEqualTo(cropAspectRatio);
+    }
+
+    @Test
+    public void useCaseCanBeReusedInSameCamera() throws IOException {
+        ImageCapture useCase = mDefaultBuilder.build();
+
+        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext,
+                BACK_SELECTOR, useCase);
+
+        File saveLocation1 = File.createTempFile("test1", ".jpg");
+        saveLocation1.deleteOnExit();
+        OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
+        useCase.takePicture(new ImageCapture.OutputFileOptions.Builder(saveLocation1).build(),
+                mMainExecutor, callback);
+        // Wait for the signal that the image has been saved.
+        verify(callback, timeout(10000)).onImageSaved(any());
+
+        mInstrumentation.runOnMainSync(() -> {
+            // Unbind the use case.
+            camera.removeUseCases(Collections.singleton(useCase));
+        });
+
+        // Rebind the use case to the same camera.
+        CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
+
+        File saveLocation2 = File.createTempFile("test2", ".jpg");
+        saveLocation2.deleteOnExit();
+        OnImageSavedCallback callback2 = mock(OnImageSavedCallback.class);
+        useCase.takePicture(new ImageCapture.OutputFileOptions.Builder(saveLocation2).build(),
+                mMainExecutor, callback2);
+        // Wait for the signal that the image has been saved.
+        verify(callback2, timeout(10000)).onImageSaved(any());
+    }
+
+    @Test
+    public void useCaseCanBeReusedInDifferentCamera() throws IOException {
+        ImageCapture useCase = mDefaultBuilder.build();
+
+        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, useCase);
+
+        File saveLocation1 = File.createTempFile("test1", ".jpg");
+        saveLocation1.deleteOnExit();
+        OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
+        useCase.takePicture(new ImageCapture.OutputFileOptions.Builder(saveLocation1).build(),
+                mMainExecutor, callback);
+        // Wait for the signal that the image has been saved.
+        verify(callback, timeout(10000)).onImageSaved(any());
+
+        mInstrumentation.runOnMainSync(() -> {
+            // Unbind the use case.
+            camera.removeUseCases(Collections.singleton(useCase));
+        });
+
+        // Rebind the use case to different camera.
+        CameraUtil.getCameraAndAttachUseCase(mContext, CameraSelector.DEFAULT_FRONT_CAMERA,
+                useCase);
+
+        File saveLocation2 = File.createTempFile("test2", ".jpg");
+        saveLocation2.deleteOnExit();
+        OnImageSavedCallback callback2 = mock(OnImageSavedCallback.class);
+        useCase.takePicture(new ImageCapture.OutputFileOptions.Builder(saveLocation2).build(),
+                mMainExecutor, callback2);
+        // Wait for the signal that the image has been saved.
+        verify(callback2, timeout(10000)).onImageSaved(any());
     }
 
     private static final class ImageProperties {

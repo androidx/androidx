@@ -194,7 +194,7 @@ public class ImageAnalysisTest {
 
         // Clear ImageAnalysis and flush both handlers. No more image should be received because
         // it's closed.
-        mImageAnalysis.clear();
+        mImageAnalysis.onDetached();
         flushHandler(mBackgroundHandler);
         flushHandler(mCallbackHandler);
         assertThat(getImageTimestampsReceived()).containsExactly(TIMESTAMP_1);
@@ -216,7 +216,7 @@ public class ImageAnalysisTest {
         assertThat(mImageProxiesReceived).isEmpty();
 
         // Flush callback handler and it's still empty because it's close.
-        mImageAnalysis.clear();
+        mImageAnalysis.onDetached();
         flushHandler(mCallbackHandler);
         assertThat(mImageProxiesReceived).isEmpty();
     }

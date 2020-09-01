@@ -224,7 +224,6 @@ public final class CameraUseCaseAdapter {
             for (UseCase useCase : useCases) {
                 if (mUseCases.contains(useCase)) {
                     useCase.onDetach(mCameraInternal);
-                    useCase.onDestroy();
                 } else {
                     Logger.e(TAG, "Attempting to detach non-attached UseCase: " + useCase);
                 }
@@ -257,6 +256,13 @@ public final class CameraUseCaseAdapter {
         synchronized (mLock) {
             if (!mAttached) {
                 mCameraInternal.attachUseCases(mUseCases);
+
+                // Notify to update the use case's active state because it may be cleared if the
+                // use case was ever detached from a camera previously.
+                for (UseCase useCase : mUseCases) {
+                    useCase.notifyState();
+                }
+
                 mAttached = true;
             }
         }

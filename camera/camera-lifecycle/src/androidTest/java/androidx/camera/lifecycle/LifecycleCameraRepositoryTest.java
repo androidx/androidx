@@ -297,11 +297,11 @@ public final class LifecycleCameraRepositoryTest {
         mRepository.bindToLifecycleCamera(lifecycleCamera, null,
                 Collections.singletonList(useCase));
 
-        assertThat(useCase.isCleared()).isFalse();
+        assertThat(useCase.isDetached()).isFalse();
 
         mLifecycle.destroy();
 
-        assertThat(useCase.isCleared()).isTrue();
+        assertThat(useCase.isDetached()).isTrue();
     }
 
     @Test(expected = IllegalArgumentException.class)

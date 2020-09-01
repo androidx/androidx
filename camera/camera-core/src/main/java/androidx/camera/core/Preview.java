@@ -130,6 +130,7 @@ import java.util.concurrent.Executor;
  * </pre>
  */
 public final class Preview extends UseCase {
+
     /**
      * Provides a static configuration with implementation-agnostic options.
      *
@@ -460,8 +461,7 @@ public final class Preview extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public void clear() {
-        notifyInactive();
+    public void onDetached() {
         if (mSessionDeferrableSurface != null) {
             mSessionDeferrableSurface.close();
             mSessionDeferrableSurface.getTerminationFuture().addListener(() -> {
@@ -471,17 +471,7 @@ public final class Preview extends UseCase {
                 }
             }, CameraXExecutors.directExecutor());
         }
-    }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public void onDestroy() {
-        mSurfaceProvider = null;
         mCurrentSurfaceRequest = null;
     }
 
