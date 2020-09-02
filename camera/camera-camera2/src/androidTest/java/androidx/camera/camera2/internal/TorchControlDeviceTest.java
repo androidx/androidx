@@ -80,7 +80,8 @@ public class TorchControlDeviceTest {
         imageAnalysis.setAnalyzer(CameraXExecutors.mainThreadExecutor(), ImageProxy::close);
         mCamera = CameraUtil.getCameraAndAttachUseCase(context, cameraSelector, imageAnalysis);
         Camera2CameraControlImpl cameraControl = (Camera2CameraControlImpl)
-                mCamera.getCameraControlInternal();
+                mCamera.getCameraControl();
+
         mTorchControl = cameraControl.getTorchControl();
     }
 

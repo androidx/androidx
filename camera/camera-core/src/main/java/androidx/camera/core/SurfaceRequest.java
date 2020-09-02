@@ -31,6 +31,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -61,8 +62,9 @@ import java.util.concurrent.atomic.AtomicReference;
 public final class SurfaceRequest {
 
     private final Size mResolution;
-    private final Camera mCamera;
     private final boolean mRGBA8888Required;
+
+    private final CameraInternal mCamera;
 
     // For the camera to retrieve the surface from the user
     @SuppressWarnings("WeakerAccess") /*synthetic accessor */
@@ -96,7 +98,7 @@ public final class SurfaceRequest {
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public SurfaceRequest(
             @NonNull Size resolution,
-            @NonNull Camera camera,
+            @NonNull CameraInternal camera,
             boolean isRGBA8888Required) {
         super();
         mResolution = resolution;
@@ -250,7 +252,7 @@ public final class SurfaceRequest {
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    public Camera getCamera() {
+    public CameraInternal getCamera() {
         return mCamera;
     }
 
