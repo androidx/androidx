@@ -356,6 +356,14 @@ class WatchFace private constructor(
         }
     }
 
+    private val timeReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent?) {
+            // System time has changed hence next scheduled draw is invalid.
+            nextDrawTimeMillis = systemTimeProvider.getSystemTimeMillis()
+            invalidate()
+        }
+    }
+
     /** @hide */
     @RestrictTo(LIBRARY_GROUP)
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
@@ -592,6 +600,10 @@ class WatchFace private constructor(
             IntentFilter(Intent.ACTION_TIMEZONE_CHANGED)
         )
         watchFaceHostApi.getContext().registerReceiver(
+            timeReceiver,
+            IntentFilter(Intent.ACTION_TIME_CHANGED)
+        )
+        watchFaceHostApi.getContext().registerReceiver(
             batteryLevelReceiver,
             IntentFilter(Intent.ACTION_BATTERY_CHANGED)
         )
@@ -607,6 +619,7 @@ class WatchFace private constructor(
         }
         registeredReceivers = false
         watchFaceHostApi.getContext().unregisterReceiver(timeZoneReceiver)
+        watchFaceHostApi.getContext().unregisterReceiver(timeReceiver)
         watchFaceHostApi.getContext().unregisterReceiver(batteryLevelReceiver)
         watchFaceHostApi.getContext().unregisterReceiver(mockTimeReceiver)
     }
