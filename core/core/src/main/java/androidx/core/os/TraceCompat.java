@@ -32,7 +32,8 @@ import java.lang.reflect.Method;
  * <p>For information about using the Systrace tool, read <a
  * href="{@docRoot}studio/profile/systrace/">Overview of system tracing</a>.
  *
- * @deprecated TraceCompat is deprecated in favor of androidx.trace.Trace. Please use that instead.
+ * @deprecated TraceCompat is deprecated in favor of androidx.tracing.Trace. Please use that
+ * instead.
  */
 @Deprecated
 public final class TraceCompat {
