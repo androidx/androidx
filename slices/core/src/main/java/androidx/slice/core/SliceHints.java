@@ -70,6 +70,12 @@ public class SliceHints {
     public static final String HINT_ACTIVITY = "activity";
 
     /**
+     * Hint indicating that this slice is the end of section and may need some form of visual
+     * separation.
+     */
+    public static final String HINT_END_OF_SECTION = "end_of_section";
+
+    /**
      * Hint indicating that this slice was parsed from a serialized format.
      */
     public static final String HINT_CACHED = "cached";
