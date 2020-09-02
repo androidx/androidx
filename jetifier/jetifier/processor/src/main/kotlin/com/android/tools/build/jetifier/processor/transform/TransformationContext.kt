@@ -100,7 +100,12 @@ class TransformationContext(
      * artifact rewrite but no mapping was found for it.
      */
     fun reportNoPackageMappingFoundFailure(tag: String, packageName: String, filePath: Path) {
-        if (!useFallbackIfTypeIsMissing || (rewritingSupportLib && isInReversedMode)) {
+        if (rewritingSupportLib && isInReversedMode) {
+            // Ignore for SL de-jetification
+            return
+        }
+
+        if (!useFallbackIfTypeIsMissing) {
             packageMappingNotFoundFailuresCounts++
             Log.w(tag, "No mapping for package '%s' in '%s', keeping identity", packageName,
                 filePath)
