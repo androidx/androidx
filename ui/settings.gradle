@@ -99,6 +99,7 @@ includeProject(":compose:runtime:runtime:samples", "../compose/runtime/runtime/s
 includeProject(":compose:test-utils", "../compose/test-utils")
 includeProject(":compose:ui", "../compose/ui")
 includeProject(":compose:ui:ui", "../compose/ui/ui")
+includeProject(":compose:ui:ui-android-stubs", "../compose/ui/ui-android-stubs")
 includeProject(":compose:ui:ui-geometry", "../compose/ui/ui-geometry")
 includeProject(":compose:ui:ui-graphics", "../compose/ui/ui-graphics")
 includeProject(":compose:ui:ui-graphics:samples", "../compose/ui/ui-graphics/samples")
