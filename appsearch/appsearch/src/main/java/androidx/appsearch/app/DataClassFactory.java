@@ -18,6 +18,7 @@ package androidx.appsearch.app;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.exceptions.AppSearchException;
 
 /**
  * An interface for factories which can convert between data classes and {@link GenericDocument}.
@@ -37,17 +38,17 @@ public interface DataClassFactory<T> {
 
     /** Returns the schema for this data class. */
     @NonNull
-    AppSearchSchema getSchema();
+    AppSearchSchema getSchema() throws AppSearchException;
 
     /**
      * Converts an instance of the data class into a {@link androidx.appsearch.app.GenericDocument}.
      */
     @NonNull
-    GenericDocument toGenericDocument(@NonNull T dataClass);
+    GenericDocument toGenericDocument(@NonNull T dataClass) throws AppSearchException;
 
     /**
      * Converts a {@link androidx.appsearch.app.GenericDocument} into an instance of the data class.
      */
     @NonNull
-    T fromGenericDocument(@NonNull GenericDocument genericDoc);
+    T fromGenericDocument(@NonNull GenericDocument genericDoc) throws AppSearchException;
 }

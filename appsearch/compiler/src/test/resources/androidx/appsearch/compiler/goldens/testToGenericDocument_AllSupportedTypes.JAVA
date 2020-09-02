@@ -2,7 +2,9 @@ package com.example.appsearch;
 
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.DataClassFactory;
+import androidx.appsearch.app.DataClassFactoryRegistry;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.exceptions.AppSearchException;
 import java.lang.Boolean;
 import java.lang.Byte;
 import java.lang.Double;
@@ -25,7 +27,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
   }
 
   @Override
-  public AppSearchSchema getSchema() {
+  public AppSearchSchema getSchema() throws AppSearchException {
     return new AppSearchSchema.Builder(SCHEMA_TYPE)
           .addProperty(new AppSearchSchema.PropertyConfig.Builder("collectLong")
             .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
@@ -67,6 +69,13 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
             .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
             .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("collectGift")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOCUMENT)
+            .setSchemaType(DataClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class).getSchemaType())
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
             .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
             .build())
           .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrBoxLong")
@@ -223,7 +232,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
   }
 
   @Override
-  public GenericDocument toGenericDocument(Gift dataClass) {
+  public GenericDocument toGenericDocument(Gift dataClass) throws AppSearchException {
     GenericDocument.Builder<?> builder =
         new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
     Collection<Long> collectLongCopy = dataClass.collectLong;
@@ -284,6 +293,16 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (collectStringCopy != null) {
       String[] collectStringConv = collectStringCopy.toArray(new String[0]);
       builder.setProperty("collectString", collectStringConv);
+    }
+    Collection<Gift> collectGiftCopy = dataClass.collectGift;
+    if (collectGiftCopy != null) {
+      GenericDocument[] collectGiftConv = new GenericDocument[collectGiftCopy.size()];
+      DataClassFactory<Gift> factory = DataClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class);
+      int i = 0;
+      for (Gift item : collectGiftCopy) {
+        collectGiftConv[i++] = factory.toGenericDocument(item);
+      }
+      builder.setProperty("collectGift", collectGiftConv);
     }
     Long[] arrBoxLongCopy = dataClass.arrBoxLong;
     if (arrBoxLongCopy != null) {
@@ -406,7 +425,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
   }
 
   @Override
-  public Gift fromGenericDocument(GenericDocument genericDoc) {
+  public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
     String uriConv = genericDoc.getUri();
     long[] collectLongCopy = genericDoc.getPropertyLongArray("collectLong");
     List<Long> collectLongConv = null;
@@ -460,6 +479,15 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     List<String> collectStringConv = null;
     if (collectStringCopy != null) {
       collectStringConv = Arrays.asList(collectStringCopy);
+    }
+    GenericDocument[] collectGiftCopy = genericDoc.getPropertyDocumentArray("collectGift");
+    List<Gift> collectGiftConv = null;
+    if (collectGiftCopy != null) {
+      DataClassFactory<Gift> factory = DataClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class);
+      collectGiftConv = new ArrayList<>(collectGiftCopy.length);
+      for (int i = 0; i < collectGiftCopy.length; i++) {
+        collectGiftConv.add(factory.fromGenericDocument(collectGiftCopy[i]));
+      }
     }
     long[] arrBoxLongCopy = genericDoc.getPropertyLongArray("arrBoxLong");
     Long[] arrBoxLongConv = null;
@@ -579,6 +607,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     dataClass.collectBoolean = collectBooleanConv;
     dataClass.collectByteArr = collectByteArrConv;
     dataClass.collectString = collectStringConv;
+    dataClass.collectGift = collectGiftConv;
     dataClass.arrBoxLong = arrBoxLongConv;
     dataClass.arrUnboxLong = arrUnboxLongConv;
     dataClass.arrBoxInteger = arrBoxIntegerConv;

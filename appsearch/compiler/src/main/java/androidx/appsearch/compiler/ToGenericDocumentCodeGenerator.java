@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
@@ -71,7 +72,8 @@ class ToGenericDocumentCodeGenerator {
                 .addModifiers(Modifier.PUBLIC)
                 .returns(mHelper.getAppSearchClass("GenericDocument"))
                 .addAnnotation(Override.class)
-                .addParameter(classType, "dataClass");
+                .addParameter(classType, "dataClass")
+                .addException(mHelper.getAppSearchExceptionClass());
 
         // Construct a new GenericDocument.Builder with the schema type and URI
         methodBuilder.addStatement("$T builder =\nnew $T<>($L, SCHEMA_TYPE)",
@@ -204,10 +206,10 @@ class ToGenericDocumentCodeGenerator {
                 ((DeclaredType) property.asType()).getTypeArguments();
         TypeMirror propertyType = genericTypes.get(0);
 
-        // TODO(b/156296904): Handle scenario 1c (CollectionForLoopCallToGenericDocument)
-        if (!tryCollectionForLoopAssign(body, fieldName, propertyName, propertyType)  // 1a
-                && !tryCollectionCallToArray(
-                        body, fieldName, propertyName, propertyType)) {  // 1b
+        if (!tryCollectionForLoopAssign(body, fieldName, propertyName, propertyType)           // 1a
+                && !tryCollectionCallToArray(body, fieldName, propertyName, propertyType)      // 1b
+                && !tryCollectionForLoopCallToGenericDocument(
+                        body, fieldName, propertyName, propertyType)) {                        // 1c
             // Scenario 1x
             throw new ProcessingException(
                     "Unhandled out property type (1x): " + property.asType().toString(), property);
@@ -294,6 +296,52 @@ class ToGenericDocumentCodeGenerator {
         body.addStatement(
                 "builder.setProperty($S, $NConv)", propertyName, fieldName)
                 .unindent().add("}\n");
+
+        method.add(body.build());
+        return true;
+    }
+
+    //   1c: CollectionForLoopCallToGenericDocument
+    //       Collection contains a class which is annotated with @AppSearchDocument.
+    //       We have to convert this into an array of GenericDocument[], by reading each element
+    //       one-by-one and converting it through the standard conversion machinery.
+    private boolean tryCollectionForLoopCallToGenericDocument(
+            @NonNull CodeBlock.Builder method,
+            @NonNull String fieldName,
+            @NonNull String propertyName,
+            @NonNull TypeMirror propertyType) {
+        Types typeUtil = mEnv.getTypeUtils();
+        CodeBlock.Builder body = CodeBlock.builder()
+                .add("if ($NCopy != null) {\n", fieldName).indent();
+
+        Element element = typeUtil.asElement(propertyType);
+        if (element == null) {
+            // The propertyType is not an element, this is not a type 1c list.
+            return false;
+        }
+        try {
+            mHelper.getAnnotation(element, IntrospectionHelper.APP_SEARCH_DOCUMENT_CLASS);
+        } catch (ProcessingException e) {
+            // The propertyType doesn't have @AppSearchDocument annotation, this is not a type 1c
+            // list.
+            return false;
+        }
+
+        body.addStatement("GenericDocument[] $NConv = new GenericDocument[$NCopy.size()]",
+                fieldName, fieldName);
+        body.addStatement("$T factory = $T.getInstance().getOrCreateFactory($T.class)",
+                ParameterizedTypeName.get(mHelper.getAppSearchClass("DataClassFactory"),
+                        TypeName.get(propertyType)),
+                mHelper.getAppSearchClass("DataClassFactoryRegistry"), propertyType);
+
+        body.addStatement("int i = 0");
+        body.add("for ($T item : $NCopy) {\n", propertyType, fieldName).indent();
+        body.addStatement("$NConv[i++] = factory.toGenericDocument(item)", fieldName);
+
+        body.unindent().add("}\n");
+
+        body.addStatement("builder.setProperty($S, $NConv)", propertyName, fieldName)
+                .unindent().add("}\n");   //  if ($NCopy != null) {
 
         method.add(body.build());
         return true;

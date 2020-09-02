@@ -521,7 +521,7 @@ public class AppSearchCompilerTest {
                         + "  @Property Collection<Boolean> collectBoolean;\n"   // 1a
                         + "  @Property Collection<byte[]> collectByteArr;\n"    // 1a
                         + "  @Property Collection<String> collectString;\n"     // 1b
-                        //+ "  @Property Collection<Gift> collectGift;\n"         // 1c
+                        + "  @Property Collection<Gift> collectGift;\n"         // 1c
                         + "\n"
                         + "  // Arrays\n"
                         + "  @Property Long[] arrBoxLong;\n"         // 2a

@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.annotation.processing.ProcessingEnvironment;
+import javax.lang.model.element.Element;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.VariableElement;
 import javax.lang.model.type.ArrayType;
@@ -74,7 +75,8 @@ class FromGenericDocumentCodeGenerator {
                 .addModifiers(Modifier.PUBLIC)
                 .returns(classType)
                 .addAnnotation(Override.class)
-                .addParameter(mHelper.getAppSearchClass("GenericDocument"), "genericDoc");
+                .addParameter(mHelper.getAppSearchClass("GenericDocument"), "genericDoc")
+                .addException(mHelper.getAppSearchExceptionClass());
 
         unpackSpecialFields(methodBuilder);
 
@@ -198,12 +200,15 @@ class FromGenericDocumentCodeGenerator {
         List<? extends TypeMirror> genericTypes =
                 ((DeclaredType) property.asType()).getTypeArguments();
         TypeMirror propertyType = genericTypes.get(0);
+        ParameterizedTypeName listTypeName = ParameterizedTypeName.get(ClassName.get(List.class),
+                TypeName.get(propertyType));
 
-        // TODO(b/156296904): Handle scenario 1c (ListForLoopCallFromGenericDocument)
         CodeBlock.Builder builder = CodeBlock.builder();
-        if (!tryListForLoopAssign(builder, fieldName, propertyName, propertyType)  // 1a
+        if (!tryListForLoopAssign(builder, fieldName, propertyName, propertyType, listTypeName)// 1a
                 && !tryListCallArraysAsList(
-                        builder, fieldName, propertyName, propertyType)) {  // 1b
+                        builder, fieldName, propertyName, propertyType, listTypeName)          // 1b
+                && !tryListForLoopCallFromGenericDocument(
+                        builder, fieldName, propertyName, propertyType, listTypeName)) {       // 1c
             // Scenario 1x
             throw new ProcessingException(
                     "Unhandled in property type (1x): " + property.asType().toString(), property);
@@ -222,7 +227,8 @@ class FromGenericDocumentCodeGenerator {
             @NonNull CodeBlock.Builder method,
             @NonNull String fieldName,
             @NonNull String propertyName,
-            @NonNull TypeMirror propertyType) {
+            @NonNull TypeMirror propertyType,
+            @NonNull ParameterizedTypeName listTypeName) {
         Types typeUtil = mEnv.getTypeUtils();
         CodeBlock.Builder body = CodeBlock.builder();
 
@@ -256,9 +262,7 @@ class FromGenericDocumentCodeGenerator {
 
         // Create the destination list
         body.addStatement(
-                "$T $NConv = null",
-                ParameterizedTypeName.get(ClassName.get(List.class), TypeName.get(propertyType)),
-                fieldName);
+                "$T $NConv = null", listTypeName, fieldName);
 
         // If not null, iterate and assign
         body
@@ -280,7 +284,8 @@ class FromGenericDocumentCodeGenerator {
             @NonNull CodeBlock.Builder method,
             @NonNull String fieldName,
             @NonNull String propertyName,
-            @NonNull TypeMirror propertyType) {
+            @NonNull TypeMirror propertyType,
+            @NonNull ParameterizedTypeName listTypeName) {
         Types typeUtil = mEnv.getTypeUtils();
         CodeBlock.Builder body = CodeBlock.builder();
 
@@ -295,10 +300,7 @@ class FromGenericDocumentCodeGenerator {
         }
 
         // Create the destination list
-        body.addStatement(
-                "$T $NConv = null",
-                ParameterizedTypeName.get(ClassName.get(List.class), TypeName.get(propertyType)),
-                fieldName);
+        body.addStatement("$T $NConv = null", listTypeName, fieldName);
 
         // If not null, iterate and assign
         body
@@ -307,6 +309,59 @@ class FromGenericDocumentCodeGenerator {
                 .unindent().add("}\n");
 
         method.add(body.build());
+        return true;
+    }
+
+    //   1c: ListForLoopCallFromGenericDocument
+    //       List contains a class which is annotated with @AppSearchDocument.
+    //       We have to convert this from an array of GenericDocument[], by reading each element
+    //       one-by-one and converting it through the standard conversion machinery.
+    private boolean tryListForLoopCallFromGenericDocument(
+            @NonNull CodeBlock.Builder method,
+            @NonNull String fieldName,
+            @NonNull String propertyName,
+            @NonNull TypeMirror propertyType,
+            @NonNull ParameterizedTypeName listTypeName)  {
+        Types typeUtil = mEnv.getTypeUtils();
+        CodeBlock.Builder body = CodeBlock.builder();
+
+        Element element = typeUtil.asElement(propertyType);
+        if (element == null) {
+            // The propertyType is not an element, this is not a type 1c list.
+            return false;
+        }
+        try {
+            mHelper.getAnnotation(element, IntrospectionHelper.APP_SEARCH_DOCUMENT_CLASS);
+        } catch (ProcessingException e) {
+            // The propertyType doesn't have @AppSearchDocument annotation, this is not a type 1c
+            // list.
+            return false;
+        }
+
+        body.addStatement(
+                "GenericDocument[] $NCopy = genericDoc.getPropertyDocumentArray($S)",
+                fieldName, propertyName);
+
+        // Create the destination list
+        body.addStatement("$T $NConv = null", listTypeName, fieldName);
+
+        // If not null, iterate and assign
+        body.add("if ($NCopy != null) {\n", fieldName).indent();
+        body.addStatement("$T factory = $T.getInstance().getOrCreateFactory($T.class)",
+                ParameterizedTypeName.get(mHelper.getAppSearchClass("DataClassFactory"),
+                        TypeName.get(propertyType)),
+                mHelper.getAppSearchClass("DataClassFactoryRegistry"), propertyType);
+        body.addStatement("$NConv = new $T<>($NCopy.length)", fieldName, ArrayList.class,
+                fieldName);
+
+        body.add("for (int i = 0; i < $NCopy.length; i++) {\n", fieldName).indent();
+        body.addStatement("$NConv.add(factory.fromGenericDocument($NCopy[i]))", fieldName,
+                fieldName);
+        body.unindent().add("}\n");
+
+        body.unindent().add("}\n");  //  if ($NCopy != null) {
+        method.add(body.build());
+
         return true;
     }
 
