@@ -55,7 +55,7 @@ class OffsetInformationTest : ToolingTest() {
                 "Column" to 1676,
                 "Text" to 1733,
                 "Greeting" to 1986,
-                "Text" to 2819,
+                "Text" to 2821,
                 "Surface" to 2018,
                 "Button" to 2146,
                 "Text" to 2169,

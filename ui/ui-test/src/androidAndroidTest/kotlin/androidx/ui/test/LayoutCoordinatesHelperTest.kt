@@ -57,7 +57,7 @@ class LayoutCoordinatesHelperTest {
             }) {
                 Box(
                     Modifier.preferredSize(10.dp)
-                        .gravity(Alignment.Start)
+                        .align(Alignment.Start)
                         .onPositioned { coordinates ->
                             childCoordinates = coordinates
                             latch.countDown()
@@ -90,7 +90,7 @@ class LayoutCoordinatesHelperTest {
                     ) {
                         Box(
                             Modifier.preferredSize(10.toDp())
-                                .gravity(Alignment.CenterHorizontally)
+                                .align(Alignment.CenterHorizontally)
                                 .onPositioned { coordinates ->
                                     childCoordinates = coordinates
                                     latch.countDown()
