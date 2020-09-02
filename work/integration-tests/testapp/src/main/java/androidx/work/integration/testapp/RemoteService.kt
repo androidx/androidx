@@ -24,7 +24,6 @@ import android.util.Log
 import androidx.lifecycle.LifecycleService
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkInfo
-import androidx.work.WorkManager
 import androidx.work.WorkQuery
 import androidx.work.await
 import androidx.work.multiprocess.RemoteWorkManager
@@ -109,12 +108,11 @@ class RemoteService : LifecycleService() {
             .addTag(WORK_TAG)
             .build()
 
-        val continuation = WorkManager.getInstance(this)
-            .beginWith(request)
-
         Log.d(TAG, "Enqueue-ing a Continuation")
-        val remoteWorkManager = RemoteWorkManager.getInstance(this)
-        remoteWorkManager.enqueue(continuation).await()
+        RemoteWorkManager.getInstance(this)
+            .beginWith(request)
+            .enqueue()
+            .await()
     }
 
     private suspend fun cancelAllWorkByTag() {
