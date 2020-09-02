@@ -702,7 +702,8 @@ public class ComplicationDrawableTest {
                     new Renderer(surfaceHolder, styleManager, watchState) {
                         @NotNull
                         @Override
-                        public Bitmap takeScreenshot(@NotNull Calendar calendar, int drawMode) {
+                        public Bitmap takeScreenshot$wear_watchface_debug(
+                                @NotNull Calendar calendar, int drawMode) {
                             return null;
                         }
 

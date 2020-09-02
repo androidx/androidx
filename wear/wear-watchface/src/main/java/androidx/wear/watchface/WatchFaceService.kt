@@ -48,6 +48,7 @@ import android.view.SurfaceHolder
 import androidx.annotation.IntDef
 import androidx.wear.complications.SystemProviders.ProviderId
 import androidx.wear.watchface.style.UserStyleCategory
+import androidx.wear.watchface.style.UserStyleManager
 import java.util.concurrent.CountDownLatch
 
 /**
@@ -471,7 +472,7 @@ abstract class WatchFaceService : WallpaperService() {
             override fun setUserStyle(userStyle: Bundle) {
                 runOnUiThread {
                     watchFace.onSetStyleInternal(
-                        UserStyleCategory.bundleToStyleMap(
+                        UserStyleManager.bundleToStyleMap(
                             userStyle,
                             watchFace.userStyleManager.userStyleCategories
                         )
@@ -992,7 +993,7 @@ abstract class WatchFaceService : WallpaperService() {
         override fun registerUserStyleSchema(styleSchema: List<UserStyleCategory>) {
             if (systemApiVersion >= 3) {
                 iWatchFaceService.registerUserStyleSchema(
-                    UserStyleCategory.userStyleCategoriesToBundles(styleSchema)
+                    UserStyleManager.userStyleCategoriesToBundles(styleSchema)
                 )
             }
         }
@@ -1001,7 +1002,7 @@ abstract class WatchFaceService : WallpaperService() {
             userStyle: Map<UserStyleCategory, UserStyleCategory.Option>
         ) {
             if (systemApiVersion >= 3) {
-                iWatchFaceService.setCurrentUserStyle(UserStyleCategory.styleMapToBundle(userStyle))
+                iWatchFaceService.setCurrentUserStyle(UserStyleManager.styleMapToBundle(userStyle))
             }
         }
 
@@ -1011,7 +1012,7 @@ abstract class WatchFaceService : WallpaperService() {
             if (systemApiVersion < 3) {
                 return null
             }
-            return UserStyleCategory.bundleToStyleMap(
+            return UserStyleManager.bundleToStyleMap(
                 iWatchFaceService.storedUserStyle ?: Bundle(),
                 schema
             )

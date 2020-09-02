@@ -36,6 +36,7 @@ import androidx.wear.watchface.style.BooleanUserStyleCategory
 import androidx.wear.watchface.style.DoubleRangeUserStyleCategory
 import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyleCategory
+import androidx.wear.watchface.style.UserStyleManager
 import androidx.wear.widget.SwipeDismissFrameLayout
 import androidx.wear.widget.WearableLinearLayoutManager
 import androidx.wear.widget.WearableRecyclerView
@@ -72,7 +73,7 @@ internal class StyleConfigFragment : Fragment(),
                     STYLE_SCHEMA,
                     ArrayList(styleSchema.map { Bundle().apply { it.writeToBundle(this) } })
                 )
-                putBundle(STYLE_MAP, UserStyleCategory.styleMapToBundle(styleMap))
+                putBundle(STYLE_MAP, UserStyleManager.styleMapToBundle(styleMap))
             }
         }
     }
@@ -184,7 +185,7 @@ internal class StyleConfigFragment : Fragment(),
             (requireArguments().getParcelableArrayList<Bundle>(STYLE_SCHEMA))!!
                 .map { UserStyleCategory.createFromBundle(it) }
 
-        styleMap = UserStyleCategory.bundleToStyleMap(
+        styleMap = UserStyleManager.bundleToStyleMap(
             requireArguments().getBundle(STYLE_MAP)!!,
             styleSchema
         )
@@ -197,7 +198,7 @@ internal class StyleConfigFragment : Fragment(),
 
         // These will become IPCs eventually, hence the use of Bundles.
         watchFaceConfigActivity.watchFaceConfigDelegate.setUserStyle(
-            UserStyleCategory.styleMapToBundle(styleMap)
+            UserStyleManager.styleMapToBundle(styleMap)
         )
     }
 

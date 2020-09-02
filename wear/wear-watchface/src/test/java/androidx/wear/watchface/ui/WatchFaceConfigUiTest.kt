@@ -193,14 +193,14 @@ class WatchFaceConfigUiTest {
             watchFaceComponentName,
             object : WatchFaceConfigDelegate {
                 override fun getUserStyleSchema() =
-                    UserStyleCategory.userStyleCategoriesToBundles(userStyleCategories)
+                    UserStyleManager.userStyleCategoriesToBundles(userStyleCategories)
 
                 override fun getUserStyle() =
-                    UserStyleCategory.styleMapToBundle(userStyleManager.userStyle)
+                    UserStyleManager.styleMapToBundle(userStyleManager.userStyle)
 
                 override fun setUserStyle(style: Bundle) {
                     userStyleManager.userStyle =
-                        UserStyleCategory.bundleToStyleMap(style, userStyleCategories)
+                        UserStyleManager.bundleToStyleMap(style, userStyleCategories)
                 }
 
                 override fun getBackgroundComplicationId() =

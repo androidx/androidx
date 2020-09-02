@@ -210,6 +210,7 @@ class TestRenderer(
 ) :
     CanvasRenderer(surfaceHolder, userStyleManager, watchState, CanvasType.HARDWARE) {
     var lastOnDrawCalendar: Calendar? = null
+    var lastDrawMode = DrawMode.INTERACTIVE
 
     override fun onDraw(
         canvas: Canvas,
@@ -217,6 +218,7 @@ class TestRenderer(
         calendar: Calendar
     ) {
         lastOnDrawCalendar = calendar
+        lastDrawMode = drawMode
     }
 }
 

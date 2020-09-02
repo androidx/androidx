@@ -105,7 +105,7 @@ public class ComplicationRendererTest {
         assertThat(mComplicationRenderer
                 .getComplicationData()
                 .getShortText()
-                .getText(mResurces, REFERENCE_TIME))
+                .getTextAt(mResurces, REFERENCE_TIME))
                 .isEqualTo(noDataText);
     }
 
@@ -121,14 +121,14 @@ public class ComplicationRendererTest {
                 mComplicationRenderer
                         .getComplicationData()
                         .getShortText()
-                        .getText(mResurces, REFERENCE_TIME);
+                        .getTextAt(mResurces, REFERENCE_TIME);
 
         mComplicationRenderer.setNoDataText(secondText);
         CharSequence secondResult =
                 mComplicationRenderer
                         .getComplicationData()
                         .getShortText()
-                        .getText(mResurces, REFERENCE_TIME);
+                        .getTextAt(mResurces, REFERENCE_TIME);
 
         assertThat(firstResult).isEqualTo(firstText);
         assertThat(secondResult).isEqualTo(secondText);
@@ -148,7 +148,7 @@ public class ComplicationRendererTest {
                 mComplicationRenderer
                         .getComplicationData()
                         .getShortText()
-                        .getText(mResurces, REFERENCE_TIME);
+                        .getTextAt(mResurces, REFERENCE_TIME);
 
         text.setSpan(blueSpan, 0, 2, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
         mComplicationRenderer.setNoDataText(text);
@@ -156,7 +156,7 @@ public class ComplicationRendererTest {
                 mComplicationRenderer
                         .getComplicationData()
                         .getShortText()
-                        .getText(mResurces, REFERENCE_TIME);
+                        .getTextAt(mResurces, REFERENCE_TIME);
 
         assertThat(text).isEqualTo(secondResult);
         assertThat(firstResult).isNotEqualTo(secondResult);
@@ -177,7 +177,7 @@ public class ComplicationRendererTest {
                 mComplicationRenderer
                         .getComplicationData()
                         .getShortText()
-                        .getText(mResurces, REFERENCE_TIME);
+                        .getTextAt(mResurces, REFERENCE_TIME);
 
         text.setSpan(blueSpan, 0, 2, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
 
@@ -187,7 +187,7 @@ public class ComplicationRendererTest {
                 mComplicationRenderer
                         .getComplicationData()
                         .getShortText()
-                        .getText(mResurces, REFERENCE_TIME);
+                        .getTextAt(mResurces, REFERENCE_TIME);
 
         assertThat(firstResult).isEqualTo(secondResult);
         assertThat(text).isNotEqualTo(firstResult);
