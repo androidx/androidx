@@ -16,8 +16,9 @@
   -->
 
 <resources>
-    <string name="app_name" translatable="false">Example Canvas Watchface</string>
-    <string name="watch_face_name" translatable="false">Example Canvas Watchface</string>
+    <string name="app_name" translatable="false">Example Watchfaces</string>
+    <string name="canvas_watch_face_name" translatable="false">Example Canvas Watchface</string>
+    <string name="gl_watch_face_name" translatable="false">Example OpenGL Watchface</string>
 
     <!-- Name of watchface style [CHAR LIMIT=80] -->
     <string name="red_style_name">Red Style</string>
