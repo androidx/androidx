@@ -29,7 +29,6 @@ import android.hardware.camera2.CameraMetadata;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
@@ -40,6 +39,7 @@ import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
+import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -245,7 +245,7 @@ public final class CameraUtil {
      * Cleans up resources that need to be kept around while the camera device is active.
      *
      * @param cameraDeviceHolder camera that was obtained via
-     * {@link #getCameraDevice(CameraDevice.StateCallback)}
+     *                           {@link #getCameraDevice(CameraDevice.StateCallback)}
      */
     public static void releaseCameraDevice(@NonNull CameraDeviceHolder cameraDeviceHolder)
             throws ExecutionException, InterruptedException {
@@ -265,7 +265,7 @@ public final class CameraUtil {
      * <p> This requires that {@link CameraX#initialize(Context, CameraXConfig)} has been called
      * to properly initialize the cameras.
      *
-     * @param context The context used to initialize CameraX
+     * @param context        The context used to initialize CameraX
      * @param cameraSelector The selector to select cameras with.
      * @hide
      */
@@ -290,14 +290,14 @@ public final class CameraUtil {
      * <p> This requires that {@link CameraX#initialize(Context, CameraXConfig)} has been called
      * to properly initialize the cameras.
      *
-     * @param context The context used to initialize CameraX
+     * @param context        The context used to initialize CameraX
      * @param cameraSelector The selector to select cameras with.
-     * @param useCases The UseCases to attach to the CameraUseCaseAdapter.
+     * @param useCases       The UseCases to attach to the CameraUseCaseAdapter.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
     public static CameraUseCaseAdapter getCameraAndAttachUseCase(@NonNull Context context,
-            @NonNull CameraSelector cameraSelector, @NonNull UseCase ... useCases) {
+            @NonNull CameraSelector cameraSelector, @NonNull UseCase... useCases) {
         CameraUseCaseAdapter cameraUseCaseAdapter = getCameraUseCaseAdapter(context,
                 cameraSelector);
 
@@ -336,7 +336,7 @@ public final class CameraUtil {
             try {
                 numberOfCamera = getCameraIdListOrThrow().size();
             } catch (IllegalStateException e) {
-                Log.e(LOG_TAG, "Unable to check camera availability.", e);
+                Logger.e(LOG_TAG, "Unable to check camera availability.", e);
             }
         } else {
             numberOfCamera = android.hardware.Camera.getNumberOfCameras();
@@ -551,8 +551,9 @@ public final class CameraUtil {
      * (2) Check if there is at least one camera on the device.
      * (3) Test the camera can be opened successfully.
      *
-     * <p>The method will set PreTestCamera throw exception will set when the PRETEST_CAMERA_TAG
-     * debug key for Log.isLoggable is enabled.
+     * <p>This method will set {@link PreTestCamera} to throw an exception when the camera is
+     * unavailable if PRETEST_CAMERA_TAG is loggable at the debug level (see
+     * androidx.camera.core.Logger#isDebugEnabled()).
      */
     @NonNull
     public static RuleChain grantCameraPermissionAndPreTest() {
@@ -564,7 +565,7 @@ public final class CameraUtil {
                         base.evaluate();
                     }
                 }).around(
-                new CameraUtil.PreTestCamera(Log.isLoggable(PRETEST_CAMERA_TAG, Log.DEBUG)));
+                new CameraUtil.PreTestCamera(Logger.isDebugEnabled(PRETEST_CAMERA_TAG)));
     }
 
     /**
@@ -605,7 +606,8 @@ public final class CameraUtil {
                         opener.shutdown();
                     }
                     boolean canOpenCamera = backStatus && frontStatus;
-                    Log.d(LOG_TAG, "PreTest Open camera result " + backStatus + " " + frontStatus);
+                    Logger.d(LOG_TAG,
+                            "PreTest Open camera result " + backStatus + " " + frontStatus);
 
                     if (canOpenCamera) {
                         base.evaluate();
@@ -615,7 +617,8 @@ public final class CameraUtil {
                                     "CameraX_cannot_test_with_failed_camera, model:" + Build.MODEL);
                         } else {
                             // Ignore the test, so we only print a log without calling
-                            Log.w(LOG_TAG, "Camera fail, on test " + description.getDisplayName());
+                            Logger.w(LOG_TAG,
+                                    "Camera fail, on test " + description.getDisplayName());
                             base.evaluate();
                         }
                     }
@@ -646,7 +649,7 @@ public final class CameraUtil {
                 try {
                     releaseCameraDevice(deviceHolder);
                 } catch (Exception e) {
-                    Log.e(LOG_TAG, "Cannot close cameraDevice.", e);
+                    Logger.e(LOG_TAG, "Cannot close cameraDevice.", e);
                 }
             }
         }
@@ -673,7 +676,8 @@ public final class CameraUtil {
          */
         public RetryCameraOpener(@CameraSelector.LensFacing int lensFacing) {
             mCameraId = getCameraIdWithLensFacing(lensFacing);
-            Log.d(LOG_TAG, "PreTest init Camera lensFacing: " + lensFacing + " id: " + mCameraId);
+            Logger.d(LOG_TAG,
+                    "PreTest init Camera lensFacing: " + lensFacing + " id: " + mCameraId);
             if (mCameraId == null) {
                 return;
             }
@@ -704,7 +708,8 @@ public final class CameraUtil {
                 if (tryOpenCamera(mCameraId)) {
                     return true;
                 }
-                Log.d(LOG_TAG, "Cannot open camera with camera id: " + mCameraId + " retry:" + i);
+                Logger.d(LOG_TAG,
+                        "Cannot open camera with camera id: " + mCameraId + " retry:" + i);
                 if (!waitForCameraAvailable(waitCameraTimeout)) {
                     return false;
                 }
@@ -724,7 +729,7 @@ public final class CameraUtil {
                         TimeUnit.MILLISECONDS);
                 return true;
             } catch (Exception e) {
-                Log.e(LOG_TAG, "Wait for camera available timeout camera id:" + mCameraId);
+                Logger.e(LOG_TAG, "Wait for camera available timeout camera id:" + mCameraId);
                 return false;
             }
         }
@@ -774,14 +779,14 @@ public final class CameraUtil {
 
             @Override
             public void onCameraAvailable(@NonNull String cameraId) {
-                Log.d(LOG_TAG, "Camera id " + cameraId + " onCameraAvailable callback");
+                Logger.d(LOG_TAG, "Camera id " + cameraId + " onCameraAvailable callback");
                 if (!mCameraId.equals(cameraId)) {
                     // Ignore availability for other cameras
                     return;
                 }
 
                 synchronized (mLock) {
-                    Log.d(LOG_TAG, "Camera id " + mCameraId + " onCameraAvailable");
+                    Logger.d(LOG_TAG, "Camera id " + mCameraId + " onCameraAvailable");
                     mCameraAvailable = true;
                     if (mCompleter != null) {
                         mCompleter.set(null);
@@ -796,7 +801,7 @@ public final class CameraUtil {
                     return;
                 }
                 synchronized (mLock) {
-                    Log.d(LOG_TAG, "Camera id " + mCameraId + " onCameraUnavailable");
+                    Logger.d(LOG_TAG, "Camera id " + mCameraId + " onCameraUnavailable");
                     mCameraAvailable = false;
                 }
             }
