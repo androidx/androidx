@@ -41,6 +41,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.slice.Slice.SUBTYPE_RANGE_MODE;
 import static androidx.slice.builders.ListBuilder.INFINITY;
 import static androidx.slice.builders.ListBuilder.RANGE_MODE_DETERMINATE;
+import static androidx.slice.core.SliceHints.HINT_END_OF_SECTION;
 import static androidx.slice.core.SliceHints.SUBTYPE_MILLIS;
 import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION;
@@ -169,6 +170,9 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
     public void addRow(@NonNull RowBuilderImpl builder) {
         checkRow(true, builder.hasText());
         builder.getBuilder().addHints(HINT_LIST_ITEM);
+        if (builder.isEndOfSection()) {
+            builder.getBuilder().addHints(HINT_END_OF_SECTION);
+        }
         getBuilder().addSubSlice(builder.build());
     }
 
@@ -466,6 +470,7 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
      */
     public static class RowBuilderImpl extends TemplateBuilderImpl {
 
+        private boolean mIsEndOfSection;
         private SliceAction mPrimaryAction;
         private SliceItem mTitleItem;
         private SliceItem mSubtitleItem;
@@ -497,6 +502,7 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
                 setBuilder(new Slice.Builder(builder.getUri()));
             }
             setPrimaryAction(builder.getPrimaryAction());
+            mIsEndOfSection = builder.isEndOfSection();
             if (builder.getLayoutDirection() != -1) {
                 setLayoutDirection(builder.getLayoutDirection());
             }
@@ -635,6 +641,12 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
         private void setLayoutDirection(int layoutDirection) {
             getBuilder().addInt(layoutDirection, SUBTYPE_LAYOUT_DIRECTION);
+        }
+
+        /**
+         */
+        public boolean isEndOfSection() {
+            return mIsEndOfSection;
         }
 
         boolean hasText() {

@@ -111,6 +111,7 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(androidx.slice.builders.SliceAction);
     method public androidx.slice.builders.ListBuilder.RowBuilder addEndItem(androidx.slice.builders.SliceAction, boolean);
     method public androidx.slice.builders.ListBuilder.RowBuilder setContentDescription(CharSequence);
+    method public androidx.slice.builders.ListBuilder.RowBuilder setEndOfSection(boolean);
     method public androidx.slice.builders.ListBuilder.RowBuilder setLayoutDirection(int);
     method public androidx.slice.builders.ListBuilder.RowBuilder setPrimaryAction(androidx.slice.builders.SliceAction);
     method public androidx.slice.builders.ListBuilder.RowBuilder setSubtitle(CharSequence);
