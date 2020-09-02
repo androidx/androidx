@@ -24,6 +24,7 @@ import androidx.room.preconditions.Checks
 import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.processor.cache.Cache
 import androidx.room.solver.TypeAdapterStore
 import androidx.room.verifier.DatabaseVerifier
@@ -37,7 +38,9 @@ class Context private constructor(
     private val typeConverters: CustomConverterProcessor.ProcessResult,
     private val inheritedAdapterStore: TypeAdapterStore?,
     val cache: Cache,
-    private val canRewriteQueriesToDropUnusedColumns: Boolean
+    private val canRewriteQueriesToDropUnusedColumns: Boolean,
+    // currently processed database element to type converter factory map
+    private val typeConverterFactoriesMap: MutableMap<XTypeElement, MutableSet<XType>>
 ) {
     val checker: Checks = Checks(logger)
     val COMMON_TYPES = CommonTypes(processingEnv)
@@ -53,6 +56,9 @@ class Context private constructor(
     // set when database and its entities are processed.
     var databaseVerifier: DatabaseVerifier? = null
         private set
+
+    // set when database processing is started.
+    var databaseElement: XTypeElement? = null
 
     val queryRewriter: QueryRewriter by lazy {
         val verifier = databaseVerifier
@@ -85,13 +91,27 @@ class Context private constructor(
         this.databaseVerifier = databaseVerifier
     }
 
+    fun addTypeConverterFactory(typeConverterFactory: XType) {
+        val dbElement = databaseElement
+        if (dbElement != null) {
+            val set = typeConverterFactoriesMap[dbElement] ?: HashSet()
+            set.add(typeConverterFactory)
+            typeConverterFactoriesMap[dbElement] = set
+        }
+    }
+
+    fun getTypeConverterFactories(databaseElement: XTypeElement): Set<XType> {
+        return typeConverterFactoriesMap[databaseElement] ?: emptySet()
+    }
+
     constructor(processingEnv: XProcessingEnv) : this(
             processingEnv = processingEnv,
             logger = RLog(processingEnv.messager, emptySet(), null),
             typeConverters = CustomConverterProcessor.ProcessResult.EMPTY,
             inheritedAdapterStore = null,
             cache = Cache(null, LinkedHashSet(), emptySet()),
-            canRewriteQueriesToDropUnusedColumns = false)
+            canRewriteQueriesToDropUnusedColumns = false,
+            typeConverterFactoriesMap = HashMap())
 
     class CommonTypes(val processingEnv: XProcessingEnv) {
         val VOID: XType by lazy {
@@ -121,7 +141,8 @@ class Context private constructor(
                 typeConverters = this.typeConverters,
                 inheritedAdapterStore = typeAdapterStore,
                 cache = cache,
-                canRewriteQueriesToDropUnusedColumns = canRewriteQueriesToDropUnusedColumns)
+                canRewriteQueriesToDropUnusedColumns = canRewriteQueriesToDropUnusedColumns,
+                typeConverterFactoriesMap = typeConverterFactoriesMap)
         subContext.databaseVerifier = databaseVerifier
         val result = handler(subContext)
         return Pair(result, collector)
@@ -148,7 +169,8 @@ class Context private constructor(
                 typeConverters = subTypeConverters,
                 inheritedAdapterStore = if (canReUseAdapterStore) typeAdapterStore else null,
                 cache = subCache,
-                canRewriteQueriesToDropUnusedColumns = subCanRemoveUnusedColumns)
+                canRewriteQueriesToDropUnusedColumns = subCanRemoveUnusedColumns,
+                typeConverterFactoriesMap = typeConverterFactoriesMap)
         subContext.databaseVerifier = databaseVerifier
         return subContext
     }

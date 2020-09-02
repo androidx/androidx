@@ -40,6 +40,7 @@ class DatabaseProcessingStep : XProcessingStep {
         val databases = elementsByAnnotation[Database::class]
             ?.mapNotNull {
                 try {
+                    context.databaseElement = it.asTypeElement()
                     DatabaseProcessor(
                         context,
                         it.asTypeElement()
@@ -67,7 +68,8 @@ class DatabaseProcessingStep : XProcessingStep {
         }
 
         databases?.forEach { db ->
-            DatabaseWriter(db).write(context.processingEnv)
+            DatabaseWriter(db, context.getTypeConverterFactories(db.element)).write(context
+                .processingEnv)
             if (db.exportSchema) {
                 val schemaOutFolder = context.schemaOutFolder
                 if (schemaOutFolder == null) {

@@ -141,6 +141,17 @@ public abstract class RoomDatabase {
         return mBackingFieldMap;
     }
 
+    private final Map<String, TypeConverterFactory> mTypeConverterFactories;
+
+    /**
+     * Gets the map of {@link TypeConverterFactory} instances.
+     *
+     */
+    @NonNull
+    public Map<String, TypeConverterFactory> getTypeConverterFactories() {
+        return mTypeConverterFactories;
+    }
+
     /**
      * Creates a RoomDatabase.
      * <p>
@@ -150,6 +161,7 @@ public abstract class RoomDatabase {
      */
     public RoomDatabase() {
         mInvalidationTracker = createInvalidationTracker();
+        mTypeConverterFactories = createTypeConverterFactoriesMap();
     }
 
     /**
@@ -177,6 +189,27 @@ public abstract class RoomDatabase {
         if (configuration.multiInstanceInvalidation) {
             mInvalidationTracker.startMultiInstanceInvalidation(configuration.context,
                     configuration.name);
+        }
+
+        if(configuration.typeConverterFactories != null) {
+            for (Map.Entry<String, TypeConverterFactory> entry :
+                    configuration.typeConverterFactories.entrySet()) {
+                if (!mTypeConverterFactories.containsKey(entry.getKey())) {
+                    throw new IllegalArgumentException("Unexpected factory " + entry.getKey() + ". "
+                            + "Annotate TypeConverter class with @TypeCoverterFactory annotation "
+                            + "or remove this factory from the builder.");
+                }
+                mTypeConverterFactories.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        for(Map.Entry<String, TypeConverterFactory> entry: getTypeConverterFactories().entrySet()) {
+            if (entry.getValue() == null) {
+                throw new IllegalArgumentException("Missing " + entry.getKey() + " factory "
+                        + "instance. Add it using addTypeConverterFactory method or "
+                        + "remove unnecessaty @TypeConverterFactory annotation from "
+                        + "a TypeConverter class.");
+            }
         }
     }
 
@@ -210,6 +243,18 @@ public abstract class RoomDatabase {
      */
     @NonNull
     protected abstract InvalidationTracker createInvalidationTracker();
+
+    /**
+     * Called when the RoomDatabase is created.
+     * <p>
+     * This is already implemented by the generated code.
+     *
+     * @return Creates a new map that will keep track of TypeConverterFactories.
+     */
+    @NonNull
+    protected Map<String, TypeConverterFactory> createTypeConverterFactoriesMap() {
+        return new HashMap<>();
+    }
 
     /**
      * Deletes all rows from all the tables that are registered to this database as
@@ -542,6 +587,7 @@ public abstract class RoomDatabase {
         private final Context mContext;
         private ArrayList<Callback> mCallbacks;
         private PrepackagedDatabaseCallback mPrepackagedDatabaseCallback;
+        private Map<String, TypeConverterFactory> mTypeConverterFactories;
 
         /** The Executor used to run database queries. This should be background-threaded. */
         private Executor mQueryExecutor;
@@ -1013,6 +1059,21 @@ public abstract class RoomDatabase {
         }
 
         /**
+         * Adds a {@link TypeConverterFactory} to this database.
+         *
+         * @param factory The factory.
+         * @return This {@link Builder} instance.
+         */
+        @NonNull
+        public Builder<T> addTypeConverterFactory(@NonNull TypeConverterFactory factory) {
+            if(mTypeConverterFactories == null) {
+                mTypeConverterFactories = new HashMap<>();
+            }
+            mTypeConverterFactories.put(factory.getClass().getCanonicalName(), factory);
+            return this;
+        }
+
+        /**
          * Creates the databases and initializes it.
          * <p>
          * By default, all RoomDatabases use in memory storage for TEMP tables and enables recursive
@@ -1096,7 +1157,8 @@ public abstract class RoomDatabase {
                             mCopyFromAssetPath,
                             mCopyFromFile,
                             mCopyFromInputStream,
-                            mPrepackagedDatabaseCallback);
+                            mPrepackagedDatabaseCallback,
+                            mTypeConverterFactories);
             T db = Room.getGeneratedImplementation(mDatabaseClass, DB_IMPL_SUFFIX);
             db.init(configuration);
             return db;
@@ -1248,5 +1310,22 @@ public abstract class RoomDatabase {
          */
         public void onOpenPrepackagedDatabase(@NonNull SupportSQLiteDatabase db) {
         }
+    }
+
+    /**
+     * Implementations of {@code TypeConverterFactory} interface are responsible to instantiate
+     * TypeConverters.
+     */
+    public interface TypeConverterFactory {
+        /**
+         * Creates a new instance of the given {@code Class}.
+         * <p>
+         *
+         * @param converterClass a {@code Class} whose instance is requested
+         * @param <T> The type parameter for the TypeConverter.
+         * @return a newly created TypeConverter
+         */
+        @NonNull
+        <T> T create(@NonNull Class<T> converterClass);
     }
 }

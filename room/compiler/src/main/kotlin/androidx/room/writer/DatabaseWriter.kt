@@ -16,6 +16,7 @@
 
 package androidx.room.writer
 
+import androidx.room.TypeConverterFactory
 import androidx.room.ext.AndroidTypeNames
 import androidx.room.ext.CommonTypeNames
 import androidx.room.ext.L
@@ -26,10 +27,12 @@ import androidx.room.ext.SupportDbTypeNames
 import androidx.room.ext.T
 import androidx.room.ext.typeName
 import androidx.room.compiler.processing.MethodSpecHelper
+import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.addOriginatingElement
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.DaoMethod
 import androidx.room.vo.Database
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
@@ -48,7 +51,10 @@ import javax.lang.model.element.Modifier.VOLATILE
 /**
  * Writes implementation of classes that were annotated with @Database.
  */
-class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName) {
+class DatabaseWriter(
+    val database: Database,
+    private val typeConverterFactories: Set<XType>
+) : ClassWriter(database.implTypeName) {
     override fun createTypeSpecBuilder(): TypeSpec.Builder {
         val builder = TypeSpec.classBuilder(database.implTypeName)
         builder.apply {
@@ -59,9 +65,41 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
             addMethod(createCreateOpenHelper())
             addMethod(createCreateInvalidationTracker())
             addMethod(createClearAllTables())
+            addMethod(createCreateTypeConverterFactoriesMap())
         }
         addDaoImpls(builder)
         return builder
+    }
+
+    private fun createCreateTypeConverterFactoriesMap():
+            MethodSpec {
+        val typeConverterFactoryType = ClassName.get(TypeConverterFactory::class.java)
+        return MethodSpec.methodBuilder("createTypeConverterFactoriesMap").apply {
+            addAnnotation(Override::class.java)
+            addModifiers(PROTECTED)
+            returns(ParameterizedTypeName.get(CommonTypeNames.MAP, CommonTypeNames.STRING,
+                typeConverterFactoryType))
+            val typeConverterFactoriesVar = "_typeConverterFactoriesMap"
+            val typeConverterFactoriesTypeName = ParameterizedTypeName.get(
+                HashMap::class.typeName,
+                CommonTypeNames.STRING,
+                typeConverterFactoryType
+            )
+            addStatement(
+                "final $T $L = new $T()",
+                typeConverterFactoriesTypeName,
+                typeConverterFactoriesVar,
+                typeConverterFactoriesTypeName
+            )
+            typeConverterFactories.forEach {
+                addStatement(
+                    "$L.put($S, null)",
+                    typeConverterFactoriesVar,
+                    it.typeName
+                )
+            }
+            addStatement("return $L", typeConverterFactoriesVar)
+        }.build()
     }
 
     private fun createClearAllTables(): MethodSpec {
