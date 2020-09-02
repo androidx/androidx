@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.inMilliseconds
 import androidx.compose.ui.unit.milliseconds
 import androidx.test.filters.SmallTest
 import androidx.ui.test.InputDispatcher
-import androidx.ui.test.android.AndroidInputDispatcher
+import androidx.ui.test.AndroidInputDispatcher
 import androidx.ui.test.util.assertHasValidEventTimes
 import androidx.ui.test.util.verify
 import com.google.common.truth.Truth.assertThat

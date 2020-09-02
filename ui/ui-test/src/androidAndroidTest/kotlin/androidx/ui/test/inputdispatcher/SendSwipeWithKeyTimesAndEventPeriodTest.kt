@@ -22,7 +22,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Duration
 import androidx.compose.ui.unit.inMilliseconds
 import androidx.test.filters.SmallTest
-import androidx.ui.test.android.AndroidInputDispatcher
+import androidx.ui.test.AndroidInputDispatcher
 import androidx.ui.test.util.assertHasValidEventTimes
 import androidx.ui.test.util.between
 import androidx.ui.test.util.moveEvents
