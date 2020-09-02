@@ -32,12 +32,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.arch.core.util.Function;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.ExistingWorkPolicy;
 import androidx.work.Logger;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkInfo;
 import androidx.work.WorkQuery;
 import androidx.work.WorkRequest;
 import androidx.work.impl.WorkContinuationImpl;
+import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.utils.futures.SettableFuture;
 import androidx.work.multiprocess.parcelable.ParcelConverters;
 import androidx.work.multiprocess.parcelable.ParcelableWorkContinuationImpl;
@@ -65,14 +70,16 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
     static final String TAG = Logger.tagWithPrefix("RemoteWorkManagerClient");
 
     final Context mContext;
+    final WorkManagerImpl mWorkManager;
     final Executor mExecutor;
     final Object mLock;
 
     private Session mSession;
 
-    public RemoteWorkManagerClient(@NonNull Context context, @NonNull Executor executor) {
+    public RemoteWorkManagerClient(@NonNull Context context, @NonNull WorkManagerImpl workManager) {
         mContext = context.getApplicationContext();
-        mExecutor = executor;
+        mWorkManager = workManager;
+        mExecutor = mWorkManager.getWorkTaskExecutor().getBackgroundExecutor();
         mLock = new Object();
         mSession = null;
     }
@@ -96,6 +103,46 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
             }
         });
         return map(result, sVoidMapper, mExecutor);
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<Void> enqueueUniqueWork(
+            @NonNull String uniqueWorkName,
+            @NonNull ExistingWorkPolicy existingWorkPolicy,
+            @NonNull List<OneTimeWorkRequest> work) {
+        return beginUniqueWork(uniqueWorkName, existingWorkPolicy, work).enqueue();
+    }
+
+    @NonNull
+    @Override
+    public ListenableFuture<Void> enqueueUniquePeriodicWork(
+            @NonNull String uniqueWorkName,
+            @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
+            @NonNull PeriodicWorkRequest periodicWork) {
+
+        WorkContinuation continuation = mWorkManager.createWorkContinuationForUniquePeriodicWork(
+                uniqueWorkName,
+                existingPeriodicWorkPolicy,
+                periodicWork
+        );
+        return enqueue(continuation);
+    }
+
+    @NonNull
+    @Override
+    public RemoteWorkContinuation beginWith(@NonNull List<OneTimeWorkRequest> work) {
+        return new RemoteWorkContinuationImpl(this, mWorkManager.beginWith(work));
+    }
+
+    @NonNull
+    @Override
+    public RemoteWorkContinuation beginUniqueWork(
+            @NonNull String uniqueWorkName,
+            @NonNull ExistingWorkPolicy existingWorkPolicy,
+            @NonNull List<OneTimeWorkRequest> work) {
+        return new RemoteWorkContinuationImpl(this,
+                mWorkManager.beginUniqueWork(uniqueWorkName, existingWorkPolicy, work));
     }
 
     @NonNull

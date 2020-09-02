@@ -71,7 +71,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.Executor;
 
 /**
  * A concrete implementation of {@link WorkManager}.
@@ -422,7 +421,11 @@ public class WorkManagerImpl extends WorkManager {
                 .enqueue();
     }
 
-    private WorkContinuationImpl createWorkContinuationForUniquePeriodicWork(
+    /**
+     * Creates a {@link WorkContinuation} for the given unique {@link PeriodicWorkRequest}.
+     */
+    @NonNull
+    public WorkContinuationImpl createWorkContinuationForUniquePeriodicWork(
             @NonNull String uniqueWorkName,
             @NonNull ExistingPeriodicWorkPolicy existingPeriodicWorkPolicy,
             @NonNull PeriodicWorkRequest periodicWork) {
@@ -785,8 +788,8 @@ public class WorkManagerImpl extends WorkManager {
         try {
             Class<?> klass = Class.forName(REMOTE_WORK_MANAGER_CLIENT);
             mRemoteWorkManager = (RemoteWorkManager) klass.getConstructor(
-                    Context.class, Executor.class
-            ).newInstance(mContext, mWorkTaskExecutor.getBackgroundExecutor());
+                    Context.class, WorkManagerImpl.class
+            ).newInstance(mContext, this);
         } catch (Throwable throwable) {
             Logger.get().debug(TAG, "Unable to initialize multi-process support", throwable);
         }
