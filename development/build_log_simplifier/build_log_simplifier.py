@@ -251,34 +251,37 @@ def collapse_tasks_having_no_output(lines):
 
 # Normalizes some filepaths to more easily simplify/skip some messages
 def normalize_paths(lines):
-    # get path of this script
-    dir_of_this_script = pathlib.Path(__file__).parent.absolute()
-    repository_root = os.path.dirname(dir_of_this_script)
-    checkout_root = os.path.abspath(os.path.join(repository_root, "../.."))
-
-    # get OUT_DIR and DIST_DIR
+    # get OUT_DIR, DIST_DIR, and the path of the root of the checkout
     out_dir = None
     dist_dir = None
+    checkout_dir = None
+    # we read checkout_root from the log file in case this build was run in a location,
+    # such as on a build server
     out_marker = "OUT_DIR="
     dist_marker = "DIST_DIR="
+    checkout_marker = "CHECKOUT="
     for line in lines:
-        if out_marker in line:
+        if line.startswith(out_marker):
             out_dir = line.split(out_marker)[1].strip()
             continue
-        if dist_marker in line:
+        if line.startswith(dist_marker):
             dist_dir = line.split(dist_marker)[1].strip()
             continue
-        if out_dir is not None and dist_dir is not None:
+        if line.startswith(checkout_marker):
+            checkout_dir = line.split(checkout_marker)[1].strip()
+            continue
+        if out_dir is not None and dist_dir is not None and checkout_dir is not None:
             break
 
     # Remove any mentions of these paths, and replace them with consistent values
     remove_paths = collections.OrderedDict()
     if dist_dir is not None:
-       remove_paths[dist_dir] = "$DIST_DIR"
+        remove_paths[dist_dir] = "$DIST_DIR"
     if out_dir is not None:
-       remove_paths[out_dir] = "$OUT_DIR"
-    remove_paths[repository_root] = "$SUPPORT"
-    remove_paths[checkout_root] = "$CHECKOUT"
+        remove_paths[out_dir] = "$OUT_DIR"
+    if checkout_dir is not None:
+        remove_paths[checkout_dir + "/frameworks/support"] = "$SUPPORT"
+        remove_paths[checkout_dir] = "$CHECKOUT"
     result = []
     for line in lines:
         for path in remove_paths:

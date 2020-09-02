@@ -44,10 +44,11 @@ fi
 
 # run Gradle and save stdout and stderr into $logFile
 SCRIPT_PATH="$(cd $(dirname $0) && pwd)"
+CHECKOUT="$(cd "$SCRIPT_PATH/../../.." && pwd)"
 if [ -n "$DIST_DIR" ]; then
   LOG_DIR="$DIST_DIR"
 else
-  LOG_DIR="$SCRIPT_PATH/../../../out/dist"
+  LOG_DIR="$CHECKOUT/out/dist"
 fi
 
 mkdir -p "$LOG_DIR"
@@ -60,6 +61,7 @@ if [ "$DIST_DIR" == "" ]; then
   DIST_DIR="$OUT_DIR/dist"
 fi
 echo "DIST_DIR=$DIST_DIR" | tee -a $logFile
+echo "CHECKOUT=$CHECKOUT" | tee -a $logFile
 programName="$1"
 shift
 echo Running "$programName" "$@"
