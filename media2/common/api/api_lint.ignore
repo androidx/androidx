@@ -25,3 +25,7 @@ ExecutorRegistration: androidx.media2.common.CallbackMediaItem.Builder#Builder(a
 
 IntentName: androidx.media2.common.MediaMetadata#METADATA_KEY_EXTRAS:
     Intent extra constant name must be EXTRA_FOO: METADATA_KEY_EXTRAS
+
+
+StaticFinalBuilder: androidx.media2.common.MediaItem.Builder:
+    Builder must be final: androidx.media2.common.MediaItem.Builder

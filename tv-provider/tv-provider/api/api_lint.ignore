@@ -443,3 +443,7 @@ MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram.Builder#setLas
     Missing nullability on method `setLastEngagementTimeUtcMillis` return
 MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram.Builder#setWatchNextType(int):
     Missing nullability on method `setWatchNextType` return
+
+
+StaticFinalBuilder: androidx.tvprovider.media.tv.Program.Builder:
+    Builder must be final: androidx.tvprovider.media.tv.Program.Builder

@@ -196,7 +196,7 @@ public final class ViewPort {
      * Builder for {@link ViewPort}.
      */
     @ExperimentalUseCaseGroup
-    public static class Builder {
+    public static final class Builder {
 
         private static final int DEFAULT_LAYOUT_DIRECTION = android.util.LayoutDirection.LTR;
         @ScaleType

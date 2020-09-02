@@ -1599,6 +1599,24 @@ PublicTypedef: androidx.core.app.NotificationCompat.Action.SemanticAction:
     Don't expose @IntDef: SemanticAction must be hidden.
 
 
+StaticFinalBuilder: androidx.core.app.NotificationChannelCompat.Builder:
+    Builder must be final: androidx.core.app.NotificationChannelCompat.Builder
+StaticFinalBuilder: androidx.core.app.NotificationChannelGroupCompat.Builder:
+    Builder must be final: androidx.core.app.NotificationChannelGroupCompat.Builder
+StaticFinalBuilder: androidx.core.app.NotificationCompat.Builder:
+    Builder must be final: androidx.core.app.NotificationCompat.Builder
+StaticFinalBuilder: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder:
+    Builder must be final: androidx.core.app.NotificationCompat.CarExtender.UnreadConversation.Builder
+StaticFinalBuilder: androidx.core.app.Person.Builder:
+    Builder must be final: androidx.core.app.Person.Builder
+StaticFinalBuilder: androidx.core.app.ShareCompat.IntentBuilder:
+    Builder must be final: androidx.core.app.ShareCompat.IntentBuilder
+StaticFinalBuilder: androidx.core.content.pm.ShortcutInfoCompat.Builder:
+    Builder must be final: androidx.core.content.pm.ShortcutInfoCompat.Builder
+StaticFinalBuilder: androidx.core.text.PrecomputedTextCompat.Params.Builder:
+    Builder must be final: androidx.core.text.PrecomputedTextCompat.Params.Builder
+
+
 StreamFiles: androidx.core.content.FileProvider#getUriForFile(android.content.Context, String, java.io.File):
     Methods accepting `File` should also accept `FileDescriptor` or streams: method androidx.core.content.FileProvider.getUriForFile(android.content.Context,String,java.io.File)
 StreamFiles: androidx.core.os.EnvironmentCompat#getStorageState(java.io.File):

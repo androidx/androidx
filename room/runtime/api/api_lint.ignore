@@ -51,5 +51,9 @@ RegistrationName: androidx.room.RoomDatabase.Builder#addCallback(androidx.room.R
     Callback methods should be named register/unregister; was addCallback
 
 
+StaticFinalBuilder: androidx.room.RoomDatabase.Builder:
+    Builder must be final: androidx.room.RoomDatabase.Builder
+
+
 StreamFiles: androidx.room.RoomDatabase.Builder#createFromFile(java.io.File):
     Methods accepting `File` should also accept `FileDescriptor` or streams: method androidx.room.RoomDatabase.Builder.createFromFile(java.io.File)
