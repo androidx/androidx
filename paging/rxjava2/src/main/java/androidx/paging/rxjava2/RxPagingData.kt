@@ -33,6 +33,7 @@ import kotlinx.coroutines.rx2.await
  * Returns a [PagingData] containing the result of applying the given [transform] to each
  * element, as it is loaded.
  */
+@JvmName("map")
 @CheckResult
 fun <T : Any, R : Any> PagingData<T>.mapRx(
     transform: (T) -> Single<R>
@@ -42,6 +43,7 @@ fun <T : Any, R : Any> PagingData<T>.mapRx(
  * Returns a [PagingData] of all elements returned from applying the given [transform] to each
  * element, as it is loaded.
  */
+@JvmName("flatMap")
 @CheckResult
 fun <T : Any, R : Any> PagingData<T>.flatMapRx(
     transform: (T) -> Single<Iterable<R>>
@@ -50,6 +52,7 @@ fun <T : Any, R : Any> PagingData<T>.flatMapRx(
 /**
  * Returns a [PagingData] containing only elements matching the given [predicate].
  */
+@JvmName("filter")
 @CheckResult
 fun <T : Any> PagingData<T>.filterRx(
     predicate: (T) -> Single<Boolean>
@@ -65,6 +68,7 @@ fun <T : Any> PagingData<T>.filterRx(
  * @sample androidx.paging.samples.insertSeparatorsRxSample
  * @sample androidx.paging.samples.insertSeparatorsUiModelRxSample
  */
+@JvmName("insertSeparators")
 @CheckResult
 fun <T : R, R : Any> PagingData<T>.insertSeparatorsRx(
     generator: (T?, T?) -> Maybe<R>
