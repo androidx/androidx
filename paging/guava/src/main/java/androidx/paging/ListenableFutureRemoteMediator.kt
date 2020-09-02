@@ -17,8 +17,8 @@
 package androidx.paging
 
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
+import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
-import com.google.common.util.concurrent.SettableFuture
 import kotlinx.coroutines.guava.await
 
 /**
@@ -75,8 +75,7 @@ abstract class ListenableFutureRemoteMediator<Key : Any, Value : Any> :
      *  refresh request from the UI before dispatching a [load] with load type [LoadType.REFRESH].
      */
     open fun initializeFuture(): ListenableFuture<InitializeAction> {
-        return SettableFuture.create<InitializeAction>()
-            .also { it.set(LAUNCH_INITIAL_REFRESH) }
+        return Futures.immediateFuture(LAUNCH_INITIAL_REFRESH)
     }
 
     final override suspend fun load(
