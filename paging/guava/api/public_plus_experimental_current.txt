@@ -1,6 +1,15 @@
 // Signature format: 3.0
 package androidx.paging {
 
+  public final class AdjacentItems<T> {
+    ctor public AdjacentItems(T? before, T? after);
+    method public T? component1();
+    method public T? component2();
+    method public androidx.paging.AdjacentItems<T> copy(T? before, T? after);
+    method public T? getAfter();
+    method public T? getBefore();
+  }
+
   public abstract class ListenableFuturePagingSource<Key, Value> extends androidx.paging.PagingSource<Key,Value> {
     ctor public ListenableFuturePagingSource();
     method public suspend Object? load(androidx.paging.PagingSource.LoadParams<Key> p, kotlin.coroutines.Continuation<? super androidx.paging.PagingSource.LoadResult<Key,Value>> $completion);
@@ -13,6 +22,13 @@ package androidx.paging {
     method public com.google.common.util.concurrent.ListenableFuture<androidx.paging.RemoteMediator.InitializeAction> initializeFuture();
     method public final suspend Object? load(androidx.paging.LoadType loadType, androidx.paging.PagingState<Key,Value> state, kotlin.coroutines.Continuation<? super androidx.paging.RemoteMediator.MediatorResult> p);
     method public abstract com.google.common.util.concurrent.ListenableFuture<androidx.paging.RemoteMediator.MediatorResult> loadFuture(androidx.paging.LoadType loadType, androidx.paging.PagingState<Key,Value> state);
+  }
+
+  public final class PagingDataFutures {
+    method @CheckResult public static <T> androidx.paging.PagingData<T> filter(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<T,java.lang.Boolean> predicate);
+    method @CheckResult public static <T, R> androidx.paging.PagingData<R> flatMap(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<T,java.lang.Iterable<R>> transform);
+    method @CheckResult public static <T extends R, R> androidx.paging.PagingData<R> insertSeparators(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<androidx.paging.AdjacentItems<T>,R> generator);
+    method @CheckResult public static <T, R> androidx.paging.PagingData<R> map(androidx.paging.PagingData<T>, com.google.common.util.concurrent.AsyncFunction<T,R> transform);
   }
 
 }

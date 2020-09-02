@@ -15,6 +15,7 @@
  */
 
 @file:JvmName("PagingRx")
+@file:JvmMultifileClass
 
 package androidx.paging.rxjava2
 
