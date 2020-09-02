@@ -18,7 +18,6 @@ package androidx.camera.extensions;
 
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
-import android.util.Log;
 import android.util.Pair;
 import android.util.Size;
 
@@ -32,6 +31,7 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.ExperimentalCameraFilter;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureConfig;
@@ -161,7 +161,7 @@ public abstract class ImageCaptureExtender {
         try {
             supportedResolutions = mImpl.getSupportedResolutions();
         } catch (NoSuchMethodError e) {
-            Log.e(TAG, "getSupportedResolution interface is not implemented in vendor library.");
+            Logger.e(TAG, "getSupportedResolution interface is not implemented in vendor library.");
         }
 
         if (supportedResolutions != null) {

@@ -16,11 +16,10 @@
 
 package androidx.camera.extensions;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.Logger;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.BeautyImageCaptureExtenderImpl;
 
@@ -42,7 +41,7 @@ public class BeautyImageCaptureExtender extends ImageCaptureExtender {
             try {
                 return new VendorBeautyImageCaptureExtender(builder);
             } catch (NoClassDefFoundError e) {
-                Log.d(TAG, "No beauty image capture extender found. Falling back to default.");
+                Logger.d(TAG, "No beauty image capture extender found. Falling back to default.");
             }
         }
 

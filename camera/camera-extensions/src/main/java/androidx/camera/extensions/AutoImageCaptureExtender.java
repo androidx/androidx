@@ -16,11 +16,10 @@
 
 package androidx.camera.extensions;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.Logger;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.AutoImageCaptureExtenderImpl;
 
@@ -42,7 +41,7 @@ public class AutoImageCaptureExtender extends ImageCaptureExtender {
             try {
                 return new VendorAutoImageCaptureExtender(builder);
             } catch (NoClassDefFoundError e) {
-                Log.d(TAG, "No auto image capture extender found. Falling back to default.");
+                Logger.d(TAG, "No auto image capture extender found. Falling back to default.");
             }
         }
 
