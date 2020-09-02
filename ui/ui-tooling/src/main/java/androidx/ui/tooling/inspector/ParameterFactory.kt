@@ -18,7 +18,6 @@ package androidx.ui.tooling.inspector
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.CrossAxisAlignment
 import androidx.compose.foundation.layout.InnerPadding
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.CornerSize
@@ -71,7 +70,6 @@ internal class ParameterFactory {
         loadFromCompanion(AbsoluteAlignment.Companion)
         loadFromCompanion(Alignment.Companion)
         loadFromInterface(Arrangement::class.java)
-        loadFromCompanion(CrossAxisAlignment.Companion)
         loadFromCompanion(FontFamily.Companion)
         loadFromCompanion(FontWeight.Companion, ignore = "getW")
         loadFromCompanion(Shadow.Companion)
