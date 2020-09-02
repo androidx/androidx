@@ -148,9 +148,10 @@ class SliceViewManagerWrapper extends SliceViewManagerBase {
         return isSuspended;
     }
 
+    @NonNull
     @Override
     @SuppressLint("WrongThread") // TODO https://issuetracker.google.com/issues/116776070
-    public Collection<Uri> getSliceDescendants(Uri uri) {
+    public Collection<Uri> getSliceDescendants(@NonNull Uri uri) {
         // TODO: When this is fixed in framework, remove this try / catch (b/80118259)
         try {
             return mManager.getSliceDescendants(uri);

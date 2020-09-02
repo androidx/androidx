@@ -90,20 +90,21 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
     private boolean mIsFirstRowTypeValid;
     private boolean mFirstRowHasText;
 
-    public ListBuilderImpl(Slice.Builder b, SliceSpec spec) {
+    public ListBuilderImpl(@Nullable final Slice.Builder b, @Nullable final SliceSpec spec) {
         this(b, spec, new SystemClock());
     }
 
     /**
      */
-    public ListBuilderImpl(Slice.Builder b, SliceSpec spec, Clock clock) {
+    public ListBuilderImpl(@Nullable final Slice.Builder b, @Nullable final SliceSpec spec,
+            @NonNull final Clock clock) {
         super(b, spec, clock);
     }
 
     /**
      */
     @Override
-    public void apply(Slice.Builder builder) {
+    public void apply(@NonNull final Slice.Builder builder) {
         builder.addLong(getClock().currentTimeMillis(), SUBTYPE_MILLIS, HINT_LAST_UPDATED);
         if (mSliceHeader != null) {
             builder.addSubSlice(mSliceHeader);
@@ -131,6 +132,7 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
      * Construct the slice.
      */
     @Override
+    @NonNull
     public Slice build() {
         Slice slice = super.build();
         boolean isLoading = SliceQuery.find(slice, null, HINT_PARTIAL, null) != null;
@@ -210,21 +212,21 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
     }
 
     @Override
-    public void addInputRange(InputRangeBuilder builder) {
+    public void addInputRange(@NonNull final InputRangeBuilder builder) {
         InputRangeBuilderImpl impl = new InputRangeBuilderImpl(createChildBuilder(), builder);
         checkRow(true, impl.hasText());
         getBuilder().addSubSlice(impl.build(), SUBTYPE_RANGE);
     }
 
     @Override
-    public void addRange(RangeBuilder builder) {
+    public void addRange(@NonNull final RangeBuilder builder) {
         RangeBuilderImpl impl = new RangeBuilderImpl(createChildBuilder(), builder);
         checkRow(true, impl.hasText());
         getBuilder().addSubSlice(impl.build(), SUBTYPE_RANGE);
     }
 
     @Override
-    public void addSelection(SelectionBuilder builder) {
+    public void addSelection(@NonNull final SelectionBuilder builder) {
         if (getSpec().canRender(SliceSpecs.LIST_V2)) {
             getBuilder().addSubSlice(
                     new SelectionBuilderListV2Impl(createChildBuilder(), builder).build(),
@@ -238,7 +240,7 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
     /**
      */
     @Override
-    public void setSeeMoreRow(RowBuilder builder) {
+    public void setSeeMoreRow(@NonNull final RowBuilder builder) {
         RowBuilderImpl impl = new RowBuilderImpl(createChildBuilder());
         impl.fillFrom(builder);
         impl.getBuilder().addHints(HINT_SEE_MORE);
@@ -248,7 +250,7 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
     /**
      */
     @Override
-    public void setSeeMoreAction(PendingIntent intent) {
+    public void setSeeMoreAction(@NonNull final PendingIntent intent) {
         getBuilder().addSubSlice(
                 new Slice.Builder(getBuilder())
                         .addHints(HINT_SEE_MORE)
@@ -315,9 +317,13 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
         protected int mMax = 100;
         protected int mValue = 0;
         protected boolean mValueSet = false;
+        @Nullable
         protected CharSequence mTitle;
+        @Nullable
         protected CharSequence mSubtitle;
+        @Nullable
         protected CharSequence mContentDescr;
+        @Nullable
         protected SliceAction mPrimaryAction;
         protected int mLayoutDir = -1;
         private int mMode = RANGE_MODE_DETERMINATE;
@@ -352,7 +358,7 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
         }
 
         @Override
-        public void apply(Slice.Builder builder) {
+        public void apply(@NonNull Slice.Builder builder) {
             if (!mValueSet) {
                 // Unset, make it whatever min is
                 mValue = mMin;
@@ -447,7 +453,7 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
         }
 
         @Override
-        public void apply(Slice.Builder builder) {
+        public void apply(@NonNull Slice.Builder builder) {
             if (mAction == null) {
                 throw new IllegalStateException("Input ranges must have an associated action.");
             }
@@ -552,13 +558,14 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
         /**
          */
-        protected void setTitleItem(IconCompat icon, int imageMode) {
+        protected void setTitleItem(@NonNull final IconCompat icon, final int imageMode) {
             setTitleItem(icon, imageMode, false /* isLoading */);
         }
 
         /**
          */
-        private void setTitleItem(IconCompat icon, int imageMode, boolean isLoading) {
+        private void setTitleItem(@NonNull final IconCompat icon, final int imageMode,
+                final boolean isLoading) {
             Slice.Builder sb = new Slice.Builder(getBuilder())
                     .addIcon(icon, null, parseImageMode(imageMode, isLoading));
             if (isLoading) {
@@ -569,7 +576,7 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
         /**
          */
-        private void setTitleItem(SliceAction action, boolean isLoading) {
+        private void setTitleItem(@NonNull final SliceAction action, final boolean isLoading) {
             Slice.Builder sb = new Slice.Builder(getBuilder()).addHints(HINT_TITLE);
             if (isLoading) {
                 sb.addHints(HINT_PARTIAL);
@@ -585,7 +592,7 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
         /**
          */
-        private void setTitle(CharSequence title, boolean isLoading) {
+        private void setTitle(@NonNull final CharSequence title, final boolean isLoading) {
             mTitleItem = new SliceItem(title, FORMAT_TEXT, null, new String[] {HINT_TITLE});
             if (isLoading) {
                 mTitleItem.addHint(HINT_PARTIAL);
@@ -594,13 +601,13 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
         /**
          */
-        protected void setSubtitle(CharSequence subtitle) {
+        protected void setSubtitle(@NonNull final CharSequence subtitle) {
             setSubtitle(subtitle, false /* isLoading */);
         }
 
         /**
          */
-        private void setSubtitle(CharSequence subtitle, boolean isLoading) {
+        private void setSubtitle(@NonNull final CharSequence subtitle, final boolean isLoading) {
             mSubtitleItem = new SliceItem(subtitle, FORMAT_TEXT, null, new String[0]);
             if (isLoading) {
                 mSubtitleItem.addHint(HINT_PARTIAL);
@@ -616,7 +623,8 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
         /**
          */
-        private void addEndItem(IconCompat icon, int imageMode, boolean isLoading) {
+        private void addEndItem(@NonNull final IconCompat icon, final int imageMode,
+                final boolean isLoading) {
             Slice.Builder sb = new Slice.Builder(getBuilder())
                     .addIcon(icon, null, parseImageMode(imageMode, isLoading));
             if (isLoading) {
@@ -627,7 +635,7 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
 
         /**
          */
-        private void addEndItem(@NonNull SliceAction action, boolean isLoading) {
+        private void addEndItem(@NonNull final SliceAction action, final boolean isLoading) {
             Slice.Builder sb = new Slice.Builder(getBuilder());
             if (isLoading) {
                 sb.addHints(HINT_PARTIAL);
@@ -656,7 +664,7 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
         /**
          */
         @Override
-        public void apply(Slice.Builder b) {
+        public void apply(@NonNull Slice.Builder b) {
             if (mStartItem != null) {
                 b.addSubSlice(mStartItem);
             }
@@ -726,7 +734,7 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
         /**
          */
         @Override
-        public void apply(Slice.Builder b) {
+        public void apply(@NonNull Slice.Builder b) {
             if (mTitleItem != null) {
                 b.addItem(mTitleItem);
             }

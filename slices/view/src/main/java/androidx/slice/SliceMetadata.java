@@ -95,7 +95,9 @@ public class SliceMetadata {
      */
     public static final int LOADED_ALL = 2;
 
+    @NonNull
     private Slice mSlice;
+    @Nullable
     private Context mContext;
     private long mExpiry;
     private long mLastUpdated;
@@ -114,7 +116,8 @@ public class SliceMetadata {
      *
      * @return the metadata associated with the provided slice.
      */
-    public static SliceMetadata from(@NonNull Context context, @NonNull Slice slice) {
+    @NonNull
+    public static SliceMetadata from(@Nullable Context context, @NonNull Slice slice) {
         return new SliceMetadata(context, slice);
     }
 
@@ -125,7 +128,7 @@ public class SliceMetadata {
      * @param context the context to use for the slice.
      * @param slice the slice to extract metadata from.
      */
-    private SliceMetadata(@NonNull Context context, @NonNull Slice slice) {
+    private SliceMetadata(@Nullable Context context, @NonNull Slice slice) {
         mSlice = slice;
         mContext = context;
         SliceItem ttlItem = SliceQuery.find(slice, FORMAT_LONG, HINT_TTL, null);
@@ -259,7 +262,9 @@ public class SliceMetadata {
         if (toggleAction != null) {
             Intent intent = new Intent().addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
                     .putExtra(EXTRA_TOGGLE_STATE, toggleValue);
-            toggleAction.getAction().send(mContext, 0, intent, null, null);
+            if (mContext != null) {
+                toggleAction.getAction().send(mContext, 0, intent, null, null);
+            }
             return true;
         }
         return false;
