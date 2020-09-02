@@ -910,8 +910,8 @@ class WatchFaceServiceTest {
 
         // Check all the right methods are called on initial onPropertiesChanged call.
         engineWrapper.onPropertiesChanged(bundle)
-        verify(systemStateListener).setHasLowBitAmbient(true)
-        verify(systemStateListener).setHasBurnInProtection(false)
+        verify(systemStateListener).onSetHasLowBitAmbient(true)
+        verify(systemStateListener).onSetHasBurnInProtection(false)
     }
 
     @Test
