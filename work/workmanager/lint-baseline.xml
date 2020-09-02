@@ -1828,21 +1828,10 @@
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public static Set&lt;String> prerequisitesFor(WorkContinuationImpl continuation) {"
-        errorLine2="                  ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/work/impl/WorkContinuationImpl.java"
-            line="275"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static Set&lt;String> prerequisitesFor(WorkContinuationImpl continuation) {"
         errorLine2="                                               ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/WorkContinuationImpl.java"
-            line="275"
+            line="276"
             column="48"/>
     </issue>
 

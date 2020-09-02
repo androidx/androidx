@@ -63,7 +63,7 @@
         errorLine2="                              ~~~~~~">
         <location
             file="src/main/java/androidx/media2/common/ParcelImplListSlice.java"
-            line="131"
+            line="133"
             column="31"/>
     </issue>
 

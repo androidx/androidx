@@ -481,7 +481,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/VideoCapture.java"
-            line="948"
+            line="973"
             column="34"/>
     </issue>
 
@@ -921,7 +921,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/core/UseCase.java"
-            line="395"
+            line="455"
             column="12"/>
     </issue>
 
