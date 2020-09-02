@@ -28,6 +28,7 @@ import android.graphics.RectF
 import android.icu.util.Calendar
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.IWatchFaceService
@@ -246,6 +247,8 @@ class WatchFaceServiceTest {
 
     @Before
     fun setUp() {
+        `when`(handler.getLooper()).thenReturn(Looper.myLooper())
+
         // Capture tasks posted to mHandler and insert in mPendingTasks which is under our control.
         doAnswer {
             pendingTasks.add(Task(looperTimeMillis, it.arguments[0] as Runnable))

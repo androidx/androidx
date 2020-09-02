@@ -38,6 +38,7 @@ import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
+import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.complications.SystemProviders
 import androidx.wear.watchface.style.UserStyleCategory
@@ -493,7 +494,7 @@ class WatchFace private constructor(
         complicationSet.init(watchFaceHostApi, calendar, renderer,
             object : ComplicationRenderer.InvalidateCallback {
                 @SuppressWarnings("SyntheticAccessor")
-                override fun invalidate() {
+                override fun onInvalidate() {
                     // Ensure we render a frame if the Complication needs rendering, e.g. because it
                     // loaded an image. However if we're animating there's no need to trigger an
                     // extra invalidation.
@@ -650,6 +651,7 @@ class WatchFace private constructor(
     }
 
     /** @hide */
+    @UiThread
     @RestrictTo(LIBRARY_GROUP)
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun maybeUpdateDrawMode() {
@@ -667,6 +669,7 @@ class WatchFace private constructor(
     }
 
     /** @hide */
+    @UiThread
     @RestrictTo(LIBRARY_GROUP)
     @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
     fun onDraw() {
@@ -690,6 +693,7 @@ class WatchFace private constructor(
     }
 
     /** @hide */
+    @UiThread
     @RestrictTo(LIBRARY_GROUP)
     @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
     fun computeDelayTillNextFrame(beginFrameTimeMillis: Long, currentTimeMillis: Long): Long {
@@ -719,6 +723,7 @@ class WatchFace private constructor(
      *     be an id that was previously sent in a call to {@link #setActiveComplications}.
      * @param data The {@link ComplicationData} that should be displayed in the complication.
      */
+    @UiThread
     internal fun onComplicationDataUpdate(watchFaceComplicationId: Int, data: ComplicationData) {
         complicationSet.onComplicationDataUpdate(watchFaceComplicationId, data)
         invalidate()
@@ -733,6 +738,7 @@ class WatchFace private constructor(
      * @param y Y coordinate of the event
      */
     @CallSuper
+    @UiThread
     fun onTapCommand(
         @TapType originalTapType: Int,
         x: Int,
@@ -821,10 +827,8 @@ class WatchFace private constructor(
         pendingSingleTap.cancel()
     }
 
-    /**
-     * Schedules a call to {@link #onDraw} to draw the next frame. Must be called on the main
-     * thread.
-     */
+    /** Schedules a call to {@link #onDraw} to draw the next frame. */
+    @UiThread
     fun invalidate() {
         watchFaceHostApi.invalidate()
     }

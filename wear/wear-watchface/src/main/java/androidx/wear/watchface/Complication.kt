@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface
 
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.graphics.Canvas
 import android.graphics.Rect
@@ -23,6 +24,7 @@ import android.graphics.RectF
 import android.graphics.drawable.Drawable
 import android.icu.util.Calendar
 import android.support.wearable.complications.ComplicationData
+import androidx.annotation.UiThread
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.rendering.ComplicationDrawable
 
@@ -90,11 +92,13 @@ interface ComplicationRenderer {
     /**
      * Called when the ComplicationRenderer attaches to a {@link Complication}.
      */
+    @UiThread
     fun onAttach()
 
     /**
      * Called when the ComplicationRenderer detaches from a {@link Complication}.
      */
+    @UiThread
     fun onDetach()
 
     /**
@@ -108,6 +112,7 @@ interface ComplicationRenderer {
      * @param calendar The current {@link Calendar}
      * @param drawMode The current {@link DrawMode}
      */
+    @UiThread
     fun onDraw(
         canvas: Canvas,
         bounds: Rect,
@@ -121,6 +126,7 @@ interface ComplicationRenderer {
      *
      * @param highlight Whether or not the complication should be drawn highlighted.
      */
+    @UiThread
     fun setIsHighlighted(highlight: Boolean)
 
     /**
@@ -128,16 +134,19 @@ interface ComplicationRenderer {
      *
      * @param data The {@link ComplicationData}
      */
+    @UiThread
     fun setData(data: ComplicationData?)
 
     /**
      * Returns the current {@link ComplicationData} associated with the ComplicationRenderer.
      */
+    @UiThread
     fun getData(): ComplicationData?
 
     interface InvalidateCallback {
         /** Requests redraw. */
-        fun invalidate()
+        @UiThread
+        fun onInvalidate()
     }
 
     /**
@@ -145,6 +154,8 @@ interface ComplicationRenderer {
      *
      * @param callback The {@link InvalidateCallback} to register
      */
+    @UiThread
+    @SuppressLint("ExecutorRegistration")
     fun setInvalidateCallback(callback: InvalidateCallback)
 }
 
@@ -212,13 +223,14 @@ open class ComplicationDrawableRenderer(
     override fun getData() = complicationData
 
     /** {@inheritDoc} */
+    @SuppressLint("ExecutorRegistration")
     override fun setInvalidateCallback(callback: ComplicationRenderer.InvalidateCallback) {
         drawable.callback = object :
             Drawable.Callback {
             override fun unscheduleDrawable(who: Drawable, what: Runnable) {}
 
             override fun invalidateDrawable(who: Drawable) {
-                callback.invalidate()
+                callback.onInvalidate()
             }
 
             override fun scheduleDrawable(who: Drawable, what: Runnable, `when`: Long) {}
@@ -315,6 +327,7 @@ class Complication @JvmOverloads constructor(
      * Sets the current {@link ComplicationRenderer}. This is useful if based on the style the
      * watch face needs to use a different renderer.
      */
+    @UiThread
     fun setRenderer(renderer: ComplicationRenderer) {
         renderer.onDetach()
         this.renderer = renderer
@@ -329,6 +342,7 @@ class Complication @JvmOverloads constructor(
      * @param calendar The current {@link Calendar}
      * @param drawMode The current {@link DrawMode}
      */
+    @UiThread
     fun draw(
         canvas: Canvas,
         calendar: Calendar,

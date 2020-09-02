@@ -22,6 +22,7 @@ import android.graphics.Rect
 import android.icu.util.Calendar
 import android.view.SurfaceHolder
 import androidx.annotation.CallSuper
+import androidx.annotation.UiThread
 import androidx.wear.watchface.style.UserStyleManager
 
 /** The base class for {@link CanvasRenderer} and {@link Gles2Renderer}. */
@@ -63,8 +64,10 @@ abstract class Renderer(
         }
 
     /** Called when the Renderer is destroyed. */
+    @UiThread
     open fun onDestroy() {}
 
+    @UiThread
     open fun onSurfaceDestroyed(holder: SurfaceHolder) {}
 
     /**
@@ -74,6 +77,7 @@ abstract class Renderer(
      * @param calendar The Calendar to use when rendering the watch face
      * @return A {@link Bitmap} containing a screenshot of the watch face
      */
+    @UiThread
     internal abstract fun onDrawInternal(
         calendar: Calendar
     )
@@ -85,6 +89,7 @@ abstract class Renderer(
      * @param drawMode The {@link DrawMode} to use when rendering the watch face
      * @return A {@link Bitmap} containing a screenshot of the watch face
      */
+    @UiThread
     abstract fun takeScreenshot(
         calendar: Calendar,
         @DrawMode drawMode: Int
@@ -94,6 +99,7 @@ abstract class Renderer(
      * Called when the {@link DrawMode} has been updated. Will always be called before the first
      * call to onDraw().
      */
+    @UiThread
     protected open fun onDrawModeChanged(@DrawMode drawMode: Int) {}
 
     /**
@@ -104,6 +110,7 @@ abstract class Renderer(
      *
      * @return A {@link Rect} describing the bounds of the watch faces' main clock element
      */
+    @UiThread
     open fun getMainClockElementBounds(): Rect {
         val quarterX = centerX / 2
         val quarterY = centerY / 2
@@ -123,6 +130,7 @@ abstract class Renderer(
      * @param height The height of the new display surface
      */
     @CallSuper
+    @UiThread
     open fun onSurfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
         screenBounds = holder.surfaceFrame
         centerX = screenBounds.exactCenterX()
@@ -136,6 +144,7 @@ abstract class Renderer(
      * @param bounds A {@param Rect} describing the bounds of the canvas
      * @param calendar The {@param Calendar} to use for rendering
      */
+    @UiThread
     fun drawComplicationSelect(canvas: Canvas, bounds: Rect, calendar: Calendar) {
         val oldDrawMode = drawMode
         _drawMode =
@@ -162,6 +171,7 @@ abstract class Renderer(
      *
      * @return Whether we should schedule an onDraw call to maintain an interactive frame rate
      */
+    @UiThread
     open fun shouldAnimate() = watchState.isVisible && !watchState.isAmbient
 
     /**
@@ -172,5 +182,6 @@ abstract class Renderer(
      * @param proposedDrawMode The proposed {@link DrawMode} to use for rendering based
      * @return The {@link DrawMode} to actually use for rendering
      */
+    @UiThread
     open fun maybeOverrideDrawMode(@DrawMode proposedDrawMode: Int) = proposedDrawMode
 }
