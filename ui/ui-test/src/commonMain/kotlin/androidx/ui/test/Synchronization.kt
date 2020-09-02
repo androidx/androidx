@@ -16,6 +16,10 @@
 
 package androidx.ui.test
 
+// ================================================
+// All the methods below are going to be deprecated
+// ================================================
+
 /**
  * Runs the given action on the UI thread.
  *

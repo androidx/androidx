@@ -17,8 +17,6 @@
 package androidx.ui.test
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntSize
 import org.junit.rules.TestRule
 
 /**
@@ -29,16 +27,7 @@ import org.junit.rules.TestRule
  * However if you really need Android specific dependencies and don't want your test to be abstract
  * you can still create [createAndroidComposeRule] directly and access its underlying Activity.
  */
-interface ComposeTestRule : TestRule {
-    /**
-     * Current device screen's density.
-     */
-    val density: Density
-
-    /**
-     * A test rule that allows you to control the animation clock
-     */
-    val clockTestRule: AnimationClockTestRule
+interface ComposeTestRuleJUnit : ComposeTestRule, TestRule {
 
     /**
      * Sets the given composable as a content of the current screen.
@@ -48,10 +37,13 @@ interface ComposeTestRule : TestRule {
      *
      * @throws IllegalStateException if called more than once per test.
      */
+    // TODO: This should be defined in ComposeTestRule but is currently failing on lambda cast.
     fun setContent(composable: @Composable () -> Unit)
 
-    // TODO(pavlis): Provide better abstraction for host side reusability
-    val displaySize: IntSize get
+    /**
+     * A test rule that allows you to control the animation clock
+     */
+    val clockTestRule: AnimationClockTestRule
 }
 
 /**
@@ -67,4 +59,4 @@ interface ComposeTestRule : TestRule {
 expect fun createComposeRule(
     disableTransitions: Boolean = false,
     disableBlinkingCursor: Boolean = true
-): ComposeTestRule
+): ComposeTestRuleJUnit
