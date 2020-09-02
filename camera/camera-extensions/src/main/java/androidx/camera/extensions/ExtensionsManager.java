@@ -18,7 +18,6 @@ package androidx.camera.extensions;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
@@ -26,6 +25,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -140,7 +140,7 @@ public final class ExtensionsManager {
                                 new InitializerImpl.OnExtensionsInitializedCallback() {
                                 @Override
                                 public void onSuccess() {
-                                    Log.d(TAG, "Successfully initialized extensions");
+                                    Logger.d(TAG, "Successfully initialized extensions");
                                     setInitialized(true);
                                     completer.set(
                                         ExtensionsAvailability.LIBRARY_AVAILABLE);
@@ -148,7 +148,7 @@ public final class ExtensionsManager {
 
                                 @Override
                                 public void onFailure(int error) {
-                                    Log.d(TAG, "Failed to initialize extensions");
+                                    Logger.d(TAG, "Failed to initialize extensions");
                                     completer.set(
                                         ExtensionsAvailability.LIBRARY_UNAVAILABLE_ERROR_LOADING);
                                 }
@@ -285,7 +285,7 @@ public final class ExtensionsManager {
         boolean isPreviewAvailable = checkPreviewExtensionCapability(effectMode, lensFacing);
 
         if (isImageCaptureAvailable != isPreviewAvailable) {
-            Log.e(TAG, "ImageCapture and Preview are not available simultaneously for "
+            Logger.e(TAG, "ImageCapture and Preview are not available simultaneously for "
                     + effectMode.name());
         }
 
