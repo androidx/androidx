@@ -1,0 +1,3 @@
+// Baseline format: 1.0
+StaticFinalBuilder: androidx.appsearch.app.GenericDocument.Builder:
+    Builder must be final: androidx.appsearch.app.GenericDocument.Builder

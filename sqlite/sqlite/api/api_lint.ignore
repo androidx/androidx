@@ -193,5 +193,9 @@ MissingNullability: androidx.sqlite.db.SupportSQLiteStatement#simpleQueryForStri
     Missing nullability on method `simpleQueryForString` return
 
 
+StaticFinalBuilder: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder:
+    Builder must be final: androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration.Builder
+
+
 TopLevelBuilder: androidx.sqlite.db.SupportSQLiteQueryBuilder:
     Builder should be defined as inner class: androidx.sqlite.db.SupportSQLiteQueryBuilder
