@@ -16,10 +16,10 @@
 
 package androidx.paging
 
-import androidx.concurrent.futures.ResolvableFuture
 import androidx.paging.RemoteMediator.InitializeAction.LAUNCH_INITIAL_REFRESH
 import androidx.paging.RemoteMediator.InitializeAction.SKIP_INITIAL_REFRESH
 import com.google.common.util.concurrent.ListenableFuture
+import com.google.common.util.concurrent.SettableFuture
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Test
@@ -41,7 +41,7 @@ class ListenableFutureRemoteMediatorTest {
                 fail("Unexpected call")
             }
 
-            override fun initializeFuture() = ResolvableFuture.create<InitializeAction>()
+            override fun initializeFuture() = SettableFuture.create<InitializeAction>()
                 .also { it.set(SKIP_INITIAL_REFRESH) }
         }
 

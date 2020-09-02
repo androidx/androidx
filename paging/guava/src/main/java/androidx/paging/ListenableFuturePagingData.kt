@@ -19,8 +19,8 @@
 package androidx.paging
 
 import androidx.annotation.CheckResult
-import androidx.concurrent.futures.await
 import com.google.common.util.concurrent.AsyncFunction
+import kotlinx.coroutines.guava.await
 
 /**
  * Returns a [PagingData] containing the result of applying the given [transform] to each
