@@ -85,7 +85,7 @@
         errorLine2="                                       ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="529"
+            line="528"
             column="40"/>
     </issue>
 
@@ -855,7 +855,7 @@
         errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="203"
+            line="202"
             column="65"/>
     </issue>
 
@@ -866,7 +866,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="340"
+            line="339"
             column="12"/>
     </issue>
 
@@ -877,7 +877,7 @@
         errorLine2="               ~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="430"
+            line="429"
             column="16"/>
     </issue>
 
@@ -888,7 +888,7 @@
         errorLine2="                                                             ~~~~~~">
         <location
             file="src/main/java/androidx/room/RoomDatabase.java"
-            line="991"
+            line="990"
             column="62"/>
     </issue>
 

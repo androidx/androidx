@@ -63,7 +63,7 @@
         errorLine2="^">
         <location
             file="src/main/java/androidx/core/view/inputmethod/EditorInfoCompat.java"
-            line="31"
+            line="45"
             column="1"/>
     </issue>
 
@@ -14967,7 +14967,7 @@
         errorLine2="                                               ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/core/view/inputmethod/EditorInfoCompat.java"
-            line="134"
+            line="179"
             column="48"/>
     </issue>
 

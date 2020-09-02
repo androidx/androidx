@@ -19,7 +19,7 @@
         errorLine2="                  ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/CameraUtil.java"
-            line="252"
+            line="255"
             column="19"/>
     </issue>
 
@@ -30,7 +30,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/CameraUtil.java"
-            line="270"
+            line="273"
             column="19"/>
     </issue>
 
@@ -41,7 +41,7 @@
         errorLine2="                  ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/camera/testing/CameraUtil.java"
-            line="296"
+            line="299"
             column="19"/>
     </issue>
 
