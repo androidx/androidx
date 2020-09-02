@@ -41,6 +41,7 @@ import static androidx.camera.core.internal.TargetConfig.OPTION_TARGET_NAME;
 import static androidx.camera.core.internal.ThreadConfig.OPTION_BACKGROUND_EXECUTOR;
 import static androidx.camera.core.internal.UseCaseEventConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 
+import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.location.Location;
@@ -91,6 +92,7 @@ import androidx.camera.core.internal.utils.VideoUtil;
 import androidx.core.util.Preconditions;
 
 import java.io.File;
+import java.io.FileDescriptor;
 import java.io.IOException;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -368,7 +370,7 @@ public final class VideoCapture extends UseCase {
 
         try {
             synchronized (mMuxerLock) {
-                mMuxer = initMediaMuxer(outputFileOptions, postListener);
+                mMuxer = initMediaMuxer(outputFileOptions);
                 Preconditions.checkNotNull(mMuxer);
                 mMuxer.setOrientationHint(getRelativeRotation(attachedCamera));
 
@@ -406,6 +408,7 @@ public final class VideoCapture extends UseCase {
                                 cameraId, resolution);
                         if (!errorOccurred) {
                             postListener.onVideoSaved(new OutputFileResults(mSavedVideoUri));
+                            mSavedVideoUri = null;
                         }
                     }
                 });
@@ -930,17 +933,25 @@ public final class VideoCapture extends UseCase {
         }
     }
 
+    @SuppressLint("UnsafeNewApiCall")
     @NonNull
-    private MediaMuxer initMediaMuxer(@NonNull OutputFileOptions outputFileOptions,
-            OnVideoSavedCallback postListener) throws IOException {
+    private MediaMuxer initMediaMuxer(@NonNull OutputFileOptions outputFileOptions)
+            throws IOException {
         MediaMuxer mediaMuxer;
-        File savedVideoFile;
 
         if (outputFileOptions.isSavingToFile()) {
-            savedVideoFile = outputFileOptions.getFile();
+            File savedVideoFile = outputFileOptions.getFile();
             mSavedVideoUri = Uri.fromFile(outputFileOptions.getFile());
 
             mediaMuxer = new MediaMuxer(savedVideoFile.getAbsolutePath(),
+                    MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
+        } else if (outputFileOptions.isSavingToFileDescriptor()) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
+                throw new IllegalArgumentException("Using a FileDescriptor to record a video is "
+                        + "only supported for Android 8.0 or above.");
+            }
+
+            mediaMuxer = new MediaMuxer(outputFileOptions.getFileDescriptor(),
                     MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
         } else if (outputFileOptions.isSavingToMediaStore()) {
             ContentValues values = outputFileOptions.getContentValues() != null
@@ -951,10 +962,7 @@ public final class VideoCapture extends UseCase {
                     outputFileOptions.getSaveCollection(), values);
 
             if (mSavedVideoUri == null) {
-                postListener.onError(
-                        ERROR_FILE_IO, "Invalid Uri!",
-                        null);
-                return null;
+                throw new IOException("Invalid Uri!");
             }
 
             // Sine API 26, media muxer could be initiated by a FileDescriptor.
@@ -974,10 +982,8 @@ public final class VideoCapture extends UseCase {
                             MediaMuxer.OutputFormat.MUXER_OUTPUT_MPEG_4);
                 }
             } catch (IOException e) {
-                postListener.onError(
-                        ERROR_FILE_IO, "Open file descriptor failed!",
-                        null);
-                return null;
+                mSavedVideoUri = null;
+                throw e;
             }
         } else {
             throw new IllegalArgumentException(
@@ -1586,6 +1592,8 @@ public final class VideoCapture extends UseCase {
         @Nullable
         private final File mFile;
         @Nullable
+        private final FileDescriptor mFileDescriptor;
+        @Nullable
         private final ContentResolver mContentResolver;
         @Nullable
         private final Uri mSaveCollection;
@@ -1595,11 +1603,13 @@ public final class VideoCapture extends UseCase {
         private final Metadata mMetadata;
 
         OutputFileOptions(@Nullable File file,
+                @Nullable FileDescriptor fileDescriptor,
                 @Nullable ContentResolver contentResolver,
                 @Nullable Uri saveCollection,
                 @Nullable ContentValues contentValues,
                 @Nullable Metadata metadata) {
             mFile = file;
+            mFileDescriptor = fileDescriptor;
             mContentResolver = contentResolver;
             mSaveCollection = saveCollection;
             mContentValues = contentValues;
@@ -1610,6 +1620,14 @@ public final class VideoCapture extends UseCase {
         @Nullable
         File getFile() {
             return mFile;
+        }
+
+        /**
+         * Returns the FileDescriptor object which is set by the {@link OutputFileOptions.Builder}.
+         */
+        @Nullable
+        FileDescriptor getFileDescriptor() {
+            return mFileDescriptor;
         }
 
         /** Returns the content resolver which is set by the {@link OutputFileOptions.Builder}. */
@@ -1647,12 +1665,19 @@ public final class VideoCapture extends UseCase {
             return getFile() != null;
         }
 
+        /** Checking the caller wants to save video to a FileDescriptor. */
+        boolean isSavingToFileDescriptor() {
+            return getFileDescriptor() != null;
+        }
+
         /**
          * Builder class for {@link OutputFileOptions}.
          */
         public static final class Builder {
             @Nullable
             private File mFile;
+            @Nullable
+            private FileDescriptor mFileDescriptor;
             @Nullable
             private ContentResolver mContentResolver;
             @Nullable
@@ -1669,6 +1694,23 @@ public final class VideoCapture extends UseCase {
              */
             public Builder(@NonNull File file) {
                 mFile = file;
+            }
+
+            /**
+             * Creates options to write captured video to a {@link FileDescriptor}.
+             *
+             * <p>Using a FileDescriptor to record a video is only supported for Android 8.0 or
+             * above.
+             *
+             * @param fileDescriptor to save the video.
+             * @throws IllegalArgumentException when the device is not running Android 8.0 or above.
+             */
+            public Builder(@NonNull FileDescriptor fileDescriptor) {
+                Preconditions.checkArgument(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O,
+                        "Using a FileDescriptor to record a video is only supported for Android 8"
+                                + ".0 or above.");
+
+                mFileDescriptor = fileDescriptor;
             }
 
             /**
@@ -1717,8 +1759,8 @@ public final class VideoCapture extends UseCase {
              */
             @NonNull
             public OutputFileOptions build() {
-                return new OutputFileOptions(mFile, mContentResolver, mSaveCollection,
-                        mContentValues, mMetadata);
+                return new OutputFileOptions(mFile, mFileDescriptor, mContentResolver,
+                        mSaveCollection, mContentValues, mMetadata);
             }
         }
     }
