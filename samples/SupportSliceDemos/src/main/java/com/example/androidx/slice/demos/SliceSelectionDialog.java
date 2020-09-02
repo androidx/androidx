@@ -46,6 +46,7 @@ import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.TextView;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.util.Consumer;
 import androidx.slice.Slice;
@@ -59,6 +60,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -258,8 +260,9 @@ public class SliceSelectionDialog {
         CountDownLatch latch = new CountDownLatch(1);
         SliceViewManager.SliceCallback callback = new SliceViewManager.SliceCallback() {
             @Override
-            public void onSliceUpdated(Slice s) {
+            public void onSliceUpdated(@Nullable Slice s) {
                 try {
+                    Objects.requireNonNull(s);  // trigger exception handling flow if slice is null
                     SliceMetadata m = SliceMetadata.from(context, s);
                     if (m.getLoadingState() == SliceMetadata.LOADED_ALL) {
                         returnSlice[0] = s;
