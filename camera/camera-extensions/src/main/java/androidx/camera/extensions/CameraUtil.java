@@ -18,7 +18,6 @@ package androidx.camera.extensions;
 
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,6 +25,7 @@ import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.Logger;
 import androidx.core.util.Preconditions;
 
 /**
@@ -40,7 +40,7 @@ class CameraUtil {
             return CameraX.getCameraWithCameraSelector(
                     cameraSelector).getCameraInfoInternal().getCameraId();
         } catch (IllegalArgumentException e) {
-            Log.w(TAG, "Unable to get camera id for the camera selector.");
+            Logger.w(TAG, "Unable to get camera id for the camera selector.");
             // Returns null if there's no camera id can be found.
             return null;
         }

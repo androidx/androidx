@@ -19,7 +19,6 @@ package androidx.camera.extensions;
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 import android.media.Image;
-import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 
@@ -27,6 +26,7 @@ import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter;
 import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraCaptureResults;
 import androidx.camera.core.impl.CaptureProcessor;
@@ -80,7 +80,7 @@ final class AdaptingPreviewProcessor implements CaptureProcessor,
 
             imageProxy = imageProxyListenableFuture.get();
         } catch (ExecutionException | InterruptedException e) {
-            Log.e(TAG, "Unable to retrieve ImageProxy from bundle");
+            Logger.e(TAG, "Unable to retrieve ImageProxy from bundle");
             return;
         }
 

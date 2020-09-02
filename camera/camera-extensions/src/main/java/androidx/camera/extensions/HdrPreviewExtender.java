@@ -16,10 +16,9 @@
 
 package androidx.camera.extensions;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.HdrPreviewExtenderImpl;
@@ -42,7 +41,7 @@ public class HdrPreviewExtender extends PreviewExtender {
             try {
                 return new VendorHdrPreviewExtender(builder);
             } catch (NoClassDefFoundError e) {
-                Log.d(TAG, "No HDR preview extender found. Falling back to default.");
+                Logger.d(TAG, "No HDR preview extender found. Falling back to default.");
             }
         }
 
