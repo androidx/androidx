@@ -27,6 +27,7 @@ import android.opengl.GLES20
 import android.util.Log
 import android.view.SurfaceHolder
 import androidx.annotation.CallSuper
+import androidx.annotation.UiThread
 import androidx.wear.watchface.style.UserStyleManager
 
 import java.nio.ByteBuffer
@@ -50,10 +51,7 @@ private val EGL_CONTEXT_ATTRIB_LIST =
 
 private val EGL_SURFACE_ATTRIB_LIST = intArrayOf(EGL14.EGL_NONE)
 
-/**
- * The base class {@link GLES20} WatchFace rendering. Generally this class's methods should be
- * called on the main thread only.
- */
+/** The base class {@link GLES20} WatchFace rendering. */
 abstract class Gles2Renderer (
     /** The {@link SurfaceHolder} that {@link onDraw} will draw into. */
     surfaceHolder: SurfaceHolder,
@@ -227,7 +225,8 @@ abstract class Gles2Renderer (
         }
     }
 
-    /** Called when a new GL context is created. It's safe to use GL APIs in this method.  */
+    /** Called when a new GL context is created. It's safe to use GL APIs in this method. */
+    @UiThread
     open fun onGlContextCreated() {}
 
     /**
@@ -236,6 +235,7 @@ abstract class Gles2Renderer (
      * @param width width of surface in pixels
      * @param height height of surface in pixels
      */
+    @UiThread
     open fun onGlSurfaceCreated(width: Int, height: Int) {}
 
     internal override fun onDrawInternal(
@@ -267,13 +267,13 @@ abstract class Gles2Renderer (
     }
 
     /**
-     * Called on the main thread. Sub-classes should override this to implement their rendering
-     * logic which should respect the current {@link DrawMode}. For correct functioning watch
-     * faces must use the supplied {@link Calendar} and avoid using any other ways of getting the
-     * time.
+     * Sub-classes should override this to implement their rendering logic which should respect
+     * the current {@link DrawMode}. For correct functioning watch faces must use the supplied
+     * {@link Calendar} and avoid using any other ways of getting the time.
      *
      * @param calendar The current {@link Calendar}
      */
+    @UiThread
     protected abstract fun onDraw(
         calendar: Calendar
     )

@@ -16,7 +16,9 @@
 
 package androidx.wear.watchface
 
+import android.annotation.SuppressLint
 import android.app.NotificationManager
+import androidx.annotation.UiThread
 
 /** An observer for changes in system state which are relevant to watch faces. */
 class WatchState {
@@ -107,6 +109,7 @@ class WatchState {
          *
          * @param isAmbient Whether or not the device is in ambient mode
          */
+        @UiThread
         fun onAmbientModeChanged(isAmbient: Boolean) {}
 
         /**
@@ -114,6 +117,7 @@ class WatchState {
          *
          * @param inAirplaneMode Whether or not the device is in airplane mode
          */
+        @UiThread
         fun onInAirplaneModeChanged(inAirplaneMode: Boolean) {}
 
         /**
@@ -122,6 +126,7 @@ class WatchState {
          *
          * @param isBatteryLowAndNotCharging Whether or not the battery is low and not charging
          */
+        @UiThread
         fun onIsBatteryLowAndNotCharging(isBatteryLowAndNotCharging: Boolean) {}
 
         /**
@@ -129,6 +134,7 @@ class WatchState {
          *
          * @param isCharging Whether or not the device is charging
          */
+        @UiThread
         fun onIsChargingChanged(isCharging: Boolean) {}
 
         /**
@@ -136,6 +142,7 @@ class WatchState {
          *
          * @param isConnectedToCompanion Whether or not the device is connected to the phone
          */
+        @UiThread
         fun onIsConnectedToCompanionChanged(isConnectedToCompanion: Boolean) {}
 
         /**
@@ -143,6 +150,7 @@ class WatchState {
          *
          * @param isGpsActive Whether or not GPS is enabled
          */
+        @UiThread
         fun onIsGpsActiveChanged(isGpsActive: Boolean) {}
 
         /**
@@ -150,6 +158,7 @@ class WatchState {
          *
          * @param isKeyguardLocked Whether or not the keyguard (lock screen) is locked
          */
+        @UiThread
         fun onIsKeyguardLockedChanged(isKeyguardLocked: Boolean) {}
 
         /**
@@ -165,6 +174,7 @@ class WatchState {
          *
          * @param interruptionFilter The current interruption filter set by the user
          */
+        @UiThread
         fun onInterruptionFilterChanged(interruptionFilter: Int) {}
 
         /**
@@ -172,6 +182,7 @@ class WatchState {
          *
          * @param inTheaterMode Whether or not the device is in theater mode
          */
+        @UiThread
         fun onInTheaterModeChanged(inTheaterMode: Boolean) {}
 
         /**
@@ -179,6 +190,7 @@ class WatchState {
          *
          * @param notificationCount total number of the notification cards in the stream
          */
+        @UiThread
         fun onNotificationCountChanged(notificationCount: Int) {}
 
         /**
@@ -187,6 +199,7 @@ class WatchState {
          * @param unreadNotificationCount number of the notification cards in the stream that
          *       haven't yet been seen by the user
          */
+        @UiThread
         fun onUnreadNotificationCountChanged(unreadNotificationCount: Int) {}
 
         /**
@@ -195,6 +208,7 @@ class WatchState {
          *
          * @param visible Whether the watch face is visible or hidden
          */
+        @UiThread
         fun onVisibilityChanged(visible: Boolean) {}
 
         /**
@@ -202,6 +216,7 @@ class WatchState {
          *
          * @param hasBurnInProtection Whether or not the device has burn in protection
          */
+        @UiThread
         fun setHasBurnInProtection(hasBurnInProtection: Boolean) {}
 
         /**
@@ -209,6 +224,7 @@ class WatchState {
          *
          * @param hasLowBitAmbient Whether or not the device has a lower bit depth in ambient mode
          */
+        @UiThread
         fun setHasLowBitAmbient(hasLowBitAmbient: Boolean) {}
     }
 
@@ -217,6 +233,8 @@ class WatchState {
      *
      * @param listener The {@link Listener} to add
      */
+    @UiThread
+    @SuppressLint("ExecutorRegistration")
     fun addListener(listener: Listener) {
         mListeners.add(listener)
     }
@@ -226,10 +244,12 @@ class WatchState {
      *
      * @param listener The {@link #Listener} to remove
      */
+    @UiThread
     fun removeListener(listener: Listener) {
         mListeners.remove(listener)
     }
 
+    @UiThread
     internal fun onAmbientModeChanged(isAmbient: Boolean) {
         this.isAmbient = isAmbient
         for (listener in mListeners) {
@@ -237,6 +257,7 @@ class WatchState {
         }
     }
 
+    @UiThread
     internal fun onInAirplaneModeChanged(inAirplaneMode: Boolean) {
         this.inAirplaneMode = inAirplaneMode
         for (listener in mListeners) {
@@ -244,6 +265,7 @@ class WatchState {
         }
     }
 
+    @UiThread
     internal fun onIsBatteryLowAndNotCharging(isBatteryLowAndNotCharging: Boolean) {
         this.isBatteryLowAndNotCharging = isBatteryLowAndNotCharging
         for (listener in mListeners) {
@@ -251,6 +273,7 @@ class WatchState {
         }
     }
 
+    @UiThread
     internal fun onIsChargingChanged(isCharging: Boolean) {
         this.isCharging = isCharging
         for (listener in mListeners) {
@@ -258,6 +281,7 @@ class WatchState {
         }
     }
 
+    @UiThread
     internal fun onIsConnectedToCompanionChanged(isConnectedToCompanion: Boolean) {
         this.isConnectedToCompanion = isConnectedToCompanion
         for (listener in mListeners) {
@@ -265,6 +289,7 @@ class WatchState {
         }
     }
 
+    @UiThread
     internal fun onIsGpsActiveChanged(isGpsActive: Boolean) {
         this.isGpsActive = isGpsActive
         for (listener in mListeners) {
@@ -272,6 +297,7 @@ class WatchState {
         }
     }
 
+    @UiThread
     internal fun onIsKeyguardLockedChanged(isKeyguardLocked: Boolean) {
         this.isKeyguardLocked = isKeyguardLocked
         for (listener in mListeners) {
@@ -279,6 +305,7 @@ class WatchState {
         }
     }
 
+    @UiThread
     internal fun onInterruptionFilterChanged(interruptionFilter: Int) {
         this.interruptionFilter = interruptionFilter
         for (listener in mListeners) {
@@ -286,6 +313,7 @@ class WatchState {
         }
     }
 
+    @UiThread
     internal fun onInTheaterModeChanged(inTheaterMode: Boolean) {
         this.isInTheaterMode = inTheaterMode
         for (listener in mListeners) {
@@ -293,6 +321,7 @@ class WatchState {
         }
     }
 
+    @UiThread
     internal fun onNotificationCountChanged(notificationCount: Int) {
         this.notificationCount = notificationCount
         for (listener in mListeners) {
@@ -300,6 +329,7 @@ class WatchState {
         }
     }
 
+    @UiThread
     internal fun onUnreadNotificationCountChanged(unreadNotificationCount: Int) {
         this.unreadNotificationCount = unreadNotificationCount
         for (listener in mListeners) {
@@ -307,6 +337,7 @@ class WatchState {
         }
     }
 
+    @UiThread
     internal fun onVisibilityChanged(visible: Boolean) {
         this.isVisible = visible
         for (listener in mListeners) {
@@ -314,6 +345,7 @@ class WatchState {
         }
     }
 
+    @UiThread
     internal fun setHasBurnInProtection(hasBurnInProtection: Boolean) {
         this.hasBurnInProtection = hasBurnInProtection
         for (listener in mListeners) {
@@ -321,6 +353,7 @@ class WatchState {
         }
     }
 
+    @UiThread
     internal fun setHasLowBitAmbient(hasLowBitAmbient: Boolean) {
         this.hasLowBitAmbient = hasLowBitAmbient
         for (listener in mListeners) {

@@ -23,6 +23,7 @@ import android.os.Handler
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
+import androidx.annotation.UiThread
 import androidx.wear.complications.SystemProviders
 import androidx.wear.watchface.style.UserStyleCategory
 
@@ -60,7 +61,7 @@ interface WatchFaceHostApi {
     /** Returns the main thread {@link Handler}. */
     fun getHandler(): Handler
 
-    /** Registers whether the watch face haa an analog or digital display. */
+    /** Registers whether the watch face has an analog or digital display. */
     fun registerWatchFaceType(@WatchFaceType watchFaceType: Int)
 
     /** Registers the watch face's user style schema with the system. */
@@ -152,10 +153,8 @@ interface WatchFaceHostApi {
         type: Int
     )
 
-    /**
-     * Schedules a call to {@link Renderer#onDraw} to draw the next frame. Must be called on
-     * the main thread.
-     */
+    /** Schedules a call to {@link Renderer#onDraw} to draw the next frame. */
+    @UiThread
     fun invalidate()
 }
 

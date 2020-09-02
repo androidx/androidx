@@ -16,6 +16,9 @@
 
 package androidx.wear.watchface.style
 
+import android.annotation.SuppressLint
+import androidx.annotation.UiThread
+
 /**
  * In memory storage for user style choices which allows listeners to be registered to observe
  * style changes.
@@ -31,6 +34,7 @@ class UserStyleManager(
     /** A listener for observing user style changes. */
     interface UserStyleListener {
         /** Called whenever the user style changes. */
+        @UiThread
         fun onUserStyleChanged(userStyle: Map<UserStyleCategory, UserStyleCategory.Option>)
     }
 
@@ -46,7 +50,10 @@ class UserStyleManager(
 
     /** The current user controlled style for rendering etc... */
     var userStyle: Map<UserStyleCategory, UserStyleCategory.Option>
+        @UiThread
         get() = _style
+
+        @UiThread
         set(style) {
             val serialized = HashMap<String, String>()
             var changed = false
@@ -72,12 +79,16 @@ class UserStyleManager(
     /**
      * Adds a {@link UserStyleListener} which is called immediately and whenever the style changes.
      */
+    @UiThread
+    @SuppressLint("ExecutorRegistration")
     fun addUserStyleListener(userStyleListener: UserStyleListener) {
         styleListeners.add(userStyleListener)
         userStyleListener.onUserStyleChanged(_style)
     }
 
     /** Removes a {@link UserStyleListener} previously added by {@link #addUserStyleListener}. */
+    @UiThread
+    @SuppressLint("ExecutorRegistration")
     fun removeUserStyleListener(userStyleListener: UserStyleListener) {
         styleListeners.remove(userStyleListener)
     }
