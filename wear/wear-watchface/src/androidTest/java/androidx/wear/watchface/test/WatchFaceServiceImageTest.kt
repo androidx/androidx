@@ -30,7 +30,7 @@ import android.support.wearable.complications.ComplicationText
 import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.IWatchFaceCommand
 import android.support.wearable.watchface.IWatchFaceService
-import android.support.wearable.watchface.SharedMemoryImage
+import android.support.wearable.watchface.ashmemCompressedImageBundleToBitmap
 import android.support.wearable.watchface.WatchFaceStyle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.view.Surface
@@ -95,8 +95,10 @@ private class WatchFaceServiceStub(
     }
 
     override fun registerIWatchFaceCommand(iWatchFaceCommandBundle: Bundle?) {
-        this.iWatchFaceCommand = IWatchFaceCommand.Stub.asInterface(iWatchFaceCommandBundle
-            ?.getBinder(Constants.EXTRA_WATCH_FACE_COMMAND_BINDER))
+        this.iWatchFaceCommand = IWatchFaceCommand.Stub.asInterface(
+            iWatchFaceCommandBundle
+                ?.getBinder(Constants.EXTRA_WATCH_FACE_COMMAND_BINDER)
+        )
     }
 
     override fun setContentDescriptionLabels(labels: Array<ContentDescriptionLabel>) {
@@ -284,12 +286,12 @@ class WatchFaceServiceImageTest {
         handler.post(this::initCanvasWatchFace)
         var bitmap: Bitmap? = null
         handler.post {
-            bitmap = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
-                watchFaceServiceStub.iWatchFaceCommand!!.takeWatchfaceScreenshot(
-                    DrawMode.AMBIENT,
-                    100,
-                    123456789
-                )
+            bitmap = watchFaceServiceStub.iWatchFaceCommand!!.takeWatchfaceScreenshot(
+                DrawMode.AMBIENT,
+                100,
+                123456789
+            ).ashmemCompressedImageBundleToBitmap(
+
             )
             latch.countDown()
         }
@@ -308,14 +310,14 @@ class WatchFaceServiceImageTest {
         handler.post(this::initCanvasWatchFace)
         var bitmap: Bitmap? = null
         handler.post {
-            bitmap = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
-                watchFaceServiceStub.iWatchFaceCommand!!.takeComplicationScreenshot(
-                    EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                    DrawMode.AMBIENT,
-                    100,
-                    123456789,
-                    null
-                )
+            bitmap = watchFaceServiceStub.iWatchFaceCommand!!.takeComplicationScreenshot(
+                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
+                DrawMode.AMBIENT,
+                100,
+                123456789,
+                null
+            ).ashmemCompressedImageBundleToBitmap(
+
             )
             latch.countDown()
         }
@@ -334,13 +336,11 @@ class WatchFaceServiceImageTest {
         handler.post(this::initGles2WatchFace)
         var bitmap: Bitmap? = null
         handler.post {
-            bitmap = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
-                watchFaceServiceStub.iWatchFaceCommand!!.takeWatchfaceScreenshot(
-                    DrawMode.INTERACTIVE,
-                    100,
-                    123456789
-                )
-            )!!
+            bitmap = watchFaceServiceStub.iWatchFaceCommand!!.takeWatchfaceScreenshot(
+                DrawMode.INTERACTIVE,
+                100,
+                123456789
+            ).ashmemCompressedImageBundleToBitmap()!!
             latch.countDown()
         }
 
@@ -358,17 +358,17 @@ class WatchFaceServiceImageTest {
         handler.post(this::initCanvasWatchFace)
         var bitmap: Bitmap? = null
         handler.post {
-            bitmap = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
-                watchFaceServiceStub.iWatchFaceCommand!!.takeComplicationScreenshot(
-                    EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                    DrawMode.INTERACTIVE,
-                    100,
-                    123456789,
-                    ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
-                        .setShortTitle(ComplicationText.plainText("Title"))
-                        .setShortText(ComplicationText.plainText("Text"))
-                        .build()
-                )
+            bitmap = watchFaceServiceStub.iWatchFaceCommand!!.takeComplicationScreenshot(
+                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
+                DrawMode.INTERACTIVE,
+                100,
+                123456789,
+                ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
+                    .setShortTitle(ComplicationText.plainText("Title"))
+                    .setShortText(ComplicationText.plainText("Text"))
+                    .build()
+            ).ashmemCompressedImageBundleToBitmap(
+
             )
             latch.countDown()
         }
@@ -385,15 +385,13 @@ class WatchFaceServiceImageTest {
         handler.post(this::initCanvasWatchFace)
         var bitmap2: Bitmap? = null
         handler.post {
-            bitmap2 = SharedMemoryImage.ashmemCompressedImageBundleToBitmap(
-                watchFaceServiceStub.iWatchFaceCommand!!.takeComplicationScreenshot(
-                    EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                    DrawMode.INTERACTIVE,
-                    100,
-                    123456789,
-                    null
-                )
-            )
+            bitmap2 = watchFaceServiceStub.iWatchFaceCommand!!.takeComplicationScreenshot(
+                EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
+                DrawMode.INTERACTIVE,
+                100,
+                123456789,
+                null
+            ).ashmemCompressedImageBundleToBitmap()
             latch2.countDown()
         }
 
