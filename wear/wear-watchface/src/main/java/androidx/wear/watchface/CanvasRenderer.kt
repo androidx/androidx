@@ -89,7 +89,7 @@ abstract class CanvasRenderer(
     }
 
     /** {@inheritDoc} */
-    override fun takeScreenshot(
+    internal override fun takeScreenshot(
         calendar: Calendar,
         @DrawMode drawMode: Int
     ): Bitmap {

@@ -37,10 +37,10 @@ public interface TimeDependentText extends  Parcelable {
      * @param dateTimeMillis milliseconds since epoch, e.g. from {@link System#currentTimeMillis}
      */
     @NonNull
-    CharSequence getText(@NonNull Resources resources, long dateTimeMillis);
+    CharSequence getTextAt(@NonNull Resources resources, long dateTimeMillis);
 
     /**
-     * Returns true if the result of {@link #getText} will be the same for both {@code
+     * Returns true if the result of {@link #getTextAt} will be the same for both {@code
      * firstDateTimeMillis} and {@code secondDateTimeMillis}.
      */
     boolean returnsSameText(long firstDateTimeMillis, long secondDateTimeMillis);

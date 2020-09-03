@@ -316,7 +316,7 @@ class ComplicationRenderer {
         if (mComplicationData == null
                 || mComplicationData.getType() == ComplicationData.TYPE_EMPTY
                 || mComplicationData.getType() == ComplicationData.TYPE_NOT_CONFIGURED
-                || !mComplicationData.isActive(currentTimeMillis)) {
+                || !mComplicationData.isActiveAt(currentTimeMillis)) {
             return;
         }
         if (mBounds.isEmpty()) {
@@ -367,11 +367,11 @@ class ComplicationRenderer {
         if (mComplicationData.hasShortText()) {
             mMainTextRenderer.setMaxLines(1);
             mMainTextRenderer.setText(
-                    mComplicationData.getShortText().getText(
+                    mComplicationData.getShortText().getTextAt(
                             mContext.getResources(), currentTimeMillis));
             if (mComplicationData.getShortTitle() != null) {
                 mSubTextRenderer.setText(
-                        mComplicationData.getShortTitle().getText(
+                        mComplicationData.getShortTitle().getTextAt(
                                 mContext.getResources(), currentTimeMillis));
             } else {
                 mSubTextRenderer.setText("");
@@ -379,11 +379,11 @@ class ComplicationRenderer {
         }
         if (mComplicationData.hasLongText()) {
             mMainTextRenderer.setText(
-                    mComplicationData.getLongText().getText(
+                    mComplicationData.getLongText().getTextAt(
                             mContext.getResources(), currentTimeMillis));
             if (mComplicationData.getLongTitle() != null) {
                 mSubTextRenderer.setText(
-                        mComplicationData.getLongTitle().getText(
+                        mComplicationData.getLongTitle().getTextAt(
                                 mContext.getResources(), currentTimeMillis));
                 // If long text has title, only show one line from each
                 mMainTextRenderer.setMaxLines(1);

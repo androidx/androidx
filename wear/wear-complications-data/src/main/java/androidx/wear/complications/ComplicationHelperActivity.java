@@ -55,7 +55,7 @@ import java.util.Objects;
  */
 @TargetApi(Build.VERSION_CODES.N)
 @SuppressWarnings("ForbiddenSuperClass")
-public class ComplicationHelperActivity extends Activity
+public final class ComplicationHelperActivity extends Activity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     /** @hide */

@@ -245,7 +245,7 @@ abstract class Gles2Renderer (
     }
 
     /** {@inheritDoc} */
-    override fun takeScreenshot(
+    internal override fun takeScreenshot(
         calendar: Calendar,
         @DrawMode drawMode: Int
     ): Bitmap {

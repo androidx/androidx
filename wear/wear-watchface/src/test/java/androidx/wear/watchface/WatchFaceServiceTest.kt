@@ -42,6 +42,7 @@ import androidx.wear.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleManager
+import androidx.wear.watchface.ui.WatchFaceConfigActivity
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
@@ -343,16 +344,21 @@ class WatchFaceServiceTest {
     fun drawComplicationSelect_setsCorrectDrawMode() {
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
 
-        renderer.drawComplicationSelect(
+        val iWatchFaceConfig = WatchFaceConfigActivity.getIWatchFaceConfig(ComponentName(
+            testWatchFaceService.packageName,
+            testWatchFaceService.javaClass.typeName
+        ))!!
+
+        iWatchFaceConfig.drawComplicationSelect(
             Canvas(),
             ONE_HUNDRED_BY_ONE_HUNDRED_RECT,
             Calendar.getInstance().apply {
                 timeInMillis = 1000L
             }
         )
-        assertThat(renderer.drawMode).isEqualTo(
-            DrawMode.COMPLICATION_SELECT
-        )
+
+        assertThat(renderer.lastDrawMode).isEqualTo(DrawMode.COMPLICATION_SELECT)
+        assertThat(renderer.drawMode).isEqualTo(DrawMode.INTERACTIVE)
     }
 
     @Test
@@ -842,7 +848,7 @@ class WatchFaceServiceTest {
     @Test
     fun persistedStyleOptionMismatchIgnored() {
         `when`(iWatchFaceService.getStoredUserStyle()).thenReturn(
-            UserStyleCategory.styleMapToBundle(mapOf(watchHandStyleCategory to badStyleOption)))
+            UserStyleManager.styleMapToBundle(mapOf(watchHandStyleCategory to badStyleOption)))
 
         initEngine(
             WatchFaceType.ANALOG,
@@ -910,8 +916,8 @@ class WatchFaceServiceTest {
 
         // Check all the right methods are called on initial onPropertiesChanged call.
         engineWrapper.onPropertiesChanged(bundle)
-        verify(systemStateListener).onSetHasLowBitAmbient(true)
-        verify(systemStateListener).onSetHasBurnInProtection(false)
+        verify(systemStateListener).onHasLowBitAmbientSet(true)
+        verify(systemStateListener).onHasBurnInProtectionSet(false)
     }
 
     @Test

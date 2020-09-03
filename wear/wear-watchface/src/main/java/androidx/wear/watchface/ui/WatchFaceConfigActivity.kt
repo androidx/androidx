@@ -33,6 +33,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.watchface.style.UserStyleCategory
+import androidx.wear.watchface.style.UserStyleManager
 
 /** @hide */
 @RestrictTo(LIBRARY)
@@ -96,6 +97,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
             componentName: ComponentName,
             watchFaceConfigDelegate: WatchFaceConfigDelegate
         ) {
+            System.out.println("%%% registerWatchFace " + componentName)
             sComponentNameToIWatchFaceConfig[componentName] = watchFaceConfigDelegate
         }
 
@@ -108,6 +110,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
         @SuppressWarnings("SyntheticAccessor")
         @JvmStatic
         internal fun getIWatchFaceConfig(componentName: ComponentName): WatchFaceConfigDelegate? {
+            System.out.println("%%% getIWatchFaceConfig " + componentName)
             return sComponentNameToIWatchFaceConfig[componentName]
         }
     }
@@ -207,7 +210,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
             }
 
         styleSchema =
-            UserStyleCategory.bundlesToUserStyleCategoryList(
+            UserStyleManager.bundlesToUserStyleCategoryList(
                 watchFaceConfigDelegate.getUserStyleSchema()
             )
 
@@ -249,7 +252,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 fragmentController.showStyleConfigFragment(
                     onlyStyleCategory.id,
                     styleSchema,
-                    UserStyleCategory.bundleToStyleMap(
+                    UserStyleManager.bundleToStyleMap(
                         watchFaceConfigDelegate.getUserStyle(),
                         styleSchema
                     )
