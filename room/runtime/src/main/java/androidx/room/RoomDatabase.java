@@ -196,7 +196,7 @@ public abstract class RoomDatabase {
                     configuration.typeConverterFactories.entrySet()) {
                 if (!mTypeConverterFactories.containsKey(entry.getKey())) {
                     throw new IllegalArgumentException("Unexpected factory " + entry.getKey() + ". "
-                            + "Annotate TypeConverter class with @TypeCoverterFactory annotation "
+                            + "Annotate TypeConverter class with @TypeConverter.Factory annotation "
                             + "or remove this factory from the builder.");
                 }
                 mTypeConverterFactories.put(entry.getKey(), entry.getValue());
@@ -207,7 +207,7 @@ public abstract class RoomDatabase {
             if (entry.getValue() == null) {
                 throw new IllegalArgumentException("Missing " + entry.getKey() + " factory "
                         + "instance. Add it using addTypeConverterFactory method or "
-                        + "remove unnecessaty @TypeConverterFactory annotation from "
+                        + "remove unnecessary @TypeConverter.Factory annotation from "
                         + "a TypeConverter class.");
             }
         }
@@ -1310,22 +1310,5 @@ public abstract class RoomDatabase {
          */
         public void onOpenPrepackagedDatabase(@NonNull SupportSQLiteDatabase db) {
         }
-    }
-
-    /**
-     * Implementations of {@code TypeConverterFactory} interface are responsible to instantiate
-     * TypeConverters.
-     */
-    public interface TypeConverterFactory {
-        /**
-         * Creates a new instance of the given {@code Class}.
-         * <p>
-         *
-         * @param converterClass a {@code Class} whose instance is requested
-         * @param <T> The type parameter for the TypeConverter.
-         * @return a newly created TypeConverter
-         */
-        @NonNull
-        <T> T create(@NonNull Class<T> converterClass);
     }
 }

@@ -48,4 +48,20 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.CLASS)
 public @interface TypeConverter {
+
+    /**
+     * Specifies type converter factory that Room can use to instantiate a class containing
+     * {@link TypeConverter} annotated methods.
+     */
+    @Target(ElementType.TYPE)
+    @Retention(RetentionPolicy.CLASS)
+    @interface Factory {
+        /**
+         * The type converter factory class.
+         *
+         * @return The class of a {@code TypeConverterFactory } that should be used to instantiate a
+         * class that contains the converter methods.
+         */
+        Class<? extends TypeConverterFactory> value();
+    }
 }

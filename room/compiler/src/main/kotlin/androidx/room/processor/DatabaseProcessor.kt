@@ -107,7 +107,11 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                 views = views,
                 daoMethods = daoMethods,
                 exportSchema = dbAnnotation.value.exportSchema,
-                enableForeignKeys = hasForeignKeys)
+                enableForeignKeys = hasForeignKeys,
+                typeConverterFactories = HashSet(context.typeConverterFactories))
+
+        context.typeConverterFactories.clear()
+
         return database
     }
 

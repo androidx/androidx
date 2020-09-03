@@ -17,7 +17,6 @@
 package androidx.room.processor
 
 import androidx.room.TypeConverter
-import androidx.room.TypeConverterFactory
 import androidx.room.TypeConverters
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XElement
@@ -79,7 +78,7 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
             it.hasAnnotation(TypeConverter::class)
         }
         val typeConverterFactory = declaredType.asTypeElement()
-            .toAnnotationBox(TypeConverterFactory::class)
+            .toAnnotationBox(TypeConverter.Factory::class)
             ?.getAsType("value")
         context.checker.check(converterMethods.isNotEmpty(), element, TYPE_CONVERTER_EMPTY_CLASS)
         val allStatic = converterMethods.all { it.isStatic() }
@@ -93,7 +92,7 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
                         }, element, TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR
             )
         } else {
-            context.addTypeConverterFactory(typeConverterFactory)
+            context.typeConverterFactories.add(typeConverterFactory)
         }
         return converterMethods.mapNotNull {
             processMethod(

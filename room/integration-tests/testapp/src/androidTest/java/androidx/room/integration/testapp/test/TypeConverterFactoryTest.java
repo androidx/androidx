@@ -17,6 +17,7 @@
 package androidx.room.integration.testapp.test;
 
 import static org.hamcrest.CoreMatchers.instanceOf;
+import static org.junit.Assert.fail;
 
 import android.content.Context;
 
@@ -29,8 +30,11 @@ import androidx.room.TypeConverterFactory;
 import androidx.room.TypeConverters;
 import androidx.room.integration.testapp.TestDatabase;
 import androidx.room.integration.testapp.dao.PetDao;
+import androidx.room.integration.testapp.dao.RobotsDao;
+import androidx.room.integration.testapp.vo.Hivemind;
 import androidx.room.integration.testapp.vo.Pet;
 import androidx.room.integration.testapp.vo.PetWithUser;
+import androidx.room.integration.testapp.vo.Robot;
 import androidx.room.integration.testapp.vo.Toy;
 import androidx.room.integration.testapp.vo.User;
 import androidx.test.core.app.ApplicationProvider;
@@ -41,7 +45,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.nio.ByteBuffer;
 import java.util.Date;
+import java.util.UUID;
 
 @MediumTest
 @RunWith(AndroidJUnit4.class)
@@ -50,80 +56,60 @@ public class TypeConverterFactoryTest {
     @Test
     public void testTypeConverterFactory() {
         Context context = ApplicationProvider.getApplicationContext();
-        context.deleteDatabase("test");
-        TestDatabaseWithConverter db = null;
-        Throwable throwable = null;
-        try {
-            db = Room.databaseBuilder(context, TestDatabaseWithConverter.class, "test")
+        TestDatabaseWithConverter db =
+                Room.inMemoryDatabaseBuilder(context, TestDatabaseWithConverter.class)
                     .addTypeConverterFactory(new TimeStampConverterFactory())
                     .build();
             Pet pet = TestUtil.createPet(3);
             pet.setName("pet");
             db.getPetDao().insertOrReplace(pet);
-        } catch (Throwable t) {
-            throwable = t;
-        } finally {
-            if (db != null) {
-                db.close();
-            }
-        }
-        Assert.assertNull(throwable);
+
+            Robot robot = new Robot(UUID.randomUUID(), UUID.randomUUID());
+            db.getRobotsDao().putRobot(robot);
+            db.close();
     }
 
     @Test
     public void testMissingTypeConverterFactoryInstance() {
         Context context = ApplicationProvider.getApplicationContext();
-        context.deleteDatabase("test");
-        TestDatabaseWithConverter db = null;
-        Throwable throwable = null;
         try {
-            db = Room.databaseBuilder(context, TestDatabaseWithConverter.class, "test")
-                    .build();
+            TestDatabaseWithConverter db =
+                    Room.inMemoryDatabaseBuilder(context, TestDatabaseWithConverter.class).build();
             Pet pet = TestUtil.createPet(3);
             pet.setName("pet");
             db.getPetDao().insertOrReplace(pet);
-        } catch (Throwable t) {
-            throwable = t;
-        } finally {
-            if (db != null) {
-                db.close();
-            }
+            fail("Show have thrown an IllegalArgumentException");
+        } catch (Throwable throwable) {
+            Assert.assertThat(throwable, instanceOf(IllegalArgumentException.class));
         }
-        Assert.assertThat(throwable, instanceOf(IllegalArgumentException.class));
     }
 
     @Test
     public void testMissingTypeConverterFactoryAnnotation() {
         Context context = ApplicationProvider.getApplicationContext();
-        context.deleteDatabase("test");
-        TestDatabase db = null;
-        Throwable throwable = null;
         try {
-            db = Room.databaseBuilder(context, TestDatabase.class, "test")
+            TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class)
                     .addTypeConverterFactory(new TimeStampConverterFactory())
                     .build();
             Pet pet = TestUtil.createPet(3);
             pet.setName("pet");
             db.getPetDao().insertOrReplace(pet);
-        } catch (Throwable t) {
-            throwable = t;
-        } finally {
-            if (db != null) {
-                db.close();
-            }
+            fail("Show have thrown an IllegalArgumentException");
+        } catch (Throwable throwable) {
+            Assert.assertThat(throwable, instanceOf(IllegalArgumentException.class));
         }
-        Assert.assertThat(throwable, instanceOf(IllegalArgumentException.class));
     }
 
-    @Database(entities = {Pet.class, Toy.class, User.class},
+    @Database(entities = {Pet.class, Toy.class, User.class, Robot.class, Hivemind.class},
             views = {PetWithUser.class},
             version = 1, exportSchema = false)
-    @TypeConverters(TimeStampConverter.class)
+    @TypeConverters({TimeStampConverter.class, UUIDConverter.class})
     abstract static class TestDatabaseWithConverter extends RoomDatabase {
         public abstract PetDao getPetDao();
+        public abstract RobotsDao getRobotsDao();
     }
 
-    @TypeConverterFactory(TimeStampConverterFactory.class)
+    @TypeConverter.Factory(TimeStampConverterFactory.class)
     public static class TimeStampConverter {
         @TypeConverter
         public Date fromTimestamp(Long value) {
@@ -140,12 +126,37 @@ public class TypeConverterFactoryTest {
         }
     }
 
-    public static class TimeStampConverterFactory implements RoomDatabase.TypeConverterFactory {
+    @TypeConverter.Factory(TimeStampConverterFactory.class)
+    public static class UUIDConverter {
+        @TypeConverter
+        public UUID asUuid(byte[] bytes) {
+            ByteBuffer bb = ByteBuffer.wrap(bytes);
+            long firstLong = bb.getLong();
+            long secondLong = bb.getLong();
+            return new UUID(firstLong, secondLong);
+        }
+
+        @TypeConverter
+        public byte[] asBytes(UUID uuid) {
+            ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
+            bb.putLong(uuid.getMostSignificantBits());
+            bb.putLong(uuid.getLeastSignificantBits());
+            return bb.array();
+        }
+    }
+
+    public static class TimeStampConverterFactory implements TypeConverterFactory {
 
         @NonNull
         @Override
         public <T> T create(@NonNull Class<T> converterClass) {
-            return (T) new TimeStampConverter();
+            if (converterClass.isAssignableFrom(TimeStampConverter.class)) {
+                return (T) new TimeStampConverter();
+            } else if(converterClass.isAssignableFrom(UUIDConverter.class)) {
+                return (T) new UUIDConverter();
+            } else {
+                throw new IllegalStateException("Requested unknown converter");
+            }
         }
     }
 }

@@ -36,7 +36,8 @@ data class Database(
     val daoMethods: List<DaoMethod>,
     val version: Int,
     val exportSchema: Boolean,
-    val enableForeignKeys: Boolean
+    val enableForeignKeys: Boolean,
+    val typeConverterFactories: Set<XType>
 ) {
     val typeName: ClassName by lazy { element.className }
 

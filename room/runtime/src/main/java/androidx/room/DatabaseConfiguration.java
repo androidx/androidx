@@ -67,7 +67,7 @@ public class DatabaseConfiguration {
     public final RoomDatabase.PrepackagedDatabaseCallback prepackagedDatabaseCallback;
 
     @Nullable
-    public final Map<String, RoomDatabase.TypeConverterFactory> typeConverterFactories;
+    public final Map<String, TypeConverterFactory> typeConverterFactories;
 
     /**
      * Whether Room should throw an exception for queries run on the main thread.
@@ -140,7 +140,7 @@ public class DatabaseConfiguration {
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
      * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
      * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
-     * Callable, RoomDatabase.PrepackagedDatabaseCallback)}
+     * Callable, RoomDatabase.PrepackagedDatabaseCallback, Map<String, TypeConverterFactory>)}
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
@@ -170,7 +170,7 @@ public class DatabaseConfiguration {
             @Nullable Set<Integer> migrationNotRequiredFrom) {
         this(context, name, sqliteOpenHelperFactory, migrationContainer, callbacks,
                 allowMainThreadQueries, journalMode, queryExecutor, queryExecutor, false,
-                requireMigration, false, migrationNotRequiredFrom, null, null, null, null);
+                requireMigration, false, migrationNotRequiredFrom, null, null, null, null, null);
     }
 
     /**
@@ -179,7 +179,7 @@ public class DatabaseConfiguration {
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
      * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
      * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
-     * Callable, RoomDatabase.PrepackagedDatabaseCallback)}
+     * Callable, RoomDatabase.PrepackagedDatabaseCallback, Map<String, TypeConverterFactory>)}
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
@@ -216,7 +216,7 @@ public class DatabaseConfiguration {
         this(context, name, sqliteOpenHelperFactory, migrationContainer, callbacks,
                 allowMainThreadQueries, journalMode, queryExecutor, transactionExecutor,
                 multiInstanceInvalidation, requireMigration, allowDestructiveMigrationOnDowngrade,
-                migrationNotRequiredFrom, null, null, null, null);
+                migrationNotRequiredFrom, null, null, null, null, null);
     }
 
     /**
@@ -225,7 +225,7 @@ public class DatabaseConfiguration {
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
      * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
      * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
-     * Callable, RoomDatabase.PrepackagedDatabaseCallback)}
+     * Callable, RoomDatabase.PrepackagedDatabaseCallback, Map<String, TypeConverterFactory>)}
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
@@ -266,7 +266,7 @@ public class DatabaseConfiguration {
         this(context, name, sqliteOpenHelperFactory, migrationContainer, callbacks,
                 allowMainThreadQueries, journalMode, queryExecutor, transactionExecutor,
                 multiInstanceInvalidation, requireMigration, allowDestructiveMigrationOnDowngrade,
-                migrationNotRequiredFrom, copyFromAssetPath, copyFromFile, null, null);
+                migrationNotRequiredFrom, copyFromAssetPath, copyFromFile, null, null, null);
     }
 
     /**
@@ -275,7 +275,7 @@ public class DatabaseConfiguration {
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
      * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
      * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
-     * Callable, RoomDatabase.PrepackagedDatabaseCallback)}
+     * Callable, RoomDatabase.PrepackagedDatabaseCallback, Map<String, TypeConverterFactory>)}
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
@@ -320,11 +320,16 @@ public class DatabaseConfiguration {
                 allowMainThreadQueries, journalMode, queryExecutor, transactionExecutor,
                 multiInstanceInvalidation, requireMigration, allowDestructiveMigrationOnDowngrade,
                 migrationNotRequiredFrom, copyFromAssetPath, copyFromFile, copyFromInputStream,
-                null);
+                null, null);
     }
 
-    /**
-     * Creates a database configuration with the given values.
+     /**
+      * Creates a database configuration with the given values.
+      *
+      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
+     * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
+     * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
+     * Callable, RoomDatabase.PrepackagedDatabaseCallback, Map<String, TypeConverterFactory>)}
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
@@ -349,6 +354,7 @@ public class DatabaseConfiguration {
      *
      * @hide
      */
+    @Deprecated
     @SuppressLint("LambdaLast")
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
     public DatabaseConfiguration(@NonNull Context context, @Nullable String name,
@@ -419,7 +425,7 @@ public class DatabaseConfiguration {
             @Nullable File copyFromFile,
             @Nullable Callable<InputStream> copyFromInputStream,
             @Nullable RoomDatabase.PrepackagedDatabaseCallback prepackagedDatabaseCallback,
-            @Nullable Map<String, RoomDatabase.TypeConverterFactory> typeConverterFactories) {
+            @Nullable Map<String, TypeConverterFactory> typeConverterFactories) {
         this.sqliteOpenHelperFactory = sqliteOpenHelperFactory;
         this.context = context;
         this.name = name;

@@ -65,7 +65,10 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
         }
     }
 
-    fun typeConverterFactory(scope: CodeGenScope, enclosingClassFactory: XType): MethodSpec {
+    private fun typeConverterFactory(
+        scope: CodeGenScope,
+        enclosingClassFactory: XType
+    ): MethodSpec {
         val baseName = (custom.typeName as ClassName).simpleName().decapitalize(Locale.US)
 
         val converterField = scope.writer.getOrCreateField(object : ClassWriter.SharedFieldSpec(
@@ -79,8 +82,7 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
             }
         })
 
-        return scope.writer.getOrCreateMethod(object : ClassWriter.SharedMethodSpec(
-            baseName) {
+        return scope.writer.getOrCreateMethod(object : ClassWriter.SharedMethodSpec(baseName) {
             override fun getUniqueKey(): String {
                 return "converterMethod_${custom.typeName}"
             }
@@ -92,6 +94,7 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
             ) {
                 builder.apply {
                     addModifiers(Modifier.PRIVATE)
+                    addModifiers(Modifier.SYNCHRONIZED)
                     returns(custom.typeName)
                     addCode(buildConvertMethodBody(writer))
                 }
@@ -102,7 +105,7 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
             ): CodeBlock {
                 val methodScope = CodeGenScope(writer)
                 methodScope.builder().apply {
-                    beginControlFlow("if($N == null)", converterField)
+                    beginControlFlow("if ($N == null)", converterField)
                     addStatement(
                         "$N = ($T)$N.getTypeConverterFactories().get($S).create($T.class)",
                         converterField,

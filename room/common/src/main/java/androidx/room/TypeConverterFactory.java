@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,23 +16,21 @@
 
 package androidx.room;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import androidx.annotation.NonNull;
 
 /**
- * Specifies type converter factory that Room can use to instantiate a class containing
- * {@link TypeConverter} annotated methods.
+ * Implementations of {@code TypeConverterFactory} interface are responsible to instantiate
+ * TypeConverters.
  */
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.CLASS)
-public @interface TypeConverterFactory {
+public interface TypeConverterFactory {
     /**
-     * The type converter factory class.
+     * Creates a new instance of the given {@code Class}.
+     * <p>
      *
-     * @return The class of a {@code TypeConverterFactory } that should be used to instantiate a
-     * class that contains the converter methods.
+     * @param converterClass a {@code Class} whose instance is requested
+     * @param <T> The type parameter for the TypeConverter.
+     * @return a newly created TypeConverter
      */
-    Class<?> value();
+    @NonNull
+    <T> T create(@NonNull Class<T> converterClass);
 }

@@ -63,7 +63,8 @@ class DatabaseTest {
             daoMethods = emptyList(),
             version = 1,
             exportSchema = false,
-            enableForeignKeys = false
+            enableForeignKeys = false,
+            typeConverterFactories = emptySet()
         )
 
         val expectedLegacyHash = DigestUtils.md5Hex(

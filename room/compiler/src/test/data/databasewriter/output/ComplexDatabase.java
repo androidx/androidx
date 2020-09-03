@@ -5,6 +5,7 @@ import androidx.room.InvalidationTracker;
 import androidx.room.RoomOpenHelper;
 import androidx.room.RoomOpenHelper.Delegate;
 import androidx.room.RoomOpenHelper.ValidationResult;
+import androidx.room.TypeConverterFactory;
 import androidx.room.util.DBUtil;
 import androidx.room.util.TableInfo;
 import androidx.room.util.TableInfo.Column;
@@ -20,6 +21,7 @@ import java.lang.String;
 import java.lang.SuppressWarnings;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.processing.Generated;
 
@@ -172,6 +174,12 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
                 _db.execSQL("VACUUM");
             }
         }
+    }
+
+    @Override
+    protected Map<String, TypeConverterFactory> createTypeConverterFactoriesMap() {
+        final HashMap<String, TypeConverterFactory> _typeConverterFactoriesMap = new HashMap<String, TypeConverterFactory>();
+        return _typeConverterFactoriesMap;
     }
 
     @Override
