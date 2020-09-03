@@ -594,6 +594,16 @@ class FragmentStateManager {
         if (FragmentManager.isLoggingEnabled(Log.DEBUG)) {
             Log.d(TAG, "moveto RESUMED: " + mFragment);
         }
+        View focusedView = mFragment.getFocusedView();
+        if (focusedView != null) {
+            boolean success = focusedView.requestFocus();
+            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                Log.v(FragmentManager.TAG, "requestFocus: Restoring focused view "
+                        + focusedView + " " + (success ? "succeeded" : "failed") + " on Fragment "
+                        + mFragment + " resulting in focused view " + mFragment.mView.findFocus());
+            }
+            mFragment.setFocusedView(null);
+        }
         mFragment.performResume();
         mDispatcher.dispatchOnFragmentResumed(mFragment, false);
         mFragment.mSavedFragmentState = null;

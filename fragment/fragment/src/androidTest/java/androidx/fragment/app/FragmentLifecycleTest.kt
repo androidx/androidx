@@ -372,6 +372,36 @@ class FragmentLifecycleTest {
         fc.dispatchCreate()
     }
 
+    @Test
+    @UiThreadTest
+    fun focusedInflatedView() {
+        val viewModelStore = ViewModelStore()
+        val fc = FragmentController.createController(
+            ControllerHostCallbacks(activityRule.activity, viewModelStore)
+        )
+
+        fc.attachHost(null)
+
+        val fm = fc.supportFragmentManager
+        // imitate inflating a fragment in FragmentContainerView
+        fm.beginTransaction()
+            .setReorderingAllowed(true)
+            .add(android.R.id.content, StrictViewFragment(R.layout.with_edit_text), "fragment1")
+            .commitNowAllowingStateLoss()
+
+        fc.dispatchCreate()
+        fc.dispatchActivityCreated()
+        fc.dispatchStart()
+        fc.dispatchResume()
+
+        val fragment = fc.supportFragmentManager.findFragmentByTag("fragment1")
+        assertThat(fragment).isNotNull()
+
+        val editText =
+            fragment!!.requireView().findViewById<View>(androidx.fragment.test.R.id.editText)
+        assertThat(editText.isFocused).isTrue()
+    }
+
     /**
      * This test confirms that as long as a parent fragment has called super.onCreate,
      * any child fragments added, committed and with transactions executed will be brought
