@@ -81,6 +81,7 @@ public class SampleSliceProvider extends SliceProvider {
     public static final String EXTRA_TOAST_MESSAGE = "com.example.androidx.extra.TOAST_MESSAGE";
     public static final String ACTION_TOAST_RANGE_VALUE =
             "com.example.androidx.slice.action.TOAST_RANGE_VALUE";
+    public static final String ACTION_PLAY_TTS = "com.example.androidx.slice.action.PLAY_TTS";
 
     public static final String[] URI_PATHS = {
             "message",
@@ -118,7 +119,8 @@ public class SampleSliceProvider extends SliceProvider {
             "longtext",
             "loading",
             "selection",
-            "notification"
+            "notification",
+            "tts"
     };
 
     /**
@@ -228,6 +230,8 @@ public class SampleSliceProvider extends SliceProvider {
                 return createSelectionSlice(sliceUri);
             case "/notification":
                 return createNotificationSlice(sliceUri);
+            case "/tts":
+                return createTtsSlice(sliceUri);
         }
         Log.w(TAG, String.format("Unknown uri: %s", sliceUri));
         return null;
@@ -1390,6 +1394,24 @@ public class SampleSliceProvider extends SliceProvider {
                         .setPrimaryAction(action)
                         .addEndItem(toggleAction))
                 .build();
+    }
+
+    private Slice createTtsSlice(Uri sliceUri) {
+        Slice slice = new ListBuilder(getContext(), sliceUri, INFINITY)
+                // Attach additional information for host. Depending on the host apps, this
+                // information might or might not be used.
+                // In this case, SliceBrowser is customized to play TTS when binding the slice.
+                .setHostExtra("tts", "hello world")
+                .addRow(
+                        new RowBuilder().setPrimaryAction(
+                                SliceAction.create(
+                                        getBroadcastIntent(ACTION_PLAY_TTS, null),
+                                        IconCompat.createWithResource(getContext(),
+                                                R.drawable.message),
+                                        ICON_IMAGE, "TTS"
+                                )
+                        ).setTitle("Text to speech").setSubtitle("Play")).build();
+        return slice;
     }
 
     private PendingIntent getIntent(String action) {

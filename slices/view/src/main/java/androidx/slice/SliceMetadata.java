@@ -30,12 +30,14 @@ import static android.app.slice.Slice.HINT_TTL;
 import static android.app.slice.Slice.SUBTYPE_MAX;
 import static android.app.slice.Slice.SUBTYPE_VALUE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
+import static android.app.slice.SliceItem.FORMAT_BUNDLE;
 import static android.app.slice.SliceItem.FORMAT_INT;
 import static android.app.slice.SliceItem.FORMAT_LONG;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
 import static androidx.slice.core.SliceHints.HINT_CACHED;
+import static androidx.slice.core.SliceHints.SUBTYPE_HOST_EXTRAS;
 import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
 import static androidx.slice.widget.EventInfo.ROW_TYPE_PROGRESS;
 import static androidx.slice.widget.EventInfo.ROW_TYPE_SLIDER;
@@ -43,6 +45,7 @@ import static androidx.slice.widget.EventInfo.ROW_TYPE_SLIDER;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.text.TextUtils;
 
 import androidx.annotation.IntDef;
@@ -106,6 +109,7 @@ public class SliceMetadata {
     private SliceAction mPrimaryAction;
     private List<SliceAction> mSliceActions;
     private @EventInfo.SliceRowType int mTemplateType;
+    private final Bundle mHostExtras;
 
     /**
      * Create a SliceMetadata object to provide access to some information around the slice and
@@ -138,6 +142,13 @@ public class SliceMetadata {
         SliceItem updatedItem = SliceQuery.find(slice, FORMAT_LONG, HINT_LAST_UPDATED, null);
         if (updatedItem != null) {
             mLastUpdated = updatedItem.getLong();
+        }
+        SliceItem hostExtrasItem = SliceQuery.findSubtype(slice, FORMAT_BUNDLE,
+                SUBTYPE_HOST_EXTRAS);
+        if (hostExtrasItem != null && hostExtrasItem.mObj instanceof Bundle) {
+            mHostExtras = (Bundle) hostExtrasItem.mObj;
+        } else {
+            mHostExtras = Bundle.EMPTY;
         }
         mListContent = new ListContent(slice);
         mHeaderContent = mListContent.getHeader();
@@ -248,6 +259,11 @@ public class SliceMetadata {
             toggles.addAll(mHeaderContent.getToggleItems());
         }
         return toggles;
+    }
+
+    @NonNull
+    public Bundle getHostExtras() {
+        return mHostExtras;
     }
 
     /**

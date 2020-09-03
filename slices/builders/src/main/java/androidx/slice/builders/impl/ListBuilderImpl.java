@@ -34,6 +34,7 @@ import static android.app.slice.Slice.SUBTYPE_MAX;
 import static android.app.slice.Slice.SUBTYPE_RANGE;
 import static android.app.slice.Slice.SUBTYPE_VALUE;
 import static android.app.slice.SliceItem.FORMAT_ACTION;
+import static android.app.slice.SliceItem.FORMAT_BUNDLE;
 import static android.app.slice.SliceItem.FORMAT_SLICE;
 import static android.app.slice.SliceItem.FORMAT_TEXT;
 
@@ -42,12 +43,14 @@ import static androidx.slice.Slice.SUBTYPE_RANGE_MODE;
 import static androidx.slice.builders.ListBuilder.INFINITY;
 import static androidx.slice.builders.ListBuilder.RANGE_MODE_DETERMINATE;
 import static androidx.slice.core.SliceHints.HINT_END_OF_SECTION;
+import static androidx.slice.core.SliceHints.SUBTYPE_HOST_EXTRAS;
 import static androidx.slice.core.SliceHints.SUBTYPE_MILLIS;
 import static androidx.slice.core.SliceHints.SUBTYPE_MIN;
 import static androidx.slice.core.SliceHints.SUBTYPE_SELECTION;
 
 import android.app.PendingIntent;
 import android.net.Uri;
+import android.os.Bundle;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -89,6 +92,7 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
     private boolean mFirstRowChecked;
     private boolean mIsFirstRowTypeValid;
     private boolean mFirstRowHasText;
+    private Bundle mHostExtras;
 
     public ListBuilderImpl(@Nullable final Slice.Builder b, @Nullable final SliceSpec spec) {
         this(b, spec, new SystemClock());
@@ -125,6 +129,10 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
                 sb.addText(keyword, null);
             }
             getBuilder().addSubSlice(sb.addHints(HINT_KEYWORDS).build());
+        }
+        if (mHostExtras != null) {
+            builder.addItem(new SliceItem(mHostExtras, FORMAT_BUNDLE, SUBTYPE_HOST_EXTRAS,
+                    new String[0]));
         }
     }
 
@@ -296,6 +304,15 @@ public class ListBuilderImpl extends TemplateBuilderImpl implements ListBuilder 
     public void setLayoutDirection(int layoutDirection) {
         getBuilder().addInt(layoutDirection, SUBTYPE_LAYOUT_DIRECTION);
     }
+
+    @Override
+    public void setHostExtra(@NonNull String key, @NonNull String value) {
+        if (mHostExtras == null) {
+            mHostExtras = new Bundle();
+        }
+        mHostExtras.putString(key, value);
+    }
+
 
     /**
      * There are some requirements that first row of a list is not a grid row and has some text.

@@ -142,5 +142,13 @@ public interface ListBuilder {
      * Sets the desired layout direction for the content in this slice.
      */
     void setLayoutDirection(int layoutDirection);
+
+    /**
+     * Sets additional information to be passed to the host of the slice.
+     *
+     * @param key The name of the extra data
+     * @param value The String data value
+     */
+    void setHostExtra(@NonNull String key, @NonNull String value);
 }
 
