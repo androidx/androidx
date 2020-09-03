@@ -29,10 +29,9 @@ import androidx.compose.runtime.dispatch.AndroidUiDispatcher
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.node.Owner
 import androidx.compose.ui.platform.AndroidOwner
-import androidx.ui.test.BaseInputDispatcher
 import androidx.ui.test.InputDispatcher
-import androidx.ui.test.InputDispatcherState
 import androidx.ui.test.PartialGesture
+import androidx.ui.test.PersistingInputDispatcher
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
@@ -42,8 +41,9 @@ import org.junit.runners.model.Statement
 import kotlin.math.max
 
 internal class AndroidInputDispatcher(
+    owner: AndroidOwner?,
     private val sendEvent: (MotionEvent) -> Unit
-) : BaseInputDispatcher() {
+) : PersistingInputDispatcher(owner) {
 
     companion object : AndroidOwnerRegistry.OnRegistrationChangedListener {
         init {
@@ -52,7 +52,7 @@ internal class AndroidInputDispatcher(
 
         override fun onRegistrationChanged(owner: AndroidOwner, registered: Boolean) {
             if (!registered) {
-                states.remove(owner)
+                removeState(owner)
             }
         }
     }
@@ -67,15 +67,15 @@ internal class AndroidInputDispatcher(
     override val now: Long get() = SystemClock.uptimeMillis()
 
     override fun saveState(owner: Owner?) {
-        if (owner != null && AndroidOwnerRegistry.getUnfilteredOwners().contains(owner)) {
-            states[owner] = InputDispatcherState(nextDownTime, gestureLateness, partialGesture)
+        if (AndroidOwnerRegistry.getUnfilteredOwners().contains(owner)) {
+            super.saveState(owner)
         }
     }
 
     override fun PartialGesture.enqueueDown(pointerId: Int) {
         batchMotionEvent(
-            if (lastPositions.size() == 1) ACTION_DOWN else ACTION_POINTER_DOWN,
-            lastPositions.indexOfKey(pointerId)
+            if (lastPositions.size == 1) ACTION_DOWN else ACTION_POINTER_DOWN,
+            lastPositions.keys.sorted().indexOf(pointerId)
         )
     }
 
@@ -85,8 +85,8 @@ internal class AndroidInputDispatcher(
 
     override fun PartialGesture.enqueueUp(pointerId: Int) {
         batchMotionEvent(
-            if (lastPositions.size() == 1) ACTION_UP else ACTION_POINTER_UP,
-            lastPositions.indexOfKey(pointerId)
+            if (lastPositions.size == 1) ACTION_UP else ACTION_POINTER_UP,
+            lastPositions.keys.sorted().indexOf(pointerId)
         )
     }
 
@@ -102,13 +102,14 @@ internal class AndroidInputDispatcher(
      * @see MotionEvent.getActionIndex
      */
     private fun PartialGesture.batchMotionEvent(action: Int, actionIndex: Int) {
+        val entries = lastPositions.entries.sortedBy { it.key }
         batchMotionEvent(
             downTime,
             lastEventTime,
             action,
             actionIndex,
-            List(lastPositions.size()) { lastPositions.valueAt(it) },
-            List(lastPositions.size()) { lastPositions.keyAt(it) }
+            List(entries.size) { entries[it].value },
+            List(entries.size) { entries[it].key }
         )
     }
 
@@ -184,7 +185,7 @@ internal class AndroidInputDispatcher(
         // dispatcher, so we don't have to reset firstEventTime after use
     }
 
-    override fun dispose() {
+    override fun onDispose() {
         stopAcceptingEvents()
     }
 
@@ -208,7 +209,7 @@ internal class AndroidInputDispatcher(
      */
     private suspend fun sendAndRecycleEvent(event: MotionEvent) {
         try {
-            if (InputDispatcher.dispatchInRealTime) {
+            if (dispatchInRealTime) {
                 val delayMs = event.eventTime - now
                 if (delayMs > 0) {
                     delay(delayMs)
@@ -247,19 +248,19 @@ internal class AndroidInputDispatcher(
         inner class ModifyingStatement(private val base: Statement) : Statement() {
             override fun evaluate() {
                 if (disableDispatchInRealTime) {
-                    InputDispatcher.dispatchInRealTime = false
+                    dispatchInRealTime = false
                 }
                 if (eventPeriodOverride != null) {
-                    InputDispatcher.eventPeriod = eventPeriodOverride
+                    eventPeriod = eventPeriodOverride
                 }
                 try {
                     base.evaluate()
                 } finally {
                     if (disableDispatchInRealTime) {
-                        InputDispatcher.dispatchInRealTime = true
+                        dispatchInRealTime = true
                     }
                     if (eventPeriodOverride != null) {
-                        InputDispatcher.eventPeriod = 10L
+                        eventPeriod = 10L
                     }
                 }
             }

@@ -25,29 +25,15 @@ import androidx.compose.ui.platform.DesktopOwner
 import androidx.compose.ui.unit.Uptime
 
 internal actual fun InputDispatcher(owner: Owner): InputDispatcher {
-    return DesktopInputDispatcher(owner as DesktopOwner).apply {
-        BaseInputDispatcher.states.remove(owner)?.also {
-            // TODO(b/157653315): Move restore state to constructor
-            if (it.partialGesture != null) {
-                nextDownTime = it.nextDownTime
-                partialGesture = it.partialGesture
-            }
-        }
-    }
+    return DesktopInputDispatcher(owner as DesktopOwner)
 }
 
-internal class DesktopInputDispatcher(val owner: DesktopOwner) : BaseInputDispatcher() {
+internal class DesktopInputDispatcher(val owner: DesktopOwner) : PersistingInputDispatcher(owner) {
     companion object {
         var gesturePointerId = 0L
     }
 
     override val now: Long get() = System.nanoTime() / 1_000_000
-
-    override fun saveState(owner: Owner?) {
-        if (owner != null) {
-            states[owner] = InputDispatcherState(nextDownTime, gestureLateness, partialGesture)
-        }
-    }
 
     private var isMousePressed = false
 
@@ -77,7 +63,7 @@ internal class DesktopInputDispatcher(val owner: DesktopOwner) : BaseInputDispat
 
     private fun PartialGesture.pointerInputEvent(down: Boolean): PointerInputEvent {
         val time = Uptime(lastEventTime * 1_000_000)
-        val offset = lastPositions.valueAt(0)
+        val offset = lastPositions[lastPositions.keys.sorted()[0]]
         val event = PointerInputEvent(
             time,
             listOf(
@@ -98,7 +84,7 @@ internal class DesktopInputDispatcher(val owner: DesktopOwner) : BaseInputDispat
         val copy = batchedEvents.toList()
         batchedEvents.clear()
         copy.forEach {
-            if (InputDispatcher.dispatchInRealTime) {
+            if (dispatchInRealTime) {
                 val delayMs = (it.uptime.nanoseconds / 1_000_000) - now
                 if (delayMs > 0) {
                     Thread.sleep(delayMs)
@@ -108,7 +94,7 @@ internal class DesktopInputDispatcher(val owner: DesktopOwner) : BaseInputDispat
         }
     }
 
-    override fun dispose() {
+    override fun onDispose() {
         batchedEvents.clear()
     }
 }
