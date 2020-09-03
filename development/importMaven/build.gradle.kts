@@ -446,6 +446,23 @@ open class DirectMetadataAccessVariantRule : ComponentMetadataRule {
                 addFile("${id.name}-${id.version}-sources.jar")
             }
         }
+        ctx.details.maybeAddVariant("allFilesWithDependenciesElementsPublication", "releaseRuntimePublication") {
+            attributes {
+                attribute(Usage.USAGE_ATTRIBUTE, getObjects().named(Usage.JAVA_RUNTIME))
+                attribute(Category.CATEGORY_ATTRIBUTE, getObjects().named(Category.DOCUMENTATION))
+                attribute(
+                    DocsType.DOCS_TYPE_ATTRIBUTE,
+                    getObjects().named("all-files-with-dependencies")
+                )
+            }
+            withFiles {
+                addFile("${id.name}-${id.version}.pom")
+                addFile("${id.name}-${id.version}.module")
+                addFile("${id.name}-${id.version}.jar")
+                addFile("${id.name}-${id.version}.aar")
+                addFile("${id.name}-${id.version}-sources.jar")
+            }
+        }
         ctx.details.maybeAddVariant("allFilesWithDependencies", "runtime") {
             attributes {
                 attribute(Usage.USAGE_ATTRIBUTE, getObjects().named(Usage.JAVA_RUNTIME))
