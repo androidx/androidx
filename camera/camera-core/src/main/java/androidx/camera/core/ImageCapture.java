@@ -509,7 +509,8 @@ public final class ImageCapture extends UseCase {
      * of the output {@link ImageProxy} would be 360x480 after applying the rotation degrees.
      *
      * <p>This crops the saved image when calling
-     * {@link ImageCapture#takePicture(OutputFileOptions, Executor, OnImageSavedCallback)}.
+     * {@link ImageCapture#takePicture(OutputFileOptions, Executor, OnImageSavedCallback)}. Note
+     * that the cropping will introduce an additional latency.
      *
      * <p>Cropping occurs around the center of the image and as though it were in the target
      * rotation. For example, assume the {@code aspectRatio} of 3x4. If an image has a resolution
@@ -645,9 +646,14 @@ public final class ImageCapture extends UseCase {
      *
      * <p>The callback will be called only once for every invocation of this method.
      *
+     * <p> If the {@link ImageCapture} is in a {@link UseCaseGroup} where {@link ViewPort} is
+     * set, or {@link #setCropAspectRatio} is used, the image may be cropped before saving to
+     * disk which causes an additional latency.
+     *
      * @param outputFileOptions  Options to store the newly captured image.
      * @param executor           The executor in which the callback methods will be run.
      * @param imageSavedCallback Callback to be called for the newly captured image.
+     * @see ViewPort
      */
     public void takePicture(
             final @NonNull OutputFileOptions outputFileOptions,
