@@ -24,6 +24,7 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.background
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.setContent
 import androidx.test.espresso.Espresso.onIdle
@@ -100,7 +101,7 @@ class FirstDrawTest {
             activity.setContentView(root)
             outOfBoundsView.setContent(Recomposer.current()) {
                 // If you see this box when running the test, the test is setup incorrectly
-                Box(Modifier, backgroundColor = Color.Yellow)
+                Box(Modifier.background(Color.Yellow))
                 Canvas(Modifier) {
                     drawn = true
                 }

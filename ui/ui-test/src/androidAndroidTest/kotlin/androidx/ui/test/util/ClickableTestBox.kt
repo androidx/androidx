@@ -20,6 +20,7 @@ import androidx.compose.foundation.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.background
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.platform.testTag
@@ -43,8 +44,7 @@ fun ClickableTestBox(
 ) {
     with(DensityAmbient.current) {
         Box(
-            modifier = modifier.testTag(tag).size(width.toDp(), height.toDp()),
-            backgroundColor = color
+            modifier = modifier.testTag(tag).size(width.toDp(), height.toDp()).background(color)
         )
     }
 }

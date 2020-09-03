@@ -193,8 +193,8 @@ class BitmapCapturingTest(val config: TestConfig) {
     private fun composeCheckerboard() {
         with(rule.density) {
             rule.setContent {
-                Box(Modifier.fillMaxSize(), backgroundColor = colorBg) {
-                    Box(Modifier.padding(top = 20.toDp()), backgroundColor = colorBg) {
+                Box(Modifier.fillMaxSize().background(colorBg)) {
+                    Box(Modifier.padding(top = 20.toDp()).background(colorBg)) {
                         Column(Modifier.testTag(rootTag)) {
                             Row {
                                 Box(
