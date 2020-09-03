@@ -38,7 +38,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.complications.ProviderInfoRetriever
 import androidx.wear.watchface.R
-import androidx.wear.watchface.style.UserStyleCategory
+import androidx.wear.watchface.style.UserStyleManager
 import androidx.wear.widget.SwipeDismissFrameLayout
 import androidx.wear.widget.WearableLinearLayoutManager
 import androidx.wear.widget.WearableRecyclerView
@@ -195,7 +195,7 @@ internal class ConfigFragment : Fragment() {
                 watchFaceConfigActivity.fragmentController.showStyleConfigFragment(
                     configKey,
                     watchFaceConfigActivity.styleSchema,
-                    UserStyleCategory.bundleToStyleMap(
+                    UserStyleManager.bundleToStyleMap(
                         watchFaceConfigActivity.watchFaceConfigDelegate.getUserStyle(),
                         watchFaceConfigActivity.styleSchema
                     )

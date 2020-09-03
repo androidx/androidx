@@ -16,7 +16,9 @@
 
 package androidx.wear.watchface.style
 
-import com.google.common.truth.Truth
+import android.graphics.drawable.Icon
+import android.os.Bundle
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.model.FrameworkMethod
@@ -80,6 +82,15 @@ class UserStyleManagerTest {
 
     private val styleManager = UserStyleManager(listOf(colorStyleCategory, watchHandStyleCategory))
 
+    private val icon1 = Icon.createWithContentUri("icon1")
+    private val icon2 = Icon.createWithContentUri("icon2")
+    private val icon3 = Icon.createWithContentUri("icon3")
+    private val icon4 = Icon.createWithContentUri("icon4")
+    private val option1 = ListUserStyleCategory.ListOption("1", "one", icon1)
+    private val option2 = ListUserStyleCategory.ListOption("2", "two", icon2)
+    private val option3 = ListUserStyleCategory.ListOption("3", "three", icon3)
+    private val option4 = ListUserStyleCategory.ListOption("4", "four", icon4)
+
     @Test
     fun addUserStyleListener_firesImmediately() {
         styleManager.addUserStyleListener(mockListener1)
@@ -121,8 +132,134 @@ class UserStyleManagerTest {
 
         styleManager.userStyle = newStyle
 
-        Truth.assertThat(styleManager.userStyle[colorStyleCategory]).isEqualTo(greenStyleOption)
-        Truth.assertThat(styleManager.userStyle[watchHandStyleCategory])
+        assertThat(styleManager.userStyle[colorStyleCategory]).isEqualTo(greenStyleOption)
+        assertThat(styleManager.userStyle[watchHandStyleCategory])
             .isEqualTo(gothicStyleOption)
+    }
+
+    @Test
+    fun bundleAndUnbundleStyleCategoryAndOption() {
+        val categoryIcon = Icon.createWithContentUri("categoryIcon")
+        val styleCategory = ListUserStyleCategory(
+            "id", "displayName", "description", categoryIcon, listOf(option1, option2, option3)
+        )
+
+        val bundle = Bundle()
+        styleCategory.writeToBundle(bundle)
+
+        val unbundled = UserStyleCategory.createFromBundle(bundle)
+        assert(unbundled is ListUserStyleCategory)
+
+        assertThat(unbundled.id).isEqualTo("id")
+        assertThat(unbundled.displayName).isEqualTo("displayName")
+        assertThat(unbundled.description).isEqualTo("description")
+        assertThat(unbundled.icon!!.uri.toString()).isEqualTo("categoryIcon")
+        val optionArray =
+            unbundled.options.filterIsInstance<ListUserStyleCategory.ListOption>()
+                .toTypedArray()
+        assertThat(optionArray.size).isEqualTo(3)
+        assertThat(optionArray[0].id).isEqualTo("1")
+        assertThat(optionArray[0].displayName).isEqualTo("one")
+        assertThat(optionArray[0].icon!!.uri.toString()).isEqualTo("icon1")
+        assertThat(optionArray[1].id).isEqualTo("2")
+        assertThat(optionArray[1].displayName).isEqualTo("two")
+        assertThat(optionArray[1].icon!!.uri.toString()).isEqualTo("icon2")
+        assertThat(optionArray[2].id).isEqualTo("3")
+        assertThat(optionArray[2].displayName).isEqualTo("three")
+        assertThat(optionArray[2].icon!!.uri.toString()).isEqualTo("icon3")
+    }
+
+    @Test
+    fun bundleAndUnbundleOptionList() {
+        val bundle = Bundle()
+        UserStyleManager.writeOptionListToBundle(listOf(option1, option2, option3), bundle)
+
+        val unbundled = UserStyleManager.readOptionsListFromBundle(bundle)
+        val optionArray = unbundled.filterIsInstance<ListUserStyleCategory.ListOption>()
+            .toTypedArray()
+
+        assertThat(optionArray.size).isEqualTo(3)
+        assertThat(optionArray[0].id).isEqualTo("1")
+        assertThat(optionArray[0].displayName).isEqualTo("one")
+        assertThat(optionArray[0].icon!!.uri.toString()).isEqualTo("icon1")
+        assertThat(optionArray[1].id).isEqualTo("2")
+        assertThat(optionArray[1].displayName).isEqualTo("two")
+        assertThat(optionArray[1].icon!!.uri.toString()).isEqualTo("icon2")
+        assertThat(optionArray[2].id).isEqualTo("3")
+        assertThat(optionArray[2].displayName).isEqualTo("three")
+        assertThat(optionArray[2].icon!!.uri.toString()).isEqualTo("icon3")
+    }
+
+    @Test
+    fun bundleAndUnbundleStyleCategoryList() {
+        val categoryIcon1 = Icon.createWithContentUri("categoryIcon1")
+        val categoryIcon2 = Icon.createWithContentUri("categoryIcon2")
+        val styleCategory1 = ListUserStyleCategory(
+            "id1", "displayName1", "description1", categoryIcon1, listOf(option1, option2)
+        )
+        val styleCategory2 = ListUserStyleCategory(
+            "id2", "displayName2", "description2", categoryIcon2, listOf(option3, option4)
+        )
+
+        val bundles = UserStyleManager.userStyleCategoriesToBundles(
+            listOf(styleCategory1, styleCategory2)
+        )
+
+        val unbundled = UserStyleManager.bundlesToUserStyleCategoryList(bundles)
+
+        assert(unbundled[0] is ListUserStyleCategory)
+        assertThat(unbundled[0].id).isEqualTo("id1")
+        assertThat(unbundled[0].displayName).isEqualTo("displayName1")
+        assertThat(unbundled[0].description).isEqualTo("description1")
+        assertThat(unbundled[0].icon!!.uri.toString()).isEqualTo("categoryIcon1")
+        val optionArray1 =
+            unbundled[0].options.filterIsInstance<ListUserStyleCategory.ListOption>()
+                .toTypedArray()
+        assertThat(optionArray1.size).isEqualTo(2)
+        assertThat(optionArray1[0].id).isEqualTo("1")
+        assertThat(optionArray1[0].displayName).isEqualTo("one")
+        assertThat(optionArray1[0].icon!!.uri.toString()).isEqualTo("icon1")
+        assertThat(optionArray1[1].id).isEqualTo("2")
+        assertThat(optionArray1[1].displayName).isEqualTo("two")
+        assertThat(optionArray1[1].icon!!.uri.toString()).isEqualTo("icon2")
+
+        assert(unbundled[1] is ListUserStyleCategory)
+        assertThat(unbundled[1].id).isEqualTo("id2")
+        assertThat(unbundled[1].displayName).isEqualTo("displayName2")
+        assertThat(unbundled[1].description).isEqualTo("description2")
+        assertThat(unbundled[1].icon!!.uri.toString()).isEqualTo("categoryIcon2")
+        val optionArray2 =
+            unbundled[1].options.filterIsInstance<ListUserStyleCategory.ListOption>()
+                .toTypedArray()
+        assertThat(optionArray2.size).isEqualTo(2)
+        assertThat(optionArray2[0].id).isEqualTo("3")
+        assertThat(optionArray2[0].displayName).isEqualTo("three")
+        assertThat(optionArray2[0].icon!!.uri.toString()).isEqualTo("icon3")
+        assertThat(optionArray2[1].id).isEqualTo("4")
+        assertThat(optionArray2[1].displayName).isEqualTo("four")
+        assertThat(optionArray2[1].icon!!.uri.toString()).isEqualTo("icon4")
+    }
+
+    @Test
+    fun bundleAndUnbundleStyleMap() {
+        val categoryIcon1 = Icon.createWithContentUri("categoryIcon1")
+        val categoryIcon2 = Icon.createWithContentUri("categoryIcon2")
+        val styleCategory1 = ListUserStyleCategory(
+            "id1", "displayName1", "description1", categoryIcon1, listOf(option1, option2)
+        )
+        val styleCategory2 = ListUserStyleCategory(
+            "id2", "displayName2", "description2", categoryIcon2, listOf(option3, option4)
+        )
+        val schema = listOf(styleCategory1, styleCategory2)
+        val styleMap = mapOf(
+            styleCategory1 as UserStyleCategory to option2 as UserStyleCategory.Option,
+            styleCategory2 as UserStyleCategory to option3 as UserStyleCategory.Option
+        )
+        val bundle = UserStyleManager.styleMapToBundle(styleMap)
+
+        val unbundled = UserStyleManager.bundleToStyleMap(bundle, schema)
+        assertThat(unbundled.size).isEqualTo(2)
+        assertThat(unbundled[styleCategory1]!!.id).isEqualTo(option2.id)
+        assertThat(unbundled[styleCategory2]!!.id).isEqualTo(option3.id)
     }
 }

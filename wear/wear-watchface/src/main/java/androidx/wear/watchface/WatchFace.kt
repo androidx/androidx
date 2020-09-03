@@ -424,7 +424,7 @@ class WatchFace private constructor(
             val preferencesFile =
                 "watchface_prefs_${watchFaceHostApi.getContext().javaClass.typeName}.txt"
 
-            userStyleManager.userStyle = UserStyleCategory.idMapToStyleMap(
+            userStyleManager.userStyle = UserStyleManager.idMapToStyleMap(
                 readPrefs(watchFaceHostApi.getContext(), preferencesFile),
                 userStyleManager.userStyleCategories
             )
@@ -524,16 +524,16 @@ class WatchFace private constructor(
 
         WatchFaceConfigActivity.registerWatchFace(componentName, object : WatchFaceConfigDelegate {
             override fun getUserStyleSchema() =
-                UserStyleCategory.userStyleCategoriesToBundles(
+                UserStyleManager.userStyleCategoriesToBundles(
                     userStyleManager.userStyleCategories
                 )
 
             override fun getUserStyle() =
-                UserStyleCategory.styleMapToBundle(userStyleManager.userStyle)
+                UserStyleManager.styleMapToBundle(userStyleManager.userStyle)
 
             override fun setUserStyle(style: Bundle) {
                 userStyleManager.userStyle =
-                    UserStyleCategory.bundleToStyleMap(style, userStyleManager.userStyleCategories)
+                    UserStyleManager.bundleToStyleMap(style, userStyleManager.userStyleCategories)
             }
 
             override fun getBackgroundComplicationId() =
@@ -555,7 +555,14 @@ class WatchFace private constructor(
                 drawRect: Rect,
                 calendar: Calendar
             ) {
-                renderer.drawComplicationSelect(canvas, drawRect, calendar)
+                val oldDrawMode = renderer.drawMode
+                renderer.drawMode = DrawMode.COMPLICATION_SELECT
+                val bitmap = renderer.takeScreenshot(
+                    calendar,
+                    DrawMode.COMPLICATION_SELECT
+                )
+                canvas.drawBitmap(bitmap, renderer.screenBounds, drawRect, null)
+                renderer.drawMode = oldDrawMode
             }
         })
 

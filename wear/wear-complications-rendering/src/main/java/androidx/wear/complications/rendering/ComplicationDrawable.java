@@ -718,7 +718,7 @@ public final class ComplicationDrawable extends Drawable {
      * Whether the complication, when rendering in ambient mode, should apply a style suitable for
      * display on devices with burn in protection.
      */
-    public boolean getBurnInProtection() {
+    public boolean isBurnInProtectionOn() {
         return mBurnInProtection;
     }
 

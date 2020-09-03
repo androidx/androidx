@@ -49,8 +49,8 @@ import java.lang.annotation.RetentionPolicy;
  * <p>A watch face will receive instances of this class as long as providers are configured.
  *
  * <p>When rendering the complication data for a given time, the watch face should first call {@link
- * #isActive} to determine whether the data is valid at that time. See the documentation for each of
- * the complication types below for details of which fields are expected to be displayed.
+ * #isActiveAt} to determine whether the data is valid at that time. See the documentation for each
+ * of the complication types below for details of which fields are expected to be displayed.
  */
 @SuppressLint("BanParcelableUsage")
 public final class ComplicationData implements Parcelable {
@@ -381,7 +381,7 @@ public final class ComplicationData implements Parcelable {
      *
      * <p>This must be checked for any time for which the complication will be displayed.
      */
-    public boolean isActive(long dateTimeMillis) {
+    public boolean isActiveAt(long dateTimeMillis) {
         return dateTimeMillis >= mFields.getLong(FIELD_START_TIME, 0)
                 && dateTimeMillis <= mFields.getLong(FIELD_END_TIME, Long.MAX_VALUE);
     }

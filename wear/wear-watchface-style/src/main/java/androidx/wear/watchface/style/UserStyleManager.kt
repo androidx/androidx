@@ -17,6 +17,7 @@
 package androidx.wear.watchface.style
 
 import android.annotation.SuppressLint
+import android.os.Bundle
 import androidx.annotation.UiThread
 
 /**
@@ -31,6 +32,86 @@ class UserStyleManager(
      */
     val userStyleCategories: List<UserStyleCategory>
 ) {
+    companion object {
+        /**
+         * Serializes a List<{@link Option}> to the provided bundle.
+         */
+        @JvmStatic
+        fun writeOptionListToBundle(options: List<UserStyleCategory.Option>, bundle: Bundle) {
+            bundle.putParcelableArrayList(
+                UserStyleCategory.KEY_OPTIONS,
+                ArrayList(options.map { Bundle().apply { it.writeToBundle(this) } })
+            )
+        }
+
+        /**
+         * Deserializes a List<{@link Option}> from the provided bundle.
+         */
+        @JvmStatic
+        fun readOptionsListFromBundle(bundle: Bundle) =
+            (bundle.getParcelableArrayList<Bundle>(UserStyleCategory.KEY_OPTIONS))!!
+                .map { UserStyleCategory.Option.createFromBundle(it) }
+
+        /**
+         * Serializes a Collection<{@link UserStyleCategory}> to a list of Bundles.
+         */
+        @JvmStatic
+        fun userStyleCategoriesToBundles(categories: Collection<UserStyleCategory>) =
+            categories.map { Bundle().apply { it.writeToBundle(this) } }
+
+        /**
+         * Deserializes a Collection<{@link UserStyleCategory}> from the provided bundle.
+         */
+        @JvmStatic
+        fun bundlesToUserStyleCategoryList(categories: Collection<Bundle>) =
+            categories.map { UserStyleCategory.createFromBundle(it) }
+
+        /**
+         * Serializes a Map<{@link UserStyleCategory}, {@link Option}> to the provided bundle.
+         */
+        @JvmStatic
+        fun styleMapToBundle(userStyle: Map<UserStyleCategory, UserStyleCategory.Option>) =
+            Bundle().apply {
+                for ((styleCategory, categoryOption) in userStyle) {
+                    putString(styleCategory.id, categoryOption.id)
+                }
+            }
+
+        /**
+         * Deserializes a Map<{@link UserStyleCategory}, {@link Option}> from the provided bundle.
+         * Only categories from the schema are deserialized.
+         */
+        @JvmStatic
+        fun bundleToStyleMap(
+            bundle: Bundle,
+            schema: List<UserStyleCategory>
+        ): MutableMap<UserStyleCategory, UserStyleCategory.Option> {
+            return HashMap<UserStyleCategory, UserStyleCategory.Option>().apply {
+                for (styleCategory in schema) {
+                    this[styleCategory] =
+                        styleCategory.getCategoryOptionForId(bundle.getString(styleCategory.id))
+                }
+            }
+        }
+
+        /**
+         * Constructs a  Map<{@link UserStyleCategory}, {@link Option}> from a map of
+         * UserStyleCategory id to Option id.
+         */
+        @JvmStatic
+        fun idMapToStyleMap(
+            idMap: Map<String, String>,
+            schema: List<UserStyleCategory>
+        ): MutableMap<UserStyleCategory, UserStyleCategory.Option> {
+            return HashMap<UserStyleCategory, UserStyleCategory.Option>().apply {
+                for (styleCategory in schema) {
+                    this[styleCategory] =
+                        styleCategory.getCategoryOptionForId(idMap[styleCategory.id])
+                }
+            }
+        }
+    }
+
     /** A listener for observing user style changes. */
     interface UserStyleListener {
         /** Called whenever the user style changes. */

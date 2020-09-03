@@ -49,13 +49,13 @@ abstract class UserStyleCategory(
     val defaultOption: Option
 ) {
     companion object {
-        private const val KEY_CATEGORY_TYPE = "KEY_CATEGORY_TYPE"
-        private const val KEY_DEFAULT_OPTION = "KEY_DEFAULT_OPTION"
-        private const val KEY_DESCRIPTION = "KEY_DESCRIPTION"
-        private const val KEY_DISPLAY_NAME = "KEY_DISPLAY_NAME"
-        private const val KEY_ICON = "KEY_ICON"
-        private const val KEY_OPTIONS = "KEY_OPTIONS"
-        private const val KEY_STYLE_CATEGORY_ID = "KEY_STYLE_CATEGORY_ID"
+        internal const val KEY_CATEGORY_TYPE = "KEY_CATEGORY_TYPE"
+        internal const val KEY_DEFAULT_OPTION = "KEY_DEFAULT_OPTION"
+        internal const val KEY_DESCRIPTION = "KEY_DESCRIPTION"
+        internal const val KEY_DISPLAY_NAME = "KEY_DISPLAY_NAME"
+        internal const val KEY_ICON = "KEY_ICON"
+        internal const val KEY_OPTIONS = "KEY_OPTIONS"
+        internal const val KEY_STYLE_CATEGORY_ID = "KEY_STYLE_CATEGORY_ID"
 
         /**
          * Constructs an {@link UserStyleCategory} serialized in a {@link Bundle}.
@@ -76,87 +76,9 @@ abstract class UserStyleCategory(
                 )
             }
         }
-
-        /**
-         * Serializes a List<{@link Option}> to the provided bundle.
-         */
-        @JvmStatic
-        fun writeOptionListToBundle(options: List<Option>, bundle: Bundle) {
-            bundle.putParcelableArrayList(
-                KEY_OPTIONS,
-                ArrayList(options.map { Bundle().apply { it.writeToBundle(this) } })
-            )
-        }
-
-        /**
-         * Deserializes a List<{@link Option}> from the provided bundle.
-         */
-        @JvmStatic
-        fun readOptionsListFromBundle(bundle: Bundle) =
-            (bundle.getParcelableArrayList<Bundle>(KEY_OPTIONS))!!
-                .map { Option.createFromBundle(it) }
-
-        /**
-         * Serializes a Collection<{@link UserStyleCategory}> to a list of Bundles.
-         */
-        @JvmStatic
-        fun userStyleCategoriesToBundles(categories: Collection<UserStyleCategory>) =
-            categories.map { Bundle().apply { it.writeToBundle(this) } }
-
-        /**
-         * Deserializes a Collection<{@link UserStyleCategory}> from the provided bundle.
-         */
-        @JvmStatic
-        fun bundlesToUserStyleCategoryList(categories: Collection<Bundle>) =
-            categories.map { createFromBundle(it) }
-
-        /**
-         * Serializes a Map<{@link UserStyleCategory}, {@link Option}> to the provided bundle.
-         */
-        @JvmStatic
-        fun styleMapToBundle(userStyle: Map<UserStyleCategory, Option>) =
-            Bundle().apply {
-                for ((styleCategory, categoryOption) in userStyle) {
-                    putString(styleCategory.id, categoryOption.id)
-                }
-            }
-
-        /**
-         * Deserializes a Map<{@link UserStyleCategory}, {@link Option}> from the provided bundle.
-         * Only categories from the schema are deserialized.
-         */
-        @JvmStatic
-        fun bundleToStyleMap(
-            bundle: Bundle,
-            schema: List<UserStyleCategory>
-        ): MutableMap<UserStyleCategory, Option> {
-            return HashMap<UserStyleCategory, Option>().apply {
-                for (styleCategory in schema) {
-                    this[styleCategory] =
-                        styleCategory.getCategoryOptionForId(bundle.getString(styleCategory.id))
-                }
-            }
-        }
-
-        /**
-         * Constructs a  Map<{@link UserStyleCategory}, {@link Option}> from a map of
-         * UserStyleCategory id to Option id.
-         */
-        @JvmStatic
-        fun idMapToStyleMap(
-            idMap: Map<String, String>,
-            schema: List<UserStyleCategory>
-        ): MutableMap<UserStyleCategory, Option> {
-            return HashMap<UserStyleCategory, Option>().apply {
-                for (styleCategory in schema) {
-                    this[styleCategory] =
-                        styleCategory.getCategoryOptionForId(idMap[styleCategory.id])
-                }
-            }
-        }
     }
 
-    private fun getCategoryOptionForId(id: String?) =
+    internal fun getCategoryOptionForId(id: String?) =
         if (id == null) {
             defaultOption
         } else {
@@ -168,7 +90,7 @@ abstract class UserStyleCategory(
         bundle.getString(KEY_DISPLAY_NAME)!!,
         bundle.getString(KEY_DESCRIPTION)!!,
         bundle.getParcelable(KEY_ICON),
-        readOptionsListFromBundle(bundle),
+        UserStyleManager.readOptionsListFromBundle(bundle),
         Option.createFromBundle(bundle.getBundle(KEY_DEFAULT_OPTION)!!)
     )
 
@@ -183,7 +105,7 @@ abstract class UserStyleCategory(
             KEY_DEFAULT_OPTION,
             Bundle().apply { defaultOption.writeToBundle(this) }
         )
-        writeOptionListToBundle(options, bundle)
+        UserStyleManager.writeOptionListToBundle(options, bundle)
     }
 
     /**

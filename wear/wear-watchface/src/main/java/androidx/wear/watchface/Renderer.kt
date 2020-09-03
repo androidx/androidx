@@ -17,7 +17,6 @@
 package androidx.wear.watchface
 
 import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Rect
 import android.icu.util.Calendar
 import android.view.SurfaceHolder
@@ -83,14 +82,15 @@ abstract class Renderer(
     )
 
     /**
-     * Renders the watch face into a Bitmap with the user style specified by the {@link #userStyleManager}.
+     * Renders the watch face into a Bitmap with the user style specified by the
+     * {@link #userStyleManager}.
      *
      * @param calendar The Calendar to use when rendering the watch face
      * @param drawMode The {@link DrawMode} to use when rendering the watch face
      * @return A {@link Bitmap} containing a screenshot of the watch face
      */
     @UiThread
-    abstract fun takeScreenshot(
+    internal abstract fun takeScreenshot(
         calendar: Calendar,
         @DrawMode drawMode: Int
     ): Bitmap
@@ -135,29 +135,6 @@ abstract class Renderer(
         screenBounds = holder.surfaceFrame
         centerX = screenBounds.exactCenterX()
         centerY = screenBounds.exactCenterY()
-    }
-
-    /**
-     * Used by {@link ConfigFragment} to draw the watch face in COMPLICATION_SELECT mode.
-     *
-     * @param canvas The {@param Canvas} to render into
-     * @param bounds A {@param Rect} describing the bounds of the canvas
-     * @param calendar The {@param Calendar} to use for rendering
-     */
-    @UiThread
-    fun drawComplicationSelect(canvas: Canvas, bounds: Rect, calendar: Calendar) {
-        val oldDrawMode = drawMode
-        _drawMode =
-            DrawMode.COMPLICATION_SELECT
-        if (oldDrawMode != drawMode) {
-            onDrawModeChanged(DrawMode.COMPLICATION_SELECT)
-        }
-
-        val bitmap = takeScreenshot(
-            calendar,
-            DrawMode.COMPLICATION_SELECT
-        )
-        canvas.drawBitmap(bitmap, screenBounds, bounds, null)
     }
 
     /**
