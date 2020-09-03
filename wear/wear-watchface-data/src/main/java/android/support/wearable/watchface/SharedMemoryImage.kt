@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+@file:JvmName("SharedMemoryImage")
+
 package android.support.wearable.watchface
 
 import android.graphics.Bitmap
@@ -25,57 +27,52 @@ import androidx.annotation.RestrictTo
 import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 
-/** @hide */
+/**
+ * WebP compresses a {@link Bitmap} with the specified quality (100 = lossless) which is
+ * stored in shared memory and serialized to a bundle.
+ *
+ * @hide
+ */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-class SharedMemoryImage {
-    // Not instantiable.
-    private constructor()
-
-    companion object {
-        /**
-         * WebP compresses a {@link Bitmap} with the specified quality (100 = lossless) which is
-         * stored in shared memory and serialized to a bundle.
-         */
-        @Suppress("DEPRECATION")
-        @JvmStatic
-        fun bitmapToAshmemCompressedImageBundle(bitmap: Bitmap, quality: Int): Bundle {
-            val stream = ByteArrayOutputStream()
-            bitmap.compress(CompressFormat.WEBP, quality, stream)
-            val bytes = stream.toByteArray()
-            val ashmem = SharedMemory.create("WatchFace.Screenshot.Bitmap", bytes.size)
-            var byteBuffer: ByteBuffer? = null
-            try {
-                byteBuffer = ashmem.mapReadWrite()
-                byteBuffer.put(bytes)
-                return Bundle().apply {
-                    this.putParcelable(Constants.KEY_SCREENSHOT, ashmem)
-                }
-            } finally {
-                if (byteBuffer != null) {
-                    SharedMemory.unmap(byteBuffer)
-                }
-            }
+@Suppress("DEPRECATION")
+fun Bitmap.toAshmemCompressedImageBundle(quality: Int): Bundle {
+    val stream = ByteArrayOutputStream()
+    this.compress(CompressFormat.WEBP, quality, stream)
+    val bytes = stream.toByteArray()
+    val ashmem = SharedMemory.create("WatchFace.Screenshot.Bitmap", bytes.size)
+    var byteBuffer: ByteBuffer? = null
+    try {
+        byteBuffer = ashmem.mapReadWrite()
+        byteBuffer.put(bytes)
+        return Bundle().apply {
+            this.putParcelable(Constants.KEY_SCREENSHOT, ashmem)
         }
+    } finally {
+        if (byteBuffer != null) {
+            SharedMemory.unmap(byteBuffer)
+        }
+    }
+}
 
-        /**
-         * Deserializes a {@link Bundle} containing a {@link Bitmap} serialized by {@link
-         * #bitmapToAshmemCompressedImageBundle}.
-         */
-        @JvmStatic
-        fun ashmemCompressedImageBundleToBitmap(bundle: Bundle): Bitmap? {
-            bundle.classLoader = SharedMemory::class.java.classLoader
-            val ashmem = bundle.getParcelable<SharedMemory>(Constants.KEY_SCREENSHOT) ?: return null
-            var byteBuffer: ByteBuffer? = null
-            try {
-                byteBuffer = ashmem.mapReadOnly()
-                val bufferBytes = ByteArray(byteBuffer.remaining())
-                byteBuffer.get(bufferBytes)
-                return BitmapFactory.decodeByteArray(bufferBytes, /* offset= */0, bufferBytes.size)
-            } finally {
-                if (byteBuffer != null) {
-                    SharedMemory.unmap(byteBuffer)
-                }
-            }
+/**
+ * Deserializes a {@link Bundle} containing a {@link Bitmap} serialized by {@link
+ * #bitmapToAshmemCompressedImageBundle}.
+ *
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+fun Bundle.ashmemCompressedImageBundleToBitmap(): Bitmap? {
+    this.classLoader = SharedMemory::class.java.classLoader
+    val ashmem = this.getParcelable<SharedMemory>(Constants.KEY_SCREENSHOT) ?: return null
+    var byteBuffer: ByteBuffer? = null
+    try {
+        byteBuffer = ashmem.mapReadOnly()
+        val bufferBytes = ByteArray(byteBuffer.remaining())
+        byteBuffer.get(bufferBytes)
+        return BitmapFactory.decodeByteArray(bufferBytes, /* offset= */0, bufferBytes.size)
+    } finally {
+        if (byteBuffer != null) {
+            SharedMemory.unmap(byteBuffer)
         }
     }
 }
