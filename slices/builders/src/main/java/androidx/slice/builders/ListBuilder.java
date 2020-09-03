@@ -381,6 +381,19 @@ public class ListBuilder extends TemplateSliceBuilder {
         return this;
     }
 
+
+    /**
+     * Sets additional information to be passed to the host of the slice.
+     *
+     * @param key The name of the extra data
+     * @param value The String data value
+     */
+    @NonNull
+    public ListBuilder setHostExtra(@NonNull String key, @NonNull String value) {
+        mImpl.setHostExtra(key, value);
+        return this;
+    }
+
     /**
      * If all content in a slice cannot be shown, the row added here may be displayed where the
      * content is cut off. This row should have an affordance to take the user to an activity to
