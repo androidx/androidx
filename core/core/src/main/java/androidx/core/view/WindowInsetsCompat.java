@@ -75,13 +75,6 @@ public class WindowInsetsCompat {
     @NonNull
     public static final WindowInsetsCompat CONSUMED;
 
-    private static boolean sVisibleRectReflectionFetched = false;
-    private static Method sGetViewRootImplMethod;
-    private static Class<?> sViewRootImplClass;
-    private static Class<?> sAttachInfoClass;
-    private static Field sVisibleInsetsField;
-    private static Field sAttachInfoField;
-
     static {
         if (SDK_INT >= 30) {
             CONSUMED = Impl30.CONSUMED;
@@ -867,12 +860,23 @@ public class WindowInsetsCompat {
         void setRootViewData(@NonNull Insets visibleInsets) {
         }
 
+        void copyRootViewBounds(@NonNull View rootView) {
+        }
+
         void copyWindowDataInto(@NonNull WindowInsetsCompat other) {
         }
     }
 
     @RequiresApi(20)
     private static class Impl20 extends Impl {
+
+        private static boolean sVisibleRectReflectionFetched = false;
+        private static Method sGetViewRootImplMethod;
+        private static Class<?> sViewRootImplClass;
+        private static Class<?> sAttachInfoClass;
+        private static Field sVisibleInsetsField;
+        private static Field sAttachInfoField;
+
         @NonNull
         final WindowInsets mPlatformInsets;
 
@@ -1087,6 +1091,83 @@ public class WindowInsetsCompat {
                 return Insets.NONE;
             }
         }
+
+        @Override
+        void copyRootViewBounds(@NonNull View rootView) {
+            Insets visibleInsets = getVisibleInsets(rootView);
+            if (visibleInsets == null) {
+                visibleInsets = Insets.NONE;
+            }
+            setRootViewData(visibleInsets);
+        }
+
+
+        /**
+         * Attempt to get a copy of the visible rect from this rootView's AttachInfo.
+         *
+         * @return a copy of the provided view's AttachInfo.mVisibleRect or null if anything fails
+         */
+        @Nullable
+        private Insets getVisibleInsets(@NonNull View rootView) {
+            if (SDK_INT >= 30) {
+                throw new UnsupportedOperationException("getVisibleInsets() should not be called "
+                        + "on API >= 30. Use WindowInsets.isVisible() instead.");
+            }
+
+            if (!sVisibleRectReflectionFetched) {
+                loadReflectionField();
+            }
+
+            if (sGetViewRootImplMethod == null
+                    || sAttachInfoClass == null
+                    || sVisibleInsetsField == null) {
+                return null;
+            }
+
+            try {
+                Object viewRootImpl = sGetViewRootImplMethod.invoke(rootView);
+                if (viewRootImpl == null) {
+                    Log.w(TAG, "Failed to get visible insets. getViewRootImpl() returned null from "
+                                    + "the provided view. This means that the view is either not "
+                                    + "attached or the method has been overridden",
+                            new NullPointerException());
+                    return null;
+                } else {
+                    Object mAttachInfo = sAttachInfoField.get(viewRootImpl);
+                    Rect visibleRect = (Rect) sVisibleInsetsField.get(mAttachInfo);
+                    return visibleRect != null ? Insets.of(visibleRect) : null;
+                }
+            } catch (IllegalAccessException e) {
+                logReflectionError(e);
+            } catch (InvocationTargetException e) {
+                logReflectionError(e);
+            }
+            return null;
+        }
+
+        @SuppressLint("PrivateApi")
+        private static void loadReflectionField() {
+            try {
+                sGetViewRootImplMethod = View.class.getDeclaredMethod("getViewRootImpl");
+                sViewRootImplClass = Class.forName("android.view.ViewRootImpl");
+                sAttachInfoClass = Class.forName("android.view.View$AttachInfo");
+                sVisibleInsetsField = sAttachInfoClass.getDeclaredField("mVisibleInsets");
+                sAttachInfoField = sViewRootImplClass.getDeclaredField("mAttachInfo");
+                sVisibleInsetsField.setAccessible(true);
+                sAttachInfoField.setAccessible(true);
+            } catch (ClassNotFoundException e) {
+                logReflectionError(e);
+            } catch (NoSuchMethodException e) {
+                logReflectionError(e);
+            } catch (NoSuchFieldException e) {
+                logReflectionError(e);
+            }
+            sVisibleRectReflectionFetched = true;
+        }
+
+        private static void logReflectionError(Exception e) {
+            Log.e(TAG, "Failed to get visible insets. (Reflection error). " + e.getMessage(), e);
+        }
     }
 
     @RequiresApi(21)
@@ -1262,6 +1343,14 @@ public class WindowInsetsCompat {
         @Override
         public boolean isVisible(int typeMask) {
             return mPlatformInsets.isVisible(TypeImpl30.toPlatformType(typeMask));
+        }
+
+        @Override
+        final void copyRootViewBounds(@NonNull View rootView) {
+            // This is only used to copy the root view visible insets which is
+            // then only used to get the visibility of the IME on API < 30.
+            // Overriding this avoid to go through the code path to get the visible insets via
+            // reflection.
         }
     }
 
@@ -1961,73 +2050,6 @@ public class WindowInsetsCompat {
     }
 
     void copyRootViewBounds(@NonNull View rootView) {
-        Insets visibleInsets = getVisibleInsets(rootView);
-        if (visibleInsets == null) {
-            visibleInsets = Insets.NONE;
-        }
-        setRootViewData(visibleInsets);
-    }
-
-
-    /**
-     * Attempt to get a copy of the visible rect from this rootView's AttachInfo.
-     *
-     * @return a copy of the provided view's AttachInfo.mVisibleRect or null if anything fails
-     */
-    @Nullable
-    private Insets getVisibleInsets(@NonNull View rootView) {
-        if (!sVisibleRectReflectionFetched) {
-            loadReflectionField();
-        }
-
-        if (sGetViewRootImplMethod == null
-                || sAttachInfoClass == null
-                || sVisibleInsetsField == null) {
-            return null;
-        }
-
-        try {
-            Object viewRootImpl = sGetViewRootImplMethod.invoke(rootView);
-            if (viewRootImpl == null) {
-                Log.w(TAG, "Failed to get visible insets. getViewRootImpl() returned null from "
-                                + "the provided view. This means that the view is either not "
-                                + "attached or the method has been overridden",
-                        new NullPointerException());
-                return null;
-            } else {
-                Object mAttachInfo = sAttachInfoField.get(viewRootImpl);
-                Rect visibleRect = (Rect) sVisibleInsetsField.get(mAttachInfo);
-                return visibleRect != null ? Insets.of(visibleRect) : null;
-            }
-        } catch (IllegalAccessException e) {
-            logReflectionError(e);
-        } catch (InvocationTargetException e) {
-            logReflectionError(e);
-        }
-        return null;
-    }
-
-    @SuppressLint("PrivateApi")
-    private static void loadReflectionField() {
-        try {
-            sGetViewRootImplMethod = View.class.getDeclaredMethod("getViewRootImpl");
-            sViewRootImplClass = Class.forName("android.view.ViewRootImpl");
-            sAttachInfoClass = Class.forName("android.view.View$AttachInfo");
-            sVisibleInsetsField = sAttachInfoClass.getDeclaredField("mVisibleInsets");
-            sAttachInfoField = sViewRootImplClass.getDeclaredField("mAttachInfo");
-            sVisibleInsetsField.setAccessible(true);
-            sAttachInfoField.setAccessible(true);
-        } catch (ClassNotFoundException e) {
-            logReflectionError(e);
-        } catch (NoSuchMethodException e) {
-            logReflectionError(e);
-        } catch (NoSuchFieldException e) {
-            logReflectionError(e);
-        }
-        sVisibleRectReflectionFetched = true;
-    }
-
-    private static void logReflectionError(Exception e) {
-        Log.e(TAG, "Failed to get visible insets. (Reflection error). " + e.getMessage(), e);
+        mImpl.copyRootViewBounds(rootView);
     }
 }
