@@ -66,6 +66,14 @@
     </string-array>
 
     <!--
+    List of known device models for which the BiometricPrompt UI should not be shown again for a
+    minimum amount of time after the prompt has been dismissed.
+    -->
+    <string-array name="delay_showing_prompt_prefixes">
+        <item>Pixel 4</item>
+    </string-array>
+
+    <!--
     List of known device models for which all biometric sensors checked by
     BiometricManager#canAuthenticate() meet or exceed the Class 3 (Strong) security threshold.
     -->
