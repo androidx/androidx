@@ -716,8 +716,16 @@ public final class SurfaceRequest {
         @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         public abstract int getTargetRotation();
 
+        /**
+         * Creates new {@link TransformationInfo}
+         *
+         * <p> Internally public to be used in view artifact tests.
+         *
+         * @hide
+         */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
         @NonNull
-        static TransformationInfo of(@NonNull Rect cropRect,
+        public static TransformationInfo of(@NonNull Rect cropRect,
                 @ImageOutputConfig.RotationDegreesValue int rotationDegrees,
                 @ImageOutputConfig.RotationValue int targetRotation) {
             return new AutoValue_SurfaceRequest_TransformationInfo(cropRect, rotationDegrees,
