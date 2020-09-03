@@ -98,17 +98,23 @@ public class BiometricFragment extends Fragment {
             "androidx.biometric.FingerprintDialogFragment";
 
     /**
-     * The amount of time before the flag indicating whether to dismiss the fingerprint dialog
-     * instantly can be changed.
+     * The amount of time (in milliseconds) before the flag indicating whether to dismiss the
+     * fingerprint dialog instantly can be changed.
      */
     private static final int DISMISS_INSTANTLY_DELAY_MS = 500;
 
     /**
-     * The amount of time to wait before dismissing the fingerprint dialog after encountering an
-     * error. Ignored if {@link DeviceUtils#shouldHideFingerprintDialog(Context, String)} is
-     * {@code true}.
+     * The amount of time (in milliseconds) to wait before dismissing the fingerprint dialog after
+     * encountering an error. Ignored if
+     * {@link DeviceUtils#shouldHideFingerprintDialog(Context, String)} is {@code true}.
      */
     private static final int HIDE_DIALOG_DELAY_MS = 2000;
+
+    /**
+     * The amount of time (in milliseconds) to wait before showing the authentication UI if
+     * {@link BiometricViewModel#isDelayingPrompt()} is {@code true}.
+     */
+    private static final int SHOW_PROMPT_DELAY_MS = 600;
 
     /**
      * Request code used when launching the confirm device credential Settings activity.
@@ -136,6 +142,50 @@ public class BiometricFragment extends Fragment {
         }
     }
 
+    /**
+     * A runnable with a weak reference to this fragment that can be used to invoke
+     * {@link #showPromptForAuthentication()}.
+     */
+    private static class ShowPromptForAuthenticationRunnable implements Runnable {
+        @NonNull private final WeakReference<BiometricFragment> mFragmentRef;
+
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        ShowPromptForAuthenticationRunnable(@Nullable BiometricFragment fragment) {
+            mFragmentRef = new WeakReference<>(fragment);
+        }
+
+        @Override
+        public void run() {
+            if (mFragmentRef.get() != null) {
+                mFragmentRef.get().showPromptForAuthentication();
+            }
+        }
+    }
+
+    /**
+     * A runnable with a weak reference to a {@link BiometricViewModel} that can be used to invoke
+     * {@link BiometricViewModel#setDelayingPrompt(boolean)} with a value of {@code false}.
+     */
+    private static class StopDelayingPromptRunnable implements Runnable {
+        @NonNull private final WeakReference<BiometricViewModel> mViewModelRef;
+
+        @SuppressWarnings("WeakerAccess") /* synthetic access */
+        StopDelayingPromptRunnable(@Nullable BiometricViewModel viewModel) {
+            mViewModelRef = new WeakReference<>(viewModel);
+        }
+
+        @Override
+        public void run() {
+            if (mViewModelRef.get() != null) {
+                mViewModelRef.get().setDelayingPrompt(false);
+            }
+        }
+    }
+
+    /**
+     * A runnable with a weak reference to a {@link BiometricViewModel} that can be used to invoke
+     * {@link BiometricViewModel#setIgnoringCancel(boolean)} with a value of {@code false}.
+     */
     private static class StopIgnoringCancelRunnable implements Runnable {
         @NonNull private final WeakReference<BiometricViewModel> mViewModelRef;
 
@@ -351,6 +401,21 @@ public class BiometricFragment extends Fragment {
             return;
         }
 
+        // Check if we should delay showing the authentication prompt.
+        if (mViewModel.isDelayingPrompt()) {
+            mHandler.postDelayed(
+                    new ShowPromptForAuthenticationRunnable(this), SHOW_PROMPT_DELAY_MS);
+        } else {
+            showPromptForAuthentication();
+        }
+    }
+
+    /**
+     * Shows either the framework biometric prompt or fingerprint UI dialog to the user and begins
+     * authentication.
+     */
+    @SuppressWarnings("WeakerAccess") /* synthetic access */
+    void showPromptForAuthentication() {
         if (!mViewModel.isPromptShowing()) {
             if (getContext() == null) {
                 Log.w(TAG, "Not showing biometric prompt. Context is null.");
@@ -503,6 +568,13 @@ public class BiometricFragment extends Fragment {
         dismissFingerprintDialog();
         if (!mViewModel.isConfirmingDeviceCredential() && isAdded()) {
             getParentFragmentManager().beginTransaction().remove(this).commitAllowingStateLoss();
+        }
+
+        // Wait before showing again to work around a dismissal logic issue on API 29 (b/157783075).
+        final Context context = getContext();
+        if (context != null && DeviceUtils.shouldDelayShowingPrompt(context, Build.MODEL)) {
+            mViewModel.setDelayingPrompt(true);
+            mHandler.postDelayed(new StopDelayingPromptRunnable(mViewModel), SHOW_PROMPT_DELAY_MS);
         }
     }
 
