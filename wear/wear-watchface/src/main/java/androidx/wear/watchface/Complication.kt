@@ -172,7 +172,7 @@ open class ComplicationDrawableRenderer(
 
     private inner class SystemStateListener : WatchState.Listener {
         override fun onAmbientModeChanged(isAmbient: Boolean) {
-            drawable.setInAmbientMode(isAmbient)
+            drawable.inAmbientMode = isAmbient
         }
     }
 
@@ -182,8 +182,8 @@ open class ComplicationDrawableRenderer(
 
     /** {@inheritDoc} */
     override fun onAttach() {
-        drawable.setInAmbientMode(watchState.isAmbient)
-        drawable.setLowBitAmbient(watchState.hasLowBitAmbient)
+        drawable.inAmbientMode = watchState.isAmbient
+        drawable.lowBitAmbient = watchState.hasLowBitAmbient
         drawable.setBurnInProtection(watchState.hasBurnInProtection)
 
         watchState.addListener(systemStateListener)
@@ -202,10 +202,8 @@ open class ComplicationDrawableRenderer(
         @DrawMode drawMode: Int
     ) {
         drawable.bounds = bounds
-        drawable.draw(
-            canvas,
-            calendar.timeInMillis
-        )
+        drawable.currentTimeMillis = calendar.timeInMillis
+        drawable.draw(canvas)
     }
 
     /** {@inheritDoc} */
@@ -215,7 +213,7 @@ open class ComplicationDrawableRenderer(
 
     /** {@inheritDoc} */
     override fun setData(data: ComplicationData?) {
-        drawable.setComplicationData(data)
+        drawable.complicationData = data
         complicationData = data
     }
 

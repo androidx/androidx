@@ -16,29 +16,19 @@
 
 package androidx.wear.complications.rendering;
 
-import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
+import android.support.wearable.complications.ComplicationData;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
-import androidx.annotation.VisibleForTesting;
 
 /**
  * Defines attributes to customize appearance of rendered {@link
  * android.support.wearable.complications.ComplicationData}.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
-@SuppressLint("BanParcelableUsage")
-@VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
 public class ComplicationStyle {
 
     /** Default primary color. */
@@ -78,71 +68,51 @@ public class ComplicationStyle {
     /** Default border radius. */
     public static final int BORDER_RADIUS_DEFAULT = Integer.MAX_VALUE;
 
-    private final int mBackgroundColor;
-    private final Drawable mBackgroundDrawable;
-    private final int mTextColor;
-    private final int mTitleColor;
-    private final Typeface mTextTypeface;
-    private final Typeface mTitleTypeface;
-    private final int mTextSize;
-    private final int mTitleSize;
-    private final ColorFilter mColorFilter;
-    private final int mIconColor;
-    private final int mBorderColor;
+    private int mBackgroundColor = BACKGROUND_COLOR_DEFAULT;
+    private Drawable mBackgroundDrawable = null;
+    private int mTextColor = PRIMARY_COLOR_DEFAULT;
+    private int mTitleColor = SECONDARY_COLOR_DEFAULT;
+    private Typeface mTextTypeface = TYPEFACE_DEFAULT;
+    private Typeface mTitleTypeface = TYPEFACE_DEFAULT;
+    private int mTextSize = TEXT_SIZE_DEFAULT;
+    private int mTitleSize = TEXT_SIZE_DEFAULT;
+    private ColorFilter mImageColorFilter = null;
+    private int mIconColor = PRIMARY_COLOR_DEFAULT;
+    private int mBorderColor = BORDER_COLOR_DEFAULT;
+    private int mBorderStyle = ComplicationDrawable.BORDER_STYLE_SOLID;
+    private int mBorderDashWidth = DASH_WIDTH_DEFAULT;
+    private int mBorderDashGap = DASH_GAP_DEFAULT;
+    private int mBorderRadius = BORDER_RADIUS_DEFAULT;
+    private int mBorderWidth = BORDER_WIDTH_DEFAULT;
+    private int mRangedValueRingWidth = RING_WIDTH_DEFAULT;
+    private int mRangedValuePrimaryColor = PRIMARY_COLOR_DEFAULT;
+    private int mRangedValueSecondaryColor = SECONDARY_COLOR_DEFAULT;
+    private int mHighlightColor = HIGHLIGHT_COLOR_DEFAULT;
 
-    @ComplicationDrawable.BorderStyle
-    private final int mBorderStyle;
-    private final int mBorderDashWidth;
-    private final int mBorderDashGap;
-    private final int mBorderRadius;
-    private final int mBorderWidth;
-    private final int mRangedValueRingWidth;
-    private final int mRangedValuePrimaryColor;
-    private final int mRangedValueSecondaryColor;
-    private final int mHighlightColor;
+    public ComplicationStyle() {
+    }
 
-    private ComplicationStyle(
-            int backgroundColor,
-            Drawable backgroundDrawable,
-            int textColor,
-            int titleColor,
-            Typeface textTypeface,
-            Typeface titleTypeface,
-            int textSize,
-            int titleSize,
-            ColorFilter colorFilter,
-            int iconColor,
-            int borderColor,
-            @ComplicationDrawable.BorderStyle int borderStyle,
-            int borderRadius,
-            int borderWidth,
-            int dashWidth,
-            int dashGap,
-            int ringWidth,
-            int rangedPrimaryColor,
-            int rangedSecondaryColor,
-            int highlightColor) {
-
-        mBackgroundColor = backgroundColor;
-        mBackgroundDrawable = backgroundDrawable;
-        mTextColor = textColor;
-        mTitleColor = titleColor;
-        mTextTypeface = textTypeface;
-        mTitleTypeface = titleTypeface;
-        mTextSize = textSize;
-        mTitleSize = titleSize;
-        mColorFilter = colorFilter;
-        mIconColor = iconColor;
-        mBorderColor = borderColor;
-        mBorderStyle = borderStyle;
-        mBorderDashWidth = dashWidth;
-        mBorderDashGap = dashGap;
-        mBorderRadius = borderRadius;
-        mBorderWidth = borderWidth;
-        mRangedValueRingWidth = ringWidth;
-        mRangedValuePrimaryColor = rangedPrimaryColor;
-        mRangedValueSecondaryColor = rangedSecondaryColor;
-        mHighlightColor = highlightColor;
+    public ComplicationStyle(@NonNull ComplicationStyle style) {
+        mBackgroundColor = style.getBackgroundColor();
+        mBackgroundDrawable = style.getBackgroundDrawable();
+        mTextColor = style.getTextColor();
+        mTitleColor = style.getTitleColor();
+        mTextTypeface = style.getTextTypeface();
+        mTitleTypeface = style.getTitleTypeface();
+        mTextSize = style.getTextSize();
+        mTitleSize = style.getTitleSize();
+        mImageColorFilter = style.getImageColorFilter();
+        mIconColor = style.getIconColor();
+        mBorderColor = style.getBorderColor();
+        mBorderStyle = style.getBorderStyle();
+        mBorderDashWidth = style.getBorderDashWidth();
+        mBorderDashGap = style.getBorderDashGap();
+        mBorderRadius = style.getBorderRadius();
+        mBorderWidth = style.getBorderWidth();
+        mRangedValueRingWidth = style.getRangedValueRingWidth();
+        mRangedValuePrimaryColor = style.getRangedValuePrimaryColor();
+        mRangedValueSecondaryColor = style.getRangedValueSecondaryColor();
+        mHighlightColor = style.getHighlightColor();
     }
 
     /** Returns the background color to be used. */
@@ -171,8 +141,8 @@ public class ComplicationStyle {
      * no color filter.
      */
     @Nullable
-    public ColorFilter getColorFilter() {
-        return mColorFilter;
+    public ColorFilter getImageColorFilter() {
+        return mImageColorFilter;
     }
 
     /** Returns the color for tinting icons. */
@@ -262,452 +232,199 @@ public class ComplicationStyle {
         return mHighlightColor;
     }
 
-    /** Used to build an instance of this class. */
-    public static class Builder implements Parcelable {
+    /**
+     * Sets the background color.
+     *
+     * @param backgroundColor The color to set
+     */
+    public void setBackgroundColor(int backgroundColor) {
+        this.mBackgroundColor = backgroundColor;
+    }
 
-        private static final String FIELD_BACKGROUND_COLOR = "background_color";
-        private static final String FIELD_TEXT_COLOR = "text_color";
-        private static final String FIELD_TITLE_COLOR = "title_color";
-        private static final String FIELD_TEXT_STYLE = "text_style";
-        private static final String FIELD_TITLE_STYLE = "title_style";
-        private static final String FIELD_TEXT_SIZE = "text_size";
-        private static final String FIELD_TITLE_SIZE = "title_size";
-        private static final String FIELD_ICON_COLOR = "icon_color";
-        private static final String FIELD_BORDER_COLOR = "border_color";
-        private static final String FIELD_BORDER_STYLE = "border_style";
-        private static final String FIELD_BORDER_DASH_WIDTH = "border_dash_width";
-        private static final String FIELD_BORDER_DASH_GAP = "border_dash_gap";
-        private static final String FIELD_BORDER_RADIUS = "border_radius";
-        private static final String FIELD_BORDER_WIDTH = "border_width";
-        private static final String FIELD_RANGED_VALUE_RING_WIDTH = "ranged_value_ring_width";
-        private static final String FIELD_RANGED_VALUE_PRIMARY_COLOR = "ranged_value_primary_color";
-        private static final String FIELD_RANGED_VALUE_SECONDARY_COLOR =
-                "ranged_value_secondary_color";
-        private static final String FIELD_HIGHLIGHT_COLOR = "highlight_color";
+    /**
+     * Sets the {@link Drawable} to render in the background.
+     *
+     * @param backgroundDrawable The {@link Drawable} to render in the background
+     */
+    public void setBackgroundDrawable(@Nullable Drawable backgroundDrawable) {
+        this.mBackgroundDrawable = backgroundDrawable;
+    }
 
-        public static final Creator<Builder> CREATOR =
-                new Creator<Builder>() {
-                    @Override
-                    @SuppressLint("SyntheticAccessor")
-                    public Builder createFromParcel(Parcel source) {
-                        return new Builder(source);
-                    }
+    /**
+     * Sets the color to render the text with. Text color is used for rendering short text
+     * and long text fields.
+     *
+     * @param textColor The color to render the text with
+     */
+    public void setTextColor(int textColor) {
+        this.mTextColor = textColor;
+    }
 
-                    @Override
-                    public Builder[] newArray(int size) {
-                        return new Builder[size];
-                    }
-                };
+    /**
+     * Sets the color to render the title with.  Title color is used for rendering short
+     * title and long title fields.
+     *
+     * @param titleColor The color to render the title with
+     */
+    public void setTitleColor(int titleColor) {
+        this.mTitleColor = titleColor;
+    }
 
-        private int mBackgroundColor = BACKGROUND_COLOR_DEFAULT;
-        private Drawable mBackgroundDrawable = null;
-        private int mTextColor = PRIMARY_COLOR_DEFAULT;
-        private int mTitleColor = SECONDARY_COLOR_DEFAULT;
+    /**
+     * Sets the color filter used in active mode when rendering large images and small images
+     * with style {@link ComplicationData#IMAGE_STYLE_PHOTO}.
+     *
+     * @param colorFilter The {@link ColorFilter} to use
+     */
+    public void setImageColorFilter(@Nullable ColorFilter colorFilter) {
+        this.mImageColorFilter = colorFilter;
+    }
 
-        @SuppressLint("SyntheticAccessor")
-        private Typeface mTextTypeface = TYPEFACE_DEFAULT;
+    /**
+     * Sets the color for tinting the icon with.
+     *
+     * @param iconColor The color to render the icon with
+     */
+    public void setIconColor(int iconColor) {
+        this.mIconColor = iconColor;
+    }
 
-        @SuppressLint("SyntheticAccessor")
-        private Typeface mTitleTypeface = TYPEFACE_DEFAULT;
-        private int mTextSize = TEXT_SIZE_DEFAULT;
-        private int mTitleSize = TEXT_SIZE_DEFAULT;
-        private ColorFilter mColorFilter = null;
-        private int mIconColor = PRIMARY_COLOR_DEFAULT;
-        private int mBorderColor = BORDER_COLOR_DEFAULT;
-        private int mBorderStyle = ComplicationDrawable.BORDER_STYLE_SOLID;
-        private int mBorderDashWidth = DASH_WIDTH_DEFAULT;
-        private int mBorderDashGap = DASH_GAP_DEFAULT;
-        private int mBorderRadius = BORDER_RADIUS_DEFAULT;
-        private int mBorderWidth = BORDER_WIDTH_DEFAULT;
-        private int mRangedValueRingWidth = RING_WIDTH_DEFAULT;
-        private int mRangedValuePrimaryColor = PRIMARY_COLOR_DEFAULT;
-        private int mRangedValueSecondaryColor = SECONDARY_COLOR_DEFAULT;
-        private int mHighlightColor = HIGHLIGHT_COLOR_DEFAULT;
+    /**
+     * Sets {@link Typeface} to use when rendering short text and long text fields.
+     *
+     * @param textTypeface The {@link Typeface} to render the text with
+     */
+    public void setTextTypeface(@NonNull Typeface textTypeface) {
+        this.mTextTypeface = textTypeface;
+    }
 
-        Builder() {
+    /**
+     * Sets the {@link Typeface} to render the title for short and long text with.
+     *
+     * @param titleTypeface The {@link Typeface} to render the title with
+     */
+    public void setTitleTypeface(@NonNull Typeface titleTypeface) {
+        this.mTitleTypeface = titleTypeface;
+    }
+
+    /**
+     * Sets the size of the text to use when rendering short text and long text fields.
+     *
+     * @param textSize The size of the text=
+     */
+    public void setTextSize(int textSize) {
+        this.mTextSize = textSize;
+    }
+
+    /**
+     * Sets the size of the title text to use when rendering short text and long text fields.
+     *
+     * @param titleSize The size of the title text=
+     */
+    public void setTitleSize(int titleSize) {
+        this.mTitleSize = titleSize;
+    }
+
+    /**
+     * Sets the color to render the complication border with.
+     *
+     * @param borderColor The color to render the complication border with
+     */
+    public void setBorderColor(int borderColor) {
+        this.mBorderColor = borderColor;
+    }
+
+    /**
+     * Sets the style to render the complication border with.
+     *
+     * @param borderStyle The style to render the complication border with
+     */
+    public void setBorderStyle(@ComplicationDrawable.BorderStyle int borderStyle) {
+        switch (borderStyle) {
+            case ComplicationDrawable.BORDER_STYLE_SOLID:
+                this.mBorderStyle = ComplicationDrawable.BORDER_STYLE_SOLID;
+                break;
+            case ComplicationDrawable.BORDER_STYLE_DASHED:
+                this.mBorderStyle = ComplicationDrawable.BORDER_STYLE_DASHED;
+                break;
+            default:
+                this.mBorderStyle = ComplicationDrawable.BORDER_STYLE_NONE;
         }
+    }
 
-        Builder(@NonNull Builder builder) {
-            mBackgroundColor = builder.mBackgroundColor;
-            mBackgroundDrawable = builder.mBackgroundDrawable;
-            mTextColor = builder.mTextColor;
-            mTitleColor = builder.mTitleColor;
-            mTextTypeface = builder.mTextTypeface;
-            mTitleTypeface = builder.mTitleTypeface;
-            mTextSize = builder.mTextSize;
-            mTitleSize = builder.mTitleSize;
-            mColorFilter = builder.mColorFilter;
-            mIconColor = builder.mIconColor;
-            mBorderColor = builder.mBorderColor;
-            mBorderStyle = builder.mBorderStyle;
-            mBorderDashWidth = builder.mBorderDashWidth;
-            mBorderDashGap = builder.mBorderDashGap;
-            mBorderRadius = builder.mBorderRadius;
-            mBorderWidth = builder.mBorderWidth;
-            mRangedValueRingWidth = builder.mRangedValueRingWidth;
-            mRangedValuePrimaryColor = builder.mRangedValuePrimaryColor;
-            mRangedValueSecondaryColor = builder.mRangedValueSecondaryColor;
-            mHighlightColor = builder.mHighlightColor;
-        }
+    /**
+     * Sets dash widths to render the complication border with when drawing borders with style
+     * {@link ComplicationDrawable#BORDER_STYLE_DASHED}.
+     *
+     * @param borderDashWidth The dash widths to render the complication border with
+     */
+    public void setBorderDashWidth(int borderDashWidth) {
+        this.mBorderDashWidth = borderDashWidth;
+    }
 
-        Builder(@NonNull ComplicationStyle style) {
-            mBackgroundColor = style.getBackgroundColor();
-            mBackgroundDrawable = style.getBackgroundDrawable();
-            mTextColor = style.getTextColor();
-            mTitleColor = style.getTitleColor();
-            mTextTypeface = style.getTextTypeface();
-            mTitleTypeface = style.getTitleTypeface();
-            mTextSize = style.getTextSize();
-            mTitleSize = style.getTitleSize();
-            mColorFilter = style.getColorFilter();
-            mIconColor = style.getIconColor();
-            mBorderColor = style.getBorderColor();
-            mBorderStyle = style.getBorderStyle();
-            mBorderDashWidth = style.getBorderDashWidth();
-            mBorderDashGap = style.getBorderDashGap();
-            mBorderRadius = style.getBorderRadius();
-            mBorderWidth = style.getBorderWidth();
-            mRangedValueRingWidth = style.getRangedValueRingWidth();
-            mRangedValuePrimaryColor = style.getRangedValuePrimaryColor();
-            mRangedValueSecondaryColor = style.getRangedValueSecondaryColor();
-            mHighlightColor = style.getHighlightColor();
-        }
+    /**
+     * Sets the dash gap render the complication border with when drawing borders with style
+     * {@link ComplicationDrawable#BORDER_STYLE_DASHED}.
+     *
+     * @param borderDashGap The dash gap render the complication border with
+     */
+    public void setBorderDashGap(int borderDashGap) {
+        this.mBorderDashGap = borderDashGap;
+    }
 
-        private Builder(@NonNull Parcel in) {
-            Bundle bundle = in.readBundle(getClass().getClassLoader());
+    /**
+     * Sets the border radius to be applied to the corners of the bounds of the complication in
+     * active mode. Border radius will be limited to the half of width or height, depending
+     * on which one is smaller.
+     *
+     * @param borderRadius The radius to render the complication border with
+     */
+    public void setBorderRadius(int borderRadius) {
+        this.mBorderRadius = borderRadius;
+    }
 
-            mBackgroundColor = bundle.getInt(FIELD_BACKGROUND_COLOR);
-            mTextColor = bundle.getInt(FIELD_TEXT_COLOR);
-            mTitleColor = bundle.getInt(FIELD_TITLE_COLOR);
+    /**
+     * Sets the width to render the complication border with.
+     *
+     * @param borderWidth The width to render the complication border with
+     */
+    public void setBorderWidth(int borderWidth) {
+        this.mBorderWidth = borderWidth;
+    }
 
-            // TODO(b/69249429): Find a way to support non-default typeface.
-            mTextTypeface =
-                    Typeface.defaultFromStyle(bundle.getInt(FIELD_TEXT_STYLE, Typeface.NORMAL));
-            mTitleTypeface =
-                    Typeface.defaultFromStyle(bundle.getInt(FIELD_TITLE_STYLE, Typeface.NORMAL));
+    /**
+     * Sets the stroke width used when rendering the ranged value indicator.
+     *
+     * @param rangedValueRingWidth The width to render the ranged value ring with
+     */
+    public void setRangedValueRingWidth(int rangedValueRingWidth) {
+        this.mRangedValueRingWidth = rangedValueRingWidth;
+    }
 
-            mTextSize = bundle.getInt(FIELD_TEXT_SIZE);
-            mTitleSize = bundle.getInt(FIELD_TITLE_SIZE);
-            mIconColor = bundle.getInt(FIELD_ICON_COLOR);
-            mBorderColor = bundle.getInt(FIELD_BORDER_COLOR);
-            mBorderStyle = bundle.getInt(FIELD_BORDER_STYLE);
-            mBorderDashWidth = bundle.getInt(FIELD_BORDER_DASH_WIDTH);
-            mBorderDashGap = bundle.getInt(FIELD_BORDER_DASH_GAP);
-            mBorderRadius = bundle.getInt(FIELD_BORDER_RADIUS);
-            mBorderWidth = bundle.getInt(FIELD_BORDER_WIDTH);
-            mRangedValueRingWidth = bundle.getInt(FIELD_RANGED_VALUE_RING_WIDTH);
-            mRangedValuePrimaryColor = bundle.getInt(FIELD_RANGED_VALUE_PRIMARY_COLOR);
-            mRangedValueSecondaryColor = bundle.getInt(FIELD_RANGED_VALUE_SECONDARY_COLOR);
-            mHighlightColor = bundle.getInt(FIELD_HIGHLIGHT_COLOR);
-        }
+    /**
+     * Sets the main color to render the ranged value text with.
+     *
+     * @param rangedValuePrimaryColor The main color to render the ranged value text with
+     */
+    public void setRangedValuePrimaryColor(int rangedValuePrimaryColor) {
+        this.mRangedValuePrimaryColor = rangedValuePrimaryColor;
+    }
 
-        @Override
-        public void writeToParcel(@NonNull Parcel dest, int flags) {
-            Bundle bundle = new Bundle();
-            bundle.putInt(FIELD_BACKGROUND_COLOR, mBackgroundColor);
-            bundle.putInt(FIELD_TEXT_COLOR, mTextColor);
-            bundle.putInt(FIELD_TITLE_COLOR, mTitleColor);
-            bundle.putInt(FIELD_TEXT_STYLE, mTextTypeface.getStyle());
-            bundle.putInt(FIELD_TITLE_STYLE, mTitleTypeface.getStyle());
-            bundle.putInt(FIELD_TEXT_SIZE, mTextSize);
-            bundle.putInt(FIELD_TITLE_SIZE, mTitleSize);
-            bundle.putInt(FIELD_ICON_COLOR, mIconColor);
-            bundle.putInt(FIELD_BORDER_COLOR, mBorderColor);
-            bundle.putInt(FIELD_BORDER_STYLE, mBorderStyle);
-            bundle.putInt(FIELD_BORDER_DASH_WIDTH, mBorderDashWidth);
-            bundle.putInt(FIELD_BORDER_DASH_GAP, mBorderDashGap);
-            bundle.putInt(FIELD_BORDER_RADIUS, mBorderRadius);
-            bundle.putInt(FIELD_BORDER_WIDTH, mBorderWidth);
-            bundle.putInt(FIELD_RANGED_VALUE_RING_WIDTH, mRangedValueRingWidth);
-            bundle.putInt(FIELD_RANGED_VALUE_PRIMARY_COLOR, mRangedValuePrimaryColor);
-            bundle.putInt(FIELD_RANGED_VALUE_SECONDARY_COLOR, mRangedValueSecondaryColor);
-            bundle.putInt(FIELD_HIGHLIGHT_COLOR, mHighlightColor);
-            dest.writeBundle(bundle);
-        }
+    /**
+     * Sets the secondary color to render the ranged value text with.
+     *
+     * @param rangedValueSecondaryColor The secondary color to render the ranged value text with
+     */
+    public void setRangedValueSecondaryColor(int rangedValueSecondaryColor) {
+        this.mRangedValueSecondaryColor = rangedValueSecondaryColor;
+    }
 
-        @Override
-        public int describeContents() {
-            return 0;
-        }
-
-        /**
-         * Sets the background color.
-         *
-         * @param backgroundColor The color to set
-         * @return the {@link Builder}.
-         */
-        @NonNull
-        public Builder setBackgroundColor(int backgroundColor) {
-            this.mBackgroundColor = backgroundColor;
-            return this;
-        }
-
-        /**
-         * Sets the {@link Drawable} to render in the background.
-         *
-         * @param backgroundDrawable The {@link Drawable} to render in the background
-         * @return the {@link Builder}.
-         */
-        @NonNull
-        public Builder setBackgroundDrawable(@Nullable Drawable backgroundDrawable) {
-            this.mBackgroundDrawable = backgroundDrawable;
-            return this;
-        }
-
-        /**
-         * Sets the color to render the text with.
-         *
-         * @param textColor The color to render the text with
-         * @return the {@link Builder}.
-         */
-        @NonNull
-        public Builder setTextColor(int textColor) {
-            this.mTextColor = textColor;
-            return this;
-        }
-
-        /**
-         * Sets the color to render the title with.
-         *
-         * @param titleColor The color to render the title with
-         * @return the {@link Builder}.
-         */
-        @NonNull
-        public Builder setTitleColor(int titleColor) {
-            this.mTitleColor = titleColor;
-            return this;
-        }
-
-        /**
-         * Sets the  {@link ColorFilter} to use.
-         *
-         * @param colorFilter The {@link ColorFilter} to use
-         * @return the {@link Builder}.
-         */
-        @NonNull
-        public Builder setColorFilter(@Nullable ColorFilter colorFilter) {
-            this.mColorFilter = colorFilter;
-            return this;
-        }
-
-        /**
-         * Sets the color to render the icon with.
-         *
-         * @param iconColor The color to render the icon with
-         * @return the {@link Builder}.
-         */
-        @NonNull
-        public Builder setIconColor(int iconColor) {
-            this.mIconColor = iconColor;
-            return this;
-        }
-
-        /**
-         * Sets {@link Typeface} to render the text with.
-         *
-         * @param textTypeface The {@link Typeface} to render the text with
-         * @return the {@link Builder}.
-         */
-        @NonNull
-        public Builder setTextTypeface(@NonNull Typeface textTypeface) {
-            this.mTextTypeface = textTypeface;
-            return this;
-        }
-
-        /**
-         * Sets the {@link Typeface} to render the title with.
-         *
-         * @param titleTypeface The {@link Typeface} to render the title with
-         * @return the {@link Builder}.
-         */
-        @NonNull
-        public Builder setTitleTypeface(@NonNull Typeface titleTypeface) {
-            this.mTitleTypeface = titleTypeface;
-            return this;
-        }
-
-        /**
-         * Sets the size of the text.
-         *
-         * @param textSize The size of the text
-         * @return the {@link Builder}.
-         */
-        @NonNull
-        public Builder setTextSize(int textSize) {
-            this.mTextSize = textSize;
-            return this;
-        }
-
-        /**
-         * Sets the  size of the title text.
-         *
-         * @param titleSize The size of the title text
-         * @return the {@link Builder}.
-         */
-        @NonNull
-        public Builder setTitleSize(int titleSize) {
-            this.mTitleSize = titleSize;
-            return this;
-        }
-
-        /**
-         * Sets the color to render the complication border with.
-         *
-         * @param borderColor The color to render the complication border with
-         * @return the {@link Builder}.
-         */
-        @NonNull
-        public Builder setBorderColor(int borderColor) {
-            this.mBorderColor = borderColor;
-            return this;
-        }
-
-        /**
-         * Sets the style to render the complication border with.
-         *
-         * @param borderStyle The style to render the complication border with
-         * @return the {@link Builder}.
-         */
-        @NonNull
-        public Builder setBorderStyle(@ComplicationDrawable.BorderStyle int borderStyle) {
-            switch (borderStyle) {
-                case ComplicationDrawable.BORDER_STYLE_SOLID:
-                    this.mBorderStyle = ComplicationDrawable.BORDER_STYLE_SOLID;
-                    break;
-                case ComplicationDrawable.BORDER_STYLE_DASHED:
-                    this.mBorderStyle = ComplicationDrawable.BORDER_STYLE_DASHED;
-                    break;
-                default:
-                    this.mBorderStyle = ComplicationDrawable.BORDER_STYLE_NONE;
-            }
-            return this;
-        }
-
-        /**
-         * Sets dash widths to render the complication border with.
-         *
-         * @param borderDashWidth The dash widths to render the complication border with
-         * @return the {@link Builder}.
-         */
-        @NonNull
-        public Builder setBorderDashWidth(int borderDashWidth) {
-            this.mBorderDashWidth = borderDashWidth;
-            return this;
-        }
-
-        /**
-         * Sets the dash gap render the complication border with.
-         *
-         * @param borderDashGap The dash gap render the complication border with
-         * @return the {@link Builder}.
-         */
-        @NonNull
-        public Builder setBorderDashGap(int borderDashGap) {
-            this.mBorderDashGap = borderDashGap;
-            return this;
-        }
-
-        /**
-         * Sets the radius to render the complication border with.
-         *
-         * @param borderRadius The radius to render the complication border with
-         * @return the {@link Builder}.
-         */
-        @NonNull
-        public Builder setBorderRadius(int borderRadius) {
-            this.mBorderRadius = borderRadius;
-            return this;
-        }
-
-        /**
-         * Sets the width to render the complication border with.
-         *
-         * @param borderWidth The width to render the complication border with
-         * @return the {@link Builder}.
-         */
-        @NonNull
-        public Builder setBorderWidth(int borderWidth) {
-            this.mBorderWidth = borderWidth;
-            return this;
-        }
-
-        /**
-         * Sets the width to render the ranged value ring with.
-         *
-         * @param rangedValueRingWidth The width to render the ranged value ring with
-         * @return the {@link Builder}.
-         */
-        @NonNull
-        public Builder setRangedValueRingWidth(int rangedValueRingWidth) {
-            this.mRangedValueRingWidth = rangedValueRingWidth;
-            return this;
-        }
-
-        /**
-         * Sets the main color to render the ranged value text with.
-         *
-         * @param rangedValuePrimaryColor The main color to render the ranged value text with
-         * @return the {@link Builder}.
-         */
-        @NonNull
-        public Builder setRangedValuePrimaryColor(int rangedValuePrimaryColor) {
-            this.mRangedValuePrimaryColor = rangedValuePrimaryColor;
-            return this;
-        }
-
-        /**
-         * Sets the secondary color to render the ranged value text with.
-         *
-         * @param rangedValueSecondaryColor The secondary color to render the ranged value text with
-         * @return the {@link Builder}.
-         */
-        @NonNull
-        public Builder setRangedValueSecondaryColor(int rangedValueSecondaryColor) {
-            this.mRangedValueSecondaryColor = rangedValueSecondaryColor;
-            return this;
-        }
-
-        /**
-         * Sets the background color to use when the complication is highlighted.
-         *
-         * @param highlightColor The background color to use when the complication is highlighted
-         * @return the {@link Builder}.
-         */
-        @NonNull
-        public Builder setHighlightColor(int highlightColor) {
-            this.mHighlightColor = highlightColor;
-            return this;
-        }
-
-        /**
-         * Constructs a {@link ComplicationStyle} based on the builder's state.
-         *
-         * @return A {@link ComplicationStyle} constructed from the parameters passed to the builder
-         */
-        @NonNull
-        @SuppressWarnings("SyntheticAccessor")
-        public ComplicationStyle build() {
-            return new ComplicationStyle(
-                    mBackgroundColor,
-                    mBackgroundDrawable,
-                    mTextColor,
-                    mTitleColor,
-                    mTextTypeface,
-                    mTitleTypeface,
-                    mTextSize,
-                    mTitleSize,
-                    mColorFilter,
-                    mIconColor,
-                    mBorderColor,
-                    mBorderStyle,
-                    mBorderRadius,
-                    mBorderWidth,
-                    mBorderDashWidth,
-                    mBorderDashGap,
-                    mRangedValueRingWidth,
-                    mRangedValuePrimaryColor,
-                    mRangedValueSecondaryColor,
-                    mHighlightColor);
-        }
+    /**
+     * Sets the background color to use when the complication is highlighted.
+     *
+     * @param highlightColor The background color to use when the complication is highlighted
+     */
+    public void setHighlightColor(int highlightColor) {
+        this.mHighlightColor = highlightColor;
     }
 }
