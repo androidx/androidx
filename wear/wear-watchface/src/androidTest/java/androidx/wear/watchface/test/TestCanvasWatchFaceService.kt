@@ -42,8 +42,8 @@ import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.DoubleRangeUserStyleCategory
 import androidx.wear.watchface.style.UserStyleManager
 
-/** A simple test watch face for integration tests. */
-internal class TestWatchFaceService(
+/** A simple canvas test watch face for integration tests. */
+internal class TestCanvasWatchFaceService(
     testContext: Context,
     private val handler: Handler,
     var mockSystemTimeMillis: Long

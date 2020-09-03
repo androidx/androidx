@@ -99,10 +99,6 @@ abstract class Gles2Renderer (
 
     private var calledOnGlContextCreated = false
 
-    init {
-        makeContextCurrent()
-    }
-
     /**
      * Returns the attributes to be passed to {@link EGL14.eglChooseConfig}. By default this selects
      * an RGBAB8888 back buffer.
