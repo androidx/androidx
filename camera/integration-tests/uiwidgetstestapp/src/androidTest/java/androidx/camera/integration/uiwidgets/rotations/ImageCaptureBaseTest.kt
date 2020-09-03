@@ -18,6 +18,7 @@ package androidx.camera.integration.uiwidgets.rotations
 
 import android.content.Intent
 import android.os.Build
+import android.os.Environment
 import android.view.View
 import androidx.camera.core.CameraSelector
 import androidx.camera.integration.uiwidgets.R
@@ -29,8 +30,8 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assume
 import org.junit.Assume.assumeFalse
+import org.junit.Assume.assumeTrue
 import java.util.concurrent.TimeUnit
 
 /**
@@ -59,15 +60,27 @@ abstract class ImageCaptureBaseTest<A : CameraActivity> {
         )
 
         CoreAppTestUtil.assumeCompatibleDevice()
-        Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
 
         // Clear the device's UI and ensure it's in a natural orientation
         CoreAppTestUtil.clearDeviceUI(InstrumentationRegistry.getInstrumentation())
         mDevice.setOrientationNatural()
+
+        // Create pictures folder if it doesn't exist on the device. If this fails, abort test.
+        assumeTrue("Failed to create pictures directory", createPicturesFolder())
     }
 
     protected fun tearDown() {
         mDevice.unfreezeRotation()
+    }
+
+    @Suppress("DEPRECATION")
+    private fun createPicturesFolder(): Boolean {
+        val folder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+        if (folder.exists()) {
+            return true
+        }
+        return folder.mkdir()
     }
 
     protected inline fun <reified A : CameraActivity> verifyRotation(

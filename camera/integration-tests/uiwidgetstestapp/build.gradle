@@ -59,7 +59,7 @@ dependencies {
     implementation(project(":camera:camera-view"))
 
     // Android Support Library
-    implementation("androidx.appcompat:appcompat:1.1.0")
+    implementation("androidx.appcompat:appcompat:1.2.0")
     implementation("androidx.viewpager2:viewpager2:1.0.0")
 
     // Testing framework
@@ -73,5 +73,5 @@ dependencies {
     androidTestImplementation(project(':internal-testutils-runtime'))
     androidTestImplementation(TRUTH)
     debugImplementation(ANDROIDX_TEST_CORE)
-    debugImplementation("androidx.fragment:fragment-testing:1.2.3")
+    debugImplementation("androidx.fragment:fragment-testing:1.2.5")
 }
