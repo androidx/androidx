@@ -26,14 +26,5 @@ internal actual fun InputDispatcher(owner: Owner): InputDispatcher {
                 owner::class.java.simpleName
     }
     val view = owner.view
-    return AndroidInputDispatcher { view.dispatchTouchEvent(it) }.apply {
-        BaseInputDispatcher.states.remove(owner)?.also {
-            // TODO(b/157653315): Move restore state to constructor
-            if (it.partialGesture != null) {
-                nextDownTime = it.nextDownTime
-                gestureLateness = it.gestureLateness
-                partialGesture = it.partialGesture
-            }
-        }
-    }
+    return AndroidInputDispatcher(owner) { view.dispatchTouchEvent(it) }
 }

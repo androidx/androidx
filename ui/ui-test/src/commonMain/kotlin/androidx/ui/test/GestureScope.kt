@@ -128,7 +128,6 @@ class GestureScope(node: SemanticsNode) {
     }
 
     internal fun dispose() {
-        inputDispatcher.saveState(owner)
         inputDispatcher.dispose()
         _semanticsNode = null
         _inputDispatcher = null
