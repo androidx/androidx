@@ -92,6 +92,24 @@ public class DeviceUtilsTest {
     }
 
     @Test
+    public void testShouldDelayShowingPrompt() {
+        final String[] modelPrefixes = {"foo", "bar"};
+        when(mContext.getResources()).thenReturn(mResources);
+        when(mResources.getStringArray(R.array.delay_showing_prompt_prefixes))
+                .thenReturn(modelPrefixes);
+
+        final boolean isApi29 = Build.VERSION.SDK_INT == Build.VERSION_CODES.Q;
+        assertThat(DeviceUtils.shouldDelayShowingPrompt(mContext, "foo")).isEqualTo(isApi29);
+        assertThat(DeviceUtils.shouldDelayShowingPrompt(mContext, "bar")).isEqualTo(isApi29);
+        assertThat(DeviceUtils.shouldDelayShowingPrompt(mContext, "foobar")).isEqualTo(isApi29);
+        assertThat(DeviceUtils.shouldDelayShowingPrompt(mContext, "bar123")).isEqualTo(isApi29);
+        assertThat(DeviceUtils.shouldDelayShowingPrompt(mContext, "baz")).isFalse();
+        assertThat(DeviceUtils.shouldDelayShowingPrompt(mContext, "abcxyz")).isFalse();
+        assertThat(DeviceUtils.shouldDelayShowingPrompt(mContext, "bazfoo")).isFalse();
+        assertThat(DeviceUtils.shouldDelayShowingPrompt(mContext, "FooBar")).isFalse();
+    }
+
+    @Test
     public void testCanAssumeStrongBiometrics() {
         final String[] modelPrefixes = {"foo", "bar"};
         when(mContext.getResources()).thenReturn(mResources);

@@ -68,6 +68,22 @@ class DeviceUtils {
     }
 
     /**
+     * Checks if the current device should delay showing a new biometric prompt when the previous
+     * prompt was recently dismissed.
+     *
+     * @param context The application or activity context.
+     * @param model Model name of the current device.
+     * @return Whether showing the prompt should be delayed after dismissal.
+     */
+    static boolean shouldDelayShowingPrompt(@NonNull Context context, String model) {
+        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q) {
+            // This workaround is only needed for API 29.
+            return false;
+        }
+        return isModelInPrefixList(context, model, R.array.delay_showing_prompt_prefixes);
+    }
+
+    /**
      * Checks if all biometric sensors for the current device can be assumed to meet the
      * <strong>Class 3</strong> (formerly <strong>Strong</strong>) security threshold.
      *
