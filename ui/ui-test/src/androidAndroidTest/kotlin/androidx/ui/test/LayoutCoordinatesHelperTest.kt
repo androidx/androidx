@@ -16,19 +16,19 @@
 
 package androidx.ui.test
 
-import androidx.test.filters.MediumTest
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.platform.DensityAmbient
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.onPositioned
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ContentGravity
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.foundation.layout.preferredWidth
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.onPositioned
+import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.dp
+import androidx.test.filters.MediumTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -43,14 +43,14 @@ import java.util.concurrent.TimeUnit
 class LayoutCoordinatesHelperTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule(disableTransitions = true)
 
     @Test
     fun positionInParent_noOffset() {
         val latch = CountDownLatch(2)
         var parentCoordinates: LayoutCoordinates? = null
         var childCoordinates: LayoutCoordinates? = null
-        composeTestRule.setContent {
+        rule.setContent {
             Column(Modifier.onPositioned { coordinates: LayoutCoordinates ->
                 parentCoordinates = coordinates
                 latch.countDown()
@@ -78,7 +78,7 @@ class LayoutCoordinatesHelperTest {
         val latch = CountDownLatch(2)
         var parentCoordinates: LayoutCoordinates? = null
         var childCoordinates: LayoutCoordinates? = null
-        composeTestRule.setContent {
+        rule.setContent {
             with(DensityAmbient.current) {
                 Box(Modifier.preferredWidth(40.toDp()), gravity = ContentGravity.Center) {
                     Column(

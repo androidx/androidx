@@ -20,8 +20,6 @@ import androidx.test.filters.MediumTest
 import androidx.ui.test.assert
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.onNode
-import androidx.ui.test.onAllNodes
 import androidx.ui.test.hasAnyAncestor
 import androidx.ui.test.hasTestTag
 import androidx.ui.test.util.BoundaryNode
@@ -35,25 +33,24 @@ import org.junit.runners.JUnit4
 class HasAnyAncestorTest {
 
     @get:Rule
-    val composeTestRule =
-        createComposeRule(disableTransitions = true)
+    val rule = createComposeRule(disableTransitions = true)
 
     @Test
     fun findByAncestor_oneAncestor_oneMatch() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Node")
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child")
             }
         }
 
-        onNode(hasAnyAncestor(hasTestTag("Parent")))
+        rule.onNode(hasAnyAncestor(hasTestTag("Parent")))
             .assert(hasTestTag("Child"))
     }
 
     @Test
     fun findByAncestor_oneAncestor_twoChildren_twoMatches() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Node")
             BoundaryNode(testTag = "Grandparent") {
                 BoundaryNode(testTag = "Parent") {
@@ -63,13 +60,13 @@ class HasAnyAncestorTest {
             }
         }
 
-        onAllNodes(hasAnyAncestor(hasTestTag("Parent")))
+        rule.onAllNodes(hasAnyAncestor(hasTestTag("Parent")))
             .assertCountEquals(2)
     }
 
     @Test
     fun findByAncestor_twoAncestors_oneMatch() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Node")
             BoundaryNode(testTag = "Grandparent") {
                 BoundaryNode(testTag = "Parent") {
@@ -78,14 +75,14 @@ class HasAnyAncestorTest {
             }
         }
 
-        onNode(hasAnyAncestor(hasTestTag("Grandparent"))
+        rule.onNode(hasAnyAncestor(hasTestTag("Grandparent"))
                 and !hasTestTag("Parent"))
             .assert(hasTestTag("Child"))
     }
 
     @Test
     fun findByAncestor_twoAncestors_twoMatches() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Node")
             BoundaryNode(testTag = "Grandparent") {
                 BoundaryNode(testTag = "Parent") {
@@ -94,29 +91,29 @@ class HasAnyAncestorTest {
             }
         }
 
-        onAllNodes(hasAnyAncestor(hasTestTag("Parent") or hasTestTag("Grandparent")))
+        rule.onAllNodes(hasAnyAncestor(hasTestTag("Parent") or hasTestTag("Grandparent")))
             .assertCountEquals(2)
     }
 
     @Test
     fun findByAncestor_justSelf_noMatch() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Node")
         }
 
-        onNode(hasAnyAncestor(hasTestTag("Node")))
+        rule.onNode(hasAnyAncestor(hasTestTag("Node")))
             .assertDoesNotExist()
     }
 
     @Test
     fun findByAncestor_oneAncestor_noMatch() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child")
             }
         }
 
-        onNode(hasAnyAncestor(hasTestTag("Child")))
+        rule.onNode(hasAnyAncestor(hasTestTag("Child")))
             .assertDoesNotExist()
     }
 }

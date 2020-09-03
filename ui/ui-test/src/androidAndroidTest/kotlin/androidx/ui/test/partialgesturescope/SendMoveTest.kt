@@ -16,14 +16,14 @@
 
 package androidx.ui.test.partialgesturescope
 
-import androidx.test.filters.MediumTest
 import androidx.compose.ui.geometry.Offset
+import androidx.test.filters.MediumTest
 import androidx.ui.test.android.AndroidInputDispatcher.InputDispatcherTestRule
-import androidx.ui.test.createComposeRule
-import androidx.ui.test.partialgesturescope.Common.partialGesture
 import androidx.ui.test.cancel
+import androidx.ui.test.createComposeRule
 import androidx.ui.test.down
 import androidx.ui.test.move
+import androidx.ui.test.partialgesturescope.Common.partialGesture
 import androidx.ui.test.up
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.expectError
@@ -42,7 +42,7 @@ class SendMoveTest() {
     }
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val rule = createComposeRule()
 
     @get:Rule
     val inputDispatcherRule: TestRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
@@ -50,7 +50,7 @@ class SendMoveTest() {
     @Before
     fun setUp() {
         // Given some content
-        composeTestRule.setContent {
+        rule.setContent {
             ClickableTestBox()
         }
     }
@@ -58,25 +58,25 @@ class SendMoveTest() {
     @Test
     fun moveWithoutDown() {
         expectError<IllegalStateException> {
-            partialGesture { move() }
+            rule.partialGesture { move() }
         }
     }
 
     @Test
     fun moveAfterUp() {
-        partialGesture { down(downPosition1) }
-        partialGesture { up() }
+        rule.partialGesture { down(downPosition1) }
+        rule.partialGesture { up() }
         expectError<IllegalStateException> {
-            partialGesture { move() }
+            rule.partialGesture { move() }
         }
     }
 
     @Test
     fun moveAfterCancel() {
-        partialGesture { down(downPosition1) }
-        partialGesture { cancel() }
+        rule.partialGesture { down(downPosition1) }
+        rule.partialGesture { cancel() }
         expectError<IllegalStateException> {
-            partialGesture { move() }
+            rule.partialGesture { move() }
         }
     }
 }

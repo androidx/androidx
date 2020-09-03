@@ -19,15 +19,15 @@ package androidx.ui.test
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
-import androidx.compose.runtime.Recomposer
-import androidx.test.espresso.Espresso.onIdle
-import androidx.test.filters.MediumTest
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.setContent
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Canvas
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Recomposer
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.setContent
+import androidx.test.espresso.Espresso.onIdle
+import androidx.test.filters.MediumTest
 import androidx.ui.test.android.createAndroidComposeRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -37,7 +37,7 @@ import org.junit.Test
 class FirstDrawTest {
 
     @get:Rule
-    val testRule = createAndroidComposeRule<ComponentActivity>()
+    val rule = createAndroidComposeRule<ComponentActivity>()
 
     /**
      * Tests that the compose tree has been drawn at least once when [onIdle] finishes.
@@ -45,7 +45,7 @@ class FirstDrawTest {
     @Test
     fun waitsForFirstDraw() {
         var drawn = false
-        testRule.setContent {
+        rule.setContent {
             Canvas(Modifier.fillMaxSize()) {
                 drawn = true
             }
@@ -60,7 +60,7 @@ class FirstDrawTest {
     @Test
     fun waitsForFirstDraw_withoutOnIdle() {
         var drawn = false
-        testRule.setContent {
+        rule.setContent {
             Canvas(Modifier.fillMaxSize()) {
                 drawn = true
             }
@@ -77,7 +77,7 @@ class FirstDrawTest {
     fun waitsForOutOfBoundsComposeView() {
         var drawn = false
 
-        testRule.activityRule.scenario.onActivity { activity ->
+        rule.activityRule.scenario.onActivity { activity ->
             // Set the compose content in a FrameLayout that is completely placed out of the
             // screen, and enforce clipToPadding in case clipping will prevent the clipped
             // content from being drawn.

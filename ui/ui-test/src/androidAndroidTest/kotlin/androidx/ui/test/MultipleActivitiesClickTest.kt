@@ -20,13 +20,13 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
-import androidx.test.runner.lifecycle.Stage
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.platform.testTag
-import androidx.compose.foundation.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
+import androidx.test.runner.lifecycle.Stage
 import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.util.SinglePointerInputRecorder
 import com.google.common.truth.Truth.assertThat
@@ -36,14 +36,14 @@ import org.junit.Test
 class MultipleActivitiesClickTest {
 
     @get:Rule
-    val composeTestRule = createAndroidComposeRule<Activity1>(disableTransitions = true)
+    val rule = createAndroidComposeRule<Activity1>(disableTransitions = true)
 
     @Test
     fun test() {
         lateinit var activity1: Activity1
-        composeTestRule.activityRule.scenario.onActivity { activity1 = it }
+        rule.activityRule.scenario.onActivity { activity1 = it }
         activity1.startNewActivity()
-        onNodeWithTag("activity2").performGesture { click() }
+        rule.onNodeWithTag("activity2").performGesture { click() }
         val activity2 = getCurrentActivity() as Activity2
 
         assertThat(activity1.recorder.events).isEmpty()
@@ -55,7 +55,7 @@ class MultipleActivitiesClickTest {
     // instrumentation we use in our test setup supports this though, so it is safe to do here.
     private fun getCurrentActivity(): Activity {
         var currentActivity: Activity? = null
-        runOnUiThread {
+        rule.runOnUiThread {
             currentActivity = ActivityLifecycleMonitorRegistry.getInstance()
                 .getActivitiesInStage(Stage.RESUMED).first()
         }

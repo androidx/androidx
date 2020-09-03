@@ -17,9 +17,9 @@
 package androidx.ui.test.inputdispatcher
 
 import androidx.compose.ui.geometry.Offset
+import androidx.ui.test.InputDispatcher
 import androidx.ui.test.android.AndroidInputDispatcher
 import androidx.ui.test.android.AndroidInputDispatcher.InputDispatcherTestRule
-import androidx.ui.test.InputDispatcher
 import androidx.ui.test.util.MotionEventRecorder
 import com.google.common.truth.Truth.assertThat
 import org.junit.After

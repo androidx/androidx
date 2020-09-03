@@ -19,10 +19,10 @@ package androidx.ui.test
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.Box
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.platform.testTag
-import androidx.compose.foundation.Box
 import androidx.ui.test.android.createAndroidComposeRule
 import org.junit.Rule
 import org.junit.Test
@@ -30,13 +30,13 @@ import org.junit.Test
 class MultipleActivitiesFindTest {
 
     @get:Rule
-    val composeTestRule = createAndroidComposeRule<Activity1>(disableTransitions = true)
+    val rule = createAndroidComposeRule<Activity1>(disableTransitions = true)
 
     @Test
     fun test() {
-        composeTestRule.activityRule.scenario.onActivity { it.startNewActivity() }
-        onNodeWithTag("activity1").assertDoesNotExist()
-        onNodeWithTag("activity2").assertExists()
+        rule.activityRule.scenario.onActivity { it.startNewActivity() }
+        rule.onNodeWithTag("activity1").assertDoesNotExist()
+        rule.onNodeWithTag("activity2").assertExists()
     }
 
     class Activity1 : TaggedActivity("activity1")

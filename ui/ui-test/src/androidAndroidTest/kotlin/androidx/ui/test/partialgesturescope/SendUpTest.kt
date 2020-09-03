@@ -17,15 +17,14 @@
 package androidx.ui.test.partialgesturescope
 
 import android.os.SystemClock.sleep
-import androidx.test.filters.MediumTest
 import androidx.compose.ui.geometry.Offset
+import androidx.test.filters.MediumTest
 import androidx.ui.test.android.AndroidInputDispatcher.InputDispatcherTestRule
+import androidx.ui.test.cancel
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.down
 import androidx.ui.test.inputdispatcher.verifyNoGestureInProgress
 import androidx.ui.test.partialgesturescope.Common.partialGesture
-import androidx.ui.test.runOnIdle
-import androidx.ui.test.cancel
-import androidx.ui.test.down
 import androidx.ui.test.up
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.MultiPointerInputRecorder
@@ -49,7 +48,7 @@ class SendUpTest {
     }
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val rule = createComposeRule()
 
     @get:Rule
     val inputDispatcherRule: TestRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
@@ -59,7 +58,7 @@ class SendUpTest {
     @Before
     fun setUp() {
         // Given some content
-        composeTestRule.setContent {
+        rule.setContent {
             ClickableTestBox(recorder)
         }
     }
@@ -67,11 +66,11 @@ class SendUpTest {
     @Test
     fun onePointer() {
         // When we inject a down event followed by an up event
-        partialGesture { down(downPosition1) }
+        rule.partialGesture { down(downPosition1) }
         sleep(20) // (with some time in between)
-        partialGesture { up() }
+        rule.partialGesture { up() }
 
-        runOnIdle {
+        rule.runOnIdle {
             recorder.run {
                 // Then we have recorded 1 down event and 1 up event
                 assertTimestampsAreIncreasing()
@@ -86,18 +85,18 @@ class SendUpTest {
         }
 
         // And no gesture is in progress
-        partialGesture { inputDispatcher.verifyNoGestureInProgress() }
+        rule.partialGesture { inputDispatcher.verifyNoGestureInProgress() }
     }
 
     @Test
     fun twoPointers() {
         // When we inject two down events followed by two up events
-        partialGesture { down(1, downPosition1) }
-        partialGesture { down(2, downPosition2) }
-        partialGesture { up(1) }
-        partialGesture { up(2) }
+        rule.partialGesture { down(1, downPosition1) }
+        rule.partialGesture { down(2, downPosition2) }
+        rule.partialGesture { up(1) }
+        rule.partialGesture { up(2) }
 
-        runOnIdle {
+        rule.runOnIdle {
             recorder.run {
                 // Then we have recorded two down events and two up events
                 assertTimestampsAreIncreasing()
@@ -117,39 +116,39 @@ class SendUpTest {
         }
 
         // And no gesture is in progress
-        partialGesture { inputDispatcher.verifyNoGestureInProgress() }
+        rule.partialGesture { inputDispatcher.verifyNoGestureInProgress() }
     }
 
     @Test
     fun upWithoutDown() {
         expectError<IllegalStateException> {
-            partialGesture { up() }
+            rule.partialGesture { up() }
         }
     }
 
     @Test
     fun upWrongPointerId() {
-        partialGesture { down(1, downPosition1) }
+        rule.partialGesture { down(1, downPosition1) }
         expectError<IllegalArgumentException> {
-            partialGesture { up(2) }
+            rule.partialGesture { up(2) }
         }
     }
 
     @Test
     fun upAfterUp() {
-        partialGesture { down(downPosition1) }
-        partialGesture { up() }
+        rule.partialGesture { down(downPosition1) }
+        rule.partialGesture { up() }
         expectError<IllegalStateException> {
-            partialGesture { up() }
+            rule.partialGesture { up() }
         }
     }
 
     @Test
     fun upAfterCancel() {
-        partialGesture { down(downPosition1) }
-        partialGesture { cancel() }
+        rule.partialGesture { down(downPosition1) }
+        rule.partialGesture { cancel() }
         expectError<IllegalStateException> {
-            partialGesture { up() }
+            rule.partialGesture { up() }
         }
     }
 }

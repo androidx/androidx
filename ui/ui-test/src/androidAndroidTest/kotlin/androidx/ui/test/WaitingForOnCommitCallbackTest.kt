@@ -34,13 +34,13 @@ import java.util.concurrent.atomic.AtomicBoolean
 class WaitingForOnCommitCallbackTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val rule = createComposeRule()
 
     @Test
     fun setContentAndWaitForIdleReleasesAfterOnCommitCallback() {
         val atomicBoolean = AtomicBoolean(false)
         var switch by mutableStateOf(true)
-        composeTestRule.setContent {
+        rule.setContent {
             onCommit(switch) {
                 atomicBoolean.set(switch)
             }
@@ -48,10 +48,10 @@ class WaitingForOnCommitCallbackTest {
 
         assertThat(atomicBoolean.get()).isTrue()
 
-        runOnIdle {
+        rule.runOnIdle {
             switch = false
         }
-        waitForIdle()
+        rule.waitForIdle()
 
         assertThat(atomicBoolean.get()).isFalse()
     }
@@ -71,7 +71,7 @@ class WaitingForOnCommitCallbackTest {
         var switch2 by mutableStateOf(true)
         var switch3 by mutableStateOf(true)
         var switch4 by mutableStateOf(true)
-        composeTestRule.setContent {
+        rule.setContent {
             onCommit(switch1) {
                 values.add(2)
                 switch2 = switch1
@@ -90,7 +90,7 @@ class WaitingForOnCommitCallbackTest {
             }
         }
 
-        runOnIdle {
+        rule.runOnIdle {
             latch = CountDownLatch(1)
             values.clear()
 
@@ -99,7 +99,7 @@ class WaitingForOnCommitCallbackTest {
             switch1 = false
         }
 
-        waitForIdle()
+        rule.waitForIdle()
         // Mark the end
         values.add(6)
 

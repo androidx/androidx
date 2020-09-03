@@ -18,11 +18,11 @@ package androidx.ui.test.selectors
 
 import androidx.test.filters.MediumTest
 import androidx.ui.test.assert
-import androidx.ui.test.onChildren
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.hasTestTag
+import androidx.ui.test.onChildren
 import androidx.ui.test.onLast
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.util.BoundaryNode
 import androidx.ui.test.util.expectErrorMessageStartsWith
 import org.junit.Rule
@@ -35,18 +35,18 @@ import org.junit.runners.JUnit4
 class LastNodeSelectorTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val rule = createComposeRule()
 
     @Test
     fun twoNodes_getLast() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child1")
                 BoundaryNode(testTag = "Child2")
             }
         }
 
-        onNodeWithTag("Parent")
+        rule.onNodeWithTag("Parent")
             .onChildren()
             .onLast()
             .assert(hasTestTag("Child2"))
@@ -54,11 +54,11 @@ class LastNodeSelectorTest {
 
     @Test
     fun zeroNodes_getLast() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent")
         }
 
-        onNodeWithTag("Parent")
+        rule.onNodeWithTag("Parent")
             .onChildren()
             .onLast()
             .assertDoesNotExist()
@@ -66,7 +66,7 @@ class LastNodeSelectorTest {
 
     @Test
     fun zeroNodes_getLast_fail() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent")
         }
 
@@ -74,7 +74,7 @@ class LastNodeSelectorTest {
                 "Failed: assertExists.\n" +
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
                 "(((TestTag = 'Parent').children).last)") {
-            onNodeWithTag("Parent")
+            rule.onNodeWithTag("Parent")
                 .onChildren()
                 .onLast()
                 .assertExists()

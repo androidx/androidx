@@ -19,11 +19,11 @@ package androidx.ui.test.selectors
 import androidx.test.filters.MediumTest
 import androidx.ui.test.assert
 import androidx.ui.test.assertCountEquals
-import androidx.ui.test.onChildren
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.filter
-import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.hasTestTag
+import androidx.ui.test.onChildren
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.util.BoundaryNode
 import org.junit.Rule
 import org.junit.Test
@@ -35,18 +35,18 @@ import org.junit.runners.JUnit4
 class FilterSelectorTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val rule = createComposeRule()
 
     @Test
     fun twoNodes_filterOne() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child1")
                 BoundaryNode(testTag = "Child2")
             }
         }
 
-        onNodeWithTag("Parent")
+        rule.onNodeWithTag("Parent")
             .onChildren()
             .filter(hasTestTag("Child1"))
             .assertCountEquals(1)
@@ -57,14 +57,14 @@ class FilterSelectorTest {
 
     @Test
     fun twoNodes_filterTwo() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child1")
                 BoundaryNode(testTag = "Child2")
             }
         }
 
-        onNodeWithTag("Parent")
+        rule.onNodeWithTag("Parent")
             .onChildren()
             .filter(hasTestTag("Child1") or hasTestTag("Child2"))
             .assertCountEquals(2)
@@ -76,14 +76,14 @@ class FilterSelectorTest {
 
     @Test
     fun twoNodes_filterNone() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child1")
                 BoundaryNode(testTag = "Child2")
             }
         }
 
-        onNodeWithTag("Parent")
+        rule.onNodeWithTag("Parent")
             .onChildren()
             .filter(hasTestTag("Child"))
             .assertCountEquals(0)
