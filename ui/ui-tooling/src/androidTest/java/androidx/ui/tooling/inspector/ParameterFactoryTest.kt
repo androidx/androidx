@@ -19,7 +19,7 @@ package androidx.ui.tooling.inspector
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.InnerPadding
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredWidth
@@ -297,9 +297,9 @@ class ParameterFactoryTest {
     }
 
     @Test
-    fun testInnerPadding() {
-        validate(factory.create(node, "padding", InnerPadding(2.0.dp, 0.5.dp, 2.5.dp, 0.7.dp))!!) {
-            parameter("padding", ParameterType.String, InnerPadding::class.java.simpleName) {
+    fun testPaddingValues() {
+        validate(factory.create(node, "padding", PaddingValues(2.0.dp, 0.5.dp, 2.5.dp, 0.7.dp))!!) {
+            parameter("padding", ParameterType.String, PaddingValues::class.java.simpleName) {
                 parameter("start", ParameterType.DimensionDp, 2.0f)
                 parameter("end", ParameterType.DimensionDp, 2.5f)
                 parameter("top", ParameterType.DimensionDp, 0.5f)

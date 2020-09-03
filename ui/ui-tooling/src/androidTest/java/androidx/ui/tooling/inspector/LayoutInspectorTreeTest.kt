@@ -242,7 +242,7 @@ class LayoutInspectorTreeTest : ToolingTest() {
             )
             parameter(name = "contentColor", type = ParameterType.Color, value = 0xffffffff.toInt())
             parameter(name = "disabledContentColor", type = ParameterType.Color, value = 0x61000000)
-            parameter(name = "padding", type = ParameterType.String, value = "InnerPadding") {
+            parameter(name = "padding", type = ParameterType.String, value = "PaddingValues") {
                 parameter(name = "start", type = ParameterType.DimensionDp, value = 16.0f)
                 parameter(name = "end", type = ParameterType.DimensionDp, value = 16.0f)
                 parameter(name = "top", type = ParameterType.DimensionDp, value = 8.0f)
