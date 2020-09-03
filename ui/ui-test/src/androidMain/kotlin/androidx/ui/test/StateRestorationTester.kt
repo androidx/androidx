@@ -30,7 +30,7 @@ import androidx.compose.runtime.savedinstancestate.savedInstanceState
 /**
  * Helps to test the state restoration for your Composable component.
  *
- * Instead of calling [ComposeTestRule.setContent] you need to use [setContent] on this object,
+ * Instead of calling [ComposeTestRuleJUnit.setContent] you need to use [setContent] on this object,
  * then change your state so there is some change to be restored, then execute
  * [emulateSavedInstanceStateRestore] and assert your state is restored properly.
  *
@@ -38,15 +38,15 @@ import androidx.compose.runtime.savedinstancestate.savedInstanceState
  * [setContent] and useful for testing [savedInstanceState] or [rememberSavedInstanceState]
  * integration. It is not testing the integration with any other life cycles or Activity callbacks.
  */
-class StateRestorationTester(private val composeTestRule: ComposeTestRule) {
+class StateRestorationTester(private val composeTestRule: ComposeTestRuleJUnit) {
 
     private var registry: RestorationRegistry? = null
 
     /**
-     * This functions is a direct replacement for [ComposeTestRule.setContent] if you are going
+     * This functions is a direct replacement for [ComposeTestRuleJUnit.setContent] if you are going
      * to use [emulateSavedInstanceStateRestore] in the test.
      *
-     * @see ComposeTestRule.setContent
+     * @see ComposeTestRuleJUnit.setContent
      */
     fun setContent(composable: @Composable () -> Unit) {
         composeTestRule.setContent {

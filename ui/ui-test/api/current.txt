@@ -27,14 +27,17 @@ package androidx.ui.test {
     method public static boolean contains-ej0GBII(androidx.compose.ui.graphics.Path, long offset);
   }
 
-  public final class AndroidComposeTestRule<T extends androidx.activity.ComponentActivity> implements androidx.ui.test.ComposeTestRule {
+  public final class AndroidComposeTestRule<T extends androidx.activity.ComponentActivity> implements androidx.ui.test.ComposeTestRuleJUnit {
     ctor public AndroidComposeTestRule(androidx.test.ext.junit.rules.ActivityScenarioRule<T> activityRule, boolean disableTransitions, boolean disableBlinkingCursor);
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
     method public androidx.test.ext.junit.rules.ActivityScenarioRule<T> getActivityRule();
     method public androidx.ui.test.AnimationClockTestRule getClockTestRule();
     method public androidx.compose.ui.unit.Density getDensity();
     method public long getDisplaySize();
+    method public <T> T! runOnIdle(kotlin.jvm.functions.Function0<? extends T> action);
+    method public <T> T! runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
     method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+    method public void waitForIdle();
     property public androidx.ui.test.AnimationClockTestRule clockTestRule;
     property public androidx.compose.ui.unit.Density density;
     property public long displaySize;
@@ -46,7 +49,7 @@ package androidx.ui.test {
   }
 
   public final class AndroidComposeTestRuleKt {
-    method public static androidx.ui.test.ComposeTestRule createComposeRule(boolean disableTransitions, boolean disableBlinkingCursor);
+    method public static androidx.ui.test.ComposeTestRuleJUnit createComposeRule(boolean disableTransitions, boolean disableBlinkingCursor);
   }
 
   public final class AndroidInputDispatcherKt {
@@ -115,14 +118,22 @@ package androidx.ui.test {
     method public static androidx.compose.ui.unit.Bounds getUnclippedBoundsInRoot(androidx.ui.test.SemanticsNodeInteraction);
   }
 
-  public interface ComposeTestRule extends org.junit.rules.TestRule {
-    method public androidx.ui.test.AnimationClockTestRule getClockTestRule();
+  public interface ComposeTestRule {
     method public androidx.compose.ui.unit.Density getDensity();
     method public long getDisplaySize();
-    method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
-    property public abstract androidx.ui.test.AnimationClockTestRule clockTestRule;
+    method public default androidx.ui.test.SemanticsNodeInteractionCollection onAllNodes(androidx.ui.test.SemanticsMatcher matcher, boolean useUnmergedTree = false);
+    method public default androidx.ui.test.SemanticsNodeInteraction onNode(androidx.ui.test.SemanticsMatcher matcher, boolean useUnmergedTree = false);
+    method public <T> T! runOnIdle(kotlin.jvm.functions.Function0<? extends T> action);
+    method public <T> T! runOnUiThread(kotlin.jvm.functions.Function0<? extends T> action);
+    method public void waitForIdle();
     property public abstract androidx.compose.ui.unit.Density density;
     property public abstract long displaySize;
+  }
+
+  public interface ComposeTestRuleJUnit extends androidx.ui.test.ComposeTestRule org.junit.rules.TestRule {
+    method public androidx.ui.test.AnimationClockTestRule getClockTestRule();
+    method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
+    property public abstract androidx.ui.test.AnimationClockTestRule clockTestRule;
   }
 
   public final class CoroutineBuildersKt {
@@ -183,14 +194,22 @@ package androidx.ui.test {
 
   public final class FindersKt {
     method public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodes(androidx.ui.test.SemanticsMatcher matcher, boolean useUnmergedTree = false);
+    method public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodesWithLabel(androidx.ui.test.ComposeTestRule, String label, boolean ignoreCase = false, boolean useUnmergedTree = false);
     method public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodesWithLabel(String label, boolean ignoreCase = false, boolean useUnmergedTree = false);
+    method public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodesWithTag(androidx.ui.test.ComposeTestRule, String testTag, boolean useUnmergedTree = false);
     method public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodesWithTag(String testTag, boolean useUnmergedTree = false);
+    method public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodesWithText(androidx.ui.test.ComposeTestRule, String text, boolean ignoreCase = false, boolean useUnmergedTree = false);
     method public static androidx.ui.test.SemanticsNodeInteractionCollection onAllNodesWithText(String text, boolean ignoreCase = false, boolean useUnmergedTree = false);
     method public static androidx.ui.test.SemanticsNodeInteraction onNode(androidx.ui.test.SemanticsMatcher matcher, boolean useUnmergedTree = false);
+    method public static androidx.ui.test.SemanticsNodeInteraction onNodeWithLabel(androidx.ui.test.ComposeTestRule, String label, boolean ignoreCase = false, boolean useUnmergedTree = false);
     method public static androidx.ui.test.SemanticsNodeInteraction onNodeWithLabel(String label, boolean ignoreCase = false, boolean useUnmergedTree = false);
+    method public static androidx.ui.test.SemanticsNodeInteraction onNodeWithSubstring(androidx.ui.test.ComposeTestRule, String text, boolean ignoreCase = false, boolean useUnmergedTree = false);
     method public static androidx.ui.test.SemanticsNodeInteraction onNodeWithSubstring(String text, boolean ignoreCase = false, boolean useUnmergedTree = false);
+    method public static androidx.ui.test.SemanticsNodeInteraction onNodeWithTag(androidx.ui.test.ComposeTestRule, String testTag, boolean useUnmergedTree = false);
     method public static androidx.ui.test.SemanticsNodeInteraction onNodeWithTag(String testTag, boolean useUnmergedTree = false);
+    method public static androidx.ui.test.SemanticsNodeInteraction onNodeWithText(androidx.ui.test.ComposeTestRule, String text, boolean ignoreCase = false, boolean useUnmergedTree = false);
     method public static androidx.ui.test.SemanticsNodeInteraction onNodeWithText(String text, boolean ignoreCase = false, boolean useUnmergedTree = false);
+    method public static androidx.ui.test.SemanticsNodeInteraction onRoot(androidx.ui.test.ComposeTestRule, boolean useUnmergedTree = false);
     method public static androidx.ui.test.SemanticsNodeInteraction onRoot(boolean useUnmergedTree = false);
   }
 
@@ -316,7 +335,7 @@ package androidx.ui.test {
   }
 
   public final class StateRestorationTester {
-    ctor public StateRestorationTester(androidx.ui.test.ComposeTestRule composeTestRule);
+    ctor public StateRestorationTester(androidx.ui.test.ComposeTestRuleJUnit composeTestRule);
     method public void emulateSavedInstanceStateRestore();
     method public void setContent(kotlin.jvm.functions.Function0<kotlin.Unit> composable);
   }
