@@ -97,7 +97,6 @@ class WatchFaceConfigActivity : FragmentActivity() {
             componentName: ComponentName,
             watchFaceConfigDelegate: WatchFaceConfigDelegate
         ) {
-            System.out.println("%%% registerWatchFace " + componentName)
             sComponentNameToIWatchFaceConfig[componentName] = watchFaceConfigDelegate
         }
 
@@ -110,7 +109,6 @@ class WatchFaceConfigActivity : FragmentActivity() {
         @SuppressWarnings("SyntheticAccessor")
         @JvmStatic
         internal fun getIWatchFaceConfig(componentName: ComponentName): WatchFaceConfigDelegate? {
-            System.out.println("%%% getIWatchFaceConfig " + componentName)
             return sComponentNameToIWatchFaceConfig[componentName]
         }
     }

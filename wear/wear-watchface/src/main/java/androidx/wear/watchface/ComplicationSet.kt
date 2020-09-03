@@ -140,7 +140,7 @@ class ComplicationSet(
 
                 // Generate a ContentDescriptionLabel and send complication bounds for
                 // non-background complications.
-                val data = complication.data
+                val data = complication.renderer.getData()
                 val complicationBounds = complication.boundsProvider.computeBounds(
                     complication, renderer.screenBounds
                 )
@@ -191,7 +191,7 @@ class ComplicationSet(
      */
     @UiThread
     internal fun onComplicationDataUpdate(watchFaceComplicationId: Int, data: ComplicationData) {
-        complications[watchFaceComplicationId]?.data = data
+        complications[watchFaceComplicationId]?.renderer?.setData(data)
     }
 
     /**
@@ -257,7 +257,7 @@ class ComplicationSet(
     @UiThread
     internal fun onComplicationSingleTapped(complicationId: Int) {
         // Check if the complication is missing permissions.
-        val data = complications[complicationId]?.data ?: return
+        val data = complications[complicationId]?.renderer?.getData() ?: return
         if (data.type == ComplicationData.TYPE_NO_PERMISSION) {
             watchFaceHostApi.getContext().startActivity(
                 ComplicationHelperActivity.createPermissionRequestHelperIntent(
@@ -285,7 +285,7 @@ class ComplicationSet(
     internal fun onComplicationDoubleTapped(complicationId: Int) {
         // Check if the complication is missing permissions.
         val complication = complications[complicationId] ?: return
-        val data = complication.data ?: return
+        val data = complication.renderer.getData() ?: return
         if (data.type == ComplicationData.TYPE_NO_PERMISSION) {
             watchFaceHostApi.getContext().startActivity(
                 ComplicationHelperActivity.createPermissionRequestHelperIntent(

@@ -117,7 +117,9 @@ class WatchFaceConfigUiTest {
         Complication(
             LEFT_COMPLICATION_ID,
             UnitSquareBoundsProvider(RectF(0.2f, 0.4f, 0.4f, 0.6f)),
-            ComplicationDrawableRenderer(complicationDrawableLeft, systemState),
+            ComplicationDrawableRenderer(complicationDrawableLeft, systemState).apply {
+                setData(createComplicationData() )
+            },
             intArrayOf(
                 ComplicationData.TYPE_RANGED_VALUE,
                 ComplicationData.TYPE_LONG_TEXT,
@@ -127,13 +129,15 @@ class WatchFaceConfigUiTest {
             ),
             Complication.DefaultComplicationProvider(SystemProviders.SUNRISE_SUNSET),
             ComplicationData.TYPE_SHORT_TEXT
-        ).apply { data = createComplicationData() }
+        )
 
     private val rightComplication =
         Complication(
             RIGHT_COMPLICATION_ID,
             UnitSquareBoundsProvider(RectF(0.6f, 0.4f, 0.8f, 0.6f)),
-            ComplicationDrawableRenderer(complicationDrawableRight, systemState),
+            ComplicationDrawableRenderer(complicationDrawableRight, systemState).apply {
+                setData(createComplicationData() )
+            },
             intArrayOf(
                 ComplicationData.TYPE_RANGED_VALUE,
                 ComplicationData.TYPE_LONG_TEXT,
@@ -143,19 +147,21 @@ class WatchFaceConfigUiTest {
             ),
             Complication.DefaultComplicationProvider(SystemProviders.DAY_OF_WEEK),
             ComplicationData.TYPE_SHORT_TEXT
-        ).apply { data = createComplicationData() }
+        )
 
     private val backgroundComplication =
         Complication(
             BACKGROUND_COMPLICATION_ID,
             BackgroundComplicationBoundsProvider(),
-            ComplicationDrawableRenderer(complicationDrawableRight, systemState),
+            ComplicationDrawableRenderer(complicationDrawableRight, systemState).apply {
+                setData(createComplicationData() )
+            },
             intArrayOf(
                 ComplicationData.TYPE_LARGE_IMAGE
             ),
             Complication.DefaultComplicationProvider(),
             ComplicationData.TYPE_LARGE_IMAGE
-        ).apply { data = createComplicationData() }
+        )
 
     private val calendar = Calendar.getInstance().apply {
         timeInMillis = 1000L
