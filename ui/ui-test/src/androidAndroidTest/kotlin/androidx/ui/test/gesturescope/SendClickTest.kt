@@ -27,7 +27,7 @@ import androidx.compose.ui.input.pointer.changedToUp
 import androidx.test.filters.MediumTest
 import androidx.ui.test.ActivityWithActionBar
 import androidx.ui.test.ComposeTestRule
-import androidx.ui.test.android.createAndroidComposeRule
+import androidx.ui.test.createAndroidComposeRule
 import androidx.ui.test.click
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.performGesture

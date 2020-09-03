@@ -49,6 +49,8 @@ package androidx.ui.test {
   }
 
   public final class AndroidComposeTestRuleKt {
+    method public static <T extends androidx.activity.ComponentActivity> androidx.ui.test.AndroidComposeTestRule<T> createAndroidComposeRule(Class<T> activityClass, boolean disableTransitions = false, boolean disableBlinkingCursor = true);
+    method public static inline <reified T extends androidx.activity.ComponentActivity> androidx.ui.test.AndroidComposeTestRule<T>! createAndroidComposeRule(boolean disableTransitions = false, boolean disableBlinkingCursor = true);
     method public static androidx.ui.test.ComposeTestRuleJUnit createComposeRule(boolean disableTransitions, boolean disableBlinkingCursor);
   }
 
@@ -375,11 +377,6 @@ package androidx.ui.test {
 }
 
 package androidx.ui.test.android {
-
-  public final class AndroidComposeTestRuleKt {
-    method public static <T extends androidx.activity.ComponentActivity> androidx.ui.test.AndroidComposeTestRule<T> createAndroidComposeRule(Class<T> activityClass, boolean disableTransitions = false, boolean disableBlinkingCursor = true);
-    method public static inline <reified T extends androidx.activity.ComponentActivity> androidx.ui.test.AndroidComposeTestRule<T>! createAndroidComposeRule(boolean disableTransitions = false, boolean disableBlinkingCursor = true);
-  }
 
   public final class ComposeIdlingResourceKt {
     method public static void registerComposeWithEspresso();

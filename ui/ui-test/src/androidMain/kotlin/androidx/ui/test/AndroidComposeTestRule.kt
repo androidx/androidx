@@ -36,7 +36,6 @@ import org.junit.runners.model.Statement
 import androidx.compose.ui.unit.IntSize
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.ui.test.android.SynchronizedTreeCollector
-import androidx.ui.test.android.createAndroidComposeRule
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.FutureTask
 
@@ -48,6 +47,53 @@ actual fun createComposeRule(
         disableTransitions,
         disableBlinkingCursor
     )
+
+/**
+ * Factory method to provide android specific implementation of [createComposeRule], for a given
+ * activity class type [T].
+ *
+ * This method is useful for tests that require a custom Activity. This is usually the case for
+ * app tests. Make sure that you add the provided activity into your app's manifest file (usually
+ * in main/AndroidManifest.xml).
+ *
+ * If you don't care about specific activity and just want to test composables in general, see
+ * [createComposeRule].
+ */
+inline fun <reified T : ComponentActivity> createAndroidComposeRule(
+    disableTransitions: Boolean = false,
+    disableBlinkingCursor: Boolean = true
+): AndroidComposeTestRule<T> {
+    // TODO(b/138993381): By launching custom activities we are losing control over what content is
+    //  already there. This is issue in case the user already set some compose content and decides
+    //  to set it again via our API. In such case we won't be able to dispose the old composition.
+    //  Other option would be to provide a smaller interface that does not expose these methods.
+    return AndroidComposeTestRule(
+        activityRule = ActivityScenarioRule(T::class.java),
+        disableTransitions = disableTransitions,
+        disableBlinkingCursor = disableBlinkingCursor
+    )
+}
+
+/**
+ * Factory method to provide android specific implementation of [createComposeRule], for a given
+ * [activityClass].
+ *
+ * This method is useful for tests that require a custom Activity. This is usually the case for
+ * app tests. Make sure that you add the provided activity into your app's manifest file (usually
+ * in main/AndroidManifest.xml).
+ *
+ * If you don't care about specific activity and just want to test composables in general, see
+ * [createComposeRule].
+ */
+fun <T : ComponentActivity> createAndroidComposeRule(
+    activityClass: Class<T>,
+    disableTransitions: Boolean = false,
+    disableBlinkingCursor: Boolean = true
+): AndroidComposeTestRule<T> = AndroidComposeTestRule(
+    ActivityScenarioRule(activityClass),
+    disableTransitions,
+    disableBlinkingCursor
+)
 
 /**
  * Android specific implementation of [ComposeTestRule].
