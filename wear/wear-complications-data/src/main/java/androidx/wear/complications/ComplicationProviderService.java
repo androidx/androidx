@@ -229,6 +229,7 @@ public abstract class ComplicationProviderService extends Service {
      * Activity#RESULT_OK} or {@link Activity#RESULT_CANCELED} before it is finished, to tell the
      * system whether or not the provider should be set on the given complication.
      */
+    @SuppressLint("IntentName")
     public static final String METADATA_KEY_PROVIDER_CONFIG_ACTION =
         "android.support.wearable.complications.PROVIDER_CONFIG_ACTION";
 
@@ -238,18 +239,22 @@ public abstract class ComplicationProviderService extends Service {
      *
      * @see #METADATA_KEY_PROVIDER_CONFIG_ACTION
      */
+    @SuppressLint("IntentName")
     public static final String CATEGORY_PROVIDER_CONFIG_ACTION =
         "android.support.wearable.complications.category.PROVIDER_CONFIG";
 
     /** Extra used to supply the complication id to a provider configuration activity. */
+    @SuppressLint("ActionValue")
     public static final String EXTRA_CONFIG_COMPLICATION_ID =
         "android.support.wearable.complications.EXTRA_CONFIG_COMPLICATION_ID";
 
     /** Extra used to supply the complication type to a provider configuration activity. */
+    @SuppressLint("ActionValue")
     public static final String EXTRA_CONFIG_COMPLICATION_TYPE =
         "android.support.wearable.complications.EXTRA_CONFIG_COMPLICATION_TYPE";
 
     /** Extra used to supply the provider component to a provider configuration activity. */
+    @SuppressLint("ActionValue")
     public static final String EXTRA_CONFIG_PROVIDER_COMPONENT =
         "android.support.wearable.complications.EXTRA_CONFIG_PROVIDER_COMPONENT";
 

@@ -21,8 +21,6 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Canvas
-import android.graphics.Color
-import android.graphics.Paint
 import android.graphics.Rect
 import android.graphics.RectF
 import android.icu.util.Calendar
@@ -281,25 +279,6 @@ class WatchFaceServiceTest {
     @After
     fun validate() {
         validateMockitoUsage()
-    }
-
-    @Test
-    fun paintModesCreate_producesCorrectPaintObjects() {
-        val paintModes = PaintModes.create(Paint().apply { style = Paint.Style.FILL }) {
-            color = if (it == DrawMode.INTERACTIVE) {
-                Color.GRAY
-            } else {
-                Color.DKGRAY
-            }
-        }
-
-        for (drawMode in DrawMode.values()) {
-            assertThat(paintModes[drawMode].style).isEqualTo(Paint.Style.FILL)
-            assertThat(paintModes[drawMode].color).isEqualTo(
-                if (drawMode == DrawMode.INTERACTIVE) Color.GRAY else Color.DKGRAY
-            )
-            assertThat(paintModes[drawMode].isAntiAlias).isEqualTo(drawMode != DrawMode.AMBIENT)
-        }
     }
 
     @Test

@@ -174,8 +174,8 @@ public class ComplicationDrawableTest {
 
     @Test
     public void setBackgroundColor() {
-        mComplicationDrawable.setBackgroundColorActive(ACTIVE_COLOR);
-        mComplicationDrawable.setBackgroundColorAmbient(AMBIENT_COLOR);
+        mComplicationDrawable.getActiveStyle().setBackgroundColor(ACTIVE_COLOR);
+        mComplicationDrawable.getAmbientStyle().setBackgroundColor(AMBIENT_COLOR);
         assertThat(mComplicationDrawable.getActiveStyle().getBackgroundColor())
                 .isEqualTo(ACTIVE_COLOR);
         assertThat(mComplicationDrawable.getAmbientStyle().getBackgroundColor())
@@ -184,8 +184,8 @@ public class ComplicationDrawableTest {
 
     @Test
     public void setBackgroundDrawable() {
-        mComplicationDrawable.setBackgroundDrawableActive(mMockDrawableActive);
-        mComplicationDrawable.setBackgroundDrawableAmbient(mMockDrawableAmbient);
+        mComplicationDrawable.getActiveStyle().setBackgroundDrawable(mMockDrawableActive);
+        mComplicationDrawable.getAmbientStyle().setBackgroundDrawable(mMockDrawableAmbient);
         assertThat(mComplicationDrawable.getActiveStyle().getBackgroundDrawable())
                 .isEqualTo(mMockDrawableActive);
         assertThat(mComplicationDrawable.getAmbientStyle().getBackgroundDrawable())
@@ -194,16 +194,16 @@ public class ComplicationDrawableTest {
 
     @Test
     public void setTextColor() {
-        mComplicationDrawable.setTextColorActive(ACTIVE_COLOR);
-        mComplicationDrawable.setTextColorAmbient(AMBIENT_COLOR);
+        mComplicationDrawable.getActiveStyle().setTextColor(ACTIVE_COLOR);
+        mComplicationDrawable.getAmbientStyle().setTextColor(AMBIENT_COLOR);
         assertThat(mComplicationDrawable.getActiveStyle().getTextColor()).isEqualTo(ACTIVE_COLOR);
         assertThat(mComplicationDrawable.getAmbientStyle().getTextColor()).isEqualTo(AMBIENT_COLOR);
     }
 
     @Test
     public void setTitleColor() {
-        mComplicationDrawable.setTitleColorActive(ACTIVE_COLOR);
-        mComplicationDrawable.setTitleColorAmbient(AMBIENT_COLOR);
+        mComplicationDrawable.getActiveStyle().setTitleColor(ACTIVE_COLOR);
+        mComplicationDrawable.getAmbientStyle().setTitleColor(AMBIENT_COLOR);
         assertThat(mComplicationDrawable.getActiveStyle().getTitleColor()).isEqualTo(ACTIVE_COLOR);
         assertThat(mComplicationDrawable.getAmbientStyle().getTitleColor())
                 .isEqualTo(AMBIENT_COLOR);
@@ -213,8 +213,8 @@ public class ComplicationDrawableTest {
     public void setTextTypeface() {
         Typeface activeTf = Typeface.create("sans-serif-condensed", Typeface.BOLD);
         Typeface ambientTf = Typeface.create("sans-serif-condensed", Typeface.ITALIC);
-        mComplicationDrawable.setTextTypefaceActive(activeTf);
-        mComplicationDrawable.setTextTypefaceAmbient(ambientTf);
+        mComplicationDrawable.getActiveStyle().setTextTypeface(activeTf);
+        mComplicationDrawable.getAmbientStyle().setTextTypeface(ambientTf);
         assertThat(mComplicationDrawable.getActiveStyle().getTextTypeface()).isEqualTo(activeTf);
         assertThat(mComplicationDrawable.getAmbientStyle().getTextTypeface()).isEqualTo(ambientTf);
     }
@@ -223,40 +223,40 @@ public class ComplicationDrawableTest {
     public void setTitleTypeface() {
         Typeface activeTf = Typeface.create("sans-serif-condensed", Typeface.BOLD);
         Typeface ambientTf = Typeface.create("sans-serif-condensed", Typeface.ITALIC);
-        mComplicationDrawable.setTitleTypefaceActive(activeTf);
-        mComplicationDrawable.setTitleTypefaceAmbient(ambientTf);
+        mComplicationDrawable.getActiveStyle().setTitleTypeface(activeTf);
+        mComplicationDrawable.getAmbientStyle().setTitleTypeface(ambientTf);
         assertThat(mComplicationDrawable.getActiveStyle().getTitleTypeface()).isEqualTo(activeTf);
         assertThat(mComplicationDrawable.getAmbientStyle().getTitleTypeface()).isEqualTo(ambientTf);
     }
 
     @Test
     public void setTextSize() {
-        mComplicationDrawable.setTextSizeActive(ACTIVE_PX);
-        mComplicationDrawable.setTextSizeAmbient(AMBIENT_PX);
+        mComplicationDrawable.getActiveStyle().setTextSize(ACTIVE_PX);
+        mComplicationDrawable.getAmbientStyle().setTextSize(AMBIENT_PX);
         assertThat(mComplicationDrawable.getActiveStyle().getTextSize()).isEqualTo(ACTIVE_PX);
         assertThat(mComplicationDrawable.getAmbientStyle().getTextSize()).isEqualTo(AMBIENT_PX);
     }
 
     @Test
     public void setTitleSize() {
-        mComplicationDrawable.setTitleSizeActive(ACTIVE_PX);
-        mComplicationDrawable.setTitleSizeAmbient(AMBIENT_PX);
+        mComplicationDrawable.getActiveStyle().setTitleSize(ACTIVE_PX);
+        mComplicationDrawable.getAmbientStyle().setTitleSize(AMBIENT_PX);
         assertThat(mComplicationDrawable.getActiveStyle().getTitleSize()).isEqualTo(ACTIVE_PX);
         assertThat(mComplicationDrawable.getAmbientStyle().getTitleSize()).isEqualTo(AMBIENT_PX);
     }
 
     @Test
     public void setIconColor() {
-        mComplicationDrawable.setIconColorActive(ACTIVE_COLOR);
-        mComplicationDrawable.setIconColorAmbient(AMBIENT_COLOR);
+        mComplicationDrawable.getActiveStyle().setIconColor(ACTIVE_COLOR);
+        mComplicationDrawable.getAmbientStyle().setIconColor(AMBIENT_COLOR);
         assertThat(mComplicationDrawable.getActiveStyle().getIconColor()).isEqualTo(ACTIVE_COLOR);
         assertThat(mComplicationDrawable.getAmbientStyle().getIconColor()).isEqualTo(AMBIENT_COLOR);
     }
 
     @Test
     public void setBorderColor() {
-        mComplicationDrawable.setBorderColorActive(ACTIVE_COLOR);
-        mComplicationDrawable.setBorderColorAmbient(AMBIENT_COLOR);
+        mComplicationDrawable.getActiveStyle().setBorderColor(ACTIVE_COLOR);
+        mComplicationDrawable.getAmbientStyle().setBorderColor(AMBIENT_COLOR);
         assertThat(mComplicationDrawable.getActiveStyle().getBorderColor()).isEqualTo(ACTIVE_COLOR);
         assertThat(mComplicationDrawable.getAmbientStyle().getBorderColor())
                 .isEqualTo(AMBIENT_COLOR);
@@ -264,16 +264,18 @@ public class ComplicationDrawableTest {
 
     @Test
     public void setBorderRadius() {
-        mComplicationDrawable.setBorderRadiusActive(ACTIVE_PX);
-        mComplicationDrawable.setBorderRadiusAmbient(AMBIENT_PX);
+        mComplicationDrawable.getActiveStyle().setBorderRadius(ACTIVE_PX);
+        mComplicationDrawable.getAmbientStyle().setBorderRadius(AMBIENT_PX);
         assertThat(mComplicationDrawable.getActiveStyle().getBorderRadius()).isEqualTo(ACTIVE_PX);
         assertThat(mComplicationDrawable.getAmbientStyle().getBorderRadius()).isEqualTo(AMBIENT_PX);
     }
 
     @Test
     public void setBorderStyle() {
-        mComplicationDrawable.setBorderStyleActive(BORDER_STYLE_NONE);
-        mComplicationDrawable.setBorderStyleAmbient(ComplicationDrawable.BORDER_STYLE_DASHED);
+        mComplicationDrawable.getActiveStyle().setBorderStyle(BORDER_STYLE_NONE);
+        mComplicationDrawable.getAmbientStyle().setBorderStyle(
+                ComplicationDrawable.BORDER_STYLE_DASHED
+        );
         assertThat(mComplicationDrawable.getActiveStyle().getBorderStyle())
                 .isEqualTo(BORDER_STYLE_NONE);
         assertThat(mComplicationDrawable.getAmbientStyle().getBorderStyle())
@@ -282,16 +284,16 @@ public class ComplicationDrawableTest {
 
     @Test
     public void setBorderWidth() {
-        mComplicationDrawable.setBorderWidthActive(ACTIVE_PX);
-        mComplicationDrawable.setBorderWidthAmbient(AMBIENT_PX);
+        mComplicationDrawable.getActiveStyle().setBorderWidth(ACTIVE_PX);
+        mComplicationDrawable.getAmbientStyle().setBorderWidth(AMBIENT_PX);
         assertThat(mComplicationDrawable.getActiveStyle().getBorderWidth()).isEqualTo(ACTIVE_PX);
         assertThat(mComplicationDrawable.getAmbientStyle().getBorderWidth()).isEqualTo(AMBIENT_PX);
     }
 
     @Test
     public void setBorderDashGap() {
-        mComplicationDrawable.setBorderDashGapActive(ACTIVE_PX);
-        mComplicationDrawable.setBorderDashGapAmbient(AMBIENT_PX);
+        mComplicationDrawable.getActiveStyle().setBorderDashGap(ACTIVE_PX);
+        mComplicationDrawable.getAmbientStyle().setBorderDashGap(AMBIENT_PX);
         assertThat(mComplicationDrawable.getActiveStyle().getBorderDashGap()).isEqualTo(ACTIVE_PX);
         assertThat(mComplicationDrawable.getAmbientStyle().getBorderDashGap())
                 .isEqualTo(AMBIENT_PX);
@@ -299,8 +301,8 @@ public class ComplicationDrawableTest {
 
     @Test
     public void setBorderDashWidth() {
-        mComplicationDrawable.setBorderDashWidthActive(ACTIVE_PX);
-        mComplicationDrawable.setBorderDashWidthAmbient(AMBIENT_PX);
+        mComplicationDrawable.getActiveStyle().setBorderDashWidth(ACTIVE_PX);
+        mComplicationDrawable.getAmbientStyle().setBorderDashWidth(AMBIENT_PX);
         assertThat(mComplicationDrawable.getActiveStyle().getBorderDashWidth())
                 .isEqualTo(ACTIVE_PX);
         assertThat(mComplicationDrawable.getAmbientStyle().getBorderDashWidth())
@@ -311,16 +313,18 @@ public class ComplicationDrawableTest {
     public void setImageColorFilter() {
         ColorFilter activeCF = new PorterDuffColorFilter(ACTIVE_COLOR, Mode.SRC_IN);
         ColorFilter ambientCF = new PorterDuffColorFilter(AMBIENT_COLOR, Mode.SRC_IN);
-        mComplicationDrawable.setImageColorFilterActive(activeCF);
-        mComplicationDrawable.setImageColorFilterAmbient(ambientCF);
-        assertThat(mComplicationDrawable.getActiveStyle().getColorFilter()).isEqualTo(activeCF);
-        assertThat(mComplicationDrawable.getAmbientStyle().getColorFilter()).isEqualTo(ambientCF);
+        mComplicationDrawable.getActiveStyle().setImageColorFilter(activeCF);
+        mComplicationDrawable.getAmbientStyle().setImageColorFilter(ambientCF);
+        assertThat(mComplicationDrawable.getActiveStyle().getImageColorFilter()).isEqualTo(
+                activeCF);
+        assertThat(mComplicationDrawable.getAmbientStyle().getImageColorFilter()).isEqualTo(
+                ambientCF);
     }
 
     @Test
     public void setRangedValueRingWidth() {
-        mComplicationDrawable.setRangedValueRingWidthActive(ACTIVE_PX);
-        mComplicationDrawable.setRangedValueRingWidthAmbient(AMBIENT_PX);
+        mComplicationDrawable.getActiveStyle().setRangedValueRingWidth(ACTIVE_PX);
+        mComplicationDrawable.getAmbientStyle().setRangedValueRingWidth(AMBIENT_PX);
         assertThat(mComplicationDrawable.getActiveStyle().getRangedValueRingWidth())
                 .isEqualTo(ACTIVE_PX);
         assertThat(mComplicationDrawable.getAmbientStyle().getRangedValueRingWidth())
@@ -329,8 +333,8 @@ public class ComplicationDrawableTest {
 
     @Test
     public void setRangedValuePrimaryColor() {
-        mComplicationDrawable.setRangedValuePrimaryColorActive(ACTIVE_COLOR);
-        mComplicationDrawable.setRangedValuePrimaryColorAmbient(AMBIENT_COLOR);
+        mComplicationDrawable.getActiveStyle().setRangedValuePrimaryColor(ACTIVE_COLOR);
+        mComplicationDrawable.getAmbientStyle().setRangedValuePrimaryColor(AMBIENT_COLOR);
         assertThat(mComplicationDrawable.getActiveStyle().getRangedValuePrimaryColor())
                 .isEqualTo(ACTIVE_COLOR);
         assertThat(mComplicationDrawable.getAmbientStyle().getRangedValuePrimaryColor())
@@ -339,8 +343,8 @@ public class ComplicationDrawableTest {
 
     @Test
     public void setRangedValueSecondaryColor() {
-        mComplicationDrawable.setRangedValueSecondaryColorActive(ACTIVE_COLOR);
-        mComplicationDrawable.setRangedValueSecondaryColorAmbient(AMBIENT_COLOR);
+        mComplicationDrawable.getActiveStyle().setRangedValueSecondaryColor(ACTIVE_COLOR);
+        mComplicationDrawable.getAmbientStyle().setRangedValueSecondaryColor(AMBIENT_COLOR);
         assertThat(mComplicationDrawable.getActiveStyle().getRangedValueSecondaryColor())
                 .isEqualTo(ACTIVE_COLOR);
         assertThat(mComplicationDrawable.getAmbientStyle().getRangedValueSecondaryColor())
@@ -349,8 +353,8 @@ public class ComplicationDrawableTest {
 
     @Test
     public void setHighlightColor() {
-        mComplicationDrawable.setHighlightColorActive(ACTIVE_COLOR);
-        mComplicationDrawable.setHighlightColorAmbient(AMBIENT_COLOR);
+        mComplicationDrawable.getActiveStyle().setHighlightColor(ACTIVE_COLOR);
+        mComplicationDrawable.getAmbientStyle().setHighlightColor(AMBIENT_COLOR);
         assertThat(mComplicationDrawable.getActiveStyle().getHighlightColor())
                 .isEqualTo(ACTIVE_COLOR);
         assertThat(mComplicationDrawable.getAmbientStyle().getHighlightColor())
@@ -364,7 +368,7 @@ public class ComplicationDrawableTest {
         mComplicationDrawable.setContext(ApplicationProvider.getApplicationContext());
         int textSizeFromResources = mComplicationDrawable.getActiveStyle().getTextSize();
         assertThat(textSizeFromConstructor)
-                .isEqualTo(new ComplicationStyle.Builder().build().getTextSize());
+                .isEqualTo(new ComplicationStyle().getTextSize());
         assertThat(textSizeFromResources).isEqualTo(mDefaultTextSize);
     }
 
@@ -587,39 +591,44 @@ public class ComplicationDrawableTest {
         mComplicationDrawable.setNoDataText(noDataText);
         mComplicationDrawable.setRangedValueProgressHidden(hideRangedProgress);
 
-        mComplicationDrawable.setBackgroundColorActive(bgColor);
-        mComplicationDrawable.setBorderColorActive(borderColor);
-        mComplicationDrawable.setBorderDashGapActive(borderDashGap);
-        mComplicationDrawable.setBorderDashWidthActive(borderDashWidth);
-        mComplicationDrawable.setBorderRadiusActive(borderRadius);
-        mComplicationDrawable.setBorderStyleActive(borderStyle);
-        mComplicationDrawable.setBorderWidthActive(borderWidth);
-        mComplicationDrawable.setHighlightColorActive(highlightColor);
-        mComplicationDrawable.setIconColorActive(iconColor);
-        mComplicationDrawable.setRangedValuePrimaryColorActive(rangedValuePrimaryColor);
-        mComplicationDrawable.setRangedValueRingWidthActive(rangedValueRingWidth);
-        mComplicationDrawable.setRangedValueSecondaryColorActive(rangedValueSecondaryColor);
-        mComplicationDrawable.setTextColorActive(textColor);
-        mComplicationDrawable.setTextSizeActive(textSize);
-        mComplicationDrawable.setTitleColorActive(titleColor);
-        mComplicationDrawable.setTitleSizeActive(titleSize);
+        mComplicationDrawable.getActiveStyle().setBackgroundColor(bgColor);
+        mComplicationDrawable.getActiveStyle().setBorderColor(borderColor);
+        mComplicationDrawable.getActiveStyle().setBorderDashGap(borderDashGap);
+        mComplicationDrawable.getActiveStyle().setBorderDashWidth(borderDashWidth);
+        mComplicationDrawable.getActiveStyle().setBorderRadius(borderRadius);
+        mComplicationDrawable.getActiveStyle().setBorderStyle(borderStyle);
+        mComplicationDrawable.getActiveStyle().setBorderWidth(borderWidth);
+        mComplicationDrawable.getActiveStyle().setHighlightColor(highlightColor);
+        mComplicationDrawable.getActiveStyle().setIconColor(iconColor);
+        mComplicationDrawable.getActiveStyle().setRangedValuePrimaryColor(
+                rangedValuePrimaryColor);
+        mComplicationDrawable.getActiveStyle().setRangedValueRingWidth(rangedValueRingWidth);
+        mComplicationDrawable.getActiveStyle().setRangedValueSecondaryColor(
+                rangedValueSecondaryColor);
+        mComplicationDrawable.getActiveStyle().setTextColor(textColor);
+        mComplicationDrawable.getActiveStyle().setTextSize(textSize);
+        mComplicationDrawable.getActiveStyle().setTitleColor(titleColor);
+        mComplicationDrawable.getActiveStyle().setTitleSize(titleSize);
 
-        mComplicationDrawable.setBackgroundColorAmbient(bgColorAmbient);
-        mComplicationDrawable.setBorderColorAmbient(borderColorAmbient);
-        mComplicationDrawable.setBorderDashGapAmbient(borderDashGapAmbient);
-        mComplicationDrawable.setBorderDashWidthAmbient(borderDashWidthAmbient);
-        mComplicationDrawable.setBorderRadiusAmbient(borderRadiusAmbient);
-        mComplicationDrawable.setBorderStyleAmbient(borderStyleAmbient);
-        mComplicationDrawable.setBorderWidthAmbient(borderWidthAmbient);
-        mComplicationDrawable.setHighlightColorAmbient(highlightColorAmbient);
-        mComplicationDrawable.setIconColorAmbient(iconColorAmbient);
-        mComplicationDrawable.setRangedValuePrimaryColorAmbient(rangedValuePrimaryColorAmbient);
-        mComplicationDrawable.setRangedValueRingWidthAmbient(rangedValueRingWidthAmbient);
-        mComplicationDrawable.setRangedValueSecondaryColorAmbient(rangedValueSecondaryColorAmbient);
-        mComplicationDrawable.setTextColorAmbient(textColorAmbient);
-        mComplicationDrawable.setTextSizeAmbient(textSizeAmbient);
-        mComplicationDrawable.setTitleColorAmbient(titleColorAmbient);
-        mComplicationDrawable.setTitleSizeAmbient(titleSizeAmbient);
+        mComplicationDrawable.getAmbientStyle().setBackgroundColor(bgColorAmbient);
+        mComplicationDrawable.getAmbientStyle().setBorderColor(borderColorAmbient);
+        mComplicationDrawable.getAmbientStyle().setBorderDashGap(borderDashGapAmbient);
+        mComplicationDrawable.getAmbientStyle().setBorderDashWidth(borderDashWidthAmbient);
+        mComplicationDrawable.getAmbientStyle().setBorderRadius(borderRadiusAmbient);
+        mComplicationDrawable.getAmbientStyle().setBorderStyle(borderStyleAmbient);
+        mComplicationDrawable.getAmbientStyle().setBorderWidth(borderWidthAmbient);
+        mComplicationDrawable.getAmbientStyle().setHighlightColor(highlightColorAmbient);
+        mComplicationDrawable.getAmbientStyle().setIconColor(iconColorAmbient);
+        mComplicationDrawable.getAmbientStyle().setRangedValuePrimaryColor(
+                rangedValuePrimaryColorAmbient);
+        mComplicationDrawable.getAmbientStyle().setRangedValueRingWidth(
+                rangedValueRingWidthAmbient);
+        mComplicationDrawable.getAmbientStyle().setRangedValueSecondaryColor(
+                rangedValueSecondaryColorAmbient);
+        mComplicationDrawable.getAmbientStyle().setTextColor(textColorAmbient);
+        mComplicationDrawable.getAmbientStyle().setTextSize(textSizeAmbient);
+        mComplicationDrawable.getAmbientStyle().setTitleColor(titleColorAmbient);
+        mComplicationDrawable.getAmbientStyle().setTitleSize(titleSizeAmbient);
 
         ComplicationDrawable copy = new ComplicationDrawable(mComplicationDrawable);
         copy.setContext(ApplicationProvider.getApplicationContext());

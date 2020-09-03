@@ -72,12 +72,18 @@ public class ComplicationRendererTest {
     private ComplicationRenderer mComplicationRenderer;
     private Rect mComplicationBounds;
 
-    @Mock private Icon mMockIcon;
-    @Mock private Icon mMockBurnInProtectionIcon;
-    @Mock private Icon mMockSmallImage;
-    @Mock private Icon mMockBurnInProtectionSmallImage;
-    @Mock private Canvas mMockCanvas;
-    @Mock private OnInvalidateListener mMockInvalidateListener;
+    @Mock
+    private Icon mMockIcon;
+    @Mock
+    private Icon mMockBurnInProtectionIcon;
+    @Mock
+    private Icon mMockSmallImage;
+    @Mock
+    private Icon mMockBurnInProtectionSmallImage;
+    @Mock
+    private Canvas mMockCanvas;
+    @Mock
+    private OnInvalidateListener mMockInvalidateListener;
     private final Resources mResurces = ApplicationProvider.getApplicationContext().getResources();
 
     @Before
@@ -246,16 +252,14 @@ public class ComplicationRendererTest {
 
     @Test
     public void lowBitAmbientPaintSetUsesAppropriateColors() {
-        ComplicationStyle activeStyle = new ComplicationStyle.Builder().build();
-        ComplicationStyle ambientStyle =
-                new ComplicationStyle.Builder()
-                        .setTextColor(Color.RED)
-                        .setTitleColor(Color.BLUE)
-                        .setBackgroundColor(Color.GREEN)
-                        .setRangedValuePrimaryColor(Color.YELLOW)
-                        .setRangedValueSecondaryColor(Color.BLUE)
-                        .setBorderColor(Color.CYAN)
-                        .build();
+        ComplicationStyle activeStyle = new ComplicationStyle();
+        ComplicationStyle ambientStyle = new ComplicationStyle();
+        ambientStyle.setTextColor(Color.RED);
+        ambientStyle.setTitleColor(Color.BLUE);
+        ambientStyle.setBackgroundColor(Color.GREEN);
+        ambientStyle.setRangedValuePrimaryColor(Color.YELLOW);
+        ambientStyle.setRangedValueSecondaryColor(Color.BLUE);
+        ambientStyle.setBorderColor(Color.CYAN);
         mComplicationRenderer.updateStyle(activeStyle, ambientStyle);
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(TYPE_ICON).setIcon(mMockIcon).build());
@@ -273,16 +277,14 @@ public class ComplicationRendererTest {
 
     @Test
     public void lowBitAmbientPaintSetRetainsCompatibleColors() {
-        ComplicationStyle activeStyle = new ComplicationStyle.Builder().build();
-        ComplicationStyle ambientStyle =
-                new ComplicationStyle.Builder()
-                        .setTextColor(Color.BLACK)
-                        .setTitleColor(Color.BLACK)
-                        .setBackgroundColor(Color.BLACK)
-                        .setRangedValuePrimaryColor(Color.YELLOW)
-                        .setRangedValueSecondaryColor(Color.BLACK)
-                        .setBorderColor(Color.TRANSPARENT)
-                        .build();
+        ComplicationStyle activeStyle = new ComplicationStyle();
+        ComplicationStyle ambientStyle = new ComplicationStyle();
+        ambientStyle.setTextColor(Color.BLACK);
+        ambientStyle.setTitleColor(Color.BLACK);
+        ambientStyle.setBackgroundColor(Color.BLACK);
+        ambientStyle.setRangedValuePrimaryColor(Color.YELLOW);
+        ambientStyle.setRangedValueSecondaryColor(Color.BLACK);
+        ambientStyle.setBorderColor(Color.TRANSPARENT);
         mComplicationRenderer.updateStyle(activeStyle, ambientStyle);
         mComplicationRenderer.setComplicationData(
                 new ComplicationData.Builder(TYPE_ICON).setIcon(mMockIcon).build());
@@ -351,7 +353,8 @@ public class ComplicationRendererTest {
     public void getImageBorderRadiusForImageWithNoPadding() {
         // GIVEN a complication style with an arbitrary border radius
         int radius = 15;
-        ComplicationStyle style = new ComplicationStyle.Builder().setBorderRadius(radius).build();
+        ComplicationStyle style = new ComplicationStyle();
+        style.setBorderRadius(radius);
         mComplicationRenderer.updateStyle(style, style);
         // AND an image with no padding
         Rect imageBounds = new Rect(mComplicationBounds);
@@ -366,7 +369,8 @@ public class ComplicationRendererTest {
         // GIVEN a complication style with an arbitrary border radius
         int radius = 15;
         int padding = 5;
-        ComplicationStyle style = new ComplicationStyle.Builder().setBorderRadius(radius).build();
+        ComplicationStyle style = new ComplicationStyle();
+        style.setBorderRadius(radius);
         mComplicationRenderer.updateStyle(style, style);
         // AND an image with padding in both directions
         Rect imageBounds = new Rect(mComplicationBounds);
@@ -383,7 +387,8 @@ public class ComplicationRendererTest {
         int radius = 15;
         int largePadding = 5;
         int smallPadding = 3;
-        ComplicationStyle style = new ComplicationStyle.Builder().setBorderRadius(radius).build();
+        ComplicationStyle style = new ComplicationStyle();
+        style.setBorderRadius(radius);
         // AND an image with larger horizontal padding
         Rect horizontalPadding = new Rect(mComplicationBounds);
         horizontalPadding.offsetTo(0, 0); // Element bounds should be relative to (0,0)
@@ -475,13 +480,13 @@ public class ComplicationRendererTest {
         // AND with a style that has borders and border radius
         float radius = 5;
         int borderWidth = 2;
+        ComplicationStyle newStyle = new ComplicationStyle();
+        newStyle.setBorderStyle(ComplicationDrawable.BORDER_STYLE_SOLID);
+        newStyle.setBorderRadius((int) radius);
+        newStyle.setBorderWidth(borderWidth);
         mComplicationRenderer.updateStyle(
-                new ComplicationStyle.Builder()
-                        .setBorderStyle(ComplicationDrawable.BORDER_STYLE_SOLID)
-                        .setBorderRadius((int) radius)
-                        .setBorderWidth(borderWidth)
-                        .build(),
-                new ComplicationStyle.Builder().build());
+                newStyle,
+                new ComplicationStyle());
         // WHEN the complication is drawn in active mode and as highlighted
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, true);
         RectF bounds = new RectF(mComplicationBounds);
@@ -574,27 +579,25 @@ public class ComplicationRendererTest {
         // GIVEN a complication style
         Typeface textTypeface = Typeface.create("sans-serif", Typeface.NORMAL);
         Typeface titleTypeface = Typeface.create("sans-serif-condensed", Typeface.BOLD);
-        ComplicationStyle style =
-                new ComplicationStyle.Builder()
-                        .setBackgroundColor(0)
-                        .setTextColor(1)
-                        .setTextTypeface(textTypeface)
-                        .setTextSize(2)
-                        .setTitleColor(3)
-                        .setTitleTypeface(titleTypeface)
-                        .setTitleSize(4)
-                        .setIconColor(5)
-                        .setBorderStyle(ComplicationDrawable.BORDER_STYLE_SOLID)
-                        .setBorderColor(6)
-                        .setBorderRadius(7)
-                        .setBorderWidth(8)
-                        .setBorderDashWidth(9)
-                        .setBorderDashGap(10)
-                        .setRangedValueRingWidth(11)
-                        .setRangedValuePrimaryColor(12)
-                        .setRangedValueSecondaryColor(13)
-                        .setHighlightColor(14)
-                        .build();
+        ComplicationStyle style = new ComplicationStyle();
+        style.setBackgroundColor(0);
+        style.setTextColor(1);
+        style.setTextTypeface(textTypeface);
+        style.setTextSize(2);
+        style.setTitleColor(3);
+        style.setTitleTypeface(titleTypeface);
+        style.setTitleSize(4);
+        style.setIconColor(5);
+        style.setBorderStyle(ComplicationDrawable.BORDER_STYLE_SOLID);
+        style.setBorderColor(6);
+        style.setBorderRadius(7);
+        style.setBorderWidth(8);
+        style.setBorderDashWidth(9);
+        style.setBorderDashGap(10);
+        style.setRangedValueRingWidth(11);
+        style.setRangedValuePrimaryColor(12);
+        style.setRangedValueSecondaryColor(13);
+        style.setHighlightColor(14);
         // WHEN a paint set is initialized using that style
         PaintSet paintSet = new PaintSet(style, false, false, false);
         // THEN values from style are used when constructing paints
@@ -623,7 +626,7 @@ public class ComplicationRendererTest {
     @Test
     public void paintSetIsInBurnInProtectionMode() {
         // WHEN three paint sets with different properties are initialized
-        ComplicationStyle style = new ComplicationStyle.Builder().build();
+        ComplicationStyle style = new ComplicationStyle();
         PaintSet paintSet = new PaintSet(style, false, false, false);
         PaintSet ambientPaintSet = new PaintSet(style, true, false, false);
         PaintSet ambientBurnInProtectionPaintSet = new PaintSet(style, true, false, true);
@@ -642,9 +645,9 @@ public class ComplicationRendererTest {
                         .setLongTitle(ComplicationText.plainText("Bar"))
                         .setIcon(mMockIcon)
                         .build());
-        mComplicationRenderer.updateStyle(
-                new ComplicationStyle.Builder().setBorderRadius(radius).build(),
-                new ComplicationStyle.Builder().build());
+        ComplicationStyle newStyle = new ComplicationStyle();
+        newStyle.setBorderRadius(radius);
+        mComplicationRenderer.updateStyle(newStyle, new ComplicationStyle());
         mComplicationRenderer.setBounds(new Rect(0, 0, 400, 100)); // Wide bounds
         mComplicationRenderer.draw(mMockCanvas, REFERENCE_TIME, false, false, false, false);
 
@@ -885,8 +888,8 @@ public class ComplicationRendererTest {
         ComplicationRenderer renderer =
                 new ComplicationRenderer(
                         ApplicationProvider.getApplicationContext(),
-                        new ComplicationStyle.Builder().build(),
-                        new ComplicationStyle.Builder().build());
+                        new ComplicationStyle(),
+                        new ComplicationStyle());
         renderer.setBounds(bounds);
         return renderer;
     }

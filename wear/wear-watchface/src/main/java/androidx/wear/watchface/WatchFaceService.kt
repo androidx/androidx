@@ -16,7 +16,6 @@
 
 package androidx.wear.watchface
 
-import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.content.BroadcastReceiver
 import android.content.ComponentName
@@ -25,7 +24,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Paint
 import android.graphics.Rect
 import android.icu.util.Calendar
 import android.os.Bundle
@@ -41,7 +39,6 @@ import android.support.wearable.watchface.IWatchFaceCommand
 import android.support.wearable.watchface.IWatchFaceService
 import android.support.wearable.watchface.SharedMemoryImage
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
-import android.util.ArrayMap
 import android.util.Log
 import android.view.Choreographer
 import android.view.SurfaceHolder
@@ -156,31 +153,6 @@ annotation class TapType {
          * This event will not occur if a TapType.TOUCH_CANCEL is sent.
          */
         const val TAP = 2
-    }
-}
-
-/**
- * WatchFaces may wish to construct an ArrayMap<DrawMode, Paint> for rendering purposes. This helper
- * makes constructing those ArrayMaps easier and terser.
- */
-@TargetApi(19)
-class PaintModes(private val array: Map<Int, Paint>) {
-
-    @SuppressLint("SupportAnnotationUsage")
-    operator fun get(@DrawMode drawMode: Int): Paint = requireNotNull(array[drawMode])
-
-    companion object {
-        @JvmStatic
-        fun create(basePaint: Paint, gen: Paint.(drawMode: Int) -> Unit): PaintModes {
-            val array = ArrayMap<Int, Paint>(DrawMode.values().size)
-            for (@DrawMode drawMode in DrawMode.values()) {
-                array[drawMode] = Paint(basePaint).apply {
-                    isAntiAlias = drawMode != DrawMode.AMBIENT
-                    gen(drawMode)
-                }
-            }
-            return PaintModes(array)
-        }
     }
 }
 
