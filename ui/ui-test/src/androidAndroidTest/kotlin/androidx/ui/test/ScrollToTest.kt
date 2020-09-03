@@ -43,7 +43,7 @@ class ScrollToTest {
     enum class Orientation { Horizontal, Vertical }
 
     @get:Rule
-    val composeTestRule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule(disableTransitions = true)
 
     private val recorder = mutableListOf<Offset>()
 
@@ -134,7 +134,7 @@ class ScrollToTest {
         expectedScrollX: Float = 0f,
         expectedScrollY: Float = 0f
     ) {
-        composeTestRule.setContent {
+        rule.setContent {
             BoxesWithOffset(
                 modifier = Modifier.semantics {
                     scrollBy(action = { x, y -> recorder.add(Offset(x, y)) })
@@ -151,12 +151,12 @@ class ScrollToTest {
             }
         }
 
-        waitForIdle()
+        rule.waitForIdle()
         assertThat(recorder).isEmpty()
 
-        onNodeWithTag(tag).performScrollTo()
+        rule.onNodeWithTag(tag).performScrollTo()
 
-        waitForIdle()
+        rule.waitForIdle()
         assertThat(recorder).containsExactly(Offset(expectedScrollX, expectedScrollY))
     }
 

@@ -57,13 +57,13 @@ import org.junit.Test
 class PositionsTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule(disableTransitions = true)
 
     @Test
     fun testCornersEdgesAndCenter() {
-        composeTestRule.setContent { ClickableTestBox(width = 3f, height = 100f) }
+        rule.setContent { ClickableTestBox(width = 3f, height = 100f) }
 
-        onNodeWithTag(defaultTag).performGesture {
+        rule.onNodeWithTag(defaultTag).performGesture {
             assertThat(width).isEqualTo(3)
             assertThat(height).isEqualTo(100)
 
@@ -89,9 +89,9 @@ class PositionsTest {
 
     @Test
     fun testRelativeOffset() {
-        composeTestRule.setContent { ClickableTestBox() }
+        rule.setContent { ClickableTestBox() }
 
-        onNodeWithTag(defaultTag).performGesture {
+        rule.onNodeWithTag(defaultTag).performGesture {
             assertThat(percentOffset(.1f, .1f)).isEqualTo(Offset(10f, 10f))
             assertThat(percentOffset(-.2f, 0f)).isEqualTo(Offset(-20f, 0f))
             assertThat(percentOffset(.25f, -.5f)).isEqualTo(Offset(25f, -50f))
@@ -121,7 +121,7 @@ class PositionsTest {
     }
 
     private fun testPositionsInViewport(isVertical: Boolean, reverseScrollDirection: Boolean) {
-        composeTestRule.setContent {
+        rule.setContent {
             with(DensityAmbient.current) {
                 if (isVertical) {
                     ScrollableColumn(
@@ -143,8 +143,8 @@ class PositionsTest {
             }
         }
 
-        val globalRoot = onRoot().fetchSemanticsNode("Failed to get root").globalPosition
-        onNodeWithTag("viewport").performGesture {
+        val globalRoot = rule.onRoot().fetchSemanticsNode("Failed to get root").globalPosition
+        rule.onNodeWithTag("viewport").performGesture {
             assertThat(width).isEqualTo(100)
             assertThat(height).isEqualTo(100)
             assertThat(center).isEqualTo(Offset(50f, 50f))

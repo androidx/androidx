@@ -18,14 +18,9 @@ package androidx.ui.test
 
 import android.os.Build
 import androidx.activity.ComponentActivity
-import androidx.test.filters.MediumTest
-import androidx.test.filters.SdkSuppress
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Stack
@@ -33,9 +28,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.material.AlertDialog
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.window.Popup
+import androidx.test.filters.MediumTest
+import androidx.test.filters.SdkSuppress
 import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.util.expectError
 import com.google.common.truth.Truth.assertThat
@@ -62,7 +62,7 @@ class BitmapCapturingTest(val config: TestConfig) {
     }
 
     @get:Rule
-    val composeTestRule = createAndroidComposeRule(config.activityClass)
+    val rule = createAndroidComposeRule(config.activityClass)
 
     private val rootTag = "Root"
     private val tag11 = "Rect11"
@@ -81,7 +81,7 @@ class BitmapCapturingTest(val config: TestConfig) {
         composeCheckerboard()
 
         var calledCount = 0
-        onNodeWithTag(tag11)
+        rule.onNodeWithTag(tag11)
             .captureToBitmap()
             .assertPixels(expectedSize = IntSize(100, 50)) {
                 calledCount++
@@ -89,17 +89,17 @@ class BitmapCapturingTest(val config: TestConfig) {
             }
         assertThat(calledCount).isEqualTo(100 * 50)
 
-        onNodeWithTag(tag12)
+        rule.onNodeWithTag(tag12)
             .captureToBitmap()
             .assertPixels(expectedSize = IntSize(100, 50)) {
                 color12
             }
-        onNodeWithTag(tag21)
+        rule.onNodeWithTag(tag21)
             .captureToBitmap()
             .assertPixels(expectedSize = IntSize(100, 50)) {
                 color21
             }
-        onNodeWithTag(tag22)
+        rule.onNodeWithTag(tag22)
             .captureToBitmap()
             .assertPixels(expectedSize = IntSize(100, 50)) {
                 color22
@@ -110,7 +110,7 @@ class BitmapCapturingTest(val config: TestConfig) {
     fun captureRootContainer_checkSizeAndColors() {
         composeCheckerboard()
 
-        onNodeWithTag(rootTag)
+        rule.onNodeWithTag(rootTag)
             .captureToBitmap()
             .assertPixels(expectedSize = IntSize(200, 100)) {
                 if (it.y >= 100 || it.x >= 200) {
@@ -124,7 +124,7 @@ class BitmapCapturingTest(val config: TestConfig) {
     fun assertWrongColor_expectException() {
         composeCheckerboard()
 
-        onNodeWithTag(tag11)
+        rule.onNodeWithTag(tag11)
             .captureToBitmap()
             .assertPixels(expectedSize = IntSize(100, 50)) {
                 color22 // Assuming wrong color
@@ -135,7 +135,7 @@ class BitmapCapturingTest(val config: TestConfig) {
     fun assertWrongSize_expectException() {
         composeCheckerboard()
 
-        onNodeWithTag(tag11)
+        rule.onNodeWithTag(tag11)
             .captureToBitmap()
             .assertPixels(expectedSize = IntSize(10, 10)) {
                 color21
@@ -146,11 +146,11 @@ class BitmapCapturingTest(val config: TestConfig) {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P) // b/163023027
     fun captureDialog_verifyBackground() {
         // Test that we are really able to capture dialogs to bitmap.
-        composeTestRule.setContent {
+        rule.setContent {
             AlertDialog(onDismissRequest = {}, confirmButton = {}, backgroundColor = Color.Red)
         }
 
-        onNode(isDialog())
+        rule.onNode(isDialog())
             .captureToBitmap()
             .assertContainsColor(Color.Red)
     }
@@ -158,7 +158,7 @@ class BitmapCapturingTest(val config: TestConfig) {
     @Test
     fun capturePopup_shouldFail() {
         // Test that we throw an error when trying to capture a popup.
-        composeTestRule.setContent {
+        rule.setContent {
             Stack {
                 Popup() {
                     Text("Hello")
@@ -169,7 +169,7 @@ class BitmapCapturingTest(val config: TestConfig) {
         expectError<IllegalArgumentException>(
             expectedMessage = ".*Popups currently cannot be captured to bitmap.*"
         ) {
-            onNode(isPopup())
+            rule.onNode(isPopup())
                 .captureToBitmap()
         }
     }
@@ -192,8 +192,8 @@ class BitmapCapturingTest(val config: TestConfig) {
     }
 
     private fun composeCheckerboard() {
-        with(composeTestRule.density) {
-            composeTestRule.setContent {
+        with(rule.density) {
+            rule.setContent {
                 Box(Modifier.fillMaxSize(), backgroundColor = colorBg) {
                     Box(Modifier.padding(top = 20.toDp()), backgroundColor = colorBg) {
                         Column(Modifier.testTag(rootTag)) {

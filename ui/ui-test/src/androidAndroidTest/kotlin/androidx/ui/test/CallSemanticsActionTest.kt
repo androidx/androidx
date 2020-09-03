@@ -37,11 +37,11 @@ import org.junit.runners.JUnit4
 class CallSemanticsActionTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule(disableTransitions = true)
 
     @Test
     fun performSemanticsAction() {
-        composeTestRule.setContent {
+        rule.setContent {
             val state = remember { mutableStateOf("Nothing") }
             BoundaryNode {
                 setString("SetString") { state.value = it; return@setString true }
@@ -49,14 +49,14 @@ class CallSemanticsActionTest {
             }
         }
 
-        onNodeWithLabel("Nothing")
+        rule.onNodeWithLabel("Nothing")
             .assertExists()
             .performSemanticsAction(MyActions.SetString) { it("Hello") }
 
-        onNodeWithLabel("Nothing")
+        rule.onNodeWithLabel("Nothing")
             .assertDoesNotExist()
 
-        onNodeWithLabel("Hello")
+        rule.onNodeWithLabel("Hello")
             .assertExists()
     }
 

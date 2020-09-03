@@ -18,12 +18,12 @@ package androidx.ui.test
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.test.filters.MediumTest
-import androidx.compose.ui.platform.setContent
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
+import androidx.compose.ui.platform.setContent
+import androidx.test.filters.MediumTest
 import androidx.ui.test.android.createAndroidComposeRule
 import org.junit.Rule
 import org.junit.Test
@@ -55,10 +55,10 @@ class CustomActivity : ComponentActivity() {
 class CustomActivityTest {
 
     @get:Rule
-    val testRule = createAndroidComposeRule<CustomActivity>()
+    val rule = createAndroidComposeRule<CustomActivity>()
 
     @Test
     fun launchCustomActivity() {
-        onNodeWithText("Hello").assertExists()
+        rule.onNodeWithText("Hello").assertExists()
     }
 }

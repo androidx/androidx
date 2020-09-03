@@ -16,24 +16,23 @@
 
 package androidx.ui.test.gesturescope
 
-import androidx.test.filters.MediumTest
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.doubleTapGestureFilter
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.gesture.doubleTapGestureFilter
+import androidx.compose.ui.unit.Duration
+import androidx.compose.ui.unit.milliseconds
+import androidx.test.filters.MediumTest
 import androidx.ui.test.InputDispatcher.Companion.eventPeriod
 import androidx.ui.test.android.AndroidInputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.performGesture
-import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.doubleClick
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.performGesture
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.ClickableTestBox.defaultSize
 import androidx.ui.test.util.ClickableTestBox.defaultTag
 import androidx.ui.test.util.SinglePointerInputRecorder
 import androidx.ui.test.util.recordedDuration
-import androidx.ui.test.waitForIdle
-import androidx.compose.ui.unit.Duration
-import androidx.compose.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -64,7 +63,7 @@ class SendDoubleClickTest(private val config: TestConfig) {
     }
 
     @get:Rule
-    val composeTestRule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule(disableTransitions = true)
 
     @get:Rule
     val inputDispatcherRule: TestRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
@@ -84,7 +83,7 @@ class SendDoubleClickTest(private val config: TestConfig) {
     fun testDoubleClick() {
         // Given some content
         val recorder = SinglePointerInputRecorder()
-        composeTestRule.setContent {
+        rule.setContent {
             ClickableTestBox(
                 Modifier
                     .doubleTapGestureFilter(this::recordDoubleClick)
@@ -93,7 +92,7 @@ class SendDoubleClickTest(private val config: TestConfig) {
         }
 
         // When we inject a double click
-        onNodeWithTag(defaultTag).performGesture {
+        rule.onNodeWithTag(defaultTag).performGesture {
             if (config.position != null && config.delay != null) {
                 doubleClick(config.position, config.delay)
             } else if (config.position != null) {
@@ -105,7 +104,7 @@ class SendDoubleClickTest(private val config: TestConfig) {
             }
         }
 
-        waitForIdle()
+        rule.waitForIdle()
 
         // Then we record 1 double click at the expected position
         assertThat(recordedDoubleClicks).isEqualTo(listOf(expectedClickPosition))

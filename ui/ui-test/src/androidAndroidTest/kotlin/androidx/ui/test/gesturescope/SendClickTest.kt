@@ -17,20 +17,20 @@
 package androidx.ui.test.gesturescope
 
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
-import androidx.test.filters.MediumTest
-import androidx.compose.ui.input.pointer.PointerInputFilter
-import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.layout.Column
+import androidx.compose.ui.input.pointer.PointerInputFilter
+import androidx.compose.ui.input.pointer.PointerInputModifier
 import androidx.compose.ui.input.pointer.changedToUp
+import androidx.test.filters.MediumTest
 import androidx.ui.test.ActivityWithActionBar
+import androidx.ui.test.ComposeTestRule
 import androidx.ui.test.android.createAndroidComposeRule
-import androidx.ui.test.performGesture
-import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.runOnIdle
 import androidx.ui.test.click
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.performGesture
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.RecordingFilter
 import com.google.common.truth.Truth.assertThat
@@ -86,7 +86,7 @@ class SendClickTest(private val config: TestConfig) {
     }
 
     @get:Rule
-    val composeTestRule = createAndroidComposeRule(config.activityClass, disableTransitions = true)
+    val rule = createAndroidComposeRule(config.activityClass, disableTransitions = true)
 
     private val recordedClicks = mutableListOf<ClickData>()
     private val expectedClickPosition =
@@ -96,22 +96,22 @@ class SendClickTest(private val config: TestConfig) {
     fun testClick() {
         // Given a column of 5 small components
         var contentSet = false
-        composeTestRule.activityRule.scenario.onActivity {
+        rule.activityRule.scenario.onActivity {
             if (it is ActivityWithActionBar) {
                 it.setContent { ColumnOfSquares(5) }
                 contentSet = true
             }
         }
         if (!contentSet) {
-            composeTestRule.setContent { ColumnOfSquares(5) }
+            rule.setContent { ColumnOfSquares(5) }
         }
 
         // When I click the first and last of these components
-        click("square0")
-        click("square4")
+        rule.click("square0")
+        rule.click("square4")
 
         // Then those components have registered a click
-        runOnIdle {
+        rule.runOnIdle {
             assertThat(recordedClicks).isEqualTo(
                 listOf(
                     ClickData(0, expectedClickPosition),
@@ -121,7 +121,7 @@ class SendClickTest(private val config: TestConfig) {
         }
     }
 
-    private fun click(tag: String) {
+    private fun ComposeTestRule.click(tag: String) {
         onNodeWithTag(tag).performGesture {
             if (config.position != null) {
                 click(config.position)

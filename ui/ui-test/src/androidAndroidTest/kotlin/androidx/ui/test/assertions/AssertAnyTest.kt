@@ -18,10 +18,10 @@ package androidx.ui.test.assertions
 
 import androidx.test.filters.MediumTest
 import androidx.ui.test.assertAny
-import androidx.ui.test.onChildren
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.hasTestTag
+import androidx.ui.test.onChildren
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.util.BoundaryNode
 import androidx.ui.test.util.expectErrorMessageStartsWith
 import org.junit.Rule
@@ -34,30 +34,29 @@ import org.junit.runners.JUnit4
 class AssertAnyTest {
 
     @get:Rule
-    val composeTestRule =
-        createComposeRule(disableTransitions = true)
+    val rule = createComposeRule(disableTransitions = true)
 
     @Test
     fun twoNodes_oneOrTwoSatisfied() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child1")
                 BoundaryNode(testTag = "Child2")
             }
         }
 
-        onNodeWithTag("Parent")
+        rule.onNodeWithTag("Parent")
             .onChildren()
             .assertAny(hasTestTag("Child1"))
 
-        onNodeWithTag("Parent")
+        rule.onNodeWithTag("Parent")
             .onChildren()
             .assertAny(hasTestTag("Child1") or hasTestTag("Child2"))
     }
 
     @Test
     fun twoNodes_noneSatisfied() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child1")
                 BoundaryNode(testTag = "Child2")
@@ -68,7 +67,7 @@ class AssertAnyTest {
                 "Failed to assertAny(TestTag = 'Child3')\n" +
                 "None of the following nodes match:\n" +
                 "1) ") {
-            onNodeWithTag("Parent")
+            rule.onNodeWithTag("Parent")
                 .onChildren()
                 .assertAny(hasTestTag("Child3"))
         }
@@ -76,7 +75,7 @@ class AssertAnyTest {
 
     @Test
     fun zeroNodes_noneSatisfied() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent")
         }
 
@@ -84,7 +83,7 @@ class AssertAnyTest {
                 "Failed to assertAny(TestTag = 'Child')\n" +
                 "Assert needs to receive at least 1 node but 0 nodes were found for selector: " +
                 "'(TestTag = 'Parent').children'") {
-            onNodeWithTag("Parent")
+            rule.onNodeWithTag("Parent")
                 .onChildren()
                 .assertAny(hasTestTag("Child"))
         }

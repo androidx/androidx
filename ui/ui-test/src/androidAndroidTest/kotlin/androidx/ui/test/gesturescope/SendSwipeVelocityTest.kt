@@ -16,18 +16,19 @@
 
 package androidx.ui.test.gesturescope
 
-import androidx.test.filters.MediumTest
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.Duration
+import androidx.compose.ui.unit.inMilliseconds
+import androidx.test.filters.MediumTest
 import androidx.ui.test.android.AndroidInputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.performGesture
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.runOnIdle
+import androidx.ui.test.performGesture
 import androidx.ui.test.swipeWithVelocity
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.SinglePointerInputRecorder
@@ -37,8 +38,6 @@ import androidx.ui.test.util.downEvents
 import androidx.ui.test.util.isAlmostEqualTo
 import androidx.ui.test.util.isMonotonicBetween
 import androidx.ui.test.util.recordedDuration
-import androidx.compose.ui.unit.Duration
-import androidx.compose.ui.unit.inMilliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -118,7 +117,7 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
     }
 
     @get:Rule
-    val composeTestRule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule(disableTransitions = true)
 
     @get:Rule
     val inputDispatcherRule: TestRule = InputDispatcherTestRule(
@@ -130,17 +129,17 @@ class SendSwipeVelocityTest(private val config: TestConfig) {
 
     @Test
     fun swipeWithVelocity() {
-        composeTestRule.setContent {
+        rule.setContent {
             Stack(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
                 ClickableTestBox(recorder, boxSize, boxSize, tag = tag)
             }
         }
 
-        onNodeWithTag(tag).performGesture {
+        rule.onNodeWithTag(tag).performGesture {
             swipeWithVelocity(start, end, velocity, duration)
         }
 
-        runOnIdle {
+        rule.runOnIdle {
             recorder.run {
                 val durationMs = duration.inMilliseconds()
                 val minimumEventSize = max(2, (durationMs / eventPeriod).toInt())

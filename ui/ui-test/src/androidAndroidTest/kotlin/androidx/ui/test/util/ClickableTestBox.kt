@@ -16,13 +16,13 @@
 
 package androidx.ui.test.util
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.DensityAmbient
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Box
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.DensityAmbient
+import androidx.compose.ui.platform.testTag
 import androidx.ui.test.util.ClickableTestBox.defaultColor
 import androidx.ui.test.util.ClickableTestBox.defaultSize
 import androidx.ui.test.util.ClickableTestBox.defaultTag

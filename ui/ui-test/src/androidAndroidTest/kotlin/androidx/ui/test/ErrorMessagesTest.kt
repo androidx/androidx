@@ -41,11 +41,11 @@ import org.junit.runners.JUnit4
 class ErrorMessagesTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule(disableTransitions = true)
 
     @Test
     fun findByTag_assertHasClickAction_predicateShouldFail() {
-        composeTestRule.setContent {
+        rule.setContent {
             ComposeSimpleCase()
         }
 
@@ -62,14 +62,14 @@ class ErrorMessagesTest {
                 "Has 1 sibling\n" +
                 "Selector used: (TestTag = 'MyButton')"
         ) {
-            onNodeWithTag("MyButton")
+            rule.onNodeWithTag("MyButton")
                 .assertHasClickAction()
         }
     }
 
     @Test
     fun findByTag_assertExists_butNoElementFound() {
-        composeTestRule.setContent {
+        rule.setContent {
             ComposeSimpleCase()
         }
 
@@ -78,14 +78,14 @@ class ErrorMessagesTest {
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
                 "(TestTag = 'MyButton3')"
         ) {
-            onNodeWithTag("MyButton3")
+            rule.onNodeWithTag("MyButton3")
                 .assertExists()
         }
     }
 
     @Test
     fun findByTag_doClick_butNoElementFound() {
-        composeTestRule.setContent {
+        rule.setContent {
             ComposeSimpleCase()
         }
 
@@ -94,14 +94,14 @@ class ErrorMessagesTest {
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
                 "(TestTag = 'MyButton3')"
         ) {
-            onNodeWithTag("MyButton3")
+            rule.onNodeWithTag("MyButton3")
                 .performClick()
         }
     }
 
     @Test
     fun findByPredicate_doClick_butNoElementFound() {
-        composeTestRule.setContent {
+        rule.setContent {
             ComposeSimpleCase()
         }
 
@@ -110,14 +110,14 @@ class ErrorMessagesTest {
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
                 "((TestTag = 'MyButton3') && (OnClick is defined))"
         ) {
-            onNode(hasTestTag("MyButton3") and hasClickAction())
+            rule.onNode(hasTestTag("MyButton3") and hasClickAction())
                 .performClick()
         }
     }
 
     @Test
     fun findByText_doClick_butMoreThanOneElementFound() {
-        composeTestRule.setContent {
+        rule.setContent {
             ComposeSimpleCase()
         }
 
@@ -128,14 +128,14 @@ class ErrorMessagesTest {
                 "Nodes found:\n" +
                 "1) Node #X at (X, X, X, X)px, Tag: 'MyButton'"
         ) {
-            onNodeWithText("Toggle")
+            rule.onNodeWithText("Toggle")
                 .performClick()
         }
     }
 
     @Test
     fun findByTag_callNonExistentSemanticsAction() {
-        composeTestRule.setContent {
+        rule.setContent {
             ComposeSimpleCase()
         }
 
@@ -143,14 +143,14 @@ class ErrorMessagesTest {
                 "Failed to perform OnClick action as it is not defined on the node.\n" +
                 "Semantics of the node:"
         ) {
-            onNodeWithTag("MyButton")
+            rule.onNodeWithTag("MyButton")
                 .performSemanticsAction(SemanticsActions.OnClick)
         }
     }
 
     @Test
     fun findByTag_callSemanticsAction_butElementDoesNotExist() {
-        composeTestRule.setContent {
+        rule.setContent {
             ComposeSimpleCase()
         }
 
@@ -159,14 +159,14 @@ class ErrorMessagesTest {
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
                 "(TestTag = 'MyButton3')"
         ) {
-            onNodeWithTag("MyButton3")
+            rule.onNodeWithTag("MyButton3")
                 .performSemanticsAction(SemanticsActions.OnClick)
         }
     }
 
     @Test
     fun findByTag_assertDoesNotExist_butElementFound() {
-        composeTestRule.setContent {
+        rule.setContent {
             ComposeSimpleCase()
         }
 
@@ -177,14 +177,14 @@ class ErrorMessagesTest {
                 "Node found:\n" +
                 "Node #X at (X, X, X, X)px, Tag: 'MyButton'"
         ) {
-            onNodeWithTag("MyButton")
+            rule.onNodeWithTag("MyButton")
                 .assertDoesNotExist()
         }
     }
 
     @Test
     fun findAll_assertMultiple_butIsDifferentAmount() {
-        composeTestRule.setContent {
+        rule.setContent {
             ComposeSimpleCase()
         }
 
@@ -195,14 +195,14 @@ class ErrorMessagesTest {
                 "Nodes found:\n" +
                 "1) Node #X at (X, X, X, X)px"
         ) {
-            onAllNodesWithText("Toggle")
+            rule.onAllNodesWithText("Toggle")
                 .assertCountEquals(3)
         }
     }
 
     @Test
     fun findAll_assertMultiple_butIsZero() {
-        composeTestRule.setContent {
+        rule.setContent {
             ComposeSimpleCase()
         }
 
@@ -211,21 +211,21 @@ class ErrorMessagesTest {
                 "Reason: Expected '3' nodes but could not find any node that satisfies: " +
                 "(Text = 'Toggle2' (ignoreCase: false))"
         ) {
-            onAllNodesWithText("Toggle2")
+            rule.onAllNodesWithText("Toggle2")
                 .assertCountEquals(3)
         }
     }
 
     @Test
     fun findOne_hideIt_tryToClickIt_butDoesNotExist() {
-        composeTestRule.setContent {
+        rule.setContent {
             ComposeTextToHideCase()
         }
 
-        val node = onNodeWithText("Hello")
+        val node = rule.onNodeWithText("Hello")
             .assertExists()
 
-        onNodeWithTag("MyButton")
+        rule.onNodeWithTag("MyButton")
             .performClick()
 
         expectErrorMessage("" +
@@ -245,15 +245,15 @@ class ErrorMessagesTest {
 
     @Test
     fun findOne_removeIt_assertExists_butDoesNotExist() {
-        composeTestRule.setContent {
+        rule.setContent {
             ComposeTextToHideCase()
         }
 
-        val node = onNodeWithText("Hello")
+        val node = rule.onNodeWithText("Hello")
             .assertExists()
 
         // Hide text
-        onNodeWithTag("MyButton")
+        rule.onNodeWithTag("MyButton")
             .performClick()
 
         expectErrorMessage("" +
@@ -273,15 +273,15 @@ class ErrorMessagesTest {
 
     @Test
     fun findOne_removeIt_assertHasClickAction_butDoesNotExist() {
-        composeTestRule.setContent {
+        rule.setContent {
             ComposeTextToHideCase()
         }
 
-        val node = onNodeWithText("Hello")
+        val node = rule.onNodeWithText("Hello")
             .assertExists()
 
         // Hide text
-        onNodeWithTag("MyButton")
+        rule.onNodeWithTag("MyButton")
             .performClick()
 
         expectErrorMessage("" +

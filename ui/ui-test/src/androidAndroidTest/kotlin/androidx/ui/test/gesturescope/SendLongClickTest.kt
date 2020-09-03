@@ -16,27 +16,26 @@
 
 package androidx.ui.test.gesturescope
 
-import androidx.test.filters.MediumTest
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.gesture.longPressGestureFilter
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.gesture.longPressGestureFilter
+import androidx.compose.ui.unit.Duration
+import androidx.compose.ui.unit.milliseconds
+import androidx.test.filters.MediumTest
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.performGesture
-import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.longClick
+import androidx.ui.test.onNodeWithTag
+import androidx.ui.test.performGesture
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.ClickableTestBox.defaultSize
 import androidx.ui.test.util.ClickableTestBox.defaultTag
 import androidx.ui.test.util.SinglePointerInputRecorder
 import androidx.ui.test.util.isAlmostEqualTo
 import androidx.ui.test.util.recordedDuration
-import androidx.ui.test.waitForIdle
-import androidx.compose.ui.unit.Duration
-import androidx.compose.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -71,7 +70,7 @@ class SendLongClickTest(private val config: TestConfig) {
     }
 
     @get:Rule
-    val composeTestRule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule(disableTransitions = true)
 
     private val recordedLongClicks = mutableListOf<Offset>()
     private val expectedClickPosition =
@@ -86,14 +85,14 @@ class SendLongClickTest(private val config: TestConfig) {
     fun testLongClick() {
         // Given some content
         val recorder = SinglePointerInputRecorder()
-        composeTestRule.setContent {
+        rule.setContent {
             Stack(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
                 ClickableTestBox(Modifier.longPressGestureFilter(::recordLongPress).then(recorder))
             }
         }
 
         // When we inject a long click
-        onNodeWithTag(defaultTag).performGesture {
+        rule.onNodeWithTag(defaultTag).performGesture {
             if (config.position != null && config.duration != null) {
                 longClick(config.position, config.duration)
             } else if (config.position != null) {
@@ -105,7 +104,7 @@ class SendLongClickTest(private val config: TestConfig) {
             }
         }
 
-        waitForIdle()
+        rule.waitForIdle()
 
         // Then we record 1 long click at the expected position
         assertThat(recordedLongClicks).hasSize(1)

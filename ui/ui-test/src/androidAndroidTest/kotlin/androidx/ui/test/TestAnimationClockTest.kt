@@ -21,6 +21,11 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.transition
+import androidx.compose.foundation.Box
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.Recomposer
@@ -28,17 +33,12 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.Snapshot
-import androidx.test.espresso.Espresso.onIdle
-import androidx.test.filters.MediumTest
-import androidx.compose.animation.transition
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.Box
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.background
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.test.espresso.Espresso.onIdle
+import androidx.test.filters.MediumTest
 import androidx.ui.test.android.ComposeIdlingResource
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
@@ -53,8 +53,8 @@ class TestAnimationClockTest {
     private var hasRecomposed = false
 
     @get:Rule
-    val composeTestRule = createComposeRule()
-    private val clockTestRule = composeTestRule.clockTestRule
+    val rule = createComposeRule()
+    private val clockTestRule = rule.clockTestRule
 
     /**
      * Tests if advancing the clock manually works when the clock is paused, and that idleness is
@@ -65,9 +65,9 @@ class TestAnimationClockTest {
         clockTestRule.pauseClock()
 
         val animationState = mutableStateOf(AnimationStates.From)
-        composeTestRule.setContent { Ui(animationState) }
+        rule.setContent { Ui(animationState) }
 
-        runOnIdle {
+        rule.runOnIdle {
             recordedAnimatedValues.clear()
 
             // Kick off the animation
@@ -87,7 +87,7 @@ class TestAnimationClockTest {
         }
 
         // Advance first half of the animation (.5 sec)
-        runOnIdle {
+        rule.runOnIdle {
             clockTestRule.advanceClock(500)
             assertThat(ComposeIdlingResource.isIdle()).isFalse()
         }
@@ -101,7 +101,7 @@ class TestAnimationClockTest {
         }
 
         // Advance second half of the animation (.5 sec)
-        runOnIdle {
+        rule.runOnIdle {
             clockTestRule.advanceClock(500)
             assertThat(ComposeIdlingResource.isIdle()).isFalse()
         }
@@ -124,7 +124,7 @@ class TestAnimationClockTest {
     fun testAnimation_manuallyAdvanceClock_resumed() = runBlocking {
         val animationState = mutableStateOf(AnimationStates.From)
         lateinit var recomposer: Recomposer
-        composeTestRule.setContent {
+        rule.setContent {
             @OptIn(ExperimentalComposeApi::class)
             recomposer = currentComposer.recomposer
             Ui(animationState)
@@ -133,7 +133,7 @@ class TestAnimationClockTest {
         // Before we kick off the animation, the test clock should be idle
         assertThat(clockTestRule.clock.isIdle).isTrue()
 
-        runOnIdle {
+        rule.runOnIdle {
             recordedAnimatedValues.clear()
 
             // Kick off the animation
@@ -159,7 +159,7 @@ class TestAnimationClockTest {
         // Force the clock forwarding through the pipeline
         // Avoid synchronization steps when doing this: if we would synchronize, we would never
         // know it if advanceClock didn't work.
-        runOnUiThread {
+        rule.runOnUiThread {
             @OptIn(ExperimentalComposeApi::class)
             Snapshot.sendApplyNotifications()
         }

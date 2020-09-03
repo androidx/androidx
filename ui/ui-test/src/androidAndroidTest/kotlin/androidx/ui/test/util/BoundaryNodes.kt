@@ -16,10 +16,10 @@
 
 package androidx.ui.test.util
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.foundation.layout.Column
 
 @Composable
 fun BoundaryNode(
