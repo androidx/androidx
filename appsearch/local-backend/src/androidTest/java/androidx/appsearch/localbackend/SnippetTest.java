@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.app;
+package androidx.appsearch.localbackend;
 
 
 import static com.google.common.truth.Truth.assertThat;
 
+import androidx.appsearch.app.MatchInfo;
+import androidx.appsearch.app.SearchResultToProtoConverter;
+import androidx.appsearch.app.SearchResults;
 import androidx.test.filters.SmallTest;
 
 import com.google.android.icing.proto.DocumentProto;
@@ -32,7 +35,7 @@ import org.junit.Test;
 @SmallTest
 public class SnippetTest {
 
-    // TODO(sidchhabra): Add tests for Double and Long Snippets.
+    // TODO(tytytyww): Add tests for Double and Long Snippets.
     @Test
     public void testSingleStringSnippet() throws Exception {
 
@@ -93,7 +96,7 @@ public class SnippetTest {
         }
     }
 
-    // TODO(sidchhabra): Add tests for Double and Long Snippets.
+    // TODO(tytytyww): Add tests for Double and Long Snippets.
     @Test
     public void testNoSnippets() throws Exception {
 

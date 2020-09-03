@@ -548,6 +548,57 @@ public class AppSearchManagerTest {
     }
 
     @Test
+    public void testSnippet() throws Exception {
+        // Schema registration
+        // TODO(tytytyww) add property for long and  double.
+        AppSearchSchema genericSchema = new AppSearchSchema.Builder("Generic")
+                .addProperty(new PropertyConfig.Builder("subject")
+                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
+                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
+                        .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_PLAIN)
+                        .setIndexingType(PropertyConfig.INDEXING_TYPE_PREFIXES)
+                        .build()
+                ).build();
+        checkIsResultSuccess(mDb1.setSchema(
+                new SetSchemaRequest.Builder().addSchema(genericSchema).build()));
+
+        // Index a document
+        GenericDocument document =
+                new GenericDocument.Builder<>("uri", "Generic")
+                        .setNamespace("document")
+                        .setProperty("subject", "A commonly used fake word is foo. "
+                                        + "Another nonsense word that’s used a lot is bar")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(document).build()));
+
+        // Query for the document
+        SearchResults searchResults = mDb1.query("foo",
+                new SearchSpec.Builder()
+                        .setSchemaTypes("Generic")
+                        .setNumToSnippet(1)
+                        .setNumMatchesPerProperty(1)
+                        .setMaxSnippetSize(10)
+                        .setTermMatchType(SearchSpec.TERM_MATCH_TYPE_PREFIX)
+                        .build());
+        List<SearchResults.Result> results = checkIsResultSuccess(searchResults.getNextPage());
+        assertThat(results).hasSize(1);
+
+        List<MatchInfo> matchInfos = results.get(0).getMatchInfo();
+        assertThat(matchInfos).isNotNull();
+        assertThat(matchInfos).hasSize(1);
+        MatchInfo matchInfo = matchInfos.get(0);
+        assertThat(matchInfo.getFullText()).isEqualTo("A commonly used fake word is foo. "
+                + "Another nonsense word that’s used a lot is bar");
+        assertThat(matchInfo.getExactMatchPosition()).isEqualTo(
+                new MatchInfo.MatchRange(/*lower=*/29,  /*upper=*/32));
+        assertThat(matchInfo.getExactMatch()).isEqualTo("foo");
+        assertThat(matchInfo.getSnippetPosition()).isEqualTo(
+                new MatchInfo.MatchRange(/*lower=*/26,  /*upper=*/33));
+        assertThat(matchInfo.getSnippet()).isEqualTo("is foo.");
+    }
+
+    @Test
     public void testRemove() throws Exception {
         // Schema registration
         checkIsResultSuccess(mDb1.setSchema(
