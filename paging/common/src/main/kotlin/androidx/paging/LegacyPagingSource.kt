@@ -33,9 +33,20 @@ internal class LegacyPagingSource<Key : Any, Value : Any>(
     private val fetchDispatcher: CoroutineDispatcher = DirectDispatcher,
     internal val dataSourceFactory: () -> DataSource<Key, Value>
 ) : PagingSource<Key, Value>() {
+    // Lazily initialize because it must be created on fetchDispatcher, but PagingSourceFactory
+    // passed to Pager is a non-suspending method.
     internal val dataSource by lazy {
-        dataSourceFactory().also {
-            it.addInvalidatedCallback { invalidate() }
+        dataSourceFactory().also { dataSource ->
+            dataSource.addInvalidatedCallback(::invalidate)
+            // LegacyPagingSource registers invalidate callback after DataSource is created, so we
+            // need to check for race condition here. If DataSource is already invalid, simply
+            // propagate invalidation manually.
+            if (dataSource.isInvalid && !invalid) {
+                dataSource.removeInvalidatedCallback(::invalidate)
+                // Note: Calling this.invalidate directly will re-evaluate dataSource's by lazy
+                // init block, since we haven't returned a value for dataSource yet.
+                super.invalidate()
+            }
         }
     }
 

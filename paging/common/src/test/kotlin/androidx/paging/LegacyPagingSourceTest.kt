@@ -251,6 +251,43 @@ class LegacyPagingSourceTest {
         assertTrue { initialized }
     }
 
+    @Test
+    fun dataSourceInvalidateBeforePagingSourceInvalidateCallbackAdded() {
+        val dataSourceFactory = object : DataSource.Factory<Int, String>() {
+            val dataSources = mutableListOf<DataSource<Int, String>>()
+            var i = 0
+
+            override fun create(): DataSource<Int, String> {
+                return when (i++) {
+                    0 -> createTestPositionalDataSource().apply {
+                        // Invalidate before we give LegacyPagingSource a chance to register
+                        // invalidate callback.
+                        invalidate()
+                    }
+                    else -> createTestPositionalDataSource()
+                }.also { dataSources.add(it) }
+            }
+        }
+
+        val pagingSourceFactory = dataSourceFactory.asPagingSourceFactory().let {
+            { it() as LegacyPagingSource }
+        }
+
+        val pagingSource0 = pagingSourceFactory()
+        assertTrue { pagingSource0.dataSource.isInvalid }
+        assertTrue { pagingSource0.invalid }
+        assertTrue { dataSourceFactory.dataSources[0].isInvalid }
+        assertEquals(dataSourceFactory.dataSources[0], pagingSource0.dataSource)
+
+        val pagingSource1 = pagingSourceFactory()
+        assertFalse { pagingSource1.dataSource.isInvalid }
+        assertFalse { pagingSource1.invalid }
+        assertFalse { dataSourceFactory.dataSources[1].isInvalid }
+        assertEquals(dataSourceFactory.dataSources[1], pagingSource1.dataSource)
+
+        assertEquals(2, dataSourceFactory.dataSources.size)
+    }
+
     @Suppress("DEPRECATION")
     private fun createTestPositionalDataSource(expectInitialLoad: Boolean = false) =
         object : PositionalDataSource<String>() {
