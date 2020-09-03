@@ -300,6 +300,9 @@ abstract class WatchFaceService : WallpaperService() {
         private val _context = this@WatchFaceService as Context
 
         private lateinit var currentSurfaceHolder: SurfaceHolder
+        private var currentSurfaceFormat = 0
+        private var currentSurfaceWidth = 0
+        private var currentSurfaceHeight = 0
 
         internal lateinit var iWatchFaceService: IWatchFaceService
         internal lateinit var watchFace: WatchFace
@@ -734,6 +737,9 @@ abstract class WatchFaceService : WallpaperService() {
 
         override fun onSurfaceChanged(holder: SurfaceHolder, format: Int, width: Int, height: Int) {
             currentSurfaceHolder = holder
+            currentSurfaceFormat = format
+            currentSurfaceWidth = width
+            currentSurfaceHeight = height
 
             if (watchFaceCreated()) {
                 watchFace.onSurfaceChanged(holder, format, width, height)
@@ -762,7 +768,20 @@ abstract class WatchFaceService : WallpaperService() {
             ) {
                 val host = WatchFaceHost()
                 host.api = this
-                watchFace = createWatchFace(currentSurfaceHolder, host, systemState)
+                watchFace = createWatchFace(
+                    currentSurfaceHolder,
+                    host,
+                    systemState
+                )
+
+                // Watchfaces especially OpenGL ones often do initialization in
+                // onSurfaceChanged, make sure we send the initial one.
+                watchFace.renderer.onSurfaceChanged(
+                    currentSurfaceHolder,
+                    currentSurfaceFormat,
+                    currentSurfaceWidth,
+                    currentSurfaceHeight
+                )
 
                 val backgroundAction = pendingBackgroundAction
                 if (backgroundAction != null) {
