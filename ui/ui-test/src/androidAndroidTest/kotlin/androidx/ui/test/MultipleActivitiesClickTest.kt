@@ -27,7 +27,6 @@ import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.platform.testTag
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
-import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.util.SinglePointerInputRecorder
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule

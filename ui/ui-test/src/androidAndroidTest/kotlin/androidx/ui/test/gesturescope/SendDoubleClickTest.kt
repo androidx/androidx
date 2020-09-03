@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.Duration
 import androidx.compose.ui.unit.milliseconds
 import androidx.test.filters.MediumTest
 import androidx.ui.test.InputDispatcher.Companion.eventPeriod
-import androidx.ui.test.android.AndroidInputDispatcher.InputDispatcherTestRule
+import androidx.ui.test.AndroidInputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.doubleClick
 import androidx.ui.test.onNodeWithTag

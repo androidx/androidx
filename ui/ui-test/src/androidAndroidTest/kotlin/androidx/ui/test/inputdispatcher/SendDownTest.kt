@@ -23,7 +23,7 @@ import android.view.MotionEvent.ACTION_POINTER_UP
 import androidx.compose.ui.geometry.Offset
 import androidx.test.filters.SmallTest
 import androidx.ui.test.InputDispatcher.Companion.eventPeriod
-import androidx.ui.test.android.AndroidInputDispatcher
+import androidx.ui.test.AndroidInputDispatcher
 import androidx.ui.test.util.assertHasValidEventTimes
 import androidx.ui.test.util.expectError
 import androidx.ui.test.util.verifyEvent

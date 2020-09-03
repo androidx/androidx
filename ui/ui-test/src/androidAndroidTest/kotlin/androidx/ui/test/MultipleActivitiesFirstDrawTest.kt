@@ -24,7 +24,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.setContent
 import androidx.test.espresso.Espresso
 import androidx.test.filters.MediumTest
-import androidx.ui.test.android.createAndroidComposeRule
 import org.junit.Rule
 import org.junit.Test
 

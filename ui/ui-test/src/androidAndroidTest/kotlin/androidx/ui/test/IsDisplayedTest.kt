@@ -47,7 +47,6 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.espresso.matcher.ViewMatchers.withParent
 import androidx.test.filters.MediumTest
-import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.util.BoundaryNode
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.not

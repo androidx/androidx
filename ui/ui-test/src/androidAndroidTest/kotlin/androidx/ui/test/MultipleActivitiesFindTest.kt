@@ -23,7 +23,6 @@ import androidx.compose.foundation.Box
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.platform.testTag
-import androidx.ui.test.android.createAndroidComposeRule
 import org.junit.Rule
 import org.junit.Test
 

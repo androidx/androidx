@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.window.Popup
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
-import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.util.expectError
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule

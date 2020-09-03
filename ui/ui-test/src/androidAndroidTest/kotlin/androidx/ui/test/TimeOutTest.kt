@@ -32,7 +32,6 @@ import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.IdlingResource
 import androidx.test.filters.LargeTest
 import androidx.ui.test.android.ComposeNotIdleException
-import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.util.expectError
 import org.junit.After
 import org.junit.Before

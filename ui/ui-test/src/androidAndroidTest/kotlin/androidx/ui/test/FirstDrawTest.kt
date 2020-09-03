@@ -28,7 +28,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.setContent
 import androidx.test.espresso.Espresso.onIdle
 import androidx.test.filters.MediumTest
-import androidx.ui.test.android.createAndroidComposeRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test

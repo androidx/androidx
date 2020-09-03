@@ -22,7 +22,6 @@ import android.os.Looper
 import androidx.activity.ComponentActivity
 import androidx.compose.ui.platform.setContent
 import androidx.test.filters.LargeTest
-import androidx.ui.test.android.createAndroidComposeRule
 import androidx.ui.test.util.BoundaryNode
 import org.junit.Rule
 import org.junit.Test
