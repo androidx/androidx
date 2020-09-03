@@ -38,7 +38,7 @@ import java.util.LinkedList
 actual fun createComposeRule(
     disableTransitions: Boolean,
     disableBlinkingCursor: Boolean
-): ComposeTestRule {
+): ComposeTestRuleJUnit {
     return DesktopComposeTestRule(
         disableTransitions,
         disableBlinkingCursor
@@ -48,7 +48,7 @@ actual fun createComposeRule(
 class DesktopComposeTestRule(
     private val disableTransitions: Boolean = false,
     private val disableBlinkingCursor: Boolean = true
-) : ComposeTestRule, EmbeddingContext {
+) : ComposeTestRuleJUnit, EmbeddingContext {
 
     companion object {
         init {
@@ -92,12 +92,22 @@ class DesktopComposeTestRule(
                 !Snapshot.current.hasPendingChanges() &&
                 !Recomposer.current().hasPendingChanges()
 
-    internal fun waitForIdle() {
+    override fun waitForIdle() {
         while (!isIdle()) {
             DesktopUiDispatcher.Dispatcher.runAllCallbacks()
             runExecutionQueue()
             Thread.sleep(10)
         }
+    }
+
+    override fun <T> runOnUiThread(action: () -> T): T {
+        return action()
+    }
+
+    override fun <T> runOnIdle(action: () -> T): T {
+        // Method below make sure that compose is idle.
+        waitForIdle()
+        return action()
     }
 
     override fun setContent(composable: @Composable () -> Unit) {

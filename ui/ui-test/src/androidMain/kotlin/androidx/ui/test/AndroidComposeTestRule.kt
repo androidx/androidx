@@ -16,6 +16,7 @@
 
 package androidx.ui.test
 
+import android.annotation.SuppressLint
 import androidx.activity.ComponentActivity
 import androidx.ui.test.android.AndroidOwnerRegistry
 import androidx.ui.test.android.FirstDrawRegistry
@@ -33,12 +34,16 @@ import androidx.compose.ui.unit.Density
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import androidx.compose.ui.unit.IntSize
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.ui.test.android.SynchronizedTreeCollector
 import androidx.ui.test.android.createAndroidComposeRule
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.FutureTask
 
 actual fun createComposeRule(
     disableTransitions: Boolean,
     disableBlinkingCursor: Boolean
-): ComposeTestRule =
+): ComposeTestRuleJUnit =
     createAndroidComposeRule<ComponentActivity>(
         disableTransitions,
         disableBlinkingCursor
@@ -53,7 +58,7 @@ class AndroidComposeTestRule<T : ComponentActivity>(
     val activityRule: ActivityScenarioRule<T>,
     private val disableTransitions: Boolean = false,
     private val disableBlinkingCursor: Boolean = true
-) : ComposeTestRule {
+) : ComposeTestRuleJUnit {
 
     private fun getActivity(): T {
         var activity: T? = null
@@ -113,6 +118,33 @@ class AndroidComposeTestRule<T : ComponentActivity>(
             // executing future tasks on the main thread.
             waitForIdle()
         }
+    }
+
+    override fun waitForIdle() {
+        SynchronizedTreeCollector.waitForIdle()
+    }
+
+    @SuppressLint("DocumentExceptions")
+    override fun <T> runOnUiThread(action: () -> T): T {
+        if (isOnUiThread()) {
+            return action()
+        }
+
+        // Note: This implementation is directly taken from ActivityTestRule
+        val task: FutureTask<T> = FutureTask(action)
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(task)
+        try {
+            return task.get()
+        } catch (e: ExecutionException) { // Expose the original exception
+            throw e.cause!!
+        }
+    }
+
+    override fun <T> runOnIdle(action: () -> T): T {
+        // Method below make sure that compose is idle.
+        waitForIdle()
+        // Execute the action on ui thread in a blocking way.
+        return runOnUiThread(action)
     }
 
     inner class AndroidComposeStatement(
