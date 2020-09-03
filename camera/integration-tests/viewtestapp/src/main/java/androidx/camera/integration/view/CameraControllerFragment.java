@@ -225,7 +225,7 @@ public class CameraControllerFragment extends Fragment {
 
         mTapToFocusToggle = view.findViewById(R.id.tap_to_focus_toggle);
         mTapToFocusToggle.setOnCheckedChangeListener(
-                (compoundButton, checked) -> mCameraController.setPinchToZoomEnabled(checked));
+                (compoundButton, checked) -> mCameraController.setTapToFocusEnabled(checked));
 
         ((ToggleButton) view.findViewById(R.id.torch_toggle)).setOnCheckedChangeListener(
                 (compoundButton, checked) -> logFailedFuture(
