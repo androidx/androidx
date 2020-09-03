@@ -37,7 +37,7 @@ import android.support.wearable.complications.ComplicationData
 import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.IWatchFaceCommand
 import android.support.wearable.watchface.IWatchFaceService
-import android.support.wearable.watchface.SharedMemoryImage
+import android.support.wearable.watchface.toAshmemCompressedImageBundle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.util.Log
 import android.view.Choreographer
@@ -498,15 +498,14 @@ abstract class WatchFaceService : WallpaperService() {
                 compressionQuality: Int,
                 calendarTimeMillis: Long
             ): Bundle {
-                return SharedMemoryImage.bitmapToAshmemCompressedImageBundle(
-                    runOnUiThread {
-                        watchFace.renderer.takeScreenshot(
-                            Calendar.getInstance().apply {
-                                timeInMillis = calendarTimeMillis
-                            },
-                            drawMode
-                        )
-                    },
+                return runOnUiThread {
+                    watchFace.renderer.takeScreenshot(
+                        Calendar.getInstance().apply {
+                            timeInMillis = calendarTimeMillis
+                        },
+                        drawMode
+                    )
+                }.toAshmemCompressedImageBundle(
                     compressionQuality
                 )
             }
@@ -552,8 +551,7 @@ abstract class WatchFaceService : WallpaperService() {
                             complication.renderer.setData(prevComplicationData)
                         }
 
-                        SharedMemoryImage.bitmapToAshmemCompressedImageBundle(
-                            complicationBitmap,
+                        complicationBitmap.toAshmemCompressedImageBundle(
                             compressionQuality
                         )
                     } else {
