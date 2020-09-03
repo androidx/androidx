@@ -47,7 +47,7 @@ import java.util.concurrent.TimeUnit
 class TimeOutTest {
 
     @get:Rule
-    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+    val rule = createAndroidComposeRule<ComponentActivity>()
 
     private var idlingResourcePolicy: IdlingPolicy? = null
     private var masterPolicy: IdlingPolicy? = null
@@ -88,7 +88,7 @@ class TimeOutTest {
         IdlingPolicies.setIdlingResourceTimeout(300, TimeUnit.MILLISECONDS)
 
         expectError<ComposeNotIdleException>(expectedMessage = expectedErrorDueToRecompositions) {
-            composeTestRule.setContent {
+            rule.setContent {
                 infiniteCase()
             }
         }
@@ -99,7 +99,7 @@ class TimeOutTest {
         IdlingPolicies.setMasterPolicyTimeout(300, TimeUnit.MILLISECONDS)
 
         expectError<ComposeNotIdleException>(expectedMessage = expectedErrorDueToRecompositions) {
-            composeTestRule.setContent {
+            rule.setContent {
                 infiniteCase()
             }
         }
@@ -110,20 +110,20 @@ class TimeOutTest {
         // This test checks that we properly time out on infinite recompositions that happen later
         // down the road (not right during setContent).
         val count = mutableStateOf(0)
-        composeTestRule.setContent {
+        rule.setContent {
             Text("Hello ${count.value}")
             if (count.value > 0) {
                 count.value++
             }
         }
 
-        onNodeWithText("Hello 0").assertExists()
+        rule.onNodeWithText("Hello 0").assertExists()
 
         count.value++ // Start infinite re-compositions
 
         IdlingPolicies.setMasterPolicyTimeout(300, TimeUnit.MILLISECONDS)
         expectError<ComposeNotIdleException>(expectedMessage = expectedErrorDueToRecompositions) {
-            onNodeWithText("Hello").assertExists()
+            rule.onNodeWithText("Hello").assertExists()
         }
     }
 
@@ -136,7 +136,7 @@ class TimeOutTest {
         IdlingRegistry.getInstance().register(InfiniteResource)
 
         expectError<AppNotIdleException> {
-            composeTestRule.setContent { }
+            rule.setContent { }
         }
     }
 
@@ -145,29 +145,29 @@ class TimeOutTest {
         // This test is here to guarantee that even if we crash on infinite recompositions after
         // we set a content. We still recover and the old composition is no longer running in the
         // background causing further delays. This verifies that our tests run in isolation.
-        val androidTestRule = composeTestRule
+        val androidTestRule = rule
 
         // Start infinite case and die on infinite recompositions
         IdlingPolicies.setMasterPolicyTimeout(300, TimeUnit.MILLISECONDS)
         expectError<ComposeNotIdleException> {
-            composeTestRule.setContent {
+            rule.setContent {
                 infiniteCase()
             }
         }
 
         // Act like we are tearing down the test
-        runOnUiThread {
+        rule.runOnUiThread {
             androidTestRule.disposeContentHook!!.invoke()
             androidTestRule.disposeContentHook = null
         }
 
         // Kick of simple composition again (like if we run new test)
-        composeTestRule.setContent {
+        rule.setContent {
             Text("Hello")
         }
 
         // No timeout should happen this time
-        onNodeWithText("Hello").assertExists()
+        rule.onNodeWithText("Hello").assertExists()
     }
 
     private object InfiniteResource : IdlingResource {

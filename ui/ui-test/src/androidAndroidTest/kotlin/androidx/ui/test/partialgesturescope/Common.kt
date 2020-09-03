@@ -16,13 +16,14 @@
 
 package androidx.ui.test.partialgesturescope
 
+import androidx.ui.test.ComposeTestRule
 import androidx.ui.test.GestureScope
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.performGesture
 import androidx.ui.test.util.ClickableTestBox.defaultTag
 
 object Common {
-    fun partialGesture(block: GestureScope.() -> Unit) {
+    fun ComposeTestRule.partialGesture(block: GestureScope.() -> Unit) {
         onNodeWithTag(defaultTag).performGesture(block)
     }
 }

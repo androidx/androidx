@@ -16,16 +16,16 @@
 
 package androidx.ui.test
 
-import androidx.compose.runtime.Composable
-import androidx.test.filters.MediumTest
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.layout.Column
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import androidx.compose.ui.semantics.text
-import androidx.ui.test.util.expectError
 import androidx.compose.ui.text.AnnotatedString
+import androidx.test.filters.MediumTest
+import androidx.ui.test.util.expectError
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith

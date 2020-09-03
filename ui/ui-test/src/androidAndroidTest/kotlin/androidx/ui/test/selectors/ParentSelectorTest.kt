@@ -19,8 +19,8 @@ package androidx.ui.test.selectors
 import androidx.test.filters.MediumTest
 import androidx.ui.test.assert
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.hasTestTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.onParent
 import androidx.ui.test.util.BoundaryNode
 import androidx.ui.test.util.expectErrorMessage
@@ -34,28 +34,28 @@ import org.junit.runners.JUnit4
 class ParentSelectorTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val rule = createComposeRule()
 
     @Test
     fun oneParent() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child")
             }
         }
 
-        onNodeWithTag("Child")
+        rule.onNodeWithTag("Child")
             .onParent()
             .assert(hasTestTag("Parent"))
     }
 
     @Test()
     fun noParent() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Node")
         }
 
-        onNodeWithTag("Node")
+        rule.onNodeWithTag("Node")
             .onParent()
             .onParent()
             .assertDoesNotExist()
@@ -63,7 +63,7 @@ class ParentSelectorTest {
 
     @Test
     fun noParent_fail() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Node")
         }
 
@@ -72,7 +72,7 @@ class ParentSelectorTest {
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
                 "(((TestTag = 'Node').parent).parent)"
         ) {
-            onNodeWithTag("Node")
+            rule.onNodeWithTag("Node")
                 .onParent()
                 .onParent()
                 .assertExists()

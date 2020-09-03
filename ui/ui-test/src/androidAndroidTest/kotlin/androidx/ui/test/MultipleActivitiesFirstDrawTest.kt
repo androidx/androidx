@@ -19,11 +19,11 @@ package androidx.ui.test
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.test.espresso.Espresso
-import androidx.test.filters.MediumTest
+import androidx.compose.foundation.Box
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.setContent
-import androidx.compose.foundation.Box
+import androidx.test.espresso.Espresso
+import androidx.test.filters.MediumTest
 import androidx.ui.test.android.createAndroidComposeRule
 import org.junit.Rule
 import org.junit.Test
@@ -32,7 +32,7 @@ import org.junit.Test
 class MultipleActivitiesFirstDrawTest {
 
     @get:Rule
-    val testRule = createAndroidComposeRule<Activity1>()
+    val rule = createAndroidComposeRule<Activity1>()
 
     @Test
     fun test() {

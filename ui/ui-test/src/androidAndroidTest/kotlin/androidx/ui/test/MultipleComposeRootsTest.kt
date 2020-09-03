@@ -20,21 +20,21 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.activity.ComponentActivity
+import androidx.compose.foundation.selection.ToggleableState
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Surface
+import androidx.compose.material.TriStateCheckbox
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Recomposer
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.setContent
+import androidx.compose.ui.platform.testTag
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.filters.MediumTest
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.setContent
-import androidx.compose.ui.platform.testTag
-import androidx.compose.foundation.selection.ToggleableState
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.TriStateCheckbox
 import androidx.ui.test.android.createAndroidComposeRule
 import org.junit.Rule
 import org.junit.Test
@@ -59,7 +59,7 @@ fun MutableState<ToggleableState>.toggle() {
 class MultipleComposeRootsTest {
 
     @get:Rule
-    val composeTestRule = createAndroidComposeRule<ComponentActivity>()
+    val rule = createAndroidComposeRule<ComponentActivity>()
 
     @get:Rule
     val disableTransitions = DisableTransitions()
@@ -79,7 +79,7 @@ class MultipleComposeRootsTest {
      */
     @Test
     fun twoHierarchiesSharingTheSameModel() {
-        composeTestRule.activityRule.scenario.onActivity { activity ->
+        rule.activityRule.scenario.onActivity { activity ->
             val state1 = mutableStateOf(value = ToggleableState.Off)
             val state2 = mutableStateOf(value = ToggleableState.On)
 
@@ -142,21 +142,21 @@ class MultipleComposeRootsTest {
         Espresso.onView(withText("Compose 1")).check(matches(isDisplayed()))
         Espresso.onView(withText("Compose 2")).check(matches(isDisplayed()))
 
-        onNodeWithTag("checkbox1")
+        rule.onNodeWithTag("checkbox1")
             .performClick()
             .assertIsOn()
 
-        onNodeWithTag("checkbox2")
+        rule.onNodeWithTag("checkbox2")
             .assertIsOff()
 
         Espresso.onView(withText("Compose 1 - On")).check(matches(isDisplayed()))
         Espresso.onView(withText("Compose 2 - Off")).check(matches(isDisplayed()))
 
-        onNodeWithTag("checkbox2")
+        rule.onNodeWithTag("checkbox2")
             .performClick()
             .assertIsOn()
 
-        onNodeWithTag("checkbox1")
+        rule.onNodeWithTag("checkbox1")
             .assertIsOff()
 
         Espresso.onView(withText("Compose 1 - Off")).check(matches(isDisplayed()))

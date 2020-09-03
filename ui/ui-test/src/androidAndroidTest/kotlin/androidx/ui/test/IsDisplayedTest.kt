@@ -20,24 +20,8 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Recomposer
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.test.espresso.Espresso.onView
-import androidx.test.espresso.ViewInteraction
-import androidx.test.espresso.assertion.ViewAssertions.matches
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
-import androidx.test.espresso.matcher.ViewMatchers.withId
-import androidx.test.espresso.matcher.ViewMatchers.withParent
-import androidx.test.filters.MediumTest
-import androidx.compose.ui.Layout
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.setContent
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.ScrollableColumn
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -45,10 +29,26 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.ui.test.android.createAndroidComposeRule
-import androidx.ui.test.util.BoundaryNode
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Recomposer
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Layout
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.test.espresso.Espresso.onView
+import androidx.test.espresso.ViewInteraction
+import androidx.test.espresso.assertion.ViewAssertions.matches
+import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
+import androidx.test.espresso.matcher.ViewMatchers.withId
+import androidx.test.espresso.matcher.ViewMatchers.withParent
+import androidx.test.filters.MediumTest
+import androidx.ui.test.android.createAndroidComposeRule
+import androidx.ui.test.util.BoundaryNode
 import org.hamcrest.CoreMatchers.allOf
 import org.hamcrest.CoreMatchers.not
 import org.junit.Rule
@@ -73,7 +73,7 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
     }
 
     @get:Rule
-    val composeTestRule = createAndroidComposeRule(config.activityClass)
+    val rule = createAndroidComposeRule(config.activityClass)
 
     private val colors = listOf(Color.Red, Color.Green, Color.Blue)
 
@@ -105,25 +105,25 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
 
     @Test
     fun componentInScrollable_isDisplayed() {
-        composeTestRule.setContent {
+        rule.setContent {
             ScrollableColumn(modifier = Modifier.size(100.dp)) {
                 repeat(10) { Item(it, height = 30.dp) }
             }
         }
 
-        onNodeWithTag("item0")
+        rule.onNodeWithTag("item0")
             .assertIsDisplayed()
     }
 
     @Test
     fun componentInScrollable_isNotDisplayed() {
-        composeTestRule.setContent {
+        rule.setContent {
             ScrollableColumn(modifier = Modifier.size(100.dp)) {
                 repeat(10) { Item(it, height = 30.dp) }
             }
         }
 
-        onNodeWithTag("item4")
+        rule.onNodeWithTag("item4")
             .assertIsNotDisplayed()
     }
 
@@ -131,21 +131,21 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
     fun togglePlacement() {
         var place by mutableStateOf(true)
 
-        composeTestRule.setContent {
+        rule.setContent {
             PlaceConditionally(place) {
                 // Item instead of BoundaryNode because we need non-zero size
                 Item(0)
             }
         }
 
-        onNodeWithTag("item0")
+        rule.onNodeWithTag("item0")
             .assertIsDisplayed()
 
-        runOnIdle {
+        rule.runOnIdle {
             place = false
         }
 
-        onNodeWithTag("item0")
+        rule.onNodeWithTag("item0")
             .assertIsNotDisplayed()
     }
 
@@ -153,7 +153,7 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
     fun toggleParentPlacement() {
         var place by mutableStateOf(true)
 
-        composeTestRule.setContent {
+        rule.setContent {
             PlaceConditionally(place) {
                 Stack {
                     // Item instead of BoundaryNode because we need non-zero size
@@ -162,33 +162,33 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
             }
         }
 
-        onNodeWithTag("item0")
+        rule.onNodeWithTag("item0")
             .assertIsDisplayed()
 
-        runOnIdle {
+        rule.runOnIdle {
             place = false
         }
 
-        onNodeWithTag("item0")
+        rule.onNodeWithTag("item0")
             .assertIsNotDisplayed()
     }
 
     @Test
     fun rowTooSmall() {
-        composeTestRule.setContent {
+        rule.setContent {
             Row(modifier = Modifier.size(100.dp)) {
                 repeat(10) { Item(it, width = 30.dp) }
             }
         }
 
-        onNodeWithTag("item9")
+        rule.onNodeWithTag("item9")
             .assertIsNotDisplayed()
     }
 
     @Test
     fun viewVisibility_androidComposeView() {
         lateinit var androidComposeView: View
-        composeTestRule.activityRule.scenario.onActivity { activity ->
+        rule.activityRule.scenario.onActivity { activity ->
             // FrameLayout(id=100, w=100, h=100)
             // '- AndroidComposeView
             androidComposeView = FrameLayout(activity).apply {
@@ -206,20 +206,20 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
         }
 
         onComposeView().check(matches(isDisplayed()))
-        onNodeWithTag("item0").assertIsDisplayed()
+        rule.onNodeWithTag("item0").assertIsDisplayed()
 
-        runOnIdle {
+        rule.runOnIdle {
             androidComposeView.visibility = View.GONE
         }
 
         onComposeView().check(matches(not(isDisplayed())))
-        onNodeWithTag("item0").assertIsNotDisplayed()
+        rule.onNodeWithTag("item0").assertIsNotDisplayed()
     }
 
     @Test
     fun viewVisibility_parentView() {
         lateinit var composeContainer: View
-        composeTestRule.activityRule.scenario.onActivity { activity ->
+        rule.activityRule.scenario.onActivity { activity ->
             // FrameLayout
             // '- FrameLayout(id=100, w=100, h=100) -> composeContainer
             //    '- AndroidComposeView
@@ -238,13 +238,13 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
         }
 
         onComposeView().check(matches(isDisplayed()))
-        onNodeWithTag("item0").assertIsDisplayed()
+        rule.onNodeWithTag("item0").assertIsDisplayed()
 
-        runOnIdle {
+        rule.runOnIdle {
             composeContainer.visibility = View.GONE
         }
 
         onComposeView().check(matches(not(isDisplayed())))
-        onNodeWithTag("item0").assertIsNotDisplayed()
+        rule.onNodeWithTag("item0").assertIsNotDisplayed()
     }
 }

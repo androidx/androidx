@@ -19,10 +19,10 @@ package androidx.ui.test.assertions
 import androidx.test.filters.MediumTest
 import androidx.ui.test.assertAll
 import androidx.ui.test.assertCountEquals
-import androidx.ui.test.onChildren
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.hasTestTag
+import androidx.ui.test.onChildren
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.util.BoundaryNode
 import androidx.ui.test.util.expectErrorMessageStartsWith
 import org.junit.Rule
@@ -35,26 +35,25 @@ import org.junit.runners.JUnit4
 class AssertAllTest {
 
     @get:Rule
-    val composeTestRule =
-        createComposeRule(disableTransitions = true)
+    val rule = createComposeRule(disableTransitions = true)
 
     @Test
     fun twoNodes_twoSatisfied() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child1")
                 BoundaryNode(testTag = "Child2")
             }
         }
 
-        onNodeWithTag("Parent")
+        rule.onNodeWithTag("Parent")
             .onChildren()
             .assertAll(hasTestTag("Child1") or hasTestTag("Child2"))
     }
 
     @Test
     fun twoNodes_oneSatisfied() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child1")
                 BoundaryNode(testTag = "Child2")
@@ -66,7 +65,7 @@ class AssertAllTest {
                 "Found '1' node not matching:\n" +
                 "Node #X"
         ) {
-            onNodeWithTag("Parent")
+            rule.onNodeWithTag("Parent")
                 .onChildren()
                 .assertAll(hasTestTag("Child1"))
         }
@@ -74,7 +73,7 @@ class AssertAllTest {
 
     @Test
     fun threeNodes_oneSatisfied() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child1")
                 BoundaryNode(testTag = "Child2")
@@ -87,7 +86,7 @@ class AssertAllTest {
                 "Found '2' nodes not matching:\n" +
                 "1) "
         ) {
-            onNodeWithTag("Parent")
+            rule.onNodeWithTag("Parent")
                 .onChildren()
                 .assertAll(hasTestTag("Child1"))
         }
@@ -95,11 +94,11 @@ class AssertAllTest {
 
     @Test
     fun zeroNodes() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent")
         }
 
-        onNodeWithTag("Parent")
+        rule.onNodeWithTag("Parent")
             .onChildren()
             .assertCountEquals(0)
             .assertAll(hasTestTag("Child"))

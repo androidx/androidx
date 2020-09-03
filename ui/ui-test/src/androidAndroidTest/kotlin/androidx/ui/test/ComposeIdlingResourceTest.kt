@@ -23,20 +23,20 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.snap
 import androidx.compose.animation.core.transitionDefinition
 import androidx.compose.animation.core.tween
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.mutableStateOf
-import androidx.test.espresso.Espresso.onIdle
-import androidx.test.filters.LargeTest
 import androidx.compose.animation.transition
-import androidx.compose.ui.Modifier
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.test.espresso.Espresso.onIdle
+import androidx.test.filters.LargeTest
 import androidx.ui.test.android.ComposeIdlingResource
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
@@ -58,7 +58,7 @@ class ComposeIdlingResourceTest {
     private var hasRecomposed = false
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val rule = createComposeRule()
 
     /**
      * High level test to only verify that [runOnIdle] awaits animations.
@@ -66,9 +66,9 @@ class ComposeIdlingResourceTest {
     @Test
     fun testRunOnIdle() {
         val animationState = mutableStateOf(AnimationStates.From)
-        composeTestRule.setContent { Ui(animationState) }
+        rule.setContent { Ui(animationState) }
 
-        runOnIdle {
+        rule.runOnIdle {
             // Kick off the animation
             animationRunning = true
             animationState.value = AnimationStates.To
@@ -77,7 +77,7 @@ class ComposeIdlingResourceTest {
         // Verify that animation is kicked off
         assertThat(animationRunning).isTrue()
         // Wait until it is finished
-        runOnIdle {
+        rule.runOnIdle {
             // Verify it was finished
             assertThat(animationRunning).isFalse()
         }
@@ -89,9 +89,9 @@ class ComposeIdlingResourceTest {
     @Test
     fun testAnimationIdle_simple() {
         val animationState = mutableStateOf(AnimationStates.From)
-        composeTestRule.setContent { Ui(animationState) }
+        rule.setContent { Ui(animationState) }
 
-        runOnIdle {
+        rule.runOnIdle {
             // Kick off the animation
             animationRunning = true
             animationState.value = AnimationStates.To
@@ -117,9 +117,9 @@ class ComposeIdlingResourceTest {
         var wasIdleBeforeCommit = false
 
         val animationState = mutableStateOf(AnimationStates.From)
-        composeTestRule.setContent { Ui(animationState) }
+        rule.setContent { Ui(animationState) }
 
-        runOnIdle {
+        rule.runOnIdle {
             // Record idleness after this frame is committed. The mutation we're about to make
             // will trigger a commit of the frame, which is posted at the front of the handler's
             // queue. By posting a message at the front of the queue here, it will be executed

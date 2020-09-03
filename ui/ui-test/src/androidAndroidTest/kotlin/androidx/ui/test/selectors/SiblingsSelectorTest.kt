@@ -20,8 +20,8 @@ import androidx.test.filters.MediumTest
 import androidx.ui.test.assert
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.hasTestTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.onSiblings
 import androidx.ui.test.util.BoundaryNode
 import org.junit.Rule
@@ -34,38 +34,38 @@ import org.junit.runners.JUnit4
 class SiblingsSelectorTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val rule = createComposeRule()
 
     @Test
     fun siblings_noSibling() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child")
             }
         }
 
-        onNodeWithTag("Child")
+        rule.onNodeWithTag("Child")
             .onSiblings()
             .assertCountEquals(0)
     }
 
     @Test
     fun siblings_oneSibling() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child1")
                 BoundaryNode(testTag = "Child2")
             }
         }
 
-        onNodeWithTag("Child1")
+        rule.onNodeWithTag("Child1")
             .onSiblings()
             .assertCountEquals(1)
     }
 
     @Test
     fun siblings_twoSiblings() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child1")
                 BoundaryNode(testTag = "Child2")
@@ -73,7 +73,7 @@ class SiblingsSelectorTest {
             }
         }
 
-        onNodeWithTag("Child2")
+        rule.onNodeWithTag("Child2")
             .onSiblings()
             .assertCountEquals(2)
             .apply {

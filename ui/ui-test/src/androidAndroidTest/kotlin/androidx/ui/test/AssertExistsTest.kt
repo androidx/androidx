@@ -38,12 +38,12 @@ import org.junit.runners.JUnit4
 class AssertExistsTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule(disableTransitions = true)
 
     @Test
     @FlakyTest
     fun toggleTextInHierarchy_assertExistsAndNotExists() {
-        composeTestRule.setContent {
+        rule.setContent {
             MaterialTheme {
                 Surface {
                     val (showText, toggle) = remember { mutableStateOf(true) }
@@ -62,28 +62,28 @@ class AssertExistsTest {
             }
         }
 
-        onNodeWithText("Hello")
+        rule.onNodeWithText("Hello")
             .assertExists()
 
         expectAssertionError(true) {
-            onNodeWithText("Hello")
+            rule.onNodeWithText("Hello")
                 .assertDoesNotExist()
         }
 
-        val cachedResult = onNodeWithText("Hello")
+        val cachedResult = rule.onNodeWithText("Hello")
 
         // Hide
-        onNodeWithTag("MyButton")
+        rule.onNodeWithTag("MyButton")
             .performClick()
 
-        onNodeWithText("Hello")
+        rule.onNodeWithText("Hello")
             .assertDoesNotExist()
 
         cachedResult
             .assertDoesNotExist()
 
         expectAssertionError(true) {
-            onNodeWithText("Hello")
+            rule.onNodeWithText("Hello")
                 .assertExists()
         }
 
@@ -92,14 +92,14 @@ class AssertExistsTest {
         }
 
         // Show
-        onNodeWithTag("MyButton")
+        rule.onNodeWithTag("MyButton")
             .performClick()
 
-        onNodeWithText("Hello")
+        rule.onNodeWithText("Hello")
             .assertExists()
 
         expectAssertionError(true) {
-            onNodeWithText("Hello")
+            rule.onNodeWithText("Hello")
                 .assertDoesNotExist()
         }
     }

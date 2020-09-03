@@ -19,8 +19,8 @@ package androidx.ui.test.selectors
 import androidx.test.filters.MediumTest
 import androidx.ui.test.assert
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.hasTestTag
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.onSibling
 import androidx.ui.test.util.BoundaryNode
 import androidx.ui.test.util.expectErrorMessageStartsWith
@@ -34,25 +34,25 @@ import org.junit.runners.JUnit4
 class SiblingSelectorTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val rule = createComposeRule()
 
     @Test
     fun oneSibling() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child1")
                 BoundaryNode(testTag = "Child2")
             }
         }
 
-        onNodeWithTag("Child1")
+        rule.onNodeWithTag("Child1")
             .onSibling()
             .assert(hasTestTag("Child2"))
     }
 
     @Test
     fun twoSiblings_fail() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child1")
                 BoundaryNode(testTag = "Child2")
@@ -67,7 +67,7 @@ class SiblingSelectorTest {
                 "Nodes found:"
 
         ) {
-            onNodeWithTag("Child1")
+            rule.onNodeWithTag("Child1")
                 .onSibling()
                 .assert(hasTestTag("Child2"))
         }
@@ -75,26 +75,26 @@ class SiblingSelectorTest {
 
     @Test
     fun noSibling() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child")
             }
         }
 
-        onNodeWithTag("Child")
+        rule.onNodeWithTag("Child")
             .onSibling()
             .assertDoesNotExist()
     }
 
     @Test(expected = AssertionError::class)
     fun noSibling_fail() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child")
             }
         }
 
-        onNodeWithTag("Child")
+        rule.onNodeWithTag("Child")
             .onSibling()
             .assertExists()
     }

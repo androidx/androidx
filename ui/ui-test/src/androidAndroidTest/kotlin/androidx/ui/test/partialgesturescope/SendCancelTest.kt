@@ -16,15 +16,14 @@
 
 package androidx.ui.test.partialgesturescope
 
-import androidx.test.filters.MediumTest
 import androidx.compose.ui.geometry.Offset
+import androidx.test.filters.MediumTest
 import androidx.ui.test.android.AndroidInputDispatcher.InputDispatcherTestRule
+import androidx.ui.test.cancel
 import androidx.ui.test.createComposeRule
+import androidx.ui.test.down
 import androidx.ui.test.inputdispatcher.verifyNoGestureInProgress
 import androidx.ui.test.partialgesturescope.Common.partialGesture
-import androidx.ui.test.runOnIdle
-import androidx.ui.test.cancel
-import androidx.ui.test.down
 import androidx.ui.test.up
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.MultiPointerInputRecorder
@@ -47,7 +46,7 @@ class SendCancelTest {
     }
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val rule = createComposeRule()
 
     @get:Rule
     val inputDispatcherRule: TestRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
@@ -57,7 +56,7 @@ class SendCancelTest {
     @Before
     fun setUp() {
         // Given some content
-        composeTestRule.setContent {
+        rule.setContent {
             ClickableTestBox(recorder)
         }
     }
@@ -65,10 +64,10 @@ class SendCancelTest {
     @Test
     fun onePointer() {
         // When we inject a down event followed by a cancel event
-        partialGesture { down(downPosition1) }
-        partialGesture { cancel() }
+        rule.partialGesture { down(downPosition1) }
+        rule.partialGesture { cancel() }
 
-        runOnIdle {
+        rule.runOnIdle {
             recorder.run {
                 // Then we have recorded just 1 down event
                 assertTimestampsAreIncreasing()
@@ -77,17 +76,17 @@ class SendCancelTest {
         }
 
         // And no gesture is in progress
-        partialGesture { inputDispatcher.verifyNoGestureInProgress() }
+        rule.partialGesture { inputDispatcher.verifyNoGestureInProgress() }
     }
 
     @Test
     fun twoPointers() {
         // When we inject two down events followed by a cancel event
-        partialGesture { down(1, downPosition1) }
-        partialGesture { down(2, downPosition2) }
-        partialGesture { cancel() }
+        rule.partialGesture { down(1, downPosition1) }
+        rule.partialGesture { down(2, downPosition2) }
+        rule.partialGesture { cancel() }
 
-        runOnIdle {
+        rule.runOnIdle {
             recorder.run {
                 // Then we have recorded just 2 down events
                 assertTimestampsAreIncreasing()
@@ -96,31 +95,31 @@ class SendCancelTest {
         }
 
         // And no gesture is in progress
-        partialGesture { inputDispatcher.verifyNoGestureInProgress() }
+        rule.partialGesture { inputDispatcher.verifyNoGestureInProgress() }
     }
 
     @Test
     fun cancelWithoutDown() {
         expectError<IllegalStateException> {
-            partialGesture { cancel() }
+            rule.partialGesture { cancel() }
         }
     }
 
     @Test
     fun cancelAfterUp() {
-        partialGesture { down(downPosition1) }
-        partialGesture { up() }
+        rule.partialGesture { down(downPosition1) }
+        rule.partialGesture { up() }
         expectError<IllegalStateException> {
-            partialGesture { cancel() }
+            rule.partialGesture { cancel() }
         }
     }
 
     @Test
     fun cancelAfterCancel() {
-        partialGesture { down(downPosition1) }
-        partialGesture { cancel() }
+        rule.partialGesture { down(downPosition1) }
+        rule.partialGesture { cancel() }
         expectError<IllegalStateException> {
-            partialGesture { cancel() }
+            rule.partialGesture { cancel() }
         }
     }
 }

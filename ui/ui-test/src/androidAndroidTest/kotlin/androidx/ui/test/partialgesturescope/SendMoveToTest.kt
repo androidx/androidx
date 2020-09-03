@@ -17,24 +17,23 @@
 package androidx.ui.test.partialgesturescope
 
 import android.os.SystemClock.sleep
-import androidx.test.filters.MediumTest
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.milliseconds
+import androidx.test.filters.MediumTest
 import androidx.ui.test.android.AndroidInputDispatcher.InputDispatcherTestRule
-import androidx.ui.test.createComposeRule
-import androidx.ui.test.movePointerTo
-import androidx.ui.test.partialgesturescope.Common.partialGesture
-import androidx.ui.test.runOnIdle
 import androidx.ui.test.cancel
+import androidx.ui.test.createComposeRule
 import androidx.ui.test.down
 import androidx.ui.test.move
+import androidx.ui.test.movePointerTo
 import androidx.ui.test.moveTo
+import androidx.ui.test.partialgesturescope.Common.partialGesture
 import androidx.ui.test.up
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.MultiPointerInputRecorder
 import androidx.ui.test.util.assertTimestampsAreIncreasing
 import androidx.ui.test.util.expectError
 import androidx.ui.test.util.verify
-import androidx.compose.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Rule
@@ -54,7 +53,7 @@ class SendMoveToTest() {
     }
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val rule = createComposeRule()
 
     @get:Rule
     val inputDispatcherRule: TestRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
@@ -64,7 +63,7 @@ class SendMoveToTest() {
     @Before
     fun setUp() {
         // Given some content
-        composeTestRule.setContent {
+        rule.setContent {
             ClickableTestBox(recorder)
         }
     }
@@ -72,11 +71,11 @@ class SendMoveToTest() {
     @Test
     fun onePointer() {
         // When we inject a down event followed by a move event
-        partialGesture { down(downPosition1) }
+        rule.partialGesture { down(downPosition1) }
         sleep(20) // (with some time in between)
-        partialGesture { moveTo(moveToPosition1) }
+        rule.partialGesture { moveTo(moveToPosition1) }
 
-        runOnIdle {
+        rule.runOnIdle {
             recorder.run {
                 // Then we have recorded 1 down event and 1 move event
                 assertTimestampsAreIncreasing()
@@ -95,12 +94,12 @@ class SendMoveToTest() {
     @Test
     fun twoPointers_separateMoveEvents() {
         // When we inject two down events followed by two move events
-        partialGesture { down(1, downPosition1) }
-        partialGesture { down(2, downPosition2) }
-        partialGesture { moveTo(1, moveToPosition1) }
-        partialGesture { moveTo(2, moveToPosition2) }
+        rule.partialGesture { down(1, downPosition1) }
+        rule.partialGesture { down(2, downPosition2) }
+        rule.partialGesture { moveTo(1, moveToPosition1) }
+        rule.partialGesture { moveTo(2, moveToPosition2) }
 
-        runOnIdle {
+        rule.runOnIdle {
             recorder.run {
                 // Then we have recorded two down events and two move events
                 assertTimestampsAreIncreasing()
@@ -126,14 +125,14 @@ class SendMoveToTest() {
     @Test
     fun twoPointers_oneMoveEvent() {
         // When we inject two down events followed by one move events
-        partialGesture { down(1, downPosition1) }
-        partialGesture { down(2, downPosition2) }
+        rule.partialGesture { down(1, downPosition1) }
+        rule.partialGesture { down(2, downPosition2) }
         sleep(20) // (with some time in between)
-        partialGesture { movePointerTo(1, moveToPosition1) }
-        partialGesture { movePointerTo(2, moveToPosition2) }
-        partialGesture { move() }
+        rule.partialGesture { movePointerTo(1, moveToPosition1) }
+        rule.partialGesture { movePointerTo(2, moveToPosition2) }
+        rule.partialGesture { move() }
 
-        runOnIdle {
+        rule.runOnIdle {
             recorder.run {
                 // Then we have recorded two down events and one move events
                 assertTimestampsAreIncreasing()
@@ -154,66 +153,66 @@ class SendMoveToTest() {
     @Test
     fun moveToWithoutDown() {
         expectError<IllegalStateException> {
-            partialGesture { moveTo(moveToPosition1) }
+            rule.partialGesture { moveTo(moveToPosition1) }
         }
     }
 
     @Test
     fun moveToWrongPointerId() {
-        partialGesture { down(1, downPosition1) }
+        rule.partialGesture { down(1, downPosition1) }
         expectError<IllegalArgumentException> {
-            partialGesture { moveTo(2, moveToPosition1) }
+            rule.partialGesture { moveTo(2, moveToPosition1) }
         }
     }
 
     @Test
     fun moveToAfterUp() {
-        partialGesture { down(downPosition1) }
-        partialGesture { up() }
+        rule.partialGesture { down(downPosition1) }
+        rule.partialGesture { up() }
         expectError<IllegalStateException> {
-            partialGesture { moveTo(moveToPosition1) }
+            rule.partialGesture { moveTo(moveToPosition1) }
         }
     }
 
     @Test
     fun moveToAfterCancel() {
-        partialGesture { down(downPosition1) }
-        partialGesture { cancel() }
+        rule.partialGesture { down(downPosition1) }
+        rule.partialGesture { cancel() }
         expectError<IllegalStateException> {
-            partialGesture { moveTo(moveToPosition1) }
+            rule.partialGesture { moveTo(moveToPosition1) }
         }
     }
 
     @Test
     fun movePointerToWithoutDown() {
         expectError<IllegalStateException> {
-            partialGesture { movePointerTo(1, moveToPosition1) }
+            rule.partialGesture { movePointerTo(1, moveToPosition1) }
         }
     }
 
     @Test
     fun movePointerToWrongPointerId() {
-        partialGesture { down(1, downPosition1) }
+        rule.partialGesture { down(1, downPosition1) }
         expectError<IllegalArgumentException> {
-            partialGesture { movePointerTo(2, moveToPosition1) }
+            rule.partialGesture { movePointerTo(2, moveToPosition1) }
         }
     }
 
     @Test
     fun movePointerToAfterUp() {
-        partialGesture { down(1, downPosition1) }
-        partialGesture { up(1) }
+        rule.partialGesture { down(1, downPosition1) }
+        rule.partialGesture { up(1) }
         expectError<IllegalStateException> {
-            partialGesture { movePointerTo(1, moveToPosition1) }
+            rule.partialGesture { movePointerTo(1, moveToPosition1) }
         }
     }
 
     @Test
     fun movePointerToAfterCancel() {
-        partialGesture { down(1, downPosition1) }
-        partialGesture { cancel() }
+        rule.partialGesture { down(1, downPosition1) }
+        rule.partialGesture { cancel() }
         expectError<IllegalStateException> {
-            partialGesture { movePointerTo(1, moveToPosition1) }
+            rule.partialGesture { movePointerTo(1, moveToPosition1) }
         }
     }
 }

@@ -17,13 +17,12 @@
 package androidx.ui.test.partialgesturescope
 
 import android.os.SystemClock.sleep
-import androidx.test.filters.MediumTest
 import androidx.compose.ui.geometry.Offset
+import androidx.test.filters.MediumTest
 import androidx.ui.test.android.AndroidInputDispatcher.InputDispatcherTestRule
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.partialgesturescope.Common.partialGesture
-import androidx.ui.test.runOnIdle
 import androidx.ui.test.down
+import androidx.ui.test.partialgesturescope.Common.partialGesture
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.MultiPointerInputRecorder
 import androidx.ui.test.util.assertTimestampsAreIncreasing
@@ -46,7 +45,7 @@ class SendDownTest {
     }
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val rule = createComposeRule()
 
     @get:Rule
     val inputDispatcherRule: TestRule = InputDispatcherTestRule(disableDispatchInRealTime = true)
@@ -56,7 +55,7 @@ class SendDownTest {
     @Before
     fun setUp() {
         // Given some content
-        composeTestRule.setContent {
+        rule.setContent {
             ClickableTestBox(recorder)
         }
     }
@@ -64,9 +63,9 @@ class SendDownTest {
     @Test
     fun onePointer() {
         // When we put a pointer down
-        partialGesture { down(position1) }
+        rule.partialGesture { down(position1) }
 
-        runOnIdle {
+        rule.runOnIdle {
             recorder.run {
                 // Then we have recorded 1 down event
                 assertTimestampsAreIncreasing()
@@ -80,11 +79,11 @@ class SendDownTest {
     @Test
     fun twoPointers() {
         // When we put two pointers down
-        partialGesture { down(1, position1) }
+        rule.partialGesture { down(1, position1) }
         sleep(20) // (with some time in between)
-        partialGesture { down(2, position2) }
+        rule.partialGesture { down(2, position2) }
 
-        runOnIdle {
+        rule.runOnIdle {
             recorder.run {
                 // Then we have recorded 2 down events with the same timestamp
                 assertTimestampsAreIncreasing()
@@ -109,10 +108,10 @@ class SendDownTest {
     @Test
     fun duplicatePointers() {
         // When we inject two down events with the same pointer id
-        partialGesture { down(1, position1) }
+        rule.partialGesture { down(1, position1) }
         // Then the second throws an exception
         expectError<IllegalArgumentException> {
-            partialGesture { down(1, position1) }
+            rule.partialGesture { down(1, position1) }
         }
     }
 }

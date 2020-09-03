@@ -20,8 +20,6 @@ import androidx.test.filters.MediumTest
 import androidx.ui.test.assert
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.onNode
-import androidx.ui.test.onAllNodes
 import androidx.ui.test.hasAnyChild
 import androidx.ui.test.hasTestTag
 import androidx.ui.test.util.BoundaryNode
@@ -35,25 +33,24 @@ import org.junit.runners.JUnit4
 class HasAnyChildTest {
 
     @get:Rule
-    val composeTestRule =
-        createComposeRule(disableTransitions = true)
+    val rule = createComposeRule(disableTransitions = true)
 
     @Test
     fun findByChild_oneSubtree_oneChild_matches() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Node")
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child")
             }
         }
 
-        onNode(hasAnyChild(hasTestTag("Child")))
+        rule.onNode(hasAnyChild(hasTestTag("Child")))
             .assert(hasTestTag("Parent"))
     }
 
     @Test
     fun findByChild_threeSubtrees_twoChildren_matches() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Node")
             BoundaryNode(testTag = "Parent1") {
                 BoundaryNode(testTag = "Child1")
@@ -69,27 +66,27 @@ class HasAnyChildTest {
             }
         }
 
-        onAllNodes(hasAnyChild(hasTestTag("Child1")))
+        rule.onAllNodes(hasAnyChild(hasTestTag("Child1")))
             .assertCountEquals(2)
-        onAllNodes(hasAnyChild(hasTestTag("Child2")))
+        rule.onAllNodes(hasAnyChild(hasTestTag("Child2")))
             .assertCountEquals(3)
-        onAllNodes(hasAnyChild(hasTestTag("Child3")))
+        rule.onAllNodes(hasAnyChild(hasTestTag("Child3")))
             .assertCountEquals(1)
     }
 
     @Test
     fun findByChild_justSelf_oneFound() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Child")
         }
 
-        onNode(hasAnyChild(hasTestTag("Child")))
+        rule.onNode(hasAnyChild(hasTestTag("Child")))
             .assertExists() // The root node
     }
 
     @Test
     fun findByChild_nothingFound() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "ExtraNode") {
                     BoundaryNode(testTag = "Child")
@@ -97,14 +94,14 @@ class HasAnyChildTest {
             }
         }
 
-        onNode(hasAnyChild(hasTestTag("Child"))
+        rule.onNode(hasAnyChild(hasTestTag("Child"))
                 and hasTestTag("Parent"))
             .assertDoesNotExist()
     }
 
     @Test
     fun findByGrandChild_oneFound() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "ExtraNode") {
                     BoundaryNode(testTag = "Child")
@@ -112,7 +109,7 @@ class HasAnyChildTest {
             }
         }
 
-        onNode(hasAnyChild(hasAnyChild(hasTestTag("Child"))))
+        rule.onNode(hasAnyChild(hasAnyChild(hasTestTag("Child"))))
             .assert(hasTestTag("Parent"))
     }
 }
