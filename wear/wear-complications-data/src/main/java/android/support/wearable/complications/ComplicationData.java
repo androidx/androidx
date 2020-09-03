@@ -953,6 +953,17 @@ public final class ComplicationData implements Parcelable {
         }
 
         /**
+         * Removes the start time for this complication data.
+         *
+         * <p>Returns this Builder to allow chaining.
+         */
+        @NonNull
+        public Builder clearStartDateTime() {
+            mFields.remove(FIELD_START_TIME);
+            return this;
+        }
+
+        /**
          * Sets the end time for this complication data. This is optional for any type.
          *
          * <p>The complication data will be considered inactive (i.e. should not be displayed) if
@@ -965,6 +976,17 @@ public final class ComplicationData implements Parcelable {
         @NonNull
         public Builder setEndDateTimeMillis(long endDateTimeMillis) {
             mFields.putLong(FIELD_END_TIME, endDateTimeMillis);
+            return this;
+        }
+
+        /**
+         * Removes the end time for this complication data.
+         *
+         * <p>Returns this Builder to allow chaining.
+         */
+        @NonNull
+        public Builder clearEndDateTime() {
+            mFields.remove(FIELD_END_TIME);
             return this;
         }
 

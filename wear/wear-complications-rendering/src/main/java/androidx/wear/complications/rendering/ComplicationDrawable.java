@@ -190,7 +190,8 @@ public final class ComplicationDrawable extends Drawable {
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({BORDER_STYLE_NONE, BORDER_STYLE_SOLID, BORDER_STYLE_DASHED})
     @SuppressWarnings("PublicTypedef")
-    public @interface BorderStyle {}
+    public @interface BorderStyle {
+    }
 
     /** Style where the borders are not drawn. */
     public static final int BORDER_STYLE_NONE = 0;
@@ -199,17 +200,17 @@ public final class ComplicationDrawable extends Drawable {
     public static final int BORDER_STYLE_SOLID = 1;
     /**
      * Style where the borders are drawn as dashed lines. If this is set as current border style,
-     * dash width and dash gap should also be set via {@link #setBorderDashWidthActive(int)}, {@link
-     * #setBorderDashGapActive(int)}, {@link #setBorderDashWidthAmbient(int)}, {@link
-     * #setBorderDashGapAmbient(int)} or XML attributes, or default values will be used.
+     * dash width and dash gap should also be set via {@link
+     * ComplicationStyle#setBorderDashWidth(int)}, {@link
+     * ComplicationStyle#setBorderDashGap(int)}  or XML attributes, or default values will be used.
      */
     public static final int BORDER_STYLE_DASHED = 2;
 
     private Context mContext;
     private ComplicationRenderer mComplicationRenderer;
 
-    private final ComplicationStyle.Builder mActiveStyleBuilder;
-    private final ComplicationStyle.Builder mAmbientStyleBuilder;
+    private final ComplicationStyle mActiveStyle;
+    private final ComplicationStyle mAmbientStyle;
 
     private final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
 
@@ -236,8 +237,8 @@ public final class ComplicationDrawable extends Drawable {
 
     /** Default constructor. */
     public ComplicationDrawable() {
-        mActiveStyleBuilder = new ComplicationStyle.Builder();
-        mAmbientStyleBuilder = new ComplicationStyle.Builder();
+        mActiveStyle = new ComplicationStyle();
+        mAmbientStyle = new ComplicationStyle();
     }
 
     /**
@@ -250,8 +251,8 @@ public final class ComplicationDrawable extends Drawable {
     }
 
     public ComplicationDrawable(@NonNull ComplicationDrawable drawable) {
-        mActiveStyleBuilder = new ComplicationStyle.Builder(drawable.mActiveStyleBuilder);
-        mAmbientStyleBuilder = new ComplicationStyle.Builder(drawable.mAmbientStyleBuilder);
+        mActiveStyle = new ComplicationStyle(drawable.mActiveStyle);
+        mAmbientStyle = new ComplicationStyle(drawable.mAmbientStyle);
         mNoDataText = drawable.mNoDataText.subSequence(0, drawable.mNoDataText.length());
         mHighlightDuration = drawable.mHighlightDuration;
         mCurrentTimeMillis = drawable.mCurrentTimeMillis;
@@ -271,9 +272,9 @@ public final class ComplicationDrawable extends Drawable {
      * Creates a ComplicationDrawable from a resource.
      *
      * @param context The {@link Context} to load the resource from
-     * @param id The id of the resource to load
+     * @param id      The id of the resource to load
      * @return The {@link ComplicationDrawable} loaded from the specified resource id or null if it
-     *     doesn't exist.
+     * doesn't exist.
      */
     @Nullable
     public static ComplicationDrawable getDrawable(@NonNull Context context, int id) {
@@ -290,45 +291,40 @@ public final class ComplicationDrawable extends Drawable {
     }
 
     /** Sets the style to default values using resources. */
-    private static void setStyleToDefaultValues(
-            ComplicationStyle.Builder styleBuilder, Resources r) {
-        styleBuilder.setBackgroundColor(
+    private static void setStyleToDefaultValues(ComplicationStyle style, Resources r) {
+        style.setBackgroundColor(
                 r.getColor(R.color.complicationDrawable_backgroundColor, null));
-        styleBuilder.setTextColor(r.getColor(R.color.complicationDrawable_textColor, null));
-        styleBuilder.setTitleColor(r.getColor(R.color.complicationDrawable_titleColor, null));
-        styleBuilder.setTextTypeface(
+        style.setTextColor(r.getColor(R.color.complicationDrawable_textColor, null));
+        style.setTitleColor(r.getColor(R.color.complicationDrawable_titleColor, null));
+        style.setTextTypeface(
                 Typeface.create(
                         r.getString(R.string.complicationDrawable_textTypeface), Typeface.NORMAL));
-        styleBuilder.setTitleTypeface(
+        style.setTitleTypeface(
                 Typeface.create(
                         r.getString(R.string.complicationDrawable_titleTypeface), Typeface.NORMAL));
-        styleBuilder.setTextSize(r.getDimensionPixelSize(R.dimen.complicationDrawable_textSize));
-        styleBuilder.setTitleSize(r.getDimensionPixelSize(R.dimen.complicationDrawable_titleSize));
-        styleBuilder.setIconColor(r.getColor(R.color.complicationDrawable_iconColor, null));
-        styleBuilder.setBorderColor(r.getColor(R.color.complicationDrawable_borderColor, null));
-        styleBuilder.setBorderWidth(
-                r.getDimensionPixelSize(R.dimen.complicationDrawable_borderWidth));
-        styleBuilder.setBorderRadius(
-                r.getDimensionPixelSize(R.dimen.complicationDrawable_borderRadius));
-        styleBuilder.setBorderStyle(r.getInteger(R.integer.complicationDrawable_borderStyle));
-        styleBuilder.setBorderDashWidth(
+        style.setTextSize(r.getDimensionPixelSize(R.dimen.complicationDrawable_textSize));
+        style.setTitleSize(r.getDimensionPixelSize(R.dimen.complicationDrawable_titleSize));
+        style.setIconColor(r.getColor(R.color.complicationDrawable_iconColor, null));
+        style.setBorderColor(r.getColor(R.color.complicationDrawable_borderColor, null));
+        style.setBorderWidth(r.getDimensionPixelSize(R.dimen.complicationDrawable_borderWidth));
+        style.setBorderRadius(r.getDimensionPixelSize(R.dimen.complicationDrawable_borderRadius));
+        style.setBorderStyle(r.getInteger(R.integer.complicationDrawable_borderStyle));
+        style.setBorderDashWidth(
                 r.getDimensionPixelSize(R.dimen.complicationDrawable_borderDashWidth));
-        styleBuilder.setBorderDashGap(
-                r.getDimensionPixelSize(R.dimen.complicationDrawable_borderDashGap));
-        styleBuilder.setRangedValueRingWidth(
+        style.setBorderDashGap(r.getDimensionPixelSize(R.dimen.complicationDrawable_borderDashGap));
+        style.setRangedValueRingWidth(
                 r.getDimensionPixelSize(R.dimen.complicationDrawable_rangedValueRingWidth));
-        styleBuilder.setRangedValuePrimaryColor(
+        style.setRangedValuePrimaryColor(
                 r.getColor(R.color.complicationDrawable_rangedValuePrimaryColor, null));
-        styleBuilder.setRangedValueSecondaryColor(
+        style.setRangedValueSecondaryColor(
                 r.getColor(R.color.complicationDrawable_rangedValueSecondaryColor, null));
-        styleBuilder.setHighlightColor(
-                r.getColor(R.color.complicationDrawable_highlightColor, null));
+        style.setHighlightColor(r.getColor(R.color.complicationDrawable_highlightColor, null));
     }
 
     /**
      * Sets the context used to render the complication. If a context is not set,
-     * ComplicationDrawable will throw an {@link IllegalStateException} if one of {@link
-     * #draw(Canvas)}, {@link #draw(Canvas, long)}, {@link #setBounds(Rect)}, or {@link
+     * ComplicationDrawable will throw an {@link IllegalStateException} if one of
+     * {@link #draw(Canvas)}, {@link #setBounds(Rect)}, or {@link
      * #setComplicationData(ComplicationData)} is called.
      *
      * <p>While this can be called from any context, ideally, a
@@ -353,8 +349,8 @@ public final class ComplicationDrawable extends Drawable {
         mContext = context;
 
         if (!mIsInflatedFromXml && !mAlreadyStyled) {
-            setStyleToDefaultValues(mActiveStyleBuilder, context.getResources());
-            setStyleToDefaultValues(mAmbientStyleBuilder, context.getResources());
+            setStyleToDefaultValues(mActiveStyle, context.getResources());
+            setStyleToDefaultValues(mAmbientStyle, context.getResources());
         }
 
         if (!mAlreadyStyled) {
@@ -362,9 +358,7 @@ public final class ComplicationDrawable extends Drawable {
                     .getInteger(R.integer.complicationDrawable_highlightDurationMs);
         }
 
-        mComplicationRenderer =
-                new ComplicationRenderer(
-                        mContext, mActiveStyleBuilder.build(), mAmbientStyleBuilder.build());
+        mComplicationRenderer = new ComplicationRenderer(mContext, mActiveStyle, mAmbientStyle);
         mComplicationRenderer.setOnInvalidateListener(mRendererInvalidateListener);
         if (mNoDataText == null) {
             setNoDataText(context.getString(R.string.complicationDrawable_noDataText));
@@ -379,7 +373,7 @@ public final class ComplicationDrawable extends Drawable {
     /**
      * Returns the {@link Context} used to render the complication.
      */
-    public @Nullable Context getContext() {
+    @Nullable public Context getContext() {
         return mContext;
     }
 
@@ -394,118 +388,118 @@ public final class ComplicationDrawable extends Drawable {
     private void inflateStyle(boolean isAmbient, Resources r, XmlPullParser parser) {
         TypedArray a =
                 r.obtainAttributes(Xml.asAttributeSet(parser), R.styleable.ComplicationDrawable);
-        ComplicationStyle.Builder currentBuilder = getComplicationStyleBuilder(isAmbient);
+        ComplicationStyle complicationStyle = isAmbient ? mAmbientStyle : mActiveStyle;
         if (a.hasValue(R.styleable.ComplicationDrawable_backgroundColor)) {
-            currentBuilder.setBackgroundColor(
+            complicationStyle.setBackgroundColor(
                     a.getColor(
                             R.styleable.ComplicationDrawable_backgroundColor,
                             r.getColor(R.color.complicationDrawable_backgroundColor, null)));
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_backgroundDrawable)) {
-            currentBuilder.setBackgroundDrawable(
+            complicationStyle.setBackgroundDrawable(
                     a.getDrawable(R.styleable.ComplicationDrawable_backgroundDrawable));
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_textColor)) {
-            currentBuilder.setTextColor(
+            complicationStyle.setTextColor(
                     a.getColor(
                             R.styleable.ComplicationDrawable_textColor,
                             r.getColor(R.color.complicationDrawable_textColor, null)));
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_titleColor)) {
-            currentBuilder.setTitleColor(
+            complicationStyle.setTitleColor(
                     a.getColor(
                             R.styleable.ComplicationDrawable_titleColor,
                             r.getColor(R.color.complicationDrawable_titleColor, null)));
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_textTypeface)) {
-            currentBuilder.setTextTypeface(
+            complicationStyle.setTextTypeface(
                     Typeface.create(
                             a.getString(R.styleable.ComplicationDrawable_textTypeface),
                             Typeface.NORMAL));
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_titleTypeface)) {
-            currentBuilder.setTitleTypeface(
+            complicationStyle.setTitleTypeface(
                     Typeface.create(
                             a.getString(R.styleable.ComplicationDrawable_titleTypeface),
                             Typeface.NORMAL));
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_textSize)) {
-            currentBuilder.setTextSize(
+            complicationStyle.setTextSize(
                     a.getDimensionPixelSize(
                             R.styleable.ComplicationDrawable_textSize,
                             r.getDimensionPixelSize(R.dimen.complicationDrawable_textSize)));
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_titleSize)) {
-            currentBuilder.setTitleSize(
+            complicationStyle.setTitleSize(
                     a.getDimensionPixelSize(
                             R.styleable.ComplicationDrawable_titleSize,
                             r.getDimensionPixelSize(R.dimen.complicationDrawable_titleSize)));
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_iconColor)) {
-            currentBuilder.setIconColor(
+            complicationStyle.setIconColor(
                     a.getColor(
                             R.styleable.ComplicationDrawable_iconColor,
                             r.getColor(R.color.complicationDrawable_iconColor, null)));
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_borderColor)) {
-            currentBuilder.setBorderColor(
+            complicationStyle.setBorderColor(
                     a.getColor(
                             R.styleable.ComplicationDrawable_borderColor,
                             r.getColor(R.color.complicationDrawable_borderColor, null)));
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_borderRadius)) {
-            currentBuilder.setBorderRadius(
+            complicationStyle.setBorderRadius(
                     a.getDimensionPixelSize(
                             R.styleable.ComplicationDrawable_borderRadius,
                             r.getDimensionPixelSize(R.dimen.complicationDrawable_borderRadius)));
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_borderStyle)) {
-            currentBuilder.setBorderStyle(
+            complicationStyle.setBorderStyle(
                     a.getInt(
                             R.styleable.ComplicationDrawable_borderStyle,
                             r.getInteger(R.integer.complicationDrawable_borderStyle)));
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_borderDashWidth)) {
-            currentBuilder.setBorderDashWidth(
+            complicationStyle.setBorderDashWidth(
                     a.getDimensionPixelSize(
                             R.styleable.ComplicationDrawable_borderDashWidth,
                             r.getDimensionPixelSize(R.dimen.complicationDrawable_borderDashWidth)));
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_borderDashGap)) {
-            currentBuilder.setBorderDashGap(
+            complicationStyle.setBorderDashGap(
                     a.getDimensionPixelSize(
                             R.styleable.ComplicationDrawable_borderDashGap,
                             r.getDimensionPixelSize(R.dimen.complicationDrawable_borderDashGap)));
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_borderWidth)) {
-            currentBuilder.setBorderWidth(
+            complicationStyle.setBorderWidth(
                     a.getDimensionPixelSize(
                             R.styleable.ComplicationDrawable_borderWidth,
                             r.getDimensionPixelSize(R.dimen.complicationDrawable_borderWidth)));
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_rangedValueRingWidth)) {
-            currentBuilder.setRangedValueRingWidth(
+            complicationStyle.setRangedValueRingWidth(
                     a.getDimensionPixelSize(
                             R.styleable.ComplicationDrawable_rangedValueRingWidth,
                             r.getDimensionPixelSize(
                                     R.dimen.complicationDrawable_rangedValueRingWidth)));
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_rangedValuePrimaryColor)) {
-            currentBuilder.setRangedValuePrimaryColor(
+            complicationStyle.setRangedValuePrimaryColor(
                     a.getColor(
                             R.styleable.ComplicationDrawable_rangedValuePrimaryColor,
                             r.getColor(
                                     R.color.complicationDrawable_rangedValuePrimaryColor, null)));
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_rangedValueSecondaryColor)) {
-            currentBuilder.setRangedValueSecondaryColor(
+            complicationStyle.setRangedValueSecondaryColor(
                     a.getColor(
                             R.styleable.ComplicationDrawable_rangedValueSecondaryColor,
                             r.getColor(
                                     R.color.complicationDrawable_rangedValueSecondaryColor, null)));
         }
         if (a.hasValue(R.styleable.ComplicationDrawable_highlightColor)) {
-            currentBuilder.setHighlightColor(
+            complicationStyle.setHighlightColor(
                     a.getColor(
                             R.styleable.ComplicationDrawable_highlightColor,
                             r.getColor(R.color.complicationDrawable_highlightColor, null)));
@@ -518,10 +512,10 @@ public final class ComplicationDrawable extends Drawable {
      * for each ComplicationDrawable. Note that framework may have called this once to create the
      * ComplicationDrawable instance from an XML resource.
      *
-     * @param r Resources used to resolve attribute values
+     * @param r      Resources used to resolve attribute values
      * @param parser XML parser from which to inflate this ComplicationDrawable
-     * @param attrs Base set of attribute values
-     * @param theme Ignored by ComplicationDrawable
+     * @param attrs  Base set of attribute values
+     * @param theme  Ignored by ComplicationDrawable
      */
     @Override
     public void inflate(@NonNull Resources r, @NonNull XmlPullParser parser,
@@ -536,8 +530,8 @@ public final class ComplicationDrawable extends Drawable {
         // Inflate attributes always shared between active and ambient mode
         inflateAttributes(r, parser);
         // Reset both style builders to default values
-        setStyleToDefaultValues(mActiveStyleBuilder, r);
-        setStyleToDefaultValues(mAmbientStyleBuilder, r);
+        setStyleToDefaultValues(mActiveStyle, r);
+        setStyleToDefaultValues(mAmbientStyle, r);
         // Attributes of the outer tag applies to both active and ambient styles
         inflateStyle(false, r, parser);
         inflateStyle(true, r, parser);
@@ -561,24 +555,8 @@ public final class ComplicationDrawable extends Drawable {
     }
 
     /**
-     * Draws the complication into bounds set via {@link #setBounds(Rect)} for the given time.
-     * Calling this method is equivalent to calling {@link #setCurrentTimeMillis(long)} followed by
-     * {@link #draw(Canvas)}, so it will update the last known time and any future calls to {@link
-     * #draw(Canvas)} will use the time passed to this method.
-     *
-     * @param canvas Canvas for the complication to be drawn onto
-     * @param currentTimeMillis The time complication is drawn at in milliseconds
-     */
-    public void draw(@NonNull Canvas canvas, long currentTimeMillis) {
-        assertInitialized();
-        setCurrentTimeMillis(currentTimeMillis);
-        draw(canvas);
-    }
-
-    /**
-     * Draws the complication for the last known time. Last known time is derived from either {@link
-     * ComplicationDrawable#draw(Canvas, long)} or {@link
-     * ComplicationDrawable#setCurrentTimeMillis(long)} depending on which was called most recently.
+     * Draws the complication for the last known time. Last known time is derived from
+     * ComplicationDrawable#setCurrentTimeMillis(long)}.
      *
      * @param canvas Canvas for the complication to be drawn onto
      */
@@ -602,9 +580,8 @@ public final class ComplicationDrawable extends Drawable {
     }
 
     /**
-     * Does nothing. Use {@link #setImageColorFilterActive(ColorFilter)} or {@link
-     * #setImageColorFilterAmbient(ColorFilter)} instead to apply color filter to small and large
-     * images.
+     * Does nothing. Use {@link ComplicationStyle#setImageColorFilter(ColorFilter)} instead to apply
+     * color filter to small and large images.
      */
     @Override
     public void setColorFilter(@Nullable ColorFilter colorFilter) {
@@ -612,8 +589,9 @@ public final class ComplicationDrawable extends Drawable {
     }
 
     /**
-     *  {@inheritDoc}
-     *  @deprecated This method is no longer used in graphics optimizations
+     * {@inheritDoc}
+     *
+     * @deprecated This method is no longer used in graphics optimizations
      */
     @Override
     @Deprecated
@@ -649,7 +627,7 @@ public final class ComplicationDrawable extends Drawable {
      * {@link ComplicationData#TYPE_RANGED_VALUE}.
      *
      * @param rangedValueProgressHidden {@code true} if progress should be hidden, {@code false}
-     *     otherwise
+     *                                  otherwise
      * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_rangedValueProgressHidden
      */
     public void setRangedValueProgressHidden(boolean rangedValueProgressHidden) {
@@ -666,7 +644,7 @@ public final class ComplicationDrawable extends Drawable {
 
     /**
      * Sets the complication data to be drawn. If {@code complicationData} is {@code null}, nothing
-     * will be drawn when {@link #draw(Canvas)} or {@link #draw(Canvas, long)} is called.
+     * will be drawn when {@link #draw(Canvas)} is called.
      */
     public void setComplicationData(@Nullable ComplicationData complicationData) {
         assertInitialized();
@@ -676,7 +654,8 @@ public final class ComplicationDrawable extends Drawable {
     /**
      * Returns the {@link ComplicationData} to be drawn by this ComplicationDrawable.
      */
-    @Nullable public ComplicationData getComplicationData() {
+    @Nullable
+    public ComplicationData getComplicationData() {
         return mComplicationRenderer.getComplicationData();
     }
 
@@ -759,698 +738,6 @@ public final class ComplicationDrawable extends Drawable {
     }
 
     /**
-     * Sets the background color used in active mode.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_backgroundColor
-     */
-    public void setBackgroundColorActive(int backgroundColor) {
-        getComplicationStyleBuilder(false).setBackgroundColor(backgroundColor);
-        mIsStyleUpToDate = false;
-    }
-
-    /** Returns the background color used in active mode. */
-    public int getBackgroundColorActive() {
-        return this.getComplicationStyleBuilder(false).build().getBackgroundColor();
-    }
-
-    /**
-     * Sets the background drawable used in active mode.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_backgroundDrawable
-     */
-    public void setBackgroundDrawableActive(@Nullable Drawable drawable) {
-        getComplicationStyleBuilder(false).setBackgroundDrawable(drawable);
-        mIsStyleUpToDate = false;
-    }
-
-    /** Returns the background color used in active mode. */
-    @Nullable public Drawable getBackgroundDrawableActive() {
-        return this.getComplicationStyleBuilder(false).build().getBackgroundDrawable();
-    }
-
-    /**
-     * Sets the text color used in active mode. Text color is used for rendering short text and long
-     * text fields.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_textColor
-     */
-    public void setTextColorActive(int textColor) {
-        getComplicationStyleBuilder(false).setTextColor(textColor);
-        mIsStyleUpToDate = false;
-    }
-
-    /** Returns the text color used in active mode. */
-    public int getTextColorActive() {
-        return this.getComplicationStyleBuilder(false).build().getTextColor();
-    }
-
-    /**
-     * Sets the title color used in active mode. Title color is used for rendering short title and
-     * long title fields.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_titleColor
-     */
-    public void setTitleColorActive(int titleColor) {
-        getComplicationStyleBuilder(false).setTitleColor(titleColor);
-        mIsStyleUpToDate = false;
-    }
-
-    /** Returns the title color used in active mode. */
-    public int getTitleColorActive() {
-        return this.getComplicationStyleBuilder(false).build().getTitleColor();
-    }
-
-    /**
-     * Sets the color filter used in active mode when rendering large images and small images with
-     * style {@link ComplicationData#IMAGE_STYLE_PHOTO}.
-     */
-    public void setImageColorFilterActive(@Nullable ColorFilter colorFilter) {
-        getComplicationStyleBuilder(false).setColorFilter(colorFilter);
-        mIsStyleUpToDate = false;
-    }
-
-    /**
-     * Returns the color filter used in active mode when rendering large images and small images
-     * with style {@link ComplicationData#IMAGE_STYLE_PHOTO}.
-     */
-    @Nullable
-    public ColorFilter getImageColorFilterActive() {
-        return this.getComplicationStyleBuilder(false).build().getColorFilter();
-    }
-
-    /**
-     * Sets the icon color used for tinting icons in active mode.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_iconColor
-     */
-    public void setIconColorActive(int iconColor) {
-        getComplicationStyleBuilder(false).setIconColor(iconColor);
-        mIsStyleUpToDate = false;
-    }
-
-    /** Returns the icon color used for tinting icons in active mode. */
-    public int getIconColorActive() {
-        return this.getComplicationStyleBuilder(false).build().getIconColor();
-    }
-
-    /**
-     * Sets the typeface used in active mode when rendering short text and long text fields.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_textTypeface
-     */
-    public void setTextTypefaceActive(@Nullable Typeface textTypeface) {
-        getComplicationStyleBuilder(false).setTextTypeface(textTypeface);
-        mIsStyleUpToDate = false;
-    }
-
-    /** Returns the typeface used in active mode when rendering short text and long text fields. */
-    @Nullable public Typeface getTextTypefaceActive() {
-        return this.getComplicationStyleBuilder(false).build().getTextTypeface();
-    }
-
-    /**
-     * Sets the typeface used in active mode when rendering short text and long title fields.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_titleTypeface
-     */
-    public void setTitleTypefaceActive(@Nullable Typeface titleTypeface) {
-        getComplicationStyleBuilder(false).setTitleTypeface(titleTypeface);
-        mIsStyleUpToDate = false;
-    }
-
-    /** Returns the typeface used in active mode when rendering short text and long title fields. */
-    @Nullable public Typeface getTitleTypefaceActive() {
-        return this.getComplicationStyleBuilder(false).build().getTitleTypeface();
-    }
-
-    /**
-     * Sets the text size used in active mode when rendering short text and long text fields.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_textSize
-     */
-    public void setTextSizeActive(int textSize) {
-        getComplicationStyleBuilder(false).setTextSize(textSize);
-        mIsStyleUpToDate = false;
-    }
-
-    /** Returns the text size used in active mode when rendering short text and long text fields. */
-    public int getTextSizeActive() {
-        return this.getComplicationStyleBuilder(false).build().getTextSize();
-    }
-
-    /**
-     * Sets the text size used in active mode when rendering short title and long title fields.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_titleSize
-     */
-    public void setTitleSizeActive(int titleSize) {
-        getComplicationStyleBuilder(false).setTitleSize(titleSize);
-        mIsStyleUpToDate = false;
-    }
-
-    /**
-     * Returns the text size used in active mode when rendering short title and long title fields.
-     */
-    public int getTitleSizeActive() {
-        return this.getComplicationStyleBuilder(false).build().getTitleSize();
-    }
-
-    /**
-     * Sets the border color used in active mode.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_borderColor
-     */
-    public void setBorderColorActive(int borderColor) {
-        getComplicationStyleBuilder(false).setBorderColor(borderColor);
-        mIsStyleUpToDate = false;
-    }
-
-    /** Returns the border color used in active mode. */
-    public int getBorderColorActive() {
-        return this.getComplicationStyleBuilder(false).build().getBorderColor();
-    }
-
-    /**
-     * Sets the border style used in active mode. It should be one of {@link #BORDER_STYLE_NONE},
-     * {@link #BORDER_STYLE_SOLID}, or {@link #BORDER_STYLE_DASHED}.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_borderStyle
-     * @see #BORDER_STYLE_NONE
-     * @see #BORDER_STYLE_SOLID
-     * @see #BORDER_STYLE_DASHED
-     */
-    public void setBorderStyleActive(@BorderStyle int borderStyle) {
-        getComplicationStyleBuilder(false).setBorderStyle(borderStyle);
-        mIsStyleUpToDate = false;
-    }
-
-    /**
-     * Returns the border style used in active mode. It should be one of {@link #BORDER_STYLE_NONE},
-     * {@link #BORDER_STYLE_SOLID}, or {@link #BORDER_STYLE_DASHED}.
-     */
-    @BorderStyle public int getBorderStyleActive() {
-        return this.getComplicationStyleBuilder(false).build().getBorderStyle();
-    }
-
-    /**
-     * Sets the dash width used in active mode when drawing borders with style {@link
-     * #BORDER_STYLE_DASHED}.
-     *
-     * @param borderDashWidth Dash width in pixels
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_borderDashWidth
-     */
-    public void setBorderDashWidthActive(int borderDashWidth) {
-        getComplicationStyleBuilder(false).setBorderDashWidth(borderDashWidth);
-        mIsStyleUpToDate = false;
-    }
-
-    /**
-     * Returns the dash width used in active mode when drawing borders with style {@link
-     * #BORDER_STYLE_DASHED}.
-     */
-    public int getBorderDashWidthActive() {
-        return this.getComplicationStyleBuilder(false).build().getBorderDashWidth();
-    }
-
-    /**
-     * Sets the dash gap used in active mode when drawing borders with style {@link
-     * #BORDER_STYLE_DASHED}.
-     *
-     * @param borderDashGap Dash gap in pixels
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_borderDashGap
-     */
-    public void setBorderDashGapActive(int borderDashGap) {
-        getComplicationStyleBuilder(false).setBorderDashGap(borderDashGap);
-        mIsStyleUpToDate = false;
-    }
-
-    /**
-     * Returns the dash gap used in active mode when drawing borders with style {@link
-     * #BORDER_STYLE_DASHED}.
-     */
-    public int getBorderDashGapActive() {
-        return this.getComplicationStyleBuilder(false).build().getBorderDashGap();
-    }
-
-    /**
-     * Sets the border radius to be applied to the corners of the bounds of the complication in
-     * active mode. Border radius will be limited to the half of width or height, depending on which
-     * one is smaller.
-     *
-     * @param borderRadius Border radius in pixels
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_borderRadius
-     */
-    public void setBorderRadiusActive(int borderRadius) {
-        getComplicationStyleBuilder(false).setBorderRadius(borderRadius);
-        mIsStyleUpToDate = false;
-    }
-
-    /**
-     * Returns the border radius applied to the corners of the bounds of the complication in active
-     * mode.
-     */
-    public int getBorderRadiusActive() {
-        return this.getComplicationStyleBuilder(false).build().getBorderRadius();
-    }
-
-    /**
-     * Sets the border width for active mode.
-     *
-     * @param borderWidth Border width in pixels
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_borderWidth
-     */
-    public void setBorderWidthActive(int borderWidth) {
-        getComplicationStyleBuilder(false).setBorderWidth(borderWidth);
-        mIsStyleUpToDate = false;
-    }
-
-    /** Returns the border width for active mode. */
-    public int getBorderWidthActive() {
-        return this.getComplicationStyleBuilder(false).build().getBorderWidth();
-    }
-
-    /**
-     * Sets the stroke width used in active mode when rendering the ranged value indicator.
-     *
-     * @param rangedValueRingWidth Ring width in pixels
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_rangedValueRingWidth
-     */
-    public void setRangedValueRingWidthActive(int rangedValueRingWidth) {
-        getComplicationStyleBuilder(false).setRangedValueRingWidth(rangedValueRingWidth);
-        mIsStyleUpToDate = false;
-    }
-
-    /** Returns the stroke width used in active mode when rendering the ranged value indicator. */
-    public int getRangedValueRingWidthActive() {
-        return this.getComplicationStyleBuilder(false).build().getRangedValueRingWidth();
-    }
-
-    /**
-     * Sets the main color for the ranged value indicator in active mode.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_rangedValuePrimaryColor
-     */
-    public void setRangedValuePrimaryColorActive(int rangedValuePrimaryColor) {
-        getComplicationStyleBuilder(false).setRangedValuePrimaryColor(rangedValuePrimaryColor);
-        mIsStyleUpToDate = false;
-    }
-
-    /** Returns the main color for the ranged value indicator in active mode. */
-    public int getRangedValuePrimaryColorActive() {
-        return this.getComplicationStyleBuilder(false).build().getRangedValuePrimaryColor();
-    }
-
-    /**
-     * Sets the secondary color for the ranged value indicator in active mode.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_rangedValueSecondaryColor
-     */
-    public void setRangedValueSecondaryColorActive(int rangedValueSecondaryColor) {
-        getComplicationStyleBuilder(false).setRangedValueSecondaryColor(rangedValueSecondaryColor);
-        mIsStyleUpToDate = false;
-    }
-
-    /** Returns the secondary color for the ranged value indicator in active mode. */
-    public int getRangedValueSecondaryColorActive() {
-        return this.getComplicationStyleBuilder(false).build().getRangedValueSecondaryColor();
-    }
-
-    /**
-     * Sets the highlight color used in active mode, which is applied when {@link #setHighlighted}
-     * is called.
-     *
-     * @param highlightColor Highlight color
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_highlightColor
-     */
-    public void setHighlightColorActive(int highlightColor) {
-        getComplicationStyleBuilder(false).setHighlightColor(highlightColor);
-        mIsStyleUpToDate = false;
-    }
-
-    /**
-     * Returns the highlight color used in active mode, which is applied when
-     * {@link #setHighlighted} is called.
-     */
-    public int getHighlightColorActive() {
-        return this.getComplicationStyleBuilder(false).build().getHighlightColor();
-    }
-
-    /**
-     * Sets the background color used in ambient mode.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_backgroundColor
-     */
-    public void setBackgroundColorAmbient(int backgroundColor) {
-        getComplicationStyleBuilder(true).setBackgroundColor(backgroundColor);
-        mIsStyleUpToDate = false;
-    }
-
-    /** Returns the background color used in ambient mode. */
-    public int getBackgroundColorAmbient() {
-        return this.getComplicationStyleBuilder(true).build().getBackgroundColor();
-    }
-
-    /**
-     * Sets the background drawable used in ambient mode.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_backgroundDrawable
-     */
-    public void setBackgroundDrawableAmbient(@Nullable Drawable drawable) {
-        getComplicationStyleBuilder(true).setBackgroundDrawable(drawable);
-        mIsStyleUpToDate = false;
-    }
-
-    /** Returns the background color used in ambient mode. */
-    @Nullable public Drawable getBackgroundDrawableAmbient() {
-        return this.getComplicationStyleBuilder(true).build().getBackgroundDrawable();
-    }
-
-    /**
-     * Sets the text color used in ambient mode. Text color is used for rendering short text and
-     * long text fields.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_textColor
-     */
-    public void setTextColorAmbient(int textColor) {
-        getComplicationStyleBuilder(true).setTextColor(textColor);
-        mIsStyleUpToDate = false;
-    }
-
-    /**
-     * Returns the text color used in ambient mode. Text color is used for rendering short text and
-     * long text fields.
-     */
-    public int getTextColorAmbient() {
-        return this.getComplicationStyleBuilder(true).build().getTextColor();
-    }
-
-    /**
-     * Sets the title color used in ambient mode. Title color is used for rendering short title and
-     * long title fields.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_titleColor
-     */
-    public void setTitleColorAmbient(int titleColor) {
-        getComplicationStyleBuilder(true).setTitleColor(titleColor);
-        mIsStyleUpToDate = false;
-    }
-
-    /** Returns the title color used in ambient mode. */
-    public int getTitleColorAmbient() {
-        return this.getComplicationStyleBuilder(true).build().getTitleColor();
-    }
-
-    /**
-     * Sets the color filter used in ambient mode when rendering large images and small images with
-     * style {@link ComplicationData#IMAGE_STYLE_PHOTO}.
-     */
-    public void setImageColorFilterAmbient(@Nullable ColorFilter colorFilter) {
-        getComplicationStyleBuilder(true).setColorFilter(colorFilter);
-        mIsStyleUpToDate = false;
-    }
-
-    /**
-     * Returns the color filter used in ambient mode when rendering large images and small images
-     * with style {@link ComplicationData#IMAGE_STYLE_PHOTO}.
-     */
-    @Nullable public ColorFilter getImageColorFilterAmbient() {
-        return this.getComplicationStyleBuilder(true).build().getColorFilter();
-    }
-
-    /**
-     * Sets the icon color used for tinting icons in ambient mode.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_iconColor
-     */
-    public void setIconColorAmbient(int iconColor) {
-        getComplicationStyleBuilder(true).setIconColor(iconColor);
-        mIsStyleUpToDate = false;
-    }
-
-    /** Returns the title color used in ambient mode. */
-    public int getIconColorAmbient() {
-        return this.getComplicationStyleBuilder(true).build().getTitleColor();
-    }
-
-    /**
-     * Sets the typeface used in ambient mode when rendering short text and long text fields.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_textTypeface
-     */
-    public void setTextTypefaceAmbient(@Nullable Typeface textTypeface) {
-        getComplicationStyleBuilder(true).setTextTypeface(textTypeface);
-        mIsStyleUpToDate = false;
-    }
-
-    /**
-     * Returns the typeface used in ambient mode when rendering short text and long text fields.
-     */
-    @Nullable public Typeface getTextTypefaceAmbient() {
-        return this.getComplicationStyleBuilder(true).build().getTextTypeface();
-    }
-
-    /**
-     * Sets the typeface used in ambient mode when rendering short text and long title fields.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_titleTypeface
-     */
-    public void setTitleTypefaceAmbient(@Nullable Typeface titleTypeface) {
-        getComplicationStyleBuilder(true).setTitleTypeface(titleTypeface);
-        mIsStyleUpToDate = false;
-    }
-
-    /**
-     * Returns the typeface used in ambient mode when rendering short text and long title fields.
-     */
-    @Nullable public Typeface getTitleTypefaceAmbient() {
-        return this.getComplicationStyleBuilder(true).build().getTitleTypeface();
-    }
-
-    /**
-     * Sets the text size used in ambient mode when rendering short text and long text fields.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_textSize
-     */
-    public void setTextSizeAmbient(int textSize) {
-        getComplicationStyleBuilder(true).setTextSize(textSize);
-        mIsStyleUpToDate = false;
-    }
-
-    /**
-     * Returns the text size used in ambient mode when rendering short text and long text fields.
-     */
-    public int getTextSizeAmbient() {
-        return this.getComplicationStyleBuilder(true).build().getTextSize();
-    }
-
-    /**
-     * Sets the text size used in ambient mode when rendering short title and long title fields.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_titleSize
-     */
-    public void setTitleSizeAmbient(int titleSize) {
-        getComplicationStyleBuilder(true).setTitleSize(titleSize);
-        mIsStyleUpToDate = false;
-    }
-
-    /**
-     * Returns the text size used in ambient mode when rendering short title and long title fields.
-     */
-    public int getTitleSizeAmbient() {
-        return this.getComplicationStyleBuilder(true).build().getTitleSize();
-    }
-
-    /**
-     * Sets the border color used in ambient mode.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_borderColor
-     */
-    public void setBorderColorAmbient(int borderColor) {
-        getComplicationStyleBuilder(true).setBorderColor(borderColor);
-        mIsStyleUpToDate = false;
-    }
-
-    /**
-     * Returns the border color used in ambient mode.
-     */
-    public int getBorderColorAmbient() {
-        return this.getComplicationStyleBuilder(true).build().getBorderColor();
-    }
-
-    /**
-     * Sets the border style used in ambient mode. It should be one of {@link #BORDER_STYLE_NONE},
-     * {@link #BORDER_STYLE_SOLID}, or {@link #BORDER_STYLE_DASHED}.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_borderStyle
-     * @see #BORDER_STYLE_NONE
-     * @see #BORDER_STYLE_SOLID
-     * @see #BORDER_STYLE_DASHED
-     */
-    public void setBorderStyleAmbient(@BorderStyle int borderStyle) {
-        getComplicationStyleBuilder(true).setBorderStyle(borderStyle);
-        mIsStyleUpToDate = false;
-    }
-
-    /**
-     * Returns the border style used in ambient mode. It should be one of {@link
-     * #BORDER_STYLE_NONE}, {@link #BORDER_STYLE_SOLID}, or {@link #BORDER_STYLE_DASHED}.
-     */
-    public int getBorderStyleAmbient() {
-        return this.getComplicationStyleBuilder(true).build().getBorderStyle();
-    }
-
-    /**
-     * Sets the dash width used in ambient mode when drawing borders with style {@link
-     * #BORDER_STYLE_DASHED}.
-     *
-     * @param borderDashWidth Dash width in pixels
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_borderDashWidth
-     */
-    public void setBorderDashWidthAmbient(int borderDashWidth) {
-        getComplicationStyleBuilder(true).setBorderDashWidth(borderDashWidth);
-        mIsStyleUpToDate = false;
-    }
-
-    /**
-     * Returns the dash width used in ambient mode when drawing borders with style {@link
-     * #BORDER_STYLE_DASHED}.
-     */
-    public int getBorderDashWidthAmbient() {
-        return this.getComplicationStyleBuilder(true).build().getBorderDashWidth();
-    }
-
-    /**
-     * Sets the dash gap used in ambient mode when drawing borders with style {@link
-     * #BORDER_STYLE_DASHED}.
-     *
-     * @param borderDashGap Dash gap in pixels
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_borderDashGap
-     */
-    public void setBorderDashGapAmbient(int borderDashGap) {
-        getComplicationStyleBuilder(true).setBorderDashGap(borderDashGap);
-        mIsStyleUpToDate = false;
-    }
-
-    /**
-     * Returns the dash gap used in ambient mode when drawing borders with style {@link
-     * #BORDER_STYLE_DASHED}.
-     */
-    public int getBorderDashGapAmbient() {
-        return this.getComplicationStyleBuilder(true).build().getBorderDashGap();
-    }
-
-    /**
-     * Sets the border radius to be applied to the corners of the bounds of the complication in
-     * ambient mode. Border radius will be limited to the half of width or height, depending on
-     * which one is smaller.
-     *
-     * @param borderRadius Border radius in pixels
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_borderRadius
-     */
-    public void setBorderRadiusAmbient(int borderRadius) {
-        getComplicationStyleBuilder(true).setBorderRadius(borderRadius);
-        mIsStyleUpToDate = false;
-    }
-
-    /**
-     * Returns the border radius to be applied to the corners of the bounds of the complication in
-     * ambient mode.
-     */
-    public int getBorderRadiusAmbient() {
-        return this.getComplicationStyleBuilder(true).build().getBorderRadius();
-    }
-
-    /**
-     * Sets the border width for ambient mode.
-     *
-     * @param borderWidth Border width in pixels
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_borderWidth
-     */
-    public void setBorderWidthAmbient(int borderWidth) {
-        getComplicationStyleBuilder(true).setBorderWidth(borderWidth);
-        mIsStyleUpToDate = false;
-    }
-
-    /**
-     * Returns the border width for ambient mode.
-     */
-    public int getBorderWidthAmbient() {
-        return this.getComplicationStyleBuilder(true).build().getBorderWidth();
-    }
-
-    /**
-     * Sets the stroke width used in ambient mode when rendering the ranged value indicator.
-     *
-     * @param rangedValueRingWidth Ring width in pixels
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_rangedValueRingWidth
-     */
-    public void setRangedValueRingWidthAmbient(int rangedValueRingWidth) {
-        getComplicationStyleBuilder(true).setRangedValueRingWidth(rangedValueRingWidth);
-        mIsStyleUpToDate = false;
-    }
-
-    /**
-     * Returns the stroke width used in ambient mode when rendering the ranged value indicator.
-     */
-    public int getRangedValueRingWidthAmbient() {
-        return this.getComplicationStyleBuilder(true).build().getRangedValueRingWidth();
-    }
-
-    /**
-     * Sets the main color for the ranged value indicator in ambient mode.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_rangedValuePrimaryColor
-     */
-    public void setRangedValuePrimaryColorAmbient(int rangedValuePrimaryColor) {
-        getComplicationStyleBuilder(true).setRangedValuePrimaryColor(rangedValuePrimaryColor);
-        mIsStyleUpToDate = false;
-    }
-
-    /**
-     * Returns the main color for the ranged value indicator in ambient mode.
-     */
-    public int getRangedValuePrimaryColorAmbient() {
-        return this.getComplicationStyleBuilder(true).build().getRangedValuePrimaryColor();
-    }
-
-    /**
-     * Sets the secondary color for the ranged value indicator in ambient mode.
-     *
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_rangedValueSecondaryColor
-     */
-    public void setRangedValueSecondaryColorAmbient(int rangedValueSecondaryColor) {
-        getComplicationStyleBuilder(true).setRangedValueSecondaryColor(rangedValueSecondaryColor);
-        mIsStyleUpToDate = false;
-    }
-
-    /**
-     * Returns the secondary color for the ranged value indicator in ambient mode.
-     */
-    public int getRangedValueSecondaryColorAmbient() {
-        return this.getComplicationStyleBuilder(true).build().getRangedValueSecondaryColor();
-    }
-
-    /**
-     * Sets the highlight color used in ambient mode, which is applied when {@link
-     * #setHighlighted} is called.
-     *
-     * @param highlightColor Highlight color
-     * @attr ref android.support.wearable.R.styleable#ComplicationDrawable_highlightColor
-     */
-    public void setHighlightColorAmbient(int highlightColor) {
-        getComplicationStyleBuilder(true).setHighlightColor(highlightColor);
-        mIsStyleUpToDate = false;
-    }
-
-    /**
-     * Returns the highlight color used in ambient mode, which is applied when {@link
-     * #setHighlighted} is called.
-     */
-    public int getHighlightColorAmbient() {
-        return this.getComplicationStyleBuilder(true).build().getHighlightColor();
-    }
-
-    /**
      * Sends the tap action for the complication if tap coordinates are inside the complication
      * bounds.
      *
@@ -1466,9 +753,9 @@ public final class ComplicationDrawable extends Drawable {
      * @param x X coordinate of the tap relative to screen origin
      * @param y Y coordinate of the tap relative to screen origin
      * @return {@code true} if the action was successful, {@code false} if complication data is not
-     *     set, the complication has no tap action, the tap action (i.e. {@link
-     *     android.app.PendingIntent}) is cancelled, or the given x and y are not inside the
-     *     complication bounds.
+     * set, the complication has no tap action, the tap action (i.e. {@link
+     * android.app.PendingIntent}) is cancelled, or the given x and y are not inside the
+     * complication bounds.
      */
     public boolean onTap(int x, int y) {
         if (mComplicationRenderer == null) {
@@ -1544,15 +831,10 @@ public final class ComplicationDrawable extends Drawable {
         return mHighlightDuration;
     }
 
-    private ComplicationStyle.Builder getComplicationStyleBuilder(boolean isAmbient) {
-        return isAmbient ? mAmbientStyleBuilder : mActiveStyleBuilder;
-    }
-
     /** Builds styles and syncs them with the complication renderer. */
     private void updateStyleIfRequired() {
         if (!mIsStyleUpToDate) {
-            mComplicationRenderer.updateStyle(
-                    mActiveStyleBuilder.build(), mAmbientStyleBuilder.build());
+            mComplicationRenderer.updateStyle(mActiveStyle, mAmbientStyle);
             mIsStyleUpToDate = true;
         }
     }
@@ -1571,16 +853,14 @@ public final class ComplicationDrawable extends Drawable {
 
     /** Returns complication style for active mode. */
     @NonNull
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     public ComplicationStyle getActiveStyle() {
-        return mActiveStyleBuilder.build();
+        return mActiveStyle;
     }
 
     /** Returns complication style for ambient mode. */
     @NonNull
-    @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     public ComplicationStyle getAmbientStyle() {
-        return mAmbientStyleBuilder.build();
+        return mAmbientStyle;
     }
 
     /** Returns complication renderer. */
