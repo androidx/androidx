@@ -21,7 +21,6 @@ import static androidx.camera.testing.SurfaceTextureProvider.createSurfaceTextur
 
 import android.graphics.SurfaceTexture;
 import android.os.Bundle;
-import android.util.Log;
 import android.util.Size;
 import android.view.TextureView;
 import android.view.ViewGroup;
@@ -32,6 +31,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
+import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
@@ -72,7 +72,7 @@ public class CameraXTestActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         enablePreview();
-        Log.i(TAG, "Got UseCase: " + mPreview);
+        Logger.i(TAG, "Got UseCase: " + mPreview);
     }
 
     @Override
@@ -91,7 +91,7 @@ public class CameraXTestActivity extends AppCompatActivity {
         }
 
         if (mCameraUseCaseAdapter != null) {
-            Log.d(TAG, "Preview already enabled");
+            Logger.d(TAG, "Preview already enabled");
             return;
         }
 
