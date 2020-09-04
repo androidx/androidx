@@ -34,6 +34,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.SystemClock;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.text.TextUtils;
 import android.util.Log;
@@ -581,7 +582,9 @@ public final class MediaRouter {
      * The {@link #CALLBACK_FLAG_PERFORM_ACTIVE_SCAN} flag should be used when the
      * media route chooser dialog is showing to confirm the presence of available
      * routes that the user may connect to.  This flag may use substantially more
-     * power.
+     * power. Once active scan is requested, it will be effective for 30 seconds and will be
+     * suppressed after the delay. If you need active scan after this duration, you have to add
+     * your callback again with the {@link #CALLBACK_FLAG_PERFORM_ACTIVE_SCAN} flag.
      * </p>
      *
      * <h3>Example</h3>
@@ -677,6 +680,15 @@ public final class MediaRouter {
             record.mFlags = flags;
             updateNeeded = true;
         }
+        long currentTime = SystemClock.elapsedRealtime();
+        if ((flags & CALLBACK_FLAG_PERFORM_ACTIVE_SCAN) != 0) {
+            // If the flag has active scan, the active scan might be suppressed previously if the
+            // previous change is too long ago. In this case, the discovery request needs to be
+            // updated so that the active scan state can be true again.
+            updateNeeded = true;
+        }
+        record.mTimestamp = currentTime;
+
         if (!record.mSelector.contains(selector)) {
             record.mSelector = new MediaRouteSelector.Builder(record.mSelector)
                     .addSelector(selector)
@@ -2276,6 +2288,7 @@ public final class MediaRouter {
         public final Callback mCallback;
         public MediaRouteSelector mSelector;
         public int mFlags;
+        public long mTimestamp;
 
         public CallbackRecord(MediaRouter router, Callback callback) {
             mRouter = router;
@@ -2330,6 +2343,14 @@ public final class MediaRouter {
         private final DisplayManagerCompat mDisplayManager;
         final SystemMediaRouteProvider mSystemProvider;
         private final boolean mLowRam;
+        private MediaRouterActiveScanThrottlingHelper mActiveScanThrottlingHelper =
+                new MediaRouterActiveScanThrottlingHelper(
+                        new Runnable() {
+                        @Override
+                        public void run() {
+                            updateDiscoveryRequest();
+                        }
+                });
 
         private MediaRouterParams mRouterParams;
         private RegisteredMediaRouteProviderWatcher mRegisteredProviderWatcher;
@@ -2650,8 +2671,8 @@ public final class MediaRouter {
         public void updateDiscoveryRequest() {
             // Combine all of the callback selectors and active scan flags.
             boolean discover = false;
-            boolean activeScan = false;
             MediaRouteSelector.Builder builder = new MediaRouteSelector.Builder();
+            mActiveScanThrottlingHelper.reset();
 
             int callbackCount = 0;
             for (int i = mRouters.size(); --i >= 0; ) {
@@ -2664,8 +2685,12 @@ public final class MediaRouter {
                     for (int j = 0; j < count; j++) {
                         CallbackRecord callback = router.mCallbackRecords.get(j);
                         builder.addSelector(callback.mSelector);
-                        if ((callback.mFlags & CALLBACK_FLAG_PERFORM_ACTIVE_SCAN) != 0) {
-                            activeScan = true;
+                        boolean callbackRequestingActiveScan =
+                                (callback.mFlags & CALLBACK_FLAG_PERFORM_ACTIVE_SCAN) != 0;
+                        mActiveScanThrottlingHelper.requestActiveScan(
+                                callbackRequestingActiveScan,
+                                callback.mTimestamp);
+                        if (callbackRequestingActiveScan) {
                             discover = true; // perform active scan implies request discovery
                         }
                         if ((callback.mFlags & CALLBACK_FLAG_REQUEST_DISCOVERY) != 0) {
@@ -2679,6 +2704,10 @@ public final class MediaRouter {
                     }
                 }
             }
+
+            boolean activeScan =
+                    mActiveScanThrottlingHelper
+                    .finalizeActiveScanAndScheduleSuppressActiveScanRunnable();
 
             mCallbackCount = callbackCount;
             MediaRouteSelector selector = discover ? builder.build() : MediaRouteSelector.EMPTY;
