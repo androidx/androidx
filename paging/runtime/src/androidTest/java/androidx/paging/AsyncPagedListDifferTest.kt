@@ -65,7 +65,7 @@ class AsyncPagedListDifferTest {
         data: List<V>,
         initialKey: Int
     ): PagedList<V> {
-        return PagedList.Builder(ListDataSource(data), config)
+        return PagedList.Builder(TestPositionalDataSource(data), config)
             .setInitialKey(initialKey)
             .setNotifyExecutor(mainThread)
             .setFetchExecutor(pageLoadingThread)

@@ -329,7 +329,7 @@ internal constructor(internal val type: KeyType) {
      * Used to signal when a [DataSource] a data source has become invalid, and that a new data
      * source is needed to continue loading data.
      */
-    interface InvalidatedCallback {
+    fun interface InvalidatedCallback {
         /**
          * Called when the data backing the list has become invalid. This callback is typically used
          * to signal that a new data source is needed.
@@ -340,14 +340,6 @@ internal constructor(internal val type: KeyType) {
          */
         @AnyThread
         fun onInvalidated()
-    }
-
-    /**
-     * Wrapper for invalidation callback which holds a reference to allow removal by referential
-     * equality of Kotlin functions within [removeInvalidatedCallback].
-     */
-    private class OnInvalidatedWrapper(val callback: () -> Unit) : InvalidatedCallback {
-        override fun onInvalidated() = callback()
     }
 
     /**
@@ -368,25 +360,6 @@ internal constructor(internal val type: KeyType) {
     }
 
     /**
-     * Add a callback to invoke when the DataSource is first invalidated.
-     *
-     * Once invalidated, a data source will not become valid again.
-     *
-     * A data source will only invoke its callbacks once - the first time [invalidate] is called, on
-     * that thread.
-     *
-     * This is a redundant override of [addInvalidatedCallback], which accepts Kotlin functions.
-     *
-     * @param onInvalidatedCallback The callback, will be invoked on thread that invalidates the
-     * [DataSource].
-     */
-    @AnyThread
-    @Suppress("RegistrationName")
-    fun addInvalidatedCallback(onInvalidatedCallback: () -> Unit) {
-        onInvalidatedCallbacks.add(OnInvalidatedWrapper(onInvalidatedCallback))
-    }
-
-    /**
      * Remove a previously added invalidate callback.
      *
      * @param onInvalidatedCallback The previously added callback.
@@ -395,21 +368,6 @@ internal constructor(internal val type: KeyType) {
     @Suppress("RegistrationName")
     open fun removeInvalidatedCallback(onInvalidatedCallback: InvalidatedCallback) {
         onInvalidatedCallbacks.remove(onInvalidatedCallback)
-    }
-
-    /**
-     * Remove a previously added invalidate callback.
-     *
-     * This is a redundant override of [removeInvalidatedCallback], which accepts Kotlin functions.
-     *
-     * @param onInvalidatedCallback The previously added callback.
-     */
-    @AnyThread
-    @Suppress("RegistrationName")
-    fun removeInvalidatedCallback(onInvalidatedCallback: () -> Unit) {
-        onInvalidatedCallbacks.removeAll {
-            it is OnInvalidatedWrapper && it.callback === onInvalidatedCallback
-        }
     }
 
     /**
