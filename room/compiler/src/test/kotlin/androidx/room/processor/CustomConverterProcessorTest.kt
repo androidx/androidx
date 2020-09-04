@@ -19,6 +19,7 @@ package androidx.room.processor
 import androidx.room.TypeConverter
 import androidx.room.ext.typeName
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_EMPTY_CLASS
+import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_FACTORY_MUST_BE_FINAL
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MUST_BE_PUBLIC
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_UNBOUND_GENERIC
@@ -185,6 +186,33 @@ class CustomConverterProcessorTest {
             assertThat(converter?.isStatic, `is`(true))
         }.failsToCompile().withErrorContaining(TYPE_CONVERTER_MUST_BE_PUBLIC).and()
                 .withErrorCount(2)
+    }
+
+    @Test
+    fun checkNonFinalFactory() {
+        singleClass(JavaFileObjects.forSourceString(CONVERTER_QNAME,
+            """
+                package ${CONVERTER.packageName()};
+                import androidx.room.TypeConverter;
+                import androidx.room.TypeConverterFactory;
+                import androidx.annotation.NonNull;
+
+                @TypeConverter.Factory(${CONVERTER.simpleName()}.ConverterFactory.class)
+                public class ${CONVERTER.simpleName()} {
+                    public ${CONVERTER.simpleName()}(int x) {}
+                    @TypeConverter
+                    public int x(short y) {return 0;}
+                    
+                    public static class ConverterFactory implements TypeConverterFactory {
+                        @NonNull
+                        @Override
+                        public <T> T create(@NonNull Class<T> converterClass) {
+                            return (T) new ${CONVERTER.simpleName()}();
+                        }
+                    }
+                }
+                """)) { _, _ ->
+        }.failsToCompile().withErrorContaining(TYPE_CONVERTER_FACTORY_MUST_BE_FINAL)
     }
 
     @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")

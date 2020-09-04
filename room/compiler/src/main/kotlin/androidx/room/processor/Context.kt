@@ -38,7 +38,7 @@ class Context private constructor(
     private val inheritedAdapterStore: TypeAdapterStore?,
     val cache: Cache,
     private val canRewriteQueriesToDropUnusedColumns: Boolean,
-    val typeConverterFactories: MutableSet<XType>
+    private val addTypeConverterFactory: (XType) -> Unit
 ) {
     val checker: Checks = Checks(logger)
     val COMMON_TYPES = CommonTypes(processingEnv)
@@ -93,7 +93,7 @@ class Context private constructor(
             inheritedAdapterStore = null,
             cache = Cache(null, LinkedHashSet(), emptySet()),
             canRewriteQueriesToDropUnusedColumns = false,
-            typeConverterFactories = HashSet())
+            addTypeConverterFactory = {})
 
     class CommonTypes(val processingEnv: XProcessingEnv) {
         val VOID: XType by lazy {
@@ -124,15 +124,20 @@ class Context private constructor(
                 inheritedAdapterStore = typeAdapterStore,
                 cache = cache,
                 canRewriteQueriesToDropUnusedColumns = canRewriteQueriesToDropUnusedColumns,
-                typeConverterFactories = typeConverterFactories)
+                addTypeConverterFactory = addTypeConverterFactory)
         subContext.databaseVerifier = databaseVerifier
         val result = handler(subContext)
         return Pair(result, collector)
     }
 
-    fun fork(element: XElement, forceSuppressedWarnings: Set<Warning> = emptySet()): Context {
+    fun fork(
+        element: XElement,
+        forceSuppressedWarnings: Set<Warning> = emptySet(),
+        addTypeConverterFactory: (XType) -> Unit = {}
+    ): Context {
         val suppressedWarnings = SuppressWarningProcessor.getSuppressedWarnings(element)
-        val processConvertersResult = CustomConverterProcessor.findConverters(this, element)
+        val processConvertersResult =
+            CustomConverterProcessor.findConverters(this, element, addTypeConverterFactory)
         val canReUseAdapterStore = processConvertersResult.classes.isEmpty()
         // order here is important since the sub context should give priority to new converters.
         val subTypeConverters = if (canReUseAdapterStore) {
@@ -152,7 +157,7 @@ class Context private constructor(
                 inheritedAdapterStore = if (canReUseAdapterStore) typeAdapterStore else null,
                 cache = subCache,
                 canRewriteQueriesToDropUnusedColumns = subCanRemoveUnusedColumns,
-                typeConverterFactories = typeConverterFactories)
+                addTypeConverterFactory = addTypeConverterFactory)
         subContext.databaseVerifier = databaseVerifier
         return subContext
     }

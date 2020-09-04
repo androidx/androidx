@@ -25,6 +25,7 @@ import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_BAD_RETURN_TYPE
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_EMPTY_CLASS
+import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_FACTORY_MUST_BE_FINAL
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MUST_BE_PUBLIC
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MUST_RECEIVE_1_PARAM
@@ -41,14 +42,19 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
         private fun XType.isInvalidReturnType() =
             isError() || isVoid() || isNone()
 
-        fun findConverters(context: Context, element: XElement): ProcessResult {
+        fun findConverters(
+            context: Context,
+            element: XElement,
+            addTypeConverterFactory: (XType) -> Unit = {}
+        ): ProcessResult {
             val annotation = element.toAnnotationBox(TypeConverters::class)
             return annotation?.let {
                 val classes = it.getAsTypeList("value")
                     .filter { it.isType() }
                     .mapTo(LinkedHashSet()) { it }
                 val converters = classes.flatMap {
-                    CustomConverterProcessor(context, it.asTypeElement()).process()
+                    CustomConverterProcessor(context, it.asTypeElement())
+                        .process(addTypeConverterFactory)
                 }
                 reportDuplicates(context, converters)
                 ProcessResult(classes, converters.map(::CustomTypeConverterWrapper))
@@ -70,7 +76,7 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
         }
     }
 
-    fun process(): List<CustomTypeConverter> {
+    fun process(addTypeConverterFactory: (XType) -> Unit = {}): List<CustomTypeConverter> {
         // using element utils instead of MoreElements to include statics.
         val methods = element.getAllMethods()
         val declaredType = element.asDeclaredType()
@@ -92,7 +98,10 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
                         }, element, TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR
             )
         } else {
-            context.typeConverterFactories.add(typeConverterFactory)
+            val factoryElement = typeConverterFactory.asTypeElement()
+            context.checker.check(factoryElement.isFinal(), factoryElement,
+                TYPE_CONVERTER_FACTORY_MUST_BE_FINAL)
+            addTypeConverterFactory(typeConverterFactory)
         }
         return converterMethods.mapNotNull {
             processMethod(

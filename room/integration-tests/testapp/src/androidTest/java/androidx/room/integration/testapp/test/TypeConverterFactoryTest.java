@@ -145,7 +145,7 @@ public class TypeConverterFactoryTest {
         }
     }
 
-    public static class TimeStampConverterFactory implements TypeConverterFactory {
+    public static final class TimeStampConverterFactory implements TypeConverterFactory {
 
         @NonNull
         @Override

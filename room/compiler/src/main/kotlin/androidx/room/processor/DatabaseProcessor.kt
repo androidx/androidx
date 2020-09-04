@@ -37,7 +37,12 @@ import com.squareup.javapoet.TypeName
 import java.util.Locale
 
 class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
-    val context = baseContext.fork(element)
+    private val typeConverterFactories = mutableSetOf<XType>()
+
+    val context = baseContext.fork(
+        element = element,
+        addTypeConverterFactory = { typeConverterFactories.add(it) }
+    )
 
     val roomDatabaseType: XType by lazy {
         context.processingEnv.requireType(
@@ -108,10 +113,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
                 daoMethods = daoMethods,
                 exportSchema = dbAnnotation.value.exportSchema,
                 enableForeignKeys = hasForeignKeys,
-                typeConverterFactories = HashSet(context.typeConverterFactories))
-
-        context.typeConverterFactories.clear()
-
+                typeConverterFactories = typeConverterFactories)
         return database
     }
 

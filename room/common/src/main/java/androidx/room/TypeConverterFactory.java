@@ -20,7 +20,7 @@ import androidx.annotation.NonNull;
 
 /**
  * Implementations of {@code TypeConverterFactory} interface are responsible to instantiate
- * TypeConverters.
+ * TypeConverters and must be final.
  */
 public interface TypeConverterFactory {
     /**

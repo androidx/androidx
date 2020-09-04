@@ -191,7 +191,7 @@ public abstract class RoomDatabase {
                     configuration.name);
         }
 
-        if(configuration.typeConverterFactories != null) {
+        if (configuration.typeConverterFactories != null) {
             for (Map.Entry<String, TypeConverterFactory> entry :
                     configuration.typeConverterFactories.entrySet()) {
                 if (!mTypeConverterFactories.containsKey(entry.getKey())) {
@@ -203,7 +203,8 @@ public abstract class RoomDatabase {
             }
         }
 
-        for(Map.Entry<String, TypeConverterFactory> entry: getTypeConverterFactories().entrySet()) {
+        for (Map.Entry<String, TypeConverterFactory> entry:
+                getTypeConverterFactories().entrySet()) {
             if (entry.getValue() == null) {
                 throw new IllegalArgumentException("Missing " + entry.getKey() + " factory "
                         + "instance. Add it using addTypeConverterFactory method or "
@@ -1066,7 +1067,7 @@ public abstract class RoomDatabase {
          */
         @NonNull
         public Builder<T> addTypeConverterFactory(@NonNull TypeConverterFactory factory) {
-            if(mTypeConverterFactories == null) {
+            if (mTypeConverterFactories == null) {
                 mTypeConverterFactories = new HashMap<>();
             }
             mTypeConverterFactories.put(factory.getClass().getCanonicalName(), factory);
