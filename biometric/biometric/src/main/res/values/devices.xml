@@ -69,8 +69,9 @@
     List of known device models for which the BiometricPrompt UI should not be shown again for a
     minimum amount of time after the prompt has been dismissed.
     -->
-    <string-array name="delay_showing_prompt_prefixes">
+    <string-array name="delay_showing_prompt_models">
         <item>Pixel 4</item>
+        <item>Pixel 4 XL</item>
     </string-array>
 
     <!--
