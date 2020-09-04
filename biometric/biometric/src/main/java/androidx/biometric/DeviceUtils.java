@@ -80,7 +80,7 @@ class DeviceUtils {
             // This workaround is only needed for API 29.
             return false;
         }
-        return isModelInPrefixList(context, model, R.array.delay_showing_prompt_prefixes);
+        return isModelInList(context, model, R.array.delay_showing_prompt_models);
     }
 
     /**
@@ -138,6 +138,28 @@ class DeviceUtils {
         final String[] modelPrefixes = context.getResources().getStringArray(resId);
         for (final String modelPrefix : modelPrefixes) {
             if (model.startsWith(modelPrefix)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks if the current device model matches one in the given string array resource.
+     *
+     * @param context The application or activity context.
+     * @param model Model name of the current device.
+     * @param resId Resource ID for the string array of device model prefixes to check against.
+     * @return Whether the model matches one in the given string array.
+     */
+    private static boolean isModelInList(@NonNull Context context, String model, int resId) {
+        if (model == null) {
+            return false;
+        }
+
+        final String[] modelNames = context.getResources().getStringArray(resId);
+        for (final String modelName : modelNames) {
+            if (model.equals(modelName)) {
                 return true;
             }
         }
