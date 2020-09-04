@@ -37,7 +37,11 @@ import java.util.LinkedHashSet
 /**
  * Processes classes that are referenced in TypeConverters annotations.
  */
-class CustomConverterProcessor(val context: Context, val element: XTypeElement) {
+class CustomConverterProcessor(
+    val context: Context,
+    val element: XTypeElement,
+    private val addTypeConverterFactory: (XType) -> Unit
+) {
     companion object {
         private fun XType.isInvalidReturnType() =
             isError() || isVoid() || isNone()
@@ -45,7 +49,7 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
         fun findConverters(
             context: Context,
             element: XElement,
-            addTypeConverterFactory: (XType) -> Unit = {}
+            addTypeConverterFactory: (XType) -> Unit
         ): ProcessResult {
             val annotation = element.toAnnotationBox(TypeConverters::class)
             return annotation?.let {
@@ -53,8 +57,8 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
                     .filter { it.isType() }
                     .mapTo(LinkedHashSet()) { it }
                 val converters = classes.flatMap {
-                    CustomConverterProcessor(context, it.asTypeElement())
-                        .process(addTypeConverterFactory)
+                    CustomConverterProcessor(context, it.asTypeElement(), addTypeConverterFactory)
+                        .process()
                 }
                 reportDuplicates(context, converters)
                 ProcessResult(classes, converters.map(::CustomTypeConverterWrapper))
@@ -76,7 +80,7 @@ class CustomConverterProcessor(val context: Context, val element: XTypeElement) 
         }
     }
 
-    fun process(addTypeConverterFactory: (XType) -> Unit = {}): List<CustomTypeConverter> {
+    fun process(): List<CustomTypeConverter> {
         // using element utils instead of MoreElements to include statics.
         val methods = element.getAllMethods()
         val declaredType = element.asDeclaredType()
