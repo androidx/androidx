@@ -160,7 +160,7 @@ class PreviewTest {
             .setTargetRotation(Surface.ROTATION_0)
             .setSessionOptionUnpacker(sessionOptionUnpacker)
             .build()
-        cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(
+        cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
             ApplicationProvider.getApplicationContext(), TEST_CAMERA_SELECTOR
         )
         val rational1 = Rational(1, 1)
@@ -203,7 +203,7 @@ class PreviewTest {
             .setTargetRotation(Surface.ROTATION_0)
             .setSessionOptionUnpacker(sessionOptionUnpacker)
             .build()
-        cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(
+        cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
             ApplicationProvider.getApplicationContext(), TEST_CAMERA_SELECTOR
         )
         cameraUseCaseAdapter!!.addUseCases(Collections.singleton<UseCase>(preview))
@@ -235,7 +235,7 @@ class PreviewTest {
             .setTargetRotation(Surface.ROTATION_0)
             .setSessionOptionUnpacker(sessionOptionUnpacker)
             .build()
-        val cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(
+        val cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
             ApplicationProvider
                 .getApplicationContext(), TEST_CAMERA_SELECTOR
         )
@@ -285,7 +285,7 @@ class PreviewTest {
             .setTargetRotation(Surface.ROTATION_0)
             .setSessionOptionUnpacker(sessionOptionUnpacker)
             .build()
-        cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(
+        cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
             ApplicationProvider
                 .getApplicationContext(), TEST_CAMERA_SELECTOR
         )
@@ -342,7 +342,7 @@ class PreviewTest {
         }
 
         // Act.
-        cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(
+        cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
             ApplicationProvider.getApplicationContext(), TEST_CAMERA_SELECTOR
         )
         cameraUseCaseAdapter!!.setViewPort(viewPort)

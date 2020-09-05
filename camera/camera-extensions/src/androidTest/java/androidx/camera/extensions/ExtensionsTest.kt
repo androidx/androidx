@@ -92,7 +92,7 @@ class ExtensionsTest(
     @Test
     fun isExtensionAvailable() {
         val cameraSelector = CameraSelector.Builder().requireLensFacing(mLensFacing).build()
-        val camera = CameraUtil.getCameraUseCaseAdapter(mContext, cameraSelector)
+        val camera = CameraUtil.createCameraUseCaseAdapter(mContext, cameraSelector)
 
         assertThat(
             ExtensionsManager.isExtensionAvailable(mEffectMode, mLensFacing) ==

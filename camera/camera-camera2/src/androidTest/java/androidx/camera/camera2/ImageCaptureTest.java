@@ -114,13 +114,6 @@ import java.util.concurrent.TimeoutException;
 @LargeTest
 @RunWith(AndroidJUnit4.class)
 public final class ImageCaptureTest {
-    @Rule
-    public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
-
-    @Rule
-    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
-            Manifest.permission.WRITE_EXTERNAL_STORAGE);
-
     private static final Size DEFAULT_RESOLUTION = new Size(640, 480);
     private static final Size GUARANTEED_RESOLUTION = new Size(640, 480);
     @CameraSelector.LensFacing
@@ -128,9 +121,12 @@ public final class ImageCaptureTest {
     private static final CameraSelector BACK_SELECTOR =
             new CameraSelector.Builder().requireLensFacing(BACK_LENS_FACING).build();
     private static final int FLASH_MODE_UNKNOWN = -1;
-
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
-
+    @Rule
+    public TestRule mCameraRule = CameraUtil.grantCameraPermissionAndPreTest();
+    @Rule
+    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
+            Manifest.permission.WRITE_EXTERNAL_STORAGE);
     private ImageCapture.Builder mDefaultBuilder;
     private Executor mMainExecutor;
     private ContentResolver mContentResolver;
@@ -180,7 +176,7 @@ public final class ImageCaptureTest {
         ImageCapture useCase = new ImageCapture.Builder().setTargetResolution(
                 DEFAULT_RESOLUTION).setTargetRotation(Surface.ROTATION_0).build();
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
 
         ResolvableFuture<ImageProperties> imageProperties = ResolvableFuture.create();
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
@@ -224,7 +220,7 @@ public final class ImageCaptureTest {
                 GUARANTEED_RESOLUTION).setTargetRotation(
                 isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext,
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
                 CameraSelector.DEFAULT_FRONT_CAMERA, useCase);
 
         ResolvableFuture<ImageProperties> imageProperties = ResolvableFuture.create();
@@ -257,7 +253,8 @@ public final class ImageCaptureTest {
                 GUARANTEED_RESOLUTION).setTargetRotation(
                 isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, CameraSelector.DEFAULT_BACK_CAMERA,
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA,
                 useCase);
 
         ResolvableFuture<ImageProperties> imageProperties = ResolvableFuture.create();
@@ -275,8 +272,8 @@ public final class ImageCaptureTest {
     @Test
     public void canCaptureMultipleImages() throws InterruptedException {
         ImageCapture useCase = mDefaultBuilder.build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, CameraSelector.DEFAULT_BACK_CAMERA,
-                useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, useCase);
 
         int numImages = 5;
         CountingCallback callback = new CountingCallback(numImages, 50000);
@@ -292,8 +289,8 @@ public final class ImageCaptureTest {
         ImageCapture useCase = new ImageCapture.Builder()
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
                 .build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, CameraSelector.DEFAULT_BACK_CAMERA,
-                useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, useCase);
 
         int numImages = 5;
         CountingCallback callback = new CountingCallback(numImages, 50000);
@@ -307,8 +304,8 @@ public final class ImageCaptureTest {
     @Test
     public void saveCanSucceed() throws IOException {
         ImageCapture useCase = mDefaultBuilder.build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, CameraSelector.DEFAULT_BACK_CAMERA,
-                useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, useCase);
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
@@ -324,8 +321,8 @@ public final class ImageCaptureTest {
     public void saveToUri() {
         // Arrange.
         ImageCapture useCase = mDefaultBuilder.build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, CameraSelector.DEFAULT_BACK_CAMERA,
-                useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, useCase);
 
         ContentValues contentValues = new ContentValues();
         contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg");
@@ -355,8 +352,8 @@ public final class ImageCaptureTest {
     public void saveToOutputStream() throws IOException {
         // Arrange.
         ImageCapture useCase = mDefaultBuilder.build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, CameraSelector.DEFAULT_BACK_CAMERA,
-                useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, useCase);
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
@@ -378,8 +375,8 @@ public final class ImageCaptureTest {
                 android.os.Build.MODEL.contains("Cuttlefish"));
         ImageCapture useCase = new ImageCapture.Builder().setTargetRotation(
                 Surface.ROTATION_0).build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, CameraSelector.DEFAULT_BACK_CAMERA,
-                useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, useCase);
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
@@ -436,8 +433,8 @@ public final class ImageCaptureTest {
         // can be equivalent to flipping horizontally
         ImageCapture useCase = ImageCapture.Builder.fromConfig(
                 createNonRotatedConfiguration()).build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, CameraSelector.DEFAULT_BACK_CAMERA,
-                useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, useCase);
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
@@ -464,8 +461,8 @@ public final class ImageCaptureTest {
         // horizontally can be equivalent to flipping vertically
         ImageCapture useCase = ImageCapture.Builder.fromConfig(
                 createNonRotatedConfiguration()).build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, CameraSelector.DEFAULT_BACK_CAMERA,
-                useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, useCase);
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
@@ -488,8 +485,8 @@ public final class ImageCaptureTest {
     @Test
     public void canSaveFile_withAttachedLocation() throws IOException {
         ImageCapture useCase = mDefaultBuilder.build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, CameraSelector.DEFAULT_BACK_CAMERA,
-                useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, useCase);
 
         File saveLocation = File.createTempFile("test", ".jpg");
         saveLocation.deleteOnExit();
@@ -513,8 +510,8 @@ public final class ImageCaptureTest {
     @Test
     public void canSaveMultipleFiles() throws IOException {
         ImageCapture useCase = mDefaultBuilder.build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, CameraSelector.DEFAULT_BACK_CAMERA,
-                useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, useCase);
 
         OnImageSavedCallback callback = mock(OnImageSavedCallback.class);
         int numImages = 5;
@@ -534,8 +531,8 @@ public final class ImageCaptureTest {
     @Test
     public void saveWillFail_whenInvalidFilePathIsUsed() {
         ImageCapture useCase = mDefaultBuilder.build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, CameraSelector.DEFAULT_BACK_CAMERA,
-                useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, useCase);
 
         // Note the invalid path
         File saveLocation = new File("/not/a/real/path.jpg");
@@ -561,8 +558,8 @@ public final class ImageCaptureTest {
                 mock(CameraCaptureSession.CaptureCallback.class);
         new Camera2Interop.Extender<>(builder).setSessionCaptureCallback(captureCallback);
         ImageCapture useCase = builder.build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, CameraSelector.DEFAULT_BACK_CAMERA,
-                useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, useCase);
 
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
         useCase.takePicture(mMainExecutor, callback);
@@ -600,8 +597,8 @@ public final class ImageCaptureTest {
         ImageCapture useCase = new ImageCapture.Builder()
                 .setBufferFormat(ImageFormat.RAW10)
                 .build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, CameraSelector.DEFAULT_BACK_CAMERA,
-                useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, useCase);
 
         ResolvableFuture<ImageProperties> imageProperties = ResolvableFuture.create();
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imageProperties);
@@ -640,7 +637,7 @@ public final class ImageCaptureTest {
         ImageCapture imageCapture = new ImageCapture.Builder().setCaptureBundle(
                 captureBundle).build();
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext,
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
                 CameraSelector.DEFAULT_BACK_CAMERA, imageCapture);
 
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(null);
@@ -673,7 +670,7 @@ public final class ImageCaptureTest {
                 .setCaptureProcessor(mock(CaptureProcessor.class))
                 .build();
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext,
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
                 CameraSelector.DEFAULT_BACK_CAMERA, imageCapture);
 
         // Add an additional capture stage to test the case
@@ -698,7 +695,7 @@ public final class ImageCaptureTest {
     @Test
     public void onStateOffline_abortAllCaptureRequests() throws InterruptedException {
         ImageCapture imageCapture = new ImageCapture.Builder().build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext,
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
                 CameraSelector.DEFAULT_BACK_CAMERA, imageCapture);
 
         // After the use case can be reused, the capture requests can only be cancelled after the
@@ -731,7 +728,7 @@ public final class ImageCaptureTest {
     @Test
     public void unbind_abortAllCaptureRequests() throws InterruptedException {
         ImageCapture imageCapture = new ImageCapture.Builder().build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext,
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
                 CameraSelector.DEFAULT_BACK_CAMERA, imageCapture);
 
         CountingCallback callback = new CountingCallback(3, 10000);
@@ -780,7 +777,7 @@ public final class ImageCaptureTest {
     @Test
     public void defaultAspectRatioWillBeSet_whenTargetResolutionIsNotSet() {
         ImageCapture useCase = new ImageCapture.Builder().build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
         ImageOutputConfig config = (ImageOutputConfig) useCase.getUseCaseConfig();
         assertThat(config.getTargetAspectRatio()).isEqualTo(AspectRatio.RATIO_4_3);
     }
@@ -794,7 +791,7 @@ public final class ImageCaptureTest {
         assertThat(useCase.getUseCaseConfig().containsOption(
                 ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)).isFalse();
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
 
         assertThat(useCase.getUseCaseConfig().containsOption(
                 ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)).isFalse();
@@ -813,7 +810,7 @@ public final class ImageCaptureTest {
     public void targetResolutionIsUpdatedAfterTargetRotationIsUpdated() {
         ImageCapture imageCapture = new ImageCapture.Builder().setTargetResolution(
                 DEFAULT_RESOLUTION).setTargetRotation(Surface.ROTATION_0).build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, imageCapture);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, BACK_SELECTOR, imageCapture);
 
         // Updates target rotation from ROTATION_0 to ROTATION_90.
         imageCapture.setTargetRotation(Surface.ROTATION_90);
@@ -832,7 +829,7 @@ public final class ImageCaptureTest {
         ImageCapture useCase = new ImageCapture.Builder().setTargetResolution(
                 DEFAULT_RESOLUTION).build();
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
 
         ResolvableFuture<ImageProperties> imagePropertiesFuture = ResolvableFuture.create();
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imagePropertiesFuture);
@@ -874,7 +871,7 @@ public final class ImageCaptureTest {
                 DEFAULT_RESOLUTION).setTargetRotation(
                 isRotateNeeded ? Surface.ROTATION_90 : Surface.ROTATION_0).build();
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
 
         ResolvableFuture<ImageProperties> imagePropertiesFuture = ResolvableFuture.create();
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imagePropertiesFuture);
@@ -920,7 +917,7 @@ public final class ImageCaptureTest {
         // Updates target rotation to opposite one.
         useCase.setTargetRotation(isRotateNeeded ? Surface.ROTATION_0 : Surface.ROTATION_90);
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
 
         ResolvableFuture<ImageProperties> imagePropertiesFuture = ResolvableFuture.create();
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imagePropertiesFuture);
@@ -959,7 +956,7 @@ public final class ImageCaptureTest {
             throws ExecutionException, InterruptedException {
         ImageCapture useCase = new ImageCapture.Builder().build();
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
 
         ResolvableFuture<ImageProperties> imagePropertiesFuture = ResolvableFuture.create();
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imagePropertiesFuture);
@@ -1008,7 +1005,7 @@ public final class ImageCaptureTest {
         final ImageCapture useCase = mDefaultBuilder.build();
         UseCaseConfig<?> initialConfig = useCase.getUseCaseConfig();
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
 
         mInstrumentation.runOnMainSync(() -> {
             mCamera.removeUseCases(Collections.singleton(useCase));
@@ -1022,7 +1019,7 @@ public final class ImageCaptureTest {
     public void targetRotationIsRetained_whenUseCaseIsReused() {
         ImageCapture useCase = mDefaultBuilder.build();
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
 
         // Generally, the device can't be rotated to Surface.ROTATION_180. Therefore,
         // use it to do the test.
@@ -1038,7 +1035,7 @@ public final class ImageCaptureTest {
 
         // Check the target rotation is kept when the use case is rebound to the
         // lifecycle.
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
         assertThat(useCase.getTargetRotation()).isEqualTo(Surface.ROTATION_180);
     }
 
@@ -1048,7 +1045,7 @@ public final class ImageCaptureTest {
         ImageCapture useCase = mDefaultBuilder.build();
         Rational cropAspectRatio = new Rational(1, 1);
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
         useCase.setCropAspectRatio(cropAspectRatio);
 
         mInstrumentation.runOnMainSync(() -> {
@@ -1057,7 +1054,7 @@ public final class ImageCaptureTest {
         });
 
         // Rebind the use case.
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
 
         ResolvableFuture<ImageProperties> imagePropertiesFuture = ResolvableFuture.create();
         OnImageCapturedCallback callback = createMockOnImageCapturedCallback(imagePropertiesFuture);
@@ -1078,7 +1075,7 @@ public final class ImageCaptureTest {
     public void useCaseCanBeReusedInSameCamera() throws IOException {
         ImageCapture useCase = mDefaultBuilder.build();
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
 
         File saveLocation1 = File.createTempFile("test1", ".jpg");
         saveLocation1.deleteOnExit();
@@ -1094,7 +1091,7 @@ public final class ImageCaptureTest {
         });
 
         // Rebind the use case to the same camera.
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, BACK_SELECTOR, useCase);
 
         File saveLocation2 = File.createTempFile("test2", ".jpg");
         saveLocation2.deleteOnExit();
@@ -1109,7 +1106,7 @@ public final class ImageCaptureTest {
     public void useCaseCanBeReusedInDifferentCamera() throws IOException {
         ImageCapture useCase = mDefaultBuilder.build();
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext,
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
                 CameraSelector.DEFAULT_BACK_CAMERA, useCase);
 
         File saveLocation1 = File.createTempFile("test1", ".jpg");
@@ -1126,7 +1123,7 @@ public final class ImageCaptureTest {
         });
 
         // Rebind the use case to different camera.
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext,
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
                 CameraSelector.DEFAULT_FRONT_CAMERA, useCase);
 
         File saveLocation2 = File.createTempFile("test2", ".jpg");
@@ -1149,7 +1146,7 @@ public final class ImageCaptureTest {
     public void returnCorrectTargetRotation_afterUseCaseIsAttached() {
         ImageCapture imageCapture = new ImageCapture.Builder().setTargetRotation(
                 Surface.ROTATION_180).build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, imageCapture);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, BACK_SELECTOR, imageCapture);
         assertThat(imageCapture.getTargetRotation()).isEqualTo(Surface.ROTATION_180);
     }
 
@@ -1163,17 +1160,8 @@ public final class ImageCaptureTest {
     public void returnCorrectFlashMode_afterUseCaseIsAttached() {
         ImageCapture imageCapture = new ImageCapture.Builder().setFlashMode(
                 ImageCapture.FLASH_MODE_ON).build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, BACK_SELECTOR, imageCapture);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, BACK_SELECTOR, imageCapture);
         assertThat(imageCapture.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_ON);
-    }
-
-    private static final class ImageProperties {
-        public Size size;
-        public int format;
-        public int rotationDegrees;
-        public Rect cropRect;
-
-        public Exif exif;
     }
 
     private OnImageCapturedCallback createMockOnImageCapturedCallback(
@@ -1209,13 +1197,21 @@ public final class ImageCaptureTest {
         return callback;
     }
 
+    private static final class ImageProperties {
+        public Size size;
+        public int format;
+        public int rotationDegrees;
+        public Rect cropRect;
+
+        public Exif exif;
+    }
+
     private static class CountingCallback extends OnImageCapturedCallback {
         CountDownLatch mCountDownLatch;
         long mTimeout;
+        List<Integer> mImageCaptureErrors = new ArrayList<>();
         private int mNumOnCaptureSuccess = 0;
         private int mNumOnErrorSuccess = 0;
-
-        List<Integer> mImageCaptureErrors = new ArrayList<>();
 
         CountingCallback(int numTakePictures, long timeout) {
             mTimeout = timeout;

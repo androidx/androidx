@@ -536,7 +536,7 @@ public final class SupportedSurfaceCombinationTest {
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
 
-        CameraUseCaseAdapter cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(mContext,
+        CameraUseCaseAdapter cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(mContext,
                 CameraSelector.DEFAULT_BACK_CAMERA);
 
         cameraUseCaseAdapter.addUseCases(Arrays.asList(preview, imageCapture, imageAnalysis));
@@ -589,7 +589,7 @@ public final class SupportedSurfaceCombinationTest {
         // Preview/ImageCapture/ImageAnalysis' default config settings that will be applied after
         // bound to lifecycle. Calling bindToLifecycle here to make sure sizes matching to
         // default aspect ratio will be selected.
-        CameraUseCaseAdapter cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(mContext,
+        CameraUseCaseAdapter cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(mContext,
                 CameraSelector.DEFAULT_BACK_CAMERA);
 
         cameraUseCaseAdapter.addUseCases(Arrays.asList(preview,
