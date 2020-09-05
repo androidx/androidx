@@ -45,6 +45,7 @@ final class TouchInputHandler<K> extends MotionInputHandler<K> {
     private final OnDragInitiatedListener mOnDragInitiatedListener;
     private final Runnable mGestureStarter;
     private final Runnable mHapticPerformer;
+    private final Runnable mLongPressCallback;
 
     TouchInputHandler(
             @NonNull SelectionTracker<K> selectionTracker,
@@ -55,7 +56,8 @@ final class TouchInputHandler<K> extends MotionInputHandler<K> {
             @NonNull OnDragInitiatedListener onDragInitiatedListener,
             @NonNull OnItemActivatedListener<K> onItemActivatedListener,
             @NonNull FocusDelegate<K> focusDelegate,
-            @NonNull Runnable hapticPerformer) {
+            @NonNull Runnable hapticPerformer,
+            @NonNull Runnable longPressCallback) {
 
         super(selectionTracker, keyProvider, focusDelegate);
 
@@ -72,6 +74,7 @@ final class TouchInputHandler<K> extends MotionInputHandler<K> {
         mOnItemActivatedListener = onItemActivatedListener;
         mOnDragInitiatedListener = onDragInitiatedListener;
         mHapticPerformer = hapticPerformer;
+        mLongPressCallback = longPressCallback;
     }
 
     @Override
@@ -142,6 +145,9 @@ final class TouchInputHandler<K> extends MotionInputHandler<K> {
         if (item == null) {
             return;
         }
+
+        // Temprary fix to address b/166836317.
+        mLongPressCallback.run();
 
         if (shouldExtendRange(e)) {
             extendSelectionRange(item);

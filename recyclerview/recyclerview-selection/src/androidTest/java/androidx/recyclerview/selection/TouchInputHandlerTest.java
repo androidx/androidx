@@ -55,6 +55,7 @@ public final class TouchInputHandlerTest {
     private TestItemDetailsLookup mDetailsLookup;
     private SelectionProbe mSelection;
     private TestDragListener mDragInitiatedListener;
+    private TestRunnable mLongPressCallback;
 
     @Before
     public void setUp() {
@@ -66,6 +67,7 @@ public final class TouchInputHandlerTest {
         mHapticPerformer = new TestRunnable();
         mActivationCallbacks = new TestOnItemActivatedListener<>();
         mDragInitiatedListener = new TestDragListener();
+        mLongPressCallback = new TestRunnable();
 
         mInputDelegate = new TouchInputHandler<>(
                 mSelectionMgr,
@@ -78,7 +80,8 @@ public final class TouchInputHandlerTest {
                 mDragInitiatedListener,
                 mActivationCallbacks,
                 new TestFocusDelegate<>(),
-                mHapticPerformer);
+                mHapticPerformer,
+                mLongPressCallback::run);
     }
 
     @Test
@@ -105,6 +108,16 @@ public final class TouchInputHandlerTest {
         mInputDelegate.onLongPress(DOWN);
 
         mSelection.assertSelection(7);
+    }
+
+
+    @Test
+    public void testLongPress_NotifiesLongPressCallback() {
+        mSelectionPredicate.setReturnValue(true);
+        mDetailsLookup.initAt(7);
+
+        mInputDelegate.onLongPress(DOWN);
+        mLongPressCallback.assertRun();
     }
 
     @Test
