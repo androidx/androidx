@@ -25,7 +25,6 @@ import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_BAD_RETURN_TYPE
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_EMPTY_CLASS
-import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_FACTORY_MUST_BE_FINAL
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MUST_BE_PUBLIC
 import androidx.room.processor.ProcessorErrors.TYPE_CONVERTER_MUST_RECEIVE_1_PARAM
@@ -39,8 +38,7 @@ import java.util.LinkedHashSet
  */
 class CustomConverterProcessor(
     val context: Context,
-    val element: XTypeElement,
-    private val addTypeConverterFactory: (XType) -> Unit
+    val element: XTypeElement
 ) {
     companion object {
         private fun XType.isInvalidReturnType() =
@@ -48,8 +46,7 @@ class CustomConverterProcessor(
 
         fun findConverters(
             context: Context,
-            element: XElement,
-            addTypeConverterFactory: (XType) -> Unit
+            element: XElement
         ): ProcessResult {
             val annotation = element.toAnnotationBox(TypeConverters::class)
             return annotation?.let {
@@ -57,8 +54,7 @@ class CustomConverterProcessor(
                     .filter { it.isType() }
                     .mapTo(LinkedHashSet()) { it }
                 val converters = classes.flatMap {
-                    CustomConverterProcessor(context, it.asTypeElement(), addTypeConverterFactory)
-                        .process()
+                    CustomConverterProcessor(context, it.asTypeElement()).process()
                 }
                 reportDuplicates(context, converters)
                 ProcessResult(classes, converters.map(::CustomTypeConverterWrapper))
@@ -101,11 +97,6 @@ class CustomConverterProcessor(
                             it.parameters.isEmpty()
                         }, element, TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR
             )
-        } else {
-            val factoryElement = typeConverterFactory.asTypeElement()
-            context.checker.check(factoryElement.isFinal(), factoryElement,
-                TYPE_CONVERTER_FACTORY_MUST_BE_FINAL)
-            addTypeConverterFactory(typeConverterFactory)
         }
         return converterMethods.mapNotNull {
             processMethod(

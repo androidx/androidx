@@ -17,13 +17,13 @@
 package androidx.room.processor
 
 import androidx.room.RewriteQueriesToDropUnusedColumns
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XType
 import androidx.room.log.RLog
 import androidx.room.parser.expansion.ProjectionExpander
 import androidx.room.parser.optimization.RemoveUnusedColumnQueryRewriter
 import androidx.room.preconditions.Checks
-import androidx.room.compiler.processing.XElement
-import androidx.room.compiler.processing.XProcessingEnv
-import androidx.room.compiler.processing.XType
 import androidx.room.processor.cache.Cache
 import androidx.room.solver.TypeAdapterStore
 import androidx.room.verifier.DatabaseVerifier
@@ -37,8 +37,7 @@ class Context private constructor(
     private val typeConverters: CustomConverterProcessor.ProcessResult,
     private val inheritedAdapterStore: TypeAdapterStore?,
     val cache: Cache,
-    private val canRewriteQueriesToDropUnusedColumns: Boolean,
-    private val addTypeConverterFactory: (XType) -> Unit
+    private val canRewriteQueriesToDropUnusedColumns: Boolean
 ) {
     val checker: Checks = Checks(logger)
     val COMMON_TYPES = CommonTypes(processingEnv)
@@ -92,8 +91,7 @@ class Context private constructor(
             typeConverters = CustomConverterProcessor.ProcessResult.EMPTY,
             inheritedAdapterStore = null,
             cache = Cache(null, LinkedHashSet(), emptySet()),
-            canRewriteQueriesToDropUnusedColumns = false,
-            addTypeConverterFactory = {})
+            canRewriteQueriesToDropUnusedColumns = false)
 
     class CommonTypes(val processingEnv: XProcessingEnv) {
         val VOID: XType by lazy {
@@ -123,8 +121,7 @@ class Context private constructor(
                 typeConverters = this.typeConverters,
                 inheritedAdapterStore = typeAdapterStore,
                 cache = cache,
-                canRewriteQueriesToDropUnusedColumns = canRewriteQueriesToDropUnusedColumns,
-                addTypeConverterFactory = addTypeConverterFactory)
+                canRewriteQueriesToDropUnusedColumns = canRewriteQueriesToDropUnusedColumns)
         subContext.databaseVerifier = databaseVerifier
         val result = handler(subContext)
         return Pair(result, collector)
@@ -132,12 +129,11 @@ class Context private constructor(
 
     fun fork(
         element: XElement,
-        forceSuppressedWarnings: Set<Warning> = emptySet(),
-        addTypeConverterFactory: (XType) -> Unit = {}
+        forceSuppressedWarnings: Set<Warning> = emptySet()
     ): Context {
         val suppressedWarnings = SuppressWarningProcessor.getSuppressedWarnings(element)
         val processConvertersResult =
-            CustomConverterProcessor.findConverters(this, element, addTypeConverterFactory)
+            CustomConverterProcessor.findConverters(this, element)
         val canReUseAdapterStore = processConvertersResult.classes.isEmpty()
         // order here is important since the sub context should give priority to new converters.
         val subTypeConverters = if (canReUseAdapterStore) {
@@ -156,8 +152,7 @@ class Context private constructor(
                 typeConverters = subTypeConverters,
                 inheritedAdapterStore = if (canReUseAdapterStore) typeAdapterStore else null,
                 cache = subCache,
-                canRewriteQueriesToDropUnusedColumns = subCanRemoveUnusedColumns,
-                addTypeConverterFactory = addTypeConverterFactory)
+                canRewriteQueriesToDropUnusedColumns = subCanRemoveUnusedColumns)
         subContext.databaseVerifier = databaseVerifier
         return subContext
     }

@@ -16,11 +16,13 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 import androidx.sqlite.db.SupportSQLiteOpenHelper;
 import androidx.sqlite.db.SupportSQLiteOpenHelper.Callback;
 import androidx.sqlite.db.SupportSQLiteOpenHelper.Configuration;
+import java.lang.Class;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.processing.Generated;
@@ -177,8 +179,10 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
     }
 
     @Override
-    protected Map<String, TypeConverterFactory> createTypeConverterFactoriesMap() {
-        final HashMap<String, TypeConverterFactory> _typeConverterFactoriesMap = new HashMap<String, TypeConverterFactory>();
+    protected Map<String, List<Class<? extends TypeConverterFactory>>> getRequiredTypeConverterFactories(
+    ) {
+        final HashMap<String, List<Class<? extends TypeConverterFactory>>> _typeConverterFactoriesMap = new HashMap<String, List<Class<? extends TypeConverterFactory>>>();
+        _typeConverterFactoriesMap.put("foo.bar.ComplexDao", ComplexDao_Impl.getRequiredConverterFactories());
         return _typeConverterFactoriesMap;
     }
 

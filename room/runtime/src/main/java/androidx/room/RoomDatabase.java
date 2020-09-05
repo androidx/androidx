@@ -44,6 +44,7 @@ import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory;
 import java.io.File;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -141,15 +142,21 @@ public abstract class RoomDatabase {
         return mBackingFieldMap;
     }
 
-    private final Map<String, TypeConverterFactory> mTypeConverterFactories;
+    // Updated later to an unmodifiable map when init is called.
+    private final Map<Class<?>, TypeConverterFactory> mTypeConverterFactories;
+
 
     /**
-     * Gets the map of {@link TypeConverterFactory} instances.
+     * Gets the instance of the given Factory.
      *
+     * @param klass The {@link TypeConverterFactory} class.
+     * @param <T> The type of the expected TypeFactory subclass.
+     * @return An instance of T if it is provided in the builder.
      */
-    @NonNull
-    public Map<String, TypeConverterFactory> getTypeConverterFactories() {
-        return mTypeConverterFactories;
+    @SuppressWarnings("unchecked")
+    @Nullable
+    public <T extends TypeConverterFactory> T getTypeConverterFactory(@NonNull Class<T> klass) {
+        return (T) mTypeConverterFactories.get(klass);
     }
 
     /**
@@ -161,7 +168,7 @@ public abstract class RoomDatabase {
      */
     public RoomDatabase() {
         mInvalidationTracker = createInvalidationTracker();
-        mTypeConverterFactories = createTypeConverterFactoriesMap();
+        mTypeConverterFactories = new HashMap<>();
     }
 
     /**
@@ -191,25 +198,47 @@ public abstract class RoomDatabase {
                     configuration.name);
         }
 
-        if (configuration.typeConverterFactories != null) {
-            for (Map.Entry<String, TypeConverterFactory> entry :
-                    configuration.typeConverterFactories.entrySet()) {
-                if (!mTypeConverterFactories.containsKey(entry.getKey())) {
-                    throw new IllegalArgumentException("Unexpected factory " + entry.getKey() + ". "
-                            + "Annotate TypeConverter class with @TypeConverter.Factory annotation "
-                            + "or remove this factory from the builder.");
+        Map<String, List<Class<? extends TypeConverterFactory>>> requiredFactories =
+                getRequiredTypeConverterFactories();
+        // indices for each factory on whether it is used or not so that we can throw an exception
+        // if developer provides an unused factory. It is not necessarily an error but likely to be
+        // because why would developer add a factory if it won't be used?
+        BitSet used = new BitSet();
+        for (Map.Entry<String, List<Class<? extends TypeConverterFactory>>> entry :
+                requiredFactories.entrySet()) {
+            String daoName = entry.getKey();
+            for (Class<?> factory : entry.getValue()) {
+                int foundIndex = -1;
+                // traverse provided factories in reverse so that newer one overrides
+                for (int providedIndex = configuration.typeConverterFactories.size() - 1;
+                        providedIndex >= 0; providedIndex--) {
+                    TypeConverterFactory provided =
+                            configuration.typeConverterFactories.get(providedIndex);
+                    if (factory.isAssignableFrom(provided.getClass())) {
+                        foundIndex = providedIndex;
+                        used.set(foundIndex);
+                        break;
+                    }
                 }
-                mTypeConverterFactories.put(entry.getKey(), entry.getValue());
+                if (foundIndex < 0) {
+                    throw new IllegalArgumentException(
+                            "A required factory (" + factory + ") for"
+                                    + " " + daoName
+                                    + " is missing in the database configuration.");
+                }
+                mTypeConverterFactories.put(factory,
+                        configuration.typeConverterFactories.get(foundIndex));
             }
         }
-
-        for (Map.Entry<String, TypeConverterFactory> entry:
-                getTypeConverterFactories().entrySet()) {
-            if (entry.getValue() == null) {
-                throw new IllegalArgumentException("Missing " + entry.getKey() + " factory "
-                        + "instance. Add it using addTypeConverterFactory method or "
-                        + "remove unnecessary @TypeConverter.Factory annotation from "
-                        + "a TypeConverter class.");
+        // now, make sure all provided factories are used
+        for (int providedIndex = configuration.typeConverterFactories.size() - 1;
+                providedIndex >= 0; providedIndex--) {
+            if (!used.get(providedIndex)) {
+                TypeConverterFactory factory =
+                        configuration.typeConverterFactories.get(providedIndex);
+                throw new IllegalArgumentException("Unexpected factory " + factory + ". "
+                        + "Annotate TypeConverter class with @TypeConverter.Factory annotation "
+                        + "or remove this factory from the builder.");
             }
         }
     }
@@ -246,15 +275,18 @@ public abstract class RoomDatabase {
     protected abstract InvalidationTracker createInvalidationTracker();
 
     /**
-     * Called when the RoomDatabase is created.
+     * Returns a Map of String -> List&lt;Class&gt; where each entry has the `key` as the DAO name
+     * and `value` as the list of factory classes that are necessary for the database to function.
      * <p>
-     * This is already implemented by the generated code.
+     * This is implemented by the generated code.
      *
-     * @return Creates a new map that will keep track of TypeConverterFactories.
+     * @return Creates a map that will include all required factories for this database.
      */
     @NonNull
-    protected Map<String, TypeConverterFactory> createTypeConverterFactoriesMap() {
-        return new HashMap<>();
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    protected Map<String, List<Class<? extends TypeConverterFactory>>>
+            getRequiredTypeConverterFactories() {
+        return Collections.emptyMap();
     }
 
     /**
@@ -588,7 +620,7 @@ public abstract class RoomDatabase {
         private final Context mContext;
         private ArrayList<Callback> mCallbacks;
         private PrepackagedDatabaseCallback mPrepackagedDatabaseCallback;
-        private Map<String, TypeConverterFactory> mTypeConverterFactories;
+        private List<TypeConverterFactory> mTypeConverterFactories;
 
         /** The Executor used to run database queries. This should be background-threaded. */
         private Executor mQueryExecutor;
@@ -1068,9 +1100,9 @@ public abstract class RoomDatabase {
         @NonNull
         public Builder<T> addTypeConverterFactory(@NonNull TypeConverterFactory factory) {
             if (mTypeConverterFactories == null) {
-                mTypeConverterFactories = new HashMap<>();
+                mTypeConverterFactories = new ArrayList<>();
             }
-            mTypeConverterFactories.put(factory.getClass().getCanonicalName(), factory);
+            mTypeConverterFactories.add(factory);
             return this;
         }
 

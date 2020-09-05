@@ -5,11 +5,13 @@ import android.os.CancellationSignal;
 import androidx.lifecycle.LiveData;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
+import androidx.room.TypeConverterFactory;
 import androidx.room.guava.GuavaRoom;
 import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
 import androidx.room.util.StringUtil;
 import com.google.common.util.concurrent.ListenableFuture;
+import java.lang.Class;
 import java.lang.Exception;
 import java.lang.Integer;
 import java.lang.Override;
@@ -17,6 +19,7 @@ import java.lang.String;
 import java.lang.StringBuilder;
 import java.lang.SuppressWarnings;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.annotation.processing.Generated;
@@ -533,5 +536,9 @@ public final class ComplexDao_Impl extends ComplexDao {
                 }
             }
         }, _statement, true, _cancellationSignal);
+    }
+
+    public static List<Class<? extends TypeConverterFactory>> getRequiredConverterFactories() {
+        return Collections.emptyList();
     }
 }

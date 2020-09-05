@@ -27,9 +27,12 @@ import androidx.room.compiler.processing.XElement
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.addOriginatingElement
+import androidx.room.ext.CommonTypeNames
+import androidx.room.ext.RoomTypeNames.TYPE_CONVERTER_FACTORY
 import androidx.room.processor.OnConflictProcessor
 import androidx.room.solver.CodeGenScope
 import androidx.room.solver.KotlinDefaultMethodDelegateBinder
+import androidx.room.solver.types.getRequiredTypeConverterFactories
 import androidx.room.vo.Dao
 import androidx.room.vo.InsertionMethod
 import androidx.room.vo.KotlinDefaultMethodDelegate
@@ -49,11 +52,16 @@ import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
+import com.squareup.javapoet.WildcardTypeName
 import stripNonJava
+import java.util.Arrays
+import java.util.Collections
 import java.util.Locale
+import javax.lang.model.element.Modifier
 import javax.lang.model.element.Modifier.FINAL
 import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.PUBLIC
+import javax.lang.model.element.Modifier.STATIC
 
 /**
  * Creates the implementation for a class annotated with Dao.
@@ -67,6 +75,7 @@ class DaoWriter(
     private val declaredDao = dao.element.asDeclaredType()
 
     companion object {
+        const val GET_LIST_OF_TYPE_CONVERTER_FACTORIES_METHOD = "getRequiredConverterFactories"
         // TODO nothing prevents this from conflicting, we should fix.
         val dbField: FieldSpec = FieldSpec
                 .builder(RoomTypeNames.ROOM_DB, "__db", PRIVATE, FINAL)
@@ -139,8 +148,37 @@ class DaoWriter(
             dao.kotlinDefaultMethodDelegates.forEach {
                 addMethod(createDefaultMethodDelegate(it))
             }
+            // keep this the last one to be generated because used custom converters will register
+            // fields with a payload which we collect in dao to report used TypeConverterFactories.
+            addMethod(createFactoryListMethod())
         }
         return builder
+    }
+
+    private fun createFactoryListMethod(): MethodSpec {
+        return MethodSpec.methodBuilder(GET_LIST_OF_TYPE_CONVERTER_FACTORIES_METHOD).apply {
+            addModifiers(STATIC, PUBLIC)
+            returns(
+                ParameterizedTypeName.get(
+                    CommonTypeNames.LIST,
+                    ParameterizedTypeName.get(
+                        ClassName.get(Class::class.java),
+                        WildcardTypeName.subtypeOf(TYPE_CONVERTER_FACTORY)
+                    )
+                )
+            )
+            val requiredTypeConverterFactories = getRequiredTypeConverterFactories()
+            if (requiredTypeConverterFactories.isEmpty()) {
+                addStatement("return $T.emptyList()", ClassName.get(Collections::class.java))
+            } else {
+                val placeholders = requiredTypeConverterFactories.joinToString(",") {
+                    "$T.class"
+                }
+                val args = arrayOf(ClassName.get(Arrays::class.java)) +
+                        requiredTypeConverterFactories
+                addStatement("return $T.asList($placeholders)", *args)
+            }
+        }.build()
     }
 
     private fun createPreparedQueries(

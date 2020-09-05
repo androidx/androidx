@@ -281,8 +281,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
                 daoMethods = emptyList(),
                 version = -1,
                 exportSchema = false,
-                enableForeignKeys = false,
-                typeConverterFactories = emptySet())
+                enableForeignKeys = false)
     }
 
     private fun entity(

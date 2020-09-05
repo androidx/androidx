@@ -26,6 +26,7 @@ import androidx.sqlite.db.SupportSQLiteOpenHelper;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -66,8 +67,8 @@ public class DatabaseConfiguration {
     @Nullable
     public final RoomDatabase.PrepackagedDatabaseCallback prepackagedDatabaseCallback;
 
-    @Nullable
-    public final Map<String, TypeConverterFactory> typeConverterFactories;
+    @NonNull
+    public final List<TypeConverterFactory> typeConverterFactories;
 
     /**
      * Whether Room should throw an exception for queries run on the main thread.
@@ -425,7 +426,7 @@ public class DatabaseConfiguration {
             @Nullable File copyFromFile,
             @Nullable Callable<InputStream> copyFromInputStream,
             @Nullable RoomDatabase.PrepackagedDatabaseCallback prepackagedDatabaseCallback,
-            @Nullable Map<String, TypeConverterFactory> typeConverterFactories) {
+            @Nullable List<TypeConverterFactory> typeConverterFactories) {
         this.sqliteOpenHelperFactory = sqliteOpenHelperFactory;
         this.context = context;
         this.name = name;
@@ -443,7 +444,8 @@ public class DatabaseConfiguration {
         this.copyFromFile = copyFromFile;
         this.copyFromInputStream = copyFromInputStream;
         this.prepackagedDatabaseCallback = prepackagedDatabaseCallback;
-        this.typeConverterFactories = typeConverterFactories;
+        this.typeConverterFactories =
+                typeConverterFactories == null ? Collections.emptyList() : typeConverterFactories;
     }
 
     /**

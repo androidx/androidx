@@ -3,11 +3,13 @@ package foo.bar;
 import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.SharedSQLiteStatement;
+import androidx.room.TypeConverterFactory;
 import androidx.room.util.StringUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
 import io.reactivex.Single;
+import java.lang.Class;
 import java.lang.Exception;
 import java.lang.Integer;
 import java.lang.Override;
@@ -15,6 +17,7 @@ import java.lang.String;
 import java.lang.StringBuilder;
 import java.lang.SuppressWarnings;
 import java.lang.Void;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.annotation.processing.Generated;
@@ -386,5 +389,9 @@ public final class DeletionDao_Impl implements DeletionDao {
     } finally {
       __db.endTransaction();
     }
+  }
+
+  public static List<Class<? extends TypeConverterFactory>> getRequiredConverterFactories() {
+    return Collections.emptyList();
   }
 }

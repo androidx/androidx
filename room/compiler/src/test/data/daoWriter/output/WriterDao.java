@@ -18,10 +18,13 @@ package foo.bar;
 
 import androidx.room.EntityInsertionAdapter;
 import androidx.room.RoomDatabase;
+import androidx.room.TypeConverterFactory;
 import androidx.sqlite.db.SupportSQLiteStatement;
+import java.lang.Class;
 import java.lang.Override;
 import java.lang.String;
 import java.lang.SuppressWarnings;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.processing.Generated;
 
@@ -144,5 +147,9 @@ public final class WriterDao_Impl implements WriterDao {
         } finally {
             __db.endTransaction();
         }
+    }
+
+    public static List<Class<? extends TypeConverterFactory>> getRequiredConverterFactories() {
+        return Collections.emptyList();
     }
 }

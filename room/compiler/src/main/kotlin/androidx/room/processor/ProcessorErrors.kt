@@ -297,7 +297,6 @@ object ProcessorErrors {
             " have no-argument public constructors. Use a TypeConverterFactory if you need to " +
             "take control over creating an instance of a TypeConverter."
     val TYPE_CONVERTER_MUST_BE_PUBLIC = "Type converters must be public."
-    val TYPE_CONVERTER_FACTORY_MUST_BE_FINAL = "Type converter factories must be final."
 
     fun duplicateTypeConverters(converters: List<CustomTypeConverter>): String {
         return "Multiple methods define the same conversion. Conflicts with these:" +

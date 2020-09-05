@@ -16,6 +16,7 @@
 
 package androidx.room.solver.types
 
+import androidx.room.TypeConverterFactory
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.L
 import androidx.room.ext.N
@@ -69,10 +70,14 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
         scope: CodeGenScope,
         enclosingClassFactory: XType
     ): MethodSpec {
-        val baseName = (custom.typeName as ClassName).simpleName().decapitalize(Locale.US)
+        val className = custom.typeName as ClassName
+        val baseName = className.simpleName().decapitalize(Locale.US)
 
+        val factoryClassName = enclosingClassFactory.typeName as ClassName
+        scope.writer.addRequiredTypeConverterFactory(factoryClassName)
         val converterField = scope.writer.getOrCreateField(object : ClassWriter.SharedFieldSpec(
-            baseName, custom.typeName) {
+            baseName, custom.typeName
+        ) {
             override fun getUniqueKey(): String {
                 return "converter_${custom.typeName}"
             }
@@ -107,9 +112,8 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
                 methodScope.builder().apply {
                     beginControlFlow("if ($N == null)", converterField)
                     addStatement(
-                        "$N = ($T)$N.getTypeConverterFactories().get($S).create($T.class)",
+                        "$N = $N.getTypeConverterFactory($T.class).create($T.class)",
                         converterField,
-                        custom.typeName,
                         DaoWriter.dbField,
                         enclosingClassFactory.typeName,
                         custom.typeName
@@ -137,4 +141,12 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
             }
         })
     }
+}
+
+fun ClassWriter.addRequiredTypeConverterFactory(className: ClassName) {
+    this[TypeConverterFactory::class] = getRequiredTypeConverterFactories() + setOf(className)
+}
+
+fun ClassWriter.getRequiredTypeConverterFactories():Set<ClassName> {
+    return this.get<Set<ClassName>>(TypeConverterFactory::class) ?: emptySet()
 }

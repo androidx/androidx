@@ -31,12 +31,14 @@ import androidx.room.ext.RoomTypeNames.TYPE_CONVERTER_FACTORY
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.DaoMethod
 import androidx.room.vo.Database
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
+import com.squareup.javapoet.WildcardTypeName
 import decapitalize
 import stripNonJava
 import java.util.Locale
@@ -68,16 +70,29 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
 
     private fun createCreateTypeConverterFactoriesMap(): MethodSpec {
         val scope = CodeGenScope(this)
-        return MethodSpec.methodBuilder("createTypeConverterFactoriesMap").apply {
+        return MethodSpec.methodBuilder("getRequiredTypeConverterFactories").apply {
             addAnnotation(Override::class.java)
             addModifiers(PROTECTED)
-            returns(ParameterizedTypeName.get(CommonTypeNames.MAP, CommonTypeNames.STRING,
-                TYPE_CONVERTER_FACTORY))
+            returns(ParameterizedTypeName.get(
+                CommonTypeNames.MAP, CommonTypeNames.STRING,
+                ParameterizedTypeName.get(
+                    CommonTypeNames.LIST,
+                    ParameterizedTypeName.get(
+                        ClassName.get(Class::class.java),
+                        WildcardTypeName.subtypeOf(TYPE_CONVERTER_FACTORY)
+                    )
+                )
+            ))
             val typeConverterFactoriesVar = scope.getTmpVar("_typeConverterFactoriesMap")
             val typeConverterFactoriesTypeName = ParameterizedTypeName.get(
-                HashMap::class.typeName,
-                CommonTypeNames.STRING,
-                TYPE_CONVERTER_FACTORY
+                ClassName.get(HashMap::class.java), CommonTypeNames.STRING,
+                ParameterizedTypeName.get(
+                    ClassName.get(List::class.java),
+                    ParameterizedTypeName.get(
+                        ClassName.get(Class::class.java),
+                        WildcardTypeName.subtypeOf(TYPE_CONVERTER_FACTORY)
+                    )
+                )
             )
             addStatement(
                 "final $T $L = new $T()",
@@ -85,12 +100,12 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
                 typeConverterFactoriesVar,
                 typeConverterFactoriesTypeName
             )
-            database.typeConverterFactories.forEach {
-                addStatement(
-                    "$L.put($S, null)",
-                    typeConverterFactoriesVar,
-                    it.typeName
-                )
+            database.daoMethods.forEach {
+                addStatement("$L.put($S, $T.$L())",
+                typeConverterFactoriesVar,
+                it.dao.typeName.canonicalName(),
+                it.dao.implTypeName,
+                DaoWriter.GET_LIST_OF_TYPE_CONVERTER_FACTORIES_METHOD)
             }
             addStatement("return $L", typeConverterFactoriesVar)
         }.build()
