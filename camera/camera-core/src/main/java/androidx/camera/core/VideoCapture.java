@@ -59,6 +59,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Pair;
@@ -73,7 +74,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
-import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
@@ -89,7 +89,11 @@ import androidx.camera.core.impl.VideoCaptureConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.ThreadConfig;
 import androidx.camera.core.internal.utils.VideoUtil;
+import androidx.concurrent.futures.CallbackToFutureAdapter;
+import androidx.concurrent.futures.CallbackToFutureAdapter.Completer;
 import androidx.core.util.Preconditions;
+
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.io.File;
 import java.io.FileDescriptor;
@@ -102,6 +106,7 @@ import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A use case for taking a video.
@@ -197,6 +202,8 @@ public final class VideoCapture extends UseCase {
     MediaCodec mVideoEncoder;
     @NonNull
     private MediaCodec mAudioEncoder;
+    @Nullable
+    private ListenableFuture<Void> mRecordingFuture = null;
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
@@ -329,12 +336,16 @@ public final class VideoCapture extends UseCase {
     public void startRecording(
             @NonNull OutputFileOptions outputFileOptions, @NonNull Executor executor,
             @NonNull OnVideoSavedCallback callback) {
+        if (Looper.getMainLooper() != Looper.myLooper()) {
+            CameraXExecutors.mainThreadExecutor().execute(() -> startRecording(outputFileOptions,
+                    executor, callback));
+            return;
+        }
         Logger.i(TAG, "startRecording");
         mIsFirstVideoSampleWrite.set(false);
         mIsFirstAudioSampleWrite.set(false);
 
         OnVideoSavedCallback postListener = new VideoSavedListenerWrapper(executor, callback);
-        Metadata metadata = outputFileOptions.getMetadata();
 
         if (!mEndOfAudioVideoSignal.get()) {
             postListener.onError(
@@ -351,9 +362,28 @@ public final class VideoCapture extends UseCase {
             return;
         }
 
-        CameraInternal attachedCamera = getCamera();
-        String cameraId = getCameraId();
-        Size resolution = getAttachedSurfaceResolution();
+        AtomicReference<Completer<Void>> recordingCompleterRef = new AtomicReference<>();
+        mRecordingFuture = CallbackToFutureAdapter.getFuture(
+                completer -> {
+                    recordingCompleterRef.set(completer);
+                    return "startRecording";
+                });
+        Completer<Void> recordingCompleter =
+                Preconditions.checkNotNull(recordingCompleterRef.get());
+
+        mRecordingFuture.addListener(() -> {
+            mRecordingFuture = null;
+            // Do the setup of the videoEncoder at the end of video recording instead of at the
+            // start of recording because it requires attaching a new Surface. This causes a
+            // glitch so we don't want that to incur latency at the start of capture.
+            if (getCamera() != null) {
+                // Ensure the use case is bound. Asynchronous stopping procedure may occur after
+                // the use case is unbound, i.e. after onDetached().
+                setupEncoder(getCameraId(), getAttachedSurfaceResolution());
+                notifyReset();
+            }
+        }, CameraXExecutors.mainThreadExecutor());
+
         try {
             // video encoder start
             Logger.i(TAG, "videoEncoder start");
@@ -363,7 +393,7 @@ public final class VideoCapture extends UseCase {
             mAudioEncoder.start();
 
         } catch (IllegalStateException e) {
-            setupEncoder(cameraId, resolution);
+            recordingCompleter.set(null);
             postListener.onError(ERROR_ENCODER, "Audio/Video encoder start fail", e);
             return;
         }
@@ -372,8 +402,9 @@ public final class VideoCapture extends UseCase {
             synchronized (mMuxerLock) {
                 mMuxer = initMediaMuxer(outputFileOptions);
                 Preconditions.checkNotNull(mMuxer);
-                mMuxer.setOrientationHint(getRelativeRotation(attachedCamera));
+                mMuxer.setOrientationHint(getRelativeRotation(getCamera()));
 
+                Metadata metadata = outputFileOptions.getMetadata();
                 if (metadata != null && metadata.location != null) {
                     mMuxer.setLocation(
                             (float) metadata.location.getLatitude(),
@@ -381,7 +412,7 @@ public final class VideoCapture extends UseCase {
                 }
             }
         } catch (IOException e) {
-            setupEncoder(cameraId, resolution);
+            recordingCompleter.set(null);
             postListener.onError(ERROR_MUXER, "MediaMuxer creation failed!", e);
             return;
         }
@@ -392,25 +423,18 @@ public final class VideoCapture extends UseCase {
         mIsRecording = true;
 
         notifyActive();
-        mAudioHandler.post(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        VideoCapture.this.audioEncode(postListener);
-                    }
-                });
+        mAudioHandler.post(() -> audioEncode(postListener));
 
+        String cameraId = getCameraId();
+        Size resolution = getAttachedSurfaceResolution();
         mVideoHandler.post(
-                new Runnable() {
-                    @Override
-                    public void run() {
-                        boolean errorOccurred = VideoCapture.this.videoEncode(postListener,
-                                cameraId, resolution);
-                        if (!errorOccurred) {
-                            postListener.onVideoSaved(new OutputFileResults(mSavedVideoUri));
-                            mSavedVideoUri = null;
-                        }
+                () -> {
+                    boolean errorOccurred = videoEncode(postListener, cameraId, resolution);
+                    if (!errorOccurred) {
+                        postListener.onVideoSaved(new OutputFileResults(mSavedVideoUri));
+                        mSavedVideoUri = null;
                     }
+                    recordingCompleter.set(null);
                 });
     }
 
@@ -425,6 +449,10 @@ public final class VideoCapture extends UseCase {
      * before startRecording.
      */
     public void stopRecording() {
+        if (Looper.getMainLooper() != Looper.myLooper()) {
+            CameraXExecutors.mainThreadExecutor().execute(() -> stopRecording());
+            return;
+        }
         Logger.i(TAG, "stopRecording");
         notifyInactive();
         if (!mEndOfAudioVideoSignal.get() && mIsRecording) {
@@ -441,6 +469,17 @@ public final class VideoCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public void onDetached() {
+        stopRecording();
+
+        if (mRecordingFuture != null) {
+            mRecordingFuture.addListener(() -> releaseResources(),
+                    CameraXExecutors.mainThreadExecutor());
+        } else {
+            releaseResources();
+        }
+    }
+
+    private void releaseResources() {
         mVideoHandlerThread.quitSafely();
 
         // audio encoder release
@@ -484,6 +523,7 @@ public final class VideoCapture extends UseCase {
         stopRecording();
     }
 
+    @UiThread
     private void releaseCameraSurface(final boolean releaseVideoEncoder) {
         if (mDeferrableSurface == null) {
             return;
@@ -525,6 +565,7 @@ public final class VideoCapture extends UseCase {
      * Setup the {@link MediaCodec} for encoding video from a camera {@link Surface} and encoding
      * audio from selected audio source.
      */
+    @UiThread
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void setupEncoder(@NonNull String cameraId, @NonNull Size resolution) {
         VideoCaptureConfig config = (VideoCaptureConfig) getUseCaseConfig();
@@ -705,6 +746,7 @@ public final class VideoCapture extends UseCase {
                     break;
                 case MediaCodec.INFO_TRY_AGAIN_LATER:
                     // Timed out. Just wait until next attempt to deque.
+                    break;
                 default:
                     videoEos = writeVideoEncodedBuffer(outputBufferId);
             }
@@ -746,11 +788,6 @@ public final class VideoCapture extends UseCase {
         }
 
         mMuxerStarted = false;
-        // Do the setup of the videoEncoder at the end of video recording instead of at the start of
-        // recording because it requires attaching a new Surface. This causes a glitch so we don't
-        // want that to incur latency at the start of capture.
-        setupEncoder(cameraId, resolution);
-        notifyReset();
 
         // notify the UI thread that the video recording has finished
         mEndOfAudioVideoSignal.set(true);
