@@ -65,7 +65,7 @@ public class ExposureControlTest {
     private static final String CAMERA1_ID = "1";
 
     private ExposureControl mExposureControl;
-    private Camera2CameraControl mCamera2CameraControl;
+    private Camera2CameraControlImpl mCamera2CameraControl;
 
     @Before
     public void setUp() throws CameraAccessException {
@@ -80,7 +80,7 @@ public class ExposureControlTest {
         CameraCharacteristics cameraCharacteristics =
                 cameraManager.getCameraCharacteristics(CAMERA0_ID);
 
-        mCamera2CameraControl = spy(new Camera2CameraControl(
+        mCamera2CameraControl = spy(new Camera2CameraControlImpl(
                 cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor(),
                 CameraXExecutors.directExecutor(),
@@ -182,7 +182,7 @@ public class ExposureControlTest {
         CameraCharacteristics cameraCharacteristics =
                 cameraManager.getCameraCharacteristics(CAMERA1_ID);
 
-        mCamera2CameraControl = spy(new Camera2CameraControl(
+        mCamera2CameraControl = spy(new Camera2CameraControlImpl(
                 cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor(),
                 CameraXExecutors.directExecutor(),

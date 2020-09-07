@@ -92,8 +92,8 @@ import java.util.concurrent.ScheduledExecutorService;
  * requests end in {@code ImmediateFailedFuture}. Any cached requests are dropped.</li>
  * </ul>
  */
-final class Camera2CameraControl implements CameraControlInternal {
-    private static final String TAG = "Camera2CameraControl";
+final class Camera2CameraControlImpl implements CameraControlInternal {
+    private static final String TAG = "Camera2CameraControlImp";
     @VisibleForTesting
     final CameraControlSessionCallback mSessionCallback;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -124,7 +124,7 @@ final class Camera2CameraControl implements CameraControlInternal {
     //**************************************************************************************//
 
     /**
-     * Constructor for a Camera2CameraControl.
+     * Constructor for a Camera2CameraControlImpl.
      *
      * <p>All {@code controlUpdateListener} invocations will be on the provided {@code executor}.
      *
@@ -135,7 +135,7 @@ final class Camera2CameraControl implements CameraControlInternal {
      * @param executor              Camera executor for synchronizing and offloading all commands.
      * @param controlUpdateCallback Listener which will be notified of control changes.
      */
-    Camera2CameraControl(@NonNull CameraCharacteristics cameraCharacteristics,
+    Camera2CameraControlImpl(@NonNull CameraCharacteristics cameraCharacteristics,
             @NonNull ScheduledExecutorService scheduler,
             @NonNull @CameraExecutor Executor executor,
             @NonNull ControlUpdateCallback controlUpdateCallback) {

@@ -38,9 +38,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.concurrent.Executor;
 
 /**
- * Implementation of torch control used within {@link Camera2CameraControl}.
+ * Implementation of torch control used within {@link Camera2CameraControlImpl}.
  *
- * It is used to control the flash torch of camera device that {@link Camera2CameraControl}
+ * It is used to control the flash torch of camera device that {@link Camera2CameraControlImpl}
  * operates. The torch control must be activated via {@link #setActive(boolean)} when the
  * camera device is ready to do torch operations and be deactivated when the camera device is
  * closing or closed.
@@ -49,7 +49,7 @@ final class TorchControl {
     private static final String TAG = "TorchControl";
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    private final Camera2CameraControl mCamera2CameraControl;
+    private final Camera2CameraControlImpl mCamera2CameraControlImpl;
     private final MutableLiveData<Integer> mTorchState;
     private final boolean mHasFlashUnit;
     @CameraExecutor
@@ -64,20 +64,20 @@ final class TorchControl {
     /**
      * Constructs a TorchControl.
      *
-     * @param camera2CameraControl the camera control this TorchControl belongs.
+     * @param camera2CameraControlImpl the camera control this TorchControl belongs.
      * @param cameraCharacteristics the characteristics for the camera being controlled.
      * @param executor the camera executor used to run camera task.
      */
-    TorchControl(@NonNull Camera2CameraControl camera2CameraControl,
+    TorchControl(@NonNull Camera2CameraControlImpl camera2CameraControlImpl,
             @NonNull CameraCharacteristics cameraCharacteristics,
             @CameraExecutor @NonNull Executor executor) {
-        mCamera2CameraControl = camera2CameraControl;
+        mCamera2CameraControlImpl = camera2CameraControlImpl;
         mExecutor = executor;
         Boolean hasFlashUnit =
                 cameraCharacteristics.get(CameraCharacteristics.FLASH_INFO_AVAILABLE);
         mHasFlashUnit = hasFlashUnit != null && hasFlashUnit.booleanValue();
         mTorchState = new MutableLiveData<>(TorchState.OFF);
-        mCamera2CameraControl.addCaptureResultListener(mCaptureResultListener);
+        mCamera2CameraControlImpl.addCaptureResultListener(mCaptureResultListener);
     }
 
     /**
@@ -96,7 +96,7 @@ final class TorchControl {
         if (!isActive) {
             if (mTargetTorchEnabled) {
                 mTargetTorchEnabled = false;
-                mCamera2CameraControl.enableTorchInternal(false);
+                mCamera2CameraControlImpl.enableTorchInternal(false);
                 setLiveDataValue(mTorchState, TorchState.OFF);
             }
 
@@ -168,7 +168,7 @@ final class TorchControl {
         }
 
         mTargetTorchEnabled = enabled;
-        mCamera2CameraControl.enableTorchInternal(enabled);
+        mCamera2CameraControlImpl.enableTorchInternal(enabled);
         setLiveDataValue(mTorchState, enabled ? TorchState.ON : TorchState.OFF);
         if (mEnableTorchCompleter != null) {
             mEnableTorchCompleter.setException(new OperationCanceledException(
@@ -185,8 +185,8 @@ final class TorchControl {
         }
     }
 
-    private final Camera2CameraControl.CaptureResultListener mCaptureResultListener =
-            new Camera2CameraControl.CaptureResultListener() {
+    private final Camera2CameraControlImpl.CaptureResultListener mCaptureResultListener =
+            new Camera2CameraControlImpl.CaptureResultListener() {
 
         @ExecutedBy("mExecutor")
         @Override

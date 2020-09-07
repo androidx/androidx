@@ -49,7 +49,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     private static final String TAG = "Camera2CameraInfo";
     private final String mCameraId;
     private final CameraCharacteristics mCameraCharacteristics;
-    private final Camera2CameraControl mCamera2CameraControl;
+    private final Camera2CameraControlImpl mCamera2CameraControlImpl;
     private final ZoomControl mZoomControl;
     private final TorchControl mTorchControl;
     private final ExposureControl mExposureControl;
@@ -57,14 +57,14 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     Camera2CameraInfoImpl(@NonNull String cameraId,
             @NonNull CameraCharacteristics cameraCharacteristics,
-            @NonNull Camera2CameraControl camera2CameraControl) {
+            @NonNull Camera2CameraControlImpl camera2CameraControlImpl) {
         Preconditions.checkNotNull(cameraCharacteristics, "Camera characteristics map is missing");
         mCameraId = Preconditions.checkNotNull(cameraId);
         mCameraCharacteristics = cameraCharacteristics;
-        mCamera2CameraControl = camera2CameraControl;
-        mZoomControl = camera2CameraControl.getZoomControl();
-        mTorchControl = camera2CameraControl.getTorchControl();
-        mExposureControl = camera2CameraControl.getExposureControl();
+        mCamera2CameraControlImpl = camera2CameraControlImpl;
+        mZoomControl = camera2CameraControlImpl.getZoomControl();
+        mTorchControl = camera2CameraControlImpl.getTorchControl();
+        mExposureControl = camera2CameraControlImpl.getExposureControl();
         mCamera2CameraInfo = new Camera2CameraInfo(this);
         logDeviceInfo();
     }
@@ -212,12 +212,12 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     @Override
     public void addSessionCaptureCallback(@NonNull Executor executor,
             @NonNull CameraCaptureCallback callback) {
-        mCamera2CameraControl.addSessionCameraCaptureCallback(executor, callback);
+        mCamera2CameraControlImpl.addSessionCameraCaptureCallback(executor, callback);
     }
 
     @Override
     public void removeSessionCaptureCallback(@NonNull CameraCaptureCallback callback) {
-        mCamera2CameraControl.removeSessionCameraCaptureCallback(callback);
+        mCamera2CameraControlImpl.removeSessionCameraCaptureCallback(callback);
     }
 
     /**
