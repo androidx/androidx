@@ -39,7 +39,7 @@ import org.robolectric.internal.bytecode.InstrumentationConfiguration
 
 class TestWatchFaceService(
     @WatchFaceType private val watchFaceType: Int,
-    private val complicationSet: ComplicationSet,
+    private val complicationsHolder: ComplicationsHolder,
     private val renderer: TestRenderer,
     private val userStyleManager: UserStyleManager,
     private val watchState: WatchState,
@@ -63,8 +63,8 @@ class TestWatchFaceService(
             }
         )
 
-        complicationSet.addTapListener(
-            object : ComplicationSet.TapListener {
+        complicationsHolder.addTapListener(
+            object : ComplicationsHolder.TapListener {
                 override fun onComplicationSingleTapped(complicationId: Int) {
                     complicationSingleTapped = complicationId
                 }
@@ -102,7 +102,7 @@ class TestWatchFaceService(
             watchFaceType,
             interactiveFrameRateMs,
             userStyleManager,
-            complicationSet,
+            complicationsHolder,
             renderer,
             watchFaceHost,
             watchState

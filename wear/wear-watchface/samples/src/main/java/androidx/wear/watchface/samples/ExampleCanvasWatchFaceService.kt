@@ -32,7 +32,7 @@ import androidx.wear.complications.SystemProviders
 import androidx.wear.watchface.CanvasRenderer
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Complication
-import androidx.wear.watchface.ComplicationSet
+import androidx.wear.watchface.ComplicationsHolder
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.UnitSquareBoundsProvider
 import androidx.wear.watchface.WatchFaceHost
@@ -112,7 +112,7 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
         val styleManager = UserStyleManager(
             listOf(colorStyleCategory, drawHourPipsStyleCategory, watchHandLengthStyleCategory)
         )
-        val complicationSlots = ComplicationSet(
+        val complicationSlots = ComplicationsHolder(
             listOf(
                 Complication(
                     EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
@@ -181,7 +181,7 @@ class ExampleCanvasRenderer(
     private val colorStyleCategory: ListUserStyleCategory,
     private val drawPipsStyleCategory: BooleanUserStyleCategory,
     private val watchHandLengthStyleCategoryDouble: DoubleRangeUserStyleCategory,
-    private val complicationSet: ComplicationSet
+    private val complicationsHolder: ComplicationsHolder
 ) : CanvasRenderer(surfaceHolder, userStyleManager, watchState, CanvasType.HARDWARE) {
 
     private val clockHandPaint = Paint().apply {
@@ -237,7 +237,7 @@ class ExampleCanvasRenderer(
 
                     // Apply the userStyle to the complications. ComplicationDrawables for each of the
                     // styles are defined in XML so we need to replace the complication's drawables.
-                    for ((_, complication) in complicationSet.complications) {
+                    for ((_, complication) in complicationsHolder.complications) {
                         complication.setRenderer(
                             watchFaceColorStyle.getComplicationDrawableRenderer(context, watchState)
                         )
@@ -461,7 +461,7 @@ class ExampleCanvasRenderer(
 
     private fun drawComplications(canvas: Canvas, calendar: Calendar) {
         val screen = Rect(0, 0, canvas.width, canvas.height)
-        for ((_, complication) in complicationSet.complications) {
+        for ((_, complication) in complicationsHolder.complications) {
             complication.draw(canvas, calendar, drawMode)
             if (drawMode == DrawMode.COMPLICATION_SELECT) {
                 drawComplicationSelectDashBorders(

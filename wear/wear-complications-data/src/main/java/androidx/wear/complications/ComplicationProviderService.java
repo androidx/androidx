@@ -150,7 +150,7 @@ public abstract class ComplicationProviderService extends Service {
      *         android:value="RANGED_VALUE,SHORT_TEXT,ICON"/&gt;</pre>
      */
     public static final String METADATA_KEY_SUPPORTED_TYPES =
-        "android.support.wearable.complications.SUPPORTED_TYPES";
+            "android.support.wearable.complications.SUPPORTED_TYPES";
 
     /**
      * Metadata key used to declare the requested frequency of update requests.
@@ -172,11 +172,12 @@ public abstract class ComplicationProviderService extends Service {
      *         android:value="600"/&gt;</pre>
      */
     public static final String METADATA_KEY_UPDATE_PERIOD_SECONDS =
-        "android.support.wearable.complications.UPDATE_PERIOD_SECONDS";
+            "android.support.wearable.complications.UPDATE_PERIOD_SECONDS";
 
     /**
      * Metadata key used to declare a list of watch faces that may receive data from a provider
-     * before they are granted the RECEIVE_COMPLICATION_DATA permission. This allows the listed watch
+     * before they are granted the RECEIVE_COMPLICATION_DATA permission. This allows the listed
+     * watch
      * faces to set the provider as a default and have the complication populate when the watch face
      * is first seen.
      *
@@ -186,14 +187,15 @@ public abstract class ComplicationProviderService extends Service {
      * <p>Note that if a watch face is in the same app package as the provider, it does not need to
      * be added to this list.
      *
-     * <p>The value of this tag should be a comma separated list of watch faces or packages. An entry
+     * <p>The value of this tag should be a comma separated list of watch faces or packages. An
+     * entry
      * can be a flattened component, as if {@link ComponentName#flattenToString()} had been called,
      * to declare a specific watch face as safe. An entry can also be a package name, as if {@link
      * ComponentName#getPackageName()} had been called, in which case any watch face under the app
      * with that package name will be considered safe for this provider.
      */
     public static final String METADATA_KEY_SAFE_WATCH_FACES =
-        "android.support.wearable.complications.SAFE_WATCH_FACES";
+            "android.support.wearable.complications.SAFE_WATCH_FACES";
 
     /**
      * Metadata key used to declare that the provider should be hidden from the provider chooser
@@ -204,7 +206,7 @@ public abstract class ComplicationProviderService extends Service {
      */
     @RestrictTo(RestrictTo.Scope.LIBRARY)
     public static final String METADATA_KEY_HIDDEN =
-        "android.support.wearable.complications.HIDDEN";
+            "android.support.wearable.complications.HIDDEN";
 
     /**
      * Metadata key used to declare an action for a configuration activity for a provider.
@@ -219,7 +221,8 @@ public abstract class ComplicationProviderService extends Service {
      * <p>The complication id being configured will be included in the intent that starts the config
      * activity using the extra key {@link #EXTRA_CONFIG_COMPLICATION_ID}.
      *
-     * <p>The complication type that will be requested from the provider will also be included, using
+     * <p>The complication type that will be requested from the provider will also be included,
+     * using
      * the extra key {@link #EXTRA_CONFIG_COMPLICATION_TYPE}.
      *
      * <p>The provider's {@link ComponentName} will also be included in the intent that starts the
@@ -231,7 +234,7 @@ public abstract class ComplicationProviderService extends Service {
      */
     @SuppressLint("IntentName")
     public static final String METADATA_KEY_PROVIDER_CONFIG_ACTION =
-        "android.support.wearable.complications.PROVIDER_CONFIG_ACTION";
+            "android.support.wearable.complications.PROVIDER_CONFIG_ACTION";
 
     /**
      * Category for provider config activities. The configuration activity for a complication
@@ -241,24 +244,25 @@ public abstract class ComplicationProviderService extends Service {
      */
     @SuppressLint("IntentName")
     public static final String CATEGORY_PROVIDER_CONFIG_ACTION =
-        "android.support.wearable.complications.category.PROVIDER_CONFIG";
+            "android.support.wearable.complications.category.PROVIDER_CONFIG";
 
     /** Extra used to supply the complication id to a provider configuration activity. */
     @SuppressLint("ActionValue")
     public static final String EXTRA_CONFIG_COMPLICATION_ID =
-        "android.support.wearable.complications.EXTRA_CONFIG_COMPLICATION_ID";
+            "android.support.wearable.complications.EXTRA_CONFIG_COMPLICATION_ID";
 
     /** Extra used to supply the complication type to a provider configuration activity. */
     @SuppressLint("ActionValue")
     public static final String EXTRA_CONFIG_COMPLICATION_TYPE =
-        "android.support.wearable.complications.EXTRA_CONFIG_COMPLICATION_TYPE";
+            "android.support.wearable.complications.EXTRA_CONFIG_COMPLICATION_TYPE";
 
     /** Extra used to supply the provider component to a provider configuration activity. */
     @SuppressLint("ActionValue")
     public static final String EXTRA_CONFIG_PROVIDER_COMPONENT =
-        "android.support.wearable.complications.EXTRA_CONFIG_PROVIDER_COMPONENT";
+            "android.support.wearable.complications.EXTRA_CONFIG_PROVIDER_COMPONENT";
 
-    @Nullable private IComplicationProviderWrapper mWrapper;
+    @Nullable
+    private IComplicationProviderWrapper mWrapper;
     private final Handler mMainThreadHandler = new Handler(Looper.getMainLooper());
 
     @SuppressLint("SyntheticAccessor")
@@ -288,7 +292,8 @@ public abstract class ComplicationProviderService extends Service {
      * <p>This will be called on the main thread.
      */
     public void onComplicationActivated(
-            int complicationId, int type, @NonNull ComplicationManager manager) {}
+            int complicationId, int type, @NonNull ComplicationManager manager) {
+    }
 
     /**
      * Called when a complication data update is requested for the given complication id.
@@ -321,7 +326,8 @@ public abstract class ComplicationProviderService extends Service {
      *
      * <p>This will be called on the main thread.
      */
-    public void onComplicationDeactivated(int complicationId) {}
+    public void onComplicationDeactivated(int complicationId) {
+    }
 
     /**
      * Returns true if the device is currently running in retail mode (e.g. the watch is being
@@ -349,9 +355,8 @@ public abstract class ComplicationProviderService extends Service {
         @SuppressLint("SyntheticAccessor")
         public void onComplicationDeactivated(final int complicationId) {
             mMainThreadHandler.post(
-                    () ->
-                            ComplicationProviderService.this.onComplicationDeactivated(
-                                    complicationId));
+                    () -> ComplicationProviderService.this.onComplicationDeactivated(
+                            complicationId));
         }
 
         @Override
@@ -361,9 +366,8 @@ public abstract class ComplicationProviderService extends Service {
             final ComplicationManager complicationManager =
                     new ComplicationManager(IComplicationManager.Stub.asInterface(manager));
             mMainThreadHandler.post(
-                    () ->
-                            ComplicationProviderService.this.onComplicationActivated(
-                                    complicationId, type, complicationManager));
+                    () -> ComplicationProviderService.this.onComplicationActivated(
+                            complicationId, type, complicationManager));
         }
     }
 }
