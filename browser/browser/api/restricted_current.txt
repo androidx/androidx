@@ -163,17 +163,18 @@ package androidx.browser.customtabs {
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setCloseButtonIcon(android.graphics.Bitmap);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setColorScheme(int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setColorSchemeParams(int, androidx.browser.customtabs.CustomTabColorSchemeParams);
+    method public androidx.browser.customtabs.CustomTabsIntent.Builder setDefaultColorSchemeParams(androidx.browser.customtabs.CustomTabColorSchemeParams);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setDefaultShareMenuItemEnabled(boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setExitAnimations(android.content.Context, @AnimRes int, @AnimRes int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setInstantAppsEnabled(boolean);
-    method public androidx.browser.customtabs.CustomTabsIntent.Builder setNavigationBarColor(@ColorInt int);
-    method public androidx.browser.customtabs.CustomTabsIntent.Builder setNavigationBarDividerColor(@ColorInt int);
-    method public androidx.browser.customtabs.CustomTabsIntent.Builder setSecondaryToolbarColor(@ColorInt int);
+    method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setNavigationBarColor(@ColorInt int);
+    method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setNavigationBarDividerColor(@ColorInt int);
+    method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setSecondaryToolbarColor(@ColorInt int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setSecondaryToolbarViews(android.widget.RemoteViews, int[]?, android.app.PendingIntent?);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setSession(androidx.browser.customtabs.CustomTabsSession);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setShowTitle(boolean);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setStartAnimations(android.content.Context, @AnimRes int, @AnimRes int);
-    method public androidx.browser.customtabs.CustomTabsIntent.Builder setToolbarColor(@ColorInt int);
+    method @Deprecated public androidx.browser.customtabs.CustomTabsIntent.Builder setToolbarColor(@ColorInt int);
     method public androidx.browser.customtabs.CustomTabsIntent.Builder setUrlBarHidingEnabled(boolean);
   }
 
@@ -333,13 +334,14 @@ package androidx.browser.trusted {
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setAdditionalTrustedOrigins(java.util.List<java.lang.String!>);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setColorScheme(int);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setColorSchemeParams(int, androidx.browser.customtabs.CustomTabColorSchemeParams);
+    method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setDefaultColorSchemeParams(androidx.browser.customtabs.CustomTabColorSchemeParams);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setDisplayMode(androidx.browser.trusted.TrustedWebActivityDisplayMode);
-    method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setNavigationBarColor(@ColorInt int);
-    method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setNavigationBarDividerColor(@ColorInt int);
+    method @Deprecated public androidx.browser.trusted.TrustedWebActivityIntentBuilder setNavigationBarColor(@ColorInt int);
+    method @Deprecated public androidx.browser.trusted.TrustedWebActivityIntentBuilder setNavigationBarDividerColor(@ColorInt int);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setScreenOrientation(int);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setShareParams(androidx.browser.trusted.sharing.ShareTarget, androidx.browser.trusted.sharing.ShareData);
     method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setSplashScreenParams(android.os.Bundle);
-    method public androidx.browser.trusted.TrustedWebActivityIntentBuilder setToolbarColor(@ColorInt int);
+    method @Deprecated public androidx.browser.trusted.TrustedWebActivityIntentBuilder setToolbarColor(@ColorInt int);
     field public static final String EXTRA_ADDITIONAL_TRUSTED_ORIGINS = "android.support.customtabs.extra.ADDITIONAL_TRUSTED_ORIGINS";
     field public static final String EXTRA_DISPLAY_MODE = "androidx.browser.trusted.extra.DISPLAY_MODE";
     field public static final String EXTRA_SCREEN_ORIENTATION = "androidx.browser.trusted.extra.SCREEN_ORIENTATION";

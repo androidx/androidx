@@ -126,6 +126,31 @@ public class CustomTabsIntentTest {
     }
 
     @Test
+    public void testDefaultColorSchemeParams() {
+        int toolbarColor = Color.RED;
+        int navigationBarColor = Color.GREEN;
+        int navigationBarDividerColor = Color.BLUE;
+        int secondaryToolbarColor = Color.WHITE;
+        CustomTabColorSchemeParams defaultParam = new CustomTabColorSchemeParams.Builder()
+                .setToolbarColor(toolbarColor)
+                .setNavigationBarColor(navigationBarColor)
+                .setNavigationBarDividerColor(navigationBarDividerColor)
+                .setSecondaryToolbarColor(secondaryToolbarColor)
+                .build();
+        Intent intent =
+                new CustomTabsIntent.Builder().setDefaultColorSchemeParams(
+                        defaultParam).build().intent;
+
+        assertEquals(toolbarColor, intent.getIntExtra(CustomTabsIntent.EXTRA_TOOLBAR_COLOR, 0));
+        assertEquals(secondaryToolbarColor, intent.getIntExtra(
+                CustomTabsIntent.EXTRA_SECONDARY_TOOLBAR_COLOR, 0));
+        assertEquals(navigationBarColor, intent.getIntExtra(
+                CustomTabsIntent.EXTRA_NAVIGATION_BAR_COLOR, 0));
+        assertEquals(navigationBarDividerColor, intent.getIntExtra(
+                CustomTabsIntent.EXTRA_NAVIGATION_BAR_DIVIDER_COLOR, 0));
+    }
+
+    @Test
     public void hasNullSessionExtra_WhenBuiltWithDefaultConstructor() {
         Intent intent = new CustomTabsIntent.Builder().build().intent;
         assertNullSessionInExtras(intent);

@@ -357,6 +357,8 @@ public final class CustomTabsIntent {
         private boolean mInstantAppsEnabled = true;
         @Nullable
         private SparseArray<Bundle> mColorSchemeParamBundles;
+        @Nullable
+        private Bundle mDefaultColorSchemeBundle;
 
         /**
          * Creates a {@link CustomTabsIntent.Builder} object associated with no
@@ -427,7 +429,10 @@ public final class CustomTabsIntent {
          * Can be overridden for particular color schemes, see {@link #setColorSchemeParams}.
          *
          * @param color {@link Color}
+         *
+         * @deprecated Use {@link #setDefaultColorSchemeParams} instead.
          */
+        @Deprecated
         @NonNull
         public Builder setToolbarColor(@ColorInt int color) {
             mDefaultColorSchemeBuilder.setToolbarColor(color);
@@ -599,7 +604,10 @@ public final class CustomTabsIntent {
          * Can be overridden for particular color schemes, see {@link #setColorSchemeParams}.
          *
          * @param color The color for the secondary toolbar.
+         *
+         * @deprecated Use {@link #setDefaultColorSchemeParams} instead.
          */
+        @Deprecated
         @NonNull
         public Builder setSecondaryToolbarColor(@ColorInt int color) {
             mDefaultColorSchemeBuilder.setSecondaryToolbarColor(color);
@@ -616,7 +624,10 @@ public final class CustomTabsIntent {
          * Can be overridden for particular color schemes, see {@link #setColorSchemeParams}.
          *
          * @param color The color for the navigation bar.
+         *
+         * @deprecated Use {@link #setDefaultColorSchemeParams} instead.
          */
+        @Deprecated
         @NonNull
         public Builder setNavigationBarColor(@ColorInt int color) {
             mDefaultColorSchemeBuilder.setNavigationBarColor(color);
@@ -629,7 +640,10 @@ public final class CustomTabsIntent {
          * Can be overridden for particular color schemes, see {@link #setColorSchemeParams}.
          *
          * @param color The color for the navigation bar divider.
+         *
+         * @deprecated Use {@link #setDefaultColorSchemeParams} instead.
          */
+        @Deprecated
         @NonNull
         public Builder setNavigationBarDividerColor(@ColorInt int color) {
             mDefaultColorSchemeBuilder.setNavigationBarDividerColor(color);
@@ -728,26 +742,22 @@ public final class CustomTabsIntent {
          * will follow the system settings and apply the corresponding
          * {@link CustomTabColorSchemeParams} "on the fly" when the settings change.
          *
-         * The method {@link #setToolbarColor} will set the given color as a default color to both
-         * schemes.
-         *
          * If there is no {@link CustomTabColorSchemeParams} for the current scheme, or a particular
          * field of it is null, Custom Tabs will fall back to the defaults provided via
-         * {@link #setToolbarColor}. If, on the other hand, a non-null value is present, it will
-         * override the default color from {@link #setToolbarColor}.
+         * {@link #setDefaultColorSchemeParams}.
          *
-         * **Note**: to maintain compatibility with browsers not supporting this API, do provide the
-         * defaults via {@link #setToolbarColor}.
-         *
-         * Example of setting two toolbar colors in backwards-compatible way:
+         * Example:
          * <pre><code>
          *     CustomTabColorSchemeParams darkParams = new CustomTabColorSchemeParams.Builder()
          *             .setToolbarColor(darkColor)
          *             .build();
+         *     CustomTabColorSchemeParams otherParams = new CustomTabColorSchemeParams.Builder()
+         *             .setNavigationBarColor(otherColor)
+         *             .build();
          *     CustomTabIntent intent = new CustomTabIntent.Builder()
-         *             .setToolbarColor(lightColor)
          *             .setColorScheme(COLOR_SCHEME_SYSTEM)
          *             .setColorSchemeParams(COLOR_SCHEME_DARK, darkParams)
+         *             .setDefaultColorSchemeParams(otherParams)
          *             .build();
          * </code></pre>
          *
@@ -770,6 +780,21 @@ public final class CustomTabsIntent {
             return this;
         }
 
+
+        /**
+         * Sets the default {@link CustomTabColorSchemeParams}.
+         *
+         * This will set a default color scheme that applies when no CustomTabColorSchemeParams
+         * specified for current color scheme via {@link #setColorSchemeParams}.
+         *
+         * @param params An instance of {@link CustomTabColorSchemeParams}.
+         */
+        @NonNull
+        public Builder setDefaultColorSchemeParams(@NonNull CustomTabColorSchemeParams params) {
+            mDefaultColorSchemeBundle = params.toBundle();
+            return this;
+        }
+
         /**
          * Combines all the options that have been set and returns a new {@link CustomTabsIntent}
          * object.
@@ -789,6 +814,10 @@ public final class CustomTabsIntent {
             mIntent.putExtra(EXTRA_ENABLE_INSTANT_APPS, mInstantAppsEnabled);
 
             mIntent.putExtras(mDefaultColorSchemeBuilder.build().toBundle());
+            if (mDefaultColorSchemeBundle != null) {
+                mIntent.putExtras(mDefaultColorSchemeBundle);
+            }
+
             if (mColorSchemeParamBundles != null) {
                 Bundle bundle = new Bundle();
                 bundle.putSparseParcelableArray(EXTRA_COLOR_SCHEME_PARAMS,
