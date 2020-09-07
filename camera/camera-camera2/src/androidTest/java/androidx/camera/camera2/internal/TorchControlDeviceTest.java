@@ -71,14 +71,14 @@ public class TorchControlDeviceTest {
         // Prepare TorchControl
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(LENS_FACING).build();
-        // To get a functional Camera2CameraControl, it needs to bind an active UseCase and the
+        // To get a functional Camera2CameraControlImpl, it needs to bind an active UseCase and the
         // UseCase must have repeating surface. Create and bind ImageAnalysis as repeating surface.
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
         // Make ImageAnalysis active.
         imageAnalysis.setAnalyzer(CameraXExecutors.mainThreadExecutor(), ImageProxy::close);
         CameraUseCaseAdapter cameraUseCaseAdapter = CameraUtil.getCameraAndAttachUseCase(context,
                 cameraSelector, imageAnalysis);
-        Camera2CameraControl cameraControl = (Camera2CameraControl)
+        Camera2CameraControlImpl cameraControl = (Camera2CameraControlImpl)
                 cameraUseCaseAdapter.getCameraControlInternal();
         mTorchControl = cameraControl.getTorchControl();
     }

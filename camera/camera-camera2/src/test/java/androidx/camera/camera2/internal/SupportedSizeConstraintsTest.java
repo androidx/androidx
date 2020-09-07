@@ -244,7 +244,7 @@ public class SupportedSizeConstraintsTest {
         mCameraFactory.insertCamera(lensFacingEnum, BACK_CAMERA_ID,
                 () -> new FakeCamera(BACK_CAMERA_ID, null,
                         new Camera2CameraInfoImpl(BACK_CAMERA_ID, characteristics,
-                                mock(Camera2CameraControl.class))));
+                                mock(Camera2CameraControlImpl.class))));
 
         initCameraX();
     }

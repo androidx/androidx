@@ -68,7 +68,7 @@ final class ZoomControl {
     public static final float DEFAULT_ZOOM_RATIO = 1.0f;
     public static final float MIN_ZOOM = DEFAULT_ZOOM_RATIO;
 
-    private final Camera2CameraControl mCamera2CameraControl;
+    private final Camera2CameraControlImpl mCamera2CameraControlImpl;
     @CameraExecutor
     private final Executor mExecutor;
     @GuardedBy("mCurrentZoomState")
@@ -86,10 +86,10 @@ final class ZoomControl {
      */
     private boolean mIsActive = false;
 
-    ZoomControl(@NonNull Camera2CameraControl camera2CameraControl,
+    ZoomControl(@NonNull Camera2CameraControlImpl camera2CameraControlImpl,
             @NonNull CameraCharacteristics cameraCharacteristics,
             @CameraExecutor @NonNull Executor executor) {
-        mCamera2CameraControl = camera2CameraControl;
+        mCamera2CameraControlImpl = camera2CameraControlImpl;
         mExecutor = executor;
 
         mCurrentZoomState = new ZoomStateImpl(getMaxDigitalZoom(cameraCharacteristics), MIN_ZOOM);
@@ -97,7 +97,7 @@ final class ZoomControl {
         mCurrentZoomState.setZoomRatio(DEFAULT_ZOOM_RATIO);
         mZoomStateLiveData = new MutableLiveData<>(ImmutableZoomState.create(mCurrentZoomState));
 
-        camera2CameraControl.addCaptureResultListener(mCaptureResultListener);
+        camera2CameraControlImpl.addCaptureResultListener(mCaptureResultListener);
     }
 
     /**
@@ -125,7 +125,7 @@ final class ZoomControl {
             updateLiveData(zoomState);
 
             mPendingZoomCropRegion = null;
-            mCamera2CameraControl.setCropRegionInternal(null);
+            mCamera2CameraControlImpl.setCropRegionInternal(null);
 
             // Fails the pending ListenableFuture.
             if (mPendingZoomRatioCompleter != null) {
@@ -136,8 +136,8 @@ final class ZoomControl {
         }
     }
 
-    private Camera2CameraControl.CaptureResultListener mCaptureResultListener =
-            new Camera2CameraControl.CaptureResultListener() {
+    private Camera2CameraControlImpl.CaptureResultListener mCaptureResultListener =
+            new Camera2CameraControlImpl.CaptureResultListener() {
                 @ExecutedBy("mExecutor")
                 @Override
                 public boolean onCaptureResult(@NonNull TotalCaptureResult captureResult) {
@@ -228,9 +228,9 @@ final class ZoomControl {
 
         updateLiveData(zoomState);
 
-        Rect sensorRect = mCamera2CameraControl.getSensorRect();
+        Rect sensorRect = mCamera2CameraControlImpl.getSensorRect();
         mPendingZoomCropRegion = getCropRectByRatio(sensorRect, zoomState.getZoomRatio());
-        mCamera2CameraControl.setCropRegionInternal(mPendingZoomCropRegion);
+        mCamera2CameraControlImpl.setCropRegionInternal(mPendingZoomCropRegion);
 
         if (mPendingZoomRatioCompleter != null) {
             mPendingZoomRatioCompleter.setException(

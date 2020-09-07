@@ -47,7 +47,7 @@ import android.util.Rational;
 import android.util.Size;
 
 import androidx.camera.camera2.impl.Camera2ImplConfig;
-import androidx.camera.camera2.internal.Camera2CameraControl.CaptureResultListener;
+import androidx.camera.camera2.internal.Camera2CameraControlImpl.CaptureResultListener;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
@@ -125,7 +125,7 @@ public class FocusMeteringControlTest {
             MeteringRectangle.METERING_WEIGHT_MAX);
 
     private static final Rational PREVIEW_ASPECT_RATIO_4_X_3 = new Rational(4, 3);
-    private Camera2CameraControl mCamera2CameraControl;
+    private Camera2CameraControlImpl mCamera2CameraControlImpl;
 
     @Before
     public void setUp() throws CameraAccessException {
@@ -146,14 +146,14 @@ public class FocusMeteringControlTest {
             CameraControlInternal.ControlUpdateCallback updateCallback = mock(
                     CameraControlInternal.ControlUpdateCallback.class);
 
-            mCamera2CameraControl = spy(new Camera2CameraControl(
+            mCamera2CameraControlImpl = spy(new Camera2CameraControlImpl(
                     cameraCharacteristics,
                     CameraXExecutors.mainThreadExecutor(),
                     CameraXExecutors.directExecutor(),
                     updateCallback));
 
             FocusMeteringControl focusMeteringControl = new FocusMeteringControl(
-                    mCamera2CameraControl,
+                    mCamera2CameraControlImpl,
                     CameraXExecutors.mainThreadExecutor(), CameraXExecutors.directExecutor());
             focusMeteringControl.setActive(true);
             return focusMeteringControl;
@@ -411,7 +411,7 @@ public class FocusMeteringControlTest {
         Rect cropRect = new Rect(SENSOR_WIDTH / 2 - cropWidth / 2,
                 SENSOR_HEIGHT / 2 - cropHeight / 2,
                 SENSOR_WIDTH / 2 + cropWidth / 2, SENSOR_HEIGHT / 2 + cropHeight / 2);
-        when(mCamera2CameraControl.getCropSensorRegion()).thenReturn(cropRect);
+        when(mCamera2CameraControlImpl.getCropSensorRegion()).thenReturn(cropRect);
 
         MeteringPoint centorPt = mPointFactory.createPoint(0.5f, 0.5f);
         mFocusMeteringControl.startFocusAndMetering(
@@ -569,7 +569,7 @@ public class FocusMeteringControlTest {
                 new FocusMeteringAction.Builder(mPoint1).build(),
                 PREVIEW_ASPECT_RATIO_4_X_3);
 
-        verify(mCamera2CameraControl, times(1)).updateSessionConfig();
+        verify(mCamera2CameraControlImpl, times(1)).updateSessionConfig();
     }
 
     @Test
@@ -623,10 +623,10 @@ public class FocusMeteringControlTest {
 
     private CaptureResultListener retrieveCaptureResultListener() {
         ArgumentCaptor<CaptureResultListener> argumentCaptor =
-                ArgumentCaptor.forClass(Camera2CameraControl.CaptureResultListener.class);
-        verify(mCamera2CameraControl).addCaptureResultListener(argumentCaptor.capture());
+                ArgumentCaptor.forClass(Camera2CameraControlImpl.CaptureResultListener.class);
+        verify(mCamera2CameraControlImpl).addCaptureResultListener(argumentCaptor.capture());
         CaptureResultListener listener = argumentCaptor.getValue();
-        Mockito.reset(mCamera2CameraControl);
+        Mockito.reset(mCamera2CameraControlImpl);
         return listener;
     }
 
@@ -911,7 +911,7 @@ public class FocusMeteringControlTest {
         ListenableFuture<Void> result2 =
                 mFocusMeteringControl.cancelFocusAndMetering();
 
-        Mockito.reset(mCamera2CameraControl);
+        Mockito.reset(mCamera2CameraControlImpl);
         ListenableFuture<FocusMeteringResult> result3 =
                 mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
         CaptureResultListener captureResultListener = retrieveCaptureResultListener();
@@ -941,7 +941,7 @@ public class FocusMeteringControlTest {
         ListenableFuture<FocusMeteringResult> result2 =
                 mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
 
-        Mockito.reset(mCamera2CameraControl);
+        Mockito.reset(mCamera2CameraControlImpl);
         ListenableFuture<FocusMeteringResult> result3 =
                 mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
         CaptureResultListener captureResultListener = retrieveCaptureResultListener();
@@ -1020,10 +1020,10 @@ public class FocusMeteringControlTest {
                 .build();
 
         mFocusMeteringControl.startFocusAndMetering(action, PREVIEW_ASPECT_RATIO_4_X_3);
-        Mockito.reset(mCamera2CameraControl);
+        Mockito.reset(mCamera2CameraControlImpl);
 
         mFocusMeteringControl.cancelFocusAndMetering();
-        verify(mCamera2CameraControl, times(1)).updateSessionConfig();
+        verify(mCamera2CameraControlImpl, times(1)).updateSessionConfig();
     }
 
 
@@ -1089,7 +1089,7 @@ public class FocusMeteringControlTest {
                         PREVIEW_ASPECT_RATIO_4_X_3);
 
         // reset mock so that we can capture the listener added by cancelFocusAndMetering.
-        Mockito.reset(mCamera2CameraControl);
+        Mockito.reset(mCamera2CameraControlImpl);
         ListenableFuture<Void> cancelResult =
                 mFocusMeteringControl.cancelFocusAndMetering();
         CaptureResultListener captureResultListener = retrieveCaptureResultListener();
