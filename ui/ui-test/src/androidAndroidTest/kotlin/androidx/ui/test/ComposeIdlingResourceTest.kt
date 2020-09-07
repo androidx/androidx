@@ -61,7 +61,7 @@ class ComposeIdlingResourceTest {
     val rule = createComposeRule()
 
     /**
-     * High level test to only verify that [runOnIdle] awaits animations.
+     * High level test to only verify that [ComposeTestRule.runOnIdle] awaits animations.
      */
     @Test
     fun testRunOnIdle() {
