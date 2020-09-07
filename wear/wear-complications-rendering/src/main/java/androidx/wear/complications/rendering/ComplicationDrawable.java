@@ -733,7 +733,7 @@ public final class ComplicationDrawable extends Drawable {
     /**
      * Returns whether the complication is currently highlighted.
      */
-    public boolean getHighlighted(boolean isHighlighted) {
+    public boolean getHighlighted() {
         return mHighlighted;
     }
 
@@ -805,11 +805,6 @@ public final class ComplicationDrawable extends Drawable {
             mMainThreadHandler.postDelayed(mUnhighlightRunnable, getHighlightDuration());
         }
         return true;
-    }
-
-    /** Returns {@code true} if the complication is highlighted. */
-    public boolean getHighlighted() {
-        return mHighlighted;
     }
 
     /**
