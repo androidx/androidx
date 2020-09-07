@@ -85,6 +85,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * Helper for accessing features in {@link View}.
  */
+@SuppressLint("PrivateConstructorForUtilityClass") // deprecated non-private constructor
 public class ViewCompat {
     private static final String TAG = "ViewCompat";
 
@@ -3905,7 +3906,12 @@ public class ViewCompat {
         }
     }
 
-    protected ViewCompat() {}
+    /**
+     * @deprecated This is a utility class and it shouldn't be instantiated.
+     */
+    @Deprecated
+    protected ViewCompat() {
+    }
 
     /**
      * Interface definition for a callback to be invoked when a hardware key event hasn't
