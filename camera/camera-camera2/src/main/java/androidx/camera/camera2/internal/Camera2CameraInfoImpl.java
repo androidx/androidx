@@ -23,6 +23,9 @@ import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.experimental.UseExperimental;
+import androidx.camera.camera2.interop.Camera2CameraInfo;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.ExposureState;
@@ -40,6 +43,7 @@ import java.util.concurrent.Executor;
  * Implementation of the {@link CameraInfoInternal} interface that exposes parameters through
  * camera2.
  */
+@UseExperimental(markerClass = ExperimentalCamera2Interop.class)
 public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     private static final String TAG = "Camera2CameraInfo";
@@ -49,6 +53,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     private final ZoomControl mZoomControl;
     private final TorchControl mTorchControl;
     private final ExposureControl mExposureControl;
+    private final Camera2CameraInfo mCamera2CameraInfo;
 
     Camera2CameraInfoImpl(@NonNull String cameraId,
             @NonNull CameraCharacteristics cameraCharacteristics,
@@ -60,6 +65,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
         mZoomControl = camera2CameraControl.getZoomControl();
         mTorchControl = camera2CameraControl.getTorchControl();
         mExposureControl = camera2CameraControl.getExposureControl();
+        mCamera2CameraInfo = new Camera2CameraInfo(this);
         logDeviceInfo();
     }
 
@@ -212,5 +218,13 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     @Override
     public void removeSessionCaptureCallback(@NonNull CameraCaptureCallback callback) {
         mCamera2CameraControl.removeSessionCameraCaptureCallback(callback);
+    }
+
+    /**
+     * Gets the implementation of {@link Camera2CameraInfo}.
+     */
+    @NonNull
+    public Camera2CameraInfo getCamera2CameraInfo() {
+        return mCamera2CameraInfo;
     }
 }
