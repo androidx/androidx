@@ -93,7 +93,7 @@ interface ComplicationRenderer {
      * Called when the ComplicationRenderer attaches to a {@link Complication}.
      */
     @UiThread
-    fun onAttach()
+    fun onAttach(complication: Complication)
 
     /**
      * Called when the ComplicationRenderer detaches from a {@link Complication}.
@@ -165,10 +165,22 @@ interface ComplicationRenderer {
  */
 open class ComplicationDrawableRenderer(
     /** The actual complication. */
-    protected val drawable: ComplicationDrawable,
+    drawable: ComplicationDrawable,
 
     private val watchState: WatchState
 ) : ComplicationRenderer {
+    private var _drawable = drawable
+
+    var drawable: ComplicationDrawable
+        get() = _drawable
+        set(value) {
+            _drawable = value
+            _drawable.inAmbientMode = watchState.isAmbient
+            _drawable.lowBitAmbient = watchState.hasLowBitAmbient
+            _drawable.setBurnInProtection(watchState.hasBurnInProtection)
+
+            attachedComplication?.scheduleUpdateActiveComplications()
+        }
 
     private inner class SystemStateListener : WatchState.Listener {
         override fun onAmbientModeChanged(isAmbient: Boolean) {
@@ -177,11 +189,12 @@ open class ComplicationDrawableRenderer(
     }
 
     private val systemStateListener = SystemStateListener()
-
+    private var attachedComplication: Complication? = null
     private var complicationData: ComplicationData? = null
 
     /** {@inheritDoc} */
-    override fun onAttach() {
+    override fun onAttach(complication: Complication) {
+        attachedComplication = complication
         drawable.inAmbientMode = watchState.isAmbient
         drawable.lowBitAmbient = watchState.hasLowBitAmbient
         drawable.setBurnInProtection(watchState.hasBurnInProtection)
@@ -192,6 +205,7 @@ open class ComplicationDrawableRenderer(
     /** {@inheritDoc} */
     override fun onDetach() {
         watchState.removeListener(systemStateListener)
+        attachedComplication = null
     }
 
     /** {@inheritDoc} */
@@ -266,7 +280,7 @@ class Complication @JvmOverloads constructor(
     internal val defaultProviderType: Int = WatchFace.DEFAULT_PROVIDER_TYPE_NONE
 ) {
     init {
-        renderer.onAttach()
+        renderer.onAttach(this)
     }
 
     /**
@@ -305,22 +319,6 @@ class Complication @JvmOverloads constructor(
             complicationSet.scheduleUpdateActiveComplications()
         }
 
-    /** Any data for the complication. */
-    private var _data: ComplicationData? = null
-
-    var data: ComplicationData?
-        get() = _data
-        internal set(value) {
-            _data = value
-            renderer.setData(_data)
-
-            // In tests this may not be initialized.
-            if (this::complicationSet.isInitialized) {
-                // Update active complications to ensure accessibility data is up to date.
-                complicationSet.scheduleUpdateActiveComplications()
-            }
-        }
-
     /**
      * Sets the current {@link ComplicationRenderer}. This is useful if based on the style the
      * watch face needs to use a different renderer.
@@ -328,8 +326,9 @@ class Complication @JvmOverloads constructor(
     @UiThread
     fun setRenderer(renderer: ComplicationRenderer) {
         renderer.onDetach()
+        renderer.setData(this.renderer.getData())
         this.renderer = renderer
-        renderer.onAttach()
+        renderer.onAttach(this)
         initRenderer()
     }
 
@@ -364,8 +363,6 @@ class Complication @JvmOverloads constructor(
     }
 
     private fun initRenderer() {
-        renderer.setData(data)
-
         // Renderers may register a user style listener during their initializer which can call
         // setComplicationRenderer() before complicationInvalidateCallback has been initialized.
         if (this::invalidateCallback.isInitialized) {
@@ -380,5 +377,13 @@ class Complication @JvmOverloads constructor(
         this.complicationSet = complicationSet
         this.invalidateCallback = invalidateCallback
         initRenderer()
+    }
+
+    internal fun scheduleUpdateActiveComplications() {
+        // In tests this may not be initialized.
+        if (this::complicationSet.isInitialized) {
+            // Update active complications to ensure accessibility data is up to date.
+            complicationSet.scheduleUpdateActiveComplications()
+        }
     }
 }
