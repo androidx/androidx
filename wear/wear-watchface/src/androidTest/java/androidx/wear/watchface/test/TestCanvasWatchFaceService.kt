@@ -24,7 +24,7 @@ import android.support.wearable.complications.ComplicationData
 import android.view.SurfaceHolder
 import androidx.wear.complications.SystemProviders
 import androidx.wear.watchface.Complication
-import androidx.wear.watchface.ComplicationSet
+import androidx.wear.watchface.ComplicationsHolder
 import androidx.wear.watchface.NoInvalidateWatchFaceHostApi
 import androidx.wear.watchface.UnitSquareBoundsProvider
 import androidx.wear.watchface.WatchFaceHost
@@ -101,7 +101,7 @@ internal class TestCanvasWatchFaceService(
         val styleManager = UserStyleManager(
             listOf(colorStyleCategory, drawHourPipsStyleCategory, watchHandLengthStyleCategory)
         )
-        val complicationSlots = ComplicationSet(
+        val complicationSlots = ComplicationsHolder(
             listOf(
                 Complication(
                     EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,

@@ -180,7 +180,7 @@ class WatchFaceServiceTest {
         )
 
     private lateinit var renderer: TestRenderer
-    private lateinit var complicationSet: ComplicationSet
+    private lateinit var complicationsHolder: ComplicationsHolder
     private lateinit var userStyleManager: UserStyleManager
     private lateinit var watchFace: WatchFace
     private lateinit var testWatchFaceService: TestWatchFaceService
@@ -208,13 +208,13 @@ class WatchFaceServiceTest {
         userStyleCategories: List<UserStyleCategory>,
         apiVersion: Int = 2
     ) {
-        this.complicationSet = ComplicationSet(complications)
+        this.complicationsHolder = ComplicationsHolder(complications)
         userStyleManager =
             UserStyleManager(userStyleCategories)
         renderer = TestRenderer(surfaceHolder, userStyleManager, systemState)
         testWatchFaceService = TestWatchFaceService(
             watchFaceType,
-            this.complicationSet,
+            this.complicationsHolder,
             renderer,
             userStyleManager,
             systemState,
@@ -702,30 +702,30 @@ class WatchFaceServiceTest {
     fun getComplicationIdAt_returnsCorrectComplications() {
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
 
-        assertThat(complicationSet.getComplicationAt(30, 50)!!.id)
+        assertThat(complicationsHolder.getComplicationAt(30, 50)!!.id)
             .isEqualTo(LEFT_COMPLICATION_ID)
         leftComplication.enabled = false
-        assertThat(complicationSet.getComplicationAt(30, 50)).isNull()
+        assertThat(complicationsHolder.getComplicationAt(30, 50)).isNull()
 
-        assertThat(complicationSet.getComplicationAt(70, 50)!!.id)
+        assertThat(complicationsHolder.getComplicationAt(70, 50)!!.id)
             .isEqualTo(RIGHT_COMPLICATION_ID)
-        assertThat(complicationSet.getComplicationAt(1, 1)).isNull()
+        assertThat(complicationsHolder.getComplicationAt(1, 1)).isNull()
     }
 
     @Test
     fun getBackgroundComplicationId_returnsCorrectId() {
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
-        assertThat(complicationSet.getBackgroundComplication()).isNull()
+        assertThat(complicationsHolder.getBackgroundComplication()).isNull()
 
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication), emptyList())
-        assertThat(complicationSet.getBackgroundComplication()).isNull()
+        assertThat(complicationsHolder.getBackgroundComplication()).isNull()
 
         initEngine(
             WatchFaceType.ANALOG,
             listOf(leftComplication, backgroundComplication),
             emptyList()
         )
-        assertThat(complicationSet.getBackgroundComplication()!!.id).isEqualTo(
+        assertThat(complicationsHolder.getBackgroundComplication()!!.id).isEqualTo(
             BACKGROUND_COMPLICATION_ID
         )
     }
@@ -756,7 +756,7 @@ class WatchFaceServiceTest {
         val testRenderer2 = TestRenderer(surfaceHolder, styleManager2, systemState)
         val service2 = TestWatchFaceService(
             WatchFaceType.ANALOG,
-            ComplicationSet(emptyList()),
+            ComplicationsHolder(emptyList()),
             testRenderer2,
             styleManager2,
             systemState,
@@ -811,7 +811,7 @@ class WatchFaceServiceTest {
         val testRenderer2 = TestRenderer(surfaceHolder, styleManager2, systemState)
         val service2 = TestWatchFaceService(
             WatchFaceType.ANALOG,
-            ComplicationSet(emptyList()),
+            ComplicationsHolder(emptyList()),
             testRenderer2,
             styleManager2,
             systemState,
@@ -1021,7 +1021,7 @@ class WatchFaceServiceTest {
         var testRenderer = TestRenderer(surfaceHolder, styleManager, systemState)
         val service = TestWatchFaceService(
             WatchFaceType.ANALOG,
-            ComplicationSet(
+            ComplicationsHolder(
                 listOf(leftComplication, rightComplication, backgroundComplication)
             ),
             testRenderer,
