@@ -35,11 +35,11 @@ private fun getComponentName(context: Context) = ComponentName(
 )
 
 /**
- * The set of {@link Complication}s associated with the {@link WatchFace}. Dynamic creation of
+ * The {@link Complication}s associated with the {@link WatchFace}. Dynamic creation of
  * complications isn't supported, however complications can be enabled and disabled, perhaps as
  * part of a user style see {@link UserStyleCategory} and {@link Renderer#onStyleChanged}.
  */
-class ComplicationSet(
+class ComplicationsHolder(
     /**
      * The complications associated with the watch face, may be empty.
      */

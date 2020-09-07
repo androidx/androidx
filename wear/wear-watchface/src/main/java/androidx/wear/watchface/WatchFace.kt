@@ -114,7 +114,7 @@ class WatchFace private constructor(
     @WatchFaceType private val watchFaceType: Int,
     private var interactiveUpdateRateMillis: Long,
     internal val userStyleManager: UserStyleManager,
-    internal var complicationSet: ComplicationSet,
+    internal var complicationsHolder: ComplicationsHolder,
     internal val renderer: Renderer,
     private val watchFaceHostApi: WatchFaceHostApi,
     private val watchState: WatchState,
@@ -153,8 +153,8 @@ class WatchFace private constructor(
         /** The {@UserStyleManager} for this WatchFace. */
         internal val userStyleManager: UserStyleManager,
 
-        /** The {@link ComplicationSet} for this WatchFace. */
-        internal var complicationSet: ComplicationSet,
+        /** The {@link ComplicationsHolder} for this WatchFace. */
+        internal var complicationsHolder: ComplicationsHolder,
 
         /** The {@link Renderer} for this WatchFace. */
         internal val renderer: Renderer,
@@ -275,7 +275,7 @@ class WatchFace private constructor(
                 watchFaceType,
                 interactiveUpdateRateMillis,
                 userStyleManager,
-                complicationSet,
+                complicationsHolder,
                 renderer,
                 watchFaceHost.api!!,
                 watchState,
@@ -499,7 +499,7 @@ class WatchFace private constructor(
         // fully constructed and it will fail. It's also superfluous because we're going to render
         // anyway.
         var initFinished = false
-        complicationSet.init(watchFaceHostApi, calendar, renderer,
+        complicationsHolder.init(watchFaceHostApi, calendar, renderer,
             object : ComplicationRenderer.InvalidateCallback {
                 @SuppressWarnings("SyntheticAccessor")
                 override fun onInvalidate() {
@@ -537,17 +537,17 @@ class WatchFace private constructor(
             }
 
             override fun getBackgroundComplicationId() =
-                complicationSet.getBackgroundComplication()?.id
+                complicationsHolder.getBackgroundComplication()?.id
 
-            override fun getComplicationsMap() = complicationSet.complications
+            override fun getComplicationsMap() = complicationsHolder.complications
 
             override fun getCalendar() = calendar
 
             override fun getComplicationIdAt(tapX: Int, tapY: Int) =
-                complicationSet.getComplicationAt(tapX, tapY)?.id
+                complicationsHolder.getComplicationAt(tapX, tapY)?.id
 
             override fun brieflyHighlightComplicationId(complicationId: Int) {
-                complicationSet.brieflyHighlightComplication(complicationId)
+                complicationsHolder.brieflyHighlightComplication(complicationId)
             }
 
             override fun drawComplicationSelect(
@@ -745,7 +745,7 @@ class WatchFace private constructor(
      */
     @UiThread
     internal fun onComplicationDataUpdate(watchFaceComplicationId: Int, data: ComplicationData) {
-        complicationSet.onComplicationDataUpdate(watchFaceComplicationId, data)
+        complicationsHolder.onComplicationDataUpdate(watchFaceComplicationId, data)
         invalidate()
     }
 
@@ -782,7 +782,7 @@ class WatchFace private constructor(
                 lastTappedPosition = null
             }
         }
-        val tappedComplication = complicationSet.getComplicationAt(x, y)
+        val tappedComplication = complicationsHolder.getComplicationAt(x, y)
         if (tappedComplication == null) {
             clearGesture()
             return
@@ -802,7 +802,7 @@ class WatchFace private constructor(
                 if (pendingSingleTap.isPending()) {
                     // The user tapped twice rapidly on the same complication so treat this as
                     // a double tap.
-                    complicationSet.onComplicationDoubleTapped(tappedComplication.id)
+                    complicationsHolder.onComplicationDoubleTapped(tappedComplication.id)
                     clearGesture()
 
                     // Block subsequent taps for a short time, to prevent accidental triple taps.
@@ -814,7 +814,7 @@ class WatchFace private constructor(
                 } else {
                     // Give the user immediate visual feedback, the UI feels sluggish if we defer
                     // this.
-                    complicationSet.brieflyHighlightComplication(tappedComplication.id)
+                    complicationsHolder.brieflyHighlightComplication(tappedComplication.id)
 
                     lastTappedComplicationId = tappedComplication.id
 
@@ -823,7 +823,7 @@ class WatchFace private constructor(
                     pendingSingleTap.postDelayedUnique(
                         ViewConfiguration.getDoubleTapTimeout().toLong()
                     ) {
-                        complicationSet.onComplicationSingleTapped(tappedComplication.id)
+                        complicationsHolder.onComplicationSingleTapped(tappedComplication.id)
                         invalidate()
                         clearGesture()
                     }

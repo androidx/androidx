@@ -25,7 +25,7 @@ import android.opengl.Matrix
 import android.util.Log
 import android.view.Gravity
 import android.view.SurfaceHolder
-import androidx.wear.watchface.ComplicationSet
+import androidx.wear.watchface.ComplicationsHolder
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.Gles2Renderer
 import androidx.wear.watchface.WatchFace
@@ -86,7 +86,7 @@ class ExampleOpenGLWatchFaceService : WatchFaceService() {
             )
         )
         val styleManager = UserStyleManager(listOf(colorStyleCategory))
-        val complicationSlots = ComplicationSet(emptyList())
+        val complicationSlots = ComplicationsHolder(emptyList())
         val renderer = ExampleOpenGLRenderer(
             surfaceHolder,
             styleManager,
