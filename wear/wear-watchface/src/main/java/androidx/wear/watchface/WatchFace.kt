@@ -33,7 +33,6 @@ import android.support.wearable.complications.ComplicationData
 import android.support.wearable.watchface.WatchFaceStyle
 import android.view.SurfaceHolder
 import android.view.ViewConfiguration
-import androidx.annotation.CallSuper
 import androidx.annotation.ColorInt
 import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
@@ -586,8 +585,7 @@ class WatchFace private constructor(
         inOnSetStyle = false
     }
 
-    @CallSuper
-    fun onDestroy() {
+    internal fun onDestroy() {
         pendingSingleTap.cancel()
         pendingUpdateTime.cancel()
         pendingPostDoubleTap.cancel()
@@ -672,9 +670,7 @@ class WatchFace private constructor(
 
     /** @hide */
     @UiThread
-    @RestrictTo(LIBRARY_GROUP)
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    fun maybeUpdateDrawMode() {
+    internal fun maybeUpdateDrawMode() {
         var newDrawMode = if (watchState.isBatteryLowAndNotCharging) {
             DrawMode.LOW_BATTERY_INTERACTIVE
         } else {
@@ -690,9 +686,7 @@ class WatchFace private constructor(
 
     /** @hide */
     @UiThread
-    @RestrictTo(LIBRARY_GROUP)
-    @VisibleForTesting(otherwise = VisibleForTesting.PACKAGE_PRIVATE)
-    fun onDraw() {
+    internal fun onDraw() {
         setCalendarTime(systemTimeProvider.getSystemTimeMillis())
         maybeUpdateDrawMode()
         renderer.onDrawInternal(calendar)
@@ -714,9 +708,8 @@ class WatchFace private constructor(
 
     /** @hide */
     @UiThread
-    @RestrictTo(LIBRARY_GROUP)
-    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
-    fun computeDelayTillNextFrame(beginFrameTimeMillis: Long, currentTimeMillis: Long): Long {
+    internal fun computeDelayTillNextFrame(beginFrameTimeMillis: Long, currentTimeMillis: Long):
+    Long {
         // Limit update rate to conserve power when the battery is low and not charging.
         val updateRateMillis =
             if (watchState.isBatteryLowAndNotCharging) {
@@ -757,9 +750,8 @@ class WatchFace private constructor(
      * @param x X coordinate of the event
      * @param y Y coordinate of the event
      */
-    @CallSuper
     @UiThread
-    fun onTapCommand(
+    internal fun onTapCommand(
         @TapType originalTapType: Int,
         x: Int,
         y: Int
