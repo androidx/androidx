@@ -139,7 +139,14 @@ fun ComposeTestRule.onRoot(useUnmergedTree: Boolean = false): SemanticsNodeInter
  * @param useUnmergedTree Find within merged composables like Buttons.
  *
  * @see onNode for general find method.
+ *
+ * @Deprecated Moved to androidx.ui.test.ComposeTestRule
  */
+@Deprecated(
+    "Moved to androidx.ui.test.ComposeTestRule",
+    ReplaceWith("androidx.ui.test.ComposeTestRule.onNodeWithTag(testTag, useUnmergedTree)")
+)
+@Suppress("DEPRECATION")
 fun onNodeWithTag(
     testTag: String,
     useUnmergedTree: Boolean = false
@@ -153,7 +160,14 @@ fun onNodeWithTag(
  * @param useUnmergedTree Find within merged composables like Buttons.
  *
  * @see onAllNodes for general find method.
+ *
+ * @Deprecated Moved to androidx.ui.test.ComposeTestRule
  */
+@Deprecated(
+    "Moved to androidx.ui.test.ComposeTestRule",
+    ReplaceWith("androidx.ui.test.ComposeTestRule.onAllNodesWithTag(testTag, useUnmergedTree)")
+)
+@Suppress("DEPRECATION")
 fun onAllNodesWithTag(
     testTag: String,
     useUnmergedTree: Boolean = false
@@ -167,7 +181,15 @@ fun onAllNodesWithTag(
  * @param useUnmergedTree Find within merged composables like Buttons.
  *
  * @see onNode for general find method.
+ *
+ * @Deprecated Moved to androidx.ui.test.ComposeTestRule
  */
+@Deprecated(
+    "Moved to androidx.ui.test.ComposeTestRule",
+    ReplaceWith("androidx.ui.test.ComposeTestRule.onNodeWithLabel(label, ignoreCase, " +
+            "useUnmergedTree)")
+)
+@Suppress("DEPRECATION")
 fun onNodeWithLabel(
     label: String,
     ignoreCase: Boolean = false,
@@ -182,7 +204,15 @@ fun onNodeWithLabel(
  * @param useUnmergedTree Find within merged composables like Buttons.
  * @see onNodeWithSubstring to search by substring instead of via exact match.
  * @see onNode for general find method.
+ *
+ * @Deprecated Moved to androidx.ui.test.ComposeTestRule
  */
+@Deprecated(
+    "Moved to androidx.ui.test.ComposeTestRule",
+    ReplaceWith("androidx.ui.test.ComposeTestRule.onNodeWithText(text, ignoreCase, " +
+            "useUnmergedTree)")
+)
+@Suppress("DEPRECATION")
 fun onNodeWithText(
     text: String,
     ignoreCase: Boolean = false,
@@ -197,7 +227,15 @@ fun onNodeWithText(
  * @param useUnmergedTree Find within merged composables like Buttons.
  * @see onNodeWithText to perform exact matches.
  * @see onNode for general find method.
+ *
+ * @Deprecated Moved to androidx.ui.test.ComposeTestRule
  */
+@Deprecated(
+    "Moved to androidx.ui.test.ComposeTestRule",
+    ReplaceWith("androidx.ui.test.ComposeTestRule.onNodeWithSubstring(text, ignoreCase, " +
+            "useUnmergedTree)")
+)
+@Suppress("DEPRECATION")
 fun onNodeWithSubstring(
     text: String,
     ignoreCase: Boolean = false,
@@ -210,7 +248,15 @@ fun onNodeWithSubstring(
  * For usage patterns and semantics concepts see [SemanticsNodeInteraction]
  *
  * @param useUnmergedTree Find within merged composables like Buttons.
+ *
+ * @Deprecated Moved to androidx.ui.test.ComposeTestRule
  */
+@Deprecated(
+    "Moved to androidx.ui.test.ComposeTestRule",
+    ReplaceWith("androidx.ui.test.ComposeTestRule.onAllNodesWithText(text, ignoreCase, " +
+            "useUnmergedTree)")
+)
+@Suppress("DEPRECATION")
 fun onAllNodesWithText(
     text: String,
     ignoreCase: Boolean = false,
@@ -223,7 +269,15 @@ fun onAllNodesWithText(
  * For usage patterns and semantics concepts see [SemanticsNodeInteraction]
  *
  * @param useUnmergedTree Find within merged composables like Buttons.
+ *
+ * @Deprecated Moved to androidx.ui.test.ComposeTestRule
  */
+@Deprecated(
+    "Moved to androidx.ui.test.ComposeTestRule",
+    ReplaceWith("androidx.ui.test.ComposeTestRule.onAllNodesWithLabel(label, ignoreCase, " +
+            "useUnmergedTree)")
+)
+@Suppress("DEPRECATION")
 fun onAllNodesWithLabel(
     label: String,
     ignoreCase: Boolean = false,
@@ -238,7 +292,14 @@ fun onAllNodesWithLabel(
  * For usage patterns and semantics concepts see [SemanticsNodeInteraction]
  *
  * @param useUnmergedTree Find within merged composables like Buttons.
+ *
+ * @Deprecated Moved to androidx.ui.test.ComposeTestRule
  */
+@Deprecated(
+    "Moved to androidx.ui.test.ComposeTestRule",
+    ReplaceWith("androidx.ui.test.ComposeTestRule.onRoot(useUnmergedTree)")
+)
+@Suppress("DEPRECATION")
 fun onRoot(useUnmergedTree: Boolean = false): SemanticsNodeInteraction =
     onNode(isRoot(), useUnmergedTree)
 
@@ -253,7 +314,13 @@ fun onRoot(useUnmergedTree: Boolean = false): SemanticsNodeInteraction =
  *
  * @param useUnmergedTree Find within merged composables like Buttons.
  * @see onAllNodes to work with multiple elements
+ *
+ * @Deprecated Moved to androidx.ui.test.ComposeTestRule
  */
+@Deprecated(
+    "Moved to androidx.ui.test.ComposeTestRule",
+    ReplaceWith("androidx.ui.test.ComposeTestRule.onNode(matcher, useUnmergedTree)")
+)
 fun onNode(
     matcher: SemanticsMatcher,
     useUnmergedTree: Boolean = false
@@ -271,7 +338,13 @@ fun onNode(
  *
  * @param useUnmergedTree Find within merged composables like Buttons.
  * @see onNode
+ *
+ * @Deprecated Moved to androidx.ui.test.ComposeTestRule
  */
+@Deprecated(
+    "Moved to androidx.ui.test.ComposeTestRule",
+    ReplaceWith("androidx.ui.test.ComposeTestRule.onAllNodes(matcher, useUnmergedTree)")
+)
 fun onAllNodes(
     matcher: SemanticsMatcher,
     useUnmergedTree: Boolean = false

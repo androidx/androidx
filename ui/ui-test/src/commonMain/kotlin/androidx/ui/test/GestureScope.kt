@@ -54,7 +54,7 @@ private val doubleClickDelay = 145.milliseconds
  * The receiver scope for injecting gestures on the [semanticsNode] identified by the
  * corresponding [SemanticsNodeInteraction]. Gestures can be injected by calling methods defined
  * on [GestureScope], such as [click] or [swipe]. The [SemanticsNodeInteraction] can be found by
- * one of the finder methods such as [onNodeWithTag].
+ * one of the finder methods such as [ComposeTestRule.onNode].
  *
  * The functions in [GestureScope] can roughly be divided into two groups: full gestures and
  * partial gestures. Partial gestures are the ones that send individual touch events: [down],

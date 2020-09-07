@@ -34,6 +34,7 @@ internal class CompositionAwaiter {
     private var state = State.Initialized
 
     private val handler = Handler(Looper.getMainLooper())
+    @Suppress("DEPRECATION")
     private val choreographer = runOnUiThread { Choreographer.getInstance() }
 
     /**

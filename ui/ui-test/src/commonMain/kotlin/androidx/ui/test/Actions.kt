@@ -101,6 +101,7 @@ fun SemanticsNodeInteraction.performScrollTo(): SemanticsNodeInteraction {
         0f
     }
 
+    @Suppress("DEPRECATION")
     runOnUiThread {
         scrollableNode.config[SemanticsActions.ScrollBy].action(dx, dy)
     }
@@ -182,6 +183,7 @@ fun <T : Function<Boolean>> SemanticsNodeInteraction.performSemanticsAction(
         )
     }
 
+    @Suppress("DEPRECATION")
     runOnUiThread {
         invocation(node.config[key].action)
     }
