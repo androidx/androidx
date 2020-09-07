@@ -72,7 +72,10 @@ public class TrustedWebActivityIntentBuilderTest {
         splashScreenParams.putInt(SplashScreenParamKey.KEY_BACKGROUND_COLOR, splashBgColor);
 
         CustomTabColorSchemeParams colorSchemeParams = new CustomTabColorSchemeParams.Builder()
-                    .setToolbarColor(0xff112233).build();
+                    .setToolbarColor(toolbarColor).build();
+
+        CustomTabColorSchemeParams defaultColorSchemeParams =
+                new CustomTabColorSchemeParams.Builder().setToolbarColor(toolbarColor).build();
 
         ShareData shareData = new ShareData("share_title", "share_text", null);
         ShareTarget shareTarget = new ShareTarget("action", null, null,
@@ -83,11 +86,11 @@ public class TrustedWebActivityIntentBuilderTest {
         ImmersiveMode displayMode = new ImmersiveMode(true,
                 LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES);
         Intent intent = new TrustedWebActivityIntentBuilder(url)
-                        .setToolbarColor(toolbarColor)
                         .setNavigationBarColor(navigationBarColor)
                         .setNavigationBarDividerColor(navigationBarDividerColor)
                         .setColorScheme(COLOR_SCHEME_DARK)
                         .setColorSchemeParams(COLOR_SCHEME_DARK, colorSchemeParams)
+                        .setDefaultColorSchemeParams(defaultColorSchemeParams)
                         .setAdditionalTrustedOrigins(additionalTrustedOrigins)
                         .setSplashScreenParams(splashScreenParams)
                         .setShareParams(shareTarget, shareData)
