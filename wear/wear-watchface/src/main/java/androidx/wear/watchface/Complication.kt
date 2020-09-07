@@ -264,7 +264,7 @@ class Complication @JvmOverloads constructor(
     /**
      * The renderer for this Complication. Renderers may not be sharable between complications.
      */
-    internal var renderer: ComplicationRenderer,
+    renderer: ComplicationRenderer,
 
     /**
      * The types of complication supported by this Complication. Passed into {@link
@@ -319,18 +319,19 @@ class Complication @JvmOverloads constructor(
             complicationsHolder.scheduleUpdateActiveComplications()
         }
 
-    /**
-     * Sets the current {@link ComplicationRenderer}. This is useful if based on the style the
-     * watch face needs to use a different renderer.
-     */
-    @UiThread
-    fun setRenderer(renderer: ComplicationRenderer) {
-        renderer.onDetach()
-        renderer.setData(this.renderer.getData())
-        this.renderer = renderer
-        renderer.onAttach(this)
-        initRenderer()
-    }
+    private var _renderer = renderer
+
+    var renderer: ComplicationRenderer
+        @UiThread
+        get() = _renderer
+        @UiThread
+        set(value) {
+            renderer.onDetach()
+            value.setData(renderer.getData())
+            _renderer = value
+            value.onAttach(this)
+            initRenderer()
+        }
 
     /**
      * Watch faces should use this method to render a complication. Note the system may call this.

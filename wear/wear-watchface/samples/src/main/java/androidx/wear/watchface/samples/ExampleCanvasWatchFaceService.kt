@@ -238,9 +238,8 @@ class ExampleCanvasRenderer(
                     // Apply the userStyle to the complications. ComplicationDrawables for each of the
                     // styles are defined in XML so we need to replace the complication's drawables.
                     for ((_, complication) in complicationsHolder.complications) {
-                        complication.setRenderer(
+                        complication.renderer =
                             watchFaceColorStyle.getComplicationDrawableRenderer(context, watchState)
-                        )
                     }
 
                     val drawPipsOption =
