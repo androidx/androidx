@@ -17,15 +17,23 @@
 package androidx.camera.camera2.internal.compat.workaround;
 
 
+import static android.hardware.camera2.CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY;
+import static android.hardware.camera2.CameraMetadata.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED;
+
+import static androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio.RATIO_MAX_JPEG;
+import static androidx.camera.camera2.internal.compat.workaround.TargetAspectRatio.RATIO_ORIGINAL;
 import static androidx.camera.core.AspectRatio.RATIO_16_9;
 import static androidx.camera.core.AspectRatio.RATIO_4_3;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.hardware.camera2.CameraCharacteristics;
 import android.os.Build;
+import android.util.Range;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.Preview;
@@ -38,6 +46,8 @@ import org.junit.runner.RunWith;
 import org.robolectric.ParameterizedRobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
+import org.robolectric.shadow.api.Shadow;
+import org.robolectric.shadows.ShadowCameraCharacteristics;
 import org.robolectric.util.ReflectionHelpers;
 
 import java.util.ArrayList;
@@ -52,22 +62,50 @@ import java.util.List;
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class TargetAspectRatioTest {
+    private static final String BACK_CAMERA_ID = "0";
+    private static final Range<Integer> ALL_API_LEVELS = new Range<>(0, Integer.MAX_VALUE);
 
     @ParameterizedRobolectricTestRunner.Parameters
     public static Collection<Object[]> data() {
         final List<Object[]> data = new ArrayList<>();
-        data.add(new Object[]{new Config("Samsung", "SM-J710MN", true, RATIO_4_3, RATIO_16_9)});
-        data.add(new Object[]{new Config("Samsung", "SM-J710MN", true, RATIO_16_9, RATIO_16_9)});
-        data.add(new Object[]{new Config("Samsung", "SM-J710MN", false, RATIO_4_3, RATIO_4_3)});
-        data.add(new Object[]{new Config("Samsung", "SM-J710MN", false, RATIO_16_9, RATIO_16_9)});
-        data.add(new Object[]{new Config("Samsung", "SM-T580", true, RATIO_4_3, RATIO_16_9)});
-        data.add(new Object[]{new Config("Samsung", "SM-T580", true, RATIO_16_9, RATIO_16_9)});
-        data.add(new Object[]{new Config("Samsung", "SM-T580", false, RATIO_4_3, RATIO_4_3)});
-        data.add(new Object[]{new Config("Samsung", "SM-T580", false, RATIO_16_9, RATIO_16_9)});
-        data.add(new Object[]{new Config(null, null, true, RATIO_4_3, RATIO_4_3)});
-        data.add(new Object[]{new Config(null, null, true, RATIO_16_9, RATIO_16_9)});
-        data.add(new Object[]{new Config(null, null, false, RATIO_4_3, RATIO_4_3)});
-        data.add(new Object[]{new Config(null, null, false, RATIO_16_9, RATIO_16_9)});
+        data.add(new Object[]{new Config("Samsung", "SM-J710MN", true,
+                INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_4_3, RATIO_16_9, ALL_API_LEVELS)});
+        data.add(new Object[]{new Config("Samsung", "SM-J710MN", true,
+                INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_16_9, RATIO_16_9, ALL_API_LEVELS)});
+        data.add(new Object[]{new Config("Samsung", "SM-J710MN", false,
+                INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_4_3, RATIO_ORIGINAL, ALL_API_LEVELS)});
+        data.add(new Object[]{new Config("Samsung", "SM-J710MN", false,
+                INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_16_9, RATIO_ORIGINAL,
+                ALL_API_LEVELS)});
+        data.add(new Object[]{new Config("Samsung", "SM-T580", true,
+                INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_4_3, RATIO_16_9, ALL_API_LEVELS)});
+        data.add(new Object[]{new Config("Samsung", "SM-T580", true,
+                INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_16_9, RATIO_16_9, ALL_API_LEVELS)});
+        data.add(new Object[]{new Config("Samsung", "SM-T580", false,
+                INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_4_3, RATIO_ORIGINAL, ALL_API_LEVELS)});
+        data.add(new Object[]{new Config("Samsung", "SM-T580", false,
+                INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_16_9, RATIO_ORIGINAL,
+                ALL_API_LEVELS)});
+        data.add(new Object[]{new Config(null, null, true,
+                INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_4_3, RATIO_ORIGINAL, ALL_API_LEVELS)});
+        data.add(new Object[]{new Config(null, null, true,
+                INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_16_9, RATIO_ORIGINAL,
+                ALL_API_LEVELS)});
+        data.add(new Object[]{new Config(null, null, false,
+                INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_4_3, RATIO_ORIGINAL, ALL_API_LEVELS)});
+        data.add(new Object[]{new Config(null, null, false,
+                INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED, RATIO_16_9, RATIO_ORIGINAL,
+                ALL_API_LEVELS)});
+
+        // Test the legacy camera/Android 5.0 quirk.
+        data.add(new Object[]{new Config(null, null, true, INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
+                RATIO_4_3, RATIO_MAX_JPEG, new Range<>(21, 21))});
+        data.add(new Object[]{new Config(null, null, true, INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
+                RATIO_16_9, RATIO_MAX_JPEG, new Range<>(21, 21))});
+        data.add(new Object[]{new Config(null, null, false, INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
+                RATIO_4_3, RATIO_MAX_JPEG, new Range<>(21, 21))});
+        data.add(new Object[]{new Config(null, null, false, INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY,
+                RATIO_16_9, RATIO_MAX_JPEG, new Range<>(21, 21))});
         return data;
     }
 
@@ -99,8 +137,26 @@ public class TargetAspectRatioTest {
         }
         final ImageOutputConfig imageOutputConfig = (ImageOutputConfig) usecase.getCurrentConfig();
 
-        final int aspectRatio = new TargetAspectRatio().get(imageOutputConfig);
-        assertThat(aspectRatio).isEqualTo(mConfig.mExpectedAspectRatio);
+        final int aspectRatio = new TargetAspectRatio().get(imageOutputConfig,
+                BACK_CAMERA_ID, getCharacteristicsCompat(mConfig.mHardwareLevel));
+        assertThat(aspectRatio).isEqualTo(getExpectedAspectRatio());
+    }
+
+    @NonNull
+    private CameraCharacteristicsCompat getCharacteristicsCompat(int supportedHardwareLevel) {
+        CameraCharacteristics characteristics =
+                ShadowCameraCharacteristics.newCameraCharacteristics();
+
+        ShadowCameraCharacteristics shadowCharacteristics = Shadow.extract(characteristics);
+        shadowCharacteristics.set(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL,
+                supportedHardwareLevel);
+        return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics);
+    }
+
+    @TargetAspectRatio.Ratio
+    private int getExpectedAspectRatio() {
+        return mConfig.mAffectedApiLevels.contains(Build.VERSION.SDK_INT)
+                ? mConfig.mExpectedAspectRatio : RATIO_ORIGINAL;
     }
 
     static class Config {
@@ -111,17 +167,22 @@ public class TargetAspectRatioTest {
         final boolean mIsPreview;
         @AspectRatio.Ratio
         final int mInputAspectRatio;
-        @AspectRatio.Ratio
+        @TargetAspectRatio.Ratio
         final int mExpectedAspectRatio;
+        final int mHardwareLevel;
+        final Range<Integer> mAffectedApiLevels;
 
         Config(@Nullable String manufacturer, @Nullable String model, boolean isPreview,
-                @AspectRatio.Ratio int inputAspectRatio,
-                @AspectRatio.Ratio int expectedAspectRatio) {
+                int hardwareLevel, @AspectRatio.Ratio int inputAspectRatio,
+                @TargetAspectRatio.Ratio int expectedAspectRatio,
+                @NonNull Range<Integer> affectedApiLevels) {
             mManufacturer = manufacturer;
             mModel = model;
             mIsPreview = isPreview;
+            mHardwareLevel = hardwareLevel;
             mInputAspectRatio = inputAspectRatio;
             mExpectedAspectRatio = expectedAspectRatio;
+            mAffectedApiLevels = affectedApiLevels;
         }
     }
 }
