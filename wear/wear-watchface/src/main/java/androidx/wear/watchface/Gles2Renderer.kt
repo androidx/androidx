@@ -270,7 +270,7 @@ abstract class Gles2Renderer (
      * @param calendar The current {@link Calendar}
      */
     @UiThread
-    protected abstract fun onDraw(
+    abstract fun onDraw(
         calendar: Calendar
     )
 }

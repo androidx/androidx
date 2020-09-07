@@ -310,7 +310,9 @@ class Complication @JvmOverloads constructor(
     private var _enabled = true
 
     var enabled: Boolean
+        @UiThread
         get() = _enabled
+        @UiThread
         set(value) {
             _enabled = value
 
