@@ -57,8 +57,8 @@ class PrivateConstructorForUtilityClass : Detector(), Detector.UastScanner {
             }
             // This is a utility class with a non private constructor
             context.report(
-                PrivateConstructorForUtilityClass.ISSUE, node,
-                context.getLocation(node.javaPsi),
+                ISSUE, node,
+                context.getNameLocation(node),
                 "Utility class with non private constructor",
                 null
             )

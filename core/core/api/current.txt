@@ -2260,7 +2260,7 @@ package androidx.core.view {
   }
 
   public class ViewCompat {
-    ctor protected ViewCompat();
+    ctor @Deprecated protected ViewCompat();
     method public static int addAccessibilityAction(android.view.View, CharSequence, androidx.core.view.accessibility.AccessibilityViewCommand);
     method public static void addKeyboardNavigationClusters(android.view.View, java.util.Collection<android.view.View!>, int);
     method public static void addOnUnhandledKeyEventListener(android.view.View, androidx.core.view.ViewCompat.OnUnhandledKeyEventListenerCompat);

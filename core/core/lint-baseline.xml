@@ -114,17 +114,6 @@
     <issue
         id="PrivateConstructorForUtilityClass"
         message="Utility class with non private constructor"
-        errorLine1="/**"
-        errorLine2="^">
-        <location
-            file="src/main/java/androidx/core/view/ViewCompat.java"
-            line="85"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="PrivateConstructorForUtilityClass"
-        message="Utility class with non private constructor"
         errorLine1="    @RequiresApi(16)"
         errorLine2="    ^">
         <location
