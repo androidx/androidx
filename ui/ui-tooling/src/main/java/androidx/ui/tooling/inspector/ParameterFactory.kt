@@ -18,7 +18,7 @@ package androidx.ui.tooling.inspector
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.InnerPadding
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.shape.CornerBasedShape
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.ui.AbsoluteAlignment
@@ -107,7 +107,7 @@ internal class ParameterFactory {
             is Float -> NodeParameter(name, ParameterType.Float, value)
             is FontListFontFamily -> createFromFontListFamily(name, value)
             is FontWeight -> NodeParameter(name, ParameterType.Int32, value.weight)
-            is InnerPadding -> createFromInnerPadding(node, name, value)
+            is PaddingValues -> createFromPaddingValues(node, name, value)
             is Modifier -> createFromModifier(node, name, value)
             is InspectableParameter -> createFromInspectableParameter(node, name, value)
             is Int -> NodeParameter(name, ParameterType.Int32, value)
@@ -186,12 +186,12 @@ internal class ParameterFactory {
             return NodeParameter(name, ParameterType.Resource, it.resId)
         }
 
-    private fun createFromInnerPadding(
+    private fun createFromPaddingValues(
         node: MutableInspectorNode,
         name: String,
-        value: InnerPadding
+        value: PaddingValues
     ): NodeParameter {
-        val parameter = NodeParameter(name, ParameterType.String, "InnerPadding")
+        val parameter = NodeParameter(name, ParameterType.String, "PaddingValues")
         val elements = parameter.elements
         create(node, "start", value.start)?.let { elements.add(it) }
         create(node, "end", value.end)?.let { elements.add(it) }
