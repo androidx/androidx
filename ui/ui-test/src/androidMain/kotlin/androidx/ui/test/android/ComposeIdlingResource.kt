@@ -102,6 +102,7 @@ internal object ComposeIdlingResource : BaseIdlingResource(), IdlingResourceWith
      */
     @OptIn(ExperimentalComposeApi::class)
     fun isIdle(): Boolean {
+        @Suppress("DEPRECATION")
         return runOnUiThread {
             hadNoSnapshotChanges = !Snapshot.current.hasPendingChanges()
             hadNoRecomposerChanges = !Recomposer.current().hasPendingChanges()

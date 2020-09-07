@@ -28,7 +28,7 @@ internal expect fun getAllSemanticsNodes(mergingEnabled: Boolean): List<Semantic
  * with this node by performing actions such as [performClick], assertions such as
  * [assertHasClickAction], or navigate to other nodes such as [onChildren].
  *
- * This is usually obtained from methods like [onNodeWithTag], [onNode].
+ * This is usually obtained from methods like [ComposeTestRule.onNode], [onNode].
  *
  * Example usage:
  * ```
