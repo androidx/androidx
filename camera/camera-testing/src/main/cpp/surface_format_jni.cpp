@@ -25,7 +25,9 @@ Java_androidx_camera_testing_SurfaceFormatUtil_nativeGetSurfaceFormat(JNIEnv *en
                                                            jobject jsurface) {
     ANativeWindow *nativeWindow = ANativeWindow_fromSurface(env, jsurface);
     assert(nativeWindow != nullptr);
-    return ANativeWindow_getFormat(nativeWindow);
+    int32_t format = ANativeWindow_getFormat(nativeWindow);
+    ANativeWindow_release(nativeWindow);
+    return format;
 }
 
 }  // extern "C"
