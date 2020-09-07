@@ -38,6 +38,12 @@
             </intent-filter>
         </receiver>
 
+        <service android:name="androidx.mediarouter.media.MediaRouteProviderServiceTest$MediaRouteProviderServiceImpl"
+                 android:enabled="true">
+            <intent-filter>
+                <action android:name="aandroid.media.MediaRouteProviderService"/>
+            </intent-filter>
+        </service>
     </application>
 
 </manifest>
