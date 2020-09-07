@@ -139,6 +139,25 @@ class XProcessingEnvTest {
         }
     }
 
+    @Test
+    fun nestedType() {
+        val src = Source.java("foo.bar.Outer", """
+            package foo.bar;
+            public class Outer {
+                public static class Inner {
+                }
+            }
+        """.trimIndent())
+        runProcessorTest(sources = listOf(src)) {
+            it.processingEnv.requireTypeElement("foo.bar.Outer.Inner").let {
+                val className = it.className
+                assertThat(className.packageName()).isEqualTo("foo.bar")
+                assertThat(className.simpleNames()).containsExactly("Outer", "Inner")
+                assertThat(className.simpleName()).isEqualTo("Inner")
+            }
+        }
+    }
+
     companion object {
         val PRIMITIVE_TYPES = mapOf(
             TypeName.BOOLEAN.toString() to TypeName.BOOLEAN,

@@ -25,9 +25,10 @@ import org.jetbrains.kotlin.ksp.symbol.KSName
 import org.jetbrains.kotlin.ksp.symbol.KSType
 import org.jetbrains.kotlin.ksp.symbol.KSTypeReference
 
+internal val ERROR_PACKAGE_NAME = "androidx.room.compiler.processing.kotlin.error"
+
 // catch-all type name when we cannot resolve to anything.
-internal val UNDEFINED =
-    ClassName.get("androidx.room.compiler.processing.kotlin.error", "Undefined")
+internal val UNDEFINED = ClassName.get(ERROR_PACKAGE_NAME, "Undefined")
 
 /**
  * Turns a KSTypeReference into a TypeName
@@ -61,14 +62,11 @@ private fun KSName.typeName(): ClassName? {
     return ClassName.get(getQualifier(), shortNames.first(), *(shortNames.drop(1).toTypedArray()))
 }
 
-private fun KSDeclaration.typeName(): ClassName? {
+internal fun KSDeclaration.typeName(): ClassName? {
     // if there is no qualified name, it is an error for room
     val qualified = qualifiedName?.asString() ?: return null
     // get the package name first, it might throw for invalid types, hence we use safeGetPackageName
-    val pkg = safeGetPackageName().let {
-        if (it == "<root>") ""
-        else it
-    } ?: return null
+    val pkg = safeGetPackageName() ?: return null
     // using qualified name and pkg, figure out the short names.
     val shortNames = if (pkg == "") {
         qualified
@@ -97,9 +95,15 @@ internal fun KSType.typeName(): TypeName? {
  * KSDeclaration.packageName might throw for error types.
  * https://github.com/android/kotlin/issues/121
  */
-private fun KSDeclaration.safeGetPackageName(): String? {
+internal fun KSDeclaration.safeGetPackageName(): String? {
     return try {
-        packageName.asString()
+        packageName.asString().let {
+            if (it == "<root>") {
+                ""
+            } else {
+                it
+            }
+        }
     } catch (t: Throwable) {
         null
     }
