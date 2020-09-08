@@ -145,7 +145,7 @@ public class PreviewView extends FrameLayout {
 
     private final Preview.SurfaceProvider mSurfaceProvider = surfaceRequest -> {
         Logger.d(TAG, "Surface requested by Preview.");
-        CameraInternal camera = (CameraInternal) surfaceRequest.getCamera();
+        CameraInternal camera = surfaceRequest.getCamera();
         mPreviewTransform.setSensorDimensionFlipNeeded(
                 isSensorDimensionFlipNeeded(camera.getCameraInfo()));
         mImplementation = surfaceRequest.isRGBA8888Required() || shouldUseTextureView(

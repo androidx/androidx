@@ -21,11 +21,26 @@ import android.content.Context;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.Camera;
+import androidx.camera.core.CameraFilter;
+import androidx.camera.core.ExperimentalCameraFilter;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.impl.CameraFilters;
+import androidx.camera.extensions.impl.AutoImageCaptureExtenderImpl;
+import androidx.camera.extensions.impl.AutoPreviewExtenderImpl;
+import androidx.camera.extensions.impl.BeautyImageCaptureExtenderImpl;
+import androidx.camera.extensions.impl.BeautyPreviewExtenderImpl;
+import androidx.camera.extensions.impl.BokehImageCaptureExtenderImpl;
+import androidx.camera.extensions.impl.BokehPreviewExtenderImpl;
+import androidx.camera.extensions.impl.HdrImageCaptureExtenderImpl;
+import androidx.camera.extensions.impl.HdrPreviewExtenderImpl;
+import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl;
+import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
@@ -127,10 +142,51 @@ public class Extensions {
      * #checkUseCases(Camera, List, int)}.
      *
      * @param camera The Camera to check if it supports the extension.
-     * @param mode The extension mode to check
+     * @param mode   The extension mode to check
      */
+    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
     public boolean isExtensionAvailable(@NonNull Camera camera, @ExtensionMode int mode) {
-        throw new UnsupportedOperationException("not yet implemented");
+        CameraFilter filter = getFilter(mode);
+
+        // Extension is available for the camera if it contains a CameraInternal which supports
+        // the extension
+        return !filter.filter(new LinkedHashSet<>(camera.getCameraInternals())).isEmpty();
+    }
+
+    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
+    private CameraFilter getFilter(@ExtensionMode int mode) {
+        CameraFilter filter;
+        try {
+            switch (mode) {
+                case EXTENSION_MODE_BOKEH:
+                    filter = new ExtensionCameraFilter(new BokehPreviewExtenderImpl(),
+                            new BokehImageCaptureExtenderImpl());
+                    break;
+                case EXTENSION_MODE_HDR:
+                    filter = new ExtensionCameraFilter(new HdrPreviewExtenderImpl(),
+                            new HdrImageCaptureExtenderImpl());
+                    break;
+                case EXTENSION_MODE_NIGHT:
+                    filter = new ExtensionCameraFilter(new NightPreviewExtenderImpl(),
+                            new NightImageCaptureExtenderImpl());
+                    break;
+                case EXTENSION_MODE_BEAUTY:
+                    filter = new ExtensionCameraFilter(new BeautyPreviewExtenderImpl(),
+                            new BeautyImageCaptureExtenderImpl());
+                    break;
+                case EXTENSION_MODE_AUTO:
+                    filter = new ExtensionCameraFilter(new AutoPreviewExtenderImpl(),
+                            new AutoImageCaptureExtenderImpl());
+                    break;
+                case EXTENSION_MODE_NONE:
+                default:
+                    filter = CameraFilters.ANY;
+            }
+        } catch (NoClassDefFoundError e) {
+            filter = CameraFilters.NONE;
+        }
+
+        return filter;
     }
 
     /**

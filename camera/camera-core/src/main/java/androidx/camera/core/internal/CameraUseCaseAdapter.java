@@ -23,12 +23,13 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.experimental.UseExperimental;
+import androidx.camera.core.Camera;
+import androidx.camera.core.CameraControl;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
-import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
-import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -51,7 +52,7 @@ import java.util.Map;
  * extensions in order to select the correct CameraInternal instance which has the required
  * camera id.
  */
-public final class CameraUseCaseAdapter {
+public final class CameraUseCaseAdapter implements Camera {
     private final CameraInternal mCameraInternal;
     private final LinkedHashSet<CameraInternal> mCameraInternals;
     private final CameraDeviceSurfaceManager mCameraDeviceSurfaceManager;
@@ -324,16 +325,6 @@ public final class CameraUseCaseAdapter {
         return suggestedResolutions;
     }
 
-    @NonNull
-    public CameraInfoInternal getCameraInfoInternal() {
-        return mCameraInternal.getCameraInfoInternal();
-    }
-
-    @NonNull
-    public CameraControlInternal getCameraControlInternal() {
-        return mCameraInternal.getCameraControlInternal();
-    }
-
     /**
      * An identifier for a {@link CameraUseCaseAdapter}.
      *
@@ -380,5 +371,26 @@ public final class CameraUseCaseAdapter {
         public CameraException(@NonNull Throwable cause) {
             super(cause);
         }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Camera interface
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    @NonNull
+    @Override
+    public CameraControl getCameraControl() {
+        return mCameraInternal.getCameraControlInternal();
+    }
+
+    @NonNull
+    @Override
+    public CameraInfo getCameraInfo() {
+        return mCameraInternal.getCameraInfoInternal();
+    }
+
+    @NonNull
+    @Override
+    public Collection<CameraInternal> getCameraInternals() {
+        return mCameraInternals;
     }
 }

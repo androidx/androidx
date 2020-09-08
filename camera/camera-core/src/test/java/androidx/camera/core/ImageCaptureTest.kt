@@ -71,6 +71,7 @@ import java.util.Collections
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Executor
 import java.util.concurrent.atomic.AtomicReference
+import kotlin.jvm.Throws
 
 private const val MAX_IMAGES = 3
 

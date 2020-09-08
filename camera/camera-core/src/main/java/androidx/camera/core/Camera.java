@@ -17,8 +17,12 @@
 package androidx.camera.core;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
+import androidx.camera.core.impl.CameraInternal;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
+import java.util.Collection;
 
 /**
  * The camera interface is used to control the flow of data to use cases, control the
@@ -57,4 +61,21 @@ public interface Camera {
      */
     @NonNull
     CameraInfo getCameraInfo();
+
+    /**
+     * Returns all of the {@link CameraInternal} instances represented by this Camera.
+     *
+     * <p> A {@link Camera} is a logical camera which wraps one or more {@link CameraInternal}.
+     * At any time, only one of the CameraInternal is actually being used, and it is up to the
+     * implementation to determine which {@link CameraInternal} will be used. Certain
+     * reconfigurations of the camera will cause the current CameraInternal camera to change.
+     * However, it will be transparent to the {@link CameraControl} and {@link CameraInfo}
+     * retrieved from {@link #getCameraControl()} and {@link #getCameraInfo()}.
+     *
+     * <p> The set of CameraInternal should be static for the lifetime of the Camera.
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    Collection<CameraInternal> getCameraInternals();
 }

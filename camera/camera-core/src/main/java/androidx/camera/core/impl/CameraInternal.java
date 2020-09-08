@@ -18,14 +18,19 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.Camera;
+import androidx.camera.core.CameraControl;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.UseCase;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Collection;
+import java.util.Collections;
 
 /**
  * The camera interface. It is controlled by the change of state in use cases.
+ *
+ * <p> It is a Camera instance backed by a single physical camera.
  */
 public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
     /**
@@ -144,4 +149,28 @@ public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
     /** Returns an interface to retrieve characteristics of the camera. */
     @NonNull
     CameraInfoInternal getCameraInfoInternal();
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Camera interface
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    @NonNull
+    @Override
+    default CameraControl getCameraControl() {
+        return getCameraControlInternal();
+    }
+
+    @NonNull
+    @Override
+    default CameraInfo getCameraInfo() {
+        return getCameraInfoInternal();
+    }
+
+    /**
+     * Always returns only itself since there is only ever one CameraInternal.
+     */
+    @NonNull
+    @Override
+    default Collection<CameraInternal> getCameraInternals() {
+        return Collections.singleton(this);
+    }
 }
