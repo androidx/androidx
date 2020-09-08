@@ -116,7 +116,7 @@ abstract class CanvasRenderer(
      * @param calendar The current {@link Calendar}
      */
     @UiThread
-    protected abstract fun onDraw(
+    abstract fun onDraw(
         canvas: Canvas,
         bounds: Rect,
         calendar: Calendar
