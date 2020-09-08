@@ -22,6 +22,7 @@ import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.Lifecycle.State;
@@ -223,15 +224,24 @@ final class LifecycleCamera implements LifecycleObserver, Camera {
         }
     }
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Camera interface
+    ////////////////////////////////////////////////////////////////////////////////////////////////
     @NonNull
     @Override
     public CameraControl getCameraControl() {
-        return mCameraUseCaseAdapter.getCameraControlInternal();
+        return mCameraUseCaseAdapter.getCameraControl();
     }
 
     @NonNull
     @Override
     public CameraInfo getCameraInfo() {
-        return mCameraUseCaseAdapter.getCameraInfoInternal();
+        return mCameraUseCaseAdapter.getCameraInfo();
+    }
+
+    @NonNull
+    @Override
+    public Collection<CameraInternal> getCameraInternals() {
+        return mCameraUseCaseAdapter.getCameraInternals();
     }
 }

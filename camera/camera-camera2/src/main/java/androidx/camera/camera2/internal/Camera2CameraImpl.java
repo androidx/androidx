@@ -37,8 +37,6 @@ import androidx.annotation.RestrictTo;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
-import androidx.camera.core.CameraControl;
-import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
@@ -1141,18 +1139,6 @@ final class Camera2CameraImpl implements CameraInternal {
                 Log.d(TAG, msgString, throwable);
             }
         }
-    }
-
-    @NonNull
-    @Override
-    public CameraControl getCameraControl() {
-        return getCameraControlInternal();
-    }
-
-    @NonNull
-    @Override
-    public CameraInfo getCameraInfo() {
-        return getCameraInfoInternal();
     }
 
     enum InternalState {

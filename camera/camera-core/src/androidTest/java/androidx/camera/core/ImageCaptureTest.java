@@ -103,7 +103,7 @@ public class ImageCaptureTest {
         ImageCapture.OnImageCapturedCallback callback = mock(
                 ImageCapture.OnImageCapturedCallback.class);
         FakeCameraControl fakeCameraControl =
-                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControlInternal());
+                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControl());
 
         fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
             // Notify the cancel after the capture request has been successfully submitted
@@ -134,7 +134,7 @@ public class ImageCaptureTest {
         ImageCapture.OnImageCapturedCallback callback = mock(
                 ImageCapture.OnImageCapturedCallback.class);
         FakeCameraControl fakeCameraControl =
-                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControlInternal());
+                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControl());
         fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
             // Notify the failure after the capture request has been successfully submitted
             fakeCameraControl.notifyAllRequestsOnCaptureFailed();
@@ -164,8 +164,7 @@ public class ImageCaptureTest {
             }
         });
         FakeCameraControl fakeCameraControl =
-                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControlInternal());
-
+                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControl());
         FakeCameraControl.OnNewCaptureRequestListener mockCaptureRequestListener =
                 mock(FakeCameraControl.OnNewCaptureRequestListener.class);
         fakeCameraControl.setOnNewCaptureRequestListener(mockCaptureRequestListener);
@@ -198,7 +197,7 @@ public class ImageCaptureTest {
         ImageCapture.OnImageCapturedCallback callback = mock(
                 ImageCapture.OnImageCapturedCallback.class);
         FakeCameraControl fakeCameraControl =
-                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControlInternal());
+                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControl());
         CountDownLatch latch = new CountDownLatch(1);
         fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
             latch.countDown();

@@ -380,7 +380,7 @@ public final class Camera2CameraControlImplTest {
         mCamera = CameraUtil.getCameraAndAttachUseCase(ApplicationProvider.getApplicationContext(),
                 CameraSelector.DEFAULT_BACK_CAMERA, imageAnalysis);
 
-        return (Camera2CameraControlImpl) mCamera.getCameraControlInternal();
+        return (Camera2CameraControlImpl) mCamera.getCameraControl();
     }
 
     @Test
