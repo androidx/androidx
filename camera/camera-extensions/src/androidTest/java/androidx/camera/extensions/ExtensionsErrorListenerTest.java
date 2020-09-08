@@ -22,7 +22,6 @@ import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-import android.Manifest;
 import android.content.Context;
 import android.os.Build;
 
@@ -42,12 +41,12 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
-import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -68,8 +67,7 @@ import java.util.concurrent.atomic.AtomicReference;
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M)
 public final class ExtensionsErrorListenerTest {
     @Rule
-    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
-            Manifest.permission.CAMERA);
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
 
     private final Context mContext = ApplicationProvider.getApplicationContext();
 
