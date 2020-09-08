@@ -16,8 +16,14 @@
 
 package androidx.camera.view;
 
+import static androidx.camera.view.AccelerometerRotationListener.INVALID_SURFACE_ROTATION;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.hardware.display.DisplayManager;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.Display;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
@@ -39,6 +45,7 @@ import androidx.camera.core.TorchState;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.VideoCapture;
+import androidx.camera.core.ViewPort;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -78,11 +85,6 @@ abstract class CameraController {
     @Nullable
     Preview mPreview;
 
-    // SurfaceProvider form the latest attachPreviewSurface() call.
-    // Synthetic access
-    @SuppressWarnings("WeakerAccess")
-    Preview.SurfaceProvider mSurfaceProvider;
-
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
     @Nullable
@@ -120,16 +122,46 @@ abstract class CameraController {
     @Nullable
     ProcessCameraProvider mCameraProvider;
 
+
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    @Nullable
+    ViewPort mViewPort;
+
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    @Nullable
+    Preview.SurfaceProvider mSurfaceProvider;
+
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    @Nullable
+    Display mPreviewDisplay;
+
+    @NonNull
+    private final AccelerometerRotationListener mAccelerometerRotationListener;
+
+    @Nullable
+    private final DisplayChangeListener mDisplayChangeListener;
+
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    int mAccelerometerRotation = INVALID_SURFACE_ROTATION;
+    int mDisplayRotation = INVALID_SURFACE_ROTATION;
+
     private boolean mPinchToZoomEnabled = true;
     private boolean mTapToFocusEnabled = true;
 
     private final ForwardingLiveData<ZoomState> mZoomState = new ForwardingLiveData<>();
     private final ForwardingLiveData<Integer> mTorchState = new ForwardingLiveData<>();
 
+    private final Context mAppContext;
+
     CameraController(@NonNull Context context) {
+        mAppContext = context.getApplicationContext();
         // Wait for camera to be initialized before binding use cases.
         Futures.addCallback(
-                ProcessCameraProvider.getInstance(context),
+                ProcessCameraProvider.getInstance(mAppContext),
                 new FutureCallback<ProcessCameraProvider>() {
 
                     @SuppressLint("MissingPermission")
@@ -141,6 +173,8 @@ abstract class CameraController {
                                 mFlashMode).build();
                         mVideoCapture = new VideoCapture.Builder().build();
                         mCameraProvider = provider;
+                        updateImageAndVideoRotationIfCameraIsReady();
+                        updatePreviewRotationIfCameraIsReady();
                         startCameraAndTrackStates();
                     }
 
@@ -151,6 +185,19 @@ abstract class CameraController {
                     }
 
                 }, CameraXExecutors.mainThreadExecutor());
+
+        // Listen to display rotation and set target rotation for Preview.
+        mDisplayChangeListener = new DisplayChangeListener();
+
+        // Listen to accelerometer reading and set target rotation for ImageCapture and
+        // VideoCapture.
+        mAccelerometerRotationListener = new AccelerometerRotationListener(mAppContext) {
+            @Override
+            public void onRotationChanged(int rotation) {
+                mAccelerometerRotation = rotation;
+                updateImageAndVideoRotationIfCameraIsReady();
+            }
+        };
     }
 
     /**
@@ -165,21 +212,32 @@ abstract class CameraController {
 
     /**
      * Internal API used by {@link PreviewView} to notify changes.
-     *
-     * TODO(b/148791439): replace width/height with a Viewport.
      */
-    @SuppressLint("MissingPermission")
+    @SuppressLint({"MissingPermission", "WrongConstant"})
     @MainThread
-    void attachPreviewSurface(@NonNull Preview.SurfaceProvider surfaceProvider, int width,
-            int height) {
+    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
+    void attachPreviewSurface(@NonNull Preview.SurfaceProvider surfaceProvider,
+            @NonNull ViewPort viewPort, @NonNull Display display) {
         Threads.checkMainThread();
         if (mSurfaceProvider != surfaceProvider) {
-            mSurfaceProvider = surfaceProvider;
             // Avoid setting provider unnecessarily which restarts Preview pipeline.
+            mSurfaceProvider = surfaceProvider;
             if (mPreview != null) {
                 mPreview.setSurfaceProvider(surfaceProvider);
             }
         }
+        mViewPort = viewPort;
+        mPreviewDisplay = display;
+        // Update default rotation value with display rotation.
+        if (mAccelerometerRotation == INVALID_SURFACE_ROTATION) {
+            mAccelerometerRotation = display.getRotation();
+            updateImageAndVideoRotationIfCameraIsReady();
+        }
+        if (mDisplayRotation == INVALID_SURFACE_ROTATION) {
+            mDisplayRotation = display.getRotation();
+            updatePreviewRotationIfCameraIsReady();
+        }
+        startListeningToRotationEvents();
         startCameraAndTrackStates();
     }
 
@@ -198,6 +256,26 @@ abstract class CameraController {
         }
         mCamera = null;
         mSurfaceProvider = null;
+        mViewPort = null;
+        mPreviewDisplay = null;
+        stopListeningToRotationEvents();
+    }
+
+    private void startListeningToRotationEvents() {
+        getDisplayManager().registerDisplayListener(mDisplayChangeListener,
+                new Handler(Looper.getMainLooper()));
+        if (mAccelerometerRotationListener.canDetectOrientation()) {
+            mAccelerometerRotationListener.enable();
+        }
+    }
+
+    private void stopListeningToRotationEvents() {
+        getDisplayManager().unregisterDisplayListener(mDisplayChangeListener);
+        mAccelerometerRotationListener.disable();
+    }
+
+    private DisplayManager getDisplayManager() {
+        return (DisplayManager) mAppContext.getSystemService(Context.DISPLAY_SERVICE);
     }
 
     // ----------------------
@@ -645,7 +723,6 @@ abstract class CameraController {
         return mCamera.getCameraControl().enableTorch(torchEnabled);
     }
 
-    // TODO(b/148791439): Handle rotation so the output is always in gravity orientation.
     // TODO(b/148791439): Give user a way to tell if the camera provider is ready.
 
     /**
@@ -668,11 +745,11 @@ abstract class CameraController {
      */
     @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
     protected UseCaseGroup createUseCaseGroup() {
-        if (mCameraProvider == null) {
+        if (mCameraProvider == null || mPreview == null) {
             Logger.d(TAG, CAMERA_NOT_READY);
             return null;
         }
-        if (mSurfaceProvider == null || mPreview == null) {
+        if (mSurfaceProvider == null || mViewPort == null) {
             // Preview is required. Return early if preview Surface is not ready.
             Logger.d(TAG, "Preview is not ready.");
             return null;
@@ -687,7 +764,58 @@ abstract class CameraController {
             builder.addUseCase(mVideoCapture);
         }
 
-        // TODO(b/148791439): set ViewPort if mPreviewSize/ LayoutDirection is not null.
+        builder.setViewPort(mViewPort);
         return builder.build();
+    }
+
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    @SuppressLint("WrongConstant")
+    void updateImageAndVideoRotationIfCameraIsReady() {
+        if (mAccelerometerRotation != INVALID_SURFACE_ROTATION && mImageCapture != null
+                && mVideoCapture != null) {
+            mImageCapture.setTargetRotation(mAccelerometerRotation);
+            mVideoCapture.setTargetRotation(mAccelerometerRotation);
+        }
+
+    }
+
+    @SuppressLint("WrongConstant")
+    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
+    void updatePreviewRotationIfCameraIsReady() {
+        if (mDisplayRotation != INVALID_SURFACE_ROTATION && mPreview != null) {
+            mPreview.setTargetRotation(mDisplayRotation);
+        }
+    }
+
+    /**
+     * Listener for display changes.
+     *
+     * <p>When the device is rotated 180° from side to side, the activity is not
+     * destroyed and recreated, thus {@link #attachPreviewSurface} will not be invoked. This
+     * class is necessary to make sure preview's target rotation is the display rotation when
+     * that happens.
+     */
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    class DisplayChangeListener implements DisplayManager.DisplayListener {
+
+        @Override
+        public void onDisplayAdded(int displayId) {
+        }
+
+        @Override
+        public void onDisplayRemoved(int displayId) {
+        }
+
+        @SuppressLint("WrongConstant")
+        @Override
+        public void onDisplayChanged(int displayId) {
+            if (mPreviewDisplay != null && mPreview != null
+                    && mPreviewDisplay.getDisplayId() == displayId) {
+                mDisplayRotation = mPreviewDisplay.getRotation();
+                updatePreviewRotationIfCameraIsReady();
+            }
+        }
     }
 }

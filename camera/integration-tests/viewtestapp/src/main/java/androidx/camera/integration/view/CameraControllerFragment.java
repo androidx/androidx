@@ -46,10 +46,10 @@ import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
+import androidx.camera.view.AccelerometerRotationListener;
 import androidx.camera.view.LifecycleCameraController;
 import androidx.camera.view.PreviewView;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -69,7 +69,8 @@ public class CameraControllerFragment extends Fragment {
     @SuppressWarnings("WeakerAccess")
     LifecycleCameraController mCameraController;
 
-    private PreviewView mPreviewView;
+    @VisibleForTesting
+    PreviewView mPreviewView;
     private FrameLayout mContainer;
     private Button mFlashMode;
     private ToggleButton mCameraToggle;
@@ -79,6 +80,7 @@ public class CameraControllerFragment extends Fragment {
     private ToggleButton mTapToFocusToggle;
     private TextView mZoomStateText;
     private TextView mTorchStateText;
+    private RotationListener mAccelerometerRotationListener;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -92,7 +94,9 @@ public class CameraControllerFragment extends Fragment {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         mExecutorService = Executors.newSingleThreadExecutor();
-        mCameraController = new LifecycleCameraController(getContext());
+        mAccelerometerRotationListener = new RotationListener(requireContext());
+        mAccelerometerRotationListener.enable();
+        mCameraController = new LifecycleCameraController(requireContext());
         mCameraController.bindToLifecycle(getViewLifecycleOwner());
 
         View view = inflater.inflate(R.layout.camera_controller_view, container, false);
@@ -270,6 +274,7 @@ public class CameraControllerFragment extends Fragment {
         if (mExecutorService != null) {
             mExecutorService.shutdown();
         }
+        mAccelerometerRotationListener.disable();
     }
 
     void logFailedFuture(ListenableFuture<Void> voidFuture) {
@@ -351,6 +356,27 @@ public class CameraControllerFragment extends Fragment {
     // -----------------
 
     /**
+     * Listens to accelerometer rotation change and pass it to tests.
+     */
+    static class RotationListener extends AccelerometerRotationListener {
+
+        private int mRotation;
+
+        RotationListener(@NonNull Context context) {
+            super(context);
+        }
+
+        @Override
+        public void onRotationChanged(int rotation) {
+            mRotation = rotation;
+        }
+
+        int getRotation() {
+            return mRotation;
+        }
+    }
+
+    /**
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
@@ -362,9 +388,16 @@ public class CameraControllerFragment extends Fragment {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
-    void observePreviewStreamState(Observer<PreviewView.StreamState> observer) {
-        mPreviewView.getPreviewStreamState().observe(CameraControllerFragment.this,
-                observer);
+    PreviewView getPreviewView() {
+        return mPreviewView;
+    }
+
+    /**
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.TESTS)
+    int getAccelerometerRotation() {
+        return mAccelerometerRotationListener.getRotation();
     }
 
     @VisibleForTesting
