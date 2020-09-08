@@ -34,6 +34,7 @@ class WatchState {
      * Whether or not the watch is in airplane mode. Only valid if
      * {@link android.support.wearable.watchface.WatchFaceStyle#hideNotificationIndicator} is true.
      */
+    @get:JvmName("inAirplaneMode")
     var inAirplaneMode = false
         private set
 
@@ -92,10 +93,12 @@ class WatchState {
         private set
 
     /** Whether or not the watch has low bit ambient support. */
+    @get:JvmName("hasLowBitAmbient")
     var hasLowBitAmbient = false
         private set
 
     /** Whether or not the watch has burn in protection support. */
+    @get:JvmName("hasBurnInProtection")
     var hasBurnInProtection = false
         private set
 
