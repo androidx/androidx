@@ -77,9 +77,7 @@ abstract class Renderer(
      * @return A {@link Bitmap} containing a screenshot of the watch face
      */
     @UiThread
-    internal abstract fun onDrawInternal(
-        calendar: Calendar
-    )
+    internal abstract fun renderInternal(calendar: Calendar)
 
     /**
      * Renders the watch face into a Bitmap with the user style specified by the

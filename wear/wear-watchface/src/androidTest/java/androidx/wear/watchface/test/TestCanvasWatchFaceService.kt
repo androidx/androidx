@@ -26,20 +26,19 @@ import androidx.wear.complications.SystemProviders
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsHolder
 import androidx.wear.watchface.NoInvalidateWatchFaceHostApi
-import androidx.wear.watchface.UnitSquareBoundsProvider
-import androidx.wear.watchface.WatchFaceHost
-import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.WatchFace
+import androidx.wear.watchface.WatchFaceHost
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
+import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
 import androidx.wear.watchface.samples.ExampleCanvasRenderer
 import androidx.wear.watchface.samples.R
 import androidx.wear.watchface.samples.WatchFaceColorStyle
 import androidx.wear.watchface.style.BooleanUserStyleCategory
-import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.DoubleRangeUserStyleCategory
+import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyleManager
 
 /** A simple canvas test watch face for integration tests. */
@@ -103,9 +102,8 @@ internal class TestCanvasWatchFaceService(
         )
         val complicationSlots = ComplicationsHolder(
             listOf(
-                Complication(
+                Complication.Builder(
                     EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID,
-                    UnitSquareBoundsProvider(RectF(0.2f, 0.4f, 0.4f, 0.6f)),
                     watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
                     intArrayOf(
                         ComplicationData.TYPE_RANGED_VALUE,
@@ -114,12 +112,12 @@ internal class TestCanvasWatchFaceService(
                         ComplicationData.TYPE_ICON,
                         ComplicationData.TYPE_SMALL_IMAGE
                     ),
-                    Complication.DefaultComplicationProvider(SystemProviders.DAY_OF_WEEK),
-                    ComplicationData.TYPE_SHORT_TEXT
-                ),
-                Complication(
+                    Complication.DefaultComplicationProvider(SystemProviders.DAY_OF_WEEK)
+                ).setUnitSquareBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+                    .setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
+                    .build(),
+                Complication.Builder(
                     EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID,
-                    UnitSquareBoundsProvider(RectF(0.6f, 0.4f, 0.8f, 0.6f)),
                     watchFaceStyle.getComplicationDrawableRenderer(this, watchState),
                     intArrayOf(
                         ComplicationData.TYPE_RANGED_VALUE,
@@ -128,9 +126,10 @@ internal class TestCanvasWatchFaceService(
                         ComplicationData.TYPE_ICON,
                         ComplicationData.TYPE_SMALL_IMAGE
                     ),
-                    Complication.DefaultComplicationProvider(SystemProviders.STEP_COUNT),
-                    ComplicationData.TYPE_SHORT_TEXT
-                )
+                    Complication.DefaultComplicationProvider(SystemProviders.STEP_COUNT)
+                ).setUnitSquareBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
+                    .setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
+                    .build()
             )
         )
         val renderer = ExampleCanvasRenderer(

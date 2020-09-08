@@ -689,7 +689,7 @@ class WatchFace private constructor(
     internal fun onDraw() {
         setCalendarTime(systemTimeProvider.getSystemTimeMillis())
         maybeUpdateDrawMode()
-        renderer.onDrawInternal(calendar)
+        renderer.renderInternal(calendar)
 
         val currentTimeMillis = systemTimeProvider.getSystemTimeMillis()
         setCalendarTime(currentTimeMillis)
@@ -703,7 +703,7 @@ class WatchFace private constructor(
     internal fun onSurfaceRedrawNeeded() {
         setCalendarTime(systemTimeProvider.getSystemTimeMillis())
         maybeUpdateDrawMode()
-        renderer.onDrawInternal(calendar)
+        renderer.renderInternal(calendar)
     }
 
     /** @hide */

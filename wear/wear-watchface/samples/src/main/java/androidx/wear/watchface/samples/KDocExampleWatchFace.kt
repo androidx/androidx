@@ -32,12 +32,11 @@ import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationDrawableRenderer
 import androidx.wear.watchface.ComplicationsHolder
-import androidx.wear.watchface.UnitSquareBoundsProvider
-import androidx.wear.watchface.WatchFaceHost
-import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.WatchFace
+import androidx.wear.watchface.WatchFaceHost
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
+import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleManager
@@ -99,9 +98,8 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
             )
             val complicationSlots = ComplicationsHolder(
                 listOf(
-                    Complication(
+                    Complication.Builder(
                         /*id */ 0,
-                        UnitSquareBoundsProvider(RectF(0.15625f, 0.1875f, 0.84375f, 0.3125f)),
                         ComplicationDrawableRenderer(
                             ComplicationDrawable(this),
                             watchState
@@ -113,14 +111,12 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ComplicationData.TYPE_ICON,
                             ComplicationData.TYPE_SMALL_IMAGE
                         ),
-                        Complication.DefaultComplicationProvider(SystemProviders.DAY_OF_WEEK),
-                        ComplicationData.TYPE_SHORT_TEXT
-                    ),
-                    Complication(
+                        Complication.DefaultComplicationProvider(SystemProviders.DAY_OF_WEEK)
+                    ).setUnitSquareBounds(RectF(0.15625f, 0.1875f, 0.84375f, 0.3125f))
+                        .setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
+                        .build(),
+                    Complication.Builder(
                         /*id */ 1,
-                        UnitSquareBoundsProvider(
-                            RectF(0.1f, 0.5625f, 0.35f, 0.8125f)
-                        ),
                         ComplicationDrawableRenderer(
                             ComplicationDrawable(this),
                             watchState
@@ -132,9 +128,10 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                             ComplicationData.TYPE_ICON,
                             ComplicationData.TYPE_SMALL_IMAGE
                         ),
-                        Complication.DefaultComplicationProvider(SystemProviders.STEP_COUNT),
-                        ComplicationData.TYPE_SHORT_TEXT
-                    )
+                        Complication.DefaultComplicationProvider(SystemProviders.STEP_COUNT)
+                    ).setUnitSquareBounds(RectF(0.1f, 0.5625f, 0.35f, 0.8125f))
+                        .setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
+                        .build()
                 )
             )
 
@@ -155,7 +152,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                     })
                 }
 
-                override fun onDraw(
+                override fun render(
                     canvas: Canvas,
                     bounds: Rect,
                     calendar: Calendar

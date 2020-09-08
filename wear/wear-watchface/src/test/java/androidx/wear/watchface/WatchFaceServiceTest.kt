@@ -130,9 +130,8 @@ class WatchFaceServiceTest {
         ListUserStyleCategory.ListOption("bad_option", "Bad", icon = null)
 
     private val leftComplication =
-        Complication(
+        Complication.Builder(
             LEFT_COMPLICATION_ID,
-            UnitSquareBoundsProvider(RectF(0.2f, 0.4f, 0.4f, 0.6f)),
             ComplicationDrawableRenderer(complicationDrawableLeft, systemState).apply {
                 setData(createComplicationData())
             },
@@ -143,14 +142,14 @@ class WatchFaceServiceTest {
                 ComplicationData.TYPE_ICON,
                 ComplicationData.TYPE_SMALL_IMAGE
             ),
-            Complication.DefaultComplicationProvider(SystemProviders.SUNRISE_SUNSET),
-            ComplicationData.TYPE_SHORT_TEXT
-        )
+            Complication.DefaultComplicationProvider(SystemProviders.SUNRISE_SUNSET)
+        ).setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
+            .setUnitSquareBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+            .build()
 
     private val rightComplication =
-        Complication(
+        Complication.Builder(
             RIGHT_COMPLICATION_ID,
-            UnitSquareBoundsProvider(RectF(0.6f, 0.4f, 0.8f, 0.6f)),
             ComplicationDrawableRenderer(complicationDrawableRight, systemState).apply {
                 setData(createComplicationData())
             },
@@ -161,23 +160,24 @@ class WatchFaceServiceTest {
                 ComplicationData.TYPE_ICON,
                 ComplicationData.TYPE_SMALL_IMAGE
             ),
-            Complication.DefaultComplicationProvider(SystemProviders.DAY_OF_WEEK),
-            ComplicationData.TYPE_SHORT_TEXT
-        )
+            Complication.DefaultComplicationProvider(SystemProviders.DAY_OF_WEEK)
+        ).setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
+            .setUnitSquareBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
+            .build()
 
     private val backgroundComplication =
-        Complication(
+        Complication.Builder(
             BACKGROUND_COMPLICATION_ID,
-            BackgroundComplicationBoundsProvider(),
             ComplicationDrawableRenderer(complicationDrawableRight, systemState).apply {
                 setData(createComplicationData())
             },
             intArrayOf(
                 ComplicationData.TYPE_LARGE_IMAGE
             ),
-            Complication.DefaultComplicationProvider(),
-            ComplicationData.TYPE_LARGE_IMAGE
-        )
+            Complication.DefaultComplicationProvider()
+        ).setDefaultProviderType(ComplicationData.TYPE_LARGE_IMAGE)
+            .setBackgroundComplication()
+            .build()
 
     private lateinit var renderer: TestRenderer
     private lateinit var complicationsHolder: ComplicationsHolder
@@ -1049,17 +1049,17 @@ class WatchFaceServiceTest {
     fun defaultProvidersWithFallbacks_newApi() {
         val provider1 = ComponentName("com.app1", "com.app1.App1")
         val provider2 = ComponentName("com.app2", "com.app2.App2")
-        val complication = Complication(
+        val complication = Complication.Builder(
             LEFT_COMPLICATION_ID,
-            UnitSquareBoundsProvider(RectF(0.2f, 0.4f, 0.4f, 0.6f)),
             ComplicationDrawableRenderer(complicationDrawableLeft, systemState),
             intArrayOf(),
             Complication.DefaultComplicationProvider(
                 listOf(provider1, provider2),
                 SystemProviders.SUNRISE_SUNSET
-            ),
-            ComplicationData.TYPE_SHORT_TEXT
-        )
+            )
+        ).setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
+            .setUnitSquareBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+            .build()
         initEngine(WatchFaceType.ANALOG, listOf(complication), emptyList())
 
         verify(iWatchFaceService).setDefaultComplicationProviderWithFallbacks(
@@ -1074,17 +1074,17 @@ class WatchFaceServiceTest {
     fun defaultProvidersWithFallbacks_oldApi() {
         val provider1 = ComponentName("com.app1", "com.app1.App1")
         val provider2 = ComponentName("com.app2", "com.app2.App2")
-        val complication = Complication(
+        val complication = Complication.Builder(
             LEFT_COMPLICATION_ID,
-            UnitSquareBoundsProvider(RectF(0.2f, 0.4f, 0.4f, 0.6f)),
             ComplicationDrawableRenderer(complicationDrawableLeft, systemState),
             intArrayOf(),
             Complication.DefaultComplicationProvider(
                 listOf(provider1, provider2),
                 SystemProviders.SUNRISE_SUNSET
-            ),
-            ComplicationData.TYPE_SHORT_TEXT
-        )
+            )
+        ).setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
+            .setUnitSquareBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+            .build()
         initEngine(WatchFaceType.ANALOG, listOf(complication), emptyList(), apiVersion = 0)
 
         verify(iWatchFaceService).setDefaultComplicationProvider(

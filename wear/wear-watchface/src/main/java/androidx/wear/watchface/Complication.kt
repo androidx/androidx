@@ -28,65 +28,6 @@ import androidx.annotation.UiThread
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.rendering.ComplicationDrawable
 
-/**
- * Complications use a ComplicationBoundsProvider to compute their bounds.
- */
-interface ComplicationBoundsProvider {
-    /**
-     * Computes the screen space bounds of the complication. This can be animated.
-     *
-     * @param complication The {@link Complication} to compute bounds for
-     * @param screen A {@link Rect} describing the bounds of the screen
-     */
-    fun computeBounds(complication: Complication, screen: Rect): Rect
-}
-
-/**
- * A {@link ComplicationBoundsProvider} for watch faces that wish to have a full screen user
- * selectable backdrop. This sort of complication isn't clickable and at most one may be present in
- * the list of complications.
- */
-class BackgroundComplicationBoundsProvider : ComplicationBoundsProvider {
-    /** {@inheritDoc} */
-    override fun computeBounds(
-        complication: Complication,
-        screen: Rect
-    ) = screen // A BackgroundComplication covers the whole screen.
-}
-
-/**
- * A {@link ComplicationBoundsProvider} which converts bounds provided in the unit square [0..1] to
- * device pixels. NB 0 and 1 are included in the unit square.
- */
-class UnitSquareBoundsProvider(
-    /**
-     * Fractional bounds for the complication (clamped to the unit square.) which get converted
-     * to screen space coordinates.
-     */
-    unitSquareBounds: RectF
-) : ComplicationBoundsProvider {
-
-    private companion object {
-        private val unitSquare = RectF(0f, 0f, 1f, 1f)
-    }
-
-    private val clampedUnitSquareBounds = RectF().apply {
-        setIntersect(
-            unitSquareBounds,
-            unitSquare
-        )
-    }
-
-    /** {@inheritDoc} */
-    override fun computeBounds(complication: Complication, screen: Rect) =
-        Rect(
-            (clampedUnitSquareBounds.left * screen.width()).toInt(),
-            (clampedUnitSquareBounds.top * screen.height()).toInt(),
-            (clampedUnitSquareBounds.right * screen.width()).toInt(),
-            (clampedUnitSquareBounds.bottom * screen.height()).toInt()
-        )
-}
-
 /** Common interface for rendering complications. */
 interface ComplicationRenderer {
     /**
@@ -254,31 +195,88 @@ open class ComplicationDrawableRenderer(
  * Represents a individual complication on the screen. The number of complications is fixed
  * (see {@link ComplicationsHolder}) but complications can be enabled or disabled as needed.
  */
-class Complication @JvmOverloads constructor(
-    /** The watch face's ID for this complication. */
+class Complication internal constructor(
     internal val id: Int,
-
-    /**  An interface that can provide the bounds for this Complication. */
-    val boundsProvider: ComplicationBoundsProvider,
-
-    /**
-     * The renderer for this Complication. Renderers may not be sharable between complications.
-     */
+    @ComplicationBoundsType internal val boundsType: Int,
+    val unitSquareBounds: RectF,
     renderer: ComplicationRenderer,
-
-    /**
-     * The types of complication supported by this Complication. Passed into {@link
-     * ComplicationHelperActivity#createProviderChooserHelperIntent} during complication
-     * configuration.
-     */
     internal val supportedTypes: IntArray,
-
-    /** Default complication provider. */
     internal val defaultProvider: DefaultComplicationProvider,
-
-    /** Default complication provider data type. */
-    internal val defaultProviderType: Int = WatchFace.DEFAULT_PROVIDER_TYPE_NONE
+    internal val defaultProviderType: Int
 ) {
+    private companion object {
+        internal val unitSquare = RectF(0f, 0f, 1f, 1f)
+    }
+
+    class Builder(
+        /** The watch face's ID for this complication. */
+        private val id: Int,
+
+        /**
+         * The renderer for this Complication. Renderers may not be sharable between complications.
+         */
+        private val renderer: ComplicationRenderer,
+
+        /**
+         * The types of complication supported by this Complication. Passed into {@link
+         * ComplicationHelperActivity#createProviderChooserHelperIntent} during complication
+         * configuration.
+         */
+        private val supportedTypes: IntArray,
+
+        /** Default complication provider. */
+        private val defaultProvider: DefaultComplicationProvider
+    ) {
+        @ComplicationBoundsType
+        private var boundsType: Int = ComplicationBoundsType.ROUND_RECT
+        private lateinit var unitSquareBounds: RectF
+
+        private var defaultProviderType: Int = WatchFace.DEFAULT_PROVIDER_TYPE_NONE
+
+        /** Sets the default complication provider data type. */
+        fun setDefaultProviderType(defaultProviderType: Int): Builder {
+            this.defaultProviderType = defaultProviderType
+            return this
+        }
+
+        /**
+         * Fractional bounds for the complication, clamped to the unit square [0..1], which get
+         * converted to screen space coordinates. NB 0 and 1 are included in the unit square.
+         */
+        fun setUnitSquareBounds(unitSquareBounds: RectF): Builder {
+            boundsType = ComplicationBoundsType.ROUND_RECT
+
+            this.unitSquareBounds = RectF().apply {
+                setIntersect(
+                    unitSquareBounds,
+                    unitSquare
+                )
+            }
+            return this
+        }
+
+        /**
+         * A background complication is for watch faces that wish to have a full screen user
+         * selectable backdrop. This sort of complication isn't clickable and at most one may be
+         * present in the list of complications.
+         */
+        fun setBackgroundComplication(): Builder {
+            boundsType = ComplicationBoundsType.BACKGROUND
+            this.unitSquareBounds = RectF(0f, 0f, 1f, 1f)
+            return this
+        }
+
+        fun build() = Complication(
+            id,
+            boundsType,
+            unitSquareBounds,
+            renderer,
+            supportedTypes,
+            defaultProvider,
+            defaultProviderType
+        )
+    }
+
     init {
         renderer.onAttach(this)
     }
@@ -348,10 +346,7 @@ class Complication @JvmOverloads constructor(
         calendar: Calendar,
         @DrawMode drawMode: Int
     ) {
-        val bounds = boundsProvider.computeBounds(
-            this,
-            Rect(0, 0, canvas.width, canvas.height)
-        )
+        val bounds = computeBounds(Rect(0, 0, canvas.width, canvas.height))
         renderer.onDraw(canvas, bounds, calendar, drawMode)
     }
 
@@ -389,4 +384,13 @@ class Complication @JvmOverloads constructor(
             complicationsHolder.scheduleUpdateActiveComplications()
         }
     }
+
+    /** Computes the bounds of the complication by converting the unitSquareBounds to pixels. */
+    fun computeBounds(screen: Rect) =
+        Rect(
+            (unitSquareBounds.left * screen.width()).toInt(),
+            (unitSquareBounds.top * screen.height()).toInt(),
+            (unitSquareBounds.right * screen.width()).toInt(),
+            (unitSquareBounds.bottom * screen.height()).toInt()
+        )
 }
