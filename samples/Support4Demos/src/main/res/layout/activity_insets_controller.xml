@@ -115,18 +115,12 @@
     </FrameLayout>
 
     <LinearLayout
+        android:id="@+id/editRow"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingStart="8dp"
+        android:orientation="horizontal"
         android:paddingEnd="8dp"
-        android:orientation="horizontal">
-
-        <EditText
-            android:id="@+id/editText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.9"
-            android:hint="Text message" />
+        android:paddingStart="8dp">
 
         <Button
             android:id="@+id/floating_action_button"
@@ -136,6 +130,13 @@
             android:layout_weight="0.1"
             android:drawableLeft="@drawable/ic_favorite"
             android:drawableStart="@drawable/ic_favorite" />
+
+        <EditText
+            android:id="@+id/editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.9"
+            android:hint="Text message" />
 
     </LinearLayout>
 </LinearLayout>
