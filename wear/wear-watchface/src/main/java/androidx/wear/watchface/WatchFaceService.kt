@@ -523,10 +523,7 @@ abstract class WatchFaceService : WallpaperService() {
                     }
                     val complication = watchFace.complicationsHolder[complicationId]
                     if (complication != null) {
-                        val bounds = complication.boundsProvider.computeBounds(
-                            complication,
-                            watchFace.renderer.screenBounds
-                        )
+                        val bounds = complication.computeBounds(watchFace.renderer.screenBounds)
                         val complicationBitmap =
                             Bitmap.createBitmap(
                                 bounds.width(), bounds.height(),
