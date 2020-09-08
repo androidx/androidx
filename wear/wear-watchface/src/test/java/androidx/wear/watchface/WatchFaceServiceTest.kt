@@ -1109,4 +1109,41 @@ class WatchFaceServiceTest {
         initEngine(WatchFaceType.DIGITAL, emptyList(), emptyList(), apiVersion = 4)
         verify(iWatchFaceService).registerIWatchFaceCommand(any())
     }
+
+    @Test
+    fun shouldAnimateOverrideControlsEnteringAmbientMode() {
+        var styleManager = UserStyleManager(emptyList())
+        var testRenderer = object : TestRenderer(surfaceHolder, styleManager, systemState) {
+            var animate = true
+            override fun shouldAnimate() = animate
+        }
+        val service = TestWatchFaceService(
+            WatchFaceType.ANALOG,
+            ComplicationsHolder(emptyList()),
+            testRenderer,
+            UserStyleManager(emptyList()),
+            systemState,
+            handler,
+            INTERACTIVE_UPDATE_RATE_MS
+        )
+
+        engineWrapper = service.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper.onCreate(surfaceHolder)
+        `when`(surfaceHolder.surfaceFrame).thenReturn(ONE_HUNDRED_BY_ONE_HUNDRED_RECT)
+
+        // Trigger watch face creation.
+        engineWrapper.onSurfaceChanged(surfaceHolder, 0, 100, 100)
+        sendBinder(engineWrapper, apiVersion = 2)
+        watchFace = service.watchFace
+
+        // Enter ambient mode.
+        systemState.onAmbientModeChanged(true)
+        watchFace.maybeUpdateDrawMode()
+        assertThat(testRenderer.drawMode).isEqualTo(DrawMode.INTERACTIVE)
+
+        // Simulate enter ambient animation finishing.
+        testRenderer.animate = false
+        watchFace.maybeUpdateDrawMode()
+        assertThat(testRenderer.drawMode).isEqualTo(DrawMode.AMBIENT)
+    }
 }

@@ -676,7 +676,9 @@ class WatchFace private constructor(
         } else {
             DrawMode.INTERACTIVE
         }
-        if (watchState.isAmbient) {
+        // Watch faces may wish to run an animation while entering ambient mode and we let them
+        // defer entering ambient mode.
+        if (watchState.isAmbient && !renderer.shouldAnimate()) {
             newDrawMode = DrawMode.AMBIENT
         } else if (muteMode) {
             newDrawMode = DrawMode.MUTE
