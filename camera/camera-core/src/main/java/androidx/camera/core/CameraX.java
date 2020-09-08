@@ -579,7 +579,7 @@ public final class CameraX {
                 CameraThreadConfig cameraThreadConfig = CameraThreadConfig.create(mCameraExecutor,
                         mSchedulerHandler);
 
-                mCameraFactory = cameraFactoryProvider.newInstance(context,
+                mCameraFactory = cameraFactoryProvider.newInstance(mAppContext,
                         cameraThreadConfig);
                 CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
                         mCameraXConfig.getDeviceSurfaceManagerProvider(null);
@@ -588,7 +588,7 @@ public final class CameraX {
                             "Invalid app configuration provided. Missing "
                                     + "CameraDeviceSurfaceManager."));
                 }
-                mSurfaceManager = surfaceManagerProvider.newInstance(context);
+                mSurfaceManager = surfaceManagerProvider.newInstance(mAppContext);
 
                 UseCaseConfigFactory.Provider configFactoryProvider =
                         mCameraXConfig.getUseCaseConfigFactoryProvider(null);
@@ -597,7 +597,7 @@ public final class CameraX {
                             "Invalid app configuration provided. Missing "
                                     + "UseCaseConfigFactory."));
                 }
-                mDefaultConfigFactory = configFactoryProvider.newInstance(context);
+                mDefaultConfigFactory = configFactoryProvider.newInstance(mAppContext);
 
                 if (cameraExecutor instanceof CameraExecutor) {
                     CameraExecutor executor = (CameraExecutor) cameraExecutor;
@@ -615,7 +615,7 @@ public final class CameraX {
                     Logger.w(TAG, "Retry init. Start time " + startMs + " current time "
                             + SystemClock.elapsedRealtime(), e);
                     HandlerCompat.postDelayed(mSchedulerHandler, () -> initAndRetryRecursively(
-                            cameraExecutor, startMs, context, completer), RETRY_TOKEN,
+                            cameraExecutor, startMs, mAppContext, completer), RETRY_TOKEN,
                             RETRY_SLEEP_MILLIS);
 
                 } else {
