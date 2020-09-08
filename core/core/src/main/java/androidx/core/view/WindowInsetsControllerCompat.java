@@ -25,6 +25,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowInsets;
 import android.view.WindowInsetsAnimationControlListener;
+import android.view.WindowInsetsAnimationController;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
 import android.view.animation.Interpolator;
@@ -35,6 +36,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
+import androidx.collection.SimpleArrayMap;
 import androidx.core.graphics.Insets;
 import androidx.core.view.WindowInsetsCompat.Type.InsetsType;
 
@@ -85,7 +87,7 @@ public final class WindowInsetsControllerCompat {
     @RequiresApi(30)
     private WindowInsetsControllerCompat(@NonNull WindowInsetsController insetsController) {
         if (SDK_INT >= 30) {
-            mImpl = new Impl30(insetsController);
+            mImpl = new Impl30(insetsController, this);
         } else {
             mImpl = new Impl();
         }
@@ -93,7 +95,7 @@ public final class WindowInsetsControllerCompat {
 
     public WindowInsetsControllerCompat(@NonNull Window window, @NonNull View view) {
         if (SDK_INT >= 30) {
-            mImpl = new Impl30(window);
+            mImpl = new Impl30(window, this);
         } else if (SDK_INT >= 26) {
             mImpl = new Impl26(window, view);
         } else if (SDK_INT >= 23) {
@@ -581,14 +583,21 @@ public final class WindowInsetsControllerCompat {
     @RequiresApi(30)
     private static class Impl30 extends Impl {
 
-        private final WindowInsetsController mInsetsController;
+        final WindowInsetsControllerCompat mCompatController;
+        final WindowInsetsController mInsetsController;
+        private final SimpleArrayMap<
+                WindowInsetsControllerCompat.OnControllableInsetsChangedListener,
+                WindowInsetsController.OnControllableInsetsChangedListener>
+                mListeners = new SimpleArrayMap<>();
 
-        Impl30(Window window) {
-            mInsetsController = window.getInsetsController();
+        Impl30(@NonNull Window window, @NonNull WindowInsetsControllerCompat compatController) {
+            this(window.getInsetsController(), compatController);
         }
 
-        Impl30(WindowInsetsController insetsController) {
+        Impl30(@NonNull WindowInsetsController insetsController,
+                @NonNull WindowInsetsControllerCompat compatController) {
             mInsetsController = insetsController;
+            mCompatController = compatController;
         }
 
         @Override
@@ -645,6 +654,37 @@ public final class WindowInsetsControllerCompat {
                 @Nullable CancellationSignal cancellationSignal,
                 @NonNull final WindowInsetsAnimationControlListenerCompat listener) {
 
+            WindowInsetsAnimationControlListener fwListener =
+                    new WindowInsetsAnimationControlListener() {
+
+                        private WindowInsetsAnimationControllerCompat mCompatAnimController = null;
+
+                        @Override
+                        public void onReady(@NonNull WindowInsetsAnimationController controller,
+                                int types) {
+                            mCompatAnimController =
+                                    new WindowInsetsAnimationControllerCompat(controller);
+                            listener.onReady(mCompatAnimController, types);
+                        }
+
+                        @Override
+                        public void onFinished(
+                                @NonNull WindowInsetsAnimationController controller) {
+                            listener.onFinished(mCompatAnimController);
+                        }
+
+                        @Override
+                        public void onCancelled(
+                                @Nullable WindowInsetsAnimationController controller) {
+                            listener.onCancelled(controller == null ? null : mCompatAnimController);
+                        }
+                    };
+
+            mInsetsController.controlWindowInsetsAnimation(types,
+                    durationMillis,
+                    interpolator,
+                    cancellationSignal,
+                    fwListener);
         }
 
         /**
@@ -674,12 +714,38 @@ public final class WindowInsetsControllerCompat {
         void addOnControllableInsetsChangedListener(
                 @NonNull final WindowInsetsControllerCompat.OnControllableInsetsChangedListener
                         listener) {
+
+            if (mListeners.containsKey(listener)) {
+                // The listener has already been added.
+                return;
+            }
+            WindowInsetsController.OnControllableInsetsChangedListener
+                    fwListener =
+                    new WindowInsetsController.OnControllableInsetsChangedListener() {
+                        @Override
+                        public void onControllableInsetsChanged(
+                                @NonNull WindowInsetsController controller,
+                                int typeMask) {
+
+                            if (mInsetsController == controller) {
+                                listener.onControllableInsetsChanged(
+                                        mCompatController, typeMask);
+                            }
+                        }
+                    };
+            mListeners.put(listener, fwListener);
+            mInsetsController.addOnControllableInsetsChangedListener(fwListener);
         }
 
         @Override
         void removeOnControllableInsetsChangedListener(
                 @NonNull WindowInsetsControllerCompat.OnControllableInsetsChangedListener
                         listener) {
+            WindowInsetsController.OnControllableInsetsChangedListener
+                    fwListener = mListeners.remove(listener);
+            if (fwListener != null) {
+                mInsetsController.removeOnControllableInsetsChangedListener(fwListener);
+            }
         }
     }
 }

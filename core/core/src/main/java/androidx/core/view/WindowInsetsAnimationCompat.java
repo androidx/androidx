@@ -15,13 +15,17 @@
  */
 package androidx.core.view;
 
+import android.os.Build;
 import android.view.View;
+import android.view.WindowInsets;
+import android.view.WindowInsetsAnimation;
 import android.view.animation.Interpolator;
 
 import androidx.annotation.FloatRange;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.Insets;
 import androidx.core.view.WindowInsetsCompat.Type;
@@ -29,6 +33,9 @@ import androidx.core.view.WindowInsetsCompat.Type.InsetsType;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -36,13 +43,7 @@ import java.util.List;
  */
 public final class WindowInsetsAnimationCompat {
 
-    @InsetsType
-    private final int mTypeMask;
-    private float mFraction;
-    @Nullable
-    private final Interpolator mInterpolator;
-    private final long mDurationMillis;
-    private float mAlpha;
+    private Impl mImpl;
 
     /**
      * Creates a new {@link WindowInsetsAnimationCompat} object.
@@ -59,9 +60,19 @@ public final class WindowInsetsAnimationCompat {
     public WindowInsetsAnimationCompat(
             @InsetsType int typeMask, @Nullable Interpolator interpolator,
             long durationMillis) {
-        mTypeMask = typeMask;
-        mInterpolator = interpolator;
-        mDurationMillis = durationMillis;
+        if (Build.VERSION.SDK_INT >= 30) {
+            mImpl = new Impl30(typeMask, interpolator, durationMillis);
+        } else {
+            mImpl = new Impl(typeMask, interpolator, durationMillis);
+        }
+    }
+
+    @RequiresApi(30)
+    private WindowInsetsAnimationCompat(@NonNull WindowInsetsAnimation animation) {
+        this(0, null, 0);
+        if (Build.VERSION.SDK_INT >= 30) {
+            mImpl = new Impl30(animation);
+        }
     }
 
     /**
@@ -69,7 +80,7 @@ public final class WindowInsetsAnimationCompat {
      */
     @InsetsType
     public int getTypeMask() {
-        return mTypeMask;
+        return mImpl.getTypeMask();
     }
 
     /**
@@ -93,7 +104,7 @@ public final class WindowInsetsAnimationCompat {
      */
     @FloatRange(from = 0f, to = 1f)
     public float getFraction() {
-        return mFraction;
+        return mImpl.getFraction();
     }
 
     /**
@@ -120,10 +131,7 @@ public final class WindowInsetsAnimationCompat {
      * @see #getFraction() for raw fraction.
      */
     public float getInterpolatedFraction() {
-        if (mInterpolator != null) {
-            return mInterpolator.getInterpolation(mFraction);
-        }
-        return mFraction;
+        return mImpl.getInterpolatedFraction();
     }
 
     /**
@@ -135,7 +143,7 @@ public final class WindowInsetsAnimationCompat {
      */
     @Nullable
     public Interpolator getInterpolator() {
-        return mInterpolator;
+        return mImpl.getInterpolator();
     }
 
     /**
@@ -143,7 +151,7 @@ public final class WindowInsetsAnimationCompat {
      * -1 if the animation doesn't have a fixed duration.
      */
     public long getDurationMillis() {
-        return mDurationMillis;
+        return mImpl.getDurationMillis();
     }
 
     /**
@@ -159,7 +167,7 @@ public final class WindowInsetsAnimationCompat {
      * @see #getFraction()
      */
     public void setFraction(@FloatRange(from = 0f, to = 1f) float fraction) {
-        mFraction = fraction;
+        mImpl.setFraction(fraction);
     }
 
     /**
@@ -169,7 +177,7 @@ public final class WindowInsetsAnimationCompat {
      */
     @FloatRange(from = 0f, to = 1f)
     public float getAlpha() {
-        return mAlpha;
+        return mImpl.getAlpha();
     }
 
     /**
@@ -184,7 +192,7 @@ public final class WindowInsetsAnimationCompat {
      * @see #getAlpha()
      */
     public void setAlpha(@FloatRange(from = 0f, to = 1f) float alpha) {
-        mAlpha = alpha;
+        mImpl.setAlpha(alpha);
     }
 
     /**
@@ -198,6 +206,12 @@ public final class WindowInsetsAnimationCompat {
         public Bounds(@NonNull Insets lowerBound, @NonNull Insets upperBound) {
             mLowerBound = lowerBound;
             mUpperBound = upperBound;
+        }
+
+        @RequiresApi(30)
+        public Bounds(@NonNull WindowInsetsAnimation.Bounds bounds) {
+            mLowerBound = Impl30.getLowerBounds(bounds);
+            mUpperBound = Impl30.getHigherBounds(bounds);
         }
 
         /**
@@ -275,6 +289,20 @@ public final class WindowInsetsAnimationCompat {
             return "Bounds{lower=" + mLowerBound + " upper=" + mUpperBound + "}";
         }
 
+        /**
+         * Creates a new instance of {@link WindowInsetsAnimation.Bounds} from this compat instance.
+         */
+        @RequiresApi(30)
+        @NonNull
+        public WindowInsetsAnimation.Bounds toPlatformBounds() {
+            return Impl30.createPlatformBounds(this);
+        }
+    }
+
+    @RequiresApi(30)
+    static WindowInsetsAnimationCompat toWindowInsetsAnimationCompat(
+            WindowInsetsAnimation windowInsetsAnimation) {
+        return new WindowInsetsAnimationCompat(windowInsetsAnimation);
     }
 
     /**
@@ -464,6 +492,206 @@ public final class WindowInsetsAnimationCompat {
          *                  as passed into {@link #onStart}
          */
         public void onEnd(@NonNull WindowInsetsAnimationCompat animation) {
+        }
+    }
+
+    static void setCallback(@NonNull View view, @Nullable Callback callback) {
+        if (Build.VERSION.SDK_INT >= 30) {
+            Impl30.setCallback(view, callback);
+        }
+    }
+
+    private static class Impl {
+        @InsetsType
+        private final int mTypeMask;
+        private float mFraction;
+        @Nullable
+        private final Interpolator mInterpolator;
+        private final long mDurationMillis;
+        private float mAlpha;
+
+
+        Impl(int typeMask, @Nullable Interpolator interpolator, long durationMillis) {
+            mTypeMask = typeMask;
+            mInterpolator = interpolator;
+            mDurationMillis = durationMillis;
+        }
+
+        public int getTypeMask() {
+            return mTypeMask;
+        }
+
+        public float getFraction() {
+            return mFraction;
+        }
+
+        public float getInterpolatedFraction() {
+            if (mInterpolator != null) {
+                return mInterpolator.getInterpolation(mFraction);
+            }
+            return mFraction;
+        }
+
+        @Nullable
+        public Interpolator getInterpolator() {
+            return mInterpolator;
+        }
+
+        public long getDurationMillis() {
+            return mDurationMillis;
+        }
+
+        public float getAlpha() {
+            return mAlpha;
+        }
+
+        public void setFraction(float fraction) {
+            mFraction = fraction;
+        }
+
+        public void setAlpha(float alpha) {
+            mAlpha = alpha;
+        }
+    }
+
+    @RequiresApi(30)
+    private static class Impl30 extends Impl {
+
+        @NonNull
+        private final WindowInsetsAnimation mWrapped;
+
+        Impl30(@NonNull WindowInsetsAnimation wrapped) {
+            super(0, null, 0);
+            mWrapped = wrapped;
+        }
+
+        Impl30(int typeMask, Interpolator interpolator, long durationMillis) {
+            this(new WindowInsetsAnimation(typeMask, interpolator, durationMillis));
+        }
+
+        @Override
+        public int getTypeMask() {
+            return mWrapped.getTypeMask();
+        }
+
+        @Override
+        @Nullable
+        public Interpolator getInterpolator() {
+            return mWrapped.getInterpolator();
+        }
+
+        @Override
+        public long getDurationMillis() {
+            return mWrapped.getDurationMillis();
+        }
+
+        @Override
+        public float getFraction() {
+            return mWrapped.getFraction();
+        }
+
+        @Override
+        public void setFraction(float fraction) {
+            mWrapped.setFraction(fraction);
+        }
+
+        @Override
+        public float getInterpolatedFraction() {
+            return mWrapped.getInterpolatedFraction();
+        }
+
+        private static class ProxyCallback extends WindowInsetsAnimation.Callback {
+
+            private final Callback mCompat;
+
+            ProxyCallback(@NonNull final WindowInsetsAnimationCompat.Callback compat) {
+                super(compat.getDispatchMode());
+                mCompat = compat;
+            }
+
+            private List<WindowInsetsAnimationCompat> mRORunningAnimations;
+            private ArrayList<WindowInsetsAnimationCompat> mTmpRunningAnimations;
+            private final HashMap<WindowInsetsAnimation, WindowInsetsAnimationCompat>
+                    mAnimations = new HashMap<>();
+
+            @NonNull
+            private WindowInsetsAnimationCompat getWindowInsetsAnimationCompat(
+                    @NonNull WindowInsetsAnimation animation) {
+                WindowInsetsAnimationCompat animationCompat = mAnimations.get(
+                        animation);
+                if (animationCompat == null) {
+                    animationCompat = toWindowInsetsAnimationCompat(animation);
+                    mAnimations.put(animation, animationCompat);
+                }
+                return animationCompat;
+            }
+
+            @Override
+            public void onPrepare(@NonNull WindowInsetsAnimation animation) {
+                mCompat.onPrepare(getWindowInsetsAnimationCompat(animation));
+            }
+
+            @NonNull
+            @Override
+            public WindowInsetsAnimation.Bounds onStart(
+                    @NonNull WindowInsetsAnimation animation,
+                    @NonNull WindowInsetsAnimation.Bounds bounds) {
+                return mCompat.onStart(
+                        getWindowInsetsAnimationCompat(animation),
+                        new Bounds(bounds))
+                        .toPlatformBounds();
+            }
+
+            @NonNull
+            @Override
+            public WindowInsets onProgress(@NonNull WindowInsets insets,
+                    @NonNull List<WindowInsetsAnimation> runningAnimations) {
+                if (mTmpRunningAnimations == null) {
+                    mTmpRunningAnimations = new ArrayList<>(runningAnimations.size());
+                    mRORunningAnimations = Collections.unmodifiableList(mTmpRunningAnimations);
+                } else {
+                    mTmpRunningAnimations.clear();
+                }
+
+                for (int i = runningAnimations.size() - 1; i >= 0; i--) {
+                    WindowInsetsAnimation animation = runningAnimations.get(i);
+                    WindowInsetsAnimationCompat animationCompat =
+                            getWindowInsetsAnimationCompat(animation);
+                    animationCompat.setFraction(animation.getFraction());
+                    mTmpRunningAnimations.add(animationCompat);
+                }
+                return mCompat.onProgress(
+                        WindowInsetsCompat.toWindowInsetsCompat(insets),
+                        mRORunningAnimations).toWindowInsets();
+            }
+
+            @Override
+            public void onEnd(@NonNull WindowInsetsAnimation animation) {
+                mCompat.onEnd(getWindowInsetsAnimationCompat(animation));
+                mAnimations.remove(animation);
+            }
+        }
+
+        public static void setCallback(@NonNull View view, @Nullable Callback callback) {
+            WindowInsetsAnimation.Callback platformCallback =
+                    callback != null ? new ProxyCallback(callback) : null;
+            view.setWindowInsetsAnimationCallback(platformCallback);
+        }
+
+        @NonNull
+        public static WindowInsetsAnimation.Bounds createPlatformBounds(@NonNull Bounds bounds) {
+            return new WindowInsetsAnimation.Bounds(bounds.getLowerBound().toPlatformInsets(),
+                    bounds.getUpperBound().toPlatformInsets());
+        }
+
+        @NonNull
+        public static Insets getLowerBounds(@NonNull WindowInsetsAnimation.Bounds bounds) {
+            return Insets.toCompatInsets(bounds.getLowerBound());
+        }
+
+        @NonNull
+        public static Insets getHigherBounds(@NonNull WindowInsetsAnimation.Bounds bounds) {
+            return Insets.toCompatInsets(bounds.getUpperBound());
         }
     }
 }

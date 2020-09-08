@@ -2466,7 +2466,7 @@ package androidx.core.view {
     method @Deprecated public static void setTranslationX(android.view.View!, float);
     method @Deprecated public static void setTranslationY(android.view.View!, float);
     method public static void setTranslationZ(android.view.View, float);
-    method public static void setWindowInsetsAnimationCallback(android.view.View, androidx.core.view.WindowInsetsAnimationCompat.Callback);
+    method public static void setWindowInsetsAnimationCallback(android.view.View, androidx.core.view.WindowInsetsAnimationCompat.Callback?);
     method @Deprecated public static void setX(android.view.View!, float);
     method @Deprecated public static void setY(android.view.View!, float);
     method public static void setZ(android.view.View, float);
@@ -2633,9 +2633,11 @@ package androidx.core.view {
 
   public static final class WindowInsetsAnimationCompat.Bounds {
     ctor public WindowInsetsAnimationCompat.Bounds(androidx.core.graphics.Insets, androidx.core.graphics.Insets);
+    ctor @RequiresApi(30) public WindowInsetsAnimationCompat.Bounds(android.view.WindowInsetsAnimation.Bounds);
     method public androidx.core.graphics.Insets getLowerBound();
     method public androidx.core.graphics.Insets getUpperBound();
     method public androidx.core.view.WindowInsetsAnimationCompat.Bounds inset(androidx.core.graphics.Insets);
+    method @RequiresApi(30) public android.view.WindowInsetsAnimation.Bounds toPlatformBounds();
   }
 
   public abstract static class WindowInsetsAnimationCompat.Callback {

@@ -2704,10 +2704,12 @@ public class ViewCompat {
      * this view.
      * </p>
      *
-     * @param callback The callback to set.
+     * @param callback The callback to set, or <code>null</code> to remove the currently installed
+     *                 callback
      */
     public static void setWindowInsetsAnimationCallback(@NonNull View view,
-            @NonNull final WindowInsetsAnimationCompat.Callback callback) {
+            @Nullable final WindowInsetsAnimationCompat.Callback callback) {
+        WindowInsetsAnimationCompat.setCallback(view, callback);
     }
 
     /**

@@ -23,6 +23,7 @@ import android.view.WindowInsetsAnimationController;
 import androidx.annotation.FloatRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.graphics.Insets;
 import androidx.core.view.WindowInsetsCompat.Type;
 import androidx.core.view.WindowInsetsCompat.Type.InsetsType;
@@ -49,6 +50,12 @@ public final class WindowInsetsAnimationControllerCompat {
             throw new UnsupportedOperationException("On API 30+, the constructor taking a "
                     + WindowInsetsAnimationController.class.getSimpleName() + " as parameter");
         }
+    }
+
+    @RequiresApi(30)
+    WindowInsetsAnimationControllerCompat(
+            @NonNull WindowInsetsAnimationController controller) {
+        mImpl = new Impl30(controller);
     }
 
     /**
@@ -235,53 +242,122 @@ public final class WindowInsetsAnimationControllerCompat {
 
         @NonNull
         public Insets getHiddenStateInsets() {
-            throw new UnsupportedOperationException("Not implemented yet");
+            return Insets.NONE;
         }
 
         @NonNull
         public Insets getShownStateInsets() {
-            throw new UnsupportedOperationException("Not implemented yet");
+            return Insets.NONE;
         }
 
         @NonNull
         public Insets getCurrentInsets() {
-            throw new UnsupportedOperationException("Not implemented yet");
+            return Insets.NONE;
         }
 
         @FloatRange(from = 0f, to = 1f)
         public float getCurrentFraction() {
-            throw new UnsupportedOperationException("Not implemented yet");
+            return 0f;
         }
 
         public float getCurrentAlpha() {
-            throw new UnsupportedOperationException("Not implemented yet");
+            return 0f;
         }
 
         @InsetsType
         public int getTypes() {
-            throw new UnsupportedOperationException("Not implemented yet");
+            return 0;
         }
 
         public void setInsetsAndAlpha(@Nullable Insets insets,
                 @FloatRange(from = 0f, to = 1f) float alpha,
                 @FloatRange(from = 0f, to = 1f) float fraction) {
-            throw new UnsupportedOperationException("Not implemented yet");
         }
 
         void finish(boolean shown) {
-            throw new UnsupportedOperationException("Not implemented yet");
         }
 
         public boolean isReady() {
-            return !isFinished() && !isCancelled();
+            return false;
         }
 
         boolean isFinished() {
-            throw new UnsupportedOperationException("Not implemented yet");
+            return false;
         }
 
         boolean isCancelled() {
-            throw new UnsupportedOperationException("Not implemented yet");
+            return true;
+        }
+    }
+
+    @RequiresApi(30)
+    private static class Impl30 extends Impl {
+
+        private final WindowInsetsAnimationController mController;
+
+        Impl30(@NonNull WindowInsetsAnimationController controller) {
+            mController = controller;
+        }
+
+        @NonNull
+        @Override
+        public Insets getHiddenStateInsets() {
+            return Insets.toCompatInsets(mController.getHiddenStateInsets());
+        }
+
+        @NonNull
+        @Override
+        public Insets getShownStateInsets() {
+            return Insets.toCompatInsets(mController.getShownStateInsets());
+        }
+
+        @NonNull
+        @Override
+        public Insets getCurrentInsets() {
+            return Insets.toCompatInsets(mController.getCurrentInsets());
+        }
+
+        @Override
+        public float getCurrentFraction() {
+            return mController.getCurrentFraction();
+        }
+
+        @Override
+        public float getCurrentAlpha() {
+            return mController.getCurrentAlpha();
+        }
+
+        @Override
+        public int getTypes() {
+            return mController.getTypes();
+        }
+
+        @Override
+        public void setInsetsAndAlpha(@Nullable Insets insets, float alpha, float fraction) {
+            mController.setInsetsAndAlpha(insets == null ? null : insets.toPlatformInsets(),
+                    alpha,
+                    fraction
+            );
+        }
+
+        @Override
+        void finish(boolean shown) {
+            mController.finish(shown);
+        }
+
+        @Override
+        public boolean isReady() {
+            return mController.isReady();
+        }
+
+        @Override
+        boolean isFinished() {
+            return mController.isFinished();
+        }
+
+        @Override
+        boolean isCancelled() {
+            return mController.isCancelled();
         }
     }
 }
