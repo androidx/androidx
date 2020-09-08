@@ -70,7 +70,10 @@ class CaptureSessionRepository {
 
                 @Override
                 public void onError(@NonNull CameraDevice camera, int error) {
-                    // Nothing to do.
+                    // Force close all opened CameraCaptureSessions since the CameraDevice is in
+                    // error state. The CameraCaptureSession.close() may not invoke the onClosed()
+                    // callback so it has to finish the close process forcibly.
+                    forceOnClosedCaptureSessions();
                 }
 
                 @Override
@@ -82,11 +85,15 @@ class CaptureSessionRepository {
                     //  this should not be called and instead onClosed() should be called by the
                     //  framework instead.
 
+                    // Force close all opened CameraCaptureSessions since the CameraDevice is
+                    // disconnected.
+                    // The CameraCaptureSession will call its close() automatically once the
+                    // onDisconnected callback is invoked.
+                    forceOnClosedCaptureSessions();
+                }
+
+                private void forceOnClosedCaptureSessions() {
                     mExecutor.execute(() -> {
-                        // Force close all opened CameraCaptureSessions since the CameraDevice is
-                        // disconnected.
-                        // The CameraCaptureSession will call its close() automatically once the
-                        // onDisconnected callback is invoked.
                         LinkedHashSet<SynchronizedCaptureSession> sessions = new LinkedHashSet<>();
                         synchronized (mLock) {
                             sessions.addAll(new LinkedHashSet<>(mCreatingCaptureSessions));
