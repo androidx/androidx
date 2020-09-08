@@ -249,7 +249,7 @@ internal class StyleSettingViewAdapter(
             context,
             { drawable ->
                 textView.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                    wrapIcon(context, drawable),
+                    Helper.wrapIcon(context, drawable),
                     /* top = */ null,
                     /* end = */ null,
                     /* bottom = */ null
