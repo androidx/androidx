@@ -125,6 +125,11 @@
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity
+            android:name="androidx.appcompat.widget.AppCompatIconsActivity"
+            android:label="@string/app_compat_icons_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
+
+        <activity
             android:name="androidx.appcompat.widget.AppCompatRadioButtonActivity"
             android:label="@string/app_compat_radio_button_activity"
             android:theme="@style/Theme.AppCompat.Light"/>
