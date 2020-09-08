@@ -36,6 +36,7 @@ import androidx.camera.core.Preview
 import androidx.camera.core.impl.utils.executor.CameraXExecutors
 import androidx.camera.integration.uiwidgets.R
 import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import kotlinx.android.synthetic.main.activity_rotations_main.previewView
 import java.io.File
@@ -56,7 +57,7 @@ open class CameraActivity : AppCompatActivity() {
         setContentView(R.layout.activity_rotations_main)
         mAnalysisExecutor = Executors.newSingleThreadExecutor()
         if (shouldRequestPermissionsAtRuntime() && !hasPermissions()) {
-            requestPermissions(PERMISSIONS, REQUEST_CODE_PERMISSIONS)
+            ActivityCompat.requestPermissions(this, PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         } else {
             setUpCamera()
         }
@@ -163,12 +164,12 @@ open class CameraActivity : AppCompatActivity() {
                     mCaptureResult = ImageCaptureResult.InMemory(image)
                     mCaptureDone.release()
                     image.close()
-                    Log.d(TAG, "MediaStore captured successful")
+                    Log.d(TAG, "InMemory image capture successful")
                 }
 
                 override fun onError(exception: ImageCaptureException) {
                     mCaptureDone.release()
-                    Log.e(TAG, "InMemory capture failed", exception)
+                    Log.e(TAG, "InMemory image capture failed", exception)
                 }
             })
     }
@@ -183,12 +184,12 @@ open class CameraActivity : AppCompatActivity() {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                     mCaptureResult = ImageCaptureResult.FileOrOutputStream(imageFile)
                     mCaptureDone.release()
-                    Log.d(TAG, "MediaStore captured successful")
+                    Log.d(TAG, "File image capture successful")
                 }
 
                 override fun onError(exception: ImageCaptureException) {
                     mCaptureDone.release()
-                    Log.e(TAG, "File capture failed", exception)
+                    Log.e(TAG, "File image capture failed", exception)
                 }
             })
     }
@@ -204,12 +205,12 @@ open class CameraActivity : AppCompatActivity() {
                 override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
                     mCaptureResult = ImageCaptureResult.FileOrOutputStream(imageFile)
                     mCaptureDone.release()
-                    Log.d(TAG, "MediaStore captured successful")
+                    Log.d(TAG, "OutputStream image capture successful")
                 }
 
                 override fun onError(exception: ImageCaptureException) {
                     mCaptureDone.release()
-                    Log.e(TAG, "OutputStream capture failed", exception)
+                    Log.e(TAG, "OutputStream image capture failed", exception)
                 }
             })
     }
@@ -230,12 +231,12 @@ open class CameraActivity : AppCompatActivity() {
                     mCaptureResult =
                         ImageCaptureResult.MediaStore(contentResolver, outputFileResults.savedUri!!)
                     mCaptureDone.release()
-                    Log.d(TAG, "MediaStore captured successful")
+                    Log.d(TAG, "MediaStore image capture successful")
                 }
 
                 override fun onError(exception: ImageCaptureException) {
                     mCaptureDone.release()
-                    Log.e(TAG, "MediaStore capture failed", exception)
+                    Log.e(TAG, "MediaStore image capture failed", exception)
                 }
             })
     }
