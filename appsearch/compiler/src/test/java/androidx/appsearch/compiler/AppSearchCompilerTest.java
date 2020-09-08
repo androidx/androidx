@@ -537,7 +537,7 @@ public class AppSearchCompilerTest {
                         + "  @Property byte[][] arrUnboxByteArr;\n"  // 2b
                         + "  @Property Byte[] boxByteArr;\n"         // 2a
                         + "  @Property String[] arrString;\n"        // 2b
-                        //+ "  @Property Gift[] arrGift;\n"            // 2c
+                        + "  @Property Gift[] arrGift;\n"            // 2c
                         + "\n"
                         + "  // Single values\n"
                         + "  @Property String string;\n"        // 3a

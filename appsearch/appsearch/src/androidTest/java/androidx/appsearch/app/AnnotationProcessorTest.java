@@ -77,7 +77,7 @@ public class AnnotationProcessorTest {
         @AppSearchDocument.Property byte[][] mArrUnboxByteArr;  // 2b
         @AppSearchDocument.Property Byte[] mBoxByteArr;         // 2a
         @AppSearchDocument.Property String[] mArrString;        // 2b
-//        @AppSearchDocument.Property Gift[] mArrGift;            // 2c
+        @AppSearchDocument.Property Gift[] mArrGift;            // 2c
 
         // Single values
         @AppSearchDocument.Property String mString;        // 3a
@@ -113,6 +113,7 @@ public class AnnotationProcessorTest {
             assertThat(otherGift.mArrUnboxByteArr).isEqualTo(this.mArrUnboxByteArr);
             assertThat(otherGift.mArrUnboxDouble).isEqualTo(this.mArrUnboxDouble);
             assertThat(otherGift.mArrUnboxLong).isEqualTo(this.mArrUnboxLong);
+            assertThat(otherGift.mArrGift).isEqualTo(this.mArrGift);
 
             assertThat(otherGift.mLongCollection).isEqualTo(this.mLongCollection);
             assertThat(otherGift.mCollectBoolean).isEqualTo(this.mCollectBoolean);
@@ -169,6 +170,8 @@ public class AnnotationProcessorTest {
         innerGift1.mUri = "innerGift.uri1";
         Gift innerGift2 = new Gift();
         innerGift2.mUri = "innerGift.uri2";
+        inputDataClass.mArrGift = new Gift[]{innerGift1, innerGift2};
+
         inputDataClass.mLongCollection = Arrays.asList(inputDataClass.mArrBoxLong);
         inputDataClass.mCollectBoolean = Arrays.asList(inputDataClass.mArrBoxBoolean);
         inputDataClass.mCollectString = Arrays.asList(inputDataClass.mArrString);
