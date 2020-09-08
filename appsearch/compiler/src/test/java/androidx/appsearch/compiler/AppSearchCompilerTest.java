@@ -554,7 +554,7 @@ public class AppSearchCompilerTest {
                         + "  @Property Boolean boxBoolean;\n"   // 3a
                         + "  @Property boolean unboxBoolean;\n" // 3b
                         + "  @Property byte[] unboxByteArr;\n"  // 3a
-                        //+ "  @Property GenericDocument genDocument;\n" // 3a
+                        + "  @Property GenericDocument genDocument;\n" // 3a
                         //+ "  @Property Gift gift;\n"            // 3c
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();

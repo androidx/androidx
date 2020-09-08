@@ -472,14 +472,14 @@ class ToGenericDocumentCodeGenerator {
                         createAppSearchFieldRead(fieldName))
                 .add("if ($NCopy != null) {\n", fieldName).indent();
 
-        // TODO(b/156296904): Handle GenericDocument
         if (!typeUtil.isSameType(propertyType, mHelper.mStringType)
                 && !typeUtil.isSameType(propertyType, mHelper.mLongBoxType)
                 && !typeUtil.isSameType(propertyType, mHelper.mIntegerBoxType)
                 && !typeUtil.isSameType(propertyType, mHelper.mDoubleBoxType)
                 && !typeUtil.isSameType(propertyType, mHelper.mFloatBoxType)
                 && !typeUtil.isSameType(propertyType, mHelper.mBooleanBoxType)
-                && !typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)) {
+                && !typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)
+                && !typeUtil.isSameType(propertyType, mHelper.mGenericDocumentType)) {
             // This is not a type 3a field
             return false;
         }
