@@ -53,7 +53,6 @@ import android.os.HandlerThread;
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
-import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
@@ -117,7 +116,7 @@ public final class Camera2CameraControlImplTest {
     private CameraCharacteristics mCameraCharacteristics;
     private boolean mHasFlashUnit;
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
-    private Camera mCamera;
+    private CameraUseCaseAdapter mCamera;
 
     @Before
     public void setUp() throws InterruptedException {
@@ -153,6 +152,14 @@ public final class Camera2CameraControlImplTest {
 
     @After
     public void tearDown() throws InterruptedException, ExecutionException, TimeoutException {
+        if (mCamera != null) {
+            mInstrumentation.runOnMainSync(() ->
+                    //TODO: The removeUseCases() call might be removed after clarifying the
+                    // abortCaptures() issue in b/162314023.
+                    mCamera.removeUseCases(mCamera.getUseCases())
+            );
+        }
+
         CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
         if (mHandlerThread != null) {
             mHandlerThread.quitSafely();
@@ -365,17 +372,15 @@ public final class Camera2CameraControlImplTest {
         future.get(5, TimeUnit.SECONDS);
     }
 
-
     private Camera2CameraControlImpl createCamera2CameraControlWithPhysicalCamera() {
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
         // Make ImageAnalysis active.
         imageAnalysis.setAnalyzer(CameraXExecutors.mainThreadExecutor(), (image) -> image.close());
 
-        CameraUseCaseAdapter cameraUseCaseAdapter =
-                CameraUtil.getCameraAndAttachUseCase(ApplicationProvider.getApplicationContext(),
-                        CameraSelector.DEFAULT_BACK_CAMERA, imageAnalysis);
+        mCamera = CameraUtil.getCameraAndAttachUseCase(ApplicationProvider.getApplicationContext(),
+                CameraSelector.DEFAULT_BACK_CAMERA, imageAnalysis);
 
-        return (Camera2CameraControlImpl) cameraUseCaseAdapter.getCameraControlInternal();
+        return (Camera2CameraControlImpl) mCamera.getCameraControlInternal();
     }
 
     @Test

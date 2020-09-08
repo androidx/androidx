@@ -138,6 +138,12 @@ public class CameraControlDeviceTest {
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
+        mInstrumentation.runOnMainSync(() ->
+                //TODO: The removeUseCases() call might be removed after clarifying the
+                // abortCaptures() issue in b/162314023.
+                mCamera.removeUseCases(mCamera.getUseCases())
+        );
+
         CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
