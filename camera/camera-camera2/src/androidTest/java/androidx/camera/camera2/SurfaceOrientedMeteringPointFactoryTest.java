@@ -31,8 +31,10 @@ import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.SurfaceOrientedMeteringPointFactory;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.After;
 import org.junit.Before;
@@ -116,12 +118,19 @@ public final class SurfaceOrientedMeteringPointFactoryTest {
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(
                         CameraSelector.LENS_FACING_BACK).build();
-        CameraUtil.getCameraAndAttachUseCase(mContext, cameraSelector, imageAnalysis);
+        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext,
+                cameraSelector, imageAnalysis);
 
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(
                 WIDTH, HEIGHT, imageAnalysis);
         MeteringPoint point = factory.createPoint(0f, 0f);
         assertThat(point.getSurfaceAspectRatio()).isEqualTo(new Rational(4, 3));
+
+        InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                //TODO: The removeUseCases() call might be removed after clarifying the
+                // abortCaptures() issue in b/162314023.
+                camera.removeUseCases(camera.getUseCases())
+        );
     }
 
     @Test(expected = IllegalStateException.class)

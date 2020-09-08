@@ -95,6 +95,7 @@ public final class Camera2ImplCameraXTest {
     private FakeLifecycleOwner mLifecycle;
 
     private Context mContext;
+    private CameraUseCaseAdapter mCamera;
 
     @Before
     public void setUp() {
@@ -107,6 +108,14 @@ public final class Camera2ImplCameraXTest {
 
     @After
     public void tearDown() throws InterruptedException, ExecutionException, TimeoutException {
+        if (mCamera != null) {
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                    //TODO: The removeUseCases() call might be removed after clarifying the
+                    // abortCaptures() issue in b/162314023.
+                    mCamera.removeUseCases(mCamera.getUseCases())
+            );
+        }
+
         CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
@@ -116,7 +125,7 @@ public final class Camera2ImplCameraXTest {
         new Camera2Interop.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback);
         ImageAnalysis useCase = builder.build();
 
-        CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
+        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
         WaitingAnalyzer waitingAnalyzer = new WaitingAnalyzer(10);
         useCase.setAnalyzer(CameraXExecutors.mainThreadExecutor(), waitingAnalyzer);
 
@@ -142,8 +151,7 @@ public final class Camera2ImplCameraXTest {
 
         ImageAnalysis useCase2 = new ImageAnalysis.Builder().build();
 
-        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext,
-                DEFAULT_SELECTOR, useCase,
+        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase,
                 useCase2);
 
         CountingAnalyzer countingAnalyzer = new CountingAnalyzer();
@@ -155,7 +163,7 @@ public final class Camera2ImplCameraXTest {
         // TODO(b/160249108) move off of main thread once UseCases can be attached on any
         //  thread
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
-                camera.removeUseCases(Arrays.asList(useCase))
+                mCamera.removeUseCases(Arrays.asList(useCase))
         );
 
         mLifecycle.startAndResume();
@@ -176,9 +184,7 @@ public final class Camera2ImplCameraXTest {
                 .setDeviceStateCallback(deviceStateCallback)
                 .setSessionCaptureCallback(sessionCaptureCallback);
         ImageAnalysis useCase = configBuilder.build();
-        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext,
-                DEFAULT_SELECTOR,
-                useCase);
+        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
         CountingAnalyzer countingAnalyzer = new CountingAnalyzer();
         useCase.setAnalyzer(CameraXExecutors.mainThreadExecutor(), countingAnalyzer);
 
@@ -187,7 +193,7 @@ public final class Camera2ImplCameraXTest {
         // Wait a little bit for the camera to open and stream frames.
         sessionCaptureCallback.waitForOnCaptureCompleted(5);
 
-        camera.detachUseCases();
+        mCamera.detachUseCases();
 
         // Wait a little bit for the camera to close.
         deviceStateCallback.waitForOnClosed(1);
@@ -241,8 +247,7 @@ public final class Camera2ImplCameraXTest {
         ImageAnalysis useCase0 = configBuilder0.build();
         CameraSelector selectorBack = new CameraSelector.Builder().requireLensFacing(
                 CameraSelector.LENS_FACING_BACK).build();
-        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext, selectorBack,
-                useCase0);
+        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, selectorBack, useCase0);
 
         mLifecycle.startAndResume();
 
@@ -255,14 +260,14 @@ public final class Camera2ImplCameraXTest {
             // camera capture session will be opened immediately after a previous
             // CaptureSession is opened, and the previous CaptureSession will going to close
             // right after the new CaptureSession is opened.
-            camera.detachUseCases();
-            camera.attachUseCases();
+            mCamera.detachUseCases();
+            mCamera.attachUseCases();
             // Wait for the capture session is configured.
             assertTrue(sessionStateCallback.waitForOnConfigured(1));
         }
 
         // Detach all useCase and switch to another camera to verify the camera close flow.
-        camera.detachUseCases();
+        mCamera.detachUseCases();
 
         // The camera switch only succeeds after all the exist CaptureSession was
         // closed successfully.
@@ -272,7 +277,7 @@ public final class Camera2ImplCameraXTest {
         ImageAnalysis useCase1 = configBuilder1.build();
         CameraSelector selectorFront = new CameraSelector.Builder().requireLensFacing(
                 CameraSelector.LENS_FACING_FRONT).build();
-        CameraUtil.getCameraAndAttachUseCase(mContext, selectorFront, useCase1);
+        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, selectorFront, useCase1);
 
         // The front camera should open successfully. If the test fail, the CameraX might
         // in wrong internal state, and the CameraX#shutdown() might stuck.
@@ -285,7 +290,7 @@ public final class Camera2ImplCameraXTest {
         new Camera2Interop.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback);
         ImageAnalysis useCase = builder.build();
 
-        CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
+        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
 
         verify(mDeviceStateCallback, timeout(3000)).onOpened(any(CameraDevice.class));
     }
@@ -296,7 +301,7 @@ public final class Camera2ImplCameraXTest {
         new Camera2Interop.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback);
         ImageAnalysis useCase = builder.build();
 
-        CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
+        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
 
         verify(mDeviceStateCallback, timeout(3000)).onOpened(any(CameraDevice.class));
     }
@@ -312,7 +317,7 @@ public final class Camera2ImplCameraXTest {
 
         ImageAnalysis useCase = builder.build();
 
-        CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
+        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
 
         // When no analyzer is set, there will be no active surface for repeating request
         // CaptureSession#mSessionConfig will be null. Thus we wait until capture session
@@ -331,12 +336,11 @@ public final class Camera2ImplCameraXTest {
             new Camera2Interop.Extender<>(builder).setDeviceStateCallback(callback);
             ImageAnalysis useCase = builder.build();
 
-            CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext,
-                    DEFAULT_SELECTOR, useCase);
+            mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
 
             verify(callback, timeout(5000)).onOpened(any(CameraDevice.class));
 
-            camera.detachUseCases();
+            mCamera.detachUseCases();
 
             verify(callback, timeout(3000)).onClosed(any(CameraDevice.class));
         }
@@ -352,12 +356,11 @@ public final class Camera2ImplCameraXTest {
             new Camera2Interop.Extender<>(builder).setDeviceStateCallback(callback);
             ImageAnalysis useCase = builder.build();
 
-            CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext,
-                    DEFAULT_SELECTOR, useCase);
+            mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
 
             verify(callback, timeout(5000)).onOpened(any(CameraDevice.class));
 
-            camera.detachUseCases();
+            mCamera.detachUseCases();
 
             verify(callback, timeout(3000)).onClosed(any(CameraDevice.class));
         }
@@ -369,15 +372,14 @@ public final class Camera2ImplCameraXTest {
         new Camera2Interop.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback);
         ImageAnalysis useCase = builder.build();
 
-        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext,
-                DEFAULT_SELECTOR, useCase);
+        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
 
         verify(mDeviceStateCallback, timeout(3000)).onOpened(any(CameraDevice.class));
 
         // TODO(b/160249108) move off of main thread once UseCases can be attached on any
         //  thread
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
-                camera.removeUseCases(Collections.singletonList(useCase))
+                mCamera.removeUseCases(Collections.singletonList(useCase))
         );
         verify(mDeviceStateCallback, timeout(3000)).onClosed(any(CameraDevice.class));
     }
@@ -392,15 +394,15 @@ public final class Camera2ImplCameraXTest {
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
                 .build();
 
-        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext,
-                DEFAULT_SELECTOR, useCase0, useCase1);
+        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase0,
+                useCase1);
 
         verify(mDeviceStateCallback, timeout(3000)).onOpened(any(CameraDevice.class));
 
         // TODO(b/160249108) move off of main thread once UseCases can be attached on any
         //  thread
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
-                camera.removeUseCases(Collections.singletonList(useCase1))
+                mCamera.removeUseCases(Collections.singletonList(useCase1))
         );
         Thread.sleep(3000);
 
@@ -417,16 +419,16 @@ public final class Camera2ImplCameraXTest {
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
                 .build();
 
-        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext,
-                DEFAULT_SELECTOR, useCase0, useCase1);
+        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase0,
+                useCase1);
 
         verify(mDeviceStateCallback, timeout(3000)).onOpened(any(CameraDevice.class));
 
         // TODO(b/160249108) move off of main thread once UseCases can be attached on any
         //  thread
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
-                    camera.removeUseCases(Collections.singleton(useCase0));
-                    camera.removeUseCases(Collections.singleton(useCase1));
+                    mCamera.removeUseCases(Collections.singleton(useCase0));
+                    mCamera.removeUseCases(Collections.singleton(useCase1));
                 }
         );
 
@@ -443,15 +445,14 @@ public final class Camera2ImplCameraXTest {
         new Camera2Interop.Extender<>(builder1).setDeviceStateCallback(mDeviceStateCallback);
         ImageCapture imageCapture = builder1.build();
 
-        CameraUseCaseAdapter camera = CameraUtil.getCameraUseCaseAdapter(mContext,
-                DEFAULT_SELECTOR);
+        mCamera = CameraUtil.getCameraUseCaseAdapter(mContext, DEFAULT_SELECTOR);
 
         // TODO(b/160249108) move off of main thread once UseCases can be attached on any
         //  thread
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
             try {
-                camera.addUseCases(Collections.singleton(imageCapture));
-                camera.addUseCases(Collections.singleton(imageAnalysis));
+                mCamera.addUseCases(Collections.singleton(imageCapture));
+                mCamera.addUseCases(Collections.singleton(imageAnalysis));
             } catch (CameraUseCaseAdapter.CameraException e) {
                 throw new IllegalArgumentException(e);
             }
@@ -463,8 +464,8 @@ public final class Camera2ImplCameraXTest {
         // TODO(b/160249108) move off of main thread once UseCases can be attached on any
         //  thread
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
-            camera.removeUseCases(Collections.singleton(imageCapture));
-            camera.removeUseCases(Collections.singleton(imageAnalysis));
+            mCamera.removeUseCases(Collections.singleton(imageCapture));
+            mCamera.removeUseCases(Collections.singleton(imageAnalysis));
         });
 
         verify(mDeviceStateCallback, timeout(3000)).onClosed(any(CameraDevice.class));

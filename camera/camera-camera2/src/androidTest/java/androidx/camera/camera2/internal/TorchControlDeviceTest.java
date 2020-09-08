@@ -32,6 +32,7 @@ import androidx.camera.testing.CameraUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -57,6 +58,7 @@ public class TorchControlDeviceTest {
             GrantPermissionRule.grant(android.Manifest.permission.CAMERA);
 
     private TorchControl mTorchControl;
+    private CameraUseCaseAdapter mCamera;
 
     @Before
     public void setUp() {
@@ -76,15 +78,22 @@ public class TorchControlDeviceTest {
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
         // Make ImageAnalysis active.
         imageAnalysis.setAnalyzer(CameraXExecutors.mainThreadExecutor(), ImageProxy::close);
-        CameraUseCaseAdapter cameraUseCaseAdapter = CameraUtil.getCameraAndAttachUseCase(context,
-                cameraSelector, imageAnalysis);
+        mCamera = CameraUtil.getCameraAndAttachUseCase(context, cameraSelector, imageAnalysis);
         Camera2CameraControlImpl cameraControl = (Camera2CameraControlImpl)
-                cameraUseCaseAdapter.getCameraControlInternal();
+                mCamera.getCameraControlInternal();
         mTorchControl = cameraControl.getTorchControl();
     }
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
+        if (mCamera != null) {
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                    //TODO: The removeUseCases() call might be removed after clarifying the
+                    // abortCaptures() issue in b/162314023.
+                    mCamera.removeUseCases(mCamera.getUseCases())
+            );
+        }
+
         CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
