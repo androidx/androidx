@@ -203,7 +203,7 @@ class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceService) :
     }
 }
 
-class TestRenderer(
+open class TestRenderer(
     surfaceHolder: SurfaceHolder,
     userStyleManager: UserStyleManager,
     watchState: WatchState
