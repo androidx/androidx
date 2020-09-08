@@ -234,11 +234,11 @@ abstract class Gles2Renderer (
     @UiThread
     open fun onGlSurfaceCreated(width: Int, height: Int) {}
 
-    internal override fun onDrawInternal(
+    internal override fun renderInternal(
         calendar: Calendar
     ) {
         makeContextCurrent()
-        onDraw(calendar)
+        render(calendar)
         if (!EGL14.eglSwapBuffers(eglDisplay, eglSurface)) {
             Log.w(TAG, "eglSwapBuffers failed")
         }
@@ -254,7 +254,7 @@ abstract class Gles2Renderer (
         val pixelBuf = ByteBuffer.allocateDirect(width * height * 4)
         makeContextCurrent()
         this.drawMode = drawMode
-        onDraw(calendar)
+        render(calendar)
         GLES20.glFinish()
         GLES20.glReadPixels(0, 0, width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, pixelBuf)
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
@@ -270,7 +270,5 @@ abstract class Gles2Renderer (
      * @param calendar The current {@link Calendar}
      */
     @UiThread
-    abstract fun onDraw(
-        calendar: Calendar
-    )
+    abstract fun render(calendar: Calendar)
 }

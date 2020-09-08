@@ -182,7 +182,7 @@ class WatchFaceConfigUiTest {
         val complicationSet = ComplicationsHolder(
             complications,
             object : Renderer(surfaceHolder, userStyleManager, WatchState()) {
-                override fun onDrawInternal(calendar: Calendar) {}
+                override fun renderInternal(calendar: Calendar) {}
 
                 override fun takeScreenshot(calendar: Calendar, drawMode: Int): Bitmap {
                     throw RuntimeException("Not Implemented!")

@@ -212,7 +212,7 @@ class TestRenderer(
     var lastOnDrawCalendar: Calendar? = null
     var lastDrawMode = DrawMode.INTERACTIVE
 
-    override fun onDraw(
+    override fun render(
         canvas: Canvas,
         bounds: Rect,
         calendar: Calendar

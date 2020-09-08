@@ -152,7 +152,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                     })
                 }
 
-                override fun onDraw(
+                override fun render(
                     canvas: Canvas,
                     bounds: Rect,
                     calendar: Calendar

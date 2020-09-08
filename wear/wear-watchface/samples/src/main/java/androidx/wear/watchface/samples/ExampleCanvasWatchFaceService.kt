@@ -254,7 +254,7 @@ class ExampleCanvasRenderer(
         )
     }
 
-    override fun onDraw(canvas: Canvas, bounds: Rect, calendar: Calendar) {
+    override fun render(canvas: Canvas, bounds: Rect, calendar: Calendar) {
         val style = if (drawMode == DrawMode.AMBIENT) {
             watchFaceColorStyle.ambientStyle
         } else {
