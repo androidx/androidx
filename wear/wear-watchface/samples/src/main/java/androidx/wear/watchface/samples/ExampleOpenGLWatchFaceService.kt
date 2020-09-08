@@ -437,7 +437,7 @@ class ExampleOpenGLRenderer(
         }
     }
 
-    override fun onDraw(calendar: Calendar) {
+    override fun render(calendar: Calendar) {
         // Draw background color and select the appropriate view projection matrix. The background
         // should always be black in ambient mode. The view projection matrix used is overhead in
         // ambient. In interactive mode, it's tilted depending on the current time.

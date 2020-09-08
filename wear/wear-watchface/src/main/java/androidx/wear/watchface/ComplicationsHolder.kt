@@ -141,17 +141,14 @@ class ComplicationsHolder(
                 // Generate a ContentDescriptionLabel and send complication bounds for
                 // non-background complications.
                 val data = complication.renderer.getData()
-                val complicationBounds = complication.boundsProvider.computeBounds(
-                    complication, renderer.screenBounds
-                )
-
-                if (complication.boundsProvider is BackgroundComplicationBoundsProvider) {
+                if (complication.boundsType == ComplicationBoundsType.BACKGROUND) {
                     watchFaceHostApi.setComplicationDetails(
                         id,
-                        complicationBounds,
+                        renderer.screenBounds,
                         ComplicationBoundsType.BACKGROUND
                     )
                 } else {
+                    val complicationBounds = complication.computeBounds(renderer.screenBounds)
                     if (data != null) {
                         labels.add(
                             ContentDescriptionLabel(
@@ -228,11 +225,8 @@ class ComplicationsHolder(
      */
     fun getComplicationAt(x: Int, y: Int): Complication? {
         return complications.entries.firstOrNull {
-            it.value.enabled && it.value.boundsProvider !is BackgroundComplicationBoundsProvider &&
-                    it.value.boundsProvider.computeBounds(
-                        it.value,
-                        renderer.screenBounds
-                    ).contains(x, y)
+            it.value.enabled && it.value.boundsType != ComplicationBoundsType.BACKGROUND &&
+                    it.value.computeBounds(renderer.screenBounds).contains(x, y)
         }?.value
     }
 
@@ -243,7 +237,7 @@ class ComplicationsHolder(
      */
     fun getBackgroundComplication(): Complication? {
         return complications.entries.firstOrNull {
-            it.value.boundsProvider is BackgroundComplicationBoundsProvider
+            it.value.boundsType == ComplicationBoundsType.BACKGROUND
         }?.value
     }
 

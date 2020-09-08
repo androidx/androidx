@@ -29,11 +29,9 @@ import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.rendering.ComplicationDrawable
-import androidx.wear.watchface.BackgroundComplicationBoundsProvider
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationDrawableRenderer
 import androidx.wear.watchface.ComplicationsHolder
-import androidx.wear.watchface.UnitSquareBoundsProvider
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.WatchFaceTestRunner
@@ -114,9 +112,8 @@ class WatchFaceConfigUiTest {
     )
 
     private val leftComplication =
-        Complication(
+        Complication.Builder(
             LEFT_COMPLICATION_ID,
-            UnitSquareBoundsProvider(RectF(0.2f, 0.4f, 0.4f, 0.6f)),
             ComplicationDrawableRenderer(complicationDrawableLeft, systemState).apply {
                 setData(createComplicationData() )
             },
@@ -127,14 +124,14 @@ class WatchFaceConfigUiTest {
                 ComplicationData.TYPE_ICON,
                 ComplicationData.TYPE_SMALL_IMAGE
             ),
-            Complication.DefaultComplicationProvider(SystemProviders.SUNRISE_SUNSET),
-            ComplicationData.TYPE_SHORT_TEXT
-        )
+            Complication.DefaultComplicationProvider(SystemProviders.SUNRISE_SUNSET)
+        ).setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
+            .setUnitSquareBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
+            .build()
 
     private val rightComplication =
-        Complication(
+        Complication.Builder(
             RIGHT_COMPLICATION_ID,
-            UnitSquareBoundsProvider(RectF(0.6f, 0.4f, 0.8f, 0.6f)),
             ComplicationDrawableRenderer(complicationDrawableRight, systemState).apply {
                 setData(createComplicationData() )
             },
@@ -145,23 +142,24 @@ class WatchFaceConfigUiTest {
                 ComplicationData.TYPE_ICON,
                 ComplicationData.TYPE_SMALL_IMAGE
             ),
-            Complication.DefaultComplicationProvider(SystemProviders.DAY_OF_WEEK),
-            ComplicationData.TYPE_SHORT_TEXT
-        )
+            Complication.DefaultComplicationProvider(SystemProviders.DAY_OF_WEEK)
+        ).setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
+            .setUnitSquareBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
+            .build()
 
     private val backgroundComplication =
-        Complication(
+        Complication.Builder(
             BACKGROUND_COMPLICATION_ID,
-            BackgroundComplicationBoundsProvider(),
             ComplicationDrawableRenderer(complicationDrawableRight, systemState).apply {
                 setData(createComplicationData() )
             },
             intArrayOf(
                 ComplicationData.TYPE_LARGE_IMAGE
             ),
-            Complication.DefaultComplicationProvider(),
-            ComplicationData.TYPE_LARGE_IMAGE
-        )
+            Complication.DefaultComplicationProvider()
+        ).setDefaultProviderType(ComplicationData.TYPE_LARGE_IMAGE)
+            .setBackgroundComplication()
+            .build()
 
     private val calendar = Calendar.getInstance().apply {
         timeInMillis = 1000L
@@ -184,7 +182,7 @@ class WatchFaceConfigUiTest {
         val complicationSet = ComplicationsHolder(
             complications,
             object : Renderer(surfaceHolder, userStyleManager, WatchState()) {
-                override fun onDrawInternal(calendar: Calendar) {}
+                override fun renderInternal(calendar: Calendar) {}
 
                 override fun takeScreenshot(calendar: Calendar, drawMode: Int): Bitmap {
                     throw RuntimeException("Not Implemented!")

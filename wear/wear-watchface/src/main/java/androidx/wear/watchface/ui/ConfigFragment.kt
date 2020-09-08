@@ -216,24 +216,30 @@ internal class ConfigViewHolder(view: View) : RecyclerView.ViewHolder(view) {
     var configOption: ConfigOption? = null
 }
 
-/**
- * Wraps a given [Drawable] with a standard background to match the normal preference icon
- * styling. The wrapping is idempotent, calling it multiple times will only wrap the icon once.
- *
- * @param context the current [Context], used for resolving resources.
- * @param icon the icon to wrap.
- * @return the wrapped icon.
- */
-internal fun wrapIcon(
-    context: Context,
-    icon: Drawable
-): Drawable {
-    if (icon is LayerDrawable && icon.findDrawableByLayerId(R.id.nested_icon) != null) {
-        return icon // icon was already wrapped, return the icon without modifying it
+internal class Helper {
+    companion object {
+        /**
+         * Wraps a given [Drawable] with a standard background to match the normal preference icon
+         * styling. The wrapping is idempotent, calling it multiple times will only wrap the icon
+         * once.
+         *
+         * @param context the current [Context], used for resolving resources.
+         * @param icon the icon to wrap.
+         * @return the wrapped icon.
+         */
+        fun wrapIcon(
+            context: Context,
+            icon: Drawable
+        ): Drawable {
+            if (icon is LayerDrawable && icon.findDrawableByLayerId(R.id.nested_icon) != null) {
+                return icon // icon was already wrapped, return the icon without modifying it
+            }
+            val wrappedDrawable =
+                (context.getDrawable(R.drawable.preference_wrapped_icon) as LayerDrawable)
+            wrappedDrawable.setDrawableByLayerId(R.id.nested_icon, icon)
+            return wrappedDrawable
+        }
     }
-    val wrappedDrawable = (context.getDrawable(R.drawable.preference_wrapped_icon) as LayerDrawable)
-    wrappedDrawable.setDrawableByLayerId(R.id.nested_icon, icon)
-    return wrappedDrawable
 }
 
 /** Adapter for top level config options. */
@@ -272,7 +278,7 @@ internal class ConfigViewAdapter(
             context,
             { drawable ->
                 textView.setCompoundDrawablesRelativeWithIntrinsicBounds(
-                    wrapIcon(context, drawable),
+                    Helper.wrapIcon(context, drawable),
                     /* top = */ null,
                     /* end = */ null,
                     /* bottom = */ null

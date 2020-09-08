@@ -717,7 +717,7 @@ public class ComplicationDrawableTest {
                         }
 
                         @Override
-                        public void onDrawInternal$wear_watchface_debug(
+                        public void renderInternal$wear_watchface_debug(
                                 @NotNull Calendar calendar) {
                         }
                     },

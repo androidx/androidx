@@ -21,7 +21,6 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Rect
 import android.icu.util.Calendar
-import android.util.Log
 import android.view.SurfaceHolder
 import androidx.annotation.IntDef
 import androidx.annotation.UiThread
@@ -61,25 +60,18 @@ abstract class CanvasRenderer(
     /** The type of canvas to use. */
     @CanvasType private val canvasType: Int
 ) : Renderer(surfaceHolder, userStyleManager, watchState) {
-    private companion object {
-        private const val TAG = "CanvasRenderer"
-    }
 
-    internal override fun onDrawInternal(
+    internal override fun renderInternal(
         calendar: Calendar
     ) {
-        val canvas = if (canvasType == CanvasType.HARDWARE) {
+        val canvas = (if (canvasType == CanvasType.HARDWARE) {
             surfaceHolder.lockHardwareCanvas()
         } else {
             surfaceHolder.lockCanvas()
-        }
-        if (canvas == null) {
-            Log.e(TAG, "Null canvas returned when locking the SurfaceHolder.")
-            return
-        }
+        }) ?: return
         try {
             if (watchState.isVisible) {
-                onDraw(canvas, surfaceHolder.surfaceFrame, calendar)
+                render(canvas, surfaceHolder.surfaceFrame, calendar)
             } else {
                 canvas.drawColor(Color.BLACK)
             }
@@ -100,7 +92,7 @@ abstract class CanvasRenderer(
         )
         val prevDrawMode = drawMode
         this.drawMode = drawMode
-        onDraw(Canvas(bitmap), screenBounds, calendar)
+        render(Canvas(bitmap), screenBounds, calendar)
         this.drawMode = prevDrawMode
         return bitmap
     }
@@ -116,7 +108,7 @@ abstract class CanvasRenderer(
      * @param calendar The current {@link Calendar}
      */
     @UiThread
-    abstract fun onDraw(
+    abstract fun render(
         canvas: Canvas,
         bounds: Rect,
         calendar: Calendar
