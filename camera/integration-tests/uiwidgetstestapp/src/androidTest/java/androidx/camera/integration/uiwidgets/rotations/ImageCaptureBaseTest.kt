@@ -32,6 +32,8 @@ import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
+import org.junit.Rule
+import org.junit.rules.TestRule
 import java.util.concurrent.TimeUnit
 
 /**
@@ -47,6 +49,9 @@ import java.util.concurrent.TimeUnit
  * - Verify the picture's rotation or resolution
  */
 abstract class ImageCaptureBaseTest<A : CameraActivity> {
+
+    @get:Rule
+    val mUseCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
 
     protected val mDevice: UiDevice =
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
