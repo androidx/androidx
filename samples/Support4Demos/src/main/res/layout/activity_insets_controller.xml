@@ -21,6 +21,7 @@
     android:layout_height="match_parent"
     android:clipToPadding="false"
     android:id="@+id/root"
+    tools:ignore="HardcodedText"
     tools:targetApi="lollipop">
 
     <Toolbar
@@ -57,8 +58,21 @@
         android:layout_height="wrap_content"
         android:text="setDecorFitsSystemWindows" />
 
+    <CheckBox
+        android:id="@+id/isDecorView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checked="true"
+        android:text="On Decor View" />
+
     <TextView
         android:id="@+id/visibility"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="TextView" />
+
+    <TextView
+        android:id="@+id/info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="TextView" />
