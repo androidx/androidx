@@ -16,16 +16,14 @@
 
 package androidx.recyclerview.selection;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import android.view.MotionEvent;
 
-import androidx.annotation.NonNull;
 import androidx.recyclerview.selection.testing.TestEvents;
+import androidx.recyclerview.selection.testing.TestOnItemTouchListener;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.RecyclerView.OnItemTouchListener;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
@@ -33,9 +31,6 @@ import androidx.test.filters.SmallTest;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @RunWith(AndroidJUnit4.class)
 @SmallTest
@@ -97,34 +92,5 @@ public class EventRouterTest {
         mgr.getSelectionObserver().onSelectionCleared();  // Results in reset.
 
         assertFalse(mRouter.isResetRequired());
-    }
-
-    private static final class TestOnItemTouchListener implements OnItemTouchListener {
-
-        private List<MotionEvent> mOnInterceptTouchEventCalls = new ArrayList<>();
-        private List<MotionEvent> mOnTouchEventCalls = new ArrayList<>();
-
-        @Override
-        public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
-            mOnInterceptTouchEventCalls.add(e);
-            return false;
-        }
-
-        @Override
-        public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
-            mOnTouchEventCalls.add(e);
-        }
-
-        @Override
-        public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
-        }
-
-        void assertOnInterceptTouchEventCalled(int expectedTimesCalled) {
-            assertEquals(expectedTimesCalled, mOnInterceptTouchEventCalls.size());
-        }
-
-        void assertOnTouchEventCalled(int expectedTimesCalled) {
-            assertEquals(expectedTimesCalled, mOnTouchEventCalls.size());
-        }
     }
 }
