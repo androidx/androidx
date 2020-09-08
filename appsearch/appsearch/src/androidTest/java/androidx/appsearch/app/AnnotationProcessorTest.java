@@ -92,7 +92,7 @@ public class AnnotationProcessorTest {
         @AppSearchDocument.Property Boolean mBoxBoolean;   // 3a
         @AppSearchDocument.Property boolean mUnboxBoolean; // 3b
         @AppSearchDocument.Property byte[] mUnboxByteArr;  // 3a
-//        @AppSearchDocument.Property Gift mGift;            // 3c
+        @AppSearchDocument.Property Gift mGift;            // 3c
 
         @Override
         public boolean equals(Object other) {
@@ -129,6 +129,7 @@ public class AnnotationProcessorTest {
             assertThat(otherGift.mBoxBoolean).isEqualTo(this.mBoxBoolean);
             assertThat(otherGift.mUnboxBoolean).isEqualTo(this.mUnboxBoolean);
             assertThat(otherGift.mUnboxByteArr).isEqualTo(this.mUnboxByteArr);
+            assertThat(otherGift.mGift).isEqualTo(this.mGift);
             return true;
         }
 
@@ -184,6 +185,7 @@ public class AnnotationProcessorTest {
         inputDataClass.mBoxBoolean = true;
         inputDataClass.mUnboxBoolean = false;
         inputDataClass.mUnboxByteArr = new byte[]{1, 2, 3};
+        inputDataClass.mGift = innerGift1;
 
         // Index the Gift document and query it.
         checkIsBatchResultSuccess(mAppSearchManager.putDocuments(

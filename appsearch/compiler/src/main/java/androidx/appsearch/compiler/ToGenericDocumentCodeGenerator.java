@@ -484,7 +484,9 @@ class ToGenericDocumentCodeGenerator {
         if (!tryFieldUseDirectlyWithNullCheck(
                 body, fieldName, propertyName, property.asType())  // 3a
                 && !tryFieldUseDirectlyWithoutNullCheck(
-                        body, fieldName, propertyName, property.asType())) {  // 3b
+                        body, fieldName, propertyName, property.asType())  // 3b
+                && !tryFieldCallToGenericDocument(
+                        body, fieldName, propertyName, property.asType())) {  // 3c
             // Scenario 3x
             throw new ProcessingException(
                     "Unhandled out property type (3x): " + property.asType().toString(), property);
@@ -552,6 +554,45 @@ class ToGenericDocumentCodeGenerator {
                 "builder.setProperty($S, $L)",
                 propertyName,
                 createAppSearchFieldRead(fieldName));
+        return true;
+    }
+
+
+    //   3c: FieldCallToGenericDocument
+    //       Field is of a class which is annotated with @AppSearchDocument.
+    //       We have to convert this into a GenericDocument through the standard conversion
+    //       machinery.
+    private boolean tryFieldCallToGenericDocument(
+            @NonNull CodeBlock.Builder method,
+            @NonNull String fieldName,
+            @NonNull String propertyName,
+            @NonNull TypeMirror propertyType) {
+        Types typeUtil = mEnv.getTypeUtils();
+
+        Element element = typeUtil.asElement(propertyType);
+        if (element == null) {
+            // The propertyType is not an element, this is not a type 3c field.
+            return false;
+        }
+        try {
+            mHelper.getAnnotation(element, IntrospectionHelper.APP_SEARCH_DOCUMENT_CLASS);
+        } catch (ProcessingException e) {
+            // The propertyType doesn't have @AppSearchDocument annotation, this is not a type 3c
+            // field.
+            return false;
+        }
+        method.addStatement("$T $NCopy = $L", propertyType, propertyName,
+                createAppSearchFieldRead(fieldName));
+
+        method.add("if ($NCopy != null) {\n", propertyName).indent();
+
+        method.addStatement("GenericDocument $NConv = $T.getInstance().getOrCreateFactory($T.class)"
+                        + ".toGenericDocument($NCopy)", fieldName,
+                mHelper.getAppSearchClass("DataClassFactoryRegistry"), propertyType,
+                propertyName);
+        method.addStatement("builder.setProperty($S, $NConv)", propertyName, fieldName);
+
+        method.unindent().add("}\n");
         return true;
     }
 

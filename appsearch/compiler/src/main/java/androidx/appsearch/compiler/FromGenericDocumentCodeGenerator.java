@@ -166,7 +166,7 @@ class FromGenericDocumentCodeGenerator {
         //       default value if the field is not specified. The java compiler will box or unbox as
         //       needed
         //
-        //   3c: FieldCallToGenericDocument
+        //   3c: FieldCallFromGenericDocument
         //       Field is of a class which is annotated with @AppSearchDocument.
         //       We have to convert this from a GenericDocument through the standard conversion
         //       machinery.
@@ -517,7 +517,9 @@ class FromGenericDocumentCodeGenerator {
         if (!tryFieldUseDirectlyWithNullCheck(
                 builder, fieldName, propertyName, property.asType())  // 3a
                 && !tryFieldUseDirectlyWithoutNullCheck(
-                        builder, fieldName, propertyName, property.asType())) {  // 3b
+                        builder, fieldName, propertyName, property.asType()) // 3b
+                && !tryFieldCallFromGenericDocument(
+                        builder, fieldName, propertyName, property.asType())) {   // 3c
             // Scenario 3x
             throw new ProcessingException(
                     "Unhandled in property type (3x): " + property.asType().toString(), property);
@@ -618,6 +620,50 @@ class FromGenericDocumentCodeGenerator {
             // This is not a type 3b field
             return false;
         }
+
+        return true;
+    }
+
+    //   3c: FieldCallFromGenericDocument
+    //       Field is of a class which is annotated with @AppSearchDocument.
+    //       We have to convert this from a GenericDocument through the standard conversion
+    //       machinery.
+    private boolean tryFieldCallFromGenericDocument(
+            @NonNull CodeBlock.Builder method,
+            @NonNull String fieldName,
+            @NonNull String propertyName,
+            @NonNull TypeMirror propertyType) {
+        Types typeUtil = mEnv.getTypeUtils();
+        CodeBlock.Builder body = CodeBlock.builder();
+
+        Element element = typeUtil.asElement(propertyType);
+        if (element == null) {
+            // The propertyType is not an element, this is not a type 3c field.
+            return false;
+        }
+        try {
+            mHelper.getAnnotation(element, IntrospectionHelper.APP_SEARCH_DOCUMENT_CLASS);
+        } catch (ProcessingException e) {
+            // The propertyType doesn't have @AppSearchDocument annotation, this is not a type 3c
+            // field.
+            return false;
+        }
+
+        body.addStatement("GenericDocument $NCopy = genericDoc.getPropertyDocument($S)",
+                fieldName, propertyName);
+
+        body.addStatement("$T $NConv = null", propertyType, fieldName);
+        // If not null, assign
+        body.add("if ($NCopy != null) {\n", fieldName).indent();
+
+        body.addStatement("$NConv = $T.getInstance().getOrCreateFactory($T.class)"
+                        + ".fromGenericDocument($NCopy)", fieldName,
+                mHelper.getAppSearchClass("DataClassFactoryRegistry"), propertyType,
+                fieldName);
+
+        body.unindent().add("}\n");
+
+        method.add(body.build());
 
         return true;
     }

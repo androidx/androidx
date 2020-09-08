@@ -228,6 +228,13 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
             .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
             .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
             .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("gift")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOCUMENT)
+            .setSchemaType(DataClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class).getSchemaType())
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
           .build();
   }
 
@@ -421,6 +428,11 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (unboxByteArrCopy != null) {
       builder.setProperty("unboxByteArr", unboxByteArrCopy);
     }
+    Gift giftCopy = dataClass.gift;
+    if (giftCopy != null) {
+      GenericDocument giftConv = DataClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class).toGenericDocument(giftCopy);
+      builder.setProperty("gift", giftConv);
+    }
     return builder.build();
   }
 
@@ -598,6 +610,11 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (unboxByteArrCopy != null && unboxByteArrCopy.length != 0) {
       unboxByteArrConv = unboxByteArrCopy[0];
     }
+    GenericDocument giftCopy = genericDoc.getPropertyDocument("gift");
+    Gift giftConv = null;
+    if (giftCopy != null) {
+      giftConv = DataClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class).fromGenericDocument(giftCopy);
+    }
     Gift dataClass = new Gift();
     dataClass.uri = uriConv;
     dataClass.collectLong = collectLongConv;
@@ -633,6 +650,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     dataClass.boxBoolean = boxBooleanConv;
     dataClass.unboxBoolean = unboxBooleanConv;
     dataClass.unboxByteArr = unboxByteArrConv;
+    dataClass.gift = giftConv;
     return dataClass;
   }
 }
