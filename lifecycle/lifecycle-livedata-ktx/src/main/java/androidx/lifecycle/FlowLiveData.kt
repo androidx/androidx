@@ -56,6 +56,11 @@ import kotlin.coroutines.EmptyCoroutineContext
  * expected to throw, you can use [catch operator][kotlinx.coroutines.flow.catch] on upstream flow
  * to emit a helpful error object.
  *
+ * The [timeoutInMs] can be changed to fit different use cases better, for example increasing it
+ * will give more time to flow to complete before being canceled and is good for finite flows
+ * that are costly to restart. Otherwise if a flow is cheap to restart decreasing the [timeoutInMs]
+ * value will allow to produce less values that aren't consumed by anything.
+ *
  * @param context The CoroutineContext to collect the upstream flow in. Defaults to
  * [EmptyCoroutineContext] combined with
  * [Dispatchers.Main.immediate][kotlinx.coroutines.MainCoroutineDispatcher.immediate]
@@ -124,6 +129,11 @@ fun <T> LiveData<T>.asFlow(): Flow<T> = flow {
  * thread [UncaughtExceptionHandler][Thread.UncaughtExceptionHandler]. If your flow upstream is
  * expected to throw, you can use [catch operator][kotlinx.coroutines.flow.catch] on upstream flow
  * to emit a helpful error object.
+ *
+ * The [timeout] can be changed to fit different use cases better, for example increasing it
+ * will give more time to flow to complete before being canceled and is good for finite flows
+ * that are costly to restart. Otherwise if a flow is cheap to restart decreasing the [timeout]
+ * value will allow to produce less values that aren't consumed by anything.
  *
  * @param context The CoroutineContext to collect the upstream flow in. Defaults to
  * [EmptyCoroutineContext] combined with

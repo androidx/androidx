@@ -250,8 +250,8 @@ internal class CoroutineLiveData<T>(
  * Builds a LiveData that has values yielded from the given [block] that executes on a
  * [LiveDataScope].
  *
- * The [block] starts executing when the returned [LiveData] becomes active ([LiveData.onActive]).
- * If the [LiveData] becomes inactive ([LiveData.onInactive]) while the [block] is executing, it
+ * The [block] starts executing when the returned [LiveData] becomes [active](LiveData.onActive).
+ * If the [LiveData] becomes [inactive](LiveData.onInactive) while the [block] is executing, it
  * will be cancelled after [timeoutInMs] milliseconds unless the [LiveData] becomes active again
  * before that timeout (to gracefully handle cases like Activity rotation). Any value
  * [LiveDataScope.emit]ed from a cancelled [block] will be ignored.
@@ -268,6 +268,12 @@ internal class CoroutineLiveData<T>(
  * As a best practice, it is important for the [block] to cooperate in cancellation. See kotlin
  * coroutines documentation for details
  * https://kotlinlang.org/docs/reference/coroutines/cancellation-and-timeouts.html.
+ *
+ * The [timeoutInMs] can be changed to fit different use cases better, for example increasing it
+ * will give more time to the [block] to complete even if [LiveData] is inactive. It is good for
+ * cases when [block] is finite (meaning it can complete successfully) and is costly to restart.
+ * Otherwise if a [block] is cheap to restart, decreasing the [timeoutInMs] value will allow to
+ * yield less values that aren't consumed by anything.
  *
  * ```
  * // a simple LiveData that receives value 3, 3 seconds after being observed for the first time.
@@ -355,8 +361,8 @@ fun <T> liveData(
  * Builds a LiveData that has values yielded from the given [block] that executes on a
  * [LiveDataScope].
  *
- * The [block] starts executing when the returned [LiveData] becomes active ([LiveData.onActive]).
- * If the [LiveData] becomes inactive ([LiveData.onInactive]) while the [block] is executing, it
+ * The [block] starts executing when the returned [LiveData] becomes [active](LiveData.onActive).
+ * If the [LiveData] becomes [inactive](LiveData.onInactive) while the [block] is executing, it
  * will be cancelled after the [timeout] duration unless the [LiveData] becomes active again
  * before that timeout (to gracefully handle cases like Activity rotation). Any value
  * [LiveDataScope.emit]ed from a cancelled [block] will be ignored.
@@ -373,6 +379,12 @@ fun <T> liveData(
  * As a best practice, it is important for the [block] to cooperate in cancellation. See kotlin
  * coroutines documentation for details
  * https://kotlinlang.org/docs/reference/coroutines/cancellation-and-timeouts.html.
+ *
+ * The [timeout] can be changed to fit different use cases better, for example increasing it
+ * will give more time to the [block] to complete even if [LiveData] is inactive. It is good for
+ * cases when [block] is finite (meaning it can complete successfully) and is costly to restart.
+ * Otherwise if a [block] is cheap to restart, decreasing the [timeout] value will allow to
+ * yield less values that aren't consumed by anything.
  *
  * ```
  * // a simple LiveData that receives value 3, 3 seconds after being observed for the first time.
