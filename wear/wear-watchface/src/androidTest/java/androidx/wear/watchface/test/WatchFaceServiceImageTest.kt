@@ -46,7 +46,6 @@ import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
 import org.junit.Before
-import org.junit.Ignore
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -267,7 +266,6 @@ class WatchFaceServiceImageTest {
     }
 
     @Test
-    @Ignore("Needs fixed image")
     fun testAmbientScreenshot() {
         handler.post {
             initCanvasWatchFace()
@@ -276,7 +274,7 @@ class WatchFaceServiceImageTest {
         }
 
         renderDoneLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)
-        bitmap.assertAgainstGolden(screenshotRule, "ambient_screenshot")
+        bitmap.assertAgainstGolden(screenshotRule, "ambient_screenshot2")
     }
 
     @Test
