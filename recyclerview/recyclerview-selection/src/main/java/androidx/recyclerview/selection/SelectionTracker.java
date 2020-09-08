@@ -744,9 +744,18 @@ public abstract class SelectionTracker<K> {
             GestureDetectorWrapper gestureDetectorWrapper =
                     new GestureDetectorWrapper(gestureDetector);
 
+            // Temp fix for b/166836317.
+            // TODO: Add support for multiple listeners per tool type to EventRouter, then
+            //  register backstop with primary router.
+            EventRouter backstopRouter = new EventRouter();
+            EventBackstop backstop = new EventBackstop();
+            DisallowInterceptFilter backstopWrapper = new DisallowInterceptFilter(backstop);
+            backstopRouter.set(MotionEvent.TOOL_TYPE_FINGER, backstopWrapper);
+
             // Finally hook the framework up to listening to RecycleView events.
             mRecyclerView.addOnItemTouchListener(eventRouter);
             mRecyclerView.addOnItemTouchListener(gestureDetectorWrapper);
+            mRecyclerView.addOnItemTouchListener(backstopRouter);
 
             // Reset manager listens for cancel events from RecyclerView. In response to that it
             // advises other classes it is time to reset state.
@@ -773,6 +782,9 @@ public abstract class SelectionTracker<K> {
             resetMgr.addResetHandler(gestureSelectionHelper);
             resetMgr.addResetHandler(gestureDetectorWrapper);
             resetMgr.addResetHandler(eventRouter);
+            resetMgr.addResetHandler(backstopRouter);
+            resetMgr.addResetHandler(backstop);
+            resetMgr.addResetHandler(backstopWrapper);
 
             // But before you move on, there's more work to do. Event plumbing has been
             // installed, but we haven't registered any of our helpers or callbacks.
@@ -820,14 +832,7 @@ public abstract class SelectionTracker<K> {
                     mKeyProvider,
                     mDetailsLookup,
                     mSelectionPredicate,
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            if (mSelectionPredicate.canSelectMultiple()) {
-                                gestureSelectionHelper.start();
-                            }
-                        }
-                    },
+                    gestureSelectionHelper::start,
                     mOnDragInitiatedListener,
                     mOnItemActivatedListener,
                     mFocusDelegate,
@@ -836,7 +841,9 @@ public abstract class SelectionTracker<K> {
                         public void run() {
                             mRecyclerView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
                         }
-                    });
+                    },
+                    // Provide temporary glue to address b/166836317
+                    backstop::onLongPress);
 
             for (int toolType : mGestureToolTypes) {
                 gestureRouter.register(toolType, touchHandler);
