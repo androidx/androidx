@@ -462,7 +462,6 @@ public class AccessibilityDelegateCompatTest extends
 
     @Test
     @SdkSuppress(minSdkVersion = 19)
-    @FlakyTest
     public void testSetAccessibilityPaneTitle_sendsOutCorrectEvent() throws TimeoutException {
         final Activity activity = mActivityTestRule.getActivity();
 
@@ -479,7 +478,10 @@ public class AccessibilityDelegateCompatTest extends
                                 == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED;
                         int isPaneTitle = (event.getContentChangeTypes()
                                 & AccessibilityEvent.CONTENT_CHANGE_TYPE_PANE_TITLE);
-                        boolean isFromThisPackage = TextUtils.equals(event.getPackageName(),
+                        // onInitializeA11yEvent is not called in 28 for panes, so the package name
+                        // isn't set
+                        boolean isFromThisPackage = Build.VERSION.SDK_INT == 28
+                                || TextUtils.equals(event.getPackageName(),
                                 activity.getPackageName());
                         boolean isFromThisSource =
                                 event.getSource().equals(mView.createAccessibilityNodeInfo());
