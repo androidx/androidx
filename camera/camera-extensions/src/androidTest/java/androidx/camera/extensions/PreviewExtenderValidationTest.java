@@ -18,7 +18,6 @@ package androidx.camera.extensions;
 
 import static org.junit.Assume.assumeTrue;
 
-import android.Manifest;
 import android.content.Context;
 import android.hardware.camera2.CameraAccessException;
 
@@ -32,12 +31,12 @@ import androidx.camera.testing.CameraUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
-import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.ExecutionException;
@@ -47,8 +46,7 @@ import java.util.concurrent.TimeoutException;
 @RunWith(AndroidJUnit4.class)
 public class PreviewExtenderValidationTest {
     @Rule
-    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
-            Manifest.permission.CAMERA);
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
     private final Context mContext = ApplicationProvider.getApplicationContext();
 
     @Before
