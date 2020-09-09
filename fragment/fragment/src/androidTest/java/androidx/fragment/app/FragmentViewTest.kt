@@ -421,6 +421,9 @@ class FragmentViewTest {
         assertWithMessage("Fragment should not go through lifecycle changes until it is added")
             .that(fragment.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.INITIALIZED)
+        assertWithMessage("Fragment should not be considered active until it is added")
+            .that(fm.activeFragments)
+            .doesNotContain(fragment)
     }
 
     // Show a hidden fragment and its View should be VISIBLE. Then pop it and the View should be
@@ -480,6 +483,9 @@ class FragmentViewTest {
         assertWithMessage("Fragment should not go through lifecycle changes until it is added")
             .that(fragment.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.INITIALIZED)
+        assertWithMessage("Fragment should not be considered active until it is added")
+            .that(fm.activeFragments)
+            .doesNotContain(fragment)
     }
 
     // Detaching a fragment should remove the View from the hierarchy. Then popping it should
@@ -572,6 +578,9 @@ class FragmentViewTest {
         assertWithMessage("Fragment should not go through lifecycle changes until it is added")
             .that(fragment.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.INITIALIZED)
+        assertWithMessage("Fragment should not be considered active until it is added")
+            .that(fm.activeFragments)
+            .doesNotContain(fragment)
     }
 
     // Attaching a fragment should add the View back into the hierarchy. Then popping it should
@@ -665,6 +674,9 @@ class FragmentViewTest {
         assertWithMessage("Fragment should not go through lifecycle changes until it is added")
             .that(fragment.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.INITIALIZED)
+        assertWithMessage("Fragment should not be considered active until it is added")
+            .that(fm.activeFragments)
+            .doesNotContain(fragment)
     }
 
     // Simple replace of one fragment in a container. Popping should replace it back again
