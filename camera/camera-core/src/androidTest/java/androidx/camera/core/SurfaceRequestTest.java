@@ -28,6 +28,7 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.core.content.ContextCompat;
@@ -40,8 +41,11 @@ import org.junit.After;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.lang.ref.PhantomReference;
+import java.lang.ref.ReferenceQueue;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 @SmallTest
@@ -53,8 +57,26 @@ public final class SurfaceRequestTest {
             SurfaceRequest.TransformationInfo.of(new Rect(), 0, Surface.ROTATION_0);
     private static final Consumer<SurfaceRequest.Result> NO_OP_RESULT_LISTENER = ignored -> {
     };
+    private static final long FINALIZE_TIMEOUT_MILLIS = 200L;
+    private static final int NUM_GC_ITERATIONS = 10;
     private static final Surface MOCK_SURFACE = mock(Surface.class);
-    private List<SurfaceRequest> mSurfaceRequests = new ArrayList<>();
+    private final List<SurfaceRequest> mSurfaceRequests = new ArrayList<>();
+
+    private static void runFinalization() throws TimeoutException, InterruptedException {
+        ReferenceQueue<Object> finalizeAwaitQueue = new ReferenceQueue<>();
+        PhantomReference<Object> finalizeSignal;
+        // Ensure finalization occurs multiple times
+        for (int i = 0; i < NUM_GC_ITERATIONS; ++i) {
+            finalizeSignal = new PhantomReference<>(new Object(), finalizeAwaitQueue);
+            Runtime.getRuntime().gc();
+            Runtime.getRuntime().runFinalization();
+            if (finalizeAwaitQueue.remove(FINALIZE_TIMEOUT_MILLIS) == null) {
+                throw new TimeoutException(
+                        "Finalization failed on iteration " + (i + 1) + " of " + NUM_GC_ITERATIONS);
+            }
+            finalizeSignal.clear();
+        }
+    }
 
     @After
     public void tearDown() {
@@ -222,9 +244,80 @@ public final class SurfaceRequestTest {
         assertThat(infoReference.get()).isEqualTo(FAKE_INFO);
     }
 
+    @SuppressWarnings("UnusedAssignment") // request assigned to null to make GC eligible
+    @Test
+    public void deferrableSurface_stronglyReferencesSurfaceRequest()
+            throws TimeoutException, InterruptedException {
+        // Arrange.
+        SurfaceRequest request = createNewRequestWithoutAutoCleanup(FAKE_SIZE);
+        // Retrieve the DeferrableSurface which should maintain the strong reference to the
+        // SurfaceRequest
+        DeferrableSurface deferrableSurface = request.getDeferrableSurface();
+        ReferenceQueue<SurfaceRequest> referenceQueue = new ReferenceQueue<>();
+        // Ensure surface request garbage collection is tracked
+        PhantomReference<SurfaceRequest> phantomReference = new PhantomReference<>(request,
+                referenceQueue);
+        try {
+            // Act.
+            // Null out the original reference to the SurfaceRequest. DeferrableSurface should be
+            // the only reference remaining.
+            request = null;
+            runFinalization();
+            boolean requestFinalized = (referenceQueue.poll() != null);
+
+            // Assert.
+            assertThat(requestFinalized).isFalse();
+        } finally {
+            // Clean up
+            phantomReference.clear();
+            deferrableSurface.close();
+        }
+    }
+
+    @SuppressWarnings("UnusedAssignment") // deferrableSurface assigned to null to make GC eligible
+    @Test
+    public void surfaceRequest_stronglyReferencesDeferrableSurface()
+            throws TimeoutException, InterruptedException {
+        // Arrange.
+        SurfaceRequest request = createNewRequestWithoutAutoCleanup(FAKE_SIZE);
+        // Retrieve the DeferrableSurface which should maintain the strong reference to the
+        // SurfaceRequest
+        DeferrableSurface deferrableSurface = request.getDeferrableSurface();
+        ReferenceQueue<DeferrableSurface> referenceQueue = new ReferenceQueue<>();
+        // Ensure surface request garbage collection is tracked
+        PhantomReference<DeferrableSurface> phantomReference = new PhantomReference<>(
+                deferrableSurface, referenceQueue);
+        try {
+            // Act.
+            // Null out the original reference to the DeferrableSurface. SurfaceRequest should be
+            // the only reference remaining.
+            deferrableSurface = null;
+            runFinalization();
+            boolean deferrableSurfaceFinalized = (referenceQueue.poll() != null);
+
+            // Assert.
+            assertThat(deferrableSurfaceFinalized).isFalse();
+        } finally {
+            // Clean up
+            phantomReference.clear();
+            request.getDeferrableSurface().close();
+        }
+    }
+
+    // The test method is responsible for ensuring that the SurfaceRequest is finished.
+    private SurfaceRequest createNewRequestWithoutAutoCleanup(@NonNull Size size) {
+        return createNewRequest(size, /*autoCleanUp=*/false);
+    }
+
     private SurfaceRequest createNewRequest(@NonNull Size size) {
+        return createNewRequest(size, /*autoCleanUp=*/true);
+    }
+
+    private SurfaceRequest createNewRequest(@NonNull Size size, boolean autoCleanup) {
         SurfaceRequest request = new SurfaceRequest(size, new FakeCamera(), false);
-        mSurfaceRequests.add(request);
+        if (autoCleanup) {
+            mSurfaceRequests.add(request);
+        }
         return request;
     }
 }

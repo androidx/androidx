@@ -169,7 +169,10 @@ public final class SurfaceRequest {
         mSurfaceCompleter = Preconditions.checkNotNull(surfaceCompleterRef.get());
 
         // Create the deferrable surface which will be used for communicating when the
-        // camera and consumer are done using the surface.
+        // camera and consumer are done using the surface. Note this anonymous inner class holds
+        // an implicit reference to the SurfaceRequest. This is by design, and ensures the
+        // SurfaceRequest and all contained future completers will not be garbage collected as
+        // long as the DeferrableSurface is referenced externally (via getDeferrableSurface()).
         mInternalDeferrableSurface = new DeferrableSurface() {
             @NonNull
             @Override
