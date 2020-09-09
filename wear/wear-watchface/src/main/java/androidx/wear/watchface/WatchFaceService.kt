@@ -55,7 +55,7 @@ import java.util.concurrent.CountDownLatch
  * backlog. If we encounter issues with this approach, we should consider asking framework team to
  * expose a callback.
  */
-const val SURFACE_DRAW_TIMEOUT_MS = 100L
+internal const val SURFACE_DRAW_TIMEOUT_MS = 100L
 
 /**
  * Used to parameterize watch face drawing based on the current system state.
