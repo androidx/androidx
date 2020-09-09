@@ -18,6 +18,9 @@ package androidx.camera.view;
 
 import static androidx.camera.view.PreviewView.ImplementationMode.COMPATIBLE;
 import static androidx.camera.view.PreviewView.ImplementationMode.PERFORMANCE;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -33,6 +36,7 @@ import static org.mockito.Mockito.when;
 import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.graphics.SurfaceTexture;
@@ -181,6 +185,28 @@ public class PreviewViewTest {
                 lensFacing);
         cameraInfoInternal.setImplementationType(implementationType);
         return cameraInfoInternal;
+    }
+
+    @Test
+    public void previewView_OnClickListenerWorks() {
+        // Arrange.
+        AtomicReference<Boolean> clicked = new AtomicReference<>(false);
+        AtomicReference<PreviewView> previewViewReference = new AtomicReference<>();
+        int previewViewId = View.generateViewId();
+        mInstrumentation.runOnMainSync(() -> {
+            PreviewView previewView = new PreviewView(mContext);
+            previewView.setId(previewViewId);
+            previewView.setOnClickListener(view -> clicked.set(true));
+            previewViewReference.set(previewView);
+        });
+        mActivityRule.launchActivity(new Intent());
+        mInstrumentation.runOnMainSync(() -> setContentView(previewViewReference.get()));
+
+        // Act.
+        onView(withId(previewViewId)).perform(click());
+
+        // Assert: view is clicked.
+        assertThat(clicked.get()).isTrue();
     }
 
     @Test
