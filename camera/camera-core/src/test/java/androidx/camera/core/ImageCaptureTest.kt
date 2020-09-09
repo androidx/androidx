@@ -361,7 +361,7 @@ class ImageCaptureTest {
             .setSessionOptionUnpacker(sessionOptionUnpacker)
             .build()
 
-        cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(ApplicationProvider
+        cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(ApplicationProvider
             .getApplicationContext<Context>(), CameraSelector.DEFAULT_BACK_CAMERA)
 
         cameraUseCaseAdapter.setViewPort(viewPort)

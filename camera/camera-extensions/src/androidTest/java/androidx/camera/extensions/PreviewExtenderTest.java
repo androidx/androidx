@@ -152,7 +152,7 @@ public class PreviewExtenderTest {
         Preview useCase = configBuilder.build();
 
         CameraUseCaseAdapter cameraUseCaseAdapter =
-                CameraUtil.getCameraUseCaseAdapter(mContext, cameraSelector);
+                CameraUtil.createCameraUseCaseAdapter(mContext, cameraSelector);
         mInstrumentation.runOnMainSync(() -> {
             // To set the update listener and Preview will change to active state.
             useCase.setSurfaceProvider(
@@ -230,7 +230,7 @@ public class PreviewExtenderTest {
 
         Preview preview = configBuilder.build();
         CameraUseCaseAdapter cameraUseCaseAdapter =
-                CameraUtil.getCameraUseCaseAdapter(mContext, cameraSelector);
+                CameraUtil.createCameraUseCaseAdapter(mContext, cameraSelector);
         mInstrumentation.runOnMainSync(() -> {
             // To set the update listener and Preview will change to active state.
             preview.setSurfaceProvider(
@@ -286,7 +286,7 @@ public class PreviewExtenderTest {
         Preview preview = configBuilder.build();
 
         CameraUseCaseAdapter cameraUseCaseAdapter =
-                CameraUtil.getCameraUseCaseAdapter(mContext, cameraSelector);
+                CameraUtil.createCameraUseCaseAdapter(mContext, cameraSelector);
         mInstrumentation.runOnMainSync(() -> {
             // To set the update listener and Preview will change to active state.
             preview.setSurfaceProvider(

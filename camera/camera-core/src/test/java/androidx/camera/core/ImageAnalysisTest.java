@@ -312,7 +312,7 @@ public class ImageAnalysisTest {
         );
 
         CameraUseCaseAdapter cameraUseCaseAdapter =
-                CameraUtil.getCameraUseCaseAdapter(ApplicationProvider.getApplicationContext(),
+                CameraUtil.createCameraUseCaseAdapter(ApplicationProvider.getApplicationContext(),
                         CameraSelector.DEFAULT_BACK_CAMERA);
         cameraUseCaseAdapter.setViewPort(viewPort);
         cameraUseCaseAdapter.addUseCases(Collections.singleton(mImageAnalysis));

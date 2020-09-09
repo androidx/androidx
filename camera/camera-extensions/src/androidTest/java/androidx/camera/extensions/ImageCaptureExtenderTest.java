@@ -131,7 +131,7 @@ public class ImageCaptureExtenderTest {
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(lensFacing).build();
         CameraUseCaseAdapter cameraUseCaseAdapter =
-                CameraUtil.getCameraUseCaseAdapter(mContext, cameraSelector);
+                CameraUtil.createCameraUseCaseAdapter(mContext, cameraSelector);
         mInstrumentation.runOnMainSync(() -> {
             try {
                 cameraUseCaseAdapter.addUseCases(Collections.singleton(useCase));
@@ -188,7 +188,7 @@ public class ImageCaptureExtenderTest {
         CameraSelector cameraSelector = new CameraSelector.Builder()
                 .requireLensFacing(lensFacing).build();
         CameraUseCaseAdapter cameraUseCaseAdapter =
-                CameraUtil.getCameraUseCaseAdapter(mContext, cameraSelector);
+                CameraUtil.createCameraUseCaseAdapter(mContext, cameraSelector);
         mInstrumentation.runOnMainSync(() -> {
             try {
                 cameraUseCaseAdapter.addUseCases(Collections.singleton(useCase));

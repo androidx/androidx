@@ -118,7 +118,7 @@ public final class SurfaceOrientedMeteringPointFactoryTest {
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(
                         CameraSelector.LENS_FACING_BACK).build();
-        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext,
+        CameraUseCaseAdapter camera = CameraUtil.createCameraAndAttachUseCase(mContext,
                 cameraSelector, imageAnalysis);
 
         SurfaceOrientedMeteringPointFactory factory = new SurfaceOrientedMeteringPointFactory(

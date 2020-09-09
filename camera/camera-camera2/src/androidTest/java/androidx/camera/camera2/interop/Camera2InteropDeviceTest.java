@@ -119,7 +119,7 @@ public final class Camera2InteropDeviceTest {
         imageAnalysis.setAnalyzer(CameraXExecutors.highPriorityExecutor(),
                 mock(ImageAnalysis.Analyzer.class));
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, imageAnalysis);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, imageAnalysis);
 
         verify(mMockCaptureCallback, timeout(5000).atLeastOnce()).onCaptureCompleted(
                 any(CameraCaptureSession.class),
@@ -231,7 +231,7 @@ public final class Camera2InteropDeviceTest {
     private Rect getZoom2XCropRegion() throws Exception {
         AtomicReference<String> cameraIdRef = new AtomicReference<>();
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, imageAnalysis);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, imageAnalysis);
 
         String cameraId = Camera2CameraInfo.fromCameraInfo(mCamera.getCameraInfo()).getCameraId();
         cameraIdRef.set(cameraId);
@@ -269,7 +269,7 @@ public final class Camera2InteropDeviceTest {
         imageAnalysis.setAnalyzer(CameraXExecutors.highPriorityExecutor(),
                 mock(ImageAnalysis.Analyzer.class));
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, imageAnalysis);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, imageAnalysis);
     }
 
     private <T> void verifyCaptureRequestParameter(
