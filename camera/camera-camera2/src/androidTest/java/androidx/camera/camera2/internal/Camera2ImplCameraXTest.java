@@ -125,7 +125,7 @@ public final class Camera2ImplCameraXTest {
         new Camera2Interop.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback);
         ImageAnalysis useCase = builder.build();
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
         WaitingAnalyzer waitingAnalyzer = new WaitingAnalyzer(10);
         useCase.setAnalyzer(CameraXExecutors.mainThreadExecutor(), waitingAnalyzer);
 
@@ -151,7 +151,7 @@ public final class Camera2ImplCameraXTest {
 
         ImageAnalysis useCase2 = new ImageAnalysis.Builder().build();
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase,
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase,
                 useCase2);
 
         CountingAnalyzer countingAnalyzer = new CountingAnalyzer();
@@ -184,7 +184,7 @@ public final class Camera2ImplCameraXTest {
                 .setDeviceStateCallback(deviceStateCallback)
                 .setSessionCaptureCallback(sessionCaptureCallback);
         ImageAnalysis useCase = configBuilder.build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
         CountingAnalyzer countingAnalyzer = new CountingAnalyzer();
         useCase.setAnalyzer(CameraXExecutors.mainThreadExecutor(), countingAnalyzer);
 
@@ -247,7 +247,7 @@ public final class Camera2ImplCameraXTest {
         ImageAnalysis useCase0 = configBuilder0.build();
         CameraSelector selectorBack = new CameraSelector.Builder().requireLensFacing(
                 CameraSelector.LENS_FACING_BACK).build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, selectorBack, useCase0);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, selectorBack, useCase0);
 
         mLifecycle.startAndResume();
 
@@ -277,7 +277,7 @@ public final class Camera2ImplCameraXTest {
         ImageAnalysis useCase1 = configBuilder1.build();
         CameraSelector selectorFront = new CameraSelector.Builder().requireLensFacing(
                 CameraSelector.LENS_FACING_FRONT).build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, selectorFront, useCase1);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, selectorFront, useCase1);
 
         // The front camera should open successfully. If the test fail, the CameraX might
         // in wrong internal state, and the CameraX#shutdown() might stuck.
@@ -290,7 +290,7 @@ public final class Camera2ImplCameraXTest {
         new Camera2Interop.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback);
         ImageAnalysis useCase = builder.build();
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
 
         verify(mDeviceStateCallback, timeout(3000)).onOpened(any(CameraDevice.class));
     }
@@ -301,7 +301,7 @@ public final class Camera2ImplCameraXTest {
         new Camera2Interop.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback);
         ImageAnalysis useCase = builder.build();
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
 
         verify(mDeviceStateCallback, timeout(3000)).onOpened(any(CameraDevice.class));
     }
@@ -317,7 +317,7 @@ public final class Camera2ImplCameraXTest {
 
         ImageAnalysis useCase = builder.build();
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
 
         // When no analyzer is set, there will be no active surface for repeating request
         // CaptureSession#mSessionConfig will be null. Thus we wait until capture session
@@ -336,7 +336,7 @@ public final class Camera2ImplCameraXTest {
             new Camera2Interop.Extender<>(builder).setDeviceStateCallback(callback);
             ImageAnalysis useCase = builder.build();
 
-            mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
+            mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
 
             verify(callback, timeout(5000)).onOpened(any(CameraDevice.class));
 
@@ -356,7 +356,7 @@ public final class Camera2ImplCameraXTest {
             new Camera2Interop.Extender<>(builder).setDeviceStateCallback(callback);
             ImageAnalysis useCase = builder.build();
 
-            mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
+            mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
 
             verify(callback, timeout(5000)).onOpened(any(CameraDevice.class));
 
@@ -372,7 +372,7 @@ public final class Camera2ImplCameraXTest {
         new Camera2Interop.Extender<>(builder).setDeviceStateCallback(mDeviceStateCallback);
         ImageAnalysis useCase = builder.build();
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase);
 
         verify(mDeviceStateCallback, timeout(3000)).onOpened(any(CameraDevice.class));
 
@@ -394,7 +394,7 @@ public final class Camera2ImplCameraXTest {
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
                 .build();
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase0,
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase0,
                 useCase1);
 
         verify(mDeviceStateCallback, timeout(3000)).onOpened(any(CameraDevice.class));
@@ -419,7 +419,7 @@ public final class Camera2ImplCameraXTest {
                 .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
                 .build();
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase0,
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, DEFAULT_SELECTOR, useCase0,
                 useCase1);
 
         verify(mDeviceStateCallback, timeout(3000)).onOpened(any(CameraDevice.class));
@@ -445,7 +445,7 @@ public final class Camera2ImplCameraXTest {
         new Camera2Interop.Extender<>(builder1).setDeviceStateCallback(mDeviceStateCallback);
         ImageCapture imageCapture = builder1.build();
 
-        mCamera = CameraUtil.getCameraUseCaseAdapter(mContext, DEFAULT_SELECTOR);
+        mCamera = CameraUtil.createCameraUseCaseAdapter(mContext, DEFAULT_SELECTOR);
 
         // TODO(b/160249108) move off of main thread once UseCases can be attached on any
         //  thread

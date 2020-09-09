@@ -131,7 +131,7 @@ public final class PreviewTest {
         //  done on the main thread
         mInstrumentation.runOnMainSync(() -> preview.setSurfaceProvider(surfaceProvider));
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
         verify(surfaceProvider, timeout(3000)).onSurfaceRequested(any(SurfaceRequest.class));
     }
@@ -148,7 +148,7 @@ public final class PreviewTest {
                 preview.setSurfaceProvider(CameraXExecutors.mainThreadExecutor(),
                 getSurfaceProvider(null))
         );
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
         // Wait until preview gets frame.
         assertThat(mSurfaceFutureSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
@@ -169,7 +169,7 @@ public final class PreviewTest {
         mInstrumentation.runOnMainSync(() -> preview.setSurfaceProvider(getSurfaceProvider(null)));
 
         // Act.
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
         // Assert.
         assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
@@ -190,7 +190,7 @@ public final class PreviewTest {
         );
 
         // Act.
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
         // Assert.
         assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
@@ -201,7 +201,7 @@ public final class PreviewTest {
     public void setSurfaceProviderAfterAttach_getsFrame() throws InterruptedException {
         // Arrange.
         Preview preview = mDefaultBuilder.build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
         // Act.
         // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
@@ -219,7 +219,7 @@ public final class PreviewTest {
 
         // Arrange.
         Preview preview = mDefaultBuilder.build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
         // Act.
         // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
@@ -255,7 +255,7 @@ public final class PreviewTest {
         // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
         //  done on the main thread
         mInstrumentation.runOnMainSync(() -> preview.setSurfaceProvider(getSurfaceProvider(null)));
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext,
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
                 CameraSelector.DEFAULT_FRONT_CAMERA, preview);
 
         // Assert.
@@ -288,7 +288,7 @@ public final class PreviewTest {
         // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
         //  done on the main thread
         mInstrumentation.runOnMainSync(() -> preview.setSurfaceProvider(getSurfaceProvider(null)));
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext,
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
                 CameraSelector.DEFAULT_BACK_CAMERA, preview);
 
         // Assert.
@@ -311,7 +311,7 @@ public final class PreviewTest {
             // for preview.
             preview.setSurfaceProvider(getSurfaceProvider(null));
         });
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
         assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
 
@@ -337,7 +337,7 @@ public final class PreviewTest {
             // for preview.
             preview.setSurfaceProvider(getSurfaceProvider(null));
         });
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
         assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
 
@@ -356,7 +356,7 @@ public final class PreviewTest {
     @Test
     public void defaultAspectRatioWillBeSet_whenTargetResolutionIsNotSet() {
         Preview useCase = new Preview.Builder().build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, useCase);
         ImageOutputConfig config = (ImageOutputConfig) useCase.getUseCaseConfig();
         assertThat(config.getTargetAspectRatio()).isEqualTo(AspectRatio.RATIO_4_3);
     }
@@ -369,8 +369,8 @@ public final class PreviewTest {
         assertThat(useCase.getUseCaseConfig().containsOption(
                 ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)).isFalse();
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, CameraSelector.DEFAULT_BACK_CAMERA,
-                useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, useCase);
 
         assertThat(useCase.getUseCaseConfig().containsOption(
                 ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)).isFalse();
@@ -381,7 +381,7 @@ public final class PreviewTest {
         final Preview preview = mDefaultBuilder.build();
         UseCaseConfig<?> initialConfig = preview.getUseCaseConfig();
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
         mInstrumentation.runOnMainSync(() -> {
             mCamera.removeUseCases(Collections.singleton(preview));
@@ -395,7 +395,7 @@ public final class PreviewTest {
     public void targetRotationIsRetained_whenUseCaseIsReused() {
         Preview useCase = mDefaultBuilder.build();
 
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, useCase);
 
         // Generally, the device can't be rotated to Surface.ROTATION_180. Therefore,
         // use it to do the test.
@@ -411,7 +411,7 @@ public final class PreviewTest {
 
         // Check the target rotation is kept when the use case is rebound to the
         // lifecycle.
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, useCase);
         assertThat(useCase.getTargetRotation()).isEqualTo(Surface.ROTATION_180);
     }
 
@@ -424,7 +424,7 @@ public final class PreviewTest {
         });
 
         // This is the first time the use case bound to the lifecycle.
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
         // Check the frame available callback is called.
         assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
@@ -439,7 +439,7 @@ public final class PreviewTest {
         // Recreate the semaphore to monitor the frame available callback.
         mSurfaceFutureSemaphore = new Semaphore(/*permits=*/ 0);
         // Rebind the use case to the same camera.
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
         // Check the frame available callback can be called after reusing the use case.
         assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
@@ -454,7 +454,7 @@ public final class PreviewTest {
         });
 
         // This is the first time the use case bound to the lifecycle.
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext,
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
                 CameraSelector.DEFAULT_BACK_CAMERA, preview);
 
         // Check the frame available callback is called.
@@ -470,7 +470,7 @@ public final class PreviewTest {
         // Recreate the semaphore to monitor the frame available callback.
         mSurfaceFutureSemaphore = new Semaphore(/*permits=*/ 0);
         // Rebind the use case to different camera.
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext,
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
                 CameraSelector.DEFAULT_FRONT_CAMERA, preview);
 
         // Check the frame available callback can be called after reusing the use case.
@@ -488,7 +488,7 @@ public final class PreviewTest {
     public void returnCorrectTargetRotation_afterUseCaseIsAttached() {
         Preview preview = new Preview.Builder().setTargetRotation(
                 Surface.ROTATION_180).build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
         assertThat(preview.getTargetRotation()).isEqualTo(Surface.ROTATION_180);
     }
 

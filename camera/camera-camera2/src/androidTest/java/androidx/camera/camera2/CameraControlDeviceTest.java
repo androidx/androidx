@@ -104,7 +104,7 @@ public class CameraControlDeviceTest {
         mMeteringPoint1 = factory.createPoint(0, 0);
 
         ImageAnalysis useCase = new ImageAnalysis.Builder().build();
-        mCamera = CameraUtil.getCameraAndAttachUseCase(context, mCameraSelector,
+        mCamera = CameraUtil.createCameraAndAttachUseCase(context, mCameraSelector,
                 mBoundUseCase = useCase);
         useCase.setAnalyzer(CameraXExecutors.ioExecutor(), mAnalyzer);
     }

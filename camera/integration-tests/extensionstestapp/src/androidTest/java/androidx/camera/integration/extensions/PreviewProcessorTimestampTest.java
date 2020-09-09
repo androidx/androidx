@@ -263,7 +263,7 @@ public class PreviewProcessorTimestampTest {
                     }));
 
             CameraUseCaseAdapter cameraUseCaseAdapter =
-                    CameraUtil.getCameraUseCaseAdapter(mContext, cameraSelector);
+                    CameraUtil.createCameraUseCaseAdapter(mContext, cameraSelector);
             try {
                 cameraUseCaseAdapter.addUseCases(Arrays.asList(preview, imageCapture));
             } catch (CameraUseCaseAdapter.CameraException e) {

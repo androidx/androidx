@@ -77,7 +77,7 @@ public final class UseCaseCombinationTest {
         final Preview preview = initPreview();
         final ImageCapture imageCapture = initImageCapture();
 
-        CameraUseCaseAdapter camera = CameraUtil.getCameraUseCaseAdapter(mContext,
+        CameraUseCaseAdapter camera = CameraUtil.createCameraUseCaseAdapter(mContext,
                 DEFAULT_SELECTOR);
         camera.detachUseCases();
 
@@ -101,7 +101,7 @@ public final class UseCaseCombinationTest {
         final Preview preview = initPreview();
         final ImageAnalysis imageAnalysis = initImageAnalysis();
 
-        CameraUseCaseAdapter camera = CameraUtil.getCameraUseCaseAdapter(mContext,
+        CameraUseCaseAdapter camera = CameraUtil.createCameraUseCaseAdapter(mContext,
                 DEFAULT_SELECTOR);
         camera.detachUseCases();
 
@@ -124,7 +124,7 @@ public final class UseCaseCombinationTest {
         final ImageAnalysis imageAnalysis = initImageAnalysis();
         final ImageCapture imageCapture = initImageCapture();
 
-        CameraUseCaseAdapter camera = CameraUtil.getCameraUseCaseAdapter(mContext,
+        CameraUseCaseAdapter camera = CameraUtil.createCameraUseCaseAdapter(mContext,
                 DEFAULT_SELECTOR);
         camera.detachUseCases();
 

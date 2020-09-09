@@ -260,17 +260,23 @@ public final class CameraUtil {
 
 
     /**
-     * Retrieves the CameraUseCaseAdapter that would be created with the given CameraSelector.
+     * Creates the CameraUseCaseAdapter that would be created with the given CameraSelector.
      *
      * <p> This requires that {@link CameraX#initialize(Context, CameraXConfig)} has been called
      * to properly initialize the cameras.
+     *
+     * <p>A new CameraUseCaseAdapter instance will be created every time this method is called.
+     * UseCases previously attached to CameraUseCasesAdapters returned by this method or
+     * {@link #createCameraAndAttachUseCase(Context, CameraSelector, UseCase...)} will not be
+     * attached to the new CameraUseCaseAdapter returned by this method.
      *
      * @param context        The context used to initialize CameraX
      * @param cameraSelector The selector to select cameras with.
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
-    public static CameraUseCaseAdapter getCameraUseCaseAdapter(@NonNull Context context,
+    @NonNull
+    public static CameraUseCaseAdapter createCameraUseCaseAdapter(@NonNull Context context,
             @NonNull CameraSelector cameraSelector) {
         try {
             CameraX cameraX = CameraX.getOrCreateInstance(context).get(5000, TimeUnit.MILLISECONDS);
@@ -284,11 +290,16 @@ public final class CameraUtil {
     }
 
     /**
-     * Retrieves the CameraUseCaseAdapter that would be created with the given CameraSelector and
+     * Creates the CameraUseCaseAdapter that would be created with the given CameraSelector and
      * attaches the UseCases.
      *
      * <p> This requires that {@link CameraX#initialize(Context, CameraXConfig)} has been called
      * to properly initialize the cameras.
+     *
+     * <p>A new CameraUseCaseAdapter instance will be created every time this method is called.
+     * UseCases previously attached to CameraUseCasesAdapters returned by this method or
+     * {@link #createCameraUseCaseAdapter(Context, CameraSelector)} will not be
+     * attached to the new CameraUseCaseAdapter returned by this method.
      *
      * @param context        The context used to initialize CameraX
      * @param cameraSelector The selector to select cameras with.
@@ -296,9 +307,10 @@ public final class CameraUtil {
      * @hide
      */
     @RestrictTo(RestrictTo.Scope.TESTS)
-    public static CameraUseCaseAdapter getCameraAndAttachUseCase(@NonNull Context context,
+    @NonNull
+    public static CameraUseCaseAdapter createCameraAndAttachUseCase(@NonNull Context context,
             @NonNull CameraSelector cameraSelector, @NonNull UseCase... useCases) {
-        CameraUseCaseAdapter cameraUseCaseAdapter = getCameraUseCaseAdapter(context,
+        CameraUseCaseAdapter cameraUseCaseAdapter = createCameraUseCaseAdapter(context,
                 cameraSelector);
 
         // TODO(b/160249108) move off of main thread once UseCases can be attached on any

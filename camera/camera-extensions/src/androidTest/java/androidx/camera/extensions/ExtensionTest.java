@@ -121,7 +121,7 @@ public class ExtensionTest {
         assumeTrue(isTargetDeviceAvailableForExtensions(mLensFacing));
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
-        mCamera = CameraUtil.getCameraUseCaseAdapter(mContext, cameraSelector);
+        mCamera = CameraUtil.createCameraUseCaseAdapter(mContext, cameraSelector);
         Extensions extensions = ExtensionsManager.getExtensions(mContext);
         assumeTrue(extensions.isExtensionAvailable(mCamera, mExtensionMode));
     }
