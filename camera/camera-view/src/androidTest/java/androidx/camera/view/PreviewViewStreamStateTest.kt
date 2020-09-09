@@ -34,13 +34,13 @@ import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.GrantPermissionRule
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import java.util.concurrent.CountDownLatch
@@ -65,7 +65,7 @@ class PreviewViewStreamStateTest(private val implMode: PreviewView.Implementatio
     private lateinit var mCameraProvider: ProcessCameraProvider
 
     @get:Rule
-    var mCameraPermissionRule = GrantPermissionRule.grant(android.Manifest.permission.CAMERA)
+    val mUseCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
 
     @Suppress("DEPRECATION")
     @get:Rule

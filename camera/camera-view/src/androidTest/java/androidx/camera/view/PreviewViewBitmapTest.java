@@ -18,7 +18,6 @@ package androidx.camera.view;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.Manifest;
 import android.content.Context;
 import android.graphics.Bitmap;
 
@@ -39,13 +38,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.ExecutionException;
@@ -61,8 +60,7 @@ public class PreviewViewBitmapTest {
     public final ActivityTestRule<FakeActivity> mActivityRule =
             new ActivityTestRule<>(FakeActivity.class);
     @Rule
-    public final GrantPermissionRule mPermissionRule = GrantPermissionRule.grant(
-            Manifest.permission.CAMERA);
+    public final TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
 
     private static final int CAMERA_LENS = CameraSelector.LENS_FACING_BACK;
     private ProcessCameraProvider mCameraProvider;
