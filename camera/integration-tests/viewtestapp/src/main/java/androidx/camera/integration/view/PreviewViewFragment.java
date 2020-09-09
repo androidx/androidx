@@ -19,11 +19,13 @@ package androidx.camera.integration.view;
 import static androidx.camera.view.PreviewView.StreamState.IDLE;
 import static androidx.camera.view.PreviewView.StreamState.STREAMING;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
@@ -36,14 +38,18 @@ import android.widget.Spinner;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
+import androidx.camera.core.UseCaseGroup;
+import androidx.camera.core.ViewPort;
 import androidx.camera.lifecycle.ProcessCameraProvider;
 import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
@@ -82,6 +88,10 @@ public class PreviewViewFragment extends Fragment {
     int mCurrentLensFacing = CameraSelector.LENS_FACING_BACK;
     private BlurBitmap mBlurBitmap;
 
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    Preview mPreview;
+
     public PreviewViewFragment() {
         super(R.layout.fragment_preview_view);
     }
@@ -96,12 +106,17 @@ public class PreviewViewFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mPreviewView = view.findViewById(R.id.preview_view);
+        mPreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
+
         mBlurBitmap = new BlurBitmap(requireContext());
         Futures.addCallback(mCameraProviderFuture, new FutureCallback<ProcessCameraProvider>() {
             @Override
             public void onSuccess(@Nullable ProcessCameraProvider cameraProvider) {
                 Preconditions.checkNotNull(cameraProvider);
-
+                mPreview = new Preview.Builder()
+                        .setTargetName("Preview")
+                        .build();
+                mPreview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
                 if (!areFrontOrBackCameraAvailable(cameraProvider)) {
                     return;
                 }
@@ -109,7 +124,8 @@ public class PreviewViewFragment extends Fragment {
                 setUpToggleVisibility(cameraProvider, view);
                 setUpCameraLensFacing(cameraProvider);
                 setUpToggleCamera(cameraProvider, view);
-                setUpScaleTypeSelect(view);
+                setUpScaleTypeSelect(cameraProvider, view);
+                setUpTargetRotationButton(cameraProvider, view);
                 bindPreview(cameraProvider);
             }
 
@@ -134,6 +150,54 @@ public class PreviewViewFragment extends Fragment {
                     || cameraProvider.hasCamera(CameraSelector.DEFAULT_FRONT_CAMERA);
         } catch (CameraInfoUnavailableException exception) {
             return false;
+        }
+    }
+
+    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
+    void setUpTargetRotationButton(@NonNull final ProcessCameraProvider cameraProvider,
+            @NonNull final View rootView) {
+        Button button = rootView.findViewById(R.id.target_rotation);
+        updateTargetRotationButtonText(button);
+        button.setOnClickListener(view -> {
+            switch (mPreview.getTargetRotation()) {
+                case Surface.ROTATION_0:
+                    mPreview.setTargetRotation(Surface.ROTATION_90);
+                    break;
+                case Surface.ROTATION_90:
+                    mPreview.setTargetRotation(Surface.ROTATION_180);
+                    break;
+                case Surface.ROTATION_180:
+                    mPreview.setTargetRotation(Surface.ROTATION_270);
+                    break;
+                case Surface.ROTATION_270:
+                    mPreview.setTargetRotation(Surface.ROTATION_0);
+                    break;
+                default:
+                    throw new RuntimeException(
+                            "Unexpected rotation value: " + mPreview.getTargetRotation());
+            }
+            updateTargetRotationButtonText(button);
+            bindPreview(cameraProvider);
+        });
+    }
+
+    void updateTargetRotationButtonText(Button rotationButton) {
+        switch (mPreview.getTargetRotation()) {
+            case Surface.ROTATION_0:
+                rotationButton.setText("ROTATION_0");
+                break;
+            case Surface.ROTATION_90:
+                rotationButton.setText("ROTATION_90");
+                break;
+            case Surface.ROTATION_180:
+                rotationButton.setText("ROTATION_180");
+                break;
+            case Surface.ROTATION_270:
+                rotationButton.setText("ROTATION_270");
+                break;
+            default:
+                throw new RuntimeException(
+                        "Unexpected rotation value: " + mPreview.getTargetRotation());
         }
     }
 
@@ -212,7 +276,8 @@ public class PreviewViewFragment extends Fragment {
     }
 
     @SuppressWarnings("WeakerAccess")
-    void setUpScaleTypeSelect(@NonNull final View rootView) {
+    void setUpScaleTypeSelect(@NonNull final ProcessCameraProvider cameraProvider,
+            @NonNull final View rootView) {
         final ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
                 android.R.layout.simple_spinner_item,
                 PreviewViewScaleTypePresenter.getScaleTypesLiterals());
@@ -238,6 +303,8 @@ public class PreviewViewFragment extends Fragment {
                 // PreviewView.
                 final ImageView previewSnapshot = rootView.findViewById(R.id.preview_snapshot);
                 previewSnapshot.setScaleType(IMAGE_VIEW_SCALE_TYPES[position]);
+
+                bindPreview(cameraProvider);
             }
 
             @Override
@@ -247,14 +314,18 @@ public class PreviewViewFragment extends Fragment {
     }
 
     @SuppressWarnings("WeakerAccess")
+    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
+    @SuppressLint("UnsafeExperimentalUsageError")
     void bindPreview(@NonNull ProcessCameraProvider cameraProvider) {
-        final Preview preview = new Preview.Builder()
-                .setTargetName("Preview")
-                .build();
-        mPreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
-        preview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
+        if (mPreview == null) {
+            return;
+        }
+        ViewPort viewPort = mPreviewView.getViewPort(mPreview.getTargetRotation());
+        if (viewPort == null) {
+            return;
+        }
         final Camera camera = cameraProvider.bindToLifecycle(this, getCurrentCameraSelector(),
-                preview);
+                new UseCaseGroup.Builder().setViewPort(viewPort).addUseCase(mPreview).build());
         setUpFocusAndMetering(camera);
     }
 

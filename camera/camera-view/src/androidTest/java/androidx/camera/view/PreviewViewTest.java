@@ -62,7 +62,6 @@ import androidx.camera.testing.SurfaceFormatUtil;
 import androidx.camera.testing.fakes.FakeActivity;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
-import androidx.camera.view.preview.transform.transformation.Transformation;
 import androidx.camera.view.test.R;
 import androidx.core.content.ContextCompat;
 import androidx.test.annotation.UiThreadTest;
@@ -294,9 +293,7 @@ public class PreviewViewTest {
     }
 
     @Test
-    public void correctSurfacePixelFormat_whenRGBA8888IsRequired()
-            throws Throwable {
-
+    public void correctSurfacePixelFormat_whenRGBA8888IsRequired() throws Throwable {
         final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
         mSurfaceRequest = createSurfaceRequest(cameraInfo, true);
         ListenableFuture<Surface> future = mSurfaceRequest.getDeferrableSurface().getSurface();
@@ -638,62 +635,6 @@ public class PreviewViewTest {
     }
 
     @Test
-    public void sensorDimensionFlippedCorrectly() throws Throwable {
-        final AtomicReference<PreviewView> previewView = new AtomicReference<>();
-        final AtomicReference<FrameLayout> container = new AtomicReference<>();
-        final AtomicReference<TextureView> textureView = new AtomicReference<>();
-        final Size containerSize = new Size(800, 1000);
-        final Size bufferSize = new Size(2000, 1000);
-
-        // Creates mock CameraInfo to return sensor degrees as 90. This means the sensor
-        // dimension flip is needed in related transform calculations.
-        final CameraInfo cameraInfo = createCameraInfo(90, CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
-
-        mActivityRule.runOnUiThread(() -> {
-            previewView.set(new PreviewView(mContext));
-
-            container.set(new FrameLayout(mContext));
-            container.get().addView(previewView.get());
-            setContentView(container.get());
-            // Sets as TEXTURE_VIEW mode so that we can verify the TextureView result
-            // transformation.
-            previewView.get().setImplementationMode(COMPATIBLE);
-            previewView.get().setScaleType(PreviewView.ScaleType.FILL_CENTER);
-
-            // Sets container size as 640x480
-            FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
-                    containerSize.getWidth(), containerSize.getHeight());
-            container.get().setLayoutParams(layoutParams);
-
-            // Creates surface provider and request surface for 1080p surface size.
-            Preview.SurfaceProvider surfaceProvider = previewView.get().getSurfaceProvider();
-            mSurfaceRequest = createSurfaceRequest(bufferSize, cameraInfo, false);
-            surfaceProvider.onSurfaceRequested(mSurfaceRequest);
-
-            // Retrieves the TextureView
-            textureView.set((TextureView) previewView.get().mImplementation.getPreview());
-
-            // Sets SurfaceTextureListener to wait for surface texture available.
-            mCountDownLatch = new CountDownLatch(1);
-            textureView.get().setSurfaceTextureListener(mSurfaceTextureListener);
-
-        });
-
-        // Wait for surface texture available.
-        mCountDownLatch.await(1, TimeUnit.SECONDS);
-
-        // Retrieves the transformation applied to the TextureView
-        Transformation resultTransformation = Transformation.getTransformation(textureView.get());
-        float[] resultTransformParameters = new float[]{resultTransformation.getScaleX(),
-                resultTransformation.getScaleY(), resultTransformation.getTransX(),
-                resultTransformation.getTransY(), resultTransformation.getRotation()};
-
-        float[] expectedTransformParameters = new float[]{0.4f, 1.6f, -600.0f, 0.0f, 0.0f};
-
-        assertThat(resultTransformParameters).isEqualTo(expectedTransformParameters);
-    }
-
-    @Test
     @UiThreadTest
     public void setsDefaultBackground_whenBackgroundNotExplicitlySet() {
         final PreviewView previewView = new PreviewView(mContext);
@@ -768,6 +709,11 @@ public class PreviewViewTest {
      * mocking {@link PreviewViewImplementation} since the latter is package private.
      */
     public static class TestPreviewViewImplementation extends PreviewViewImplementation {
+
+        TestPreviewViewImplementation(@NonNull FrameLayout parent,
+                @NonNull PreviewTransformation previewTransform) {
+            super(parent, previewTransform);
+        }
 
         @Override
         public void initializePreview() {
