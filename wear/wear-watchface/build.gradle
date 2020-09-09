@@ -75,7 +75,6 @@ android {
 androidx {
     name = "Android Wear Watchface"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    runApiTasks = new RunApiTasks.No("Temporary policy violation, see b/162936364")
     mavenGroup = LibraryGroups.WEAR
     mavenVersion = LibraryVersions.WEAR_WATCHFACE
     inceptionYear = "2020"
