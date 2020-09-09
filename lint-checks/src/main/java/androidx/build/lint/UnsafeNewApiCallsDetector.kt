@@ -485,7 +485,7 @@ class UnsafeNewApiCallsDetector : Detector(), SourceCodeScanner {
                 This will still allow them to be removed, but if they are kept, they will not be
                 inlined.
                 Failure to do the above may result in overall performance degradation.
-            """.trimIndent(),
+            """,
             Category.CORRECTNESS, 5, Severity.ERROR,
             Implementation(UnsafeNewApiCallsDetector::class.java, Scope.JAVA_FILE_SCOPE)
         ).setAndroidSpecific(true)
