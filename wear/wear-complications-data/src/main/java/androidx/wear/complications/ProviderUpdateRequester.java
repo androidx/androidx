@@ -34,7 +34,9 @@ public class ProviderUpdateRequester {
     /** The package of the service that accepts provider requests. */
     private static final String UPDATE_REQUEST_RECEIVER_PACKAGE = "com.google.android.wearable.app";
 
-    private static final String ACTION_REQUEST_UPDATE =
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String ACTION_REQUEST_UPDATE =
             "android.support.wearable.complications.ACTION_REQUEST_UPDATE";
 
     /** @hide */
