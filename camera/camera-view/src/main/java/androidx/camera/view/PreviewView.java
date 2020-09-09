@@ -16,14 +16,15 @@
 
 package androidx.camera.view;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.hardware.camera2.CameraCharacteristics;
-import android.hardware.display.DisplayManager;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Rational;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
@@ -32,7 +33,6 @@ import android.view.SurfaceView;
 import android.view.TextureView;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.WindowManager;
 import android.widget.FrameLayout;
 
 import androidx.annotation.ColorRes;
@@ -50,11 +50,14 @@ import androidx.camera.core.Logger;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
+import androidx.camera.core.SurfaceRequest;
+import androidx.camera.core.UseCase;
+import androidx.camera.core.UseCaseGroup;
 import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.utils.Threads;
-import androidx.camera.view.preview.transform.PreviewTransform;
 import androidx.core.content.ContextCompat;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
@@ -91,22 +94,28 @@ public class PreviewView extends FrameLayout {
     static final int DEFAULT_BACKGROUND_COLOR = android.R.color.black;
     private static final ImplementationMode DEFAULT_IMPL_MODE = ImplementationMode.PERFORMANCE;
 
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
     @NonNull
-    private ImplementationMode mImplementationMode = DEFAULT_IMPL_MODE;
+    ImplementationMode mImplementationMode = DEFAULT_IMPL_MODE;
 
     @VisibleForTesting
     @Nullable
     PreviewViewImplementation mImplementation;
 
     @NonNull
-    PreviewTransform mPreviewTransform = new PreviewTransform();
+    final PreviewTransformation mPreviewTransform = new PreviewTransformation();
 
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
     @NonNull
-    private final MutableLiveData<StreamState> mPreviewStreamStateLiveData =
+    final MutableLiveData<StreamState> mPreviewStreamStateLiveData =
             new MutableLiveData<>(StreamState.IDLE);
 
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
     @Nullable
-    private final AtomicReference<PreviewStreamStateObserver> mActiveStreamStateObserver =
+    final AtomicReference<PreviewStreamStateObserver> mActiveStreamStateObserver =
             new AtomicReference<>();
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
@@ -128,14 +137,13 @@ public class PreviewView extends FrameLayout {
         @Override
         public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
                 int oldTop, int oldRight, int oldBottom) {
-            if (mImplementation != null) {
-                mImplementation.redrawPreview();
-            }
 
             mPreviewViewMeteringPointFactory.setViewSize(getWidth(), getHeight());
-
             boolean isSizeChanged =
                     right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop;
+            if (isSizeChanged) {
+                redrawPreview();
+            }
             if (mCameraController != null && isSizeChanged) {
                 mCameraController.attachPreviewSurface(getSurfaceProvider(), getWidth(),
                         getHeight());
@@ -143,39 +151,52 @@ public class PreviewView extends FrameLayout {
         }
     };
 
-    private final Preview.SurfaceProvider mSurfaceProvider = surfaceRequest -> {
-        Logger.d(TAG, "Surface requested by Preview.");
-        CameraInternal camera = surfaceRequest.getCamera();
-        mPreviewTransform.setSensorDimensionFlipNeeded(
-                isSensorDimensionFlipNeeded(camera.getCameraInfo()));
-        mImplementation = surfaceRequest.isRGBA8888Required() || shouldUseTextureView(
-                camera.getCameraInfo(), mImplementationMode) ? new TextureViewImplementation()
-                : new SurfaceViewImplementation();
-        mImplementation.init(this, mPreviewTransform);
+    private final Preview.SurfaceProvider mSurfaceProvider = new Preview.SurfaceProvider() {
 
-        PreviewStreamStateObserver streamStateObserver =
-                new PreviewStreamStateObserver((CameraInfoInternal) camera.getCameraInfo(),
-                        mPreviewStreamStateLiveData, mImplementation);
-        mActiveStreamStateObserver.set(streamStateObserver);
+        @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
+        @Override
+        public void onSurfaceRequested(@NonNull SurfaceRequest surfaceRequest) {
+            Logger.d(TAG, "Surface requested by Preview.");
+            surfaceRequest.setTransformationInfoListener(
+                    ContextCompat.getMainExecutor(getContext()),
+                    transformationInfo -> {
+                        Logger.d(TAG, "Preview transformation info updated. " + transformationInfo);
+                        // TODO(b/159127402): maybe switch to COMPATIBLE mode if target rotation is
+                        //  not display rotation.
+                        mPreviewTransform.setTransformationInfo(transformationInfo,
+                                surfaceRequest.getResolution());
+                        redrawPreview();
+                    });
 
-        camera.getCameraState().addObserver(
-                ContextCompat.getMainExecutor(getContext()), streamStateObserver);
+            CameraInternal camera = surfaceRequest.getCamera();
+            mImplementation = shouldUseTextureView(surfaceRequest, mImplementationMode)
+                    ? new TextureViewImplementation(PreviewView.this, mPreviewTransform)
+                    : new SurfaceViewImplementation(PreviewView.this, mPreviewTransform);
 
-        mPreviewViewMeteringPointFactory.setViewImplementationResolution(
-                surfaceRequest.getResolution());
-        mPreviewViewMeteringPointFactory.setCameraInfo(camera.getCameraInfo());
+            PreviewStreamStateObserver streamStateObserver =
+                    new PreviewStreamStateObserver((CameraInfoInternal) camera.getCameraInfo(),
+                            mPreviewStreamStateLiveData, mImplementation);
+            mActiveStreamStateObserver.set(streamStateObserver);
 
-        mImplementation.onSurfaceRequested(surfaceRequest, () -> {
-            // We've no longer needed this observer, if there is no new StreamStateObserver
-            // (another SurfaceRequest), reset the streamState to IDLE.
-            // This is needed for the case when unbinding preview while other use cases are
-            // still bound.
-            if (mActiveStreamStateObserver.compareAndSet(streamStateObserver, null)) {
-                streamStateObserver.updatePreviewStreamState(StreamState.IDLE);
-            }
-            streamStateObserver.clear();
-            camera.getCameraState().removeObserver(streamStateObserver);
-        });
+            camera.getCameraState().addObserver(
+                    ContextCompat.getMainExecutor(getContext()), streamStateObserver);
+
+            mPreviewViewMeteringPointFactory.setViewImplementationResolution(
+                    surfaceRequest.getResolution());
+            mPreviewViewMeteringPointFactory.setCameraInfo(camera.getCameraInfo());
+
+            mImplementation.onSurfaceRequested(surfaceRequest, () -> {
+                // We've no longer needed this observer, if there is no new StreamStateObserver
+                // (another SurfaceRequest), reset the streamState to IDLE.
+                // This is needed for the case when unbinding preview while other use cases are
+                // still bound.
+                if (mActiveStreamStateObserver.compareAndSet(streamStateObserver, null)) {
+                    streamStateObserver.updatePreviewStreamState(StreamState.IDLE);
+                }
+                streamStateObserver.clear();
+                camera.getCameraState().removeObserver(streamStateObserver);
+            });
+        }
     };
 
     public PreviewView(@NonNull Context context) {
@@ -347,57 +368,7 @@ public class PreviewView extends FrameLayout {
     public void setScaleType(@NonNull final ScaleType scaleType) {
         mPreviewTransform.setScaleType(scaleType);
         mPreviewViewMeteringPointFactory.setScaleType(scaleType);
-        if (mImplementation != null) {
-            mImplementation.redrawPreview();
-        }
-    }
-
-    /**
-     * Returns the device rotation value currently applied to the preview.
-     *
-     * @return The device rotation value currently applied to the preview.
-     */
-    public int getDeviceRotationForRemoteDisplayMode() {
-        return mPreviewTransform.getDeviceRotation();
-    }
-
-    /**
-     * Provides the device rotation value to the preview in remote display mode.
-     *
-     * <p>The device rotation value will only take effect when detecting current view is
-     * on a remote display. If current view is on the device builtin display, {@link PreviewView}
-     * will directly use view's rotation value to do the transformation related calculations.
-     *
-     * <p>The preview transform calculations have strong dependence on the device rotation value.
-     * When a application is running in remote display, the rotation value obtained from current
-     * view will cause incorrect transform calculation results. To make the preview output result
-     * correct in remote display mode, the developers need to provide the device rotation value
-     * obtained from {@link android.view.OrientationEventListener}.
-     *
-     * <p>The mapping between the device rotation value and the orientation value obtained from
-     * {@link android.view.OrientationEventListener} are listed as the following.
-     * <p>{@link android.view.OrientationEventListener#ORIENTATION_UNKNOWN}: orientation == -1
-     * <p>{@link Surface#ROTATION_0}: orientation >= 315 || orientation < 45
-     * <p>{@link Surface#ROTATION_90}: orientation >= 225 && orientation < 315
-     * <p>{@link Surface#ROTATION_180}: orientation >= 135 && orientation < 225
-     * <p>{@link Surface#ROTATION_270}: orientation >= 45 && orientation < 135
-     *
-     * @param deviceRotation The device rotation value, expressed as one of
-     *                       {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
-     *                       {@link Surface#ROTATION_180}, or
-     *                       {@link Surface#ROTATION_270}.
-     */
-    public void setDeviceRotationForRemoteDisplayMode(final int deviceRotation) {
-        // This only take effect when it is remote display mode.
-        if (deviceRotation == mPreviewTransform.getDeviceRotation()
-                || !isRemoteDisplayMode()) {
-            return;
-        }
-
-        mPreviewTransform.setDeviceRotation(deviceRotation);
-        if (mImplementation != null) {
-            mImplementation.redrawPreview();
-        }
+        redrawPreview();
     }
 
     /**
@@ -480,12 +451,116 @@ public class PreviewView extends FrameLayout {
         return mImplementation == null ? null : mImplementation.getBitmap();
     }
 
-    private boolean shouldUseTextureView(@NonNull CameraInfo cameraInfo,
+    /**
+     * Gets a {@link ViewPort} based on the current status of {@link PreviewView}.
+     *
+     * <p> Returns a {@link ViewPort} instance based on the {@link PreviewView}'s current width,
+     * height, layout direction, scale type and display rotation. By using the {@link ViewPort}, all
+     * the {@link UseCase}s in the {@link UseCaseGroup} will have the same output image that also
+     * matches the aspect ratio of the {@link PreviewView}.
+     *
+     * @see ViewPort
+     * @see UseCaseGroup
+     */
+    @Nullable
+    public ViewPort getViewPort() {
+        if (getDisplay() == null) {
+            // Returns null if the layout is not ready.
+            return null;
+        }
+        return getViewPort(getDisplay().getRotation());
+    }
+
+    /**
+     * Gets a {@link ViewPort} with custom target rotation.
+     *
+     * <p>Returns a {@link ViewPort} instance based on the {@link PreviewView}'s current width,
+     * height, layout direction, scale type and the given target rotation.
+     *
+     * <p>Use this method if {@link Preview}'s desired rotation is not the default display
+     * rotation. For example, when remote display is in use and the desired rotation for the
+     * remote display is based on the accelerometer reading. In that case, use
+     * {@link android.view.OrientationEventListener} to obtain the target rotation and create
+     * {@link ViewPort} as following:
+     * <p>{@link android.view.OrientationEventListener#ORIENTATION_UNKNOWN}: orientation == -1
+     * <p>{@link Surface#ROTATION_0}: orientation >= 315 || orientation < 45
+     * <p>{@link Surface#ROTATION_90}: orientation >= 225 && orientation < 315
+     * <p>{@link Surface#ROTATION_180}: orientation >= 135 && orientation < 225
+     * <p>{@link Surface#ROTATION_270}: orientation >= 45 && orientation < 135
+     *
+     * <p> Once the target rotation is obtained, use it with {@link Preview#setTargetRotation} to
+     * update the rotation. Example:
+     *
+     * <pre><code>
+     * Preview preview = new Preview.Builder().setTargetRotation(targetRotation).build();
+     * ViewPort viewPort = previewView.getViewPort(targetRotation);
+     * UseCaseGroup useCaseGroup =
+     *     new UseCaseGroup.Builder().setViewPort(viewPort).addUseCase(preview).build();
+     * cameraProvider.bindToLifecycle(this, cameraSelector, useCaseGroup);
+     * </code></pre>
+     *
+     * <p> Note that for non-display rotation to work, the mode must be set to
+     * {@link ImplementationMode#COMPATIBLE}.
+     *
+     * @param targetRotation A rotation value, expressed as one of
+     *                       {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
+     *                       {@link Surface#ROTATION_180}, or
+     *                       {@link Surface#ROTATION_270}.
+     * @see ImplementationMode
+     */
+    @SuppressLint("WrongConstant")
+    @Nullable
+    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
+    public ViewPort getViewPort(@ImageOutputConfig.RotationValue int targetRotation) {
+        if (getWidth() == 0 || getHeight() == 0) {
+            return null;
+        }
+        return new ViewPort.Builder(new Rational(getWidth(), getHeight()), targetRotation)
+                .setScaleType(getViewPortScaleType())
+                .setLayoutDirection(getLayoutDirection())
+                .build();
+    }
+
+    /**
+     * Converts {@link PreviewView.ScaleType} to {@link ViewPort.ScaleType}.
+     */
+    private int getViewPortScaleType() {
+        switch (getScaleType()) {
+            case FILL_END:
+                return ViewPort.FILL_END;
+            case FILL_CENTER:
+                return ViewPort.FILL_CENTER;
+            case FILL_START:
+                return ViewPort.FILL_START;
+            case FIT_END:
+                // Fallthrough
+            case FIT_CENTER:
+                // Fallthrough
+            case FIT_START:
+                return ViewPort.FIT;
+            default:
+                throw new IllegalStateException("Unexpected scale type: " + getScaleType());
+        }
+    }
+
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    void redrawPreview() {
+        if (mImplementation != null) {
+            mImplementation.redrawPreview();
+        }
+    }
+
+    // Synthetic access
+    @SuppressWarnings("WeakerAccess")
+    boolean shouldUseTextureView(@NonNull SurfaceRequest surfaceRequest,
             @NonNull final ImplementationMode implementationMode) {
-        if (Build.VERSION.SDK_INT <= 24 || cameraInfo.getImplementationType().equals(
-                CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY) || isRemoteDisplayMode()) {
+        // TODO(b/159127402): use TextureView if target rotation is not display rotation.
+        boolean isLegacyDevice = surfaceRequest.getCamera().getCameraInfo()
+                .getImplementationType().equals(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2_LEGACY);
+        if (surfaceRequest.isRGBA8888Required() || Build.VERSION.SDK_INT <= 24 || isLegacyDevice) {
             // Force to use TextureView when the device is running android 7.0 and below, legacy
-            // level or it is running in remote display mode.
+            // level or RGBA8888 is required.
             return true;
         }
         switch (implementationMode) {
@@ -497,39 +572,6 @@ public class PreviewView extends FrameLayout {
                 throw new IllegalArgumentException(
                         "Invalid implementation mode: " + implementationMode);
         }
-    }
-
-    private boolean isSensorDimensionFlipNeeded(@NonNull CameraInfo cameraInfo) {
-        int sensorDegrees;
-
-        // Retrieve sensor rotation degrees when there is camera info.
-        sensorDegrees = cameraInfo.getSensorRotationDegrees();
-
-        // When the sensor degrees value is 90 or 270, the width/height of the surface resolution
-        // need to be swapped to do the scale related calculations.
-        return sensorDegrees % 180 == 90;
-    }
-
-    @SuppressWarnings("deprecation")
-    private boolean isRemoteDisplayMode() {
-        DisplayManager displayManager =
-                (DisplayManager) getContext().getSystemService(Context.DISPLAY_SERVICE);
-
-        Display display = ((WindowManager) getContext().getSystemService(
-                Context.WINDOW_SERVICE)).getDefaultDisplay();
-
-        if (displayManager.getDisplays().length <= 1) {
-            // When there is not more than one display on the device, it won't be remote display
-            // mode.
-            return false;
-        } else if (display != null && display.getDisplayId() != Display.DEFAULT_DISPLAY) {
-            // When there is more than one display on the device and the display that the
-            // application is running on is not the default built-in display id (0), it is remote
-            // display mode.
-            return true;
-        }
-
-        return false;
     }
 
     /**
@@ -550,21 +592,18 @@ public class PreviewView extends FrameLayout {
          * doesn't support {@link SurfaceView}, {@link PreviewView} will fall back to use a
          * {@link TextureView} instead.
          *
-         * {@link PreviewView} falls back to {@link TextureView} when the API level is 24 or lower,
-         * the camera hardware is
+         * <p>{@link PreviewView} falls back to {@link TextureView} when the API level is 24 or
+         * lower, the camera hardware is
          * {@link CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY}, or
          * {@link Preview#getTargetRotation()} is different from {@link PreviewView}'s display
          * rotation.
          *
-         * Use of this mode is discouraged if {@link Preview.Builder#setTargetRotation(int)} is set
-         * to a value different than the display's rotation at the time the {@link Preview} was
-         * created. If preview's target rotation is changed after the preview starts, it will
-         * cause extra latency to switch from {@link SurfaceView} to {@link TextureView} because
-         * {@link SurfaceView} does not support arbitrary transformation. This mode is also
-         * encouraged if the {@link PreviewView} needs to be animated. {@link SurfaceView}
-         * animation is not supported on API level 24 or lower. Also for streaming state
-         * provided in {@link #getPreviewStreamState}, the {@link StreamState#STREAMING} state
-         * might happen prematurely if this mode is used.
+         * <p>Do not use this mode if {@link Preview.Builder#setTargetRotation(int)} is set
+         * to a value different than the display's rotation, because {@link SurfaceView} does not
+         * support arbitrary transformation. Do not use this mode if the {@link PreviewView}
+         * needs to be animated. {@link SurfaceView} animation is not supported on API level 24
+         * or lower. Also, for streaming state provided in {@link #getPreviewStreamState}, the
+         * {@link StreamState#STREAMING} state might happen prematurely if this mode is used.
          *
          * @see Preview.Builder#setTargetRotation(int)
          * @see Preview.Builder#getTargetRotation()

@@ -17,7 +17,6 @@
 package androidx.camera.view;
 
 import android.graphics.Bitmap;
-import android.graphics.Matrix;
 import android.util.Size;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -25,9 +24,6 @@ import android.widget.FrameLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.core.SurfaceRequest;
-import androidx.camera.view.preview.transform.PreviewTransform;
-import androidx.camera.view.preview.transform.transformation.Transformation;
-import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -41,16 +37,22 @@ abstract class PreviewViewImplementation {
     @Nullable
     Size mResolution;
 
-    @Nullable
+    @NonNull
     FrameLayout mParent;
 
-    @Nullable
-    private PreviewTransform mPreviewTransform;
+    @NonNull
+    private final PreviewTransformation mPreviewTransform;
 
     abstract void initializePreview();
 
     @Nullable
     abstract View getPreview();
+
+    PreviewViewImplementation(@NonNull FrameLayout parent,
+            @NonNull PreviewTransformation previewTransform) {
+        mParent = parent;
+        mPreviewTransform = previewTransform;
+    }
 
     /**
      * Starts to execute the {@link SurfaceRequest} by providing a Surface.
@@ -64,15 +66,6 @@ abstract class PreviewViewImplementation {
             @Nullable OnSurfaceNotInUseListener onSurfaceNotInUseListener);
 
     /**
-     * @param parent           the containing parent {@link PreviewView}.
-     * @param previewTransform Allows to apply preview correction and scale types.
-     */
-    void init(@NonNull FrameLayout parent, @NonNull PreviewTransform previewTransform) {
-        mParent = parent;
-        mPreviewTransform = previewTransform;
-    }
-
-    /**
      * Invoked when the preview needs to be adjusted, either because the layout bounds of the
      * preview's container {@link PreviewView} have changed, or the {@link PreviewView.ScaleType}
      * has changed.
@@ -81,20 +74,17 @@ abstract class PreviewViewImplementation {
      * display properties such as the display orientation and size.
      */
     void redrawPreview() {
-        applyCurrentScaleType();
+        View preview = getPreview();
+        if (preview == null) {
+            return;
+        }
+        mPreviewTransform.transformView(new Size(mParent.getWidth(),
+                mParent.getHeight()), mParent.getLayoutDirection(), preview);
     }
 
     /** Invoked after a {@link android.view.Surface} has been provided to the camera for preview. */
     void onSurfaceProvided() {
-        applyCurrentScaleType();
-    }
-
-    private void applyCurrentScaleType() {
-        final View preview = getPreview();
-        if (mPreviewTransform != null && mParent != null && preview != null
-                && mResolution != null) {
-            mPreviewTransform.applyCurrentScaleType(mParent, preview, mResolution);
-        }
+        redrawPreview();
     }
 
     /** Invoked when onAttachedToWindow happens in the PreviewView. */
@@ -116,49 +106,11 @@ abstract class PreviewViewImplementation {
     Bitmap getBitmap() {
         final Bitmap bitmap = getPreviewBitmap();
         if (bitmap == null) {
-            return bitmap;
+            return null;
         }
-
-        // Get current preview transformation
-        Preconditions.checkNotNull(mPreviewTransform);
-        final Transformation transformation = mPreviewTransform.getCurrentTransformation();
-        if (transformation == null) {
-            return bitmap;
-        }
-
-        // Scale bitmap
-        final Matrix scale = new Matrix();
-        scale.setScale(transformation.getScaleX(), transformation.getScaleY());
-        scale.postRotate(transformation.getRotation());
-        final Bitmap scaled = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(),
-                bitmap.getHeight(), scale, true);
-
-        final PreviewView.ScaleType scaleType = mPreviewTransform.getScaleType();
-
-        Preconditions.checkNotNull(mParent);
-        int x = 0, y = 0;
-        switch (scaleType) {
-            // If fit* scale type, return scaled bitmap, since the whole preview is displayed, no
-            // cropping is needed.
-            case FIT_START:
-            case FIT_CENTER:
-            case FIT_END:
-                return scaled;
-            // If fill* scale type, crop the scaled bitmap, then return it
-            case FILL_START:
-                x = 0;
-                y = 0;
-                break;
-            case FILL_CENTER:
-                x = (scaled.getWidth() - mParent.getWidth()) / 2;
-                y = (scaled.getHeight() - mParent.getHeight()) / 2;
-                break;
-            case FILL_END:
-                x = (scaled.getWidth() - mParent.getWidth());
-                y = (scaled.getHeight() - mParent.getHeight());
-                break;
-        }
-        return Bitmap.createBitmap(scaled, x, y, mParent.getWidth(), mParent.getHeight());
+        return mPreviewTransform.createTransformedBitmap(bitmap,
+                new Size(mParent.getWidth(), mParent.getHeight()),
+                mParent.getLayoutDirection());
     }
 
     @Nullable

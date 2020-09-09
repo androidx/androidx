@@ -55,6 +55,11 @@ final class SurfaceViewImplementation extends PreviewViewImplementation {
     @Nullable
     private OnSurfaceNotInUseListener mOnSurfaceNotInUseListener;
 
+    SurfaceViewImplementation(@NonNull FrameLayout parent,
+            @NonNull PreviewTransformation previewTransform) {
+        super(parent, previewTransform);
+    }
+
     @Override
     void onSurfaceRequested(@NonNull SurfaceRequest surfaceRequest,
             @Nullable OnSurfaceNotInUseListener onSurfaceNotInUseListener) {

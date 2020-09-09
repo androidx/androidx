@@ -30,7 +30,6 @@ import androidx.annotation.NonNull;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.testing.fakes.FakeCamera;
-import androidx.camera.view.preview.transform.PreviewTransform;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.MediumTest;
@@ -65,9 +64,8 @@ public class TextureViewImplementationTest {
     public void setUp() {
         final Context mContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         mSurfaceTexture = new SurfaceTexture(0);
-        mImplementation = new TextureViewImplementation();
         mParent = new FrameLayout(mContext);
-        mImplementation.init(mParent, new PreviewTransform());
+        mImplementation = new TextureViewImplementation(mParent, new PreviewTransformation());
     }
 
     @After
@@ -253,10 +251,8 @@ public class TextureViewImplementationTest {
         assertThat(mParent.getChildCount()).isEqualTo(0);
     }
 
-
     @Test
     public void resetSurfaceTextureOnDetachAndAttachWindow() throws Exception {
-
         SurfaceRequest surfaceRequest = getSurfaceRequest();
         mImplementation.onSurfaceRequested(surfaceRequest, null);
         DeferrableSurface deferrableSurface = surfaceRequest.getDeferrableSurface();
