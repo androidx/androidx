@@ -856,7 +856,7 @@ public class MediaSessionCallbackWithMediaControllerCompatTest extends MediaSess
             sessionHandler.postAndSync(new Runnable() {
                 @Override
                 public void run() {
-                    mSession = new MediaSession.Builder(mContext, mPlayer)
+                    mSession = new MediaSession.Builder(mContext, player)
                             .setSessionCallback(sHandlerExecutor, new SessionCallback() {})
                             .setId("testDeadlock").build();
                 }
