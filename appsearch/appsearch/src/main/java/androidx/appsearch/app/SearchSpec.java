@@ -16,15 +16,13 @@
 
 package androidx.appsearch.app;
 
+import android.os.Bundle;
+
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.IllegalSearchSpecException;
-
-import com.google.android.icing.proto.ResultSpecProto;
-import com.google.android.icing.proto.ScoringSpecProto;
-import com.google.android.icing.proto.SearchSpecProto;
-import com.google.android.icing.proto.TermMatchType;
+import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -38,36 +36,27 @@ import java.lang.annotation.RetentionPolicy;
 // TODO(sidchhabra) : AddResultSpec fields for Snippets etc.
 public final class SearchSpec {
 
-    private final SearchSpecProto mSearchSpecProto;
-    private final ResultSpecProto mResultSpecProto;
-    private final ScoringSpecProto mScoringSpecProto;
+    static final String TERM_MATCH_TYPE_FIELD = "termMatchType";
+    static final String SCHEMA_TYPES_FIELD = "schemaType";
+    static final String NUM_PER_PAGE_FIELD = "numPerPage";
+    static final String RANKING_STRATEGY_FIELD = "rankingStrategy";
+    static final String ORDER_FILED = "order";
+    static final String NUM_TO_SNIPPET_FIELD = "numToSnippet";
+    static final String NUM_MATCHED_PER_PROPERTY_FIELD = "numMatchedPerProperty";
+    static final String MAX_SNIPPET_FIELD = "maxSnippet";
+    static final int DEFAULT_NUM_PER_PAGE = 10;
 
-    SearchSpec(@NonNull SearchSpecProto searchSpecProto,
-            @NonNull ResultSpecProto resultSpecProto, @NonNull ScoringSpecProto scoringSpecProto) {
-        mSearchSpecProto = searchSpecProto;
-        mResultSpecProto = resultSpecProto;
-        mScoringSpecProto = scoringSpecProto;
+    private final Bundle mBundle;
+
+    SearchSpec(@NonNull Bundle bundle) {
+        Preconditions.checkNotNull(bundle);
+        mBundle = bundle;
     }
 
-    /** Creates a new {@link SearchSpec.Builder}. */
+    /** Returns the {@link Bundle} populated by this builder. */
     @NonNull
-    public static SearchSpec.Builder newBuilder() {
-        return new SearchSpec.Builder();
-    }
-
-    @NonNull
-    SearchSpecProto getSearchSpecProto() {
-        return mSearchSpecProto;
-    }
-
-    @NonNull
-    ResultSpecProto getResultSpecProto() {
-        return mResultSpecProto;
-    }
-
-    @NonNull
-    ScoringSpecProto getScoringSpecProto() {
-        return mScoringSpecProto;
+    Bundle getBundle() {
+        return mBundle;
     }
 
     /** Term Match Type for the query. */
@@ -127,13 +116,13 @@ public final class SearchSpec {
     /** Builder for {@link SearchSpec objects}. */
     public static final class Builder {
 
-        private final SearchSpecProto.Builder mSearchSpecBuilder = SearchSpecProto.newBuilder();
-        private final ResultSpecProto.Builder mResultSpecBuilder = ResultSpecProto.newBuilder();
-        private final ScoringSpecProto.Builder mScoringSpecBuilder = ScoringSpecProto.newBuilder();
-        private final ResultSpecProto.SnippetSpecProto.Builder mSnippetSpecBuilder =
-                ResultSpecProto.SnippetSpecProto.newBuilder();
+        private final Bundle mBundle;
+        private boolean mBuilt = false;
 
-        Builder() {
+        /** Creates a new {@link SearchSpec.Builder}. */
+        public Builder() {
+            mBundle = new Bundle();
+            mBundle.putInt(NUM_PER_PAGE_FIELD, DEFAULT_NUM_PER_PAGE);
         }
 
         /**
@@ -141,13 +130,10 @@ public final class SearchSpec {
          */
         @NonNull
         public Builder setTermMatchType(@TermMatchTypeCode int termMatchTypeCode) {
-            TermMatchType.Code termMatchTypeCodeProto =
-                    TermMatchType.Code.forNumber(termMatchTypeCode);
-            if (termMatchTypeCodeProto == null) {
-                throw new IllegalArgumentException("Invalid term match type: "
-                        + termMatchTypeCode);
-            }
-            mSearchSpecBuilder.setTermMatchType(termMatchTypeCodeProto);
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            Preconditions.checkArgumentInRange(termMatchTypeCode, TERM_MATCH_TYPE_EXACT_ONLY,
+                    TERM_MATCH_TYPE_PREFIX, "Term match type");
+            mBundle.putInt(TERM_MATCH_TYPE_FIELD, termMatchTypeCode);
             return this;
         }
 
@@ -158,29 +144,32 @@ public final class SearchSpec {
          */
         @NonNull
         public Builder setSchemaTypes(@NonNull String... schemaTypes) {
-            for (String schemaType : schemaTypes) {
-                mSearchSpecBuilder.addSchemaTypeFilters(schemaType);
-            }
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            mBundle.putStringArray(SCHEMA_TYPES_FIELD, schemaTypes);
             return this;
         }
 
-        /** Sets the number of results per page in the returned object. */
+        /**
+         * Sets the number of results per page in the returned object.
+         * <p> The default number of results per page is 10.
+         */
         @NonNull
         public SearchSpec.Builder setNumPerPage(int numPerPage) {
-            mResultSpecBuilder.setNumPerPage(numPerPage);
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            if (numPerPage <= 0) {
+                throw new IllegalArgumentException("Invalid number per page :" + numPerPage);
+            }
+            mBundle.putInt(NUM_PER_PAGE_FIELD, numPerPage);
             return this;
         }
 
         /** Sets ranking strategy for AppSearch results.*/
         @NonNull
         public Builder setRankingStrategy(@RankingStrategyCode int rankingStrategy) {
-            ScoringSpecProto.RankingStrategy.Code rankingStrategyCodeProto =
-                    ScoringSpecProto.RankingStrategy.Code.forNumber(rankingStrategy);
-            if (rankingStrategyCodeProto == null) {
-                throw new IllegalArgumentException("Invalid result ranking strategy: "
-                        + rankingStrategyCodeProto);
-            }
-            mScoringSpecBuilder.setRankBy(rankingStrategyCodeProto);
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            Preconditions.checkArgumentInRange(rankingStrategy, RANKING_STRATEGY_NONE,
+                    RANKING_STRATEGY_CREATION_TIMESTAMP, "Result ranking strategy");
+            mBundle.putInt(RANKING_STRATEGY_FIELD, rankingStrategy);
             return this;
         }
 
@@ -191,13 +180,10 @@ public final class SearchSpec {
          */
         @NonNull
         public Builder setOrder(@OrderCode int order) {
-            ScoringSpecProto.Order.Code orderCodeProto =
-                    ScoringSpecProto.Order.Code.forNumber(order);
-            if (orderCodeProto == null) {
-                throw new IllegalArgumentException("Invalid result ranking order: "
-                        + orderCodeProto);
-            }
-            mScoringSpecBuilder.setOrderBy(orderCodeProto);
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            Preconditions.checkArgumentInRange(order, ORDER_DESCENDING, ORDER_ASCENDING,
+                    "Result ranking order");
+            mBundle.putInt(ORDER_FILED, order);
             return this;
         }
 
@@ -209,7 +195,8 @@ public final class SearchSpec {
          */
         @NonNull
         public SearchSpec.Builder setNumToSnippet(int numToSnippet) {
-            mSnippetSpecBuilder.setNumToSnippet(numToSnippet);
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            mBundle.putInt(NUM_TO_SNIPPET_FIELD, numToSnippet);
             return this;
         }
 
@@ -221,7 +208,8 @@ public final class SearchSpec {
          */
         @NonNull
         public SearchSpec.Builder setNumMatchesPerProperty(int numMatchesPerProperty) {
-            mSnippetSpecBuilder.setNumMatchesPerProperty(numMatchesPerProperty);
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            mBundle.putInt(NUM_MATCHED_PER_PROPERTY_FIELD, numMatchesPerProperty);
             return this;
         }
 
@@ -237,7 +225,8 @@ public final class SearchSpec {
          */
         @NonNull
         public SearchSpec.Builder setMaxSnippetSize(int maxSnippetSize) {
-            mSnippetSpecBuilder.setMaxWindowBytes(maxSnippetSize);
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            mBundle.putInt(MAX_SNIPPET_FIELD, maxSnippetSize);
             return this;
         }
 
@@ -248,12 +237,12 @@ public final class SearchSpec {
          */
         @NonNull
         public SearchSpec build() {
-            if (mSearchSpecBuilder.getTermMatchType() == TermMatchType.Code.UNKNOWN) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            if (!mBundle.containsKey(TERM_MATCH_TYPE_FIELD)) {
                 throw new IllegalSearchSpecException("Missing termMatchType field.");
             }
-            mResultSpecBuilder.setSnippetSpec(mSnippetSpecBuilder);
-            return new SearchSpec(mSearchSpecBuilder.build(), mResultSpecBuilder.build(),
-                    mScoringSpecBuilder.build());
+            mBuilt = true;
+            return new SearchSpec(mBundle);
         }
     }
 }
