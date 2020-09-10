@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.integration.uiwidgets
+package androidx.camera.integration.uiwidgets.viewpager
 
 import android.content.Context
 import android.os.Bundle
@@ -24,6 +24,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.Preview
+import androidx.camera.integration.uiwidgets.R
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.content.ContextCompat
