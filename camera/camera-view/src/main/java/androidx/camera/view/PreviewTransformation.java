@@ -20,6 +20,11 @@ import static android.graphics.Paint.ANTI_ALIAS_FLAG;
 import static android.graphics.Paint.DITHER_FLAG;
 import static android.graphics.Paint.FILTER_BITMAP_FLAG;
 
+import static androidx.camera.view.PreviewView.ScaleType.FILL_CENTER;
+import static androidx.camera.view.PreviewView.ScaleType.FIT_CENTER;
+import static androidx.camera.view.PreviewView.ScaleType.FIT_END;
+import static androidx.camera.view.PreviewView.ScaleType.FIT_START;
+
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Matrix;
@@ -86,8 +91,7 @@ final class PreviewTransformation {
 
     private static final String TAG = "PreviewTransform";
 
-    private static final PreviewView.ScaleType DEFAULT_SCALE_TYPE =
-            PreviewView.ScaleType.FILL_CENTER;
+    private static final PreviewView.ScaleType DEFAULT_SCALE_TYPE = FILL_CENTER;
 
     // Each vertex is represented by a pair of (x, y) which is 2 slots in a float array.
     private static final int FLOAT_NUMBER_PER_VERTEX = 2;
@@ -220,13 +224,14 @@ final class PreviewTransformation {
         float[] previewViewCropRectVertexes;
         if (isCropRectAspectRatioMatchPreviewView(previewViewSize)) {
             // If crop rect has the same aspect ratio as PreviewView, scale the crop rect to fill
-            // the entire PreviewView. This happens if the scale type is FILL_*.
+            // the entire PreviewView. This happens if the scale type is FILL_* AND a
+            // PreviewView-based viewport is used.
             previewViewCropRectVertexes = sizeToVertexes(previewViewSize);
         } else {
-            // If crop rect's aspect ratio doesn't match PreviewView, fit the crop rect into the
-            // PreviewView. This happens if the scale type is FIT_*.
-            RectF previewViewCropRect = getPreviewViewCropRectForFitTypes(previewViewSize,
-                    layoutDirection);
+            // If the aspect ratios don't match, it could be 1) scale type is FIT_*, 2) the
+            // Viewport is not based on the PreviewView or 3) both.
+            RectF previewViewCropRect = getPreviewViewCropRectForMismatchedAspectRatios(
+                    previewViewSize, layoutDirection);
             previewViewCropRectVertexes = rectToVertexes(previewViewCropRect);
         }
         float[] rotatedPreviewViewCropRectVertexes = createRotatedVertexes(
@@ -241,23 +246,67 @@ final class PreviewTransformation {
     }
 
     /**
-     * Gets the crop rect coordinates in {@link PreviewView} for FIT_* types.
+     * Gets the crop rect in {@link PreviewView} coordinates for the case where crop rect's aspect
+     * ratio doesn't match {@link PreviewView}'s aspect ratio.
+     *
+     * <p> When aspect ratios don't match, additional calculation is needed to figure out how to
+     * fit crop rect into the{@link PreviewView}.
      */
-    RectF getPreviewViewCropRectForFitTypes(Size previewViewSize, int layoutOrientation) {
-        Matrix matrix = new Matrix();
+    RectF getPreviewViewCropRectForMismatchedAspectRatios(Size previewViewSize,
+            int layoutDirection) {
         RectF previewViewRect = new RectF(0, 0, previewViewSize.getWidth(),
                 previewViewSize.getHeight());
         SizeF rotatedCropRectSize = getRotatedCropRectSize();
-        RectF sourceCropRect = new RectF(0, 0, rotatedCropRectSize.getWidth(),
+        RectF rotatedSurfaceCropRect = new RectF(0, 0, rotatedCropRectSize.getWidth(),
                 rotatedCropRectSize.getHeight());
-        // Get the mapping that fits crop rect to preview based on the fit type.
-        matrix.setRectToRect(sourceCropRect, previewViewRect, getMatrixFitScaleType());
-        // Use the mapping to map the crop rect.
-        matrix.mapRect(sourceCropRect);
-        if (layoutOrientation == LayoutDirection.RTL) {
-            return flipHorizontally(sourceCropRect, (float) previewViewSize.getWidth() / 2);
+        Matrix matrix = new Matrix();
+        setMatrixRectToRect(matrix, rotatedSurfaceCropRect, previewViewRect, mScaleType);
+        matrix.mapRect(rotatedSurfaceCropRect);
+        if (layoutDirection == LayoutDirection.RTL) {
+            return flipHorizontally(rotatedSurfaceCropRect, (float) previewViewSize.getWidth() / 2);
         }
-        return sourceCropRect;
+        return rotatedSurfaceCropRect;
+    }
+
+    /**
+     * Set the matrix that maps the source rectangle to the destination rectangle.
+     *
+     * <p> This static method is an extension of {@link Matrix#setRectToRect} with an additional
+     * support for FILL_* types.
+     */
+    private static void setMatrixRectToRect(Matrix matrix, RectF source, RectF destination,
+            PreviewView.ScaleType scaleType) {
+        Matrix.ScaleToFit matrixScaleType;
+        switch (scaleType) {
+            case FIT_CENTER:
+                // Fallthrough.
+            case FILL_CENTER:
+                matrixScaleType = Matrix.ScaleToFit.CENTER;
+                break;
+            case FIT_END:
+                // Fallthrough.
+            case FILL_END:
+                matrixScaleType = Matrix.ScaleToFit.END;
+                break;
+            case FIT_START:
+                // Fallthrough.
+            case FILL_START:
+                matrixScaleType = Matrix.ScaleToFit.START;
+                break;
+            default:
+                Logger.e(TAG, "Unexpected crop rect: " + scaleType);
+                matrixScaleType = Matrix.ScaleToFit.FILL;
+        }
+        boolean isFitTypes =
+                scaleType == FIT_CENTER || scaleType == FIT_START || scaleType == FIT_END;
+        if (isFitTypes) {
+            matrix.setRectToRect(source, destination, matrixScaleType);
+        } else {
+            // android.graphics.Matrix doesn't support fill scale types. The workaround is
+            // mapping inversely from destination to source, then invert the matrix.
+            matrix.setRectToRect(destination, source, matrixScaleType);
+            matrix.invert(matrix);
+        }
     }
 
     /**
@@ -269,23 +318,6 @@ final class PreviewTransformation {
                 original.top,
                 flipLineX + flipLineX - original.left,
                 original.bottom);
-    }
-
-    /**
-     * {@link PreviewView.ScaleType} to {@link Matrix.ScaleToFit} conversion.
-     */
-    private Matrix.ScaleToFit getMatrixFitScaleType() {
-        switch (mScaleType) {
-            case FIT_CENTER:
-                return Matrix.ScaleToFit.CENTER;
-            case FIT_END:
-                return Matrix.ScaleToFit.END;
-            case FIT_START:
-                return Matrix.ScaleToFit.START;
-            default:
-                Logger.w(TAG, "Unexpected crop rect. Please use PreviewView.getViewPort().");
-                return Matrix.ScaleToFit.CENTER;
-        }
     }
 
     /**
