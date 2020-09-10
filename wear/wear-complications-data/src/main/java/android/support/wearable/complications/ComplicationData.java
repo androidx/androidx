@@ -820,14 +820,17 @@ public final class ComplicationData implements Parcelable {
     }
 
     /**
-     * Returns the start time for this complication data, this may be 0.
+     * Returns the start time for this complication data (i.e. the first time at which it should
+     * be considered active and displayed), this may be 0. See also {@link #isActiveAt(long)}.
      */
     public long getStartDateTimeMillis() {
         return mFields.getLong(FIELD_START_TIME, 0);
     }
 
     /**
-     * Returns the end time for this complication data, this may be {@link Long#MAX_VALUE}.
+     * Returns the end time for this complication data (i.e. the last time at which it should be
+     * considered active and displayed), this may be {@link Long#MAX_VALUE}. See also {@link
+     * #isActiveAt(long)}.
      */
     public long getEndDateTimeMillis() {
         return mFields.getLong(FIELD_END_TIME, Long.MAX_VALUE);
@@ -991,7 +994,9 @@ public final class ComplicationData implements Parcelable {
 
         /**
          * Sets the <i>value</i> field. This is required for the {@link #TYPE_RANGED_VALUE} type,
-         * and is not valid for any other type.
+         * and is not valid for any other type. A {@link #TYPE_RANGED_VALUE} complication
+         * visually presents a single value, which is usually a percentage. E.g. you
+         * have completed 70% of today's target of 10000 steps.
          *
          * <p>Returns this Builder to allow chaining.
          *
@@ -1005,7 +1010,9 @@ public final class ComplicationData implements Parcelable {
 
         /**
          * Sets the <i>min value</i> field. This is required for the {@link #TYPE_RANGED_VALUE}
-         * type, and is not valid for any other type.
+         * type, and is not valid for any other type. A {@link #TYPE_RANGED_VALUE} complication
+         * visually presents a single value, which is usually a percentage. E.g. you have
+         * completed 70% of today's target of 10000 steps.
          *
          * <p>Returns this Builder to allow chaining.
          *
@@ -1019,7 +1026,9 @@ public final class ComplicationData implements Parcelable {
 
         /**
          * Sets the <i>max value</i> field. This is required for the {@link #TYPE_RANGED_VALUE}
-         * type, and is not valid for any other type.
+         * type, and is not valid for any other type.A {@link #TYPE_RANGED_VALUE} complication
+         * visually presents a single value, which is usually a percentage. E.g. you have
+         * completed 70% of today's target of 10000 steps.
          *
          * <p>Returns this Builder to allow chaining.
          *
