@@ -25,6 +25,7 @@ import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.anyInt;
 
+import android.os.Parcel;
 import android.support.v4.BaseInstrumentationTestCase;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
@@ -243,6 +244,22 @@ public class EditorInfoCompatTest extends BaseInstrumentationTestCase<TestActivi
         assertTrue(TextUtils.equals(expectedTextAfterCursor,
                 EditorInfoCompat.getInitialTextAfterCursor(editorInfo, LONG_EXP_TEXT_LENGTH,
                         anyInt())));
+    }
+
+    @Test
+    public void surroundingTextRetrieval_writeToParcel_noException() {
+        StringBuilder sb = new StringBuilder("abcdefg");
+        Parcel parcel = Parcel.obtain();
+        EditorInfo editorInfo = new EditorInfo();
+        editorInfo.initialSelStart = 2;
+        editorInfo.initialSelEnd = 5;
+        editorInfo.inputType = EditorInfo.TYPE_CLASS_TEXT;
+
+        EditorInfoCompat.setInitialSurroundingText(editorInfo, sb);
+        sb.setLength(0);
+        editorInfo.writeToParcel(parcel, 0);
+
+        EditorInfoCompat.getInitialTextBeforeCursor(editorInfo, 60, 1);
     }
 
     private static void assertExpectedTextLength(EditorInfo editorInfo,
