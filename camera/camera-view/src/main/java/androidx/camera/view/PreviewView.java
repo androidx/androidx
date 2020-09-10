@@ -269,33 +269,26 @@ public class PreviewView extends FrameLayout {
 
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
-        if (mCameraController == null) {
-            // Do not handle touch event if no controller.
-            return false;
-        }
         // Detect pinch-to-zoom
         mScaleGestureDetector.onTouchEvent(event);
 
         // Detect tap-to-focus.
-        if (event.getPointerCount() >= 2) {
-            // Do not handle touch event if it's not a single finger touch.
-            return false;
+        if (event.getPointerCount() == 1) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    mDownX = event.getX();
+                    mDownY = event.getY();
+                    break;
+                case MotionEvent.ACTION_UP:
+                    if (isTapEvent(event) && mCameraController != null) {
+                        mCameraController.onTapToFocus(
+                                mPreviewViewMeteringPointFactory.createPoint(event.getX(),
+                                        event.getY()));
+                    }
+                    break;
+            }
         }
-        switch (event.getAction()) {
-            case MotionEvent.ACTION_DOWN:
-                mDownX = event.getX();
-                mDownY = event.getY();
-                return true;
-            case MotionEvent.ACTION_UP:
-                if (isTapEvent(event)) {
-                    mCameraController.onTapToFocus(
-                            mPreviewViewMeteringPointFactory.createPoint(event.getX(),
-                                    event.getY()));
-                }
-                return true;
-            default:
-                return false;
-        }
+        return super.onTouchEvent(event);
     }
 
     /**
