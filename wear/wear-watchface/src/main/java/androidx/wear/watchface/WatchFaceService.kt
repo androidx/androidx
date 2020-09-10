@@ -45,7 +45,7 @@ import android.view.SurfaceHolder
 import androidx.annotation.IntDef
 import androidx.wear.complications.SystemProviders.ProviderId
 import androidx.wear.watchface.style.UserStyleCategory
-import androidx.wear.watchface.style.UserStyleManager
+import androidx.wear.watchface.style.UserStyleRepository
 import java.util.concurrent.CountDownLatch
 
 /**
@@ -444,9 +444,9 @@ abstract class WatchFaceService : WallpaperService() {
             override fun setUserStyle(userStyle: Bundle) {
                 runOnUiThread {
                     watchFace.onSetStyleInternal(
-                        UserStyleManager.bundleToStyleMap(
+                        UserStyleRepository.bundleToStyleMap(
                             userStyle,
-                            watchFace.userStyleManager.userStyleCategories
+                            watchFace.userStyleRepository.userStyleCategories
                         )
                     )
                 }
@@ -960,7 +960,7 @@ abstract class WatchFaceService : WallpaperService() {
         override fun registerUserStyleSchema(styleSchema: List<UserStyleCategory>) {
             if (systemApiVersion >= 3) {
                 iWatchFaceService.registerUserStyleSchema(
-                    UserStyleManager.userStyleCategoriesToBundles(styleSchema)
+                    UserStyleRepository.userStyleCategoriesToBundles(styleSchema)
                 )
             }
         }
@@ -969,7 +969,9 @@ abstract class WatchFaceService : WallpaperService() {
             userStyle: Map<UserStyleCategory, UserStyleCategory.Option>
         ) {
             if (systemApiVersion >= 3) {
-                iWatchFaceService.setCurrentUserStyle(UserStyleManager.styleMapToBundle(userStyle))
+                iWatchFaceService.setCurrentUserStyle(
+                    UserStyleRepository.styleMapToBundle(userStyle)
+                )
             }
         }
 
@@ -979,7 +981,7 @@ abstract class WatchFaceService : WallpaperService() {
             if (systemApiVersion < 3) {
                 return null
             }
-            return UserStyleManager.bundleToStyleMap(
+            return UserStyleRepository.bundleToStyleMap(
                 iWatchFaceService.storedUserStyle ?: Bundle(),
                 schema
             )

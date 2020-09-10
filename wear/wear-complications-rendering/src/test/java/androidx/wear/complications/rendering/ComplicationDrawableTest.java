@@ -58,7 +58,7 @@ import androidx.wear.watchface.WatchFaceHost;
 import androidx.wear.watchface.WatchFaceService;
 import androidx.wear.watchface.WatchFaceType;
 import androidx.wear.watchface.WatchState;
-import androidx.wear.watchface.style.UserStyleManager;
+import androidx.wear.watchface.style.UserStyleRepository;
 
 import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
@@ -702,13 +702,13 @@ public class ComplicationDrawableTest {
                 @NotNull SurfaceHolder surfaceHolder,
                 @NotNull WatchFaceHost watchFaceHost,
                 @NotNull WatchState watchState) {
-            UserStyleManager styleManager = new UserStyleManager(new ArrayList<>());
+            UserStyleRepository userStyleRepository = new UserStyleRepository(new ArrayList<>());
             return new WatchFace.Builder(
                     WatchFaceType.ANALOG,
                     100,
-                    styleManager,
+                    userStyleRepository,
                     new ComplicationsHolder(new ArrayList<>()),
-                    new Renderer(surfaceHolder, styleManager, watchState) {
+                    new Renderer(surfaceHolder, userStyleRepository, watchState) {
                         @NotNull
                         @Override
                         public Bitmap takeScreenshot$wear_watchface_debug(

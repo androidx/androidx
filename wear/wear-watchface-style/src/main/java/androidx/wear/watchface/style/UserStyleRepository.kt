@@ -24,7 +24,7 @@ import androidx.annotation.UiThread
  * In memory storage for user style choices which allows listeners to be registered to observe
  * style changes.
  */
-class UserStyleManager(
+class UserStyleRepository(
     /**
      * The style categories (i.e the style schema) associated with this watch face, that the user
      * can configure. May be empty. The first entry in each Option list is that category's default

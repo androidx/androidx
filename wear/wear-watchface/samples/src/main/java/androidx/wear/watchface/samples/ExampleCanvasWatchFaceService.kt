@@ -43,7 +43,7 @@ import androidx.wear.watchface.style.BooleanUserStyleCategory
 import androidx.wear.watchface.style.DoubleRangeUserStyleCategory
 import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyleCategory
-import androidx.wear.watchface.style.UserStyleManager
+import androidx.wear.watchface.style.UserStyleRepository
 import kotlin.math.cos
 import kotlin.math.sin
 
@@ -108,7 +108,7 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
                 1.0,
                 0.75
             )
-        val styleManager = UserStyleManager(
+        val userStyleRepository = UserStyleRepository(
             listOf(colorStyleCategory, drawHourPipsStyleCategory, watchHandLengthStyleCategory)
         )
         val complicationSlots = ComplicationsHolder(
@@ -147,7 +147,7 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
             surfaceHolder,
             this,
             watchFaceStyle,
-            styleManager,
+            userStyleRepository,
             watchState,
             colorStyleCategory,
             drawHourPipsStyleCategory,
@@ -159,7 +159,7 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
             WatchFaceType.ANALOG,
             /** mInteractiveUpdateRateMillis */
             16,
-            styleManager,
+            userStyleRepository,
             complicationSlots,
             renderer,
             watchFaceHost,
@@ -175,13 +175,13 @@ class ExampleCanvasRenderer(
     surfaceHolder: SurfaceHolder,
     private val context: Context,
     private var watchFaceColorStyle: WatchFaceColorStyle,
-    userStyleManager: UserStyleManager,
+    userStyleRepository: UserStyleRepository,
     private val watchState: WatchState,
     private val colorStyleCategory: ListUserStyleCategory,
     private val drawPipsStyleCategory: BooleanUserStyleCategory,
     private val watchHandLengthStyleCategoryDouble: DoubleRangeUserStyleCategory,
     private val complicationsHolder: ComplicationsHolder
-) : CanvasRenderer(surfaceHolder, userStyleManager, watchState, CanvasType.HARDWARE) {
+) : CanvasRenderer(surfaceHolder, userStyleRepository, watchState, CanvasType.HARDWARE) {
 
     private val clockHandPaint = Paint().apply {
         isAntiAlias = true
@@ -225,8 +225,8 @@ class ExampleCanvasRenderer(
     private var watchHandScale = 1.0f
 
     init {
-        userStyleManager.addUserStyleListener(
-            object : UserStyleManager.UserStyleListener {
+        userStyleRepository.addUserStyleListener(
+            object : UserStyleRepository.UserStyleListener {
                 @SuppressLint("SyntheticAccessor")
                 override fun onUserStyleChanged(
                     userStyle: Map<UserStyleCategory, UserStyleCategory.Option>
@@ -234,8 +234,9 @@ class ExampleCanvasRenderer(
                     watchFaceColorStyle =
                         WatchFaceColorStyle.create(context, userStyle[colorStyleCategory]!!.id)
 
-                    // Apply the userStyle to the complications. ComplicationDrawables for each of the
-                    // styles are defined in XML so we need to replace the complication's drawables.
+                    // Apply the userStyle to the complications. ComplicationDrawables for each of
+                    // the styles are defined in XML so we need to replace the complication's
+                    // drawables.
                     for ((_, complication) in complicationsHolder.complications) {
                         complication.renderer =
                             watchFaceColorStyle.getComplicationDrawableRenderer(context, watchState)

@@ -38,7 +38,7 @@ import androidx.wear.watchface.WatchFaceTestRunner
 import androidx.wear.watchface.createComplicationData
 import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyleCategory
-import androidx.wear.watchface.style.UserStyleManager
+import androidx.wear.watchface.style.UserStyleRepository
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.argumentCaptor
 import com.nhaarman.mockitokotlin2.eq
@@ -167,7 +167,7 @@ class WatchFaceConfigUiTest {
 
     private val configActivity = WatchFaceConfigActivity()
 
-    private lateinit var userStyleManager: UserStyleManager
+    private lateinit var userStyleRepository: UserStyleRepository
 
     private fun initConfigActivity(
         complications: List<Complication>,
@@ -176,12 +176,12 @@ class WatchFaceConfigUiTest {
         Mockito.`when`(surfaceHolder.surfaceFrame)
             .thenReturn(ONE_HUNDRED_BY_ONE_HUNDRED_RECT)
 
-        userStyleManager =
-            UserStyleManager(userStyleCategories)
+        userStyleRepository =
+            UserStyleRepository(userStyleCategories)
 
         val complicationSet = ComplicationsHolder(
             complications,
-            object : Renderer(surfaceHolder, userStyleManager, WatchState()) {
+            object : Renderer(surfaceHolder, userStyleRepository, WatchState()) {
                 override fun renderInternal(calendar: Calendar) {}
 
                 override fun takeScreenshot(calendar: Calendar, drawMode: Int): Bitmap {
@@ -197,14 +197,14 @@ class WatchFaceConfigUiTest {
             watchFaceComponentName,
             object : WatchFaceConfigDelegate {
                 override fun getUserStyleSchema() =
-                    UserStyleManager.userStyleCategoriesToBundles(userStyleCategories)
+                    UserStyleRepository.userStyleCategoriesToBundles(userStyleCategories)
 
                 override fun getUserStyle() =
-                    UserStyleManager.styleMapToBundle(userStyleManager.userStyle)
+                    UserStyleRepository.styleMapToBundle(userStyleRepository.userStyle)
 
                 override fun setUserStyle(style: Bundle) {
-                    userStyleManager.userStyle =
-                        UserStyleManager.bundleToStyleMap(style, userStyleCategories)
+                    userStyleRepository.userStyle =
+                        UserStyleRepository.bundleToStyleMap(style, userStyleCategories)
                 }
 
                 override fun getBackgroundComplicationId() =
@@ -355,19 +355,19 @@ class WatchFaceConfigUiTest {
         styleConfigFragment.readOptionsFromArguments()
         styleConfigFragment.watchFaceConfigActivity = configActivity
 
-        assertThat(userStyleManager.userStyle[colorStyleCategory]!!.id).isEqualTo(
+        assertThat(userStyleRepository.userStyle[colorStyleCategory]!!.id).isEqualTo(
             redStyleOption.id
         )
-        assertThat(userStyleManager.userStyle[watchHandStyleCategory]!!.id).isEqualTo(
+        assertThat(userStyleRepository.userStyle[watchHandStyleCategory]!!.id).isEqualTo(
             classicStyleOption.id
         )
 
         styleConfigFragment.onItemClick(configActivity.styleSchema[categoryIndex].options[1])
 
-        assertThat(userStyleManager.userStyle[colorStyleCategory]!!.id).isEqualTo(
+        assertThat(userStyleRepository.userStyle[colorStyleCategory]!!.id).isEqualTo(
             greenStyleOption.id
         )
-        assertThat(userStyleManager.userStyle[watchHandStyleCategory]!!.id).isEqualTo(
+        assertThat(userStyleRepository.userStyle[watchHandStyleCategory]!!.id).isEqualTo(
             classicStyleOption.id
         )
     }

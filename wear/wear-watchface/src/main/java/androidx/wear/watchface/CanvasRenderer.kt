@@ -24,7 +24,7 @@ import android.icu.util.Calendar
 import android.view.SurfaceHolder
 import androidx.annotation.IntDef
 import androidx.annotation.UiThread
-import androidx.wear.watchface.style.UserStyleManager
+import androidx.wear.watchface.style.UserStyleRepository
 
 /** @hide */
 @IntDef(
@@ -51,15 +51,15 @@ abstract class CanvasRenderer(
     /** The {@link SurfaceHolder} that {@link onDraw} will draw into. */
     surfaceHolder: SurfaceHolder,
 
-    /** The associated {@link UserStyleManager}. */
-    userStyleManager: UserStyleManager,
+    /** The associated {@link UserStyleRepository}. */
+    userStyleRepository: UserStyleRepository,
 
     /** The associated {@link WatchState}. */
     watchState: WatchState,
 
     /** The type of canvas to use. */
     @CanvasType private val canvasType: Int
-) : Renderer(surfaceHolder, userStyleManager, watchState) {
+) : Renderer(surfaceHolder, userStyleRepository, watchState) {
 
     internal override fun renderInternal(
         calendar: Calendar
