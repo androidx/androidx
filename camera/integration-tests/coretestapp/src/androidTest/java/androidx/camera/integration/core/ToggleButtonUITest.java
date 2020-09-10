@@ -58,6 +58,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
 /** Test toggle buttons in CoreTestApp. */
@@ -79,8 +80,7 @@ public final class ToggleButtonUITest {
                     false);
 
     @Rule
-    public GrantPermissionRule mCameraPermissionRule =
-            GrantPermissionRule.grant(android.Manifest.permission.CAMERA);
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
     @Rule
     public GrantPermissionRule mStoragePermissionRule =
             GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);

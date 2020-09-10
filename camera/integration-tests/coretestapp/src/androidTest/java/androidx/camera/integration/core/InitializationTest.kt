@@ -36,6 +36,7 @@ import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 
@@ -43,8 +44,7 @@ import org.junit.runners.Parameterized
 @RunWith(Parameterized::class)
 class InitializationTest(private val config: TestConfig) {
     @get:Rule
-    val cameraPermissionRule: GrantPermissionRule =
-        GrantPermissionRule.grant(android.Manifest.permission.CAMERA)
+    val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
     @get:Rule
     val storagePermissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
