@@ -95,12 +95,12 @@ class TableEntityProcessor internal constructor(
                                         it.getPath(), element.qualifiedName
                                 ))
                         null
-                    } else if (it.element.enclosingElement != element && !inheritSuperIndices) {
+                    } else if (it.element.enclosingTypeElement != element && !inheritSuperIndices) {
                         it.indexed = false
                         context.logger.w(Warning.INDEX_FROM_PARENT_FIELD_IS_DROPPED,
                                 ProcessorErrors.droppedSuperClassFieldIndex(
                                         it.columnName, element.toString(),
-                                        it.element.enclosingElement.toString()
+                                        it.element.enclosingTypeElement.toString()
                                 ))
                         null
                     } else {
@@ -311,7 +311,7 @@ class TableEntityProcessor internal constructor(
                                 element.qualifiedName, field.name))
                     null
                 } else {
-                    PrimaryKey(declaredIn = field.element.enclosingElement,
+                    PrimaryKey(declaredIn = field.element.enclosingTypeElement,
                             fields = Fields(field),
                             autoGenerateId = it.value.autoGenerate)
                 }
@@ -348,7 +348,7 @@ class TableEntityProcessor internal constructor(
         val superPKeys = if (mySuper != null && mySuper.isNotNone()) {
             // my super cannot see my fields so remove them.
             val remainingFields = availableFields.filterNot {
-                it.element.enclosingElement == typeElement
+                it.element.enclosingTypeElement == typeElement
             }
             collectPrimaryKeysFromEntityAnnotations(mySuper.asTypeElement(), remainingFields)
         } else {
@@ -365,7 +365,7 @@ class TableEntityProcessor internal constructor(
                 context.checker.check(!it.value.autoGenerate || embeddedField.pojo.fields.size == 1,
                         embeddedField.field.element,
                         ProcessorErrors.AUTO_INCREMENT_EMBEDDED_HAS_MULTIPLE_FIELDS)
-                PrimaryKey(declaredIn = embeddedField.field.element.enclosingElement,
+                PrimaryKey(declaredIn = embeddedField.field.element.enclosingTypeElement,
                         fields = embeddedField.pojo.fields,
                         autoGenerateId = it.value.autoGenerate)
             }

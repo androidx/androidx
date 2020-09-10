@@ -29,64 +29,6 @@ import kotlin.reflect.KClass
  */
 interface XElement {
     /**
-     * SimpleName of the element converted to a String.
-     *
-     * @see [javax.lang.model.element.Element.getSimpleName]
-     */
-    val name: String
-
-    /**
-     * The qualified name of the package that contains this element.
-     */
-    val packageName: String
-
-    /**
-     * The [XElement] that contains this element.
-     *
-     * For inner classes, this will be another [XTypeElement].
-     * For top level classes, it will be null as x-processing does not model packages or modules.
-     *
-     * For [XExecutableElement], it will be the [XTypeElement] where the method is declared.
-     */
-    val enclosingElement: XElement?
-
-    /**
-     * Returns `true` if this element is public (has public modifier in Java or not marked as
-     * private / internal in Kotlin).
-     */
-    fun isPublic(): Boolean
-
-    /**
-     * Returns `true` if this element has protected modifier.
-     */
-    fun isProtected(): Boolean
-
-    /**
-     * Returns `true` if this element is declared as abstract.
-     */
-    fun isAbstract(): Boolean
-
-    /**
-     * Returns `true` if this element has private modifier.
-     */
-    fun isPrivate(): Boolean
-
-    /**
-     * Returns `true` if this element has static modifier.
-     */
-    fun isStatic(): Boolean
-
-    /**
-     * Returns `true` if this element has transient modifier.
-     */
-    fun isTransient(): Boolean
-
-    /**
-     * Returns `true` if this element is final and cannot be overridden.
-     */
-    fun isFinal(): Boolean
-
-    /**
      * Returns the string representation of the Element's kind.
      */
     fun kindName(): String
