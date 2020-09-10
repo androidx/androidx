@@ -129,6 +129,9 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
     private final BroadcastReceiver mBroadcastReceiver;
 
     @GuardedBy("mLock")
+    private boolean mClosed;
+
+    @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     MediaController.PlaybackInfo mPlaybackInfo;
 
@@ -352,9 +355,10 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
     @Override
     public void close() {
         synchronized (mLock) {
-            if (isClosed()) {
+            if (mClosed) {
                 return;
             }
+            mClosed = true;
             if (DEBUG) {
                 Log.d(TAG, "Closing session, id=" + getId() + ", token="
                         + getToken());
@@ -975,7 +979,9 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
 
     @Override
     public boolean isClosed() {
-        return !mHandlerThread.isAlive();
+        synchronized (mLock) {
+            return mClosed;
+        }
     }
 
     @Override
