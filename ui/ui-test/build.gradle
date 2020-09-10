@@ -89,6 +89,7 @@ kotlin {
         }
 
         desktopMain.dependsOn jvmMain
+        jvmMain.dependsOn commonMain
     }
 }
 
