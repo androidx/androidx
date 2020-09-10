@@ -112,7 +112,7 @@ class PagingState<Key : Any, Value : Any> constructor(
      */
     fun lastItemOrNull(): Value? = pages.lastOrNull { it.data.isNotEmpty() }?.data?.lastOrNull()
 
-    private inline fun <T> anchorPositionToPagedIndices(
+    internal inline fun <T> anchorPositionToPagedIndices(
         anchorPosition: Int,
         block: (pageIndex: Int, index: Int) -> T
     ): T {
