@@ -50,7 +50,7 @@ class PreviewTransformationDeviceTest {
 
         // 1:1 crop rect.
         private val FIT_SURFACE_SIZE = Size(60, 60)
-        private val FIT_CROP_RECT = Rect(0, 0, 60, 60)
+        private val MISMATCHED_CROP_RECT = Rect(0, 0, 60, 60)
         private const val FLOAT_ERROR = 1e-3f
     }
 
@@ -208,33 +208,92 @@ class PreviewTransformationDeviceTest {
     }
 
     @Test
-    fun fitStart_surfacePositionIsStart() {
-        assertFitTranslationX(PreviewView.ScaleType.FIT_START, LayoutDirection.LTR, 0f)
+    fun mismatchedCropRect_fitStart() {
+        assertForMismatchedCropRect(
+            PreviewView.ScaleType.FIT_START,
+            LayoutDirection.LTR,
+            PREVIEW_VIEW_SIZE.height.toFloat() / MISMATCHED_CROP_RECT.height(),
+            0f,
+            0f
+        )
     }
 
     @Test
-    fun fitCenter_surfacePositionIsCenter() {
-        assertFitTranslationX(PreviewView.ScaleType.FIT_CENTER, LayoutDirection.LTR, 100f)
+    fun mismatchedCropRect_fitCenter() {
+        assertForMismatchedCropRect(
+            PreviewView.ScaleType.FIT_CENTER,
+            LayoutDirection.LTR,
+            PREVIEW_VIEW_SIZE.height.toFloat() / MISMATCHED_CROP_RECT.height(),
+            100f,
+            0f
+        )
     }
 
     @Test
-    fun fitEnd_surfacePositionIsEnd() {
-        assertFitTranslationX(PreviewView.ScaleType.FIT_END, LayoutDirection.LTR, 200f)
+    fun mismatchedCropRect_fitEnd() {
+        assertForMismatchedCropRect(
+            PreviewView.ScaleType.FIT_END,
+            LayoutDirection.LTR,
+            PREVIEW_VIEW_SIZE.height.toFloat() / MISMATCHED_CROP_RECT.height(),
+            200f,
+            0f
+        )
     }
 
     @Test
-    fun fitStartWithRTL_behavesLikeFitEndWithLTR() {
-        assertFitTranslationX(PreviewView.ScaleType.FIT_START, LayoutDirection.RTL, 200f)
+    fun mismatchedCropRect_fillStart() {
+        assertForMismatchedCropRect(
+            PreviewView.ScaleType.FILL_START,
+            LayoutDirection.LTR,
+            PREVIEW_VIEW_SIZE.width.toFloat() / MISMATCHED_CROP_RECT.width(),
+            0f,
+            0f
+        )
     }
 
-    private fun assertFitTranslationX(
+    @Test
+    fun mismatchedCropRect_fillCenter() {
+        assertForMismatchedCropRect(
+            PreviewView.ScaleType.FILL_CENTER,
+            LayoutDirection.LTR,
+            PREVIEW_VIEW_SIZE.width.toFloat() / MISMATCHED_CROP_RECT.width(),
+            0f,
+            -100f
+        )
+    }
+
+    @Test
+    fun mismatchedCropRect_fillEnd() {
+        assertForMismatchedCropRect(
+            PreviewView.ScaleType.FILL_END,
+            LayoutDirection.LTR,
+            PREVIEW_VIEW_SIZE.width.toFloat() / MISMATCHED_CROP_RECT.width(),
+            0f,
+            -200f
+        )
+    }
+
+    @Test
+    fun mismatchedCropRect_fitStartWithRtl_actsLikeFitEnd() {
+        assertForMismatchedCropRect(
+            PreviewView.ScaleType.FIT_START,
+            LayoutDirection.RTL,
+            PREVIEW_VIEW_SIZE.height.toFloat() / MISMATCHED_CROP_RECT.height(),
+            200f,
+            0f
+        )
+    }
+
+    private fun assertForMismatchedCropRect(
         scaleType: PreviewView.ScaleType,
         layoutDirection: Int,
-        translationX: Float
+        scale: Float,
+        translationX: Float,
+        translationY: Float
     ) {
         // Arrange.
         mPreviewTransform.setTransformationInfo(
-            SurfaceRequest.TransformationInfo.of(FIT_CROP_RECT, 90, Surface.ROTATION_90),
+            SurfaceRequest.TransformationInfo.of(MISMATCHED_CROP_RECT, 90, Surface.ROTATION_90),
             FIT_SURFACE_SIZE
         )
         mPreviewTransform.scaleType = scaleType
@@ -243,10 +302,9 @@ class PreviewTransformationDeviceTest {
         mPreviewTransform.transformView(PREVIEW_VIEW_SIZE, layoutDirection, mView)
 
         // Assert.
-        val scale: Float = PREVIEW_VIEW_SIZE.height.toFloat() / FIT_CROP_RECT.height()
         assertThat(mView.scaleX).isWithin(FLOAT_ERROR).of(scale)
         assertThat(mView.scaleY).isWithin(FLOAT_ERROR).of(scale)
         assertThat(mView.translationX).isWithin(FLOAT_ERROR).of(translationX)
-        assertThat(mView.translationY).isWithin(FLOAT_ERROR).of(0f)
+        assertThat(mView.translationY).isWithin(FLOAT_ERROR).of(translationY)
     }
 }
