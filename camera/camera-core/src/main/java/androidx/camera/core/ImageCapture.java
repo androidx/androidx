@@ -666,6 +666,14 @@ public final class ImageCapture extends UseCase {
             return;
         }
 
+        // Check whether the captured image can be saved. If it cannot, fail fast and notify user
+        if (!ImageSaveLocationValidator.isValid(outputFileOptions)) {
+            executor.execute(() -> imageSavedCallback.onError(
+                    new ImageCaptureException(ERROR_FILE_IO,
+                            "Cannot save capture result to specified location", null)));
+            return;
+        }
+
         /*
          * We need to chain the following callbacks to save the image to disk:
          *
