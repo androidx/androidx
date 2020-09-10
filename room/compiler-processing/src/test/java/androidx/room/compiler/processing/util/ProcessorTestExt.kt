@@ -25,10 +25,6 @@ import com.google.testing.compile.JavaSourcesSubjectFactory
 import com.tschuchort.compiletesting.KotlinCompilation
 import com.tschuchort.compiletesting.symbolProcessors
 
-// utility to run ksp tests only for easy local debugging
-// TODO remove this before merging back to AndroidX
-val runKspTestsOnly = System.getenv("RUN_KSP_TESTS_ONLY")?.toIntOrNull() == 1
-
 private fun compileSources(
     sources: List<Source>,
     handler: (TestInvocation) -> Unit
@@ -113,22 +109,17 @@ fun runProcessorTest(
     } else {
         sources
     }
-    if (!runKspTestsOnly) {
-        // we can compile w/ javac only if all code is in java
-        if (sources.all { it is Source.JavaSource }) {
-            val (syntheticJavacProcessor, compileTester) = compileSources(sources, handler)
-            compileTester.compilesWithoutError()
-            syntheticJavacProcessor.throwIfFailed()
-        }
-        // now run with kapt
-        val (kaptProcessor, kotlinCompilation) = compileWithKapt(sources, handler)
-        val compilationResult = kotlinCompilation.compile()
-        assertThat(compilationResult.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
-        kaptProcessor.throwIfFailed()
+    // we can compile w/ javac only if all code is in java
+    if (sources.all { it is Source.JavaSource }) {
+        val (syntheticJavacProcessor, compileTester) = compileSources(sources, handler)
+        compileTester.compilesWithoutError()
+        syntheticJavacProcessor.throwIfFailed()
     }
-
-    // now run with ksp
-    runKspTest(sources, succeed = true, handler = handler)
+    // now run with kapt
+    val (kaptProcessor, kotlinCompilation) = compileWithKapt(sources, handler)
+    val compilationResult = kotlinCompilation.compile()
+    assertThat(compilationResult.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
+    kaptProcessor.throwIfFailed()
 }
 
 fun runKspTest(
@@ -150,17 +141,13 @@ fun runProcessorTestForFailedCompilation(
     sources: List<Source>,
     handler: (TestInvocation) -> Unit
 ) {
-    if (!runKspTestsOnly) {
-        val (syntheticJavacProcessor, compileTester) = compileSources(sources, handler)
-        compileTester.failsToCompile()
-        syntheticJavacProcessor.throwIfFailed()
+    val (syntheticJavacProcessor, compileTester) = compileSources(sources, handler)
+    compileTester.failsToCompile()
+    syntheticJavacProcessor.throwIfFailed()
 
-        // now run with kapt
-        val (kaptProcessor, kotlinCompilation) = compileWithKapt(sources, handler)
-        val compilationResult = kotlinCompilation.compile()
-        assertThat(compilationResult.exitCode).isNotEqualTo(KotlinCompilation.ExitCode.OK)
-        kaptProcessor.throwIfFailed()
-    }
-    // now run with ksp
-    runKspTest(sources, succeed = false, handler = handler)
+    // now run with kapt
+    val (kaptProcessor, kotlinCompilation) = compileWithKapt(sources, handler)
+    val compilationResult = kotlinCompilation.compile()
+    assertThat(compilationResult.exitCode).isNotEqualTo(KotlinCompilation.ExitCode.OK)
+    kaptProcessor.throwIfFailed()
 }
