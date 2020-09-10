@@ -709,6 +709,21 @@ public class NotificationCompat {
      */
     public static final String CATEGORY_STATUS = Notification.CATEGORY_STATUS;
 
+    /**
+     * Notification category: tracking a user's workout.
+     */
+    public static final String CATEGORY_WORKOUT = "workout";
+
+    /**
+     * Notification category: temporarily sharing location.
+     */
+    public static final String CATEGORY_LOCATION_SHARING = "location_sharing";
+
+    /**
+     * Notification category: running stopwatch.
+     */
+    public static final String CATEGORY_STOPWATCH = "stopwatch";
+
     /** @hide */
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(LIBRARY_GROUP_PREFIX)
