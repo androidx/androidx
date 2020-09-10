@@ -37,10 +37,9 @@ import java.util.Locale;
 /**
  * A selection event.
  * Specify index parameters as word token indices.
- *
  * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+@RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class SelectionEvent {
     private static final String EXTRA_ABSOLUTE_START = "extra_absolute_start";
     private static final String EXTRA_ABSOLUTE_END = "extra_absolute_end";
@@ -734,10 +733,7 @@ public final class SelectionEvent {
      * Converts {@link android.view.textclassifier.TextSelection} to
      * {@link android.view.textclassifier.TextSelection}. It can only convert text selection
      * objects created by those factory methods and without further modification.
-     *
-     * @hide
      */
-    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @SuppressLint("WrongConstant")
     @RequiresApi(28)
     @NonNull

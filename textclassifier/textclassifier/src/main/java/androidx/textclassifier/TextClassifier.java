@@ -80,7 +80,7 @@ public abstract class TextClassifier {
     public static final String TYPE_FLIGHT_NUMBER = "flight";
 
     /** @hide */
-    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
     @Retention(RetentionPolicy.SOURCE)
     @StringDef(value = {
             TYPE_UNKNOWN,
