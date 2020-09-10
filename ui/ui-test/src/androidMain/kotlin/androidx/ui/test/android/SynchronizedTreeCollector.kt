@@ -17,15 +17,22 @@
 package androidx.ui.test.android
 
 import androidx.compose.ui.platform.AndroidOwner
+import androidx.compose.ui.semantics.SemanticsNode
+import androidx.compose.ui.semantics.getAllSemanticsNodes
 import androidx.test.espresso.AppNotIdleException
 import androidx.test.espresso.Espresso
 import androidx.test.espresso.IdlingRegistry
 import androidx.test.espresso.IdlingResourceTimeoutException
-import androidx.compose.ui.semantics.SemanticsNode
-import androidx.compose.ui.semantics.getAllSemanticsNodes
+import androidx.ui.test.ExperimentalTesting
 import androidx.ui.test.isOnUiThread
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.coroutines.resume
+import kotlin.time.ExperimentalTime
 
 /**
  * Collects all [SemanticsNode]s that are part of all compose hierarchies hosted by resumed
@@ -86,6 +93,8 @@ internal object SynchronizedTreeCollector {
         //  waitForAndroidOwners() suggests that we are now guaranteed one.
     }
 
+    // TODO(168223213): Make the CompositionAwaiter a suspend fun, remove ComposeIdlingResource
+    //  and blocking await Espresso.onIdle().
     private fun runEspressoOnIdle() {
         fun rethrowWithMoreInfo(e: Throwable, wasGlobalTimeout: Boolean) {
             var diagnosticInfo = ""
@@ -188,6 +197,64 @@ internal object SynchronizedTreeCollector {
                 }
             } finally {
                 AndroidOwnerRegistry.removeOnRegistrationChangedListener(listener)
+            }
+        }
+    }
+
+    @ExperimentalTesting
+    internal suspend fun awaitIdle() {
+        // TODO(b/169038516): when we can query AndroidOwners for measure or layout, remove
+        //  runEspressoOnIdle() and replace it with a suspend fun that loops while the
+        //  snapshot or the recomposer has pending changes, clocks are busy or owners have
+        //  pending measures or layouts; and do the await on AndroidUiDispatcher.Main
+        registerComposeWithEspresso()
+        // We use Espresso to wait for composition, measure, layout and draw,
+        // and Espresso needs to be called from a non-ui thread; so use Dispatchers.IO
+        withContext(Dispatchers.IO) {
+            // First wait until we have an AndroidOwner (in case an Activity is being started)
+            awaitAndroidOwners()
+            // Then await composition(s)
+            runEspressoOnIdle()
+        }
+    }
+
+    @ExperimentalTesting
+    @OptIn(ExperimentalTime::class)
+    private suspend fun awaitAndroidOwners() {
+        ensureAndroidOwnerRegistryIsSetUp()
+
+        fun hasAndroidOwners(): Boolean = AndroidOwnerRegistry.getOwners().isNotEmpty()
+
+        if (!hasAndroidOwners()) {
+            suspendCancellableCoroutine<Unit> { continuation ->
+                // Make sure we only resume once
+                val didResume = AtomicBoolean(false)
+                fun resume(listener: AndroidOwnerRegistry.OnRegistrationChangedListener) {
+                    if (didResume.compareAndSet(false, true)) {
+                        AndroidOwnerRegistry.removeOnRegistrationChangedListener(listener)
+                        continuation.resume(Unit)
+                    }
+                }
+
+                // Usually we resume if an AndroidOwner is registered while the listener is added
+                val listener = object : AndroidOwnerRegistry.OnRegistrationChangedListener {
+                    override fun onRegistrationChanged(owner: AndroidOwner, registered: Boolean) {
+                        if (hasAndroidOwners()) {
+                            resume(this)
+                        }
+                    }
+                }
+
+                AndroidOwnerRegistry.addOnRegistrationChangedListener(listener)
+                continuation.invokeOnCancellation {
+                    AndroidOwnerRegistry.removeOnRegistrationChangedListener(listener)
+                }
+
+                // Sometimes the AndroidOwner was registered before we added
+                // the listener, in which case we missed our signal
+                if (hasAndroidOwners()) {
+                    resume(listener)
+                }
             }
         }
     }

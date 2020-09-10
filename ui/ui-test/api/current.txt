@@ -30,6 +30,7 @@ package androidx.ui.test {
   public final class AndroidComposeTestRule<T extends androidx.activity.ComponentActivity> implements androidx.ui.test.ComposeTestRuleJUnit {
     ctor public AndroidComposeTestRule(androidx.test.ext.junit.rules.ActivityScenarioRule<T> activityRule, boolean disableTransitions, boolean disableBlinkingCursor);
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
+    method @androidx.ui.test.ExperimentalTesting public suspend Object? awaitIdle(kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public androidx.test.ext.junit.rules.ActivityScenarioRule<T> getActivityRule();
     method public androidx.ui.test.AnimationClockTestRule getClockTestRule();
     method public androidx.compose.ui.unit.Density getDensity();
@@ -121,6 +122,7 @@ package androidx.ui.test {
   }
 
   public interface ComposeTestRule {
+    method @androidx.ui.test.ExperimentalTesting public suspend Object? awaitIdle(kotlin.coroutines.Continuation<? super kotlin.Unit> p);
     method public androidx.compose.ui.unit.Density getDensity();
     method public long getDisplaySize();
     method public default androidx.ui.test.SemanticsNodeInteractionCollection onAllNodes(androidx.ui.test.SemanticsMatcher matcher, boolean useUnmergedTree = false);
