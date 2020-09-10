@@ -39,11 +39,15 @@ import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_TARGET_ROTATIO
 import static androidx.camera.core.impl.ImageCaptureConfig.OPTION_USE_CASE_EVENT_CALLBACK;
 import static androidx.camera.core.impl.ImageInputConfig.OPTION_INPUT_FORMAT;
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
+import static androidx.camera.core.internal.utils.ImageUtil.min;
+import static androidx.camera.core.internal.utils.ImageUtil.sizeToVertexes;
 
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.graphics.ImageFormat;
+import android.graphics.Matrix;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.location.Location;
 import android.media.Image;
 import android.media.ImageReader;
@@ -2056,8 +2060,8 @@ public final class ImageCapture extends UseCase {
                 return;
             }
 
-            Size dispatchResolution = null;
-            int dispatchRotation = 0;
+            Size dispatchResolution;
+            int dispatchRotationDegrees = 0;
 
             if (image.getFormat() == ImageFormat.JPEG) {
                 // JPEG needs to have rotation/crop based on the EXIF
@@ -2074,7 +2078,7 @@ public final class ImageCapture extends UseCase {
                     buffer.rewind();
 
                     dispatchResolution = new Size(exif.getWidth(), exif.getHeight());
-                    dispatchRotation = exif.getRotation();
+                    dispatchRotationDegrees = exif.getRotation();
                 } catch (IOException e) {
                     notifyCallbackError(ERROR_FILE_IO, "Unable to parse JPEG exif", e);
                     image.close();
@@ -2082,13 +2086,14 @@ public final class ImageCapture extends UseCase {
                 }
             } else {
                 // All other formats take the rotation based simply on the target rotation
-                dispatchRotation = mRotationDegrees;
+                dispatchResolution = new Size(image.getWidth(), image.getHeight());
+                dispatchRotationDegrees = mRotationDegrees;
             }
 
             // Construct the ImageProxy with the updated rotation & crop for the output
             ImageInfo imageInfo = ImmutableImageInfo.create(
                     image.getImageInfo().getTagBundle(),
-                    image.getImageInfo().getTimestamp(), dispatchRotation);
+                    image.getImageInfo().getTimestamp(), dispatchRotationDegrees);
 
             final ImageProxy dispatchedImageProxy = new SettableImageProxy(image,
                     dispatchResolution,
@@ -2097,12 +2102,13 @@ public final class ImageCapture extends UseCase {
             // Update the crop rect aspect ratio after it has been rotated into the buffer
             // orientation
             if (mViewPortCropRect != null) {
-                // If Viewport is present, use the crop rect based on Viewport.
-                dispatchedImageProxy.setCropRect(mViewPortCropRect);
+                // If Viewport is present, use the Viewport-based crop rect.
+                dispatchedImageProxy.setCropRect(getDispatchCropRect(mViewPortCropRect,
+                        mRotationDegrees, dispatchResolution, dispatchRotationDegrees));
             } else if (mTargetRatio != null) {
                 // Fall back to crop aspect ratio if view port is not available.
                 Rational dispatchRatio = mTargetRatio;
-                if ((dispatchRotation % 180) != 0) {
+                if ((dispatchRotationDegrees % 180) != 0) {
                     dispatchRatio = new Rational(
                             /* invert the ratio numerator=*/ mTargetRatio.getDenominator(),
                             /* invert the ratio denominator=*/ mTargetRatio.getNumerator());
@@ -2126,6 +2132,50 @@ public final class ImageCapture extends UseCase {
                 // Unable to execute on the supplied executor, close the image.
                 image.close();
             }
+        }
+
+        /**
+         * Corrects crop rect based on JPEG exif rotation.
+         *
+         * <p> The original crop rect is calculated based on camera sensor buffer. On some devices,
+         * the buffer is rotated before being passed to users, in which case the crop rect also
+         * needs additional transformations.
+         *
+         * <p> There are two most common scenarios: 1) exif rotation is 0, or 2) exif rotation
+         * equals output rotation. 1) means the HAL rotated the buffer based on target
+         * rotation. 2) means HAL no-oped on the rotation. Theoretically only 1) needs
+         * additional transformations, but this method is also generic enough to handle all possible
+         * HAL rotations.
+         */
+        @NonNull
+        static Rect getDispatchCropRect(@NonNull Rect surfaceCropRect, int surfaceToOutputDegrees,
+                @NonNull Size dispatchResolution, int dispatchToOutputDegrees) {
+            // There are 3 coordinate systems: surface, dispatch and output. Surface is where
+            // the original crop rect is defined. We need to figure out what HAL
+            // has done to the buffer (the surface->dispatch mapping) and apply the same
+            // transformation to the crop rect.
+            // The surface->dispatch mapping is calculated by inverting a dispatch->surface mapping.
+
+            Matrix matrix = new Matrix();
+            // Apply the dispatch->surface rotation.
+            matrix.setRotate(dispatchToOutputDegrees - surfaceToOutputDegrees);
+            // Apply the dispatch->surface translation. The translation is calculated by
+            // compensating for the offset caused by the dispatch->surface rotation.
+            float[] vertexes = sizeToVertexes(dispatchResolution);
+            matrix.mapPoints(vertexes);
+            float left = min(vertexes[0], vertexes[2], vertexes[4], vertexes[6]);
+            float top = min(vertexes[1], vertexes[3], vertexes[5], vertexes[7]);
+            matrix.postTranslate(-left, -top);
+            // Inverting the dispatch->surface mapping to get the surface->dispatch mapping.
+            matrix.invert(matrix);
+
+            // Apply the surface->dispatch mapping to surface crop rect.
+            RectF dispatchCropRectF = new RectF();
+            matrix.mapRect(dispatchCropRectF, new RectF(surfaceCropRect));
+            dispatchCropRectF.sort();
+            Rect dispatchCropRect = new Rect();
+            dispatchCropRectF.round(dispatchCropRect);
+            return dispatchCropRect;
         }
 
         void notifyCallbackError(final @ImageCaptureError int imageCaptureError,
