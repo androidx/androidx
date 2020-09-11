@@ -28,7 +28,6 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.os.CancellationSignal;
 import androidx.core.view.ViewCompat;
 import androidx.fragment.R;
 import androidx.lifecycle.Lifecycle;
@@ -50,9 +49,6 @@ class FragmentStateManager {
 
     private boolean mMovingToState = false;
     private int mFragmentManagerState = Fragment.INITIALIZING;
-    private CancellationSignal mEnterAnimationCancellationSignal;
-    private CancellationSignal mHiddenAnimationCancellationSignal;
-    private CancellationSignal mExitAnimationCancellationSignal;
 
     /**
      * Create a FragmentStateManager from a brand new Fragment instance.
@@ -264,10 +260,6 @@ class FragmentStateManager {
                 if (newState > mFragment.mState) {
                     // Moving upward
                     int nextStep = mFragment.mState + 1;
-                    // Cancel any ongoing exit animations as we're moving the state upward
-                    if (mExitAnimationCancellationSignal != null) {
-                        mExitAnimationCancellationSignal.cancel();
-                    }
                     switch (nextStep) {
                         case Fragment.ATTACHED:
                             attach();
@@ -296,15 +288,10 @@ class FragmentStateManager {
                                 SpecialEffectsController controller = SpecialEffectsController
                                         .getOrCreateController(mFragment.mContainer,
                                                 mFragment.getParentFragmentManager());
-                                if (mHiddenAnimationCancellationSignal != null) {
-                                    mHiddenAnimationCancellationSignal.cancel();
-                                }
-                                mEnterAnimationCancellationSignal = new CancellationSignal();
                                 int visibility = mFragment.mView.getVisibility();
                                 SpecialEffectsController.Operation.State finalState =
                                         SpecialEffectsController.Operation.State.from(visibility);
-                                controller.enqueueAdd(finalState, this,
-                                        mEnterAnimationCancellationSignal);
+                                controller.enqueueAdd(finalState, this);
                             }
                             mFragment.mState = Fragment.ACTIVITY_CREATED;
                             break;
@@ -321,10 +308,6 @@ class FragmentStateManager {
                 } else {
                     // Moving downward
                     int nextStep = mFragment.mState - 1;
-                    // Cancel any ongoing enter animations as we're moving the state downward
-                    if (mEnterAnimationCancellationSignal != null) {
-                        mEnterAnimationCancellationSignal.cancel();
-                    }
                     switch (nextStep) {
                         case Fragment.AWAITING_ENTER_EFFECTS:
                             pause();
@@ -351,12 +334,7 @@ class FragmentStateManager {
                                 SpecialEffectsController controller = SpecialEffectsController
                                         .getOrCreateController(mFragment.mContainer,
                                                 mFragment.getParentFragmentManager());
-                                if (mHiddenAnimationCancellationSignal != null) {
-                                    mHiddenAnimationCancellationSignal.cancel();
-                                }
-                                mExitAnimationCancellationSignal = new CancellationSignal();
-                                controller.enqueueRemove(this,
-                                        mExitAnimationCancellationSignal);
+                                controller.enqueueRemove(this);
                             }
                             mFragment.mState = Fragment.AWAITING_EXIT_EFFECTS;
                             break;
@@ -378,21 +356,14 @@ class FragmentStateManager {
             }
             if (FragmentManager.USE_STATE_MANAGER && mFragment.mHiddenChanged) {
                 if (mFragment.mView != null && mFragment.mContainer != null) {
-                    // Cancel any previously running show/hide
-                    if (mHiddenAnimationCancellationSignal != null) {
-                        mHiddenAnimationCancellationSignal.cancel();
-                    }
                     // Get the controller and enqueue the show/hide
                     SpecialEffectsController controller = SpecialEffectsController
                             .getOrCreateController(mFragment.mContainer,
                                     mFragment.getParentFragmentManager());
-                    mHiddenAnimationCancellationSignal = new CancellationSignal();
                     if (mFragment.mHidden) {
-                        controller.enqueueHide(this,
-                                mHiddenAnimationCancellationSignal);
+                        controller.enqueueHide(this);
                     } else {
-                        controller.enqueueShow(this,
-                                mHiddenAnimationCancellationSignal);
+                        controller.enqueueShow(this);
                     }
                 }
                 mFragment.mHiddenChanged = false;
