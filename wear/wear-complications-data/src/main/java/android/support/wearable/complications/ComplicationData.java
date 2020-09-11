@@ -31,7 +31,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.wear.complications.ComplicationHelperActivity;
-import androidx.wear.complications.ComplicationManager;
 import androidx.wear.complications.ComplicationProviderService;
 
 import java.lang.annotation.Retention;
@@ -41,10 +40,10 @@ import java.lang.annotation.RetentionPolicy;
  * Container for complication data of all types.
  *
  * <p>A {@link ComplicationProviderService} should create instances of this class using {@link
- * ComplicationData.Builder} and send them to the complication system by calling {@link
- * ComplicationManager#updateComplicationData}. Depending on the type of complication data, some
- * fields will be required and some will be optional - see the documentation for each type, and for
- * the builder's set methods, for details.
+ * ComplicationData.Builder} and send them to the complication system in response to {@link
+ * ComplicationProviderService#onComplicationUpdate}. Depending on the type of complication data,
+ * some fields will be required and some will be optional - see the documentation for each type, and
+ * for the builder's set methods, for details.
  *
  * <p>A watch face will receive instances of this class as long as providers are configured.
  *
