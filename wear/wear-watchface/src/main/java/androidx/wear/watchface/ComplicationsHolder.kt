@@ -95,13 +95,13 @@ class ComplicationsHolder(
         for ((_, complication) in complications) {
             complication.init(this, complicationInvalidateCallback)
 
-            if (!complication.defaultProvider.isEmpty() &&
+            if (!complication.defaultProviderPolicy.isEmpty() &&
                 complication.defaultProviderType != WatchFace.DEFAULT_PROVIDER_TYPE_NONE
             ) {
                 this.watchFaceHostApi.setDefaultComplicationProviderWithFallbacks(
                     complication.id,
-                    complication.defaultProvider.providers,
-                    complication.defaultProvider.systemProviderFallback,
+                    complication.defaultProviderPolicy.providers,
+                    complication.defaultProviderPolicy.systemProviderFallback,
                     complication.defaultProviderType
                 )
             }

@@ -51,8 +51,11 @@ private val EGL_CONTEXT_ATTRIB_LIST =
 
 private val EGL_SURFACE_ATTRIB_LIST = intArrayOf(EGL14.EGL_NONE)
 
-/** The base class {@link GLES20} WatchFace rendering. */
-abstract class Gles2Renderer (
+/**
+ * Watch faces that require {@link GLES20} rendering should extend their {@link Renderer} from this
+ * class.
+ */
+abstract class GlesRenderer (
     /** The {@link SurfaceHolder} that {@link onDraw} will draw into. */
     surfaceHolder: SurfaceHolder,
 
@@ -104,7 +107,7 @@ abstract class Gles2Renderer (
      * an RGBAB8888 back buffer.
      */
     @SuppressWarnings("SyntheticAccessor")
-    protected open fun getEglConfigAttribList() = EGL_CONFIG_ATTRIB_LIST
+    protected open fun getConfigAttribList() = EGL_CONFIG_ATTRIB_LIST
 
     /**
      * Chooses the EGLConfig to use, by default this calls {@link getEglConfigAttribList} to get
@@ -116,7 +119,7 @@ abstract class Gles2Renderer (
         val eglConfigs = arrayOfNulls<EGLConfig>(1)
         if (!EGL14.eglChooseConfig(
                 eglDisplay,
-                getEglConfigAttribList(),
+                getConfigAttribList(),
                 0,
                 eglConfigs,
                 0,
@@ -138,7 +141,7 @@ abstract class Gles2Renderer (
      * is empty.
      */
     @SuppressWarnings("SyntheticAccessor")
-    protected open fun getEglSurfaceAttribList() = EGL_SURFACE_ATTRIB_LIST
+    protected open fun getSurfaceAttribList() = EGL_SURFACE_ATTRIB_LIST
 
     private fun createWindowSurface(
         eglDisplay: EGLDisplay,
@@ -149,7 +152,7 @@ abstract class Gles2Renderer (
             eglDisplay,
             eglConfig,
             surfaceHolder.surface,
-            getEglSurfaceAttribList(),
+            getSurfaceAttribList(),
             0
         )
         if (result == EGL14.EGL_NO_SURFACE) {

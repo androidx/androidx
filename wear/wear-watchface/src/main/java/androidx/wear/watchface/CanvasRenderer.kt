@@ -46,7 +46,10 @@ annotation class CanvasType {
     }
 }
 
-/** The base class for {@link Canvas} WatchFace rendering. */
+/**
+ * Watch faces that require {@link Canvas} rendering should extend their {@link Renderer} from this
+ * class.
+ */
 abstract class CanvasRenderer(
     /** The {@link SurfaceHolder} that {@link onDraw} will draw into. */
     surfaceHolder: SurfaceHolder,

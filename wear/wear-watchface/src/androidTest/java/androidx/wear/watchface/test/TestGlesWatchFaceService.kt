@@ -33,7 +33,7 @@ import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
 
 /** A simple OpenGL test watch face for integration tests. */
-internal class TestGles2WatchFaceService(
+internal class TestGlesWatchFaceService(
     testContext: Context,
     private val handler: Handler,
     var mockSystemTimeMillis: Long
