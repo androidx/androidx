@@ -70,6 +70,11 @@ class FragmentAnim {
             return new AnimationOrAnimator(animator);
         }
 
+        if (nextAnim == 0 && transit != 0) {
+            nextAnim = transitToAnimResourceId(transit, enter);
+        }
+
+
         if (nextAnim != 0) {
             String dir = context.getResources().getResourceTypeName(nextAnim);
             boolean isAnim = "anim".equals(dir);
@@ -109,20 +114,7 @@ class FragmentAnim {
                 }
             }
         }
-
-        if (transit == 0) {
-            return null;
-        }
-
-        int animResourceId = transitToAnimResourceId(transit, enter);
-        if (animResourceId < 0) {
-            return null;
-        }
-
-        return new AnimationOrAnimator(AnimationUtils.loadAnimation(
-                context,
-                animResourceId
-        ));
+        return null;
     }
 
     /**
@@ -207,13 +199,13 @@ class FragmentAnim {
         int animAttr = -1;
         switch (transit) {
             case FragmentTransaction.TRANSIT_FRAGMENT_OPEN:
-                animAttr = enter ? R.anim.fragment_open_enter : R.anim.fragment_open_exit;
+                animAttr = enter ? R.animator.fragment_open_enter : R.animator.fragment_open_exit;
                 break;
             case FragmentTransaction.TRANSIT_FRAGMENT_CLOSE:
-                animAttr = enter ? R.anim.fragment_close_enter : R.anim.fragment_close_exit;
+                animAttr = enter ? R.animator.fragment_close_enter : R.animator.fragment_close_exit;
                 break;
             case FragmentTransaction.TRANSIT_FRAGMENT_FADE:
-                animAttr = enter ? R.anim.fragment_fade_enter : R.anim.fragment_fade_exit;
+                animAttr = enter ? R.animator.fragment_fade_enter : R.animator.fragment_fade_exit;
                 break;
         }
         return animAttr;
