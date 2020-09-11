@@ -423,7 +423,6 @@ class FromGenericDocumentCodeGenerator {
         CodeBlock.Builder body = CodeBlock.builder();
 
         // Copy the field to a local variable to make it easier to refer to repeatedly
-        // TODO(b/156296904): Handle GenericDocument
         if (typeUtil.isSameType(propertyType, mHelper.mStringType)) {
             body.addStatement(
                     "String[] $NConv = genericDoc.getPropertyStringArray($S)",
@@ -447,6 +446,11 @@ class FromGenericDocumentCodeGenerator {
         } else if (typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)) {
             body.addStatement(
                     "byte[][] $NConv = genericDoc.getPropertyBytesArray($S)",
+                    fieldName, propertyName);
+
+        } else if (typeUtil.isSameType(propertyType, mHelper.mGenericDocumentType)) {
+            body.addStatement(
+                    "GenericDocument[] $NConv = genericDoc.getPropertyDocumentArray($S)",
                     fieldName, propertyName);
 
         } else {
