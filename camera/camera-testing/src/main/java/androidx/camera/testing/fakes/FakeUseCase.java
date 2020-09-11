@@ -20,9 +20,11 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.camera.core.UseCase;
-import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.UseCaseConfigFactory;
 
 /**
  * A fake {@link UseCase}.
@@ -44,16 +46,31 @@ public class FakeUseCase extends UseCase {
         this(new FakeUseCaseConfig.Builder().getUseCaseConfig());
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     @Override
+    public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder(@NonNull Config config) {
+        return new FakeUseCaseConfig.Builder(config)
+                .setSessionOptionUnpacker((useCaseConfig, sessionConfigBuilder) -> { });
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
     @Nullable
-    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder() {
-        return new FakeUseCaseConfig.Builder()
-                .setSessionOptionUnpacker(new SessionConfig.OptionUnpacker() {
-                    @Override
-                    public void unpack(@NonNull UseCaseConfig<?> useCaseConfig,
-                            @NonNull SessionConfig.Builder sessionConfigBuilder) {
-                    }
-                });
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Override
+    public UseCaseConfig<?> getDefaultConfig(@NonNull UseCaseConfigFactory factory) {
+        return new FakeUseCaseConfig.Builder(getCurrentConfig())
+                .setSessionOptionUnpacker((useCaseConfig, sessionConfigBuilder) -> {
+                }).getUseCaseConfig();
     }
 
     @Override

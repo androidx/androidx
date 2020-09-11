@@ -22,24 +22,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import android.content.Context;
-
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
-import androidx.camera.testing.fakes.FakeAppConfig;
+import androidx.camera.testing.fakes.FakeUseCaseConfigFactory;
 import androidx.test.annotation.UiThreadTest;
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 @SmallTest
 @RunWith(AndroidJUnit4.class)
@@ -47,19 +40,11 @@ public class ImageAnalysisDeviceTest {
 
     private final CameraInternal mMockCameraInternal = mock(CameraInternal.class);
     private final ImageAnalysis.Analyzer mMockAnalyzer = mock(ImageAnalysis.Analyzer.class);
+    private UseCaseConfigFactory mUseCaseConfigFactory;
 
     @Before
-    public void setup() throws ExecutionException, InterruptedException {
-        CameraXConfig cameraXConfig = CameraXConfig.Builder.fromConfig(
-                FakeAppConfig.create()).build();
-
-        Context context = ApplicationProvider.getApplicationContext();
-        CameraX.initialize(context, cameraXConfig).get();
-    }
-
-    @After
-    public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
-        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+    public void setup() {
+        mUseCaseConfigFactory = new FakeUseCaseConfigFactory();
     }
 
     @Test
@@ -68,7 +53,7 @@ public class ImageAnalysisDeviceTest {
         ImageAnalysis useCase = new ImageAnalysis.Builder().setBackpressureStrategy(
                 STRATEGY_KEEP_ONLY_LATEST).build();
 
-        useCase.onAttach(mMockCameraInternal);
+        useCase.onAttach(mMockCameraInternal, mUseCaseConfigFactory);
 
         useCase.setAnalyzer(CameraXExecutors.mainThreadExecutor(), mMockAnalyzer);
 
@@ -81,7 +66,7 @@ public class ImageAnalysisDeviceTest {
         ImageAnalysis useCase = new ImageAnalysis.Builder().setBackpressureStrategy(
                 STRATEGY_KEEP_ONLY_LATEST).build();
 
-        useCase.onAttach(mMockCameraInternal);
+        useCase.onAttach(mMockCameraInternal, mUseCaseConfigFactory);
         useCase.setAnalyzer(CameraXExecutors.mainThreadExecutor(), mMockAnalyzer);
         useCase.clearAnalyzer();
 

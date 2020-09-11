@@ -68,6 +68,11 @@ public class FakeUseCaseConfig implements UseCaseConfig<FakeUseCase>, ImageOutpu
             setTargetClass(FakeUseCase.class);
         }
 
+        public Builder(@NonNull Config config) {
+            mOptionsBundle = MutableOptionsBundle.from(config);
+            setTargetClass(FakeUseCase.class);
+        }
+
         @Override
         @NonNull
         public MutableConfig getMutableConfig() {
