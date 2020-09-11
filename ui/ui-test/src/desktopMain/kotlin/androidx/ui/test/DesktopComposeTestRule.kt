@@ -34,6 +34,9 @@ import org.junit.runner.Description
 import org.junit.runners.model.Statement
 import java.awt.Component
 import java.util.LinkedList
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.FutureTask
+import javax.swing.SwingUtilities.invokeAndWait
 
 actual fun createComposeRule(
     disableTransitions: Boolean,
@@ -101,13 +104,22 @@ class DesktopComposeTestRule(
     }
 
     override fun <T> runOnUiThread(action: () -> T): T {
-        return action()
+        val task: FutureTask<T> = FutureTask(action)
+        invokeAndWait(task)
+        try {
+            return task.get()
+        } catch (e: ExecutionException) { // Expose the original exception
+            throw e.cause!!
+        }
     }
 
     override fun <T> runOnIdle(action: () -> T): T {
-        // Method below make sure that compose is idle.
+        // We are waiting for idle before and AFTER `action` to guarantee that changes introduced
+        // in `action` are propagated to components. In Android's version, it's executed in the
+        // Main thread which has similar effects. This code could be reconsidered after
+        // stabilization of the new rendering/dispatching model
         waitForIdle()
-        return action()
+        return action().also { waitForIdle() }
     }
 
     override fun setContent(composable: @Composable () -> Unit) {
