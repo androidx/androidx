@@ -678,8 +678,7 @@ class WatchFaceServiceTest {
                 beginFrameTimeMillis = 0,
                 currentTimeMillis = INTERACTIVE_UPDATE_RATE_MS
             )
-        )
-            .isEqualTo(INTERACTIVE_UPDATE_RATE_MS)
+        ).isEqualTo(INTERACTIVE_UPDATE_RATE_MS)
     }
 
     @Test
@@ -694,8 +693,19 @@ class WatchFaceServiceTest {
                 beginFrameTimeMillis = 2,
                 currentTimeMillis = INTERACTIVE_UPDATE_RATE_MS + 3
             )
-        )
-            .isEqualTo(INTERACTIVE_UPDATE_RATE_MS - 1)
+        ).isEqualTo(INTERACTIVE_UPDATE_RATE_MS - 1)
+    }
+
+    @Test
+    fun computeDelayTillNextFrame_beginFrameTimeInTheFuture() {
+        initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
+
+        assertThat(
+            watchFace.computeDelayTillNextFrame(
+                beginFrameTimeMillis = 100,
+                currentTimeMillis = 10
+            )
+        ).isEqualTo(INTERACTIVE_UPDATE_RATE_MS)
     }
 
     @Test
