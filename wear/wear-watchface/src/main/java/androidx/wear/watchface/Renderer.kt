@@ -22,15 +22,15 @@ import android.icu.util.Calendar
 import android.view.SurfaceHolder
 import androidx.annotation.CallSuper
 import androidx.annotation.UiThread
-import androidx.wear.watchface.style.UserStyleManager
+import androidx.wear.watchface.style.UserStyleRepository
 
 /** The base class for {@link CanvasRenderer} and {@link Gles2Renderer}. */
 abstract class Renderer(
     /** The {@link SurfaceHolder} that {@link onDraw} will draw into. */
     _surfaceHolder: SurfaceHolder,
 
-    /** The associated {@link UserStyleManager}. */
-    internal val userStyleManager: UserStyleManager,
+    /** The associated {@link UserStyleRepository}. */
+    internal val userStyleRepository: UserStyleRepository,
 
     /** The associated {@link WatchState}. */
     internal val watchState: WatchState
@@ -70,7 +70,7 @@ abstract class Renderer(
 
     /**
      * Renders the watch face into the {@link #surfaceHolder} using the current {@link #drawMode}
-     * with the user style specified by the {@link #userStyleManager}.
+     * with the user style specified by the {@link #userStyleRepository}.
      *
      * @param calendar The Calendar to use when rendering the watch face
      * @return A {@link Bitmap} containing a screenshot of the watch face
@@ -80,7 +80,7 @@ abstract class Renderer(
 
     /**
      * Renders the watch face into a Bitmap with the user style specified by the
-     * {@link #userStyleManager}.
+     * {@link #userStyleRepository}.
      *
      * @param calendar The Calendar to use when rendering the watch face
      * @param drawMode The {@link DrawMode} to use when rendering the watch face

@@ -30,7 +30,7 @@ import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.samples.ExampleOpenGLRenderer
 import androidx.wear.watchface.samples.R
 import androidx.wear.watchface.style.ListUserStyleCategory
-import androidx.wear.watchface.style.UserStyleManager
+import androidx.wear.watchface.style.UserStyleRepository
 
 /** A simple OpenGL test watch face for integration tests. */
 internal class TestGles2WatchFaceService(
@@ -69,11 +69,11 @@ internal class TestGles2WatchFaceService(
                 )
             )
         )
-        val styleManager = UserStyleManager(listOf(colorStyleCategory))
+        val userStyleRepository = UserStyleRepository(listOf(colorStyleCategory))
         val complicationSlots = ComplicationsHolder(emptyList())
         val renderer = ExampleOpenGLRenderer(
             surfaceHolder,
-            styleManager,
+            userStyleRepository,
             watchState,
             colorStyleCategory
         )
@@ -81,7 +81,7 @@ internal class TestGles2WatchFaceService(
         return WatchFace.Builder(
             WatchFaceType.ANALOG,
             16,
-            styleManager,
+            userStyleRepository,
             complicationSlots,
             renderer,
             // We want full control over when frames are produced.

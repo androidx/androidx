@@ -32,7 +32,7 @@ import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.watchface.style.UserStyleCategory
-import androidx.wear.watchface.style.UserStyleManager
+import androidx.wear.watchface.style.UserStyleRepository
 import org.junit.runners.model.FrameworkMethod
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.internal.bytecode.InstrumentationConfiguration
@@ -41,7 +41,7 @@ class TestWatchFaceService(
     @WatchFaceType private val watchFaceType: Int,
     private val complicationsHolder: ComplicationsHolder,
     private val renderer: TestRenderer,
-    private val userStyleManager: UserStyleManager,
+    private val userStyleRepository: UserStyleRepository,
     private val watchState: WatchState,
     private val handler: Handler,
     private val interactiveFrameRateMs: Long
@@ -53,8 +53,8 @@ class TestWatchFaceService(
     var lastUserStyle: Map<UserStyleCategory, UserStyleCategory.Option>? = null
 
     init {
-        userStyleManager.addUserStyleListener(
-            object : UserStyleManager.UserStyleListener {
+        userStyleRepository.addUserStyleListener(
+            object : UserStyleRepository.UserStyleListener {
                 override fun onUserStyleChanged(
                     userStyle: Map<UserStyleCategory, UserStyleCategory.Option>
                 ) {
@@ -101,7 +101,7 @@ class TestWatchFaceService(
         watchFace = WatchFace.Builder(
             watchFaceType,
             interactiveFrameRateMs,
-            userStyleManager,
+            userStyleRepository,
             complicationsHolder,
             renderer,
             watchFaceHost,
@@ -205,10 +205,10 @@ class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceService) :
 
 open class TestRenderer(
     surfaceHolder: SurfaceHolder,
-    userStyleManager: UserStyleManager,
+    userStyleRepository: UserStyleRepository,
     watchState: WatchState
 ) :
-    CanvasRenderer(surfaceHolder, userStyleManager, watchState, CanvasType.HARDWARE) {
+    CanvasRenderer(surfaceHolder, userStyleRepository, watchState, CanvasType.HARDWARE) {
     var lastOnDrawCalendar: Calendar? = null
     var lastDrawMode = DrawMode.INTERACTIVE
 

@@ -28,7 +28,7 @@ import android.util.Log
 import android.view.SurfaceHolder
 import androidx.annotation.CallSuper
 import androidx.annotation.UiThread
-import androidx.wear.watchface.style.UserStyleManager
+import androidx.wear.watchface.style.UserStyleRepository
 
 import java.nio.ByteBuffer
 
@@ -56,12 +56,12 @@ abstract class Gles2Renderer (
     /** The {@link SurfaceHolder} that {@link onDraw} will draw into. */
     surfaceHolder: SurfaceHolder,
 
-    /** The associated {@link UserStyleManager}. */
-    userStyleManager: UserStyleManager,
+    /** The associated {@link UserStyleRepository}. */
+    userStyleRepository: UserStyleRepository,
 
     /** The associated {@link WatchState}. */
     watchState: WatchState
-) : Renderer(surfaceHolder, userStyleManager, watchState) {
+) : Renderer(surfaceHolder, userStyleRepository, watchState) {
     private companion object {
         private const val TAG = "Gles2WatchFace"
     }

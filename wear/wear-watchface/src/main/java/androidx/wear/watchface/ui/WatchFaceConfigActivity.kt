@@ -33,7 +33,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.wear.complications.ComplicationHelperActivity
 import androidx.wear.watchface.style.UserStyleCategory
-import androidx.wear.watchface.style.UserStyleManager
+import androidx.wear.watchface.style.UserStyleRepository
 
 /** @hide */
 @RestrictTo(LIBRARY)
@@ -208,7 +208,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
             }
 
         styleSchema =
-            UserStyleManager.bundlesToUserStyleCategoryList(
+            UserStyleRepository.bundlesToUserStyleCategoryList(
                 watchFaceConfigDelegate.getUserStyleSchema()
             )
 
@@ -250,7 +250,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 fragmentController.showStyleConfigFragment(
                     onlyStyleCategory.id,
                     styleSchema,
-                    UserStyleManager.bundleToStyleMap(
+                    UserStyleRepository.bundleToStyleMap(
                         watchFaceConfigDelegate.getUserStyle(),
                         styleSchema
                     )

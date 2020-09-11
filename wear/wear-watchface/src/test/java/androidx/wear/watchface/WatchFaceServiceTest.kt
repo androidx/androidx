@@ -39,7 +39,7 @@ import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyleCategory
-import androidx.wear.watchface.style.UserStyleManager
+import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.ui.WatchFaceConfigActivity
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
@@ -181,7 +181,7 @@ class WatchFaceServiceTest {
 
     private lateinit var renderer: TestRenderer
     private lateinit var complicationsHolder: ComplicationsHolder
-    private lateinit var userStyleManager: UserStyleManager
+    private lateinit var userStyleRepository: UserStyleRepository
     private lateinit var watchFace: WatchFace
     private lateinit var testWatchFaceService: TestWatchFaceService
     private lateinit var engineWrapper: WatchFaceService.EngineWrapper
@@ -209,14 +209,14 @@ class WatchFaceServiceTest {
         apiVersion: Int = 2
     ) {
         this.complicationsHolder = ComplicationsHolder(complications)
-        userStyleManager =
-            UserStyleManager(userStyleCategories)
-        renderer = TestRenderer(surfaceHolder, userStyleManager, systemState)
+        userStyleRepository =
+            UserStyleRepository(userStyleCategories)
+        renderer = TestRenderer(surfaceHolder, userStyleRepository, systemState)
         testWatchFaceService = TestWatchFaceService(
             watchFaceType,
             this.complicationsHolder,
             renderer,
-            userStyleManager,
+            userStyleRepository,
             systemState,
             handler,
             INTERACTIVE_UPDATE_RATE_MS
@@ -754,21 +754,21 @@ class WatchFaceServiceTest {
         )
 
         // This should get persisted.
-        userStyleManager.userStyle = mapOf(
+        userStyleRepository.userStyle = mapOf(
             colorStyleCategory to blueStyleOption,
             watchHandStyleCategory to gothicStyleOption
         )
 
-        val styleManager2 = UserStyleManager(
+        val userStyleRepository2 = UserStyleRepository(
             listOf(colorStyleCategory, watchHandStyleCategory)
         )
 
-        val testRenderer2 = TestRenderer(surfaceHolder, styleManager2, systemState)
+        val testRenderer2 = TestRenderer(surfaceHolder, userStyleRepository2, systemState)
         val service2 = TestWatchFaceService(
             WatchFaceType.ANALOG,
             ComplicationsHolder(emptyList()),
             testRenderer2,
-            styleManager2,
+            userStyleRepository2,
             systemState,
             handler,
             INTERACTIVE_UPDATE_RATE_MS
@@ -779,10 +779,10 @@ class WatchFaceServiceTest {
         engine2.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engine2, apiVersion = 2)
 
-        assertThat(styleManager2.userStyle[colorStyleCategory]).isEqualTo(
+        assertThat(userStyleRepository2.userStyle[colorStyleCategory]).isEqualTo(
             blueStyleOption
         )
-        assertThat(styleManager2.userStyle[watchHandStyleCategory]).isEqualTo(
+        assertThat(userStyleRepository2.userStyle[watchHandStyleCategory]).isEqualTo(
             gothicStyleOption
         )
     }
@@ -809,21 +809,21 @@ class WatchFaceServiceTest {
         )
 
         // This should get persisted.
-        userStyleManager.userStyle = mapOf(
+        userStyleRepository.userStyle = mapOf(
             colorStyleCategory to blueStyleOption,
             watchHandStyleCategory to gothicStyleOption
         )
 
-        val styleManager2 = UserStyleManager(
+        val userStyleRepository2 = UserStyleRepository(
             listOf(colorStyleCategory, watchHandStyleCategory)
         )
 
-        val testRenderer2 = TestRenderer(surfaceHolder, styleManager2, systemState)
+        val testRenderer2 = TestRenderer(surfaceHolder, userStyleRepository2, systemState)
         val service2 = TestWatchFaceService(
             WatchFaceType.ANALOG,
             ComplicationsHolder(emptyList()),
             testRenderer2,
-            styleManager2,
+            userStyleRepository2,
             systemState,
             handler,
             INTERACTIVE_UPDATE_RATE_MS
@@ -834,10 +834,10 @@ class WatchFaceServiceTest {
         engine2.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engine2, apiVersion = 3)
 
-        assertThat(styleManager2.userStyle[colorStyleCategory]).isEqualTo(
+        assertThat(userStyleRepository2.userStyle[colorStyleCategory]).isEqualTo(
             blueStyleOption
         )
-        assertThat(styleManager2.userStyle[watchHandStyleCategory]).isEqualTo(
+        assertThat(userStyleRepository2.userStyle[watchHandStyleCategory]).isEqualTo(
             gothicStyleOption
         )
     }
@@ -845,7 +845,7 @@ class WatchFaceServiceTest {
     @Test
     fun persistedStyleOptionMismatchIgnored() {
         `when`(iWatchFaceService.getStoredUserStyle()).thenReturn(
-            UserStyleManager.styleMapToBundle(mapOf(watchHandStyleCategory to badStyleOption))
+            UserStyleRepository.styleMapToBundle(mapOf(watchHandStyleCategory to badStyleOption))
         )
 
         initEngine(
@@ -1026,16 +1026,16 @@ class WatchFaceServiceTest {
 
     @Test
     fun requestStyleBeforeSetBinder() {
-        var styleManager =
-            UserStyleManager(emptyList())
-        var testRenderer = TestRenderer(surfaceHolder, styleManager, systemState)
+        var userStyleRepository =
+            UserStyleRepository(emptyList())
+        var testRenderer = TestRenderer(surfaceHolder, userStyleRepository, systemState)
         val service = TestWatchFaceService(
             WatchFaceType.ANALOG,
             ComplicationsHolder(
                 listOf(leftComplication, rightComplication, backgroundComplication)
             ),
             testRenderer,
-            UserStyleManager(emptyList()),
+            UserStyleRepository(emptyList()),
             systemState,
             handler,
             INTERACTIVE_UPDATE_RATE_MS
@@ -1122,8 +1122,8 @@ class WatchFaceServiceTest {
 
     @Test
     fun shouldAnimateOverrideControlsEnteringAmbientMode() {
-        var styleManager = UserStyleManager(emptyList())
-        var testRenderer = object : TestRenderer(surfaceHolder, styleManager, systemState) {
+        var userStyleRepository = UserStyleRepository(emptyList())
+        var testRenderer = object : TestRenderer(surfaceHolder, userStyleRepository, systemState) {
             var animate = true
             override fun shouldAnimate() = animate
         }
@@ -1131,7 +1131,7 @@ class WatchFaceServiceTest {
             WatchFaceType.ANALOG,
             ComplicationsHolder(emptyList()),
             testRenderer,
-            UserStyleManager(emptyList()),
+            UserStyleRepository(emptyList()),
             systemState,
             handler,
             INTERACTIVE_UPDATE_RATE_MS

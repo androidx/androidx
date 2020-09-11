@@ -36,7 +36,7 @@ class UserStyleManagerTestRunner(testClass: Class<*>) : RobolectricTestRunner(te
 }
 
 @RunWith(UserStyleManagerTestRunner::class)
-class UserStyleManagerTest {
+class UserStyleRepositoryTest {
     private val redStyleOption =
         ListUserStyleCategory.ListOption("red_style", "Red", icon = null)
 
@@ -76,11 +76,12 @@ class UserStyleManagerTest {
         watchHandStyleList
     )
 
-    private val mockListener1 = Mockito.mock(UserStyleManager.UserStyleListener::class.java)
-    private val mockListener2 = Mockito.mock(UserStyleManager.UserStyleListener::class.java)
-    private val mockListener3 = Mockito.mock(UserStyleManager.UserStyleListener::class.java)
+    private val mockListener1 = Mockito.mock(UserStyleRepository.UserStyleListener::class.java)
+    private val mockListener2 = Mockito.mock(UserStyleRepository.UserStyleListener::class.java)
+    private val mockListener3 = Mockito.mock(UserStyleRepository.UserStyleListener::class.java)
 
-    private val styleManager = UserStyleManager(listOf(colorStyleCategory, watchHandStyleCategory))
+    private val userStyleRepository =
+        UserStyleRepository(listOf(colorStyleCategory, watchHandStyleCategory))
 
     private val icon1 = Icon.createWithContentUri("icon1")
     private val icon2 = Icon.createWithContentUri("icon2")
@@ -93,19 +94,19 @@ class UserStyleManagerTest {
 
     @Test
     fun addUserStyleListener_firesImmediately() {
-        styleManager.addUserStyleListener(mockListener1)
-        Mockito.verify(mockListener1).onUserStyleChanged(styleManager.userStyle)
+        userStyleRepository.addUserStyleListener(mockListener1)
+        Mockito.verify(mockListener1).onUserStyleChanged(userStyleRepository.userStyle)
     }
 
     @Test
     fun assigning_userStyle_firesListeners() {
-        styleManager.addUserStyleListener(mockListener1)
-        styleManager.addUserStyleListener(mockListener2)
-        styleManager.addUserStyleListener(mockListener3)
+        userStyleRepository.addUserStyleListener(mockListener1)
+        userStyleRepository.addUserStyleListener(mockListener2)
+        userStyleRepository.addUserStyleListener(mockListener3)
 
-        Mockito.verify(mockListener1).onUserStyleChanged(styleManager.userStyle)
-        Mockito.verify(mockListener2).onUserStyleChanged(styleManager.userStyle)
-        Mockito.verify(mockListener3).onUserStyleChanged(styleManager.userStyle)
+        Mockito.verify(mockListener1).onUserStyleChanged(userStyleRepository.userStyle)
+        Mockito.verify(mockListener2).onUserStyleChanged(userStyleRepository.userStyle)
+        Mockito.verify(mockListener3).onUserStyleChanged(userStyleRepository.userStyle)
 
         val newStyle: Map<UserStyleCategory, UserStyleCategory.Option> = mapOf(
             colorStyleCategory to greenStyleOption,
@@ -116,11 +117,11 @@ class UserStyleManagerTest {
         Mockito.reset(mockListener2)
         Mockito.reset(mockListener3)
 
-        styleManager.userStyle = newStyle
+        userStyleRepository.userStyle = newStyle
 
-        Mockito.verify(mockListener1).onUserStyleChanged(styleManager.userStyle)
-        Mockito.verify(mockListener2).onUserStyleChanged(styleManager.userStyle)
-        Mockito.verify(mockListener3).onUserStyleChanged(styleManager.userStyle)
+        Mockito.verify(mockListener1).onUserStyleChanged(userStyleRepository.userStyle)
+        Mockito.verify(mockListener2).onUserStyleChanged(userStyleRepository.userStyle)
+        Mockito.verify(mockListener3).onUserStyleChanged(userStyleRepository.userStyle)
     }
 
     @Test
@@ -130,10 +131,10 @@ class UserStyleManagerTest {
             watchHandStyleCategory to gothicStyleOption
         )
 
-        styleManager.userStyle = newStyle
+        userStyleRepository.userStyle = newStyle
 
-        assertThat(styleManager.userStyle[colorStyleCategory]).isEqualTo(greenStyleOption)
-        assertThat(styleManager.userStyle[watchHandStyleCategory])
+        assertThat(userStyleRepository.userStyle[colorStyleCategory]).isEqualTo(greenStyleOption)
+        assertThat(userStyleRepository.userStyle[watchHandStyleCategory])
             .isEqualTo(gothicStyleOption)
     }
 
@@ -172,9 +173,9 @@ class UserStyleManagerTest {
     @Test
     fun bundleAndUnbundleOptionList() {
         val bundle = Bundle()
-        UserStyleManager.writeOptionListToBundle(listOf(option1, option2, option3), bundle)
+        UserStyleRepository.writeOptionListToBundle(listOf(option1, option2, option3), bundle)
 
-        val unbundled = UserStyleManager.readOptionsListFromBundle(bundle)
+        val unbundled = UserStyleRepository.readOptionsListFromBundle(bundle)
         val optionArray = unbundled.filterIsInstance<ListUserStyleCategory.ListOption>()
             .toTypedArray()
 
@@ -201,11 +202,11 @@ class UserStyleManagerTest {
             "id2", "displayName2", "description2", categoryIcon2, listOf(option3, option4)
         )
 
-        val bundles = UserStyleManager.userStyleCategoriesToBundles(
+        val bundles = UserStyleRepository.userStyleCategoriesToBundles(
             listOf(styleCategory1, styleCategory2)
         )
 
-        val unbundled = UserStyleManager.bundlesToUserStyleCategoryList(bundles)
+        val unbundled = UserStyleRepository.bundlesToUserStyleCategoryList(bundles)
 
         assert(unbundled[0] is ListUserStyleCategory)
         assertThat(unbundled[0].id).isEqualTo("id1")
@@ -255,9 +256,9 @@ class UserStyleManagerTest {
             styleCategory1 as UserStyleCategory to option2 as UserStyleCategory.Option,
             styleCategory2 as UserStyleCategory to option3 as UserStyleCategory.Option
         )
-        val bundle = UserStyleManager.styleMapToBundle(styleMap)
+        val bundle = UserStyleRepository.styleMapToBundle(styleMap)
 
-        val unbundled = UserStyleManager.bundleToStyleMap(bundle, schema)
+        val unbundled = UserStyleRepository.bundleToStyleMap(bundle, schema)
         assertThat(unbundled.size).isEqualTo(2)
         assertThat(unbundled[styleCategory1]!!.id).isEqualTo(option2.id)
         assertThat(unbundled[styleCategory2]!!.id).isEqualTo(option3.id)

@@ -90,7 +90,7 @@ abstract class UserStyleCategory(
         bundle.getString(KEY_DISPLAY_NAME)!!,
         bundle.getString(KEY_DESCRIPTION)!!,
         bundle.getParcelable(KEY_ICON),
-        UserStyleManager.readOptionsListFromBundle(bundle),
+        UserStyleRepository.readOptionsListFromBundle(bundle),
         Option.createFromBundle(bundle.getBundle(KEY_DEFAULT_OPTION)!!)
     )
 
@@ -105,7 +105,7 @@ abstract class UserStyleCategory(
             KEY_DEFAULT_OPTION,
             Bundle().apply { defaultOption.writeToBundle(this) }
         )
-        UserStyleManager.writeOptionListToBundle(options, bundle)
+        UserStyleRepository.writeOptionListToBundle(options, bundle)
     }
 
     /**

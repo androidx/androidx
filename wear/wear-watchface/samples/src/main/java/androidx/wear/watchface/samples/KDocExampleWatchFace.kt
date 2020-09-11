@@ -39,7 +39,7 @@ import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyleCategory
-import androidx.wear.watchface.style.UserStyleManager
+import androidx.wear.watchface.style.UserStyleRepository
 
 @Sampled
 fun kDocCreateExampleWatchFaceService(): WatchFaceService {
@@ -50,7 +50,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
             watchFaceHost: WatchFaceHost,
             watchState: WatchState
         ): WatchFace {
-            val styleManager = UserStyleManager(
+            val userStyleRepository = UserStyleRepository(
                 listOf(
                     ListUserStyleCategory(
                         "color_style_category",
@@ -137,19 +137,20 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
 
             val renderer = object : CanvasRenderer(
                 surfaceHolder,
-                styleManager,
+                userStyleRepository,
                 watchState,
                 CanvasType.HARDWARE
             ) {
                 init {
-                    styleManager.addUserStyleListener(object : UserStyleManager.UserStyleListener {
-                        override fun onUserStyleChanged(
-                            userStyle: Map<UserStyleCategory, UserStyleCategory.Option>
-                        ) {
-                            // `userStyle` will contain two userStyle categories with options from
-                            // the lists above. ...
-                        }
-                    })
+                    userStyleRepository.addUserStyleListener(
+                        object : UserStyleRepository.UserStyleListener {
+                            override fun onUserStyleChanged(
+                                userStyle: Map<UserStyleCategory, UserStyleCategory.Option>
+                            ) {
+                                // `userStyle` will contain two userStyle categories with options
+                                // from the lists above. ...
+                            }
+                        })
                 }
 
                 override fun render(
@@ -164,7 +165,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
             return WatchFace.Builder(
                 WatchFaceType.ANALOG,
                 /* interactiveUpdateRateMillis */ 16,
-                styleManager,
+                userStyleRepository,
                 complicationSlots,
                 renderer,
                 watchFaceHost,
