@@ -39,7 +39,7 @@ import androidx.wear.watchface.samples.WatchFaceColorStyle
 import androidx.wear.watchface.style.BooleanUserStyleCategory
 import androidx.wear.watchface.style.DoubleRangeUserStyleCategory
 import androidx.wear.watchface.style.ListUserStyleCategory
-import androidx.wear.watchface.style.UserStyleManager
+import androidx.wear.watchface.style.UserStyleRepository
 
 /** A simple canvas test watch face for integration tests. */
 internal class TestCanvasWatchFaceService(
@@ -97,7 +97,7 @@ internal class TestCanvasWatchFaceService(
                 1.0,
                 1.0
             )
-        val styleManager = UserStyleManager(
+        val userStyleRepository = UserStyleRepository(
             listOf(colorStyleCategory, drawHourPipsStyleCategory, watchHandLengthStyleCategory)
         )
         val complicationSlots = ComplicationsHolder(
@@ -136,7 +136,7 @@ internal class TestCanvasWatchFaceService(
             surfaceHolder,
             this,
             watchFaceStyle,
-            styleManager,
+            userStyleRepository,
             watchState,
             colorStyleCategory,
             drawHourPipsStyleCategory,
@@ -147,7 +147,7 @@ internal class TestCanvasWatchFaceService(
         return WatchFace.Builder(
             WatchFaceType.ANALOG,
             16,
-            styleManager,
+            userStyleRepository,
             complicationSlots,
             renderer,
             // We want full control over when frames are produced.
