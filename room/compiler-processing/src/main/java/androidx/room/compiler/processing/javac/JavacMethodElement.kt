@@ -19,6 +19,7 @@ package androidx.room.compiler.processing.javac
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMethodType
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.XVariableElement
 import androidx.room.compiler.processing.javac.kotlin.KmFunction
 import com.google.auto.common.MoreElements
@@ -42,8 +43,16 @@ internal class JavacMethodElement(
             "Method element is constructed with invalid type: $element"
         }
     }
+
+    override val name: String
+        get() = element.simpleName.toString()
+
+    override val enclosingTypeElement: XTypeElement by lazy {
+        element.requireEnclosingType(env)
+    }
+
     override val kotlinMetadata: KmFunction? by lazy {
-        (enclosingElement as? JavacTypeElement)?.kotlinMetadata?.getFunctionMetadata(element)
+        (enclosingTypeElement as? JavacTypeElement)?.kotlinMetadata?.getFunctionMetadata(element)
     }
 
     override val executableType: JavacMethodType by lazy {

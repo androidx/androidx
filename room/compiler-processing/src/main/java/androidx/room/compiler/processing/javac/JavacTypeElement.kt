@@ -16,8 +16,9 @@
 
 package androidx.room.compiler.processing.javac
 
+import androidx.room.compiler.processing.XFieldElement
+import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.compiler.processing.XVariableElement
 import androidx.room.compiler.processing.javac.kotlin.KotlinMetadataElement
 import com.google.auto.common.MoreElements
 import com.squareup.javapoet.ClassName
@@ -29,7 +30,14 @@ import javax.lang.model.util.ElementFilter
 internal class JavacTypeElement(
     env: JavacProcessingEnv,
     override val element: TypeElement
-) : JavacElement(env, element), XTypeElement {
+) : JavacElement(env, element), XTypeElement, XHasModifiers by JavacHasModifiers(element) {
+
+    override val name: String
+        get() = element.simpleName.toString()
+
+    @Suppress("UnstableApiUsage")
+    override val packageName: String
+        get() = MoreElements.getPackage(element).qualifiedName.toString()
 
     val kotlinMetadata by lazy {
         KotlinMetadataElement.createFor(element)
@@ -41,6 +49,9 @@ internal class JavacTypeElement(
 
     override val className: ClassName by lazy {
         ClassName.get(element)
+    }
+    override val enclosingTypeElement: XTypeElement? by lazy {
+        element.enclosingType(env)
     }
 
     override fun isInterface() = element.kind == ElementKind.INTERFACE
@@ -57,7 +68,7 @@ internal class JavacTypeElement(
         }
     }
 
-    override fun getAllFieldsIncludingPrivateSupers(): List<XVariableElement> {
+    override fun getAllFieldsIncludingPrivateSupers(): List<XFieldElement> {
         return _allFieldsIncludingPrivateSupers
     }
 

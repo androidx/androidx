@@ -16,7 +16,7 @@
 
 package androidx.room.ext
 
-import androidx.room.compiler.processing.XExecutableElement
+import androidx.room.compiler.processing.XMethodElement
 import com.google.common.truth.Truth.assertThat
 import com.google.testing.compile.JavaFileObjects
 import com.squareup.javapoet.ClassName
@@ -102,8 +102,8 @@ class ElementExtTest {
                             ) + "overridden" // add 1 overridden back
                 )
 
-            assertThat(child.getConstructors()).containsExactly("<init>")
-            assertThat(parent.getConstructors()).containsExactly("<init>")
+            assertThat(child.getConstructors()).hasSize(1)
+            assertThat(parent.getConstructors()).hasSize(1)
         }.compilesWithoutError()
     }
 
@@ -229,7 +229,7 @@ class ElementExtTest {
         }.compilesWithoutError()
     }
 
-    private fun assertThat(executables: Iterable<XExecutableElement>) = assertThat(
+    private fun assertThat(executables: Iterable<XMethodElement>) = assertThat(
         executables.map { it.name }
     )
 }

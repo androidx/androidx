@@ -17,6 +17,7 @@
 package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XConstructorElement
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.javac.kotlin.KmConstructor
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.ExecutableElement
@@ -36,7 +37,11 @@ internal class JavacConstructorElement(
         }
     }
 
+    override val enclosingTypeElement: XTypeElement by lazy {
+        element.requireEnclosingType(env)
+    }
+
     override val kotlinMetadata: KmConstructor? by lazy {
-        (enclosingElement as? JavacTypeElement)?.kotlinMetadata?.getConstructorMetadata(element)
+        (enclosingTypeElement as? JavacTypeElement)?.kotlinMetadata?.getConstructorMetadata(element)
     }
 }

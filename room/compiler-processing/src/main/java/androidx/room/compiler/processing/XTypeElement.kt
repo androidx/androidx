@@ -18,11 +18,23 @@ package androidx.room.compiler.processing
 
 import com.squareup.javapoet.ClassName
 
-interface XTypeElement : XElement {
+interface XTypeElement : XHasModifiers, XElement {
     /**
      * The qualified name of the Class/Interface.
      */
     val qualifiedName: String
+
+    /**
+     * The qualified name of the package that contains this element.
+     */
+    val packageName: String
+
+    /**
+     * SimpleName of the type converted to String.
+     *
+     * @see [javax.lang.model.element.Element.getSimpleName]
+     */
+    val name: String
 
     /**
      * The type represented by this [XTypeElement].
@@ -40,6 +52,11 @@ interface XTypeElement : XElement {
     val className: ClassName
 
     /**
+     * The [XTypeElement] that contains this [XTypeElement] if it is an inner class/interface.
+     */
+    val enclosingTypeElement: XTypeElement?
+
+    /**
      * Returns `true` if this [XTypeElement] represents an interface
      */
     fun isInterface(): Boolean
@@ -53,7 +70,7 @@ interface XTypeElement : XElement {
      * All fields, including private supers.
      * Room only ever reads fields this way.
      */
-    fun getAllFieldsIncludingPrivateSupers(): List<XVariableElement>
+    fun getAllFieldsIncludingPrivateSupers(): List<XFieldElement>
 
     /**
      * Returns the primary constructor for the type, if it exists.

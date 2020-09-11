@@ -17,9 +17,9 @@
 package androidx.room.processor
 
 import androidx.room.Entity
+import androidx.room.compiler.processing.XFieldElement
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
-import androidx.room.compiler.processing.XVariableElement
 import androidx.room.solver.types.ColumnTypeAdapter
 import androidx.room.testing.TestInvocation
 import androidx.room.testing.TestProcessor
@@ -242,12 +242,12 @@ class FieldProcessorTest {
     @Test
     fun nameVariations() {
         simpleRun {
-            val variableElement = mock(XVariableElement::class.java)
-            assertThat(Field(variableElement, "x", TypeName.INT.typeMirror(it),
+            val fieldElement = mock(XFieldElement::class.java)
+            assertThat(Field(fieldElement, "x", TypeName.INT.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("x")))
-            assertThat(Field(variableElement, "x", TypeName.BOOLEAN.typeMirror(it),
+            assertThat(Field(fieldElement, "x", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("x")))
-            assertThat(Field(variableElement, "xAll",
+            assertThat(Field(fieldElement, "xAll",
                 TypeName.BOOLEAN.typeMirror(it), SQLTypeAffinity.INTEGER)
                     .nameWithVariations, `is`(arrayListOf("xAll")))
         }
@@ -255,7 +255,7 @@ class FieldProcessorTest {
 
     @Test
     fun nameVariations_is() {
-        val elm = mock(XVariableElement::class.java)
+        val elm = mock(XFieldElement::class.java)
         simpleRun {
             assertThat(Field(elm, "isX", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("isX", "x")))
@@ -271,7 +271,7 @@ class FieldProcessorTest {
 
     @Test
     fun nameVariations_has() {
-        val elm = mock(XVariableElement::class.java)
+        val elm = mock(XFieldElement::class.java)
         simpleRun {
             assertThat(Field(elm, "hasX", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("hasX", "x")))
@@ -287,7 +287,7 @@ class FieldProcessorTest {
 
     @Test
     fun nameVariations_m() {
-        val elm = mock(XVariableElement::class.java)
+        val elm = mock(XFieldElement::class.java)
         simpleRun {
             assertThat(Field(elm, "mall", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("mall")))
@@ -308,7 +308,7 @@ class FieldProcessorTest {
 
     @Test
     fun nameVariations_underscore() {
-        val elm = mock(XVariableElement::class.java)
+        val elm = mock(XFieldElement::class.java)
         simpleRun {
             assertThat(Field(elm, "_all", TypeName.BOOLEAN.typeMirror(it),
                     SQLTypeAffinity.INTEGER).nameWithVariations, `is`(arrayListOf("_all", "all")))
@@ -436,7 +436,7 @@ class FieldProcessorTest {
                             val parser = FieldProcessor(
                                     baseContext = entityContext,
                                     containing = owner.asDeclaredType(),
-                                    element = fieldElement!!.asVariableElement(),
+                                    element = fieldElement!!,
                                     bindingScope = FieldProcessor.BindingScope.TWO_WAY,
                                     fieldParent = null,
                                     onBindingError = { field, errorMsg ->

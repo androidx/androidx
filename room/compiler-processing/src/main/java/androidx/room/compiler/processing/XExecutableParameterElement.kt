@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,23 +17,6 @@
 package androidx.room.compiler.processing
 
 /**
- * Represents a method, constructor or initializer.
- *
- * @see [javax.lang.model.element.ExecutableElement]
+ * Parameter of a method.
  */
-interface XExecutableElement : XHasModifiers, XElement {
-    /**
-     * The [XTypeElement] that declared this executable.
-     */
-    val enclosingTypeElement: XTypeElement
-    /**
-     * The list of parameters that should be passed into this method.
-     *
-     * @see [isVarArgs]
-     */
-    val parameters: List<XExecutableParameterElement>
-    /**
-     * Returns true if this method receives a vararg parameter.
-     */
-    fun isVarArgs(): Boolean
-}
+interface XExecutableParameterElement : XVariableElement
