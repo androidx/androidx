@@ -66,7 +66,11 @@ open class TransitionFragment(
     }
 
     internal fun waitForTransition() {
-        endTransitionCountDownLatch.await()
+        assertWithMessage("Timed out waiting for onTransitionEnd")
+            .that(endTransitionCountDownLatch.await(1, TimeUnit.SECONDS))
+            .isTrue()
+        assertThat(listener.lifecycleInTransitionEnd)
+            .isNotEqualTo(Lifecycle.State.DESTROYED)
         endTransitionCountDownLatch = CountDownLatch(1)
     }
 
@@ -127,9 +131,14 @@ open class TestTransitionFragmentListener(
     val fragment: TransitionFragment
 ) : Transition.TransitionListener {
 
+    lateinit var lifecycleInTransitionEnd: Lifecycle.State
+
     override fun onTransitionEnd(transition: Transition) {
-        assertThat(fragment.viewLifecycleOwner.lifecycle.currentState)
-            .isNotEqualTo(Lifecycle.State.DESTROYED)
+        lifecycleInTransitionEnd = if (fragment.view == null) {
+            Lifecycle.State.DESTROYED
+        } else {
+            fragment.viewLifecycleOwner.lifecycle.currentState
+        }
         fragment.endTransitionCountDownLatch.countDown()
         fragment.startTransitionCountDownLatch = CountDownLatch(1)
     }

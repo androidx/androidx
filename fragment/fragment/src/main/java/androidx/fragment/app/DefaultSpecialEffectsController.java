@@ -37,7 +37,6 @@ import androidx.core.view.ViewGroupCompat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -48,48 +47,8 @@ import java.util.Map;
  */
 class DefaultSpecialEffectsController extends SpecialEffectsController {
 
-    private final HashMap<Operation, HashSet<CancellationSignal>>
-            mRunningOperations = new HashMap<>();
-
     DefaultSpecialEffectsController(@NonNull ViewGroup container) {
         super(container);
-    }
-
-    /**
-     * Add new {@link CancellationSignal} for special effects
-     */
-    private void addCancellationSignal(@NonNull Operation operation,
-            @NonNull CancellationSignal signal) {
-        if (mRunningOperations.get(operation) == null) {
-            mRunningOperations.put(operation, new HashSet<CancellationSignal>());
-        }
-        mRunningOperations.get(operation).add(signal);
-    }
-
-    /**
-     * Remove a {@link CancellationSignal} that was previously added with
-     * {@link #addCancellationSignal(Operation, CancellationSignal)}.
-     *
-     * This calls through to {@link Operation#complete()} when the last special effect is complete.
-     */
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void removeCancellationSignal(@NonNull Operation operation,
-            @NonNull CancellationSignal signal) {
-        HashSet<CancellationSignal> signals = mRunningOperations.get(operation);
-        if (signals != null && signals.remove(signal) && signals.isEmpty()) {
-            mRunningOperations.remove(operation);
-            operation.complete();
-        }
-    }
-
-    @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void cancelAllSpecialEffects(@NonNull Operation operation) {
-        HashSet<CancellationSignal> signals = mRunningOperations.remove(operation);
-        if (signals != null) {
-            for (CancellationSignal signal : signals) {
-                signal.cancel();
-            }
-        }
     }
 
     @Override
@@ -127,13 +86,13 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         for (final Operation operation : operations) {
             // Create the animation CancellationSignal
             CancellationSignal animCancellationSignal = new CancellationSignal();
-            addCancellationSignal(operation, animCancellationSignal);
+            operation.markStartedSpecialEffect(animCancellationSignal);
             // Add the animation special effect
             animations.add(new AnimationInfo(operation, animCancellationSignal));
 
             // Create the transition CancellationSignal
             CancellationSignal transitionCancellationSignal = new CancellationSignal();
-            addCancellationSignal(operation, transitionCancellationSignal);
+            operation.markStartedSpecialEffect(transitionCancellationSignal);
             // Add the transition special effect
             transitions.add(new TransitionInfo(operation, transitionCancellationSignal, isPop,
                     isPop ? operation == firstOut : operation == lastIn));
@@ -172,14 +131,6 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                     }
                 }
             });
-            // Ensure that when the Operation is cancelled, we cancel all special effects
-            operation.getCancellationSignal().setOnCancelListener(
-                    new CancellationSignal.OnCancelListener() {
-                        @Override
-                        public void onCancel() {
-                            cancelAllSpecialEffects(operation);
-                        }
-                    });
         }
 
         // Start transition special effects
@@ -214,29 +165,29 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         Operation.State finalState = operation.getFinalState();
         if (currentState == finalState || (currentState != Operation.State.VISIBLE
                 && finalState != Operation.State.VISIBLE)) {
-            // No change in visibility, so we can immediately remove the CancellationSignal
-            removeCancellationSignal(operation, signal);
+            // No change in visibility, so we can immediately complete the animation
+            operation.completeSpecialEffect(signal);
             return;
         }
         FragmentAnim.AnimationOrAnimator anim = FragmentAnim.loadAnimation(context,
                 fragment, finalState == Operation.State.VISIBLE);
         if (anim == null) {
-            // No animation, so we can immediately remove the CancellationSignal
-            removeCancellationSignal(operation, signal);
+            // No animation, so we can immediately complete the animation
+            operation.completeSpecialEffect(signal);
             return;
         } else if (startedAnyTransition && anim.animation != null) {
             if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                 Log.v(FragmentManager.TAG, "Ignoring Animation set on "
                         + fragment + " as Animations cannot run alongside Transitions.");
             }
-            removeCancellationSignal(operation, signal);
+            operation.completeSpecialEffect(signal);
             return;
         } else if (startedTransitions) {
             if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                 Log.v(FragmentManager.TAG, "Ignoring Animator set on "
                         + fragment + " as this Fragment was involved in a Transition.");
             }
-            removeCancellationSignal(operation, signal);
+            operation.completeSpecialEffect(signal);
             return;
         }
         // We have an animation to run!
@@ -255,13 +206,13 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 @Override
                 public void onAnimationEnd(Animation animation) {
                     // onAnimationEnd() comes during draw(), so there can still be some
-                    // draw events happening after this call. We don't want to remove the
-                    // CancellationSignal until after the onAnimationEnd()
+                    // draw events happening after this call. We don't want to complete the
+                    // animation until after the onAnimationEnd()
                     container.post(new Runnable() {
                         @Override
                         public void run() {
                             container.endViewTransition(viewToAnimate);
-                            removeCancellationSignal(operation, signal);
+                            operation.completeSpecialEffect(signal);
                         }
                     });
                 }
@@ -276,7 +227,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 @Override
                 public void onAnimationEnd(Animator anim) {
                     container.endViewTransition(viewToAnimate);
-                    removeCancellationSignal(operation, signal);
+                    operation.completeSpecialEffect(signal);
                 }
             });
             anim.animator.setTarget(viewToAnimate);
@@ -316,11 +267,10 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
             }
         }
         if (transitionImpl == null) {
-            // There were no transitions at all so we can just cancel all of them
+            // There were no transitions at all so we can just complete all of them
             for (TransitionInfo transitionInfo : transitionInfos) {
                 startedTransitions.put(transitionInfo.getOperation(), false);
-                removeCancellationSignal(transitionInfo.getOperation(),
-                        transitionInfo.getSignal());
+                transitionInfo.getOperation().completeSpecialEffect(transitionInfo.getSignal());
             }
             return startedTransitions;
         }
@@ -538,10 +488,9 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         // Now iterate through the set of transitions and merge them together
         for (final TransitionInfo transitionInfo : transitionInfos) {
             if (transitionInfo.isVisibilityUnchanged()) {
-                // No change in visibility, so we can immediately remove the CancellationSignal
+                // No change in visibility, so we can immediately complete the transition
                 startedTransitions.put(transitionInfo.getOperation(), false);
-                removeCancellationSignal(transitionInfo.getOperation(),
-                        transitionInfo.getSignal());
+                transitionInfo.getOperation().completeSpecialEffect(transitionInfo.getSignal());
                 continue;
             }
             Object transition = transitionImpl.cloneTransition(transitionInfo.getTransition());
@@ -551,11 +500,11 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
             if (transition == null) {
                 // Nothing more to do if the transition is null
                 if (!involvedInSharedElementTransition) {
-                    // Only remove the cancellation signal if this fragment isn't involved
+                    // Only complete the transition if this fragment isn't involved
                     // in the shared element transition (as otherwise we need to wait
                     // for that to finish)
                     startedTransitions.put(operation, false);
-                    removeCancellationSignal(operation, transitionInfo.getSignal());
+                    operation.completeSpecialEffect(transitionInfo.getSignal());
                 }
             } else {
                 // Target the Transition to *only* the set of transitioning views
@@ -624,11 +573,10 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         mergedTransition = transitionImpl.mergeTransitionsInSequence(mergedTransition,
                 mergedNonOverlappingTransition, sharedElementTransition);
 
-        // Now set up our cancellation and completion signal on the completely
-        // merged transition set
+        // Now set up our completion signal on the completely merged transition set
         for (final TransitionInfo transitionInfo : transitionInfos) {
             if (transitionInfo.isVisibilityUnchanged()) {
-                // No change in visibility, so we've already removed the CancellationSignal
+                // No change in visibility, so we've already completed the transition
                 continue;
             }
             Object transition = transitionInfo.getTransition();
@@ -640,7 +588,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                         new Runnable() {
                             @Override
                             public void run() {
-                                removeCancellationSignal(transitionInfo.getOperation(),
+                                transitionInfo.getOperation().completeSpecialEffect(
                                         transitionInfo.getSignal());
                             }
                         });
