@@ -719,7 +719,10 @@ class WatchFace private constructor(
             } else {
                 interactiveUpdateRateMillis
             }
-        var nextFrameTimeMillis = beginFrameTimeMillis + updateRateMillis
+        // Note beginFrameTimeMillis could be in the future if the user adjusted the time so we need
+        // to compute min(beginFrameTimeMillis, currentTimeMillis).
+        var nextFrameTimeMillis =
+            Math.min(beginFrameTimeMillis, currentTimeMillis) + updateRateMillis
         // Drop frames if needed (happens when onDraw is slow).
         if (nextFrameTimeMillis <= currentTimeMillis) {
             // Compute the next runtime after currentTimeMillis with the same phase as
