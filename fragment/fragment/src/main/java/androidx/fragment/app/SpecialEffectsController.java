@@ -26,7 +26,7 @@ import androidx.core.os.CancellationSignal;
 import androidx.fragment.R;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 /**
@@ -82,7 +82,7 @@ abstract class SpecialEffectsController {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ArrayList<Operation> mPendingOperations = new ArrayList<>();
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    final HashMap<Fragment, Operation> mAwaitingCompletionOperations = new HashMap<>();
+    final ArrayList<Operation> mRunningOperations = new ArrayList<>();
 
     boolean mOperationDirectionIsPop = false;
     boolean mIsContainerPostponed = false;
@@ -101,8 +101,9 @@ abstract class SpecialEffectsController {
      * given FragmentStateManager is still awaiting completion (or cancellation).
      * <p>
      * This could be because the Operation is still pending (and
-     * {@link #executePendingOperations()} hasn't been called) or because the
-     * controller hasn't called {@link Operation#complete()}.
+     * {@link #executePendingOperations()} hasn't been called) or because all
+     * {@link Operation#markStartedSpecialEffect(CancellationSignal) started special effects}
+     * haven't {@link Operation#completeSpecialEffect(CancellationSignal) completed}.
      *
      * @param fragmentStateManager the FragmentStateManager to check for
      * @return The {@link Operation.LifecycleImpact} of the awaiting Operation, or null if there is
@@ -111,80 +112,88 @@ abstract class SpecialEffectsController {
     @Nullable
     Operation.LifecycleImpact getAwaitingCompletionLifecycleImpact(
             @NonNull FragmentStateManager fragmentStateManager) {
-        Operation operation = mAwaitingCompletionOperations.get(
-                fragmentStateManager.getFragment());
-        if (operation != null && !operation.getCancellationSignal().isCanceled()) {
-            return operation.getLifecycleImpact();
+        // First search through pending operations
+        Operation pendingOperation = findPendingOperation(fragmentStateManager.getFragment());
+        if (pendingOperation != null) {
+            return pendingOperation.getLifecycleImpact();
+        }
+        // Then search through running operations
+        Operation runningOperation = findRunningOperation(fragmentStateManager.getFragment());
+        if (runningOperation != null) {
+            return runningOperation.getLifecycleImpact();
+        }
+        return null;
+    }
+
+    @Nullable
+    private Operation findPendingOperation(@NonNull Fragment fragment) {
+        for (Operation operation : mPendingOperations) {
+            if (operation.getFragment().equals(fragment) && !operation.isCanceled()) {
+                return operation;
+            }
+        }
+        return null;
+    }
+
+    @Nullable
+    private Operation findRunningOperation(@NonNull Fragment fragment) {
+        for (Operation operation : mRunningOperations) {
+            if (operation.getFragment().equals(fragment) && !operation.isCanceled()) {
+                return operation;
+            }
         }
         return null;
     }
 
     void enqueueAdd(@NonNull Operation.State finalState,
-            @NonNull FragmentStateManager fragmentStateManager,
-            @NonNull CancellationSignal cancellationSignal) {
-        enqueue(finalState, Operation.LifecycleImpact.ADDING,
-                fragmentStateManager, cancellationSignal);
+            @NonNull FragmentStateManager fragmentStateManager) {
+        enqueue(finalState, Operation.LifecycleImpact.ADDING, fragmentStateManager);
     }
 
-    void enqueueShow(@NonNull FragmentStateManager fragmentStateManager,
-            @NonNull CancellationSignal cancellationSignal) {
-        enqueue(Operation.State.VISIBLE, Operation.LifecycleImpact.NONE,
-                fragmentStateManager, cancellationSignal);
+    void enqueueShow(@NonNull FragmentStateManager fragmentStateManager) {
+        enqueue(Operation.State.VISIBLE, Operation.LifecycleImpact.NONE, fragmentStateManager);
     }
 
-    void enqueueHide(@NonNull FragmentStateManager fragmentStateManager,
-            @NonNull CancellationSignal cancellationSignal) {
-        enqueue(Operation.State.GONE, Operation.LifecycleImpact.NONE,
-                fragmentStateManager, cancellationSignal);
+    void enqueueHide(@NonNull FragmentStateManager fragmentStateManager) {
+        enqueue(Operation.State.GONE, Operation.LifecycleImpact.NONE, fragmentStateManager);
     }
 
-    void enqueueRemove(@NonNull FragmentStateManager fragmentStateManager,
-            @NonNull CancellationSignal cancellationSignal) {
-        enqueue(Operation.State.REMOVED, Operation.LifecycleImpact.REMOVING,
-                fragmentStateManager, cancellationSignal);
+    void enqueueRemove(@NonNull FragmentStateManager fragmentStateManager) {
+        enqueue(Operation.State.REMOVED, Operation.LifecycleImpact.REMOVING, fragmentStateManager);
     }
 
     private void enqueue(@NonNull Operation.State finalState,
             @NonNull Operation.LifecycleImpact lifecycleImpact,
-            @NonNull final FragmentStateManager fragmentStateManager,
-            @NonNull CancellationSignal cancellationSignal) {
-        if (cancellationSignal.isCanceled()) {
-            // Ignore enqueue operations that are already cancelled
-            return;
-        }
+            @NonNull final FragmentStateManager fragmentStateManager) {
         synchronized (mPendingOperations) {
             final CancellationSignal signal = new CancellationSignal();
             Operation existingOperation =
-                    mAwaitingCompletionOperations.get(fragmentStateManager.getFragment());
+                    findPendingOperation(fragmentStateManager.getFragment());
             if (existingOperation != null) {
                 // Update the existing operation by merging in the new information
                 // rather than creating a new Operation entirely
-                existingOperation.mergeWith(finalState, lifecycleImpact, cancellationSignal);
+                existingOperation.mergeWith(finalState, lifecycleImpact);
                 return;
             }
             final FragmentStateManagerOperation operation = new FragmentStateManagerOperation(
                     finalState, lifecycleImpact, fragmentStateManager, signal);
             mPendingOperations.add(operation);
-            mAwaitingCompletionOperations.put(operation.getFragment(), operation);
-            // Ensure that pending operations are removed when cancelled
-            cancellationSignal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
+            // Ensure that we still run the applyState() call for pending operations
+            operation.addCompletionListener(new Runnable() {
                 @Override
-                public void onCancel() {
-                    synchronized (mPendingOperations) {
-                        mPendingOperations.remove(operation);
-                        mAwaitingCompletionOperations.remove(operation.getFragment());
-                        signal.cancel();
+                public void run() {
+                    if (mPendingOperations.contains(operation)) {
+                        operation.getFinalState().applyState(operation.getFragment().mView);
                     }
                 }
             });
             // Ensure that we remove the Operation from the list of
-            // awaiting completion operations when the operation is complete
+            // operations when the operation is complete
             operation.addCompletionListener(new Runnable() {
                 @Override
                 public void run() {
-                    if (!operation.getCancellationSignal().isCanceled()) {
-                        mAwaitingCompletionOperations.remove(operation.getFragment());
-                    }
+                    mPendingOperations.remove(operation);
+                    mRunningOperations.remove(operation);
                 }
             });
         }
@@ -228,11 +237,23 @@ abstract class SpecialEffectsController {
             return;
         }
         synchronized (mPendingOperations) {
+            ArrayList<Operation> currentlyRunningOperations = new ArrayList<>(mRunningOperations);
+            mRunningOperations.clear();
+            for (Operation operation : currentlyRunningOperations) {
+                operation.cancel();
+                if (!operation.isComplete()) {
+                    // Re-add any animations that didn't synchronously call complete()
+                    // to continue to track them as running operations
+                    mRunningOperations.add(operation);
+                }
+            }
             updateFinalState(true);
 
             if (!mPendingOperations.isEmpty()) {
-                executeOperations(new ArrayList<>(mPendingOperations), mOperationDirectionIsPop);
+                ArrayList<Operation> newPendingOperations = new ArrayList<>(mPendingOperations);
                 mPendingOperations.clear();
+                mRunningOperations.addAll(newPendingOperations);
+                executeOperations(newPendingOperations, mOperationDirectionIsPop);
                 mOperationDirectionIsPop = false;
             }
         }
@@ -242,15 +263,17 @@ abstract class SpecialEffectsController {
         synchronized (mPendingOperations) {
             updateFinalState(true);
 
-            for (Operation operation : mAwaitingCompletionOperations.values()) {
-                operation.getCancellationSignal().cancel();
-                operation.getFinalState().applyState(operation.getFragment().mView);
-                operation.complete();
+            // First cancel running operations
+            ArrayList<Operation> runningOperations = new ArrayList<>(mRunningOperations);
+            for (Operation operation : runningOperations) {
+                operation.cancel();
             }
-            mAwaitingCompletionOperations.clear();
-            // mPendingOperations is a subset of mAwaitingCompletionOperations
-            // so cancellation is already done, we just need to clear out the operations
-            mPendingOperations.clear();
+
+            // Then cancel pending operations
+            ArrayList<Operation> pendingOperations = new ArrayList<>(mPendingOperations);
+            for (Operation operation : pendingOperations) {
+                operation.cancel();
+            }
         }
     }
 
@@ -261,8 +284,7 @@ abstract class SpecialEffectsController {
                 Fragment fragment = operation.getFragment();
                 View view = fragment.requireView();
                 Operation.State finalState = Operation.State.from(view.getVisibility());
-                operation.mergeWith(finalState, Operation.LifecycleImpact.NONE,
-                        operation.getCancellationSignal());
+                operation.mergeWith(finalState, Operation.LifecycleImpact.NONE);
                 // Change the view alphas back to their original values before we execute our
                 // transitions.
                 if (updateAlpha) {
@@ -278,13 +300,19 @@ abstract class SpecialEffectsController {
     /**
      * Execute all of the given operations.
      * <p>
-     * At a minimum, the SpecialEffectsController should call
-     * {@link Operation#complete()} on each operation when all of the special effects
-     * for the given Operation are complete.
+     * If there are no special effects for a given operation, the SpecialEffectsController
+     * should call {@link Operation#complete()}. Otherwise, a
+     * {@link CancellationSignal} representing each special effect should be added via
+     * {@link Operation#markStartedSpecialEffect(CancellationSignal)}, calling
+     * {@link Operation#completeSpecialEffect(CancellationSignal)} when that specific
+     * special effect finishes. When the last started special effect is completed,
+     * {@link Operation#completeSpecialEffect(CancellationSignal)} will call
+     * {@link Operation#complete()} automatically.
      * <p>
-     * It is <strong>strongly recommended</strong> that the SpecialEffectsController
-     * should call {@link Operation#getCancellationSignal()} and listen for cancellation,
-     * properly cancelling all special effects when the signal is cancelled.
+     * It is <strong>strongly recommended</strong> that each
+     * {@link CancellationSignal} added with
+     * {@link Operation#markStartedSpecialEffect(CancellationSignal)} listen for cancellation,
+     * properly cancelling the special effect when the signal is cancelled.
      *
      * @param operations the list of operations to execute in order.
      * @param isPop whether this set of operations should be considered as triggered by a 'pop'.
@@ -408,11 +436,13 @@ abstract class SpecialEffectsController {
         private LifecycleImpact mLifecycleImpact;
         @NonNull
         private final Fragment mFragment;
-        @SuppressWarnings("WeakerAccess") /* synthetic access */
-        @NonNull
-        final CancellationSignal mCancellationSignal = new CancellationSignal();
         @NonNull
         private final List<Runnable> mCompletionListeners = new ArrayList<>();
+        @NonNull
+        private final HashSet<CancellationSignal> mSpecialEffectsSignals = new HashSet<>();
+
+        private boolean mIsCanceled = false;
+        private boolean mIsComplete = false;
 
         /**
          * Construct a new Operation.
@@ -431,7 +461,7 @@ abstract class SpecialEffectsController {
             cancellationSignal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
                 @Override
                 public void onCancel() {
-                    mCancellationSignal.cancel();
+                    cancel();
                 }
             });
         }
@@ -465,19 +495,26 @@ abstract class SpecialEffectsController {
             return mFragment;
         }
 
-        /**
-         * The {@link CancellationSignal} that signals that the operation should be
-         * cancelled and any currently running special effects should be cancelled.
-         *
-         * @return A signal for handling cancellation
-         */
-        @NonNull
-        public final CancellationSignal getCancellationSignal() {
-            return mCancellationSignal;
+        final boolean isCanceled() {
+            return mIsCanceled;
         }
 
-        final void mergeWith(@NonNull State finalState, @NonNull LifecycleImpact lifecycleImpact,
-                @NonNull CancellationSignal cancellationSignal) {
+        final void cancel() {
+            if (isCanceled()) {
+                return;
+            }
+            mIsCanceled = true;
+            if (mSpecialEffectsSignals.isEmpty()) {
+                complete();
+            } else {
+                ArrayList<CancellationSignal> signals = new ArrayList<>(mSpecialEffectsSignals);
+                for (CancellationSignal signal : signals) {
+                    signal.cancel();
+                }
+            }
+        }
+
+        final void mergeWith(@NonNull State finalState, @NonNull LifecycleImpact lifecycleImpact) {
             switch (lifecycleImpact) {
                 case ADDING:
                     if (mFinalState == State.REMOVED) {
@@ -498,17 +535,36 @@ abstract class SpecialEffectsController {
                         mFinalState = finalState;
                     }
             }
-            // Connect the CancellationSignal to our own
-            cancellationSignal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
-                @Override
-                public void onCancel() {
-                    mCancellationSignal.cancel();
-                }
-            });
         }
 
         final void addCompletionListener(@NonNull Runnable listener) {
             mCompletionListeners.add(listener);
+        }
+
+        /**
+         * Add new {@link CancellationSignal} for special effects.
+         *
+         * @param signal A CancellationSignal that can be used to cancel this special effect.
+         */
+        public final void markStartedSpecialEffect(@NonNull CancellationSignal signal) {
+            mSpecialEffectsSignals.add(signal);
+        }
+
+        /**
+         * Complete a {@link CancellationSignal} that was previously added with
+         * {@link #markStartedSpecialEffect(CancellationSignal)}.
+         *
+         * This calls through to {@link Operation#complete()} when the last special effect is
+         * complete.
+         */
+        public final void completeSpecialEffect(@NonNull CancellationSignal signal) {
+            if (mSpecialEffectsSignals.remove(signal) && mSpecialEffectsSignals.isEmpty()) {
+                complete();
+            }
+        }
+
+        final boolean isComplete() {
+            return mIsComplete;
         }
 
         /**
@@ -517,6 +573,10 @@ abstract class SpecialEffectsController {
          */
         @CallSuper
         public void complete() {
+            if (mIsComplete) {
+                return;
+            }
+            mIsComplete = true;
             for (Runnable listener : mCompletionListeners) {
                 listener.run();
             }
