@@ -41,8 +41,8 @@ import com.google.android.icing.proto.SnippetMatchProto;
  * word that’s used a lot is bar."
  * <p>{@link MatchInfo#getExactMatchPosition()} returns [29, 32]
  * <p>{@link MatchInfo#getExactMatch()} returns "foo"
- * <p>{@link MatchInfo#getSnippetPosition()} returns [26, 32]
- * <p>{@link MatchInfo#getSnippet()} returns "is foo"
+ * <p>{@link MatchInfo#getSnippetPosition()} returns [26, 33]
+ * <p>{@link MatchInfo#getSnippet()} returns "is foo."
  * <p>
  * <p>Class Example 2:
  * A document contains a property name sender which contains 2 property names name and email, so
@@ -144,7 +144,9 @@ public final class MatchInfo {
 
     /**
      * Gets the snippet {@link MatchRange} corresponding to the given entry.
-     * <p>For class example 1 this returns [29, 41]
+     * <p>Only populated when set maxSnippetSize > 0 in
+     * {@link SearchSpec.Builder#setMaxSnippetSize}.
+     * <p>For class example 1 this returns [29, 41].
      */
     @NonNull
     public MatchRange getSnippetPosition() {
@@ -154,10 +156,10 @@ public final class MatchInfo {
 
     /**
      * Gets the snippet corresponding to the given entry.
-     * <p>Snippet - Provides a subset of the content to display. The
-     * length of this content can be changed {@link SearchSpec.Builder#setMaxSnippetSize}.
-     * Windowing is centered around the middle of the matched token with content on either side
-     * clipped to token boundaries.
+     * <p>Snippet - Provides a subset of the content to display. Only populated when requested
+     * maxSnippetSize > 0. The size of this content can be changed by
+     * {@link SearchSpec.Builder#setMaxSnippetSize}. Windowing is centered around the middle of
+     * the matched token with content on either side clipped to token boundaries.
      * <p>For class example 1 this returns "foo. Another"
      */
     @NonNull
