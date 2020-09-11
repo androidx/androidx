@@ -39,6 +39,7 @@ import androidx.test.rule.GrantPermissionRule;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.CountDownLatch;
@@ -53,8 +54,8 @@ public final class PreviewViewFragmentTest {
     private static final int PREVIEW_UPDATE_COUNT = 30;
 
     @Rule
-    public GrantPermissionRule mCameraPermissionRule =
-            GrantPermissionRule.grant(android.Manifest.permission.CAMERA);
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
+
     @Rule
     public GrantPermissionRule mStoragePermissionRule =
             GrantPermissionRule.grant(android.Manifest.permission.WRITE_EXTERNAL_STORAGE);

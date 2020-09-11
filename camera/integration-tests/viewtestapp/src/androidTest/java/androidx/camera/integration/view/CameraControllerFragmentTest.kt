@@ -19,6 +19,7 @@ package androidx.camera.integration.view
 import android.net.Uri
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
+import androidx.camera.testing.CameraUtil
 import androidx.camera.view.PreviewView
 import androidx.fragment.app.testing.FragmentScenario
 import androidx.lifecycle.Lifecycle
@@ -34,6 +35,7 @@ import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.ExpectedException
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import java.util.concurrent.Semaphore
 import java.util.concurrent.TimeUnit
@@ -51,8 +53,10 @@ class CameraControllerFragmentTest {
     val thrown: ExpectedException = ExpectedException.none()
 
     @get:Rule
+    val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+
+    @get:Rule
     val grantPermissionRule: GrantPermissionRule = GrantPermissionRule.grant(
-        android.Manifest.permission.CAMERA,
         android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
         android.Manifest.permission.RECORD_AUDIO
     )
