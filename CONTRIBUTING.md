@@ -52,7 +52,7 @@ Fork the [AndroidX/androidx](https://github.com/AndroidX/androidx) repository.
 
 We recommend cloning using blob filter to reduce checkout size:
 ```bash
-git clone --filter=blob:none https://github.com/YOUR_USERNAME/androidx.git
+git clone https://github.com/YOUR_USERNAME/androidx.git
 ```
 
 Let’s assume that you want to make a contribution to Room. The first step is to launch Android Studio and import the Room project.
