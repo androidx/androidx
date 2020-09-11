@@ -500,7 +500,6 @@ class FromGenericDocumentCodeGenerator {
         // Even though we want a single field, we can't use genericDoc.getPropertyString() (and
         // relatives) because we need to be able to check for null.
         CodeBlock.Builder body = CodeBlock.builder();
-        // TODO(b/156296904): Handle GenericDocument
         if (typeUtil.isSameType(propertyType, mHelper.mStringType)) {
             body.addStatement(
                     "String[] $NCopy = genericDoc.getPropertyStringArray($S)",
@@ -526,6 +525,11 @@ class FromGenericDocumentCodeGenerator {
         } else if (typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)) {
             body.addStatement(
                     "byte[][] $NCopy = genericDoc.getPropertyBytesArray($S)",
+                    fieldName, propertyName);
+
+        } else if (typeUtil.isSameType(propertyType, mHelper.mGenericDocumentType)) {
+            body.addStatement(
+                    "GenericDocument[] $NCopy = genericDoc.getPropertyDocumentArray($S)",
                     fieldName, propertyName);
 
         } else {
