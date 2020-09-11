@@ -96,8 +96,9 @@ public final class SearchResults implements Closeable {
         private GenericDocument mDocument;
 
         /**
-         * The list of Snippets that matched the request. Only populated when requested in
-         * {@link SearchSpec.Builder#setMaxSnippetSize}.
+         * Contains a list of Snippets that matched the request. Only populated when requested in
+         * both {@link SearchSpec.Builder#setNumToSnippet}
+         * and {@link SearchSpec.Builder#setNumMatchesPerProperty}.
          *
          * @see #getMatchInfo()
          */
@@ -120,7 +121,9 @@ public final class SearchResults implements Closeable {
 
         /**
          * Contains a list of Snippets that matched the request. Only populated when requested in
-         * {@link SearchSpec.Builder#setMaxSnippetSize}.
+         * both {@link SearchSpec.Builder#setNumToSnippet}
+         * and {@link SearchSpec.Builder#setNumMatchesPerProperty}.
+         *
          * @return  List of matches based on {@link SearchSpec}, if snippeting is disabled and this
          * method is called it will return {@code null}. Users can also restrict snippet population
          * using {@link SearchSpec.Builder#setNumToSnippet} and
