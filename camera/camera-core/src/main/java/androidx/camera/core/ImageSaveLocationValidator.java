@@ -23,6 +23,7 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 
@@ -45,7 +46,6 @@ class ImageSaveLocationValidator {
      * @return true if the image capture result can be saved to the specified storage option,
      * false otherwise.
      */
-    @SuppressWarnings("ConstantConditions")
     static boolean isValid(final @NonNull ImageCapture.OutputFileOptions outputFileOptions) {
         if (isSaveToFile(outputFileOptions)) {
             return canSaveToFile(outputFileOptions.getFile());
@@ -70,10 +70,12 @@ class ImageSaveLocationValidator {
     }
 
     private static boolean canSaveToFile(@NonNull final File file) {
-        try {
-            return file.canWrite();
-        } catch (SecurityException exception) {
-            Logger.e(TAG, "Error while verifying if image capture file is writable", exception);
+        // Try opening a write stream to the output file. If this succeeds, the image save
+        // destination is valid. Otherwise, it's invalid.
+        try (FileOutputStream ignored = new FileOutputStream(file)) {
+            return true;
+        } catch (IOException exception) {
+            Logger.e(TAG, "Failed to open a write stream to " + file.toString(), exception);
             return false;
         }
     }
