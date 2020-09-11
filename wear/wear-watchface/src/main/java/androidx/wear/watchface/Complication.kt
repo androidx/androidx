@@ -308,6 +308,7 @@ class Complication internal constructor(
     private var _enabled = true
 
     var enabled: Boolean
+        @JvmName("isEnabled")
         @UiThread
         get() = _enabled
         @UiThread
