@@ -18,24 +18,26 @@ package androidx.ui.test
 
 import android.annotation.SuppressLint
 import androidx.activity.ComponentActivity
-import androidx.ui.test.android.AndroidOwnerRegistry
-import androidx.ui.test.android.FirstDrawRegistry
-import androidx.ui.test.android.registerComposeWithEspresso
-import androidx.ui.test.android.unregisterComposeFromEspresso
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Recomposer
-import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.animation.transitionsEnabled
-import androidx.compose.ui.platform.setContent
 import androidx.compose.foundation.InternalFoundationApi
 import androidx.compose.foundation.blinkingCursorEnabled
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Recomposer
+import androidx.compose.ui.platform.setContent
+import androidx.compose.ui.text.InternalTextApi
 import androidx.compose.ui.text.input.textInputServiceFactory
 import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.IntSize
+import androidx.test.ext.junit.rules.ActivityScenarioRule
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.ui.test.android.AndroidOwnerRegistry
+import androidx.ui.test.android.FirstDrawRegistry
+import androidx.ui.test.android.SynchronizedTreeCollector
+import androidx.ui.test.android.registerComposeWithEspresso
+import androidx.ui.test.android.unregisterComposeFromEspresso
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
-import androidx.compose.ui.unit.IntSize
-import androidx.test.platform.app.InstrumentationRegistry
-import androidx.ui.test.android.SynchronizedTreeCollector
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.FutureTask
 
@@ -196,8 +198,10 @@ class AndroidComposeTestRule<T : ComponentActivity>(
     inner class AndroidComposeStatement(
         private val base: Statement
     ) : Statement() {
+        @OptIn(InternalTextApi::class)
         override fun evaluate() {
-            val oldTextInputFactory = @Suppress("DEPRECATION_ERROR")(textInputServiceFactory)
+            @Suppress("DEPRECATION_ERROR")
+            val oldTextInputFactory = textInputServiceFactory
             beforeEvaluate()
             try {
                 base.evaluate()
@@ -208,7 +212,7 @@ class AndroidComposeTestRule<T : ComponentActivity>(
             }
         }
 
-        @OptIn(InternalFoundationApi::class)
+        @OptIn(InternalFoundationApi::class, InternalAnimationApi::class, InternalTextApi::class)
         private fun beforeEvaluate() {
             transitionsEnabled = !disableTransitions
             blinkingCursorEnabled = !disableBlinkingCursor
@@ -221,7 +225,7 @@ class AndroidComposeTestRule<T : ComponentActivity>(
             }
         }
 
-        @OptIn(InternalFoundationApi::class)
+        @OptIn(InternalFoundationApi::class, InternalAnimationApi::class)
         private fun afterEvaluate() {
             transitionsEnabled = true
             blinkingCursorEnabled = true
