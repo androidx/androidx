@@ -55,10 +55,10 @@ data class Dao(
             suffix = ""
         }
         val path = arrayListOf<String>()
-        var enclosing = element.enclosingElement
+        var enclosing = element.enclosingTypeElement
         while (enclosing?.isType() == true) {
             path.add(enclosing!!.name)
-            enclosing = enclosing!!.enclosingElement
+            enclosing = enclosing!!.enclosingTypeElement
         }
         path.reversed().joinToString("_") + "${typeName.simpleName()}${suffix}_Impl"
     }

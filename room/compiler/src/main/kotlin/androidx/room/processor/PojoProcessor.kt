@@ -24,6 +24,7 @@ import androidx.room.PrimaryKey
 import androidx.room.Relation
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XExecutableElement
+import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.XVariableElement
@@ -370,7 +371,7 @@ class PojoProcessor private constructor(
 
     private fun processEmbeddedField(
         declaredType: XDeclaredType,
-        variableElement: XVariableElement
+        variableElement: XFieldElement
     ): EmbeddedField? {
         val asMemberType = variableElement.asMemberOf(declaredType)
         val asTypeElement = asMemberType.asTypeElement()
@@ -403,7 +404,7 @@ class PojoProcessor private constructor(
     private fun processRelationField(
         myFields: List<Field>,
         container: XDeclaredType?,
-        relationElement: XVariableElement
+        relationElement: XFieldElement
     ): androidx.room.vo.Relation? {
         val annotation = relationElement.toAnnotationBox(Relation::class)!!
 

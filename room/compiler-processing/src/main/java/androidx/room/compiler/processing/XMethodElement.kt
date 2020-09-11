@@ -24,6 +24,11 @@ package androidx.room.compiler.processing
  */
 interface XMethodElement : XExecutableElement {
     /**
+     * The name of the method.
+     */
+    val name: String
+
+    /**
      * The return type for the method. Note that it might be [XType.isNone] if it does not return or
      * [XType.isError] if the return type cannot be resolved.
      */

@@ -16,12 +16,12 @@
 
 package androidx.room.vo
 
+import androidx.room.compiler.processing.XFieldElement
+import androidx.room.compiler.processing.XNullability
+import androidx.room.compiler.processing.XType
 import androidx.room.migration.bundle.FieldBundle
 import androidx.room.parser.Collate
 import androidx.room.parser.SQLTypeAffinity
-import androidx.room.compiler.processing.XNullability
-import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.XVariableElement
 import androidx.room.solver.types.CursorValueReader
 import androidx.room.solver.types.StatementValueBinder
 import capitalize
@@ -31,7 +31,7 @@ import java.util.Locale
 
 // used in cache matching, must stay as a data class or implement equals
 data class Field(
-    val element: XVariableElement,
+    val element: XFieldElement,
     val name: String,
     val type: XType,
     var affinity: SQLTypeAffinity?,

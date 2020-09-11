@@ -35,6 +35,7 @@ private val NULLABLE_ANNOTATIONS = arrayOf(
     androidx.annotation.Nullable::class.java,
     org.jetbrains.annotations.Nullable::class.java
 )
+
 /**
  * gets all members including super privates. does not handle duplicate field names!!!
  */
@@ -66,3 +67,18 @@ internal val Element.nullability: XNullability
     } else {
         XNullability.UNKNOWN
     }
+
+internal fun Element.requireEnclosingType(env: JavacProcessingEnv): JavacTypeElement {
+    return checkNotNull(enclosingType(env)) {
+        "Cannot find required enclosing type for $this"
+    }
+}
+
+@Suppress("UnstableApiUsage")
+internal fun Element.enclosingType(env: JavacProcessingEnv): JavacTypeElement? {
+    return if (MoreElements.isType(enclosingElement)) {
+        env.wrapTypeElement(MoreElements.asType(enclosingElement))
+    } else {
+        null
+    }
+}

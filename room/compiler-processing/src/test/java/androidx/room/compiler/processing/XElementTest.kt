@@ -60,7 +60,7 @@ class XElementTest {
             )
         ) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
-            fun XElement.readModifiers(): Set<String> {
+            fun XHasModifiers.readModifiers(): Set<String> {
                 val result = mutableSetOf<String>()
                 if (isPrivate()) result.add("private")
                 if (isPublic()) result.add("public")
@@ -72,7 +72,7 @@ class XElementTest {
                 return result
             }
 
-            fun XElement.assertModifiers(vararg expected: String) {
+            fun XHasModifiers.assertModifiers(vararg expected: String) {
                 assertThat(readModifiers()).containsExactlyElementsIn(expected)
             }
             element.assertModifiers("abstract", "public")
