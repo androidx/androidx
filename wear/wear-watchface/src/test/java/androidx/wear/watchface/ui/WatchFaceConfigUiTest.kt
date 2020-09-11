@@ -37,6 +37,7 @@ import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.WatchFaceTestRunner
 import androidx.wear.watchface.createComplicationData
 import androidx.wear.watchface.style.ListUserStyleCategory
+import androidx.wear.watchface.style.StyleUtils
 import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
 import com.google.common.truth.Truth.assertThat
@@ -197,14 +198,14 @@ class WatchFaceConfigUiTest {
             watchFaceComponentName,
             object : WatchFaceConfigDelegate {
                 override fun getUserStyleSchema() =
-                    UserStyleRepository.userStyleCategoriesToBundles(userStyleCategories)
+                    StyleUtils.userStyleCategoriesToBundles(userStyleCategories)
 
                 override fun getUserStyle() =
-                    UserStyleRepository.styleMapToBundle(userStyleRepository.userStyle)
+                    StyleUtils.styleMapToBundle(userStyleRepository.userStyle)
 
                 override fun setUserStyle(style: Bundle) {
                     userStyleRepository.userStyle =
-                        UserStyleRepository.bundleToStyleMap(style, userStyleCategories)
+                        StyleUtils.bundleToStyleMap(style, userStyleCategories)
                 }
 
                 override fun getBackgroundComplicationId() =
