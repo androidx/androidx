@@ -456,6 +456,7 @@ public class PreviewView extends FrameLayout {
      * @see UseCaseGroup
      */
     @Nullable
+    @ExperimentalUseCaseGroup
     public ViewPort getViewPort() {
         if (getDisplay() == null) {
             // Returns null if the layout is not ready.
@@ -503,7 +504,7 @@ public class PreviewView extends FrameLayout {
      */
     @SuppressLint("WrongConstant")
     @Nullable
-    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
+    @ExperimentalUseCaseGroup
     public ViewPort getViewPort(@ImageOutputConfig.RotationValue int targetRotation) {
         if (getWidth() == 0 || getHeight() == 0) {
             return null;
