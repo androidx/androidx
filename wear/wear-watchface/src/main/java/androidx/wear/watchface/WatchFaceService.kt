@@ -513,7 +513,7 @@ abstract class WatchFaceService : WallpaperService() {
                     val calendar = Calendar.getInstance().apply {
                         timeInMillis = calendarTimeMillis
                     }
-                    val complication = watchFace.complicationsHolder[complicationId]
+                    val complication = watchFace.complicationsManager[complicationId]
                     if (complication != null) {
                         val bounds = complication.computeBounds(watchFace.renderer.screenBounds)
                         val complicationBitmap =

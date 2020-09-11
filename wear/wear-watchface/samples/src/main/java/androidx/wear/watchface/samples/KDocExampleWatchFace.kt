@@ -31,7 +31,7 @@ import androidx.wear.watchface.CanvasRenderer
 import androidx.wear.watchface.CanvasType
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationDrawableRenderer
-import androidx.wear.watchface.ComplicationsHolder
+import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceHost
 import androidx.wear.watchface.WatchFaceService
@@ -96,7 +96,7 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                     )
                 )
             )
-            val complicationSlots = ComplicationsHolder(
+            val complicationSlots = ComplicationsManager(
                 listOf(
                     Complication.Builder(
                         /*id */ 0,

@@ -20,7 +20,7 @@ import android.content.Context
 import android.graphics.drawable.Icon
 import android.os.Handler
 import android.view.SurfaceHolder
-import androidx.wear.watchface.ComplicationsHolder
+import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.NoInvalidateWatchFaceHostApi
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceHost
@@ -70,7 +70,7 @@ internal class TestGlesWatchFaceService(
             )
         )
         val userStyleRepository = UserStyleRepository(listOf(colorStyleCategory))
-        val complicationSlots = ComplicationsHolder(emptyList())
+        val complicationSlots = ComplicationsManager(emptyList())
         val renderer = ExampleOpenGLRenderer(
             surfaceHolder,
             userStyleRepository,

@@ -193,7 +193,7 @@ open class ComplicationDrawableRenderer(
 
 /**
  * Represents a individual complication on the screen. The number of complications is fixed
- * (see {@link ComplicationsHolder}) but complications can be enabled or disabled as needed.
+ * (see {@link ComplicationsManager}) but complications can be enabled or disabled as needed.
  */
 class Complication internal constructor(
     internal val id: Int,
@@ -303,7 +303,7 @@ class Complication internal constructor(
             providers.isEmpty() && systemProviderFallback == WatchFace.NO_DEFAULT_PROVIDER
     }
 
-    private lateinit var complicationsHolder: ComplicationsHolder
+    private lateinit var complicationsManager: ComplicationsManager
     private lateinit var invalidateCallback: ComplicationRenderer.InvalidateCallback
     private var _enabled = true
 
@@ -317,7 +317,7 @@ class Complication internal constructor(
 
             // The caller might enable/disable a number of complications. For efficiency we need
             // to coalesce these into one update task.
-            complicationsHolder.scheduleUpdateActiveComplications()
+            complicationsManager.scheduleUpdateActiveComplications()
         }
 
     private var _renderer = renderer
@@ -370,19 +370,19 @@ class Complication internal constructor(
     }
 
     internal fun init(
-        complicationsHolder: ComplicationsHolder,
+        complicationsManager: ComplicationsManager,
         invalidateCallback: ComplicationRenderer.InvalidateCallback
     ) {
-        this.complicationsHolder = complicationsHolder
+        this.complicationsManager = complicationsManager
         this.invalidateCallback = invalidateCallback
         initRenderer()
     }
 
     internal fun scheduleUpdateActiveComplications() {
         // In tests this may not be initialized.
-        if (this::complicationsHolder.isInitialized) {
+        if (this::complicationsManager.isInitialized) {
             // Update active complications to ensure accessibility data is up to date.
-            complicationsHolder.scheduleUpdateActiveComplications()
+            complicationsManager.scheduleUpdateActiveComplications()
         }
     }
 
