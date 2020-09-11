@@ -146,38 +146,25 @@ abstract class SpecialEffectsController {
     }
 
     void enqueueAdd(@NonNull Operation.State finalState,
-            @NonNull FragmentStateManager fragmentStateManager,
-            @NonNull CancellationSignal cancellationSignal) {
-        enqueue(finalState, Operation.LifecycleImpact.ADDING,
-                fragmentStateManager, cancellationSignal);
+            @NonNull FragmentStateManager fragmentStateManager) {
+        enqueue(finalState, Operation.LifecycleImpact.ADDING, fragmentStateManager);
     }
 
-    void enqueueShow(@NonNull FragmentStateManager fragmentStateManager,
-            @NonNull CancellationSignal cancellationSignal) {
-        enqueue(Operation.State.VISIBLE, Operation.LifecycleImpact.NONE,
-                fragmentStateManager, cancellationSignal);
+    void enqueueShow(@NonNull FragmentStateManager fragmentStateManager) {
+        enqueue(Operation.State.VISIBLE, Operation.LifecycleImpact.NONE, fragmentStateManager);
     }
 
-    void enqueueHide(@NonNull FragmentStateManager fragmentStateManager,
-            @NonNull CancellationSignal cancellationSignal) {
-        enqueue(Operation.State.GONE, Operation.LifecycleImpact.NONE,
-                fragmentStateManager, cancellationSignal);
+    void enqueueHide(@NonNull FragmentStateManager fragmentStateManager) {
+        enqueue(Operation.State.GONE, Operation.LifecycleImpact.NONE, fragmentStateManager);
     }
 
-    void enqueueRemove(@NonNull FragmentStateManager fragmentStateManager,
-            @NonNull CancellationSignal cancellationSignal) {
-        enqueue(Operation.State.REMOVED, Operation.LifecycleImpact.REMOVING,
-                fragmentStateManager, cancellationSignal);
+    void enqueueRemove(@NonNull FragmentStateManager fragmentStateManager) {
+        enqueue(Operation.State.REMOVED, Operation.LifecycleImpact.REMOVING, fragmentStateManager);
     }
 
     private void enqueue(@NonNull Operation.State finalState,
             @NonNull Operation.LifecycleImpact lifecycleImpact,
-            @NonNull final FragmentStateManager fragmentStateManager,
-            @NonNull CancellationSignal cancellationSignal) {
-        if (cancellationSignal.isCanceled()) {
-            // Ignore enqueue operations that are already cancelled
-            return;
-        }
+            @NonNull final FragmentStateManager fragmentStateManager) {
         synchronized (mPendingOperations) {
             final CancellationSignal signal = new CancellationSignal();
             Operation existingOperation =
@@ -185,19 +172,12 @@ abstract class SpecialEffectsController {
             if (existingOperation != null) {
                 // Update the existing operation by merging in the new information
                 // rather than creating a new Operation entirely
-                existingOperation.mergeWith(finalState, lifecycleImpact, cancellationSignal);
+                existingOperation.mergeWith(finalState, lifecycleImpact);
                 return;
             }
             final FragmentStateManagerOperation operation = new FragmentStateManagerOperation(
                     finalState, lifecycleImpact, fragmentStateManager, signal);
             mPendingOperations.add(operation);
-            // Ensure that pending operations are removed when cancelled
-            cancellationSignal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
-                @Override
-                public void onCancel() {
-                    operation.cancel();
-                }
-            });
             // Ensure that we still run the applyState() call for pending operations
             operation.addCompletionListener(new Runnable() {
                 @Override
@@ -304,7 +284,7 @@ abstract class SpecialEffectsController {
                 Fragment fragment = operation.getFragment();
                 View view = fragment.requireView();
                 Operation.State finalState = Operation.State.from(view.getVisibility());
-                operation.mergeWith(finalState, Operation.LifecycleImpact.NONE, null);
+                operation.mergeWith(finalState, Operation.LifecycleImpact.NONE);
                 // Change the view alphas back to their original values before we execute our
                 // transitions.
                 if (updateAlpha) {
@@ -456,14 +436,12 @@ abstract class SpecialEffectsController {
         private LifecycleImpact mLifecycleImpact;
         @NonNull
         private final Fragment mFragment;
-        @SuppressWarnings("WeakerAccess") /* synthetic access */
-        @NonNull
-        final CancellationSignal mCancellationSignal = new CancellationSignal();
         @NonNull
         private final List<Runnable> mCompletionListeners = new ArrayList<>();
         @NonNull
         private final HashSet<CancellationSignal> mSpecialEffectsSignals = new HashSet<>();
 
+        private boolean mIsCanceled = false;
         private boolean mIsComplete = false;
 
         /**
@@ -518,14 +496,14 @@ abstract class SpecialEffectsController {
         }
 
         final boolean isCanceled() {
-            return mCancellationSignal.isCanceled();
+            return mIsCanceled;
         }
 
         final void cancel() {
             if (isCanceled()) {
                 return;
             }
-            mCancellationSignal.cancel();
+            mIsCanceled = true;
             if (mSpecialEffectsSignals.isEmpty()) {
                 complete();
             } else {
@@ -536,8 +514,7 @@ abstract class SpecialEffectsController {
             }
         }
 
-        final void mergeWith(@NonNull State finalState, @NonNull LifecycleImpact lifecycleImpact,
-                @Nullable CancellationSignal cancellationSignal) {
+        final void mergeWith(@NonNull State finalState, @NonNull LifecycleImpact lifecycleImpact) {
             switch (lifecycleImpact) {
                 case ADDING:
                     if (mFinalState == State.REMOVED) {
@@ -557,15 +534,6 @@ abstract class SpecialEffectsController {
                     if (mFinalState != State.REMOVED) {
                         mFinalState = finalState;
                     }
-            }
-            // Connect the CancellationSignal to our own
-            if (cancellationSignal != null) {
-                cancellationSignal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
-                    @Override
-                    public void onCancel() {
-                        cancel();
-                    }
-                });
             }
         }
 
