@@ -21,7 +21,6 @@ import androidx.compose.runtime.EmbeddingContext
 import androidx.compose.runtime.EmbeddingContextFactory
 import androidx.compose.runtime.ExperimentalComposeApi
 import androidx.compose.runtime.Recomposer
-import androidx.compose.runtime.dispatch.DesktopUiDispatcher
 import androidx.compose.runtime.snapshots.Snapshot
 import androidx.compose.ui.platform.DesktopOwner
 import androidx.compose.ui.platform.DesktopOwners
@@ -88,13 +87,11 @@ class DesktopComposeTestRule(
 
     @OptIn(ExperimentalComposeApi::class)
     private fun isIdle() =
-        !DesktopUiDispatcher.Dispatcher.hasPendingChanges() &&
                 !Snapshot.current.hasPendingChanges() &&
                 !Recomposer.current().hasPendingChanges()
 
     override fun waitForIdle() {
         while (!isIdle()) {
-            DesktopUiDispatcher.Dispatcher.runAllCallbacks()
             runExecutionQueue()
             Thread.sleep(10)
         }
@@ -114,7 +111,7 @@ class DesktopComposeTestRule(
         val surface = Surface.makeRasterN32Premul(displaySize.width, displaySize.height)
         val canvas = surface.canvas
         val component = object : Component() {}
-        val owners = DesktopOwners(component = component, redraw = {}).also {
+        val owners = DesktopOwners(component = component, invalidate = {}).also {
             owners = it
         }
         val owner = DesktopOwner(owners)

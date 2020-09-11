@@ -49,7 +49,7 @@ class TestSkiaWindow(
 
     fun setContent(content: @Composable () -> Unit) {
         val component = object : Component() {}
-        val owners = DesktopOwners(component = component, redraw = {})
+        val owners = DesktopOwners(component = component, invalidate = {})
         val owner = DesktopOwner(owners)
         owner.setContent(content)
         owner.setSize(width, height)
