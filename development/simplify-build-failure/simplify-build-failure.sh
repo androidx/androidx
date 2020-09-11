@@ -201,6 +201,7 @@ else
     cp -rT . "$referenceFailingDir"
     # remove some unhelpful settings
     sed -i 's/.*Werror.*//' "$referenceFailingDir/buildSrc/build.gradle"
+    sed -i 's/.*throw new Exception.*Path.*does not exist.*//' "$referenceFailingDir/settings.gradle"
   fi
   echo Running diff-filterer.py once to identify the minimal set of files needed to reproduce the error
   if ./development/file-utils/diff-filterer.py --assume-no-side-effects --work-path $filtererStep1Work --num-jobs "$numJobs" "$referenceFailingDir" "$referencePassingDir" "$testCommand"; then
