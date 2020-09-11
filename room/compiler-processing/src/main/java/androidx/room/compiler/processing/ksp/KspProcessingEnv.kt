@@ -25,6 +25,8 @@ import androidx.room.compiler.processing.XTypeElement
 import org.jetbrains.kotlin.ksp.processing.CodeGenerator
 import org.jetbrains.kotlin.ksp.processing.KSPLogger
 import org.jetbrains.kotlin.ksp.processing.Resolver
+import org.jetbrains.kotlin.ksp.symbol.KSType
+import org.jetbrains.kotlin.ksp.symbol.KSTypeReference
 import javax.annotation.processing.Filer
 
 internal class KspProcessingEnv(
@@ -38,12 +40,16 @@ internal class KspProcessingEnv(
     override val filer: Filer
         get() = TODO("Not yet implemented")
 
+    val commonTypes = CommonTypes(resolver)
+
     override fun findTypeElement(qName: String): XTypeElement? {
         TODO("Not yet implemented")
     }
 
     override fun findType(qName: String): XType? {
-        TODO("Not yet implemented")
+        return resolver.findClass(qName)?.let {
+            wrap(it.asStarProjectedType())
+        }
     }
 
     override fun findGeneratedAnnotation(): XTypeElement? {
@@ -56,5 +62,29 @@ internal class KspProcessingEnv(
 
     override fun getArrayType(type: XType): XArrayType {
         TODO("Not yet implemented")
+    }
+
+    fun wrap(ksType: KSType): KspType {
+        return KspType(
+            env = this,
+            resolved = ksType)
+    }
+
+    fun wrap(ksTypeReference: KSTypeReference): KspType {
+        return KspType(
+            env = this,
+            ksTypeReference = ksTypeReference)
+    }
+
+    class CommonTypes(resolver: Resolver) {
+        val nullableInt by lazy {
+            resolver.builtIns.intType.makeNullable()
+        }
+        val nullableLong by lazy {
+            resolver.builtIns.longType.makeNullable()
+        }
+        val nullableByte by lazy {
+            resolver.builtIns.byteType.makeNullable()
+        }
     }
 }
