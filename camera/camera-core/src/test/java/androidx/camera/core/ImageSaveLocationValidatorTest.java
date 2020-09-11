@@ -62,20 +62,22 @@ public class ImageSaveLocationValidatorTest {
     }
 
     @Test
-    public void cannotSaveToReadOnlyFile() throws IOException {
-        final File saveLocation = File.createTempFile("test", ".jpg");
-        saveLocation.setReadOnly();
+    public void canSaveToFileInCache() {
+        final File cacheDir = ApplicationProvider.getApplicationContext().getCacheDir();
+        final String fileName = System.currentTimeMillis() + ".jpg";
+        final File saveLocation = new File(cacheDir, fileName);
         saveLocation.deleteOnExit();
         final ImageCapture.OutputFileOptions outputOptions =
                 new ImageCapture.OutputFileOptions.Builder(saveLocation).build();
 
-        assertThat(ImageSaveLocationValidator.isValid(outputOptions)).isFalse();
+        assertThat(ImageSaveLocationValidator.isValid(outputOptions)).isTrue();
     }
 
     @Test
-    public void cannotSaveToInvalidFile() throws IOException {
+    public void cannotSaveToReadOnlyFile() throws IOException {
         final File saveLocation = File.createTempFile("test", ".jpg");
-        saveLocation.delete();
+        saveLocation.setReadOnly();
+        saveLocation.deleteOnExit();
         final ImageCapture.OutputFileOptions outputOptions =
                 new ImageCapture.OutputFileOptions.Builder(saveLocation).build();
 
