@@ -35,6 +35,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.util.Consumer;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.LargeTest;
 import androidx.test.filters.SmallTest;
 
 import org.junit.After;
@@ -245,6 +246,7 @@ public final class SurfaceRequestTest {
     }
 
     @SuppressWarnings("UnusedAssignment") // request assigned to null to make GC eligible
+    @LargeTest
     @Test
     public void deferrableSurface_stronglyReferencesSurfaceRequest()
             throws TimeoutException, InterruptedException {
@@ -275,6 +277,7 @@ public final class SurfaceRequestTest {
     }
 
     @SuppressWarnings("UnusedAssignment") // deferrableSurface assigned to null to make GC eligible
+    @LargeTest
     @Test
     public void surfaceRequest_stronglyReferencesDeferrableSurface()
             throws TimeoutException, InterruptedException {
