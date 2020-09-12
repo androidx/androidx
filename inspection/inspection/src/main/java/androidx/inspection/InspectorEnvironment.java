@@ -37,5 +37,5 @@ public interface InspectorEnvironment {
      * Interface that provides ART TI capabilities.
      */
     @NonNull
-    ArtToolInterface artTI();
+    ArtTooling artTooling();
 }

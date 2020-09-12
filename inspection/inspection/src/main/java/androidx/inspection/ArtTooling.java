@@ -26,7 +26,7 @@ import java.util.List;
  * <a href="https://source.android.com/devices/tech/dalvik/art-ti">ART TI
  * </a>.
  */
-public interface ArtToolInterface {
+public interface ArtTooling {
     /**
      * Returns a list of all present instances of the given class in heap.
      *
