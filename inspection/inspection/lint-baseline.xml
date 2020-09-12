@@ -7,7 +7,7 @@
         errorLine1="        T onExit(T result);"
         errorLine2="        ~">
         <location
-            file="src/main/java/androidx/inspection/ArtToolInterface.java"
+            file="src/main/java/androidx/inspection/ArtTooling.java"
             line="86"
             column="9"/>
     </issue>
@@ -18,7 +18,7 @@
         errorLine1="        T onExit(T result);"
         errorLine2="                 ~">
         <location
-            file="src/main/java/androidx/inspection/ArtToolInterface.java"
+            file="src/main/java/androidx/inspection/ArtTooling.java"
             line="86"
             column="18"/>
     </issue>

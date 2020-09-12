@@ -17,7 +17,7 @@
 package androidx.work.inspection
 
 import android.app.Application
-import androidx.inspection.ArtToolInterface
+import androidx.inspection.ArtTooling
 import androidx.inspection.testing.DefaultTestInspectorEnvironment
 import androidx.inspection.testing.InspectorTester
 import androidx.inspection.testing.TestInspectorExecutors
@@ -38,13 +38,13 @@ private const val WORK_MANAGER_INSPECTOR_ID = "androidx.work.inspection"
 
 class WorkManagerInspectorTestEnvironment : ExternalResource() {
     private lateinit var inspectorTester: InspectorTester
-    private lateinit var artTooling: FakeArtToolInterface
+    private lateinit var artTooling: FakeArtTooling
     private val job = Job()
     lateinit var workManager: WorkManager
         private set
 
     override fun before() {
-        artTooling = FakeArtToolInterface()
+        artTooling = FakeArtTooling()
         val application = InstrumentationRegistry
             .getInstrumentation()
             .targetContext
@@ -113,7 +113,7 @@ class WorkManagerInspectorTestEnvironment : ExternalResource() {
  * - [registerEntryHook] and [registerExitHook] record the calls which can later be
  * retrieved in [consumeRegisteredHooks].
  */
-private class FakeArtToolInterface : ArtToolInterface {
+private class FakeArtTooling : ArtTooling {
     private val instancesToFind = mutableListOf<Any>()
     private val registeredHooks = mutableListOf<Hook>()
 
@@ -133,14 +133,14 @@ private class FakeArtToolInterface : ArtToolInterface {
     override fun <T : Any?> registerExitHook(
         originClass: Class<*>,
         originMethod: String,
-        exitHook: ArtToolInterface.ExitHook<T>
+        exitHook: ArtTooling.ExitHook<T>
     ) {
     }
 
     override fun registerEntryHook(
         originClass: Class<*>,
         originMethod: String,
-        entryHook: ArtToolInterface.EntryHook
+        entryHook: ArtTooling.EntryHook
     ) {
         // TODO: implement actual registerEntryHook behaviour
         registeredHooks.add(Hook.EntryHook(originClass, originMethod, entryHook))
@@ -156,7 +156,7 @@ sealed class Hook(val originClass: Class<*>, val originMethod: String) {
     class EntryHook(
         originClass: Class<*>,
         originMethod: String,
-        val entryHook: ArtToolInterface.EntryHook
+        val entryHook: ArtTooling.EntryHook
     ) : Hook(originClass, originMethod)
 }
 

@@ -17,7 +17,7 @@
 package androidx.sqlite.inspection
 
 import android.database.sqlite.SQLiteDatabase
-import androidx.inspection.ArtToolInterface
+import androidx.inspection.ArtTooling
 import androidx.inspection.testing.DefaultTestInspectorEnvironment
 import androidx.inspection.testing.InspectorTester
 import androidx.inspection.testing.TestInspectorExecutors
@@ -81,7 +81,7 @@ class SqlDelightInvalidationTest {
                 environment =
                     DefaultTestInspectorEnvironment(
                         TestInspectorExecutors(job),
-                        TestArtToolInterface(sqliteDb, listOf(query))
+                        TestArtTooling(sqliteDb, listOf(query))
                     )
             )
             val updates = query.asFlow().mapToList().take(2).produceIn(this)
@@ -137,14 +137,14 @@ private fun SupportSQLiteDatabase.getSqliteDb(): SQLiteDatabase {
 }
 
 @Suppress("UNCHECKED_CAST")
-class TestArtToolInterface(
+class TestArtTooling(
     private val sqliteDb: SQLiteDatabase,
     private val queries: List<Query<*>>
-) : ArtToolInterface {
+) : ArtTooling {
     override fun registerEntryHook(
         originClass: Class<*>,
         originMethod: String,
-        entryHook: ArtToolInterface.EntryHook
+        entryHook: ArtTooling.EntryHook
     ) {
         // no-op
     }
@@ -161,7 +161,7 @@ class TestArtToolInterface(
     override fun <T : Any?> registerExitHook(
         originClass: Class<*>,
         originMethod: String,
-        exitHook: ArtToolInterface.ExitHook<T>
+        exitHook: ArtTooling.ExitHook<T>
     ) {
         // no-op
     }

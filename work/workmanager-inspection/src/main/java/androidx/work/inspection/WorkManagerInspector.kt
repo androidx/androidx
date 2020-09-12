@@ -60,13 +60,13 @@ class WorkManagerInspector(
     private val stackTraceMap = mutableMapOf<String, List<StackTraceElement>>()
 
     init {
-        workManager = environment.artTI().findInstances(Application::class.java).first()
+        workManager = environment.artTooling().findInstances(Application::class.java).first()
             .let { application -> WorkManager.getInstance(application) as WorkManagerImpl }
         Handler(Looper.getMainLooper()).post {
             lifecycleRegistry.currentState = Lifecycle.State.STARTED
         }
 
-        environment.artTI().registerEntryHook(
+        environment.artTooling().registerEntryHook(
             WorkContinuationImpl::class.java,
             "enqueue()Landroidx/work/Operation;"
         ) { obj, _ ->
