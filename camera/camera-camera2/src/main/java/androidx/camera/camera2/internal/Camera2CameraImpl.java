@@ -703,29 +703,25 @@ final class Camera2CameraImpl implements CameraInternal {
     }
 
     private void notifyStateAttachedToUseCases(List<UseCase> useCases) {
-        CameraXExecutors.mainThreadExecutor().execute(() -> {
-            for (UseCase useCase : useCases) {
-                if (mNotifyStateAttachedSet.contains(useCase.getName() + useCase.hashCode())) {
-                    continue;
-                }
-
-                mNotifyStateAttachedSet.add(useCase.getName() + useCase.hashCode());
-                useCase.onStateAttached();
+        for (UseCase useCase : useCases) {
+            if (mNotifyStateAttachedSet.contains(useCase.getName() + useCase.hashCode())) {
+                continue;
             }
-        });
+
+            mNotifyStateAttachedSet.add(useCase.getName() + useCase.hashCode());
+            useCase.onStateAttached();
+        }
     }
 
     private void notifyStateDetachedToUseCases(List<UseCase> useCases) {
-        CameraXExecutors.mainThreadExecutor().execute(() -> {
-            for (UseCase useCase : useCases) {
-                if (!mNotifyStateAttachedSet.contains(useCase.getName() + useCase.hashCode())) {
-                    continue;
-                }
-
-                useCase.onStateDetached();
-                mNotifyStateAttachedSet.remove(useCase.getName() + useCase.hashCode());
+        for (UseCase useCase : useCases) {
+            if (!mNotifyStateAttachedSet.contains(useCase.getName() + useCase.hashCode())) {
+                continue;
             }
-        });
+
+            useCase.onStateDetached();
+            mNotifyStateAttachedSet.remove(useCase.getName() + useCase.hashCode());
+        }
     }
 
     @ExecutedBy("mExecutor")
