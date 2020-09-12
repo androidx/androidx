@@ -38,6 +38,7 @@ import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.DeferrableSurfaces;
 import androidx.camera.core.impl.MutableOptionsBundle;
+import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.FutureChain;
@@ -92,8 +93,12 @@ final class CaptureSession {
     @Nullable
     volatile SessionConfig mSessionConfig;
     /** The capture options from CameraEventCallback.onRepeating(). **/
-    @Nullable
-    volatile Config mCameraEventOnRepeatingOptions;
+    @NonNull
+    volatile Config mCameraEventOnRepeatingOptions = OptionsBundle.emptyBundle();
+    /** The CameraEventCallbacks for this capture session. */
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @NonNull
+    CameraEventCallbacks mCameraEventCallbacks = CameraEventCallbacks.createEmptyCallback();
     /**
      * The map of DeferrableSurface to Surface. It is both for restoring the surfaces used to
      * configure the current capture session and for getting the configured surface from a
@@ -296,10 +301,10 @@ final class CaptureSession {
 
                     // Start check preset CaptureStage information.
                     Config options = sessionConfig.getImplementationOptions();
-                    CameraEventCallbacks eventCallbacks = new Camera2ImplConfig(options)
+                    mCameraEventCallbacks = new Camera2ImplConfig(options)
                             .getCameraEventCallback(CameraEventCallbacks.createEmptyCallback());
                     List<CaptureConfig> presetList =
-                            eventCallbacks.createComboCallback().onPresetSession();
+                            mCameraEventCallbacks.createComboCallback().onPresetSession();
 
                     // Generate the CaptureRequest builder from repeating request since Android
                     // recommend use the same template type as the initial capture request. The
@@ -367,11 +372,8 @@ final class CaptureSession {
                 case OPENED:
                     // Only issue onDisableSession requests at OPENED state.
                     if (mSessionConfig != null) {
-                        CameraEventCallbacks eventCallbacks = new Camera2ImplConfig(
-                                mSessionConfig.getImplementationOptions()).getCameraEventCallback(
-                                CameraEventCallbacks.createEmptyCallback());
                         List<CaptureConfig> configList =
-                                eventCallbacks.createComboCallback().onDisableSession();
+                                mCameraEventCallbacks.createComboCallback().onDisableSession();
                         if (!configList.isEmpty()) {
                             try {
                                 issueCaptureRequests(setupConfiguredSurface(configList));
@@ -390,7 +392,6 @@ final class CaptureSession {
                     mSynchronizedCaptureSessionOpener.stop();
                     mState = State.CLOSED;
                     mSessionConfig = null;
-                    mCameraEventOnRepeatingOptions = null;
 
                     break;
                 case CLOSED:
@@ -560,6 +561,10 @@ final class CaptureSession {
         }
 
         CaptureConfig captureConfig = mSessionConfig.getRepeatingCaptureConfig();
+        if (captureConfig.getSurfaces().isEmpty()) {
+            Log.d(TAG, "Skipping issueRepeatingCaptureRequests for no surface.");
+            return;
+        }
 
         try {
             Log.d(TAG, "Issuing request for session.");
@@ -569,15 +574,9 @@ final class CaptureSession {
             // P2 SessionConfig options
             CaptureConfig.Builder captureConfigBuilder = CaptureConfig.Builder.from(captureConfig);
 
-            CameraEventCallbacks eventCallbacks = new Camera2ImplConfig(
-                    mSessionConfig.getImplementationOptions()).getCameraEventCallback(
-                    CameraEventCallbacks.createEmptyCallback());
-
             mCameraEventOnRepeatingOptions = mergeOptions(
-                    eventCallbacks.createComboCallback().onRepeating());
-            if (mCameraEventOnRepeatingOptions != null) {
-                captureConfigBuilder.addImplementationOptions(mCameraEventOnRepeatingOptions);
-            }
+                    mCameraEventCallbacks.createComboCallback().onRepeating());
+            captureConfigBuilder.addImplementationOptions(mCameraEventOnRepeatingOptions);
 
             CaptureRequest captureRequest = Camera2CaptureRequestBuilder.build(
                     captureConfigBuilder.build(), mSynchronizedCaptureSession.getDevice(),
@@ -658,9 +657,7 @@ final class CaptureSession {
                             mSessionConfig.getRepeatingCaptureConfig().getImplementationOptions());
                 }
 
-                if (mCameraEventOnRepeatingOptions != null) {
-                    captureConfigBuilder.addImplementationOptions(mCameraEventOnRepeatingOptions);
-                }
+                captureConfigBuilder.addImplementationOptions(mCameraEventOnRepeatingOptions);
 
                 // Need to override again since single capture options has highest priority.
                 captureConfigBuilder.addImplementationOptions(
@@ -824,12 +821,8 @@ final class CaptureSession {
 
                         // Issue capture request of enableSession if exists.
                         if (mSessionConfig != null) {
-                            Config implOptions = mSessionConfig.getImplementationOptions();
-                            CameraEventCallbacks eventCallbacks = new Camera2ImplConfig(
-                                    implOptions).getCameraEventCallback(
-                                    CameraEventCallbacks.createEmptyCallback());
                             List<CaptureConfig> list =
-                                    eventCallbacks.createComboCallback().onEnableSession();
+                                    mCameraEventCallbacks.createComboCallback().onEnableSession();
                             if (!list.isEmpty()) {
                                 issueBurstCaptureRequest(setupConfiguredSurface(list));
                             }
