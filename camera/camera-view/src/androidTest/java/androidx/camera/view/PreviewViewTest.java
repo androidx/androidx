@@ -34,6 +34,7 @@ import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
+import android.graphics.Rect;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Build;
 import android.util.Size;
@@ -97,6 +98,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public class PreviewViewTest {
 
     private static final Size DEFAULT_SURFACE_SIZE = new Size(640, 480);
+    private static final Rect DEFAULT_CROP_RECT = new Rect(0, 0, 640, 480);
+    private static final Rect SMALLER_CROP_RECT = new Rect(20, 20, 600, 400);
 
     @Rule
     public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
@@ -402,6 +405,8 @@ public class PreviewViewTest {
 
         waitForLayoutReady(mPreviewView);
 
+        updateCropRectAndWaitForIdle(DEFAULT_CROP_RECT);
+
         MeteringPointFactory factory = mPreviewView.getMeteringPointFactory();
         MeteringPoint point = factory.createPoint(100, 100);
         assertPointIsValid(point);
@@ -425,12 +430,12 @@ public class PreviewViewTest {
             Preview.SurfaceProvider surfaceProvider = mPreviewView.getSurfaceProvider();
             surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo));
         });
+        updateCropRectAndWaitForIdle(DEFAULT_CROP_RECT);
 
         changeViewSize(mPreviewView, 1000, 1000);
         MeteringPoint point1 = mMeteringPointFactory.createPoint(100, 100);
 
         changeViewSize(mPreviewView, 500, 400);
-
         MeteringPoint point2 = mMeteringPointFactory.createPoint(100, 100);
 
         assertPointIsValid(point1);
@@ -473,6 +478,8 @@ public class PreviewViewTest {
             Preview.SurfaceProvider surfaceProvider = mPreviewView.getSurfaceProvider();
             surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo));
         });
+        updateCropRectAndWaitForIdle(DEFAULT_CROP_RECT);
+
         // Surface resolution is 640x480 , set a different size for PreviewView.
         changeViewSize(mPreviewView, 800, 700);
 
@@ -489,7 +496,7 @@ public class PreviewViewTest {
     }
 
     @Test
-    public void meteringPointFactoryAutoAdjusted_whenSurfaceRequestChanged() throws Exception {
+    public void meteringPointFactoryAutoAdjusted_whenTransformationInfoChanged() throws Exception {
         final CameraInfo cameraInfo1 = createCameraInfo(90,
                 CameraInfo.IMPLEMENTATION_TYPE_CAMERA2, CameraSelector.LENS_FACING_BACK);
         final CameraInfo cameraInfo2 = createCameraInfo(270,
@@ -504,6 +511,7 @@ public class PreviewViewTest {
         });
 
         changeViewSize(mPreviewView, 1000, 1000);
+        updateCropRectAndWaitForIdle(DEFAULT_CROP_RECT);
 
         // get a MeteringPoint from a non-center point.
         MeteringPoint point1 = mMeteringPointFactory.createPoint(100, 120);
@@ -513,6 +521,7 @@ public class PreviewViewTest {
             Preview.SurfaceProvider surfaceProvider = mPreviewView.getSurfaceProvider();
             surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo2));
         });
+        updateCropRectAndWaitForIdle(SMALLER_CROP_RECT);
 
         MeteringPoint point2 = mMeteringPointFactory.createPoint(100, 120);
 
@@ -754,6 +763,14 @@ public class PreviewViewTest {
 
     private void setContentView(View view) {
         mActivityRule.getActivity().setContentView(view);
+    }
+
+    private void updateCropRectAndWaitForIdle(Rect cropRect) {
+        for (SurfaceRequest surfaceRequest : mSurfaceRequestList) {
+            surfaceRequest.updateTransformationInfo(
+                    SurfaceRequest.TransformationInfo.of(cropRect, 0, Surface.ROTATION_0));
+        }
+        mInstrumentation.waitForIdleSync();
     }
 
     /**

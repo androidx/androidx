@@ -18,418 +18,83 @@ package androidx.camera.view;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.when;
-
-import android.graphics.Point;
+import android.graphics.PointF;
+import android.graphics.Rect;
+import android.os.Build;
+import android.util.LayoutDirection;
 import android.util.Size;
-import android.view.Display;
 import android.view.Surface;
 
-import androidx.annotation.NonNull;
-import androidx.camera.core.CameraInfo;
-import androidx.camera.core.CameraSelector;
-import androidx.camera.core.DisplayOrientedMeteringPointFactory;
-import androidx.camera.core.MeteringPoint;
-import androidx.camera.testing.fakes.FakeCameraInfoInternal;
+import androidx.camera.core.SurfaceRequest;
+import androidx.test.filters.SmallTest;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
-import org.robolectric.ParameterizedRobolectricTestRunner;
+import org.robolectric.RobolectricTestRunner;
+import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-
-@RunWith(ParameterizedRobolectricTestRunner.class)
+/**
+ * Unit test for {@link PreviewViewMeteringPointFactory}.
+ */
+@SmallTest
+@RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP, maxSdk = Build.VERSION_CODES.LOLLIPOP)
 public class PreviewViewMeteringPointFactoryTest {
-    private static final Size RESOLUTION = new Size(2000, 1000);
-    private static final int VIEW_WIDTH = 100;
-    private static final int VIEW_HEIGHT = 100;
 
-    @ParameterizedRobolectricTestRunner.Parameter(0)
-    public CameraInfo mCameraInfo;
+    private static final int WIDTH = 800;
+    private static final int HEIGHT = 600;
 
-    // Useless, just for showing parameter name during test.
-    @ParameterizedRobolectricTestRunner.Parameter(1)
-    public String mName;
+    @Test
+    public void transformationInfoNotSet_createsInvalidMeteringPoint() {
+        // Arrange.
+        PreviewViewMeteringPointFactory previewViewMeteringPointFactory =
+                new PreviewViewMeteringPointFactory(new PreviewTransformation());
+        previewViewMeteringPointFactory.recalculate(new Size(WIDTH, HEIGHT), LayoutDirection.LTR);
 
-    @ParameterizedRobolectricTestRunner.Parameters(name = "{1}")
-    public static Collection<Object[]> getParameters() {
-        List<Object[]> result = new ArrayList<>();
-        result.add(new Object[]{new FakeCameraInfoInternal(90, CameraSelector.LENS_FACING_BACK),
-                "Back camera"});
-        result.add(new Object[]{new FakeCameraInfoInternal(270, CameraSelector.LENS_FACING_FRONT),
-                "Front camera"});
-        return result;
-    }
+        // Act.
+        PointF meteringPoint = previewViewMeteringPointFactory.convertPoint(0F, 0F);
 
-    private Display mDisplay;
-
-    @Before
-    public void setUp() {
-        mDisplay = Mockito.mock(Display.class);
-
-        mockDisplay(Surface.ROTATION_0, 1080, 1920);
+        // Assume.
+        assertThat(meteringPoint).isEqualTo(PreviewViewMeteringPointFactory.INVALID_POINT);
     }
 
     @Test
-    public void fillCenter_rotation0() {
-        final int adjustedViewWidth = 100;
-        final int adjustedViewHeight = 200;
-        PreviewViewMeteringPointFactory factory = new PreviewViewMeteringPointFactory(mDisplay,
-                mCameraInfo, RESOLUTION, PreviewView.ScaleType.FILL_CENTER, VIEW_WIDTH,
-                VIEW_HEIGHT);
+    public void previewViewSizeIs0_createsInvalidMeteringPoint() {
+        // Arrange.
+        PreviewTransformation previewTransformation = new PreviewTransformation();
+        previewTransformation.setTransformationInfo(
+                SurfaceRequest.TransformationInfo.of(new Rect(0, 0, WIDTH, HEIGHT), 0,
+                        Surface.ROTATION_0), new Size(WIDTH, HEIGHT), false);
+        PreviewViewMeteringPointFactory previewViewMeteringPointFactory =
+                new PreviewViewMeteringPointFactory(previewTransformation);
 
-        DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraInfo,
-                        adjustedViewWidth,
-                        adjustedViewHeight);
+        // Act.
+        previewViewMeteringPointFactory.recalculate(new Size(0, 0), LayoutDirection.LTR);
+        PointF meteringPoint = previewViewMeteringPointFactory.convertPoint(0F, 0F);
 
-        assertEqual(
-                factory.createPoint(0, 0),
-                displayFactory.createPoint(0, 50));
-        assertEqual(
-                factory.createPoint(VIEW_WIDTH, 0),
-                displayFactory.createPoint(adjustedViewWidth, 50));
-        assertEqual(
-                factory.createPoint(0, VIEW_HEIGHT),
-                displayFactory.createPoint(0, adjustedViewHeight - 50));
-        assertEqual(
-                factory.createPoint(VIEW_WIDTH, VIEW_HEIGHT),
-                displayFactory.createPoint(adjustedViewWidth, adjustedViewHeight - 50));
+        // Assume.
+        assertThat(meteringPoint).isEqualTo(PreviewViewMeteringPointFactory.INVALID_POINT);
     }
 
     @Test
-    public void fillStart_rotation0() {
-        final int adjustedViewWidth = 100;
-        final int adjustedViewHeight = 200;
-        PreviewViewMeteringPointFactory factory = new PreviewViewMeteringPointFactory(mDisplay,
-                mCameraInfo, RESOLUTION, PreviewView.ScaleType.FILL_START, VIEW_WIDTH,
-                VIEW_HEIGHT);
+    public void canCreateValidMeteringPoint() {
+        // Arrange.
+        PreviewTransformation previewTransformation = new PreviewTransformation();
+        previewTransformation.setTransformationInfo(
+                SurfaceRequest.TransformationInfo.of(new Rect(0, 0, WIDTH, HEIGHT), 0,
+                        Surface.ROTATION_0), new Size(WIDTH, HEIGHT), false);
+        PreviewViewMeteringPointFactory previewViewMeteringPointFactory =
+                new PreviewViewMeteringPointFactory(previewTransformation);
 
-        DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraInfo,
-                        adjustedViewWidth,
-                        adjustedViewHeight);
+        // Act.
+        previewViewMeteringPointFactory.recalculate(new Size(WIDTH, HEIGHT), LayoutDirection.LTR);
+        PointF meteringPoint = previewViewMeteringPointFactory.convertPoint(0F, 0F);
 
-        assertEqual(
-                factory.createPoint(0, 0),
-                displayFactory.createPoint(0, 0));
-        assertEqual(
-                factory.createPoint(VIEW_WIDTH, 0),
-                displayFactory.createPoint(adjustedViewWidth, 0));
-        assertEqual(
-                factory.createPoint(0, VIEW_HEIGHT),
-                displayFactory.createPoint(0, adjustedViewHeight - 100));
-        assertEqual(
-                factory.createPoint(VIEW_WIDTH, VIEW_HEIGHT),
-                displayFactory.createPoint(adjustedViewWidth, adjustedViewHeight - 100));
-    }
-
-    @Test
-    public void fillEnd_rotation0() {
-        final int adjustedViewWidth = 100;
-        final int adjustedViewHeight = 200;
-        PreviewViewMeteringPointFactory factory = new PreviewViewMeteringPointFactory(mDisplay,
-                mCameraInfo, RESOLUTION, PreviewView.ScaleType.FILL_END, VIEW_WIDTH,
-                VIEW_HEIGHT);
-
-        DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraInfo,
-                        adjustedViewWidth,
-                        adjustedViewHeight);
-
-        assertEqual(
-                factory.createPoint(0, 0),
-                displayFactory.createPoint(0, 100));
-        assertEqual(
-                factory.createPoint(VIEW_WIDTH, 0),
-                displayFactory.createPoint(adjustedViewWidth, 100));
-        assertEqual(
-                factory.createPoint(0, VIEW_HEIGHT),
-                displayFactory.createPoint(0, adjustedViewHeight));
-        assertEqual(
-                factory.createPoint(VIEW_WIDTH, VIEW_HEIGHT),
-                displayFactory.createPoint(adjustedViewWidth, adjustedViewHeight));
-    }
-
-    @Test
-    public void fillCenter_rotation90() {
-        mockDisplay(Surface.ROTATION_90, 1920, 1080);
-
-        final int adjustedViewWidth = 200;
-        final int adjustedViewHeight = 100;
-        PreviewViewMeteringPointFactory factory = new PreviewViewMeteringPointFactory(mDisplay,
-                mCameraInfo, RESOLUTION, PreviewView.ScaleType.FILL_CENTER, VIEW_WIDTH,
-                VIEW_HEIGHT);
-
-        DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraInfo,
-                        adjustedViewWidth,
-                        adjustedViewHeight);
-
-        assertEqual(
-                factory.createPoint(0, 0),
-                displayFactory.createPoint(50, 0));
-        assertEqual(
-                factory.createPoint(VIEW_WIDTH, 0),
-                displayFactory.createPoint(adjustedViewWidth - 50, 0));
-        assertEqual(
-                factory.createPoint(0, VIEW_HEIGHT),
-                displayFactory.createPoint(50, adjustedViewHeight));
-        assertEqual(
-                factory.createPoint(VIEW_WIDTH, VIEW_HEIGHT),
-                displayFactory.createPoint(adjustedViewWidth - 50, adjustedViewHeight));
-    }
-
-    @Test
-    public void fillStart_rotation90() {
-        mockDisplay(Surface.ROTATION_90, 1920, 1080);
-
-        final int adjustedViewWidth = 200;
-        final int adjustedViewHeight = 100;
-        PreviewViewMeteringPointFactory factory = new PreviewViewMeteringPointFactory(mDisplay,
-                mCameraInfo, RESOLUTION, PreviewView.ScaleType.FILL_START, VIEW_WIDTH,
-                VIEW_HEIGHT);
-
-        DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraInfo,
-                        adjustedViewWidth,
-                        adjustedViewHeight);
-
-        assertEqual(
-                factory.createPoint(0, 0),
-                displayFactory.createPoint(0, 0));
-        assertEqual(
-                factory.createPoint(VIEW_WIDTH, 0),
-                displayFactory.createPoint(adjustedViewWidth - 100, 0));
-        assertEqual(
-                factory.createPoint(0, VIEW_HEIGHT),
-                displayFactory.createPoint(0, adjustedViewHeight));
-        assertEqual(
-                factory.createPoint(VIEW_WIDTH, VIEW_HEIGHT),
-                displayFactory.createPoint(adjustedViewWidth - 100, adjustedViewHeight));
-    }
-
-    @Test
-    public void fillEnd_rotation90() {
-        mockDisplay(Surface.ROTATION_90, 1920, 1080);
-
-        final int adjustedViewWidth = 200;
-        final int adjustedViewHeight = 100;
-        PreviewViewMeteringPointFactory factory = new PreviewViewMeteringPointFactory(mDisplay,
-                mCameraInfo, RESOLUTION, PreviewView.ScaleType.FILL_END, VIEW_WIDTH,
-                VIEW_HEIGHT);
-
-        DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraInfo,
-                        adjustedViewWidth,
-                        adjustedViewHeight);
-
-        assertEqual(
-                factory.createPoint(0, 0),
-                displayFactory.createPoint(100, 0));
-        assertEqual(
-                factory.createPoint(VIEW_WIDTH, 0),
-                displayFactory.createPoint(adjustedViewWidth, 0));
-        assertEqual(
-                factory.createPoint(0, VIEW_HEIGHT),
-                displayFactory.createPoint(100, adjustedViewHeight));
-        assertEqual(
-                factory.createPoint(VIEW_WIDTH, VIEW_HEIGHT),
-                displayFactory.createPoint(adjustedViewWidth, adjustedViewHeight));
-    }
-
-    @Test
-    public void fitCenter_rotation0() {
-        final int adjustedViewWidth = 50;
-        final int adjustedViewHeight = 100;
-        PreviewViewMeteringPointFactory factory = new PreviewViewMeteringPointFactory(mDisplay,
-                mCameraInfo, RESOLUTION, PreviewView.ScaleType.FIT_CENTER, VIEW_WIDTH,
-                VIEW_HEIGHT);
-
-        DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraInfo,
-                        adjustedViewWidth,
-                        adjustedViewHeight);
-
-        assertEqual(
-                displayFactory.createPoint(0, 0),
-                factory.createPoint(25, 0));
-        assertEqual(
-                displayFactory.createPoint(adjustedViewWidth, 0),
-                factory.createPoint(VIEW_WIDTH - 25, 0));
-        assertEqual(
-                displayFactory.createPoint(0, adjustedViewHeight),
-                factory.createPoint(25, VIEW_HEIGHT));
-        assertEqual(
-                displayFactory.createPoint(adjustedViewWidth, adjustedViewHeight),
-                factory.createPoint(VIEW_WIDTH - 25, VIEW_HEIGHT)
-        );
-    }
-
-    @Test
-    public void fitStart_rotation0() {
-        final int adjustedViewWidth = 50;
-        final int adjustedViewHeight = 100;
-        PreviewViewMeteringPointFactory factory = new PreviewViewMeteringPointFactory(mDisplay,
-                mCameraInfo, RESOLUTION, PreviewView.ScaleType.FIT_START, VIEW_WIDTH,
-                VIEW_HEIGHT);
-
-        DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraInfo,
-                        adjustedViewWidth,
-                        adjustedViewHeight);
-
-        assertEqual(
-                displayFactory.createPoint(0, 0),
-                factory.createPoint(0, 0));
-        assertEqual(
-                displayFactory.createPoint(adjustedViewWidth, 0),
-                factory.createPoint(VIEW_WIDTH - 50, 0));
-        assertEqual(
-                displayFactory.createPoint(0, adjustedViewHeight),
-                factory.createPoint(0, VIEW_HEIGHT));
-        assertEqual(
-                displayFactory.createPoint(adjustedViewWidth, adjustedViewHeight),
-                factory.createPoint(VIEW_WIDTH - 50, VIEW_HEIGHT));
-    }
-
-    @Test
-    public void fitEnd_rotation0() {
-        final int adjustedViewWidth = 50;
-        final int adjustedViewHeight = 100;
-        PreviewViewMeteringPointFactory factory = new PreviewViewMeteringPointFactory(mDisplay,
-                mCameraInfo, RESOLUTION, PreviewView.ScaleType.FIT_END, VIEW_WIDTH,
-                VIEW_HEIGHT);
-
-        DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraInfo,
-                        adjustedViewWidth,
-                        adjustedViewHeight);
-
-        assertEqual(
-                displayFactory.createPoint(0, 0),
-                factory.createPoint(50, 0));
-        assertEqual(
-                displayFactory.createPoint(adjustedViewWidth, 0),
-                factory.createPoint(VIEW_WIDTH, 0));
-        assertEqual(
-                displayFactory.createPoint(0, adjustedViewHeight),
-                factory.createPoint(50, VIEW_HEIGHT));
-        assertEqual(
-                displayFactory.createPoint(adjustedViewWidth, adjustedViewHeight),
-                factory.createPoint(VIEW_WIDTH, VIEW_HEIGHT));
-    }
-
-    @Test
-    public void fitCenter_rotation90() {
-        mockDisplay(Surface.ROTATION_90, 1920, 1080);
-
-        final int adjustedViewWidth = 100;
-        final int adjustedViewHeight = 50;
-        PreviewViewMeteringPointFactory factory = new PreviewViewMeteringPointFactory(mDisplay,
-                mCameraInfo, RESOLUTION, PreviewView.ScaleType.FIT_CENTER, VIEW_WIDTH,
-                VIEW_HEIGHT);
-
-        DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraInfo,
-                        adjustedViewWidth,
-                        adjustedViewHeight);
-
-        assertEqual(
-                displayFactory.createPoint(0, 0),
-                factory.createPoint(0, 25));
-        assertEqual(
-                displayFactory.createPoint(adjustedViewWidth, 0),
-                factory.createPoint(VIEW_WIDTH, 25));
-        assertEqual(
-                displayFactory.createPoint(0, adjustedViewHeight),
-                factory.createPoint(0, VIEW_HEIGHT - 25));
-        assertEqual(
-                displayFactory.createPoint(adjustedViewWidth, adjustedViewHeight),
-                factory.createPoint(VIEW_WIDTH, VIEW_HEIGHT - 25)
-        );
-    }
-
-    @Test
-    public void fitStart_rotation90() {
-        mockDisplay(Surface.ROTATION_90, 1920, 1080);
-
-        final int adjustedViewWidth = 100;
-        final int adjustedViewHeight = 50;
-        PreviewViewMeteringPointFactory factory = new PreviewViewMeteringPointFactory(mDisplay,
-                mCameraInfo, RESOLUTION, PreviewView.ScaleType.FIT_START, VIEW_WIDTH,
-                VIEW_HEIGHT);
-
-        DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraInfo,
-                        adjustedViewWidth,
-                        adjustedViewHeight);
-
-        assertEqual(
-                displayFactory.createPoint(0, 0),
-                factory.createPoint(0, 0));
-        assertEqual(
-                displayFactory.createPoint(adjustedViewWidth, 0),
-                factory.createPoint(VIEW_WIDTH, 0));
-        assertEqual(
-                displayFactory.createPoint(0, adjustedViewHeight),
-                factory.createPoint(0, VIEW_HEIGHT - 50));
-        assertEqual(
-                displayFactory.createPoint(adjustedViewWidth, adjustedViewHeight),
-                factory.createPoint(VIEW_WIDTH, VIEW_HEIGHT - 50)
-        );
-    }
-
-    @Test
-    public void fitEnd_rotation90() {
-        mockDisplay(Surface.ROTATION_90, 1920, 1080);
-
-        final int adjustedViewWidth = 100;
-        final int adjustedViewHeight = 50;
-        PreviewViewMeteringPointFactory factory = new PreviewViewMeteringPointFactory(mDisplay,
-                mCameraInfo, RESOLUTION, PreviewView.ScaleType.FIT_END, VIEW_WIDTH,
-                VIEW_HEIGHT);
-
-        DisplayOrientedMeteringPointFactory displayFactory =
-                new DisplayOrientedMeteringPointFactory(mDisplay, mCameraInfo,
-                        adjustedViewWidth,
-                        adjustedViewHeight);
-
-        assertEqual(
-                displayFactory.createPoint(0, 0),
-                factory.createPoint(0, 50));
-        assertEqual(
-                displayFactory.createPoint(adjustedViewWidth, 0),
-                factory.createPoint(VIEW_WIDTH, 50));
-        assertEqual(
-                displayFactory.createPoint(0, adjustedViewHeight),
-                factory.createPoint(0, VIEW_HEIGHT));
-        assertEqual(
-                displayFactory.createPoint(adjustedViewWidth, adjustedViewHeight),
-                factory.createPoint(VIEW_WIDTH, VIEW_HEIGHT)
-        );
-    }
-
-    private void mockDisplay(int rotation, int displayWidth, int displayHeight) {
-        when(mDisplay.getRotation()).thenReturn(rotation);
-        doAnswer(invocation -> {
-            Point point = invocation.getArgument(0);
-            point.x = displayWidth;
-            point.y = displayHeight;
-            return null;
-        }).when(mDisplay).getRealSize(any(Point.class));
-    }
-
-    private void assertEqual(@NonNull MeteringPoint point1, @NonNull MeteringPoint point2) {
-        assertThat(point1.getX()).isEqualTo(point2.getX());
-        assertThat(point1.getY()).isEqualTo(point2.getY());
+        // Assume not invalid.
+        // The result can't be correct for unit test because Matrix is native code, but at least
+        // it should not be INVALID_POINT.
+        assertThat(meteringPoint).isNotEqualTo(PreviewViewMeteringPointFactory.INVALID_POINT);
     }
 }
