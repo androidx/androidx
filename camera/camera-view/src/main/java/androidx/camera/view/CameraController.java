@@ -40,6 +40,7 @@ import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
 import androidx.camera.core.MeteringPoint;
+import androidx.camera.core.MeteringPointFactory;
 import androidx.camera.core.Preview;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.UseCase;
@@ -77,6 +78,10 @@ abstract class CameraController {
 
     private static final String IMAGE_CAPTURE_DISABLED_ERR_MSG = "ImageCapture disabled.";
     private static final String VIDEO_CAPTURE_DISABLED_ERR_MSG = "VideoCapture disabled.";
+
+    // Auto focus is 1/6 of the area.
+    private static final float AF_SIZE = 1.0f / 6.0f;
+    private static final float AE_SIZE = AF_SIZE * 1.5f;
 
     // CameraController and PreviewView hold reference to each other. The 2-way link is managed
     // by PreviewView.
@@ -579,7 +584,7 @@ abstract class CameraController {
      * Called by {@link PreviewView} for a tap-to-focus event.
      */
     @SuppressWarnings("FutureReturnValueIgnored")
-    void onTapToFocus(MeteringPoint meteringPoint) {
+    void onTapToFocus(MeteringPointFactory meteringPointFactory, float x, float y) {
         if (mCamera == null) {
             Logger.w(TAG, CAMERA_NOT_READY);
             return;
@@ -588,9 +593,13 @@ abstract class CameraController {
             Logger.d(TAG, "Tap to focus disabled. ");
             return;
         }
-        Logger.d(TAG, "Tap to focus: " + meteringPoint.getX() + "x" + meteringPoint.getY());
-        mCamera.getCameraControl().startFocusAndMetering(
-                new FocusMeteringAction.Builder(meteringPoint).build());
+        Logger.d(TAG, "Tap to focus: " + x + ", " + y);
+        MeteringPoint afPoint = meteringPointFactory.createPoint(x, y, AF_SIZE);
+        MeteringPoint aePoint = meteringPointFactory.createPoint(x, y, AE_SIZE);
+        mCamera.getCameraControl().startFocusAndMetering(new FocusMeteringAction
+                .Builder(afPoint, FocusMeteringAction.FLAG_AF)
+                .addPoint(aePoint, FocusMeteringAction.FLAG_AE)
+                .build());
     }
 
     /**

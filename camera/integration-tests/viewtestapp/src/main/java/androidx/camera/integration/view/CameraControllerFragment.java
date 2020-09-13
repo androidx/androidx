@@ -104,6 +104,7 @@ public class CameraControllerFragment extends Fragment {
         // Use compatible mode so StreamState is accurate.
         mPreviewView.setImplementationMode(PreviewView.ImplementationMode.COMPATIBLE);
         mPreviewView.setController(mCameraController);
+        mPreviewView.setOnClickListener(v -> toast("PreviewView clicked."));
 
         // Set up the button to add and remove the PreviewView
         mContainer = view.findViewById(R.id.container);
