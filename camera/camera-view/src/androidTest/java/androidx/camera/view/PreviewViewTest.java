@@ -83,6 +83,8 @@ import org.junit.Test;
 import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
@@ -105,7 +107,7 @@ public class PreviewViewTest {
     public final ActivityTestRule<FakeActivity> mActivityRule = new ActivityTestRule<>(
             FakeActivity.class);
     private final Context mContext = ApplicationProvider.getApplicationContext();
-    private SurfaceRequest mSurfaceRequest;
+    private List<SurfaceRequest> mSurfaceRequestList = new ArrayList<>();
     private PreviewView mPreviewView;
     private MeteringPointFactory mMeteringPointFactory;
 
@@ -123,7 +125,9 @@ public class PreviewViewTest {
         FakeCamera fakeCamera = spy(new FakeCamera());
         when(fakeCamera.getCameraInfo()).thenReturn(cameraInfo);
 
-        return new SurfaceRequest(size, fakeCamera, isRGBA8888Required);
+        SurfaceRequest surfaceRequest = new SurfaceRequest(size, fakeCamera, isRGBA8888Required);
+        mSurfaceRequestList.add(surfaceRequest);
+        return surfaceRequest;
     }
 
     private CountDownLatch mCountDownLatch = new CountDownLatch(1);
@@ -156,11 +160,10 @@ public class PreviewViewTest {
 
     @After
     public void tearDown() {
-        if (mSurfaceRequest != null) {
-            mSurfaceRequest.willNotProvideSurface();
+        for (SurfaceRequest surfaceRequest : mSurfaceRequestList) {
+            surfaceRequest.willNotProvideSurface();
             // Ensure all successful requests have their returned future finish.
-            mSurfaceRequest.getDeferrableSurface().close();
-            mSurfaceRequest = null;
+            surfaceRequest.getDeferrableSurface().close();
         }
     }
 
@@ -264,8 +267,7 @@ public class PreviewViewTest {
         setContentView(previewView);
         previewView.setImplementationMode(PERFORMANCE);
         Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
-        mSurfaceRequest = createSurfaceRequest(cameraInfo);
-        surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+        surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo));
 
         assertThat(previewView.mImplementation).isInstanceOf(TextureViewImplementation.class);
     }
@@ -280,8 +282,7 @@ public class PreviewViewTest {
         setContentView(previewView);
         previewView.setImplementationMode(PERFORMANCE);
         Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
-        mSurfaceRequest = createSurfaceRequest(cameraInfo);
-        surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+        surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo));
 
         assertThat(previewView.mImplementation).isInstanceOf(TextureViewImplementation.class);
     }
@@ -296,8 +297,7 @@ public class PreviewViewTest {
         setContentView(previewView);
         previewView.setImplementationMode(PERFORMANCE);
         Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
-        mSurfaceRequest = createSurfaceRequest(cameraInfo);
-        surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+        surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo));
 
         assertThat(previewView.mImplementation).isInstanceOf(SurfaceViewImplementation.class);
     }
@@ -311,8 +311,7 @@ public class PreviewViewTest {
         setContentView(previewView);
         previewView.setImplementationMode(COMPATIBLE);
         Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
-        mSurfaceRequest = createSurfaceRequest(cameraInfo);
-        surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+        surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo));
 
         assertThat(previewView.mImplementation).isInstanceOf(TextureViewImplementation.class);
     }
@@ -320,8 +319,8 @@ public class PreviewViewTest {
     @Test
     public void correctSurfacePixelFormat_whenRGBA8888IsRequired() throws Throwable {
         final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
-        mSurfaceRequest = createSurfaceRequest(cameraInfo, true);
-        ListenableFuture<Surface> future = mSurfaceRequest.getDeferrableSurface().getSurface();
+        SurfaceRequest surfaceRequest = createSurfaceRequest(cameraInfo, true);
+        ListenableFuture<Surface> future = surfaceRequest.getDeferrableSurface().getSurface();
 
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
@@ -332,7 +331,7 @@ public class PreviewViewTest {
 
                 previewView.setImplementationMode(PERFORMANCE);
                 Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
-                surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+                surfaceProvider.onSurfaceRequested(surfaceRequest);
             }
         });
         final Surface[] surface = new Surface[1];
@@ -362,9 +361,8 @@ public class PreviewViewTest {
         mInstrumentation.runOnMainSync(() -> {
             mPreviewView = new PreviewView(mContext);
             setContentView(mPreviewView);
-            mSurfaceRequest = createSurfaceRequest(cameraInfo);
             Preview.SurfaceProvider surfaceProvider = mPreviewView.getSurfaceProvider();
-            surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+            surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo));
         });
 
         waitForLayoutReady(mPreviewView);
@@ -389,9 +387,8 @@ public class PreviewViewTest {
             mMeteringPointFactory = mPreviewView.getMeteringPointFactory();
 
             setContentView(mPreviewView);
-            mSurfaceRequest = createSurfaceRequest(cameraInfo);
             Preview.SurfaceProvider surfaceProvider = mPreviewView.getSurfaceProvider();
-            surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+            surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo));
         });
 
         changeViewSize(mPreviewView, 1000, 1000);
@@ -438,9 +435,8 @@ public class PreviewViewTest {
             mPreviewView = new PreviewView(mContext);
             mMeteringPointFactory = mPreviewView.getMeteringPointFactory();
             setContentView(mPreviewView);
-            mSurfaceRequest = createSurfaceRequest(cameraInfo);
             Preview.SurfaceProvider surfaceProvider = mPreviewView.getSurfaceProvider();
-            surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+            surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo));
         });
         // Surface resolution is 640x480 , set a different size for PreviewView.
         changeViewSize(mPreviewView, 800, 700);
@@ -468,9 +464,8 @@ public class PreviewViewTest {
             mPreviewView = new PreviewView(mContext);
             mMeteringPointFactory = mPreviewView.getMeteringPointFactory();
             setContentView(mPreviewView);
-            mSurfaceRequest = createSurfaceRequest(cameraInfo1);
             Preview.SurfaceProvider surfaceProvider = mPreviewView.getSurfaceProvider();
-            surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+            surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo1));
         });
 
         changeViewSize(mPreviewView, 1000, 1000);
@@ -480,9 +475,8 @@ public class PreviewViewTest {
 
         mInstrumentation.runOnMainSync(() -> {
             setContentView(mPreviewView);
-            mSurfaceRequest = createSurfaceRequest(cameraInfo2);
             Preview.SurfaceProvider surfaceProvider = mPreviewView.getSurfaceProvider();
-            surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+            surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo2));
         });
 
         MeteringPoint point2 = mMeteringPointFactory.createPoint(100, 120);
@@ -521,8 +515,7 @@ public class PreviewViewTest {
 
         final PreviewView previewView = new PreviewView(mContext);
         Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
-        mSurfaceRequest = createSurfaceRequest(cameraInfo);
-        surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+        surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo));
 
         MeteringPointFactory factory = previewView.getMeteringPointFactory();
 
@@ -707,8 +700,7 @@ public class PreviewViewTest {
         // Start a preview stream
         final Preview.SurfaceProvider surfaceProvider = previewView.getSurfaceProvider();
         final CameraInfo cameraInfo = createCameraInfo(CameraInfo.IMPLEMENTATION_TYPE_CAMERA2);
-        mSurfaceRequest = createSurfaceRequest(cameraInfo);
-        surfaceProvider.onSurfaceRequested(mSurfaceRequest);
+        surfaceProvider.onSurfaceRequested(createSurfaceRequest(cameraInfo));
 
         // Create a new surfaceProvider
         previewView.getSurfaceProvider();
