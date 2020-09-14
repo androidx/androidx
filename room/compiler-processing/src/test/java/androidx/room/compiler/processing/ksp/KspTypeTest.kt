@@ -164,9 +164,9 @@ class KspTypeTest {
             assertThat(nullableStringList).isNotEqualTo(nonNullStringList)
             assertThat(nonNullStringList).isNotEqualTo(nullableStringList)
 
-            val nullableStirngList_2 = invocation.requirePropertyType("listOfNullableStrings_2")
+            val nullableStringList_2 = invocation.requirePropertyType("listOfNullableStrings_2")
             val nonNullStringList_2 = invocation.requirePropertyType("listOfNonNullStrings_2")
-            assertThat(nullableStringList).isEqualTo(nullableStirngList_2)
+            assertThat(nullableStringList).isEqualTo(nullableStringList_2)
             assertThat(nonNullStringList).isEqualTo(nonNullStringList_2)
 
             val nullableString = invocation.requirePropertyType("nullableString")
@@ -427,7 +427,7 @@ class KspTypeTest {
             import java.util.List;
             public class Baz {
                 private void wildcardMethod(List<? extends Number> list) {
-                } 
+                }
             }
         """.trimIndent()
         )
