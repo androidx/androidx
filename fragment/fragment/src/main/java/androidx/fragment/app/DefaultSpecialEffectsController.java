@@ -108,29 +108,6 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                     }
                 }
             });
-
-            // When the operation completes, make sure that the view that had requested
-            // focus before the operation started has its focus requested again
-            operation.addCompletionListener(new Runnable() {
-                @Override
-                public void run() {
-                    if (operation.getFinalState() == Operation.State.VISIBLE) {
-                        Fragment fragment = operation.getFragment();
-                        View focusedView = fragment.getFocusedView();
-                        if (focusedView != null) {
-                            boolean success = focusedView.requestFocus();
-                            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                                Log.v(FragmentManager.TAG, "requestFocus: Restoring focused view"
-                                        + " " + focusedView + " "
-                                        + (success ? "succeeded" : "failed")
-                                        + " on Fragment " + fragment + " resulting in focused view "
-                                        + fragment.mView.findFocus());
-                            }
-                            fragment.setFocusedView(null);
-                        }
-                    }
-                }
-            });
         }
 
         // Start transition special effects
