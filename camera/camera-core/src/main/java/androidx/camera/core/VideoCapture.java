@@ -74,6 +74,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
+import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
@@ -145,6 +146,10 @@ public final class VideoCapture extends UseCase {
      * An error indicating the file saving operations.
      */
     public static final int ERROR_FILE_IO = 4;
+    /**
+     * An error indicating this VideoCapture is not bound to a camera.
+     */
+    public static final int ERROR_INVALID_CAMERA = 5;
 
     /**
      * Provides a static configuration with implementation-agnostic options.
@@ -347,6 +352,14 @@ public final class VideoCapture extends UseCase {
 
         OnVideoSavedCallback postListener = new VideoSavedListenerWrapper(executor, callback);
 
+        CameraInternal attachedCamera = getCamera();
+        if (attachedCamera == null) {
+            // Not bound. Notify callback.
+            postListener.onError(ERROR_INVALID_CAMERA,
+                    "Not bound to a Camera [" + VideoCapture.this + "]", null);
+            return;
+        }
+
         if (!mEndOfAudioVideoSignal.get()) {
             postListener.onError(
                     ERROR_RECORDING_IN_PROGRESS, "It is still in video recording!",
@@ -402,7 +415,7 @@ public final class VideoCapture extends UseCase {
             synchronized (mMuxerLock) {
                 mMuxer = initMediaMuxer(outputFileOptions);
                 Preconditions.checkNotNull(mMuxer);
-                mMuxer.setOrientationHint(getRelativeRotation(getCamera()));
+                mMuxer.setOrientationHint(getRelativeRotation(attachedCamera));
 
                 Metadata metadata = outputFileOptions.getMetadata();
                 if (metadata != null && metadata.location != null) {
@@ -1041,7 +1054,7 @@ public final class VideoCapture extends UseCase {
      * @hide
      */
     @IntDef({ERROR_UNKNOWN, ERROR_ENCODER, ERROR_MUXER, ERROR_RECORDING_IN_PROGRESS,
-            ERROR_FILE_IO})
+            ERROR_FILE_IO, ERROR_INVALID_CAMERA})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(Scope.LIBRARY_GROUP)
     public @interface VideoCaptureError {
