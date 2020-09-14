@@ -526,9 +526,9 @@ class FragmentAnimatorTest {
         // ensure the animation was started
         assertThat(fragment2.wasStarted).isTrue()
 
-        fc1.dispatchDestroy()
+        fc1.shutdown(viewModelStore)
 
-        assertThat(fragment2.endLatch.await(1000, TimeUnit.MILLISECONDS)).isFalse()
+        assertThat(fragment2.cancelLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
     }
 
     // Ensures that when a Fragment that is animating away gets readded the state is properly
@@ -648,6 +648,7 @@ class FragmentAnimatorTest {
         var baseEnter: Boolean = false
         var resourceId: Int = 0
         var wasStarted: Boolean = false
+        lateinit var cancelLatch: CountDownLatch
         lateinit var endLatch: CountDownLatch
         var initialized: Boolean = false
 
@@ -664,12 +665,17 @@ class FragmentAnimatorTest {
                     wasStarted = true
                 }
 
+                override fun onAnimationCancel(animation: Animator?) {
+                    cancelLatch.countDown()
+                }
+
                 override fun onAnimationEnd(animation: Animator) {
                     endLatch.countDown()
                 }
             })
             numAnimators++
             wasStarted = false
+            cancelLatch = CountDownLatch(1)
             endLatch = CountDownLatch(1)
             resourceId = nextAnim
             baseEnter = enter
