@@ -132,6 +132,6 @@ public interface AppSearchBackend {
          * next-page token is invalid or all pages have been returned.
          */
         @NonNull
-        AppSearchResult<List<androidx.appsearch.app.SearchResults.Result>> getNextPage();
+        AppSearchResult<List<SearchResults.Result>> getNextPage();
     }
 }
