@@ -157,10 +157,6 @@ class AndroidXPlaygroundRootPlugin : Plugin<Project> {
         google()
         mavenCentral()
         jcenter()
-        // TODO temporary until AndroidX merge
-        maven {
-            it.url = URI("https://jitpack.io")
-        }
     }
 
     private class PlaygroundRepositories(
