@@ -712,10 +712,9 @@ public final class CameraUtil {
             if (mCameraId == null) {
                 return false;
             }
-            if (!waitForCameraAvailable(waitCameraTimeout)) {
-                return false;
-            }
 
+            // Try to open the camera at the first time and we can grab the camera from the lower
+            // priority user.
             for (int i = 0; i < retryCount; i++) {
                 if (tryOpenCamera(mCameraId)) {
                     return true;
