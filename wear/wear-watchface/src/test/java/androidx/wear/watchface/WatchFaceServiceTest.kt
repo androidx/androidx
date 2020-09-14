@@ -38,6 +38,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.style.ListUserStyleCategory
+import androidx.wear.watchface.style.StyleUtils
 import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.ui.WatchFaceConfigActivity
@@ -845,7 +846,7 @@ class WatchFaceServiceTest {
     @Test
     fun persistedStyleOptionMismatchIgnored() {
         `when`(iWatchFaceService.getStoredUserStyle()).thenReturn(
-            UserStyleRepository.styleMapToBundle(mapOf(watchHandStyleCategory to badStyleOption))
+            StyleUtils.styleMapToBundle(mapOf(watchHandStyleCategory to badStyleOption))
         )
 
         initEngine(
