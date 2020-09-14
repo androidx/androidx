@@ -36,7 +36,6 @@ import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.Deferred
@@ -46,6 +45,7 @@ import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
 import java.util.concurrent.CountDownLatch
@@ -64,8 +64,7 @@ class ViewPager2ActivityTest(private val lensFacing: Int) {
     }
 
     @get:Rule
-    val cameraPermissionRule: GrantPermissionRule =
-            GrantPermissionRule.grant(android.Manifest.permission.CAMERA)
+    val mUseCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
 
     private val mDevice =
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
