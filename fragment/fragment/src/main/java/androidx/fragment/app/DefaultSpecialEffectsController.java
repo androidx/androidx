@@ -213,38 +213,46 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
 
             // Okay, let's run the Animation!
             final View viewToAnimate = fragment.mView;
-            container.startViewTransition(viewToAnimate);
             Animation anim = Preconditions.checkNotNull(
                     Preconditions.checkNotNull(animationInfo.getAnimation(context)).animation);
             Operation.State finalState = operation.getFinalState();
-            final Animation animation = finalState == Operation.State.VISIBLE
-                    ? new FragmentAnim.EnterViewTransitionAnimation(anim)
-                    : new FragmentAnim.EndViewTransitionAnimation(anim, container,
-                            viewToAnimate);
-            animation.setAnimationListener(new Animation.AnimationListener() {
-                @Override
-                public void onAnimationStart(Animation animation) {
-                }
+            if (finalState == Operation.State.VISIBLE) {
+                // If we've moving to VISIBLE, we can't use a AnimationSet
+                // due that causing the introduction of visual artifacts (b/163084315).
+                viewToAnimate.startAnimation(anim);
+                // This means we can't use setAnimationListener() without overriding
+                // any listener that the Fragment has set themselves, so we
+                // just mark the special effect as complete immediately.
+                animationInfo.completeSpecialEffect();
+            } else {
+                container.startViewTransition(viewToAnimate);
+                final Animation animation = new FragmentAnim.EndViewTransitionAnimation(
+                        anim, container, viewToAnimate);
+                animation.setAnimationListener(new Animation.AnimationListener() {
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                    }
 
-                @Override
-                public void onAnimationEnd(Animation animation) {
-                    // onAnimationEnd() comes during draw(), so there can still be some
-                    // draw events happening after this call. We don't want to complete the
-                    // animation until after the onAnimationEnd()
-                    container.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            container.endViewTransition(viewToAnimate);
-                            animationInfo.completeSpecialEffect();
-                        }
-                    });
-                }
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        // onAnimationEnd() comes during draw(), so there can still be some
+                        // draw events happening after this call. We don't want to complete the
+                        // animation until after the onAnimationEnd()
+                        container.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                container.endViewTransition(viewToAnimate);
+                                animationInfo.completeSpecialEffect();
+                            }
+                        });
+                    }
 
-                @Override
-                public void onAnimationRepeat(Animation animation) {
-                }
-            });
-            viewToAnimate.startAnimation(animation);
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+                    }
+                });
+                viewToAnimate.startAnimation(animation);
+            }
             // Listen for cancellation and use that to cancel the Animation
             CancellationSignal signal = animationInfo.getSignal();
             signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
