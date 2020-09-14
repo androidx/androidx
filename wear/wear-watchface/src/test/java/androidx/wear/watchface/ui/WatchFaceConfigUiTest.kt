@@ -19,7 +19,6 @@ package androidx.wear.watchface.ui
 import android.content.ComponentName
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.RectF
 import android.icu.util.Calendar
@@ -33,8 +32,8 @@ import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationDrawableRenderer
 import androidx.wear.watchface.ComplicationsHolder
 import androidx.wear.watchface.Renderer
-import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.WatchFaceTestRunner
+import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.createComplicationData
 import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.StyleUtils
@@ -116,7 +115,7 @@ class WatchFaceConfigUiTest {
         Complication.Builder(
             LEFT_COMPLICATION_ID,
             ComplicationDrawableRenderer(complicationDrawableLeft, systemState).apply {
-                setData(createComplicationData() )
+                setData(createComplicationData())
             },
             intArrayOf(
                 ComplicationData.TYPE_RANGED_VALUE,
@@ -125,7 +124,7 @@ class WatchFaceConfigUiTest {
                 ComplicationData.TYPE_ICON,
                 ComplicationData.TYPE_SMALL_IMAGE
             ),
-            Complication.DefaultComplicationProvider(SystemProviders.SUNRISE_SUNSET)
+            Complication.DefaultComplicationProviderPolicy(SystemProviders.SUNRISE_SUNSET)
         ).setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
             .setUnitSquareBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
             .build()
@@ -134,7 +133,7 @@ class WatchFaceConfigUiTest {
         Complication.Builder(
             RIGHT_COMPLICATION_ID,
             ComplicationDrawableRenderer(complicationDrawableRight, systemState).apply {
-                setData(createComplicationData() )
+                setData(createComplicationData())
             },
             intArrayOf(
                 ComplicationData.TYPE_RANGED_VALUE,
@@ -143,7 +142,7 @@ class WatchFaceConfigUiTest {
                 ComplicationData.TYPE_ICON,
                 ComplicationData.TYPE_SMALL_IMAGE
             ),
-            Complication.DefaultComplicationProvider(SystemProviders.DAY_OF_WEEK)
+            Complication.DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
         ).setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
             .setUnitSquareBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
             .build()
@@ -152,12 +151,12 @@ class WatchFaceConfigUiTest {
         Complication.Builder(
             BACKGROUND_COMPLICATION_ID,
             ComplicationDrawableRenderer(complicationDrawableRight, systemState).apply {
-                setData(createComplicationData() )
+                setData(createComplicationData())
             },
             intArrayOf(
                 ComplicationData.TYPE_LARGE_IMAGE
             ),
-            Complication.DefaultComplicationProvider()
+            Complication.DefaultComplicationProviderPolicy()
         ).setDefaultProviderType(ComplicationData.TYPE_LARGE_IMAGE)
             .setBackgroundComplication()
             .build()
@@ -222,13 +221,11 @@ class WatchFaceConfigUiTest {
                     watchFaceConfigDelegate.brieflyHighlightComplicationId(complicationId)
                 }
 
-                override fun drawComplicationSelect(
-                    canvas: Canvas,
+                override fun takeScreenshot(
                     drawRect: Rect,
-                    calendar: Calendar
-                ) {
-                    watchFaceConfigDelegate.drawComplicationSelect(canvas, drawRect, calendar)
-                }
+                    calendar: Calendar,
+                    drawMode: Int
+                ) = watchFaceConfigDelegate.takeScreenshot(drawRect, calendar, drawMode)
             })
 
         configActivity.init(watchFaceComponentName, fragmentController)

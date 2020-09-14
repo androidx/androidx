@@ -68,7 +68,6 @@ internal const val SURFACE_DRAW_TIMEOUT_MS = 100L
         DrawMode.LOW_BATTERY_INTERACTIVE,
         DrawMode.MUTE,
         DrawMode.AMBIENT,
-        DrawMode.COMPLICATION_SELECT,
         DrawMode.BASE_WATCHFACE,
         DrawMode.UPPER_LAYER
     ]
@@ -95,17 +94,11 @@ annotation class DrawMode {
         const val AMBIENT = 3
 
         /**
-         * This mode is used when selecting a complication to configure. Complications should stand
-         * out visually from other parts of the watch face.
-         */
-        const val COMPLICATION_SELECT = 4
-
-        /**
          * As {@link INTERACTIVE} but complications shouldn't be drawn, nor should any watch face
          * elements that might occlude complications (e.g. watch hands).  Used by the
          * remote configuration UI.
          */
-        const val BASE_WATCHFACE = 5
+        const val BASE_WATCHFACE = 4
 
         /**
          * Related to {@link BASE_WATCHFACE}, only watch face elements that might occlude
@@ -113,14 +106,13 @@ annotation class DrawMode {
          * complications then nothing should be drawn. Used by the remote configuration UI. A screen
          * shot taken in this mode needs to include an alpha channel.
          */
-        const val UPPER_LAYER = 6
+        const val UPPER_LAYER = 5
 
         fun values(): Collection<Int> = arrayListOf(
             INTERACTIVE,
             LOW_BATTERY_INTERACTIVE,
             MUTE,
             AMBIENT,
-            COMPLICATION_SELECT,
             BASE_WATCHFACE,
             UPPER_LAYER
         )

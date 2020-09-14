@@ -112,7 +112,7 @@ internal class TestCanvasWatchFaceService(
                         ComplicationData.TYPE_ICON,
                         ComplicationData.TYPE_SMALL_IMAGE
                     ),
-                    Complication.DefaultComplicationProvider(SystemProviders.DAY_OF_WEEK)
+                    Complication.DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
                 ).setUnitSquareBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
                     .setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
                     .build(),
@@ -126,7 +126,7 @@ internal class TestCanvasWatchFaceService(
                         ComplicationData.TYPE_ICON,
                         ComplicationData.TYPE_SMALL_IMAGE
                     ),
-                    Complication.DefaultComplicationProvider(SystemProviders.STEP_COUNT)
+                    Complication.DefaultComplicationProviderPolicy(SystemProviders.STEP_COUNT)
                 ).setUnitSquareBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
                     .setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
                     .build()

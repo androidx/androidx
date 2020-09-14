@@ -20,10 +20,8 @@ import android.app.NotificationManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.graphics.Canvas
 import android.graphics.Rect
 import android.graphics.RectF
-import android.icu.util.Calendar
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -41,7 +39,6 @@ import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.StyleUtils
 import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
-import androidx.wear.watchface.ui.WatchFaceConfigActivity
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
@@ -143,7 +140,7 @@ class WatchFaceServiceTest {
                 ComplicationData.TYPE_ICON,
                 ComplicationData.TYPE_SMALL_IMAGE
             ),
-            Complication.DefaultComplicationProvider(SystemProviders.SUNRISE_SUNSET)
+            Complication.DefaultComplicationProviderPolicy(SystemProviders.SUNRISE_SUNSET)
         ).setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
             .setUnitSquareBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
             .build()
@@ -161,7 +158,7 @@ class WatchFaceServiceTest {
                 ComplicationData.TYPE_ICON,
                 ComplicationData.TYPE_SMALL_IMAGE
             ),
-            Complication.DefaultComplicationProvider(SystemProviders.DAY_OF_WEEK)
+            Complication.DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
         ).setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
             .setUnitSquareBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
             .build()
@@ -175,7 +172,7 @@ class WatchFaceServiceTest {
             intArrayOf(
                 ComplicationData.TYPE_LARGE_IMAGE
             ),
-            Complication.DefaultComplicationProvider()
+            Complication.DefaultComplicationProviderPolicy()
         ).setDefaultProviderType(ComplicationData.TYPE_LARGE_IMAGE)
             .setBackgroundComplication()
             .build()
@@ -324,29 +321,6 @@ class WatchFaceServiceTest {
         assertThat(renderer.drawMode).isEqualTo(DrawMode.INTERACTIVE)
 
         // WatchFaceService.DrawMode.COMPLICATION_SELECT is tested below.
-    }
-
-    @Test
-    fun drawComplicationSelect_setsCorrectDrawMode() {
-        initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
-
-        val iWatchFaceConfig = WatchFaceConfigActivity.getIWatchFaceConfig(
-            ComponentName(
-                testWatchFaceService.packageName,
-                testWatchFaceService.javaClass.typeName
-            )
-        )!!
-
-        iWatchFaceConfig.drawComplicationSelect(
-            Canvas(),
-            ONE_HUNDRED_BY_ONE_HUNDRED_RECT,
-            Calendar.getInstance().apply {
-                timeInMillis = 1000L
-            }
-        )
-
-        assertThat(renderer.lastDrawMode).isEqualTo(DrawMode.COMPLICATION_SELECT)
-        assertThat(renderer.drawMode).isEqualTo(DrawMode.INTERACTIVE)
     }
 
     @Test
@@ -1064,7 +1038,7 @@ class WatchFaceServiceTest {
             LEFT_COMPLICATION_ID,
             ComplicationDrawableRenderer(complicationDrawableLeft, systemState),
             intArrayOf(),
-            Complication.DefaultComplicationProvider(
+            Complication.DefaultComplicationProviderPolicy(
                 listOf(provider1, provider2),
                 SystemProviders.SUNRISE_SUNSET
             )
@@ -1089,7 +1063,7 @@ class WatchFaceServiceTest {
             LEFT_COMPLICATION_ID,
             ComplicationDrawableRenderer(complicationDrawableLeft, systemState),
             intArrayOf(),
-            Complication.DefaultComplicationProvider(
+            Complication.DefaultComplicationProviderPolicy(
                 listOf(provider1, provider2),
                 SystemProviders.SUNRISE_SUNSET
             )

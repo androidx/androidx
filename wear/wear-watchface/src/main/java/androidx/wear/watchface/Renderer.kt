@@ -24,7 +24,7 @@ import androidx.annotation.CallSuper
 import androidx.annotation.UiThread
 import androidx.wear.watchface.style.UserStyleRepository
 
-/** The base class for {@link CanvasRenderer} and {@link Gles2Renderer}. */
+/** The base class for {@link CanvasRenderer} and {@link GlesRenderer}. */
 abstract class Renderer(
     /** The {@link SurfaceHolder} that {@link onDraw} will draw into. */
     _surfaceHolder: SurfaceHolder,

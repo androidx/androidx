@@ -19,7 +19,6 @@ package androidx.wear.watchface.samples
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Path
 import android.graphics.Rect
@@ -123,7 +122,7 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
                         ComplicationData.TYPE_ICON,
                         ComplicationData.TYPE_SMALL_IMAGE
                     ),
-                    Complication.DefaultComplicationProvider(SystemProviders.DAY_OF_WEEK)
+                    Complication.DefaultComplicationProviderPolicy(SystemProviders.DAY_OF_WEEK)
                 ).setUnitSquareBounds(RectF(0.2f, 0.4f, 0.4f, 0.6f))
                     .setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
                     .build(),
@@ -137,7 +136,7 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
                         ComplicationData.TYPE_ICON,
                         ComplicationData.TYPE_SMALL_IMAGE
                     ),
-                    Complication.DefaultComplicationProvider(SystemProviders.STEP_COUNT)
+                    Complication.DefaultComplicationProviderPolicy(SystemProviders.STEP_COUNT)
                 ).setUnitSquareBounds(RectF(0.6f, 0.4f, 0.8f, 0.6f))
                     .setDefaultProviderType(ComplicationData.TYPE_SHORT_TEXT)
                     .build()
@@ -201,18 +200,6 @@ class ExampleCanvasRenderer(
 
     companion object {
         private val HOUR_MARKS = arrayOf("3", "6", "9", "12")
-
-        // Dashed lines are used for complication selection.
-        private val DASH_WIDTH = 10.0f
-        private var DASH_GAP = 2.0f
-        private var DASH_LENGTH = 5.0f
-    }
-
-    private val mDashPaint = Paint().apply {
-        strokeWidth = DASH_WIDTH
-        style = Paint.Style.FILL_AND_STROKE
-        isAntiAlias = true
-        color = Color.RED
     }
 
     private lateinit var hourHandFill: Path
@@ -459,85 +446,8 @@ class ExampleCanvasRenderer(
     }
 
     private fun drawComplications(canvas: Canvas, calendar: Calendar) {
-        val screen = Rect(0, 0, canvas.width, canvas.height)
         for ((_, complication) in complicationsHolder.complications) {
             complication.draw(canvas, calendar, drawMode)
-            if (drawMode == DrawMode.COMPLICATION_SELECT) {
-                drawComplicationSelectDashBorders(
-                    canvas,
-                    complication.computeBounds(screen)
-                )
-            }
-        }
-    }
-
-    private fun drawComplicationSelectDashBorders(canvas: Canvas, bounds: Rect) {
-        if (bounds.width() == bounds.height()) {
-            drawCircleDashBorder(canvas, bounds)
-            return
-        }
-        val radius = bounds.height() / 2.0f
-
-        // Draw left arc dash.
-        var cx = bounds.left + radius
-        var cy = bounds.centerY().toFloat()
-        var startAngle = (Math.PI / 2.0f).toFloat()
-        val dashCount = (Math.PI * radius / (DASH_WIDTH + DASH_GAP)).toInt()
-        drawArcDashBorder(canvas, cx, cy, radius, startAngle, DASH_LENGTH, dashCount)
-
-        // Draw right arc dash.
-        cx = bounds.right - radius
-        cy = bounds.centerY().toFloat()
-        startAngle = (Math.PI / 2.0f).toFloat() * 3.0f
-        drawArcDashBorder(canvas, cx, cy, radius, startAngle, DASH_LENGTH, dashCount)
-
-        // Draw straight line dash.
-        val rectangleWidth = bounds.width() - 2.0f * radius - 2.0f * DASH_GAP
-        val cnt = (rectangleWidth / (DASH_WIDTH + DASH_GAP)).toInt()
-        val baseX: Float = bounds.left + radius + DASH_GAP
-        val fixGap: Float = (rectangleWidth - cnt * DASH_WIDTH) / (cnt - 1)
-        for (i in 0 until cnt) {
-            val startX: Float = baseX + i * (fixGap + DASH_WIDTH) + DASH_WIDTH / 2
-            var startY = bounds.top.toFloat()
-            var endY: Float = bounds.top - DASH_LENGTH
-            canvas.drawLine(startX, startY, startX, endY, mDashPaint)
-            startY = bounds.bottom.toFloat()
-            endY = startY + DASH_LENGTH
-            canvas.drawLine(startX, startY, startX, endY, mDashPaint)
-        }
-    }
-
-    private fun drawArcDashBorder(
-        canvas: Canvas,
-        cx: Float,
-        cy: Float,
-        r: Float,
-        startAngle: Float,
-        dashLength: Float,
-        dashCount: Int
-    ) {
-        for (i in 0 until dashCount) {
-            val rot = (2.0 * Math.PI / (2.0 * (dashCount - 1).toDouble()) * i + startAngle)
-            val startX = (r * cos(rot)).toFloat() + cx
-            val startY = (r * sin(rot)).toFloat() + cy
-            val endX = ((r + dashLength) * cos(rot).toFloat()) + cx
-            val endY = ((r + dashLength) * sin(rot).toFloat()) + cy
-            canvas.drawLine(startX, startY, endX, endY, mDashPaint)
-        }
-    }
-
-    private fun drawCircleDashBorder(canvas: Canvas, bounds: Rect) {
-        val radius = bounds.width() / 2.0f
-        val dashCount = (2.0 * Math.PI * radius / (DASH_WIDTH + DASH_GAP)).toInt()
-        val cx = bounds.exactCenterX()
-        val cy = bounds.exactCenterY()
-        for (i in 0 until dashCount) {
-            val rot = (i * 2.0 * Math.PI / dashCount)
-            val startX = (radius * cos(rot).toFloat()) + cx
-            val startY = (radius * sin(rot).toFloat()) + cy
-            val endX = ((radius + DASH_LENGTH) * cos(rot).toFloat()) + cx
-            val endY = ((radius + DASH_LENGTH) * sin(rot).toFloat()) + cy
-            canvas.drawLine(startX, startY, endX, endY, mDashPaint)
         }
     }
 

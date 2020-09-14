@@ -27,7 +27,7 @@ import android.view.Gravity
 import android.view.SurfaceHolder
 import androidx.wear.watchface.ComplicationsHolder
 import androidx.wear.watchface.DrawMode
-import androidx.wear.watchface.Gles2Renderer
+import androidx.wear.watchface.GlesRenderer
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceHost
 import androidx.wear.watchface.WatchFaceService
@@ -110,7 +110,7 @@ class ExampleOpenGLRenderer(
     private val userStyleRepository: UserStyleRepository,
     watchState: WatchState,
     private val colorStyleCategory: ListUserStyleCategory
-) : Gles2Renderer(surfaceHolder, userStyleRepository, watchState) {
+) : GlesRenderer(surfaceHolder, userStyleRepository, watchState) {
 
     /** Projection transformation matrix. Converts from 3D to 2D.  */
     private val projectionMatrix = FloatArray(16)

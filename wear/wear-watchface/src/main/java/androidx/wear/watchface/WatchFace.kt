@@ -23,7 +23,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.graphics.Canvas
+import android.graphics.Bitmap
 import android.graphics.Point
 import android.graphics.Rect
 import android.icu.util.Calendar
@@ -554,19 +554,19 @@ class WatchFace private constructor(
                 complicationsHolder.brieflyHighlightComplication(complicationId)
             }
 
-            override fun drawComplicationSelect(
-                canvas: Canvas,
+            override fun takeScreenshot(
                 drawRect: Rect,
-                calendar: Calendar
-            ) {
+                calendar: Calendar,
+                drawMode: Int
+            ): Bitmap {
                 val oldDrawMode = renderer.drawMode
-                renderer.drawMode = DrawMode.COMPLICATION_SELECT
+                renderer.drawMode = DrawMode.INTERACTIVE
                 val bitmap = renderer.takeScreenshot(
                     calendar,
-                    DrawMode.COMPLICATION_SELECT
+                    DrawMode.INTERACTIVE
                 )
-                canvas.drawBitmap(bitmap, renderer.screenBounds, drawRect, null)
                 renderer.drawMode = oldDrawMode
+                return bitmap
             }
         })
 
