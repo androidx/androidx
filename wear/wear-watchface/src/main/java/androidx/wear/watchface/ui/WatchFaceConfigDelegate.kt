@@ -16,7 +16,7 @@
 
 package androidx.wear.watchface.ui
 
-import android.graphics.Canvas
+import android.graphics.Bitmap
 import android.graphics.Rect
 import android.icu.util.Calendar
 import android.os.Bundle
@@ -69,10 +69,10 @@ interface WatchFaceConfigDelegate {
      */
     fun brieflyHighlightComplicationId(complicationId: Int)
 
-    /** TODO(alexclarke): This should be refactored in terms of the screen shot APIs.*/
-    fun drawComplicationSelect(
-        canvas: Canvas,
+    /** Requests a screenshot of the watch face. */
+    fun takeScreenshot(
         drawRect: Rect,
-        calendar: Calendar
-    )
+        calendar: Calendar,
+        drawMode: Int
+    ): Bitmap
 }

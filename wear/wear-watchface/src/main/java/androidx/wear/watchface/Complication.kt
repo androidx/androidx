@@ -101,8 +101,8 @@ interface ComplicationRenderer {
 }
 
 /**
- * A complication rendered with ComplicationDrawable which does a lot of hard work for you. This
- * renderer can't be shared by multiple complications.
+ * A complication rendered with {@link ComplicationDrawable} which renders complications in a
+ * material design style. This renderer can't be shared by multiple complications.
  */
 open class ComplicationDrawableRenderer(
     /** The actual complication. */
@@ -201,7 +201,7 @@ class Complication internal constructor(
     val unitSquareBounds: RectF,
     renderer: ComplicationRenderer,
     internal val supportedTypes: IntArray,
-    internal val defaultProvider: DefaultComplicationProvider,
+    internal val defaultProviderPolicy: DefaultComplicationProviderPolicy,
     internal val defaultProviderType: Int
 ) {
     private companion object {
@@ -225,7 +225,7 @@ class Complication internal constructor(
         private val supportedTypes: IntArray,
 
         /** Default complication provider. */
-        private val defaultProvider: DefaultComplicationProvider
+        private val defaultProviderPolicy: DefaultComplicationProviderPolicy
     ) {
         @ComplicationBoundsType
         private var boundsType: Int = ComplicationBoundsType.ROUND_RECT
@@ -272,7 +272,7 @@ class Complication internal constructor(
             unitSquareBounds,
             renderer,
             supportedTypes,
-            defaultProvider,
+            defaultProviderPolicy,
             defaultProviderType
         )
     }
@@ -288,9 +288,9 @@ class Complication internal constructor(
      * then the next one will be tried. A system provider acts as a final fallback in case no
      * non-system providers can be used.
      *
-     * If the DefaultComplicationProvider is empty then no default is set.
+     * If the DefaultComplicationProviderPolicy is empty then no default is set.
      */
-    class DefaultComplicationProvider(
+    class DefaultComplicationProviderPolicy(
         /** List of up to two non-system providers to be tried in turn. This may be empty. */
         val providers: List<ComponentName> = listOf(),
 
@@ -387,7 +387,7 @@ class Complication internal constructor(
     }
 
     /** Computes the bounds of the complication by converting the unitSquareBounds to pixels. */
-    fun computeBounds(screen: Rect) =
+    internal fun computeBounds(screen: Rect) =
         Rect(
             (unitSquareBounds.left * screen.width()).toInt(),
             (unitSquareBounds.top * screen.height()).toInt(),

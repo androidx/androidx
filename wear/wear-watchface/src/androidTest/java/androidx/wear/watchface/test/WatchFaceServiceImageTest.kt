@@ -178,7 +178,7 @@ class WatchFaceServiceImageTest {
     private val surfaceTexture = SurfaceTexture(false)
 
     private lateinit var canvasWatchFaceService: TestCanvasWatchFaceService
-    private lateinit var gles2WatchFaceService: TestGles2WatchFaceService
+    private lateinit var glesWatchFaceService: TestGlesWatchFaceService
     private lateinit var engineWrapper: WatchFaceService.EngineWrapper
 
     @Before
@@ -206,12 +206,12 @@ class WatchFaceServiceImageTest {
     }
 
     private fun initGles2WatchFace() {
-        gles2WatchFaceService = TestGles2WatchFaceService(
+        glesWatchFaceService = TestGlesWatchFaceService(
             ApplicationProvider.getApplicationContext<Context>(),
             handler,
             100000
         )
-        engineWrapper = gles2WatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
+        engineWrapper = glesWatchFaceService.onCreateEngine() as WatchFaceService.EngineWrapper
 
         surfaceTexture.setDefaultBufferSize(BITMAP_WIDTH, BITMAP_HEIGHT)
 
