@@ -30,6 +30,7 @@ import androidx.annotation.Nullable;
 import androidx.collection.ArrayMap;
 import androidx.core.app.SharedElementCallback;
 import androidx.core.os.CancellationSignal;
+import androidx.core.util.Preconditions;
 import androidx.core.view.OneShotPreDrawListener;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.ViewGroupCompat;
@@ -116,13 +117,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         boolean startedAnyTransition = startedTransitions.containsValue(true);
 
         // Start animation special effects
-        for (AnimationInfo animationInfo : animations) {
-            Operation operation = animationInfo.getOperation();
-            boolean startedTransition = startedTransitions.containsKey(operation)
-                    ? startedTransitions.get(operation)
-                    : false;
-            startAnimation(animationInfo, startedAnyTransition, startedTransition);
-        }
+        startAnimations(animations, startedAnyTransition, startedTransitions);
 
         for (final Operation operation : awaitingContainerChanges) {
             applyContainerChanges(operation);
@@ -130,45 +125,101 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         awaitingContainerChanges.clear();
     }
 
-    private void startAnimation(final @NonNull AnimationInfo animationInfo,
-            boolean startedAnyTransition, boolean startedTransitions) {
+    private void startAnimations(@NonNull List<AnimationInfo> animationInfos,
+            boolean startedAnyTransition, @NonNull Map<Operation, Boolean> startedTransitions) {
         final ViewGroup container = getContainer();
         final Context context = container.getContext();
-        final Fragment fragment = animationInfo.getOperation().getFragment();
-        final View viewToAnimate = fragment.mView;
-        Operation.State finalState = animationInfo.getOperation().getFinalState();
-        if (animationInfo.isVisibilityUnchanged()) {
-            // No change in visibility, so we can immediately complete the animation
-            animationInfo.completeSpecialEffect();
-            return;
-        }
-        FragmentAnim.AnimationOrAnimator anim = animationInfo.getAnimation(context);
-        if (anim == null) {
-            // No animation, so we can immediately complete the animation
-            animationInfo.completeSpecialEffect();
-            return;
-        } else if (startedAnyTransition && anim.animation != null) {
-            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                Log.v(FragmentManager.TAG, "Ignoring Animation set on "
-                        + fragment + " as Animations cannot run alongside Transitions.");
+        ArrayList<AnimationInfo> animationsToRun = new ArrayList<>();
+
+        // First run Animators
+        boolean startedAnyAnimator = false;
+        for (final AnimationInfo animationInfo : animationInfos) {
+            if (animationInfo.isVisibilityUnchanged()) {
+                // No change in visibility, so we can immediately complete the animation
+                animationInfo.completeSpecialEffect();
+                continue;
             }
-            animationInfo.completeSpecialEffect();
-            return;
-        } else if (startedTransitions) {
-            if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
-                Log.v(FragmentManager.TAG, "Ignoring Animator set on "
-                        + fragment + " as this Fragment was involved in a Transition.");
+            FragmentAnim.AnimationOrAnimator anim = animationInfo.getAnimation(context);
+            if (anim == null) {
+                // No Animator or Animation, so we can immediately complete the animation
+                animationInfo.completeSpecialEffect();
+                continue;
             }
-            animationInfo.completeSpecialEffect();
-            return;
+            final Animator animator = anim.animator;
+            if (animator == null) {
+                // We must have an Animation to run. Save those for a second pass
+                animationsToRun.add(animationInfo);
+                continue;
+            }
+
+            // First make sure we haven't already started a Transition for this Operation
+            Operation operation = animationInfo.getOperation();
+            final Fragment fragment = operation.getFragment();
+            boolean startedTransition = Boolean.TRUE.equals(startedTransitions.get(operation));
+            if (startedTransition) {
+                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(FragmentManager.TAG, "Ignoring Animator set on "
+                            + fragment + " as this Fragment was involved in a Transition.");
+                }
+                animationInfo.completeSpecialEffect();
+                continue;
+            }
+
+            // Okay, let's run the Animator!
+            startedAnyAnimator = true;
+            final View viewToAnimate = fragment.mView;
+            container.startViewTransition(viewToAnimate);
+            animator.addListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator anim) {
+                    container.endViewTransition(viewToAnimate);
+                    animationInfo.completeSpecialEffect();
+                }
+            });
+            animator.setTarget(viewToAnimate);
+            animator.start();
+            // Listen for cancellation and use that to cancel the Animator
+            CancellationSignal signal = animationInfo.getSignal();
+            signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
+                @Override
+                public void onCancel() {
+                    animator.cancel();
+                }
+            });
         }
-        // We have an animation to run!
-        container.startViewTransition(viewToAnimate);
-        // Kick off the respective type of animation
-        if (anim.animation != null) {
+
+        // Now run Animations
+        for (final AnimationInfo animationInfo : animationsToRun) {
+            // First make sure we haven't already started any Transition
+            Operation operation = animationInfo.getOperation();
+            final Fragment fragment = operation.getFragment();
+            if (startedAnyTransition) {
+                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(FragmentManager.TAG, "Ignoring Animation set on "
+                            + fragment + " as Animations cannot run alongside Transitions.");
+                }
+                animationInfo.completeSpecialEffect();
+                continue;
+            }
+            // Then make sure we haven't already started any Animator
+            if (startedAnyAnimator) {
+                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(FragmentManager.TAG, "Ignoring Animation set on "
+                            + fragment + " as Animations cannot run alongside Animators.");
+                }
+                animationInfo.completeSpecialEffect();
+                continue;
+            }
+
+            // Okay, let's run the Animation!
+            final View viewToAnimate = fragment.mView;
+            container.startViewTransition(viewToAnimate);
+            Animation anim = Preconditions.checkNotNull(
+                    Preconditions.checkNotNull(animationInfo.getAnimation(context)).animation);
+            Operation.State finalState = operation.getFinalState();
             final Animation animation = finalState == Operation.State.VISIBLE
-                    ? new FragmentAnim.EnterViewTransitionAnimation(anim.animation)
-                    : new FragmentAnim.EndViewTransitionAnimation(anim.animation, container,
+                    ? new FragmentAnim.EnterViewTransitionAnimation(anim)
+                    : new FragmentAnim.EndViewTransitionAnimation(anim, container,
                             viewToAnimate);
             animation.setAnimationListener(new Animation.AnimationListener() {
                 @Override
@@ -194,25 +245,15 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 }
             });
             viewToAnimate.startAnimation(animation);
-        } else { // anim.animator != null
-            anim.animator.addListener(new AnimatorListenerAdapter() {
+            // Listen for cancellation and use that to cancel the Animation
+            CancellationSignal signal = animationInfo.getSignal();
+            signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
                 @Override
-                public void onAnimationEnd(Animator anim) {
-                    container.endViewTransition(viewToAnimate);
-                    animationInfo.completeSpecialEffect();
+                public void onCancel() {
+                    viewToAnimate.clearAnimation();
                 }
             });
-            anim.animator.setTarget(viewToAnimate);
-            anim.animator.start();
         }
-
-        // Listen for cancellation and use that to cancel any running animations
-        animationInfo.getSignal().setOnCancelListener(new CancellationSignal.OnCancelListener() {
-            @Override
-            public void onCancel() {
-                viewToAnimate.clearAnimation();
-            }
-        });
     }
 
     @NonNull
