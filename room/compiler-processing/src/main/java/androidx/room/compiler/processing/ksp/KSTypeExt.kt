@@ -26,7 +26,8 @@ import org.jetbrains.kotlin.ksp.symbol.KSType
 import org.jetbrains.kotlin.ksp.symbol.KSTypeReference
 
 // catch-all type name when we cannot resolve to anything.
-internal val UNDEFINED = ClassName.get("androidx.room.compiler.processing.kotlin.error", "Undefined")
+internal val UNDEFINED =
+    ClassName.get("androidx.room.compiler.processing.kotlin.error", "Undefined")
 
 /**
  * Turns a KSTypeReference into a TypeName
@@ -96,16 +97,16 @@ internal fun KSType.typeName(): TypeName? {
  * KSDeclaration.packageName might throw for error types.
  * https://github.com/android/kotlin/issues/121
  */
-private fun KSDeclaration.safeGetPackageName() : String? {
+private fun KSDeclaration.safeGetPackageName(): String? {
     return try {
         packageName.asString()
-    } catch (t : Throwable) {
+    } catch (t: Throwable) {
         null
     }
 }
 
 // TODO remove after https://github.com/android/kotlin/issues/123
-internal fun KSType?.isAssignableFromWithErrorWorkaround(other:KSType?): Boolean {
+internal fun KSType?.isAssignableFromWithErrorWorkaround(other: KSType?): Boolean {
     if (other == null || this == null) return false
     if (isError || other.isError) return false
     return isAssignableFrom(other)

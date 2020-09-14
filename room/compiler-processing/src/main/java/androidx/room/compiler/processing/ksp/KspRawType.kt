@@ -25,10 +25,11 @@ internal class KspRawType private constructor(
     private val ksType: KSType?,
     override val typeName: TypeName
 ) : XRawType {
-    constructor(original: KspType)  :this(
+    constructor(original: KspType) : this(
         ksType = original.ksType?.starProjection(),
         typeName = original.typeName.rawTypeName()
     )
+
     override fun isAssignableFrom(other: XRawType): Boolean {
         check(other is KspRawType)
         return when {

@@ -54,7 +54,7 @@ fun TypeSpec.Builder.addOriginatingElement(element: XElement) {
     }
 }
 
-internal fun TypeName.rawTypeName() : TypeName {
+internal fun TypeName.rawTypeName(): TypeName {
     return if (this is ParameterizedTypeName) {
         this.rawType
     } else {
