@@ -26,6 +26,8 @@ import androidx.test.uiautomator.UiDevice
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assume
+import org.junit.Rule
+import org.junit.rules.TestRule
 import java.util.concurrent.TimeUnit
 
 /**
@@ -39,6 +41,9 @@ import java.util.concurrent.TimeUnit
  * - Verify the image analysis image rotation
  */
 abstract class ImageAnalysisBaseTest<A : CameraActivity> {
+
+    @get:Rule
+    val mUseCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
 
     protected val mDevice: UiDevice =
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
