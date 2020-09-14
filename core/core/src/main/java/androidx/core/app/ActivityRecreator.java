@@ -16,13 +16,14 @@
 
 package androidx.core.app;
 
+import static android.os.Build.VERSION.SDK_INT;
+
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.app.Activity;
 import android.app.Application;
 import android.app.Application.ActivityLifecycleCallbacks;
 import android.content.res.Configuration;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -105,7 +106,7 @@ final class ActivityRecreator {
      */
     static boolean recreate(@NonNull final Activity activity) {
         // On Android O and later we can rely on the platform recreate()
-        if (Build.VERSION.SDK_INT >= 28) {
+        if (SDK_INT >= 28) {
             activity.recreate();
             return true;
         }
@@ -175,12 +176,23 @@ final class ActivityRecreator {
         Object currentlyRecreatingToken;
 
         private Activity mActivity;
+        private final int mRecreatingHashCode;
+
+        // Whether the activity on which recreate() was called went through onStart after
+        // recreate() was called (and thus the callback was registered).
         private boolean mStarted = false;
+
+        // Whether the activity on which recreate() was called went through onDestroy after
+        // recreate() was called. This means we successfully initiated a recreate().
         private boolean mDestroyed = false;
+
+        // Whether we'll force the activity on which recreate() was called to go through an
+        // onStop()
         private boolean mStopQueued = false;
 
         LifecycleCheckCallbacks(@NonNull Activity aboutToRecreate) {
             mActivity = aboutToRecreate;
+            mRecreatingHashCode = mActivity.hashCode();
         }
 
         @Override
@@ -207,7 +219,8 @@ final class ActivityRecreator {
                     && !mStopQueued // Don't schedule stop twice for one recreate() call
                     && !mStarted
                     // Don't schedule stop if the original instance starting raced with recreate()
-                    && queueOnStopIfNecessary(currentlyRecreatingToken, activity)) {
+                    && queueOnStopIfNecessary(
+                            currentlyRecreatingToken, mRecreatingHashCode, activity)) {
                 mStopQueued = true;
                 // Don't retain this object longer than necessary
                 currentlyRecreatingToken = null;
@@ -239,10 +252,14 @@ final class ActivityRecreator {
      * Returns true if a stop call was scheduled successfully
      */
     protected static boolean queueOnStopIfNecessary(
-            Object currentlyRecreatingToken, Activity activity) {
+            Object currentlyRecreatingToken, int currentlyRecreatingHashCode, Activity activity) {
         try {
             final Object token = tokenField.get(activity);
-            if (token != currentlyRecreatingToken) {
+            if (token != currentlyRecreatingToken
+                    || activity.hashCode() != currentlyRecreatingHashCode) {
+                // We're looking at a different activity, don't try to make it stop! Note that
+                // tokens are reused on SDK 21-23 but Activity objects (and thus hashCode, in
+                // all likelihood) are not, so we need to check both.
                 return false;
             }
             final Object activityThread = mainThreadField.get(activity);
@@ -310,7 +327,7 @@ final class ActivityRecreator {
     }
 
     private static boolean needsRelaunchCall() {
-        return Build.VERSION.SDK_INT == 26 || Build.VERSION.SDK_INT == 27;
+        return SDK_INT == 26 || SDK_INT == 27;
     }
 
     private static Method getRequestRelaunchActivityMethod(Class<?> activityThreadClass) {
