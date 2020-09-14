@@ -38,28 +38,28 @@ class RxPagingDataTest {
 
     @Test
     fun map() = testDispatcher.runBlockingTest {
-        val transformed = original.mapRx { Single.just(it + it) }
+        val transformed = original.mapAsync { Single.just(it + it) }
         differ.collectFrom(transformed)
         assertEquals(listOf("aa", "bb", "cc"), differ.currentList)
     }
 
     @Test
     fun flatMap() = testDispatcher.runBlockingTest {
-        val transformed = original.flatMapRx { Single.just(listOf(it, it) as Iterable<String>) }
+        val transformed = original.flatMapAsync { Single.just(listOf(it, it) as Iterable<String>) }
         differ.collectFrom(transformed)
         assertEquals(listOf("a", "a", "b", "b", "c", "c"), differ.currentList)
     }
 
     @Test
     fun filter() = testDispatcher.runBlockingTest {
-        val filtered = original.filterRx { Single.just(it != "b") }
+        val filtered = original.filterAsync { Single.just(it != "b") }
         differ.collectFrom(filtered)
         assertEquals(listOf("a", "c"), differ.currentList)
     }
 
     @Test
     fun insertSeparators() = testDispatcher.runBlockingTest {
-        val separated = original.insertSeparatorsRx { left, right ->
+        val separated = original.insertSeparatorsAsync { left, right ->
             if (left == null || right == null) Maybe.empty() else Maybe.just("|")
         }
         differ.collectFrom(separated)

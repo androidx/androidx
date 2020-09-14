@@ -35,7 +35,7 @@ import kotlinx.coroutines.rx2.await
  */
 @JvmName("map")
 @CheckResult
-fun <T : Any, R : Any> PagingData<T>.mapRx(
+fun <T : Any, R : Any> PagingData<T>.mapAsync(
     transform: (T) -> Single<R>
 ): PagingData<R> = map { transform(it).await() }
 
@@ -45,7 +45,7 @@ fun <T : Any, R : Any> PagingData<T>.mapRx(
  */
 @JvmName("flatMap")
 @CheckResult
-fun <T : Any, R : Any> PagingData<T>.flatMapRx(
+fun <T : Any, R : Any> PagingData<T>.flatMapAsync(
     transform: (T) -> Single<Iterable<R>>
 ): PagingData<R> = flatMap { transform(it).await() }
 
@@ -54,7 +54,7 @@ fun <T : Any, R : Any> PagingData<T>.flatMapRx(
  */
 @JvmName("filter")
 @CheckResult
-fun <T : Any> PagingData<T>.filterRx(
+fun <T : Any> PagingData<T>.filterAsync(
     predicate: (T) -> Single<Boolean>
 ): PagingData<T> = filter { predicate(it).await() }
 
@@ -70,6 +70,6 @@ fun <T : Any> PagingData<T>.filterRx(
  */
 @JvmName("insertSeparators")
 @CheckResult
-fun <T : R, R : Any> PagingData<T>.insertSeparatorsRx(
+fun <T : R, R : Any> PagingData<T>.insertSeparatorsAsync(
     generator: (T?, T?) -> Maybe<R>
 ): PagingData<R> = insertSeparators { before, after -> generator(before, after).await() }
