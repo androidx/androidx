@@ -65,9 +65,9 @@ class WorkManagerInspectorTestEnvironment : ExternalResource() {
 
     override fun after() {
         runBlocking {
-            job.cancelAndJoin()
             workManager.cancelAllWork().await()
             workManager.pruneWork().await()
+            job.cancelAndJoin()
         }
         inspectorTester.dispose()
     }
