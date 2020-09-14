@@ -38,6 +38,7 @@ public final class SearchSpec {
 
     static final String TERM_MATCH_TYPE_FIELD = "termMatchType";
     static final String SCHEMA_TYPES_FIELD = "schemaType";
+    static final String NAMESPACE_FIELD = "namespace";
     static final String NUM_PER_PAGE_FIELD = "numPerPage";
     static final String RANKING_STRATEGY_FIELD = "rankingStrategy";
     static final String ORDER_FILED = "order";
@@ -144,8 +145,22 @@ public final class SearchSpec {
          */
         @NonNull
         public Builder setSchemaTypes(@NonNull String... schemaTypes) {
+            Preconditions.checkNotNull(schemaTypes);
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             mBundle.putStringArray(SCHEMA_TYPES_FIELD, schemaTypes);
+            return this;
+        }
+
+        /**
+         * Adds a namespace filter to {@link SearchSpec} Entry. Only search for documents that
+         * have the specified namespaces.
+         * <p>If unset, the query will search over all namespaces.
+         */
+        @NonNull
+        public Builder setNamespaces(@NonNull String... namespaces) {
+            Preconditions.checkNotNull(namespaces);
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            mBundle.putStringArray(NAMESPACE_FIELD, namespaces);
             return this;
         }
 
