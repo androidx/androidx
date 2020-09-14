@@ -171,7 +171,7 @@ internal class StyleConfigFragment : Fragment(),
 
         view.addCallback(object : SwipeDismissFrameLayout.Callback() {
             override fun onDismissed(layout: SwipeDismissFrameLayout) {
-                parentFragmentManager.popBackStack()
+                parentFragmentManager.popBackStackImmediate()
             }
         })
 
