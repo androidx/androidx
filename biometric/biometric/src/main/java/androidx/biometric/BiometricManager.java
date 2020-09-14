@@ -405,7 +405,9 @@ public class BiometricManager {
         // Use the hidden canAuthenticate(CryptoObject) method if it exists.
         final Method canAuthenticateWithCrypto = Api29Impl.getCanAuthenticateWithCryptoMethod();
         if (canAuthenticateWithCrypto != null) {
-            final BiometricPrompt.CryptoObject crypto = CryptoObjectUtils.createFakeCryptoObject();
+            final android.hardware.biometrics.BiometricPrompt.CryptoObject crypto =
+                    CryptoObjectUtils.wrapForBiometricPrompt(
+                            CryptoObjectUtils.createFakeCryptoObject());
             if (crypto != null) {
                 try {
                     final Object result =
@@ -414,7 +416,8 @@ public class BiometricManager {
                         return (int) result;
                     }
                     Log.w(TAG, "Invalid return type for canAuthenticate(CryptoObject).");
-                } catch (InvocationTargetException | IllegalAccessException e) {
+                } catch (IllegalAccessException | IllegalArgumentException
+                        | InvocationTargetException e) {
                     Log.w(TAG, "Failed to invoke canAuthenticate(CryptoObject).", e);
                 }
             }
