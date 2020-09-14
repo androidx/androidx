@@ -700,7 +700,7 @@ package androidx.core.app {
 
   public abstract static class NotificationCompat.Style {
     ctor public NotificationCompat.Style();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void addCompatExtras(android.os.Bundle!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void addCompatExtras(android.os.Bundle);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void apply(androidx.core.app.NotificationBuilderWithBuilderAccessor!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews applyStandardTemplate(boolean, int, boolean);
     method public android.app.Notification? build();
@@ -709,6 +709,7 @@ package androidx.core.app {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.Bitmap! createColoredBitmap(int, int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean displayCustomViewInline();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.app.NotificationCompat.Style? extractStyleFromNotification(android.app.Notification);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected String? getClassName();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! makeBigContentView(androidx.core.app.NotificationBuilderWithBuilderAccessor!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! makeContentView(androidx.core.app.NotificationBuilderWithBuilderAccessor!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! makeHeadsUpContentView(androidx.core.app.NotificationBuilderWithBuilderAccessor!);
