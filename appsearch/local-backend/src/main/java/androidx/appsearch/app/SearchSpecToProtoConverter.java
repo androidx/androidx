@@ -55,6 +55,10 @@ public final class SearchSpecToProtoConverter {
         if (schemaTypes != null) {
             protoBuilder.addAllSchemaTypeFilters(Arrays.asList(schemaTypes));
         }
+        String[] namespaces = bundle.getStringArray(SearchSpec.NAMESPACE_FIELD);
+        if (namespaces != null) {
+            protoBuilder.addAllNamespaceFilters(Arrays.asList(namespaces));
+        }
         return protoBuilder.build();
     }
 

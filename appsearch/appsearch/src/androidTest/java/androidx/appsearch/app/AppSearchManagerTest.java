@@ -501,9 +501,56 @@ public class AppSearchManagerTest {
         assertThat(results).containsExactly(inEmail, inDoc);
 
         // Query only for Document
-        results = doQuery(mDb1, "body", "Generic");
+        results = doQuery(mDb1, "body", new SearchSpec.Builder()
+                .setSchemaTypes("Generic")
+                .setTermMatchType(SearchSpec.TERM_MATCH_TYPE_EXACT_ONLY)
+                .build());
         assertThat(results).hasSize(1);
         assertThat(results).containsExactly(inDoc);
+    }
+
+    @Test
+    public void testQuery_NamespaceFilter() throws Exception {
+        // Schema registration
+        checkIsResultSuccess(mDb1.setSchema(
+                new SetSchemaRequest.Builder()
+                        .addSchema(AppSearchEmail.SCHEMA)
+                        .build()));
+
+        // Index two documents
+        AppSearchEmail expectedEmail =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("expectedNamespace")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        AppSearchEmail unexpectedEmail =
+                new AppSearchEmail.Builder("uri1")
+                        .setNamespace("unexpectedNamespace")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putDocuments(
+                new PutDocumentsRequest.Builder()
+                        .addGenericDocument(expectedEmail, unexpectedEmail).build()));
+
+        // Query for all namespaces
+        List<GenericDocument> results = doQuery(mDb1, "body");
+        assertThat(results).hasSize(2);
+        assertThat(results).containsExactly(expectedEmail, unexpectedEmail);
+
+        // Query only for expectedNamespace
+        results = doQuery(mDb1, "body",
+                new SearchSpec.Builder()
+                        .setNamespaces("expectedNamespace")
+                        .setTermMatchType(SearchSpec.TERM_MATCH_TYPE_EXACT_ONLY)
+                        .build());
+        assertThat(results).hasSize(1);
+        assertThat(results).containsExactly(expectedEmail);
     }
 
     @Test
@@ -1028,13 +1075,9 @@ public class AppSearchManagerTest {
     }
 
     private List<GenericDocument> doQuery(
-            AppSearchManager instance, String queryExpression, String... schemaTypes)
+            AppSearchManager instance, String queryExpression, SearchSpec spec)
             throws Exception {
-        SearchResults searchResults = instance.query(queryExpression,
-                new SearchSpec.Builder()
-                        .setSchemaTypes(schemaTypes)
-                        .setTermMatchType(SearchSpec.TERM_MATCH_TYPE_EXACT_ONLY)
-                        .build());
+        SearchResults searchResults = instance.query(queryExpression, spec);
         List<SearchResults.Result> results = checkIsResultSuccess(searchResults.getNextPage());
         List<GenericDocument> documents = new ArrayList<>();
         while (results.size() > 0) {
@@ -1044,6 +1087,13 @@ public class AppSearchManagerTest {
             results = checkIsResultSuccess(searchResults.getNextPage());
         }
         return documents;
+    }
+
+    private List<GenericDocument> doQuery(AppSearchManager instance, String queryExpression)
+            throws Exception {
+        return doQuery(instance, queryExpression, new SearchSpec.Builder()
+                .setTermMatchType(SearchSpec.TERM_MATCH_TYPE_EXACT_ONLY)
+                .build());
     }
 
     private static <K, V> AppSearchBatchResult<K, V> checkIsBatchResultSuccess(
