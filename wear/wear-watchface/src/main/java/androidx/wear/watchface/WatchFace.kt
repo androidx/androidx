@@ -40,6 +40,7 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.complications.SystemProviders
+import androidx.wear.watchface.style.StyleUtils
 import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.ui.WatchFaceConfigActivity
@@ -423,7 +424,7 @@ class WatchFace private constructor(
             val preferencesFile =
                 "watchface_prefs_${watchFaceHostApi.getContext().javaClass.typeName}.txt"
 
-            userStyleRepository.userStyle = UserStyleRepository.idMapToStyleMap(
+            userStyleRepository.userStyle = StyleUtils.idMapToStyleMap(
                 readPrefs(watchFaceHostApi.getContext(), preferencesFile),
                 userStyleRepository.userStyleCategories
             )
@@ -524,16 +525,16 @@ class WatchFace private constructor(
 
         WatchFaceConfigActivity.registerWatchFace(componentName, object : WatchFaceConfigDelegate {
             override fun getUserStyleSchema() =
-                UserStyleRepository.userStyleCategoriesToBundles(
+                StyleUtils.userStyleCategoriesToBundles(
                     userStyleRepository.userStyleCategories
                 )
 
             override fun getUserStyle() =
-                UserStyleRepository.styleMapToBundle(userStyleRepository.userStyle)
+                StyleUtils.styleMapToBundle(userStyleRepository.userStyle)
 
             override fun setUserStyle(style: Bundle) {
                 userStyleRepository.userStyle =
-                    UserStyleRepository.bundleToStyleMap(
+                    StyleUtils.bundleToStyleMap(
                         style,
                         userStyleRepository.userStyleCategories
                     )
