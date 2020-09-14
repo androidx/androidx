@@ -33,14 +33,12 @@ import androidx.concurrent.futures.ResolvableFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 
 /**
  * Retrieves {@link ComplicationProviderInfo} for a watch face's complications.
  *
- * <p>To use, construct an instance providing an {@link Executor} (that should be for a background
- * thread),then {@link #retrieveProviderInfo} may be called. The retrieval will be performed
- * using the provided executor.
+ * <p>To use construct an instance and call {@link #retrieveProviderInfo} which returns a {@link
+ * ListenableFuture}.
  *
  * <p>Further calls to {@link #retrieveProviderInfo} may be made using the same instance of this
  * class, but {@link #close} must be called when it is no longer needed. Once release has been
