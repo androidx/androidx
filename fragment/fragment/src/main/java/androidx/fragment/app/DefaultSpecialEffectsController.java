@@ -144,8 +144,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
             boolean startedTransition = startedTransitions.containsKey(operation)
                     ? startedTransitions.get(operation)
                     : false;
-            startAnimation(operation, animationInfo.getSignal(),
-                    startedAnyTransition, startedTransition);
+            startAnimation(animationInfo, startedAnyTransition, startedTransition);
         }
 
         for (final Operation operation : awaitingContainerChanges) {
@@ -154,47 +153,43 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         awaitingContainerChanges.clear();
     }
 
-    private void startAnimation(final @NonNull Operation operation,
-            final @NonNull CancellationSignal signal, boolean startedAnyTransition,
-            boolean startedTransitions) {
+    private void startAnimation(final @NonNull AnimationInfo animationInfo,
+            boolean startedAnyTransition, boolean startedTransitions) {
         final ViewGroup container = getContainer();
         final Context context = container.getContext();
-        final Fragment fragment = operation.getFragment();
+        final Fragment fragment = animationInfo.getOperation().getFragment();
         final View viewToAnimate = fragment.mView;
-        Operation.State currentState = Operation.State.from(viewToAnimate);
-        Operation.State finalState = operation.getFinalState();
-        if (currentState == finalState || (currentState != Operation.State.VISIBLE
-                && finalState != Operation.State.VISIBLE)) {
+        Operation.State finalState = animationInfo.getOperation().getFinalState();
+        if (animationInfo.isVisibilityUnchanged()) {
             // No change in visibility, so we can immediately complete the animation
-            operation.completeSpecialEffect(signal);
+            animationInfo.completeSpecialEffect();
             return;
         }
-        FragmentAnim.AnimationOrAnimator anim = FragmentAnim.loadAnimation(context,
-                fragment, finalState == Operation.State.VISIBLE);
+        FragmentAnim.AnimationOrAnimator anim = animationInfo.getAnimation(context);
         if (anim == null) {
             // No animation, so we can immediately complete the animation
-            operation.completeSpecialEffect(signal);
+            animationInfo.completeSpecialEffect();
             return;
         } else if (startedAnyTransition && anim.animation != null) {
             if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                 Log.v(FragmentManager.TAG, "Ignoring Animation set on "
                         + fragment + " as Animations cannot run alongside Transitions.");
             }
-            operation.completeSpecialEffect(signal);
+            animationInfo.completeSpecialEffect();
             return;
         } else if (startedTransitions) {
             if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
                 Log.v(FragmentManager.TAG, "Ignoring Animator set on "
                         + fragment + " as this Fragment was involved in a Transition.");
             }
-            operation.completeSpecialEffect(signal);
+            animationInfo.completeSpecialEffect();
             return;
         }
         // We have an animation to run!
         container.startViewTransition(viewToAnimate);
         // Kick off the respective type of animation
         if (anim.animation != null) {
-            final Animation animation = operation.getFinalState() == Operation.State.VISIBLE
+            final Animation animation = finalState == Operation.State.VISIBLE
                     ? new FragmentAnim.EnterViewTransitionAnimation(anim.animation)
                     : new FragmentAnim.EndViewTransitionAnimation(anim.animation, container,
                             viewToAnimate);
@@ -212,7 +207,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                         @Override
                         public void run() {
                             container.endViewTransition(viewToAnimate);
-                            operation.completeSpecialEffect(signal);
+                            animationInfo.completeSpecialEffect();
                         }
                     });
                 }
@@ -227,7 +222,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 @Override
                 public void onAnimationEnd(Animator anim) {
                     container.endViewTransition(viewToAnimate);
-                    operation.completeSpecialEffect(signal);
+                    animationInfo.completeSpecialEffect();
                 }
             });
             anim.animator.setTarget(viewToAnimate);
@@ -235,7 +230,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         }
 
         // Listen for cancellation and use that to cancel any running animations
-        signal.setOnCancelListener(new CancellationSignal.OnCancelListener() {
+        animationInfo.getSignal().setOnCancelListener(new CancellationSignal.OnCancelListener() {
             @Override
             public void onCancel() {
                 viewToAnimate.clearAnimation();
@@ -270,7 +265,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
             // There were no transitions at all so we can just complete all of them
             for (TransitionInfo transitionInfo : transitionInfos) {
                 startedTransitions.put(transitionInfo.getOperation(), false);
-                transitionInfo.getOperation().completeSpecialEffect(transitionInfo.getSignal());
+                transitionInfo.completeSpecialEffect();
             }
             return startedTransitions;
         }
@@ -490,7 +485,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
             if (transitionInfo.isVisibilityUnchanged()) {
                 // No change in visibility, so we can immediately complete the transition
                 startedTransitions.put(transitionInfo.getOperation(), false);
-                transitionInfo.getOperation().completeSpecialEffect(transitionInfo.getSignal());
+                transitionInfo.completeSpecialEffect();
                 continue;
             }
             Object transition = transitionImpl.cloneTransition(transitionInfo.getTransition());
@@ -504,7 +499,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                     // in the shared element transition (as otherwise we need to wait
                     // for that to finish)
                     startedTransitions.put(operation, false);
-                    operation.completeSpecialEffect(transitionInfo.getSignal());
+                    transitionInfo.completeSpecialEffect();
                 }
             } else {
                 // Target the Transition to *only* the set of transitioning views
@@ -588,8 +583,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                         new Runnable() {
                             @Override
                             public void run() {
-                                transitionInfo.getOperation().completeSpecialEffect(
-                                        transitionInfo.getSignal());
+                                transitionInfo.completeSpecialEffect();
                             }
                         });
             }
@@ -683,13 +677,13 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         operation.getFinalState().applyState(view);
     }
 
-    private static class AnimationInfo {
+    private static class SpecialEffectsInfo {
         @NonNull
         private final Operation mOperation;
         @NonNull
         private final CancellationSignal mSignal;
 
-        AnimationInfo(@NonNull Operation operation, @NonNull CancellationSignal signal) {
+        SpecialEffectsInfo(@NonNull Operation operation, @NonNull CancellationSignal signal) {
             mOperation = operation;
             mSignal = signal;
         }
@@ -703,13 +697,44 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         CancellationSignal getSignal() {
             return mSignal;
         }
+
+        boolean isVisibilityUnchanged() {
+            Operation.State currentState = Operation.State.from(
+                    mOperation.getFragment().mView);
+            Operation.State finalState = mOperation.getFinalState();
+            return currentState == finalState || (currentState != Operation.State.VISIBLE
+                    && finalState != Operation.State.VISIBLE);
+        }
+
+        void completeSpecialEffect() {
+            mOperation.completeSpecialEffect(mSignal);
+        }
     }
 
-    private static class TransitionInfo {
-        @NonNull
-        private final Operation mOperation;
-        @NonNull
-        private final CancellationSignal mSignal;
+    private static class AnimationInfo extends SpecialEffectsInfo {
+
+        private boolean mLoadedAnim = false;
+        @Nullable
+        private FragmentAnim.AnimationOrAnimator mAnimation;
+
+        AnimationInfo(@NonNull Operation operation, @NonNull CancellationSignal signal) {
+            super(operation, signal);
+        }
+
+        @Nullable
+        FragmentAnim.AnimationOrAnimator getAnimation(@NonNull Context context) {
+            if (mLoadedAnim) {
+                return mAnimation;
+            }
+            mAnimation = FragmentAnim.loadAnimation(context,
+                    getOperation().getFragment(),
+                    getOperation().getFinalState() == Operation.State.VISIBLE);
+            mLoadedAnim = true;
+            return mAnimation;
+        }
+    }
+
+    private static class TransitionInfo extends SpecialEffectsInfo {
         @Nullable
         private final Object mTransition;
         private final boolean mOverlapAllowed;
@@ -719,8 +744,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
         TransitionInfo(@NonNull Operation operation,
                 @NonNull CancellationSignal signal, boolean isPop,
                 boolean providesSharedElementTransition) {
-            mOperation = operation;
-            mSignal = signal;
+            super(operation, signal);
             if (operation.getFinalState() == Operation.State.VISIBLE) {
                 mTransition = isPop
                         ? operation.getFragment().getReenterTransition()
@@ -750,23 +774,6 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
             }
         }
 
-        @NonNull
-        Operation getOperation() {
-            return mOperation;
-        }
-
-        @NonNull
-        CancellationSignal getSignal() {
-            return mSignal;
-        }
-
-        boolean isVisibilityUnchanged() {
-            Operation.State currentState = Operation.State.from(mOperation.getFragment().mView);
-            Operation.State finalState = mOperation.getFinalState();
-            return currentState == finalState || (currentState != Operation.State.VISIBLE
-                    && finalState != Operation.State.VISIBLE);
-        }
-
         @Nullable
         Object getTransition() {
             return mTransition;
@@ -794,7 +801,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                     && transitionImpl != sharedElementTransitionImpl) {
                 throw new IllegalArgumentException("Mixing framework transitions and "
                         + "AndroidX transitions is not allowed. Fragment "
-                        + mOperation.getFragment() + " returned Transition "
+                        + getOperation().getFragment() + " returned Transition "
                         + mTransition + " which uses a different Transition "
                         + " type than its shared element transition "
                         + mSharedElementTransition);
@@ -816,7 +823,7 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 return FragmentTransition.SUPPORT_IMPL;
             }
             throw new IllegalArgumentException("Transition " + transition + " for fragment "
-                    + mOperation.getFragment() + " is not a valid framework Transition or "
+                    + getOperation().getFragment() + " is not a valid framework Transition or "
                     + "AndroidX Transition");
         }
     }
