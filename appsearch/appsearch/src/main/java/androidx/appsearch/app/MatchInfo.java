@@ -16,12 +16,13 @@
 
 package androidx.appsearch.app;
 
+import android.os.Bundle;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.core.util.ObjectsCompat;
-
-import com.google.android.icing.proto.SnippetMatchProto;
+import androidx.core.util.Preconditions;
 
 /**
  * Snippet: It refers to a substring of text from the content of document that is returned as a
@@ -70,35 +71,32 @@ import com.google.android.icing.proto.SnippetMatchProto;
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 // TODO(sidchhabra): Capture real snippet after integration with icingLib.
 public final class MatchInfo {
+    // The path of the matching snippet property.
+    static final String PROPERTY_PATH_FIELD = "propertyPath";
+    // The index of matching value in its property. A property may have multiple values. This
+    // index indicates which value is the match.
+    static final String VALUES_INDEX_FIELD = "valuesIndex";
+    static final String EXACT_MATCH_POSITION_LOWER_FIELD = "exactMatchPositionLower";
+    static final String EXACT_MATCH_POSITION_UPPER_FIELD = "exactMatchPositionUpper";
+    static final String WINDOW_POSITION_LOWER_FIELD = "windowPositionLower";
+    static final String WINDOW_POSITION_UPPER_FIELD = "windowPositionUpper";
 
+    private final String mFullText;
     private final String mPropertyPath;
-    private final SnippetMatchProto mSnippetMatch;
-    private final GenericDocument mDocument;
-    /**
-     * List of content with same property path in a document when there are multiple matches in
-     * repeated sections.
-     */
-    private final String[] mValues;
+    private final Bundle mBundle;
+    private MatchRange mExactMatchRange;
+    private MatchRange mWindowRange;
 
-    public MatchInfo(@NonNull String propertyPath, @NonNull SnippetMatchProto snippetMatch,
-            @NonNull GenericDocument document) {
-        mPropertyPath = propertyPath;
-        mSnippetMatch = snippetMatch;
-        mDocument = document;
-        // In IcingLib snippeting is available for only 3 data types i.e String, double and long,
-        // so we need to check which of these three are requested.
-        // TODO (sidchhabra): getPropertyStringArray takes property name, handle for property path.
-        String[] values = mDocument.getPropertyStringArray(propertyPath);
-        if (values == null) {
-            values = doubleToString(mDocument.getPropertyDoubleArray(propertyPath));
-        }
-        if (values == null) {
-            values = longToString(mDocument.getPropertyLongArray(propertyPath));
-        }
-        if (values == null) {
-            throw new IllegalStateException("No content found for requested property path!");
-        }
-        mValues = values;
+    MatchInfo(@NonNull Bundle bundle, @NonNull GenericDocument document) {
+        mBundle = Preconditions.checkNotNull(bundle);
+        Preconditions.checkNotNull(document);
+        mPropertyPath = Preconditions.checkNotNull(bundle.getString(PROPERTY_PATH_FIELD));
+        mFullText = getPropertyValues(document, mPropertyPath, mBundle.getInt(VALUES_INDEX_FIELD));
+    }
+
+    /** Returns the {@link Bundle} populated by this builder. */
+    Bundle getBundle() {
+        return mBundle;
     }
 
     /**
@@ -120,7 +118,7 @@ public final class MatchInfo {
      */
     @NonNull
     public String getFullText() {
-        return mValues[mSnippetMatch.getValuesIndex()];
+        return mFullText;
     }
 
     /**
@@ -129,8 +127,11 @@ public final class MatchInfo {
      */
     @NonNull
     public MatchRange getExactMatchPosition() {
-        return new MatchRange(mSnippetMatch.getExactMatchPosition(),
-                mSnippetMatch.getExactMatchPosition() + mSnippetMatch.getExactMatchBytes());
+        if (mExactMatchRange == null) {
+            mExactMatchRange = new MatchRange(mBundle.getInt(EXACT_MATCH_POSITION_LOWER_FIELD),
+                    mBundle.getInt(EXACT_MATCH_POSITION_UPPER_FIELD));
+        }
+        return mExactMatchRange;
     }
 
     /**
@@ -150,8 +151,11 @@ public final class MatchInfo {
      */
     @NonNull
     public MatchRange getSnippetPosition() {
-        return new MatchRange(mSnippetMatch.getWindowPosition(),
-                mSnippetMatch.getWindowPosition() + mSnippetMatch.getWindowBytes());
+        if (mWindowRange == null) {
+            mWindowRange = new MatchRange(mBundle.getInt(WINDOW_POSITION_LOWER_FIELD),
+                    mBundle.getInt(WINDOW_POSITION_UPPER_FIELD));
+        }
+        return mWindowRange;
     }
 
     /**
@@ -172,18 +176,18 @@ public final class MatchInfo {
                 .substring(range.getLower(), range.getUpper());
     }
 
-    /** Utility method to convert double[] to String[] */
-    @SuppressWarnings("unused")
-    private String[] doubleToString(double[] values) {
-        //TODO(sidchhabra): Implement the method.
-        return null;
-    }
-
-    /** Utility method to convert long[] to String[] */
-    @SuppressWarnings("unused")
-    private String[] longToString(long[] values) {
-        //TODO(sidchhabra): Implement the method.
-        return null;
+    /** Extracts the matching string from the document. */
+    private static String getPropertyValues(GenericDocument document, String propertyName,
+            int valueIndex) {
+        // In IcingLib snippeting is available for only 3 data types i.e String, double and long,
+        // so we need to check which of these three are requested.
+        // TODO (tytytyww): getPropertyStringArray takes property name, handle for property path.
+        // TODO (tytytyww): support double[] and long[].
+        String[] values = document.getPropertyStringArray(propertyName);
+        if (values == null) {
+            throw new IllegalStateException("No content found for requested property path!");
+        }
+        return values[valueIndex];
     }
 
     /**
@@ -247,6 +251,62 @@ public final class MatchInfo {
         @Override
         public int hashCode() {
             return ObjectsCompat.hash(mLower, mUpper);
+        }
+    }
+
+    /** Builder for {@link MatchInfo objects}. */
+    static class Builder {
+        private final Bundle mBundle = new Bundle();
+        private final GenericDocument mDocument;
+        private boolean mBuilt = false;
+
+        Builder(@NonNull GenericDocument document) {
+            mDocument = Preconditions.checkNotNull(document);
+        }
+
+        /**
+         * Sets the path of the matching snippet property.
+         * @see MatchRange#getPropertyPath()
+         */
+        Builder setPropertyPath(@NonNull String propertyPath) {
+            Preconditions.checkNotNull(propertyPath);
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            mBundle.putString(PROPERTY_PATH_FIELD, propertyPath);
+            return this;
+        }
+
+        /** Sets the index of matching value in its property. */
+        Builder setValuesIndex(int valuesIndex) {
+            mBundle.putInt(VALUES_INDEX_FIELD, valuesIndex);
+            return this;
+        }
+        /**
+         * Sets the position range within the matched string at which the exact match begins and
+         * ends.
+         */
+        Builder setExactMatchPositionRange(int exactMatchPositionLower,
+                int exactMatchPositionUpper) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            mBundle.putInt(EXACT_MATCH_POSITION_LOWER_FIELD, exactMatchPositionLower);
+            mBundle.putInt(EXACT_MATCH_POSITION_UPPER_FIELD, exactMatchPositionUpper);
+            return this;
+        }
+
+        /** Sets the position range of the suggested snippet window.         */
+        Builder setWindowPositionRange(int windowPositionLower, int windowPositionUpper) {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            mBundle.putInt(WINDOW_POSITION_LOWER_FIELD, windowPositionLower);
+            mBundle.putInt(WINDOW_POSITION_UPPER_FIELD, windowPositionUpper);
+            return this;
+        }
+
+        MatchInfo build() {
+            Preconditions.checkState(!mBuilt, "Builder has already been used");
+            if (!mBundle.containsKey(PROPERTY_PATH_FIELD)) {
+                throw new IllegalArgumentException("Missing field: PROPERTY_PATH");
+            }
+            mBuilt = true;
+            return new MatchInfo(mBundle, mDocument);
         }
     }
 }
