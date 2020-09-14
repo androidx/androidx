@@ -21,4 +21,8 @@
     <public type="anim" name="nav_default_exit_anim"/>
     <public type="anim" name="nav_default_pop_enter_anim"/>
     <public type="anim" name="nav_default_pop_exit_anim"/>
+    <public type="animator" name="nav_default_enter_anim"/>
+    <public type="animator" name="nav_default_exit_anim"/>
+    <public type="animator" name="nav_default_pop_enter_anim"/>
+    <public type="animator" name="nav_default_pop_exit_anim"/>
 </resources>

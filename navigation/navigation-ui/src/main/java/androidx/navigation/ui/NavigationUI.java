@@ -74,10 +74,10 @@ public final class NavigationUI {
             @NonNull NavController navController) {
         NavOptions.Builder builder = new NavOptions.Builder()
                 .setLaunchSingleTop(true)
-                .setEnterAnim(R.anim.nav_default_enter_anim)
-                .setExitAnim(R.anim.nav_default_exit_anim)
-                .setPopEnterAnim(R.anim.nav_default_pop_enter_anim)
-                .setPopExitAnim(R.anim.nav_default_pop_exit_anim);
+                .setEnterAnim(R.animator.nav_default_enter_anim)
+                .setExitAnim(R.animator.nav_default_exit_anim)
+                .setPopEnterAnim(R.animator.nav_default_pop_enter_anim)
+                .setPopExitAnim(R.animator.nav_default_pop_exit_anim);
         if ((item.getOrder() & Menu.CATEGORY_SECONDARY) == 0) {
             builder.setPopUpTo(findStartDestination(navController.getGraph()).getId(), false);
         }
