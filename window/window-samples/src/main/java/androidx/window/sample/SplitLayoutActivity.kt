@@ -31,7 +31,8 @@ class SplitLayoutActivity : BaseSampleActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_split_layout)
-        windowManager = WindowManager(this, getTestBackend())
+        windowManager = getTestBackend()?.let { backend -> WindowManager(this, backend) }
+            ?: WindowManager(this)
         findViewById<SplitLayout>(R.id.rootLayout).doOnLayout {
             findViewById<SplitLayout>(R.id.split_layout)
                 .updateWindowLayout(windowManager.windowLayoutInfo)
