@@ -30,7 +30,7 @@ import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationDrawableRenderer
-import androidx.wear.watchface.ComplicationsHolder
+import androidx.wear.watchface.ComplicationsManager
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFaceTestRunner
 import androidx.wear.watchface.WatchState
@@ -179,7 +179,7 @@ class WatchFaceConfigUiTest {
         userStyleRepository =
             UserStyleRepository(userStyleCategories)
 
-        val complicationSet = ComplicationsHolder(
+        val complicationSet = ComplicationsManager(
             complications,
             object : Renderer(surfaceHolder, userStyleRepository, WatchState()) {
                 override fun renderInternal(calendar: Calendar) {}
