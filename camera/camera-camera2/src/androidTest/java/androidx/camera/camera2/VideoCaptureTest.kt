@@ -158,4 +158,32 @@ class VideoCaptureTest {
 
         verify(callback, timeout(10000)).onVideoSaved(any())
     }
+
+    @Test
+    fun unbind_shouldStopRecording() {
+        val file = File.createTempFile("CameraX", ".tmp").apply {
+            deleteOnExit()
+        }
+
+        val useCase = VideoCapture.Builder().build()
+
+        mInstrumentation.runOnMainSync {
+            mCamera!!.addUseCases(Collections.singleton<UseCase>(useCase))
+        }
+
+        val outputFileOptions = VideoCapture.OutputFileOptions.Builder(file).build()
+
+        val callback = mock(VideoCapture.OnVideoSavedCallback::class.java)
+
+        useCase.startRecording(outputFileOptions, CameraXExecutors.mainThreadExecutor(), callback)
+
+        // Recording for seconds
+        Thread.sleep(3000)
+
+        mInstrumentation.runOnMainSync {
+            mCamera!!.removeUseCases(Collections.singletonList<UseCase>(useCase))
+        }
+
+        verify(callback, timeout(10000)).onVideoSaved(any())
+    }
 }
