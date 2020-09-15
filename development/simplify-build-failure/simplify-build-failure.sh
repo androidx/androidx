@@ -22,14 +22,14 @@ function usage() {
   echo '  simplify-build-failure.sh'
   echo
   echo 'SYNOPSIS'
-  echo "  $0 (--task <gradle task> <error message> [--clean] | --command <shell command> ) [--continue] [--limit-to-path <file path>] [--check-lines-in <subfile path>] [--num-jobs <count>]"
+  echo "  $0 (--task <gradle task> <other gradle arguments> <error message> [--clean] | --command <shell command> ) [--continue] [--limit-to-path <file path>] [--check-lines-in <subfile path>] [--num-jobs <count>]"
   echo
   echo DESCRIPTION
   echo '  Searches for a minimal set of files and/or lines required to reproduce a given build failure'
   echo
   echo OPTIONS
   echo
-  echo '  --task <gradle task> <error message>`'
+  echo '  --task <gradle task> <other gradle arguments> <error message>`'
   echo '    Specifies that `./gradlew <gradle task>` must fail with error message <error message>'
   echo
   echo '  --command <shell command>'
@@ -64,6 +64,7 @@ function failed() {
 }
 
 gradleTasks=""
+gradleExtraArguments=""
 errorMessage=""
 gradleCommand=""
 grepCommand=""
@@ -103,6 +104,8 @@ while [ "$1" != "" ]; do
   if [ "$arg" == "--task" ]; then
     gradleTasks="$1"
     shift
+    gradleExtraArguments="$1"
+    shift
     errorMessage="$1"
     shift
     if [ "$gradleTasks" == "" ]; then
@@ -113,7 +116,7 @@ while [ "$1" != "" ]; do
       usage
     fi
 
-    gradleCommand="OUT_DIR=out ./gradlew $gradleTasks > log 2>&1"
+    gradleCommand="OUT_DIR=out ./gradlew $gradleExtraArguments >log 2>&1"
     grepCommand="$scriptPath/impl/grepOrTail.sh \"$errorMessage\" log"
     continue
   fi
@@ -174,10 +177,13 @@ else
   rm "$tempDir" -rf
 fi
 
+referencePassingDir="$tempDir/base"
+referenceFailingDir="$tempDir/failing"
 # backup code so user can keep editing
 if [ ! -e "$referenceFailingDir" ]; then
-  echo backup up frameworks/support into "$referenceFailingDir" in case you want to continue to make modifications or run other builds
+  echo backing up frameworks/support into "$referenceFailingDir" in case you want to continue to make modifications or run other builds
   rm "$referenceFailingDir" -rf
+  mkdir -p "$tempDir"
   cp -rT . "$referenceFailingDir"
   # remove some unhelpful settings
   sed -i 's/.*Werror.*//' "$referenceFailingDir/buildSrc/build.gradle"
@@ -186,11 +192,28 @@ if [ ! -e "$referenceFailingDir" ]; then
   rm -rf "$referenceFailingDir/.gradle" "$referenceFailingDir/buildSrc/.gradle" "$referenceFailingDir/out"
 fi
 
+# compute destination state, which is usually empty
+rm "$referencePassingDir" -rf
+if [ "$limitToPath" != "" ]; then
+  mkdir -p "$(dirname $referencePassingDir)"
+  cp -r "$supportRoot" "$referencePassingDir"
+  rm "$referencePassingDir/$limitToPath" -rf
+else
+  mkdir -p "$referencePassingDir"
+fi
+
+if [ "$subfilePath" != "" ]; then
+  if [ ! -e "$subfilePath" ]; then
+    echo "$subfilePath" does not exist
+    exit 1
+  fi
+fi
+
 # if Gradle tasks are specified, then determine the appropriate shell command
 if [ "$gradleCommand" != "" ]; then
-  # if --clean is specified, then determine whether we can at least start with a minimal out/ dir
   startingOutDir="$tempDir/failing-out"
   outTestDir="$tempDir/out-test"
+  # determine if cleaning is necessary
   if [ "$clean" != "true" ]; then
     if [ "$resume" == "true" ]; then
       if [ -e "$startingOutDir" ]; then
@@ -221,6 +244,7 @@ if [ "$gradleCommand" != "" ]; then
       fi
     fi
   fi
+  # if we will be cleaning, then determine whether we can prepopulate a minimal out/ dir first
   if [ "$clean" == "true" ]; then
     if [ -e "$startingOutDir" ]; then
       echo Reusing existing base out dir of "$startingOutDir"
@@ -229,20 +253,14 @@ if [ "$gradleCommand" != "" ]; then
       rm "$outTestDir" -rf
       mkdir -p "$tempDir"
       cp -r "$supportRoot" "$outTestDir"
-      if bash -c "cd "$outTestDir/$commandSubdir" && OUT_DIR=out ./gradlew projects --no-daemon && $gradleCommand; $grepCommand"; then
+      if bash -c "cd "$outTestDir/$commandSubdir" && OUT_DIR=out ./gradlew projects --no-daemon && cp -r out out-base && $gradleCommand; $grepCommand"; then
         echo Will reuse base out dir of "$startingOutDir"
-        cp -r "$outTestDir/$commandSubdir/out" "$startingOutDir"
+        cp -r "$outTestDir/$commandSubdir/out-base" "$startingOutDir"
       else
         echo Will start subsequent builds from empty out dir
         mkdir -p "$startingOutDir"
       fi
     fi
-    gradleCommand="rm out .gradle buildSrc/.gradle -rf && cp -r $startingOutDir out && $gradleCommand --no-daemon"
-  fi
-  # Sleep in case Gradle fails very quickly
-  # We don't want to run too many Gradle commands in a row or else the daemons might get confused
-  testCommand="cd $commandSubdir && $gradleCommand; sleep 2; $grepCommand"
-  if [ "$clean" == true ]; then
     # reset the out/ dir
     gradle_prepareState_command="rm out .gradle buildSrc/.gradle -rf && cp -r $startingOutDir out"
     # update the timestamps on all files in case they affect anything
@@ -252,8 +270,75 @@ if [ "$gradleCommand" != "" ]; then
   else
     gradle_prepareState_command=""
   fi
-fi
+  # determine whether we can reduce the list of tasks we'll be running
+  # prepare directory
+  allTasksWork="$tempDir/allTasksWork"
+  allTasks="$tempDir/tasks"
+  if [ -e "$allTasks" ]; then
+    echo Skipping recalculating list of all relevant tasks, "$allTasks" already exists
+  else
+    echo Calculating list of tasks to run
+    rm -rf "$allTasksWork"
+    cp -r "$referenceFailingDir" "$allTasksWork"
+    # list tasks required for running this
+    bash -c "cd $allTasksWork && OUT_DIR=out ./gradlew --no-daemon --dry-run $gradleTasks >log 2>&1"
+    # process output and split into files
+    taskListFile="$allTasksWork/tasklist"
+    cat "$allTasksWork/log" | grep '^:' | sed 's/ .*//' > "$taskListFile"
+    mkdir -p "$allTasks"
+    bash -c "cd $allTasks && split -l 1 '$taskListFile'"
+  fi
 
+  # build command for passing to diff-filterer
+  # cd to ./ui if needed
+  testCommand="cd $commandSubdir"
+  # set OUT_DIR
+  testCommand="$testCommand && export OUT_DIR=out"
+  # delete generated files if needed
+  if [ "$gradle_prepareState_command" != "" ]; then
+    testCommand="$testCommand && $gradle_prepareState_command"
+  fi
+  # delete log
+  testCommand="$testCommand && rm -f log"
+  # make sure at least one task exists
+  testCommand="$testCommand && ls tasks/* >/dev/null"
+  # build a shell script for running each task listed in the tasks/ dir
+  # We call xargs because the full set of tasks might be too long for the shell, and xargs will
+  # split into multiple gradlew invocations if needed
+  # Also, once we reproduce the error, we stop running more Gradle commands
+  testCommand="$testCommand && echo > run.sh && cat tasks/* | xargs echo '$grepCommand && exit 0; $gradleCommand' >> run.sh"
+
+  # run Gradle
+  testCommand="$testCommand && chmod u+x run.sh && ./run.sh >log 2>&1"
+  if [ "$clean" != "true" ]; then
+    # If the daemon is enabled, then sleep for a little bit in case Gradle fails very quickly
+    # If we run too many builds in a row with Gradle daemons enabled then the daemons might get confused
+    testCommand="$testCommand; sleep 2"
+  fi
+  # check for the error message that we want
+  testCommand="$testCommand; $grepCommand"
+
+  # identify a minimal set of tasks to reproduce the problem
+  minTasksFailing="$tempDir/minTasksFailing"
+  minTasksGoal="$referenceFailingDir"
+  minTasksOutput="$tempDir/minTasks_output"
+  if [ -e "$minTasksOutput" ]; then
+    echo already computed the minimum set of required tasks, can be seen in $minTasksGoal
+  else
+    rm -rf "$minTasksFailing"
+    cp -r "$minTasksGoal" "$minTasksFailing"
+    cp -r "$allTasks" "$minTasksFailing/"
+    echo Asking diff-filterer for a minimal set of tasks to reproduce this problem
+    if ./development/file-utils/diff-filterer.py --assume-no-side-effects --work-path "$tempDir" --num-jobs "$numJobs" "$minTasksFailing" "$minTasksGoal" "$testCommand"; then
+      echo diff-filterer successfully identifed a minimal set of required tasks
+      cp -r "$tempDir/bestResults" "$minTasksOutput"
+    else
+      failed
+    fi
+  fi
+  referenceFailingDir="$minTasksOutput"
+  echo Will use goal directory of "$referenceFailingDir"
+fi
 
 filtererStep1Work="$tempDir"
 filtererStep1Output="$filtererStep1Work/bestResults"
@@ -279,7 +364,6 @@ else
     failed
   fi
 fi
-
 
 if [ "$subfilePath" == "" ]; then
   echo Splitting files into individual lines was not enabled. Done. See results at $filtererStep1Work/bestResults
