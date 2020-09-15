@@ -74,8 +74,8 @@ fun Project.registerDexInspectorTask(
     variant: BaseVariant,
     extension: BaseExtension,
     jarJar: TaskProvider<JarjarTask>
-) {
-    tasks.register(variant.taskName("dexInspector"), DexInspectorTask::class.java) {
+): TaskProvider<DexInspectorTask> {
+    return tasks.register(variant.taskName("dexInspector"), DexInspectorTask::class.java) {
         it.setDx(extension.sdkDirectory, extension.buildToolsVersion)
         it.jars.from(jarJar.get().destinationPath)
         val out = File(taskWorkingDir(variant, "dexedInspector"), "${project.name}.jar")
