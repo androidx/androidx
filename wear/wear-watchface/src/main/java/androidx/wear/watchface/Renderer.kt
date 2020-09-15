@@ -147,5 +147,5 @@ abstract class Renderer(
      * @return Whether we should schedule an onDraw call to maintain an interactive frame rate
      */
     @UiThread
-    open fun shouldAnimate() = watchState.isVisible && !watchState.isAmbient
+    open fun shouldAnimate() = watchState.isVisible.value && !watchState.isAmbient.value
 }

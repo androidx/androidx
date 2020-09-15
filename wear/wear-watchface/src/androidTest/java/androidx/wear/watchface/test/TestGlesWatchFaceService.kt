@@ -21,6 +21,7 @@ import android.graphics.drawable.Icon
 import android.os.Handler
 import android.view.SurfaceHolder
 import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.NoInvalidateWatchFaceHostApi
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceHost
@@ -39,6 +40,10 @@ internal class TestGlesWatchFaceService(
     var mockSystemTimeMillis: Long
 ) : WatchFaceService() {
 
+    private val mutableWatchState = MutableWatchState().apply {
+        isAmbient.value = false
+    }
+
     init {
         attachBaseContext(testContext)
     }
@@ -49,7 +54,7 @@ internal class TestGlesWatchFaceService(
         watchState: WatchState
     ): WatchFace {
         // Override is necessary because the watch face isn't visible in this test.
-        watchState.onVisibilityChanged(true)
+        mutableWatchState.isVisible.value = true
 
         val colorStyleCategory = ListUserStyleCategory(
             "color_style_category",
@@ -93,6 +98,8 @@ internal class TestGlesWatchFaceService(
             }
         }).build()
     }
+
+    override fun getMutableWatchState() = mutableWatchState
 
     override fun getHandler() = handler
 }

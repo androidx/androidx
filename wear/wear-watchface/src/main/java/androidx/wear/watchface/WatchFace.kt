@@ -39,10 +39,11 @@ import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
+import androidx.lifecycle.Observer
 import androidx.wear.complications.SystemProviders
-import androidx.wear.watchface.style.StyleUtils
 import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.StyleUtils
 import androidx.wear.watchface.ui.WatchFaceConfigActivity
 import androidx.wear.watchface.ui.WatchFaceConfigDelegate
 import java.io.FileNotFoundException
@@ -370,14 +371,12 @@ class WatchFace private constructor(
     val batteryLevelReceiver: BroadcastReceiver = object : BroadcastReceiver() {
         @SuppressWarnings("SyntheticAccessor")
         override fun onReceive(context: Context, intent: Intent) {
+            val isBatteryLowAndNotCharging =
+                watchState.isBatteryLowAndNotCharging as MutableWatchData
             when (intent.action) {
-                Intent.ACTION_BATTERY_LOW -> watchState.onIsBatteryLowAndNotCharging(true)
-                Intent.ACTION_BATTERY_OKAY -> watchState.onIsBatteryLowAndNotCharging(
-                    false
-                )
-                Intent.ACTION_POWER_CONNECTED -> watchState.onIsBatteryLowAndNotCharging(
-                    false
-                )
+                Intent.ACTION_BATTERY_LOW -> isBatteryLowAndNotCharging.value = true
+                Intent.ACTION_BATTERY_OKAY -> isBatteryLowAndNotCharging.value = false
+                Intent.ACTION_POWER_CONNECTED -> isBatteryLowAndNotCharging.value = false
             }
             invalidate()
         }
@@ -462,38 +461,31 @@ class WatchFace private constructor(
         watchFaceHostApi.setCurrentUserStyle(userStyle)
     }
 
-    private inner class SystemStateListener : WatchState.Listener {
-        @SuppressWarnings("SyntheticAccessor")
-        override fun onAmbientModeChanged(isAmbient: Boolean) {
-            scheduleDraw()
+    private val ambientObserver = Observer<Boolean> {
+        scheduleDraw()
+        invalidate()
+    }
+
+    private val interruptionFilterObserver = Observer<Int> {
+        val inMuteMode = it == NotificationManager.INTERRUPTION_FILTER_NONE
+        if (muteMode != inMuteMode) {
+            muteMode = inMuteMode
             invalidate()
-        }
-
-        @SuppressWarnings("SyntheticAccessor")
-        override fun onInterruptionFilterChanged(interruptionFilter: Int) {
-            val inMuteMode = interruptionFilter == NotificationManager.INTERRUPTION_FILTER_NONE
-            if (muteMode != inMuteMode) {
-                muteMode = inMuteMode
-                invalidate()
-            }
-        }
-
-        @SuppressWarnings("SyntheticAccessor")
-        override fun onVisibilityChanged(visible: Boolean) {
-            if (visible) {
-                registerReceivers()
-                // Update time zone in case it changed while we weren't visible.
-                calendar.timeZone = TimeZone.getDefault()
-                invalidate()
-            } else {
-                unregisterReceivers()
-            }
-
-            scheduleDraw()
         }
     }
 
-    private val systemStateListener = SystemStateListener()
+    private val visibilityObserver = Observer<Boolean> {
+        if (it) {
+            registerReceivers()
+            // Update time zone in case it changed while we weren't visible.
+            calendar.timeZone = TimeZone.getDefault()
+            invalidate()
+        } else {
+            unregisterReceivers()
+        }
+
+        scheduleDraw()
+    }
 
     init {
         // We need to inhibit an immediate callback during initialization because members are not
@@ -572,8 +564,9 @@ class WatchFace private constructor(
 
         watchFaceHostApi.registerWatchFaceType(watchFaceType)
         watchFaceHostApi.registerUserStyleSchema(userStyleRepository.userStyleCategories)
-
-        watchState.addListener(systemStateListener)
+        watchState.isAmbient.observe(ambientObserver)
+        watchState.interruptionFilter.observe(interruptionFilterObserver)
+        watchState.isVisible.observe(visibilityObserver)
         userStyleRepository.addUserStyleListener(styleListener)
         sendCurrentUserStyle(userStyleRepository.userStyle)
 
@@ -595,7 +588,9 @@ class WatchFace private constructor(
         pendingUpdateTime.cancel()
         pendingPostDoubleTap.cancel()
         renderer.onDestroy()
-        watchState.removeListener(systemStateListener)
+        watchState.isAmbient.removeObserver(ambientObserver)
+        watchState.interruptionFilter.removeObserver(interruptionFilterObserver)
+        watchState.isVisible.removeObserver(visibilityObserver)
         userStyleRepository.removeUserStyleListener(styleListener)
         WatchFaceConfigActivity.unregisterWatchFace(componentName)
     }
@@ -635,6 +630,12 @@ class WatchFace private constructor(
     }
 
     private fun scheduleDraw() {
+        // Separate calls are issued to deliver the state of isAmbient and isVisible, so during init
+        // we might not yet know the state of both (which is required by the shouldAnimate logic).
+        if (!watchState.isAmbient.hasValue() || !watchState.isVisible.hasValue()) {
+            return
+        }
+
         setCalendarTime(systemTimeProvider.getSystemTimeMillis())
         if (renderer.shouldAnimate()) {
             pendingUpdateTime.postUnique {
@@ -676,14 +677,14 @@ class WatchFace private constructor(
     /** @hide */
     @UiThread
     internal fun maybeUpdateDrawMode() {
-        var newDrawMode = if (watchState.isBatteryLowAndNotCharging) {
+        var newDrawMode = if (watchState.isBatteryLowAndNotCharging.getValueOr(false)) {
             DrawMode.LOW_BATTERY_INTERACTIVE
         } else {
             DrawMode.INTERACTIVE
         }
         // Watch faces may wish to run an animation while entering ambient mode and we let them
         // defer entering ambient mode.
-        if (watchState.isAmbient && !renderer.shouldAnimate()) {
+        if (watchState.isAmbient.value && !renderer.shouldAnimate()) {
             newDrawMode = DrawMode.AMBIENT
         } else if (muteMode) {
             newDrawMode = DrawMode.MUTE
@@ -719,7 +720,7 @@ class WatchFace private constructor(
             Long {
         // Limit update rate to conserve power when the battery is low and not charging.
         val updateRateMillis =
-            if (watchState.isBatteryLowAndNotCharging) {
+            if (watchState.isBatteryLowAndNotCharging.getValueOr(false)) {
                 max(interactiveUpdateRateMillis, MAX_LOW_POWER_INTERACTIVE_UPDATE_RATE_MS)
             } else {
                 interactiveUpdateRateMillis

@@ -32,6 +32,7 @@ import android.support.wearable.watchface.WatchFaceStyle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.view.SurfaceHolder
 import android.view.ViewConfiguration
+import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.rendering.ComplicationDrawable
@@ -40,6 +41,7 @@ import androidx.wear.watchface.style.StyleUtils
 import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
 import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.mock
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -50,7 +52,6 @@ import org.mockito.ArgumentMatchers.anyBoolean
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.doAnswer
-import org.mockito.Mockito.mock
 import org.mockito.Mockito.reset
 import org.mockito.Mockito.times
 import org.mockito.Mockito.validateMockitoUsage
@@ -68,10 +69,10 @@ private const val BACKGROUND_COMPLICATION_ID = 1111
 @RunWith(WatchFaceTestRunner::class)
 class WatchFaceServiceTest {
 
-    private val handler = mock(Handler::class.java)
-    private val iWatchFaceService = mock(IWatchFaceService::class.java)
-    private val surfaceHolder = mock(SurfaceHolder::class.java)
-    private val systemState = WatchState()
+    private val handler = mock<Handler>()
+    private val iWatchFaceService = mock<IWatchFaceService>()
+    private val surfaceHolder = mock<SurfaceHolder>()
+    private val watchState = MutableWatchState()
 
     init {
         `when`(surfaceHolder.surfaceFrame).thenReturn(ONE_HUNDRED_BY_ONE_HUNDRED_RECT)
@@ -130,7 +131,10 @@ class WatchFaceServiceTest {
     private val leftComplication =
         Complication.Builder(
             LEFT_COMPLICATION_ID,
-            ComplicationDrawableRenderer(complicationDrawableLeft, systemState).apply {
+            ComplicationDrawableRenderer(
+                complicationDrawableLeft,
+                watchState.asWatchState()
+            ).apply {
                 setData(createComplicationData())
             },
             intArrayOf(
@@ -148,7 +152,10 @@ class WatchFaceServiceTest {
     private val rightComplication =
         Complication.Builder(
             RIGHT_COMPLICATION_ID,
-            ComplicationDrawableRenderer(complicationDrawableRight, systemState).apply {
+            ComplicationDrawableRenderer(
+                complicationDrawableRight,
+                watchState.asWatchState()
+            ).apply {
                 setData(createComplicationData())
             },
             intArrayOf(
@@ -166,7 +173,10 @@ class WatchFaceServiceTest {
     private val backgroundComplication =
         Complication.Builder(
             BACKGROUND_COMPLICATION_ID,
-            ComplicationDrawableRenderer(complicationDrawableRight, systemState).apply {
+            ComplicationDrawableRenderer(
+                complicationDrawableRight,
+                watchState.asWatchState()
+            ).apply {
                 setData(createComplicationData())
             },
             intArrayOf(
@@ -209,13 +219,13 @@ class WatchFaceServiceTest {
         this.complicationsManager = ComplicationsManager(complications)
         userStyleRepository =
             UserStyleRepository(userStyleCategories)
-        renderer = TestRenderer(surfaceHolder, userStyleRepository, systemState)
+        renderer = TestRenderer(surfaceHolder, userStyleRepository, watchState.asWatchState())
         testWatchFaceService = TestWatchFaceService(
             watchFaceType,
             this.complicationsManager,
             renderer,
             userStyleRepository,
-            systemState,
+            watchState,
             handler,
             INTERACTIVE_UPDATE_RATE_MS
         )
@@ -288,45 +298,43 @@ class WatchFaceServiceTest {
     @Test
     fun maybeUpdateDrawMode_setsCorrectDrawMode() {
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
+        watchState.isAmbient.value = false
 
         assertThat(renderer.drawMode).isEqualTo(DrawMode.INTERACTIVE)
 
-        systemState.onIsBatteryLowAndNotCharging(true)
+        watchState.isBatteryLowAndNotCharging.value = true
         watchFace.maybeUpdateDrawMode()
         assertThat(renderer.drawMode).isEqualTo(DrawMode.LOW_BATTERY_INTERACTIVE)
 
-        systemState.onIsBatteryLowAndNotCharging(false)
-        systemState.onAmbientModeChanged(true)
+        watchState.isBatteryLowAndNotCharging.value = false
+        watchState.isAmbient.value = true
         watchFace.maybeUpdateDrawMode()
         assertThat(renderer.drawMode).isEqualTo(DrawMode.AMBIENT)
 
-        systemState.onAmbientModeChanged(false)
+        watchState.isAmbient.value = false
         watchFace.maybeUpdateDrawMode()
         assertThat(renderer.drawMode).isEqualTo(DrawMode.INTERACTIVE)
 
-        systemState.onInterruptionFilterChanged(
-            NotificationManager.INTERRUPTION_FILTER_NONE
-        )
+        watchState.interruptionFilter.value = NotificationManager.INTERRUPTION_FILTER_NONE
         watchFace.maybeUpdateDrawMode()
         assertThat(renderer.drawMode).isEqualTo(DrawMode.MUTE)
 
         // Ambient takes precidence over interruption filter.
-        systemState.onAmbientModeChanged(true)
+        watchState.isAmbient.value = true
         watchFace.maybeUpdateDrawMode()
         assertThat(renderer.drawMode).isEqualTo(DrawMode.AMBIENT)
 
-        systemState.onAmbientModeChanged(false)
-        systemState.onInterruptionFilterChanged(0)
+        watchState.isAmbient.value = false
+        watchState.interruptionFilter.value = 0
         watchFace.maybeUpdateDrawMode()
         assertThat(renderer.drawMode).isEqualTo(DrawMode.INTERACTIVE)
-
-        // WatchFaceService.DrawMode.COMPLICATION_SELECT is tested below.
     }
 
     @Test
     fun onDraw_calendar_setFromSystemTime() {
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
 
+        watchState.isAmbient.value = false
         testWatchFaceService.mockSystemTimeMillis = 1000L
         watchFace.onDraw()
         assertThat(watchFace.calendar.timeInMillis).isEqualTo(1000L)
@@ -335,6 +343,7 @@ class WatchFaceServiceTest {
     @Test
     fun onDraw_calendar_affectedCorrectly_with2xMockTime() {
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
+        watchState.isAmbient.value = false
         testWatchFaceService.mockSystemTimeMillis = 1000L
 
         watchFace.mockTimeReceiver.onReceive(
@@ -358,6 +367,7 @@ class WatchFaceServiceTest {
     @Test
     fun onDraw_calendar_affectedCorrectly_withMockTimeWrapping() {
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
+        watchState.isAmbient.value = false
         testWatchFaceService.mockSystemTimeMillis = 1000L
 
         watchFace.mockTimeReceiver.onReceive(
@@ -738,13 +748,14 @@ class WatchFaceServiceTest {
             listOf(colorStyleCategory, watchHandStyleCategory)
         )
 
-        val testRenderer2 = TestRenderer(surfaceHolder, userStyleRepository2, systemState)
+        val testRenderer2 =
+            TestRenderer(surfaceHolder, userStyleRepository2, watchState.asWatchState())
         val service2 = TestWatchFaceService(
             WatchFaceType.ANALOG,
             ComplicationsManager(emptyList()),
             testRenderer2,
             userStyleRepository2,
-            systemState,
+            watchState,
             handler,
             INTERACTIVE_UPDATE_RATE_MS
         )
@@ -793,13 +804,14 @@ class WatchFaceServiceTest {
             listOf(colorStyleCategory, watchHandStyleCategory)
         )
 
-        val testRenderer2 = TestRenderer(surfaceHolder, userStyleRepository2, systemState)
+        val testRenderer2 =
+            TestRenderer(surfaceHolder, userStyleRepository2, watchState.asWatchState())
         val service2 = TestWatchFaceService(
             WatchFaceType.ANALOG,
             ComplicationsManager(emptyList()),
             testRenderer2,
             userStyleRepository2,
-            systemState,
+            watchState,
             handler,
             INTERACTIVE_UPDATE_RATE_MS
         )
@@ -837,6 +849,7 @@ class WatchFaceServiceTest {
     @Test
     fun maybeUpdateStatus_issuesCorrectApiCalls() {
         initEngine(WatchFaceType.ANALOG, emptyList(), emptyList())
+
         val bundle = Bundle().apply {
             putBoolean(Constants.STATUS_CHARGING, true)
             putBoolean(Constants.STATUS_AIRPLANE_MODE, false)
@@ -846,34 +859,49 @@ class WatchFaceServiceTest {
             putBoolean(Constants.STATUS_KEYGUARD_LOCKED, false)
         }
 
-        val systemStateListener = mock(WatchState.Listener::class.java)
-        systemState.addListener(systemStateListener)
+        val isChargingObserver = mock<Observer<Boolean>>()
+        val inAirplaneModeObserver = mock<Observer<Boolean>>()
+        val isConnectedToCompanionObserver = mock<Observer<Boolean>>()
+        val isInTheaterModeObserver = mock<Observer<Boolean>>()
+        val isGpsActiveObserver = mock<Observer<Boolean>>()
+        val isKeyguardLockedObserver = mock<Observer<Boolean>>()
+        watchState.isCharging.observe(isChargingObserver)
+        watchState.inAirplaneMode.observe(inAirplaneModeObserver)
+        watchState.isConnectedToCompanion.observe(isConnectedToCompanionObserver)
+        watchState.isInTheaterMode.observe(isInTheaterModeObserver)
+        watchState.isGpsActive.observe(isGpsActiveObserver)
+        watchState.isKeyguardLocked.observe(isKeyguardLockedObserver)
 
         // Every indicator onXyz method should be called upon the initial update.
         engineWrapper.onBackgroundAction(Bundle().apply {
             putBundle(Constants.EXTRA_INDICATOR_STATUS, bundle)
         })
 
-        verify(systemStateListener).onIsChargingChanged(true)
-        verify(systemStateListener).onInAirplaneModeChanged(false)
-        verify(systemStateListener).onIsConnectedToCompanionChanged(true)
-        verify(systemStateListener).onInTheaterModeChanged(false)
-        verify(systemStateListener).onIsGpsActiveChanged(true)
-        verify(systemStateListener).onIsKeyguardLockedChanged(false)
+        verify(isChargingObserver).onChanged(true)
+        verify(inAirplaneModeObserver).onChanged(false)
+        verify(isConnectedToCompanionObserver).onChanged(true)
+        verify(isInTheaterModeObserver).onChanged(false)
+        verify(isGpsActiveObserver).onChanged(true)
+        verify(isKeyguardLockedObserver).onChanged(false)
 
-        reset(systemStateListener)
+        reset(isChargingObserver)
+        reset(inAirplaneModeObserver)
+        reset(isConnectedToCompanionObserver)
+        reset(isInTheaterModeObserver)
+        reset(isGpsActiveObserver)
+        reset(isKeyguardLockedObserver)
 
         // Check only the modified setIsCharging state leads to a call.
         bundle.putBoolean(Constants.STATUS_CHARGING, false)
         engineWrapper.onBackgroundAction(Bundle().apply {
             putBundle(Constants.EXTRA_INDICATOR_STATUS, bundle)
         })
-        verify(systemStateListener).onIsChargingChanged(false)
-        verify(systemStateListener, times(0)).onInAirplaneModeChanged(anyBoolean())
-        verify(systemStateListener, times(0)).onIsConnectedToCompanionChanged(anyBoolean())
-        verify(systemStateListener, times(0)).onInTheaterModeChanged(anyBoolean())
-        verify(systemStateListener, times(0)).onIsGpsActiveChanged(anyBoolean())
-        verify(systemStateListener, times(0)).onIsKeyguardLockedChanged(anyBoolean())
+        verify(isChargingObserver).onChanged(false)
+        verify(inAirplaneModeObserver, times(0)).onChanged(anyBoolean())
+        verify(isConnectedToCompanionObserver, times(0)).onChanged(anyBoolean())
+        verify(isInTheaterModeObserver, times(0)).onChanged(anyBoolean())
+        verify(isGpsActiveObserver, times(0)).onChanged(anyBoolean())
+        verify(isKeyguardLockedObserver, times(0)).onChanged(anyBoolean())
     }
 
     @Test
@@ -884,13 +912,15 @@ class WatchFaceServiceTest {
             putBoolean(Constants.PROPERTY_BURN_IN_PROTECTION, false)
         }
 
-        val systemStateListener = mock(WatchState.Listener::class.java)
-        systemState.addListener(systemStateListener)
+        val hasLowBitAmbientObserver = mock<Observer<Boolean>>()
+        val hasBurnInProtectionObserver = mock<Observer<Boolean>>()
+        watchState.hasLowBitAmbient.observe(hasLowBitAmbientObserver)
+        watchState.hasBurnInProtection.observe(hasBurnInProtectionObserver)
 
         // Check all the right methods are called on initial onPropertiesChanged call.
         engineWrapper.onPropertiesChanged(bundle)
-        verify(systemStateListener).onHasLowBitAmbientSet(true)
-        verify(systemStateListener).onHasBurnInProtectionSet(false)
+        verify(hasLowBitAmbientObserver).onChanged(true)
+        verify(hasBurnInProtectionObserver).onChanged(false)
     }
 
     @Test
@@ -1003,7 +1033,8 @@ class WatchFaceServiceTest {
     fun requestStyleBeforeSetBinder() {
         var userStyleRepository =
             UserStyleRepository(emptyList())
-        var testRenderer = TestRenderer(surfaceHolder, userStyleRepository, systemState)
+        var testRenderer =
+            TestRenderer(surfaceHolder, userStyleRepository, watchState.asWatchState())
         val service = TestWatchFaceService(
             WatchFaceType.ANALOG,
             ComplicationsManager(
@@ -1011,7 +1042,7 @@ class WatchFaceServiceTest {
             ),
             testRenderer,
             UserStyleRepository(emptyList()),
-            systemState,
+            watchState,
             handler,
             INTERACTIVE_UPDATE_RATE_MS
         )
@@ -1036,7 +1067,7 @@ class WatchFaceServiceTest {
         val provider2 = ComponentName("com.app2", "com.app2.App2")
         val complication = Complication.Builder(
             LEFT_COMPLICATION_ID,
-            ComplicationDrawableRenderer(complicationDrawableLeft, systemState),
+            ComplicationDrawableRenderer(complicationDrawableLeft, watchState.asWatchState()),
             intArrayOf(),
             Complication.DefaultComplicationProviderPolicy(
                 listOf(provider1, provider2),
@@ -1061,7 +1092,7 @@ class WatchFaceServiceTest {
         val provider2 = ComponentName("com.app2", "com.app2.App2")
         val complication = Complication.Builder(
             LEFT_COMPLICATION_ID,
-            ComplicationDrawableRenderer(complicationDrawableLeft, systemState),
+            ComplicationDrawableRenderer(complicationDrawableLeft, watchState.asWatchState()),
             intArrayOf(),
             Complication.DefaultComplicationProviderPolicy(
                 listOf(provider1, provider2),
@@ -1098,7 +1129,8 @@ class WatchFaceServiceTest {
     @Test
     fun shouldAnimateOverrideControlsEnteringAmbientMode() {
         var userStyleRepository = UserStyleRepository(emptyList())
-        var testRenderer = object : TestRenderer(surfaceHolder, userStyleRepository, systemState) {
+        var testRenderer = object :
+            TestRenderer(surfaceHolder, userStyleRepository, watchState.asWatchState()) {
             var animate = true
             override fun shouldAnimate() = animate
         }
@@ -1107,7 +1139,7 @@ class WatchFaceServiceTest {
             ComplicationsManager(emptyList()),
             testRenderer,
             UserStyleRepository(emptyList()),
-            systemState,
+            watchState,
             handler,
             INTERACTIVE_UPDATE_RATE_MS
         )
@@ -1122,7 +1154,7 @@ class WatchFaceServiceTest {
         watchFace = service.watchFace
 
         // Enter ambient mode.
-        systemState.onAmbientModeChanged(true)
+        watchState.isAmbient.value = true
         watchFace.maybeUpdateDrawMode()
         assertThat(testRenderer.drawMode).isEqualTo(DrawMode.INTERACTIVE)
 

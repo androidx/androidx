@@ -37,15 +37,15 @@ import android.support.wearable.complications.ComplicationData
 import android.support.wearable.watchface.Constants
 import android.support.wearable.watchface.IWatchFaceCommand
 import android.support.wearable.watchface.IWatchFaceService
-import android.support.wearable.watchface.toAshmemCompressedImageBundle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
+import android.support.wearable.watchface.toAshmemCompressedImageBundle
 import android.util.Log
 import android.view.Choreographer
 import android.view.SurfaceHolder
 import androidx.annotation.IntDef
 import androidx.wear.complications.SystemProviders.ProviderId
-import androidx.wear.watchface.style.StyleUtils
 import androidx.wear.watchface.style.UserStyleCategory
+import androidx.wear.watchface.style.StyleUtils
 import java.util.concurrent.CountDownLatch
 
 /**
@@ -257,7 +257,7 @@ abstract class WatchFaceService : WallpaperService() {
     internal open fun getHandler() = Handler(Looper.getMainLooper())
 
     // This is open to allow mocking.
-    internal open fun getSystemState() = WatchState()
+    internal open fun getMutableWatchState() = MutableWatchState()
 
     internal inner class EngineWrapper(
         private val _handler: Handler
@@ -272,8 +272,8 @@ abstract class WatchFaceService : WallpaperService() {
         internal lateinit var iWatchFaceService: IWatchFaceService
         internal lateinit var watchFace: WatchFace
 
-        internal val systemState = getSystemState().apply {
-            onVisibilityChanged(isVisible)
+        internal val mutableWatchState = getMutableWatchState().apply {
+            isVisible.value = this@EngineWrapper.isVisible
         }
 
         private var timeTickRegistered = false
@@ -335,14 +335,14 @@ abstract class WatchFaceService : WallpaperService() {
                 var returnVal: R? = null
                 var exception: Exception? = null
                 if (_handler.post {
-                    try {
-                        returnVal = task.invoke()
-                    } catch (e: Exception) {
-                        // Will rethrow on the calling thread.
-                        exception = e
-                    }
-                    latch.countDown()
-                }) {
+                        try {
+                            returnVal = task.invoke()
+                        } catch (e: Exception) {
+                            // Will rethrow on the calling thread.
+                            exception = e
+                        }
+                        latch.countDown()
+                    }) {
                     latch.await()
                     if (exception != null) {
                         throw exception as Exception
@@ -356,7 +356,7 @@ abstract class WatchFaceService : WallpaperService() {
 
             override fun ambientUpdate() {
                 runOnUiThread {
-                    if (systemState.isAmbient) {
+                    if (mutableWatchState.isAmbient.value) {
                         ambientUpdateWakelock.acquire()
                         watchFace.invalidate()
                         ambientUpdateWakelock.acquire(SURFACE_DRAW_TIMEOUT_MS)
@@ -371,23 +371,27 @@ abstract class WatchFaceService : WallpaperService() {
                 notificationCount: Int
             ) {
                 runOnUiThread {
-                    if (firstSetSystemState || inAmbientMode != systemState.isAmbient) {
-                        systemState.onAmbientModeChanged(inAmbientMode)
+                    if (firstSetSystemState || inAmbientMode != mutableWatchState.isAmbient.value) {
+                        mutableWatchState.isAmbient.value = inAmbientMode
                         updateTimeTickReceiver()
                     }
 
-                    if (firstSetSystemState || interruptionFilter !=
-                        systemState.interruptionFilter
+                    if (firstSetSystemState ||
+                        interruptionFilter != mutableWatchState.interruptionFilter.value
                     ) {
-                        systemState.onInterruptionFilterChanged(interruptionFilter)
+                        mutableWatchState.interruptionFilter.value = interruptionFilter
                     }
 
-                    if (firstSetSystemState || unreadCount != systemState.unreadNotificationCount) {
-                        systemState.onUnreadNotificationCountChanged(unreadCount)
+                    if (firstSetSystemState ||
+                        unreadCount != mutableWatchState.unreadNotificationCount.value
+                    ) {
+                        mutableWatchState.unreadNotificationCount.value = unreadCount
                     }
 
-                    if (firstSetSystemState || notificationCount != systemState.notificationCount) {
-                        systemState.onNotificationCountChanged(notificationCount)
+                    if (firstSetSystemState ||
+                        notificationCount != mutableWatchState.notificationCount.value
+                    ) {
+                        mutableWatchState.notificationCount.value = notificationCount
                     }
 
                     firstSetSystemState = false
@@ -403,30 +407,36 @@ abstract class WatchFaceService : WallpaperService() {
                 isKeyguardLocked: Boolean
             ) {
                 runOnUiThread {
-                    if (firstIndicatorState || isCharging != systemState.isCharging) {
-                        systemState.onIsChargingChanged(isCharging)
+                    if (firstIndicatorState || isCharging != mutableWatchState.isCharging.value) {
+                        mutableWatchState.isCharging.value = isCharging
                     }
 
-                    if (firstIndicatorState || inAirplaneMode != systemState.inAirplaneMode) {
-                        systemState.onInAirplaneModeChanged(inAirplaneMode)
-                    }
-
-                    if (firstIndicatorState || isConnectedToCompanion !=
-                        systemState.isConnectedToCompanion
+                    if (firstIndicatorState ||
+                        inAirplaneMode != mutableWatchState.inAirplaneMode.value
                     ) {
-                        systemState.onIsConnectedToCompanionChanged(isConnectedToCompanion)
+                        mutableWatchState.inAirplaneMode.value = inAirplaneMode
                     }
 
-                    if (firstIndicatorState || inTheaterMode != systemState.isInTheaterMode) {
-                        systemState.onInTheaterModeChanged(inTheaterMode)
+                    if (firstIndicatorState ||
+                        isConnectedToCompanion != mutableWatchState.isConnectedToCompanion.value
+                    ) {
+                        mutableWatchState.isConnectedToCompanion.value = isConnectedToCompanion
                     }
 
-                    if (firstIndicatorState || isGpsActive != systemState.isGpsActive) {
-                        systemState.onIsGpsActiveChanged(isGpsActive)
+                    if (firstIndicatorState ||
+                        inTheaterMode != mutableWatchState.isInTheaterMode.value
+                    ) {
+                        mutableWatchState.isInTheaterMode.value = inTheaterMode
                     }
 
-                    if (firstIndicatorState || isKeyguardLocked != systemState.isKeyguardLocked) {
-                        systemState.onIsKeyguardLockedChanged(isKeyguardLocked)
+                    if (firstIndicatorState || isGpsActive != mutableWatchState.isGpsActive.value) {
+                        mutableWatchState.isGpsActive.value = isGpsActive
+                    }
+
+                    if (firstIndicatorState ||
+                        isKeyguardLocked != mutableWatchState.isKeyguardLocked.value
+                    ) {
+                        mutableWatchState.isKeyguardLocked.value = isKeyguardLocked
                     }
 
                     firstIndicatorState = false
@@ -451,8 +461,8 @@ abstract class WatchFaceService : WallpaperService() {
                 runOnUiThread {
                     // These properties never change so set them once only.
                     if (!immutableSystemStateDone) {
-                        systemState.setHasLowBitAmbient(hasLowBitAmbient)
-                        systemState.setHasBurnInProtection(hasBurnInProtection)
+                        mutableWatchState.hasLowBitAmbient.value = hasLowBitAmbient
+                        mutableWatchState.hasBurnInProtection.value = hasBurnInProtection
 
                         immutableSystemStateDone = true
                     }
@@ -644,10 +654,22 @@ abstract class WatchFaceService : WallpaperService() {
             }
 
             watchFaceCommand.setSystemState(
-                extras.getBoolean(Constants.EXTRA_AMBIENT_MODE, systemState.isAmbient),
-                extras.getInt(Constants.EXTRA_INTERRUPTION_FILTER, systemState.interruptionFilter),
-                extras.getInt(Constants.EXTRA_UNREAD_COUNT, systemState.unreadNotificationCount),
-                extras.getInt(Constants.EXTRA_NOTIFICATION_COUNT, systemState.notificationCount)
+                extras.getBoolean(
+                    Constants.EXTRA_AMBIENT_MODE,
+                    mutableWatchState.isAmbient.getValueOr(false)
+                ),
+                extras.getInt(
+                    Constants.EXTRA_INTERRUPTION_FILTER,
+                    mutableWatchState.interruptionFilter.getValueOr(0)
+                ),
+                extras.getInt(
+                    Constants.EXTRA_UNREAD_COUNT,
+                    mutableWatchState.unreadNotificationCount.getValueOr(0)
+                ),
+                extras.getInt(
+                    Constants.EXTRA_NOTIFICATION_COUNT,
+                    mutableWatchState.notificationCount.getValueOr(0)
+                )
             )
 
             val statusBundle = extras.getBundle(Constants.EXTRA_INDICATOR_STATUS)
@@ -731,7 +753,7 @@ abstract class WatchFaceService : WallpaperService() {
                 watchFace = createWatchFace(
                     currentSurfaceHolder,
                     host,
-                    systemState
+                    mutableWatchState.asWatchState()
                 )
 
                 // Watchfaces especially OpenGL ones often do initialization in
@@ -784,14 +806,22 @@ abstract class WatchFaceService : WallpaperService() {
          * intent filter depending on whether we are in ambient mode or not.
          */
         internal fun updateTimeTickReceiver() {
+            // Separate calls are issued to deliver the state of isAmbient and isVisible, so during
+            // init we might not yet know the state of both.
+            if (!mutableWatchState.isAmbient.hasValue() ||
+                !mutableWatchState.isVisible.hasValue()
+            ) {
+                return
+            }
+
             if (timeTickRegistered) {
                 unregisterReceiver(timeTickReceiver)
                 timeTickRegistered = false
             }
 
             // We only register if we are visible, otherwise it doesn't make sense to waste cycles.
-            if (systemState.isVisible) {
-                if (systemState.isAmbient) {
+            if (mutableWatchState.isVisible.value) {
+                if (mutableWatchState.isAmbient.value) {
                     registerReceiver(timeTickReceiver, ambientTimeTickFilter)
                 } else {
                     registerReceiver(timeTickReceiver, interactiveTimeTickFilter)
@@ -824,7 +854,7 @@ abstract class WatchFaceService : WallpaperService() {
                 return
             }
 
-            systemState.onVisibilityChanged(visible)
+            mutableWatchState.isVisible.value = visible
             updateTimeTickReceiver()
             pendingVisibilityChanged = null
         }

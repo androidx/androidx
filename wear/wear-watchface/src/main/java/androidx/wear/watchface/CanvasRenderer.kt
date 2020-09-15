@@ -73,7 +73,7 @@ abstract class CanvasRenderer(
             surfaceHolder.lockCanvas()
         }) ?: return
         try {
-            if (watchState.isVisible) {
+            if (watchState.isVisible.value) {
                 render(canvas, surfaceHolder.surfaceFrame, calendar)
             } else {
                 canvas.drawColor(Color.BLACK)
