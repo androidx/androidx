@@ -2,4 +2,10 @@
 # Comments and blank lines are ignored
 # Before adding a suppression to this file, please attempt to suppress the output inside the generating tool instead
 
-Lint found .*
+# > Task :docs-runner:dokkaJavaPublicDocs
+(logging: loading modules: \[java\.se.*)|(.*No file found when processing Java @sample.*)
+# > Task :contentaccess:integration-tests:testapp:kaptDebugAndroidTestKotlin
+\[WARN\] Issue detected with androidx\.contentaccess\.compiler\.ContentAccessProcessor\. Expected 1 originating source file when generating [^ ]*, but detected [0-9][0-9]*: \[\]\.
+# > Task :icing:extractIncludeDebugAndroidTestProto
+proto file '[^ ]*' directly specified in configuration\. It's likely you specified files\('path/to/foo\.proto'\) or fileTree\('path/to/directory'\) in protobuf or compile configuration\. This makes you vulnerable to https://github\.com/google/protobuf\-gradle\-plugin/issues/[0-9][0-9]*\. Please use files\('path/to/directory'\) instead\.
+

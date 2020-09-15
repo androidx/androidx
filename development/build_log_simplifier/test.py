@@ -15,6 +15,7 @@
 # limitations under the License.
 
 from build_log_simplifier import collapse_consecutive_blank_lines
+from build_log_simplifier import collapse_tasks_having_no_output
 from build_log_simplifier import generate_suggested_exemptions
 from build_log_simplifier import normalize_paths
 from build_log_simplifier import regexes_matcher
@@ -259,8 +260,36 @@ def test_generate_suggested_exemptions():
     ]
     validate_suggested_exemptions(lines, config3, expect_config3)
 
+def test_collapse_tasks_having_no_output():
+    print("test_collapse_tasks_having_no_output")
+    lines = [
+        "> Task :no-output1",
+        "> Task :some-output1",
+        "output1",
+        "> Task :empty-output",
+        "",
+        "> Task :blanks-around-output",
+        "",
+        "output inside blanks",
+        "",
+        "> Task :no-output2"
+        "> Task :no-output3"
+    ]
+    expected = [
+        "> Task :some-output1",
+        "output1",
+	"> Task :blanks-around-output",
+        "",
+        "output inside blanks",
+        ""
+    ]
+    actual = collapse_tasks_having_no_output(lines)
+    if (actual != expected):
+        fail("collapse_tasks_having_no_output gave incorrect error. Expected: " + str(expected) + ", actual = " + str(actual))
+
 def main():
     test_collapse_consecutive_blank_lines()
+    test_collapse_tasks_having_no_output()
     test_generate_suggested_exemptions()
     test_normalize_paths()
     test_regexes_matcher_get_matching_regexes()
