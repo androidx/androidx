@@ -20,7 +20,6 @@ import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
@@ -28,6 +27,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
+import androidx.camera.core.Logger;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -93,7 +93,7 @@ class CameraDeviceCompatBaseImpl implements CameraDeviceCompat.CameraDeviceCompa
         for (OutputConfigurationCompat outputConfigurationCompat : outputConfigs) {
             String outputConfigPhysicalId = outputConfigurationCompat.getPhysicalCameraId();
             if (outputConfigPhysicalId != null && !outputConfigPhysicalId.isEmpty()) {
-                Log.w("CameraDeviceCompat",
+                Logger.w("CameraDeviceCompat",
                         "Camera " + cameraId + ": Camera doesn't support physicalCameraId "
                                 + outputConfigPhysicalId + ". Ignoring.");
             }

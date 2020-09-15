@@ -19,11 +19,11 @@ package androidx.camera.camera2.internal;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.TotalCaptureResult;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.core.CameraControl.OperationCanceledException;
+import androidx.camera.core.Logger;
 import androidx.camera.core.TorchState;
 import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.Threads;
@@ -132,7 +132,7 @@ final class TorchControl {
      */
     ListenableFuture<Void> enableTorch(boolean enabled) {
         if (!mHasFlashUnit) {
-            Log.d(TAG, "Unable to enableTorch due to there is no flash unit.");
+            Logger.d(TAG, "Unable to enableTorch due to there is no flash unit.");
             return Futures.immediateFailedFuture(new IllegalStateException("No flash unit"));
         }
 

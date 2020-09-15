@@ -19,12 +19,12 @@ package androidx.camera.camera2.internal;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
-import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
+import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.DeferrableSurface;
@@ -86,7 +86,7 @@ class Camera2CaptureRequestBuilder {
                 // Ignores keys that don't exist
                 builder.set(key, camera2Config.retrieveOption(typeErasedOption));
             } catch (IllegalArgumentException e) {
-                Log.e(TAG, "CaptureRequest.Key is not supported: " + key);
+                Logger.e(TAG, "CaptureRequest.Key is not supported: " + key);
             }
         }
     }
