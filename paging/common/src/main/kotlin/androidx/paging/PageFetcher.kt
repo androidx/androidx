@@ -62,29 +62,19 @@ internal class PageFetcher<Key : Any, Value : Any>(
             }
             .scan(null) { previousGeneration: PageFetcherSnapshot<Key, Value>?,
                           triggerRemoteRefresh ->
-                val pagingSource = pagingSourceFactory()
-
-                // Ensure pagingSourceFactory produces a new instance of PagingSource.
-                check(pagingSource !== previousGeneration?.pagingSource) {
-                    """
-                    An instance of PagingSource was re-used when Pager expected to create a new
-                    instance. Ensure that the pagingSourceFactory passed to Pager always returns a
-                    new instance of PagingSource.
-                    """.trimIndent()
+                var pagingSource = generateNewPagingSource(previousGeneration?.pagingSource)
+                while (pagingSource.invalid) {
+                    pagingSource = generateNewPagingSource(previousGeneration?.pagingSource)
                 }
 
                 @OptIn(ExperimentalPagingApi::class)
-                val initialKey = previousGeneration?.refreshKeyInfo()
+                val initialKey: Key? = previousGeneration?.refreshKeyInfo()
                     ?.let { pagingSource.getRefreshKey(it) }
                     ?: initialKey
 
-                // Hook up refresh signals from DataSource / PagingSource.
-                pagingSource.registerInvalidatedCallback(::invalidate)
-                previousGeneration?.pagingSource?.unregisterInvalidatedCallback(::invalidate)
-                previousGeneration?.pagingSource?.invalidate() // Note: Invalidate is idempotent.
                 previousGeneration?.close()
 
-                PageFetcherSnapshot(
+                PageFetcherSnapshot<Key, Value>(
                     initialKey = initialKey,
                     pagingSource = pagingSource,
                     config = config,
@@ -109,6 +99,28 @@ internal class PageFetcher<Key : Any, Value : Any>(
 
     private fun invalidate() {
         refreshChannel.offer(false)
+    }
+
+    private fun generateNewPagingSource(
+        previousPagingSource: PagingSource<Key, Value>?
+    ): PagingSource<Key, Value> {
+        val pagingSource = pagingSourceFactory()
+
+        // Ensure pagingSourceFactory produces a new instance of PagingSource.
+        check(pagingSource !== previousPagingSource) {
+            """
+            An instance of PagingSource was re-used when Pager expected to create a new
+            instance. Ensure that the pagingSourceFactory passed to Pager always returns a
+            new instance of PagingSource.
+            """.trimIndent()
+        }
+
+        // Hook up refresh signals from PagingSource.
+        pagingSource.registerInvalidatedCallback(::invalidate)
+        previousPagingSource?.unregisterInvalidatedCallback(::invalidate)
+        previousPagingSource?.invalidate() // Note: Invalidate is idempotent.
+
+        return pagingSource
     }
 
     inner class PagerUiReceiver<Key : Any, Value : Any> constructor(
