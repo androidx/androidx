@@ -22,7 +22,6 @@ import static androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager.MAX_O
 import android.graphics.Rect;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
@@ -91,12 +90,6 @@ public final class FakeCameraControl implements CameraControlInternal {
             }
         }
         mSubmittedCaptureRequests.clear();
-    }
-
-
-    @Override
-    public void setCropRegion(@Nullable final Rect crop) {
-        Logger.d(TAG, "setCropRegion(" + crop + ")");
     }
 
     @ImageCapture.FlashMode
