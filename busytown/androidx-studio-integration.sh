@@ -34,12 +34,12 @@ export JAVA_HOME="$(pwd)/prebuilts/jdk/jdk11/linux-x86/"
 export JAVA_TOOLS_JAR="$JAVA_HOME/lib/tools.jar"
 export LINT_PRINT_STACKTRACE=true
 
-LOG_SIMPLIFIER="$SCRIPT_DIR/../development/build_log_simplifier.sh"
-
 function buildAndroidx() {
-  "$LOG_SIMPLIFIER" $gw -p frameworks/support --no-daemon listTaskOutputs && \
-  "$LOG_SIMPLIFIER" $gw -p frameworks/support --no-daemon bOS --stacktrace -Pandroidx.allWarningsAsErrors -PverifyUpToDate && \
-  "$LOG_SIMPLIFIER" DIST_SUBDIR="/ui" $gw -p frameworks/support/ui --no-daemon bOS --stacktrace -Pandroidx.allWarningsAsErrors -PverifyUpToDate
+  LOG_PROCESSOR="$SCRIPT_DIR/../development/build_log_processor.sh"
+  properties="-Pandroidx.summarizeStderr --no-daemon -Pandroidx.allWarningsAsErrors"
+  "$LOG_PROCESSOR"                   $gw $properties -p frameworks/support    listTaskOutputs && \
+  "$LOG_PROCESSOR"                   $gw $properties -p frameworks/support    bOS --stacktrace -PverifyUpToDate && \
+  "$LOG_PROCESSOR" DIST_SUBDIR="/ui" $gw $properties -p frameworks/support/ui bOS --stacktrace -PverifyUpToDate
 }
 
 function exportTransformsDir() {
