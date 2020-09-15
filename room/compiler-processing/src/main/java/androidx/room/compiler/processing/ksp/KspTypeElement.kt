@@ -38,7 +38,7 @@ internal class KspTypeElement(
     }
 
     override val packageName: String by lazy {
-        declaration.safeGetPackageName() ?: ERROR_PACKAGE_NAME
+        declaration.getNormalizedPackageName()
     }
 
     override val enclosingTypeElement: XTypeElement? by lazy {
@@ -55,8 +55,8 @@ internal class KspTypeElement(
     }
 
     override val qualifiedName: String by lazy {
-        val pkgName = declaration.safeGetPackageName()
-        if (pkgName == null || pkgName.isBlank()) {
+        val pkgName = declaration.getNormalizedPackageName()
+        if (pkgName.isBlank()) {
             declaration.simpleName.asString()
         } else {
             "$pkgName.${declaration.simpleName.asString()}"
@@ -77,7 +77,7 @@ internal class KspTypeElement(
     }
 
     override val className: ClassName by lazy {
-        declaration.typeName() ?: ClassName.get(packageName, name)
+        declaration.typeName()
     }
 
     override fun isInterface(): Boolean {
