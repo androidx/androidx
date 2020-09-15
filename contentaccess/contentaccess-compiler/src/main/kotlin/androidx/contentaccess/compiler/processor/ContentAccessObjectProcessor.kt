@@ -117,6 +117,7 @@ class ContentAccessObjectProcessor(
             ContentAccessObjectVO(
                 contentEntity = entity,
                 interfaceName = element.qualifiedName.toString(),
+                interfaceElement = element,
                 packageName = processingEnv.elementUtils.getPackageOf(element).toString(),
                 interfaceType = element.asType(),
                 queries = queryMethods.mapNotNull { it },
