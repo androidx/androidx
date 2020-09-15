@@ -428,7 +428,10 @@ final class Camera2CameraImpl implements CameraInternal {
                 break;
             case OPENED:
                 setState(InternalState.RELEASING);
-                closeCamera(/*abortInFlightCaptures=*/true);
+                //TODO(b/162314023): Avoid calling abortCapture to prevent the many test failures
+                // caused by shutdown(). We should consider re-enabling it once the cause is
+                // found.
+                closeCamera(/*abortInFlightCaptures=*/false);
                 break;
             case OPENING:
             case CLOSING:
