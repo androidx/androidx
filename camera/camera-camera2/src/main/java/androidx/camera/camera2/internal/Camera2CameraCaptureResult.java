@@ -17,9 +17,9 @@
 package androidx.camera.camera2.internal;
 
 import android.hardware.camera2.CaptureResult;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureMetaData.AeState;
 import androidx.camera.core.impl.CameraCaptureMetaData.AfMode;
 import androidx.camera.core.impl.CameraCaptureMetaData.AfState;
@@ -67,7 +67,7 @@ public class Camera2CameraCaptureResult implements CameraCaptureResult {
                 return AfMode.ON_CONTINUOUS_AUTO;
             default: // fall out
         }
-        Log.e(TAG, "Undefined af mode: " + mode);
+        Logger.e(TAG, "Undefined af mode: " + mode);
         return AfMode.UNKNOWN;
     }
 
@@ -98,7 +98,7 @@ public class Camera2CameraCaptureResult implements CameraCaptureResult {
                 return AfState.FOCUSED;
             default: // fall out
         }
-        Log.e(TAG, "Undefined af state: " + state);
+        Logger.e(TAG, "Undefined af state: " + state);
         return AfState.UNKNOWN;
     }
 
@@ -128,7 +128,7 @@ public class Camera2CameraCaptureResult implements CameraCaptureResult {
                 return AeState.LOCKED;
             default: // fall out
         }
-        Log.e(TAG, "Undefined ae state: " + state);
+        Logger.e(TAG, "Undefined ae state: " + state);
         return AeState.UNKNOWN;
     }
 
@@ -155,7 +155,7 @@ public class Camera2CameraCaptureResult implements CameraCaptureResult {
                 return AwbState.LOCKED;
             default: // fall out
         }
-        Log.e(TAG, "Undefined awb state: " + state);
+        Logger.e(TAG, "Undefined awb state: " + state);
         return AwbState.UNKNOWN;
     }
 
@@ -182,7 +182,7 @@ public class Camera2CameraCaptureResult implements CameraCaptureResult {
                 return FlashState.FIRED;
             default: // fall out
         }
-        Log.e(TAG, "Undefined flash state: " + state);
+        Logger.e(TAG, "Undefined flash state: " + state);
         return FlashState.UNKNOWN;
     }
 

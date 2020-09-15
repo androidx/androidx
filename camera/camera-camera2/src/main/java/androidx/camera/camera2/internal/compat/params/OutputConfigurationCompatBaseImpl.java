@@ -19,13 +19,13 @@ package androidx.camera.camera2.internal.compat.params;
 import android.annotation.SuppressLint;
 import android.graphics.ImageFormat;
 import android.os.Build;
-import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.Logger;
 import androidx.core.util.Preconditions;
 
 import java.lang.reflect.InvocationTargetException;
@@ -238,7 +238,7 @@ class OutputConfigurationCompatBaseImpl implements
                     | NoSuchMethodException
                     | IllegalAccessException
                     | InvocationTargetException e) {
-                Log.e(TAG, "Unable to retrieve surface size.", e);
+                Logger.e(TAG, "Unable to retrieve surface size.", e);
                 return null;
             }
         }
@@ -258,7 +258,7 @@ class OutputConfigurationCompatBaseImpl implements
                     | NoSuchMethodException
                     | IllegalAccessException
                     | InvocationTargetException e) {
-                Log.e(TAG, "Unable to retrieve surface format.", e);
+                Logger.e(TAG, "Unable to retrieve surface format.", e);
                 return ImageFormat.UNKNOWN;
             }
 
@@ -271,7 +271,7 @@ class OutputConfigurationCompatBaseImpl implements
                 Method getGenerationId = Surface.class.getDeclaredMethod(GET_GENERATION_ID_METHOD);
                 return (int) getGenerationId.invoke(surface);
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                Log.e(TAG, "Unable to retrieve surface generation id.", e);
+                Logger.e(TAG, "Unable to retrieve surface generation id.", e);
                 return -1;
             }
         }

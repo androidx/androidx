@@ -22,7 +22,6 @@ import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
@@ -35,6 +34,7 @@ import androidx.camera.camera2.internal.compat.CameraCaptureSessionCompat;
 import androidx.camera.camera2.internal.compat.CameraDeviceCompat;
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
+import androidx.camera.core.Logger;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.DeferrableSurfaces;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
@@ -64,7 +64,6 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
         SynchronizedCaptureSession, SynchronizedCaptureSessionOpener.OpenerImpl {
 
     private static final String TAG = "SyncCaptureSessionBase";
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Object mLock = new Object();
@@ -494,8 +493,6 @@ class SynchronizedCaptureSessionBaseImpl extends SynchronizedCaptureSession.Stat
     }
 
     private void debugLog(String message) {
-        if (DEBUG) {
-            Log.d(TAG, "[" + SynchronizedCaptureSessionBaseImpl.this + "] " + message);
-        }
+        Logger.d(TAG, "[" + SynchronizedCaptureSessionBaseImpl.this + "] " + message);
     }
 }

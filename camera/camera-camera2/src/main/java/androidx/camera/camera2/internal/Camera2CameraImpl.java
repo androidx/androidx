@@ -26,7 +26,6 @@ import android.hardware.camera2.CaptureRequest;
 import android.os.Build;
 import android.os.Handler;
 import android.text.TextUtils;
-import android.util.Log;
 import android.util.Rational;
 import android.util.Size;
 import android.view.Surface;
@@ -38,6 +37,7 @@ import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.CameraUnavailableException;
+import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraControlInternal;
@@ -92,7 +92,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 final class Camera2CameraImpl implements CameraInternal {
     private static final String TAG = "Camera2CameraImpl";
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
     private static final int ERROR_NONE = 0;
 
     /**
@@ -831,7 +830,7 @@ final class Camera2CameraImpl implements CameraInternal {
                     removeMeteringRepeating();
                 } else {
                     // Other normal cases, do nothing.
-                    Log.d(TAG, "mMeteringRepeating is ATTACHED, "
+                    Logger.d(TAG, "mMeteringRepeating is ATTACHED, "
                             + "SessionConfig Surfaces: " + sizeSessionSurfaces + ", "
                             + "CaptureConfig Surfaces: " + sizeRepeatingSurfaces);
                 }
@@ -968,7 +967,7 @@ final class Camera2CameraImpl implements CameraInternal {
                     }
                 } else if (t instanceof TimeoutException) {
                     // TODO: Consider to handle the timeout error.
-                    Log.e(TAG, "Unable to configure camera " + mCameraInfoInternal.getCameraId()
+                    Logger.e(TAG, "Unable to configure camera " + mCameraInfoInternal.getCameraId()
                             + ", timeout!");
                 } else {
                     // Throw the unexpected error.
@@ -1057,7 +1056,7 @@ final class Camera2CameraImpl implements CameraInternal {
     @ExecutedBy("mExecutor")
     private boolean checkAndAttachRepeatingSurface(CaptureConfig.Builder captureConfigBuilder) {
         if (!captureConfigBuilder.getSurfaces().isEmpty()) {
-            Log.w(TAG, "The capture config builder already has surface inside.");
+            Logger.w(TAG, "The capture config builder already has surface inside.");
             return false;
         }
 
@@ -1074,7 +1073,7 @@ final class Camera2CameraImpl implements CameraInternal {
         }
 
         if (captureConfigBuilder.getSurfaces().isEmpty()) {
-            Log.w(TAG, "Unable to find a repeating surface to attach to CaptureConfig");
+            Logger.w(TAG, "Unable to find a repeating surface to attach to CaptureConfig");
             return false;
         }
 
@@ -1130,14 +1129,8 @@ final class Camera2CameraImpl implements CameraInternal {
     }
 
     private void debugLog(@NonNull String msg, @Nullable Throwable throwable) {
-        if (DEBUG) {
-            String msgString = String.format("{%s} %s", toString(), msg);
-            if (throwable == null) {
-                Log.d(TAG, msgString);
-            } else {
-                Log.d(TAG, msgString, throwable);
-            }
-        }
+        String msgString = String.format("{%s} %s", toString(), msg);
+        Logger.d(TAG, msgString, throwable);
     }
 
     enum InternalState {
@@ -1365,7 +1358,7 @@ final class Camera2CameraImpl implements CameraInternal {
             switch (mState) {
                 case RELEASING:
                 case CLOSING:
-                    Log.e(TAG, String.format("CameraDevice.onError(): %s failed with %s while "
+                    Logger.e(TAG, String.format("CameraDevice.onError(): %s failed with %s while "
                                     + "in %s state. Will finish closing camera.",
                                     cameraDevice.getId(), getErrorMessage(error), mState.name()));
                     closeCamera(/*abortInFlightCaptures=*/false);
@@ -1373,7 +1366,7 @@ final class Camera2CameraImpl implements CameraInternal {
                 case OPENING:
                 case OPENED:
                 case REOPENING:
-                    Log.d(TAG, String.format("CameraDevice.onError(): %s failed with %s while "
+                    Logger.d(TAG, String.format("CameraDevice.onError(): %s failed with %s while "
                                     + "in %s state. Will attempt recovering from error.",
                             cameraDevice.getId(), getErrorMessage(error), mState.name()));
                     handleErrorOnOpen(cameraDevice, error);
@@ -1398,13 +1391,13 @@ final class Camera2CameraImpl implements CameraInternal {
                 case CameraDevice.StateCallback.ERROR_CAMERA_IN_USE:
                     // Attempt to reopen the camera again. If there are no cameras available,
                     // this will wait for the next available camera.
-                    Log.d(TAG, String.format("Attempt to reopen camera[%s] after error[%s]",
+                    Logger.d(TAG, String.format("Attempt to reopen camera[%s] after error[%s]",
                             cameraDevice.getId(), getErrorMessage(error)));
                     reopenCameraAfterError();
                     break;
                 default:
                     // TODO: Properly handle other errors. For now, we will close the camera.
-                    Log.e(
+                    Logger.e(
                             TAG,
                             "Error observed on open (or opening) camera device "
                                     + cameraDevice.getId()
@@ -1499,7 +1492,7 @@ final class Camera2CameraImpl implements CameraInternal {
                     cameraDevice.createCaptureRequest(templateType);
             mCameraControlInternal.setDefaultRequestBuilder(builder);
         } catch (CameraAccessException e) {
-            Log.e(TAG, "fail to create capture request.", e);
+            Logger.e(TAG, "fail to create capture request.", e);
         }
     }
 
