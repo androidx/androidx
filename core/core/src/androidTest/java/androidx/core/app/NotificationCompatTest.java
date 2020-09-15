@@ -20,6 +20,7 @@ import static androidx.core.app.NotificationCompat.DEFAULT_ALL;
 import static androidx.core.app.NotificationCompat.DEFAULT_LIGHTS;
 import static androidx.core.app.NotificationCompat.DEFAULT_SOUND;
 import static androidx.core.app.NotificationCompat.DEFAULT_VIBRATE;
+import static androidx.core.app.NotificationCompat.EXTRA_COMPAT_TEMPLATE;
 import static androidx.core.app.NotificationCompat.GROUP_ALERT_ALL;
 import static androidx.core.app.NotificationCompat.GROUP_ALERT_CHILDREN;
 import static androidx.core.app.NotificationCompat.GROUP_ALERT_SUMMARY;
@@ -54,6 +55,7 @@ import android.widget.RemoteViews;
 import androidx.collection.ArraySet;
 import androidx.core.R;
 import androidx.core.app.NotificationCompat.MessagingStyle.Message;
+import androidx.core.app.NotificationCompat.Style;
 import androidx.core.content.LocusIdCompat;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.graphics.drawable.IconCompat;
@@ -61,10 +63,14 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
+import org.jetbrains.annotations.NotNull;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -371,6 +377,121 @@ public class NotificationCompatTest extends BaseInstrumentationTestCase<TestActi
             assertNull(NotificationCompat.getPublicVersion(pub));
             assertNull(NotificationCompat.getPublicVersion(priv));
         }
+    }
+
+    /**
+     * Validate that all concrete Style subclasses have a TEMPLATE_CLASS_NAME constant which is
+     * the non-obfuscated class name.
+     */
+    @Test
+    public void testStyle_templateClassNameField() throws Exception {
+        for (Class<? extends Style> styleSubclass : getStyleSubclasses()) {
+            Field field = styleSubclass.getDeclaredField("TEMPLATE_CLASS_NAME");
+            field.setAccessible(true);
+            assertEquals(styleSubclass.getName(), field.get(null));
+        }
+    }
+
+    /**
+     * Validate that all concrete Style subclasses override getClassName() to correctly return
+     * the non-obfuscated class name.
+     */
+    @Test
+    public void testStyle_getClassName() throws Exception {
+        for (Class<? extends Style> styleSubclass : getStyleSubclasses()) {
+            Constructor<? extends Style> ctor = styleSubclass.getDeclaredConstructor();
+            ctor.setAccessible(true);
+            Style style = ctor.newInstance();
+            assertEquals(styleSubclass.getName(), style.getClassName());
+        }
+    }
+
+    /**
+     * Validate that getCompatStyleClass returns the subclass for all concrete Style subclasses.
+     */
+    @Test
+    public void testStyle_getCompatStyleClass() throws Exception {
+        for (Class<? extends Style> styleSubclass : getStyleSubclasses()) {
+            assertIsStyle(styleSubclass, Style.constructCompatStyleByName(styleSubclass.getName()));
+        }
+    }
+
+    /**
+     * Validate that constructStyleForExtras can reinflate any default-constructed Style class.
+     */
+    @Test
+    public void testStyle_constructStyleForExtras() throws Exception {
+        for (Class<? extends Style> styleSubclass : getStyleSubclasses()) {
+            final Style original;
+            if (styleSubclass == NotificationCompat.MessagingStyle.class) {
+                original = new NotificationCompat.MessagingStyle("Person's Name");
+            } else {
+                Constructor<? extends Style> ctor = styleSubclass.getDeclaredConstructor();
+                ctor.setAccessible(true);
+                original = ctor.newInstance();
+            }
+            Bundle bundle = new Bundle();
+            original.addCompatExtras(bundle);
+            Style result = Style.constructStyleForExtras(bundle);
+            assertIsStyle(styleSubclass, result);
+        }
+    }
+
+    /**
+     * Validate that recovering the compat builder from a notification will correctly recover the
+     * original style.
+     */
+    @Test
+    @SdkSuppress(minSdkVersion = 19)
+    public void testStyle_recoveredCorrectly() throws Exception {
+        for (Class<? extends Style> styleSubclass : getStyleSubclasses()) {
+            final Style original;
+            if (styleSubclass == NotificationCompat.MessagingStyle.class) {
+                original = new NotificationCompat.MessagingStyle("Person's Name");
+            } else {
+                Constructor<? extends Style> ctor = styleSubclass.getDeclaredConstructor();
+                ctor.setAccessible(true);
+                original = ctor.newInstance();
+            }
+            Notification n = new NotificationCompat.Builder(mContext).setStyle(original).build();
+            Style result = new NotificationCompat.Builder(mContext, n).mStyle;
+            assertIsStyle(styleSubclass, result);
+
+            if (Build.VERSION.SDK_INT < 24
+                    && styleSubclass == NotificationCompat.DecoratedCustomViewStyle.class) {
+                // This compat style adds nothing to the bundle other than its name, and is thus
+                // impossible to recover on platforms without this style in the framework.
+                continue;
+            }
+
+            // Validate that this still works even if the template name is missing.
+            // This is a rough test of compatibility with old versions of the support library.
+            n.extras.remove(EXTRA_COMPAT_TEMPLATE);
+            result = new NotificationCompat.Builder(mContext, n).mStyle;
+            assertIsStyle(styleSubclass, result);
+        }
+    }
+
+    static void assertIsStyle(Class<? extends Style> styleSubclass, Style style) {
+        assertNotNull("Expected: " + styleSubclass, style);
+        assertSame(styleSubclass, style.getClass());
+    }
+
+    @NotNull
+    private List<Class<? extends Style>> getStyleSubclasses() {
+        List<Class<? extends Style>> styleSubclasses = new ArrayList<>();
+        for (Class<?> candidate : NotificationCompat.class.getClasses()) {
+            try {
+                if (Modifier.isAbstract(candidate.getModifiers())) {
+                    continue;
+                }
+                styleSubclasses.add(candidate.asSubclass(Style.class));
+            } catch (ClassCastException ex) {
+                continue;
+            }
+        }
+        assertFalse(styleSubclasses.isEmpty());
+        return styleSubclasses;
     }
 
     @SdkSuppress(minSdkVersion = 19)

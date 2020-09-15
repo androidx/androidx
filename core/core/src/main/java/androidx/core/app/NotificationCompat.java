@@ -70,7 +70,6 @@ import androidx.core.view.GravityCompat;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.lang.reflect.Constructor;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -2458,13 +2457,22 @@ public class NotificationCompat {
         }
 
         /**
+         * @hide
+         */
+        @Nullable
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        protected String getClassName() {
+            // We can't crash for apps that write their own subclasses, so we return null
+            return null;
+        }
+
+        /**
          * Applies the compat style data to the framework {@link Notification} in a backwards
          * compatible way. All other data should be stored within the Notification's extras.
          *
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
-        // TODO: implement for all styles
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
         }
 
@@ -2505,14 +2513,17 @@ public class NotificationCompat {
          * @hide
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
-        public void addCompatExtras(Bundle extras) {
+        public void addCompatExtras(@NonNull Bundle extras) {
             if (mSummaryTextSet) {
                 extras.putCharSequence(EXTRA_SUMMARY_TEXT, mSummaryText);
             }
             if (mBigContentTitle != null) {
                 extras.putCharSequence(EXTRA_TITLE_BIG, mBigContentTitle);
             }
-            extras.putString(EXTRA_COMPAT_TEMPLATE, getClass().getName());
+            String className = getClassName();
+            if (className != null) {
+                extras.putString(EXTRA_COMPAT_TEMPLATE, className);
+            }
         }
 
         /**
@@ -2550,27 +2561,29 @@ public class NotificationCompat {
             return constructStyleForExtras(extras);
         }
 
-        private static @Nullable String getCompatStyleName(@Nullable String platformTemplateClass) {
+        @Nullable
+        private static Style constructCompatStyleByPlatformName(
+                @Nullable String platformTemplateClass) {
             if (platformTemplateClass == null) {
                 return null;
             }
             if (Build.VERSION.SDK_INT >= 16) {
                 if (platformTemplateClass.equals(Notification.BigPictureStyle.class.getName())) {
-                    return BigPictureStyle.class.getName();
+                    return new BigPictureStyle();
                 }
                 if (platformTemplateClass.equals(Notification.BigTextStyle.class.getName())) {
-                    return BigTextStyle.class.getName();
+                    return new BigTextStyle();
                 }
                 if (platformTemplateClass.equals(Notification.InboxStyle.class.getName())) {
-                    return InboxStyle.class.getName();
+                    return new InboxStyle();
                 }
                 if (Build.VERSION.SDK_INT >= 24) {
                     if (platformTemplateClass.equals(Notification.MessagingStyle.class.getName())) {
-                        return MessagingStyle.class.getName();
+                        return new MessagingStyle();
                     }
                     if (platformTemplateClass.equals(
                             Notification.DecoratedCustomViewStyle.class.getName())) {
-                        return DecoratedCustomViewStyle.class.getName();
+                        return new DecoratedCustomViewStyle();
                     }
                 }
             }
@@ -2578,49 +2591,59 @@ public class NotificationCompat {
         }
 
         @Nullable
-        private static Class<? extends Style> getCompatStyleClass(@NonNull String templateClass) {
-            @SuppressWarnings("unchecked")  // type safety would apparently require a Collection
-            Class<? extends Style>[] classes = new Class[]{
-                    BigTextStyle.class, BigPictureStyle.class, InboxStyle.class,
-                    DecoratedCustomViewStyle.class, MessagingStyle.class};
-            for (Class<? extends Style> innerClass : classes) {
-                if (templateClass.equals(innerClass.getName())) {
-                    return innerClass;
+        static Style constructCompatStyleByName(@Nullable String templateClass) {
+            if (templateClass != null) {
+                switch (templateClass) {
+                    case BigTextStyle.TEMPLATE_CLASS_NAME:
+                        return new BigTextStyle();
+                    case BigPictureStyle.TEMPLATE_CLASS_NAME:
+                        return new BigPictureStyle();
+                    case InboxStyle.TEMPLATE_CLASS_NAME:
+                        return new InboxStyle();
+                    case DecoratedCustomViewStyle.TEMPLATE_CLASS_NAME:
+                        return new DecoratedCustomViewStyle();
+                    case MessagingStyle.TEMPLATE_CLASS_NAME:
+                        return new MessagingStyle();
                 }
             }
             return null;
         }
 
-        private static @Nullable Style constructStyleForExtras(@NonNull Bundle extras) {
-            String compatTemplateClass = extras.getString(EXTRA_COMPAT_TEMPLATE);
-            if (compatTemplateClass == null) {
-                compatTemplateClass = getCompatStyleName(extras.getString(EXTRA_TEMPLATE));
+        @Nullable
+        static Style constructCompatStyleForBundle(@NonNull Bundle extras) {
+            // If the compat template name provided in the bundle can be resolved to a class, use
+            // that style class.
+            Style style = constructCompatStyleByName(extras.getString(EXTRA_COMPAT_TEMPLATE));
+            if (style != null) {
+                return style;
             }
-            if (compatTemplateClass == null) {
-                if (extras.containsKey(EXTRA_PICTURE)) {
-                    compatTemplateClass = BigPictureStyle.class.getName();
-                } else if (extras.containsKey(EXTRA_BIG_TEXT)) {
-                    compatTemplateClass = BigTextStyle.class.getName();
-                } else if (extras.containsKey(EXTRA_SELF_DISPLAY_NAME)
-                        || extras.containsKey(EXTRA_MESSAGING_STYLE_USER)) {
-                    compatTemplateClass = MessagingStyle.class.getName();
-                } else if (extras.containsKey(EXTRA_TEXT_LINES)) {
-                    compatTemplateClass = InboxStyle.class.getName();
-                } else {
-                    return null;
-                }
+            // Check for some specific extras which indicate the particular style that was used.
+            // Start with MessagingStyle which this library (since before EXTRA_COMPAT_TEMPLATE)
+            // creates as Notification.BigTextStyle, and thus both fields are contained.
+            if (extras.containsKey(EXTRA_SELF_DISPLAY_NAME)
+                    || extras.containsKey(EXTRA_MESSAGING_STYLE_USER)) {
+                return new MessagingStyle();
+            } else if (extras.containsKey(EXTRA_PICTURE)) {
+                return new BigPictureStyle();
+            } else if (extras.containsKey(EXTRA_BIG_TEXT)) {
+                return new BigTextStyle();
+            } else if (extras.containsKey(EXTRA_TEXT_LINES)) {
+                return new InboxStyle();
             }
-            final Class<? extends Style> styleClass = getCompatStyleClass(compatTemplateClass);
-            if (styleClass == null) {
+            // If individual extras do not help identify the style, use the framework style name.
+            return constructCompatStyleByPlatformName(extras.getString(EXTRA_TEMPLATE));
+        }
+
+        @Nullable
+        static Style constructStyleForExtras(@NonNull Bundle extras) {
+            final Style style = constructCompatStyleForBundle(extras);
+            if (style == null) {
                 return null;
             }
             try {
-                final Constructor<? extends Style> ctor = styleClass.getDeclaredConstructor();
-                ctor.setAccessible(true);
-                final Style style = ctor.newInstance();
                 style.restoreFromCompatExtras(extras);
                 return style;
-            } catch (Exception t) {
+            } catch (ClassCastException e) {
                 return null;
             }
         }
@@ -2896,6 +2919,9 @@ public class NotificationCompat {
      */
     public static class BigPictureStyle extends Style {
 
+        private static final String TEMPLATE_CLASS_NAME =
+                "androidx.core.app.NotificationCompat$BigPictureStyle";
+
         private Bitmap mPicture;
         private Bitmap mBigLargeIcon;
         private boolean mBigLargeIconSet;
@@ -2947,6 +2973,16 @@ public class NotificationCompat {
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
+        @NonNull
+        protected String getClassName() {
+            return TEMPLATE_CLASS_NAME;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 16) {
                 Notification.BigPictureStyle style =
@@ -2967,7 +3003,7 @@ public class NotificationCompat {
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
-        public void addCompatExtras(Bundle extras) {
+        public void addCompatExtras(@NonNull Bundle extras) {
             super.addCompatExtras(extras);
 
             if (mBigLargeIconSet) {
@@ -3026,6 +3062,9 @@ public class NotificationCompat {
      */
     public static class BigTextStyle extends Style {
 
+        private static final String TEMPLATE_CLASS_NAME =
+                "androidx.core.app.NotificationCompat$BigTextStyle";
+
         private CharSequence mBigText;
 
         public BigTextStyle() {
@@ -3067,6 +3106,16 @@ public class NotificationCompat {
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
+        @NonNull
+        protected String getClassName() {
+            return TEMPLATE_CLASS_NAME;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 16) {
                 Notification.BigTextStyle style =
@@ -3084,7 +3133,7 @@ public class NotificationCompat {
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
-        public void addCompatExtras(Bundle extras) {
+        public void addCompatExtras(@NonNull Bundle extras) {
             super.addCompatExtras(extras);
 
             extras.putCharSequence(EXTRA_BIG_TEXT, mBigText);
@@ -3146,6 +3195,9 @@ public class NotificationCompat {
      */
     public static class MessagingStyle extends Style {
 
+        private static final String TEMPLATE_CLASS_NAME =
+                "androidx.core.app.NotificationCompat$MessagingStyle";
+
         /**
          * The maximum number of messages that will be retained in the Notification itself (the
          * number displayed is up to the platform).
@@ -3158,8 +3210,8 @@ public class NotificationCompat {
         private @Nullable CharSequence mConversationTitle;
         private @Nullable Boolean mIsGroupConversation;
 
-        /** Private empty constructor for {@link Style#restoreFromCompatExtras(Bundle)}. */
-        private MessagingStyle() {}
+        /** Package private empty constructor for {@link Style#restoreFromCompatExtras(Bundle)}. */
+        MessagingStyle() {}
 
         /**
          * @param userDisplayName Required - the name to be displayed for any replies sent by the
@@ -3386,6 +3438,16 @@ public class NotificationCompat {
                 return (MessagingStyle) style;
             }
             return null;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Override
+        @NonNull
+        protected String getClassName() {
+            return TEMPLATE_CLASS_NAME;
         }
 
         /**
@@ -3898,6 +3960,9 @@ public class NotificationCompat {
      */
     public static class InboxStyle extends Style {
 
+        private static final String TEMPLATE_CLASS_NAME =
+                "androidx.core.app.NotificationCompat$InboxStyle";
+
         private ArrayList<CharSequence> mTexts = new ArrayList<>();
 
         public InboxStyle() {
@@ -3940,6 +4005,16 @@ public class NotificationCompat {
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
+        @NonNull
+        protected String getClassName() {
+            return TEMPLATE_CLASS_NAME;
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Override
         public void apply(NotificationBuilderWithBuilderAccessor builder) {
             if (Build.VERSION.SDK_INT >= 16) {
                 Notification.InboxStyle style =
@@ -3959,7 +4034,7 @@ public class NotificationCompat {
          */
         @RestrictTo(LIBRARY_GROUP_PREFIX)
         @Override
-        public void addCompatExtras(Bundle extras) {
+        public void addCompatExtras(@NonNull Bundle extras) {
             super.addCompatExtras(extras);
 
             CharSequence[] arr = new CharSequence[mTexts.size()];
@@ -4021,9 +4096,22 @@ public class NotificationCompat {
      */
     public static class DecoratedCustomViewStyle extends Style {
 
+        private static final String TEMPLATE_CLASS_NAME =
+                "androidx.core.app.NotificationCompat$DecoratedCustomViewStyle";
+
         private static final int MAX_ACTION_BUTTONS = 3;
 
         public DecoratedCustomViewStyle() {
+        }
+
+        /**
+         * @hide
+         */
+        @RestrictTo(LIBRARY_GROUP_PREFIX)
+        @Override
+        @NonNull
+        protected String getClassName() {
+            return TEMPLATE_CLASS_NAME;
         }
 
         /**
