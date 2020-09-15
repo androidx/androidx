@@ -57,6 +57,7 @@ internal class KspType(
     override val typeName: TypeName by lazy {
         ksType.typeName()
     }
+
     override val nullability by lazy {
         when (ksType.nullability) {
             Nullability.NULLABLE -> XNullability.NULLABLE
@@ -65,8 +66,17 @@ internal class KspType(
         }
     }
 
+    private val _typeElement by lazy {
+        check(ksType.declaration is KSClassDeclaration) { """
+            Unexpected case where ksType's declaration is not a KSClassDeclaration.
+            Please file a bug.
+        """.trimIndent()
+        }
+        env.wrapClassDeclaration(ksType.declaration as KSClassDeclaration)
+    }
+
     override fun asTypeElement(): XTypeElement {
-        TODO("elements are not implemented yet")
+        return _typeElement
     }
 
     override fun isAssignableFrom(other: XType): Boolean {
