@@ -21,10 +21,10 @@ import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Recomposer
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.background
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.setContent
 import androidx.test.espresso.Espresso.onIdle

@@ -16,7 +16,7 @@
 
 package androidx.ui.test.gesturescope
 
-import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.ui.Alignment
@@ -86,7 +86,7 @@ class SendLongClickTest(private val config: TestConfig) {
         // Given some content
         val recorder = SinglePointerInputRecorder()
         rule.setContent {
-            Stack(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
+            Box(Modifier.fillMaxSize().wrapContentSize(Alignment.BottomEnd)) {
                 ClickableTestBox(Modifier.longPressGestureFilter(::recordLongPress).then(recorder))
             }
         }

@@ -20,10 +20,10 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import androidx.activity.ComponentActivity
-import androidx.compose.foundation.Box
 import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -36,7 +36,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Layout
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.background
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.unit.Dp
@@ -155,7 +154,7 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
 
         rule.setContent {
             PlaceConditionally(place) {
-                Stack {
+                Box {
                     // Item instead of BoundaryNode because we need non-zero size
                     Item(0)
                 }
