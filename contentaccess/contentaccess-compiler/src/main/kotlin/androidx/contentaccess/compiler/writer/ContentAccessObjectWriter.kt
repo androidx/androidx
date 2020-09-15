@@ -38,7 +38,8 @@ class ContentAccessObjectWriter(
         val generatedClassName =
             "${contentAccessObject.interfaceName.removePrefix(contentAccessObject.packageName)
                 .replace(".", "_")}Impl"
-        val fileSpecBuilder = FileSpec.builder(contentAccessObject.packageName, generatedClassName)
+        val fileSpecBuilder = FileSpec.builder(contentAccessObject.packageName,
+            generatedClassName)
         val contentResolverTypePlaceholder = ClassName("android.content", "ContentResolver")
         val coroutineDispatcherTypePlaceholder = ClassName("kotlinx.coroutines",
             "CoroutineDispatcher")
@@ -81,7 +82,8 @@ class ContentAccessObjectWriter(
             )
         }
 
-        val accessorFile = fileSpecBuilder.addType(generatedClassBuilder.build()).build()
+        val accessorFile = fileSpecBuilder.addType(generatedClassBuilder.addOriginatingElement
+            (contentAccessObject.interfaceElement).build()).build()
         accessorFile.writeTo(processingEnv.filer)
     }
 }
