@@ -248,37 +248,41 @@ def collapse_consecutive_blank_lines(lines):
             prev_blank = False
     return result
 
-# If multiple tasks have no output, this function removes all but the first and last
+# If a task has no output (or only blank output), this function removes the task (and its output)
 # For example, turns this:
 #  > Task :a
 #  > Task :b
-#  > Task :c
-#  > Task :d
+#  some message
+#
 # into this:
-#  > Task :a
-#  > Task ...
-#  > Task :d
+#
+#  > Task :b
+#  some message
 def collapse_tasks_having_no_output(lines):
     result = []
-    pending_tasks = []
+    # When we see a task name, we might not emit it if it doesn't have any output
+    # This variable is that pending task name, or none if we have no pending task
+    pending_task = None
+    pending_blanks = []
     for line in lines:
         is_task = line.startswith("> Task ")
         if is_task:
-            pending_tasks.append(line)
+            pending_task = line
+            pending_blanks = []
         elif line.strip() == "":
-            # If only blank lines occur between tasks, skip those blank lines
-            if len(pending_tasks) > 0:
-              pending_tasks.append(line)
+            # If we have a pending task and we found a blank line, then hold the blank line,
+            # and only output it if we later find some nonempty output
+            if pending_task is not None:
+                pending_blanks.append(line)
             else:
-              result.append(line)
+                result.append(line)
         else:
-            if len(pending_tasks) > 0:
-                result.append(pending_tasks[0])
-                if len(pending_tasks) > 2:
-                    result.append("> Task ...\n")
-                if len(pending_tasks) > 1:
-                    result.append(pending_tasks[-1])
-                pending_tasks = []
+            # We found some nonempty output, now we emit any pending task names
+            if pending_task is not None:
+                result.append(pending_task)
+                result += pending_blanks
+                pending_task = None
+                pending_blanks = []
             result.append(line)
     return result
 
