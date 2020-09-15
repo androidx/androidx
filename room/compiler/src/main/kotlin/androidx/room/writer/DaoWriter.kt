@@ -57,7 +57,6 @@ import stripNonJava
 import java.util.Arrays
 import java.util.Collections
 import java.util.Locale
-import javax.lang.model.element.Modifier
 import javax.lang.model.element.Modifier.FINAL
 import javax.lang.model.element.Modifier.PRIVATE
 import javax.lang.model.element.Modifier.PUBLIC

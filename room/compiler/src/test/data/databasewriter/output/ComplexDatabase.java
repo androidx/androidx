@@ -179,10 +179,13 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
     }
 
     @Override
-    protected Map<String, List<Class<? extends TypeConverterFactory>>> getRequiredTypeConverterFactories(
-    ) {
-        final HashMap<String, List<Class<? extends TypeConverterFactory>>> _typeConverterFactoriesMap = new HashMap<String, List<Class<? extends TypeConverterFactory>>>();
-        _typeConverterFactoriesMap.put("foo.bar.ComplexDao", ComplexDao_Impl.getRequiredConverterFactories());
+    protected
+    Map<String, List<Class<? extends TypeConverterFactory>>> getRequiredTypeConverterFactories() {
+        final HashMap<String, List<Class<? extends TypeConverterFactory>>>
+                _typeConverterFactoriesMap =
+                new HashMap<String, List<Class<? extends TypeConverterFactory>>>();
+        _typeConverterFactoriesMap.put("foo.bar.ComplexDao",
+                ComplexDao_Impl.getRequiredConverterFactories());
         return _typeConverterFactoriesMap;
     }
 

@@ -20,7 +20,6 @@ import androidx.room.TypeConverterFactory
 import androidx.room.compiler.processing.XType
 import androidx.room.ext.L
 import androidx.room.ext.N
-import androidx.room.ext.S
 import androidx.room.ext.T
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.CustomTypeConverter
@@ -147,6 +146,6 @@ fun ClassWriter.addRequiredTypeConverterFactory(className: ClassName) {
     this[TypeConverterFactory::class] = getRequiredTypeConverterFactories() + setOf(className)
 }
 
-fun ClassWriter.getRequiredTypeConverterFactories():Set<ClassName> {
+fun ClassWriter.getRequiredTypeConverterFactories(): Set<ClassName> {
     return this.get<Set<ClassName>>(TypeConverterFactory::class) ?: emptySet()
 }
