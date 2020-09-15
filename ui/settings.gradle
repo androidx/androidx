@@ -85,6 +85,8 @@ includeProject(":compose:material:material:integration-tests:material-demos", ".
 includeProject(":compose:material:material:integration-tests:material-studies", "../compose/material/material/integration-tests/material-studies")
 includeProject(":compose:material:material:samples", "../compose/material/material/samples")
 includeProject(":compose:navigation:navigation", "../compose/navigation/navigation")
+includeProject(":compose:navigation:navigation:samples", "../compose/navigation/navigation/samples")
+includeProject(":compose:navigation:navigation:integration-tests:navigation-demos", "../compose/navigation/navigation/integration-tests/navigation-demos")
 includeProject(":compose:runtime", "../compose/runtime")
 includeProject(":compose:runtime:runtime", "../compose/runtime/runtime")
 includeProject(":compose:runtime:runtime-dispatch", "../compose/runtime/runtime-dispatch")
