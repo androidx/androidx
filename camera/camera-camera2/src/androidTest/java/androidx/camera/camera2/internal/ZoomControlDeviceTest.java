@@ -20,6 +20,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.junit.Assume.assumeFalse;
 import static org.junit.Assume.assumeTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
@@ -31,10 +32,12 @@ import android.graphics.Rect;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CaptureRequest;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.Camera2Config;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.core.CameraInfoUnavailableException;
@@ -104,8 +107,7 @@ public final class ZoomControlDeviceTest {
         mCamera2CameraControlImpl = new Camera2CameraControlImpl(mCameraCharacteristics,
                 executorService, executorService, mControlUpdateCallback);
 
-        mZoomControl = new ZoomControl(mCamera2CameraControlImpl, mCameraCharacteristics,
-                executorService);
+        mZoomControl = mCamera2CameraControlImpl.getZoomControl();
         mZoomControl.setActive(true);
 
         // Await Camera2CameraControlImpl updateSessionConfig to complete.
@@ -119,6 +121,12 @@ public final class ZoomControlDeviceTest {
         if (mHandlerThread != null) {
             mHandlerThread.quit();
         }
+    }
+
+    private boolean isAndroidRZoomEnabled() {
+        return (Build.VERSION.SDK_INT >= 30
+                && mCameraCharacteristics.get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE)
+                != null);
     }
 
     @Test
@@ -188,15 +196,26 @@ public final class ZoomControlDeviceTest {
 
     @Test
     public void setZoomRatioBy1_0_isEqualToSensorRect() throws InterruptedException {
+        assumeFalse(isAndroidRZoomEnabled());
         mZoomControl.setZoomRatio(1.0f);
         HandlerUtil.waitForLooperToIdle(mHandler);
-
         Rect sessionCropRegion = getSessionCropRegion(mControlUpdateCallback);
         assertThat(sessionCropRegion).isEqualTo(getSensorRect());
     }
 
     @Test
+    @RequiresApi(30)
+    public void setZoomRatioBy1_0_androidRZoomRatioIsUpdated() throws InterruptedException {
+        assumeTrue(isAndroidRZoomEnabled());
+        mZoomControl.setZoomRatio(1.0f);
+        HandlerUtil.waitForLooperToIdle(mHandler);
+        float zoomRatio = getAndroidRZoomRatio(mControlUpdateCallback);
+        assertThat(zoomRatio).isEqualTo(1.0f);
+    }
+
+    @Test
     public void setZoomRatioBy2_0_cropRegionIsSetCorrectly() throws InterruptedException {
+        assumeFalse(isAndroidRZoomEnabled());
         mZoomControl.setZoomRatio(2.0f);
         HandlerUtil.waitForLooperToIdle(mHandler);
 
@@ -210,9 +229,19 @@ public final class ZoomControlDeviceTest {
         assertThat(sessionCropRegion).isEqualTo(cropRect);
     }
 
+    @Test
+    @RequiresApi(30)
+    public void setZoomRatioBy2_0_androidRZoomRatioIsUpdated() throws InterruptedException {
+        assumeTrue(isAndroidRZoomEnabled());
+        mZoomControl.setZoomRatio(2.0f);
+        HandlerUtil.waitForLooperToIdle(mHandler);
+
+        float zoomRatio = getAndroidRZoomRatio(mControlUpdateCallback);
+        assertThat(zoomRatio).isEqualTo(2.0f);
+    }
+
     @NonNull
-    private Rect getSessionCropRegion(ControlUpdateCallback controlUpdateCallback)
-            throws InterruptedException {
+    private Rect getSessionCropRegion(ControlUpdateCallback controlUpdateCallback) {
         ArgumentCaptor<SessionConfig> sessionConfigArgumentCaptor =
                 ArgumentCaptor.forClass(SessionConfig.class);
 
@@ -225,6 +254,24 @@ public final class ZoomControlDeviceTest {
         reset(controlUpdateCallback);
         return camera2Config.getCaptureRequestOption(
                 CaptureRequest.SCALER_CROP_REGION, null);
+    }
+
+    @NonNull
+    private Float getAndroidRZoomRatio(ControlUpdateCallback controlUpdateCallback) {
+        ArgumentCaptor<SessionConfig> sessionConfigArgumentCaptor =
+                ArgumentCaptor.forClass(SessionConfig.class);
+
+        verify(controlUpdateCallback, times(1)).onCameraControlUpdateSessionConfig(
+                sessionConfigArgumentCaptor.capture());
+        SessionConfig sessionConfig = sessionConfigArgumentCaptor.getValue();
+        Camera2ImplConfig camera2Config = new Camera2ImplConfig(
+                sessionConfig.getImplementationOptions());
+
+        reset(controlUpdateCallback);
+        assertThat(camera2Config.getCaptureRequestOption(CaptureRequest.SCALER_CROP_REGION, null))
+                .isNull();
+        return camera2Config.getCaptureRequestOption(
+                CaptureRequest.CONTROL_ZOOM_RATIO, null);
     }
 
     @UiThreadTest
@@ -254,6 +301,8 @@ public final class ZoomControlDeviceTest {
     @UiThreadTest
     @Test
     public void setLinearZoomBy0_5_isHalfCropWidth() throws InterruptedException {
+        assumeFalse(isAndroidRZoomEnabled());
+
         mZoomControl.setLinearZoom(1f);
         HandlerUtil.waitForLooperToIdle(mHandler);
         Rect cropRegionMaxZoom = getSessionCropRegion(mControlUpdateCallback);
@@ -269,8 +318,36 @@ public final class ZoomControlDeviceTest {
     }
 
     @UiThreadTest
+    @RequiresApi(30)
+    @Test
+    public void setLinearZoomBy0_5_androidRZoomRatioUpdatedCorrectly() throws InterruptedException {
+        assumeTrue(isAndroidRZoomEnabled());
+
+        mZoomControl.setLinearZoom(1f);
+        HandlerUtil.waitForLooperToIdle(mHandler);
+        float zoomRatioForLinearMax = getAndroidRZoomRatio(mControlUpdateCallback);
+        final float cropWidth = 10000f;
+        float cropWidthForLinearMax = cropWidth / zoomRatioForLinearMax;
+
+        mZoomControl.setLinearZoom(0f);
+        HandlerUtil.waitForLooperToIdle(mHandler);
+        float zoomRatioForLinearMin = getAndroidRZoomRatio(mControlUpdateCallback);
+        float cropWidthForLinearMin = cropWidth / zoomRatioForLinearMin;
+
+        mZoomControl.setLinearZoom(0.5f);
+        HandlerUtil.waitForLooperToIdle(mHandler);
+        float zoomRatioForLinearHalf = getAndroidRZoomRatio(mControlUpdateCallback);
+        float cropWidthForLinearHalf = cropWidth / zoomRatioForLinearHalf;
+
+        Assert.assertEquals(cropWidthForLinearHalf,
+                (cropWidthForLinearMin + cropWidthForLinearMax) / 2.0f, TOLERANCE);
+    }
+
+    @UiThreadTest
     @Test
     public void setLinearZoom_cropWidthChangedLinearly() throws InterruptedException {
+        assumeFalse(isAndroidRZoomEnabled());
+
         // crop region in percentage == 0 is null, need to use sensor rect instead.
         Rect prevCropRegion = getSensorRect();
 
@@ -289,6 +366,39 @@ public final class ZoomControlDeviceTest {
             }
 
             prevCropRegion = cropRegion;
+        }
+    }
+
+    @UiThreadTest
+    @RequiresApi(30)
+    @Test
+    public void setLinearZoom_androidRZoomRatio_cropWidthChangedLinearly()
+            throws InterruptedException {
+        assumeTrue(isAndroidRZoomEnabled());
+        final float cropWidth = 10000;
+
+        mZoomControl.setLinearZoom(0f);
+        HandlerUtil.waitForLooperToIdle(mHandler);
+        float zoomRatioForLinearMin = getAndroidRZoomRatio(mControlUpdateCallback);
+
+        float prevCropWidth = cropWidth / zoomRatioForLinearMin;
+
+        float prevWidthDelta = 0;
+        for (float percentage = 0.1f; percentage < 1.0f; percentage += 0.1f) {
+
+            mZoomControl.setLinearZoom(percentage);
+            HandlerUtil.waitForLooperToIdle(mHandler);
+            float zoomRatio = getAndroidRZoomRatio(mControlUpdateCallback);
+            float cropWidthForTheRatio = cropWidth / zoomRatio;
+
+            if (prevWidthDelta == 0) {
+                prevWidthDelta = prevCropWidth - cropWidthForTheRatio;
+            } else {
+                float widthDelta = prevCropWidth - cropWidthForTheRatio;
+                Assert.assertEquals(prevWidthDelta, widthDelta, TOLERANCE);
+            }
+
+            prevCropWidth = cropWidthForTheRatio;
         }
     }
 
@@ -436,6 +546,7 @@ public final class ZoomControlDeviceTest {
     @UiThreadTest
     @Test
     public void getZoomPercentageDefaultValue() {
+        assumeFalse(isAndroidRZoomEnabled());
         assertThat(mZoomControl.getZoomState().getValue().getLinearZoom()).isEqualTo(0);
     }
 
@@ -449,8 +560,9 @@ public final class ZoomControlDeviceTest {
     @UiThreadTest
     @Test
     public void getMinZoomRatio_isOne() {
-        float maxZoom = mZoomControl.getZoomState().getValue().getMinZoomRatio();
-        assertThat(maxZoom).isEqualTo(1f);
+        assumeFalse(isAndroidRZoomEnabled());
+        float minZoom = mZoomControl.getZoomState().getValue().getMinZoomRatio();
+        assertThat(minZoom).isEqualTo(1f);
     }
 
     private float getMaxDigitalZoom() {
@@ -475,6 +587,5 @@ public final class ZoomControlDeviceTest {
 
         assertThat(mZoomControl.getZoomState().getValue().getZoomRatio()).isEqualTo(
                 ZoomControl.DEFAULT_ZOOM_RATIO);
-        assertThat(mZoomControl.getZoomState().getValue().getLinearZoom()).isEqualTo(0);
     }
 }

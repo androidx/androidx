@@ -61,7 +61,8 @@ import java.util.concurrent.ExecutionException;
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+// Not able to write test for Robolectric API 30 because it is not added yet.
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP, maxSdk = Build.VERSION_CODES.Q)
 public class ZoomControlTest {
     private static final String CAMERA0_ID = "0";
     private static final String CAMERA1_ID = "1";
@@ -74,7 +75,12 @@ public class ZoomControlTest {
     private Camera2CameraControlImpl.CaptureResultListener mCaptureResultListener;
 
     private static Rect getCropRectByRatio(float ratio) {
-        return ZoomControl.getCropRectByRatio(SENSOR_RECT, ratio);
+        float cropWidth = (SENSOR_RECT.width() / ratio);
+        float cropHeight = (SENSOR_RECT.height() / ratio);
+        float left = ((SENSOR_RECT.width() - cropWidth) / 2.0f);
+        float top = ((SENSOR_RECT.height() - cropHeight) / 2.0f);
+        return new Rect((int) left, (int) top, (int) (left + cropWidth),
+                (int) (top + cropHeight));
     }
 
     @Before
