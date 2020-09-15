@@ -147,11 +147,6 @@ package androidx.ui.test {
     method public org.junit.runners.model.Statement apply(org.junit.runners.model.Statement base, org.junit.runner.Description? description);
   }
 
-  public final class DisableTransitions.DisableTransitionsStatement extends org.junit.runners.model.Statement {
-    ctor public DisableTransitions.DisableTransitionsStatement(org.junit.runners.model.Statement base);
-    method public void evaluate();
-  }
-
   public final class ErrorMessagesKt {
   }
 
