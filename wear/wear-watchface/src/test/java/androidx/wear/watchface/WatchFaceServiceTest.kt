@@ -178,7 +178,7 @@ class WatchFaceServiceTest {
             .build()
 
     private lateinit var renderer: TestRenderer
-    private lateinit var complicationsHolder: ComplicationsHolder
+    private lateinit var complicationsManager: ComplicationsManager
     private lateinit var userStyleRepository: UserStyleRepository
     private lateinit var watchFace: WatchFace
     private lateinit var testWatchFaceService: TestWatchFaceService
@@ -206,13 +206,13 @@ class WatchFaceServiceTest {
         userStyleCategories: List<UserStyleCategory>,
         apiVersion: Int = 2
     ) {
-        this.complicationsHolder = ComplicationsHolder(complications)
+        this.complicationsManager = ComplicationsManager(complications)
         userStyleRepository =
             UserStyleRepository(userStyleCategories)
         renderer = TestRenderer(surfaceHolder, userStyleRepository, systemState)
         testWatchFaceService = TestWatchFaceService(
             watchFaceType,
-            this.complicationsHolder,
+            this.complicationsManager,
             renderer,
             userStyleRepository,
             systemState,
@@ -687,30 +687,30 @@ class WatchFaceServiceTest {
     fun getComplicationIdAt_returnsCorrectComplications() {
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
 
-        assertThat(complicationsHolder.getComplicationAt(30, 50)!!.id)
+        assertThat(complicationsManager.getComplicationAt(30, 50)!!.id)
             .isEqualTo(LEFT_COMPLICATION_ID)
         leftComplication.enabled = false
-        assertThat(complicationsHolder.getComplicationAt(30, 50)).isNull()
+        assertThat(complicationsManager.getComplicationAt(30, 50)).isNull()
 
-        assertThat(complicationsHolder.getComplicationAt(70, 50)!!.id)
+        assertThat(complicationsManager.getComplicationAt(70, 50)!!.id)
             .isEqualTo(RIGHT_COMPLICATION_ID)
-        assertThat(complicationsHolder.getComplicationAt(1, 1)).isNull()
+        assertThat(complicationsManager.getComplicationAt(1, 1)).isNull()
     }
 
     @Test
     fun getBackgroundComplicationId_returnsCorrectId() {
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
-        assertThat(complicationsHolder.getBackgroundComplication()).isNull()
+        assertThat(complicationsManager.getBackgroundComplication()).isNull()
 
         initEngine(WatchFaceType.ANALOG, listOf(leftComplication), emptyList())
-        assertThat(complicationsHolder.getBackgroundComplication()).isNull()
+        assertThat(complicationsManager.getBackgroundComplication()).isNull()
 
         initEngine(
             WatchFaceType.ANALOG,
             listOf(leftComplication, backgroundComplication),
             emptyList()
         )
-        assertThat(complicationsHolder.getBackgroundComplication()!!.id).isEqualTo(
+        assertThat(complicationsManager.getBackgroundComplication()!!.id).isEqualTo(
             BACKGROUND_COMPLICATION_ID
         )
     }
@@ -741,7 +741,7 @@ class WatchFaceServiceTest {
         val testRenderer2 = TestRenderer(surfaceHolder, userStyleRepository2, systemState)
         val service2 = TestWatchFaceService(
             WatchFaceType.ANALOG,
-            ComplicationsHolder(emptyList()),
+            ComplicationsManager(emptyList()),
             testRenderer2,
             userStyleRepository2,
             systemState,
@@ -796,7 +796,7 @@ class WatchFaceServiceTest {
         val testRenderer2 = TestRenderer(surfaceHolder, userStyleRepository2, systemState)
         val service2 = TestWatchFaceService(
             WatchFaceType.ANALOG,
-            ComplicationsHolder(emptyList()),
+            ComplicationsManager(emptyList()),
             testRenderer2,
             userStyleRepository2,
             systemState,
@@ -1006,7 +1006,7 @@ class WatchFaceServiceTest {
         var testRenderer = TestRenderer(surfaceHolder, userStyleRepository, systemState)
         val service = TestWatchFaceService(
             WatchFaceType.ANALOG,
-            ComplicationsHolder(
+            ComplicationsManager(
                 listOf(leftComplication, rightComplication, backgroundComplication)
             ),
             testRenderer,
@@ -1104,7 +1104,7 @@ class WatchFaceServiceTest {
         }
         val service = TestWatchFaceService(
             WatchFaceType.ANALOG,
-            ComplicationsHolder(emptyList()),
+            ComplicationsManager(emptyList()),
             testRenderer,
             UserStyleRepository(emptyList()),
             systemState,
