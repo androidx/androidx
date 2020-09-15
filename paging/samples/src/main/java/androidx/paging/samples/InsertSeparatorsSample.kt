@@ -23,7 +23,7 @@ import androidx.paging.AdjacentItems
 import androidx.paging.PagingData
 import androidx.paging.insertSeparators
 import androidx.paging.insertSeparatorsAsync
-import androidx.paging.rxjava2.insertSeparatorsRx
+import androidx.paging.rxjava2.insertSeparatorsAsync
 import com.google.common.util.concurrent.AsyncFunction
 import com.google.common.util.concurrent.Futures
 import io.reactivex.Maybe
@@ -73,7 +73,7 @@ fun insertSeparatorsRxSample() {
      */
     pagingDataStream.map { pagingData ->
         // map outer stream, so we can perform transformations on each paging generation
-        pagingData.insertSeparatorsRx { before: String?, after: String? ->
+        pagingData.insertSeparatorsAsync { before: String?, after: String? ->
             Maybe.fromCallable<String> {
                 if (after != null && before?.first() != after.first()) {
                     // separator - after is first item that starts with its first letter
