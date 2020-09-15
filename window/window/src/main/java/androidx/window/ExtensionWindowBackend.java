@@ -41,7 +41,7 @@ import java.util.concurrent.Executor;
  * Default implementation of {@link WindowBackend} that uses a combination of platform APIs and
  * device-dependent OEM extensions.
  */
-public final class ExtensionWindowBackend implements WindowBackend {
+final class ExtensionWindowBackend implements WindowBackend {
     private static volatile ExtensionWindowBackend sInstance;
     private static final Object sLock = new Object();
 
