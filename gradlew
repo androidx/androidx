@@ -230,7 +230,19 @@ function tryToDiagnosePossibleDaemonFailure() {
 }
 
 function runGradle() {
-  if "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG "$ORG_GRADLE_JVMARGS" "$@"; then
+  processOutput=false
+  if [[ " ${@} " =~ " -Pandroidx.validateNoExtraMessages " ]]; then
+    processOutput=true
+  fi
+  if [[ " ${@} " =~ " -Pandroidx.summarizeStderr " ]]; then
+    processOutput=true
+  fi
+  if [ "$processOutput" == "true" ]; then
+    wrapper="$SCRIPT_PATH/development/build_log_processor.sh"
+  else
+    wrapper=""
+  fi
+  if $wrapper "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG "$ORG_GRADLE_JVMARGS" "$@"; then
     return 0
   else
     tryToDiagnosePossibleDaemonFailure
