@@ -17,9 +17,12 @@
 package androidx.camera.camera2
 
 import android.Manifest
+import android.content.ContentResolver
+import android.content.ContentValues
 import android.content.Context
 import android.os.Build
 import android.os.ParcelFileDescriptor
+import android.provider.MediaStore
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.CameraX
 import androidx.camera.core.UseCase
@@ -34,6 +37,7 @@ import androidx.test.filters.SdkSuppress
 import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.rule.GrantPermissionRule
 import androidx.testutils.assertThrows
+import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
@@ -42,6 +46,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
 import org.junit.runner.RunWith
+import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.timeout
@@ -72,6 +77,8 @@ class VideoCaptureTest {
 
     private var mCamera: CameraUseCaseAdapter? = null
 
+    private lateinit var mContentResolver: ContentResolver
+
     @Before
     fun setUp() {
         // TODO(b/168175357): Fix VideoCaptureTest problems on CuttleFish API 29
@@ -100,6 +107,8 @@ class VideoCaptureTest {
 
         CameraX.initialize(mContext, Camera2Config.defaultConfig()).get()
         mCamera = CameraUtil.createCameraUseCaseAdapter(mContext, mCameraSelector)
+
+        mContentResolver = mContext.contentResolver
     }
 
     @After
@@ -185,5 +194,82 @@ class VideoCaptureTest {
         }
 
         verify(callback, timeout(10000)).onVideoSaved(any())
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 26)
+    fun startRecordingWithUri_whenAPILevelLargerThan26() {
+        val useCase = VideoCapture.Builder().build()
+
+        mInstrumentation.runOnMainSync {
+            mCamera?.addUseCases(Collections.singleton<UseCase>(useCase))
+        }
+
+        val callback = mock(VideoCapture.OnVideoSavedCallback::class.java)
+        useCase.startRecording(
+            getNewVideoOutputFileOptions(mContentResolver),
+            CameraXExecutors.mainThreadExecutor(),
+            callback
+        )
+        Thread.sleep(3000)
+
+        useCase.stopRecording()
+
+        // Assert: Wait for the signal that the image has been saved.
+        val outputFileResultsArgumentCaptor =
+            ArgumentCaptor.forClass(
+                VideoCapture.OutputFileResults::class.java
+            )
+        verify(callback, timeout(10000)).onVideoSaved(outputFileResultsArgumentCaptor.capture())
+
+        // get file path to remove it
+        val saveLocationUri =
+            outputFileResultsArgumentCaptor.value.savedUri
+        assertThat(saveLocationUri).isNotNull()
+
+        // Remove temp test file
+        mContentResolver.delete(saveLocationUri!!, null, null)
+    }
+
+    @Test
+    fun videoCapture_saveResultToFile() {
+        val useCase = VideoCapture.Builder().build()
+        val file = File.createTempFile("CameraX", ".tmp").apply {
+            deleteOnExit()
+        }
+
+        mInstrumentation.runOnMainSync {
+            mCamera?.addUseCases(Collections.singleton<UseCase>(useCase))
+        }
+        val callback = mock(VideoCapture.OnVideoSavedCallback::class.java)
+        useCase.startRecording(
+            VideoCapture.OutputFileOptions.Builder(file).build(),
+            CameraXExecutors.mainThreadExecutor(),
+            callback
+        )
+
+        Thread.sleep(3000)
+
+        useCase.stopRecording()
+
+        // Wait for the signal that the video has been saved.
+        verify(callback, timeout(10000)).onVideoSaved(any())
+    }
+
+    /** Return a VideoOutputFileOption which is used to save a video.  */
+    private fun getNewVideoOutputFileOptions(
+        resolver: ContentResolver
+    ): VideoCapture.OutputFileOptions {
+        val videoFileName = "video_" + System.currentTimeMillis()
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
+            put(MediaStore.Video.Media.TITLE, videoFileName)
+            put(MediaStore.Video.Media.DISPLAY_NAME, videoFileName)
+        }
+
+        return VideoCapture.OutputFileOptions.Builder(
+            resolver,
+            MediaStore.Video.Media.EXTERNAL_CONTENT_URI, contentValues
+        ).build()
     }
 }
