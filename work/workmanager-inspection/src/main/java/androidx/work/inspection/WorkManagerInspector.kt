@@ -42,8 +42,7 @@ import androidx.work.inspection.WorkManagerInspectorProtocol.WorkAddedEvent
 import androidx.work.inspection.WorkManagerInspectorProtocol.WorkRemovedEvent
 import androidx.work.inspection.WorkManagerInspectorProtocol.WorkUpdatedEvent
 import java.util.UUID
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
+import java.util.concurrent.Executor
 
 /**
  * Inspector to work with WorkManager
@@ -55,14 +54,17 @@ class WorkManagerInspector(
 
     private val lifecycleRegistry = LifecycleRegistry(this)
     private val workManager: WorkManagerImpl
-    private val executor = Executors.newSingleThreadExecutor()
+    private val executor = environment.executors().primary()
 
     private val stackTraceMap = mutableMapOf<String, List<StackTraceElement>>()
+
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     init {
         workManager = environment.artTooling().findInstances(Application::class.java).first()
             .let { application -> WorkManager.getInstance(application) as WorkManagerImpl }
-        Handler(Looper.getMainLooper()).post {
+
+        mainHandler.post {
             lifecycleRegistry.currentState = Lifecycle.State.STARTED
         }
 
@@ -71,7 +73,7 @@ class WorkManagerInspector(
             "enqueue()Landroidx/work/Operation;"
         ) { obj, _ ->
             val stackTrace = Throwable().stackTrace
-            executor.submit {
+            executor.execute {
                 (obj as? WorkContinuationImpl)?.allIds?.forEach { id ->
                     stackTraceMap[id] = stackTrace.toList().prune()
                 }
@@ -90,7 +92,7 @@ class WorkManagerInspector(
                     .workDatabase
                     .workSpecDao()
                     .allWorkSpecIdsLiveData
-                    .safeObserve(this, executor) { oldList, newList ->
+                    .safeObserveWhileNotNull(this, executor) { oldList, newList ->
                         updateWorkIdList(oldList ?: listOf(), newList)
                     }
                 callback.reply(response.toByteArray())
@@ -114,23 +116,31 @@ class WorkManagerInspector(
         }
     }
 
-    private fun <T> LiveData<T>.safeObserve(
+    /**
+     * Allows to observe LiveDatas from non-main thread.
+     * <p>
+     * Observation will last until "null" value is dispatched, then
+     * observer will be automatically removed.
+     */
+    private fun <T> LiveData<T>.safeObserveWhileNotNull(
         owner: LifecycleOwner,
-        executor: ExecutorService,
+        executor: Executor,
         listener: (oldValue: T?, newValue: T) -> Unit
     ) {
-        Handler(Looper.getMainLooper()).post {
-            observe(owner,
-                object : Observer<T> {
-                    private var lastValue: T? = null
-                    override fun onChanged(t: T) {
-                        executor.submit {
+        mainHandler.post {
+            observe(owner, object : Observer<T> {
+                private var lastValue: T? = null
+                override fun onChanged(t: T) {
+                    if (t == null) {
+                        removeObserver(this)
+                    } else {
+                        executor.execute {
                             listener(lastValue, t)
                             lastValue = t
                         }
                     }
                 }
-            )
+            })
         }
     }
 
@@ -190,7 +200,7 @@ class WorkManagerInspector(
     private fun observeWorkUpdates(id: String) {
         val workInfoLiveData = workManager.getWorkInfoByIdLiveData(UUID.fromString(id))
 
-        workInfoLiveData.safeObserve(this, executor) { oldWorkInfo, newWorkInfo ->
+        workInfoLiveData.safeObserveWhileNotNull(this, executor) { oldWorkInfo, newWorkInfo ->
             if (oldWorkInfo?.state != newWorkInfo.state) {
                 val updateWorkEvent = WorkUpdatedEvent.newBuilder()
                     .setId(id)
@@ -226,7 +236,7 @@ class WorkManagerInspector(
         workManager.workDatabase
             .workSpecDao()
             .getScheduleRequestedAtLiveData(id)
-            .safeObserve(this, executor) { _, newScheduledTime ->
+            .safeObserveWhileNotNull(this, executor) { _, newScheduledTime ->
                 val updateWorkEvent = WorkUpdatedEvent.newBuilder()
                     .setId(id)
                     .setScheduleRequestedAt(newScheduledTime)
@@ -254,7 +264,7 @@ class WorkManagerInspector(
 
     override fun onDispose() {
         super.onDispose()
-        Handler(Looper.getMainLooper()).post {
+        mainHandler.post {
             lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
         }
     }
