@@ -139,7 +139,8 @@ interface XType {
     fun isTypeOf(other: KClass<*>): Boolean
 
     /**
-     * Returns `true` if this represents the same type as [other]
+     * Returns `true` if this represents the same type as [other].
+     * TODO: decide on how we want to handle nullability here.
      */
     fun isSameType(other: XType): Boolean
 
