@@ -338,7 +338,9 @@ class Complication internal constructor(
 
             // The caller might enable/disable a number of complications. For efficiency we need
             // to coalesce these into one update task.
-            complicationsManager.scheduleUpdateActiveComplications()
+            if (this::complicationsManager.isInitialized) {
+                complicationsManager.scheduleUpdateActiveComplications()
+            }
         }
 
     private var _renderer = renderer
