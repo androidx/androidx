@@ -89,6 +89,7 @@ class KspTypeTest {
                 assertThat(type.isError()).isTrue()
                 assertThat(type.typeArguments).isEmpty()
                 assertThat(type.typeName).isEqualTo(ERROR_TYPE_NAME)
+                assertThat(type.asTypeElement().className).isEqualTo(ERROR_TYPE_NAME)
             }
 
             invocation.requirePropertyType("listOfErrorType").let { type ->
@@ -118,6 +119,9 @@ class KspTypeTest {
             invocation.requirePropertyType("listOfNullableStrings").let { type ->
                 assertThat(type.nullability).isEqualTo(NONNULL)
                 assertThat(type.typeArguments).hasSize(1)
+                assertThat(type.asTypeElement().className).isEqualTo(
+                    ClassName.get("kotlin.collections", "List")
+                )
                 type.typeArguments.single().let { typeArg ->
                     assertThat(typeArg.nullability).isEqualTo(NULLABLE)
                     assertThat(
@@ -139,6 +143,9 @@ class KspTypeTest {
                         )
                     ).isTrue()
                 }
+                assertThat(type.asTypeElement().className).isEqualTo(
+                    ClassName.get("kotlin.collections", "List")
+                )
             }
         }
     }
