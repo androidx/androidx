@@ -115,7 +115,7 @@ class SaveStateFragmentTest {
         val fragment = SaveViewStateFragment()
 
         fm1.beginTransaction()
-            .add(fragment, "viewFragment")
+            .add(android.R.id.content, fragment)
             .commitNow()
 
         val editText = fragment.requireView().findViewById<EditText>(R.id.editText)
@@ -130,7 +130,7 @@ class SaveStateFragmentTest {
         val fc2 = activityRule.startupFragmentController(viewModelStore, savedState)
         val fm2 = fc2.supportFragmentManager
 
-        val restoredFragment = fm2.findFragmentByTag("viewFragment") as SaveViewStateFragment
+        val restoredFragment = fm2.findFragmentById(android.R.id.content) as SaveViewStateFragment
         assertWithMessage("Fragment was not restored")
             .that(restoredFragment).isNotNull()
 

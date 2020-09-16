@@ -54,6 +54,16 @@ open class StrictViewFragment(
         onViewCreatedCalled = true
     }
 
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        checkGetActivity()
+        checkActivityNotDestroyed()
+        checkState("onViewStateRestored", State.ACTIVITY_CREATED)
+        assertWithMessage("Fragment should have a view parent")
+            .that(requireView().parent)
+            .isNotNull()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         assertWithMessage("getView returned null in onDestroyView")
