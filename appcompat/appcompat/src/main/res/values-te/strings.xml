@@ -21,7 +21,7 @@
     <string name="abc_action_bar_up_description" msgid="8388173803310557296">"పైకి నావిగేట్ చేస్తుంది"</string>
     <string name="abc_action_menu_overflow_description" msgid="3937310113216875497">"మరిన్ని ఎంపికలు"</string>
     <string name="abc_toolbar_collapse_description" msgid="1656852541809559762">"కుదిస్తుంది"</string>
-    <string name="abc_searchview_description_search" msgid="3417662926640357176">"శోధన"</string>
+    <string name="abc_searchview_description_search" msgid="3417662926640357176">"సెర్చ్"</string>
     <string name="abc_search_hint" msgid="7208076849092622260">"వెతకండి…"</string>
     <string name="abc_searchview_description_query" msgid="693312494995508443">"శోధన ప్రశ్న"</string>
     <string name="abc_searchview_description_clear" msgid="3741173234950517107">"ప్రశ్నను తీసివేస్తుంది"</string>
@@ -33,7 +33,7 @@
     <string name="abc_shareactionprovider_share_with" msgid="8875138169939072951">"వీరితో షేర్ చేస్తుంది"</string>
     <string name="abc_capital_on" msgid="884982626291842264">"ఆన్"</string>
     <string name="abc_capital_off" msgid="4215997306490295099">"ఆఫ్"</string>
-    <string name="search_menu_title" msgid="6264217191555673260">"శోధన"</string>
+    <string name="search_menu_title" msgid="6264217191555673260">"సెర్చ్"</string>
     <string name="abc_prepend_shortcut_label" msgid="5520303668377388990">"Menu+"</string>
     <string name="abc_menu_meta_shortcut_label" msgid="4192209724446364286">"Meta+"</string>
     <string name="abc_menu_ctrl_shortcut_label" msgid="2223301931652355242">"Ctrl+"</string>
