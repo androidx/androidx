@@ -67,16 +67,17 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
- * Custom View that displays the camera feed for CameraX's Preview use case.
+ * Custom View that displays the camera feed for CameraX's {@link Preview} use case.
  *
- * <p> This class manages the Surface lifecycle, as well as the preview aspect ratio and
- * orientation. Internally, it uses either a {@link TextureView} or {@link SurfaceView} to
- * display the camera feed.
+ * <p> This class manages the preview {@link Surface}'s lifecycle. It internally uses either a
+ * {@link TextureView} or {@link SurfaceView} to display the camera feed, and applies required
+ * transformations on them to correctly display the preview, this involves correcting their
+ * aspect ratio, scale and rotation.
  *
  * <p> If {@link PreviewView} uses a {@link SurfaceView} to display the preview
  * stream, be careful when overlapping a {@link View} that's initially not visible (either
- * {@link View#INVISIBLE} or {@link View#GONE}) on top of it. When the
- * {@link SurfaceView} is attached to the display window, it calls
+ * {@link View#INVISIBLE} or {@link View#GONE}) on top of it. When the {@link SurfaceView} is
+ * attached to the display window, it calls
  * {@link android.view.ViewParent#requestTransparentRegion(View)} which requests a computation of
  * the transparent regions on the display. At this point, the {@link View} isn't visible, causing
  * the overlapped region between the {@link SurfaceView} and the {@link View} to be
@@ -309,12 +310,13 @@ public class PreviewView extends FrameLayout {
     /**
      * Sets the {@link ImplementationMode} for the {@link PreviewView}.
      *
-     * <p> {@link PreviewView} displays the preview with either a {@link SurfaceView} or a
-     * {@link TextureView} depending on the mode. If not set, the default value is
-     * {@link ImplementationMode#PERFORMANCE}.
-     *
-     * @see ImplementationMode
+     * <p> {@link PreviewView} displays the preview with a {@link TextureView} when the
+     * mode is {@link ImplementationMode#COMPATIBLE}, and tries to use a {@link SurfaceView} if
+     * it is {@link ImplementationMode#PERFORMANCE} when possible, which depends on the device's
+     * attributes (e.g. API level, camera hardware support level). If not set, the default mode
+     * is {@link ImplementationMode#PERFORMANCE}.
      */
+    @UiThread
     public void setImplementationMode(@NonNull final ImplementationMode implementationMode) {
         mImplementationMode = implementationMode;
     }
@@ -327,24 +329,27 @@ public class PreviewView extends FrameLayout {
      *
      * @return The {@link ImplementationMode} for {@link PreviewView}.
      */
+    @UiThread
     @NonNull
     public ImplementationMode getImplementationMode() {
         return mImplementationMode;
     }
 
     /**
-     * Gets the {@link Preview.SurfaceProvider} to be used with
-     * {@link Preview#setSurfaceProvider(Executor, Preview.SurfaceProvider)}.
+     * Gets a {@link Preview.SurfaceProvider} to be used with
+     * {@link Preview#setSurfaceProvider(Executor, Preview.SurfaceProvider)}. This allows the
+     * camera feed to start when the {@link Preview} use case is bound to a lifecycle.
      *
      * <p> The returned {@link Preview.SurfaceProvider} will provide a preview {@link Surface} to
      * the camera that's either managed by a {@link TextureView} or {@link SurfaceView} depending
-     * on the {@link ImplementationMode}.
+     * on the {@link ImplementationMode} and the device's attributes (e.g. API level, camera
+     * hardware support level).
      *
-     * @return A {@link Preview.SurfaceProvider} used to start the camera preview.
+     * @return A {@link Preview.SurfaceProvider} to attach to a {@link Preview} use case.
      * @see ImplementationMode
      */
-    @NonNull
     @UiThread
+    @NonNull
     @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
     public Preview.SurfaceProvider getSurfaceProvider() {
         Threads.checkMainThread();
@@ -358,6 +363,7 @@ public class PreviewView extends FrameLayout {
      *
      * @param scaleType A {@link ScaleType} to apply to the preview.
      */
+    @UiThread
     public void setScaleType(@NonNull final ScaleType scaleType) {
         mPreviewTransform.setScaleType(scaleType);
         mPreviewViewMeteringPointFactory.setScaleType(scaleType);
@@ -371,49 +377,54 @@ public class PreviewView extends FrameLayout {
      *
      * @return The {@link ScaleType} currently applied to the preview.
      */
+    @UiThread
     @NonNull
     public ScaleType getScaleType() {
         return mPreviewTransform.getScaleType();
     }
 
     /**
-     * Gets the {@link MeteringPointFactory} for the Camera currently connected to the PreviewView.
+     * Gets the {@link MeteringPointFactory} for the camera currently connected to the
+     * {@link PreviewView}, if any.
      *
      * <p>The returned {@link MeteringPointFactory} is capable of creating {@link MeteringPoint}s
      * from (x, y) coordinates in the {@link PreviewView}. This conversion takes into account its
      * {@link ScaleType}.
      *
      * <p>When the PreviewView has a width and/or height equal to zero, or when a preview
-     * {@link Surface} is not yet requested, the returned factory will always create invalid
-     * {@link MeteringPoint}s which could lead to the failure of
-     * {@link androidx.camera.core.CameraControl#startFocusAndMetering(FocusMeteringAction)} but it
-     * won't cause any crash.
+     * {@link Surface} is not yet requested by the camera, the returned factory will always create
+     * invalid {@link MeteringPoint}s which could lead to the failure of
+     * {@link androidx.camera.core.CameraControl#startFocusAndMetering(FocusMeteringAction)}, but it
+     * won't cause the application to crash.
      *
      * @return a {@link MeteringPointFactory}
      */
+    @UiThread
     @NonNull
     public MeteringPointFactory getMeteringPointFactory() {
         return mPreviewViewMeteringPointFactory;
     }
 
     /**
-     * Gets the {@link LiveData} of current preview {@link StreamState}.
+     * Gets a {@link LiveData} for the preview {@link StreamState}.
      *
-     * <p>There are two states, {@link StreamState#IDLE} and {@link StreamState#STREAMING}.
-     * {@link StreamState#IDLE} represents the preview is currently not visible and streaming is
-     * stopped. {@link StreamState#STREAMING} means the preview is streaming.
+     * <p>There are two preview stream states, {@link StreamState#IDLE} and
+     * {@link StreamState#STREAMING}. {@link StreamState#IDLE} indicates the preview is currently
+     * not visible and streaming is stopped. {@link StreamState#STREAMING} means the preview is
+     * streaming or is about to start streaming. This state guarantees the preview is visible
+     * only when the {@link ImplementationMode} is {@link ImplementationMode#COMPATIBLE}. When in
+     * {@link ImplementationMode#PERFORMANCE} mode, it is possible the preview becomes
+     * visible slightly after the state changes to {@link StreamState#STREAMING}.
      *
-     * <p>When {@link PreviewView} is in a {@link StreamState#STREAMING} state, it guarantees
-     * preview is visible only when implementationMode is {@link ImplementationMode#COMPATIBLE}.
-     * When in {@link ImplementationMode#PERFORMANCE} mode, it is possible that preview becomes
-     * visible slightly after state changes to {@link StreamState#STREAMING}. For apps
-     * relying on the preview visible signal to be working correctly, please set
-     * {@link ImplementationMode#COMPATIBLE} mode in
-     * {@link #setImplementationMode}.
+     * <p>Apps that require a precise signal for when the preview starts should
+     * {@linkplain #setImplementationMode(ImplementationMode) set} the implementation mode to
+     * {@link ImplementationMode#COMPATIBLE}.
      *
-     * @return A {@link LiveData} containing the {@link StreamState}. Apps can either get current
-     * value by {@link LiveData#getValue()} or register a observer by {@link LiveData#observe} .
+     * @return A {@link LiveData} of the preview's {@link StreamState}. Apps can get the current
+     * state with {@link LiveData#getValue()}, or register an observer with
+     * {@link LiveData#observe} .
      */
+    @UiThread
     @NonNull
     public LiveData<StreamState> getPreviewStreamState() {
         return mPreviewStreamStateLiveData;
@@ -439,6 +450,7 @@ public class PreviewView extends FrameLayout {
      * @return A {@link Bitmap.Config#ARGB_8888} {@link Bitmap} representing the content
      * displayed on the preview {@link Surface}, or null if the camera preview hasn't started yet.
      */
+    @UiThread
     @Nullable
     public Bitmap getBitmap() {
         return mImplementation == null ? null : mImplementation.getBitmap();
@@ -455,6 +467,7 @@ public class PreviewView extends FrameLayout {
      * @see ViewPort
      * @see UseCaseGroup
      */
+    @UiThread
     @Nullable
     @ExperimentalUseCaseGroup
     public ViewPort getViewPort() {
@@ -490,7 +503,7 @@ public class PreviewView extends FrameLayout {
      * ViewPort viewPort = previewView.getViewPort(targetRotation);
      * UseCaseGroup useCaseGroup =
      *     new UseCaseGroup.Builder().setViewPort(viewPort).addUseCase(preview).build();
-     * cameraProvider.bindToLifecycle(this, cameraSelector, useCaseGroup);
+     * cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, useCaseGroup);
      * </code></pre>
      *
      * <p> Note that for non-display rotation to work, the mode must be set to
@@ -502,6 +515,7 @@ public class PreviewView extends FrameLayout {
      *                       {@link Surface#ROTATION_270}.
      * @see ImplementationMode
      */
+    @UiThread
     @SuppressLint("WrongConstant")
     @Nullable
     @ExperimentalUseCaseGroup
@@ -587,17 +601,18 @@ public class PreviewView extends FrameLayout {
          * {@link TextureView} instead.
          *
          * <p>{@link PreviewView} falls back to {@link TextureView} when the API level is 24 or
-         * lower, the camera hardware is
+         * lower, the camera hardware support level is
          * {@link CameraCharacteristics#INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY}, or
          * {@link Preview#getTargetRotation()} is different from {@link PreviewView}'s display
          * rotation.
          *
          * <p>Do not use this mode if {@link Preview.Builder#setTargetRotation(int)} is set
          * to a value different than the display's rotation, because {@link SurfaceView} does not
-         * support arbitrary transformation. Do not use this mode if the {@link PreviewView}
+         * support arbitrary rotations. Do not use this mode if the {@link PreviewView}
          * needs to be animated. {@link SurfaceView} animation is not supported on API level 24
-         * or lower. Also, for streaming state provided in {@link #getPreviewStreamState}, the
-         * {@link StreamState#STREAMING} state might happen prematurely if this mode is used.
+         * or lower. Also, for the preview's streaming state provided in
+         * {@link #getPreviewStreamState}, the {@link StreamState#STREAMING} state might happen
+         * prematurely if this mode is used.
          *
          * @see Preview.Builder#setTargetRotation(int)
          * @see Preview.Builder#getTargetRotation()
@@ -693,7 +708,7 @@ public class PreviewView extends FrameLayout {
     }
 
     /**
-     * Definitions for current preview stream state.
+     * Definitions for the preview stream state.
      */
     public enum StreamState {
         /** Preview is not visible yet. */
@@ -701,10 +716,10 @@ public class PreviewView extends FrameLayout {
         /**
          * Preview is streaming.
          *
-         * It only guarantees preview streaming when implementation mode is
-         * {@link ImplementationMode#COMPATIBLE}. When in {@link ImplementationMode#PERFORMANCE},
-         * it is possible that preview becomes visible slightly after state is changed. For apps
-         * relying on the preview visible signal to work correctly, please set
+         * <p>This state only guarantees the preview is streaming when the implementation mode is
+         * {@link ImplementationMode#COMPATIBLE}. When in {@link ImplementationMode#PERFORMANCE}
+         * mode, it is possible that the preview becomes visible slightly after the state has
+         * changed. For apps requiring a precise signal for when the preview starts, please set
          * {@link ImplementationMode#PERFORMANCE} mode via {@link #setImplementationMode}.
          */
         STREAMING
