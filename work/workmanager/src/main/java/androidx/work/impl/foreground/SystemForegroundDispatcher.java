@@ -71,6 +71,7 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     private static final String ACTION_START_FOREGROUND = "ACTION_START_FOREGROUND";
     private static final String ACTION_NOTIFY = "ACTION_NOTIFY";
     private static final String ACTION_CANCEL_WORK = "ACTION_CANCEL_WORK";
+    private static final String ACTION_STOP_FOREGROUND = "ACTION_STOP_FOREGROUND";
 
     private Context mContext;
     private WorkManagerImpl mWorkManagerImpl;
@@ -208,6 +209,8 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
             handleNotify(intent);
         } else if (ACTION_CANCEL_WORK.equals(action)) {
             handleCancelWork(intent);
+        } else if (ACTION_STOP_FOREGROUND.equals(action)) {
+            handleStop(intent);
         }
     }
 
@@ -289,7 +292,7 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     }
 
     @MainThread
-    void handleStop() {
+    void handleStop(@NonNull Intent intent) {
         Logger.get().info(TAG, "Stopping foreground service");
         if (mCallback != null) {
             if (mLastForegroundInfo != null) {
@@ -390,6 +393,19 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
         intent.putExtra(KEY_NOTIFICATION, info.getNotification());
         intent.putExtra(KEY_WORKSPEC_ID, workSpecId);
         return intent;
+    }
+
+    /**
+     * The {@link Intent} which can be used to stop {@link SystemForegroundService}.
+     *
+     * @param context The application {@link Context}
+     * @return The {@link Intent}
+     */
+    @NonNull
+    public static Intent createStopForegroundIntent(@NonNull Context context) {
+        Intent intent = new Intent(context, SystemForegroundService.class);
+        intent.setAction(ACTION_STOP_FOREGROUND);
+        return  intent;
     }
 
     /**
