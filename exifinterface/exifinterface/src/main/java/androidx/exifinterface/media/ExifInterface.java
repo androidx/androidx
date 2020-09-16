@@ -24,6 +24,7 @@ import android.location.Location;
 import android.media.MediaDataSource;
 import android.media.MediaMetadataRetriever;
 import android.os.Build;
+import android.system.ErrnoException;
 import android.system.Os;
 import android.system.OsConstants;
 import android.util.Log;
@@ -32,6 +33,7 @@ import android.util.Pair;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 
 import java.io.BufferedInputStream;
@@ -67,7 +69,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -3946,12 +3947,8 @@ public class ExifInterface {
             // Keep the original file descriptor in order to save attributes when it's seekable.
             // Otherwise, just close the given file descriptor after reading it because the save
             // feature won't be working.
-            try {
-                fileDescriptor = Os.dup(fileDescriptor);
-                isFdDuped = true;
-            } catch (Exception e) {
-                throw new IOException("Failed to duplicate file descriptor", e);
-            }
+            fileDescriptor = OsApi21Impl.dup(fileDescriptor);
+            isFdDuped = true;
         } else {
             mSeekableFileDescriptor = null;
         }
@@ -4611,7 +4608,7 @@ public class ExifInterface {
     private static boolean isSeekableFD(FileDescriptor fd) {
         if (Build.VERSION.SDK_INT >= 21) {
             try {
-                Os.lseek(fd, 0, OsConstants.SEEK_CUR);
+                OsApi21Impl.lseek(fd, 0, OsConstants.SEEK_CUR);
                 return true;
             } catch (Exception e) {
                 if (DEBUG) {
@@ -4671,28 +4668,18 @@ public class ExifInterface {
 
         FileInputStream in = null;
         FileOutputStream out = null;
-        File originalFile = null;
-        if (mFilename != null) {
-            originalFile = new File(mFilename);
-        }
         File tempFile = null;
         try {
-            // Move the original file to temporary file.
+            // Copy the original file to temporary file.
+            tempFile = File.createTempFile("temp", "tmp");
             if (mFilename != null) {
-                String parent = originalFile.getParent();
-                String name = originalFile.getName();
-                String tempPrefix = UUID.randomUUID().toString() + "_";
-                tempFile = new File(parent, tempPrefix + name);
-                if (!originalFile.renameTo(tempFile)) {
-                    throw new IOException("Couldn't rename to " + tempFile.getAbsolutePath());
-                }
+                in = new FileInputStream(mFilename);
             } else if (Build.VERSION.SDK_INT >= 21 && mSeekableFileDescriptor != null) {
-                tempFile = File.createTempFile("temp", "tmp");
-                Os.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);
+                OsApi21Impl.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);
                 in = new FileInputStream(mSeekableFileDescriptor);
-                out = new FileOutputStream(tempFile);
-                copy(in, out);
             }
+            out = new FileOutputStream(tempFile);
+            copy(in, out);
         } catch (Exception e) {
             throw new IOException("Failed to copy original file to temp file", e);
         } finally {
@@ -4710,7 +4697,7 @@ public class ExifInterface {
             if (mFilename != null) {
                 out = new FileOutputStream(mFilename);
             } else if (Build.VERSION.SDK_INT >= 21 && mSeekableFileDescriptor != null) {
-                Os.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);
+                OsApi21Impl.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);
                 out = new FileOutputStream(mSeekableFileDescriptor);
             }
             bufferedIn = new BufferedInputStream(in);
@@ -4723,12 +4710,26 @@ public class ExifInterface {
                 saveWebpAttributes(bufferedIn, bufferedOut);
             }
         } catch (Exception e) {
+            // Restore original file
+            closeQuietly(bufferedIn);
+            closeQuietly(bufferedOut);
+            in = new FileInputStream(tempFile);
             if (mFilename != null) {
-                if (!tempFile.renameTo(originalFile)) {
-                    throw new IOException("Couldn't restore original file: "
-                            + originalFile.getAbsolutePath());
+                out = new FileOutputStream(mFilename);
+            } else if (Build.VERSION.SDK_INT >= 21 && mSeekableFileDescriptor != null) {
+                try {
+                    OsApi21Impl.lseek(mSeekableFileDescriptor, 0, OsConstants.SEEK_SET);
+                    // Catching ErrnoException will raise error in API < 21
+                } catch (Exception exception) {
+                    throw new IOException("Failed to save new file. Original file may be "
+                            + "corrupted since error occurred while trying to restore it.",
+                            exception);
                 }
+                out = new FileOutputStream(mSeekableFileDescriptor);
             }
+            copy(in, out);
+            closeQuietly(in);
+            closeQuietly(out);
             throw new IOException("Failed to save new file", e);
         } finally {
             closeQuietly(bufferedIn);
@@ -4798,8 +4799,8 @@ public class ExifInterface {
             } else if (mFilename != null) {
                 in = new FileInputStream(mFilename);
             } else if (Build.VERSION.SDK_INT >= 21 && mSeekableFileDescriptor != null) {
-                newFileDescriptor = Os.dup(mSeekableFileDescriptor);
-                Os.lseek(newFileDescriptor, 0, OsConstants.SEEK_SET);
+                newFileDescriptor = OsApi21Impl.dup(mSeekableFileDescriptor);
+                OsApi21Impl.lseek(newFileDescriptor, 0, OsConstants.SEEK_SET);
                 in = new FileInputStream(newFileDescriptor);
             }
             if (in == null) {
@@ -7989,12 +7990,7 @@ public class ExifInterface {
         // Os.dup and Os.close was introduced in API 21 so this method shouldn't be called
         // in API < 21.
         if (Build.VERSION.SDK_INT >= 21) {
-            try {
-                Os.close(fd);
-                // Catching ErrnoException will raise error in API < 21
-            } catch (Exception ex) {
-                Log.e(TAG, "Error closing fd.");
-            }
+            OsApi21Impl.close(fd);
         } else {
             Log.e(TAG, "closeFileDescriptor is called in API < 21, which must be wrong.");
         }
@@ -8081,5 +8077,40 @@ public class ExifInterface {
             return true;
         }
         return false;
+    }
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in Android 5.0 (API 21).
+     */
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    private static class OsApi21Impl {
+        // Prevent instantiation.
+        private OsApi21Impl() {}
+
+        static FileDescriptor dup(FileDescriptor fd) throws IOException {
+            FileDescriptor duplicateFD = null;
+            try {
+                duplicateFD = Os.dup(fd);
+            } catch (ErrnoException e) {
+                throw new IOException("Failed to duplicate file descriptor", e);
+            }
+            return duplicateFD;
+        }
+
+        static void close(FileDescriptor fd) {
+            try {
+                Os.close(fd);
+            } catch (ErrnoException ex) {
+                Log.e(TAG, "Error closing fd.");
+            }
+        }
+
+        static void lseek(FileDescriptor fd, int offset, int osConstant) throws IOException {
+            try {
+                Os.lseek(fd, offset, osConstant);
+            } catch (ErrnoException e) {
+                throw new IOException("Failed to seek file descriptor", e);
+            }
+        }
     }
 }
