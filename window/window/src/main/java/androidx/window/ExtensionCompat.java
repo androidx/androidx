@@ -24,7 +24,6 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Rect;
-import android.os.IBinder;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -254,9 +253,9 @@ final class ExtensionCompat implements ExtensionInterfaceCompat {
             // extension.onDeviceStateListenersChanged(boolean);
             mWindowExtension.onDeviceStateListenersChanged(true /* empty */);
 
-            // extension.getWindowLayoutInfo(IBinder)
+            // extension.getWindowLayoutInfo(Context)
             Method methodGetWindowLayoutInfo = mWindowExtension.getClass()
-                    .getMethod("getWindowLayoutInfo", IBinder.class);
+                    .getMethod("getWindowLayoutInfo", Context.class);
             Class<?> rtGetWindowLayoutInfo = methodGetWindowLayoutInfo.getReturnType();
             if (!rtGetWindowLayoutInfo.equals(ExtensionWindowLayoutInfo.class)) {
                 throw new NoSuchMethodException(
@@ -264,9 +263,9 @@ final class ExtensionCompat implements ExtensionInterfaceCompat {
                                 + rtGetWindowLayoutInfo);
             }
 
-            // extension.onWindowLayoutChangeListenerAdded(IBinder);
+            // extension.onWindowLayoutChangeListenerAdded(Context);
             Method methodRegisterWindowLayoutChangeListener = mWindowExtension.getClass()
-                    .getMethod("onWindowLayoutChangeListenerAdded", IBinder.class);
+                    .getMethod("onWindowLayoutChangeListenerAdded", Context.class);
             Class<?> rtRegisterWindowLayoutChangeListener =
                     methodRegisterWindowLayoutChangeListener.getReturnType();
             if (!rtRegisterWindowLayoutChangeListener.equals(void.class)) {
@@ -275,9 +274,9 @@ final class ExtensionCompat implements ExtensionInterfaceCompat {
                                 + rtRegisterWindowLayoutChangeListener);
             }
 
-            // extension.onWindowLayoutChangeListenerRemoved(IBinder);
+            // extension.onWindowLayoutChangeListenerRemoved(Context);
             Method methodUnregisterWindowLayoutChangeListener = mWindowExtension.getClass()
-                    .getMethod("onWindowLayoutChangeListenerRemoved", IBinder.class);
+                    .getMethod("onWindowLayoutChangeListenerRemoved", Context.class);
             Class<?> rtUnregisterWindowLayoutChangeListener =
                     methodUnregisterWindowLayoutChangeListener.getReturnType();
             if (!rtUnregisterWindowLayoutChangeListener.equals(void.class)) {
