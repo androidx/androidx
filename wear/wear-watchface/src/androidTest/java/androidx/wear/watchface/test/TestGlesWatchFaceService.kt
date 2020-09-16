@@ -21,6 +21,7 @@ import android.graphics.drawable.Icon
 import android.os.Handler
 import android.view.SurfaceHolder
 import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.NoInvalidateWatchFaceHostApi
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceHost
@@ -30,6 +31,7 @@ import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.samples.ExampleOpenGLRenderer
 import androidx.wear.watchface.samples.R
 import androidx.wear.watchface.style.ListUserStyleCategory
+import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
 
 /** A simple OpenGL test watch face for integration tests. */
@@ -38,6 +40,10 @@ internal class TestGlesWatchFaceService(
     private val handler: Handler,
     var mockSystemTimeMillis: Long
 ) : WatchFaceService() {
+
+    private val mutableWatchState = MutableWatchState().apply {
+        isAmbient.value = false
+    }
 
     init {
         attachBaseContext(testContext)
@@ -49,7 +55,7 @@ internal class TestGlesWatchFaceService(
         watchState: WatchState
     ): WatchFace {
         // Override is necessary because the watch face isn't visible in this test.
-        watchState.onVisibilityChanged(true)
+        mutableWatchState.isVisible.value = true
 
         val colorStyleCategory = ListUserStyleCategory(
             "color_style_category",
@@ -67,7 +73,8 @@ internal class TestGlesWatchFaceService(
                     "Green",
                     Icon.createWithResource(this, R.drawable.green_style)
                 )
-            )
+            ),
+            UserStyleCategory.LAYER_WATCH_FACE_BASE or UserStyleCategory.LAYER_WATCH_FACE_UPPER
         )
         val userStyleRepository = UserStyleRepository(listOf(colorStyleCategory))
         val complicationSlots = ComplicationsManager(emptyList())
@@ -93,6 +100,8 @@ internal class TestGlesWatchFaceService(
             }
         }).build()
     }
+
+    override fun getMutableWatchState() = mutableWatchState
 
     override fun getHandler() = handler
 }

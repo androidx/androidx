@@ -39,7 +39,8 @@ class UserStyleRepositoryTest {
         "Colors",
         "Watchface colorization", /* icon = */
         null,
-        colorStyleList
+        colorStyleList,
+        UserStyleCategory.LAYER_WATCH_FACE_BASE
     )
 
     private val classicStyleOption =
@@ -59,7 +60,8 @@ class UserStyleRepositoryTest {
         "Hand Style",
         "Hand visual look", /* icon = */
         null,
-        watchHandStyleList
+        watchHandStyleList,
+        UserStyleCategory.LAYER_WATCH_FACE_UPPER
     )
 
     private val mockListener1 = Mockito.mock(UserStyleRepository.UserStyleListener::class.java)

@@ -87,7 +87,10 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
                     "Green",
                     Icon.createWithResource(this, R.drawable.green_style)
                 )
-            )
+            ),
+            UserStyleCategory.LAYER_WATCH_FACE_BASE or
+                    UserStyleCategory.LAYER_COMPLICATONS or
+                    UserStyleCategory.LAYER_WATCH_FACE_UPPER
         )
         val drawHourPipsStyleCategory =
             BooleanUserStyleCategory(
@@ -95,7 +98,8 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
                 "Hour Pips",
                 "Whether to draw or not",
                 null,
-                true
+                true,
+                UserStyleCategory.LAYER_WATCH_FACE_BASE
             )
         val watchHandLengthStyleCategory =
             DoubleRangeUserStyleCategory(
@@ -105,7 +109,8 @@ class ExampleCanvasWatchFaceService : WatchFaceService() {
                 null,
                 0.25,
                 1.0,
-                0.75
+                0.75,
+                UserStyleCategory.LAYER_WATCH_FACE_UPPER
             )
         val userStyleRepository = UserStyleRepository(
             listOf(colorStyleCategory, drawHourPipsStyleCategory, watchHandLengthStyleCategory)

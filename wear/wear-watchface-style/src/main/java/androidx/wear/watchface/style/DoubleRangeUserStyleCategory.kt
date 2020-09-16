@@ -50,14 +50,23 @@ class DoubleRangeUserStyleCategory : UserStyleCategory {
         maximumValue: Double,
 
         /** The default value for this DoubleRangeUserStyleCategory. */
-        defaultValue: Double
+        defaultValue: Double,
+
+        /**
+         * Used by the style configuration UI. Describes which rendering layer this style affects.
+         * Must be either 0 (for a style change with no visual effect, e.g. sound controls) or a
+         * combination  of {@link #LAYER_WATCH_FACE_BASE}, {@link #LAYER_COMPLICATONS}, {@link
+         * #LAYER_UPPER}.
+         */
+        layerFlags: Int
     ) : super(
         id,
         displayName,
         description,
         icon,
         listOf(DoubleRangeOption(minimumValue), DoubleRangeOption(maximumValue)),
-        DoubleRangeOption(defaultValue)
+        DoubleRangeOption(defaultValue),
+        layerFlags
     )
 
     internal constructor(bundle: Bundle) : super(bundle)
