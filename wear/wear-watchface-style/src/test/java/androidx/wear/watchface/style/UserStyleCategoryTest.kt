@@ -16,30 +16,12 @@
 
 package androidx.wear.watchface.style
 
-import android.graphics.drawable.Icon
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.model.FrameworkMethod
-import org.robolectric.RobolectricTestRunner
-import org.robolectric.internal.bytecode.InstrumentationConfiguration
 
-// Without this we get test failures with an error:
-// "failed to access class kotlin.jvm.internal.DefaultConstructorMarker".
-class WatchFaceServiceTestRunner(testClass: Class<*>) : RobolectricTestRunner(testClass) {
-    override fun createClassLoaderConfig(method: FrameworkMethod): InstrumentationConfiguration =
-        InstrumentationConfiguration.Builder(super.createClassLoaderConfig(method))
-            .doNotInstrumentPackage("androidx.wear.watchface.style")
-            .build()
-}
-
-@RunWith(WatchFaceServiceTestRunner::class)
+@RunWith(StyleTestRunner::class)
 class UserStyleCategoryTest {
-
-    private val icon1 = Icon.createWithContentUri("icon1")
-    private val icon2 = Icon.createWithContentUri("icon2")
-    private val icon3 = Icon.createWithContentUri("icon3")
-    private val icon4 = Icon.createWithContentUri("icon4")
 
     @Test
     fun rangedUserStyleCategory_getOptionForId_returns_default_for_bad_input() {
@@ -52,7 +34,8 @@ class UserStyleCategoryTest {
                 null,
                 0.0,
                 1.0,
-                defaultValue
+                defaultValue,
+                UserStyleCategory.LAYER_WATCH_FACE_BASE
             )
 
         assertThat(rangedUserStyleCategory.getOptionForId("not a number").id)
@@ -76,7 +59,8 @@ class UserStyleCategoryTest {
                 null,
                 0.0,
                 1.0,
-                defaultValue
+                defaultValue,
+                UserStyleCategory.LAYER_WATCH_FACE_BASE
             )
 
         assertThat(rangedUserStyleCategory.getOptionForId("0").id)

@@ -73,7 +73,10 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                                 "Blue",
                                 icon = null
                             )
-                        )
+                        ),
+                        UserStyleCategory.LAYER_WATCH_FACE_BASE or
+                                UserStyleCategory.LAYER_COMPLICATONS or
+                                UserStyleCategory.LAYER_WATCH_FACE_UPPER
                     ),
                     ListUserStyleCategory(
                         "hand_style_category",
@@ -92,7 +95,8 @@ fun kDocCreateExampleWatchFaceService(): WatchFaceService {
                                 "Gothic",
                                 icon = null
                             )
-                        )
+                        ),
+                        UserStyleCategory.LAYER_WATCH_FACE_UPPER
                     )
                 )
             )

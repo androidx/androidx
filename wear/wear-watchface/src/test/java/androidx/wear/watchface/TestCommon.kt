@@ -37,12 +37,12 @@ import org.junit.runners.model.FrameworkMethod
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.internal.bytecode.InstrumentationConfiguration
 
-class TestWatchFaceService(
+internal class TestWatchFaceService(
     @WatchFaceType private val watchFaceType: Int,
     private val complicationsManager: ComplicationsManager,
     private val renderer: TestRenderer,
     private val userStyleRepository: UserStyleRepository,
-    private val watchState: WatchState,
+    private val watchState: MutableWatchState,
     private val handler: Handler,
     private val interactiveFrameRateMs: Long
 ) : WatchFaceService() {
@@ -116,7 +116,7 @@ class TestWatchFaceService(
 
     override fun getHandler() = handler
 
-    override fun getSystemState() = watchState
+    override fun getMutableWatchState() = watchState
 }
 
 /**

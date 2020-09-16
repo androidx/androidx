@@ -31,9 +31,9 @@ import androidx.wear.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationDrawableRenderer
 import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.Renderer
 import androidx.wear.watchface.WatchFaceTestRunner
-import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.createComplicationData
 import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.StyleUtils
@@ -66,7 +66,7 @@ class WatchFaceConfigUiTest {
     private val watchFaceConfigDelegate = Mockito.mock(WatchFaceConfigDelegate::class.java)
     private val fragmentController = Mockito.mock(FragmentController::class.java)
     private val surfaceHolder = Mockito.mock(SurfaceHolder::class.java)
-    private val systemState = WatchState()
+    private val watchState = MutableWatchState()
 
     private val context: Context = ApplicationProvider.getApplicationContext()
     private val complicationDrawableLeft = ComplicationDrawable(context)
@@ -88,7 +88,8 @@ class WatchFaceConfigUiTest {
         "Colors",
         "Watchface colorization", /* icon = */
         null,
-        colorStyleList
+        colorStyleList,
+        UserStyleCategory.LAYER_WATCH_FACE_BASE
     )
 
     private val classicStyleOption =
@@ -108,13 +109,17 @@ class WatchFaceConfigUiTest {
         "Hand Style",
         "Hand visual look", /* icon = */
         null,
-        watchHandStyleList
+        watchHandStyleList,
+        UserStyleCategory.LAYER_WATCH_FACE_UPPER
     )
 
     private val leftComplication =
         Complication.Builder(
             LEFT_COMPLICATION_ID,
-            ComplicationDrawableRenderer(complicationDrawableLeft, systemState).apply {
+            ComplicationDrawableRenderer(
+                complicationDrawableLeft,
+                watchState.asWatchState()
+            ).apply {
                 setData(createComplicationData())
             },
             intArrayOf(
@@ -132,7 +137,10 @@ class WatchFaceConfigUiTest {
     private val rightComplication =
         Complication.Builder(
             RIGHT_COMPLICATION_ID,
-            ComplicationDrawableRenderer(complicationDrawableRight, systemState).apply {
+            ComplicationDrawableRenderer(
+                complicationDrawableRight,
+                watchState.asWatchState()
+            ).apply {
                 setData(createComplicationData())
             },
             intArrayOf(
@@ -150,7 +158,10 @@ class WatchFaceConfigUiTest {
     private val backgroundComplication =
         Complication.Builder(
             BACKGROUND_COMPLICATION_ID,
-            ComplicationDrawableRenderer(complicationDrawableRight, systemState).apply {
+            ComplicationDrawableRenderer(
+                complicationDrawableRight,
+                watchState.asWatchState()
+            ).apply {
                 setData(createComplicationData())
             },
             intArrayOf(
@@ -181,7 +192,7 @@ class WatchFaceConfigUiTest {
 
         val complicationSet = ComplicationsManager(
             complications,
-            object : Renderer(surfaceHolder, userStyleRepository, WatchState()) {
+            object : Renderer(surfaceHolder, userStyleRepository, watchState.asWatchState()) {
                 override fun renderInternal(calendar: Calendar) {}
 
                 override fun takeScreenshot(calendar: Calendar, drawMode: Int): Bitmap {

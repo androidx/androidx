@@ -45,9 +45,17 @@ open class ListUserStyleCategory :
         /** List of all options for this ListUserStyleCategory. */
         options: List<ListOption>,
 
+        /**
+         * Used by the style configuration UI. Describes which rendering layer this style affects.
+         * Must be either 0 (for a style change with no visual effect, e.g. sound controls) or a
+         * combination of {@link #LAYER_WATCH_FACE_BASE}, {@link #LAYER_COMPLICATONS}, {@link
+         * #LAYER_UPPER}.
+         */
+        layerFlags: Int,
+
         /** The default option, used when data isn't persisted. */
         defaultOption: ListOption = options.first()
-    ) : super(id, displayName, description, icon, options, defaultOption)
+    ) : super(id, displayName, description, icon, options, defaultOption, layerFlags)
 
     internal constructor(bundle: Bundle) : super(bundle)
 

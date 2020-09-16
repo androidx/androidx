@@ -38,7 +38,12 @@ class StyleUtilsTest {
     fun bundleAndUnbundleStyleCategoryAndOption() {
         val categoryIcon = Icon.createWithContentUri("categoryIcon")
         val styleCategory = ListUserStyleCategory(
-            "id", "displayName", "description", categoryIcon, listOf(option1, option2, option3)
+            "id",
+            "displayName",
+            "description",
+            categoryIcon,
+            listOf(option1, option2, option3),
+            UserStyleCategory.LAYER_WATCH_FACE_BASE
         )
 
         val bundle = Bundle()
@@ -51,6 +56,7 @@ class StyleUtilsTest {
         assertThat(unbundled.displayName).isEqualTo("displayName")
         assertThat(unbundled.description).isEqualTo("description")
         assertThat(unbundled.icon!!.uri.toString()).isEqualTo("categoryIcon")
+        assertThat(unbundled.layerFlags).isEqualTo(UserStyleCategory.LAYER_WATCH_FACE_BASE)
         val optionArray =
             unbundled.options.filterIsInstance<ListUserStyleCategory.ListOption>()
                 .toTypedArray()
@@ -92,10 +98,20 @@ class StyleUtilsTest {
         val categoryIcon1 = Icon.createWithContentUri("categoryIcon1")
         val categoryIcon2 = Icon.createWithContentUri("categoryIcon2")
         val styleCategory1 = ListUserStyleCategory(
-            "id1", "displayName1", "description1", categoryIcon1, listOf(option1, option2)
+            "id1",
+            "displayName1",
+            "description1",
+            categoryIcon1,
+            listOf(option1, option2),
+            UserStyleCategory.LAYER_WATCH_FACE_BASE
         )
         val styleCategory2 = ListUserStyleCategory(
-            "id2", "displayName2", "description2", categoryIcon2, listOf(option3, option4)
+            "id2",
+            "displayName2",
+            "description2",
+            categoryIcon2,
+            listOf(option3, option4),
+            UserStyleCategory.LAYER_WATCH_FACE_UPPER
         )
 
         val bundles = StyleUtils.userStyleCategoriesToBundles(
@@ -109,6 +125,7 @@ class StyleUtilsTest {
         assertThat(unbundled[0].displayName).isEqualTo("displayName1")
         assertThat(unbundled[0].description).isEqualTo("description1")
         assertThat(unbundled[0].icon!!.uri.toString()).isEqualTo("categoryIcon1")
+        assertThat(unbundled[0].layerFlags).isEqualTo(UserStyleCategory.LAYER_WATCH_FACE_BASE)
         val optionArray1 =
             unbundled[0].options.filterIsInstance<ListUserStyleCategory.ListOption>()
                 .toTypedArray()
@@ -125,6 +142,7 @@ class StyleUtilsTest {
         assertThat(unbundled[1].displayName).isEqualTo("displayName2")
         assertThat(unbundled[1].description).isEqualTo("description2")
         assertThat(unbundled[1].icon!!.uri.toString()).isEqualTo("categoryIcon2")
+        assertThat(unbundled[1].layerFlags).isEqualTo(UserStyleCategory.LAYER_WATCH_FACE_UPPER)
         val optionArray2 =
             unbundled[1].options.filterIsInstance<ListUserStyleCategory.ListOption>()
                 .toTypedArray()
@@ -142,10 +160,20 @@ class StyleUtilsTest {
         val categoryIcon1 = Icon.createWithContentUri("categoryIcon1")
         val categoryIcon2 = Icon.createWithContentUri("categoryIcon2")
         val styleCategory1 = ListUserStyleCategory(
-            "id1", "displayName1", "description1", categoryIcon1, listOf(option1, option2)
+            "id1",
+            "displayName1",
+            "description1",
+            categoryIcon1,
+            listOf(option1, option2),
+            UserStyleCategory.LAYER_WATCH_FACE_BASE
         )
         val styleCategory2 = ListUserStyleCategory(
-            "id2", "displayName2", "description2", categoryIcon2, listOf(option3, option4)
+            "id2",
+            "displayName2",
+            "description2",
+            categoryIcon2,
+            listOf(option3, option4),
+            UserStyleCategory.LAYER_WATCH_FACE_UPPER
         )
         val schema = listOf(styleCategory1, styleCategory2)
         val styleMap = mapOf(

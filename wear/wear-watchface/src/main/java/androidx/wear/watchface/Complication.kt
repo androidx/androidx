@@ -25,6 +25,7 @@ import android.graphics.drawable.Drawable
 import android.icu.util.Calendar
 import android.support.wearable.complications.ComplicationData
 import androidx.annotation.UiThread
+import androidx.lifecycle.Observer
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.rendering.ComplicationDrawable
 
@@ -116,36 +117,41 @@ open class ComplicationDrawableRenderer(
         get() = _drawable
         set(value) {
             _drawable = value
-            _drawable.inAmbientMode = watchState.isAmbient
-            _drawable.lowBitAmbient = watchState.hasLowBitAmbient
-            _drawable.setBurnInProtection(watchState.hasBurnInProtection)
+            _drawable.inAmbientMode = watchState.isAmbient.value
+            _drawable.lowBitAmbient = watchState.hasLowBitAmbient.value
+            _drawable.setBurnInProtection(watchState.hasBurnInProtection.value)
 
             attachedComplication?.scheduleUpdateActiveComplications()
         }
 
-    private inner class SystemStateListener : WatchState.Listener {
-        override fun onAmbientModeChanged(isAmbient: Boolean) {
-            drawable.inAmbientMode = isAmbient
-        }
+    private val isAmbientObserver = Observer<Boolean> {
+        drawable.inAmbientMode = it
     }
 
-    private val systemStateListener = SystemStateListener()
+    private val lowBitAmbientObserver = Observer<Boolean> {
+        drawable.lowBitAmbient = it
+    }
+
+    private val burnInProtectionObserver = Observer<Boolean> {
+        drawable.setBurnInProtection(it)
+    }
+
     private var attachedComplication: Complication? = null
     private var complicationData: ComplicationData? = null
 
     /** {@inheritDoc} */
     override fun onAttach(complication: Complication) {
         attachedComplication = complication
-        drawable.inAmbientMode = watchState.isAmbient
-        drawable.lowBitAmbient = watchState.hasLowBitAmbient
-        drawable.setBurnInProtection(watchState.hasBurnInProtection)
-
-        watchState.addListener(systemStateListener)
+        watchState.isAmbient.observe(isAmbientObserver)
+        watchState.hasLowBitAmbient.observe(lowBitAmbientObserver)
+        watchState.hasBurnInProtection.observe(burnInProtectionObserver)
     }
 
     /** {@inheritDoc} */
     override fun onDetach() {
-        watchState.removeListener(systemStateListener)
+        watchState.isAmbient.removeObserver(isAmbientObserver)
+        watchState.hasLowBitAmbient.removeObserver(lowBitAmbientObserver)
+        watchState.hasBurnInProtection.removeObserver(burnInProtectionObserver)
         attachedComplication = null
     }
 

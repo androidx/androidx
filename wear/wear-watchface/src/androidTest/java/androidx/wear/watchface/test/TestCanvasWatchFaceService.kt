@@ -25,6 +25,7 @@ import android.view.SurfaceHolder
 import androidx.wear.complications.SystemProviders
 import androidx.wear.watchface.Complication
 import androidx.wear.watchface.ComplicationsManager
+import androidx.wear.watchface.MutableWatchState
 import androidx.wear.watchface.NoInvalidateWatchFaceHostApi
 import androidx.wear.watchface.WatchFace
 import androidx.wear.watchface.WatchFaceHost
@@ -39,6 +40,7 @@ import androidx.wear.watchface.samples.WatchFaceColorStyle
 import androidx.wear.watchface.style.BooleanUserStyleCategory
 import androidx.wear.watchface.style.DoubleRangeUserStyleCategory
 import androidx.wear.watchface.style.ListUserStyleCategory
+import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
 
 /** A simple canvas test watch face for integration tests. */
@@ -47,6 +49,10 @@ internal class TestCanvasWatchFaceService(
     private val handler: Handler,
     var mockSystemTimeMillis: Long
 ) : WatchFaceService() {
+
+    private val mutableWatchState = MutableWatchState().apply {
+        isAmbient.value = false
+    }
 
     init {
         attachBaseContext(testContext)
@@ -58,7 +64,7 @@ internal class TestCanvasWatchFaceService(
         watchState: WatchState
     ): WatchFace {
         // Override is necessary because the watch face isn't visible in this test.
-        watchState.onVisibilityChanged(true)
+        mutableWatchState.isVisible.value = true
 
         val watchFaceStyle = WatchFaceColorStyle.create(this, "red_style")
         val colorStyleCategory = ListUserStyleCategory(
@@ -77,7 +83,10 @@ internal class TestCanvasWatchFaceService(
                     "Green",
                     Icon.createWithResource(this, R.drawable.green_style)
                 )
-            )
+            ),
+            UserStyleCategory.LAYER_WATCH_FACE_BASE or
+                    UserStyleCategory.LAYER_COMPLICATONS or
+                    UserStyleCategory.LAYER_WATCH_FACE_UPPER
         )
         val drawHourPipsStyleCategory =
             BooleanUserStyleCategory(
@@ -85,7 +94,8 @@ internal class TestCanvasWatchFaceService(
                 "Hour Pips",
                 "Whether or not hour pips should be drawn",
                 null,
-                true
+                true,
+                UserStyleCategory.LAYER_WATCH_FACE_BASE
             )
         val watchHandLengthStyleCategory =
             DoubleRangeUserStyleCategory(
@@ -95,7 +105,8 @@ internal class TestCanvasWatchFaceService(
                 null,
                 0.25,
                 1.0,
-                1.0
+                1.0,
+                UserStyleCategory.LAYER_WATCH_FACE_UPPER
             )
         val userStyleRepository = UserStyleRepository(
             listOf(colorStyleCategory, drawHourPipsStyleCategory, watchHandLengthStyleCategory)
@@ -159,6 +170,8 @@ internal class TestCanvasWatchFaceService(
             }
         }).build()
     }
+
+    override fun getMutableWatchState() = mutableWatchState
 
     override fun getHandler() = handler
 }

@@ -50,14 +50,23 @@ class LongRangeUserStyleCategory : UserStyleCategory {
         maximumValue: Long,
 
         /** The default value for this LongRangeUserStyleCategory. */
-        defaultValue: Long
+        defaultValue: Long,
+
+        /**
+         * Used by the style configuration UI. Describes which rendering layer this style affects.
+         * Must be either 0 (for a style change with no visual effect, e.g. sound controls) or a
+         * combination  of {@link #LAYER_WATCH_FACE_BASE}, {@link #LAYER_COMPLICATONS}, {@link
+         * #LAYER_UPPER}.
+         */
+        layerFlags: Int
     ) : super(
         id,
         displayName,
         description,
         icon,
         listOf(LongRangeOption(minimumValue), LongRangeOption(maximumValue)),
-        LongRangeOption(defaultValue)
+        LongRangeOption(defaultValue),
+        layerFlags
     )
 
     internal constructor(bundle: Bundle) : super(bundle)
