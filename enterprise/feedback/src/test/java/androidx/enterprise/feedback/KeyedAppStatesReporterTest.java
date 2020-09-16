@@ -100,7 +100,7 @@ public class KeyedAppStatesReporterTest {
         KeyedAppStatesReporter reporter =
                 KeyedAppStatesReporter.create(mContext, testExecutor);
 
-        reporter.setStates(singleton(mState));
+        reporter.setStates(singleton(mState), /* callback= */ null);
 
         assertThat(testExecutor.lastExecuted()).isNotNull();
     }

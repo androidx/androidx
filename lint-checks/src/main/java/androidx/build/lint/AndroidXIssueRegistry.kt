@@ -31,6 +31,7 @@ class AndroidXIssueRegistry : IssueRegistry() {
         val Issues get(): List<Issue> {
             return listOf(
                 BanParcelableUsage.ISSUE,
+                BanConcurrentHashMap.ISSUE,
                 BanKeepAnnotation.ISSUE,
                 BanTargetApiAnnotation.ISSUE,
                 MissingTestSizeAnnotation.ISSUE,
@@ -41,8 +42,10 @@ class AndroidXIssueRegistry : IssueRegistry() {
                 SampledAnnotationEnforcer.MULTIPLE_FUNCTIONS_FOUND,
                 SampledAnnotationEnforcer.INVALID_SAMPLES_LOCATION,
                 ObsoleteBuildCompatUsageDetector.ISSUE,
+                BanSynchronizedMethods.ISSUE,
                 MetadataTagInsideApplicationTagDetector.ISSUE,
-                PrivateConstructorForUtilityClass.ISSUE
+                PrivateConstructorForUtilityClass.ISSUE,
+                UnsafeNewApiCallsDetector.ISSUE
             )
         }
     }

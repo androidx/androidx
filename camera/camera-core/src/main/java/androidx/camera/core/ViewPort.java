@@ -29,6 +29,7 @@ import androidx.core.util.Preconditions;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.concurrent.Executor;
 
 /**
  * The field of view of one or many {@link UseCase}s.
@@ -39,12 +40,19 @@ import java.lang.annotation.RetentionPolicy;
  * configured to optimize for {@link Preview} so that {@link ImageAnalysis} and
  * {@link ImageCapture} produce the same crop rect in a WYSIWYG way.
  *
+ * <p> If the {@link ViewPort} is used with a {@link ImageCapture} and
+ * {@link ImageCapture#takePicture(
+ * ImageCapture.OutputFileOptions, Executor, ImageCapture.OnImageSavedCallback)} is called,
+ * the image may be cropped before saving to disk which introduces an additional
+ * latency. To avoid the latency and get the uncropped image, please use the in-memory method
+ * {@link ImageCapture#takePicture(Executor, ImageCapture.OnImageCapturedCallback)}.
+ *
  * <p> For {@link ImageAnalysis} and in-memory {@link ImageCapture}, the output crop rect is
  * {@link ImageProxy#getCropRect()}; for on-disk {@link ImageCapture}, the image is cropped before
- * saving; for {@link Preview}, the crop rect is {@link SurfaceRequest#getCropRect()}. Caller
- * should transform the output in a way that only the area defined by the crop rect is visible
- * to end users. Once the crop rect is applied, all the use cases will produce the same image
- * with possibly different resolutions.
+ * saving; for {@link Preview}, the crop rect is
+ * {@link SurfaceRequest.TransformationInfo#getCropRect()}. Caller should transform the output in
+ * a way that only the area defined by the crop rect is visible to end users. Once the crop rect
+ * is applied, all the use cases will produce the same image with possibly different resolutions.
  */
 @ExperimentalUseCaseGroup
 public final class ViewPort {
@@ -196,7 +204,7 @@ public final class ViewPort {
      * Builder for {@link ViewPort}.
      */
     @ExperimentalUseCaseGroup
-    public static class Builder {
+    public static final class Builder {
 
         private static final int DEFAULT_LAYOUT_DIRECTION = android.util.LayoutDirection.LTR;
         @ScaleType

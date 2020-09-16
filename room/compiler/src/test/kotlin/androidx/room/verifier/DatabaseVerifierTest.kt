@@ -16,15 +16,15 @@
 
 package androidx.room.verifier
 
-import androidx.room.parser.Collate
-import androidx.room.parser.SQLTypeAffinity
-import androidx.room.parser.SqlParser
 import androidx.room.compiler.processing.XConstructorElement
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
-import androidx.room.compiler.processing.XVariableElement
+import androidx.room.parser.Collate
+import androidx.room.parser.SQLTypeAffinity
+import androidx.room.parser.SqlParser
 import androidx.room.processor.Context
 import androidx.room.testing.TestInvocation
 import androidx.room.vo.CallType
@@ -322,7 +322,7 @@ class DatabaseVerifierTest(private val useLocalizedCollation: Boolean) {
         affinity: SQLTypeAffinity,
         defaultValue: String? = null
     ): Field {
-        val element = mock(XVariableElement::class.java)
+        val element = mock(XFieldElement::class.java)
         doReturn(type).`when`(element).type
         val f = Field(
             element = element,

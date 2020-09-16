@@ -20,7 +20,6 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.CameraInfo;
 import androidx.camera.core.InitializationException;
 
 /**
@@ -46,11 +45,7 @@ public interface UseCaseConfigFactory {
     /**
      * Returns the configuration for the given type, or <code>null</code> if the configuration
      * cannot be produced.
-     *
-     * @param cameraInfo The {@link CameraInfo} of the camera that the configuration will target
-     *                   to, null if it doesn't target to any camera.
      */
     @Nullable
-    <C extends UseCaseConfig<?>> C getConfig(@NonNull Class<C> configType,
-            @Nullable CameraInfo cameraInfo);
+    <C extends UseCaseConfig<?>> C getConfig(@NonNull Class<C> configType);
 }

@@ -136,8 +136,26 @@ class XNullabilityTest {
             import java.util.List;
             class Baz(
                 val intField: Int,
-                val nullableIntField: Int?
+                val nullableIntField: Int?,
+                val genericFieldWithNullableTypeParam: List<Int?>
             ) {
+                fun nullableReturn(): Int? = TODO()
+                suspend fun suspendNullableReturn(): Int? = TODO()
+                fun genericWithNullableTypeArgReturn(): Map<String, Long?> = TODO()
+                suspend fun suspendGenericWithNullableTypeArgReturn(): Map<String, Long?> = TODO()
+                
+                fun nonNullReturn(): Int = TODO()
+                suspend fun suspendNonNullReturn(): Int = TODO()
+                
+                fun methodParams(
+                    nonNull: Int,
+                    nullable: Int?,
+                    nullableGenericWithNonNullType: List<Int>?,
+                    nullableGenericWithNullableType: List<Int?>?,
+                    nonNullGenericWithNonNullType: List<Int>,
+                    nonNullGenericWithNullableType: List<Int?>
+                ) {
+                }
             }
         """.trimIndent()
         )
@@ -150,6 +168,76 @@ class XNullabilityTest {
             }
             element.getField("nullableIntField").let { field ->
                 assertThat(field.type.nullability).isEqualTo(NULLABLE)
+            }
+            element.getField("genericFieldWithNullableTypeParam").let { field ->
+                assertThat(field.type.nullability).isEqualTo(NONNULL)
+                val declared = field.type.asDeclaredType()
+                assertThat(declared.typeArguments.first().nullability).isEqualTo(NULLABLE)
+            }
+            element.getMethod("nullableReturn").let { method ->
+                assertThat(method.returnType.nullability).isEqualTo(NULLABLE)
+                assertThat(method.executableType.returnType.nullability).isEqualTo(NULLABLE)
+            }
+            element.getMethod("suspendNullableReturn").let { method ->
+                // kotlin adds @Nullable annotation for suspend methods' javac signature
+                assertThat(method.returnType.nullability).isEqualTo(NULLABLE)
+                assertThat(method.executableType.returnType.nullability).isEqualTo(NULLABLE)
+                assertThat(method.executableType.getSuspendFunctionReturnType().nullability)
+                    .isEqualTo(NULLABLE)
+            }
+            element.getMethod("genericWithNullableTypeArgReturn").let { method ->
+                listOf(method.returnType, method.executableType.returnType).forEach { type ->
+                    assertThat(type.nullability).isEqualTo(NONNULL)
+                    assertThat(type.asDeclaredType().typeArguments[0].nullability)
+                        .isEqualTo(NONNULL)
+                    assertThat(type.asDeclaredType().typeArguments[1].nullability)
+                        .isEqualTo(NULLABLE)
+                }
+            }
+            element.getMethod("suspendGenericWithNullableTypeArgReturn").let { method ->
+                method.executableType.getSuspendFunctionReturnType().let { type ->
+                    assertThat(type.nullability).isEqualTo(NONNULL)
+                    assertThat(type.asDeclaredType().typeArguments[0].nullability)
+                        .isEqualTo(NONNULL)
+                    assertThat(type.asDeclaredType().typeArguments[1].nullability)
+                        .isEqualTo(NULLABLE)
+                }
+                listOf(method.returnType, method.executableType.returnType).forEach { type ->
+                    // kotlin suspend functions return nullable in jvm stub
+                    assertThat(type.nullability).isEqualTo(NULLABLE)
+                    assertThat(type.asDeclaredType().typeArguments).isEmpty()
+                }
+            }
+            element.getMethod("nonNullReturn").let { method ->
+                assertThat(method.returnType.nullability).isEqualTo(NONNULL)
+                assertThat(method.executableType.returnType.nullability).isEqualTo(NONNULL)
+            }
+            element.getMethod("suspendNonNullReturn").let { method ->
+                // suspend methods return nullable in java declarations
+                assertThat(method.returnType.nullability).isEqualTo(NULLABLE)
+                assertThat(method.executableType.returnType.nullability).isEqualTo(NULLABLE)
+                assertThat(method.executableType.getSuspendFunctionReturnType().nullability)
+                    .isEqualTo(NONNULL)
+            }
+            element.getMethod("methodParams").let { method ->
+                assertThat(method.getParameter("nonNull").type.nullability)
+                    .isEqualTo(NONNULL)
+                assertThat(method.getParameter("nullable").type.nullability)
+                    .isEqualTo(NULLABLE)
+                assertThat(method.parameters.filter {
+                    it.type.isDeclared() && it.type.asDeclaredType().typeArguments.isNotEmpty()
+                }.map {
+                    Triple(
+                        first = it.name,
+                        second = it.type.nullability,
+                        third = it.type.asDeclaredType().typeArguments.single().nullability
+                    )
+                }).containsExactly(
+                    Triple("nullableGenericWithNonNullType", NULLABLE, NONNULL),
+                    Triple("nullableGenericWithNullableType", NULLABLE, NULLABLE),
+                    Triple("nonNullGenericWithNonNullType", NONNULL, NONNULL),
+                    Triple("nonNullGenericWithNullableType", NONNULL, NULLABLE)
+                )
             }
         }
     }

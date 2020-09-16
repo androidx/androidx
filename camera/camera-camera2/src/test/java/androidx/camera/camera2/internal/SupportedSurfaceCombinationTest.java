@@ -29,6 +29,7 @@ import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.CameraMetadata;
+import android.hardware.camera2.params.StreamConfigurationMap;
 import android.os.Build;
 import android.util.Pair;
 import android.util.Rational;
@@ -93,14 +94,15 @@ import java.util.concurrent.TimeoutException;
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP,
-        maxSdk = Build.VERSION_CODES.P //TODO (b/149669465) : Some robolectric tests will fail on Q
-)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public final class SupportedSurfaceCombinationTest {
     private static final String CAMERA_ID = "0";
-    private static final int DEFAULT_SENSOR_ORIENTATION = 90;
+    private static final int SENSOR_ORIENTATION_0 = 0;
+    private static final int SENSOR_ORIENTATION_90 = 90;
     private static final Rational ASPECT_RATIO_4_3 = new Rational(4, 3);
     private static final Rational ASPECT_RATIO_16_9 = new Rational(16, 9);
+    private static final Size LANDSCAPE_PIXEL_ARRAY_SIZE = new Size(4032, 3024);
+    private static final Size PORTRAIT_PIXEL_ARRAY_SIZE = new Size(3024, 4032);
     private final Size mDisplaySize = new Size(720, 1280);
     private final Size mAnalysisSize = new Size(640, 480);
     private final Size mPreviewSize = new Size(1280, 720);
@@ -488,10 +490,13 @@ public final class SupportedSurfaceCombinationTest {
 
         List<UseCase> useCases = new ArrayList<>();
         useCases.add(fakeUseCase);
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
-                        Configs.useCaseConfigListFromUseCaseList(useCases));
-        Size selectedSize = suggestedResolutionMap.get(fakeUseCase.getUseCaseConfig());
+                        new ArrayList<>(useCaseToConfigMap.values()));
+        Size selectedSize =
+                suggestedResolutionMap.get(useCaseToConfigMap.get(fakeUseCase));
         Rational resultAspectRatio = new Rational(selectedSize.getWidth(),
                 selectedSize.getHeight());
 
@@ -531,7 +536,7 @@ public final class SupportedSurfaceCombinationTest {
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
                 .build();
 
-        CameraUseCaseAdapter cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(mContext,
+        CameraUseCaseAdapter cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(mContext,
                 CameraSelector.DEFAULT_BACK_CAMERA);
 
         cameraUseCaseAdapter.addUseCases(Arrays.asList(preview, imageCapture, imageAnalysis));
@@ -584,7 +589,7 @@ public final class SupportedSurfaceCombinationTest {
         // Preview/ImageCapture/ImageAnalysis' default config settings that will be applied after
         // bound to lifecycle. Calling bindToLifecycle here to make sure sizes matching to
         // default aspect ratio will be selected.
-        CameraUseCaseAdapter cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(mContext,
+        CameraUseCaseAdapter cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(mContext,
                 CameraSelector.DEFAULT_BACK_CAMERA);
 
         cameraUseCaseAdapter.addUseCases(Arrays.asList(preview,
@@ -594,13 +599,15 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(preview);
         useCases.add(imageCapture);
         useCases.add(imageAnalysis);
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
-                        Configs.useCaseConfigListFromUseCaseList(useCases));
+                        new ArrayList<>(useCaseToConfigMap.values()));
 
-        Size previewSize = suggestedResolutionMap.get(preview.getUseCaseConfig());
-        Size imageCaptureSize = suggestedResolutionMap.get(imageCapture.getUseCaseConfig());
-        Size imageAnalysisSize = suggestedResolutionMap.get(imageAnalysis.getUseCaseConfig());
+        Size previewSize = suggestedResolutionMap.get(useCaseToConfigMap.get(preview));
+        Size imageCaptureSize = suggestedResolutionMap.get(useCaseToConfigMap.get(imageCapture));
+        Size imageAnalysisSize = suggestedResolutionMap.get(useCaseToConfigMap.get(imageAnalysis));
 
         Rational previewAspectRatio = new Rational(previewSize.getWidth(), previewSize.getHeight());
         Rational imageCaptureAspectRatio = new Rational(imageCaptureSize.getWidth(),
@@ -639,9 +646,11 @@ public final class SupportedSurfaceCombinationTest {
 
         List<UseCase> useCases = new ArrayList<>();
         useCases.add(preview);
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
-                        Configs.useCaseConfigListFromUseCaseList(useCases));
+                        new ArrayList<>(useCaseToConfigMap.values()));
 
         // Checks the preconditions.
         final Size preconditionSize = new Size(256, 144);
@@ -654,7 +663,7 @@ public final class SupportedSurfaceCombinationTest {
         }
 
         // Checks the mechanism has filtered out the sizes which are smaller than default size 480p.
-        Size previewSize = suggestedResolutionMap.get(preview.getUseCaseConfig());
+        Size previewSize = suggestedResolutionMap.get(useCaseToConfigMap.get(preview));
         assertThat(previewSize).isNotEqualTo(preconditionSize);
     }
 
@@ -726,9 +735,11 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(imageCapture);
         useCases.add(videoCapture);
         useCases.add(preview);
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
-                        Configs.useCaseConfigListFromUseCaseList(useCases));
+                        new ArrayList<>(useCaseToConfigMap.values()));
 
         assertThat(suggestedResolutionMap).isNotEqualTo(3);
     }
@@ -754,16 +765,20 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(imageCapture);
         useCases.add(videoCapture);
         useCases.add(preview);
+
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
-                        Configs.useCaseConfigListFromUseCaseList(useCases));
+                        new ArrayList<>(useCaseToConfigMap.values()));
 
         // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD)
-        assertThat(suggestedResolutionMap).containsEntry(imageCapture.getUseCaseConfig(),
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(imageCapture),
                 mRecordSize);
-        assertThat(suggestedResolutionMap).containsEntry(videoCapture.getUseCaseConfig(),
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(videoCapture),
                 mMaximumVideoSize);
-        assertThat(suggestedResolutionMap).containsEntry(preview.getUseCaseConfig(), mPreviewSize);
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(preview),
+                mPreviewSize);
     }
 
     @Test
@@ -793,14 +808,17 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(imageCapture);
         useCases.add(preview);
         useCases.add(imageAnalysis);
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
-                        Configs.useCaseConfigListFromUseCaseList(useCases));
+                        new ArrayList<>(useCaseToConfigMap.values()));
 
-        assertThat(suggestedResolutionMap).containsEntry(imageCapture.getUseCaseConfig(),
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(imageCapture),
                 mPreviewSize);
-        assertThat(suggestedResolutionMap).containsEntry(preview.getUseCaseConfig(), mPreviewSize);
-        assertThat(suggestedResolutionMap).containsEntry(imageAnalysis.getUseCaseConfig(),
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(preview),
+                mPreviewSize);
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(imageAnalysis),
                 mPreviewSize);
     }
 
@@ -824,13 +842,15 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(imageCapture);
         useCases.add(preview);
         useCases.add(imageAnalysis);
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
-                        Configs.useCaseConfigListFromUseCaseList(useCases));
+                        new ArrayList<>(useCaseToConfigMap.values()));
 
-        Size previewSize = suggestedResolutionMap.get(preview.getUseCaseConfig());
-        Size imageCaptureSize = suggestedResolutionMap.get(imageCapture.getUseCaseConfig());
-        Size imageAnalysisSize = suggestedResolutionMap.get(imageAnalysis.getUseCaseConfig());
+        Size previewSize = suggestedResolutionMap.get(useCaseToConfigMap.get(preview));
+        Size imageCaptureSize = suggestedResolutionMap.get(useCaseToConfigMap.get(imageCapture));
+        Size imageAnalysisSize = suggestedResolutionMap.get(useCaseToConfigMap.get(imageAnalysis));
 
         assertThat(hasMatchingAspectRatio(previewSize, ASPECT_RATIO_16_9)).isTrue();
         assertThat(hasMatchingAspectRatio(imageCaptureSize, ASPECT_RATIO_16_9)).isTrue();
@@ -903,16 +923,19 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(imageCapture);
         useCases.add(videoCapture);
         useCases.add(preview);
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
-                        Configs.useCaseConfigListFromUseCaseList(useCases));
+                        new ArrayList<>(useCaseToConfigMap.values()));
 
         // Checks all suggested resolutions will become 640x480.
-        assertThat(suggestedResolutionMap).containsEntry(imageCapture.getUseCaseConfig(),
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(imageCapture),
                 mAnalysisSize);
-        assertThat(suggestedResolutionMap).containsEntry(videoCapture.getUseCaseConfig(),
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(videoCapture),
                 mAnalysisSize);
-        assertThat(suggestedResolutionMap).containsEntry(preview.getUseCaseConfig(), mAnalysisSize);
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(preview),
+                mAnalysisSize);
     }
 
     @Test
@@ -1080,12 +1103,15 @@ public final class SupportedSurfaceCombinationTest {
         useCases.add(preview);
         useCases.add(imageCapture);
 
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
-                        Configs.useCaseConfigListFromUseCaseList(useCases));
+                        new ArrayList<>(useCaseToConfigMap.values()));
 
-        assertThat(suggestedResolutionMap).containsEntry(preview.getUseCaseConfig(), mMod16Size);
-        assertThat(suggestedResolutionMap).containsEntry(imageCapture.getUseCaseConfig(),
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(preview),
+                mMod16Size);
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(imageCapture),
                 mMod16Size);
     }
 
@@ -1840,9 +1866,11 @@ public final class SupportedSurfaceCombinationTest {
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetResolution(
                 new Size(1080, 2016)).build();
 
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(Arrays.asList(useCase));
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 supportedSurfaceCombination.getSuggestedResolutions(Collections.emptyList(),
-                        Configs.useCaseConfigListFromUseCaseList(Arrays.asList(useCase)));
+                        new ArrayList<>(useCaseToConfigMap.values()));
 
         List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
                 useCase.getUseCaseConfig());
@@ -1858,19 +1886,191 @@ public final class SupportedSurfaceCombinationTest {
         assertThat(resultList).isEqualTo(expectedList);
     }
 
+    @Test
+    public void getSupportedOutputSizesWithPortraitPixelArraySize_aspectRatio16x9()
+            throws CameraUnavailableException {
+        Size[] supportedSizes = new Size[]{
+                new Size(1080, 1920),
+                new Size(1080, 1440),
+                new Size(960, 1280),
+                new Size(720, 1280),
+                new Size(1280, 720),
+                new Size(480, 640),
+                new Size(640, 480),
+                new Size(360, 480)
+        };
+
+        // Sets the sensor orientation as 0 and pixel array size as a portrait size to simulate a
+        // phone device which majorly supports portrait output sizes.
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
+                SENSOR_ORIENTATION_0, PORTRAIT_PIXEL_ARRAY_SIZE, supportedSizes, null);
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+
+        FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetAspectRatio(
+                AspectRatio.RATIO_16_9).build();
+
+        // There is default minimum size 640x480 setting. Sizes smaller than 640x480 will be
+        // removed. Due to the pixel array size is portrait, sizes of aspect ratio 9/16 will be in
+        // front of the returned sizes list and the list is sorted in descending order. Other
+        // items will be put in the following that are sorted by aspect ratio delta and then area
+        // size.
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
+        List<Size> expectedList = Arrays.asList(new Size[]{
+                // Matched AspectRatio items, sorted by area size.
+                new Size(1080, 1920),
+                new Size(720, 1280),
+
+                // Mismatched AspectRatio items, sorted by aspect ratio delta then area size.
+                new Size(1080, 1440),
+                new Size(960, 1280),
+                new Size(480, 640),
+                new Size(640, 480),
+                new Size(1280, 720)
+        });
+        assertThat(resultList).isEqualTo(expectedList);
+    }
+
+    @Test
+    public void getSupportedOutputSizesOnTabletWithPortraitPixelArraySize_aspectRatio16x9()
+            throws CameraUnavailableException {
+        Size[] supportedSizes = new Size[]{
+                new Size(1080, 1920),
+                new Size(1080, 1440),
+                new Size(960, 1280),
+                new Size(720, 1280),
+                new Size(1280, 720),
+                new Size(480, 640),
+                new Size(640, 480),
+                new Size(360, 480)
+        };
+
+        // Sets the sensor orientation as 90 and pixel array size as a portrait size to simulate a
+        // tablet device which majorly supports portrait output sizes.
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
+                SENSOR_ORIENTATION_90, PORTRAIT_PIXEL_ARRAY_SIZE, supportedSizes, null);
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+
+        FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetAspectRatio(
+                AspectRatio.RATIO_16_9).build();
+
+        // There is default minimum size 640x480 setting. Sizes smaller than 640x480 will be
+        // removed. Due to the pixel array size is portrait, sizes of aspect ratio 9/16 will be in
+        // front of the returned sizes list and the list is sorted in descending order. Other
+        // items will be put in the following that are sorted by aspect ratio delta and then area
+        // size.
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
+        List<Size> expectedList = Arrays.asList(new Size[]{
+                // Matched AspectRatio items, sorted by area size.
+                new Size(1080, 1920),
+                new Size(720, 1280),
+
+                // Mismatched AspectRatio items, sorted by aspect ratio delta then area size.
+                new Size(1080, 1440),
+                new Size(960, 1280),
+                new Size(480, 640),
+                new Size(640, 480),
+                new Size(1280, 720)
+        });
+        assertThat(resultList).isEqualTo(expectedList);
+    }
+
+    @Test
+    public void getSupportedOutputSizesOnTablet_aspectRatio16x9()
+            throws CameraUnavailableException {
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
+                SENSOR_ORIENTATION_0, LANDSCAPE_PIXEL_ARRAY_SIZE, mSupportedSizes, null);
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+
+        FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetAspectRatio(
+                AspectRatio.RATIO_16_9).build();
+
+        // There is default minimum size 640x480 setting. Sizes smaller than 640x480 will be
+        // removed. Sizes of aspect ratio 16/9 will be in front of the returned sizes list and the
+        // list is sorted in descending order. Other items will be put in the following that are
+        // sorted by aspect ratio delta and then area size.
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
+        List<Size> expectedList = Arrays.asList(new Size[]{
+                // Matched AspectRatio items, sorted by area size.
+                new Size(3840, 2160),
+                new Size(1920, 1080),
+                new Size(1280, 720),
+                new Size(960, 544),
+                new Size(800, 450),
+
+                // Mismatched AspectRatio items, sorted by aspect ratio delta then area size.
+                new Size(4032, 3024),
+                new Size(1920, 1440),
+                new Size(1280, 960),
+                new Size(640, 480)
+        });
+        assertThat(resultList).isEqualTo(expectedList);
+    }
+
+    @Test
+    public void getSupportedOutputSizesOnTabletWithPortraitSizes_aspectRatio16x9()
+            throws CameraUnavailableException {
+        Size[] supportedSizes = new Size[]{
+                new Size(1920, 1080),
+                new Size(1440, 1080),
+                new Size(1280, 960),
+                new Size(1280, 720),
+                new Size(720, 1280),
+                new Size(640, 480),
+                new Size(480, 640),
+                new Size(480, 360)
+        };
+        setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
+                SENSOR_ORIENTATION_0, LANDSCAPE_PIXEL_ARRAY_SIZE, supportedSizes, null);
+        SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
+                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+
+        FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetAspectRatio(
+                AspectRatio.RATIO_16_9).build();
+
+        // There is default minimum size 640x480 setting. Sizes smaller than 640x480 will be
+        // removed. Sizes of aspect ratio 16/9 will be in front of the returned sizes list and the
+        // list is sorted in descending order. Other items will be put in the following that are
+        // sorted by aspect ratio delta and then area size.
+        List<Size> resultList = supportedSurfaceCombination.getSupportedOutputSizes(
+                useCase.getUseCaseConfig());
+        List<Size> expectedList = Arrays.asList(new Size[]{
+                // Matched AspectRatio items, sorted by area size.
+                new Size(1920, 1080),
+                new Size(1280, 720),
+
+                // Mismatched AspectRatio items, sorted by aspect ratio delta then area size.
+                new Size(1440, 1080),
+                new Size(1280, 960),
+                new Size(640, 480),
+                new Size(480, 640),
+                new Size(720, 1280)
+        });
+        assertThat(resultList).isEqualTo(expectedList);
+    }
+
     private void setupCamera(int hardwareLevel) {
-        setupCamera(hardwareLevel, mSupportedSizes, null);
+        setupCamera(hardwareLevel, SENSOR_ORIENTATION_90, LANDSCAPE_PIXEL_ARRAY_SIZE,
+                mSupportedSizes, null);
     }
 
     private void setupCamera(int hardwareLevel, int[] capabilities) {
-        setupCamera(hardwareLevel, mSupportedSizes, capabilities);
+        setupCamera(hardwareLevel, SENSOR_ORIENTATION_90, LANDSCAPE_PIXEL_ARRAY_SIZE,
+                mSupportedSizes, capabilities);
     }
 
     private void setupCamera(int hardwareLevel, Size[] supportedSizes) {
-        setupCamera(hardwareLevel, supportedSizes, null);
+        setupCamera(hardwareLevel, SENSOR_ORIENTATION_90, LANDSCAPE_PIXEL_ARRAY_SIZE,
+                supportedSizes, null);
     }
 
-    private void setupCamera(int hardwareLevel, Size[] supportedSizes, int[] capabilities) {
+    private void setupCamera(int hardwareLevel, int sensorOrientation, Size pixelArraySize,
+            Size[] supportedSizes, int[] capabilities) {
         mCameraFactory = new FakeCameraFactory();
         CameraCharacteristics characteristics =
                 ShadowCameraCharacteristics.newCameraCharacteristics();
@@ -1882,8 +2082,9 @@ public final class SupportedSurfaceCombinationTest {
         shadowCharacteristics.set(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL, hardwareLevel);
 
-        shadowCharacteristics.set(
-                CameraCharacteristics.SENSOR_ORIENTATION, DEFAULT_SENSOR_ORIENTATION);
+        shadowCharacteristics.set(CameraCharacteristics.SENSOR_ORIENTATION, sensorOrientation);
+        shadowCharacteristics.set(CameraCharacteristics.SENSOR_INFO_PIXEL_ARRAY_SIZE,
+                pixelArraySize);
 
         if (capabilities != null) {
             shadowCharacteristics.set(
@@ -1899,17 +2100,28 @@ public final class SupportedSurfaceCombinationTest {
         int[] supportedFormats = isRawSupported(capabilities)
                 ? mSupportedFormatsWithRaw : mSupportedFormats;
 
-        shadowCharacteristics.set(
-                CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
-                StreamConfigurationMapUtil.generateFakeStreamConfigurationMap(supportedFormats,
-                        supportedSizes));
+        // Current robolectric can support to directly mock a StreamConfigurationMap object if
+        // the testing platform target is equal to or newer than API level 23. For API level 21
+        // or 22 testing platform target, keep the original method to create a
+        // StreamConfigurationMap object via reflection.
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            shadowCharacteristics.set(
+                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
+                    StreamConfigurationMapUtil.generateFakeStreamConfigurationMap(supportedFormats,
+                            supportedSizes));
+        } else {
+            StreamConfigurationMap mockMap = mock(StreamConfigurationMap.class);
+            when(mockMap.getOutputSizes(anyInt())).thenReturn(supportedSizes);
+            shadowCharacteristics.set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
+                    mockMap);
+        }
 
         @CameraSelector.LensFacing int lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(
                 CameraCharacteristics.LENS_FACING_BACK);
 
         mCameraFactory.insertCamera(lensFacingEnum, CAMERA_ID, () -> new FakeCamera(CAMERA_ID, null,
                 new Camera2CameraInfoImpl(CAMERA_ID, characteristics,
-                        mock(Camera2CameraControl.class))));
+                        mock(Camera2CameraControlImpl.class))));
 
         initCameraX();
     }

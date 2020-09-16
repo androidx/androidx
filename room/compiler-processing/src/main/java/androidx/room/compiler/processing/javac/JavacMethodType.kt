@@ -20,18 +20,24 @@ import androidx.room.compiler.processing.XMethodType
 import androidx.room.compiler.processing.XType
 import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.TypeVariableName
-import javax.lang.model.element.ExecutableElement
 import javax.lang.model.type.ExecutableType
 
 internal class JavacMethodType(
     val env: JavacProcessingEnv,
-    val element: ExecutableElement,
+    val element: JavacMethodElement,
     val executableType: ExecutableType
 ) : XMethodType {
     override val returnType: JavacType by lazy {
         env.wrap<JavacType>(
             typeMirror = executableType.returnType,
-            nullability = element.nullability
+            kotlinType = if (element.isSuspendFunction()) {
+                // don't use kotlin metadata for suspend return type since it needs to look like
+                // java perspective
+                null
+            } else {
+                element.kotlinMetadata?.returnType
+            },
+            elementNullability = element.element.nullability
         )
     }
 
@@ -45,7 +51,8 @@ internal class JavacMethodType(
         executableType.parameterTypes.mapIndexed { index, typeMirror ->
             env.wrap<JavacType>(
                 typeMirror = typeMirror,
-                nullability = element.parameters[index].nullability
+                kotlinType = element.parameters[index].kotlinType,
+                elementNullability = element.parameters[index].element.nullability
             )
         }
     }
@@ -64,10 +71,14 @@ internal class JavacMethodType(
         // has one type parameter, e.g Continuation<? super T>
         val typeParam =
             MoreTypes.asDeclared(executableType.parameterTypes.last()).typeArguments.first()
+        // kotlin generates ? extends Foo and we want Foo so get the extends bounds
+        val bounded = typeParam.extendsBound() ?: typeParam
         return env.wrap<JavacType>(
-            typeMirror = typeParam,
-            nullability = element.nullability
-        ).extendsBoundOrSelf() // reduce the type param
+            typeMirror = bounded,
+            // use kotlin metadata here to get the real type information
+            kotlinType = element.kotlinMetadata?.returnType,
+            elementNullability = element.element.nullability
+        )
     }
 
     override fun toString(): String {

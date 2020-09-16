@@ -242,7 +242,7 @@ public class LinearLayoutManagerBaseConfigSetTest extends BaseLinearLayoutManage
         int gap = helper.getDecoratedStart(vh.itemView);
         scrollBy(gap);
         gap = helper.getDecoratedStart(vh.itemView);
-        assertThat("test sanity", gap, is(0));
+        assertThat("Assumption check", gap, is(0));
 
         final int size = helper.getDecoratedMeasurement(vh.itemView);
         AttachDetachCollector collector = new AttachDetachCollector(mRecyclerView);
@@ -276,7 +276,7 @@ public class LinearLayoutManagerBaseConfigSetTest extends BaseLinearLayoutManage
         int gap = helper.getEnd() - helper.getDecoratedEnd(vh.itemView);
         scrollBy(-gap);
         gap = helper.getEnd() - helper.getDecoratedEnd(vh.itemView);
-        assertThat("test sanity", gap, is(0));
+        assertThat("Assumption check", gap, is(0));
 
         final int size = helper.getDecoratedMeasurement(vh.itemView);
         AttachDetachCollector collector = new AttachDetachCollector(mRecyclerView);

@@ -10,26 +10,29 @@ set -e
 
 # --------- androidx specific code needed for build server. ------------------
 
-SCRIPT_PATH="$(cd $(dirname $0) && pwd)"
+SCRIPT_PATH="$(cd $(dirname $0) && pwd -P)"
 if [ -n "$OUT_DIR" ] ; then
     mkdir -p "$OUT_DIR"
-    OUT_DIR="$(cd $OUT_DIR && pwd)"
+    OUT_DIR="$(cd $OUT_DIR && pwd -P)"
     export GRADLE_USER_HOME="$OUT_DIR/.gradle"
     export TMPDIR=$OUT_DIR
 else
-    CHECKOUT_ROOT="$(cd $SCRIPT_PATH/../.. && pwd)"
+    CHECKOUT_ROOT="$(cd $SCRIPT_PATH/../.. && pwd -P)"
     export OUT_DIR="$CHECKOUT_ROOT/out"
 fi
 
-XMX_ARG="$(cd $SCRIPT_PATH && grep org.gradle.jvmargs gradle.properties | sed 's/^/-D/')"
+ORG_GRADLE_JVMARGS="$(cd $SCRIPT_PATH && grep org.gradle.jvmargs gradle.properties | sed 's/^/-D/')"
 if [ -n "$DIST_DIR" ]; then
     mkdir -p "$DIST_DIR"
-    DIST_DIR="$(cd $DIST_DIR && pwd)"
+    DIST_DIR="$(cd $DIST_DIR && pwd -P)"
     export LINT_PRINT_STACKTRACE=true
 
     #Set the initial heap size to match the max heap size,
     #by replacing a string like "-Xmx1g" with one like "-Xms1g -Xmx1g"
-    XMX_ARG="$(echo $XMX_ARG | sed 's/-Xmx\([^ ]*\)/-Xms\1 -Xmx\1/')"
+    ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed 's/-Xmx\([^ ]*\)/-Xms\1 -Xmx\1/')"
+
+    # tell Gradle where to put a heap dump on failure
+    ORG_GRADLE_JVMARGS="$(echo $ORG_GRADLE_JVMARGS | sed "s|$| -XX:HeapDumpPath=$DIST_DIR|")"
 
     # We don't set a default DIST_DIR in an else clause here because Studio doesn't use gradlew
     # and doesn't set DIST_DIR and we want gradlew and Studio to match
@@ -227,7 +230,19 @@ function tryToDiagnosePossibleDaemonFailure() {
 }
 
 function runGradle() {
-  if "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG "$XMX_ARG" "$@"; then
+  processOutput=false
+  if [[ " ${@} " =~ " -Pandroidx.validateNoExtraMessages " ]]; then
+    processOutput=true
+  fi
+  if [[ " ${@} " =~ " -Pandroidx.summarizeStderr " ]]; then
+    processOutput=true
+  fi
+  if [ "$processOutput" == "true" ]; then
+    wrapper="$SCRIPT_PATH/development/build_log_processor.sh"
+  else
+    wrapper=""
+  fi
+  if $wrapper "$JAVACMD" "${JVM_OPTS[@]}" $TMPDIR_ARG -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain $HOME_SYSTEM_PROPERTY_ARGUMENT $TMPDIR_ARG "$ORG_GRADLE_JVMARGS" "$@"; then
     return 0
   else
     tryToDiagnosePossibleDaemonFailure

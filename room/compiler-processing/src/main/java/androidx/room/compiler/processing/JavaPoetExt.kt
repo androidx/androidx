@@ -20,6 +20,7 @@ import androidx.room.compiler.processing.javac.JavacExecutableElement
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
+import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
 import javax.lang.model.element.Modifier
@@ -50,6 +51,14 @@ internal fun TypeMirror.safeTypeName(): TypeName = if (kind == TypeKind.NONE) {
 fun TypeSpec.Builder.addOriginatingElement(element: XElement) {
     if (element is JavacElement) {
         this.addOriginatingElement(element.element)
+    }
+}
+
+internal fun TypeName.rawTypeName(): TypeName {
+    return if (this is ParameterizedTypeName) {
+        this.rawType
+    } else {
+        this
     }
 }
 

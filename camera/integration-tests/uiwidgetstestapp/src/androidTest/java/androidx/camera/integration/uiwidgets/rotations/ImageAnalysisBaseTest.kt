@@ -26,6 +26,8 @@ import androidx.test.uiautomator.UiDevice
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
 import org.junit.Assume
+import org.junit.Rule
+import org.junit.rules.TestRule
 import java.util.concurrent.TimeUnit
 
 /**
@@ -40,19 +42,23 @@ import java.util.concurrent.TimeUnit
  */
 abstract class ImageAnalysisBaseTest<A : CameraActivity> {
 
+    @get:Rule
+    val mUseCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+
+    protected val mDevice: UiDevice =
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
     protected fun setUp(lensFacing: Int) {
         CoreAppTestUtil.assumeCompatibleDevice()
         Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
 
         // Clear the device's UI and ensure it's in a natural orientation
         CoreAppTestUtil.clearDeviceUI(InstrumentationRegistry.getInstrumentation())
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        device.setOrientationNatural()
+        mDevice.setOrientationNatural()
     }
 
     protected fun tearDown() {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        device.unfreezeRotation()
+        mDevice.unfreezeRotation()
     }
 
     protected inline fun <reified A : CameraActivity> verifyRotation(

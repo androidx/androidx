@@ -32,6 +32,7 @@ import androidx.camera.testing.CameraUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.GrantPermissionRule;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -57,6 +58,7 @@ public class TorchControlDeviceTest {
             GrantPermissionRule.grant(android.Manifest.permission.CAMERA);
 
     private TorchControl mTorchControl;
+    private CameraUseCaseAdapter mCamera;
 
     @Before
     public void setUp() {
@@ -71,20 +73,28 @@ public class TorchControlDeviceTest {
         // Prepare TorchControl
         CameraSelector cameraSelector =
                 new CameraSelector.Builder().requireLensFacing(LENS_FACING).build();
-        // To get a functional Camera2CameraControl, it needs to bind an active UseCase and the
+        // To get a functional Camera2CameraControlImpl, it needs to bind an active UseCase and the
         // UseCase must have repeating surface. Create and bind ImageAnalysis as repeating surface.
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
         // Make ImageAnalysis active.
         imageAnalysis.setAnalyzer(CameraXExecutors.mainThreadExecutor(), ImageProxy::close);
-        CameraUseCaseAdapter cameraUseCaseAdapter = CameraUtil.getCameraAndAttachUseCase(context,
-                cameraSelector, imageAnalysis);
-        Camera2CameraControl cameraControl = (Camera2CameraControl)
-                cameraUseCaseAdapter.getCameraControlInternal();
+        mCamera = CameraUtil.createCameraAndAttachUseCase(context, cameraSelector, imageAnalysis);
+        Camera2CameraControlImpl cameraControl = (Camera2CameraControlImpl)
+                mCamera.getCameraControl();
+
         mTorchControl = cameraControl.getTorchControl();
     }
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
+        if (mCamera != null) {
+            InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
+                    //TODO: The removeUseCases() call might be removed after clarifying the
+                    // abortCaptures() issue in b/162314023.
+                    mCamera.removeUseCases(mCamera.getUseCases())
+            );
+        }
+
         CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 

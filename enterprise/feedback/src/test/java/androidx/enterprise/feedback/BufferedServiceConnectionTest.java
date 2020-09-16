@@ -33,6 +33,7 @@ import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
@@ -76,6 +77,8 @@ public class BufferedServiceConnectionTest {
     private final ComponentName mNotPhoneskyComponentName = mTestComponentName;
     private final ComponentName mPhoneskyComponentName =
             new ComponentName("com.android.vending", "");
+
+    private final TestKeyedAppStatesCallback mCallback = new TestKeyedAppStatesCallback();
 
     @Before
     public void setUp() {
@@ -163,23 +166,46 @@ public class BufferedServiceConnectionTest {
     @SmallTest
     public void sendMessage_bound_sends() {
         mBufferedServiceConnection.bindService();
+        shadowOf(getMainLooper()).idle();
+        SendableMessage sendableMessage = buildTestMessage();
 
-        mBufferedServiceConnection.send(buildTestMessage());
-
+        mBufferedServiceConnection.send(sendableMessage);
         shadowOf(getMainLooper()).idle();
 
-        // The test message is rebuilt as it is cleared after being sent
-        assertMessagesEqual(buildTestMessage(), mTestHandler.latestMessage());
+        assertMessagesEqual(sendableMessage.createStateMessage(), mTestHandler.latestMessage());
+    }
+
+    @Test
+    @SmallTest
+    public void sendMessage_bound_reportsSuccess() {
+        mBufferedServiceConnection.bindService();
+        SendableMessage sendableMessage = buildTestMessage(mCallback);
+
+        mBufferedServiceConnection.send(sendableMessage);
+        shadowOf(getMainLooper()).idle();
+
+        assertThat(mCallback.mTotalResults).isEqualTo(1);
+        assertThat(mCallback.mLatestState).isEqualTo(KeyedAppStatesCallback.STATUS_SUCCESS);
     }
 
     @Test
     @SmallTest
     public void sendMessage_notBound_doesNotSend() {
-        Message message = buildTestMessage();
+        SendableMessage sendableMessage = buildTestMessage();
 
-        mBufferedServiceConnection.send(message);
+        mBufferedServiceConnection.send(sendableMessage);
 
         assertThat(mTestHandler.latestMessage()).isNull();
+    }
+
+    @Test
+    @SmallTest
+    public void sendMessage_notBound_doesNotCallback() {
+        SendableMessage sendableMessage = buildTestMessage(mCallback);
+
+        mBufferedServiceConnection.send(sendableMessage);
+
+        assertThat(mCallback.mTotalResults).isEqualTo(0);
     }
 
     @Test
@@ -196,6 +222,18 @@ public class BufferedServiceConnectionTest {
 
     @Test
     @SmallTest
+    @Config(minSdk = 26)
+    public void sendMessage_isDead_reportsSuccess() {
+        mBufferedServiceConnection.bindService();
+        simulateDeadServiceConnection();
+
+        mBufferedServiceConnection.send(buildTestMessage(mCallback));
+
+        assertThat(mCallback.mLatestState).isEqualTo(KeyedAppStatesCallback.STATUS_SUCCESS);
+    }
+
+    @Test
+    @SmallTest
     public void sendMessage_notBound_isNotDoPoOrPhonesky_doesNotSendWhenBound() {
         setComponentBindingToTestHandler(mNotPhoneskyComponentName);
         shadowOf(mDevicePolicyManager).setDeviceOwner(null);
@@ -203,8 +241,23 @@ public class BufferedServiceConnectionTest {
         mBufferedServiceConnection.send(buildTestMessage());
 
         mBufferedServiceConnection.bindService();
+        shadowOf(getMainLooper()).idle();
 
         assertThat(mTestHandler.latestMessage()).isNull();
+    }
+
+    @Test
+    @SmallTest
+    public void sendMessage_notBound_isNotDoPoOrPhonesky_reportsSuccessWhenBound() {
+        setComponentBindingToTestHandler(mNotPhoneskyComponentName);
+        shadowOf(mDevicePolicyManager).setDeviceOwner(null);
+        shadowOf(mDevicePolicyManager).setProfileOwner(null);
+        mBufferedServiceConnection.send(buildTestMessage(mCallback));
+
+        mBufferedServiceConnection.bindService();
+        shadowOf(getMainLooper()).idle();
+
+        assertThat(mCallback.mLatestState).isEqualTo(KeyedAppStatesCallback.STATUS_SUCCESS);
     }
 
     @Test
@@ -216,7 +269,6 @@ public class BufferedServiceConnectionTest {
         mBufferedServiceConnection.send(buildTestMessage());
 
         mBufferedServiceConnection.bindService();
-
         shadowOf(getMainLooper()).idle();
 
         assertThat(mBufferedServiceConnection.isDead()).isTrue();
@@ -226,42 +278,83 @@ public class BufferedServiceConnectionTest {
     @SmallTest
     public void sendMessage_notBound_isDeviceOwner_sendsWhenBound() {
         shadowOf(mDevicePolicyManager).setDeviceOwner(mTestComponentName);
-        mBufferedServiceConnection.send(buildTestMessage());
+        SendableMessage sendableMessage = buildTestMessage();
+        mBufferedServiceConnection.send(sendableMessage);
 
         mBufferedServiceConnection.bindService();
-
         shadowOf(getMainLooper()).idle();
 
-        // The test message is rebuilt as it is cleared after being sent.
-        assertMessagesEqual(buildTestMessage(), mTestHandler.latestMessage());
+        assertMessagesEqual(sendableMessage.createStateMessage(), mTestHandler.latestMessage());
+    }
+
+    @Test
+    @SmallTest
+    public void sendMessage_notBound_isDeviceOwner_reportsSuccessWhenBound() {
+        shadowOf(mDevicePolicyManager).setDeviceOwner(mTestComponentName);
+        SendableMessage sendableMessage = buildTestMessage(mCallback);
+        mBufferedServiceConnection.send(sendableMessage);
+
+        mBufferedServiceConnection.bindService();
+        shadowOf(getMainLooper()).idle();
+
+        assertThat(mCallback.mTotalResults).isEqualTo(1);
+        assertThat(mCallback.mLatestState).isEqualTo(KeyedAppStatesCallback.STATUS_SUCCESS);
     }
 
     @Test
     @SmallTest
     public void sendMessage_notBound_isProfileOwner_sendsWhenBound() {
         shadowOf(mDevicePolicyManager).setProfileOwner(mTestComponentName);
-        mBufferedServiceConnection.send(buildTestMessage());
+        SendableMessage sendableMessage = buildTestMessage();
+        mBufferedServiceConnection.send(sendableMessage);
 
         mBufferedServiceConnection.bindService();
-
         shadowOf(getMainLooper()).idle();
 
         // The test message is rebuilt as it is cleared after being sent.
-        assertMessagesEqual(buildTestMessage(), mTestHandler.latestMessage());
+        assertMessagesEqual(sendableMessage.createStateMessage(), mTestHandler.latestMessage());
+    }
+
+    @Test
+    @SmallTest
+    public void sendMessage_notBound_isProfileOwner_reportsSuccessWhenBound() {
+        shadowOf(mDevicePolicyManager).setProfileOwner(mTestComponentName);
+        SendableMessage sendableMessage = buildTestMessage(mCallback);
+        mBufferedServiceConnection.send(sendableMessage);
+
+        mBufferedServiceConnection.bindService();
+        shadowOf(getMainLooper()).idle();
+
+        assertThat(mCallback.mTotalResults).isEqualTo(1);
+        assertThat(mCallback.mLatestState).isEqualTo(KeyedAppStatesCallback.STATUS_SUCCESS);
     }
 
     @Test
     @SmallTest
     public void sendMessage_notBound_isPhonesky_sendsWhenBound() {
         setComponentBindingToTestHandler(mPhoneskyComponentName);
-        mBufferedServiceConnection.send(buildTestMessage());
+        SendableMessage sendableMessage = buildTestMessage();
+        mBufferedServiceConnection.send(sendableMessage);
 
         mBufferedServiceConnection.bindService();
-
         shadowOf(getMainLooper()).idle();
 
         // The test message is rebuilt as it is cleared after being sent.
-        assertMessagesEqual(buildTestMessage(), mTestHandler.latestMessage());
+        assertMessagesEqual(sendableMessage.createStateMessage(), mTestHandler.latestMessage());
+    }
+
+    @Test
+    @SmallTest
+    public void sendMessage_notBound_isPhonesky_reportsSuccessWhenBound() {
+        setComponentBindingToTestHandler(mPhoneskyComponentName);
+        SendableMessage sendableMessage = buildTestMessage(mCallback);
+        mBufferedServiceConnection.send(sendableMessage);
+
+        mBufferedServiceConnection.bindService();
+        shadowOf(getMainLooper()).idle();
+
+        assertThat(mCallback.mTotalResults).isEqualTo(1);
+        assertThat(mCallback.mLatestState).isEqualTo(KeyedAppStatesCallback.STATUS_SUCCESS);
     }
 
     @Test
@@ -290,6 +383,20 @@ public class BufferedServiceConnectionTest {
         shadowOf(getMainLooper()).idle();
 
         assertThat(mTestHandler.messageCount()).isEqualTo(MAX_BUFFER_SIZE);
+    }
+
+    @Test
+    @SmallTest
+    public void sendMessage_notBound_sendBeyondBufferLimit_skippedMessagesReportError() {
+        mBufferedServiceConnection.send(buildTestMessage(mCallback));
+
+        for (int i = 0; i < MAX_BUFFER_SIZE; i++) {
+            mBufferedServiceConnection.send(buildTestMessage());
+        }
+
+        assertThat(mCallback.mTotalResults).isEqualTo(1);
+        assertThat(mCallback.mLatestState).isEqualTo(
+                KeyedAppStatesCallback.STATUS_EXCEEDED_BUFFER_ERROR);
     }
 
     @Test
@@ -357,11 +464,15 @@ public class BufferedServiceConnectionTest {
                         service);
     }
 
-    private static Message buildTestMessage() {
-        Message message = Message.obtain();
-        message.arg1 = 100;
-        message.arg2 = 200;
-        return message;
+    private static SendableMessage buildTestMessage() {
+        return buildTestMessage(/* callback= */ null);
+    }
+
+    private static SendableMessage buildTestMessage(KeyedAppStatesCallback callback) {
+        Bundle bundle = new Bundle();
+        bundle.putInt("arg1", 100);
+        bundle.putInt("arg2", 200);
+        return new SendableMessage(bundle, /* callback= */ callback, /* immediate= */ false);
     }
 
     private static void assertMessagesEqual(Message expected, Message actual) {

@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 
 /**
  * Allows complication providers to request update calls from the system. This effectively allows
@@ -33,23 +34,33 @@ public class ProviderUpdateRequester {
     /** The package of the service that accepts provider requests. */
     private static final String UPDATE_REQUEST_RECEIVER_PACKAGE = "com.google.android.wearable.app";
 
-    private static final String ACTION_REQUEST_UPDATE =
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String ACTION_REQUEST_UPDATE =
             "android.support.wearable.complications.ACTION_REQUEST_UPDATE";
 
-    private static final String ACTION_REQUEST_UPDATE_ALL =
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String ACTION_REQUEST_UPDATE_ALL =
             "android.support.wearable.complications.ACTION_REQUEST_UPDATE_ALL";
 
-    static final String EXTRA_PENDING_INTENT =
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String EXTRA_PENDING_INTENT =
             "android.support.wearable.complications.EXTRA_PENDING_INTENT";
 
-    private static final String EXTRA_PROVIDER_COMPONENT =
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String EXTRA_PROVIDER_COMPONENT =
             "android.support.wearable.complications.EXTRA_PROVIDER_COMPONENT";
 
-    private static final String EXTRA_COMPLICATION_IDS =
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String EXTRA_COMPLICATION_IDS =
             "android.support.wearable.complications.EXTRA_COMPLICATION_IDS";
 
-    private final Context mContext;
-    private final ComponentName mProviderComponent;
+    @NonNull private final Context mContext;
+    @NonNull private final ComponentName mProviderComponent;
 
     /**
      * @param context The provider's context

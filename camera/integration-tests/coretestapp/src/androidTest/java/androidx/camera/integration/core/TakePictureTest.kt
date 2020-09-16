@@ -32,15 +32,18 @@ import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 
 @LargeTest
 @RunWith(AndroidJUnit4::class)
 class TakePictureTest {
     @get:Rule
+    val mUseCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+
+    @get:Rule
     val mPermissionRule: GrantPermissionRule =
         GrantPermissionRule.grant(
-            Manifest.permission.CAMERA,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.RECORD_AUDIO
         )

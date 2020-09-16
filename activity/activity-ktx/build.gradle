@@ -34,6 +34,9 @@ dependencies {
         because 'Mirror activity dependency graph for -ktx artifacts'
     }
     api(project(":lifecycle:lifecycle-viewmodel-ktx"))
+    api(project(":savedstate:savedstate-ktx")) {
+        because 'Mirror activity dependency graph for -ktx artifacts'
+    }
     api(KOTLIN_STDLIB)
 
     androidTestImplementation(project(":lifecycle:lifecycle-runtime-testing"))

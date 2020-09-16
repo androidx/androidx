@@ -44,6 +44,8 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Objects;
 
 /**
@@ -855,7 +857,10 @@ public class WindowInsetsCompat {
         void setRootWindowInsets(@Nullable WindowInsetsCompat rootWindowInsets) {
         }
 
-        void setRootViewData(@NonNull Rect visibleFrame, int height) {
+        void setRootViewData(@NonNull Insets visibleInsets) {
+        }
+
+        void copyRootViewBounds(@NonNull View rootView) {
         }
 
         void copyWindowDataInto(@NonNull WindowInsetsCompat other) {
@@ -864,6 +869,14 @@ public class WindowInsetsCompat {
 
     @RequiresApi(20)
     private static class Impl20 extends Impl {
+
+        private static boolean sVisibleRectReflectionFetched = false;
+        private static Method sGetViewRootImplMethod;
+        private static Class<?> sViewRootImplClass;
+        private static Class<?> sAttachInfoClass;
+        private static Field sVisibleInsetsField;
+        private static Field sAttachInfoField;
+
         @NonNull
         final WindowInsets mPlatformInsets;
 
@@ -871,8 +884,7 @@ public class WindowInsetsCompat {
         private Insets mSystemWindowInsets = null;
 
         private WindowInsetsCompat mRootWindowInsets;
-        private Rect mRootViewVisibleFrame;
-        private int mRootViewHeight;
+        private Insets mRootViewVisibleInsets;
 
         Impl20(@NonNull WindowInsetsCompat host, @NonNull WindowInsets insets) {
             super(host);
@@ -978,12 +990,12 @@ public class WindowInsetsCompat {
                         // This handles the adjustResize case on < API 30, since
                         // systemWindow.bottom is probably going to be the IME
                         return Insets.of(0, 0, 0, systemWindow.bottom);
-                    } else if (mRootViewVisibleFrame != null && !mRootViewVisibleFrame.isEmpty()) {
+                    } else if (mRootViewVisibleInsets != null
+                            && !mRootViewVisibleInsets.equals(Insets.NONE)) {
                         // This handles the adjustPan case on < API 30. We look at the root view's
                         // visible rect and check it's bottom against the root stable insets
-                        int coveredRootView = mRootViewHeight - mRootViewVisibleFrame.bottom;
-                        if (coveredRootView > rootStable.bottom) {
-                            return Insets.of(0, 0, 0, coveredRootView);
+                        if (mRootViewVisibleInsets.bottom > rootStable.bottom) {
+                            return Insets.of(0, 0, 0, mRootViewVisibleInsets.bottom);
                         }
                     }
                     return Insets.NONE;
@@ -1058,7 +1070,7 @@ public class WindowInsetsCompat {
         @Override
         void copyWindowDataInto(@NonNull WindowInsetsCompat other) {
             other.setRootWindowInsets(mRootWindowInsets);
-            other.setRootViewData(mRootViewVisibleFrame, mRootViewHeight);
+            other.setRootViewData(mRootViewVisibleInsets);
         }
 
         @Override
@@ -1067,9 +1079,8 @@ public class WindowInsetsCompat {
         }
 
         @Override
-        void setRootViewData(@NonNull Rect visibleFrame, int height) {
-            mRootViewVisibleFrame = visibleFrame;
-            mRootViewHeight = height;
+        void setRootViewData(@NonNull Insets visibleInsets) {
+            mRootViewVisibleInsets = visibleInsets;
         }
 
         @SuppressWarnings("deprecation")
@@ -1079,6 +1090,83 @@ public class WindowInsetsCompat {
             } else {
                 return Insets.NONE;
             }
+        }
+
+        @Override
+        void copyRootViewBounds(@NonNull View rootView) {
+            Insets visibleInsets = getVisibleInsets(rootView);
+            if (visibleInsets == null) {
+                visibleInsets = Insets.NONE;
+            }
+            setRootViewData(visibleInsets);
+        }
+
+
+        /**
+         * Attempt to get a copy of the visible rect from this rootView's AttachInfo.
+         *
+         * @return a copy of the provided view's AttachInfo.mVisibleRect or null if anything fails
+         */
+        @Nullable
+        private Insets getVisibleInsets(@NonNull View rootView) {
+            if (SDK_INT >= 30) {
+                throw new UnsupportedOperationException("getVisibleInsets() should not be called "
+                        + "on API >= 30. Use WindowInsets.isVisible() instead.");
+            }
+
+            if (!sVisibleRectReflectionFetched) {
+                loadReflectionField();
+            }
+
+            if (sGetViewRootImplMethod == null
+                    || sAttachInfoClass == null
+                    || sVisibleInsetsField == null) {
+                return null;
+            }
+
+            try {
+                Object viewRootImpl = sGetViewRootImplMethod.invoke(rootView);
+                if (viewRootImpl == null) {
+                    Log.w(TAG, "Failed to get visible insets. getViewRootImpl() returned null from "
+                                    + "the provided view. This means that the view is either not "
+                                    + "attached or the method has been overridden",
+                            new NullPointerException());
+                    return null;
+                } else {
+                    Object mAttachInfo = sAttachInfoField.get(viewRootImpl);
+                    Rect visibleRect = (Rect) sVisibleInsetsField.get(mAttachInfo);
+                    return visibleRect != null ? Insets.of(visibleRect) : null;
+                }
+            } catch (IllegalAccessException e) {
+                logReflectionError(e);
+            } catch (InvocationTargetException e) {
+                logReflectionError(e);
+            }
+            return null;
+        }
+
+        @SuppressLint("PrivateApi")
+        private static void loadReflectionField() {
+            try {
+                sGetViewRootImplMethod = View.class.getDeclaredMethod("getViewRootImpl");
+                sViewRootImplClass = Class.forName("android.view.ViewRootImpl");
+                sAttachInfoClass = Class.forName("android.view.View$AttachInfo");
+                sVisibleInsetsField = sAttachInfoClass.getDeclaredField("mVisibleInsets");
+                sAttachInfoField = sViewRootImplClass.getDeclaredField("mAttachInfo");
+                sVisibleInsetsField.setAccessible(true);
+                sAttachInfoField.setAccessible(true);
+            } catch (ClassNotFoundException e) {
+                logReflectionError(e);
+            } catch (NoSuchMethodException e) {
+                logReflectionError(e);
+            } catch (NoSuchFieldException e) {
+                logReflectionError(e);
+            }
+            sVisibleRectReflectionFetched = true;
+        }
+
+        private static void logReflectionError(Exception e) {
+            Log.e(TAG, "Failed to get visible insets. (Reflection error). " + e.getMessage(), e);
         }
     }
 
@@ -1255,6 +1343,14 @@ public class WindowInsetsCompat {
         @Override
         public boolean isVisible(int typeMask) {
             return mPlatformInsets.isVisible(TypeImpl30.toPlatformType(typeMask));
+        }
+
+        @Override
+        final void copyRootViewBounds(@NonNull View rootView) {
+            // This is only used to copy the root view visible insets which is
+            // then only used to get the visibility of the IME on API < 30.
+            // Overriding this avoid to go through the code path to get the visible insets via
+            // reflection.
         }
     }
 
@@ -1949,13 +2045,11 @@ public class WindowInsetsCompat {
         mImpl.setRootWindowInsets(rootWindowInsets);
     }
 
-    void setRootViewData(@NonNull Rect visibleFrame, int height) {
-        mImpl.setRootViewData(visibleFrame, height);
+    void setRootViewData(@NonNull Insets visibleInsets) {
+        mImpl.setRootViewData(visibleInsets);
     }
 
-    void copyRootViewBounds(@NonNull View view) {
-        Rect visibleBounds = new Rect();
-        view.getWindowVisibleDisplayFrame(visibleBounds);
-        setRootViewData(visibleBounds, view.getHeight());
+    void copyRootViewBounds(@NonNull View rootView) {
+        mImpl.copyRootViewBounds(rootView);
     }
 }

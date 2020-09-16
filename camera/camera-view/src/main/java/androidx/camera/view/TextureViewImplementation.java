@@ -60,6 +60,11 @@ final class TextureViewImplementation extends PreviewViewImplementation {
     @Nullable
     OnSurfaceNotInUseListener mOnSurfaceNotInUseListener;
 
+    TextureViewImplementation(@NonNull FrameLayout parent,
+            @NonNull PreviewTransformation previewTransform) {
+        super(parent, previewTransform);
+    }
+
     @Nullable
     @Override
     View getPreview() {

@@ -228,7 +228,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testMissingRx2Room() {
-        simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, COMMON.RX2_FLOWABLE)) { invocation ->
+        simpleRun(jfos = arrayOf(COMMON.PUBLISHER, COMMON.RX2_FLOWABLE)) { invocation ->
             val publisherElement = invocation.processingEnv
                     .requireTypeElement(ReactiveStreamsTypeNames.PUBLISHER)
             assertThat(publisherElement, notNullValue())
@@ -241,7 +241,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testMissingRx3Room() {
-        simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, COMMON.RX3_FLOWABLE)) { invocation ->
+        simpleRun(jfos = arrayOf(COMMON.PUBLISHER, COMMON.RX3_FLOWABLE)) { invocation ->
             val publisherElement = invocation.processingEnv
                 .requireTypeElement(ReactiveStreamsTypeNames.PUBLISHER)
             assertThat(publisherElement, notNullValue())
@@ -258,7 +258,7 @@ class TypeAdapterStoreTest {
             COMMON.RX2_FLOWABLE to COMMON.RX2_ROOM,
             COMMON.RX3_FLOWABLE to COMMON.RX3_ROOM
         ).forEach { (rxTypeSrc, rxRoomSrc) ->
-            simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, rxTypeSrc, rxRoomSrc)) {
+            simpleRun(jfos = arrayOf(COMMON.PUBLISHER, rxTypeSrc, rxRoomSrc)) {
                     invocation ->
                 val publisher = invocation.processingEnv
                     .requireTypeElement(ReactiveStreamsTypeNames.PUBLISHER)
@@ -277,7 +277,7 @@ class TypeAdapterStoreTest {
             Triple(COMMON.RX2_FLOWABLE, COMMON.RX2_ROOM, RxJava2TypeNames.FLOWABLE),
             Triple(COMMON.RX3_FLOWABLE, COMMON.RX3_ROOM, RxJava3TypeNames.FLOWABLE)
         ).forEach { (rxTypeSrc, rxRoomSrc, rxTypeClassName) ->
-            simpleRun(jfos = *arrayOf(COMMON.PUBLISHER, rxTypeSrc, rxRoomSrc)) {
+            simpleRun(jfos = arrayOf(COMMON.PUBLISHER, rxTypeSrc, rxRoomSrc)) {
                 invocation ->
                 val flowable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(
@@ -294,7 +294,7 @@ class TypeAdapterStoreTest {
             Triple(COMMON.RX2_OBSERVABLE, COMMON.RX2_ROOM, RxJava2TypeNames.OBSERVABLE),
             Triple(COMMON.RX3_OBSERVABLE, COMMON.RX3_ROOM, RxJava3TypeNames.OBSERVABLE)
         ).forEach { (rxTypeSrc, rxRoomSrc, rxTypeClassName) ->
-            simpleRun(jfos = *arrayOf(rxTypeSrc, rxRoomSrc)) {
+            simpleRun(jfos = arrayOf(rxTypeSrc, rxRoomSrc)) {
                 invocation ->
                 val observable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(observable, notNullValue())
@@ -312,7 +312,7 @@ class TypeAdapterStoreTest {
             Triple(COMMON.RX2_SINGLE, COMMON.RX2_ROOM, RxJava2TypeNames.SINGLE),
             Triple(COMMON.RX3_SINGLE, COMMON.RX3_ROOM, RxJava3TypeNames.SINGLE)
         ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
-            simpleRun(jfos = *arrayOf(rxTypeSrc)) {
+            simpleRun(jfos = arrayOf(rxTypeSrc)) {
                 invocation ->
                 val single = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(single, notNullValue())
@@ -330,7 +330,7 @@ class TypeAdapterStoreTest {
             Triple(COMMON.RX2_MAYBE, COMMON.RX2_ROOM, RxJava2TypeNames.MAYBE),
             Triple(COMMON.RX3_MAYBE, COMMON.RX3_ROOM, RxJava3TypeNames.MAYBE)
         ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
-            simpleRun(jfos = *arrayOf(rxTypeSrc)) {
+            simpleRun(jfos = arrayOf(rxTypeSrc)) {
                 invocation ->
                 val maybe = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(
@@ -347,7 +347,7 @@ class TypeAdapterStoreTest {
             Triple(COMMON.RX2_COMPLETABLE, COMMON.RX2_ROOM, RxJava2TypeNames.COMPLETABLE),
             Triple(COMMON.RX3_COMPLETABLE, COMMON.RX3_ROOM, RxJava3TypeNames.COMPLETABLE)
         ).forEach { (rxTypeSrc, _, rxTypeClassName) ->
-            simpleRun(jfos = *arrayOf(rxTypeSrc)) {
+            simpleRun(jfos = arrayOf(rxTypeSrc)) {
                 invocation ->
                 val completable = invocation.processingEnv.requireTypeElement(rxTypeClassName)
                 assertThat(
@@ -360,7 +360,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testFindInsertListenableFuture() {
-        simpleRun(jfos = *arrayOf(COMMON.LISTENABLE_FUTURE)) {
+        simpleRun(jfos = arrayOf(COMMON.LISTENABLE_FUTURE)) {
                 invocation ->
             val future = invocation.processingEnv
                 .requireTypeElement(GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE)
@@ -371,7 +371,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testFindDeleteOrUpdateSingle() {
-        simpleRun(jfos = *arrayOf(COMMON.RX2_SINGLE)) {
+        simpleRun(jfos = arrayOf(COMMON.RX2_SINGLE)) {
             invocation ->
             val single = invocation.processingEnv.requireTypeElement(RxJava2TypeNames.SINGLE)
             assertThat(single, notNullValue())
@@ -384,7 +384,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testFindDeleteOrUpdateMaybe() {
-        simpleRun(jfos = *arrayOf(COMMON.RX2_MAYBE)) {
+        simpleRun(jfos = arrayOf(COMMON.RX2_MAYBE)) {
             invocation ->
             val maybe = invocation.processingEnv.requireTypeElement(RxJava2TypeNames.MAYBE)
             assertThat(maybe, notNullValue())
@@ -397,7 +397,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testFindDeleteOrUpdateCompletable() {
-        simpleRun(jfos = *arrayOf(COMMON.RX2_COMPLETABLE)) {
+        simpleRun(jfos = arrayOf(COMMON.RX2_COMPLETABLE)) {
             invocation ->
             val completable = invocation.processingEnv
                     .requireTypeElement(RxJava2TypeNames.COMPLETABLE)
@@ -411,7 +411,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testFindDeleteOrUpdateListenableFuture() {
-        simpleRun(jfos = *arrayOf(COMMON.LISTENABLE_FUTURE)) {
+        simpleRun(jfos = arrayOf(COMMON.LISTENABLE_FUTURE)) {
                 invocation ->
             val future = invocation.processingEnv
                 .requireTypeElement(GuavaUtilConcurrentTypeNames.LISTENABLE_FUTURE)
@@ -423,7 +423,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun testFindLiveData() {
-        simpleRun(jfos = *arrayOf(COMMON.COMPUTABLE_LIVE_DATA, COMMON.LIVE_DATA)) {
+        simpleRun(jfos = arrayOf(COMMON.COMPUTABLE_LIVE_DATA, COMMON.LIVE_DATA)) {
             invocation ->
             val liveData = invocation.processingEnv
                     .requireTypeElement(LifecyclesTypeNames.LIVE_DATA)
@@ -489,7 +489,7 @@ class TypeAdapterStoreTest {
 
     @Test
     fun findDataSourceFactory() {
-        simpleRun(jfos = *arrayOf(COMMON.DATA_SOURCE_FACTORY)) {
+        simpleRun(jfos = arrayOf(COMMON.DATA_SOURCE_FACTORY)) {
             invocation ->
             val pagedListProvider = invocation.processingEnv
                     .requireTypeElement(PagingTypeNames.DATA_SOURCE_FACTORY)

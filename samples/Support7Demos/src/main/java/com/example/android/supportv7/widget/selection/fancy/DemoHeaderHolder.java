@@ -15,35 +15,37 @@
  */
 package com.example.android.supportv7.widget.selection.fancy;
 
-import android.view.View;
+import android.content.Context;
+import android.net.Uri;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.Nullable;
+import androidx.annotation.NonNull;
 
 import com.example.android.supportv7.R;
 
 final class DemoHeaderHolder extends DemoHolder {
 
-    private static final String HEADER_TAG = "I'm a header";
     final TextView mLabel;
 
-    DemoHeaderHolder(LinearLayout layout) {
+    DemoHeaderHolder(@NonNull Context context, @NonNull ViewGroup parent) {
+        this(inflateLayout(context, parent, R.layout.selection_demo_list_header));
+    }
+
+    private DemoHeaderHolder(LinearLayout layout) {
         super(layout);
-        layout.setTag(HEADER_TAG);
         mLabel = layout.findViewById(R.id.label);
     }
 
-    void update(String label) {
+    @Override
+    void update(@NonNull Uri uri) {
+        String label = Uris.getGroup(uri);
         mLabel.setText(label.toUpperCase() + label + label + "...");
     }
 
     @Override
     public String toString() {
         return "Header{name:" + mLabel.getText() + "}";
-    }
-
-    static boolean isHeader(@Nullable View view) {
-        return view == null ? false : HEADER_TAG.equals(view.getTag());
     }
 }

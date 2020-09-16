@@ -26,7 +26,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.observe
 import androidx.lifecycle.viewModelScope
 import com.example.android.supportv4.R
 import kotlinx.coroutines.delay

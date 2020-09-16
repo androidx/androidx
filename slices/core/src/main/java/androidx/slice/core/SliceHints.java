@@ -70,6 +70,12 @@ public class SliceHints {
     public static final String HINT_ACTIVITY = "activity";
 
     /**
+     * Hint indicating that this slice is the end of section and may need some form of visual
+     * separation.
+     */
+    public static final String HINT_END_OF_SECTION = "end_of_section";
+
+    /**
      * Hint indicating that this slice was parsed from a serialized format.
      */
     public static final String HINT_CACHED = "cached";
@@ -112,6 +118,8 @@ public class SliceHints {
      * Expected to be an item of format {@link androidx.slice.SliceItem@FORMAT_TEXT}.
      */
     public static final String SUBTYPE_SELECTION_OPTION_VALUE = "selection_option_value";
+
+    public static final String SUBTYPE_HOST_EXTRAS = "host_extras";
 
     @IntDef({
             LARGE_IMAGE, SMALL_IMAGE, ICON_IMAGE, RAW_IMAGE_SMALL, RAW_IMAGE_LARGE, UNKNOWN_IMAGE

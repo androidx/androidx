@@ -62,15 +62,13 @@ dependencies {
 }
 
 // Extract Hilt classes.jar to be used for compile-testing.
-tasks.register("extractHiltJar", Exec).configure {
+tasks.register("extractHiltJar", Copy).configure {
     def aarPath = project.configurations.testRuntimeClasspath.find {
         it.path.contains("com/google/dagger/hilt-android/") && it.name.endsWith(".aar")
     }
-    inputs.file(aarPath)
-    outputs.dir(new File(project.buildDir, "extractedJar"))
-    workingDir(project.buildDir)
-    executable("unzip")
-    args("-o", "$aarPath", "classes.jar", "-d", "extractedJar")
+    from project.zipTree(aarPath)
+    into new File(project.buildDir, "extractedJar")
+    include "classes.jar"
 }
 
 tasks.named("compileKotlin").configure {

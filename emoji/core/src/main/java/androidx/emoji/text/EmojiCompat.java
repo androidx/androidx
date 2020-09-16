@@ -650,8 +650,8 @@ public class EmojiCompat {
      *
      * @param charSequence CharSequence to add the EmojiSpans, cannot be {@code null}
      * @param start start index in the charSequence to look for emojis, should be greater than or
-     *              equal to {@code 0}, also less than {@code charSequence.length()}
-     * @param end end index in the charSequence to look for emojis, should be greater than
+     *              equal to {@code 0}, also less than or equal to {@code charSequence.length()}
+     * @param end end index in the charSequence to look for emojis, should be greater than or equal to
      *             {@code start} parameter, also less than or equal to {@code charSequence.length()}
      *
      * @throws IllegalStateException if not initialized yet
@@ -682,9 +682,9 @@ public class EmojiCompat {
      *
      * @param charSequence CharSequence to add the EmojiSpans, cannot be {@code null}
      * @param start start index in the charSequence to look for emojis, should be greater than or
-     *              equal to {@code 0}, also less than {@code charSequence.length()}
+     *              equal to {@code 0}, also less than or equal to {@code charSequence.length()}
      * @param end end index in the charSequence to look for emojis, should be greater than or
-     *            equal to {@code start} parameter, also less than {@code charSequence.length()}
+     *            equal to {@code start} parameter, also less than or equal to {@code charSequence.length()}
      * @param maxEmojiCount maximum number of emojis in the {@code charSequence}, should be greater
      *                      than or equal to {@code 0}
      *
@@ -718,9 +718,9 @@ public class EmojiCompat {
      *
      * @param charSequence CharSequence to add the EmojiSpans, cannot be {@code null}
      * @param start start index in the charSequence to look for emojis, should be greater than or
-     *              equal to {@code 0}, also less than {@code charSequence.length()}
+     *              equal to {@code 0}, also less than or equal to {@code charSequence.length()}
      * @param end end index in the charSequence to look for emojis, should be greater than or
-     *            equal to {@code start} parameter, also less than {@code charSequence.length()}
+     *            equal to {@code start} parameter, also less than or equal to {@code charSequence.length()}
      * @param maxEmojiCount maximum number of emojis in the {@code charSequence}, should be greater
      *                      than or equal to {@code 0}
      * @param replaceStrategy whether to replace all emoji with {@link EmojiSpan}s, should be one of

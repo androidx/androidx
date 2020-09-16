@@ -16,10 +16,10 @@
 
 package androidx.paging
 
-import androidx.concurrent.futures.ResolvableFuture
 import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadResult.Page
 import com.google.common.util.concurrent.ListenableFuture
+import com.google.common.util.concurrent.SettableFuture
 import kotlinx.coroutines.runBlocking
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -48,7 +48,7 @@ class ListenableFuturePagingSourceTest {
 
     private val listenableFuturePagingSource = object : ListenableFuturePagingSource<Int, Int>() {
         override fun loadFuture(params: LoadParams<Int>): ListenableFuture<LoadResult<Int, Int>> {
-            val future = ResolvableFuture.create<LoadResult<Int, Int>>()
+            val future = SettableFuture.create<LoadResult<Int, Int>>()
             try {
                 future.set(loadInternal(params))
             } catch (e: IllegalArgumentException) {

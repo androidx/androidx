@@ -43,11 +43,11 @@ class PreferencesSerializerTest {
 
     @Test
     fun testWriteAndReadString() {
-        val stringKey = "string_key"
+        val stringKey = preferencesKey<String>("string_key")
 
-        val prefs = Preferences.Builder()
-            .setString(stringKey, "string1")
-            .build()
+        val prefs = preferencesOf(
+            stringKey to "string1"
+        )
 
         testFile.outputStream().use {
             preferencesSerializer.writeTo(prefs, it)
@@ -62,11 +62,11 @@ class PreferencesSerializerTest {
 
     @Test
     fun testWriteAndReadStringSet() {
-        val stringSetKey = "string_set_key"
+        val stringSetKey = preferencesSetKey<String>("string_set_key")
 
-        val prefs = Preferences.Builder()
-            .setStringSet(stringSetKey, setOf("string1", "string2", "string3"))
-            .build()
+        val prefs = preferencesOf(
+            stringSetKey to setOf("string1", "string2", "string3")
+        )
 
         testFile.outputStream().use {
             preferencesSerializer.writeTo(prefs, it)
@@ -81,11 +81,11 @@ class PreferencesSerializerTest {
 
     @Test
     fun testWriteAndReadLong() {
-        val longKey = "long_key"
+        val longKey = preferencesKey<Long>("long_key")
 
-        val prefs = Preferences.Builder()
-            .setLong(longKey, 1 shr 50)
-            .build()
+        val prefs = preferencesOf(
+            longKey to (1 shr 50)
+        )
 
         testFile.outputStream().use {
             preferencesSerializer.writeTo(prefs, it)
@@ -100,11 +100,11 @@ class PreferencesSerializerTest {
 
     @Test
     fun testWriteAndReadInt() {
-        val intKey = "int_key"
+        val intKey = preferencesKey<Int>("int_key")
 
-        val prefs = Preferences.Builder()
-            .setInt(intKey, 3)
-            .build()
+        val prefs = preferencesOf(
+            intKey to 3
+        )
 
         testFile.outputStream().use {
             preferencesSerializer.writeTo(prefs, it)
@@ -119,11 +119,11 @@ class PreferencesSerializerTest {
 
     @Test
     fun testWriteAndReadBoolean() {
-        val booleanKey = "boolean_key"
+        val booleanKey = preferencesKey<Boolean>("boolean_key")
 
-        val prefs = Preferences.Builder()
-            .setBoolean(booleanKey, true)
-            .build()
+        val prefs = preferencesOf(
+            booleanKey to true
+        )
 
         testFile.outputStream().use {
             preferencesSerializer.writeTo(prefs, it)

@@ -28,7 +28,7 @@ import androidx.recyclerview.widget.RecyclerView;
  */
 public abstract class FocusDelegate<K> {
 
-    static <K> FocusDelegate<K> dummy() {
+    static <K> FocusDelegate<K> stub() {
         return new FocusDelegate<K>() {
             @Override
             public void focusItem(@NonNull ItemDetails<K> item) {

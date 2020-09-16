@@ -29,7 +29,7 @@ printf "=================================================================== \n"
 
 repo sync -j64
 git reset --hard $tipOfTreeSha
-git fetch "https://android.googlesource.com/platform/frameworks/support" refs/changes/23/1215823/8 && git cherry-pick FETCH_HEAD
+git fetch "https://android.googlesource.com/platform/frameworks/support" refs/changes/23/1215823/10 && git cherry-pick FETCH_HEAD
 ./gradlew distTipOfTreeDokkaDocs
 
 printf "============================ STEP 3 =============================== \n"
@@ -45,8 +45,7 @@ rm reference/kotlin/sample -rf
 rm reference/kotlin/androidx/annotation -rf
 rm reference/kotlin/androidx/benchmark -rf
 rm reference/kotlin/androidx/tracing -rf
-rm -rf reference/kotlin/androidx/ui/androidview
-rm -rf reference/kotlin/androidx/ui/core/samples
+rm -rf reference/kotlin/androidx/compose/androidview
 mv reference/kotlin/package-list reference/kotlin/androidx/ui/.
 mv reference/kotlin/androidx/_toc.yaml reference/kotlin/androidx/ui/.
 mv reference/kotlin/androidx/packages.html reference/kotlin/androidx/ui/.
@@ -60,8 +59,6 @@ sed -i "s/href=\"ui\//href=\"/g" reference/kotlin/androidx/ui/classes.html
 sed -i "s/path: \/reference\/kotlin\/androidx\/classes.html/path: \/reference\/kotlin\/androidx\/ui\/classes.html/g" reference/kotlin/androidx/ui/_toc.yaml
 sed -i "s/path: \/reference\/kotlin\/androidx\/packages.html/path: \/reference\/kotlin\/androidx\/ui\/packages.html/g" reference/kotlin/androidx/ui/_toc.yaml
 sed -i "s/href=\"animation\/package-summary.html\">androidx.animation/href=\"..\/animation\/package-summary.html\">androidx.animation/g" reference/kotlin/androidx/ui/packages.html
-
-grep -rl "{% setvar book_path %}/reference/kotlin/androidx/_book.yaml{% endsetvar %}" reference/kotlin/androidx/animation | xargs sed -i "s/{% setvar book_path %}\/reference\/kotlin\/androidx\/_book.yaml{% endsetvar %}/{% setvar book_path %}\/reference\/kotlin\/androidx\/ui\/_book.yaml{% endsetvar %}/g"
 
 grep -rl "{% setvar book_path %}/reference/kotlin/androidx/_book.yaml{% endsetvar %}" reference/kotlin/androidx/compose | xargs sed -i "s/{% setvar book_path %}\/reference\/kotlin\/androidx\/_book.yaml{% endsetvar %}/{% setvar book_path %}\/reference\/kotlin\/androidx\/ui\/_book.yaml{% endsetvar %}/g"
 

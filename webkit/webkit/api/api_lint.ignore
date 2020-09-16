@@ -17,5 +17,9 @@ IntentName: androidx.webkit.WebViewFeature#DISABLED_ACTION_MODE_MENU_ITEMS:
     Intent action constant name must be ACTION_FOO: DISABLED_ACTION_MODE_MENU_ITEMS
 
 
+StaticFinalBuilder: androidx.webkit.TracingConfig.Builder:
+    Builder must be final: androidx.webkit.TracingConfig.Builder
+
+
 StreamFiles: androidx.webkit.WebViewAssetLoader.InternalStoragePathHandler#InternalStoragePathHandler(android.content.Context, java.io.File):
     Methods accepting `File` should also accept `FileDescriptor` or streams: constructor androidx.webkit.WebViewAssetLoader.InternalStoragePathHandler(android.content.Context,java.io.File)

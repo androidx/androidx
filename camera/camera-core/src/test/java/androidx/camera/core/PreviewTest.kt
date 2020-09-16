@@ -25,25 +25,32 @@ import android.util.Size
 import android.view.Surface
 import androidx.camera.core.impl.CameraFactory
 import androidx.camera.core.impl.CameraThreadConfig
+import androidx.camera.core.impl.SessionConfig
+import androidx.camera.core.impl.UseCaseConfig
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.internal.CameraUseCaseAdapter
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.fakes.FakeAppConfig
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager
 import androidx.camera.testing.fakes.FakeCameraFactory
+import androidx.camera.testing.fakes.FakeUseCase
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.SmallTest
-import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import org.robolectric.annotation.internal.DoNotInstrument
-import org.robolectric.Shadows.shadowOf
 import java.util.Collections
 import java.util.concurrent.ExecutionException
+import kotlin.jvm.Throws
+
+private val TEST_CAMERA_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
 
 /**
  * Unit tests for [Preview].
@@ -51,8 +58,12 @@ import java.util.concurrent.ExecutionException
 @SmallTest
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP, shadows = [ShadowCameraX::class])
+@Config(
+    minSdk = Build.VERSION_CODES.LOLLIPOP, shadows = [ShadowCameraX::class]
+)
 class PreviewTest {
+
+    var cameraUseCaseAdapter: CameraUseCaseAdapter? = null
 
     @Before
     @Throws(ExecutionException::class, InterruptedException::class)
@@ -75,23 +86,43 @@ class PreviewTest {
     @After
     @Throws(ExecutionException::class, InterruptedException::class)
     fun tearDown() {
+        with (cameraUseCaseAdapter) {
+            this?.removeUseCases(useCases)
+        }
+        cameraUseCaseAdapter = null
         CameraX.shutdown().get()
     }
 
     @Test
-    fun viewPortCropSize() {
-        val expectedSurfaceRequest = bindToLifecycleAndGetSurfaceRequest(
+    fun viewPortSet_cropRectIsBasedOnViewPort() {
+        val transformationInfo = bindToLifecycleAndGetTransformationInfo(
             ViewPort.Builder(Rational(1, 1), Surface.ROTATION_0).build()
         )
         // The expected value is based on fitting the 1:1 view port into a rect with the size of
         // FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.
         val expectedPadding = (FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.width -
                 FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.height) / 2
-        assertThat(expectedSurfaceRequest.cropRect).isEqualTo(
+        assertThat(transformationInfo.cropRect).isEqualTo(
             Rect(
                 expectedPadding,
                 0,
                 FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.width - expectedPadding,
+                FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.height
+            )
+        )
+    }
+
+    @Test
+    fun viewPortNotSet_cropRectIsFullSurface() {
+        val transformationInfo = bindToLifecycleAndGetTransformationInfo(
+            null
+        )
+
+        assertThat(transformationInfo.cropRect).isEqualTo(
+            Rect(
+                0,
+                0,
+                FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.width,
                 FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.height
             )
         )
@@ -120,51 +151,203 @@ class PreviewTest {
     }
 
     @Test
-    fun setSurfaceProviderAfterAttachment_receivesSurfaceRequest() {
+    fun attachUseCase_transformationInfoUpdates() {
         // Arrange: attach Preview without a SurfaceProvider.
-        val preview = Preview.Builder().setTargetRotation(Surface.ROTATION_0).build()
-        val cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(
+        // Build and bind use case.
+        val sessionOptionUnpacker =
+            { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
+        val preview = Preview.Builder()
+            .setTargetRotation(Surface.ROTATION_0)
+            .setSessionOptionUnpacker(sessionOptionUnpacker)
+            .build()
+        cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
+            ApplicationProvider.getApplicationContext(), TEST_CAMERA_SELECTOR
+        )
+        val rational1 = Rational(1, 1)
+        cameraUseCaseAdapter!!.setViewPort(ViewPort.Builder(rational1, Surface.ROTATION_0).build())
+        cameraUseCaseAdapter!!.addUseCases(Collections.singleton<UseCase>(preview))
+
+        // Set SurfaceProvider
+        var receivedTransformationInfo: SurfaceRequest.TransformationInfo? = null
+        preview.setSurfaceProvider { request ->
+            request.setTransformationInfoListener(
+                CameraXExecutors.directExecutor(),
+                SurfaceRequest.TransformationInfoListener {
+                    receivedTransformationInfo = it
+                })
+        }
+        shadowOf(getMainLooper()).idle()
+        assertThat(receivedTransformationInfo!!.cropRect.getAspectRatio()).isEqualTo(rational1)
+
+        // Act: bind another use case with a different viewport.
+        val fakeUseCase = FakeUseCase()
+        val rational2 = Rational(2, 1)
+        cameraUseCaseAdapter!!.setViewPort(ViewPort.Builder(rational2, Surface.ROTATION_0).build())
+        cameraUseCaseAdapter!!.addUseCases(listOf(preview, fakeUseCase))
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: received viewport's aspect ratio is the latest one.
+        assertThat(receivedTransformationInfo!!.cropRect.getAspectRatio()).isEqualTo(rational2)
+    }
+
+    private fun Rect.getAspectRatio(): Rational {
+        return Rational(width(), height())
+    }
+
+    @Test
+    fun setTargetRotation_transformationInfoUpdated() {
+        // Arrange: set up preview and verify target rotation in TransformationInfo.
+        val sessionOptionUnpacker =
+            { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
+        val preview = Preview.Builder()
+            .setTargetRotation(Surface.ROTATION_0)
+            .setSessionOptionUnpacker(sessionOptionUnpacker)
+            .build()
+        cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
+            ApplicationProvider.getApplicationContext(), TEST_CAMERA_SELECTOR
+        )
+        cameraUseCaseAdapter!!.addUseCases(Collections.singleton<UseCase>(preview))
+        var receivedTransformationInfo: SurfaceRequest.TransformationInfo? = null
+        preview.setSurfaceProvider { request ->
+            request.setTransformationInfoListener(
+                CameraXExecutors.directExecutor(),
+                SurfaceRequest.TransformationInfoListener {
+                    receivedTransformationInfo = it
+                })
+        }
+        shadowOf(getMainLooper()).idle()
+        assertThat(receivedTransformationInfo!!.targetRotation).isEqualTo(Surface.ROTATION_0)
+
+        // Act: set target rotation to a different value.
+        preview.targetRotation = Surface.ROTATION_180
+        shadowOf(getMainLooper()).idle()
+
+        // Assert: target rotation changed.
+        assertThat(receivedTransformationInfo!!.targetRotation).isEqualTo(Surface.ROTATION_180)
+    }
+
+    @Test
+    fun setSurfaceProviderAfterAttachment_receivesSurfaceProviderCallbacks() {
+        // Arrange: attach Preview without a SurfaceProvider.
+        val sessionOptionUnpacker =
+            { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
+        val preview = Preview.Builder()
+            .setTargetRotation(Surface.ROTATION_0)
+            .setSessionOptionUnpacker(sessionOptionUnpacker)
+            .build()
+        val cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
             ApplicationProvider
-                .getApplicationContext<Context>(), CameraSelector.DEFAULT_BACK_CAMERA
+                .getApplicationContext(), TEST_CAMERA_SELECTOR
         )
         cameraUseCaseAdapter.addUseCases(Collections.singleton<UseCase>(preview))
 
-        // Unsent pending SurfaceRequest created by pipeline.
-        val pendingSurfaceRequest = preview.mPendingSurfaceRequest
+        // Get pending SurfaceRequest created by pipeline.
+        val pendingSurfaceRequest = preview.mCurrentSurfaceRequest
         var receivedSurfaceRequest: SurfaceRequest? = null
+        var receivedTransformationInfo: SurfaceRequest.TransformationInfo? = null
 
         // Act: set a SurfaceProvider after attachment.
-        preview.setSurfaceProvider { receivedSurfaceRequest = it }
+        preview.setSurfaceProvider { request ->
+            request.setTransformationInfoListener(
+                CameraXExecutors.directExecutor(),
+                SurfaceRequest.TransformationInfoListener {
+                    receivedTransformationInfo = it
+                })
+            receivedSurfaceRequest = request
+        }
         shadowOf(getMainLooper()).idle()
-        // Assert: received a SurfaceRequest.
+
+        // Assert: received SurfaceRequest is the pending SurfaceRequest.
         assertThat(receivedSurfaceRequest).isSameInstanceAs(pendingSurfaceRequest)
+        assertThat(receivedTransformationInfo).isNotNull()
 
         // Act: set a different SurfaceProvider.
-        preview.setSurfaceProvider { receivedSurfaceRequest = it }
+        preview.setSurfaceProvider { request ->
+            request.setTransformationInfoListener(
+                CameraXExecutors.directExecutor(),
+                SurfaceRequest.TransformationInfoListener {
+                    receivedTransformationInfo = it
+                })
+            receivedSurfaceRequest = request
+        }
         shadowOf(getMainLooper()).idle()
+
         // Assert: received a different SurfaceRequest.
         assertThat(receivedSurfaceRequest).isNotSameInstanceAs(pendingSurfaceRequest)
     }
 
-    private fun bindToLifecycleAndGetSurfaceRequest(): SurfaceRequest {
-        return bindToLifecycleAndGetSurfaceRequest(null)
+    @Test
+    fun setSurfaceProviderAfterDetach_receivesSurfaceRequestAfterAttach() {
+        // Arrange: attach Preview without a SurfaceProvider.
+        val sessionOptionUnpacker =
+            { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
+        val preview = Preview.Builder()
+            .setTargetRotation(Surface.ROTATION_0)
+            .setSessionOptionUnpacker(sessionOptionUnpacker)
+            .build()
+        cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
+            ApplicationProvider
+                .getApplicationContext(), TEST_CAMERA_SELECTOR
+        )
+        // Attach
+        cameraUseCaseAdapter!!.addUseCases(Collections.singleton<UseCase>(preview))
+        // Detach
+        cameraUseCaseAdapter!!.removeUseCases(Collections.singleton<UseCase>(preview))
+
+        // Act: set a SurfaceProvider after detaching
+        var receivedSurfaceRequest = false
+        preview.setSurfaceProvider { receivedSurfaceRequest = true }
+        shadowOf(getMainLooper()).idle()
+
+        val receivedWhileDetached = receivedSurfaceRequest
+
+        // Attach
+        cameraUseCaseAdapter!!.addUseCases(Collections.singleton<UseCase>(preview))
+        shadowOf(getMainLooper()).idle()
+
+        val receivedAfterAttach = receivedSurfaceRequest
+
+        // Assert: received a SurfaceRequest.
+        assertThat(receivedWhileDetached).isFalse()
+        assertThat(receivedAfterAttach).isTrue()
     }
 
-    private fun bindToLifecycleAndGetSurfaceRequest(viewPort: ViewPort?): SurfaceRequest {
+    private fun bindToLifecycleAndGetSurfaceRequest(): SurfaceRequest {
+        return bindToLifecycleAndGetResult(null).first
+    }
+
+    private fun bindToLifecycleAndGetTransformationInfo(viewPort: ViewPort?):
+            SurfaceRequest.TransformationInfo {
+        return bindToLifecycleAndGetResult(viewPort).second
+    }
+
+    private fun bindToLifecycleAndGetResult(viewPort: ViewPort?): Pair<SurfaceRequest,
+            SurfaceRequest.TransformationInfo> {
         // Arrange.
-        val preview = Preview.Builder().setTargetRotation(Surface.ROTATION_0).build()
+        val sessionOptionUnpacker =
+            { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
+        val preview = Preview.Builder()
+            .setTargetRotation(Surface.ROTATION_0)
+            .setSessionOptionUnpacker(sessionOptionUnpacker)
+            .build()
         var surfaceRequest: SurfaceRequest? = null
-        preview.setSurfaceProvider { surfaceRequest = it }
+        var transformationInfo: SurfaceRequest.TransformationInfo? = null
+        preview.setSurfaceProvider { request ->
+            request.setTransformationInfoListener(
+                CameraXExecutors.directExecutor(),
+                SurfaceRequest.TransformationInfoListener {
+                    transformationInfo = it
+                })
+            surfaceRequest = request
+        }
 
         // Act.
-        val cameraUseCaseAdapter = CameraUtil.getCameraUseCaseAdapter(
-            ApplicationProvider
-                .getApplicationContext<Context>(), CameraSelector.DEFAULT_BACK_CAMERA
+        cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
+            ApplicationProvider.getApplicationContext(), TEST_CAMERA_SELECTOR
         )
-
-        cameraUseCaseAdapter.setViewPort(viewPort)
-        cameraUseCaseAdapter.addUseCases(Collections.singleton<UseCase>(preview))
-        InstrumentationRegistry.getInstrumentation().waitForIdleSync()
-        return surfaceRequest!!
+        cameraUseCaseAdapter!!.setViewPort(viewPort)
+        cameraUseCaseAdapter!!.addUseCases(Collections.singleton<UseCase>(preview))
+        shadowOf(getMainLooper()).idle()
+        return Pair(surfaceRequest!!, transformationInfo!!)
     }
 }

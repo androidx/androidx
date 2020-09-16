@@ -24,7 +24,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
 import android.os.SystemClock;
-import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.MainThread;
@@ -162,8 +161,6 @@ public final class CameraX {
      * the user-provided configuration used to create a use case.
      *
      * @param configType the configuration type
-     * @param cameraInfo The {@link CameraInfo} of the camera that the default configuration
-     *                   will target to, null if it doesn't target to any camera.
      * @return the default configuration for the given configuration type
      * @throws IllegalStateException if CameraX has not yet been initialized.
      * @hide
@@ -171,11 +168,10 @@ public final class CameraX {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
     public static <C extends UseCaseConfig<?>> C getDefaultUseCaseConfig(
-            @NonNull Class<C> configType,
-            @Nullable CameraInfo cameraInfo) {
+            @NonNull Class<C> configType) {
         CameraX cameraX = checkInitialized();
 
-        return cameraX.getDefaultConfigFactory().getConfig(configType, cameraInfo);
+        return cameraX.getDefaultConfigFactory().getConfig(configType);
     }
 
     /**
@@ -248,7 +244,7 @@ public final class CameraX {
                     @SuppressWarnings("FutureReturnValueIgnored")
                     @Override
                     public void onFailure(Throwable t) {
-                        Log.w(TAG, "CameraX initialize() failed", t);
+                        Logger.w(TAG, "CameraX initialize() failed", t);
                         // Call shutdown() automatically, if initialization fails.
                         synchronized (INSTANCE_LOCK) {
                             // Make sure it is the same instance to prevent reinitialization
@@ -439,7 +435,7 @@ public final class CameraX {
                     | NoSuchMethodException
                     | IllegalAccessException
                     | NullPointerException e) {
-                Log.e(TAG, "Failed to retrieve default CameraXConfig.Provider from "
+                Logger.e(TAG, "Failed to retrieve default CameraXConfig.Provider from "
                         + "resources", e);
             }
         }
@@ -583,7 +579,7 @@ public final class CameraX {
                 CameraThreadConfig cameraThreadConfig = CameraThreadConfig.create(mCameraExecutor,
                         mSchedulerHandler);
 
-                mCameraFactory = cameraFactoryProvider.newInstance(context,
+                mCameraFactory = cameraFactoryProvider.newInstance(mAppContext,
                         cameraThreadConfig);
                 CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
                         mCameraXConfig.getDeviceSurfaceManagerProvider(null);
@@ -592,7 +588,7 @@ public final class CameraX {
                             "Invalid app configuration provided. Missing "
                                     + "CameraDeviceSurfaceManager."));
                 }
-                mSurfaceManager = surfaceManagerProvider.newInstance(context);
+                mSurfaceManager = surfaceManagerProvider.newInstance(mAppContext);
 
                 UseCaseConfigFactory.Provider configFactoryProvider =
                         mCameraXConfig.getUseCaseConfigFactoryProvider(null);
@@ -601,7 +597,7 @@ public final class CameraX {
                             "Invalid app configuration provided. Missing "
                                     + "UseCaseConfigFactory."));
                 }
-                mDefaultConfigFactory = configFactoryProvider.newInstance(context);
+                mDefaultConfigFactory = configFactoryProvider.newInstance(mAppContext);
 
                 if (cameraExecutor instanceof CameraExecutor) {
                     CameraExecutor executor = (CameraExecutor) cameraExecutor;
@@ -616,10 +612,10 @@ public final class CameraX {
             } catch (InitializationException | RuntimeException e) {
                 if (SystemClock.elapsedRealtime() - startMs
                         < WAIT_INITIALIZED_TIMEOUT_MILLIS - RETRY_SLEEP_MILLIS) {
-                    Log.w(TAG, "Retry init. Start time " + startMs + " current time "
+                    Logger.w(TAG, "Retry init. Start time " + startMs + " current time "
                             + SystemClock.elapsedRealtime(), e);
                     HandlerCompat.postDelayed(mSchedulerHandler, () -> initAndRetryRecursively(
-                            cameraExecutor, startMs, context, completer), RETRY_TOKEN,
+                            cameraExecutor, startMs, mAppContext, completer), RETRY_TOKEN,
                             RETRY_SLEEP_MILLIS);
 
                 } else {

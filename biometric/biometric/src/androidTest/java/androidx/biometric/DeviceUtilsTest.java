@@ -92,6 +92,25 @@ public class DeviceUtilsTest {
     }
 
     @Test
+    public void testShouldDelayShowingPrompt() {
+        final String[] modelNames = {"S", "flame", "My phone"};
+        when(mContext.getResources()).thenReturn(mResources);
+        when(mResources.getStringArray(R.array.delay_showing_prompt_models)).thenReturn(modelNames);
+
+        final boolean isApi29 = Build.VERSION.SDK_INT == Build.VERSION_CODES.Q;
+        assertThat(DeviceUtils.shouldDelayShowingPrompt(mContext, "S")).isEqualTo(isApi29);
+        assertThat(DeviceUtils.shouldDelayShowingPrompt(mContext, "flame")).isEqualTo(isApi29);
+        assertThat(DeviceUtils.shouldDelayShowingPrompt(mContext, "My phone")).isEqualTo(isApi29);
+        assertThat(DeviceUtils.shouldDelayShowingPrompt(mContext, "s")).isFalse();
+        assertThat(DeviceUtils.shouldDelayShowingPrompt(mContext, "Y")).isFalse();
+        assertThat(DeviceUtils.shouldDelayShowingPrompt(mContext, "Flame")).isFalse();
+        assertThat(DeviceUtils.shouldDelayShowingPrompt(mContext, "coral")).isFalse();
+        assertThat(DeviceUtils.shouldDelayShowingPrompt(mContext, "My Phone")).isFalse();
+        assertThat(DeviceUtils.shouldDelayShowingPrompt(mContext, "Myphone")).isFalse();
+        assertThat(DeviceUtils.shouldDelayShowingPrompt(mContext, "My phone2")).isFalse();
+    }
+
+    @Test
     public void testCanAssumeStrongBiometrics() {
         final String[] modelPrefixes = {"foo", "bar"};
         when(mContext.getResources()).thenReturn(mResources);

@@ -17,7 +17,6 @@
 package androidx.camera.core;
 
 import android.media.ImageReader;
-import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 
@@ -363,14 +362,14 @@ class ProcessingImageReader implements ImageReaderProxy {
             try {
                 image = imageReader.acquireNextImage();
             } catch (IllegalStateException e) {
-                Log.e(TAG, "Failed to acquire latest image.", e);
+                Logger.e(TAG, "Failed to acquire latest image.", e);
             } finally {
                 if (image != null) {
                     // Currently use the same key which intends to get a captureStage id value.
                     Integer tagValue = image.getImageInfo().getTagBundle().getTag(mTagBundleKey);
 
                     if (!mCaptureIdList.contains(tagValue)) {
-                        Log.w(TAG, "ImageProxyBundle does not contain this id: " + tagValue);
+                        Logger.w(TAG, "ImageProxyBundle does not contain this id: " + tagValue);
                         image.close();
                     } else {
                         mSettableImageProxyBundle.addImageProxy(image);

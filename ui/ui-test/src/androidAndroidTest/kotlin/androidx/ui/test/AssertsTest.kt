@@ -16,16 +16,16 @@
 
 package androidx.ui.test
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.selection.ToggleableState
 import androidx.compose.foundation.semantics.inMutuallyExclusiveGroup
 import androidx.compose.foundation.semantics.selected
 import androidx.compose.foundation.semantics.toggleableState
-import androidx.compose.foundation.layout.Column
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.SemanticsPropertyReceiver
 import androidx.compose.ui.semantics.hidden
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
 import org.junit.Rule
 import org.junit.Test
@@ -33,194 +33,194 @@ import org.junit.Test
 class AssertsTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule(disableTransitions = true)
 
     @Test
     fun assertIsNotHidden_forVisibleElement_isOk() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode { testTag = "test" }
         }
 
-        onNodeWithTag("test")
+        rule.onNodeWithTag("test")
             .assertIsNotHidden()
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsNotHidden_forHiddenElement_throwsError() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode { testTag = "test"; hidden() }
         }
 
-        onNodeWithTag("test")
+        rule.onNodeWithTag("test")
             .assertIsNotHidden()
     }
 
     @Test
     fun assertIsHidden_forHiddenElement_isOk() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode { testTag = "test"; hidden() }
         }
 
-        onNodeWithTag("test")
+        rule.onNodeWithTag("test")
             .assertIsHidden()
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsHidden_forNotHiddenElement_throwsError() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode { testTag = "test" }
         }
 
-        onNodeWithTag("test")
+        rule.onNodeWithTag("test")
             .assertIsHidden()
     }
 
     @Test
     fun assertIsOn_forCheckedElement_isOk() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode { testTag = "test"; toggleableState = ToggleableState.On }
         }
 
-        onNodeWithTag("test")
+        rule.onNodeWithTag("test")
             .assertIsOn()
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsOn_forUncheckedElement_throwsError() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode { testTag = "test"; toggleableState = ToggleableState.Off }
         }
 
-        onNodeWithTag("test")
+        rule.onNodeWithTag("test")
             .assertIsOn()
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsOn_forNotToggleableElement_throwsError() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode { testTag = "test" }
         }
 
-        onNodeWithTag("test")
+        rule.onNodeWithTag("test")
             .assertIsOn()
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsOff_forCheckedElement_throwsError() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode { testTag = "test"; toggleableState = ToggleableState.On }
         }
 
-        onNodeWithTag("test")
+        rule.onNodeWithTag("test")
             .assertIsOff()
     }
 
     @Test
     fun assertIsOff_forUncheckedElement_isOk() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode { testTag = "test"; toggleableState = ToggleableState.Off }
         }
 
-        onNodeWithTag("test")
+        rule.onNodeWithTag("test")
             .assertIsOff()
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsOff_forNotToggleableElement_throwsError() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode { testTag = "test"; }
         }
 
-        onNodeWithTag("test")
+        rule.onNodeWithTag("test")
             .assertIsOff()
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsSelected_forNotSelectedElement_throwsError() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode { testTag = "test"; selected = false }
         }
 
-        onNodeWithTag("test")
+        rule.onNodeWithTag("test")
             .assertIsSelected()
     }
 
     @Test
     fun assertIsSelected_forSelectedElement_isOk() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode { testTag = "test"; selected = true }
         }
 
-        onNodeWithTag("test")
+        rule.onNodeWithTag("test")
             .assertIsSelected()
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsSelected_forNotSelectableElement_throwsError() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode { testTag = "test"; }
         }
 
-        onNodeWithTag("test")
+        rule.onNodeWithTag("test")
             .assertIsSelected()
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsNotSelected_forSelectedElement_throwsError() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode { testTag = "test"; selected = true }
         }
 
-        onNodeWithTag("test")
+        rule.onNodeWithTag("test")
             .assertIsNotSelected()
     }
 
     @Test
     fun assertIsNotSelected_forNotSelectedElement_isOk() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode { testTag = "test"; selected = false }
         }
 
-        onNodeWithTag("test")
+        rule.onNodeWithTag("test")
             .assertIsNotSelected()
     }
 
     @Test(expected = AssertionError::class)
     fun assertIsNotSelected_forNotSelectableElement_throwsError() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode { testTag = "test"; }
         }
 
-        onNodeWithTag("test")
+        rule.onNodeWithTag("test")
             .assertIsNotSelected()
     }
     @Test(expected = AssertionError::class)
     fun assertItemInExclusiveGroup_forItemNotInGroup_throwsError() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode { testTag = "test"; inMutuallyExclusiveGroup = false }
         }
 
-        onNodeWithTag("test")
+        rule.onNodeWithTag("test")
             .assertIsInMutuallyExclusiveGroup()
     }
 
     @Test(expected = AssertionError::class)
     fun assertItemInExclusiveGroup_forItemWithoutProperty_throwsError() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode { testTag = "test" }
         }
 
-        onNodeWithTag("test")
+        rule.onNodeWithTag("test")
             .assertIsInMutuallyExclusiveGroup()
     }
 
     @Test
     fun assertItemInExclusiveGroup_forItemInGroup_isOk() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode { testTag = "test"; inMutuallyExclusiveGroup = true }
         }
 
-        onNodeWithTag("test")
+        rule.onNodeWithTag("test")
             .assertIsInMutuallyExclusiveGroup()
     }
 

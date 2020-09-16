@@ -16,10 +16,10 @@
 
 package androidx.room.solver.binderprovider
 
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XRawType
 import androidx.room.ext.PagingTypeNames
 import androidx.room.parser.ParsedQuery
-import androidx.room.compiler.processing.XDeclaredType
-import androidx.room.compiler.processing.XType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.QueryResultBinderProvider
@@ -30,8 +30,8 @@ import androidx.room.solver.query.result.QueryResultBinder
 import com.squareup.javapoet.TypeName
 
 class PagingSourceQueryResultBinderProvider(val context: Context) : QueryResultBinderProvider {
-    private val pagingSourceTypeMirror: XType? by lazy {
-        context.processingEnv.findType(PagingTypeNames.PAGING_SOURCE)
+    private val pagingSourceType: XRawType? by lazy {
+        context.processingEnv.findType(PagingTypeNames.PAGING_SOURCE)?.rawType
     }
 
     override fun provide(declared: XDeclaredType, query: ParsedQuery): QueryResultBinder {
@@ -50,7 +50,7 @@ class PagingSourceQueryResultBinderProvider(val context: Context) : QueryResultB
     }
 
     override fun matches(declared: XDeclaredType): Boolean {
-        if (pagingSourceTypeMirror == null) {
+        if (pagingSourceType == null) {
             return false
         }
 
@@ -58,8 +58,7 @@ class PagingSourceQueryResultBinderProvider(val context: Context) : QueryResultB
             return false
         }
 
-        val erasure = declared.erasure()
-        if (!pagingSourceTypeMirror!!.isAssignableFrom(erasure)) {
+        if (!pagingSourceType!!.isAssignableFrom(declared)) {
             return false
         }
 

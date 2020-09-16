@@ -23,7 +23,7 @@ dependencies {
     api("androidx.drawerlayout:drawerlayout:1.0.0")
     implementation(project(":lifecycle:lifecycle-runtime"))
     implementation(project(":lifecycle:lifecycle-viewmodel"))
-    api("androidx.savedstate:savedstate:1.1.0-alpha01")
+    api(project(":savedstate:savedstate"))
 
     androidTestImplementation(KOTLIN_STDLIB)
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
@@ -38,6 +38,7 @@ dependencies {
         exclude group: 'androidx.appcompat', module: 'appcompat'
         exclude group: 'androidx.core', module: 'core'
     }
+    androidTestImplementation(MULTIDEX)
 
     testImplementation(KOTLIN_STDLIB)
     testImplementation(ANDROIDX_TEST_CORE)
@@ -56,6 +57,7 @@ android {
     defaultConfig {
         // This disables the builds tools automatic vector -> PNG generation
         generatedDensities = []
+        multiDexEnabled = true
     }
 
     sourceSets {

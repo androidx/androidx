@@ -17,12 +17,12 @@
 package androidx.camera.core.impl;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.InitializationException;
+import androidx.camera.core.Logger;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -60,7 +60,7 @@ public final class CameraRepository {
             try {
                 Set<String> camerasList = cameraFactory.getAvailableCameraIds();
                 for (String id : camerasList) {
-                    Log.d(TAG, "Added camera: " + id);
+                    Logger.d(TAG, "Added camera: " + id);
                     mCameras.put(id, cameraFactory.getCamera(id));
                 }
             } catch (CameraUnavailableException e) {

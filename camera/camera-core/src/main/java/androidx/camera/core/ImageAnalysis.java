@@ -85,6 +85,11 @@ import java.util.concurrent.Executor;
  */
 public final class ImageAnalysis extends UseCase {
 
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // [UseCase lifetime constant] - Stays constant for the lifetime of the UseCase. Which means
+    // they could be created in the constructor.
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
     /**
      * Only deliver the latest image to the analyzer, dropping images as they arrive.
      *
@@ -136,12 +141,26 @@ public final class ImageAnalysis extends UseCase {
     private static final String TAG = "ImageAnalysis";
     // ImageReader depth for KEEP_ONLY_LATEST mode.
     private static final int NON_BLOCKING_IMAGE_DEPTH = 4;
+    @BackpressureStrategy
+    private static final int DEFAULT_BACKPRESSURE_STRATEGY = STRATEGY_KEEP_ONLY_LATEST;
+    private static final int DEFAULT_IMAGE_QUEUE_DEPTH = 6;
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     final ImageAnalysisAbstractAnalyzer mImageAnalysisAbstractAnalyzer;
     private final Object mAnalysisLock = new Object();
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // [UseCase lifetime dynamic] - Dynamic variables which could change during anytime during
+    // the UseCase lifetime.
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
     @GuardedBy("mAnalysisLock")
     private ImageAnalysis.Analyzer mSubscribedAnalyzer;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
     @Nullable
     private DeferrableSurface mDeferrableSurface;
 
@@ -157,7 +176,8 @@ public final class ImageAnalysis extends UseCase {
         // Get the combined configuration with defaults
         ImageAnalysisConfig combinedConfig = (ImageAnalysisConfig) getUseCaseConfig();
 
-        if (combinedConfig.getBackpressureStrategy() == STRATEGY_BLOCK_PRODUCER) {
+        if (combinedConfig.getBackpressureStrategy(DEFAULT_BACKPRESSURE_STRATEGY)
+                == STRATEGY_BLOCK_PRODUCER) {
             mImageAnalysisAbstractAnalyzer = new ImageAnalysisBlockingAnalyzer();
         } else {
             mImageAnalysisAbstractAnalyzer = new ImageAnalysisNonBlockingAnalyzer(
@@ -174,8 +194,8 @@ public final class ImageAnalysis extends UseCase {
                 CameraXExecutors.highPriorityExecutor()));
 
         int imageQueueDepth =
-                config.getBackpressureStrategy() == STRATEGY_BLOCK_PRODUCER
-                        ? config.getImageQueueDepth() : NON_BLOCKING_IMAGE_DEPTH;
+                getBackpressureStrategy() == STRATEGY_BLOCK_PRODUCER ? getImageQueueDepth()
+                        : NON_BLOCKING_IMAGE_DEPTH;
         SafeCloseImageReaderProxy imageReaderProxy;
         if (config.getImageReaderProxyProvider() != null) {
             imageReaderProxy = new SafeCloseImageReaderProxy(
@@ -274,7 +294,7 @@ public final class ImageAnalysis extends UseCase {
      */
     @RotationValue
     public int getTargetRotation() {
-        return ((ImageAnalysisConfig) getUseCaseConfig()).getTargetRotation();
+        return getTargetRotationInternal();
     }
 
     /**
@@ -370,7 +390,8 @@ public final class ImageAnalysis extends UseCase {
      */
     @BackpressureStrategy
     public int getBackpressureStrategy() {
-        return ((ImageAnalysisConfig) getUseCaseConfig()).getBackpressureStrategy();
+        return ((ImageAnalysisConfig) getUseCaseConfig()).getBackpressureStrategy(
+                DEFAULT_BACKPRESSURE_STRATEGY);
     }
 
     /**
@@ -388,7 +409,8 @@ public final class ImageAnalysis extends UseCase {
      * @see ImageAnalysis.Builder#setBackpressureStrategy(int)
      */
     public int getImageQueueDepth() {
-        return ((ImageAnalysisConfig) getUseCaseConfig()).getImageQueueDepth();
+        return ((ImageAnalysisConfig) getUseCaseConfig()).getImageQueueDepth(
+                DEFAULT_IMAGE_QUEUE_DEPTH);
     }
 
     @Override
@@ -404,19 +426,8 @@ public final class ImageAnalysis extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public void clear() {
+    public void onDetached() {
         clearPipeline();
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public void onDestroy() {
-        clearAnalyzer();
     }
 
     /**
@@ -427,14 +438,31 @@ public final class ImageAnalysis extends UseCase {
     @Override
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
-        ImageAnalysisConfig defaults = CameraX.getDefaultUseCaseConfig(ImageAnalysisConfig.class,
-                cameraInfo);
+    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder() {
+        ImageAnalysisConfig defaults = CameraX.getDefaultUseCaseConfig(ImageAnalysisConfig.class);
         if (defaults != null) {
             return Builder.fromConfig(defaults);
         }
 
         return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void onAttached() {
+        synchronized (mAnalysisLock) {
+            // The use case should be reused so that mSubscribedAnalyzer is not null but
+            // mImageAnalysisAbstractAnalyzer is closed. Re-open mImageAnalysisAbstractAnalyzer
+            // after the use case is attached to make it work again.
+            if (mSubscribedAnalyzer != null && mImageAnalysisAbstractAnalyzer.isClosed()) {
+                mImageAnalysisAbstractAnalyzer.open();
+            }
+        }
     }
 
     /**
@@ -553,9 +581,6 @@ public final class ImageAnalysis extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<ImageAnalysisConfig> {
-        @BackpressureStrategy
-        private static final int DEFAULT_BACKPRESSURE_STRATEGY = STRATEGY_KEEP_ONLY_LATEST;
-        private static final int DEFAULT_IMAGE_QUEUE_DEPTH = 6;
         private static final Size DEFAULT_TARGET_RESOLUTION = new Size(640, 480);
         private static final Size DEFAULT_MAX_RESOLUTION = new Size(1920, 1080);
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 1;
@@ -564,8 +589,6 @@ public final class ImageAnalysis extends UseCase {
 
         static {
             Builder builder = new Builder()
-                    .setBackpressureStrategy(DEFAULT_BACKPRESSURE_STRATEGY)
-                    .setImageQueueDepth(DEFAULT_IMAGE_QUEUE_DEPTH)
                     .setDefaultResolution(DEFAULT_TARGET_RESOLUTION)
                     .setMaxResolution(DEFAULT_MAX_RESOLUTION)
                     .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
@@ -575,7 +598,7 @@ public final class ImageAnalysis extends UseCase {
 
         @NonNull
         @Override
-        public ImageAnalysisConfig getConfig(@Nullable CameraInfo cameraInfo) {
+        public ImageAnalysisConfig getConfig() {
             return DEFAULT_CONFIG;
         }
     }

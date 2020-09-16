@@ -24,6 +24,8 @@ import androidx.room.vo.CustomTypeConverter
 import androidx.room.writer.ClassWriter
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
+import decapitalize
+import java.util.Locale
 import javax.lang.model.element.Modifier
 
 /**
@@ -51,7 +53,7 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
     }
 
     fun typeConverter(scope: CodeGenScope): FieldSpec {
-        val baseName = (custom.typeName as ClassName).simpleName().decapitalize()
+        val baseName = (custom.typeName as ClassName).simpleName().decapitalize(Locale.US)
         return scope.writer.getOrCreateField(object : ClassWriter.SharedFieldSpec(
                 baseName, custom.typeName) {
             override fun getUniqueKey(): String {

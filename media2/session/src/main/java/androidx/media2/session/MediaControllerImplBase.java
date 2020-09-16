@@ -522,7 +522,7 @@ class MediaControllerImplBase implements MediaControllerImpl {
     @Override
     public List<MediaItem> getPlaylist() {
         synchronized (mLock) {
-            return new ArrayList<>(mPlaylist);
+            return mPlaylist == null ? null : new ArrayList<>(mPlaylist);
         }
     }
 
@@ -895,6 +895,10 @@ class MediaControllerImplBase implements MediaControllerImpl {
                     && currentMediaItemIndex < mPlaylist.size()) {
                 mPlaylist.set(currentMediaItemIndex, item);
             }
+            // Reset position to zero as a stopgap. media2-session 1.0.x didn't notify new position
+            // when current item changes.
+            mPositionEventTimeMs = SystemClock.elapsedRealtime();
+            mPositionMs = 0;
         }
         mInstance.notifyAllControllerCallbacks(new ControllerCallbackRunnable() {
             @Override
@@ -1191,7 +1195,9 @@ class MediaControllerImplBase implements MediaControllerImpl {
             final TrackInfo selectedVideoTrack,
             final TrackInfo selectedAudioTrack,
             final TrackInfo selectedSubtitleTrack,
-            final TrackInfo selectedMetadataTrack) {
+            final TrackInfo selectedMetadataTrack,
+            final MediaMetadata playlistMetadata,
+            final int bufferingState) {
         if (DEBUG) {
             Log.d(TAG, "onConnectedNotLocked sessionBinder=" + sessionBinder
                     + ", allowedCommands=" + allowedCommands);
@@ -1236,6 +1242,8 @@ class MediaControllerImplBase implements MediaControllerImpl {
                 mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_AUDIO, selectedAudioTrack);
                 mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_SUBTITLE, selectedSubtitleTrack);
                 mSelectedTracks.put(TrackInfo.MEDIA_TRACK_TYPE_METADATA, selectedMetadataTrack);
+                mPlaylistMetadata = playlistMetadata;
+                mBufferingState = bufferingState;
                 try {
                     // Implementation for the local binder is no-op,
                     // so can be used without worrying about deadlock.

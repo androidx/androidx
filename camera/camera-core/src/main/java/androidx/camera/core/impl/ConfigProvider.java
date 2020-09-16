@@ -17,8 +17,6 @@
 package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.camera.core.CameraInfo;
 
 /**
  * A class which provides a {@link Config} object.
@@ -29,10 +27,7 @@ public interface ConfigProvider<C extends Config> {
 
     /**
      * Retrieve the {@link Config} object.
-     *
-     * @param cameraInfo The {@link CameraInfo} of the camera that the configuration provider
-     *                   will target to, null if it doesn't target to any camera.
      */
     @NonNull
-    C getConfig(@Nullable CameraInfo cameraInfo);
+    C getConfig();
 }

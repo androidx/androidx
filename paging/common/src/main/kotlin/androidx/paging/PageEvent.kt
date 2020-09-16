@@ -19,8 +19,6 @@ package androidx.paging
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
 
 /**
  * Events in the stream from paging fetch logic to UI.
@@ -28,6 +26,8 @@ import kotlinx.coroutines.flow.map
  * Every event sent to the UI is a PageEvent, and will be processed atomically.
  */
 internal sealed class PageEvent<T : Any> {
+    // Intentional to prefer Refresh, Prepend, Append constructors from Companion.
+    @Suppress("DataClassPrivateConstructor")
     data class Insert<T : Any> private constructor(
         val loadType: LoadType,
         val pages: List<TransformablePage<T>>,
@@ -62,10 +62,10 @@ internal sealed class PageEvent<T : Any> {
 
         override suspend fun <R : Any> map(transform: suspend (T) -> R): PageEvent<R> = mapPages {
             TransformablePage(
-                originalPageOffset = it.originalPageOffset,
+                originalPageOffsets = it.originalPageOffsets,
                 data = it.data.map { item -> transform(item) },
-                originalPageSize = it.originalPageSize,
-                originalIndices = it.originalIndices
+                hintOriginalPageOffset = it.hintOriginalPageOffset,
+                hintOriginalIndices = it.hintOriginalIndices
             )
         }
 
@@ -76,16 +76,16 @@ internal sealed class PageEvent<T : Any> {
             val originalIndices = mutableListOf<Int>()
             it.data.forEachIndexed { index, t ->
                 data += transform(t)
-                val indexToStore = it.originalIndices?.get(index) ?: index
+                val indexToStore = it.hintOriginalIndices?.get(index) ?: index
                 while (originalIndices.size < data.size) {
                     originalIndices.add(indexToStore)
                 }
             }
             TransformablePage(
-                originalPageOffset = it.originalPageOffset,
+                originalPageOffsets = it.originalPageOffsets,
                 data = data,
-                originalPageSize = it.originalPageSize,
-                originalIndices = originalIndices
+                hintOriginalPageOffset = it.hintOriginalPageOffset,
+                hintOriginalIndices = originalIndices
             )
         }
 
@@ -95,14 +95,14 @@ internal sealed class PageEvent<T : Any> {
             it.data.forEachIndexed { index, t ->
                 if (predicate(t)) {
                     data.add(t)
-                    originalIndices.add(it.originalIndices?.get(index) ?: index)
+                    originalIndices.add(it.hintOriginalIndices?.get(index) ?: index)
                 }
             }
             TransformablePage(
-                originalPageOffset = it.originalPageOffset,
+                originalPageOffsets = it.originalPageOffsets,
                 data = data,
-                originalPageSize = it.originalPageSize,
-                originalIndices = originalIndices
+                hintOriginalPageOffset = it.hintOriginalPageOffset,
+                hintOriginalIndices = originalIndices
             )
         }
 
@@ -148,17 +148,26 @@ internal sealed class PageEvent<T : Any> {
 
     data class Drop<T : Any>(
         val loadType: LoadType,
-        val count: Int,
+        /**
+         * Smallest [TransformablePage.originalPageOffsets] to drop; inclusive.
+         */
+        val minPageOffset: Int,
+        /**
+         * Largest [TransformablePage.originalPageOffsets] to drop; inclusive
+         */
+        val maxPageOffset: Int,
         val placeholdersRemaining: Int
     ) : PageEvent<T>() {
 
         init {
             require(loadType != REFRESH) { "Drop load type must be PREPEND or APPEND" }
-            require(count >= 0) { "Drop count must be > 0, but was $count" }
+            require(pageCount > 0) { "Drop count must be > 0, but was $pageCount" }
             require(placeholdersRemaining >= 0) {
                 "Invalid placeholdersRemaining $placeholdersRemaining"
             }
         }
+
+        val pageCount get() = maxPageOffset - minPageOffset + 1
     }
 
     data class LoadStateUpdate<T : Any>(
@@ -184,100 +193,3 @@ internal sealed class PageEvent<T : Any> {
 
     open suspend fun filter(predicate: suspend (T) -> Boolean): PageEvent<T> = this
 }
-
-private fun <T> MutableList<T>.removeFirst(count: Int) {
-    repeat(count) { removeAt(0) }
-}
-
-private fun <T> MutableList<T>.removeLast(count: Int) {
-    repeat(count) { removeAt(lastIndex) }
-}
-
-internal inline fun <R : Any, T : R, PageStash, Stash> Flow<PageEvent<T>>.scan(
-    crossinline createStash: () -> Stash,
-    crossinline createPageStash: (TransformablePage<T>) -> PageStash,
-    crossinline createInsert: (PageEvent.Insert<T>, List<PageStash>, Stash) -> PageEvent.Insert<R>,
-    crossinline createDrop: (PageEvent.Drop<T>, List<PageStash>, Stash) -> PageEvent.Drop<R>
-): Flow<PageEvent<R>> {
-    var stash: Stash = createStash()
-    val pageStash = mutableListOf<PageStash>()
-    return map { event ->
-        @Suppress("UNCHECKED_CAST")
-        when (event) {
-            is PageEvent.Insert<T> -> {
-                // use the stash before modifying it, since we may want to inspect adjacent pages
-                val output = createInsert(event, pageStash, stash)
-                val pageStashes = event.pages.map { createPageStash(it) }
-                when (event.loadType) {
-                    REFRESH -> {
-                        check(pageStash.isEmpty())
-                        pageStash.addAll(pageStashes)
-                    }
-                    PREPEND -> {
-                        pageStash.addAll(0, pageStashes)
-                    }
-                    APPEND -> {
-                        pageStash.addAll(pageStash.size, pageStashes)
-                    }
-                }
-                output
-            }
-            is PageEvent.Drop -> {
-                if (event.loadType == PREPEND) {
-                    pageStash.removeFirst(event.count)
-                } else {
-                    pageStash.removeLast(event.count)
-                }
-                // use the stash after modifying it
-                createDrop(event, pageStash, stash)
-            }
-            is PageEvent.LoadStateUpdate -> event as PageEvent<R>
-        }
-    }
-}
-
-/**
- * Transforms the Flow to an output-equivalent Flow, which does not have empty pages.
- *
- * This can be used before accessing adjacent pages, to ensure adjacent pages have context in
- * them.
- *
- * Note that we don't drop events, since those can contain other important state
- */
-internal fun <T : Any> Flow<PageEvent<T>>.removeEmptyPages(): Flow<PageEvent<T>> = scan(
-    createStash = { Unit },
-    createPageStash = { page ->
-        // stash contains whether incoming page was empty
-        page.data.isEmpty()
-    },
-    createInsert = { insert, _, _ ->
-        if (insert.pages.any { it.data.isEmpty() }) {
-            // filter out empty pages
-            insert.transformPages { pages -> pages.filter { it.data.isNotEmpty() } }
-        } else {
-            // no empty pages, can safely reuse this page
-            insert
-        }
-    },
-    createDrop = { drop, pageStash, _ ->
-        var newCount = drop.count
-        if (drop.loadType == PREPEND) {
-            repeat(drop.count) { i ->
-                if (pageStash[i]) {
-                    newCount--
-                }
-            }
-        } else {
-            repeat(drop.count) { i ->
-                if (pageStash[pageStash.lastIndex - i]) {
-                    newCount--
-                }
-            }
-        }
-        if (drop.count == newCount) {
-            drop
-        } else {
-            drop.copy(count = newCount)
-        }
-    }
-)

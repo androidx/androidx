@@ -25,9 +25,9 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Message;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -88,29 +88,48 @@ final class DefaultKeyedAppStatesReporter extends KeyedAppStatesReporter {
     }
 
     @Override
+    @Deprecated
     public void setStates(@NonNull Collection<KeyedAppState> states) {
-        setStates(states, false);
+        setStates(states, /* callback= */ null);
     }
 
-    private void setStates(final Collection<KeyedAppState> states, final boolean immediate) {
+    @Override
+    public void setStates(@NonNull Collection<KeyedAppState> states,
+            @Nullable KeyedAppStatesCallback callback) {
+        setStates(states, callback, /* immediate= */ false);
+    }
+
+    private void setStates(final Collection<KeyedAppState> states,
+            final KeyedAppStatesCallback callback, final boolean immediate) {
         mExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 if (states.isEmpty()) {
+                    if (callback != null) {
+                        callback.onResult(
+                                KeyedAppStatesCallback.STATUS_SUCCESS, /* throwable= */ null);
+                    }
                     return;
                 }
 
                 unbindOldBindings();
                 bind();
 
-                send(buildStatesBundle(states), immediate);
+                send(buildStatesBundle(states), callback, immediate);
             }
         });
     }
 
     @Override
+    @Deprecated
     public void setStatesImmediate(@NonNull Collection<KeyedAppState> states) {
-        setStates(states, true);
+        setStatesImmediate(states, /* callback= */ null);
+    }
+
+    @Override
+    public void setStatesImmediate(@NonNull Collection<KeyedAppState> states,
+            @Nullable KeyedAppStatesCallback callback) {
+        setStates(states, callback, /* immediate= */ true);
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -233,17 +252,14 @@ final class DefaultKeyedAppStatesReporter extends KeyedAppStatesReporter {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic access */
-    void send(Bundle appStatesBundle, boolean immediate) {
-        for (BufferedServiceConnection serviceConnection : mServiceConnections.values()) {
-            // Messages cannot be reused so we create a copy for each service connection.
-            serviceConnection.send(createStateMessage(appStatesBundle, immediate));
+    void send(
+            Bundle appStatesBundle, @Nullable KeyedAppStatesCallback callback, boolean immediate) {
+        if (callback != null) {
+            // Callback will receive multiple callbacks so we need to merge them into a single one.
+            callback = new KeyedAppStatesCallbackMerger(mServiceConnections.size(), callback);
         }
-    }
-
-    private static Message createStateMessage(Bundle appStatesBundle, boolean immediate) {
-        Message message = Message.obtain();
-        message.what = immediate ? WHAT_IMMEDIATE_STATE : WHAT_STATE;
-        message.obj = appStatesBundle;
-        return message;
+        for (BufferedServiceConnection serviceConnection : mServiceConnections.values()) {
+            serviceConnection.send(new SendableMessage(appStatesBundle, callback, immediate));
+        }
     }
 }

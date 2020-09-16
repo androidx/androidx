@@ -503,7 +503,7 @@ class ProjectionExpanderTest {
     fun joinAndAbandonEntity() {
         val all = ENTITIES
         simpleRun(
-            jfos = *all,
+            jfos = all,
             options = listOf("-Aroom.expandProjection=true")
         ) { invocation ->
             val entities = invocation.roundEnv
@@ -601,7 +601,7 @@ class ProjectionExpanderTest {
         } ?: emptyList()
         val all = ENTITIES + extraSource
         return simpleRun(
-            jfos = *all,
+            jfos = all,
             options = listOf("-Aroom.expandProjection=true")
         ) { invocation ->
             val entities = invocation.roundEnv

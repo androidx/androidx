@@ -397,7 +397,20 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         if (mFragmentManager == null) {
             throw new IllegalStateException("Can't access ViewModels from detached fragment");
         }
+        if (getMinimumMaxLifecycleState() == Lifecycle.State.INITIALIZED.ordinal()) {
+            throw new IllegalStateException("Calling getViewModelStore() before a Fragment "
+                    + "reaches onCreate() when using setMaxLifecycle(INITIALIZED) is not "
+                    + "supported");
+        }
         return mFragmentManager.getViewModelStore(this);
+    }
+
+
+    private int getMinimumMaxLifecycleState() {
+        if (mMaxState == Lifecycle.State.INITIALIZED || mParentFragment == null) {
+            return mMaxState.ordinal();
+        }
+        return Math.min(mMaxState.ordinal(), mParentFragment.getMinimumMaxLifecycleState());
     }
 
     /**
@@ -3325,15 +3338,15 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         return mAnimationInfo.mAnimator;
     }
 
-    void setPostOnViewCreatedVisibility(int visibility) {
-        ensureAnimationInfo().mPostOnViewCreatedVisibility = visibility;
+    void setPostOnViewCreatedAlpha(float alpha) {
+        ensureAnimationInfo().mPostOnViewCreatedAlpha = alpha;
     }
 
-    int getPostOnViewCreatedVisibility() {
+    float getPostOnViewCreatedAlpha() {
         if (mAnimationInfo == null) {
-            return View.VISIBLE;
+            return 1f;
         }
-        return mAnimationInfo.mPostOnViewCreatedVisibility;
+        return mAnimationInfo.mPostOnViewCreatedAlpha;
     }
 
     void setFocusedView(View view) {
@@ -3520,7 +3533,7 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
         SharedElementCallback mEnterTransitionCallback = null;
         SharedElementCallback mExitTransitionCallback = null;
 
-        int mPostOnViewCreatedVisibility = View.VISIBLE;
+        float mPostOnViewCreatedAlpha = 1f;
         View mFocusedView = null;
 
         // True when postponeEnterTransition has been called and startPostponeEnterTransition

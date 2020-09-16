@@ -21,8 +21,6 @@ import static com.google.common.truth.Truth.assertThat;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.camera.core.CameraInfo;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.filters.SmallTest;
@@ -51,7 +49,7 @@ public class ExtendableUseCaseConfigFactoryTest {
     public void canInstallProvider_andRetrieveConfig() {
         mFactory.installDefaultProvider(FakeUseCaseConfig.class, new FakeUseCaseConfigProvider());
 
-        FakeUseCaseConfig config = mFactory.getConfig(FakeUseCaseConfig.class, null);
+        FakeUseCaseConfig config = mFactory.getConfig(FakeUseCaseConfig.class);
         assertThat(config).isNotNull();
         assertThat(config.getTargetClass(null)).isEqualTo(FakeUseCase.class);
     }
@@ -60,7 +58,7 @@ public class ExtendableUseCaseConfigFactoryTest {
 
         @NonNull
         @Override
-        public FakeUseCaseConfig getConfig(@Nullable CameraInfo cameraInfo) {
+        public FakeUseCaseConfig getConfig() {
             return new FakeUseCaseConfig.Builder().getUseCaseConfig();
         }
     }

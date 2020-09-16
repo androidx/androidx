@@ -40,8 +40,8 @@
       </TextView>
       <TextView
           android:id="@+id/label"
-          android:textSize="20sp"
-          android:textStyle="bold"
+          android:textSize="18sp"
+          android:textColor="@android:color/black"
           android:gravity="center_vertical"
           android:paddingStart="10dp"
           android:paddingEnd="10dp"

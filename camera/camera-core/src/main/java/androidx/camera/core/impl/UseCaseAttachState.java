@@ -16,9 +16,8 @@
 
 package androidx.camera.core.impl;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
+import androidx.camera.core.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -150,6 +149,13 @@ public final class UseCaseAttachState {
         mAttachedUseCasesToInfoMap.put(useCaseName, newUseCaseAttachInfo);
     }
 
+    /**
+     * Removes the item from the map.
+     */
+    public void removeUseCase(@NonNull String useCaseName) {
+        mAttachedUseCasesToInfoMap.remove(useCaseName);
+    }
+
     /** Returns a session configuration builder for use cases which are both active and attached. */
     @NonNull
     public SessionConfig.ValidatingBuilder getActiveAndAttachedBuilder() {
@@ -165,7 +171,7 @@ public final class UseCaseAttachState {
                 list.add(useCaseName);
             }
         }
-        Log.d(TAG, "Active and attached use case: " + list + " for camera: " + mCameraId);
+        Logger.d(TAG, "Active and attached use case: " + list + " for camera: " + mCameraId);
         return validatingBuilder;
     }
 
@@ -183,7 +189,7 @@ public final class UseCaseAttachState {
                 list.add(useCaseName);
             }
         }
-        Log.d(TAG, "All use case: " + list + " for camera: " + mCameraId);
+        Logger.d(TAG, "All use case: " + list + " for camera: " + mCameraId);
         return validatingBuilder;
     }
 

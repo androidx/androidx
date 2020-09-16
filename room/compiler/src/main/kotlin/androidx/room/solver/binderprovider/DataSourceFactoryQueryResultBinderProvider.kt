@@ -16,10 +16,10 @@
 
 package androidx.room.solver.binderprovider
 
+import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XRawType
 import androidx.room.ext.PagingTypeNames
 import androidx.room.parser.ParsedQuery
-import androidx.room.compiler.processing.XDeclaredType
-import androidx.room.compiler.processing.XType
 import androidx.room.processor.Context
 import androidx.room.processor.ProcessorErrors
 import androidx.room.solver.QueryResultBinderProvider
@@ -29,8 +29,8 @@ import androidx.room.solver.query.result.PositionalDataSourceQueryResultBinder
 import androidx.room.solver.query.result.QueryResultBinder
 
 class DataSourceFactoryQueryResultBinderProvider(val context: Context) : QueryResultBinderProvider {
-    private val dataSourceFactoryTypeMirror: XType? by lazy {
-        context.processingEnv.findType(PagingTypeNames.DATA_SOURCE_FACTORY)
+    private val dataSourceFactoryType: XRawType? by lazy {
+        context.processingEnv.findType(PagingTypeNames.DATA_SOURCE_FACTORY)?.rawType
     }
 
     override fun provide(declared: XDeclaredType, query: ParsedQuery): QueryResultBinder {
@@ -52,11 +52,10 @@ class DataSourceFactoryQueryResultBinderProvider(val context: Context) : QueryRe
             declared.typeArguments.size == 2 && isLivePagedList(declared)
 
     private fun isLivePagedList(declared: XDeclaredType): Boolean {
-        if (dataSourceFactoryTypeMirror == null) {
+        if (dataSourceFactoryType == null) {
             return false
         }
-        val erasure = declared.erasure()
         // we don't want to return paged list unless explicitly requested
-        return erasure.isAssignableFrom(dataSourceFactoryTypeMirror!!)
+        return declared.rawType.isAssignableFrom(dataSourceFactoryType!!)
     }
 }

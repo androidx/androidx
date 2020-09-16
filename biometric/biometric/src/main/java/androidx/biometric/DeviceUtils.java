@@ -68,6 +68,22 @@ class DeviceUtils {
     }
 
     /**
+     * Checks if the current device should delay showing a new biometric prompt when the previous
+     * prompt was recently dismissed.
+     *
+     * @param context The application or activity context.
+     * @param model Model name of the current device.
+     * @return Whether showing the prompt should be delayed after dismissal.
+     */
+    static boolean shouldDelayShowingPrompt(@NonNull Context context, String model) {
+        if (Build.VERSION.SDK_INT != Build.VERSION_CODES.Q) {
+            // This workaround is only needed for API 29.
+            return false;
+        }
+        return isModelInList(context, model, R.array.delay_showing_prompt_models);
+    }
+
+    /**
      * Checks if all biometric sensors for the current device can be assumed to meet the
      * <strong>Class 3</strong> (formerly <strong>Strong</strong>) security threshold.
      *
@@ -122,6 +138,28 @@ class DeviceUtils {
         final String[] modelPrefixes = context.getResources().getStringArray(resId);
         for (final String modelPrefix : modelPrefixes) {
             if (model.startsWith(modelPrefix)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks if the current device model matches one in the given string array resource.
+     *
+     * @param context The application or activity context.
+     * @param model Model name of the current device.
+     * @param resId Resource ID for the string array of device model prefixes to check against.
+     * @return Whether the model matches one in the given string array.
+     */
+    private static boolean isModelInList(@NonNull Context context, String model, int resId) {
+        if (model == null) {
+            return false;
+        }
+
+        final String[] modelNames = context.getResources().getStringArray(resId);
+        for (final String modelName : modelNames) {
+            if (model.equals(modelName)) {
                 return true;
             }
         }

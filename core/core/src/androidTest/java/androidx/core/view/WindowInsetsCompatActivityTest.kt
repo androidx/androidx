@@ -262,6 +262,24 @@ class WindowInsetsCompatActivityTest(
             arrayOf(SOFT_INPUT_ADJUST_RESIZE, ActivityInfo.SCREEN_ORIENTATION_PORTRAIT)
         )
     }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 20)
+    fun equality_when_converted() {
+        // Insets are only dispatched to views with adjustResize
+        assumeSoftInputMode(SOFT_INPUT_ADJUST_RESIZE)
+        val container: View = scenario.withActivity { findViewById(R.id.container) }
+        val originalInsets: WindowInsetsCompat = container.doAndAwaitNextInsets {
+            scenario.onActivity { activity ->
+                WindowCompat.setDecorFitsSystemWindows(activity.window, false)
+            }
+            onView(withId(R.id.edittext)).perform(click()).check(matches(hasFocus()))
+        }
+        val platformInsets = originalInsets.toWindowInsets()!!
+        val convertedInsets = WindowInsetsCompat.toWindowInsetsCompat(platformInsets, container)
+        assertEquals(originalInsets.getInsets(Type.ime()), convertedInsets.getInsets(Type.ime()))
+        assertEquals(originalInsets, convertedInsets)
+    }
 }
 
 private fun View.doAndAwaitNextInsets(action: (View) -> Unit): WindowInsetsCompat {

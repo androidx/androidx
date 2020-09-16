@@ -350,7 +350,7 @@ class BooksDaoTest : TestDatabaseTest() {
                 booksDao.addAuthorPublisherBooks(
                     author = TestUtil.AUTHOR_1,
                     publisher = TestUtil.PUBLISHER,
-                    books = *arrayOf(TestUtil.BOOK_1, TestUtil.BOOK_1)
+                    books = arrayOf(TestUtil.BOOK_1, TestUtil.BOOK_1)
                 )
                 fail("addAuthorPublisherBooks should have failed")
             } catch (ex: SQLiteConstraintException) {

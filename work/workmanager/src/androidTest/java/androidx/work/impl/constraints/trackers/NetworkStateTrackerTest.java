@@ -30,6 +30,7 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 import androidx.work.impl.constraints.NetworkState;
@@ -116,7 +117,7 @@ public class NetworkStateTrackerTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     @SdkSuppress(minSdkVersion = 24)
     public void handleSecurityExceptions_whenValidatingNetworkState() {
         Network activeNetwork = mock(Network.class);

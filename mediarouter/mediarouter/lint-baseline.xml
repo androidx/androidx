@@ -1,5 +1,533 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
+<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="        ScriptIntrinsicBlur blurScript = ScriptIntrinsicBlur.create(rs, Element.U8_4(rs));"
+        errorLine2="                                                             ~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"
+            line="659"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="        blurScript.setRadius(radius);"
+        errorLine2="                   ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"
+            line="660"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="        blurScript.setInput(allocation);"
+        errorLine2="                   ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"
+            line="661"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class androidx.mediarouter.app.MediaRouteDynamicControllerDialog is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="        blurScript.forEach(blurAllocation);"
+        errorLine2="                   ~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/app/MediaRouteDynamicControllerDialog.java"
+            line="662"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.mediarouter.media.MediaRouterApi24.RouteInfo is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getDeviceType();"
+        errorLine2="                                                                   ~~~~~~~~~~~~~">
+        <location
+            file="api24/androidx/mediarouter/media/MediaRouterApi24.java"
+            line="25"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getName(context);"
+        errorLine2="                                                                   ~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="124"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getStatus();"
+        errorLine2="                                                                   ~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="128"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getSupportedTypes();"
+        errorLine2="                                                                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="132"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getCategory();"
+        errorLine2="                                                                   ~~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="136"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getIconDrawable();"
+        errorLine2="                                                                   ~~~~~~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="140"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getPlaybackType();"
+        errorLine2="                                                                   ~~~~~~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="144"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getPlaybackStream();"
+        errorLine2="                                                                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="148"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getVolume();"
+        errorLine2="                                                                   ~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="152"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getVolumeMax();"
+        errorLine2="                                                                   ~~~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="156"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getVolumeHandling();"
+        errorLine2="                                                                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="160"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getTag();"
+        errorLine2="                                                                   ~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="164"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            ((android.media.MediaRouter.RouteInfo)routeObj).setTag(tag);"
+        errorLine2="                                                            ~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="168"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            ((android.media.MediaRouter.RouteInfo)routeObj).requestSetVolume(volume);"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="172"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            ((android.media.MediaRouter.RouteInfo)routeObj).requestUpdateVolume(direction);"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="176"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getGroup();"
+        errorLine2="                                                                   ~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="180"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteGroup is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            final int count = group.getRouteCount();"
+        errorLine2="                                    ~~~~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="196"
+            column="37"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteGroup is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="                out.add(group.getRouteAt(i));"
+        errorLine2="                              ~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="199"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setName(name);"
+        errorLine2="                                                                ~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="210"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setStatus(status);"
+        errorLine2="                                                                ~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="214"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setIconDrawable(icon);"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="218"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setPlaybackType(type);"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="222"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setPlaybackStream(stream);"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="226"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setVolume(volume);"
+        errorLine2="                                                                ~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="230"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setVolumeMax(volumeMax);"
+        errorLine2="                                                                ~~~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="234"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setVolumeHandling(volumeHandling);"
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="238"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setVolumeCallback("
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="242"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setRemoteControlClient("
+        errorLine2="                                                                ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="247"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteCategory is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            return ((android.media.MediaRouter.RouteCategory)categoryObj).getName(context);"
+        errorLine2="                                                                          ~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="257"
+            column="75"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteCategory is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            ((android.media.MediaRouter.RouteCategory)categoryObj).getRoutes(out);"
+        errorLine2="                                                                   ~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="263"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteCategory is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            return ((android.media.MediaRouter.RouteCategory)categoryObj).getSupportedTypes();"
+        errorLine2="                                                                          ~~~~~~~~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="268"
+            column="75"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.RouteCategory is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            return ((android.media.MediaRouter.RouteCategory)categoryObj).isGroupable();"
+        errorLine2="                                                                          ~~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="272"
+            column="75"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.SelectRouteWorkaround is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            int routeTypes = route.getSupportedTypes();"
+        errorLine2="                                   ~~~~~~~~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="318"
+            column="36"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.SelectRouteWorkaround is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            router.selectRoute(types, route);"
+        errorLine2="                   ~~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="344"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.mediarouter.media.MediaRouterJellybean.GetDefaultRouteWorkaround is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="            return router.getRouteAt(0);"
+        errorLine2="                          ~~~~~~~~~~">
+        <location
+            file="jellybean/androidx/mediarouter/media/MediaRouterJellybean.java"
+            line="379"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class androidx.mediarouter.media.MediaRouterJellybeanMr1.RouteInfo is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).isEnabled();"
+        errorLine2="                                                                   ~~~~~~~~~">
+        <location
+            file="jellybean-mr1/androidx/mediarouter/media/MediaRouterJellybeanMr1.java"
+            line="42"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class androidx.mediarouter.media.MediaRouterJellybeanMr1.RouteInfo is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="                return ((android.media.MediaRouter.RouteInfo)routeObj).getPresentationDisplay();"
+        errorLine2="                                                                       ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="jellybean-mr1/androidx/mediarouter/media/MediaRouterJellybeanMr1.java"
+            line="49"
+            column="72"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.mediarouter.media.MediaRouterJellybeanMr2.RouteInfo is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).getDescription();"
+        errorLine2="                                                                   ~~~~~~~~~~~~~~">
+        <location
+            file="jellybean-mr2/androidx/mediarouter/media/MediaRouterJellybeanMr2.java"
+            line="34"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.mediarouter.media.MediaRouterJellybeanMr2.RouteInfo is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="            return ((android.media.MediaRouter.RouteInfo)routeObj).isConnecting();"
+        errorLine2="                                                                   ~~~~~~~~~~~~">
+        <location
+            file="jellybean-mr2/androidx/mediarouter/media/MediaRouterJellybeanMr2.java"
+            line="38"
+            column="68"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.mediarouter.media.MediaRouterJellybeanMr2.UserRouteInfo is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="            ((android.media.MediaRouter.UserRouteInfo)routeObj).setDescription(description);"
+        errorLine2="                                                                ~~~~~~~~~~~~~~">
+        <location
+            file="jellybean-mr2/androidx/mediarouter/media/MediaRouterJellybeanMr2.java"
+            line="47"
+            column="65"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.mediarouter.media.RegisteredMediaRouteProviderWatcher is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="        return mPackageManager.queryIntentServices(intent, 0).stream()"
+        errorLine2="                                                              ~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/RegisteredMediaRouteProviderWatcher.java"
+            line="166"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.mediarouter.media.RegisteredMediaRouteProviderWatcher is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="                .map(resolveInfo -> resolveInfo.serviceInfo).collect(Collectors.toList());"
+        errorLine2="                 ~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/RegisteredMediaRouteProviderWatcher.java"
+            line="167"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.mediarouter.media.RegisteredMediaRouteProviderWatcher is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="                .map(resolveInfo -> resolveInfo.serviceInfo).collect(Collectors.toList());"
+        errorLine2="                                                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/RegisteredMediaRouteProviderWatcher.java"
+            line="167"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.mediarouter.media.RegisteredMediaRouteProviderWatcher is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="                .map(resolveInfo -> resolveInfo.serviceInfo).collect(Collectors.toList());"
+        errorLine2="                                                                                ~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/RegisteredMediaRouteProviderWatcher.java"
+            line="167"
+            column="81"/>
+    </issue>
 
     <issue
         id="UnknownNullness"
@@ -140,7 +668,7 @@
         errorLine2="                                    ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteActionProvider.java"
-            line="149"
+            line="157"
             column="37"/>
     </issue>
 
@@ -151,7 +679,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteActionProvider.java"
-            line="282"
+            line="296"
             column="12"/>
     </issue>
 
@@ -162,7 +690,7 @@
         errorLine2="           ~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteActionProvider.java"
-            line="288"
+            line="302"
             column="12"/>
     </issue>
 
@@ -173,7 +701,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="142"
+            line="146"
             column="29"/>
     </issue>
 
@@ -184,7 +712,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="146"
+            line="150"
             column="29"/>
     </issue>
 
@@ -195,7 +723,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="146"
+            line="150"
             column="46"/>
     </issue>
 
@@ -206,7 +734,7 @@
         errorLine2="                            ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="150"
+            line="154"
             column="29"/>
     </issue>
 
@@ -217,7 +745,7 @@
         errorLine2="                                             ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="150"
+            line="154"
             column="46"/>
     </issue>
 
@@ -228,7 +756,7 @@
         errorLine2="                                 ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="228"
+            line="232"
             column="34"/>
     </issue>
 
@@ -239,7 +767,7 @@
         errorLine2="              ~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="387"
+            line="460"
             column="15"/>
     </issue>
 
@@ -250,7 +778,7 @@
         errorLine2="                                           ~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="419"
+            line="492"
             column="44"/>
     </issue>
 
@@ -261,7 +789,7 @@
         errorLine2="                                     ~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="444"
+            line="517"
             column="38"/>
     </issue>
 
@@ -272,7 +800,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/app/MediaRouteButton.java"
-            line="539"
+            line="612"
             column="27"/>
     </issue>
 
@@ -1438,7 +1966,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteProvider.java"
-            line="346"
+            line="350"
             column="16"/>
     </issue>
 
@@ -1449,7 +1977,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteProvider.java"
-            line="353"
+            line="357"
             column="16"/>
     </issue>
 
@@ -1460,7 +1988,7 @@
         errorLine2="                                        ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteProvider.java"
-            line="454"
+            line="458"
             column="41"/>
     </issue>
 
@@ -1471,7 +1999,7 @@
         errorLine2="                                                 ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteProvider.java"
-            line="508"
+            line="516"
             column="50"/>
     </issue>
 
@@ -1482,7 +2010,7 @@
         errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteProvider.java"
-            line="549"
+            line="564"
             column="23"/>
     </issue>
 
@@ -1493,7 +2021,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteProvider.java"
-            line="760"
+            line="822"
             column="32"/>
     </issue>
 
@@ -1504,7 +2032,7 @@
         errorLine2="                               ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteProvider.java"
-            line="767"
+            line="829"
             column="32"/>
     </issue>
 
@@ -1515,7 +2043,7 @@
         errorLine2="                       ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteProvider.java"
-            line="778"
+            line="840"
             column="24"/>
     </issue>
 
@@ -1526,7 +2054,7 @@
         errorLine2="                       ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteProvider.java"
-            line="786"
+            line="848"
             column="24"/>
     </issue>
 
@@ -1537,7 +2065,7 @@
         errorLine2="                       ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteProvider.java"
-            line="795"
+            line="857"
             column="24"/>
     </issue>
 
@@ -1548,7 +2076,7 @@
         errorLine2="                       ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteProvider.java"
-            line="803"
+            line="865"
             column="24"/>
     </issue>
 
@@ -1559,7 +2087,7 @@
         errorLine2="                       ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteProvider.java"
-            line="811"
+            line="873"
             column="24"/>
     </issue>
 
@@ -1680,7 +2208,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteProviderService.java"
-            line="197"
+            line="201"
             column="21"/>
     </issue>
 
@@ -1691,7 +2219,7 @@
         errorLine2="           ~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteProviderService.java"
-            line="200"
+            line="204"
             column="12"/>
     </issue>
 
@@ -1702,7 +2230,7 @@
         errorLine2="                          ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteProviderService.java"
-            line="200"
+            line="204"
             column="27"/>
     </issue>
 
@@ -1713,7 +2241,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouteProviderService.java"
-            line="218"
+            line="222"
             column="12"/>
     </issue>
 
@@ -1790,7 +2318,7 @@
         errorLine2="                  ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="312"
+            line="280"
             column="19"/>
     </issue>
 
@@ -1801,7 +2329,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="329"
+            line="297"
             column="12"/>
     </issue>
 
@@ -1812,7 +2340,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="343"
+            line="311"
             column="12"/>
     </issue>
 
@@ -1823,7 +2351,7 @@
         errorLine2="           ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="367"
+            line="335"
             column="12"/>
     </issue>
 
@@ -1834,7 +2362,7 @@
         errorLine2="                                        ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="505"
+            line="473"
             column="41"/>
     </issue>
 
@@ -1845,7 +2373,7 @@
         errorLine2="                                             ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="515"
+            line="483"
             column="46"/>
     </issue>
 
@@ -1856,7 +2384,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="574"
+            line="542"
             column="29"/>
     </issue>
 
@@ -1867,7 +2395,7 @@
         errorLine2="                                                         ~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="574"
+            line="542"
             column="58"/>
     </issue>
 
@@ -1878,7 +2406,7 @@
         errorLine2="                                ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="847"
+            line="831"
             column="33"/>
     </issue>
 
@@ -1889,7 +2417,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="862"
+            line="846"
             column="39"/>
     </issue>
 
@@ -1900,7 +2428,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="869"
+            line="853"
             column="12"/>
     </issue>
 
@@ -1911,7 +2439,7 @@
         errorLine2="               ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="1075"
+            line="1090"
             column="16"/>
     </issue>
 
@@ -1922,7 +2450,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="1104"
+            line="1119"
             column="16"/>
     </issue>
 
@@ -1933,7 +2461,7 @@
         errorLine2="               ~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="1130"
+            line="1145"
             column="16"/>
     </issue>
 
@@ -1944,7 +2472,29 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="1231"
+            line="1246"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public DynamicGroupState getDynamicGroupState(RouteInfo route) {"
+        errorLine2="                                                      ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
+            line="1614"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="UnknownNullness"
+        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
+        errorLine1="        public MediaRouteProvider getProviderInstance() {"
+        errorLine2="               ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
+            line="1845"
             column="16"/>
     </issue>
 
@@ -1955,18 +2505,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="1829"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public MediaRouteProvider getProviderInstance() {"
-        errorLine2="               ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="1929"
+            line="1954"
             column="16"/>
     </issue>
 
@@ -1977,7 +2516,7 @@
         errorLine2="               ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="1937"
+            line="1962"
             column="16"/>
     </issue>
 
@@ -1988,7 +2527,7 @@
         errorLine2="               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="1944"
+            line="1969"
             column="16"/>
     </issue>
 
@@ -1999,7 +2538,7 @@
         errorLine2="               ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="1951"
+            line="1976"
             column="16"/>
     </issue>
 
@@ -2010,7 +2549,7 @@
         errorLine2="                                    ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2031"
+            line="2056"
             column="37"/>
     </issue>
 
@@ -2021,7 +2560,7 @@
         errorLine2="                                                        ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2031"
+            line="2056"
             column="57"/>
     </issue>
 
@@ -2032,7 +2571,7 @@
         errorLine2="                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2064"
+            line="2109"
             column="39"/>
     </issue>
 
@@ -2043,7 +2582,7 @@
         errorLine2="                                                          ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2064"
+            line="2109"
             column="59"/>
     </issue>
 
@@ -2054,7 +2593,7 @@
         errorLine2="                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2083"
+            line="2128"
             column="39"/>
     </issue>
 
@@ -2065,7 +2604,7 @@
         errorLine2="                                                          ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2083"
+            line="2128"
             column="59"/>
     </issue>
 
@@ -2076,7 +2615,7 @@
         errorLine2="                                 ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2094"
+            line="2139"
             column="34"/>
     </issue>
 
@@ -2087,7 +2626,7 @@
         errorLine2="                                                     ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2094"
+            line="2139"
             column="54"/>
     </issue>
 
@@ -2098,7 +2637,7 @@
         errorLine2="                                   ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2103"
+            line="2148"
             column="36"/>
     </issue>
 
@@ -2109,7 +2648,7 @@
         errorLine2="                                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2103"
+            line="2148"
             column="56"/>
     </issue>
 
@@ -2120,7 +2659,7 @@
         errorLine2="                                   ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2112"
+            line="2157"
             column="36"/>
     </issue>
 
@@ -2131,7 +2670,7 @@
         errorLine2="                                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2112"
+            line="2157"
             column="56"/>
     </issue>
 
@@ -2142,7 +2681,7 @@
         errorLine2="                                         ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2121"
+            line="2166"
             column="42"/>
     </issue>
 
@@ -2153,7 +2692,7 @@
         errorLine2="                                                             ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2121"
+            line="2166"
             column="62"/>
     </issue>
 
@@ -2164,7 +2703,7 @@
         errorLine2="                                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2136"
+            line="2181"
             column="55"/>
     </issue>
 
@@ -2175,7 +2714,7 @@
         errorLine2="                                                                          ~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2136"
+            line="2181"
             column="75"/>
     </issue>
 
@@ -2186,7 +2725,7 @@
         errorLine2="                                    ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2145"
+            line="2190"
             column="37"/>
     </issue>
 
@@ -2197,7 +2736,7 @@
         errorLine2="                                                        ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2145"
+            line="2190"
             column="57"/>
     </issue>
 
@@ -2208,7 +2747,7 @@
         errorLine2="                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2154"
+            line="2199"
             column="39"/>
     </issue>
 
@@ -2219,7 +2758,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2154"
+            line="2199"
             column="59"/>
     </issue>
 
@@ -2230,7 +2769,7 @@
         errorLine2="                                      ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2163"
+            line="2208"
             column="39"/>
     </issue>
 
@@ -2241,7 +2780,7 @@
         errorLine2="                                                          ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2163"
+            line="2208"
             column="59"/>
     </issue>
 
@@ -2252,30 +2791,8 @@
         errorLine2="                             ~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2179"
+            line="2258"
             column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onError(String error, Bundle data) {"
-        errorLine2="                            ~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2190"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void onError(String error, Bundle data) {"
-        errorLine2="                                          ~~~~~~">
-        <location
-            file="src/main/java/androidx/mediarouter/media/MediaRouter.java"
-            line="2190"
-            column="43"/>
     </issue>
 
     <issue
@@ -3363,7 +3880,7 @@
         errorLine2="                         ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/RegisteredMediaRouteProviderWatcher.java"
-            line="193"
+            line="196"
             column="26"/>
     </issue>
 
@@ -3374,7 +3891,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/mediarouter/media/RegisteredMediaRouteProviderWatcher.java"
-            line="194"
+            line="197"
             column="29"/>
     </issue>
 

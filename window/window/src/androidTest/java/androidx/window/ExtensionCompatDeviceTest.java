@@ -70,9 +70,11 @@ public class ExtensionCompatDeviceTest extends WindowTestBase implements CompatD
         assertNotNull(windowToken);
 
         ExtensionWindowLayoutInfo extensionWindowLayoutInfo =
-                mExtensionCompat.mWindowExtension.getWindowLayoutInfo(windowToken);
-        WindowLayoutInfo windowLayoutInfo = mExtensionCompat.getWindowLayoutInfo(windowToken);
+                mExtensionCompat.mWindowExtension.getWindowLayoutInfo(activity);
+        WindowLayoutInfo windowLayoutInfo = mExtensionCompat.getWindowLayoutInfo(activity);
 
+        assertEquals(windowLayoutInfo.getDisplayFeatures().size(),
+                extensionWindowLayoutInfo.getDisplayFeatures().size());
         for (int i = 0; i < windowLayoutInfo.getDisplayFeatures().size(); i++) {
             DisplayFeature feature = windowLayoutInfo.getDisplayFeatures().get(i);
             ExtensionDisplayFeature sidecarDisplayFeature =

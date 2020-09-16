@@ -32,6 +32,7 @@ internal actual fun SemanticsNodeInteraction.actualPerformImeAction(
     @OptIn(ExperimentalLayoutNodeApi::class)
     val owner = node.componentNode.owner as AndroidOwner
 
+    @Suppress("DEPRECATION")
     runOnUiThread {
         val textInputService = owner.getTextInputServiceOrDie()
 
@@ -49,6 +50,7 @@ internal actual fun SemanticsNodeInteraction.actualSendTextInputCommand(
     @OptIn(ExperimentalLayoutNodeApi::class)
     val owner = node.componentNode.owner as AndroidOwner
 
+    @Suppress("DEPRECATION")
     runOnUiThread {
         val textInputService = owner.getTextInputServiceOrDie()
 

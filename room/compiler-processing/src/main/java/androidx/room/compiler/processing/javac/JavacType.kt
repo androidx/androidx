@@ -18,23 +18,41 @@ package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XEquality
 import androidx.room.compiler.processing.XNullability
+import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.javac.kotlin.KmType
 import androidx.room.compiler.processing.safeTypeName
 import com.google.auto.common.MoreTypes
+import com.squareup.javapoet.TypeName
 import javax.lang.model.type.TypeKind
 import javax.lang.model.type.TypeMirror
-import javax.lang.model.type.WildcardType
-import javax.lang.model.util.SimpleTypeVisitor7
 import kotlin.reflect.KClass
 
-// TODO make this abstract for XEquality, not open
 internal abstract class JavacType(
     protected val env: JavacProcessingEnv,
     open val typeMirror: TypeMirror
 ) : XType, XEquality {
+    // Kotlin type information about the type if this type is driven from kotlin code.
+    abstract val kotlinType: KmType?
+
+    override val rawType: XRawType by lazy {
+        JavacRawType(env, this)
+    }
 
     override fun isError() = typeMirror.kind == TypeKind.ERROR
+
+    override fun isInt(): Boolean {
+        return typeName == TypeName.INT || typeName == BOXED_INT
+    }
+
+    override fun isLong(): Boolean {
+        return typeName == TypeName.LONG || typeName == BOXED_LONG
+    }
+
+    override fun isByte(): Boolean {
+        return typeName == TypeName.BYTE || typeName == BOXED_BYTE
+    }
 
     override val typeName by lazy {
         typeMirror.safeTypeName()
@@ -63,7 +81,8 @@ internal abstract class JavacType(
             env.wrap(
                 typeMirror = env.typeUtils.boxedClass(MoreTypes.asPrimitiveType(typeMirror))
                     .asType(),
-                nullability = XNullability.NULLABLE
+                kotlinType = kotlinType,
+                elementNullability = XNullability.NULLABLE
             )
         } else {
             this
@@ -86,30 +105,16 @@ internal abstract class JavacType(
         return typeMirror.extendsBound()?.let {
             env.wrap<JavacType>(
                 typeMirror = it,
-                nullability = nullability
+                kotlinType = kotlinType?.extendsBound,
+                elementNullability = nullability
             )
         }
-    }
-
-    private fun TypeMirror.extendsBound(): TypeMirror? {
-        return this.accept(object : SimpleTypeVisitor7<TypeMirror?, Void?>() {
-            override fun visitWildcard(type: WildcardType, ignored: Void?): TypeMirror? {
-                return type.extendsBound ?: type.superBound
-            }
-        }, null)
     }
 
     override fun isAssignableFrom(other: XType): Boolean {
         return other is JavacType && env.typeUtils.isAssignable(
             other.typeMirror,
             typeMirror
-        )
-    }
-
-    override fun erasure(): JavacType {
-        return env.wrap(
-            typeMirror = env.typeUtils.erasure(typeMirror),
-            nullability = nullability
         )
     }
 
@@ -126,5 +131,11 @@ internal abstract class JavacType(
 
     override fun isType(): Boolean {
         return MoreTypes.isType(typeMirror)
+    }
+
+    companion object {
+        private val BOXED_INT = TypeName.INT.box()
+        private val BOXED_LONG = TypeName.LONG.box()
+        private val BOXED_BYTE = TypeName.BYTE.box()
     }
 }

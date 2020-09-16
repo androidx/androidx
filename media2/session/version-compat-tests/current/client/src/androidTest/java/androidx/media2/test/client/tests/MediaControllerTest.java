@@ -42,6 +42,7 @@ import androidx.annotation.NonNull;
 import androidx.core.util.Pair;
 import androidx.media.AudioAttributesCompat;
 import androidx.media2.common.MediaItem;
+import androidx.media2.common.MediaMetadata;
 import androidx.media2.common.SessionPlayer;
 import androidx.media2.common.SessionPlayer.TrackInfo;
 import androidx.media2.common.VideoSize;
@@ -635,6 +636,45 @@ public class MediaControllerTest extends MediaSessionTestBase {
         MediaController controller = createController(session.getToken());
         SessionResult result = controller.play().get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
         assertNotNull(result.getMediaItem());
+    }
+
+    @Test
+    public void getPlaylistMetadata_returnsPlaylistMetadataOfPlayerInSession() throws Exception {
+        if (!MediaTestUtils.isServiceToT()) {
+            // TODO(b/156594425): Remove this condition after previous module has the fix of
+            //  b/156878628.
+            return;
+        }
+
+        MediaMetadata testMetadata = MediaTestUtils.createMetadata();
+        Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setPlaylistMetadata(testMetadata)
+                .build();
+        mRemoteSession.updatePlayer(playerConfig);
+
+        MediaController controller = createController(mRemoteSession.getToken());
+        MediaMetadata metadata = controller.getPlaylistMetadata();
+        assertEquals(testMetadata.getString(MediaMetadata.METADATA_KEY_MEDIA_ID),
+                metadata.getString(MediaMetadata.METADATA_KEY_MEDIA_ID));
+    }
+
+    @Test
+    public void getBufferingState_returnsBufferingStateOfPlayerInSession() throws Exception {
+        if (!MediaTestUtils.isServiceToT()) {
+            // TODO(b/156594425): Remove this condition after previous module has the fix of
+            //  b/166223339.
+            return;
+        }
+
+        int testBufferingState = SessionPlayer.BUFFERING_STATE_COMPLETE;
+        Bundle playerConfig = new RemoteMediaSession.MockPlayerConfigBuilder()
+                .setBufferingState(testBufferingState)
+                .build();
+        mRemoteSession.updatePlayer(playerConfig);
+
+        MediaController controller = createController(mRemoteSession.getToken());
+        int bufferingState = controller.getBufferingState();
+        assertEquals(testBufferingState, bufferingState);
     }
 
     RemoteMediaSession createRemoteMediaSession(String id, Bundle tokenExtras) {

@@ -83,7 +83,7 @@ public final class TimeFormatText implements TimeDependentText {
 
     @Override
     @NonNull
-    public CharSequence getText(@NonNull Resources resources, long dateTimeMillis) {
+    public CharSequence getTextAt(@NonNull Resources resources, long dateTimeMillis) {
         String formattedDate = mDateFormat.format(new Date(dateTimeMillis));
 
         switch (mStyle) {

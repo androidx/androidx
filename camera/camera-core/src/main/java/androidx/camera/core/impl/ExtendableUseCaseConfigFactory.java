@@ -18,7 +18,6 @@ package androidx.camera.core.impl;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.CameraInfo;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,13 +37,12 @@ public final class ExtendableUseCaseConfigFactory implements UseCaseConfigFactor
 
     @Nullable
     @Override
-    public <C extends UseCaseConfig<?>> C getConfig(@NonNull Class<C> configType,
-            @Nullable CameraInfo cameraInfo) {
+    public <C extends UseCaseConfig<?>> C getConfig(@NonNull Class<C> configType) {
         @SuppressWarnings("unchecked") // Providers only could have been inserted with
                 // installDefaultProvider(), so the class should return the correct type.
                 ConfigProvider<C> provider = (ConfigProvider<C>) mDefaultProviders.get(configType);
         if (provider != null) {
-            return provider.getConfig(cameraInfo);
+            return provider.getConfig();
         }
         return null;
     }

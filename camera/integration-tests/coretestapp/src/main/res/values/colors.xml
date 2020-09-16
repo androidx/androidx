@@ -17,4 +17,8 @@
 <resources>
     <color name="usecase_toggle_on">#ffcccccc</color>
     <color name="usecase_toggle_off">#ffff0000</color>
+
+    <color name="zoom_ratio_activated">#FFFF00</color>
+    <color name="zoom_ratio_set">#FFFFFF</color>
+
 </resources>

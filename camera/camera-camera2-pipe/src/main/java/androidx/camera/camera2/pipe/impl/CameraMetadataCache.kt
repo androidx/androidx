@@ -16,18 +16,14 @@
 
 package androidx.camera.camera2.pipe.impl
 
-import android.Manifest.permission
 import android.content.Context
-import android.content.pm.PackageManager
 import android.hardware.camera2.CameraManager
-import android.os.Build
 import android.util.ArrayMap
 import androidx.annotation.GuardedBy
-import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.CameraMetadata
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.lang.IllegalStateException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -39,13 +35,12 @@ import javax.inject.Singleton
  */
 @Singleton
 class CameraMetadataCache @Inject constructor(
-    private val context: Context
+    private val context: Context,
+    private val threads: Threads,
+    private val permissions: Permissions
 ) {
     @GuardedBy("cache")
     private val cache = ArrayMap<String, CameraMetadata>()
-
-    @Volatile
-    private var hasCameraPermission = false
 
     suspend fun get(cameraId: CameraId): CameraMetadata {
         synchronized(cache) {
@@ -56,7 +51,7 @@ class CameraMetadataCache @Inject constructor(
         }
 
         // Suspend and query CameraMetadata on a background thread.
-        return withContext(Dispatchers.IO) {
+        return withContext(threads.ioDispatcher) {
             awaitMetadata(cameraId)
         }
     }
@@ -78,33 +73,32 @@ class CameraMetadataCache @Inject constructor(
     }
 
     private fun createCameraMetadata(cameraId: CameraId, redacted: Boolean): CameraMetadataImpl {
-        val cameraManager =
-            context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
-        val characteristics =
-            cameraManager.getCameraCharacteristics(cameraId.value)
-        return CameraMetadataImpl(cameraId, redacted, characteristics, emptyMap())
+        val start = Metrics.monotonicNanos()
+
+        return Debug.trace("CameraCharacteristics_$cameraId") {
+            try {
+                val cameraManager =
+                    context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
+                val characteristics =
+                    cameraManager.getCameraCharacteristics(cameraId.value)
+                val cameraMetadata =
+                    CameraMetadataImpl(cameraId, redacted, characteristics, emptyMap())
+
+                Log.info {
+                    val duration = Metrics.nanosToMillisDouble(Metrics.monotonicNanos() - start)
+                    val redactedString = when (redacted) {
+                        false -> ""
+                        true -> " (redacted)"
+                    }
+                    "Loaded metadata for $cameraId in ${duration.formatMilliTime()}$redactedString"
+                }
+
+                return@trace cameraMetadata
+            } catch (e: Throwable) {
+                throw IllegalStateException("Failed to load metadata for $cameraId", e)
+            }
+        }
     }
 
-    private fun isMetadataRedacted(): Boolean {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            // Some CameraCharacteristic properties are redacted on Q or higher if the application
-            // does not currently hold the CAMERA permission.
-            return !checkCameraPermission()
-        }
-        return false
-    }
-
-    @RequiresApi(23)
-    private fun checkCameraPermission(): Boolean {
-        // Granted camera permission is cached here to reduce the number of binder transactions
-        // executed.  This is considered okay because when a user revokes a permission at runtime,
-        // Android's PermissionManagerService kills the app via the onPermissionRevoked callback,
-        // allowing the code to avoid re-querying after checkSelfPermission returns true.
-        if (!hasCameraPermission &&
-            context.checkSelfPermission(permission.CAMERA) == PackageManager.PERMISSION_GRANTED
-        ) {
-            hasCameraPermission = true
-        }
-        return hasCameraPermission
-    }
+    private fun isMetadataRedacted(): Boolean = !permissions.hasCameraPermission
 }

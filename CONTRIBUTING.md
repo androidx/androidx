@@ -8,7 +8,12 @@ The Android team has been exploring how we could make it easier to develop libra
 
 ### What can you contribute to?
 
-You can start contributing to [Room](https://developer.android.com/topic/libraries/architecture/room) and [WorkManager](https://developer.android.com/topic/libraries/architecture/workmanager) from GitHub!
+You can start contributing to any of the following library groups from GitHub:
+  - [Paging](https://developer.android.com/topic/libraries/architecture/paging)
+  - [Room](https://developer.android.com/topic/libraries/architecture/room)
+  - [WorkManager](https://developer.android.com/topic/libraries/architecture/workmanager)
+
+Not sure where to start? Take a look at the official [feature/bug bounty list](http://goo.gle/androidx-bug-bounty).
 
 Our tooling currently supports **macOS and Linux**. This new setup is a **work-in-progress**, so it might have some rough edges. Please bear with us while we streamline this workflow.
 
@@ -36,6 +41,7 @@ The list of folders that can be contributed to, using the GitHub repository are:
 
 ```
 androidx
+  -- paging
   -- room
   -- work
 ```
@@ -46,7 +52,7 @@ Fork the [AndroidX/androidx](https://github.com/AndroidX/androidx) repository.
 
 We recommend cloning using blob filter to reduce checkout size:
 ```bash
-git clone --filter=blob:none https://github.com/YOUR_USERNAME/androidx.git
+git clone https://github.com/YOUR_USERNAME/androidx.git
 ```
 
 Let’s assume that you want to make a contribution to Room. The first step is to launch Android Studio and import the Room project.

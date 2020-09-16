@@ -57,7 +57,7 @@ public class TimeFormatTextTest {
 
         // WHEN getText is called for a given date
         CharSequence result =
-                tft.getText(null, new GregorianCalendar(2016, 2, 4).getTimeInMillis());
+                tft.getTextAt(null, new GregorianCalendar(2016, 2, 4).getTimeInMillis());
 
         // THEN the results are in the default case.
         assertEquals("Fri in Mar", result);
@@ -71,7 +71,7 @@ public class TimeFormatTextTest {
 
         // WHEN getText is called for a given date
         CharSequence result =
-                tft.getText(null, new GregorianCalendar(2016, 2, 4).getTimeInMillis());
+                tft.getTextAt(null, new GregorianCalendar(2016, 2, 4).getTimeInMillis());
 
         // THEN the results are in upper case.
         assertEquals("FRI IN MAR", result);
@@ -85,7 +85,7 @@ public class TimeFormatTextTest {
 
         // WHEN getText is called for a given date
         CharSequence result =
-                tft.getText(null, new GregorianCalendar(2016, 2, 4).getTimeInMillis());
+                tft.getTextAt(null, new GregorianCalendar(2016, 2, 4).getTimeInMillis());
 
         // THEN the results are in lower case.
         assertEquals("fri in mar", result);
@@ -103,7 +103,7 @@ public class TimeFormatTextTest {
         calendar.set(2016, 2, 4, 15, 12, 58);
 
         // WHEN getText is called for a given date
-        CharSequence result = tft.getText(null, calendar.getTimeInMillis());
+        CharSequence result = tft.getTextAt(null, calendar.getTimeInMillis());
 
         // THEN the results are adjusted for the time zone.
         assertEquals("07:12", result);
@@ -152,7 +152,7 @@ public class TimeFormatTextTest {
 
         GregorianCalendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT+0"));
         calendar.set(2016, 2, 4, 18, 52, 58);
-        CharSequence result = complicationText.getText(mResources, calendar.getTimeInMillis());
+        CharSequence result = complicationText.getTextAt(mResources, calendar.getTimeInMillis());
         assertEquals("03:52", result.toString());
     }
 
@@ -168,7 +168,7 @@ public class TimeFormatTextTest {
 
         // THEN the object behaves as expected.
         CharSequence result =
-                newText.getText(mResources, new GregorianCalendar(2016, 2, 4).getTimeInMillis());
+                newText.getTextAt(mResources, new GregorianCalendar(2016, 2, 4).getTimeInMillis());
         assertEquals("fri the 4 mar", result.toString());
     }
 
@@ -187,7 +187,7 @@ public class TimeFormatTextTest {
         // THEN the object behaves as expected.
         GregorianCalendar calendar = new GregorianCalendar(TimeZone.getTimeZone("GMT+0"));
         calendar.set(2016, 2, 4, 18, 52, 58);
-        CharSequence result = newText.getText(mResources, calendar.getTimeInMillis());
+        CharSequence result = newText.getTextAt(mResources, calendar.getTimeInMillis());
         assertEquals("fri the 4 mar 23:52", result.toString());
     }
 

@@ -70,7 +70,7 @@ public final class TimeDifferenceText implements TimeDependentText {
 
     @NonNull
     @Override
-    public CharSequence getText(@NonNull Resources resources, long dateTimeMillis) {
+    public CharSequence getTextAt(@NonNull Resources resources, long dateTimeMillis) {
         long timeDifference = getTimeDifference(dateTimeMillis);
 
         if (timeDifference == 0 && mShowNowText) {
@@ -108,7 +108,7 @@ public final class TimeDifferenceText implements TimeDependentText {
     }
 
     /**
-     * @return The time precision in milliseconds
+     * Returns the time precision in milliseconds.
      */
     public long getPrecision() {
         long defaultPrecision;

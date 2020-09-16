@@ -22,13 +22,15 @@ import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
 import androidx.room.ext.T
 import androidx.room.vo.DatabaseView
+import capitalize
 import com.squareup.javapoet.ParameterSpec
 import stripNonJava
+import java.util.Locale
 
 class ViewInfoValidationWriter(val view: DatabaseView) : ValidationWriter() {
 
     override fun write(dbParam: ParameterSpec, scope: CountingCodeGenScope) {
-        val suffix = view.viewName.stripNonJava().capitalize()
+        val suffix = view.viewName.stripNonJava().capitalize(Locale.US)
         scope.builder().apply {
             val expectedInfoVar = scope.getTmpVar("_info$suffix")
             addStatement("final $T $L = new $T($S, $S)",

@@ -22,7 +22,7 @@ package androidx.test.screenshot
  *
  * @param moduleDirectory Directory to be used for the module that contains the tests. This is
  * just a helper to avoid mixing goldens between different projects.
- * Example for module directory: "ui/ui-material"
+ * Example for module directory: "compose/material/material"
  *
  * @hide
  */

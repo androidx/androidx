@@ -24,7 +24,6 @@ import android.widget.FrameLayout
 import androidx.camera.core.SurfaceRequest
 import androidx.camera.testing.fakes.FakeActivity
 import androidx.camera.testing.fakes.FakeCamera
-import androidx.camera.view.preview.transform.PreviewTransform
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
@@ -70,9 +69,8 @@ class SurfaceViewImplementationTest {
         mParent = FrameLayout(context)
         setContentView(mParent)
 
-        mSurfaceRequest = SurfaceRequest(ANY_SIZE, FakeCamera(), null)
-        mImplementation = SurfaceViewImplementation()
-        mImplementation.init(mParent, PreviewTransform())
+        mSurfaceRequest = SurfaceRequest(ANY_SIZE, FakeCamera(), false)
+        mImplementation = SurfaceViewImplementation(mParent, PreviewTransformation())
     }
 
     @Test

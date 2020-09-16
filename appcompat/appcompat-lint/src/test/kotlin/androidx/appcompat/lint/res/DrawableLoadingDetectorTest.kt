@@ -85,7 +85,7 @@ class DrawableLoadingDetectorTest {
         ).issues(DrawableLoadingDetector.NOT_USING_COMPAT_LOADING)
             .run()
             .expect("""
-src/com/example/CustomActivity.kt:9: Warning: Use ContextCompat.getDrawable() [UseCompatLoadingForDrawables]
+src/com/example/CustomActivity.kt:9: Warning: Use AppCompatResources.getDrawable() [UseCompatLoadingForDrawables]
         getDrawable(android.R.drawable.ic_delete)
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings

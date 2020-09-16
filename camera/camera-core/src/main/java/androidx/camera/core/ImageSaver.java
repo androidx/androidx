@@ -21,7 +21,6 @@ import android.graphics.ImageFormat;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.MediaStore;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -85,7 +84,7 @@ final class ImageSaver implements Runnable {
         Uri outputUri = null;
         try {
             // Create a temp file if the save location is not a file. This is necessary because
-            // ExifInterface only supports File.
+            // ExifInterface only supports saving to File.
             file = isSaveToFile() ? mOutputFileOptions.getFile() :
                     File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
         } catch (IOException e) {
@@ -252,8 +251,9 @@ final class ImageSaver implements Runnable {
             mExecutor.execute(
                     () -> mCallback.onImageSaved(new ImageCapture.OutputFileResults(outputUri)));
         } catch (RejectedExecutionException e) {
-            Log.e(TAG, "Application executor rejected executing OnImageSavedCallback.onImageSaved "
-                    + "callback. Skipping.");
+            Logger.e(TAG,
+                    "Application executor rejected executing OnImageSavedCallback.onImageSaved "
+                            + "callback. Skipping.");
         }
     }
 
@@ -262,7 +262,7 @@ final class ImageSaver implements Runnable {
         try {
             mExecutor.execute(() -> mCallback.onError(saveError, message, cause));
         } catch (RejectedExecutionException e) {
-            Log.e(TAG, "Application executor rejected executing OnImageSavedCallback.onError "
+            Logger.e(TAG, "Application executor rejected executing OnImageSavedCallback.onError "
                     + "callback. Skipping.");
         }
     }

@@ -45,6 +45,7 @@ import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.slice.SliceConvert.unwrap;
 import static androidx.slice.core.SliceHints.HINT_ACTIVITY;
 import static androidx.slice.core.SliceHints.HINT_CACHED;
+import static androidx.slice.core.SliceHints.HINT_END_OF_SECTION;
 import static androidx.slice.core.SliceHints.HINT_OVERLAY;
 import static androidx.slice.core.SliceHints.HINT_RAW;
 import static androidx.slice.core.SliceHints.HINT_SELECTION_OPTION;
@@ -139,6 +140,7 @@ public final class Slice extends CustomVersionedParcelable implements VersionedP
             HINT_ERROR,
             HINT_ACTIVITY,
             HINT_CACHED,
+            HINT_END_OF_SECTION,
             HINT_SELECTION_OPTION,
             HINT_RAW,
             HINT_OVERLAY,

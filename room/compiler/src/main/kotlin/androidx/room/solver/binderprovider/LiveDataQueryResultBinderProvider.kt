@@ -18,6 +18,7 @@ package androidx.room.solver.binderprovider
 
 import androidx.room.ext.LifecyclesTypeNames
 import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
 import androidx.room.processor.Context
 import androidx.room.solver.ObservableQueryResultBinderProvider
@@ -27,8 +28,8 @@ import androidx.room.solver.query.result.QueryResultBinder
 
 class LiveDataQueryResultBinderProvider(context: Context) :
     ObservableQueryResultBinderProvider(context) {
-    private val liveDataTypeMirror: XType? by lazy {
-        context.processingEnv.findType(LifecyclesTypeNames.LIVE_DATA)
+    private val liveDataType: XRawType? by lazy {
+        context.processingEnv.findType(LifecyclesTypeNames.LIVE_DATA)?.rawType
     }
 
     override fun extractTypeArg(declared: XDeclaredType): XType = declared.typeArguments.first()
@@ -48,10 +49,9 @@ class LiveDataQueryResultBinderProvider(context: Context) :
             declared.typeArguments.size == 1 && isLiveData(declared)
 
     private fun isLiveData(declared: XDeclaredType): Boolean {
-        if (liveDataTypeMirror == null) {
+        if (liveDataType == null) {
             return false
         }
-        val erasure = declared.erasure()
-        return erasure.isAssignableFrom(liveDataTypeMirror!!)
+        return declared.rawType.isAssignableFrom(liveDataType!!)
     }
 }

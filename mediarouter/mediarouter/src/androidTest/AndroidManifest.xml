@@ -23,11 +23,21 @@
             android:label="MediaRouteChooserDialogTestActivity"
             android:theme="@style/Theme.AppCompat" />
 
+        <service
+            android:name="androidx.mediarouter.media.StubMediaRouteProviderService"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.media.MediaRouteProviderService" />
+                <action android:name="android.media.MediaRoute2ProviderService" />
+            </intent-filter>
+        </service>
+
         <receiver android:name="androidx.media.session.MediaButtonReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.MEDIA_BUTTON"/>
             </intent-filter>
         </receiver>
+
     </application>
 
 </manifest>

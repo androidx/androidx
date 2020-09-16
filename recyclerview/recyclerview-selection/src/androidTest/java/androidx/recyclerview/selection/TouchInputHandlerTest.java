@@ -21,6 +21,7 @@ import static androidx.recyclerview.selection.testing.TestEvents.Touch.MOVE;
 import static androidx.recyclerview.selection.testing.TestEvents.Touch.UP;
 
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import androidx.recyclerview.selection.ItemDetailsLookup.ItemDetails;
 import androidx.recyclerview.selection.testing.SelectionProbe;
@@ -34,7 +35,6 @@ import androidx.recyclerview.selection.testing.TestItemKeyProvider;
 import androidx.recyclerview.selection.testing.TestOnItemActivatedListener;
 import androidx.recyclerview.selection.testing.TestRunnable;
 import androidx.recyclerview.selection.testing.TestSelectionPredicate;
-import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
@@ -55,6 +55,7 @@ public final class TouchInputHandlerTest {
     private TestItemDetailsLookup mDetailsLookup;
     private SelectionProbe mSelection;
     private TestDragListener mDragInitiatedListener;
+    private TestRunnable mLongPressCallback;
 
     @Before
     public void setUp() {
@@ -66,6 +67,7 @@ public final class TouchInputHandlerTest {
         mHapticPerformer = new TestRunnable();
         mActivationCallbacks = new TestOnItemActivatedListener<>();
         mDragInitiatedListener = new TestDragListener();
+        mLongPressCallback = new TestRunnable();
 
         mInputDelegate = new TouchInputHandler<>(
                 mSelectionMgr,
@@ -78,16 +80,19 @@ public final class TouchInputHandlerTest {
                 mDragInitiatedListener,
                 mActivationCallbacks,
                 new TestFocusDelegate<>(),
-                mHapticPerformer);
+                mHapticPerformer,
+                mLongPressCallback::run);
     }
 
     @Test
     public void testTap_ActivatesWhenNoExistingSelection() {
         ItemDetails<String> doc = mDetailsLookup.initAt(11);
 
-        mInputDelegate.onSingleTapUp(UP);
-
+        assertTrue(mInputDelegate.onSingleTapUp(UP));
         mActivationCallbacks.assertActivated(doc);
+
+        mActivationCallbacks.setReturnValue(false);
+        assertFalse(mInputDelegate.onSingleTapUp(UP));
     }
 
     @Test
@@ -103,6 +108,16 @@ public final class TouchInputHandlerTest {
         mInputDelegate.onLongPress(DOWN);
 
         mSelection.assertSelection(7);
+    }
+
+
+    @Test
+    public void testLongPress_NotifiesLongPressCallback() {
+        mSelectionPredicate.setReturnValue(true);
+        mDetailsLookup.initAt(7);
+
+        mInputDelegate.onLongPress(DOWN);
+        mLongPressCallback.assertRun();
     }
 
     @Test
@@ -141,9 +156,20 @@ public final class TouchInputHandlerTest {
         mSelectionMgr.select("7");
         mDetailsLookup.initAt(7);
 
+        mDragInitiatedListener.setReturnValue(true);
         mInputDelegate.onLongPress(DOWN);
 
         mDragInitiatedListener.assertDragInitiated(true);
+        mHapticPerformer.assertRun();
+    }
+
+    @Test
+    public void testLongPress_SelectedItem_NoFeedbackIfHandlerPasses() {
+        mSelectionMgr.select("7");
+        mDetailsLookup.initAt(7);
+        mDragInitiatedListener.setReturnValue(false);
+        mInputDelegate.onLongPress(DOWN);
+        mHapticPerformer.assertNotRun();
     }
 
     @Test
@@ -158,11 +184,26 @@ public final class TouchInputHandlerTest {
     }
 
     @Test
-    public void testTapSelectHotspot_UnselectedItem_Selections() {
+    public void testUpAfterLongPress_Consumed() {
+        mSelectionPredicate.setReturnValue(true);
+        mDetailsLookup.initAt(7);
+
+        mInputDelegate.onLongPress(DOWN);
+
+        mDetailsLookup.reset();  // Any lookup should yield unselectable item.
+        // After a long press we basically don't want to take
+        // any additional action, but we want to consume
+        // the event so other code doesn't think the event
+        // was unhandled.
+        assertTrue(mInputDelegate.onSingleTapUp(UP));
+    }
+
+    @Test
+    public void testTapSelectHotspot_InitiatesSelection() {
         mSelectionPredicate.setReturnValue(true);
 
         mDetailsLookup.initAt(7).setInItemSelectRegion(true);
-        mInputDelegate.onSingleTapUp(UP);
+        assertTrue(mInputDelegate.onSingleTapUp(UP));
 
         mSelection.assertSelection(7);
     }
@@ -172,7 +213,7 @@ public final class TouchInputHandlerTest {
         mSelectionMgr.select("11");
 
         mDetailsLookup.initAt(11).setInItemSelectRegion(true);
-        mInputDelegate.onSingleTapUp(UP);
+        assertTrue(mInputDelegate.onSingleTapUp(UP));
 
         mSelection.assertNoSelection();
     }
@@ -198,24 +239,26 @@ public final class TouchInputHandlerTest {
         mSelectionMgr.select("11");
 
         mDetailsLookup.initAt(11);
-        mInputDelegate.onSingleTapUp(UP);
+        assertTrue(mInputDelegate.onSingleTapUp(UP));
 
         mSelection.assertNoSelection();
     }
 
     @Test
-    public void testTapOff_ClearsSelection() {
-        mSelectionMgr.select("7");
-        mDetailsLookup.initAt(7);
-
-        mInputDelegate.onLongPress(DOWN);
-
+    public void testTap_AdaptsDoubleTapUpToSingleTap() {
         mSelectionMgr.select("11");
-        mDetailsLookup.initAt(11);
-        mInputDelegate.onSingleTapUp(UP);
 
-        mDetailsLookup.initAt(RecyclerView.NO_POSITION).setInItemSelectRegion(false);
-        mInputDelegate.onSingleTapUp(UP);
+        mDetailsLookup.initAt(12);
+        assertTrue(mInputDelegate.onDoubleTapEvent(UP));
+
+        mSelection.assertSelection(11, 12);
+    }
+
+    @Test
+    public void testTapOff_ClearsSelection() {
+        mSelectionMgr.select("11");
+
+        assertTrue(mInputDelegate.onSingleTapUp(UP));
 
         mSelection.assertNoSelection();
     }

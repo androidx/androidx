@@ -33,14 +33,12 @@ import androidx.concurrent.futures.ResolvableFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Executor;
 
 /**
  * Retrieves {@link ComplicationProviderInfo} for a watch face's complications.
  *
- * <p>To use, construct an instance providing an {@link Executor} (that should be for a background
- * thread),then {@link #retrieveProviderInfo} may be called. The retrieval will be performed
- * using the provided executor.
+ * <p>To use construct an instance and call {@link #retrieveProviderInfo} which returns a {@link
+ * ListenableFuture}.
  *
  * <p>Further calls to {@link #retrieveProviderInfo} may be made using the same instance of this
  * class, but {@link #close} must be called when it is no longer needed. Once release has been
@@ -105,7 +103,7 @@ public class ProviderInfoRetriever implements AutoCloseable {
     @SuppressLint("SyntheticAccessor")
     private final ServiceConnection mConn = new ProviderInfoServiceConnection();
 
-    private final Context mContext;
+    @NonNull private final Context mContext;
 
     private final ResolvableFuture<IProviderInfoService> mServiceFuture = ResolvableFuture.create();
 
@@ -128,11 +126,11 @@ public class ProviderInfoRetriever implements AutoCloseable {
      * <p>This will only work if the package of the current app is the same as the package of the
      * specified watch face.
      *
-     * @param watchFaceComponent the ComponentName of the
-     *     androidx.wear.watchface.WatchFaceService for which info is being requested
+     * @param watchFaceComponent the ComponentName of the WatchFaceService for which info is
+     *     being requested
      * @param watchFaceComplicationIds ids of the complications that info is being requested for
      * @return A {@link ListenableFuture} for the requested provider info. If the look up fails
-     * null will be returned
+     *     null will be returned
      */
     @NonNull
     public ListenableFuture<ProviderInfo> retrieveProviderInfo(

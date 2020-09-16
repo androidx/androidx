@@ -316,7 +316,7 @@ class ComplicationRenderer {
         if (mComplicationData == null
                 || mComplicationData.getType() == ComplicationData.TYPE_EMPTY
                 || mComplicationData.getType() == ComplicationData.TYPE_NOT_CONFIGURED
-                || !mComplicationData.isActive(currentTimeMillis)) {
+                || !mComplicationData.isActiveAt(currentTimeMillis)) {
             return;
         }
         if (mBounds.isEmpty()) {
@@ -367,11 +367,11 @@ class ComplicationRenderer {
         if (mComplicationData.hasShortText()) {
             mMainTextRenderer.setMaxLines(1);
             mMainTextRenderer.setText(
-                    mComplicationData.getShortText().getText(
+                    mComplicationData.getShortText().getTextAt(
                             mContext.getResources(), currentTimeMillis));
             if (mComplicationData.getShortTitle() != null) {
                 mSubTextRenderer.setText(
-                        mComplicationData.getShortTitle().getText(
+                        mComplicationData.getShortTitle().getTextAt(
                                 mContext.getResources(), currentTimeMillis));
             } else {
                 mSubTextRenderer.setText("");
@@ -379,11 +379,11 @@ class ComplicationRenderer {
         }
         if (mComplicationData.hasLongText()) {
             mMainTextRenderer.setText(
-                    mComplicationData.getLongText().getText(
+                    mComplicationData.getLongText().getTextAt(
                             mContext.getResources(), currentTimeMillis));
             if (mComplicationData.getLongTitle() != null) {
                 mSubTextRenderer.setText(
-                        mComplicationData.getLongTitle().getText(
+                        mComplicationData.getLongTitle().getTextAt(
                                 mContext.getResources(), currentTimeMillis));
                 // If long text has title, only show one line from each
                 mMainTextRenderer.setMaxLines(1);
@@ -530,7 +530,7 @@ class ComplicationRenderer {
             mRoundedSmallImage.setColorFilter(null);
             mRoundedSmallImage.setRadius(0);
         } else {
-            mRoundedSmallImage.setColorFilter(paintSet.mStyle.getColorFilter());
+            mRoundedSmallImage.setColorFilter(paintSet.mStyle.getImageColorFilter());
             mRoundedSmallImage.setRadius(getImageBorderRadius(paintSet.mStyle, mSmallImageBounds));
         }
         mRoundedSmallImage.setBounds(mSmallImageBounds);
@@ -550,7 +550,7 @@ class ComplicationRenderer {
             // Large image is always treated as photo style
             mRoundedLargeImage.setRadius(getImageBorderRadius(paintSet.mStyle, mLargeImageBounds));
             mRoundedLargeImage.setBounds(mLargeImageBounds);
-            mRoundedLargeImage.setColorFilter(paintSet.mStyle.getColorFilter());
+            mRoundedLargeImage.setColorFilter(paintSet.mStyle.getImageColorFilter());
             mRoundedLargeImage.draw(canvas);
         }
     }
@@ -1046,20 +1046,20 @@ class ComplicationRenderer {
      */
     @NonNull
     private static ComplicationStyle lowBitAmbientStyleFrom(@NonNull ComplicationStyle style) {
-        ComplicationStyle.Builder builder = new ComplicationStyle.Builder(style);
+        ComplicationStyle newStyle = new ComplicationStyle(style);
         if (style.getBackgroundColor() != Color.BLACK) {
-            builder.setBackgroundColor(Color.TRANSPARENT);
+            newStyle.setBackgroundColor(Color.TRANSPARENT);
         }
-        builder.setTextColor(Color.WHITE);
-        builder.setTitleColor(Color.WHITE);
-        builder.setIconColor(Color.WHITE);
+        newStyle.setTextColor(Color.WHITE);
+        newStyle.setTitleColor(Color.WHITE);
+        newStyle.setIconColor(Color.WHITE);
         if (style.getBorderColor() != Color.BLACK && style.getBorderColor() != Color.TRANSPARENT) {
-            builder.setBorderColor(Color.WHITE);
+            newStyle.setBorderColor(Color.WHITE);
         }
-        builder.setRangedValuePrimaryColor(Color.WHITE);
+        newStyle.setRangedValuePrimaryColor(Color.WHITE);
         if (style.getRangedValueSecondaryColor() != Color.BLACK) {
-            builder.setRangedValueSecondaryColor(Color.TRANSPARENT);
+            newStyle.setRangedValueSecondaryColor(Color.TRANSPARENT);
         }
-        return builder.build();
+        return newStyle;
     }
 }

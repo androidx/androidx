@@ -13,4 +13,11 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<manifest package="androidx.media"/>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="androidx.media">
+    <queries>
+        <intent>
+            <action android:name="android.media.browse.MediaBrowserService" />
+        </intent>
+    </queries>
+</manifest>

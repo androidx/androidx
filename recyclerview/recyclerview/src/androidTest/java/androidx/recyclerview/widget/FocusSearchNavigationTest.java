@@ -124,9 +124,10 @@ public class FocusSearchNavigationTest {
             }
         });
         waitForIdleSync();
-        assertThat("test sanity", mRecyclerView.getLayoutManager().getLayoutDirection(),
+        assertThat("Assumption check", mRecyclerView.getLayoutManager().getLayoutDirection(),
                 is(mLayoutDir));
-        assertThat("test sanity", ViewCompat.getLayoutDirection(mRecyclerView), is(mLayoutDir));
+        assertThat("Assumption check", ViewCompat.getLayoutDirection(mRecyclerView),
+                is(mLayoutDir));
     }
 
     @Test

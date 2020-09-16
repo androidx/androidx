@@ -30,6 +30,7 @@ import android.content.Context;
 import android.graphics.ImageFormat;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
+import android.hardware.camera2.params.StreamConfigurationMap;
 import android.os.Build;
 import android.util.Size;
 import android.view.WindowManager;
@@ -90,9 +91,7 @@ import java.util.concurrent.TimeoutException;
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP,
-        maxSdk = Build.VERSION_CODES.P //TODO (b/149669465) : Some robolectric tests will fail on Q
-)
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public final class Camera2DeviceSurfaceManagerTest {
     private static final String LEGACY_CAMERA_ID = "0";
     private static final String LIMITED_CAMERA_ID = "1";
@@ -335,7 +334,7 @@ public final class Camera2DeviceSurfaceManagerTest {
         }
     }
 
-    @Test
+    @Test(expected = IllegalArgumentException.class)
     public void suggestedResolutionsForMixedUseCaseNotSupportedInLegacyDevice() {
         ImageCapture imageCapture = new ImageCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
@@ -352,17 +351,13 @@ public final class Camera2DeviceSurfaceManagerTest {
         useCases.add(videoCapture);
         useCases.add(preview);
 
-        boolean exceptionHappened = false;
-
-        try {
-            // Will throw IllegalArgumentException
-            mSurfaceManager.getSuggestedResolutions(LEGACY_CAMERA_ID, Collections.emptyList(),
-                    Configs.useCaseConfigListFromUseCaseList(useCases));
-        } catch (IllegalArgumentException e) {
-            exceptionHappened = true;
-        }
-
-        assertTrue(exceptionHappened);
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases);
+        // A legacy level camera device can't support JPEG (ImageCapture) + PRIV (VideoCapture) +
+        // PRIV (Preview) combination. An IllegalArgumentException will be thrown when trying to
+        // bind these use cases at the same time.
+        mSurfaceManager.getSuggestedResolutions(LEGACY_CAMERA_ID, Collections.emptyList(),
+                new ArrayList<>(useCaseToConfigMap.values()));
     }
 
     @Test
@@ -381,16 +376,20 @@ public final class Camera2DeviceSurfaceManagerTest {
         useCases.add(imageCapture);
         useCases.add(videoCapture);
         useCases.add(preview);
+
+        Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 mSurfaceManager.getSuggestedResolutions(LIMITED_CAMERA_ID, Collections.emptyList(),
-                        Configs.useCaseConfigListFromUseCaseList(useCases));
+                        new ArrayList<>(useCaseToConfigMap.values()));
 
         // (PRIV, PREVIEW) + (PRIV, RECORD) + (JPEG, RECORD)
-        assertThat(suggestedResolutionMap).containsEntry(imageCapture.getUseCaseConfig(),
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(imageCapture),
                 mRecordSize);
-        assertThat(suggestedResolutionMap).containsEntry(videoCapture.getUseCaseConfig(),
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(videoCapture),
                 mMaximumVideoSize);
-        assertThat(suggestedResolutionMap).containsEntry(preview.getUseCaseConfig(), mPreviewSize);
+        assertThat(suggestedResolutionMap).containsEntry(useCaseToConfigMap.get(preview),
+                mPreviewSize);
     }
 
     @Test
@@ -548,16 +547,27 @@ public final class Camera2DeviceSurfaceManagerTest {
         ((ShadowCameraManager) Shadow.extract(cameraManager))
                 .addCamera(cameraId, characteristics);
 
-        shadowCharacteristics.set(
-                CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
-                StreamConfigurationMapUtil.generateFakeStreamConfigurationMap(
-                        mSupportedFormats, mSupportedSizes));
+        // Current robolectric can support to directly mock a StreamConfigurationMap object if
+        // the testing platform target is equal to or newer than API level 23. For API level 21
+        // or 22 testing platform target, keep the original method to create a
+        // StreamConfigurationMap object via reflection.
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
+            shadowCharacteristics.set(
+                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
+                    StreamConfigurationMapUtil.generateFakeStreamConfigurationMap(mSupportedFormats,
+                            mSupportedSizes));
+        } else {
+            StreamConfigurationMap mockMap = mock(StreamConfigurationMap.class);
+            when(mockMap.getOutputSizes(anyInt())).thenReturn(mSupportedSizes);
+            shadowCharacteristics.set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
+                    mockMap);
+        }
 
         @CameraSelector.LensFacing int lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(
                 lensFacing);
         mCameraFactory.insertCamera(lensFacingEnum, cameraId, () -> new FakeCamera(cameraId, null,
                 new Camera2CameraInfoImpl(cameraId, characteristics,
-                        mock(Camera2CameraControl.class))));
+                        mock(Camera2CameraControlImpl.class))));
     }
 
     private void initCameraX() {

@@ -269,9 +269,35 @@ class BackStackStateTest {
         val fm = fc.supportFragmentManager
 
         val fragment = StrictViewFragment()
+
+        fm.beginTransaction()
+            .add(android.R.id.content, fragment)
+            .setReorderingAllowed(true)
+            .setMaxLifecycle(fragment, Lifecycle.State.INITIALIZED)
+            .commitNow()
+
+        assertThat(fragment.lifecycle.currentState).isEqualTo(Lifecycle.State.INITIALIZED)
+
+        assertThat(fragment.calledOnResume).isFalse()
+    }
+
+    @Test
+    @UiThreadTest
+    fun setMaxLifecycleInitializedAfterCreated() {
+        val viewModelStore = ViewModelStore()
+        val fc = activityRule.startupFragmentController(viewModelStore)
+
+        val fm = fc.supportFragmentManager
+
+        val fragment = StrictViewFragment()
+
+        fm.beginTransaction()
+            .add(android.R.id.content, fragment)
+            .setMaxLifecycle(fragment, Lifecycle.State.CREATED)
+            .commitNow()
+
         try {
             fm.beginTransaction()
-                .add(android.R.id.content, fragment)
                 .setMaxLifecycle(fragment, Lifecycle.State.INITIALIZED)
                 .commitNow()
             fail(
@@ -281,7 +307,10 @@ class BackStackStateTest {
         } catch (e: IllegalArgumentException) {
             assertThat(e)
                 .hasMessageThat()
-                .contains("Cannot set maximum Lifecycle below CREATED")
+                .contains(
+                    "Cannot set maximum Lifecycle to INITIALIZED after the Fragment has been " +
+                            "created"
+                )
         }
     }
 }

@@ -13,43 +13,48 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    tools:ignore="MissingConstraints"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     android:clipChildren="false">
+    <Space
+        android:layout_height="0dp"
+        android:layout_width="0dp"
+        android:layout_weight="@dimen/ws_nav_drawer_top_space_weight"
+        tools:ignore="ContentDescription" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/ws_nav_drawer_guide_start"
-        app:layout_constraintGuide_percent="@dimen/ws_nav_drawer_margin_2_items_start"
-        style="@style/WsVerticalGuideStyle" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/ws_nav_drawer_guide_end"
-        app:layout_constraintGuide_percent="@dimen/ws_nav_drawer_margin_2_items_end"
-        style="@style/WsVerticalGuideStyle" />
-
-    <androidx.wear.widget.CircledImageView
-        android:id="@+id/ws_nav_drawer_icon_0"
-        app:layout_constraintStart_toStartOf="@id/ws_nav_drawer_guide_start"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        tools:ignore="ContentDescription"
-        style="@style/WsSinglePageNavDrawerIconStyle" />
-
-    <androidx.wear.widget.CircledImageView
-        android:id="@+id/ws_nav_drawer_icon_1"
-        android:layout_alignParentEnd="true"
-        android:layout_centerVertical="true"
-        app:layout_constraintEnd_toEndOf="@id/ws_nav_drawer_guide_end"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        tools:ignore="ContentDescription"
-        style="@style/WsSinglePageNavDrawerIconStyle" />
-
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_gravity="center"
+        android:layout_weight="@dimen/ws_nav_drawer_items_weight"
+        android:orientation="horizontal"
+        android:clipChildren="false">
+        <Space
+            android:layout_height="0dp"
+            android:layout_width="0dp"
+            android:layout_weight="@dimen/ws_nav_drawer_two_item_row_start_space_weight"
+            tools:ignore="ContentDescription" />
+        <androidx.wear.widget.CircledImageView
+            android:id="@+id/ws_nav_drawer_icon_0"
+            android:layout_gravity="center"
+            android:layout_weight="@dimen/ws_nav_drawer_two_item_row_item_weight"
+            tools:ignore="ContentDescription"
+            style="@style/WsSinglePageNavDrawerIconStyle" />
+        <androidx.wear.widget.CircledImageView
+            android:id="@+id/ws_nav_drawer_icon_1"
+            android:layout_gravity="center"
+            android:layout_weight="@dimen/ws_nav_drawer_two_item_row_item_weight"
+            tools:ignore="ContentDescription"
+            style="@style/WsSinglePageNavDrawerIconStyle" />
+        <Space
+            android:layout_height="0dp"
+            android:layout_width="0dp"
+            android:layout_weight="@dimen/ws_nav_drawer_two_item_row_end_space_weight"
+            tools:ignore="ContentDescription" />
+    </LinearLayout>
     <include layout="@layout/ws_single_page_nav_drawer_text" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

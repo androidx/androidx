@@ -212,7 +212,8 @@ private fun AnnotationValue.toListOfClassTypes(env: JavacProcessingEnv): List<XT
     return TO_LIST_OF_TYPES.visit(this).map {
         env.wrap<JavacType>(
             typeMirror = it,
-            nullability = XNullability.UNKNOWN
+            kotlinType = null,
+            elementNullability = XNullability.UNKNOWN
         )
     }
 }
@@ -221,7 +222,8 @@ private fun AnnotationValue.toClassType(env: JavacProcessingEnv): XType? {
     return TO_TYPE.visit(this)?.let {
         env.wrap(
             typeMirror = it,
-            nullability = XNullability.UNKNOWN
+            kotlinType = null,
+            elementNullability = XNullability.UNKNOWN
         )
     }
 }

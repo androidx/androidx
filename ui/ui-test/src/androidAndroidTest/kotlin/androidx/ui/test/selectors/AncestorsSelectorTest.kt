@@ -17,13 +17,13 @@
 package androidx.ui.test.selectors
 
 import androidx.test.filters.MediumTest
-import androidx.ui.test.onAncestors
 import androidx.ui.test.assert
 import androidx.ui.test.assertCountEquals
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.onFirst
 import androidx.ui.test.hasTestTag
+import androidx.ui.test.onAncestors
+import androidx.ui.test.onFirst
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.onParent
 import androidx.ui.test.util.BoundaryNode
 import org.junit.Rule
@@ -36,11 +36,11 @@ import org.junit.runners.JUnit4
 class AncestorsSelectorTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val rule = createComposeRule()
 
     @Test
     fun threeAncestors() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "NodeA") {
                 BoundaryNode(testTag = "NodeB") {
                     BoundaryNode(testTag = "NodeC") {
@@ -50,7 +50,7 @@ class AncestorsSelectorTest {
             }
         }
 
-        onNodeWithTag("NodeD")
+        rule.onNodeWithTag("NodeD")
             .onAncestors()
             .assertCountEquals(4)
             .apply {
@@ -62,7 +62,7 @@ class AncestorsSelectorTest {
 
     @Test
     fun threeAncestors_navigateUp() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "NodeA") {
                 BoundaryNode(testTag = "NodeB") {
                     BoundaryNode(testTag = "NodeC") {
@@ -72,7 +72,7 @@ class AncestorsSelectorTest {
             }
         }
 
-        onNodeWithTag("NodeD")
+        rule.onNodeWithTag("NodeD")
             .onAncestors()
             .onFirst()
             .onAncestors()
@@ -85,11 +85,11 @@ class AncestorsSelectorTest {
 
     @Test
     fun noAncestors() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Node")
         }
 
-        onNodeWithTag("Node")
+        rule.onNodeWithTag("Node")
             .onParent()
             .onAncestors()
             .assertCountEquals(0)

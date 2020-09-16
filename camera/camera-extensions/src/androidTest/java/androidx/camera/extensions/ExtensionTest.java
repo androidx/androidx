@@ -30,7 +30,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
-import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.SurfaceTexture;
@@ -62,12 +61,12 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.mockito.ArgumentCaptor;
@@ -84,8 +83,7 @@ import java.util.concurrent.TimeoutException;
 public class ExtensionTest {
 
     @Rule
-    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
-            Manifest.permission.CAMERA);
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
 
     @Parameterized.Parameters(name = "effect = {0}, facing = {1}")
     public static Collection<Object[]> getParameters() {
@@ -95,12 +93,17 @@ public class ExtensionTest {
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private final Context mContext = ApplicationProvider.getApplicationContext();
 
-    private EffectMode mEffectMode;
+    private final EffectMode mEffectMode;
+    @Extensions.ExtensionMode
+    private final int mExtensionMode;
     @CameraSelector.LensFacing
-    private int mLensFacing;
+    private final int mLensFacing;
+
+    private CameraUseCaseAdapter mCamera;
 
     public ExtensionTest(EffectMode effectMode, @CameraSelector.LensFacing int lensFacing) {
         mEffectMode = effectMode;
+        mExtensionMode = ExtensionsTestUtil.effectModeToExtensionMode(mEffectMode);
         mLensFacing = lensFacing;
     }
 
@@ -113,17 +116,24 @@ public class ExtensionTest {
 
         assumeTrue(CameraUtil.hasCameraWithLensFacing(mLensFacing));
         assumeTrue(ExtensionsTestUtil.initExtensions(mContext));
-        assumeTrue(ExtensionsManager.isExtensionAvailable(mEffectMode, mLensFacing));
         assumeTrue(isTargetDeviceAvailableForExtensions(mLensFacing));
+        CameraSelector cameraSelector =
+                new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
+        mCamera = CameraUtil.createCameraUseCaseAdapter(mContext, cameraSelector);
+        Extensions extensions = ExtensionsManager.getExtensions(mContext);
+        assumeTrue(extensions.isExtensionAvailable(mCamera, mExtensionMode));
     }
 
     @After
     public void cleanUp() throws InterruptedException, ExecutionException, TimeoutException {
         CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+        ExtensionsManager.deinit().get();
     }
 
     @Test
     public void testCanBindToLifeCycleAndTakePicture() {
+
+
         ImageCapture.OnImageCapturedCallback mockOnImageCapturedCallback = mock(
                 ImageCapture.OnImageCapturedCallback.class);
 
@@ -132,10 +142,7 @@ public class ExtensionTest {
                 mLensFacing);
         Preview preview = ExtensionsTestUtil.createPreviewWithEffect(mEffectMode, mLensFacing);
 
-        CameraSelector cameraSelector =
-                new CameraSelector.Builder().requireLensFacing(mLensFacing).build();
-        CameraUseCaseAdapter cameraUseCaseAdapter =
-                CameraUtil.getCameraUseCaseAdapter(mContext, cameraSelector);
+
         mInstrumentation.runOnMainSync(
                 () -> {
                     // To set the update listener and Preview will change to active state.
@@ -156,7 +163,7 @@ public class ExtensionTest {
                             }));
 
                     try {
-                        cameraUseCaseAdapter.addUseCases(Arrays.asList(preview, imageCapture));
+                        mCamera.addUseCases(Arrays.asList(preview, imageCapture));
                     } catch (CameraUseCaseAdapter.CameraException e) {
                         throw new IllegalArgumentException("Unable to bind preview and image "
                                 + "capture");

@@ -258,7 +258,7 @@ public class SystemJobSchedulerTest extends WorkManagerTest {
         when(mockContext.getPackageName()).thenReturn(
                 ApplicationProvider.getApplicationContext().getPackageName());
         when(mockContext.getSystemService(Context.JOB_SCHEDULER_SERVICE)).thenReturn(mJobScheduler);
-        SystemJobScheduler.cancelInvalidJobs(mockContext);
+        SystemJobScheduler.reconcileJobs(mockContext, mWorkManager);
 
         verify(mJobScheduler).cancel(invalidJob.getId());
         verify(mJobScheduler, never()).cancel(validJob.getId());

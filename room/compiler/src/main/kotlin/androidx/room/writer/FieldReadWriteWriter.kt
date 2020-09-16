@@ -27,7 +27,9 @@ import androidx.room.vo.Field
 import androidx.room.vo.FieldWithIndex
 import androidx.room.vo.Pojo
 import androidx.room.vo.RelationCollector
+import capitalize
 import com.squareup.javapoet.TypeName
+import java.util.Locale
 
 /**
  * Handles writing a field into statement or reading it from statement.
@@ -73,7 +75,7 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
             rootNode.directFields = fieldsWithIndices.filter { it.field.parent == null }
             val parentNodes = allParents.associate {
                 Pair(it, Node(
-                        varName = scope.getTmpVar("_tmp${it.field.name.capitalize()}"),
+                        varName = scope.getTmpVar("_tmp${it.field.name.capitalize(Locale.US)}"),
                         fieldParent = it))
             }
             parentNodes.values.forEach { node ->
@@ -324,7 +326,8 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
                                     indexVar, scope)
                         }
                         CallType.METHOD -> {
-                            val tmpField = scope.getTmpVar("_tmp${field.name.capitalize()}")
+                            val tmpField = scope.getTmpVar(
+                                "_tmp${field.name.capitalize(Locale.US)}")
                             addStatement("final $T $L", field.setter.type.typeName, tmpField)
                             reader.readFromCursor(tmpField, cursorVar, indexVar, scope)
                             addStatement("$L.$L($L)", ownerVar, field.setter.name, tmpField)
@@ -356,7 +359,7 @@ class FieldReadWriteWriter(fieldWithIndex: FieldWithIndex) {
         typeName: TypeName,
         scope: CodeGenScope
     ): String {
-        val tmpField = scope.getTmpVar("_tmp${field.name.capitalize()}")
+        val tmpField = scope.getTmpVar("_tmp${field.name.capitalize(Locale.US)}")
         scope.builder().apply {
             addStatement("final $T $L", typeName, tmpField)
             if (alwaysExists) {

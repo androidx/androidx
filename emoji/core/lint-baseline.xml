@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
+<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
 
     <issue
         id="PrivateConstructorForUtilityClass"
@@ -10,6 +10,116 @@
             file="src/main/java/androidx/emoji/text/EmojiProcessor.java"
             line="662"
             column="5"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.emoji.widget.EmojiButton is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiButton.java"
+            line="58"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.emoji.widget.EmojiEditText is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiEditText.java"
+            line="65"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.emoji.widget.EmojiExtractEditText is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiExtractEditText.java"
+            line="74"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.emoji.widget.EmojiExtractTextLayout is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiExtractTextLayout.java"
+            line="99"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class androidx.emoji.widget.EmojiInputFilter.InitCallbackImpl is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="            if (textView != null &amp;&amp; textView.isAttachedToWindow()) {"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiInputFilter.java"
+            line="110"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class androidx.emoji.text.EmojiProcessor.CodepointIndexFinder is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="                if (!Character.isSurrogate(c)) {"
+        errorLine2="                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/text/EmojiProcessor.java"
+            line="713"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class androidx.emoji.text.EmojiProcessor.CodepointIndexFinder is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="                if (!Character.isSurrogate(c)) {"
+        errorLine2="                               ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/text/EmojiProcessor.java"
+            line="770"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.emoji.widget.EmojiTextView is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiTextView.java"
+            line="58"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class androidx.emoji.widget.EmojiTextWatcher.InitCallbackImpl is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="            if (editText != null &amp;&amp; editText.isAttachedToWindow()) {"
+        errorLine2="                                             ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/EmojiTextWatcher.java"
+            line="121"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.emoji.widget.ExtractButtonCompat is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="        super(context, attrs, defStyleAttr, defStyleRes);"
+        errorLine2="        ~~~~~">
+        <location
+            file="src/main/java/androidx/emoji/widget/ExtractButtonCompat.java"
+            line="53"
+            column="9"/>
     </issue>
 
     <issue

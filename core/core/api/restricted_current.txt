@@ -223,6 +223,8 @@ package androidx.core.app {
   }
 
   public class NotificationChannelCompat {
+    method public boolean canBubble();
+    method public boolean canBypassDnd();
     method public boolean canShowBadge();
     method public android.media.AudioAttributes? getAudioAttributes();
     method public String? getConversationId();
@@ -231,12 +233,15 @@ package androidx.core.app {
     method public String getId();
     method public int getImportance();
     method public int getLightColor();
+    method @androidx.core.app.NotificationCompat.NotificationVisibility public int getLockscreenVisibility();
     method public CharSequence? getName();
     method public String? getParentChannelId();
     method public android.net.Uri? getSound();
     method public long[]? getVibrationPattern();
+    method public boolean isImportantConversation();
     method public boolean shouldShowLights();
     method public boolean shouldVibrate();
+    method public androidx.core.app.NotificationChannelCompat.Builder toBuilder();
     field public static final String DEFAULT_CHANNEL_ID = "miscellaneous";
   }
 
@@ -257,9 +262,12 @@ package androidx.core.app {
   }
 
   public class NotificationChannelGroupCompat {
+    method public java.util.List<androidx.core.app.NotificationChannelCompat!> getChannels();
     method public String? getDescription();
     method public String getId();
     method public CharSequence? getName();
+    method public boolean isBlocked();
+    method public androidx.core.app.NotificationChannelGroupCompat.Builder toBuilder();
   }
 
   public static class NotificationChannelGroupCompat.Builder {
@@ -310,6 +318,7 @@ package androidx.core.app {
     field public static final String CATEGORY_EMAIL = "email";
     field public static final String CATEGORY_ERROR = "err";
     field public static final String CATEGORY_EVENT = "event";
+    field public static final String CATEGORY_LOCATION_SHARING = "location_sharing";
     field public static final String CATEGORY_MESSAGE = "msg";
     field public static final String CATEGORY_NAVIGATION = "navigation";
     field public static final String CATEGORY_PROGRESS = "progress";
@@ -319,8 +328,10 @@ package androidx.core.app {
     field public static final String CATEGORY_SERVICE = "service";
     field public static final String CATEGORY_SOCIAL = "social";
     field public static final String CATEGORY_STATUS = "status";
+    field public static final String CATEGORY_STOPWATCH = "stopwatch";
     field public static final String CATEGORY_SYSTEM = "sys";
     field public static final String CATEGORY_TRANSPORT = "transport";
+    field public static final String CATEGORY_WORKOUT = "workout";
     field @ColorInt public static final int COLOR_DEFAULT = 0; // 0x0
     field public static final int DEFAULT_ALL = -1; // 0xffffffff
     field public static final int DEFAULT_LIGHTS = 4; // 0x4
@@ -689,7 +700,7 @@ package androidx.core.app {
 
   public abstract static class NotificationCompat.Style {
     ctor public NotificationCompat.Style();
-    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void addCompatExtras(android.os.Bundle!);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void addCompatExtras(android.os.Bundle);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public void apply(androidx.core.app.NotificationBuilderWithBuilderAccessor!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews applyStandardTemplate(boolean, int, boolean);
     method public android.app.Notification? build();
@@ -698,6 +709,7 @@ package androidx.core.app {
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.graphics.Bitmap! createColoredBitmap(int, int);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public boolean displayCustomViewInline();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public static androidx.core.app.NotificationCompat.Style? extractStyleFromNotification(android.app.Notification);
+    method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) protected String? getClassName();
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! makeBigContentView(androidx.core.app.NotificationBuilderWithBuilderAccessor!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! makeContentView(androidx.core.app.NotificationBuilderWithBuilderAccessor!);
     method @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public android.widget.RemoteViews! makeHeadsUpContentView(androidx.core.app.NotificationBuilderWithBuilderAccessor!);
@@ -804,9 +816,14 @@ package androidx.core.app {
     method public int getImportance();
     method public android.app.NotificationChannel? getNotificationChannel(String);
     method public android.app.NotificationChannel? getNotificationChannel(String, String);
+    method public androidx.core.app.NotificationChannelCompat? getNotificationChannelCompat(String);
+    method public androidx.core.app.NotificationChannelCompat? getNotificationChannelCompat(String, String);
     method public android.app.NotificationChannelGroup? getNotificationChannelGroup(String);
+    method public androidx.core.app.NotificationChannelGroupCompat? getNotificationChannelGroupCompat(String);
     method public java.util.List<android.app.NotificationChannelGroup!> getNotificationChannelGroups();
+    method public java.util.List<androidx.core.app.NotificationChannelGroupCompat!> getNotificationChannelGroupsCompat();
     method public java.util.List<android.app.NotificationChannel!> getNotificationChannels();
+    method public java.util.List<androidx.core.app.NotificationChannelCompat!> getNotificationChannelsCompat();
     method public void notify(int, android.app.Notification);
     method public void notify(String?, int, android.app.Notification);
     field public static final String ACTION_BIND_SIDE_CHANNEL = "android.support.BIND_NOTIFICATION_SIDE_CHANNEL";
@@ -2638,7 +2655,7 @@ package androidx.core.view {
   }
 
   public class ViewCompat {
-    ctor protected ViewCompat();
+    ctor @Deprecated protected ViewCompat();
     method public static int addAccessibilityAction(android.view.View, CharSequence, androidx.core.view.accessibility.AccessibilityViewCommand);
     method public static void addKeyboardNavigationClusters(android.view.View, java.util.Collection<android.view.View!>, int);
     method public static void addOnUnhandledKeyEventListener(android.view.View, androidx.core.view.ViewCompat.OnUnhandledKeyEventListenerCompat);
@@ -3541,7 +3558,12 @@ package androidx.core.view.inputmethod {
   public final class EditorInfoCompat {
     ctor @Deprecated public EditorInfoCompat();
     method public static String![] getContentMimeTypes(android.view.inputmethod.EditorInfo!);
+    method public static CharSequence? getInitialSelectedText(android.view.inputmethod.EditorInfo, int);
+    method public static CharSequence? getInitialTextAfterCursor(android.view.inputmethod.EditorInfo, int, int);
+    method public static CharSequence? getInitialTextBeforeCursor(android.view.inputmethod.EditorInfo, int, int);
     method public static void setContentMimeTypes(android.view.inputmethod.EditorInfo, String![]?);
+    method public static void setInitialSurroundingSubText(android.view.inputmethod.EditorInfo, CharSequence, int);
+    method public static void setInitialSurroundingText(android.view.inputmethod.EditorInfo, CharSequence);
     field public static final int IME_FLAG_FORCE_ASCII = -2147483648; // 0x80000000
     field public static final int IME_FLAG_NO_PERSONALIZED_LEARNING = 16777216; // 0x1000000
   }

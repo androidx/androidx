@@ -104,8 +104,8 @@ class AutoValuePojoProcessorDelegate(
         fun getGeneratedClassName(element: XTypeElement): String {
             var type = element
             var name = type.name
-            while (type.enclosingElement?.isType() == true) {
-                type = type.enclosingElement!!.asTypeElement()
+            while (type.enclosingTypeElement?.isType() == true) {
+                type = type.enclosingTypeElement!!.asTypeElement()
                 name = "${type.name}_$name"
             }
             val pkg = type.packageName

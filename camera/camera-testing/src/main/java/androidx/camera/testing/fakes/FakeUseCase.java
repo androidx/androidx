@@ -20,7 +20,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.camera.core.CameraInfo;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -29,7 +28,7 @@ import androidx.camera.core.impl.UseCaseConfig;
  * A fake {@link UseCase}.
  */
 public class FakeUseCase extends UseCase {
-    private volatile boolean mIsCleared = false;
+    private volatile boolean mIsDetached = false;
 
     /**
      * Creates a new instance of a {@link FakeUseCase} with a given configuration.
@@ -47,7 +46,7 @@ public class FakeUseCase extends UseCase {
 
     @Override
     @Nullable
-    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
+    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder() {
         return new FakeUseCaseConfig.Builder()
                 .setSessionOptionUnpacker(new SessionConfig.OptionUnpacker() {
                     @Override
@@ -58,9 +57,9 @@ public class FakeUseCase extends UseCase {
     }
 
     @Override
-    public void clear() {
-        super.clear();
-        mIsCleared = true;
+    public void onDetached() {
+        super.onDetached();
+        mIsDetached = true;
     }
 
     @NonNull
@@ -76,9 +75,9 @@ public class FakeUseCase extends UseCase {
     }
 
     /**
-     * Returns true if {@link #clear()} has been called previously.
+     * Returns true if {@link #onDetached()} has been called previously.
      */
-    public boolean isCleared() {
-        return mIsCleared;
+    public boolean isDetached() {
+        return mIsDetached;
     }
 }

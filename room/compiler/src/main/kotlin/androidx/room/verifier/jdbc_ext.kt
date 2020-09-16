@@ -20,6 +20,7 @@ import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.ResultSetMetaData
 import java.sql.SQLException
+import java.util.Locale
 
 internal fun <T> ResultSet.collect(f: (ResultSet) -> T): List<T> {
     val result = arrayListOf<T>()
@@ -50,7 +51,7 @@ internal fun PreparedStatement.columnNames(): List<String> {
 
 private fun PreparedStatement.tryGetAffinity(columnIndex: Int): SQLTypeAffinity {
     return try {
-        SQLTypeAffinity.valueOf(metaData.getColumnTypeName(columnIndex).capitalize())
+        SQLTypeAffinity.valueOf(metaData.getColumnTypeName(columnIndex).capitalize(Locale.US))
     } catch (ex: IllegalArgumentException) {
         SQLTypeAffinity.NULL
     }

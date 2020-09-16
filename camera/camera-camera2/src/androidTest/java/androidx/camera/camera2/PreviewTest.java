@@ -41,9 +41,11 @@ import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
+import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
 import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.ImageOutputConfig;
+import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.testing.CameraUtil;
@@ -88,6 +90,7 @@ public final class PreviewTest {
     private Semaphore mSurfaceFutureSemaphore;
     private Semaphore mSafeToReleaseSemaphore;
     private Context mContext;
+    private CameraUseCaseAdapter mCamera;
 
     @Before
     public void setUp() throws ExecutionException, InterruptedException {
@@ -96,13 +99,21 @@ public final class PreviewTest {
         CameraX.initialize(mContext, cameraXConfig).get();
 
         // init CameraX before creating Preview to get preview size with CameraX's context
-        mDefaultBuilder = Preview.Builder.fromConfig(Preview.DEFAULT_CONFIG.getConfig(null));
+        mDefaultBuilder = Preview.Builder.fromConfig(Preview.DEFAULT_CONFIG.getConfig());
         mSurfaceFutureSemaphore = new Semaphore(/*permits=*/ 0);
         mSafeToReleaseSemaphore = new Semaphore(/*permits=*/ 0);
     }
 
     @After
     public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
+        if (mCamera != null) {
+            mInstrumentation.runOnMainSync(() ->
+                    //TODO: The removeUseCases() call might be removed after clarifying the
+                    // abortCaptures() issue in b/162314023.
+                    mCamera.removeUseCases(mCamera.getUseCases())
+            );
+        }
+
         // Ensure all cameras are released for the next test
         CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
@@ -120,7 +131,7 @@ public final class PreviewTest {
         //  done on the main thread
         mInstrumentation.runOnMainSync(() -> preview.setSurfaceProvider(surfaceProvider));
 
-        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
         verify(surfaceProvider, timeout(3000)).onSurfaceRequested(any(SurfaceRequest.class));
     }
@@ -137,14 +148,13 @@ public final class PreviewTest {
                 preview.setSurfaceProvider(CameraXExecutors.mainThreadExecutor(),
                 getSurfaceProvider(null))
         );
-        CameraUseCaseAdapter camera = CameraUtil.getCameraAndAttachUseCase(mContext,
-                mCameraSelector, preview);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
         // Wait until preview gets frame.
         assertThat(mSurfaceFutureSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
 
         // Remove the UseCase from the camera
-        camera.removeUseCases(Collections.singleton(preview));
+        mCamera.removeUseCases(Collections.singleton(preview));
 
         // Assert.
         assertThat(mSafeToReleaseSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
@@ -159,7 +169,7 @@ public final class PreviewTest {
         mInstrumentation.runOnMainSync(() -> preview.setSurfaceProvider(getSurfaceProvider(null)));
 
         // Act.
-        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
         // Assert.
         assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
@@ -180,7 +190,7 @@ public final class PreviewTest {
         );
 
         // Act.
-        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
         // Assert.
         assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
@@ -191,7 +201,7 @@ public final class PreviewTest {
     public void setSurfaceProviderAfterAttach_getsFrame() throws InterruptedException {
         // Arrange.
         Preview preview = mDefaultBuilder.build();
-        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
         // Act.
         // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
@@ -209,7 +219,7 @@ public final class PreviewTest {
 
         // Arrange.
         Preview preview = mDefaultBuilder.build();
-        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
         // Act.
         // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
@@ -245,7 +255,7 @@ public final class PreviewTest {
         // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
         //  done on the main thread
         mInstrumentation.runOnMainSync(() -> preview.setSurfaceProvider(getSurfaceProvider(null)));
-        CameraUtil.getCameraAndAttachUseCase(mContext,
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
                 CameraSelector.DEFAULT_FRONT_CAMERA, preview);
 
         // Assert.
@@ -278,7 +288,7 @@ public final class PreviewTest {
         // TODO(b/160261462) move off of main thread when setSurfaceProvider does not need to be
         //  done on the main thread
         mInstrumentation.runOnMainSync(() -> preview.setSurfaceProvider(getSurfaceProvider(null)));
-        CameraUtil.getCameraAndAttachUseCase(mContext,
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
                 CameraSelector.DEFAULT_BACK_CAMERA, preview);
 
         // Assert.
@@ -301,7 +311,7 @@ public final class PreviewTest {
             // for preview.
             preview.setSurfaceProvider(getSurfaceProvider(null));
         });
-        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
         assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
 
@@ -327,7 +337,7 @@ public final class PreviewTest {
             // for preview.
             preview.setSurfaceProvider(getSurfaceProvider(null));
         });
-        CameraUtil.getCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
 
         assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
 
@@ -346,6 +356,7 @@ public final class PreviewTest {
     @Test
     public void defaultAspectRatioWillBeSet_whenTargetResolutionIsNotSet() {
         Preview useCase = new Preview.Builder().build();
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, useCase);
         ImageOutputConfig config = (ImageOutputConfig) useCase.getUseCaseConfig();
         assertThat(config.getTargetAspectRatio()).isEqualTo(AspectRatio.RATIO_4_3);
     }
@@ -358,10 +369,127 @@ public final class PreviewTest {
         assertThat(useCase.getUseCaseConfig().containsOption(
                 ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)).isFalse();
 
-        CameraUtil.getCameraAndAttachUseCase(mContext, CameraSelector.DEFAULT_BACK_CAMERA, useCase);
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, useCase);
 
         assertThat(useCase.getUseCaseConfig().containsOption(
                 ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)).isFalse();
+    }
+
+    @Test
+    public void useCaseConfigCanBeReset_afterUnbind() {
+        final Preview preview = mDefaultBuilder.build();
+        UseCaseConfig<?> initialConfig = preview.getUseCaseConfig();
+
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+
+        mInstrumentation.runOnMainSync(() -> {
+            mCamera.removeUseCases(Collections.singleton(preview));
+        });
+
+        UseCaseConfig<?> configAfterUnbinding = preview.getUseCaseConfig();
+        assertThat(initialConfig.equals(configAfterUnbinding)).isTrue();
+    }
+
+    @Test
+    public void targetRotationIsRetained_whenUseCaseIsReused() {
+        Preview useCase = mDefaultBuilder.build();
+
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, useCase);
+
+        // Generally, the device can't be rotated to Surface.ROTATION_180. Therefore,
+        // use it to do the test.
+        useCase.setTargetRotation(Surface.ROTATION_180);
+
+        mInstrumentation.runOnMainSync(() -> {
+            // Unbind the use case.
+            mCamera.removeUseCases(Collections.singleton(useCase));
+        });
+
+        // Check the target rotation is kept when the use case is unbound.
+        assertThat(useCase.getTargetRotation()).isEqualTo(Surface.ROTATION_180);
+
+        // Check the target rotation is kept when the use case is rebound to the
+        // lifecycle.
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, useCase);
+        assertThat(useCase.getTargetRotation()).isEqualTo(Surface.ROTATION_180);
+    }
+
+    @Test
+    public void useCaseCanBeReusedInSameCamera() throws InterruptedException {
+        final Preview preview = mDefaultBuilder.build();
+
+        mInstrumentation.runOnMainSync(() -> {
+            preview.setSurfaceProvider(getSurfaceProvider(null));
+        });
+
+        // This is the first time the use case bound to the lifecycle.
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+
+        // Check the frame available callback is called.
+        assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
+
+        mInstrumentation.runOnMainSync(() -> {
+            // Unbind and rebind the use case to the same lifecycle.
+            mCamera.removeUseCases(Collections.singleton(preview));
+        });
+
+        assertThat(mSafeToReleaseSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
+
+        // Recreate the semaphore to monitor the frame available callback.
+        mSurfaceFutureSemaphore = new Semaphore(/*permits=*/ 0);
+        // Rebind the use case to the same camera.
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+
+        // Check the frame available callback can be called after reusing the use case.
+        assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
+    }
+
+    @Test
+    public void useCaseCanBeReusedInDifferentCamera() throws InterruptedException {
+        final Preview preview = mDefaultBuilder.build();
+
+        mInstrumentation.runOnMainSync(() -> {
+            preview.setSurfaceProvider(getSurfaceProvider(null));
+        });
+
+        // This is the first time the use case bound to the lifecycle.
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_BACK_CAMERA, preview);
+
+        // Check the frame available callback is called.
+        assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
+
+        mInstrumentation.runOnMainSync(() -> {
+            // Unbind and rebind the use case to the same lifecycle.
+            mCamera.removeUseCases(Collections.singleton(preview));
+        });
+
+        assertThat(mSafeToReleaseSemaphore.tryAcquire(5, TimeUnit.SECONDS)).isTrue();
+
+        // Recreate the semaphore to monitor the frame available callback.
+        mSurfaceFutureSemaphore = new Semaphore(/*permits=*/ 0);
+        // Rebind the use case to different camera.
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext,
+                CameraSelector.DEFAULT_FRONT_CAMERA, preview);
+
+        // Check the frame available callback can be called after reusing the use case.
+        assertThat(mSurfaceFutureSemaphore.tryAcquire(10, TimeUnit.SECONDS)).isTrue();
+    }
+
+    @Test
+    public void returnValidTargetRotation_afterUseCaseIsCreated() {
+        ImageCapture imageCapture = new ImageCapture.Builder().build();
+        assertThat(imageCapture.getTargetRotation()).isNotEqualTo(
+                ImageOutputConfig.INVALID_ROTATION);
+    }
+
+    @Test
+    public void returnCorrectTargetRotation_afterUseCaseIsAttached() {
+        Preview preview = new Preview.Builder().setTargetRotation(
+                Surface.ROTATION_180).build();
+        mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, preview);
+        assertThat(preview.getTargetRotation()).isEqualTo(Surface.ROTATION_180);
     }
 
     private Executor getWorkExecutorWithNamedThread() {

@@ -16,10 +16,9 @@
 
 package androidx.camera.core.internal;
 
-import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.VideoCapture;
 
@@ -52,12 +51,12 @@ public final class UseCaseOccupancy {
         }
 
         if (imageCaptureCount > 1) {
-            Log.e(TAG, "Exceeded max simultaneously bound image capture use cases.");
+            Logger.e(TAG, "Exceeded max simultaneously bound image capture use cases.");
             return false;
         }
 
         if (videoCaptureCount > 1) {
-            Log.e(TAG, "Exceeded max simultaneously bound video capture use cases.");
+            Logger.e(TAG, "Exceeded max simultaneously bound video capture use cases.");
             return false;
         }
 

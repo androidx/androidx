@@ -68,8 +68,8 @@ public class ComplicationDataTest {
 
         // WHEN the relevant getters are called on the resulting data
         // THEN the correct values are returned.
-        assertThat(data.getShortText().getText(null, 0)).isEqualTo("text");
-        assertThat(data.getShortTitle().getText(null, 0)).isEqualTo("title");
+        assertThat(data.getShortText().getTextAt(null, 0)).isEqualTo("text");
+        assertThat(data.getShortTitle().getTextAt(null, 0)).isEqualTo("title");
     }
 
     @Test
@@ -83,8 +83,8 @@ public class ComplicationDataTest {
 
         // WHEN the relevant getters are called on the resulting data
         // THEN the correct values are returned.
-        assertEquals(TEST_LONG_TITLE, data.getLongTitle().getText(null, 0));
-        assertEquals(TEST_LONG_TEXT, data.getLongText().getText(null, 0));
+        assertEquals(TEST_LONG_TITLE, data.getLongTitle().getTextAt(null, 0));
+        assertEquals(TEST_LONG_TEXT, data.getLongText().getTextAt(null, 0));
     }
 
     @Test
@@ -104,8 +104,8 @@ public class ComplicationDataTest {
         assertEquals(data.getRangedValue(), 57f, 0);
         assertEquals(data.getRangedMinValue(), 5f, 0);
         assertEquals(data.getRangedMaxValue(), 150f, 0);
-        assertThat(data.getShortTitle().getText(null, 0)).isEqualTo("title");
-        assertThat(data.getShortText().getText(null, 0)).isEqualTo("text");
+        assertThat(data.getShortTitle().getTextAt(null, 0)).isEqualTo("title");
+        assertThat(data.getShortText().getTextAt(null, 0)).isEqualTo("text");
     }
 
     @Test
@@ -192,8 +192,8 @@ public class ComplicationDataTest {
                         .build();
 
         // WHEN getLongTitle is called
-        // THEN IllegalStateException is thrown.
-        assertThrows(IllegalStateException.class, data::getLongTitle);
+        // THEN null is returned.
+        assertNull(data.getLongTitle());
     }
 
     @Test
@@ -206,8 +206,8 @@ public class ComplicationDataTest {
                         .build();
 
         // WHEN getValue is called
-        // THEN IllegalStateException is thrown.
-        assertThrows(IllegalStateException.class, data::getRangedValue);
+        // THEN zero is returned.
+        assertEquals(data.getRangedValue(), 0.0f, 0);
     }
 
     @Test
@@ -220,8 +220,8 @@ public class ComplicationDataTest {
                         .build();
 
         // WHEN getValue is called
-        // THEN IllegalStateException is thrown.
-        assertThrows(IllegalStateException.class, data::getRangedValue);
+        // THEN zero is returned.
+        assertEquals(data.getRangedValue(), 0.0f, 0);
     }
 
     @Test
@@ -234,8 +234,8 @@ public class ComplicationDataTest {
                         .build();
 
         // WHEN getShortTitle is called
-        // THEN IllegalStateException is thrown.
-        assertThrows(IllegalStateException.class, data::getShortTitle);
+        // THEN null is returned.
+        assertNull(data.getShortTitle());
     }
 
     @Test
@@ -249,8 +249,8 @@ public class ComplicationDataTest {
                         .build();
 
         // WHEN getLongTitle is called
-        // THEN IllegalStateException is thrown.
-        assertThrows(IllegalStateException.class, data::getLongTitle);
+        // THEN null is returned.
+        assertNull(data.getLongTitle());
     }
 
     @Test
@@ -273,9 +273,9 @@ public class ComplicationDataTest {
                         .setIcon(Icon.createWithContentUri("someuri"))
                         .build();
 
-        // WHEN getLongTitle is called
-        // THEN IllegalStateException is thrown.
-        assertThrows(IllegalStateException.class, data::getShortText);
+        // WHEN getShortText is called
+        // THEN null is returned.
+        assertNull(data.getShortText());
     }
 
     @Test
@@ -287,8 +287,8 @@ public class ComplicationDataTest {
                         .build();
 
         // WHEN getLongText is called
-        // THEN IllegalStateException is thrown.
-        assertThrows(IllegalStateException.class, data::getLongText);
+        // THEN null is returned.
+        assertNull(data.getLongText());
     }
 
     @Test
@@ -316,7 +316,7 @@ public class ComplicationDataTest {
 
         // WHEN the relevant getters are called on the resulting data
         // THEN the correct values are returned.
-        assertThat(data.getShortText().getText(null, 0)).isEqualTo("text");
+        assertThat(data.getShortText().getTextAt(null, 0)).isEqualTo("text");
         assertEquals(data.getIcon(), icon);
     }
 
@@ -334,8 +334,8 @@ public class ComplicationDataTest {
 
         // WHEN the relevant getters are called on the resulting data
         // THEN the correct values are returned.
-        assertEquals(TEST_LONG_TITLE, data.getLongTitle().getText(null, 0));
-        assertEquals(TEST_LONG_TEXT, data.getLongText().getText(null, 0));
+        assertEquals(TEST_LONG_TITLE, data.getLongTitle().getTextAt(null, 0));
+        assertEquals(TEST_LONG_TEXT, data.getLongText().getTextAt(null, 0));
         assertEquals(icon, data.getIcon());
     }
 
@@ -365,10 +365,9 @@ public class ComplicationDataTest {
         // GIVEN complication data of the EMPTY type...
         ComplicationData data = new ComplicationData.Builder(ComplicationData.TYPE_EMPTY).build();
 
-        // WHEN getLongTitle is called
-        // THEN IllegalStateException is thrown.
-        assertThrows(
-                IllegalStateException.class, data::getLongText);
+        // WHEN getLongText is called
+        // THEN null is returned.
+        assertNull(data.getLongText());
     }
 
     @Test
@@ -404,8 +403,8 @@ public class ComplicationDataTest {
                 new ComplicationData.Builder(ComplicationData.TYPE_NOT_CONFIGURED).build();
 
         // WHEN getLongText is called
-        // THEN IllegalStateException is thrown.
-        assertThrows(IllegalStateException.class, data::getLongText);
+        // THEN null is returned.
+        assertNull(data.getLongText());
     }
 
     @Test
@@ -448,8 +447,8 @@ public class ComplicationDataTest {
 
         // WHEN the relevant getters are called on the resulting data
         // THEN the correct values are returned.
-        assertEquals(TEST_LONG_TITLE, data.getLongTitle().getText(null, 0));
-        assertEquals(TEST_LONG_TEXT, data.getLongText().getText(null, 0));
+        assertEquals(TEST_LONG_TITLE, data.getLongTitle().getTextAt(null, 0));
+        assertEquals(TEST_LONG_TEXT, data.getLongText().getTextAt(null, 0));
         assertEquals(icon, data.getSmallImage());
     }
 
@@ -463,7 +462,7 @@ public class ComplicationDataTest {
 
         // WHEN getShortText is called
         // THEN null is returned.
-        assertThrows(IllegalStateException.class, data::getShortText);
+        assertNull(data.getShortText());
     }
 
     @Test
@@ -520,8 +519,8 @@ public class ComplicationDataTest {
                         .build();
 
         // WHEN getLongText is called
-        // THEN IllegalStateException is thrown.
-        assertThrows(IllegalStateException.class, data::getLongText);
+        // THEN null is returned.
+        assertNull(data.getLongText());
     }
 
     @Test
@@ -572,11 +571,11 @@ public class ComplicationDataTest {
 
         // WHEN isActive is called for any time
         // THEN result is true
-        assertTrue(data.isActive(1000));
-        assertTrue(data.isActive(100000000000L));
-        assertTrue(data.isActive(1000000000));
-        assertTrue(data.isActive(100000000000000000L));
-        assertTrue(data.isActive(999999999));
+        assertTrue(data.isActiveAt(1000));
+        assertTrue(data.isActiveAt(100000000000L));
+        assertTrue(data.isActiveAt(1000000000));
+        assertTrue(data.isActiveAt(100000000000000000L));
+        assertTrue(data.isActiveAt(999999999));
     }
 
     @Test
@@ -592,16 +591,16 @@ public class ComplicationDataTest {
 
         // WHEN isActive is called for times before startTime
         // THEN result is false
-        assertFalse(data.isActive(startTime - 1));
-        assertFalse(data.isActive(startTime - 1000));
-        assertFalse(data.isActive(0));
+        assertFalse(data.isActiveAt(startTime - 1));
+        assertFalse(data.isActiveAt(startTime - 1000));
+        assertFalse(data.isActiveAt(0));
 
         // WHEN isActive is called for times at or after startTime
         // THEN result is true
-        assertTrue(data.isActive(startTime));
-        assertTrue(data.isActive(startTime + 1));
-        assertTrue(data.isActive(startTime + 1000000000));
-        assertTrue(data.isActive(startTime + 100000000000000L));
+        assertTrue(data.isActiveAt(startTime));
+        assertTrue(data.isActiveAt(startTime + 1));
+        assertTrue(data.isActiveAt(startTime + 1000000000));
+        assertTrue(data.isActiveAt(startTime + 100000000000000L));
     }
 
     @Test
@@ -617,16 +616,16 @@ public class ComplicationDataTest {
 
         // WHEN isActive is called for times after endTime
         // THEN result is false
-        assertFalse(data.isActive(endTime + 1));
-        assertFalse(data.isActive(endTime + 1000));
-        assertFalse(data.isActive(endTime + 100000000000000L));
+        assertFalse(data.isActiveAt(endTime + 1));
+        assertFalse(data.isActiveAt(endTime + 1000));
+        assertFalse(data.isActiveAt(endTime + 100000000000000L));
 
         // WHEN isActive is called for times before endTime
         // THEN result is true
-        assertTrue(data.isActive(endTime - 1));
-        assertTrue(data.isActive(endTime - 10));
-        assertTrue(data.isActive(endTime - 100000000));
-        assertTrue(data.isActive(endTime - 10000000000L));
+        assertTrue(data.isActiveAt(endTime - 1));
+        assertTrue(data.isActiveAt(endTime - 10));
+        assertTrue(data.isActiveAt(endTime - 100000000));
+        assertTrue(data.isActiveAt(endTime - 10000000000L));
     }
 
     @Test
@@ -644,22 +643,22 @@ public class ComplicationDataTest {
 
         // WHEN isActive is called for times before startTime
         // THEN result is false
-        assertFalse(data.isActive(startTime - 1));
-        assertFalse(data.isActive(startTime - 1000));
-        assertFalse(data.isActive(0));
+        assertFalse(data.isActiveAt(startTime - 1));
+        assertFalse(data.isActiveAt(startTime - 1000));
+        assertFalse(data.isActiveAt(0));
 
         // WHEN isActive is called for times after endTime
         // THEN result is false
-        assertFalse(data.isActive(endTime + 1));
-        assertFalse(data.isActive(endTime + 1000));
-        assertFalse(data.isActive(endTime + 100000000000000L));
+        assertFalse(data.isActiveAt(endTime + 1));
+        assertFalse(data.isActiveAt(endTime + 1000));
+        assertFalse(data.isActiveAt(endTime + 100000000000000L));
 
         // WHEN isActive is called for times between the start and end time
         // THEN result is true
-        assertTrue(data.isActive(endTime - 1));
-        assertTrue(data.isActive((startTime + endTime) / 2));
-        assertTrue(data.isActive(endTime - 100000000));
-        assertTrue(data.isActive(startTime + 1000));
+        assertTrue(data.isActiveAt(endTime - 1));
+        assertTrue(data.isActiveAt((startTime + endTime) / 2));
+        assertTrue(data.isActiveAt(endTime - 100000000));
+        assertTrue(data.isActiveAt(startTime + 1000));
     }
 
     @Test
@@ -798,7 +797,7 @@ public class ComplicationDataTest {
                         .setContentDescription(ComplicationText.plainText(TEST_CONTENT_DESCRIPTION))
                         .build();
 
-        assertEquals(TEST_CONTENT_DESCRIPTION, data.getContentDescription().getText(null, 0));
+        assertEquals(TEST_CONTENT_DESCRIPTION, data.getContentDescription().getTextAt(null, 0));
     }
 
     @Test
@@ -811,7 +810,7 @@ public class ComplicationDataTest {
                         .setContentDescription(ComplicationText.plainText(TEST_CONTENT_DESCRIPTION))
                         .build();
 
-        assertEquals(TEST_CONTENT_DESCRIPTION, data.getContentDescription().getText(null, 0));
+        assertEquals(TEST_CONTENT_DESCRIPTION, data.getContentDescription().getTextAt(null, 0));
     }
 
     @Test
@@ -840,9 +839,9 @@ public class ComplicationDataTest {
 
         // WHEN the relevant getters are called on the resulting data
         // THEN the correct values are returned.
-        assertEquals(TEST_LONG_TITLE, data.getLongTitle().getText(null, 0));
-        assertEquals(TEST_LONG_TEXT, data.getLongText().getText(null, 0));
-        assertEquals(TEST_CONTENT_DESCRIPTION, data.getContentDescription().getText(null, 0));
+        assertEquals(TEST_LONG_TITLE, data.getLongTitle().getTextAt(null, 0));
+        assertEquals(TEST_LONG_TEXT, data.getLongText().getTextAt(null, 0));
+        assertEquals(TEST_CONTENT_DESCRIPTION, data.getContentDescription().getTextAt(null, 0));
     }
 
     @Test
@@ -870,7 +869,7 @@ public class ComplicationDataTest {
                         .setContentDescription(ComplicationText.plainText(TEST_CONTENT_DESCRIPTION))
                         .build();
 
-        assertEquals(TEST_CONTENT_DESCRIPTION, data.getContentDescription().getText(null, 0));
+        assertEquals(TEST_CONTENT_DESCRIPTION, data.getContentDescription().getTextAt(null, 0));
     }
 
     @Test
@@ -883,7 +882,7 @@ public class ComplicationDataTest {
                         .setContentDescription(ComplicationText.plainText(TEST_CONTENT_DESCRIPTION))
                         .build();
 
-        assertEquals(TEST_CONTENT_DESCRIPTION, data.getContentDescription().getText(null, 0));
+        assertEquals(TEST_CONTENT_DESCRIPTION, data.getContentDescription().getTextAt(null, 0));
     }
 
     @Test
@@ -898,7 +897,7 @@ public class ComplicationDataTest {
                         .setContentDescription(ComplicationText.plainText(TEST_CONTENT_DESCRIPTION))
                         .build();
 
-        assertEquals(TEST_CONTENT_DESCRIPTION, data.getContentDescription().getText(null, 0));
+        assertEquals(TEST_CONTENT_DESCRIPTION, data.getContentDescription().getTextAt(null, 0));
     }
 
     @Test
@@ -913,7 +912,7 @@ public class ComplicationDataTest {
                         .setContentDescription(ComplicationText.plainText(""))
                         .build();
 
-        assertEquals(0, data.getContentDescription().getText(null, 0).length());
+        assertEquals(0, data.getContentDescription().getTextAt(null, 0).length());
     }
 
     @Test

@@ -29,35 +29,43 @@ plugins {
 }
 
 dependencies {
-    kotlinPlugin project(path: ":compose:compose-compiler")
+    kotlinPlugin project(path: ":compose:compiler:compiler")
 }
 
 kotlin {
     android()
+    jvm("desktop")
+
     sourceSets {
         commonMain.dependencies {
+            api project(":compose:animation:animation-core")
+            api project(":compose:runtime:runtime-dispatch")
             api project(":compose:ui:ui")
             api project(":compose:ui:ui-geometry")
             api project(":compose:ui:ui-text")
             api project(":compose:ui:ui-unit")
             api project(":compose:ui:ui-util")
-            api project(":compose:animation:animation-core")
 
             implementation(KOTLIN_STDLIB_COMMON)
-            implementation project(":compose:runtime:runtime")
             implementation project(":compose:animation:animation")
             implementation project(":compose:foundation:foundation")
             implementation project(":compose:foundation:foundation-layout")
             implementation project(":compose:foundation:foundation-text")
+            implementation project(":compose:runtime:runtime")
             implementation project(":compose:runtime:runtime-saved-instance-state")
+        }
+
+        jvmMain.dependencies {
+            implementation "androidx.collection:collection:1.1.0"
+            implementation(JUNIT)
         }
 
         androidMain.dependencies {
             api(JUNIT)
             api(ANDROIDX_TEST_EXT_JUNIT)
             api "androidx.activity:activity:1.2.0-alpha02"
-            api project(":compose:ui:ui-graphics")
             api project(":compose:runtime:runtime")
+            api project(":compose:ui:ui-graphics")
 
             implementation(ANDROIDX_TEST_RULES)
             implementation(ANDROIDX_TEST_RUNNER)
@@ -70,15 +78,25 @@ kotlin {
 
         androidAndroidTest.dependencies {
             implementation(TRUTH)
-            implementation project(":compose:ui:ui")
             implementation project(':compose:material:material')
+            implementation project(":compose:ui:ui")
         }
+
+        desktopMain.dependencies {
+            implementation(JUNIT)
+            implementation(TRUTH)
+            implementation(SKIKO)
+        }
+
+        desktopMain.dependsOn jvmMain
+        jvmMain.dependsOn commonMain
     }
 }
 
 android {
     tasks.withType(KotlinCompile).configureEach {
         kotlinOptions {
+            freeCompilerArgs += ["-XXLanguage:-NewInference"]
             useIR = true
         }
     }
@@ -87,7 +105,7 @@ android {
 androidx {
     name = "Compose Testing"
     publish = Publish.SNAPSHOT_AND_RELEASE
-    mavenVersion = LibraryVersions.UI
+    mavenVersion = LibraryVersions.COMPOSE
     mavenGroup = LibraryGroups.UI
     inceptionYear = "2019"
     description = "Compose testing library"

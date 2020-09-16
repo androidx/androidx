@@ -17,14 +17,14 @@ echo "Using basepath $BASE_PATH"
 
 echo "Starting $0 at $(date)"
 
-time $SCRIPT_PATH/androidx_snapshot.sh
+$SCRIPT_PATH/androidx_snapshot.sh
 
 mkdir -p $M2REPO_DIR
 # Copy internal and the output to prebuilts/tools/common/androidx-integration
 cp -R $ANDROIDX_INTERNAL_DIR/* $M2REPO_DIR
-unzip -quo $OUT_DIR/dist/top-of-tree-m2repository-all-dist.zip -d $M2REPO_DIR/..
+unzip -quo $OUT_DIR/dist/top-of-tree-m2repository-all-*.zip -d $M2REPO_DIR/..
 
-$BAZEL_CMD test //tools/adt/idea/androidx-integration-tests:androidx-integration-tests_tests
+$BAZEL_CMD test //tools/adt/idea/androidx-integration-tests:intellij.android.androidx-integration-tests
 
 echo "Completing $0 at $(date)"
 

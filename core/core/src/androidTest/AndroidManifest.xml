@@ -67,6 +67,7 @@
 
         <activity android:name="androidx.core.app.TestComponentActivity"/>
         <activity android:name="androidx.core.app.TestActivityWithLifecycle"/>
+        <activity android:name="androidx.core.app.ActivityCompatRecreateLifecycleTestActivity"/>
 
         <activity android:name="androidx.core.view.DragStartHelperTestActivity"/>
 

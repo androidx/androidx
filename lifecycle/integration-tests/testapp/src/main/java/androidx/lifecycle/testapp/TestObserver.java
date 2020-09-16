@@ -24,13 +24,14 @@ import static androidx.lifecycle.Lifecycle.Event.ON_START;
 import static androidx.lifecycle.Lifecycle.Event.ON_STOP;
 import static androidx.lifecycle.testapp.TestEvent.LIFECYCLE_EVENT;
 
-import androidx.core.util.Pair;
 import androidx.lifecycle.Lifecycle.Event;
 import androidx.lifecycle.LifecycleObserver;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.OnLifecycleEvent;
 
 import java.util.List;
+
+import kotlin.Pair;
 
 class TestObserver implements LifecycleObserver {
     private final List<Pair<TestEvent, Event>> mCollectedEvents;

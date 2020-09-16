@@ -24,11 +24,13 @@ import androidx.room.PrimaryKey
 import androidx.room.Relation
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XExecutableElement
+import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.XVariableElement
 import androidx.room.compiler.processing.asDeclaredType
 import androidx.room.compiler.processing.isCollection
+import androidx.room.ext.isNotVoid
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_GETTER_FOR_FIELD
 import androidx.room.processor.ProcessorErrors.CANNOT_FIND_SETTER_FOR_FIELD
 import androidx.room.processor.ProcessorErrors.POJO_FIELD_HAS_DUPLICATE_COLUMN_NAME
@@ -369,7 +371,7 @@ class PojoProcessor private constructor(
 
     private fun processEmbeddedField(
         declaredType: XDeclaredType,
-        variableElement: XVariableElement
+        variableElement: XFieldElement
     ): EmbeddedField? {
         val asMemberType = variableElement.asMemberOf(declaredType)
         val asTypeElement = asMemberType.asTypeElement()
@@ -402,7 +404,7 @@ class PojoProcessor private constructor(
     private fun processRelationField(
         myFields: List<Field>,
         container: XDeclaredType?,
-        relationElement: XVariableElement
+        relationElement: XFieldElement
     ): androidx.room.vo.Relation? {
         val annotation = relationElement.toAnnotationBox(Relation::class)!!
 

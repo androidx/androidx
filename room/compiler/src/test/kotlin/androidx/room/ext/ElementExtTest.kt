@@ -16,7 +16,7 @@
 
 package androidx.room.ext
 
-import androidx.room.compiler.processing.XExecutableElement
+import androidx.room.compiler.processing.XMethodElement
 import com.google.common.truth.Truth.assertThat
 import com.google.testing.compile.JavaFileObjects
 import com.squareup.javapoet.ClassName
@@ -59,7 +59,7 @@ class ElementExtTest {
         """.trimIndent()
         )
         simpleRun(
-            jfos = *arrayOf(parentCode, childCode)
+            jfos = arrayOf(parentCode, childCode)
         ) {
             val parent = it.processingEnv.requireTypeElement("foo.bar.Parent")
             val child = it.processingEnv.requireTypeElement("foo.bar.Child")
@@ -102,8 +102,8 @@ class ElementExtTest {
                             ) + "overridden" // add 1 overridden back
                 )
 
-            assertThat(child.getConstructors()).containsExactly("<init>")
-            assertThat(parent.getConstructors()).containsExactly("<init>")
+            assertThat(child.getConstructors()).hasSize(1)
+            assertThat(parent.getConstructors()).hasSize(1)
         }.compilesWithoutError()
     }
 
@@ -134,7 +134,7 @@ class ElementExtTest {
         """.trimIndent()
         )
         simpleRun(
-            jfos = *arrayOf(parentCode, childCode)
+            jfos = arrayOf(parentCode, childCode)
         ) {
             val parent = it.processingEnv.requireTypeElement("foo.bar.Parent")
             val child = it.processingEnv.requireTypeElement("foo.bar.Child")
@@ -187,7 +187,7 @@ class ElementExtTest {
         """.trimIndent()
         )
         simpleRun(
-            jfos = *arrayOf(testCode)
+            jfos = arrayOf(testCode)
         ) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             val field = element.getAllFieldsIncludingPrivateSupers()
@@ -221,7 +221,6 @@ class ElementExtTest {
             val processingEnv = invocation.processingEnv
             primitiveTypeNames.forEach { primitiveTypeName ->
                 val typeMirror = processingEnv.requireType(primitiveTypeName)
-                assertThat(typeMirror.isPrimitive()).isTrue()
                 assertThat(typeMirror.typeName).isEqualTo(primitiveTypeName)
                 assertThat(
                     typeMirror.boxed().typeName
@@ -230,7 +229,7 @@ class ElementExtTest {
         }.compilesWithoutError()
     }
 
-    private fun assertThat(executables: Iterable<XExecutableElement>) = assertThat(
+    private fun assertThat(executables: Iterable<XMethodElement>) = assertThat(
         executables.map { it.name }
     )
 }

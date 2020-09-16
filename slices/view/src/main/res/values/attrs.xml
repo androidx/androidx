@@ -78,8 +78,9 @@
          -->
         <attr name="expandToAvailableHeight" format="boolean" />
 
-        <!-- Hide the slice's header row. Note that if the slice doesn't have an explicit
-         header row, the first row is considered the header row. -->
+        <!-- Hide the slice's header row unless the slice only has a single row. Note that if
+         the slice doesn't have an explicit header row, the first row is considered the header row.
+         -->
         <attr name="hideHeaderRow" format="boolean" />
     </declare-styleable>
 

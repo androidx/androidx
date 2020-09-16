@@ -80,7 +80,7 @@ public class Camera2CameraInfoImplTest {
     private CameraCharacteristics mCameraCharacteristics1;
     private ZoomControl mMockZoomControl;
     private TorchControl mMockTorchControl;
-    private Camera2CameraControl mMockCameraControl;
+    private Camera2CameraControlImpl mMockCameraControl;
 
     @Before
     public void setUp() throws CameraAccessException {
@@ -95,7 +95,7 @@ public class Camera2CameraInfoImplTest {
 
         mMockZoomControl = mock(ZoomControl.class);
         mMockTorchControl = mock(TorchControl.class);
-        mMockCameraControl = mock(Camera2CameraControl.class);
+        mMockCameraControl = mock(Camera2CameraControlImpl.class);
 
         when(mMockCameraControl.getZoomControl()).thenReturn(mMockZoomControl);
         when(mMockCameraControl.getTorchControl()).thenReturn(mMockTorchControl);

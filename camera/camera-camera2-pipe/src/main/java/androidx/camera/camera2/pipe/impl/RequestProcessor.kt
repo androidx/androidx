@@ -22,7 +22,6 @@ import android.hardware.camera2.CaptureFailure
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.CaptureResult
 import android.hardware.camera2.TotalCaptureResult
-import android.os.Handler
 import android.util.ArrayMap
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
@@ -37,12 +36,12 @@ import androidx.camera.camera2.pipe.RequestTemplate
 import androidx.camera.camera2.pipe.SequenceNumber
 import androidx.camera.camera2.pipe.StreamId
 import androidx.camera.camera2.pipe.wrapper.CameraCaptureSessionWrapper
-import androidx.camera.camera2.pipe.wrapper.CameraDeviceWrapper
 import androidx.camera.camera2.pipe.wrapper.ObjectUnavailableException
 import androidx.camera.camera2.pipe.writeParameters
 import kotlinx.atomicfu.atomic
 import java.util.Collections.singletonList
 import java.util.Collections.singletonMap
+import javax.inject.Inject
 
 /**
  * An instance of a RequestProcessor exists for the duration of a CameraCaptureSession and must be
@@ -125,39 +124,57 @@ interface RequestProcessor {
     /**
      * Abort requests that have been submitted but not completed.
      */
-    fun abort()
+    fun abortCaptures()
 
     /**
-     * Puts the RequestProcessor into a closed state where it will reject all incoming requests, but
-     * does not actively stop repeating requests or abort pending captures.
+     * Stops the current repeating request.
      */
-    fun disconnect()
+    fun stopRepeating()
 
     /**
-     * Puts the RequestProcessor into a closed state where it will reject all incoming requests and
-     * then actively stops the current repeating request.
+     * Puts the RequestProcessor into a closed state where it will reject all incoming requests.
      */
-    fun stop()
+    fun close()
+
+    interface Factory {
+        fun create(
+            session: CameraCaptureSessionWrapper,
+            surfaceMap: Map<StreamId, Surface>
+        ): RequestProcessor
+    }
 }
+
+class StandardRequestProcessorFactory @Inject constructor(
+    private val threads: Threads,
+    private val graphConfig: CameraGraph.Config,
+    @ForCameraGraph private val graphListeners: ArrayList<Request.Listener>
+) : RequestProcessor.Factory {
+    override fun create(
+        session: CameraCaptureSessionWrapper,
+        surfaceMap: Map<StreamId, Surface>
+    ): RequestProcessor =
+        StandardRequestProcessor(session, threads, graphConfig, surfaceMap, graphListeners)
+}
+
+internal val requestProcessorDebugIds = atomic(0)
+internal val requestSequenceDebugIds = atomic(0L)
+internal val requestTags = atomic(0L)
+internal fun nextRequestTag(): RequestNumber = RequestNumber(requestTags.incrementAndGet())
 
 /**
  * This class is designed to synchronously handle interactions with the Camera CaptureSession.
  */
 class StandardRequestProcessor(
-    private val device: CameraDeviceWrapper,
     private val session: CameraCaptureSessionWrapper,
-    private val handler: Handler?,
+    private val threads: Threads,
     private val graphConfig: CameraGraph.Config,
-    private val streamMap: StreamMap,
+    private val surfaceMap: Map<StreamId, Surface>,
     private val graphListeners: List<Request.Listener>
 ) : RequestProcessor {
-    private val inFlightRequests = mutableListOf<CaptureSequence>()
-    private val closed = atomic(false)
 
-    companion object {
-        internal val requestTags = atomic(0L)
-        fun nextRequestTag(): RequestNumber = RequestNumber(requestTags.incrementAndGet())
-    }
+    private val inFlightRequests = mutableListOf<CaptureSequence>()
+    private val debugId = requestProcessorDebugIds.incrementAndGet()
+    private val closed = atomic(false)
 
     override fun submit(
         request: Request,
@@ -198,20 +215,19 @@ class StandardRequestProcessor(
         )
     }
 
-    override fun abort() {
+    override fun abortCaptures() {
         for (sequence in inFlightRequests) {
             sequence.invokeOnAborted()
         }
+        session.abortCaptures()
     }
 
-    override fun disconnect() {
+    override fun stopRepeating() {
+        session.stopRepeating()
+    }
+
+    override fun close() {
         closed.compareAndSet(expect = false, update = true)
-    }
-
-    override fun stop() {
-        if (closed.compareAndSet(expect = false, update = true)) {
-            session.stopRepeating()
-        }
     }
 
     private fun configureAndCapture(
@@ -220,7 +236,6 @@ class StandardRequestProcessor(
         requireStreams: Boolean,
         isRepeating: Boolean
     ): Boolean {
-
         // Reject incoming requests if this instance has been stopped or closed.
         if (closed.value) {
             return false
@@ -235,6 +250,8 @@ class StandardRequestProcessor(
         for (request in requests) {
             val requestTemplate = request.template ?: graphConfig.template
 
+            Log.debug { "Building CaptureRequest for $request" }
+
             // Check to see if there is at least one valid surface for each stream.
             var hasSurface = false
             for (stream in request.streams) {
@@ -243,14 +260,17 @@ class StandardRequestProcessor(
                     continue
                 }
 
-                val surface = streamMap[stream]
+                val surface = surfaceMap[stream]
                 if (surface != null) {
+                    Log.debug { "  Binding $surface to $stream" }
+
                     // TODO(codelogic) There should be a more efficient way to do these lookups than
                     // having two maps.
                     surfaceToStreamMap[surface] = stream
                     streamToSurfaceMap[stream] = surface
                     hasSurface = true
                 } else if (requireStreams) {
+                    Log.info { "  Failed to bind surface to $stream" }
                     // If requireStreams is set we are required to map every stream to a valid
                     // Surface object for this request. If this condition is violated, then we
                     // return false because we cannot submit these request(s) until there is a valid
@@ -270,7 +290,7 @@ class StandardRequestProcessor(
             // request was not submitted.
             val requestBuilder: CaptureRequest.Builder
             try {
-                requestBuilder = device.createCaptureRequest(requestTemplate)
+                requestBuilder = session.device.createCaptureRequest(requestTemplate)
             } catch (exception: ObjectUnavailableException) {
                 return false
             }
@@ -330,7 +350,7 @@ class StandardRequestProcessor(
             surfaceToStreamMap,
             streamToSurfaceMap,
             inFlightRequests,
-            device.cameraId
+            session.device.cameraId
         )
 
         // Non-repeating requests must always be aware of abort calls.
@@ -340,8 +360,11 @@ class StandardRequestProcessor(
 
         var captured = false
         return try {
+
+            Log.debug { "Submitting $captureSequence" }
             capture(captureRequests, captureSequence, isRepeating)
             captured = true
+            Log.debug { "Submitted $captureSequence" }
             true
         } catch (closedException: ObjectUnavailableException) {
             false
@@ -369,17 +392,26 @@ class StandardRequestProcessor(
         // behavior on the CaptureSequence listener have been designed to minimize the number of
         // synchronized calls.
         synchronized(lock = captureSequence) {
+            // TODO: Update these calls to use executors on newer versions of the OS
             val sequenceNumber: Int = if (captureRequests.size == 1) {
                 if (isRepeating) {
-                    session.setRepeatingRequest(captureRequests[0], captureSequence, handler)
+                    session.setRepeatingRequest(
+                        captureRequests[0],
+                        captureSequence,
+                        threads.defaultHandler
+                    )
                 } else {
-                    session.capture(captureRequests[0], captureSequence, handler)
+                    session.capture(captureRequests[0], captureSequence, threads.defaultHandler)
                 }
             } else {
                 if (isRepeating) {
-                    session.setRepeatingBurst(captureRequests, captureSequence, handler)
+                    session.setRepeatingBurst(
+                        captureRequests,
+                        captureSequence,
+                        threads.defaultHandler
+                    )
                 } else {
-                    session.captureBurst(captureRequests, captureSequence, handler)
+                    session.captureBurst(captureRequests, captureSequence, threads.defaultHandler)
                 }
             }
             captureSequence.setSequenceId(SequenceNumber(sequenceNumber))
@@ -387,6 +419,10 @@ class StandardRequestProcessor(
 
         // Invoke callbacks without holding a lock.
         captureSequence.invokeOnRequestSequenceSubmitted()
+    }
+
+    override fun toString(): String {
+        return "RequestProcessor-$debugId"
     }
 }
 
@@ -440,6 +476,8 @@ internal class CaptureSequence(
     private val inFlightRequests: MutableList<CaptureSequence>,
     private val camera: CameraId
 ) : CameraCaptureSession.CaptureCallback() {
+    private val debugId = requestSequenceDebugIds.incrementAndGet()
+
     @Volatile
     private var hasSequenceId = false
 
@@ -632,7 +670,7 @@ internal class CaptureSequence(
     }
 
     private fun readRequestNumber(request: CaptureRequest): RequestNumber =
-        RequestNumber(checkNotNull(request.tag) as Long)
+        checkNotNull(request.tag as RequestNumber)
 
     private fun readRequest(requestNumber: RequestNumber): RequestInfo {
         if (!hasSequenceId) {
@@ -691,4 +729,6 @@ internal class CaptureSequence(
             fn(request.request.listeners[i])
         }
     }
+
+    override fun toString(): String = "CaptureSequence-$debugId"
 }

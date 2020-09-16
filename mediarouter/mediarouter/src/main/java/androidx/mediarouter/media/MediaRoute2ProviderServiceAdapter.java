@@ -178,7 +178,10 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
         RoutingSessionInfo sessionInfo = builder.build();
         sessionRecord.setSessionInfo(sessionInfo);
 
-        if ((sessionFlags & SessionRecord.SESSION_FLAG_GROUP) != 0) {
+        // Member route controllers for a dynamic group are created after the group route is
+        // created. (DynamicGroupRouteController#notifyDynamicRoutesChanged is called)
+        if ((sessionFlags & (SessionRecord.SESSION_FLAG_GROUP | SessionRecord.SESSION_FLAG_DYNAMIC))
+                == SessionRecord.SESSION_FLAG_GROUP) {
             sessionRecord.updateMemberRouteControllers(routeId, /*oldSession=*/null,
                     sessionInfo);
         }
@@ -202,7 +205,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
             notifyRequestFailed(requestId, REASON_INVALID_COMMAND);
             return;
         }
-        sessionRecord.release();
+        sessionRecord.release(/*shouldUnselect=*/true);
     }
 
     @Override
@@ -476,6 +479,8 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
 
         SessionRecord sessionRecord = new SessionRecord(controller, REQUEST_ID_NONE,
                 sessionFlags, clientRecord);
+        //TODO: Reconsider the logic if dynamic grouping is enabled for clients < CLIENT_VERSION_4
+        sessionRecord.mRouteId = routeId;
 
         String sessionId = assignSessionId(sessionRecord);
         mSessionIdMap.put(controllerId, sessionId);
@@ -502,7 +507,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
             sessionRecord = mSessionRecords.remove(sessionId);
         }
         if (sessionRecord != null) {
-            sessionRecord.release();
+            sessionRecord.release(/*shouldUnselect=*/false);
         }
     }
 
@@ -544,7 +549,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
     private static class DynamicGroupRouteControllerProxy
             extends DynamicGroupRouteController {
         private final String mRouteId;
-        private final RouteController mRouteController;
+        final RouteController mRouteController;
 
         DynamicGroupRouteControllerProxy(String routeId, RouteController routeController) {
             mRouteId = routeId;
@@ -630,6 +635,8 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
         private boolean mIsReleased;
         private RoutingSessionInfo mSessionInfo;
         String mSessionId;
+        // The ID of the route describing the session.
+        String mRouteId;
 
         SessionRecord(DynamicGroupRouteController controller, long requestId, int flags) {
             this(controller, requestId, flags, null);
@@ -694,6 +701,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
 
             RoutingSessionInfo.Builder builder = new RoutingSessionInfo.Builder(sessionInfo);
             if (groupRoute != null) {
+                mRouteId = groupRoute.getId();
                 builder.setName(groupRoute.getName())
                         .setVolume(groupRoute.getVolume())
                         .setVolumeMax(groupRoute.getVolumeMax())
@@ -710,7 +718,11 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                 builder.setControlHints(controlHints);
             }
 
+            mSessionInfo = builder.build();
+
             if (dynamicRouteDescriptors != null && !dynamicRouteDescriptors.isEmpty()) {
+                boolean hasSelectedRoute = false;
+
                 builder.clearSelectedRoutes();
                 builder.clearSelectableRoutes();
                 builder.clearDeselectableRoutes();
@@ -721,6 +733,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                     if (descriptor.mSelectionState == DynamicRouteDescriptor.SELECTING
                             || descriptor.mSelectionState == DynamicRouteDescriptor.SELECTED) {
                         builder.addSelectedRoute(routeId);
+                        hasSelectedRoute = true;
                     }
                     if (descriptor.isGroupable()) {
                         builder.addSelectableRoute(routeId);
@@ -732,9 +745,13 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                         builder.addTransferableRoute(routeId);
                     }
                 }
+                // Update the session info only when we have a selected route to prevent
+                // IllegalArgumentException.
+                if (hasSelectedRoute) {
+                    mSessionInfo = builder.build();
+                }
             }
 
-            mSessionInfo = builder.build();
             if ((mFlags & (SESSION_FLAG_MR2 | SESSION_FLAG_DYNAMIC))
                     == (SESSION_FLAG_MR2 | SESSION_FLAG_DYNAMIC) && groupRoute != null) {
                 updateMemberRouteControllers(groupRoute.getId(), sessionInfo, mSessionInfo);
@@ -747,7 +764,7 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
             }
         }
 
-        public void release() {
+        public void release(boolean shouldUnselect) {
             if (!mIsReleased) {
                 // Release member controllers
                 if ((mFlags & (SESSION_FLAG_MR2 | SESSION_FLAG_GROUP))
@@ -755,9 +772,23 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                     updateMemberRouteControllers(null, mSessionInfo, null);
                 }
 
-                if ((mFlags & SESSION_FLAG_MR2) != 0) {
-                    mController.onUnselect(MediaRouter.UNSELECT_REASON_STOPPED);
-                    mController.onRelease();
+                if (shouldUnselect) {
+                    if ((mFlags & SESSION_FLAG_MR2) == 0) {
+                        // Let the client release the controller
+                        ClientRecord clientRecord = mClientRecord.get();
+                        if (clientRecord != null) {
+                            RouteController controller = mController;
+                            if (mController instanceof DynamicGroupRouteControllerProxy) {
+                                controller = ((DynamicGroupRouteControllerProxy) mController)
+                                        .mRouteController;
+                            }
+                            mServiceImpl.requestReleaseController(clientRecord,
+                                    controller, mRouteId);
+                        }
+                    } else {
+                        mController.onUnselect(MediaRouter.UNSELECT_REASON_STOPPED);
+                        mController.onRelease();
+                    }
                 }
                 mIsReleased = true;
                 notifySessionReleased(mSessionId);

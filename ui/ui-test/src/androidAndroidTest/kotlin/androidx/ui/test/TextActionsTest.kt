@@ -42,7 +42,7 @@ class TextActionsTest {
     private val fieldTag = "Field"
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val rule = createComposeRule()
 
     @Composable
     @OptIn(ExperimentalFoundationApi::class)
@@ -67,23 +67,23 @@ class TextActionsTest {
     @Test
     fun sendText_clearText() {
         var lastSeenText = ""
-        composeTestRule.setContent {
+        rule.setContent {
             TextFieldUi {
                 lastSeenText = it
             }
         }
 
-        onNodeWithTag(fieldTag)
+        rule.onNodeWithTag(fieldTag)
             .performTextInput("Hello!")
 
-        runOnIdle {
+        rule.runOnIdle {
             assertThat(lastSeenText).isEqualTo("Hello!")
         }
 
-        onNodeWithTag(fieldTag)
+        rule.onNodeWithTag(fieldTag)
             .performTextClearance(alreadyHasFocus = true)
 
-        runOnIdle {
+        rule.runOnIdle {
             assertThat(lastSeenText).isEqualTo("")
         }
     }
@@ -91,19 +91,19 @@ class TextActionsTest {
     @Test
     fun sendTextTwice_shouldAppend() {
         var lastSeenText = ""
-        composeTestRule.setContent {
+        rule.setContent {
             TextFieldUi {
                 lastSeenText = it
             }
         }
 
-        onNodeWithTag(fieldTag)
+        rule.onNodeWithTag(fieldTag)
             .performTextInput("Hello ")
 
-        onNodeWithTag(fieldTag)
+        rule.onNodeWithTag(fieldTag)
             .performTextInput("world!", alreadyHasFocus = true)
 
-        runOnIdle {
+        rule.runOnIdle {
             assertThat(lastSeenText).isEqualTo("Hello world!")
         }
     }
@@ -111,34 +111,34 @@ class TextActionsTest {
     // @Test - not always appends, seems to be flaky
     fun sendTextTwice_shouldAppend_ver2() {
         var lastSeenText = ""
-        composeTestRule.setContent {
+        rule.setContent {
             TextFieldUi {
                 lastSeenText = it
             }
         }
 
-        onNodeWithTag(fieldTag)
+        rule.onNodeWithTag(fieldTag)
             .performTextInput("Hello")
 
         // This helps. So there must be some timing issue.
         // Thread.sleep(3000)
 
-        onNodeWithTag(fieldTag)
+        rule.onNodeWithTag(fieldTag)
             .performTextInput(" world!", alreadyHasFocus = true)
 
-        runOnIdle {
+        rule.runOnIdle {
             assertThat(lastSeenText).isEqualTo("Hello world!")
         }
     }
 
     @Test
     fun sendText_noFocus_fail() {
-        composeTestRule.setContent {
+        rule.setContent {
             TextFieldUi()
         }
 
         expectError<IllegalStateException> {
-            onNodeWithTag(fieldTag)
+            rule.onNodeWithTag(fieldTag)
                 .performTextInput("Hello!", alreadyHasFocus = true)
         }
     }
@@ -146,23 +146,23 @@ class TextActionsTest {
     @Test
     fun replaceText() {
         var lastSeenText = ""
-        composeTestRule.setContent {
+        rule.setContent {
             TextFieldUi {
                 lastSeenText = it
             }
         }
 
-        onNodeWithTag(fieldTag)
+        rule.onNodeWithTag(fieldTag)
             .performTextInput("Hello")
 
-        runOnIdle {
+        rule.runOnIdle {
             assertThat(lastSeenText).isEqualTo("Hello")
         }
 
-        onNodeWithTag(fieldTag)
+        rule.onNodeWithTag(fieldTag)
             .performTextReplacement("world", alreadyHasFocus = true)
 
-        runOnIdle {
+        rule.runOnIdle {
             assertThat(lastSeenText).isEqualTo("world")
         }
     }
@@ -170,16 +170,16 @@ class TextActionsTest {
     @Test
     fun sendImeAction_search() {
         var actionPerformed: ImeAction = ImeAction.Unspecified
-        composeTestRule.setContent {
+        rule.setContent {
             TextFieldUi(imeAction = ImeAction.Search,
                 onImeActionPerformed = { actionPerformed = it })
         }
         assertThat(actionPerformed).isEqualTo(ImeAction.Unspecified)
 
-        onNodeWithTag(fieldTag)
+        rule.onNodeWithTag(fieldTag)
             .performImeAction()
 
-        runOnIdle {
+        rule.runOnIdle {
             assertThat(actionPerformed).isEqualTo(ImeAction.Search)
         }
     }
@@ -187,7 +187,7 @@ class TextActionsTest {
     @Test
     fun sendImeAction_actionNotDefined_shouldFail() {
         var actionPerformed: ImeAction = ImeAction.Unspecified
-        composeTestRule.setContent {
+        rule.setContent {
             TextFieldUi(imeAction = ImeAction.Unspecified,
                 onImeActionPerformed = { actionPerformed = it })
         }
@@ -197,14 +197,14 @@ class TextActionsTest {
                 "Failed to perform IME action as current node does not specify any.\n" +
                 "Semantics of the node:"
         ) {
-            onNodeWithTag(fieldTag)
+            rule.onNodeWithTag(fieldTag)
                 .performImeAction()
         }
     }
 
     @Test
     fun sendImeAction_inputNotSupported_shouldFail() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "node")
         }
 
@@ -213,7 +213,7 @@ class TextActionsTest {
                 "Failed to assert the following: (SupportsInputMethods is defined)\n" +
                 "Semantics of the node:"
         ) {
-            onNodeWithTag("node")
+            rule.onNodeWithTag("node")
                 .performImeAction()
         }
     }

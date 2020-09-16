@@ -231,16 +231,16 @@ fun setupImageReader(activity: MainActivity, params: CameraParams, testConfig: T
 }
 
 /** Finds the smallest focal length in the given array, useful for finding the widest angle lens */
-fun smallestFocalLength(focalLengths: FloatArray): Float = focalLengths.min()
+fun smallestFocalLength(focalLengths: FloatArray): Float = focalLengths.minOrNull()
     ?: MainActivity.INVALID_FOCAL_LENGTH
 
 /** Finds the largest aperture in the array of focal lengths */
-fun largestAperture(apertures: FloatArray): Float = apertures.max()
+fun largestAperture(apertures: FloatArray): Float = apertures.maxOrNull()
     ?: MainActivity.NO_APERTURE
 
 /** Finds the most "normal" focal length in the array of focal lengths */
 fun focalLengthMinDeltaFromNormal(focalLengths: FloatArray): Float =
-    focalLengths.minBy { Math.abs(it - MainActivity.NORMAL_FOCAL_LENGTH) }
+    focalLengths.minByOrNull { Math.abs(it - MainActivity.NORMAL_FOCAL_LENGTH) }
         ?: Float.MAX_VALUE
 
 /** Adds automatic flash to the given CaptureRequest.Builder */

@@ -33,11 +33,11 @@ import org.junit.runners.JUnit4
 class FindAllTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule(disableTransitions = true)
 
     @Test
     fun findAllTest_twoComponents_areChecked() {
-        composeTestRule.setContent {
+        rule.setContent {
             MaterialTheme {
                 Surface {
                     Column {
@@ -48,7 +48,7 @@ class FindAllTest {
             }
         }
 
-        onAllNodes(isOn())
+        rule.onAllNodes(isOn())
             .assertCountEquals(2)
             .apply {
                 get(0).assertIsOn()
@@ -58,7 +58,7 @@ class FindAllTest {
 
     @Test
     fun findAllTest_twoComponents_toggleBoth() {
-        composeTestRule.setContent {
+        rule.setContent {
             val (checked1, onCheckedChange1) = remember { mutableStateOf(false) }
             val (checked2, onCheckedChange2) = remember { mutableStateOf(false) }
             MaterialTheme {
@@ -77,7 +77,7 @@ class FindAllTest {
             }
         }
 
-        onAllNodes(isToggleable())
+        rule.onAllNodes(isToggleable())
             .assertCountEquals(2)
             .apply {
                 get(0)
@@ -91,7 +91,7 @@ class FindAllTest {
 
     @Test
     fun findAllTest_noNonCheckedComponent() {
-        composeTestRule.setContent {
+        rule.setContent {
             MaterialTheme {
                 Surface {
                     Column {
@@ -102,13 +102,13 @@ class FindAllTest {
             }
         }
 
-        onAllNodes(isOff())
+        rule.onAllNodes(isOff())
             .assertCountEquals(0)
     }
 
     @Test
     fun findAllTest_twoComponents_toggleOne() {
-        composeTestRule.setContent {
+        rule.setContent {
             MaterialTheme {
                 Surface {
                     val (checked1, onCheckedChange1) = remember { mutableStateOf(false) }
@@ -128,7 +128,7 @@ class FindAllTest {
             }
         }
 
-        onAllNodes(isToggleable()).apply {
+        rule.onAllNodes(isToggleable()).apply {
             get(0)
                 .performClick()
                 .assertIsOn()
@@ -139,7 +139,7 @@ class FindAllTest {
 
     @Test
     fun findAllTest_twoComponents_togglesCreatesAnother() {
-        composeTestRule.setContent {
+        rule.setContent {
             MaterialTheme {
                 Surface {
                     val (checked, onCheckedChange) = remember { mutableStateOf(false) }
@@ -169,7 +169,7 @@ class FindAllTest {
             }
         }
 
-        onAllNodes(isToggleable())
+        rule.onAllNodes(isToggleable())
             .assertCountEquals(2).apply {
                 get(0)
                     .assertIsOff()
@@ -177,7 +177,7 @@ class FindAllTest {
                     .assertIsOn()
             }
 
-        onAllNodes(isToggleable())
+        rule.onAllNodes(isToggleable())
             .assertCountEquals(3).apply {
                 get(2)
                     .assertIsOff()
@@ -186,7 +186,7 @@ class FindAllTest {
 
     @Test
     fun findAllTest_twoComponents_toggleDeletesOne() {
-        composeTestRule.setContent {
+        rule.setContent {
             MaterialTheme {
                 Surface {
                     val (checked, onCheckedChange) = remember { mutableStateOf(false) }
@@ -210,7 +210,7 @@ class FindAllTest {
             }
         }
 
-        onAllNodes(isToggleable())
+        rule.onAllNodes(isToggleable())
             .assertCountEquals(2)
             .apply {
                 get(0)

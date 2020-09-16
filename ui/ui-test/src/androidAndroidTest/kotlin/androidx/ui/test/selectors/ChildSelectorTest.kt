@@ -18,10 +18,10 @@ package androidx.ui.test.selectors
 
 import androidx.test.filters.MediumTest
 import androidx.ui.test.assert
-import androidx.ui.test.onChild
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.hasTestTag
+import androidx.ui.test.onChild
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.util.BoundaryNode
 import androidx.ui.test.util.expectErrorMessageStartsWith
 import org.junit.Rule
@@ -34,46 +34,46 @@ import org.junit.runners.JUnit4
 class ChildSelectorTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val rule = createComposeRule()
 
     @Test
     fun oneChild() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child")
             }
         }
 
-        onNodeWithTag("Parent")
+        rule.onNodeWithTag("Parent")
             .onChild()
             .assert(hasTestTag("Child"))
     }
 
     @Test
     fun noChild() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent")
         }
 
-        onNodeWithTag("Parent")
+        rule.onNodeWithTag("Parent")
             .onChild()
             .assertDoesNotExist()
     }
 
     @Test(expected = AssertionError::class)
     fun noChild_fail() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent")
         }
 
-        onNodeWithTag("Parent")
+        rule.onNodeWithTag("Parent")
             .onChild()
             .assertExists()
     }
 
     @Test
     fun twoChildren_fail() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child1")
                 BoundaryNode(testTag = "Child2")
@@ -86,7 +86,7 @@ class ChildSelectorTest {
                 "((TestTag = 'Parent').child)\n" +
                 "Nodes found:"
         ) {
-            onNodeWithTag("Parent")
+            rule.onNodeWithTag("Parent")
                 .onChild()
                 .assertExists()
         }

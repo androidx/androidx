@@ -47,6 +47,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 final class OpenGLRenderer {
     private static final String TAG = "OpenGLRenderer";
     private static final boolean DEBUG = false;
+
     static {
         System.loadLibrary("opengl_renderer_jni");
     }
@@ -110,19 +111,24 @@ final class OpenGLRenderer {
                         surfaceRequest.willNotProvideSurface();
                         return;
                     }
-
                     SurfaceTexture surfaceTexture = resetPreviewTexture(
                             surfaceRequest.getResolution());
                     Surface inputSurface = new Surface(surfaceTexture);
                     mNumOutstandingSurfaces++;
-                    Rect requestCropRect = surfaceRequest.getCropRect();
-                    if (!isCropRectFullTexture(requestCropRect)) {
-                        // Crop rect is pre-calculated. Use it directly.
-                        mPreviewCropRect = new RectF(requestCropRect);
-                    } else {
-                        // Crop rect needs to be calculated before drawing.
-                        mPreviewCropRect = null;
-                    }
+                    surfaceRequest.setTransformationInfoListener(
+                            mExecutor,
+                            transformationInfo -> {
+                                mMvpDirty = true;
+                                // TODO(b/159127941): add the rotation to MVP transformation.
+                                if (!isCropRectFullTexture(transformationInfo.getCropRect())) {
+                                    // Crop rect is pre-calculated. Use it directly.
+                                    mPreviewCropRect = new RectF(
+                                            transformationInfo.getCropRect());
+                                } else {
+                                    // Crop rect needs to be calculated before drawing.
+                                    mPreviewCropRect = null;
+                                }
+                            });
                     surfaceRequest.provideSurface(
                             inputSurface,
                             mExecutor,
@@ -396,7 +402,7 @@ final class OpenGLRenderer {
             //    +---------+                         +----v----+
             //                                           (0,-1)
             return 180;
-        }  else if (s == -1 && t == 0) {
+        } else if (s == -1 && t == 0) {
             //       (0,1)
             //    +----^----+         270 deg         +---------+
             //    |    |    |        Rotation         |         |
@@ -637,8 +643,8 @@ final class OpenGLRenderer {
                         + "%.4f %.4f %.4f %.4f\n"
                         + "%.4f %.4f %.4f %.4f\n"
                         + "%.4f %.4f %.4f %.4f\n", label,
-                matrix[offset],     matrix[offset + 4], matrix[offset + 8],  matrix[offset + 12],
-                matrix[offset + 1], matrix[offset + 5], matrix[offset + 9],  matrix[offset + 13],
+                matrix[offset], matrix[offset + 4], matrix[offset + 8], matrix[offset + 12],
+                matrix[offset + 1], matrix[offset + 5], matrix[offset + 9], matrix[offset + 13],
                 matrix[offset + 2], matrix[offset + 6], matrix[offset + 10], matrix[offset + 14],
                 matrix[offset + 3], matrix[offset + 7], matrix[offset + 11], matrix[offset + 15]));
     }

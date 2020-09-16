@@ -23,6 +23,7 @@ import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.Rule
 import org.junit.Test
 
+@Suppress("DEPRECATION")
 class TransformationsTest {
 
     @get:Rule
@@ -36,7 +37,7 @@ class TransformationsTest {
         val source = MutableLiveData<String>()
         val mapped = source.map { input -> input.length }
         var receivedValue = -1
-        mapped.observe(lifecycleOwner) { receivedValue = it }
+        mapped.observe<Int>(lifecycleOwner) { receivedValue = it }
         source.value = "four"
         assertThat(receivedValue).isEqualTo(4)
     }
@@ -48,7 +49,7 @@ class TransformationsTest {
         val result = trigger.switchMap { input -> if (input == 1) first else second }
 
         var receivedValue = ""
-        result.observe(lifecycleOwner) { receivedValue = it }
+        result.observe<String>(lifecycleOwner) { receivedValue = it }
         first.value = "first"
         trigger.value = 1
         second.value = "second"
@@ -64,7 +65,7 @@ class TransformationsTest {
         val dedupedLiveData = originalLiveData.distinctUntilChanged()
 
         var counter = 0
-        dedupedLiveData.observe(lifecycleOwner) { counter++ }
+        dedupedLiveData.observe<String>(lifecycleOwner) { counter++ }
         assertThat(counter).isEqualTo(0)
 
         originalLiveData.value = "new value"

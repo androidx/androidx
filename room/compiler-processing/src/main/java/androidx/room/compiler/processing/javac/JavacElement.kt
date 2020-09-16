@@ -22,7 +22,6 @@ import androidx.room.compiler.processing.XEquality
 import com.google.auto.common.MoreElements
 import java.util.Locale
 import javax.lang.model.element.Element
-import javax.lang.model.element.Modifier
 import kotlin.reflect.KClass
 
 @Suppress("UnstableApiUsage")
@@ -30,52 +29,6 @@ internal abstract class JavacElement(
     protected val env: JavacProcessingEnv,
     open val element: Element
 ) : XElement, XEquality {
-
-    override val name: String
-        get() = element.simpleName.toString()
-
-    override val packageName: String
-        get() = MoreElements.getPackage(element).qualifiedName.toString()
-
-    override val enclosingElement: XElement? by lazy {
-        val enclosing = element.enclosingElement
-        if (MoreElements.isType(enclosing)) {
-            env.wrapTypeElement(MoreElements.asType(enclosing))
-        } else {
-            // room only cares if it is another type as we do not model packages
-            // or modules.
-            null
-        }
-    }
-
-    override fun isPublic(): Boolean {
-        return element.modifiers.contains(Modifier.PUBLIC)
-    }
-
-    override fun isProtected(): Boolean {
-        return element.modifiers.contains(Modifier.PROTECTED)
-    }
-
-    override fun isAbstract(): Boolean {
-        return element.modifiers.contains(Modifier.ABSTRACT)
-    }
-
-    override fun isPrivate(): Boolean {
-        return element.modifiers.contains(Modifier.PRIVATE)
-    }
-
-    override fun isStatic(): Boolean {
-        return element.modifiers.contains(Modifier.STATIC)
-    }
-
-    override fun isTransient(): Boolean {
-        return element.modifiers.contains(Modifier.TRANSIENT)
-    }
-
-    override fun isFinal(): Boolean {
-        return element.modifiers.contains(Modifier.FINAL)
-    }
-
     override fun <T : Annotation> toAnnotationBox(annotation: KClass<T>): XAnnotationBox<T>? {
         return MoreElements
             .getAnnotationMirror(element, annotation.java)

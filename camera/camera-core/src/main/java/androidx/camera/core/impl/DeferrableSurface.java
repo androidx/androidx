@@ -23,6 +23,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
+import androidx.camera.core.Logger;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -81,7 +82,7 @@ public abstract class DeferrableSurface {
     }
 
     private static final String TAG = "DeferrableSurface";
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
+    private static final boolean DEBUG = Logger.isDebugEnabled(TAG);
 
     // Debug only, used to track total count of surfaces in use.
     private static AtomicInteger sUsedCount = new AtomicInteger(0);
@@ -114,7 +115,7 @@ public abstract class DeferrableSurface {
             return "DeferrableSurface-termination(" + DeferrableSurface.this + ")";
         });
 
-        if (DEBUG) {
+        if (Logger.isDebugEnabled(TAG)) {
             printGlobalDebugCounts("Surface created", sTotalCount.incrementAndGet(),
                     sUsedCount.get());
 
@@ -125,7 +126,7 @@ public abstract class DeferrableSurface {
                     printGlobalDebugCounts("Surface terminated", sTotalCount.decrementAndGet(),
                             sUsedCount.get());
                 } catch (Exception e) {
-                    Log.e(TAG, "Unexpected surface termination for " + DeferrableSurface.this
+                    Logger.e(TAG, "Unexpected surface termination for " + DeferrableSurface.this
                             + "\nStack Trace:\n" + creationStackTrace);
                     throw new IllegalArgumentException("DeferrableSurface terminated with "
                             + "unexpected exception.", e);
@@ -135,7 +136,15 @@ public abstract class DeferrableSurface {
     }
 
     private void printGlobalDebugCounts(@NonNull String prefix, int totalCount, int useCount) {
-        Log.d(TAG, prefix + "[total_surfaces=" + totalCount + ", used_surfaces=" + useCount
+        //  If debug logging was not enabled at static initialization time but is now enabled,
+        //  sUsedCount and sTotalCount may be inaccurate.
+        if (!DEBUG && Logger.isDebugEnabled(TAG)) {
+            Logger.d(TAG,
+                    "DeferrableSurface usage statistics may be inaccurate since debug logging was"
+                            + " not enabled at static initialization time. App restart may be "
+                            + "required to enable accurate usage statistics.");
+        }
+        Logger.d(TAG, prefix + "[total_surfaces=" + totalCount + ", used_surfaces=" + useCount
                 + "](" + this + "}");
     }
 
@@ -195,12 +204,12 @@ public abstract class DeferrableSurface {
             }
             mUseCount++;
 
-            if (DEBUG) {
+            if (Logger.isDebugEnabled(TAG)) {
                 if (mUseCount == 1) {
                     printGlobalDebugCounts("New surface in use", sTotalCount.get(),
                             sUsedCount.incrementAndGet());
                 }
-                Log.d(TAG, "use count+1, useCount=" + mUseCount + " " + this);
+                Logger.d(TAG, "use count+1, useCount=" + mUseCount + " " + this);
             }
         }
     }
@@ -230,8 +239,8 @@ public abstract class DeferrableSurface {
                     mTerminationCompleter = null;
                 }
 
-                if (DEBUG) {
-                    Log.d(TAG,
+                if (Logger.isDebugEnabled(TAG)) {
+                    Logger.d(TAG,
                             "surface closed,  useCount=" + mUseCount + " closed=true " + this);
                 }
             }
@@ -263,15 +272,13 @@ public abstract class DeferrableSurface {
                 mTerminationCompleter = null;
             }
 
-            if (DEBUG) {
-                Log.d(TAG, "use count-1,  useCount=" + mUseCount + " closed=" + mClosed
+            if (Logger.isDebugEnabled(TAG)) {
+                Logger.d(TAG, "use count-1,  useCount=" + mUseCount + " closed=" + mClosed
                         + " " + this);
 
                 if (mUseCount == 0) {
-                    if (DEBUG) {
-                        printGlobalDebugCounts("Surface no longer in use",
-                                sTotalCount.get(), sUsedCount.decrementAndGet());
-                    }
+                    printGlobalDebugCounts("Surface no longer in use", sTotalCount.get(),
+                            sUsedCount.decrementAndGet());
                 }
             }
         }

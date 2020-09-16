@@ -21,6 +21,7 @@ import org.anarres.gradle.plugin.jarjar.JarjarTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.TaskProvider
+import org.gradle.api.tasks.bundling.Jar
 import java.io.File
 import java.util.jar.JarFile
 
@@ -30,11 +31,12 @@ fun Project.registerJarJarDependenciesTask(
     variant: BaseVariant,
     zipTask: TaskProvider<Copy>
 ): TaskProvider<JarjarTask> {
+    val uberJar = registerUberJarTask(variant)
     return tasks.register(
         variant.taskName("jarJarDependencies"),
         JarjarTask::class.java
     ) {
-        it.from(variant.runtimeConfiguration)
+        it.dependsOn(uberJar)
         val fileTree = project.fileTree(zipTask.get().destinationDir)
         fileTree.include("**/*.jar")
         it.from(fileTree)
@@ -44,14 +46,32 @@ fun Project.registerJarJarDependenciesTask(
         val prefix = "deps.${project.name.replace('-', '.')}"
         it.doFirst {
             val task = it as JarjarTask
-            variant.runtimeConfiguration.files.extractPackageNames().forEach { packageName ->
+            val input = uberJar.get().outputs.files
+            task.from(input)
+            input.extractPackageNames().forEach { packageName ->
                 task.classRename("$packageName.**", "$prefix.$packageName.@1")
             }
         }
     }
 }
 
-private fun Set<File>.extractPackageNames(): Set<String> = map(::JarFile)
+/**
+ * Merges all runtime dependencies in one jar and removes module-info.class,
+ * because jarjar and dx fail to process these classes.
+ */
+private fun Project.registerUberJarTask(variant: BaseVariant): TaskProvider<Jar> {
+    return tasks.register("uberRuntimeDepsJar", Jar::class.java) {
+        it.archiveClassifier.set("uberRuntimeDepsJar")
+        it.dependsOn(variant.runtimeConfiguration)
+        it.exclude("**/module-info.class")
+        it.from({
+            variant.runtimeConfiguration
+                .files.filter { it.name.endsWith("jar") }.map(::zipTree)
+        })
+    }
+}
+
+private fun Iterable<File>.extractPackageNames(): Set<String> = map(::JarFile)
     .map { jar -> jar.use { it.entries().toList() } }.flatten()
     .filter { jarEntry -> jarEntry.name.endsWith(".class") }
     .map { jarEntry -> jarEntry.name.substringBeforeLast("/").replace('/', '.') }

@@ -16,6 +16,9 @@
 
 import androidx.room.DatabaseView
 import androidx.room.Entity
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XFieldElement
+import androidx.room.compiler.processing.XType
 import androidx.room.ext.GuavaUtilConcurrentTypeNames
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.LifecyclesTypeNames
@@ -26,9 +29,6 @@ import androidx.room.ext.RoomRxJava2TypeNames
 import androidx.room.ext.RoomRxJava3TypeNames
 import androidx.room.ext.RxJava2TypeNames
 import androidx.room.ext.RxJava3TypeNames
-import androidx.room.compiler.processing.XElement
-import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.XVariableElement
 import androidx.room.processor.DatabaseViewProcessor
 import androidx.room.processor.TableEntityProcessor
 import androidx.room.solver.CodeGenScope
@@ -238,8 +238,8 @@ fun TestInvocation.getEntities(): List<androidx.room.vo.Entity> {
  * Create mocks of [XElement] and [XType] so that they can be used for instantiating a fake
  * [androidx.room.vo.Field].
  */
-fun mockElementAndType(): Pair<XVariableElement, XType> {
-    val element = mock(XVariableElement::class.java)
+fun mockElementAndType(): Pair<XFieldElement, XType> {
+    val element = mock(XFieldElement::class.java)
     val type = mock(XType::class.java)
     doReturn(type).`when`(element).type
     return element to type

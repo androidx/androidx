@@ -18,6 +18,7 @@ package androidx.appcompat.widget;
 
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -50,7 +51,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Utility class which encapsulates the logic for the TextView auto-size text feature added to
@@ -70,12 +70,14 @@ class AppCompatTextViewAutoSizeHelper {
     private static final int DEFAULT_AUTO_SIZE_GRANULARITY_IN_PX = 1;
     // Cache of TextView methods used via reflection; the key is the method name and the value is
     // the method itself or null if it can not be found.
-    private static ConcurrentHashMap<String, Method> sTextViewMethodByNameCache =
-            new ConcurrentHashMap<>();
+    @SuppressLint("BanConcurrentHashMap")
+    private static java.util.concurrent.ConcurrentHashMap<String, Method>
+            sTextViewMethodByNameCache = new java.util.concurrent.ConcurrentHashMap<>();
     // Cache of TextView fields used via reflection; the key is the field name and the value is
     // the field itself or null if it can not be found.
-    private static ConcurrentHashMap<String, Field> sTextViewFieldByNameCache =
-            new ConcurrentHashMap<>();
+    @SuppressLint("BanConcurrentHashMap")
+    private static java.util.concurrent.ConcurrentHashMap<String, Field> sTextViewFieldByNameCache =
+            new java.util.concurrent.ConcurrentHashMap<>();
     // Use this to specify that any of the auto-size configuration int values have not been set.
     static final float UNSET_AUTO_SIZE_UNIFORM_CONFIGURATION_VALUE = -1f;
     // Ported from TextView#VERY_WIDE. Represents a maximum width in pixels the TextView takes when

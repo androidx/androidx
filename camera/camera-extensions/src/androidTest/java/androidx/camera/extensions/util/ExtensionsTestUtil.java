@@ -39,6 +39,7 @@ import androidx.camera.extensions.BeautyImageCaptureExtender;
 import androidx.camera.extensions.BeautyPreviewExtender;
 import androidx.camera.extensions.BokehImageCaptureExtender;
 import androidx.camera.extensions.BokehPreviewExtender;
+import androidx.camera.extensions.Extensions;
 import androidx.camera.extensions.ExtensionsManager;
 import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.ExtensionsManager.ExtensionsAvailability;
@@ -87,6 +88,22 @@ public class ExtensionsTestUtil {
         });
     }
 
+    @NonNull
+    public static Collection<Object[]> getAllExtensionsLensFacingCombinations() {
+        return Arrays.asList(new Object[][]{
+                {Extensions.EXTENSION_MODE_BOKEH, CameraSelector.LENS_FACING_FRONT},
+                {Extensions.EXTENSION_MODE_BOKEH, CameraSelector.LENS_FACING_BACK},
+                {Extensions.EXTENSION_MODE_HDR, CameraSelector.LENS_FACING_FRONT},
+                {Extensions.EXTENSION_MODE_HDR, CameraSelector.LENS_FACING_BACK},
+                {Extensions.EXTENSION_MODE_BEAUTY, CameraSelector.LENS_FACING_FRONT},
+                {Extensions.EXTENSION_MODE_BEAUTY, CameraSelector.LENS_FACING_BACK},
+                {Extensions.EXTENSION_MODE_NIGHT, CameraSelector.LENS_FACING_FRONT},
+                {Extensions.EXTENSION_MODE_NIGHT, CameraSelector.LENS_FACING_BACK},
+                {Extensions.EXTENSION_MODE_AUTO, CameraSelector.LENS_FACING_FRONT},
+                {Extensions.EXTENSION_MODE_AUTO, CameraSelector.LENS_FACING_BACK}
+        });
+    }
+
     /**
      * Initializes the extensions for running the following tests.
      *
@@ -106,6 +123,43 @@ public class ExtensionsTestUtil {
         assertTrue(extensionsAvailability == ExtensionsAvailability.LIBRARY_AVAILABLE);
 
         return true;
+    }
+
+    @Extensions.ExtensionMode
+    public static int effectModeToExtensionMode(@NonNull EffectMode effectMode) {
+        switch (effectMode) {
+            case NORMAL:
+                return Extensions.EXTENSION_MODE_NONE;
+            case BOKEH:
+                return Extensions.EXTENSION_MODE_BOKEH;
+            case HDR:
+                return Extensions.EXTENSION_MODE_HDR;
+            case NIGHT:
+                return Extensions.EXTENSION_MODE_NIGHT;
+            case BEAUTY:
+                return Extensions.EXTENSION_MODE_BEAUTY;
+            case AUTO:
+                return Extensions.EXTENSION_MODE_AUTO;
+        }
+        throw new IllegalArgumentException("Effect mode not found: " + effectMode);
+    }
+
+    public static EffectMode extensionModeToEffectMode(@Extensions.ExtensionMode int mode) {
+        switch (mode) {
+            case Extensions.EXTENSION_MODE_NONE:
+                return EffectMode.NORMAL;
+            case Extensions.EXTENSION_MODE_BOKEH:
+                return EffectMode.BOKEH;
+            case Extensions.EXTENSION_MODE_HDR:
+                return EffectMode.HDR;
+            case Extensions.EXTENSION_MODE_NIGHT:
+                return EffectMode.NIGHT;
+            case Extensions.EXTENSION_MODE_BEAUTY:
+                return EffectMode.BEAUTY;
+            case Extensions.EXTENSION_MODE_AUTO:
+                return EffectMode.AUTO;
+        }
+        throw new IllegalArgumentException("Extension mode not found: " + mode);
     }
 
     /**

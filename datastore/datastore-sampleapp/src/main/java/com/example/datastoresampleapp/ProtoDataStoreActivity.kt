@@ -46,7 +46,7 @@ class ProtoDataStoreActivity : AppCompatActivity() {
     private val PROTO_STORE_FILE_NAME = "datastore_test_app.pb"
 
     private val settingsStore: DataStore<Settings> by lazy {
-        DataStoreFactory().create(
+        DataStoreFactory.create(
             { File(applicationContext.filesDir, PROTO_STORE_FILE_NAME) },
             SettingsSerializer
         )

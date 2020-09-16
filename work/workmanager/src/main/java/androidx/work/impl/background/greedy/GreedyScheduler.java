@@ -16,17 +16,12 @@
 
 package androidx.work.impl.background.greedy;
 
-import static android.content.Context.ACTIVITY_SERVICE;
 import static android.os.Build.VERSION.SDK_INT;
 
-import android.app.ActivityManager;
-import android.app.Application;
 import android.content.Context;
-import android.os.Process;
 import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.work.Configuration;
@@ -38,9 +33,9 @@ import androidx.work.impl.WorkManagerImpl;
 import androidx.work.impl.constraints.WorkConstraintsCallback;
 import androidx.work.impl.constraints.WorkConstraintsTracker;
 import androidx.work.impl.model.WorkSpec;
+import androidx.work.impl.utils.ProcessUtils;
 import androidx.work.impl.utils.taskexecutor.TaskExecutor;
 
-import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -66,7 +61,7 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
     private final Object mLock;
 
     // Internal State
-    Boolean mIsMainProcess;
+    Boolean mInDefaultProcess;
 
     public GreedyScheduler(
             @NonNull Context context,
@@ -103,13 +98,12 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
 
     @Override
     public void schedule(@NonNull WorkSpec... workSpecs) {
-        if (mIsMainProcess == null) {
-            // The default process name is the package name.
-            mIsMainProcess = TextUtils.equals(mContext.getPackageName(), getProcessName());
+        if (mInDefaultProcess == null) {
+            checkDefaultProcess();
         }
 
-        if (!mIsMainProcess) {
-            Logger.get().info(TAG, "Ignoring schedule request in non-main process");
+        if (!mInDefaultProcess) {
+            Logger.get().info(TAG, "Ignoring schedule request in a secondary process");
             return;
         }
 
@@ -165,14 +159,18 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
         }
     }
 
+    private void checkDefaultProcess() {
+        Configuration configuration = mWorkManagerImpl.getConfiguration();
+        mInDefaultProcess = ProcessUtils.isDefaultProcess(mContext, configuration);
+    }
+
     @Override
     public void cancel(@NonNull String workSpecId) {
-        if (mIsMainProcess == null) {
-            // The default process name is the package name.
-            mIsMainProcess = TextUtils.equals(mContext.getPackageName(), getProcessName());
+        if (mInDefaultProcess == null) {
+            checkDefaultProcess();
         }
 
-        if (!mIsMainProcess) {
+        if (!mInDefaultProcess) {
             Logger.get().info(TAG, "Ignoring schedule request in non-main process");
             return;
         }
@@ -235,56 +233,5 @@ public class GreedyScheduler implements Scheduler, WorkConstraintsCallback, Exec
             mWorkManagerImpl.getProcessor().addExecutionListener(this);
             mRegisteredExecutionListener = true;
         }
-    }
-
-    @Nullable
-    private String getProcessName() {
-        if (SDK_INT >= 28) {
-            return Application.getProcessName();
-        }
-
-        // Try using ActivityThread to determine the current process name.
-        try {
-            Class<?> activityThread = Class.forName(
-                    "android.app.ActivityThread",
-                    false,
-                    GreedyScheduler.class.getClassLoader());
-            final Object packageName;
-            if (SDK_INT >= 18) {
-                Method currentProcessName = activityThread.getDeclaredMethod("currentProcessName");
-                currentProcessName.setAccessible(true);
-                packageName = currentProcessName.invoke(null);
-            } else {
-                Method getActivityThread = activityThread.getDeclaredMethod(
-                        "currentActivityThread");
-                getActivityThread.setAccessible(true);
-                Method getProcessName = activityThread.getDeclaredMethod("getProcessName");
-                getProcessName.setAccessible(true);
-                packageName = getProcessName.invoke(getActivityThread.invoke(null));
-            }
-            if (packageName instanceof String) {
-                return (String) packageName;
-            }
-        } catch (Throwable exception) {
-            Logger.get().debug(TAG, "Unable to check ActivityThread for processName", exception);
-        }
-
-        // Fallback to the most expensive way
-        int pid = Process.myPid();
-        ActivityManager am =
-                (ActivityManager) mContext.getSystemService(ACTIVITY_SERVICE);
-
-        if (am != null) {
-            List<ActivityManager.RunningAppProcessInfo> processes = am.getRunningAppProcesses();
-            if (processes != null && !processes.isEmpty()) {
-                for (ActivityManager.RunningAppProcessInfo process : processes) {
-                    if (process.pid == pid) {
-                        return process.processName;
-                    }
-                }
-            }
-        }
-
-        return null;
     }
 }

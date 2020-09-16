@@ -361,15 +361,17 @@ abstract public class BaseRecyclerViewInstrumentationTest {
     public void setRecyclerView(final RecyclerView recyclerView) throws Throwable {
         setRecyclerView(recyclerView, true);
     }
-    public void setRecyclerView(final RecyclerView recyclerView, boolean assignDummyPool)
+    public void setRecyclerView(final RecyclerView recyclerView,
+            boolean createAndSetRecycledViewPoolTestDouble)
             throws Throwable {
-        setRecyclerView(recyclerView, assignDummyPool, true);
+        setRecyclerView(recyclerView, createAndSetRecycledViewPoolTestDouble, true);
     }
-    public void setRecyclerView(final RecyclerView recyclerView, boolean assignDummyPool,
+    public void setRecyclerView(final RecyclerView recyclerView,
+            boolean createAndSetRecycledViewPoolTestDouble,
             boolean addPositionCheckItemAnimator)
             throws Throwable {
         mRecyclerView = recyclerView;
-        if (assignDummyPool) {
+        if (createAndSetRecycledViewPoolTestDouble) {
             RecyclerView.RecycledViewPool pool = new RecyclerView.RecycledViewPool() {
                 @Override
                 public RecyclerView.ViewHolder getRecycledView(int viewType) {
@@ -569,7 +571,7 @@ abstract public class BaseRecyclerViewInstrumentationTest {
             mData = data;
         }
     }
-    class DumbLayoutManager extends TestLayoutManager {
+    class SimpleTestLayoutManager extends TestLayoutManager {
         @Override
         public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
             detachAndScrapAttachedViews(recycler);

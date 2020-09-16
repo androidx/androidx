@@ -16,11 +16,21 @@
 
 package androidx.ui.test
 
+// ================================================
+// All the methods below are going to be deprecated
+// ================================================
+
 /**
  * Runs the given action on the UI thread.
  *
  * This method is blocking until the action is complete.
+ *
+ * @Deprecated Moved to androidx.ui.test.ComposeTestRule
  */
+@Deprecated(
+    "Moved to androidx.ui.test.ComposeTestRule",
+    ReplaceWith("androidx.ui.test.ComposeTestRule.runOnUiThread(action)")
+)
 fun <T> runOnUiThread(action: () -> T): T = actualRunOnUiThread(action)
 
 internal expect fun <T> actualRunOnUiThread(action: () -> T): T
@@ -31,7 +41,14 @@ internal expect fun <T> actualRunOnUiThread(action: () -> T): T
  * variables.
  *
  * This method is blocking until the action is complete.
+ *
+ * @Deprecated Moved to androidx.ui.test.ComposeTestRule
  */
+@Deprecated(
+    "Moved to androidx.ui.test.ComposeTestRule",
+    ReplaceWith("androidx.ui.test.ComposeTestRule.runOnIdle(action)")
+)
+@Suppress("DEPRECATION")
 fun <T> runOnIdle(action: () -> T): T {
     // Method below make sure that compose is idle.
     waitForIdle()
@@ -46,7 +63,13 @@ fun <T> runOnIdle(action: () -> T): T {
  *
  * Can crash in case Espresso hits time out. This is not supposed to be handled as it
  * surfaces only in incorrect tests.
+ *
+ * @Deprecated Moved to androidx.ui.test.ComposeTestRule
  */
+@Deprecated(
+    "Moved to androidx.ui.test.ComposeTestRule",
+    ReplaceWith("androidx.ui.test.ComposeTestRule.waitForIdle()")
+)
 fun waitForIdle() = actualWaitForIdle()
 
 internal expect fun actualWaitForIdle()

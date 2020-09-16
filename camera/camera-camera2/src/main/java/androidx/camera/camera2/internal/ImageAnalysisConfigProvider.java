@@ -21,9 +21,7 @@ import android.hardware.camera2.CameraDevice;
 import android.view.WindowManager;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.camera.core.AspectRatio;
-import androidx.camera.core.CameraInfo;
 import androidx.camera.core.ImageAnalysis;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.ConfigProvider;
@@ -45,9 +43,9 @@ public final class ImageAnalysisConfigProvider implements ConfigProvider<ImageAn
     @Override
     @NonNull
     @SuppressWarnings("deprecation") /* defaultDisplay */
-    public ImageAnalysisConfig getConfig(@Nullable CameraInfo cameraInfo) {
+    public ImageAnalysisConfig getConfig() {
         ImageAnalysis.Builder builder = ImageAnalysis.Builder.fromConfig(
-                ImageAnalysis.DEFAULT_CONFIG.getConfig(cameraInfo));
+                ImageAnalysis.DEFAULT_CONFIG.getConfig());
 
         // SessionConfig containing all intrinsic properties needed for ImageAnalysis
         SessionConfig.Builder sessionBuilder = new SessionConfig.Builder();
@@ -62,10 +60,11 @@ public final class ImageAnalysisConfigProvider implements ConfigProvider<ImageAn
         captureBuilder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
         builder.setDefaultCaptureConfig(captureBuilder.build());
         builder.setCaptureOptionUnpacker(Camera2CaptureOptionUnpacker.INSTANCE);
+        builder.setTargetAspectRatio(AspectRatio.RATIO_4_3);
 
+        // TODO(b/160477756): Make UseCase default config providers only provider static configs
         int targetRotation = mWindowManager.getDefaultDisplay().getRotation();
         builder.setTargetRotation(targetRotation);
-        builder.setTargetAspectRatio(AspectRatio.RATIO_4_3);
 
         return builder.getUseCaseConfig();
     }

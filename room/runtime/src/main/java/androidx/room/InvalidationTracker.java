@@ -249,6 +249,9 @@ public class InvalidationTracker {
      * <p>
      * If one of the tables in the Observer does not exist in the database, this method throws an
      * {@link IllegalArgumentException}.
+     * <p>
+     * This method should be called on a background/worker thread as it performs database
+     * operations.
      *
      * @param observer The observer which listens the database for changes.
      */
@@ -322,6 +325,9 @@ public class InvalidationTracker {
 
     /**
      * Removes the observer from the observers list.
+     * <p>
+     * This method should be called on a background/worker thread as it performs database
+     * operations.
      *
      * @param observer The observer to remove.
      */

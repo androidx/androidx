@@ -19,6 +19,7 @@ package android.support.v4.media.session;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -63,7 +64,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Allows an app to interact with an ongoing media session. Media buttons and
@@ -222,8 +222,9 @@ public final class MediaControllerCompat {
     // This set is used to keep references to registered callbacks to prevent them being GCed,
     // since we only keep weak references for callbacks in this class and its inner classes.
     // It is actually a map not a set. Ignore the values and treat the keys as a set.
-    private final ConcurrentHashMap<Callback, Boolean> mRegisteredCallbacks =
-            new ConcurrentHashMap<>();
+    @SuppressLint("BanConcurrentHashMap")
+    private final java.util.concurrent.ConcurrentHashMap<Callback, Boolean> mRegisteredCallbacks =
+            new java.util.concurrent.ConcurrentHashMap<>();
 
     /**
      * Creates a media controller from a session.

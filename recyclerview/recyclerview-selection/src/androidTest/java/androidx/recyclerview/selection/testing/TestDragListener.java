@@ -26,13 +26,17 @@ import androidx.recyclerview.selection.OnDragInitiatedListener;
 public final class TestDragListener implements OnDragInitiatedListener {
 
     private boolean mDragInitiated;
+    private boolean mReturnValue = true;
 
     @Override
     public boolean onDragInitiated(MotionEvent e) {
         mDragInitiated = true;
-        return false;
+        return mReturnValue;
     }
 
+    public void setReturnValue(boolean value) {
+        mReturnValue = value;
+    }
     public void assertDragInitiated(boolean expected) {
         if (expected) {
             assertTrue("onDragInitiated never called.", mDragInitiated);

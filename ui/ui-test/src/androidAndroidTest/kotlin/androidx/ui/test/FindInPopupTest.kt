@@ -16,12 +16,12 @@
 
 package androidx.ui.test
 
-import androidx.test.filters.MediumTest
+import androidx.compose.foundation.Box
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.foundation.Box
 import androidx.compose.ui.window.Popup
+import androidx.test.filters.MediumTest
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -34,18 +34,18 @@ private const val popupTag = "popup"
 @RunWith(JUnit4::class)
 class FindInPopupTest {
     @get:Rule
-    val composeTestRule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule(disableTransitions = true)
 
     @Test
     fun test() {
-        composeTestRule.setContent {
+        rule.setContent {
             Box(Modifier.testTag(contentTag))
 
             Popup(alignment = Alignment.Center) {
                 Box(Modifier.testTag(popupTag))
             }
         }
-        onNodeWithTag(contentTag).assertExists()
-        onNodeWithTag(popupTag).assertExists()
+        rule.onNodeWithTag(contentTag).assertExists()
+        rule.onNodeWithTag(popupTag).assertExists()
     }
 }

@@ -1,0 +1,1478 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class androidx.core.animation.AnimatorKt is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="    addPauseListener(listener)"
+        errorLine2="    ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/animation/Animator.kt"
+            line="112"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class androidx.core.util.AtomicFileKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="    val stream = startWrite()"
+        errorLine2="                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/AtomicFile.kt"
+            line="32"
+            column="18"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class androidx.core.util.AtomicFileKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="            finishWrite(stream)"
+        errorLine2="            ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/AtomicFile.kt"
+            line="39"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class androidx.core.util.AtomicFileKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="            failWrite(stream)"
+        errorLine2="            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/AtomicFile.kt"
+            line="41"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class androidx.core.util.AtomicFileKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="inline fun AtomicFile.readBytes(): ByteArray = readFully()"
+        errorLine2="                                               ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/AtomicFile.kt"
+            line="71"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class androidx.core.util.AtomicFileKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="    return readFully().toString(charset)"
+        errorLine2="           ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/AtomicFile.kt"
+            line="80"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.BitmapKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="    colorSpace: ColorSpace = ColorSpace.get(ColorSpace.Named.SRGB)"
+        errorLine2="                                        ~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Bitmap.kt"
+            line="112"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.BitmapKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="    return Bitmap.createBitmap(width, height, config, hasAlpha, colorSpace)"
+        errorLine2="                  ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Bitmap.kt"
+            line="114"
+            column="19"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.core.os.BundleKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="                    putBinder(key, value)"
+        errorLine2="                    ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/Bundle.kt"
+            line="92"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.core.os.BundleKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                    putSize(key, value)"
+        errorLine2="                    ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/Bundle.kt"
+            line="94"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.core.os.BundleKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                    putSizeF(key, value)"
+        errorLine2="                    ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/Bundle.kt"
+            line="96"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline operator fun Color.component1() = getComponent(0)"
+        errorLine2="                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="39"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline operator fun Color.component2() = getComponent(1)"
+        errorLine2="                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="53"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline operator fun Color.component3() = getComponent(2)"
+        errorLine2="                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="67"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline operator fun Color.component4() = getComponent(3)"
+        errorLine2="                                         ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="81"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 24, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 24. Either annotate the containing class with at least @RequiresApi(24) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(24)."
+        errorLine1="inline val @receiver:ColorInt Int.luminance get() = Color.luminance(this)"
+        errorLine2="                                                          ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="199"
+            column="59"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline fun @receiver:ColorInt Int.toColor(): Color = Color.valueOf(this)"
+        errorLine2="                                                           ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="206"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline fun @receiver:ColorInt Int.toColorLong() = Color.pack(this)"
+        errorLine2="                                                        ~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="214"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline operator fun @receiver:ColorLong Long.component1() = Color.red(this)"
+        errorLine2="                                                                  ~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="228"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline operator fun @receiver:ColorLong Long.component2() = Color.green(this)"
+        errorLine2="                                                                  ~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="242"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline operator fun @receiver:ColorLong Long.component3() = Color.blue(this)"
+        errorLine2="                                                                  ~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="256"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline operator fun @receiver:ColorLong Long.component4() = Color.alpha(this)"
+        errorLine2="                                                                  ~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="270"
+            column="67"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline val @receiver:ColorLong Long.alpha get() = Color.alpha(this)"
+        errorLine2="                                                        ~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="279"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline val @receiver:ColorLong Long.red get() = Color.red(this)"
+        errorLine2="                                                      ~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="288"
+            column="55"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline val @receiver:ColorLong Long.green get() = Color.green(this)"
+        errorLine2="                                                        ~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="297"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline val @receiver:ColorLong Long.blue get() = Color.blue(this)"
+        errorLine2="                                                       ~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="306"
+            column="56"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline val @receiver:ColorLong Long.luminance get() = Color.luminance(this)"
+        errorLine2="                                                            ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="313"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline fun @receiver:ColorLong Long.toColor(): Color = Color.valueOf(this)"
+        errorLine2="                                                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="319"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline fun @receiver:ColorLong Long.toColorInt() = Color.toArgb(this)"
+        errorLine2="                                                         ~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="326"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline val @receiver:ColorLong Long.isSrgb get() = Color.isSrgb(this)"
+        errorLine2="                                                         ~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="333"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline val @receiver:ColorLong Long.isWideGamut get() = Color.isWideGamut(this)"
+        errorLine2="                                                              ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="339"
+            column="63"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline val @receiver:ColorLong Long.colorSpace: ColorSpace get() = Color.colorSpace(this)"
+        errorLine2="                                                                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="345"
+            column="74"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="        Color.convert(this, ColorSpace.get(colorSpace))"
+        errorLine2="              ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="357"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="        Color.convert(this, ColorSpace.get(colorSpace))"
+        errorLine2="                                       ~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="357"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="        Color.convert(this, colorSpace)"
+        errorLine2="              ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="369"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="        Color.convert(this, ColorSpace.get(colorSpace))"
+        errorLine2="              ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="381"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="        Color.convert(this, ColorSpace.get(colorSpace))"
+        errorLine2="                                       ~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="381"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="        Color.convert(this, colorSpace)"
+        errorLine2="              ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="393"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline infix fun Color.convertTo(colorSpace: ColorSpace.Named) = convert(ColorSpace.get(colorSpace))"
+        errorLine2="                                                                 ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="403"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline infix fun Color.convertTo(colorSpace: ColorSpace.Named) = convert(ColorSpace.get(colorSpace))"
+        errorLine2="                                                                                    ~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="403"
+            column="85"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.ColorKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline infix fun Color.convertTo(colorSpace: ColorSpace) = convert(colorSpace)"
+        errorLine2="                                                           ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Color.kt"
+            line="413"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.drawable.ColorDrawableKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline fun Color.toDrawable() = ColorDrawable(toArgb())"
+        errorLine2="                                              ~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/drawable/ColorDrawable.kt"
+            line="31"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.util.HalfKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline fun @receiver:HalfFloat Short.toHalf(): Half = Half.valueOf(this)"
+        errorLine2="                                                           ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/Half.kt"
+            line="33"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.util.HalfKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline fun Float.toHalf(): Half = Half.valueOf(this)"
+        errorLine2="                                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/Half.kt"
+            line="41"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.util.HalfKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline fun String.toHalf(): Half = Half.valueOf(this)"
+        errorLine2="                                        ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/Half.kt"
+            line="57"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.graphics.drawable.IconKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="inline fun Bitmap.toAdaptiveIcon(): Icon = Icon.createWithAdaptiveBitmap(this)"
+        errorLine2="                                                ~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/drawable/Icon.kt"
+            line="32"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.core.graphics.drawable.IconKt is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="inline fun Bitmap.toIcon(): Icon = Icon.createWithBitmap(this)"
+        errorLine2="                                        ~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/drawable/Icon.kt"
+            line="40"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.core.graphics.drawable.IconKt is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="inline fun Uri.toIcon(): Icon = Icon.createWithContentUri(this)"
+        errorLine2="                                     ~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/drawable/Icon.kt"
+            line="48"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 23, the call containing class androidx.core.graphics.drawable.IconKt is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
+        errorLine1="inline fun ByteArray.toIcon(): Icon = Icon.createWithData(this, 0, size)"
+        errorLine2="                                           ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/drawable/Icon.kt"
+            line="56"
+            column="44"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.core.graphics.ImageDecoderKt is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="    return ImageDecoder.decodeBitmap(this) { decoder, info, source ->"
+        errorLine2="                        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/ImageDecoder.kt"
+            line="35"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 28, the call containing class androidx.core.graphics.ImageDecoderKt is not annotated with @RequiresApi(x) where x is at least 28. Either annotate the containing class with at least @RequiresApi(28) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(28)."
+        errorLine1="    return ImageDecoder.decodeDrawable(this) { decoder, info, source ->"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/graphics/ImageDecoder.kt"
+            line="49"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class androidx.core.text.LocaleKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="    get() = TextUtils.getLayoutDirectionFromLocale(this)"
+        errorLine2="                      ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/text/Locale.kt"
+            line="30"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="inline val &lt;T> LongSparseArray&lt;T>.size get() = size()"
+        errorLine2="                                               ~~~~">
+        <location
+            file="src/main/java/androidx/core/util/LongSparseArray.kt"
+            line="26"
+            column="48"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="inline operator fun &lt;T> LongSparseArray&lt;T>.contains(key: Long) = indexOfKey(key) >= 0"
+        errorLine2="                                                                 ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/LongSparseArray.kt"
+            line="30"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="inline operator fun &lt;T> LongSparseArray&lt;T>.set(key: Long, value: T) = put(key, value)"
+        errorLine2="                                                                      ~~~">
+        <location
+            file="src/main/java/androidx/core/util/LongSparseArray.kt"
+            line="34"
+            column="71"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="    val new = LongSparseArray&lt;T>(size() + other.size())"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/LongSparseArray.kt"
+            line="39"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="    val new = LongSparseArray&lt;T>(size() + other.size())"
+        errorLine2="                                 ~~~~">
+        <location
+            file="src/main/java/androidx/core/util/LongSparseArray.kt"
+            line="39"
+            column="34"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="    val new = LongSparseArray&lt;T>(size() + other.size())"
+        errorLine2="                                                ~~~~">
+        <location
+            file="src/main/java/androidx/core/util/LongSparseArray.kt"
+            line="39"
+            column="49"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="inline fun &lt;T> LongSparseArray&lt;T>.containsKey(key: Long) = indexOfKey(key) >= 0"
+        errorLine2="                                                           ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/LongSparseArray.kt"
+            line="47"
+            column="60"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="inline fun &lt;T> LongSparseArray&lt;T>.containsValue(value: T) = indexOfValue(value) >= 0"
+        errorLine2="                                                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/LongSparseArray.kt"
+            line="51"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="    get(key) ?: defaultValue"
+        errorLine2="    ~~~">
+        <location
+            file="src/main/java/androidx/core/util/LongSparseArray.kt"
+            line="56"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="    get(key) ?: defaultValue()"
+        errorLine2="    ~~~">
+        <location
+            file="src/main/java/androidx/core/util/LongSparseArray.kt"
+            line="61"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="inline fun &lt;T> LongSparseArray&lt;T>.isEmpty() = size() == 0"
+        errorLine2="                                              ~~~~">
+        <location
+            file="src/main/java/androidx/core/util/LongSparseArray.kt"
+            line="65"
+            column="47"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="inline fun &lt;T> LongSparseArray&lt;T>.isNotEmpty() = size() != 0"
+        errorLine2="                                                 ~~~~">
+        <location
+            file="src/main/java/androidx/core/util/LongSparseArray.kt"
+            line="69"
+            column="50"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="    val index = indexOfKey(key)"
+        errorLine2="                ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/LongSparseArray.kt"
+            line="74"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="    if (index >= 0 &amp;&amp; value == valueAt(index)) {"
+        errorLine2="                               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/LongSparseArray.kt"
+            line="75"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="        removeAt(index)"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/LongSparseArray.kt"
+            line="76"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="    for (index in 0 until size()) {"
+        errorLine2="                          ~~~~">
+        <location
+            file="src/main/java/androidx/core/util/LongSparseArray.kt"
+            line="89"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="        action(keyAt(index), valueAt(index))"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/LongSparseArray.kt"
+            line="90"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.core.util.LongSparseArrayKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="        action(keyAt(index), valueAt(index))"
+        errorLine2="                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/LongSparseArray.kt"
+            line="90"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class null is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="    override fun hasNext() = index &lt; size()"
+        errorLine2="                                     ~~~~">
+        <location
+            file="src/main/java/androidx/core/util/LongSparseArray.kt"
+            line="98"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class null is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="    override fun nextLong() = keyAt(index++)"
+        errorLine2="                              ~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/LongSparseArray.kt"
+            line="99"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class null is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="    override fun hasNext() = index &lt; size()"
+        errorLine2="                                     ~~~~">
+        <location
+            file="src/main/java/androidx/core/util/LongSparseArray.kt"
+            line="106"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class null is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="    override fun next() = valueAt(index++)"
+        errorLine2="                          ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/LongSparseArray.kt"
+            line="107"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class androidx.core.graphics.PathKt is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="        op(p, Path.Op.UNION)"
+        errorLine2="        ~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Path.kt"
+            line="42"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class androidx.core.graphics.PathKt is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="        op(p, Path.Op.DIFFERENCE)"
+        errorLine2="        ~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Path.kt"
+            line="52"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class androidx.core.graphics.PathKt is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="        op(this@and, p, Path.Op.INTERSECT)"
+        errorLine2="        ~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Path.kt"
+            line="69"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class androidx.core.graphics.PathKt is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="        op(p, Path.Op.XOR)"
+        errorLine2="        ~~">
+        <location
+            file="src/main/java/androidx/core/graphics/Path.kt"
+            line="79"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.core.os.PersistableBundleKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="fun persistableBundleOf(vararg pairs: Pair&lt;String, Any?>) = PersistableBundle(pairs.size).apply {"
+        errorLine2="                                                            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/PersistableBundle.kt"
+            line="29"
+            column="61"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.core.os.PersistableBundleKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            null -> putString(key, null) // Any nullable type will suffice."
+        errorLine2="                    ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/PersistableBundle.kt"
+            line="32"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 22, the call containing class androidx.core.os.PersistableBundleKt is not annotated with @RequiresApi(x) where x is at least 22. Either annotate the containing class with at least @RequiresApi(22) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(22)."
+        errorLine1="                    putBoolean(key, value)"
+        errorLine2="                    ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/PersistableBundle.kt"
+            line="37"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.core.os.PersistableBundleKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            is Double -> putDouble(key, value)"
+        errorLine2="                         ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/PersistableBundle.kt"
+            line="42"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.core.os.PersistableBundleKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            is Int -> putInt(key, value)"
+        errorLine2="                      ~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/PersistableBundle.kt"
+            line="43"
+            column="23"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.core.os.PersistableBundleKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            is Long -> putLong(key, value)"
+        errorLine2="                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/PersistableBundle.kt"
+            line="44"
+            column="24"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.core.os.PersistableBundleKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            is String -> putString(key, value)"
+        errorLine2="                         ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/PersistableBundle.kt"
+            line="47"
+            column="26"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 22, the call containing class androidx.core.os.PersistableBundleKt is not annotated with @RequiresApi(x) where x is at least 22. Either annotate the containing class with at least @RequiresApi(22) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(22)."
+        errorLine1="                    putBooleanArray(key, value)"
+        errorLine2="                    ~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/PersistableBundle.kt"
+            line="52"
+            column="21"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.core.os.PersistableBundleKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            is DoubleArray -> putDoubleArray(key, value)"
+        errorLine2="                              ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/PersistableBundle.kt"
+            line="57"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.core.os.PersistableBundleKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            is IntArray -> putIntArray(key, value)"
+        errorLine2="                           ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/PersistableBundle.kt"
+            line="58"
+            column="28"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.core.os.PersistableBundleKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="            is LongArray -> putLongArray(key, value)"
+        errorLine2="                            ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/PersistableBundle.kt"
+            line="59"
+            column="29"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.core.os.PersistableBundleKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="                        putStringArray(key, value as Array&lt;String>)"
+        errorLine2="                        ~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/os/PersistableBundle.kt"
+            line="67"
+            column="25"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.core.util.RangeKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="inline infix fun &lt;T : Comparable&lt;T>> T.rangeTo(that: T): Range&lt;T> = Range(this, that)"
+        errorLine2="                                                                    ~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/Range.kt"
+            line="30"
+            column="69"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.core.util.RangeKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="inline operator fun &lt;T : Comparable&lt;T>> Range&lt;T>.plus(value: T): Range&lt;T> = extend(value)"
+        errorLine2="                                                                            ~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/Range.kt"
+            line="34"
+            column="77"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.core.util.RangeKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="inline operator fun &lt;T : Comparable&lt;T>> Range&lt;T>.plus(other: Range&lt;T>): Range&lt;T> = extend(other)"
+        errorLine2="                                                                                   ~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/Range.kt"
+            line="38"
+            column="84"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.core.util.RangeKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="inline infix fun &lt;T : Comparable&lt;T>> Range&lt;T>.and(other: Range&lt;T>): Range&lt;T> = intersect(other)"
+        errorLine2="                                                                               ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/Range.kt"
+            line="46"
+            column="80"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="    override val endInclusive get() = upper"
+        errorLine2="                                      ~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/Range.kt"
+            line="51"
+            column="39"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class null is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="    override val start get() = lower"
+        errorLine2="                               ~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/Range.kt"
+            line="52"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.core.util.RangeKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="fun &lt;T : Comparable&lt;T>> ClosedRange&lt;T>.toRange(): Range&lt;T> = Range(start, endInclusive)"
+        errorLine2="                                                             ~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/Range.kt"
+            line="57"
+            column="62"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.core.util.SizeKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="inline operator fun Size.component1() = width"
+        errorLine2="                                        ~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/Size.kt"
+            line="35"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.core.util.SizeKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="inline operator fun Size.component2() = height"
+        errorLine2="                                        ~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/Size.kt"
+            line="47"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.core.util.SizeKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="inline operator fun SizeF.component1() = width"
+        errorLine2="                                         ~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/Size.kt"
+            line="59"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 21, the call containing class androidx.core.util.SizeKt is not annotated with @RequiresApi(x) where x is at least 21. Either annotate the containing class with at least @RequiresApi(21) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(21)."
+        errorLine1="inline operator fun SizeF.component2() = height"
+        errorLine2="                                         ~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/Size.kt"
+            line="71"
+            column="42"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="inline val SparseLongArray.size get() = size()"
+        errorLine2="                                        ~~~~">
+        <location
+            file="src/main/java/androidx/core/util/SparseLongArray.kt"
+            line="26"
+            column="41"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="inline operator fun SparseLongArray.contains(key: Int) = indexOfKey(key) >= 0"
+        errorLine2="                                                         ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/SparseLongArray.kt"
+            line="30"
+            column="58"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="inline operator fun SparseLongArray.set(key: Int, value: Long) = put(key, value)"
+        errorLine2="                                                                 ~~~">
+        <location
+            file="src/main/java/androidx/core/util/SparseLongArray.kt"
+            line="34"
+            column="66"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="    val new = SparseLongArray(size() + other.size())"
+        errorLine2="              ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/SparseLongArray.kt"
+            line="39"
+            column="15"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="    val new = SparseLongArray(size() + other.size())"
+        errorLine2="                              ~~~~">
+        <location
+            file="src/main/java/androidx/core/util/SparseLongArray.kt"
+            line="39"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="    val new = SparseLongArray(size() + other.size())"
+        errorLine2="                                             ~~~~">
+        <location
+            file="src/main/java/androidx/core/util/SparseLongArray.kt"
+            line="39"
+            column="46"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="inline fun SparseLongArray.containsKey(key: Int) = indexOfKey(key) >= 0"
+        errorLine2="                                                   ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/SparseLongArray.kt"
+            line="47"
+            column="52"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="inline fun SparseLongArray.containsValue(value: Long) = indexOfValue(value) >= 0"
+        errorLine2="                                                        ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/SparseLongArray.kt"
+            line="51"
+            column="57"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="inline fun SparseLongArray.getOrDefault(key: Int, defaultValue: Long) = get(key, defaultValue)"
+        errorLine2="                                                                        ~~~">
+        <location
+            file="src/main/java/androidx/core/util/SparseLongArray.kt"
+            line="55"
+            column="73"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="    indexOfKey(key).let { if (it >= 0) valueAt(it) else defaultValue() }"
+        errorLine2="    ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/SparseLongArray.kt"
+            line="60"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="    indexOfKey(key).let { if (it >= 0) valueAt(it) else defaultValue() }"
+        errorLine2="                                       ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/SparseLongArray.kt"
+            line="60"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="inline fun SparseLongArray.isEmpty() = size() == 0"
+        errorLine2="                                       ~~~~">
+        <location
+            file="src/main/java/androidx/core/util/SparseLongArray.kt"
+            line="64"
+            column="40"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="inline fun SparseLongArray.isNotEmpty() = size() != 0"
+        errorLine2="                                          ~~~~">
+        <location
+            file="src/main/java/androidx/core/util/SparseLongArray.kt"
+            line="68"
+            column="43"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="    val index = indexOfKey(key)"
+        errorLine2="                ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/SparseLongArray.kt"
+            line="73"
+            column="17"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="    if (index >= 0 &amp;&amp; value == valueAt(index)) {"
+        errorLine2="                               ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/SparseLongArray.kt"
+            line="74"
+            column="32"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="        removeAt(index)"
+        errorLine2="        ~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/SparseLongArray.kt"
+            line="75"
+            column="9"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="    for (index in 0 until size()) {"
+        errorLine2="                          ~~~~">
+        <location
+            file="src/main/java/androidx/core/util/SparseLongArray.kt"
+            line="88"
+            column="27"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="        action(keyAt(index), valueAt(index))"
+        errorLine2="               ~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/SparseLongArray.kt"
+            line="89"
+            column="16"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class androidx.core.util.SparseLongArrayKt is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="        action(keyAt(index), valueAt(index))"
+        errorLine2="                             ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/SparseLongArray.kt"
+            line="89"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class null is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="    override fun hasNext() = index &lt; size()"
+        errorLine2="                                     ~~~~">
+        <location
+            file="src/main/java/androidx/core/util/SparseLongArray.kt"
+            line="97"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class null is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="    override fun nextInt() = keyAt(index++)"
+        errorLine2="                             ~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/SparseLongArray.kt"
+            line="98"
+            column="30"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class null is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="    override fun hasNext() = index &lt; size()"
+        errorLine2="                                     ~~~~">
+        <location
+            file="src/main/java/androidx/core/util/SparseLongArray.kt"
+            line="105"
+            column="38"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 18, the call containing class null is not annotated with @RequiresApi(x) where x is at least 18. Either annotate the containing class with at least @RequiresApi(18) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(18)."
+        errorLine1="    override fun nextLong() = valueAt(index++)"
+        errorLine2="                              ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/util/SparseLongArray.kt"
+            line="106"
+            column="31"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 19, the call containing class androidx.core.transition.TransitionKt is not annotated with @RequiresApi(x) where x is at least 19. Either annotate the containing class with at least @RequiresApi(19) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(19)."
+        errorLine1="    addListener(listener)"
+        errorLine2="    ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/transition/Transition.kt"
+            line="75"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 26, the call containing class androidx.core.content.res.TypedArrayKt is not annotated with @RequiresApi(x) where x is at least 26. Either annotate the containing class with at least @RequiresApi(26) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(26)."
+        errorLine1="    return getFont(index)!!"
+        errorLine2="           ~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/content/res/TypedArray.kt"
+            line="146"
+            column="12"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class androidx.core.view.ViewKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="    @Px start: Int = paddingStart,"
+        errorLine2="                     ~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/View.kt"
+            line="140"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class androidx.core.view.ViewKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="    @Px end: Int = paddingEnd,"
+        errorLine2="                   ~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/View.kt"
+            line="142"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class androidx.core.view.ViewKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="    setPaddingRelative(start, top, end, bottom)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/View.kt"
+            line="145"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 16, the call containing class androidx.core.view.ViewKt is not annotated with @RequiresApi(x) where x is at least 16. Either annotate the containing class with at least @RequiresApi(16) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(16)."
+        errorLine1="    postOnAnimationDelayed(runnable, delayInMillis)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/View.kt"
+            line="208"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class androidx.core.view.ViewGroupKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="    @Px start: Int = marginStart,"
+        errorLine2="                     ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/ViewGroup.kt"
+            line="137"
+            column="22"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class androidx.core.view.ViewGroupKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="    @Px end: Int = marginEnd,"
+        errorLine2="                   ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/ViewGroup.kt"
+            line="139"
+            column="20"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class androidx.core.view.ViewGroupKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="    marginStart = start"
+        errorLine2="    ~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/ViewGroup.kt"
+            line="142"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UnsafeNewApiCall"
+        message="This call is to a method from API 17, the call containing class androidx.core.view.ViewGroupKt is not annotated with @RequiresApi(x) where x is at least 17. Either annotate the containing class with at least @RequiresApi(17) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(17)."
+        errorLine1="    marginEnd = end"
+        errorLine2="    ~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/core/view/ViewGroup.kt"
+            line="144"
+            column="5"/>
+    </issue>
+
+</issues>

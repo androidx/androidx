@@ -37,6 +37,7 @@ import static androidx.camera.core.impl.PreviewConfig.OPTION_USE_CASE_EVENT_CALL
 import static androidx.camera.core.impl.UseCaseConfig.OPTION_CAMERA_SELECTOR;
 
 import android.graphics.ImageFormat;
+import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
 import android.media.ImageReader;
 import android.media.MediaCodec;
@@ -56,8 +57,10 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
+import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureResult;
+import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
@@ -78,7 +81,6 @@ import androidx.camera.core.internal.CameraCaptureResultImageInfo;
 import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.ThreadConfig;
 import androidx.core.util.Consumer;
-import androidx.core.util.Preconditions;
 
 import java.util.List;
 import java.util.UUID;
@@ -128,6 +130,12 @@ import java.util.concurrent.Executor;
  * </pre>
  */
 public final class Preview extends UseCase {
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // [UseCase lifetime constant] - Stays constant for the lifetime of the UseCase. Which means
+    // they could be created in the constructor.
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
     /**
      * Provides a static configuration with implementation-agnostic options.
      *
@@ -139,22 +147,38 @@ public final class Preview extends UseCase {
     private static final Executor DEFAULT_SURFACE_PROVIDER_EXECUTOR =
             CameraXExecutors.mainThreadExecutor();
 
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // [UseCase lifetime dynamic] - Dynamic variables which could change during anytime during
+    // the UseCase lifetime.
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
+    @Nullable
+    private SurfaceProvider mSurfaceProvider;
+
+    @NonNull
+    private Executor mSurfaceProviderExecutor = DEFAULT_SURFACE_PROVIDER_EXECUTOR;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
     @Nullable
     private HandlerThread mProcessingPreviewThread;
     @Nullable
     private Handler mProcessingPreviewHandler;
-    @Nullable
-    private SurfaceProvider mSurfaceProvider;
-    @NonNull
-    private Executor mSurfaceProviderExecutor = DEFAULT_SURFACE_PROVIDER_EXECUTOR;
 
     private DeferrableSurface mSessionDeferrableSurface;
 
-    // SurfaceRequest created by the pipeline but hasn't been sent because SurfaceProvider is not
-    // set. Null if there is no pending SurfaceRequest.
     @VisibleForTesting
     @Nullable
-    SurfaceRequest mPendingSurfaceRequest;
+    SurfaceRequest mCurrentSurfaceRequest;
+    // Flag indicates that there is a SurfaceRequest created by Preview but hasn't sent to the
+    // caller.
+    private boolean mHasUnsentSurfaceRequest = false;
+    // The attached surface size. Same as getAttachedSurfaceResolution() but is available during
+    // createPipeline().
+    @Nullable
+    private Size mSurfaceSize;
 
     /**
      * Creates a new preview use case from the given configuration.
@@ -168,6 +192,7 @@ public final class Preview extends UseCase {
     }
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
     SessionConfig.Builder createPipeline(@NonNull String cameraId, @NonNull PreviewConfig config,
             @NonNull Size resolution) {
         Threads.checkMainThread();
@@ -180,11 +205,13 @@ public final class Preview extends UseCase {
         }
 
         final SurfaceRequest surfaceRequest = new SurfaceRequest(resolution, getCamera(),
-                getViewPortCropRect());
+                captureProcessor != null);
+        mCurrentSurfaceRequest = surfaceRequest;
 
-        if (!sendSurfaceRequest(surfaceRequest)) {
-            // SurfaceRequest can't be sent. Save and send at a later time.
-            mPendingSurfaceRequest = surfaceRequest;
+        if (sendSurfaceRequestIfReady()) {
+            sendTransformationInfoIfReady();
+        } else {
+            mHasUnsentSurfaceRequest = true;
         }
 
         if (captureProcessor != null) {
@@ -272,12 +299,44 @@ public final class Preview extends UseCase {
      * @param targetRotation Target rotation of the output image, expressed as one of
      *                       {@link Surface#ROTATION_0}, {@link Surface#ROTATION_90},
      *                       {@link Surface#ROTATION_180}, or {@link Surface#ROTATION_270}.
-     * @hide
      * @see Preview.Builder#setTargetRotation(int)
      */
-    @RestrictTo(Scope.LIBRARY_GROUP)
+    @ExperimentalUseCaseGroup
     public void setTargetRotation(@ImageOutputConfig.RotationValue int targetRotation) {
-        setTargetRotationInternal(targetRotation);
+        if (setTargetRotationInternal(targetRotation)) {
+            sendTransformationInfoIfReady();
+        }
+    }
+
+    @ExperimentalUseCaseGroup
+    private void sendTransformationInfoIfReady() {
+        // TODO(b/159659392): only send transformation after CameraCaptureCallback
+        //  .onCaptureCompleted is called.
+        CameraInternal cameraInternal = getCamera();
+        SurfaceProvider surfaceProvider = mSurfaceProvider;
+        Rect cropRect = getCropRect(mSurfaceSize);
+        SurfaceRequest surfaceRequest = mCurrentSurfaceRequest;
+        if (cameraInternal != null && surfaceProvider != null && cropRect != null) {
+            surfaceRequest.updateTransformationInfo(SurfaceRequest.TransformationInfo.of(cropRect,
+                    getRelativeRotation(cameraInternal), getTargetRotation()));
+        }
+    }
+
+    /**
+     * Gets the crop rect for {@link Preview}.
+     *
+     * <p> Fall back to the full {@link Surface} rect if {@link ViewPort} crop rect is not
+     * available. Returns null if no valid crop rect. This could happen if the {@link Preview} is
+     * not attached to a camera.
+     */
+    @Nullable
+    private Rect getCropRect(@Nullable Size surfaceResolution) {
+        if (getViewPortCropRect() != null) {
+            return getViewPortCropRect();
+        } else if (surfaceResolution != null) {
+            return new Rect(0, 0, surfaceResolution.getWidth(), surfaceResolution.getHeight());
+        }
+        return null;
     }
 
     /**
@@ -293,6 +352,7 @@ public final class Preview extends UseCase {
      *                        {@link #setSurfaceProvider(SurfaceProvider)}.
      */
     @UiThread
+    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
     public void setSurfaceProvider(@NonNull Executor executor,
             @Nullable SurfaceProvider surfaceProvider) {
         Threads.checkMainThread();
@@ -305,13 +365,15 @@ public final class Preview extends UseCase {
             mSurfaceProviderExecutor = executor;
             notifyActive();
 
-            if (mPendingSurfaceRequest != null) {
-                sendSurfaceRequest(mPendingSurfaceRequest);
-                mPendingSurfaceRequest = null;
+            if (mHasUnsentSurfaceRequest) {
+                if (sendSurfaceRequestIfReady()) {
+                    sendTransformationInfoIfReady();
+                    mHasUnsentSurfaceRequest = false;
+                }
             } else {
                 // No pending SurfaceRequest. It could be a previous request has already been
                 // sent, which means the caller wants to replace the Surface. Or, it could be the
-                // pipeline has not started.
+                // pipeline has not started. Or the use case may have been detached from the camera.
                 // Either way, try updating session config and let createPipeline() sends a
                 // new SurfaceRequest.
                 if (getAttachedSurfaceResolution() != null) {
@@ -323,10 +385,10 @@ public final class Preview extends UseCase {
         }
     }
 
-    private boolean sendSurfaceRequest(@NonNull SurfaceRequest surfaceRequest) {
-        Preconditions.checkNotNull(surfaceRequest);
+    private boolean sendSurfaceRequestIfReady() {
+        final SurfaceRequest surfaceRequest = mCurrentSurfaceRequest;
         final SurfaceProvider surfaceProvider = mSurfaceProvider;
-        if (surfaceProvider != null) {
+        if (surfaceProvider != null && surfaceRequest != null) {
             mSurfaceProviderExecutor.execute(
                     () -> surfaceProvider.onSurfaceRequested(surfaceRequest));
             return true;
@@ -370,7 +432,7 @@ public final class Preview extends UseCase {
      */
     @ImageOutputConfig.RotationValue
     public int getTargetRotation() {
-        return ((PreviewConfig) getUseCaseConfig()).getTargetRotation();
+        return getTargetRotationInternal();
     }
 
     @NonNull
@@ -387,8 +449,8 @@ public final class Preview extends UseCase {
     @Override
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
-        PreviewConfig defaults = CameraX.getDefaultUseCaseConfig(PreviewConfig.class, cameraInfo);
+    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder() {
+        PreviewConfig defaults = CameraX.getDefaultUseCaseConfig(PreviewConfig.class);
         if (defaults != null) {
             return Builder.fromConfig(defaults);
         }
@@ -415,8 +477,7 @@ public final class Preview extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public void clear() {
-        notifyInactive();
+    public void onDetached() {
         if (mSessionDeferrableSurface != null) {
             mSessionDeferrableSurface.close();
             mSessionDeferrableSurface.getTerminationFuture().addListener(() -> {
@@ -426,18 +487,8 @@ public final class Preview extends UseCase {
                 }
             }, CameraXExecutors.directExecutor());
         }
-    }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Override
-    public void onDestroy() {
-        mSurfaceProvider = null;
-        mPendingSurfaceRequest = null;
+        mCurrentSurfaceRequest = null;
     }
 
     /**
@@ -449,9 +500,23 @@ public final class Preview extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
+        mSurfaceSize = suggestedResolution;
         updateConfigAndOutput(getCameraId(), (PreviewConfig) getUseCaseConfig(),
                 suggestedResolution);
         return suggestedResolution;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @Override
+    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
+    @RestrictTo(Scope.LIBRARY)
+    public void setViewPortCropRect(@Nullable Rect viewPortCropRect) {
+        super.setViewPortCropRect(viewPortCropRect);
+        sendTransformationInfoIfReady();
     }
 
     /**
@@ -548,7 +613,7 @@ public final class Preview extends UseCase {
 
         @NonNull
         @Override
-        public PreviewConfig getConfig(@Nullable CameraInfo cameraInfo) {
+        public PreviewConfig getConfig() {
             return DEFAULT_CONFIG;
         }
     }
