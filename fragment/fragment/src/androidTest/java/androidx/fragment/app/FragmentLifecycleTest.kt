@@ -552,7 +552,7 @@ class FragmentLifecycleTest {
         val fc = activityRule.startupFragmentController(viewModelStore)
         val fm = fc.supportFragmentManager
 
-        val fragment = StrictViewFragment(R.layout.simple_container)
+        val fragment = ParentFragment()
         fm.beginTransaction()
             .add(android.R.id.content, fragment)
             .commitNow()
@@ -582,7 +582,7 @@ class FragmentLifecycleTest {
         val fc = activityRule.startupFragmentController(viewModelStore)
         val fm = fc.supportFragmentManager
 
-        val fragment = StrictViewFragment(R.layout.simple_container)
+        val fragment = ParentFragment()
         fm.beginTransaction()
             .add(android.R.id.content, fragment)
             .commitNow()
@@ -1364,6 +1364,8 @@ class FragmentLifecycleTest {
     private fun executePendingTransactions(fm: FragmentManager) {
         activityRule.runOnUiThread { fm.executePendingTransactions() }
     }
+
+    class ParentFragment : StrictViewFragment(R.layout.simple_container)
 
     /**
      * This tests a deliberately odd use of a child fragment, added in onCreateView instead

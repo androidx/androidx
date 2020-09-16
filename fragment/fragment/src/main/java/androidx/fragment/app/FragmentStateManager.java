@@ -196,6 +196,11 @@ class FragmentStateManager {
                 // Move them immediately to VIEW_CREATED when they are
                 // actually added to the layout (mInLayout).
                 maxState = Math.max(mFragmentManagerState, Fragment.VIEW_CREATED);
+                // But don't move to higher than VIEW_CREATED until the view is added to its parent
+                // and the LayoutInflater call has returned
+                if (mFragment.mView != null && mFragment.mView.getParent() == null) {
+                    maxState = Math.min(maxState, Fragment.VIEW_CREATED);
+                }
             } else {
                 if (mFragmentManagerState < Fragment.ACTIVITY_CREATED) {
                     // But while they are not in the layout, don't allow their
