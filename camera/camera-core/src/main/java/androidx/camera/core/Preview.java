@@ -606,8 +606,6 @@ public final class Preview extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults implements ConfigProvider<PreviewConfig> {
-        private static final Size DEFAULT_MAX_RESOLUTION =
-                CameraX.getSurfaceManager().getPreviewSize();
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 2;
 
         private static final PreviewConfig DEFAULT_CONFIG;
@@ -615,7 +613,6 @@ public final class Preview extends UseCase {
         static {
             Builder builder =
                     new Builder()
-                            .setMaxResolution(DEFAULT_MAX_RESOLUTION)
                             .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }

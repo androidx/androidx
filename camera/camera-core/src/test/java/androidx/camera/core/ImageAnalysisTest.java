@@ -30,6 +30,7 @@ import android.util.Rational;
 import android.view.Surface;
 
 import androidx.camera.core.impl.CameraFactory;
+import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.TagBundle;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
@@ -65,7 +66,7 @@ import java.util.concurrent.TimeoutException;
 @MediumTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP, shadows = {ShadowCameraX.class})
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 public class ImageAnalysisTest {
 
     private static final int QUEUE_DEPTH = 8;
@@ -103,10 +104,12 @@ public class ImageAnalysisTest {
 
         mTagBundle = TagBundle.create(new Pair<>("FakeCaptureStageId", IMAGE_TAG));
 
+        CameraInternal camera = new FakeCamera();
+
         CameraFactory.Provider cameraFactoryProvider = (ignored1, ignored2) -> {
             FakeCameraFactory cameraFactory = new FakeCameraFactory();
-            cameraFactory.insertDefaultBackCamera(ShadowCameraX.DEFAULT_CAMERA_ID,
-                    () -> new FakeCamera(ShadowCameraX.DEFAULT_CAMERA_ID));
+            cameraFactory.insertDefaultBackCamera(camera.getCameraInfoInternal().getCameraId(),
+                    () -> camera);
             return cameraFactory;
         };
         CameraXConfig cameraXConfig = CameraXConfig.Builder.fromConfig(

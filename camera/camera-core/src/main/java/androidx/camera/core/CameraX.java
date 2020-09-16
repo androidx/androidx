@@ -140,20 +140,6 @@ public final class CameraX {
     }
 
     /**
-     * Returns the {@link CameraDeviceSurfaceManager} which can be used to query for valid surface
-     * configurations.
-     *
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @NonNull
-    public static CameraDeviceSurfaceManager getSurfaceManager() {
-        CameraX cameraX = checkInitialized();
-
-        return cameraX.getCameraDeviceSurfaceManager();
-    }
-
-    /**
      * Initializes CameraX with the given context and application configuration.
      *
      * <p>The context enables CameraX to obtain access to necessary services, including the camera

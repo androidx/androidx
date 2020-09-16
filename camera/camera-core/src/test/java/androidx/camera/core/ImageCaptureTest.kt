@@ -81,7 +81,7 @@ private const val MAX_IMAGES = 3
 @MediumTest
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP, shadows = [ShadowCameraX::class])
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
 class ImageCaptureTest {
 
     private lateinit var callbackHandler: Handler
@@ -102,11 +102,13 @@ class ImageCaptureTest {
     @Before
     @Throws(ExecutionException::class, InterruptedException::class)
     fun setUp() {
+        val camera = FakeCamera()
+
         val cameraFactoryProvider =
             CameraFactory.Provider { _: Context?, _: CameraThreadConfig? ->
                 val cameraFactory = FakeCameraFactory()
-                cameraFactory.insertDefaultBackCamera(ShadowCameraX.DEFAULT_CAMERA_ID) {
-                    FakeCamera(ShadowCameraX.DEFAULT_CAMERA_ID)
+                cameraFactory.insertDefaultBackCamera(camera.cameraInfoInternal.cameraId) {
+                    camera
                 }
                 cameraFactory
             }
