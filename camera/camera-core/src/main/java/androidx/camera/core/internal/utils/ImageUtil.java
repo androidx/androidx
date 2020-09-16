@@ -45,6 +45,22 @@ public final class ImageUtil {
     }
 
     /**
+     * Converts a {@link Size} to an float array of vertexes.
+     */
+    @NonNull
+    public static float[] sizeToVertexes(@NonNull Size size) {
+        return new float[]{0, 0, size.getWidth(), 0, size.getWidth(), size.getHeight(), 0,
+                size.getHeight()};
+    }
+
+    /**
+     * Returns the min value.
+     */
+    public static float min(float value1, float value2, float value3, float value4) {
+        return Math.min(Math.min(value1, value2), Math.min(value3, value4));
+    }
+
+    /**
      * Rotates aspect ratio based on rotation degrees.
      */
     @NonNull
