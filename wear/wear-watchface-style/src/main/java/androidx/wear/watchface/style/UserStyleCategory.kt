@@ -46,9 +46,32 @@ abstract class UserStyleCategory(
     val options: List<Option>,
 
     /** The default option if nothing has been selected. Must be in the {@link #options} list.*/
-    val defaultOption: Option
+    val defaultOption: Option,
+
+    /**
+     * Used by the style configuration UI. Describes which rendering layer this style affects. Must
+     * be either 0 (for a style change with no visual effect, e.g. sound controls) or a combination
+     * of {@link #LAYER_WATCH_FACE_BASE}, {@link #LAYER_COMPLICATONS},
+     * {@link #LAYER_WATCH_FACE_UPPER}.
+     */
+    val layerFlags: Int
 ) {
     companion object {
+        /**
+         * The base watch face without complications or watch hands (or any other elements that
+         * could occlude complications).
+         */
+        const val LAYER_WATCH_FACE_BASE = 1 shl 0
+
+        /** The complications layer. */
+        const val LAYER_COMPLICATONS = 1 shl 1
+
+        /** Anything that could occlude complications, typically watch hands. */
+        const val LAYER_WATCH_FACE_UPPER = 1 shl 2
+
+        internal const val INVALID_LAYER_MASK =
+            (LAYER_WATCH_FACE_BASE or LAYER_COMPLICATONS or LAYER_WATCH_FACE_UPPER).inv()
+
         internal const val KEY_CATEGORY_TYPE = "KEY_CATEGORY_TYPE"
         internal const val KEY_DEFAULT_OPTION = "KEY_DEFAULT_OPTION"
         internal const val KEY_DESCRIPTION = "KEY_DESCRIPTION"
@@ -56,6 +79,7 @@ abstract class UserStyleCategory(
         internal const val KEY_ICON = "KEY_ICON"
         internal const val KEY_OPTIONS = "KEY_OPTIONS"
         internal const val KEY_STYLE_CATEGORY_ID = "KEY_STYLE_CATEGORY_ID"
+        internal const val KEY_LAYER_FLAGS = "KEY_LAYER_FLAGS"
 
         /**
          * Constructs an {@link UserStyleCategory} serialized in a {@link Bundle}.
@@ -78,6 +102,13 @@ abstract class UserStyleCategory(
         }
     }
 
+    init {
+        require(layerFlags and INVALID_LAYER_MASK == 0) {
+            "layerFlags must be either 0 or a combination of LAYER_WATCH_FACE_BASE, " +
+                    "LAYER_COMPLICATONS, LAYER_WATCH_FACE_UPPER"
+        }
+    }
+
     internal fun getCategoryOptionForId(id: String?) =
         if (id == null) {
             defaultOption
@@ -91,7 +122,8 @@ abstract class UserStyleCategory(
         bundle.getString(KEY_DESCRIPTION)!!,
         bundle.getParcelable(KEY_ICON),
         StyleUtils.readOptionsListFromBundle(bundle),
-        Option.createFromBundle(bundle.getBundle(KEY_DEFAULT_OPTION)!!)
+        Option.createFromBundle(bundle.getBundle(KEY_DEFAULT_OPTION)!!),
+        bundle.getInt(KEY_LAYER_FLAGS)
     )
 
     @CallSuper
@@ -105,6 +137,7 @@ abstract class UserStyleCategory(
             KEY_DEFAULT_OPTION,
             Bundle().apply { defaultOption.writeToBundle(this) }
         )
+        bundle.putInt(KEY_LAYER_FLAGS, layerFlags)
         StyleUtils.writeOptionListToBundle(options, bundle)
     }
 

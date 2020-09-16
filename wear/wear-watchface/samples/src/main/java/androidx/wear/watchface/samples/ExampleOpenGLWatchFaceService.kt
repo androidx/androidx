@@ -34,6 +34,7 @@ import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.WatchFaceType
 import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.ListUserStyleCategory
+import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
@@ -83,7 +84,8 @@ class ExampleOpenGLWatchFaceService : WatchFaceService() {
                     "Green",
                     Icon.createWithResource(this, R.drawable.green_style)
                 )
-            )
+            ),
+            UserStyleCategory.LAYER_WATCH_FACE_BASE or UserStyleCategory.LAYER_WATCH_FACE_UPPER
         )
         val userStyleRepository = UserStyleRepository(listOf(colorStyleCategory))
         val complicationSlots = ComplicationsManager(emptyList())

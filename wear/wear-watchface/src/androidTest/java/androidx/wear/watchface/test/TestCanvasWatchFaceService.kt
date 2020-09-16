@@ -40,6 +40,7 @@ import androidx.wear.watchface.samples.WatchFaceColorStyle
 import androidx.wear.watchface.style.BooleanUserStyleCategory
 import androidx.wear.watchface.style.DoubleRangeUserStyleCategory
 import androidx.wear.watchface.style.ListUserStyleCategory
+import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
 
 /** A simple canvas test watch face for integration tests. */
@@ -82,7 +83,10 @@ internal class TestCanvasWatchFaceService(
                     "Green",
                     Icon.createWithResource(this, R.drawable.green_style)
                 )
-            )
+            ),
+            UserStyleCategory.LAYER_WATCH_FACE_BASE or
+                    UserStyleCategory.LAYER_COMPLICATONS or
+                    UserStyleCategory.LAYER_WATCH_FACE_UPPER
         )
         val drawHourPipsStyleCategory =
             BooleanUserStyleCategory(
@@ -90,7 +94,8 @@ internal class TestCanvasWatchFaceService(
                 "Hour Pips",
                 "Whether or not hour pips should be drawn",
                 null,
-                true
+                true,
+                UserStyleCategory.LAYER_WATCH_FACE_BASE
             )
         val watchHandLengthStyleCategory =
             DoubleRangeUserStyleCategory(
@@ -100,7 +105,8 @@ internal class TestCanvasWatchFaceService(
                 null,
                 0.25,
                 1.0,
-                1.0
+                1.0,
+                UserStyleCategory.LAYER_WATCH_FACE_UPPER
             )
         val userStyleRepository = UserStyleRepository(
             listOf(colorStyleCategory, drawHourPipsStyleCategory, watchHandLengthStyleCategory)

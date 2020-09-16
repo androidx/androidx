@@ -102,7 +102,8 @@ class WatchFaceServiceTest {
         "Colors",
         "Watchface colorization", /* icon = */
         null,
-        colorStyleList
+        colorStyleList,
+        UserStyleCategory.LAYER_WATCH_FACE_BASE
     )
 
     private val classicStyleOption =
@@ -122,7 +123,8 @@ class WatchFaceServiceTest {
         "Hand Style",
         "Hand visual look", /* icon = */
         null,
-        watchHandStyleList
+        watchHandStyleList,
+        UserStyleCategory.LAYER_WATCH_FACE_UPPER
     )
 
     private val badStyleOption =
