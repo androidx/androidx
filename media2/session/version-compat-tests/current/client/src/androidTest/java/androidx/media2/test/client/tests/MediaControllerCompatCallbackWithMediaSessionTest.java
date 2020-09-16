@@ -546,6 +546,10 @@ public class MediaControllerCompatCallbackWithMediaSessionTest extends MediaSess
             assertTrue(latchForPlaybackState.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
             assertEquals(testPosition, playbackStateRef.get().getPosition());
             assertEquals(testPosition, mControllerCompat.getPlaybackState().getPosition());
+            assertEquals(MediaUtils.convertToQueueItemId(testItemIndex),
+                    playbackStateRef.get().getActiveQueueItemId());
+            assertEquals(MediaUtils.convertToQueueItemId(testItemIndex),
+                    mControllerCompat.getPlaybackState().getActiveQueueItemId());
         }
     }
 
