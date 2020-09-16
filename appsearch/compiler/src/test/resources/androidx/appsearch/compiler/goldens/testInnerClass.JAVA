@@ -5,9 +5,6 @@ import androidx.appsearch.app.DataClassFactory;
 import androidx.appsearch.app.GenericDocument;
 import java.lang.Override;
 import java.lang.String;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
 
 public class $$__AppSearch__Gift$$__InnerGift implements DataClassFactory<Gift.InnerGift> {
   private static final String SCHEMA_TYPE = "InnerGift";
@@ -20,12 +17,6 @@ public class $$__AppSearch__Gift$$__InnerGift implements DataClassFactory<Gift.I
   @Override
   public AppSearchSchema getSchema() {
     return new AppSearchSchema.Builder(SCHEMA_TYPE)
-          .addProperty(new AppSearchSchema.PropertyConfig.Builder("collectGenDoc")
-            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOCUMENT)
-            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
-            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-            .build())
           .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrString")
             .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
@@ -39,11 +30,6 @@ public class $$__AppSearch__Gift$$__InnerGift implements DataClassFactory<Gift.I
   public GenericDocument toGenericDocument(Gift.InnerGift dataClass) {
     GenericDocument.Builder<?> builder =
         new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
-    Collection<GenericDocument> collectGenDocCopy = dataClass.collectGenDoc;
-    if (collectGenDocCopy != null) {
-      GenericDocument[] collectGenDocConv = collectGenDocCopy.toArray(new GenericDocument[0]);
-      builder.setProperty("collectGenDoc", collectGenDocConv);
-    }
     String[] arrStringCopy = dataClass.arrString;
     if (arrStringCopy != null) {
       builder.setProperty("arrString", arrStringCopy);
@@ -54,15 +40,9 @@ public class $$__AppSearch__Gift$$__InnerGift implements DataClassFactory<Gift.I
   @Override
   public Gift.InnerGift fromGenericDocument(GenericDocument genericDoc) {
     String uriConv = genericDoc.getUri();
-    GenericDocument[] collectGenDocCopy = genericDoc.getPropertyDocumentArray("collectGenDoc");
-    List<GenericDocument> collectGenDocConv = null;
-    if (collectGenDocCopy != null) {
-      collectGenDocConv = Arrays.asList(collectGenDocCopy);
-    }
     String[] arrStringConv = genericDoc.getPropertyStringArray("arrString");
     Gift.InnerGift dataClass = new Gift.InnerGift();
     dataClass.uri = uriConv;
-    dataClass.collectGenDoc = collectGenDocConv;
     dataClass.arrString = arrStringConv;
     return dataClass;
   }

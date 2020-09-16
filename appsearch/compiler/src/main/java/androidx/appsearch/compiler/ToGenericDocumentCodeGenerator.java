@@ -270,8 +270,7 @@ class ToGenericDocumentCodeGenerator {
     }
 
     //   1b: CollectionCallToArray
-    //       Collection contains String or GenericDocument.
-    //       We have to convert this into an array of String[] or GenericDocument[], but no
+    //       Collection contains String. We have to convert this into an array of String[] or but no
     //       conversion of the collection elements is needed. We can use Collection#toArray for
     //       this.
     private boolean tryCollectionCallToArray(
@@ -286,11 +285,6 @@ class ToGenericDocumentCodeGenerator {
         if (typeUtil.isSameType(propertyType, mHelper.mStringType)) {
             body.addStatement(
                     "String[] $NConv = $NCopy.toArray(new String[0])", fieldName, fieldName);
-
-        } else if (typeUtil.isSameType(propertyType, mHelper.mGenericDocumentType)) {
-            body.addStatement(
-                    "GenericDocument[] $NConv = $NCopy.toArray(new GenericDocument[0])", fieldName,
-                    fieldName);
 
         } else {
             // This is not a type 1b collection.
@@ -400,8 +394,7 @@ class ToGenericDocumentCodeGenerator {
     }
 
     //   2b: ArrayUseDirectly
-    //       Array is of type String[], long[], double[], boolean[], byte[][] or
-    //       GenericDocument[].
+    //       Array is of type String[], long[], double[], boolean[], byte[][].
     //       We can directly use this field with no conversion.
     private boolean tryArrayUseDirectly(
             @NonNull CodeBlock.Builder method,
@@ -416,8 +409,7 @@ class ToGenericDocumentCodeGenerator {
                 && !typeUtil.isSameType(propertyType, mHelper.mLongPrimitiveType)
                 && !typeUtil.isSameType(propertyType, mHelper.mDoublePrimitiveType)
                 && !typeUtil.isSameType(propertyType, mHelper.mBooleanPrimitiveType)
-                && !typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)
-                && !typeUtil.isSameType(propertyType, mHelper.mGenericDocumentType)) {
+                && !typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)) {
             // This is not a type 2b array.
             return false;
         }
@@ -453,8 +445,7 @@ class ToGenericDocumentCodeGenerator {
     }
 
     //   3a: FieldUseDirectlyWithNullCheck
-    //       Field is of type String, Long, Integer, Double, Float, Boolean, byte[] or
-    //       GenericDocument.
+    //       Field is of type String, Long, Integer, Double, Float, Boolean, byte[].
     //       We can use this field directly, after testing for null. The java compiler will box
     //       or unbox as needed.
     private boolean tryFieldUseDirectlyWithNullCheck(
@@ -478,8 +469,7 @@ class ToGenericDocumentCodeGenerator {
                 && !typeUtil.isSameType(propertyType, mHelper.mDoubleBoxType)
                 && !typeUtil.isSameType(propertyType, mHelper.mFloatBoxType)
                 && !typeUtil.isSameType(propertyType, mHelper.mBooleanBoxType)
-                && !typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)
-                && !typeUtil.isSameType(propertyType, mHelper.mGenericDocumentType)) {
+                && !typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)) {
             // This is not a type 3a field
             return false;
         }
