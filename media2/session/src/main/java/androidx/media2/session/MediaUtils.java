@@ -410,9 +410,25 @@ public class MediaUtils {
             MediaDescriptionCompat description = (item.getMetadata() == null)
                     ? new MediaDescriptionCompat.Builder().setMediaId(item.getMediaId()).build()
                     : convertToMediaMetadataCompat(item.getMetadata()).getDescription();
-            result.add(new QueueItem(description, i));
+            long id = convertToQueueItemId(i);
+            result.add(new QueueItem(description, id));
         }
         return result;
+    }
+
+    /**
+     * Convert the index of a {@link MediaItem} in a playlist into id of {@link QueueItem}.
+     *
+     * @param mediaItemIndex index of a {@link MediaItem} in a playlist. It can be
+     *        {@link SessionPlayer#INVALID_ITEM_INDEX}.
+     * @return id of {@link QueueItem} or {@link QueueItem#UNKNOWN_ID} if the index is
+     *         {@link SessionPlayer#INVALID_ITEM_INDEX}.
+     */
+    public static long convertToQueueItemId(int mediaItemIndex) {
+        if (mediaItemIndex == SessionPlayer.INVALID_ITEM_INDEX) {
+            return QueueItem.UNKNOWN_ID;
+        }
+        return mediaItemIndex;
     }
 
     /**
