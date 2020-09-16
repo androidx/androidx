@@ -198,13 +198,13 @@ public abstract class RoomDatabase {
                     configuration.name);
         }
 
-        Map<String, List<Class<?>>> requiredFactories = getRequiredTypeConverters();
+        Map<Class<?>, List<Class<?>>> requiredFactories = getRequiredTypeConverters();
         // indices for each converter on whether it is used or not so that we can throw an exception
         // if developer provides an unused converter. It is not necessarily an error but likely
         // to be because why would developer add a converter if it won't be used?
         BitSet used = new BitSet();
-        for (Map.Entry<String, List<Class<?>>> entry : requiredFactories.entrySet()) {
-            String daoName = entry.getKey();
+        for (Map.Entry<Class<?>, List<Class<?>>> entry : requiredFactories.entrySet()) {
+            Class<?> daoName = entry.getKey();
             for (Class<?> converter : entry.getValue()) {
                 int foundIndex = -1;
                 // traverse provided converters in reverse so that newer one overrides
@@ -220,7 +220,7 @@ public abstract class RoomDatabase {
                 if (foundIndex < 0) {
                     throw new IllegalArgumentException(
                             "A required type converter (" + converter + ") for"
-                                    + " " + daoName
+                                    + " " + daoName.getCanonicalName()
                                     + " is missing in the database configuration.");
                 }
                 mTypeConverters.put(converter, configuration.typeConverters.get(foundIndex));
@@ -280,7 +280,7 @@ public abstract class RoomDatabase {
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    protected Map<String, List<Class<?>>> getRequiredTypeConverters() {
+    protected Map<Class<?>, List<Class<?>>> getRequiredTypeConverters() {
         return Collections.emptyMap();
     }
 

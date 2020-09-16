@@ -17,13 +17,13 @@
 package androidx.room.processor
 
 import androidx.room.RewriteQueriesToDropUnusedColumns
-import androidx.room.compiler.processing.XElement
-import androidx.room.compiler.processing.XProcessingEnv
-import androidx.room.compiler.processing.XType
 import androidx.room.log.RLog
 import androidx.room.parser.expansion.ProjectionExpander
 import androidx.room.parser.optimization.RemoveUnusedColumnQueryRewriter
 import androidx.room.preconditions.Checks
+import androidx.room.compiler.processing.XElement
+import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.XType
 import androidx.room.processor.cache.Cache
 import androidx.room.solver.TypeAdapterStore
 import androidx.room.verifier.DatabaseVerifier
@@ -127,13 +127,9 @@ class Context private constructor(
         return Pair(result, collector)
     }
 
-    fun fork(
-        element: XElement,
-        forceSuppressedWarnings: Set<Warning> = emptySet()
-    ): Context {
+    fun fork(element: XElement, forceSuppressedWarnings: Set<Warning> = emptySet()): Context {
         val suppressedWarnings = SuppressWarningProcessor.getSuppressedWarnings(element)
-        val processConvertersResult =
-            CustomConverterProcessor.findConverters(this, element)
+        val processConvertersResult = CustomConverterProcessor.findConverters(this, element)
         val canReUseAdapterStore = processConvertersResult.classes.isEmpty()
         // order here is important since the sub context should give priority to new converters.
         val subTypeConverters = if (canReUseAdapterStore) {

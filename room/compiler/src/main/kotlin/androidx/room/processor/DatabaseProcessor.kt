@@ -37,9 +37,7 @@ import com.squareup.javapoet.TypeName
 import java.util.Locale
 
 class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
-    val context = baseContext.fork(
-        element = element
-    )
+    val context = baseContext.fork(element)
 
     val roomDatabaseType: XType by lazy {
         context.processingEnv.requireType(

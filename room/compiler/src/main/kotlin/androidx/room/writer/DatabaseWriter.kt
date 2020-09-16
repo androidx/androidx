@@ -73,7 +73,11 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
             addAnnotation(Override::class.java)
             addModifiers(PROTECTED)
             returns(ParameterizedTypeName.get(
-                CommonTypeNames.MAP, CommonTypeNames.STRING,
+                CommonTypeNames.MAP,
+                ParameterizedTypeName.get(
+                    ClassName.get(Class::class.java),
+                    WildcardTypeName.subtypeOf(Object::class.java)
+                ),
                 ParameterizedTypeName.get(
                     CommonTypeNames.LIST,
                     ParameterizedTypeName.get(
@@ -84,7 +88,11 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
             ))
             val typeConvertersVar = scope.getTmpVar("_typeConvertersMap")
             val typeConvertersTypeName = ParameterizedTypeName.get(
-                ClassName.get(HashMap::class.java), CommonTypeNames.STRING,
+                ClassName.get(HashMap::class.java),
+                ParameterizedTypeName.get(
+                    ClassName.get(Class::class.java),
+                    WildcardTypeName.subtypeOf(Object::class.java)
+                ),
                 ParameterizedTypeName.get(
                     ClassName.get(List::class.java),
                     ParameterizedTypeName.get(
@@ -100,9 +108,9 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
                 typeConvertersTypeName
             )
             database.daoMethods.forEach {
-                addStatement("$L.put($S, $T.$L())",
+                addStatement("$L.put($T.class, $T.$L())",
                 typeConvertersVar,
-                it.dao.typeName.canonicalName(),
+                it.dao.typeName,
                 it.dao.implTypeName,
                 DaoWriter.GET_LIST_OF_TYPE_CONVERTERS_METHOD)
             }
