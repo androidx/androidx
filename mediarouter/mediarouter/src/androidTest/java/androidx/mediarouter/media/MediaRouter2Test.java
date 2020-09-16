@@ -54,7 +54,7 @@ import java.util.stream.Collectors;
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.R)
 public class MediaRouter2Test {
     private static final String TAG = "MR2Test";
-    private static final int TIMEOUT_MS = 5000;
+    private static final int TIMEOUT_MS = 5_000;
 
     Context mContext;
     MediaRouter mRouter;
@@ -113,6 +113,7 @@ public class MediaRouter2Test {
     public void selectFromMr1AndStopFromSystem_unselect() throws Exception {
         CountDownLatch onRouteSelectedLatch = new CountDownLatch(1);
         CountDownLatch onRouteUnselectedLatch = new CountDownLatch(1);
+        CountDownLatch onRouteEnabledLatch = new CountDownLatch(1);
         String descriptorId = StubMediaRouteProviderService.ROUTE_ID1;
 
         addCallback(new MediaRouter.Callback() {
@@ -133,6 +134,15 @@ public class MediaRouter2Test {
                     onRouteUnselectedLatch.countDown();
                 }
             }
+
+            @Override
+            public void onRouteChanged(MediaRouter router, RouteInfo route) {
+                if (onRouteUnselectedLatch.getCount() == 0
+                        && TextUtils.equals(route.getDescriptorId(), descriptorId)
+                        && route.isEnabled()) {
+                    onRouteEnabledLatch.countDown();
+                }
+            }
         });
         waitForRoutesAdded();
         assertNotNull(mRoutes);
@@ -148,10 +158,14 @@ public class MediaRouter2Test {
                 () -> !mMr2ProviderServiceAdapter.getAllSessionInfo().isEmpty());
         //TODO: Find a correct session info
         for (RoutingSessionInfo sessionInfo : mMr2ProviderServiceAdapter.getAllSessionInfo()) {
-            mMr2ProviderServiceAdapter.onReleaseSession(MediaRoute2ProviderService.REQUEST_ID_NONE,
-                    sessionInfo.getId());
+            getInstrumentation().runOnMainSync(() ->
+                    mMr2ProviderServiceAdapter.onReleaseSession(
+                            MediaRoute2ProviderService.REQUEST_ID_NONE,
+                            sessionInfo.getId()));
         }
         assertTrue(onRouteUnselectedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+        // Make sure the route is enabled
+        assertTrue(onRouteEnabledLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
     }
 
     void addCallback(MediaRouter.Callback callback) {

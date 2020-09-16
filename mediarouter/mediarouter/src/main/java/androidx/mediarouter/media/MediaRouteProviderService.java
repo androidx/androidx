@@ -43,6 +43,7 @@ import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_GRO
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_GROUP_ROUTE_DESCRIPTOR;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_TRANSFERABLE_SECTION_TITLE;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_DATA_ERROR;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_CONTROLLER_RELEASED;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_CONTROL_REQUEST_FAILED;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_CONTROL_REQUEST_SUCCEEDED;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_DESCRIPTOR_CHANGED;
@@ -51,7 +52,6 @@ import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_GENERIC_FAILURE;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_GENERIC_SUCCESS;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_REGISTERED;
-import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_RELEASE_CONTROLLER;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_VERSION_CURRENT;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.isValidRemoteMessenger;
 import static androidx.mediarouter.media.MediaRouter.UNSELECT_REASON_UNKNOWN;
@@ -66,10 +66,10 @@ import android.os.DeadObjectException;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.IBinder.DeathRecipient;
+import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
-import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -87,6 +87,7 @@ import androidx.mediarouter.media.MediaRouteProvider.RouteController;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -275,17 +276,17 @@ public abstract class MediaRouteProviderService extends Service {
 
     static void sendGenericFailure(Messenger messenger, int requestId) {
         if (requestId != 0) {
-            sendReply(messenger, SERVICE_MSG_GENERIC_FAILURE, requestId, 0, null, null);
+            sendMessage(messenger, SERVICE_MSG_GENERIC_FAILURE, requestId, 0, null, null);
         }
     }
 
     static void sendGenericSuccess(Messenger messenger, int requestId) {
         if (requestId != 0) {
-            sendReply(messenger, SERVICE_MSG_GENERIC_SUCCESS, requestId, 0, null, null);
+            sendMessage(messenger, SERVICE_MSG_GENERIC_SUCCESS, requestId, 0, null, null);
         }
     }
 
-    static void sendReply(Messenger messenger, int what,
+    static void sendMessage(Messenger messenger, int what,
             int requestId, int arg, Object obj, Bundle data) {
         Message msg = Message.obtain();
         msg.what = what;
@@ -534,7 +535,7 @@ public abstract class MediaRouteProviderService extends Service {
                         if (requestId != 0) {
                             MediaRouteProviderDescriptor descriptor =
                                     mService.getMediaRouteProvider().getDescriptor();
-                            sendReply(messenger, SERVICE_MSG_REGISTERED,
+                            sendMessage(messenger, SERVICE_MSG_REGISTERED,
                                     requestId, SERVICE_VERSION_CURRENT,
                                     createDescriptorBundleForClientVersion(descriptor,
                                             client.mVersion), null);
@@ -604,7 +605,7 @@ public abstract class MediaRouteProviderService extends Service {
                                 + controllerId
                                 + ", initialMemberRouteId=" + initialMemberRouteId);
                     }
-                    sendReply(messenger, SERVICE_MSG_DYNAMIC_ROUTE_CREATED,
+                    sendMessage(messenger, SERVICE_MSG_DYNAMIC_ROUTE_CREATED,
                             requestId, SERVICE_VERSION_CURRENT,
                             bundle, null);
                     return true;
@@ -793,7 +794,7 @@ public abstract class MediaRouteProviderService extends Service {
                                             + ", data=" + data);
                                 }
                                 if (findClient(messenger) >= 0) {
-                                    sendReply(messenger, SERVICE_MSG_CONTROL_REQUEST_SUCCEEDED,
+                                    sendMessage(messenger, SERVICE_MSG_CONTROL_REQUEST_SUCCEEDED,
                                             requestId, 0, data, null);
                                 }
                             }
@@ -810,10 +811,10 @@ public abstract class MediaRouteProviderService extends Service {
                                     if (error != null) {
                                         Bundle bundle = new Bundle();
                                         bundle.putString(SERVICE_DATA_ERROR, error);
-                                        sendReply(messenger, SERVICE_MSG_CONTROL_REQUEST_FAILED,
+                                        sendMessage(messenger, SERVICE_MSG_CONTROL_REQUEST_FAILED,
                                                 requestId, 0, data, bundle);
                                     } else {
-                                        sendReply(messenger, SERVICE_MSG_CONTROL_REQUEST_FAILED,
+                                        sendMessage(messenger, SERVICE_MSG_CONTROL_REQUEST_FAILED,
                                                 requestId, 0, data, null);
                                     }
                                 }
@@ -853,8 +854,8 @@ public abstract class MediaRouteProviderService extends Service {
             final int count = mClients.size();
             for (int i = 0; i < count; i++) {
                 ClientRecord client = mClients.get(i);
-                sendReply(client.mMessenger, SERVICE_MSG_DESCRIPTOR_CHANGED, 0, 0,
-                        createDescriptorBundleForClientVersion(descriptor, client.mVersion), null);
+                sendMessage(client.mMessenger, SERVICE_MSG_DESCRIPTOR_CHANGED, 0, 0,
+                        client.createDescriptorBundle(descriptor), null);
                 if (DEBUG) {
                     Log.d(TAG, client + ": Sent descriptor change event, descriptor=" + descriptor);
                 }
@@ -919,7 +920,6 @@ public abstract class MediaRouteProviderService extends Service {
             return -1;
         }
 
-        //TODO: Reconsider "ClientRecord" structure
         class ClientRecord implements DeathRecipient {
             public final Messenger mMessenger;
             public final int mVersion;
@@ -1030,6 +1030,13 @@ public abstract class MediaRouteProviderService extends Service {
                 return false;
             }
 
+            /**
+             * Creates a bundle of the given provider descriptor for this client.
+             */
+            public Bundle createDescriptorBundle(MediaRouteProviderDescriptor descriptor) {
+                return createDescriptorBundleForClientVersion(descriptor, mVersion);
+            }
+
             // Runs on a binder thread.
             @Override
             public void binderDied() {
@@ -1063,7 +1070,7 @@ public abstract class MediaRouteProviderService extends Service {
                 }
                 bundle.putParcelableArrayList(DATA_KEY_DYNAMIC_ROUTE_DESCRIPTORS,
                         dynamicRouteBundles);
-                sendReply(mMessenger, SERVICE_MSG_DYNAMIC_ROUTE_DESCRIPTORS_CHANGED,
+                sendMessage(mMessenger, SERVICE_MSG_DYNAMIC_ROUTE_DESCRIPTORS_CHANGED,
                         0, controllerId, bundle, null);
             }
         }
@@ -1121,48 +1128,6 @@ public abstract class MediaRouteProviderService extends Service {
             mMR2ProviderServiceAdapter.setProviderDescriptor(descriptor);
         }
 
-        void requestReleaseController(ClientRecord client,
-                RouteController controller, String routeId) {
-            if (client.mVersion >= CLIENT_VERSION_4) {
-                int controllerId = client.findControllerIdByController(controller);
-                if (controllerId < 0) {
-                    Log.w(TAG, "requestReleaseController: Can't find the controller."
-                            + " route ID=" + routeId);
-                    return;
-                }
-                sendReply(client.mMessenger, SERVICE_MSG_RELEASE_CONTROLLER, 0, controllerId,
-                        null, null);
-                return;
-            }
-
-            // The below is a workaround to unselect the selected route of previous clients.
-            // The logic is based on the behavior that MediaRouter unselects its selected route if
-            // the route becomes disabled.
-            MediaRouteProviderDescriptor lastDescriptor =
-                    getService().getMediaRouteProvider().getDescriptor();
-            if (lastDescriptor == null) {
-                Log.w(TAG, "requestReleaseController: null provider descriptor found. "
-                        + "It shouldn't happen.");
-                return;
-            }
-
-            List<MediaRouteDescriptor> routes = new ArrayList<>();
-            for (MediaRouteDescriptor descriptor : lastDescriptor.getRoutes()) {
-                if (TextUtils.equals(descriptor.getId(), routeId)) {
-                    routes.add(new MediaRouteDescriptor.Builder(descriptor)
-                            .setEnabled(false).build());
-                } else {
-                    routes.add(descriptor);
-                }
-            }
-
-            MediaRouteProviderDescriptor providerDescriptor =
-                    new MediaRouteProviderDescriptor.Builder(lastDescriptor)
-                    .setRoutes(routes).build();
-            sendReply(client.mMessenger, SERVICE_MSG_DESCRIPTOR_CHANGED, 0, 0,
-                    createDescriptorBundleForClientVersion(providerDescriptor, client.mVersion),
-                    null);
-        }
 
         @Override
         MediaRouteProviderServiceImplBase.ClientRecord createClientRecord(
@@ -1179,9 +1144,20 @@ public abstract class MediaRouteProviderService extends Service {
         class ClientRecord extends MediaRouteProviderServiceImplBase.ClientRecord {
             // Maps the route ID to member route controller.
             private final Map<String, RouteController> mRouteIdToControllerMap = new ArrayMap<>();
+            private final Handler mClientHandler = new Handler(Looper.getMainLooper());
+
+            // Maps disabled route ID to ID of controllers released by provider.
+            private final Map<String, Integer> mReleasedControllerIds;
+            private static final long DISABLE_ROUTE_FOR_RELEASED_CONTROLLER_TIMEOUT_MS = 5_000;
 
             ClientRecord(Messenger messenger, int version, String packageName) {
                 super(messenger, version, packageName);
+                // Only required by clients that don't support SERVICE_MSG_CONTROLLER_RELEASED.
+                if (version < CLIENT_VERSION_4) {
+                    mReleasedControllerIds = new ArrayMap<>();
+                } else {
+                    mReleasedControllerIds = Collections.emptyMap();
+                }
             }
 
             @Override
@@ -1233,6 +1209,12 @@ public abstract class MediaRouteProviderService extends Service {
                         }
                     }
                 }
+                for (Map.Entry<String, Integer> entry : mReleasedControllerIds.entrySet()) {
+                    if (entry.getValue() == controllerId) {
+                        enableRouteForReleasedRouteController(/*routeId=*/entry.getKey());
+                        break;
+                    }
+                }
                 return super.releaseRouteController(controllerId);
             }
 
@@ -1245,6 +1227,81 @@ public abstract class MediaRouteProviderService extends Service {
                 if (mMR2ProviderServiceAdapter != null) {
                     mMR2ProviderServiceAdapter.setDynamicRouteDescriptor(controller,
                             groupRoute, descriptors);
+                }
+            }
+
+            @Override
+            public Bundle createDescriptorBundle(MediaRouteProviderDescriptor descriptor) {
+                if (mReleasedControllerIds.isEmpty()) {
+                    return super.createDescriptorBundle(descriptor);
+                }
+
+                List<MediaRouteDescriptor> routes = new ArrayList<>();
+                for (MediaRouteDescriptor routeDescriptor : descriptor.getRoutes()) {
+                    if (mReleasedControllerIds.containsKey(routeDescriptor.getId())) {
+                        routes.add(new MediaRouteDescriptor.Builder(routeDescriptor)
+                                .setEnabled(false).build());
+                    } else {
+                        routes.add(routeDescriptor);
+                    }
+                }
+
+                MediaRouteProviderDescriptor newDescriptor =
+                        new MediaRouteProviderDescriptor.Builder(descriptor)
+                                .setRoutes(routes).build();
+                return super.createDescriptorBundle(newDescriptor);
+            }
+
+            void releaseControllerByProvider(RouteController controller, String routeId) {
+                int controllerId = findControllerIdByController(controller);
+                releaseRouteController(controllerId);
+
+                // Let the client unselect the corresponding route.
+                if (mVersion >= CLIENT_VERSION_4) {
+                    if (controllerId < 0) {
+                        Log.w(TAG, "releaseControllerByProvider: Can't find the controller."
+                                + " route ID=" + routeId);
+                        return;
+                    }
+                    sendMessage(mMessenger, SERVICE_MSG_CONTROLLER_RELEASED, 0, controllerId,
+                            null, null);
+                } else {
+                    // Use a workaround for old versions.
+                    disableRouteForReleasedRouteController(routeId, controllerId);
+                }
+            }
+
+            /**
+             * Sets the route that corresponds to the given released route controller as disabled
+             * so that media router client unselects the route and releases the route controller
+             * on the client side.
+             * The route becomes enabled when the route controller on the client side is released
+             * or it times out.
+             */
+            private void disableRouteForReleasedRouteController(String routeId, int controllerId) {
+                mReleasedControllerIds.put(routeId, controllerId);
+
+                mClientHandler.postDelayed(() -> enableRouteForReleasedRouteController(routeId),
+                        DISABLE_ROUTE_FOR_RELEASED_CONTROLLER_TIMEOUT_MS);
+                sendDescriptor();
+            }
+
+            private void enableRouteForReleasedRouteController(String routeId) {
+                if (mReleasedControllerIds.remove(routeId) == null) {
+                    return;
+                }
+                sendDescriptor();
+            }
+
+            /**
+             * Sends the lastly known provider descriptor to the client.
+             */
+            void sendDescriptor() {
+                MediaRouteProviderDescriptor providerDescriptor =
+                        getService().getMediaRouteProvider().getDescriptor();
+                if (providerDescriptor != null) {
+                    sendMessage(mMessenger, SERVICE_MSG_DESCRIPTOR_CHANGED, 0, 0,
+                            createDescriptorBundle(providerDescriptor), null);
                 }
             }
 
