@@ -17,13 +17,14 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XConstructorElement
-import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import com.squareup.javapoet.ClassName
+import org.jetbrains.kotlin.ksp.getAllSuperTypes
+import org.jetbrains.kotlin.ksp.getDeclaredProperties
 import org.jetbrains.kotlin.ksp.isOpen
 import org.jetbrains.kotlin.ksp.symbol.ClassKind
 import org.jetbrains.kotlin.ksp.symbol.KSClassDeclaration
@@ -42,12 +43,7 @@ internal class KspTypeElement(
     }
 
     override val enclosingTypeElement: XTypeElement? by lazy {
-        val parent = declaration.parentDeclaration
-        if (parent is KSClassDeclaration) {
-            env.wrapClassDeclaration(parent)
-        } else {
-            null
-        }
+        declaration.findEnclosingTypeElement(env)
     }
 
     override val equalityItems: Array<out Any?> by lazy {
@@ -63,7 +59,7 @@ internal class KspTypeElement(
         }
     }
 
-    override val type: XDeclaredType by lazy {
+    override val type: KspType by lazy {
         env.wrap(declaration.asStarProjectedType())
     }
 
@@ -80,6 +76,34 @@ internal class KspTypeElement(
         declaration.typeName()
     }
 
+    private val _declaredFieldsIncludingSupers by lazy {
+        // Read all properties from all supers and select the ones that are not overridden.
+        // TODO: remove once it is implemented in KSP
+        // https://github.com/android/kotlin/issues/133
+        val selection = declaration
+            .getDeclaredProperties()
+            .associateByTo(mutableMapOf()) {
+            it.simpleName
+        }
+        declaration.getAllSuperTypes().map {
+            it.declaration
+        }.filterIsInstance(KSClassDeclaration::class.java)
+            .flatMap {
+                it.getDeclaredProperties()
+            }.forEach {
+                if (!selection.containsKey(it.simpleName)) {
+                    selection[it.simpleName] = it
+                }
+            }
+        selection.values.map {
+            KspFieldElement(
+                env = env,
+                declaration = it,
+                containing = this
+            )
+        }
+    }
+
     override fun isInterface(): Boolean {
         return declaration.classKind == ClassKind.INTERFACE
     }
@@ -94,7 +118,7 @@ internal class KspTypeElement(
     }
 
     override fun getAllFieldsIncludingPrivateSupers(): List<XFieldElement> {
-        TODO("Not yet implemented")
+        return _declaredFieldsIncludingSupers
     }
 
     override fun findPrimaryConstructor(): XConstructorElement? {

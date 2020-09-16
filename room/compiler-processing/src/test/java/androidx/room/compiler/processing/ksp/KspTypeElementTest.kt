@@ -17,10 +17,16 @@
 package androidx.room.compiler.processing.ksp
 
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.util.KotlinTypeNames.INT_CLASS_NAME
+import androidx.room.compiler.processing.util.KotlinTypeNames.LIST_CLASS_NAME
+import androidx.room.compiler.processing.util.KotlinTypeNames.MUTABLELIST_CLASS_NAME
 import androidx.room.compiler.processing.util.Source
+import androidx.room.compiler.processing.util.getAllFieldNames
+import androidx.room.compiler.processing.util.getField
 import androidx.room.compiler.processing.util.runKspTest
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
+import com.squareup.javapoet.ParameterizedTypeName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -196,6 +202,60 @@ class KspTypeElementTest {
             invocation.processingEnv.requireTypeElement("MyInterface").let {
                 assertThat(it.kindName()).isEqualTo("interface")
             }
+        }
+    }
+
+    @Test
+    fun fieldBasic() {
+        val src = Source.kotlin(
+            "Foo.kt", """
+            open class BaseClass<T>(val genericProp : T)
+            class SubClass(x : Int) : BaseClass<Int>(x) {
+                val subClassProp : String = "abc"
+            }
+        """.trimIndent()
+        )
+        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+            val baseClass = invocation.processingEnv.requireTypeElement("BaseClass")
+            assertThat(baseClass.getAllFieldNames()).containsExactly("genericProp")
+            val subClass = invocation.processingEnv.requireTypeElement("SubClass")
+            assertThat(subClass.getAllFieldNames()).containsExactly("genericProp", "subClassProp")
+            baseClass.getField("genericProp").let { field ->
+                assertThat(field.type.typeName).isEqualTo(ClassName.get("", "BaseClass", "T"))
+            }
+            subClass.getField("genericProp").let { field ->
+                assertThat(field.type.typeName).isEqualTo(ClassName.get("kotlin", "Int"))
+            }
+        }
+    }
+
+    @Test
+    fun fieldsOverride() {
+        val src = Source.kotlin(
+            "Foo.kt", """
+            open class BaseClass(
+                open val value : List<Int>
+            )
+            class SubClass(
+                override val value : MutableList<Int>
+            ) : BaseClass(value)
+        """.trimIndent()
+        )
+        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+            val baseClass = invocation.processingEnv.requireTypeElement("BaseClass")
+            assertThat(baseClass.getAllFieldNames()).containsExactly("value")
+            val subClass = invocation.processingEnv.requireTypeElement("SubClass")
+            assertThat(subClass.getAllFieldNames()).containsExactly("value")
+            assertThat(
+                baseClass.getField("value").type.typeName
+            ).isEqualTo(
+                ParameterizedTypeName.get(LIST_CLASS_NAME, INT_CLASS_NAME)
+            )
+            assertThat(
+                subClass.getField("value").type.typeName
+            ).isEqualTo(
+                ParameterizedTypeName.get(MUTABLELIST_CLASS_NAME, INT_CLASS_NAME)
+            )
         }
     }
 }

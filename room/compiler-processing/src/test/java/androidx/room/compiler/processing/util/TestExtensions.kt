@@ -19,6 +19,10 @@ package androidx.room.compiler.processing.util
 import androidx.room.compiler.processing.XExecutableElement
 import androidx.room.compiler.processing.XTypeElement
 
+fun XTypeElement.getAllFieldNames() = getAllFieldsIncludingPrivateSupers().map {
+    it.name
+}
+
 fun XTypeElement.getField(name: String) = getAllFieldsIncludingPrivateSupers().first {
     it.name == name
 }
