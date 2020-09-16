@@ -89,25 +89,17 @@ class BenchmarkPlugin : Plugin<Project> {
 
         extension.configureTestBuildType(testBuildType)
 
-        // Registering this block as a configureEach callback is only necessary because Studio skips
-        // Gradle if there are no changes, which stops this plugin from being re-applied.
-        var enabledOutput = false
-        project.configurations.configureEach {
-            if (!enabledOutput &&
-                !project.rootProject.hasProperty("android.injected.invoked.from.ide") &&
-                !testInstrumentationArgs.containsKey("androidx.benchmark.output.enable")
-            ) {
-                enabledOutput = true
+        if (!project.rootProject.hasProperty("android.injected.invoked.from.ide") &&
+            !testInstrumentationArgs.containsKey("androidx.benchmark.output.enable")
+        ) {
+            // NOTE: This argument is checked by ResultWriter to enable CI reports.
+            defaultConfig.testInstrumentationRunnerArgument(
+                "androidx.benchmark.output.enable",
+                "true"
+            )
 
-                // NOTE: This argument is checked by ResultWriter to enable CI reports.
-                defaultConfig.testInstrumentationRunnerArgument(
-                    "androidx.benchmark.output.enable",
-                    "true"
-                )
-
-                if (!project.properties[ADDITIONAL_TEST_OUTPUT_KEY].toString().toBoolean()) {
-                    defaultConfig.testInstrumentationRunnerArgument("no-isolated-storage", "1")
-                }
+            if (!project.properties[ADDITIONAL_TEST_OUTPUT_KEY].toString().toBoolean()) {
+                defaultConfig.testInstrumentationRunnerArgument("no-isolated-storage", "1")
             }
         }
 
