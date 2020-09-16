@@ -21,18 +21,17 @@ package androidx.room.compiler.processing
  *
  * @see [javax.lang.model.element.ExecutableElement]
  */
-interface XExecutableElement : XElement {
+interface XExecutableElement : XHasModifiers, XElement {
     /**
-     * The [XTypeElement] that contains this method.
+     * The [XTypeElement] that declared this executable.
      */
-    override val enclosingElement: XTypeElement
-
+    val enclosingTypeElement: XTypeElement
     /**
      * The list of parameters that should be passed into this method.
      *
      * @see [isVarArgs]
      */
-    val parameters: List<XVariableElement>
+    val parameters: List<XExecutableParameterElement>
     /**
      * Returns true if this method receives a vararg parameter.
      */

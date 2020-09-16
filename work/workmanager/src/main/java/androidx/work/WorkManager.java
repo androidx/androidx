@@ -211,9 +211,9 @@ public abstract class WorkManager {
     }
 
     /**
-     * Enqueues one or more items for background processing.
+     * Enqueues one item for background processing.
      *
-     * @param workRequest One or more {@link WorkRequest} to enqueue
+     * @param workRequest The {@link WorkRequest} to enqueue
      * @return An {@link Operation} that can be used to determine when the enqueue has completed
      */
     @NonNull

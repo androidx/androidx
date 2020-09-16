@@ -17,7 +17,6 @@
 package androidx.camera.camera2.pipe.wrapper
 
 import android.graphics.SurfaceTexture
-import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.params.OutputConfiguration
 import android.os.Build
 import android.util.Size
@@ -27,11 +26,10 @@ import androidx.annotation.RequiresApi
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.StreamType
 import androidx.camera.camera2.pipe.UnsafeWrapper
-import androidx.camera.camera2.pipe.wrapper.OutputConfigurationWrapper.Companion.SURFACE_GROUP_ID_NONE
 import androidx.camera.camera2.pipe.impl.checkNOrHigher
 import androidx.camera.camera2.pipe.impl.checkOOrHigher
 import androidx.camera.camera2.pipe.impl.checkPOrHigher
-import java.lang.IllegalStateException
+import androidx.camera.camera2.pipe.wrapper.OutputConfigurationWrapper.Companion.SURFACE_GROUP_ID_NONE
 import java.util.concurrent.Executor
 
 /**
@@ -47,7 +45,7 @@ data class SessionConfigData(
     val stateCallback: CameraCaptureSessionWrapper.StateCallback,
 
     val sessionTemplateId: Int,
-    val sessionParameters: Map<CaptureRequest.Key<*>, Any>
+    val sessionParameters: Map<*, Any>
 ) {
     companion object {
         /* NOTE: These must keep in sync with their SessionConfiguration values. */
@@ -141,37 +139,31 @@ class AndroidOutputConfiguration(
 
             // Create the OutputConfiguration using the groupId via the constructor (if set)
             val configuration: OutputConfiguration
-            if (streamType == StreamType.SURFACE) {
-                check(surface != null) {
-                    "Surface must not be null when creating an $streamType typed " +
-                            "OutputConfiguration."
-                }
+            if (surface != null) {
                 configuration = if (surfaceGroupId != SURFACE_GROUP_ID_NONE) {
                     OutputConfiguration(surfaceGroupId, surface)
                 } else {
                     OutputConfiguration(surface)
                 }
             } else {
-                check(surface != null) {
-                    "Surface must not be null when creating a $streamType OutputConfiguration."
-                }
-                check(size != null) {
-                    "Size must not be null when creating a $streamType OutputConfiguration."
-                }
-
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                     throw IllegalStateException(
-                        "OutputConfiguration is not supported on API ${Build.VERSION.SDK_INT} " +
-                                "(requires API ${Build.VERSION_CODES.O})"
+                        "Deferred OutputConfigurations are not supported on API " +
+                                "${Build.VERSION.SDK_INT} (requires API ${Build.VERSION_CODES.O})"
                     )
                 }
+
+                check(size != null) {
+                    "Size must defined when creating a deferred OutputConfiguration."
+                }
+
                 configuration = OutputConfiguration(
                     size,
                     when (streamType) {
                         StreamType.SURFACE_TEXTURE -> SurfaceTexture::class.java
                         StreamType.SURFACE_VIEW -> SurfaceHolder::class.java
                         StreamType.SURFACE -> throw IllegalArgumentException(
-                            " is not supported for  deferred OutputConfigurations"
+                            "StreamType.Surface is not supported for deferred OutputConfigurations"
                         )
                     }
                 )

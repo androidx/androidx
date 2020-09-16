@@ -17,7 +17,8 @@
 package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XExecutableElement
-import androidx.room.compiler.processing.XTypeElement
+import androidx.room.compiler.processing.XHasModifiers
+import androidx.room.compiler.processing.javac.kotlin.KmExecutable
 import androidx.room.compiler.processing.javac.kotlin.descriptor
 import javax.lang.model.element.ExecutableElement
 
@@ -28,26 +29,20 @@ internal abstract class JavacExecutableElement(
 ) : JavacElement(
     env,
     element
-), XExecutableElement {
-    protected val kotlinMetadata by lazy {
-        (enclosingElement as? JavacTypeElement)?.kotlinMetadata
-    }
+), XExecutableElement, XHasModifiers by JavacHasModifiers(element) {
+    abstract val kotlinMetadata: KmExecutable?
 
     val descriptor by lazy {
         element.descriptor()
     }
 
-    override val enclosingElement: XTypeElement
-        get() = super.enclosingElement as XTypeElement
-
     override val parameters: List<JavacVariableElement> by lazy {
-        val kotlinParamNames = kotlinMetadata?.getParameterNames(element)
         element.parameters.mapIndexed { index, variable ->
             JavacMethodParameter(
                 env = env,
                 containing = containing,
                 element = variable,
-                kotlinName = kotlinParamNames?.getOrNull(index)
+                kotlinMetadata = kotlinMetadata?.parameters?.getOrNull(index)
             )
         }
     }

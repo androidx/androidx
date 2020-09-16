@@ -20,13 +20,13 @@ import static androidx.camera.core.ImageCapture.FLASH_MODE_OFF;
 import static androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE;
 
 import android.graphics.Rect;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
 import androidx.camera.core.ImageCapture;
+import androidx.camera.core.Logger;
 import androidx.camera.core.impl.CameraCaptureCallback;
 import androidx.camera.core.impl.CameraCaptureFailure;
 import androidx.camera.core.impl.CameraCaptureResult;
@@ -92,12 +92,6 @@ public final class FakeCameraControl implements CameraControlInternal {
         mSubmittedCaptureRequests.clear();
     }
 
-
-    @Override
-    public void setCropRegion(@Nullable final Rect crop) {
-        Log.d(TAG, "setCropRegion(" + crop + ")");
-    }
-
     @ImageCapture.FlashMode
     @Override
     public int getFlashMode() {
@@ -107,35 +101,42 @@ public final class FakeCameraControl implements CameraControlInternal {
     @Override
     public void setFlashMode(@ImageCapture.FlashMode int flashMode) {
         mFlashMode = flashMode;
-        Log.d(TAG, "setFlashMode(" + mFlashMode + ")");
+        Logger.d(TAG, "setFlashMode(" + mFlashMode + ")");
     }
 
     @Override
     @NonNull
     public ListenableFuture<Void> enableTorch(boolean torch) {
-        Log.d(TAG, "enableTorch(" + torch + ")");
+        Logger.d(TAG, "enableTorch(" + torch + ")");
         return Futures.immediateFuture(null);
     }
 
     @Override
     @NonNull
     public ListenableFuture<CameraCaptureResult> triggerAf() {
-        Log.d(TAG, "triggerAf()");
+        Logger.d(TAG, "triggerAf()");
         return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create());
     }
 
     @Override
     @NonNull
     public ListenableFuture<CameraCaptureResult> triggerAePrecapture() {
-        Log.d(TAG, "triggerAePrecapture()");
+        Logger.d(TAG, "triggerAePrecapture()");
         return Futures.immediateFuture(CameraCaptureResult.EmptyCameraCaptureResult.create());
     }
 
     @Override
     public void cancelAfAeTrigger(final boolean cancelAfTrigger,
             final boolean cancelAePrecaptureTrigger) {
-        Log.d(TAG, "cancelAfAeTrigger(" + cancelAfTrigger + ", "
+        Logger.d(TAG, "cancelAfAeTrigger(" + cancelAfTrigger + ", "
                 + cancelAePrecaptureTrigger + ")");
+    }
+
+    @NonNull
+    @Override
+    @ExperimentalExposureCompensation
+    public ListenableFuture<Integer> setExposureCompensationIndex(int exposure) {
+        return Futures.immediateFuture(null);
     }
 
     @Override

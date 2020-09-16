@@ -51,6 +51,7 @@ import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_GENERIC_FAILURE;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_GENERIC_SUCCESS;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_REGISTERED;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_RELEASE_CONTROLLER;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_VERSION_CURRENT;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.isValidRemoteMessenger;
 import static androidx.mediarouter.media.MediaRouter.UNSELECT_REASON_UNKNOWN;
@@ -68,6 +69,7 @@ import android.os.IBinder.DeathRecipient;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -1079,7 +1081,6 @@ public abstract class MediaRouteProviderService extends Service {
         }
     }
 
-    //TODO: We may need to change version number
     @RequiresApi(api = Build.VERSION_CODES.R)
     static class MediaRouteProviderServiceImplApi30 extends MediaRouteProviderServiceImplBase {
         MediaRoute2ProviderServiceAdapter mMR2ProviderServiceAdapter;
@@ -1118,6 +1119,49 @@ public abstract class MediaRouteProviderService extends Service {
         void sendDescriptorChanged(MediaRouteProviderDescriptor descriptor) {
             super.sendDescriptorChanged(descriptor);
             mMR2ProviderServiceAdapter.setProviderDescriptor(descriptor);
+        }
+
+        void requestReleaseController(ClientRecord client,
+                RouteController controller, String routeId) {
+            if (client.mVersion >= CLIENT_VERSION_4) {
+                int controllerId = client.findControllerIdByController(controller);
+                if (controllerId < 0) {
+                    Log.w(TAG, "requestReleaseController: Can't find the controller."
+                            + " route ID=" + routeId);
+                    return;
+                }
+                sendReply(client.mMessenger, SERVICE_MSG_RELEASE_CONTROLLER, 0, controllerId,
+                        null, null);
+                return;
+            }
+
+            // The below is a workaround to unselect the selected route of previous clients.
+            // The logic is based on the behavior that MediaRouter unselects its selected route if
+            // the route becomes disabled.
+            MediaRouteProviderDescriptor lastDescriptor =
+                    getService().getMediaRouteProvider().getDescriptor();
+            if (lastDescriptor == null) {
+                Log.w(TAG, "requestReleaseController: null provider descriptor found. "
+                        + "It shouldn't happen.");
+                return;
+            }
+
+            List<MediaRouteDescriptor> routes = new ArrayList<>();
+            for (MediaRouteDescriptor descriptor : lastDescriptor.getRoutes()) {
+                if (TextUtils.equals(descriptor.getId(), routeId)) {
+                    routes.add(new MediaRouteDescriptor.Builder(descriptor)
+                            .setEnabled(false).build());
+                } else {
+                    routes.add(descriptor);
+                }
+            }
+
+            MediaRouteProviderDescriptor providerDescriptor =
+                    new MediaRouteProviderDescriptor.Builder(lastDescriptor)
+                    .setRoutes(routes).build();
+            sendReply(client.mMessenger, SERVICE_MSG_DESCRIPTOR_CHANGED, 0, 0,
+                    createDescriptorBundleForClientVersion(providerDescriptor, client.mVersion),
+                    null);
         }
 
         @Override
@@ -1206,6 +1250,12 @@ public abstract class MediaRouteProviderService extends Service {
 
             public RouteController findControllerByRouteId(String routeId) {
                 return mRouteIdToControllerMap.get(routeId);
+            }
+
+            public int findControllerIdByController(RouteController controller) {
+                int index = mControllers.indexOfValue(controller);
+                if (index < 0) return -1;
+                return mControllers.keyAt(index);
             }
         }
     }

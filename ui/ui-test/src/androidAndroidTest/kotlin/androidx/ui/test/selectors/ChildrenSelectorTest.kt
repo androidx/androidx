@@ -19,10 +19,10 @@ package androidx.ui.test.selectors
 import androidx.test.filters.MediumTest
 import androidx.ui.test.assert
 import androidx.ui.test.assertCountEquals
-import androidx.ui.test.onChildren
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.hasTestTag
+import androidx.ui.test.onChildren
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.util.BoundaryNode
 import org.junit.Rule
 import org.junit.Test
@@ -34,18 +34,18 @@ import org.junit.runners.JUnit4
 class ChildrenSelectorTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val rule = createComposeRule()
 
     @Test
     fun twoChildren() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child1")
                 BoundaryNode(testTag = "Child2")
             }
         }
 
-        onNodeWithTag("Parent")
+        rule.onNodeWithTag("Parent")
             .onChildren()
             .assertCountEquals(2)
             .apply {
@@ -56,11 +56,11 @@ class ChildrenSelectorTest {
 
     @Test
     fun noChildren() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent")
         }
 
-        onNodeWithTag("Parent")
+        rule.onNodeWithTag("Parent")
             .onChildren()
             .assertCountEquals(0)
     }

@@ -36,6 +36,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -208,15 +209,15 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
 
     /**
      * The plain-text part of the complication text. If {@link #mTimeDependentText} is null, this is
-     * required to be not null and {@link #getText} will return this text as-is. If {@link
+     * required to be not null and {@link #getTextAt} will return this text as-is. If {@link
      * #mTimeDependentText} is not null, getText will return this text with {@code ^1} replaced by
      * the time-dependent string.
      */
-    private final CharSequence mSurroundingText;
+    @Nullable private final CharSequence mSurroundingText;
 
     /**
      * The time-dependent part of the complication text. If {@link #mSurroundingText} is null, this
-     * must be not null and {@link #getText} will return just the time-dependent value relative to
+     * must be not null and {@link #getTextAt} will return just the time-dependent value relative to
      * the given time.
      */
     private final TimeDependentText mTimeDependentText;
@@ -230,7 +231,8 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
 
     private CharSequence mDependentTextCache;
 
-    private ComplicationText(@Nullable CharSequence surroundingText,
+    @VisibleForTesting(otherwise = VisibleForTesting.PRIVATE)
+    public ComplicationText(@Nullable CharSequence surroundingText,
             @Nullable TimeDependentText timeDependentText) {
         mSurroundingText = surroundingText;
         mTimeDependentText = timeDependentText;
@@ -291,6 +293,12 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
         }
     }
 
+    /**
+     * Writes this {@link ComplicationProviderInfo} to a {@link Parcel}.
+     *
+     * @param out The {@link Parcel} to write to
+     * @param flags Flags for writing the {@link Parcel}
+     */
     @Override
     public void writeToParcel(@NonNull Parcel out, int flags) {
         Bundle bundle = new Bundle();
@@ -327,13 +335,13 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
      * {@code referencePeriodEnd} then the text returned will represent the time difference
      * between {@code referencePeriodStart} and {@code dateTimeMillis}.
      *
-     * @param resources      {@link Resources} from the current {@link Context}
+     * @param resources {@link Resources} from the current {@link Context}
      * @param dateTimeMillis milliseconds since epoch, e.g. from {@link System#currentTimeMillis}
      * @return Text appropriate for the given date time.
      */
     @NonNull
     @Override
-    public CharSequence getText(@NonNull Resources resources, long dateTimeMillis) {
+    public CharSequence getTextAt(@NonNull Resources resources, long dateTimeMillis) {
         if (mTimeDependentText == null) {
             return mSurroundingText;
         }
@@ -343,7 +351,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
                 && mTimeDependentText.returnsSameText(mDependentTextCacheTime, dateTimeMillis)) {
             timeDependentPart = mDependentTextCache;
         } else {
-            timeDependentPart = mTimeDependentText.getText(resources, dateTimeMillis);
+            timeDependentPart = mTimeDependentText.getTextAt(resources, dateTimeMillis);
             mDependentTextCacheTime = dateTimeMillis;
             mDependentTextCache = timeDependentPart;
         }
@@ -356,6 +364,18 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
         return TextUtils.expandTemplate(mSurroundingText, mTemplateValues);
     }
 
+    /**
+     * Returns The text within which the time difference is displayed.
+     */
+    @Nullable
+    CharSequence getSurroundingText() {
+        return mSurroundingText;
+    }
+
+    /**
+     * Returns true if the result of {@link #getTextAt} will be the same for both {@code
+     * firstDateTimeMillis} and {@code secondDateTimeMillis}.
+     */
     @Override
     public boolean returnsSameText(long firstDateTimeMillis, long secondDateTimeMillis) {
         if (mTimeDependentText == null) {
@@ -365,6 +385,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
         return mTimeDependentText.returnsSameText(firstDateTimeMillis, secondDateTimeMillis);
     }
 
+    /** Returns the next time after {@code fromTime} at which the text may change. */
     @Override
     public long getNextChangeTime(long fromTime) {
         if (mTimeDependentText == null) {
@@ -374,7 +395,8 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
     }
 
     /**
-     * Returns true if {@link #getText(Resources, long)} will return the empty string for any input.
+     * Returns true if {@link #getTextAt(Resources, long)} will return the empty string for any
+     * input.
      */
     public boolean isAlwaysEmpty() {
         return mTimeDependentText == null && TextUtils.isEmpty(mSurroundingText);
@@ -412,15 +434,15 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
      * between the given time and the specified time period, within a surrounding string if
      * required.
      *
-     * <p>If the time passed in to {@link ComplicationText#getText} on the resulting object is
+     * <p>If the time passed in to {@link ComplicationText#getTextAt} on the resulting object is
      * between {@code referencePeriodStart} and {@code referencePeriodEnd}, then the text will be
      * "now" (localised to the default locale) if setShowNowText(true) has been called.
      *
-     * <p>If the time {@code dateTimeMillis} passed in to {@link #getText} is before {@code
+     * <p>If the time {@code dateTimeMillis} passed in to {@link #getTextAt} is before {@code
      * referencePeriodStart}, then the text shown will represent the time difference between {@code
      * referencePeriodStart} and {@code dateTimeMillis}.
      *
-     * <p>If the time {@code dateTimeMillis} passed in to {@link #getText} is after {@code
+     * <p>If the time {@code dateTimeMillis} passed in to {@link #getTextAt} is after {@code
      * referencePeriodEnd}, then the text shown will represent the time difference between {@code
      * dateTimeMillis} and {@code referencePeriodEnd}.
      *
@@ -440,21 +462,16 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
         private Boolean mShowNowText;
         private TimeUnit mMinimumUnit;
 
-        TimeDifferenceBuilder() {
+        public TimeDifferenceBuilder() {
         }
 
-        TimeDifferenceBuilder(
-                /**
-                 * The start of the reference period (in milliseconds since the epoch) from which
-                 * the time difference will be calculated.
-                 */
-                long referencePeriodStartMillis,
-
-                /**
-                 * The end of the reference period (in milliseconds since the epoch) from which
-                 * the time difference will be calculated.
-                 */
-                long referencePeriodEndMillis) {
+        /**
+         * @param referencePeriodStartMillis The start of the reference period (in milliseconds
+         *     since the epoch) from which the time difference will be calculated.
+         * @param referencePeriodEndMillis The end of the reference period (in milliseconds since
+         *     the epoch) from whichthe time difference will be calculated.
+         */
+        public TimeDifferenceBuilder(long referencePeriodStartMillis, long referencePeriodEndMillis) {
             mReferencePeriodStartMillis = referencePeriodStartMillis;
             mReferencePeriodEndMillis = referencePeriodEndMillis;
         }
@@ -590,10 +607,7 @@ public final class ComplicationText implements Parcelable, TimeDependentText {
 
         /** Returns the default value for the 'show now text' option for the given {@code style}. */
         private static boolean getDefaultShowNowTextForStyle(int style) {
-            if (style == DIFFERENCE_STYLE_STOPWATCH) {
-                return false;
-            }
-            return true;
+            return style != DIFFERENCE_STYLE_STOPWATCH;
         }
     }
 

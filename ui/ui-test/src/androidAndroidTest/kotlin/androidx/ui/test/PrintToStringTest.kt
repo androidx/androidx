@@ -16,17 +16,17 @@
 
 package androidx.ui.test
 
-import androidx.compose.runtime.Composable
-import androidx.test.filters.MediumTest
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.disabled
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.testTag
+import androidx.test.filters.MediumTest
 import androidx.ui.test.util.BoundaryNode
 import androidx.ui.test.util.expectErrorMessageStartsWith
 import androidx.ui.test.util.obfuscateNodesInfo
@@ -41,11 +41,11 @@ import org.junit.runners.JUnit4
 class PrintToStringTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule(disableTransitions = true)
 
     @Test
     fun printToString_nothingFound() {
-        composeTestRule.setContent {
+        rule.setContent {
             ComposeSimpleCase()
         }
 
@@ -53,17 +53,17 @@ class PrintToStringTest {
             "Failed: assertExists.\n" +
             "Reason: Expected exactly '1' node but could not find any node that satisfies:"
         ) {
-            onNodeWithText("Oops").printToString()
+            rule.onNodeWithText("Oops").printToString()
         }
     }
 
     @Test
     fun printToString_one() {
-        composeTestRule.setContent {
+        rule.setContent {
             ComposeSimpleCase()
         }
 
-        val result = onNodeWithText("Hello")
+        val result = rule.onNodeWithText("Hello")
             .printToString(maxDepth = 0)
 
         assertThat(obfuscateNodesInfo(result)).isEqualTo("" +
@@ -76,11 +76,11 @@ class PrintToStringTest {
 
     @Test
     fun printToString_many() {
-        composeTestRule.setContent {
+        rule.setContent {
             ComposeSimpleCase()
         }
 
-        val result = onRoot()
+        val result = rule.onRoot()
             .onChildren()
             .printToString()
 
@@ -99,7 +99,7 @@ class PrintToStringTest {
 
     @Test
     fun printHierarchy() {
-        composeTestRule.setContent {
+        rule.setContent {
             Column(Modifier.semantics { this.disabled(); this.testTag = "column" }) {
                 Box(Modifier.semantics { this.disabled(); this.testTag = "box" }) {
                     Button(onClick = {}) {
@@ -110,7 +110,7 @@ class PrintToStringTest {
             }
         }
 
-        val result = onRoot()
+        val result = rule.onRoot()
             .printToString()
 
         assertThat(obfuscateNodesInfo(result)).isEqualTo("" +
@@ -138,7 +138,7 @@ class PrintToStringTest {
 
     @Test
     fun printMultiple_withDepth() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode("tag1") {
                 BoundaryNode("tag11") {
                     BoundaryNode("tag111")
@@ -151,7 +151,7 @@ class PrintToStringTest {
             }
         }
 
-        val result = onRoot()
+        val result = rule.onRoot()
             .onChildren()
             .printToString(maxDepth = 1)
 

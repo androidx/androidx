@@ -63,7 +63,7 @@ public class ComplicationTextTemplateTest {
 
         assertEquals(
                 TEST_TEXT1 + " " + TEST_TEXT2 + " " + TEST_TEXT3,
-                complicationTextTemplate.getText(mResources, 132456789).toString());
+                complicationTextTemplate.getTextAt(mResources, 132456789).toString());
     }
 
     @Test
@@ -82,7 +82,7 @@ public class ComplicationTextTemplateTest {
 
         assertEquals(
                 TEST_TEXT1 + ", " + TEST_TEXT2 + " my " + TEST_TEXT3 + ".",
-                complicationTextTemplate.getText(mResources, 132456789).toString());
+                complicationTextTemplate.getTextAt(mResources, 132456789).toString());
     }
 
     @Test
@@ -99,7 +99,7 @@ public class ComplicationTextTemplateTest {
 
         assertEquals(
                 TEST_TEXT1 + " ^2 " + TEST_TEXT2,
-                complicationTextTemplate.getText(mResources, 132456789).toString());
+                complicationTextTemplate.getTextAt(mResources, 132456789).toString());
     }
 
     @Test
@@ -128,19 +128,19 @@ public class ComplicationTextTemplateTest {
 
         // "2h 35m" should be rounded to "3h".
         long testTime = refTime + MINUTES.toMillis(35) + HOURS.toMillis(2);
-        assertEquals("3h : 2h 35m", template.getText(mResources, testTime).toString());
+        assertEquals("3h : 2h 35m", template.getTextAt(mResources, testTime).toString());
 
         // "23h 59m" should be rounded to "1d".
         testTime = refTime + MINUTES.toMillis(59) + HOURS.toMillis(23);
-        assertEquals("1d : 23h 59m", template.getText(mResources, testTime).toString());
+        assertEquals("1d : 23h 59m", template.getTextAt(mResources, testTime).toString());
 
         // "10m 10s" should be rounded to "11m".
         testTime = refTime + SECONDS.toMillis(10) + MINUTES.toMillis(10);
-        assertEquals("11m : 11m", template.getText(mResources, testTime).toString());
+        assertEquals("11m : 11m", template.getTextAt(mResources, testTime).toString());
 
         // "23h 15m" should be rounded to "1d".
         testTime = refTime + MINUTES.toMillis(15) + HOURS.toMillis(23);
-        assertEquals("1d : 23h 15m", template.getText(mResources, testTime).toString());
+        assertEquals("1d : 23h 15m", template.getTextAt(mResources, testTime).toString());
     }
 
     @Test
@@ -161,7 +161,7 @@ public class ComplicationTextTemplateTest {
                         .build();
 
         CharSequence result =
-                template.getText(mResources, new GregorianCalendar(2016, 2, 4).getTimeInMillis());
+                template.getTextAt(mResources, new GregorianCalendar(2016, 2, 4).getTimeInMillis());
         assertEquals("FRI THE 4 MAR *** " + TEST_TEXT_LONG, result.toString());
     }
 
@@ -181,7 +181,7 @@ public class ComplicationTextTemplateTest {
 
         assertEquals(
                 TEST_TEXT1 + " : " + TEST_TEXT_LONG,
-                newText.getText(mResources, 100000).toString());
+                newText.getTextAt(mResources, 100000).toString());
     }
 
     @Test
@@ -210,10 +210,10 @@ public class ComplicationTextTemplateTest {
         long testTime = refTime + HOURS.toMillis(2) + MINUTES.toMillis(35);
         assertEquals(
                 "hello 3h time : " + TEST_TEXT_LONG,
-                newText.getText(mResources, testTime).toString());
+                newText.getTextAt(mResources, testTime).toString());
         assertEquals(
                 "hello 0m time : " + TEST_TEXT_LONG,
-                newText.getText(mResources, refTime).toString());
+                newText.getTextAt(mResources, refTime).toString());
     }
 
     @Test

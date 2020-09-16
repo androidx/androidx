@@ -32,8 +32,10 @@ import androidx.room.vo.RelationCollector
 import androidx.room.vo.Warning
 import androidx.room.vo.findFieldByColumnName
 import androidx.room.writer.FieldReadWriteWriter
+import capitalize
 import com.squareup.javapoet.TypeName
 import stripNonJava
+import java.util.Locale
 
 /**
  * Creates the entity from the given info.
@@ -117,7 +119,8 @@ class PojoRowAdapter(
 
     override fun onCursorReady(cursorVarName: String, scope: CodeGenScope) {
         mapping.fieldsWithIndices = mapping.matchedFields.map {
-            val indexVar = scope.getTmpVar("_cursorIndexOf${it.name.stripNonJava().capitalize()}")
+            val indexVar = scope.getTmpVar(
+                "_cursorIndexOf${it.name.stripNonJava().capitalize(Locale.US)}")
             val indexMethod = if (info == null) {
                 "getColumnIndex"
             } else {

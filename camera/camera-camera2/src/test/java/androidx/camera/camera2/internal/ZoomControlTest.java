@@ -61,7 +61,8 @@ import java.util.concurrent.ExecutionException;
 @SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
+// Not able to write test for Robolectric API 30 because it is not added yet.
+@Config(minSdk = Build.VERSION_CODES.LOLLIPOP, maxSdk = Build.VERSION_CODES.Q)
 public class ZoomControlTest {
     private static final String CAMERA0_ID = "0";
     private static final String CAMERA1_ID = "1";
@@ -69,12 +70,17 @@ public class ZoomControlTest {
     private static final int SENSOR_HEIGHT = 480;
     private static final Rect SENSOR_RECT = new Rect(0, 0, SENSOR_WIDTH, SENSOR_HEIGHT);
 
-    private Camera2CameraControl mCamera2CameraControl;
+    private Camera2CameraControlImpl mCamera2CameraControlImpl;
     private ZoomControl mZoomControl;
-    private Camera2CameraControl.CaptureResultListener mCaptureResultListener;
+    private Camera2CameraControlImpl.CaptureResultListener mCaptureResultListener;
 
     private static Rect getCropRectByRatio(float ratio) {
-        return ZoomControl.getCropRectByRatio(SENSOR_RECT, ratio);
+        float cropWidth = (SENSOR_RECT.width() / ratio);
+        float cropHeight = (SENSOR_RECT.height() / ratio);
+        float left = ((SENSOR_RECT.width() - cropWidth) / 2.0f);
+        float top = ((SENSOR_RECT.height() - cropHeight) / 2.0f);
+        return new Rect((int) left, (int) top, (int) (left + cropWidth),
+                (int) (top + cropHeight));
     }
 
     @Before
@@ -88,16 +94,16 @@ public class ZoomControlTest {
                 cameraManager.getCameraCharacteristics(
                         CAMERA0_ID);
 
-        mCamera2CameraControl = spy(new Camera2CameraControl(cameraCharacteristics,
+        mCamera2CameraControlImpl = spy(new Camera2CameraControlImpl(cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
                 mock(CameraControlInternal.ControlUpdateCallback.class)));
-        mZoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics,
+        mZoomControl = new ZoomControl(mCamera2CameraControlImpl, cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor());
         mZoomControl.setActive(true);
 
-        ArgumentCaptor<Camera2CameraControl.CaptureResultListener> argumentCaptor =
-                ArgumentCaptor.forClass(Camera2CameraControl.CaptureResultListener.class);
-        verify(mCamera2CameraControl).addCaptureResultListener(argumentCaptor.capture());
+        ArgumentCaptor<Camera2CameraControlImpl.CaptureResultListener> argumentCaptor =
+                ArgumentCaptor.forClass(Camera2CameraControlImpl.CaptureResultListener.class);
+        verify(mCamera2CameraControlImpl).addCaptureResultListener(argumentCaptor.capture());
         mCaptureResultListener = argumentCaptor.getValue();
     }
 
@@ -394,10 +400,10 @@ public class ZoomControlTest {
         CameraCharacteristics cameraCharacteristics =
                 cameraManager.getCameraCharacteristics(CAMERA1_ID);
 
-        mCamera2CameraControl = new Camera2CameraControl(cameraCharacteristics,
+        mCamera2CameraControlImpl = new Camera2CameraControlImpl(cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
                 mock(CameraControlInternal.ControlUpdateCallback.class));
-        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics,
+        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControlImpl, cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor());
         // setActive() is called from executor thread (main thread in this case). No need to idle.
         zoomControl.setActive(true);
@@ -419,10 +425,10 @@ public class ZoomControlTest {
         CameraCharacteristics cameraCharacteristics =
                 cameraManager.getCameraCharacteristics(CAMERA1_ID);
 
-        mCamera2CameraControl = new Camera2CameraControl(cameraCharacteristics,
+        mCamera2CameraControlImpl = new Camera2CameraControlImpl(cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
                 mock(CameraControlInternal.ControlUpdateCallback.class));
-        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics,
+        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControlImpl, cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor());
         // setActive() is called from executor thread (main thread in this case). No need to idle.
         zoomControl.setActive(true);
@@ -445,10 +451,10 @@ public class ZoomControlTest {
         CameraCharacteristics cameraCharacteristics =
                 cameraManager.getCameraCharacteristics(CAMERA1_ID);
 
-        mCamera2CameraControl = new Camera2CameraControl(cameraCharacteristics,
+        mCamera2CameraControlImpl = new Camera2CameraControlImpl(cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
                 mock(CameraControlInternal.ControlUpdateCallback.class));
-        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics,
+        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControlImpl, cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor());
         // setActive() is called from executor thread (main thread in this case). No need to idle.
         zoomControl.setActive(true);
@@ -471,10 +477,10 @@ public class ZoomControlTest {
         CameraCharacteristics cameraCharacteristics =
                 cameraManager.getCameraCharacteristics(CAMERA1_ID);
 
-        mCamera2CameraControl = new Camera2CameraControl(cameraCharacteristics,
+        mCamera2CameraControlImpl = new Camera2CameraControlImpl(cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
                 mock(CameraControlInternal.ControlUpdateCallback.class));
-        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics,
+        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControlImpl, cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor());
         // setActive() is called from executor thread (main thread in this case). No need to idle.
         zoomControl.setActive(true);
@@ -498,10 +504,10 @@ public class ZoomControlTest {
         CameraCharacteristics cameraCharacteristics =
                 cameraManager.getCameraCharacteristics(CAMERA1_ID);
 
-        mCamera2CameraControl = new Camera2CameraControl(cameraCharacteristics,
+        mCamera2CameraControlImpl = new Camera2CameraControlImpl(cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor(), CameraXExecutors.mainThreadExecutor(),
                 mock(CameraControlInternal.ControlUpdateCallback.class));
-        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControl, cameraCharacteristics,
+        ZoomControl zoomControl = new ZoomControl(mCamera2CameraControlImpl, cameraCharacteristics,
                 CameraXExecutors.mainThreadExecutor());
         // setActive() is called from executor thread (main thread in this case). No need to idle.
         zoomControl.setActive(true);

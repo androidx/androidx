@@ -44,7 +44,8 @@ class StreamConfig(
     val size: Size,
     val format: StreamFormat,
     val camera: CameraId,
-    val type: StreamType
+    val type: StreamType,
+    val deferrable: Boolean = true
 )
 
 /**

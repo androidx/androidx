@@ -16,13 +16,15 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
    <item
-       android:id="@+id/option_menu_swipe_during_select"
-       android:title="Swipe When Selection Is Active"
-       android:checkable="true"
-       android:checked="true"/>
+       android:id="@+id/option_menu_more_cheese"
+       android:title="Show all the cheeses!"
+       android:checkable="true"/>
    <item
-       android:id="@+id/option_menu_custom_listener"
-       android:title="Custom OnItemTouchListener"
-       android:checkable="true"
-       android:checked="false"/>
+       android:id="@+id/option_menu_grid_layout"
+       android:title="Grid layout please!"
+       android:checkable="true"/>
+   <item
+       android:id="@+id/option_menu_swipe_during_select"
+       android:title="Swipe when stuff is selected!"
+       android:checkable="true"/>
 </menu>

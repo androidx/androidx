@@ -17,10 +17,10 @@
 package androidx.camera.core.impl.utils;
 
 import android.location.Location;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.camera.core.Logger;
 import androidx.exifinterface.media.ExifInterface;
 
 import java.io.File;
@@ -377,9 +377,9 @@ public final class Exif {
      */
     public void rotate(int degrees) {
         if (degrees % 90 != 0) {
-            Log.w(
+            Logger.w(
                     TAG,
-                    String.format(
+                    String.format(Locale.US,
                             "Can only rotate in right angles (eg. 0, 90, 180, 270). %d is "
                                     + "unsupported.",
                             degrees));

@@ -606,6 +606,25 @@ public final class CaptureSessionTest {
     }
 
     @Test
+    public void cameraEventCallbackInvoked_assignDifferentSessionConfig() {
+        CaptureSession captureSession = createCaptureSession();
+        captureSession.setSessionConfig(new SessionConfig.Builder().build());
+        captureSession.open(mTestParameters0.mSessionConfig, mCameraDeviceHolder.get(),
+                mCaptureSessionOpenerBuilder.build());
+
+        InOrder inOrder = inOrder(mTestParameters0.mMockCameraEventCallback);
+        inOrder.verify(mTestParameters0.mMockCameraEventCallback, timeout(3000)).onPresetSession();
+        inOrder.verify(mTestParameters0.mMockCameraEventCallback, timeout(3000)).onEnableSession();
+        // Should not trigger repeating since the repeating SessionConfig is empty.
+        verify(mTestParameters0.mMockCameraEventCallback, never()).onRepeating();
+
+        captureSession.close();
+        inOrder.verify(mTestParameters0.mMockCameraEventCallback, timeout(3000)).onDisableSession();
+
+        verifyNoMoreInteractions(mTestParameters0.mMockCameraEventCallback);
+    }
+
+    @Test
     public void cameraEventCallback_requestKeysIssuedSuccessfully() {
         ArgumentCaptor<CameraCaptureResult> captureResultCaptor = ArgumentCaptor.forClass(
                 CameraCaptureResult.class);

@@ -114,6 +114,8 @@ public class TrustedWebActivityIntentBuilder {
      * When a Trusted Web Activity is on the verified origin, the toolbar is hidden, so the color
      * applies only to the status bar. When it's on an unverified origin, the toolbar is shown, and
      * the color applies to both toolbar and status bar.
+     *
+     * @deprecated Use {@link #setDefaultColorSchemeParams} instead.
      */
     @NonNull
     public TrustedWebActivityIntentBuilder setToolbarColor(@ColorInt int color) {
@@ -123,6 +125,8 @@ public class TrustedWebActivityIntentBuilder {
 
     /**
      * Sets the navigation bar color, see {@link CustomTabsIntent.Builder#setNavigationBarColor}.
+     *
+     * @deprecated Use {@link #setDefaultColorSchemeParams} instead.
      */
     @NonNull
     public TrustedWebActivityIntentBuilder setNavigationBarColor(@ColorInt int color) {
@@ -133,6 +137,8 @@ public class TrustedWebActivityIntentBuilder {
     /**
      * Sets the navigation bar divider color, see
      * {@link CustomTabsIntent.Builder#setNavigationBarDividerColor}.
+     *
+     * @deprecated Use {@link #setDefaultColorSchemeParams} instead.
      */
     @NonNull
     public TrustedWebActivityIntentBuilder setNavigationBarDividerColor(@ColorInt int color) {
@@ -167,6 +173,21 @@ public class TrustedWebActivityIntentBuilder {
             @CustomTabsIntent.ColorScheme int colorScheme,
             @NonNull CustomTabColorSchemeParams params) {
         mIntentBuilder.setColorSchemeParams(colorScheme, params);
+        return this;
+    }
+
+    /**
+     * Sets the default {@link CustomTabColorSchemeParams}.
+     *
+     * This will set a default color scheme that applies when no CustomTabColorSchemeParams
+     * specified for current color scheme via {@link #setColorSchemeParams}.
+     *
+     * @param params An instance of {@link CustomTabColorSchemeParams}.
+     */
+    @NonNull
+    public TrustedWebActivityIntentBuilder setDefaultColorSchemeParams(
+            @NonNull CustomTabColorSchemeParams params) {
+        mIntentBuilder.setDefaultColorSchemeParams(params);
         return this;
     }
 

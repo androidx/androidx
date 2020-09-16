@@ -18,6 +18,7 @@ package androidx.room.compiler.processing
 
 import androidx.room.compiler.processing.javac.JavacProcessingEnv
 import androidx.room.compiler.processing.util.TestInvocation
+import java.lang.AssertionError
 import javax.lang.model.SourceVersion
 
 class SyntheticJavacProcessor(
@@ -49,7 +50,10 @@ class SyntheticJavacProcessor(
             "did not compile"
         }
         if (result.isFailure) {
-            throw result.exceptionOrNull()!!
+            // throw AssertionError instead of re-throwing the same error to keep the stack trace
+            // of the failure in the exception's cause field. We cannot throw it as is since stack
+            // traces do not match.
+            throw AssertionError(result.exceptionOrNull()!!)
         }
     }
 }

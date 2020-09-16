@@ -28,6 +28,7 @@ import androidx.lifecycle.testing.TestLifecycleOwner
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
+import org.junit.Assert.fail
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -66,8 +67,8 @@ class ActivityResultRegistryTest {
     }
 
     @Test
-    fun testLifecycleOwnerCallbackAlreadyStarted() {
-        val lifecycleOwner = TestLifecycleOwner()
+    fun testLifecycleOwnerCallbackRestoredThenStarted() {
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.CREATED)
 
         // register for the result
         val activityResult = registry.register("test", lifecycleOwner,
@@ -92,7 +93,27 @@ class ActivityResultRegistryTest {
             resultReturned = true
         })
 
+        lifecycleOwner.currentState = Lifecycle.State.STARTED
+
         assertThat(resultReturned).isTrue()
+    }
+
+    @Test
+    fun testLifecycleOwnerRegisterWhenStarted() {
+        val lifecycleOwner = TestLifecycleOwner()
+
+        try {
+            // register for the result
+            registry.register("test", lifecycleOwner,
+                TakePicturePreview(), ActivityResultCallback {})
+            fail("Registering for activity result after Lifecycle ON_CREATE should fail")
+        } catch (e: IllegalStateException) {
+            assertThat(e).hasMessageThat().contains(
+                "LifecycleOwner $lifecycleOwner is attempting to register while current state " +
+                        "is " + lifecycleOwner.currentState + ". LifecycleOwners must call " +
+                        "register before they are STARTED."
+            )
+        }
     }
 
     @Test
@@ -129,6 +150,45 @@ class ActivityResultRegistryTest {
         // move to STARTED and make sure the callback fires
         lifecycleOwner.currentState = Lifecycle.State.STARTED
         assertThat(resultReturned).isTrue()
+    }
+
+    @Test
+    fun testLifecycleOwnerCallbackUnregistered() {
+        val lifecycleOwner = TestLifecycleOwner(Lifecycle.State.INITIALIZED)
+
+        // register for the result
+        val activityResult = registry.register("test", lifecycleOwner,
+            TakePicturePreview(), ActivityResultCallback {})
+
+        // saved the state of the registry
+        val state = Bundle()
+        registry.onSaveInstanceState(state)
+
+        // unregister the callback to simulate process death
+        activityResult.unregister()
+
+        // restore the state of the registry
+        registry.onRestoreInstanceState(state)
+
+        // launch the result
+        activityResult.launch(null)
+
+        var resultReturned = false
+        // re-register for the result that should have been saved
+        registry.register("test", lifecycleOwner, TakePicturePreview(), ActivityResultCallback {
+            resultReturned = true
+        })
+
+        // move to CREATED and make sure the callback is not fired
+        lifecycleOwner.currentState = Lifecycle.State.CREATED
+        assertThat(resultReturned).isFalse()
+
+        // unregister the callback
+        registry.unregister("test")
+
+        // move to STARTED and make sure the callback is not fired
+        lifecycleOwner.currentState = Lifecycle.State.STARTED
+        assertThat(resultReturned).isFalse()
     }
 
     @Test

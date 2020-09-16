@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="buttons_round_top_center" msgid="5559087816427379703">"ওপৰৰ অংশত"</string>
+    <string name="buttons_round_top_right" msgid="4871780374047139328">"ওপৰৰ সোঁফালে"</string>
+    <string name="buttons_round_center_right" msgid="1509579668330531551">"সোঁফালে মাজত"</string>
+    <string name="buttons_round_bottom_right" msgid="2377403938095293895">"সোঁফালে তলত"</string>
+    <string name="buttons_round_bottom_center" msgid="7330585893633364324">"তলৰ অংশত"</string>
+    <string name="buttons_round_bottom_left" msgid="2128239325315047486">"বাওঁফালে তলত"</string>
+    <string name="buttons_round_center_left" msgid="4851687456301428363">"বাওঁফালে মাজত"</string>
+    <string name="buttons_round_top_left" msgid="6011962751086201079">"ওপৰৰ বাওঁফালে"</string>
+    <string name="buttons_round_top_right_upper" msgid="5489914740902966147">"ওপৰৰ সোঁফালে, ওপৰলৈ"</string>
+    <string name="buttons_round_top_right_lower" msgid="49744844591556337">"ওপৰৰ সোঁফালে, তললৈ"</string>
+    <string name="buttons_round_bottom_right_upper" msgid="3762205785832512542">"সোঁফালে তলত, ওপৰলৈ"</string>
+    <string name="buttons_round_bottom_right_lower" msgid="6450671993962362349">"সোঁফালে তলত, তললৈ"</string>
+    <string name="buttons_round_bottom_left_lower" msgid="8840562761052904241">"বাওঁফালে তলত, তললৈ"</string>
+    <string name="buttons_round_bottom_left_upper" msgid="5824161271890322696">"বাওঁফালে তলত, ওপৰলৈ"</string>
+    <string name="buttons_round_top_left_lower" msgid="4749025344320804614">"ওপৰৰ বাওঁফালে, তললৈ"</string>
+    <string name="buttons_round_top_left_upper" msgid="2546930425604677415">"ওপৰৰ বাওঁফালে, ওপৰলৈ"</string>
+    <string name="buttons_rect_left_top" msgid="5658240954637179416">"ওপৰত, বাওঁফালে"</string>
+    <string name="buttons_rect_left_center" msgid="2090348335774325845">"বাওঁফালে মাজত"</string>
+    <string name="buttons_rect_left_bottom" msgid="2890382227404669440">"তলত, বাওঁফালে"</string>
+    <string name="buttons_rect_right_top" msgid="8781047384037217975">"ওপৰত, সোঁফালে"</string>
+    <string name="buttons_rect_right_center" msgid="9046922334870476704">"সোঁফালে মাজত"</string>
+    <string name="buttons_rect_right_bottom" msgid="231110280868923853">"তলত, সোঁফালে"</string>
+    <string name="buttons_rect_top_left" msgid="7572206729575579647">"ওপৰৰ বাওঁফালে"</string>
+    <string name="buttons_rect_top_center" msgid="79705740801041383">"ওপৰৰ অংশত"</string>
+    <string name="buttons_rect_top_right" msgid="942888900599091776">"ওপৰৰ সোঁফালে"</string>
+    <string name="buttons_rect_bottom_left" msgid="1900303277997254019">"বাওঁফালে তলত"</string>
+    <string name="buttons_rect_bottom_center" msgid="7032918537319714491">"তলৰ অংশত"</string>
+    <string name="buttons_rect_bottom_right" msgid="5128261908141175352">"সোঁফালে তলত"</string>
+</resources>

@@ -73,6 +73,14 @@ AutoBoxing: androidx.tvprovider.media.tv.WatchNextProgram#getInternalProviderFla
     Must avoid boxed primitives (`java.lang.Long`)
 
 
+HiddenSuperclass: androidx.tvprovider.media.tv.PreviewProgram:
+    Public class androidx.tvprovider.media.tv.PreviewProgram stripped of unavailable superclass androidx.tvprovider.media.tv.BasePreviewProgram
+HiddenSuperclass: androidx.tvprovider.media.tv.Program:
+    Public class androidx.tvprovider.media.tv.Program stripped of unavailable superclass androidx.tvprovider.media.tv.BaseProgram
+HiddenSuperclass: androidx.tvprovider.media.tv.WatchNextProgram:
+    Public class androidx.tvprovider.media.tv.WatchNextProgram stripped of unavailable superclass androidx.tvprovider.media.tv.BasePreviewProgram
+
+
 IntentName: androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms#COLUMN_INTERACTION_COUNT:
     Intent action constant name must be ACTION_FOO: COLUMN_INTERACTION_COUNT
 IntentName: androidx.tvprovider.media.tv.TvContractCompat.PreviewPrograms#COLUMN_INTERACTION_TYPE:
@@ -435,3 +443,7 @@ MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram.Builder#setLas
     Missing nullability on method `setLastEngagementTimeUtcMillis` return
 MissingNullability: androidx.tvprovider.media.tv.WatchNextProgram.Builder#setWatchNextType(int):
     Missing nullability on method `setWatchNextType` return
+
+
+StaticFinalBuilder: androidx.tvprovider.media.tv.Program.Builder:
+    Builder must be final: androidx.tvprovider.media.tv.Program.Builder

@@ -344,7 +344,7 @@ class SampledAnnotationEnforcer {
                         INVALID_SAMPLES_LOCATION,
                         node,
                         context.getNameLocation(node),
-                        "${function.name} in $currentPath is annotated with @$SAMPLED_ANNOTATION" +
+                        "${function.name} is annotated with @$SAMPLED_ANNOTATION" +
                                 ", but is not inside a project/directory named $SAMPLES_DIRECTORY."
                     )
                     return

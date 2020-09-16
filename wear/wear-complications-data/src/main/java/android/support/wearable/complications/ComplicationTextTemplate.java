@@ -117,14 +117,14 @@ public final class ComplicationTextTemplate implements Parcelable, TimeDependent
 
     @NonNull
     @Override
-    public CharSequence getText(@NonNull Resources resources, long dateTimeMillis) {
+    public CharSequence getTextAt(@NonNull Resources resources, long dateTimeMillis) {
         final int len = mComplicationTexts.length;
         if (len == 0) {
             return mSurroundingText;
         }
         CharSequence[] timeDependentParts = new CharSequence[len];
         for (int i = 0; i < len; i++) {
-            timeDependentParts[i] = mComplicationTexts[i].getText(resources, dateTimeMillis);
+            timeDependentParts[i] = mComplicationTexts[i].getTextAt(resources, dateTimeMillis);
         }
 
         if (mSurroundingText == null) {

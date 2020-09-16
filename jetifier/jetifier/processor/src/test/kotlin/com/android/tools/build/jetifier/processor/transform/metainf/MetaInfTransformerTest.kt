@@ -132,16 +132,16 @@ class MetaInfTransformerTest {
         )
     }
 
-    @Test(expected = IllegalArgumentException::class)
-    fun rewriteVersion_dejetification_missingPomRule_shouldCrash() {
+    @Test
+    fun rewriteVersion_dejetification_missingPomRule_shouldSkip() {
         testRewrite(
             given = "1.0.0",
-            expected = "28.8.8",
+            expected = "1.0.0",
             pomRules = setOf(),
             filePath = Paths.get("something/META-INF",
                 "androidx.preference_preference.version"),
             expectedFilePath = Paths.get("something/META-INF",
-                "com.android.support_preference-v7.version"),
+                "androidx.preference_preference.version"),
             rewritingSupportLib = true
         )
     }

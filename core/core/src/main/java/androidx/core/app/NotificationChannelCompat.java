@@ -27,6 +27,7 @@ import android.provider.Settings;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.core.content.pm.ShortcutInfoCompat;
 import androidx.core.util.Preconditions;
 
@@ -48,6 +49,7 @@ public class NotificationChannelCompat {
     private static final boolean DEFAULT_SHOW_BADGE = true;
     private static final int DEFAULT_LIGHT_COLOR = 0;
 
+    // These fields are settable theough the builder
     @NonNull
     final String mId;
     CharSequence mName;
@@ -63,6 +65,12 @@ public class NotificationChannelCompat {
     long[] mVibrationPattern;
     String mParentId;
     String mConversationId;
+
+    // These fields are read-only
+    private boolean mBypassDnd;
+    private int mLockscreenVisibility;
+    private boolean mCanBubble;
+    private boolean mImportantConversation;
 
     /**
      * Builder class for {@link NotificationChannelCompat} objects.
@@ -271,6 +279,35 @@ public class NotificationChannelCompat {
         }
     }
 
+    @RequiresApi(26)
+    NotificationChannelCompat(@NonNull NotificationChannel channel) {
+        this(channel.getId(), channel.getImportance());
+        // Populate all builder-editable fields
+        mName = channel.getName();
+        mDescription = channel.getDescription();
+        mGroupId = channel.getGroup();
+        mShowBadge = channel.canShowBadge();
+        mSound = channel.getSound();
+        mAudioAttributes = channel.getAudioAttributes();
+        mLights = channel.shouldShowLights();
+        mLightColor = channel.getLightColor();
+        mVibrationEnabled = channel.shouldVibrate();
+        mVibrationPattern = channel.getVibrationPattern();
+        if (Build.VERSION.SDK_INT >= 30) {
+            mParentId = channel.getParentChannelId();
+            mConversationId = channel.getConversationId();
+        }
+        // Populate all read-only fields
+        mBypassDnd = channel.canBypassDnd();
+        mLockscreenVisibility = channel.getLockscreenVisibility();
+        if (Build.VERSION.SDK_INT >= 29) {
+            mCanBubble = channel.canBubble();
+        }
+        if (Build.VERSION.SDK_INT >= 30) {
+            mImportantConversation = channel.isImportantConversation();
+        }
+    }
+
     /**
      * Gets the platform notification channel object.
      *
@@ -295,6 +332,23 @@ public class NotificationChannelCompat {
         return channel;
     }
 
+    /**
+     * Creates a {@link Builder} instance with all the writeable property values of this instance.
+     */
+    @NonNull
+    public Builder toBuilder() {
+        return new Builder(mId, mImportance)
+                .setName(mName)
+                .setDescription(mDescription)
+                .setGroup(mGroupId)
+                .setShowBadge(mShowBadge)
+                .setSound(mSound, mAudioAttributes)
+                .setLightsEnabled(mLights)
+                .setLightColor(mLightColor)
+                .setVibrationEnabled(mVibrationEnabled)
+                .setVibrationPattern(mVibrationPattern)
+                .setConversationId(mParentId, mConversationId);
+    }
 
     /**
      * Returns the id of this channel.
@@ -418,6 +472,55 @@ public class NotificationChannelCompat {
     @Nullable
     public String getConversationId() {
         return mConversationId;
+    }
+
+    /**
+     * Whether or not notifications posted to this channel can bypass the Do Not Disturb
+     * {@link android.app.NotificationManager#INTERRUPTION_FILTER_PRIORITY} mode.
+     *
+     * <p>This is a read-only property which is only valid on instances fetched from the
+     * {@link NotificationManagerCompat}.
+     */
+    public boolean canBypassDnd() {
+        return mBypassDnd;
+    }
+
+    /**
+     * Returns whether or not notifications posted to this channel are shown on the lockscreen
+     * in full or redacted form.
+     *
+     * <p>This is a read-only property which is only valid on instances fetched from the
+     * {@link NotificationManagerCompat}.
+     */
+    @NotificationCompat.NotificationVisibility
+    public int getLockscreenVisibility() {
+        return mLockscreenVisibility;
+    }
+
+    /**
+     * Returns whether notifications posted to this channel are allowed to display outside of the
+     * notification shade, in a floating window on top of other apps.
+     *
+     * <p>This is a read-only property which is only valid on instances fetched from the
+     * {@link NotificationManagerCompat}.
+     */
+    public boolean canBubble() {
+        return mCanBubble;
+    }
+
+    /**
+     * Whether or not notifications in this conversation are considered important.
+     *
+     * <p>Important conversations may get special visual treatment, and might be able to bypass DND.
+     *
+     * <p>This is only valid for channels that represent conversations, that is, those with a valid
+     * {@link #getConversationId() conversation id}.
+     *
+     * <p>This is a read-only property which is only valid on instances fetched from the
+     * {@link NotificationManagerCompat}.
+     */
+    public boolean isImportantConversation() {
+        return mImportantConversation;
     }
 
 }

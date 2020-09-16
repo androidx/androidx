@@ -16,25 +16,40 @@
 
 package androidx.ui.test.gesturescope
 
+import androidx.compose.animation.core.AnimationClockObservable
+import androidx.compose.animation.core.AnimationClockObserver
+import androidx.compose.animation.core.ExponentialDecay
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.ScrollableColumn
+import androidx.compose.foundation.animation.FlingConfig
+import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.runtime.Composable
-import androidx.test.filters.MediumTest
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.foundation.layout.Stack
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.ui.gesture.TouchSlop
+import androidx.compose.ui.platform.DensityAmbient
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.milliseconds
+import androidx.test.filters.MediumTest
+import androidx.ui.test.bottomCenter
 import androidx.ui.test.bottomRight
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.performGesture
+import androidx.ui.test.down
+import androidx.ui.test.moveTo
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.runOnIdle
+import androidx.ui.test.performGesture
 import androidx.ui.test.swipe
 import androidx.ui.test.swipeDown
 import androidx.ui.test.swipeLeft
 import androidx.ui.test.swipeRight
 import androidx.ui.test.swipeUp
+import androidx.ui.test.topCenter
 import androidx.ui.test.topLeft
+import androidx.ui.test.up
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.SinglePointerInputRecorder
 import androidx.ui.test.util.assertDecreasing
@@ -42,8 +57,8 @@ import androidx.ui.test.util.assertIncreasing
 import androidx.ui.test.util.assertOnlyLastEventIsUp
 import androidx.ui.test.util.assertSame
 import androidx.ui.test.util.assertTimestampsAreIncreasing
+import androidx.ui.test.util.isAlmostEqualTo
 import androidx.ui.test.util.verify
-import androidx.compose.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -58,7 +73,7 @@ class SendSwipeTest {
     }
 
     @get:Rule
-    val composeTestRule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule(disableTransitions = true)
 
     private val recorder = SinglePointerInputRecorder()
 
@@ -71,9 +86,9 @@ class SendSwipeTest {
 
     @Test
     fun swipeUp() {
-        composeTestRule.setContent { Ui(Alignment.TopStart) }
-        onNodeWithTag(tag).performGesture { swipeUp() }
-        runOnIdle {
+        rule.setContent { Ui(Alignment.TopStart) }
+        rule.onNodeWithTag(tag).performGesture { swipeUp() }
+        rule.runOnIdle {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()
@@ -84,9 +99,9 @@ class SendSwipeTest {
 
     @Test
     fun swipeDown() {
-        composeTestRule.setContent { Ui(Alignment.TopEnd) }
-        onNodeWithTag(tag).performGesture { swipeDown() }
-        runOnIdle {
+        rule.setContent { Ui(Alignment.TopEnd) }
+        rule.onNodeWithTag(tag).performGesture { swipeDown() }
+        rule.runOnIdle {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()
@@ -97,9 +112,9 @@ class SendSwipeTest {
 
     @Test
     fun swipeLeft() {
-        composeTestRule.setContent { Ui(Alignment.BottomEnd) }
-        onNodeWithTag(tag).performGesture { swipeLeft() }
-        runOnIdle {
+        rule.setContent { Ui(Alignment.BottomEnd) }
+        rule.onNodeWithTag(tag).performGesture { swipeLeft() }
+        rule.runOnIdle {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()
@@ -110,9 +125,9 @@ class SendSwipeTest {
 
     @Test
     fun swipeRight() {
-        composeTestRule.setContent { Ui(Alignment.BottomStart) }
-        onNodeWithTag(tag).performGesture { swipeRight() }
-        runOnIdle {
+        rule.setContent { Ui(Alignment.BottomStart) }
+        rule.onNodeWithTag(tag).performGesture { swipeRight() }
+        rule.runOnIdle {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()
@@ -123,9 +138,9 @@ class SendSwipeTest {
 
     @Test
     fun swipeShort() {
-        composeTestRule.setContent { Ui(Alignment.Center) }
-        onNodeWithTag(tag).performGesture { swipe(topLeft, bottomRight, 1.milliseconds) }
-        runOnIdle {
+        rule.setContent { Ui(Alignment.Center) }
+        rule.onNodeWithTag(tag).performGesture { swipe(topLeft, bottomRight, 1.milliseconds) }
+        rule.runOnIdle {
             recorder.run {
                 assertTimestampsAreIncreasing()
                 assertOnlyLastEventIsUp()
@@ -144,6 +159,56 @@ class SendSwipeTest {
                 // UP is also in bottom right corner
                 events[2].verify(t, pointerId, false, Offset(99f, 99f))
             }
+        }
+    }
+
+    @Test
+    fun swipeScrollable() {
+        val touchSlop = with(rule.density) { TouchSlop.toPx() }
+        val scrollState = ScrollState(
+            initial = 0f,
+            flingConfig = FlingConfig(ExponentialDecay()),
+            animationClock = object : AnimationClockObservable {
+                // Use a "broken" clock, we just want response to input, not to time
+                override fun subscribe(observer: AnimationClockObserver) {}
+                override fun unsubscribe(observer: AnimationClockObserver) {}
+            }
+        )
+        rule.setContent {
+            with(DensityAmbient.current) {
+                // Scrollable with a viewport the size of 10 boxes
+                ScrollableColumn(
+                    Modifier.testTag("scrollable").size(100.toDp(), 1000.toDp()),
+                    scrollState
+                ) {
+                    repeat(100) {
+                        ClickableTestBox()
+                    }
+                }
+            }
+        }
+
+        rule.runOnIdle {
+            assertThat(scrollState.value).isEqualTo(0f)
+            // numBoxes * boxHeight - viewportHeight = 100 * 100 - 1000
+            assertThat(scrollState.maxValue).isEqualTo(9000f)
+        }
+
+        val swipeDistance = 800f - touchSlop
+        rule.onNodeWithTag("scrollable").performGesture {
+            val from = bottomCenter - Offset(0f, 99f)
+            val touchSlopThreshold = from - Offset(0f, touchSlop)
+            val to = topCenter + Offset(0f, 100f)
+
+            down(from)
+            moveTo(touchSlopThreshold)
+            moveTo(to)
+            up()
+        }
+
+        rule.runOnIdle {
+            assertThat(scrollState.value).isAlmostEqualTo(swipeDistance, 1e-3f)
+            assertThat(scrollState.maxValue).isEqualTo(9000f)
         }
     }
 

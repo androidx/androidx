@@ -18,11 +18,11 @@ package androidx.ui.test.selectors
 
 import androidx.test.filters.MediumTest
 import androidx.ui.test.assert
-import androidx.ui.test.onChildren
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.filterToOne
-import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.hasTestTag
+import androidx.ui.test.onChildren
+import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.util.BoundaryNode
 import androidx.ui.test.util.expectErrorMessageStartsWith
 import org.junit.Rule
@@ -35,18 +35,18 @@ import org.junit.runners.JUnit4
 class FilterToOneSelectorTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val rule = createComposeRule()
 
     @Test
     fun twoNodes_filterToOne() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child1")
                 BoundaryNode(testTag = "Child2")
             }
         }
 
-        onNodeWithTag("Parent")
+        rule.onNodeWithTag("Parent")
             .onChildren()
             .filterToOne(hasTestTag("Child1"))
             .assert(hasTestTag("Child1"))
@@ -54,7 +54,7 @@ class FilterToOneSelectorTest {
 
     @Test
     fun twoNodes_filterToTwo_fail() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child1")
                 BoundaryNode(testTag = "Child2")
@@ -69,7 +69,7 @@ class FilterToOneSelectorTest {
                 "Nodes found:\n" +
                 "1) "
         ) {
-            onNodeWithTag("Parent")
+            rule.onNodeWithTag("Parent")
                 .onChildren()
                 .filterToOne(hasTestTag("Child1") or hasTestTag("Child2"))
                 .assertExists()
@@ -78,14 +78,14 @@ class FilterToOneSelectorTest {
 
     @Test
     fun twoNodes_filterToNone() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child1")
                 BoundaryNode(testTag = "Child2")
             }
         }
 
-        onNodeWithTag("Parent")
+        rule.onNodeWithTag("Parent")
             .onChildren()
             .filterToOne(hasTestTag("Child"))
             .assertDoesNotExist()
@@ -93,7 +93,7 @@ class FilterToOneSelectorTest {
 
     @Test
     fun twoNodes_filterToNone_fail() {
-        composeTestRule.setContent {
+        rule.setContent {
             BoundaryNode(testTag = "Parent") {
                 BoundaryNode(testTag = "Child1")
                 BoundaryNode(testTag = "Child2")
@@ -104,7 +104,7 @@ class FilterToOneSelectorTest {
                 "Failed: assertExists.\n" +
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
                 "(((TestTag = 'Parent').children).filterToOne(TestTag = 'Child'))") {
-            onNodeWithTag("Parent")
+            rule.onNodeWithTag("Parent")
                 .onChildren()
                 .filterToOne(hasTestTag("Child"))
                 .assertExists()

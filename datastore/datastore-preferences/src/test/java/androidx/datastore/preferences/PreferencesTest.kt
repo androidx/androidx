@@ -19,10 +19,12 @@ package androidx.datastore.preferences
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.lang.IllegalArgumentException
+import java.lang.UnsupportedOperationException
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.assertFalse
 import kotlin.test.assertNotEquals
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @RunWith(JUnit4::class)
@@ -30,185 +32,165 @@ class PreferencesTest {
 
     @Test
     fun testBoolean() {
-        val booleanKey = "boolean_key"
+        val booleanKey = preferencesKey<Boolean>("boolean_key")
 
-        val prefs = Preferences
-            .empty()
-            .toBuilder()
-            .setBoolean(booleanKey, true)
-            .build()
+        val prefs = preferencesOf(booleanKey to true)
 
-        assertTrue { prefs.contains(booleanKey) }
-        assertTrue { prefs.getBoolean(booleanKey, false) }
+        assertTrue { booleanKey in prefs }
+        assertTrue(prefs[booleanKey]!!)
     }
 
     @Test
-    fun testBooleanDefault() {
-        assertFalse(Preferences.empty().getBoolean("nonexistent key", false))
+    fun testBooleanNotSet() {
+        val booleanKey = preferencesKey<Boolean>("boolean_key")
+
+        assertNull(emptyPreferences()[booleanKey])
     }
 
     @Test
     fun testFloat() {
-        val floatKey = "float_key"
+        val floatKey = preferencesKey<Float>("float_key")
 
-        val prefs = Preferences
-            .empty()
-            .toBuilder()
-            .setFloat(floatKey, 1.1f)
-            .build()
+        val prefs = preferencesOf(floatKey to 1.1f)
 
-        assertTrue { prefs.contains(floatKey) }
-        assertEquals(1.1f, prefs.getFloat(floatKey, 0.0f))
+        assertTrue { floatKey in prefs }
+        assertEquals(1.1f, prefs[floatKey])
     }
 
     @Test
-    fun testFloatDefault() {
-        assertEquals(0.1f, Preferences.empty().getFloat("nonexistent key", 0.1f))
+    fun testFloatNotSet() {
+        val floatKey = preferencesKey<Float>("float_key")
+        assertNull(emptyPreferences()[floatKey])
     }
 
     @Test
     fun testInt() {
-        val intKey = "int_key"
+        val intKey = preferencesKey<Int>("int_key")
 
-        val prefs = Preferences
-            .empty()
-            .toBuilder()
-            .setInt(intKey, 1)
-            .build()
+        val prefs = preferencesOf(intKey to 1)
 
         assertTrue { prefs.contains(intKey) }
-        assertEquals(1, prefs.getInt(intKey, -1))
+        assertEquals(1, prefs[intKey])
     }
 
     @Test
-    fun testIntDefault() {
-        assertEquals(123, Preferences.empty().getInt("nonexistent key", 123))
+    fun testIntNotSet() {
+        val intKey = preferencesKey<Int>("int_key")
+        assertNull(emptyPreferences()[intKey])
     }
 
     @Test
     fun testLong() {
-        val longKey = "long_key"
+        val longKey = preferencesKey<Long>("long_key")
 
         val bigLong = 1L shr 50; // 2^50 > Int.MAX_VALUE
 
-        val prefs = Preferences
-            .empty()
-            .toBuilder()
-            .setLong(longKey, bigLong)
-            .build()
+        val prefs = preferencesOf(longKey to bigLong)
 
         assertTrue { prefs.contains(longKey) }
-        assertEquals(bigLong, prefs.getLong(longKey, -1))
+        assertEquals(bigLong, prefs[longKey])
     }
 
     @Test
-    fun testLongDefault() {
-        assertEquals(123, Preferences.empty().getLong("nonexistent key", 123))
+    fun testLongNotSet() {
+        val longKey = preferencesKey<Long>("long_key")
+
+        assertNull(emptyPreferences()[longKey])
     }
 
     @Test
     fun testString() {
-        val stringKey = "string_key"
+        val stringKey = preferencesKey<String>("string_key")
 
-        val prefs = Preferences
-            .empty()
-            .toBuilder()
-            .setString(stringKey, "string123")
-            .build()
+        val prefs = preferencesOf(stringKey to "string123")
 
         assertTrue { prefs.contains(stringKey) }
-        assertEquals("string123", prefs.getString(stringKey, "default string"))
+        assertEquals("string123", prefs[stringKey])
     }
 
     @Test
-    fun testStringDefault() {
-        assertEquals("default val", Preferences.empty().getString("nonexistent key", "default val"))
+    fun testStringNotSet() {
+        val stringKey = preferencesKey<String>("string_key")
+
+        assertNull(emptyPreferences()[stringKey])
     }
 
     @Test
     fun testStringSet() {
-        val stringSetKey = "string_set_key"
+        val stringSetKey = preferencesSetKey<String>("string_set_key")
 
-        val prefs = Preferences
-            .empty()
-            .toBuilder()
-            .setStringSet(stringSetKey, setOf("string1", "string2", "string3"))
-            .build()
+        val prefs = preferencesOf(stringSetKey to setOf("string1", "string2", "string3"))
 
         assertTrue { prefs.contains(stringSetKey) }
         assertEquals(
-
-            setOf(
-                "string1",
-                "string2",
-                "string3"
-            ), prefs.getStringSet(stringSetKey, setOf())
+            setOf("string1", "string2", "string3"), prefs[stringSetKey]
         )
     }
 
     @Test
-    fun testStringSetDefault() {
-        assertEquals(
-            setOf("default set"), Preferences.empty().getStringSet(
-                "nonexistent key", setOf("default set")
-            )
-        )
+    fun testStringSetNotSet() {
+        val stringSetKey = preferencesSetKey<String>("string_set_key")
+
+        assertNull(emptyPreferences()[stringSetKey])
     }
 
     @Test
     fun testModifyingStringSetDoesntModifyInternalState() {
-        val stringSetKey = "string_set_key"
+        val stringSetKey = preferencesSetKey<String>("string_set_key")
 
-        val prefs = Preferences
-            .empty()
-            .toBuilder()
-            .setStringSet(stringSetKey, setOf("string1", "string2", "string3"))
-            .build()
+        val stringSet = mutableSetOf("1", "2", "3")
 
-        val returnedSet: Set<String> = prefs.getStringSet(stringSetKey, setOf())
+        val prefs = preferencesOf(stringSetKey to stringSet)
+
+        stringSet.add("4") // modify the set passed into preferences
+
+        // modify the returned set.
+        val returnedSet: Set<String> = prefs[stringSetKey]!!
         val mutableReturnedSet: MutableSet<String> = returnedSet as MutableSet<String>
-        mutableReturnedSet.clear()
-        mutableReturnedSet.add("Original set does not contain this string")
 
-        assertEquals(
-            setOf(
-                "string1",
-                "string2",
-                "string3"
-            ),
-            prefs.getStringSet(stringSetKey, setOf())
-        )
+        assertFailsWith<UnsupportedOperationException> {
+            mutableReturnedSet.clear()
+        }
+        assertFailsWith<UnsupportedOperationException> {
+            mutableReturnedSet.add("Original set does not contain this string")
+        }
+
+        assertEquals(setOf("1", "2", "3"), prefs[stringSetKey])
     }
 
     @Test
+    @Suppress("UNUSED_VARIABLE")
     fun testWrongTypeThrowsClassCastException() {
-        val stringKey = "string_key"
+        val stringKey = preferencesKey<String>("string_key")
+        val intKey = preferencesKey<Int>("string_key") // long key of the same name as stringKey!
+        val longKey = preferencesKey<Long>("string_key")
 
-        val prefs = Preferences
-            .empty()
-            .toBuilder()
-            .setString(stringKey, "string123")
-            .build()
+        val prefs = preferencesOf(intKey to 123456)
 
-        assertTrue { prefs.contains(stringKey) }
+        assertTrue { prefs.contains(intKey) }
+        assertTrue { prefs.contains(stringKey) } // TODO: I don't think we can prevent this
 
-        // Trying to get a long where there is a string value throws a ClassCastException.
-        assertFailsWith<ClassCastException> { prefs.getLong(stringKey, 123) }
+        // Trying to get a long where there is an Int value throws a ClassCastException.
+        assertFailsWith<ClassCastException> {
+            var unused = prefs[stringKey] // This only throws if it's assigned to a
+            // variable
+        }
+
+        // Trying to get a Long where there is an Int value throws a ClassCastException.
+        assertFailsWith<ClassCastException> {
+            var unused = prefs[longKey] // This only throws if it's assigned to a
+            // variable
+        }
     }
 
     @Test
     fun testGetAll() {
-        val intKey = "int_key"
-        val stringSetKey = "string_set_key"
+        val intKey = preferencesKey<Int>("int_key")
+        val stringSetKey = preferencesSetKey<String>("string_set_key")
 
-        val prefs = Preferences
-            .empty()
-            .toBuilder()
-            .setInt(intKey, 123)
-            .setStringSet(stringSetKey, setOf("1", "2", "3"))
-            .build()
+        val prefs = preferencesOf(intKey to 123, stringSetKey to setOf("1", "2", "3"))
 
-        val allPreferences = prefs.getAll()
+        val allPreferences: Map<Preferences.Key<*>, Any> = prefs.asMap()
         assertEquals(2, allPreferences.size)
 
         assertEquals(123, allPreferences[intKey])
@@ -218,126 +200,161 @@ class PreferencesTest {
     @Test
     @Suppress("UNCHECKED_CAST")
     fun testGetAllCantMutateInternalState() {
-        val intKey = "int_key"
-        val stringSetKey = "string_set_key"
+        val intKey = preferencesKey<Int>("int_key")
+        val stringSetKey = preferencesSetKey<String>("string_set_key")
 
-        val prefs = Preferences
-            .empty()
-            .toBuilder()
-            .setInt(intKey, 123)
-            .setStringSet(stringSetKey, setOf("1", "2", "3"))
-            .build()
+        val prefs = preferencesOf(intKey to 123, stringSetKey to setOf("1", "2", "3"))
 
-        val mutableAllPreferences = prefs.getAll() as MutableMap
-        mutableAllPreferences[intKey] = 99999
-        (mutableAllPreferences[stringSetKey] as MutableSet<String>).clear()
+        val mutableAllPreferences = prefs.asMap() as MutableMap
+        assertFailsWith<UnsupportedOperationException> {
+            mutableAllPreferences[intKey] = 99999
+        }
+        assertFailsWith<UnsupportedOperationException> {
+            (mutableAllPreferences[stringSetKey] as MutableSet<String>).clear()
+        }
 
-        assertEquals(123, prefs.getInt(intKey, -1))
-        assertEquals(setOf("1", "2", "3"), prefs.getStringSet(stringSetKey, setOf()))
+        assertEquals(123, prefs[intKey])
+        assertEquals(setOf("1", "2", "3"), prefs[stringSetKey])
     }
 
     @Test
-    fun testBuilderClear() {
-        val intKey = "int_key"
+    fun testMutablePreferencesClear() {
+        val intKey = preferencesKey<Int>("int_key")
 
-        val prefsWithInt = Preferences
-            .empty()
-            .toBuilder()
-            .setInt(intKey, 123)
-            .build()
+        val prefsWithInt = preferencesOf(intKey to 123)
 
-        val emptyPrefs = prefsWithInt.toBuilder().clear().build()
+        val emptyPrefs = prefsWithInt.toMutablePreferences().apply { clear() }.toPreferences()
 
-        assertEquals(Preferences.empty(), emptyPrefs)
+        assertEquals(emptyPreferences(), emptyPrefs)
     }
 
     @Test
-    fun testBuilderRemove() {
-        val intKey = "int_key"
+    fun testMutablePreferencesRemove() {
+        val intKey = preferencesKey<Int>("int_key")
 
-        val prefsWithInt = Preferences
-            .empty()
-            .toBuilder()
-            .setInt(intKey, 123)
-            .build()
+        val prefsWithInt = preferencesOf(intKey to 123)
 
-        val emptyPrefs = prefsWithInt.toBuilder().remove(intKey).build()
+        val emptyPrefs =
+            prefsWithInt.toMutablePreferences().apply { remove(intKey) }.toPreferences()
 
-        assertEquals(Preferences.empty(), emptyPrefs)
+        assertEquals(emptyPreferences(), emptyPrefs)
+
+        val emptyPrefs2 = prefsWithInt.toMutablePreferences()
+        emptyPrefs2 -= intKey
+
+        assertEquals(emptyPreferences(), emptyPrefs2)
     }
 
     @Test
     fun testBuilderPublicConstructor() {
-        val emptyPrefs = Preferences.Builder().build()
+        val emptyPrefs = mutablePreferencesOf().toPreferences()
 
-        assertEquals(Preferences.empty(), emptyPrefs)
+        assertEquals(emptyPreferences(), emptyPrefs)
     }
 
     @Test
     fun testEqualsDifferentInstances() {
-        val intKey1 = "int_key1"
+        val intKey1 = preferencesKey<Int>("int_key1")
 
-        val prefs1 = Preferences.empty().toBuilder().setInt(intKey1, 123).build()
-        val prefs2 = Preferences.empty().toBuilder().setInt(intKey1, 123).build()
+        val prefs1 = preferencesOf(intKey1 to 123)
+        val prefs2 = preferencesOf(intKey1 to 123)
 
         assertEquals(prefs1, prefs2)
     }
 
     @Test
     fun testNotEqualsDifferentKeys() {
-        val intKey1 = "int_key1"
-        val intKey2 = "int_key2"
+        val intKey1 = preferencesKey<Int>("int_key1")
+        val intKey2 = preferencesKey<Int>("int_key2")
 
-        val prefs1 = Preferences
-            .empty()
-            .toBuilder()
-            .setInt(intKey1, 123)
-            .build()
-
-        val prefs2 = Preferences
-            .empty()
-            .toBuilder()
-            .setInt(intKey2, 123)
-            .build()
+        val prefs1 = preferencesOf(intKey1 to 123)
+        val prefs2 = preferencesOf(intKey2 to 123)
 
         assertNotEquals(prefs1, prefs2)
     }
 
     @Test
     fun testNotEqualsDifferentValues() {
-        val intKey = "int_key"
+        val intKey1 = preferencesKey<Int>("int_key1")
 
-        val prefs1 = Preferences
-            .empty()
-            .toBuilder()
-            .setInt(intKey, 123)
-            .build()
-
-        val prefs2 = Preferences
-            .empty()
-            .toBuilder()
-            .setInt(intKey, 999)
-            .build()
+        val prefs1 = preferencesOf(intKey1 to 123)
+        val prefs2 = preferencesOf(intKey1 to 999)
 
         assertNotEquals(prefs1, prefs2)
     }
 
     @Test
     fun testNotEqualsDifferentStringSets() {
-        val stringSetKey = "string_set_key"
+        val stringSetKey = preferencesSetKey<String>("string_set")
 
-        val prefs1 = Preferences
-            .empty()
-            .toBuilder()
-            .setStringSet(stringSetKey, setOf("string1", "string2"))
-            .build()
-
-        val prefs2 = Preferences
-            .empty()
-            .toBuilder()
-            .setStringSet(stringSetKey, setOf("different string1", "string2"))
-            .build()
+        val prefs1 = preferencesOf(stringSetKey to setOf("1"))
+        val prefs2 = preferencesOf(stringSetKey to setOf())
 
         assertNotEquals(prefs1, prefs2)
+    }
+
+    @Test
+    fun testCreateUnsupportedKeyType_failsWithIllegalStateException() {
+        assertFailsWith<IllegalArgumentException> { preferencesKey<Set<String>>("test") }
+        assertFailsWith<IllegalArgumentException> { preferencesKey<Set<*>>("test") }
+        assertFailsWith<IllegalArgumentException> { preferencesKey<Double>("test") }
+        assertFailsWith<IllegalArgumentException> { preferencesKey<Any>("test") }
+    }
+
+    @Test
+    fun testCreateUnsupportedSetKeyType_failsWithIllegalStateException() {
+        assertFailsWith<IllegalArgumentException> { preferencesSetKey<Set<String>>("test") }
+        assertFailsWith<IllegalArgumentException> { preferencesSetKey<Set<*>>("test") }
+        assertFailsWith<IllegalArgumentException> { preferencesSetKey<Double>("test") }
+        assertFailsWith<IllegalArgumentException> { preferencesSetKey<Any>("test") }
+    }
+
+    @Test
+    fun testToPreferences_retainsAllKeys() {
+        val intKey1 = preferencesKey<Int>("int_key1")
+        val intKey2 = preferencesKey<Int>("int_key2")
+        val prefs = preferencesOf(intKey1 to 1, intKey2 to 2)
+        val toPrefs = prefs.toPreferences()
+        assertEquals( 2, toPrefs.asMap().size)
+        assertEquals(1, prefs[intKey1])
+        assertEquals(2, prefs[intKey2])
+
+        val mutablePreferences = preferencesOf(intKey1 to 1, intKey2 to 2)
+        val mutableToPrefs = mutablePreferences.toPreferences()
+        assertEquals( 2, mutableToPrefs.asMap().size)
+        assertEquals(1, prefs[intKey1])
+        assertEquals(2, prefs[intKey2])
+    }
+
+    @Test
+    fun testToMutablePreferences_retainsAllKeys() {
+        val intKey1 = preferencesKey<Int>("int_key1")
+        val intKey2 = preferencesKey<Int>("int_key2")
+        val prefs = preferencesOf(intKey1 to 1, intKey2 to 2)
+        val toPrefs = prefs.toMutablePreferences()
+        assertEquals( 2, toPrefs.asMap().size)
+        assertEquals(1, prefs[intKey1])
+        assertEquals(2, prefs[intKey2])
+
+        val mutablePreferences = preferencesOf(intKey1 to 1, intKey2 to 2)
+        val mutableToPrefs = mutablePreferences.toMutablePreferences()
+        assertEquals( 2, mutableToPrefs.asMap().size)
+        assertEquals(1, prefs[intKey1])
+        assertEquals(2, prefs[intKey2])
+    }
+
+    @Test
+    fun testToMutablePreferences_doesntMutateOriginal() {
+        val intKey1 = preferencesKey<Int>("int_key1")
+        val intKey2 = preferencesKey<Int>("int_key2")
+        val prefs = mutablePreferencesOf(intKey1 to 1, intKey2 to 2)
+        val toPrefs = prefs.toMutablePreferences()
+        toPrefs[intKey1] = 12903819
+        assertEquals(1, prefs[intKey1])
+
+        val mutablePreferences = preferencesOf(intKey1 to 1, intKey2 to 2)
+        val mutableToPrefs = mutablePreferences.toMutablePreferences()
+        mutableToPrefs[intKey1] = 12903819
+        assertEquals(1, prefs[intKey1])
     }
 }

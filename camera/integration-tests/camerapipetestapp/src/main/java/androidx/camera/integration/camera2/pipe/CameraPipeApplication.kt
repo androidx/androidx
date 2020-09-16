@@ -26,7 +26,7 @@ import kotlin.system.measureNanoTime
 
 class CameraPipeApplication : Application() {
     private val _cameraPipe = lazy {
-        var result: CameraPipe? = null
+        var result: CameraPipe?
         val time = measureNanoTime {
             result = CameraPipe(CameraPipe.Config(appContext = this))
         }

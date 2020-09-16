@@ -205,6 +205,11 @@ public class BiometricViewModel extends ViewModel {
     private boolean mIsConfirmingDeviceCredential;
 
     /**
+     * Whether the prompt should delay showing the authentication UI.
+     */
+    private boolean mIsDelayingPrompt;
+
+    /**
      * Whether the prompt should ignore cancel requests not initiated by the client.
      */
     private boolean mIsIgnoringCancel;
@@ -447,6 +452,14 @@ public class BiometricViewModel extends ViewModel {
 
     void setConfirmingDeviceCredential(boolean confirmingDeviceCredential) {
         mIsConfirmingDeviceCredential = confirmingDeviceCredential;
+    }
+
+    boolean isDelayingPrompt() {
+        return mIsDelayingPrompt;
+    }
+
+    void setDelayingPrompt(boolean delayingPrompt) {
+        mIsDelayingPrompt = delayingPrompt;
     }
 
     boolean isIgnoringCancel() {

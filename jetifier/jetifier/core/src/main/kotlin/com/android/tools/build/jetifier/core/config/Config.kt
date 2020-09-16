@@ -38,7 +38,7 @@ import java.util.regex.Pattern
  * @param reversedRestrictToPackagePrefixes Same as [restrictToPackagePrefixes] but used when
  *  running in reversed mode.
  * @param rulesMap Rules to scan support libraries to generate [TypesMap]
- * @param slRule List of rules used when rewriting the support library itself in the reversed mode
+ * @param slRules List of rules used when rewriting the support library itself in the reversed mode
  *  to ignore packages that don't need rewriting anymore.
  * @param pomRewriteRules Rules to rewrite POM files
  * @param typesMap Map of all java types and fields to be used to rewrite libraries.
@@ -199,7 +199,7 @@ data class Config(
         val restrictToPackages: List<String?>,
 
         @SerializedName("reversedRestrictToPackagePrefixes")
-        val reversedRestrictToPackages: List<String?>,
+        val reversedRestrictToPackages: List<String?>?,
 
         @SerializedName("rules")
         val rules: List<RewriteRule.JsonData?>?,
@@ -225,24 +225,20 @@ data class Config(
         @SerializedName("stringsMap")
         val stringsMap: TypesMap.JsonData? = null
     ) {
+
         /** Creates instance of [Config] */
         fun toConfig(): Config {
             return Config(
                 restrictToPackagePrefixes = restrictToPackages.filterNotNull().toSet(),
                 reversedRestrictToPackagePrefixes = reversedRestrictToPackages
-                    .filterNotNull().toSet(),
-                rulesMap = rules
-                    ?.let { RewriteRulesMap(it.filterNotNull().map { it.toRule() }.toList()) }
-                    ?: RewriteRulesMap.EMPTY,
-                slRules = slRules
-                    ?.let { it.filterNotNull().map { it.toRule() }.toList() }
-                    ?: emptyList(),
-                packageMap = PackageMap(packageMap.filterNotNull().map { it.toMappings() }
-                    .toList()),
+                    .orEmpty().filterNotNull().toSet(),
+                rulesMap = RewriteRulesMap(
+                    rules.orEmpty().filterNotNull().map { it.toRule() }.toList()),
+                slRules = slRules.orEmpty().filterNotNull().map { it.toRule() }.toList(),
+                packageMap = PackageMap(
+                    packageMap.filterNotNull().map { it.toMappings() }.toList()),
                 pomRewriteRules = pomRules.filterNotNull().map { it.toRule() }.toSet(),
-                versionsMap = versions
-                    ?.let { DependencyVersionsMap(versions) }
-                    ?: DependencyVersionsMap.EMPTY,
+                versionsMap = DependencyVersionsMap(versions.orEmpty()),
                 typesMap = mappings?.toMappings() ?: TypesMap.EMPTY,
                 proGuardMap = proGuardMap?.toMappings() ?: ProGuardTypesMap.EMPTY,
                 stringsMap = stringsMap?.toMappings() ?: TypesMap.EMPTY

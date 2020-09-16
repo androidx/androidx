@@ -57,3 +57,7 @@ NoByteOrShort: androidx.work.Data#getByte(String, byte) parameter #1:
     Should avoid odd sized primitives; use `int` instead of `byte` in parameter defaultValue in androidx.work.Data.getByte(String key, byte defaultValue)
 NoByteOrShort: androidx.work.Data.Builder#putByte(String, byte) parameter #1:
     Should avoid odd sized primitives; use `int` instead of `byte` in parameter value in androidx.work.Data.Builder.putByte(String key, byte value)
+
+
+StaticFinalBuilder: androidx.work.WorkRequest.Builder:
+    Builder must be final: androidx.work.WorkRequest.Builder

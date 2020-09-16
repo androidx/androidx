@@ -19,8 +19,11 @@ package androidx.camera.extensions;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.experimental.UseExperimental;
+import androidx.camera.camera2.interop.Camera2CameraInfo;
+import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraFilter;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.ExperimentalCameraFilter;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
@@ -35,8 +38,8 @@ import java.util.LinkedHashSet;
  */
 @UseExperimental(markerClass = ExperimentalCameraFilter.class)
 public final class ExtensionCameraFilter implements CameraFilter {
-    private PreviewExtenderImpl mPreviewExtenderImpl;
-    private ImageCaptureExtenderImpl mImageCaptureExtenderImpl;
+    private final PreviewExtenderImpl mPreviewExtenderImpl;
+    private final ImageCaptureExtenderImpl mImageCaptureExtenderImpl;
 
     ExtensionCameraFilter(@Nullable PreviewExtenderImpl previewExtenderImpl) {
         mPreviewExtenderImpl = previewExtenderImpl;
@@ -54,6 +57,7 @@ public final class ExtensionCameraFilter implements CameraFilter {
         mImageCaptureExtenderImpl = imageCaptureExtenderImpl;
     }
 
+    @UseExperimental(markerClass = ExperimentalCamera2Interop.class)
     @NonNull
     @Override
     public LinkedHashSet<Camera> filter(@NonNull LinkedHashSet<Camera> cameras) {
@@ -62,6 +66,7 @@ public final class ExtensionCameraFilter implements CameraFilter {
             Preconditions.checkState(camera instanceof CameraInternal,
                     "The camera doesn't contain internal implementation.");
             String cameraId = ((CameraInternal) camera).getCameraInfoInternal().getCameraId();
+            CameraInfo cameraInfo = camera.getCameraInfo();
 
             boolean available = true;
 
@@ -69,12 +74,12 @@ public final class ExtensionCameraFilter implements CameraFilter {
             if (mPreviewExtenderImpl != null) {
                 available =
                         mPreviewExtenderImpl.isExtensionAvailable(cameraId,
-                                CameraUtil.getCameraCharacteristics(cameraId));
+                                Camera2CameraInfo.extractCameraCharacteristics(cameraInfo));
             }
             // If image capture extender impl isn't null, check if the camera id is supported.
             if (mImageCaptureExtenderImpl != null) {
                 available = mImageCaptureExtenderImpl.isExtensionAvailable(cameraId,
-                        CameraUtil.getCameraCharacteristics(cameraId));
+                        Camera2CameraInfo.extractCameraCharacteristics(cameraInfo));
             }
 
             if (available) {

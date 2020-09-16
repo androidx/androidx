@@ -17,21 +17,29 @@
 package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XExecutableParameterElement
 import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.XVariableElement
+import androidx.room.compiler.processing.javac.kotlin.KmType
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.VariableElement
 
-internal open class JavacVariableElement(
+internal abstract class JavacVariableElement(
     env: JavacProcessingEnv,
     val containing: JavacTypeElement,
     override val element: VariableElement
-) : JavacElement(env, element), XVariableElement {
+) : JavacElement(env, element), XExecutableParameterElement {
+
+    abstract val kotlinType: KmType?
+
+    override val name: String
+        get() = element.simpleName.toString()
+
     override val type: JavacType by lazy {
         MoreTypes.asMemberOf(env.typeUtils, containing.type.typeMirror, element).let {
             env.wrap<JavacType>(
                 typeMirror = it,
-                nullability = element.nullability
+                kotlinType = kotlinType,
+                elementNullability = element.nullability
             )
         }
     }
@@ -44,7 +52,8 @@ internal open class JavacVariableElement(
             val asMember = MoreTypes.asMemberOf(env.typeUtils, other.typeMirror, element)
             env.wrap<JavacType>(
                 typeMirror = asMember,
-                nullability = element.nullability
+                kotlinType = kotlinType,
+                elementNullability = element.nullability
             )
         }
     }

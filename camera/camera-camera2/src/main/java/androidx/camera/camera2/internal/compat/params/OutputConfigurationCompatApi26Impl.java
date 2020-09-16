@@ -17,12 +17,12 @@
 package androidx.camera.camera2.internal.compat.params;
 
 import android.hardware.camera2.params.OutputConfiguration;
-import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.camera.core.Logger;
 import androidx.core.util.Preconditions;
 
 import java.lang.reflect.Field;
@@ -128,7 +128,7 @@ class OutputConfigurationCompatApi26Impl extends OutputConfigurationCompatApi24I
                         "Surface is not part of this output configuration");
             }
         } catch (IllegalAccessException | NoSuchFieldException e) {
-            Log.e(TAG, "Unable to remove surface from this output configuration.", e);
+            Logger.e(TAG, "Unable to remove surface from this output configuration.", e);
         }
 
     }
@@ -141,7 +141,7 @@ class OutputConfigurationCompatApi26Impl extends OutputConfigurationCompatApi24I
         try {
             return getMaxSharedSurfaceCountApi26();
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            Log.e(TAG, "Unable to retrieve max shared surface count.", e);
+            Logger.e(TAG, "Unable to retrieve max shared surface count.", e);
             return super.getMaxSharedSurfaceCount();
         }
     }

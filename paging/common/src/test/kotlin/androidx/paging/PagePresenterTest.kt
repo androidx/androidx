@@ -20,8 +20,10 @@ import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
+import androidx.paging.PageEvent.Insert.Companion.Refresh
 import androidx.paging.PagePresenter.ProcessPageEventCallback
 import androidx.paging.PagingSource.LoadResult.Page.Companion.COUNT_UNDEFINED
+import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -36,13 +38,11 @@ internal fun <T : Any> PagePresenter(
     trailingNullCount: Int = COUNT_UNDEFINED,
     indexOfInitialPage: Int = 0
 ) = PagePresenter(
-    PageEvent.Insert.Refresh(
+    Refresh(
         pages = pages.mapIndexed { index, list ->
             TransformablePage(
                 originalPageOffset = index - indexOfInitialPage,
-                data = list,
-                originalPageSize = list.size,
-                originalIndices = null
+                data = list
             )
         },
         placeholdersBefore = leadingNullCount,
@@ -68,13 +68,15 @@ internal fun <T : Any> PagePresenter<T>.insertPage(
 
 internal fun <T : Any> PagePresenter<T>.dropPages(
     isPrepend: Boolean,
-    pagesToDrop: Int,
+    minPageOffset: Int,
+    maxPageOffset: Int,
     placeholdersRemaining: Int,
     callback: ProcessPageEventCallback
 ) = processEvent(
     PageEvent.Drop(
         loadType = if (isPrepend) PREPEND else APPEND,
-        count = pagesToDrop,
+        minPageOffset = minPageOffset,
+        maxPageOffset = maxPageOffset,
         placeholdersRemaining = placeholdersRemaining
     ),
     callback
@@ -309,11 +311,16 @@ class PagePresenterTest {
         assertEquals(initialPages.flatten() + List<Char?>(initialNulls) { null }, data.asList())
 
         val callback = ProcessPageEventCallbackCapture()
-        data.dropPages(false, pagesToDrop, newNulls, callback)
+        data.dropPages(
+            isPrepend = false,
+            minPageOffset = initialPages.lastIndex - (pagesToDrop - 1),
+            maxPageOffset = initialPages.lastIndex,
+            placeholdersRemaining = newNulls,
+            callback = callback
+        )
 
-        assertEquals(
-            events + listOf(StateEvent(APPEND, false, NotLoading.Incomplete)),
-            callback.getAllAndClear()
+        assertThat(callback.getAllAndClear()).isEqualTo(
+            events + listOf(StateEvent(APPEND, false, NotLoading.Incomplete))
         )
 
         // assert final list state
@@ -345,11 +352,16 @@ class PagePresenterTest {
         )
 
         val callback = ProcessPageEventCallbackCapture()
-        data.dropPages(true, pagesToDrop, newNulls, callback)
+        data.dropPages(
+            isPrepend = true,
+            minPageOffset = 0,
+            maxPageOffset = pagesToDrop - 1,
+            placeholdersRemaining = newNulls,
+            callback = callback
+        )
 
-        assertEvents(
-            events + listOf(StateEvent(PREPEND, false, NotLoading.Incomplete)),
-            callback.getAllAndClear()
+        assertThat(callback.getAllAndClear()).isEqualTo(
+            events + listOf(StateEvent(PREPEND, false, NotLoading.Incomplete))
         )
 
         // assert final list state
@@ -368,19 +380,6 @@ class PagePresenterTest {
         verifyDropStart(initialPages, initialNulls, newNulls, pagesToDrop, startEvents)
         verifyDropEnd(initialPages, initialNulls, newNulls, pagesToDrop, endEvents)
     }
-
-    @Test
-    fun dropPageNoop() = verifyDrop(
-        initialPages = listOf(
-            listOf('a', 'b'),
-            listOf('c', 'd')
-        ),
-        initialNulls = 0,
-        newNulls = 0,
-        pagesToDrop = 0,
-        startEvents = emptyList(),
-        endEvents = emptyList()
-    )
 
     @Test
     fun dropPageMulti() = verifyDrop(
@@ -420,8 +419,14 @@ class PagePresenterTest {
         initialNulls = 0,
         newNulls = 3,
         pagesToDrop = 2,
-        startEvents = listOf(ChangeEvent(0, 3)),
-        endEvents = listOf(ChangeEvent(2, 3))
+        startEvents = listOf(
+            // [null, null, null, 'a', 'b']
+            ChangeEvent(0, 3)
+        ),
+        endEvents = listOf(
+            // ['a', 'b', null, null, null]
+            ChangeEvent(2, 3)
+        )
     )
 
     @Test
@@ -435,12 +440,16 @@ class PagePresenterTest {
         newNulls = 4,
         pagesToDrop = 2,
         startEvents = listOf(
-            ChangeEvent(2, 3),
-            RemoveEvent(0, 1)
+            // [null, 'e', 'c', 'd', 'a', 'b']
+            RemoveEvent(0, 1),
+            // [null, null, null, null, 'a', 'b']
+            ChangeEvent(1, 3)
         ),
         endEvents = listOf(
-            ChangeEvent(2, 3),
-            RemoveEvent(6, 1)
+            // ['a', 'b', 'c', 'd', 'e', null]
+            RemoveEvent(6, 1),
+            // ['a', 'b', null, null, null, null]
+            ChangeEvent(2, 3)
         )
     )
 
@@ -455,12 +464,16 @@ class PagePresenterTest {
         newNulls = 1,
         pagesToDrop = 2,
         startEvents = listOf(
-            ChangeEvent(2, 1),
-            RemoveEvent(0, 2)
+            // ['d', 'a', 'b']
+            RemoveEvent(0, 2),
+            // [null, 'a', 'b']
+            ChangeEvent(0, 1)
         ),
         endEvents = listOf(
-            ChangeEvent(2, 1),
-            RemoveEvent(3, 2)
+            // ['a', 'b', 'c']
+            RemoveEvent(3, 2),
+            // ['a', 'b', null]
+            ChangeEvent(2, 1)
         )
     )
 
@@ -475,14 +488,16 @@ class PagePresenterTest {
         newNulls = 1,
         pagesToDrop = 2,
         startEvents = listOf(
-            ChangeEvent(5, 1),
-            RemoveEvent(0, 2),
-            RemoveEvent(0, 3)
+            // ['d', 'a', 'b']
+            RemoveEvent(0, 5),
+            // [null, 'a', 'b']
+            ChangeEvent(0, 1)
         ),
         endEvents = listOf(
-            ChangeEvent(2, 1),
-            RemoveEvent(3, 2),
-            RemoveEvent(3, 3)
+            // ['a', 'b', 'c']
+            RemoveEvent(3, 5),
+            // ['a', 'b', null]
+            ChangeEvent(2, 1)
         )
     )
 
@@ -507,7 +522,7 @@ class PagePresenterTest {
     @Test
     fun snapshot_uncounted() {
         val pagePresenter = PagePresenter(
-            PageEvent.Insert.Refresh(
+            insertEvent = Refresh(
                 pages = listOf(TransformablePage(listOf('a'))),
                 placeholdersBefore = 0,
                 placeholdersAfter = 0,
@@ -521,7 +536,7 @@ class PagePresenterTest {
     @Test
     fun snapshot_counted() {
         val pagePresenter = PagePresenter(
-            PageEvent.Insert.Refresh(
+            insertEvent = Refresh(
                 pages = listOf(TransformablePage(listOf('a'))),
                 placeholdersBefore = 1,
                 placeholdersAfter = 3,

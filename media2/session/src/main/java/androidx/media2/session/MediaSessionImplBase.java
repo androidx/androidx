@@ -20,6 +20,7 @@ import static androidx.media2.common.BaseResult.RESULT_ERROR_BAD_VALUE;
 import static androidx.media2.common.MediaMetadata.METADATA_KEY_DURATION;
 import static androidx.media2.common.MediaMetadata.METADATA_KEY_MEDIA_ID;
 import static androidx.media2.common.MediaMetadata.METADATA_KEY_PLAYABLE;
+import static androidx.media2.common.SessionPlayer.INVALID_ITEM_INDEX;
 import static androidx.media2.common.SessionPlayer.PLAYER_STATE_IDLE;
 import static androidx.media2.common.SessionPlayer.UNKNOWN_TIME;
 import static androidx.media2.session.MediaUtils.DIRECT_EXECUTOR;
@@ -89,7 +90,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
     private static final String DEFAULT_MEDIA_SESSION_TAG_PREFIX = "androidx.media2.session.id";
     private static final String DEFAULT_MEDIA_SESSION_TAG_DELIM = ".";
-    private static final int ITEM_NONE = -1;
 
     // Create a static lock for synchronize methods below.
     // We'd better not use MediaSessionImplBase.class for synchronized(), which indirectly exposes
@@ -127,6 +127,9 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
     private final PendingIntent mSessionActivity;
     private final PendingIntent mMediaButtonIntent;
     private final BroadcastReceiver mBroadcastReceiver;
+
+    @GuardedBy("mLock")
+    private boolean mClosed;
 
     @GuardedBy("mLock")
     @SuppressWarnings("WeakerAccess") /* synthetic access */
@@ -352,9 +355,10 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
     @Override
     public void close() {
         synchronized (mLock) {
-            if (isClosed()) {
+            if (mClosed) {
                 return;
             }
+            mClosed = true;
             if (DEBUG) {
                 Log.d(TAG, "Closing session, id=" + getId() + ", token="
                         + getToken());
@@ -796,7 +800,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             public Integer run(@NonNull SessionPlayer player) throws Exception {
                 return player.getCurrentMediaItemIndex();
             }
-        }, ITEM_NONE);
+        }, INVALID_ITEM_INDEX);
     }
 
     @Override
@@ -806,7 +810,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             public Integer run(@NonNull SessionPlayer player) throws Exception {
                 return player.getPreviousMediaItemIndex();
             }
-        }, ITEM_NONE);
+        }, INVALID_ITEM_INDEX);
     }
 
     @Override
@@ -816,7 +820,7 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
             public Integer run(@NonNull SessionPlayer player) throws Exception {
                 return player.getNextMediaItemIndex();
             }
-        }, ITEM_NONE);
+        }, INVALID_ITEM_INDEX);
     }
 
     @Override
@@ -975,7 +979,9 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
 
     @Override
     public boolean isClosed() {
-        return !mHandlerThread.isAlive();
+        synchronized (mLock) {
+            return mClosed;
+        }
     }
 
     @Override
@@ -1000,10 +1006,12 @@ class MediaSessionImplBase implements MediaSession.MediaSessionImpl {
                     | PlaybackStateCompat.ACTION_SET_REPEAT_MODE
                     | PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE
                     | PlaybackStateCompat.ACTION_SET_CAPTIONING_ENABLED;
+            long queueItemId = MediaUtils.convertToQueueItemId(getCurrentMediaItemIndex());
             return new PlaybackStateCompat.Builder()
                     .setState(state, getCurrentPosition(), getPlaybackSpeed(),
                             SystemClock.elapsedRealtime())
                     .setActions(allActions)
+                    .setActiveQueueItemId(queueItemId)
                     .setBufferedPosition(getBufferedPosition())
                     .build();
         }

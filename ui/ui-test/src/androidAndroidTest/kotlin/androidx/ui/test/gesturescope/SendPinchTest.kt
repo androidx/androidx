@@ -16,23 +16,22 @@
 
 package androidx.ui.test.gesturescope
 
-import androidx.test.filters.MediumTest
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.foundation.layout.Stack
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.inMilliseconds
+import androidx.compose.ui.unit.milliseconds
+import androidx.test.filters.MediumTest
 import androidx.ui.test.InputDispatcher.Companion.eventPeriod
 import androidx.ui.test.createComposeRule
-import androidx.ui.test.performGesture
 import androidx.ui.test.onNodeWithTag
-import androidx.ui.test.runOnIdle
+import androidx.ui.test.performGesture
 import androidx.ui.test.pinch
 import androidx.ui.test.util.ClickableTestBox
 import androidx.ui.test.util.MultiPointerInputRecorder
 import androidx.ui.test.util.assertTimestampsAreIncreasing
 import androidx.ui.test.util.isMonotonicBetween
-import androidx.compose.ui.unit.inMilliseconds
-import androidx.compose.ui.unit.milliseconds
 import com.google.common.truth.Truth.assertThat
 import org.junit.Rule
 import org.junit.Test
@@ -47,13 +46,13 @@ class SendPinchTest {
     }
 
     @get:Rule
-    val composeTestRule = createComposeRule(disableTransitions = true)
+    val rule = createComposeRule(disableTransitions = true)
 
     private val recorder = MultiPointerInputRecorder()
 
     @Test
     fun pinch() {
-        composeTestRule.setContent {
+        rule.setContent {
             Stack(Modifier.fillMaxSize()) {
                 ClickableTestBox(modifier = recorder, tag = TAG)
             }
@@ -65,11 +64,11 @@ class SendPinchTest {
         val end1 = Offset(92f, 50f)
         val duration = 400.milliseconds
 
-        onNodeWithTag(TAG).performGesture {
+        rule.onNodeWithTag(TAG).performGesture {
             pinch(start0, end0, start1, end1, duration)
         }
 
-        runOnIdle {
+        rule.runOnIdle {
             recorder.run {
                 assertTimestampsAreIncreasing()
 

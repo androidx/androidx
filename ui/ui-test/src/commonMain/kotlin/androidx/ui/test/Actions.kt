@@ -17,10 +17,16 @@
 package androidx.ui.test
 
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.boundsInParent
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.semantics.AccessibilityAction
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.semantics.SemanticsPropertyKey
+import androidx.compose.ui.unit.toSize
+import kotlin.math.max
+import kotlin.math.min
 
 /**
  * Performs a click action on the element represented by the given semantics node.
@@ -40,37 +46,64 @@ fun SemanticsNodeInteraction.performClick(): SemanticsNodeInteraction {
 }
 
 /**
- * Scrolls to a node using SemanticsActions. It first identifies a parent semantics node with a
- * Semantics ScrollBy action, then it retrieves the location of the current element and computes
- * the relative coordinates that will be used by the scroller.
+ * Scrolls the closest enclosing scroll parent by the smallest amount such that this node is fully
+ * visible in its viewport. If this node is larger than the viewport, scrolls the scroll parent
+ * by the smallest amount such that this node fills the entire viewport. A scroll parent is a
+ * parent node that has the semantics action [SemanticsActions.ScrollBy] (usually implemented by
+ * defining [scrollBy][androidx.compose.ui.semantics.scrollBy]).
  *
- * Throws [AssertionError] if there is no parent node with ScrollBy SemanticsAction, the
- * current semantics node doesn't have a bounding rectangle set or if a layout node used to
- * compute the relative coordinates to be fed to the ScrollBy action can't be found.
+ * Throws an [AssertionError] if there is no scroll parent.
  */
 fun SemanticsNodeInteraction.performScrollTo(): SemanticsNodeInteraction {
-    // find containing node with scroll action
-    val errorMessageOnFail = "Failed to perform doScrollTo."
+    // Find a parent node with a scroll action
+    val errorMessageOnFail = "Action performScrollTo() failed."
     val node = fetchSemanticsNode(errorMessageOnFail)
-    val scrollableSemanticsNode = node.findClosestParentNode {
+    val scrollableNode = node.findClosestParentNode {
         hasScrollAction().matches(it)
-    }
-        ?: throw AssertionError(
-            "Semantic Node has no parent layout with a Scroll SemanticsAction"
-        )
+    } ?: throw AssertionError("Semantic Node has no parent layout with a Scroll SemanticsAction")
 
-    val globalPosition = node.globalPosition
-
-    val layoutNode = scrollableSemanticsNode.componentNode
-
+    // Figure out the (clipped) bounds of the viewPort in its direct parent's content area, in
+    // root coordinates. We only want the clipping from the direct parent on the scrollable, not
+    // from any other ancestors.
     @OptIn(ExperimentalLayoutNodeApi::class)
-    val position = layoutNode.coordinates.localToGlobal(Offset(0.0f, 0.0f))
+    val viewPortInParent = scrollableNode.componentNode.coordinates.boundsInParent
+    @OptIn(ExperimentalLayoutNodeApi::class)
+    val parentInRoot = scrollableNode.componentNode.coordinates.parentCoordinates
+        ?.positionInRoot ?: Offset.Zero
 
+    val viewPort = viewPortInParent.translate(parentInRoot)
+    val target = Rect(node.positionInRoot, node.size.toSize())
+
+    val mustScrollUp = target.bottom > viewPort.bottom
+    val mustScrollDown = target.top < viewPort.top
+    val mustScrollLeft = target.right > viewPort.right
+    val mustScrollRight = target.left < viewPort.left
+
+    val dx = if (mustScrollLeft && !mustScrollRight) {
+        // scroll left: positive dx
+        min(target.left - viewPort.left, target.right - viewPort.right)
+    } else if (mustScrollRight && !mustScrollLeft) {
+        // scroll right: negative dx
+        max(target.left - viewPort.left, target.right - viewPort.right)
+    } else {
+        // already in viewport
+        0f
+    }
+
+    val dy = if (mustScrollUp && !mustScrollDown) {
+        // scroll up: positive dy
+        min(target.top - viewPort.top, target.bottom - viewPort.bottom)
+    } else if (mustScrollDown && !mustScrollUp) {
+        // scroll down: negative dy
+        max(target.top - viewPort.top, target.bottom - viewPort.bottom)
+    } else {
+        // already in viewport
+        0f
+    }
+
+    @Suppress("DEPRECATION")
     runOnUiThread {
-        scrollableSemanticsNode.config[SemanticsActions.ScrollBy].action(
-            (globalPosition.x - position.x),
-            (globalPosition.y - position.y)
-        )
+        scrollableNode.config[SemanticsActions.ScrollBy].action(dx, dy)
     }
 
     return this
@@ -81,6 +114,11 @@ fun SemanticsNodeInteraction.performScrollTo(): SemanticsNodeInteraction {
  * complete and can be resumed in a later invocation of [performGesture]. It is the
  * responsibility of the caller to make sure partial gestures don't leave the test in an
  * inconsistent state.
+ *
+ * All events that are injected from the [block] are batched together and sent after [block] is
+ * complete. This method blocks until all those events have been injected, which normally takes
+ * as long as the duration of the gesture. If an error occurs during execution of [block] or
+ * injection of the events, all (subsequent) events are dropped and the error is thrown here.
  *
  * This method must not be called from the main thread. The block will be executed on the same
  * thread as the caller.
@@ -107,7 +145,11 @@ fun SemanticsNodeInteraction.performGesture(
         try {
             block()
         } finally {
-            dispose()
+            try {
+                inputDispatcher.sendAllSynchronous()
+            } finally {
+                dispose()
+            }
         }
     }
     return this
@@ -141,6 +183,7 @@ fun <T : Function<Boolean>> SemanticsNodeInteraction.performSemanticsAction(
         )
     }
 
+    @Suppress("DEPRECATION")
     runOnUiThread {
         invocation(node.config[key].action)
     }

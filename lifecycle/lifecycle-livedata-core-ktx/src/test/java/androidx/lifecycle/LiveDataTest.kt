@@ -23,6 +23,7 @@ import kotlinx.coroutines.test.TestCoroutineDispatcher
 import org.junit.Rule
 import org.junit.Test
 
+@Suppress("DEPRECATION")
 class LiveDataTest {
 
     @get:Rule
@@ -35,7 +36,7 @@ class LiveDataTest {
 
         val liveData = MutableLiveData<String>()
         var value = ""
-        liveData.observe(lifecycleOwner) { newValue ->
+        liveData.observe<String>(lifecycleOwner) { newValue ->
             value = newValue
         }
 

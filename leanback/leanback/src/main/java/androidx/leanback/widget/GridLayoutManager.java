@@ -37,6 +37,7 @@ import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.ViewGroup;
 import android.view.ViewGroup.MarginLayoutParams;
+import android.view.accessibility.AccessibilityEvent;
 import android.view.animation.AccelerateDecelerateInterpolator;
 
 import androidx.annotation.VisibleForTesting;
@@ -3758,18 +3759,38 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                 }
             }
         }
-        switch (translatedAction) {
-            case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD:
-                processPendingMovement(false);
-                processSelectionMoves(false, -1);
-                break;
-            case AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD:
-                processPendingMovement(true);
-                processSelectionMoves(false, 1);
-                break;
+        boolean scrollingReachedBeginning = (mFocusPosition == 0
+                && translatedAction == AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
+        boolean scrollingReachedEnd = (mFocusPosition == state.getItemCount() - 1
+                && translatedAction == AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
+        if (scrollingReachedBeginning || scrollingReachedEnd) {
+            // Send a fake scroll completion event to notify Talkback that the scroll event was
+            // successful. Hence, Talkback will only look for next focus within the RecyclerView.
+            // Not sending this will result in Talkback classifying it as a failed scroll event, and
+            // will try to jump focus out of the RecyclerView.
+            // We know at this point that either focusOutFront or focusOutEnd is true (or both),
+            // because otherwise, we never hit ACTION_SCROLL_BACKWARD/FORWARD here.
+            sendTypeViewScrolledAccessibilityEvent();
+        } else {
+            switch (translatedAction) {
+                case AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD:
+                    processPendingMovement(false);
+                    processSelectionMoves(false, -1);
+                    break;
+                case AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD:
+                    processPendingMovement(true);
+                    processSelectionMoves(false, 1);
+                    break;
+            }
         }
         leaveContext();
         return true;
+    }
+
+    private void sendTypeViewScrolledAccessibilityEvent() {
+        AccessibilityEvent event = AccessibilityEvent.obtain(AccessibilityEvent.TYPE_VIEW_SCROLLED);
+        mBaseGridView.onInitializeAccessibilityEvent(event);
+        mBaseGridView.requestSendAccessibilityEvent(mBaseGridView, event);
     }
 
     /*
@@ -3826,45 +3847,58 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
         return moves;
     }
 
+    private void addA11yActionMovingBackward(AccessibilityNodeInfoCompat info,
+            boolean reverseFlowPrimary) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (mOrientation == HORIZONTAL) {
+                info.addAction(reverseFlowPrimary
+                        ? AccessibilityNodeInfoCompat.AccessibilityActionCompat
+                        .ACTION_SCROLL_RIGHT :
+                        AccessibilityNodeInfoCompat.AccessibilityActionCompat
+                                .ACTION_SCROLL_LEFT);
+            } else {
+                info.addAction(
+                        AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_UP);
+            }
+        } else {
+            info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
+        }
+        info.setScrollable(true);
+    }
+
+    private void addA11yActionMovingForward(AccessibilityNodeInfoCompat info,
+            boolean reverseFlowPrimary) {
+        if (Build.VERSION.SDK_INT >= 23) {
+            if (mOrientation == HORIZONTAL) {
+                info.addAction(reverseFlowPrimary
+                        ? AccessibilityNodeInfoCompat.AccessibilityActionCompat
+                        .ACTION_SCROLL_LEFT :
+                        AccessibilityNodeInfoCompat.AccessibilityActionCompat
+                                .ACTION_SCROLL_RIGHT);
+            } else {
+                info.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat
+                        .ACTION_SCROLL_DOWN);
+            }
+        } else {
+            info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
+        }
+        info.setScrollable(true);
+    }
+
     @Override
     public void onInitializeAccessibilityNodeInfo(Recycler recycler, State state,
             AccessibilityNodeInfoCompat info) {
         saveContext(recycler, state);
         int count = state.getItemCount();
+        // reverseFlowPrimary is whether we are in LTR/RTL mode.
         boolean reverseFlowPrimary = (mFlag & PF_REVERSE_FLOW_PRIMARY) != 0;
-        if (count > 1 && !isItemFullyVisible(0)) {
-            if (Build.VERSION.SDK_INT >= 23) {
-                if (mOrientation == HORIZONTAL) {
-                    info.addAction(reverseFlowPrimary
-                            ? AccessibilityNodeInfoCompat.AccessibilityActionCompat
-                                    .ACTION_SCROLL_RIGHT :
-                            AccessibilityNodeInfoCompat.AccessibilityActionCompat
-                                    .ACTION_SCROLL_LEFT);
-                } else {
-                    info.addAction(
-                            AccessibilityNodeInfoCompat.AccessibilityActionCompat.ACTION_SCROLL_UP);
-                }
-            } else {
-                info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_BACKWARD);
-            }
-            info.setScrollable(true);
+        // If focusOutFront/focusOutEnd is false, override Talkback in handling
+        // backward/forward actions by adding such actions to supported action list.
+        if ((mFlag & PF_FOCUS_OUT_FRONT) == 0 || (count > 1 && !isItemFullyVisible(0))) {
+            addA11yActionMovingBackward(info, reverseFlowPrimary);
         }
-        if (count > 1 && !isItemFullyVisible(count - 1)) {
-            if (Build.VERSION.SDK_INT >= 23) {
-                if (mOrientation == HORIZONTAL) {
-                    info.addAction(reverseFlowPrimary
-                            ? AccessibilityNodeInfoCompat.AccessibilityActionCompat
-                                    .ACTION_SCROLL_LEFT :
-                            AccessibilityNodeInfoCompat.AccessibilityActionCompat
-                                    .ACTION_SCROLL_RIGHT);
-                } else {
-                    info.addAction(AccessibilityNodeInfoCompat.AccessibilityActionCompat
-                                    .ACTION_SCROLL_DOWN);
-                }
-            } else {
-                info.addAction(AccessibilityNodeInfoCompat.ACTION_SCROLL_FORWARD);
-            }
-            info.setScrollable(true);
+        if ((mFlag & PF_FOCUS_OUT_END) == 0 || (count > 1 && !isItemFullyVisible(count - 1))) {
+            addA11yActionMovingForward(info, reverseFlowPrimary);
         }
         final AccessibilityNodeInfoCompat.CollectionInfoCompat collectionInfo =
                 AccessibilityNodeInfoCompat.CollectionInfoCompat

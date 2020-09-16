@@ -81,7 +81,7 @@ class DatabaseProcessor(baseContext: Context, val element: XTypeElement) {
             it.isAbstract()
         }.filterNot {
             // remove methods that belong to room
-            val containing = it.enclosingElement
+            val containing = it.enclosingTypeElement
             containing.isType() &&
                     containing.asDeclaredType().typeName == RoomTypeNames.ROOM_DB
         }.map {

@@ -38,6 +38,7 @@ import org.junit.Assume
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.TestRule
 import org.junit.runner.RunWith
 
 @LargeTest
@@ -45,10 +46,14 @@ import org.junit.runner.RunWith
 class CameraViewFragmentTest {
 
     @get:Rule
+    val useCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+
+    @get:Rule
     val permissionRule: GrantPermissionRule =
-        GrantPermissionRule.grant(android.Manifest.permission.CAMERA,
+        GrantPermissionRule.grant(
             android.Manifest.permission.WRITE_EXTERNAL_STORAGE,
-            android.Manifest.permission.RECORD_AUDIO)
+            android.Manifest.permission.RECORD_AUDIO
+        )
 
     @Before
     fun setup() {

@@ -30,6 +30,7 @@ import android.support.wearable.complications.ComplicationProviderInfo;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.core.app.ActivityCompat;
 
 import java.util.Objects;
@@ -54,19 +55,27 @@ import java.util.Objects;
  */
 @TargetApi(Build.VERSION_CODES.N)
 @SuppressWarnings("ForbiddenSuperClass")
-public class ComplicationHelperActivity extends Activity
+public final class ComplicationHelperActivity extends Activity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
 
-    private static final String ACTION_REQUEST_UPDATE_ALL_ACTIVE =
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String ACTION_REQUEST_UPDATE_ALL_ACTIVE =
             "android.support.wearable.complications.ACTION_REQUEST_UPDATE_ALL_ACTIVE";
 
-    private static final String EXTRA_WATCH_FACE_COMPONENT =
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String EXTRA_WATCH_FACE_COMPONENT =
             "android.support.wearable.complications.EXTRA_WATCH_FACE_COMPONENT";
 
-    private static final String ACTION_START_PROVIDER_CHOOSER =
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String ACTION_START_PROVIDER_CHOOSER =
             "android.support.wearable.complications.ACTION_START_PROVIDER_CHOOSER";
 
-    private static final String ACTION_PERMISSION_REQUEST_ONLY =
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String ACTION_PERMISSION_REQUEST_ONLY =
             "android.support.wearable.complications.ACTION_PERMISSION_REQUEST_ONLY";
 
     /** The package of the service that accepts provider requests. */
@@ -82,9 +91,9 @@ public class ComplicationHelperActivity extends Activity
     private static final String COMPLICATIONS_PERMISSION_PRIVILEGED =
             "com.google.android.wearable.permission.RECEIVE_COMPLICATION_DATA_PRIVILEGED";
 
-    private ComponentName mWatchFace;
+    @Nullable private ComponentName mWatchFace;
     private int mWfComplicationId;
-    @ComplicationData.ComplicationType private int[] mTypes;
+    @Nullable @ComplicationData.ComplicationType private int[] mTypes;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -203,7 +212,7 @@ public class ComplicationHelperActivity extends Activity
             @NonNull Context context,
             @NonNull ComponentName watchFace,
             int watchFaceComplicationId,
-            @NonNull @ComplicationData.ComplicationType int... supportedTypes) {
+            @NonNull int[] supportedTypes) {
         Intent intent = new Intent(context, ComplicationHelperActivity.class);
         intent.setAction(ACTION_START_PROVIDER_CHOOSER);
         intent.putExtra(ProviderChooserIntent.EXTRA_WATCH_FACE_COMPONENT_NAME, watchFace);

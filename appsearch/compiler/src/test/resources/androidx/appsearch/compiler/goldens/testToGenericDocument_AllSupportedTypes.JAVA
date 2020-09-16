@@ -62,6 +62,12 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
       .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
       .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
       .build())
+    .addProperty(new AppSearchSchema.PropertyConfig.Builder("collectGenDoc")
+      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOCUMENT)
+      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
+      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+      .build())
     .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrBoxLong")
       .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
       .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
@@ -129,8 +135,8 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
       .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
       .build())
     .addProperty(new AppSearchSchema.PropertyConfig.Builder("boxByteArr")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOCUMENT)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BYTES)
+      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
       .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
       .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
       .build())
@@ -138,6 +144,12 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
       .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
       .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
       .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+      .build())
+    .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrGenDoc")
+      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOCUMENT)
+      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
       .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
       .build())
     .addProperty(new AppSearchSchema.PropertyConfig.Builder("string")
@@ -210,6 +222,12 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
       .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_BYTES)
       .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
       .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+      .build())
+    .addProperty(new AppSearchSchema.PropertyConfig.Builder("genDocument")
+      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOCUMENT)
+      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
+      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
       .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
       .build())
     .build();
@@ -286,6 +304,11 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (collectStringCopy != null) {
       String[] collectStringConv = collectStringCopy.toArray(new String[0]);
       builder.setProperty("collectString", collectStringConv);
+    }
+    Collection<GenericDocument> collectGenDocCopy = dataClass.collectGenDoc;
+    if (collectGenDocCopy != null) {
+      GenericDocument[] collectGenDocConv = collectGenDocCopy.toArray(new GenericDocument[0]);
+      builder.setProperty("collectGenDoc", collectGenDocConv);
     }
     Long[] arrBoxLongCopy = dataClass.arrBoxLong;
     if (arrBoxLongCopy != null) {
@@ -371,6 +394,10 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (arrStringCopy != null) {
       builder.setProperty("arrString", arrStringCopy);
     }
+    GenericDocument[] arrGenDocCopy = dataClass.arrGenDoc;
+    if (arrGenDocCopy != null) {
+      builder.setProperty("arrGenDoc", arrGenDocCopy);
+    }
     String stringCopy = dataClass.string;
     if (stringCopy != null) {
       builder.setProperty("string", stringCopy);
@@ -403,6 +430,10 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     byte[] unboxByteArrCopy = dataClass.unboxByteArr;
     if (unboxByteArrCopy != null) {
       builder.setProperty("unboxByteArr", unboxByteArrCopy);
+    }
+    GenericDocument genDocumentCopy = dataClass.genDocument;
+    if (genDocumentCopy != null) {
+      builder.setProperty("genDocument", genDocumentCopy);
     }
     return builder.build();
   }
@@ -462,6 +493,11 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     List<String> collectStringConv = null;
     if (collectStringCopy != null) {
       collectStringConv = Arrays.asList(collectStringCopy);
+    }
+    GenericDocument[] collectGenDocCopy = genericDoc.getPropertyDocumentArray("collectGenDoc");
+    List<GenericDocument> collectGenDocConv = null;
+    if (collectGenDocCopy != null) {
+      collectGenDocConv = Arrays.asList(collectGenDocCopy);
     }
     long[] arrBoxLongCopy = genericDoc.getPropertyLongArray("arrBoxLong");
     Long[] arrBoxLongConv = null;
@@ -532,6 +568,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
       }
     }
     String[] arrStringConv = genericDoc.getPropertyStringArray("arrString");
+    GenericDocument[] arrGenDocConv = genericDoc.getPropertyDocumentArray("arrGenDoc");
     String[] stringCopy = genericDoc.getPropertyStringArray("string");
     String stringConv = null;
     if (stringCopy != null && stringCopy.length != 0) {
@@ -572,6 +609,11 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (unboxByteArrCopy != null && unboxByteArrCopy.length != 0) {
       unboxByteArrConv = unboxByteArrCopy[0];
     }
+    GenericDocument[] genDocumentCopy = genericDoc.getPropertyDocumentArray("genDocument");
+    GenericDocument genDocumentConv = null;
+    if (genDocumentCopy != null && genDocumentCopy.length != 0) {
+      genDocumentConv = genDocumentCopy[0];
+    }
     Gift dataClass = new Gift();
     dataClass.uri = uriConv;
     dataClass.collectLong = collectLongConv;
@@ -581,6 +623,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     dataClass.collectBoolean = collectBooleanConv;
     dataClass.collectByteArr = collectByteArrConv;
     dataClass.collectString = collectStringConv;
+    dataClass.collectGenDoc = collectGenDocConv;
     dataClass.arrBoxLong = arrBoxLongConv;
     dataClass.arrUnboxLong = arrUnboxLongConv;
     dataClass.arrBoxInteger = arrBoxIntegerConv;
@@ -594,6 +637,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     dataClass.arrUnboxByteArr = arrUnboxByteArrConv;
     dataClass.boxByteArr = boxByteArrConv;
     dataClass.arrString = arrStringConv;
+    dataClass.arrGenDoc = arrGenDocConv;
     dataClass.string = stringConv;
     dataClass.boxLong = boxLongConv;
     dataClass.unboxLong = unboxLongConv;
@@ -606,6 +650,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     dataClass.boxBoolean = boxBooleanConv;
     dataClass.unboxBoolean = unboxBooleanConv;
     dataClass.unboxByteArr = unboxByteArrConv;
+    dataClass.genDocument = genDocumentConv;
     return dataClass;
   }
 }

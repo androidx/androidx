@@ -31,9 +31,11 @@ plugins {
 dependencies {
     api(project(":paging:paging-common"))
     api(KOTLIN_STDLIB)
-    api("androidx.concurrent:concurrent-futures-ktx:1.1.0-alpha01")
+    api(GUAVA_ANDROID)
+    implementation(KOTLIN_COROUTINES_GUAVA)
 
     testImplementation(project(":internal-testutils-common"))
+    testImplementation(project(":internal-testutils-paging"))
     testImplementation(JUNIT)
     testImplementation(KOTLIN_TEST)
     testImplementation(KOTLIN_COROUTINES_TEST)

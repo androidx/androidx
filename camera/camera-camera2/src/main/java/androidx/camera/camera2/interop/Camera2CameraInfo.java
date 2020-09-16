@@ -16,36 +16,112 @@
 
 package androidx.camera.camera2.interop;
 
+import android.hardware.camera2.CameraCharacteristics;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.camera2.internal.Camera2CameraInfoImpl;
 import androidx.camera.core.CameraInfo;
 import androidx.core.util.Preconditions;
 
 /**
- * Provides ability to extract Camera2-related camera information from {@link CameraInfo}.
+ * An interface for retrieving Camera2-related camera information.
  */
 @ExperimentalCamera2Interop
 public final class Camera2CameraInfo {
 
+    private final Camera2CameraInfoImpl mCamera2CameraInfoImpl;
+
     /**
-     * Returns the string camera ID for this camera.
+     * Creates a new camera information with Camera2 implementation.
      *
-     * <p>The camera ID is the same as the camera ID that would be obtained from
-     * {@link android.hardware.camera2.CameraManager#getCameraIdList()}.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY)
+    public Camera2CameraInfo(@NonNull Camera2CameraInfoImpl camera2CameraInfoImpl) {
+        mCamera2CameraInfoImpl = camera2CameraInfoImpl;
+    }
+
+    /**
+     * Gets the {@link Camera2CameraInfo} from a {@link CameraInfo}.
      *
-     * @param cameraInfo The {@link CameraInfo} to extract the camera ID from.
-     * @return the camera ID.
-     * @throws IllegalStateException if the camera info does not contain the camera 2 camera ID
-     * (e.g., if CameraX was not initialized with a {@link androidx.camera.camera2.Camera2Config}).
+     * @param cameraInfo The {@link CameraInfo} to get from.
+     * @return The camera information with Camera2 implementation.
+     * @throws IllegalStateException if the camera info does not contain the camera2 information
+     *                               (e.g., if CameraX was not initialized with a
+     *                               {@link androidx.camera.camera2.Camera2Config}).
      */
     @NonNull
-    public static String extractCameraId(@NonNull CameraInfo cameraInfo) {
+    public static Camera2CameraInfo fromCameraInfo(@NonNull CameraInfo cameraInfo) {
+        Preconditions.checkState(cameraInfo instanceof Camera2CameraInfoImpl,
+                "CameraInfo doesn't contain Camera2 implementation.");
+        return ((Camera2CameraInfoImpl) cameraInfo).getCamera2CameraInfo();
+    }
+
+    /**
+     * Gets the string camera ID.
+     *
+     * <p>The camera ID is the same as the camera ID that would be obtained from
+     * {@link android.hardware.camera2.CameraManager#getCameraIdList()}. The ID that is retrieved
+     * is not static and can change depending on the current internal configuration of the
+     * {@link androidx.camera.core.Camera} from which the CameraInfo was retrieved.
+     *
+     * The Camera is a logical camera which can be backed by multiple
+     * {@link android.hardware.camera2.CameraDevice}. However, only one CameraDevice is active at
+     * one time. When the CameraDevice changes then the camera id will change.
+     *
+     * @return the camera ID.
+
+     * @throws IllegalStateException if the camera info does not contain the camera 2 camera ID
+     *                               (e.g., if CameraX was not initialized with a
+     *                               {@link androidx.camera.camera2.Camera2Config}).
+     */
+    @NonNull
+    public String getCameraId() {
+        return mCamera2CameraInfoImpl.getCameraId();
+    }
+
+    /**
+     * Gets a camera characteristic value.
+     *
+     * <p>The characteristic value is the same as the value in the {@link CameraCharacteristics}
+     * that would be obtained from
+     * {@link android.hardware.camera2.CameraManager#getCameraCharacteristics(String)}.
+     *
+     * @param <T>        The type of the characteristic value.
+     * @param key        The {@link CameraCharacteristics.Key} of the characteristic.
+     * @return the value of the characteristic.
+     */
+    @Nullable
+    public <T> T getCameraCharacteristic(@NonNull CameraCharacteristics.Key<T> key) {
+        return mCamera2CameraInfoImpl.getCameraCharacteristics().get(key);
+    }
+
+    /**
+     * Returns the {@link CameraCharacteristics} for this camera.
+     *
+     * <p>The CameraCharacteristics will be the ones that would be obtained by
+     * {@link android.hardware.camera2.CameraManager#getCameraCharacteristics(String)}. The
+     * CameraCharacteristics that are retrieved are not static and can change depending on the
+     * current internal configuration of the camera.
+     *
+     * @param cameraInfo The {@link CameraInfo} to extract the CameraCharacteristics from.
+     * @throws IllegalStateException if the camera info does not contain the camera 2
+     *                               characteristics(e.g., if CameraX was not initialized with a
+     *                               {@link androidx.camera.camera2.Camera2Config}).
+     *
+     * @hide
+     */
+    // TODO: Hidden until new extensions API released.
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public static CameraCharacteristics extractCameraCharacteristics(
+            @NonNull CameraInfo cameraInfo) {
         Preconditions.checkState(cameraInfo instanceof Camera2CameraInfoImpl, "CameraInfo does "
                 + "not contain any Camera2 information.");
         Camera2CameraInfoImpl impl = (Camera2CameraInfoImpl) cameraInfo;
-        return impl.getCameraId();
+        return impl.getCameraCharacteristics();
     }
-
-    // Should not be instantiated.
-    private Camera2CameraInfo() {}
 }

@@ -16,14 +16,18 @@
 
 package androidx.room.compiler.processing.javac
 
+import androidx.room.compiler.processing.javac.kotlin.KmType
+import androidx.room.compiler.processing.javac.kotlin.KmValueParameter
 import javax.lang.model.element.VariableElement
 
 internal class JavacMethodParameter(
     env: JavacProcessingEnv,
     containing: JavacTypeElement,
     element: VariableElement,
-    val kotlinName: String? = null
+    val kotlinMetadata: KmValueParameter?
 ) : JavacVariableElement(env, containing, element) {
     override val name: String
-        get() = kotlinName ?: super.name
+        get() = kotlinMetadata?.name ?: super.name
+    override val kotlinType: KmType?
+        get() = kotlinMetadata?.type
 }

@@ -21,6 +21,7 @@ import static androidx.camera.camera2.impl.Camera2ImplConfig.SESSION_CAPTURE_CAL
 import static androidx.camera.camera2.impl.Camera2ImplConfig.SESSION_STATE_CALLBACK_OPTION;
 import static androidx.camera.camera2.impl.Camera2ImplConfig.TEMPLATE_TYPE_OPTION;
 
+import android.annotation.SuppressLint;
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
@@ -111,6 +112,7 @@ public final class Camera2Interop {
          * @param stateCallback The {@link CameraDevice.StateCallback}.
          * @return The current Extender.
          */
+        @SuppressLint("ExecutorRegistration")
         @NonNull
         public Extender<T> setDeviceStateCallback(
                 @NonNull CameraDevice.StateCallback stateCallback) {
@@ -135,6 +137,7 @@ public final class Camera2Interop {
          * @param stateCallback The {@link CameraCaptureSession.StateCallback}.
          * @return The current Extender.
          */
+        @SuppressLint("ExecutorRegistration")
         @NonNull
         public Extender<T> setSessionStateCallback(
                 @NonNull CameraCaptureSession.StateCallback stateCallback) {
@@ -161,6 +164,7 @@ public final class Camera2Interop {
          * @param captureCallback The {@link CameraCaptureSession.CaptureCallback}.
          * @return The current Extender.
          */
+        @SuppressLint("ExecutorRegistration")
         @NonNull
         public Extender<T> setSessionCaptureCallback(
                 @NonNull CameraCaptureSession.CaptureCallback captureCallback) {

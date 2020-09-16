@@ -69,7 +69,7 @@ class SettingsFragment() : PreferenceFragmentCompat() {
     private val PROTO_STORE_FILE_NAME = "datastore_test_app.pb"
 
     private val settingsStore: DataStore<Settings> by lazy {
-        DataStoreFactory().create(
+        DataStoreFactory.create(
             { File(requireActivity().applicationContext.filesDir, PROTO_STORE_FILE_NAME) },
             SettingsSerializer
         )

@@ -57,15 +57,26 @@ public final class ComplicationProviderInfo implements Parcelable {
     @Nullable private Icon mProviderIcon;
     @ComplicationData.ComplicationType private int mComplicationType;
 
+    /**
+     * Constructs a {@link ComplicationProviderInfo} with the details of a complication provider.
+     *
+     * @param appName The name of the app providing the complication
+     * @param providerName The name of the complication provider within the app
+     * @param providerIcon The icon for the complication provider
+     * @param complicationType The type of complication provided
+     */
     public ComplicationProviderInfo(
             @NonNull String appName, @NonNull String providerName, @NonNull Icon providerIcon,
-            int complicationType) {
+            @ComplicationData.ComplicationType int complicationType) {
         this.mAppName = appName;
         this.mProviderName = providerName;
         this.mProviderIcon = providerIcon;
         this.mComplicationType = complicationType;
     }
 
+    /**
+     * Constructs a {@link ComplicationProviderInfo} from details stored in a {@link Parcel}.
+     */
     @SuppressWarnings("ParcelConstructor")
     public ComplicationProviderInfo(@NonNull Parcel in) {
         Bundle bundle = in.readBundle(getClass().getClassLoader());
@@ -75,6 +86,12 @@ public final class ComplicationProviderInfo implements Parcelable {
         mComplicationType = bundle.getInt(KEY_PROVIDER_TYPE);
     }
 
+    /**
+     * Writes this {@link ComplicationProviderInfo} to a {@link Parcel}.
+     *
+     * @param dest The {@link Parcel} to write to
+     * @param flags Flags for writing the {@link Parcel}
+     */
     @Override
     public void writeToParcel(@NonNull Parcel dest, int flags) {
         Bundle bundle = new Bundle();

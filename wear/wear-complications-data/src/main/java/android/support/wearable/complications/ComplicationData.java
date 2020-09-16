@@ -31,7 +31,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.wear.complications.ComplicationHelperActivity;
-import androidx.wear.complications.ComplicationManager;
 import androidx.wear.complications.ComplicationProviderService;
 
 import java.lang.annotation.Retention;
@@ -41,16 +40,16 @@ import java.lang.annotation.RetentionPolicy;
  * Container for complication data of all types.
  *
  * <p>A {@link ComplicationProviderService} should create instances of this class using {@link
- * ComplicationData.Builder} and send them to the complication system by calling {@link
- * ComplicationManager#updateComplicationData}. Depending on the type of complication data, some
- * fields will be required and some will be optional - see the documentation for each type, and for
- * the builder's set methods, for details.
+ * ComplicationData.Builder} and send them to the complication system in response to {@link
+ * ComplicationProviderService#onComplicationUpdate}. Depending on the type of complication data,
+ * some fields will be required and some will be optional - see the documentation for each type, and
+ * for the builder's set methods, for details.
  *
  * <p>A watch face will receive instances of this class as long as providers are configured.
  *
  * <p>When rendering the complication data for a given time, the watch face should first call {@link
- * #isActive} to determine whether the data is valid at that time. See the documentation for each of
- * the complication types below for details of which fields are expected to be displayed.
+ * #isActiveAt} to determine whether the data is valid at that time. See the documentation for each
+ * of the complication types below for details of which fields are expected to be displayed.
  */
 @SuppressLint("BanParcelableUsage")
 public final class ComplicationData implements Parcelable {
@@ -381,7 +380,7 @@ public final class ComplicationData implements Parcelable {
      *
      * <p>This must be checked for any time for which the complication will be displayed.
      */
-    public boolean isActive(long dateTimeMillis) {
+    public boolean isActiveAt(long dateTimeMillis) {
         return dateTimeMillis >= mFields.getLong(FIELD_START_TIME, 0)
                 && dateTimeMillis <= mFields.getLong(FIELD_END_TIME, Long.MAX_VALUE);
     }
@@ -402,11 +401,10 @@ public final class ComplicationData implements Parcelable {
      * Returns the <i>value</i> field for this complication.
      *
      * <p>Valid only if the type of this complication data is {@link #TYPE_RANGED_VALUE}.
-     *
-     * @throws IllegalStateException for invalid types
+     * Otherwise returns zero.
      */
     public float getRangedValue() {
-        checkFieldValidForType(FIELD_VALUE, mType);
+        checkFieldValidForTypeWithoutThrowingException(FIELD_VALUE, mType);
         return mFields.getFloat(FIELD_VALUE);
     }
 
@@ -426,11 +424,10 @@ public final class ComplicationData implements Parcelable {
      * Returns the <i>min value</i> field for this complication.
      *
      * <p>Valid only if the type of this complication data is {@link #TYPE_RANGED_VALUE}.
-     *
-     * @throws IllegalStateException for invalid types
+     * Otherwise returns zero.
      */
     public float getRangedMinValue() {
-        checkFieldValidForType(FIELD_MIN_VALUE, mType);
+        checkFieldValidForTypeWithoutThrowingException(FIELD_MIN_VALUE, mType);
         return mFields.getFloat(FIELD_MIN_VALUE);
     }
 
@@ -450,11 +447,10 @@ public final class ComplicationData implements Parcelable {
      * Returns the <i>max value</i> field for this complication.
      *
      * <p>Valid only if the type of this complication data is {@link #TYPE_RANGED_VALUE}.
-     *
-     * @throws IllegalStateException for invalid types
+     * Otherwise returns zero.
      */
     public float getRangedMaxValue() {
-        checkFieldValidForType(FIELD_MAX_VALUE, mType);
+        checkFieldValidForTypeWithoutThrowingException(FIELD_MAX_VALUE, mType);
         return mFields.getFloat(FIELD_MAX_VALUE);
     }
 
@@ -486,12 +482,11 @@ public final class ComplicationData implements Parcelable {
      *
      * <p>Valid only if the type of this complication data is {@link #TYPE_SHORT_TEXT}, {@link
      * #TYPE_RANGED_VALUE}, or {@link #TYPE_NO_PERMISSION}.
-     *
-     * @throws IllegalStateException for invalid types
+     * Otherwise returns null.
      */
     @Nullable
     public ComplicationText getShortTitle() {
-        checkFieldValidForType(FIELD_SHORT_TITLE, mType);
+        checkFieldValidForTypeWithoutThrowingException(FIELD_SHORT_TITLE, mType);
         return getParcelableField(FIELD_SHORT_TITLE);
     }
 
@@ -523,12 +518,11 @@ public final class ComplicationData implements Parcelable {
      *
      * <p>Valid only if the type of this complication data is {@link #TYPE_SHORT_TEXT}, {@link
      * #TYPE_RANGED_VALUE}, or {@link #TYPE_NO_PERMISSION}.
-     *
-     * @throws IllegalStateException for invalid types
+     * Otherwise returns null.
      */
     @Nullable
     public ComplicationText getShortText() {
-        checkFieldValidForType(FIELD_SHORT_TEXT, mType);
+        checkFieldValidForTypeWithoutThrowingException(FIELD_SHORT_TEXT, mType);
         return getParcelableField(FIELD_SHORT_TEXT);
     }
 
@@ -553,12 +547,11 @@ public final class ComplicationData implements Parcelable {
      * can be obtained for a given point in time.
      *
      * <p>Valid only if the type of this complication data is {@link #TYPE_LONG_TEXT}.
-     *
-     * @throws IllegalStateException for invalid types
+     * Otherwise returns null.
      */
     @Nullable
     public ComplicationText getLongTitle() {
-        checkFieldValidForType(FIELD_LONG_TITLE, mType);
+        checkFieldValidForTypeWithoutThrowingException(FIELD_LONG_TITLE, mType);
         return getParcelableField(FIELD_LONG_TITLE);
     }
 
@@ -582,12 +575,11 @@ public final class ComplicationData implements Parcelable {
      * can be obtained for a given point in time.
      *
      * <p>Valid only if the type of this complication data is {@link #TYPE_LONG_TEXT}.
-     *
-     * @throws IllegalStateException for invalid types
+     * Otherwise returns null.
      */
     @Nullable
     public ComplicationText getLongText() {
-        checkFieldValidForType(FIELD_LONG_TEXT, mType);
+        checkFieldValidForTypeWithoutThrowingException(FIELD_LONG_TEXT, mType);
         return getParcelableField(FIELD_LONG_TEXT);
     }
 
@@ -614,12 +606,11 @@ public final class ComplicationData implements Parcelable {
      *
      * <p>Valid for the types {@link #TYPE_SHORT_TEXT}, {@link #TYPE_LONG_TEXT}, {@link
      * #TYPE_RANGED_VALUE}, {@link #TYPE_ICON}, or {@link #TYPE_NO_PERMISSION}.
-     *
-     * @throws IllegalStateException for invalid types
+     * Otherwise returns null.
      */
     @Nullable
     public Icon getIcon() {
-        checkFieldValidForType(FIELD_ICON, mType);
+        checkFieldValidForTypeWithoutThrowingException(FIELD_ICON, mType);
         return getParcelableField(FIELD_ICON);
     }
 
@@ -649,12 +640,11 @@ public final class ComplicationData implements Parcelable {
      *
      * <p>Valid for the types {@link #TYPE_SHORT_TEXT}, {@link #TYPE_LONG_TEXT}, {@link
      * #TYPE_RANGED_VALUE}, {@link #TYPE_ICON}, or {@link #TYPE_NO_PERMISSION}.
-     *
-     * @throws IllegalStateException for invalid types
+     * Otherwise returns null.
      */
     @Nullable
     public Icon getBurnInProtectionIcon() {
-        checkFieldValidForType(FIELD_ICON_BURN_IN_PROTECTION, mType);
+        checkFieldValidForTypeWithoutThrowingException(FIELD_ICON_BURN_IN_PROTECTION, mType);
         return getParcelableField(FIELD_ICON_BURN_IN_PROTECTION);
     }
 
@@ -685,12 +675,11 @@ public final class ComplicationData implements Parcelable {
      * these circumstances.
      *
      * <p>Valid for the types {@link #TYPE_LONG_TEXT} and {@link #TYPE_SMALL_IMAGE}.
-     *
-     * @throws IllegalStateException for invalid types
+     * Otherwise returns null.
      */
     @Nullable
     public Icon getSmallImage() {
-        checkFieldValidForType(FIELD_SMALL_IMAGE, mType);
+        checkFieldValidForTypeWithoutThrowingException(FIELD_SMALL_IMAGE, mType);
         return getParcelableField(FIELD_SMALL_IMAGE);
     }
 
@@ -721,12 +710,11 @@ public final class ComplicationData implements Parcelable {
      * method must be used instead of the result of {@link #getSmallImage()}.
      *
      * <p>Valid for the types {@link #TYPE_LONG_TEXT} and {@link #TYPE_SMALL_IMAGE}.
-     *
-     * @throws IllegalStateException for invalid types
+     * Otherwise returns null.
      */
     @Nullable
     public Icon getBurnInProtectionSmallImage() {
-        checkFieldValidForType(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION, mType);
+        checkFieldValidForTypeWithoutThrowingException(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION, mType);
         return getParcelableField(FIELD_SMALL_IMAGE_BURN_IN_PROTECTION);
     }
 
@@ -738,14 +726,14 @@ public final class ComplicationData implements Parcelable {
      *
      * <p>Valid only for types that contain small images, i.e. {@link #TYPE_SMALL_IMAGE} and {@link
      * #TYPE_LONG_TEXT}.
+     * Otherwise returns zero.
      *
-     * @throws IllegalStateException for invalid types
      * @see #IMAGE_STYLE_PHOTO which can be cropped but not recolored.
      * @see #IMAGE_STYLE_ICON which can be recolored but not cropped.
      */
     @ImageStyle
     public int getSmallImageStyle() {
-        checkFieldValidForType(FIELD_IMAGE_STYLE, mType);
+        checkFieldValidForTypeWithoutThrowingException(FIELD_IMAGE_STYLE, mType);
         return mFields.getInt(FIELD_IMAGE_STYLE);
     }
 
@@ -771,12 +759,11 @@ public final class ComplicationData implements Parcelable {
      * these circumstances.
      *
      * <p>Valid only if the type of this complication data is {@link #TYPE_LARGE_IMAGE}.
-     *
-     * @throws IllegalStateException for invalid types
+     * Otherwise returns null.
      */
     @Nullable
     public Icon getLargeImage() {
-        checkFieldValidForType(FIELD_LARGE_IMAGE, mType);
+        checkFieldValidForTypeWithoutThrowingException(FIELD_LARGE_IMAGE, mType);
         return getParcelableField(FIELD_LARGE_IMAGE);
     }
 
@@ -799,12 +786,11 @@ public final class ComplicationData implements Parcelable {
      * complication is tappable, or {@code null} if no tap action has been specified.
      *
      * <p>Valid for all non-empty types.
-     *
-     * @throws IllegalStateException for empty types
+     * Otherwise returns null.
      */
     @Nullable
     public PendingIntent getTapAction() {
-        checkFieldValidForType(FIELD_TAP_ACTION, mType);
+        checkFieldValidForTypeWithoutThrowingException(FIELD_TAP_ACTION, mType);
         return getParcelableField(FIELD_TAP_ACTION);
     }
 
@@ -829,19 +815,22 @@ public final class ComplicationData implements Parcelable {
      */
     @Nullable
     public ComplicationText getContentDescription() {
-        checkFieldValidForType(FIELD_CONTENT_DESCRIPTION, mType);
+        checkFieldValidForTypeWithoutThrowingException(FIELD_CONTENT_DESCRIPTION, mType);
         return getParcelableField(FIELD_CONTENT_DESCRIPTION);
     }
 
     /**
-     * Returns the start time for this complication data, this may be 0.
+     * Returns the start time for this complication data (i.e. the first time at which it should
+     * be considered active and displayed), this may be 0. See also {@link #isActiveAt(long)}.
      */
     public long getStartDateTimeMillis() {
         return mFields.getLong(FIELD_START_TIME, 0);
     }
 
     /**
-     * Returns the end time for this complication data, this may be {@link Long#MAX_VALUE}.
+     * Returns the end time for this complication data (i.e. the last time at which it should be
+     * considered active and displayed), this may be {@link Long#MAX_VALUE}. See also {@link
+     * #isActiveAt(long)}.
      */
     public long getEndDateTimeMillis() {
         return mFields.getLong(FIELD_END_TIME, Long.MAX_VALUE);
@@ -880,6 +869,22 @@ public final class ComplicationData implements Parcelable {
 
     private static boolean isTypeSupported(int type) {
         return 1 <= type && type <= REQUIRED_FIELDS.length;
+    }
+
+    /**
+     * The unparceling logic needs to remain backward compatible.
+     */
+    private static void checkFieldValidForTypeWithoutThrowingException(
+            String field, @ComplicationType int type) {
+        if (!isTypeSupported(type)) {
+            Log.w(TAG, "Type " + type + " can not be recognized");
+            return;
+        }
+        if (!isFieldValidForType(field, type)) {
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Log.d(TAG, "Field " + field + " is not supported for type " + type);
+            }
+        }
     }
 
     private static void checkFieldValidForType(String field, @ComplicationType int type) {
@@ -950,6 +955,17 @@ public final class ComplicationData implements Parcelable {
         }
 
         /**
+         * Removes the start time for this complication data.
+         *
+         * <p>Returns this Builder to allow chaining.
+         */
+        @NonNull
+        public Builder clearStartDateTime() {
+            mFields.remove(FIELD_START_TIME);
+            return this;
+        }
+
+        /**
          * Sets the end time for this complication data. This is optional for any type.
          *
          * <p>The complication data will be considered inactive (i.e. should not be displayed) if
@@ -966,8 +982,21 @@ public final class ComplicationData implements Parcelable {
         }
 
         /**
+         * Removes the end time for this complication data.
+         *
+         * <p>Returns this Builder to allow chaining.
+         */
+        @NonNull
+        public Builder clearEndDateTime() {
+            mFields.remove(FIELD_END_TIME);
+            return this;
+        }
+
+        /**
          * Sets the <i>value</i> field. This is required for the {@link #TYPE_RANGED_VALUE} type,
-         * and is not valid for any other type.
+         * and is not valid for any other type. A {@link #TYPE_RANGED_VALUE} complication
+         * visually presents a single value, which is usually a percentage. E.g. you
+         * have completed 70% of today's target of 10000 steps.
          *
          * <p>Returns this Builder to allow chaining.
          *
@@ -981,7 +1010,9 @@ public final class ComplicationData implements Parcelable {
 
         /**
          * Sets the <i>min value</i> field. This is required for the {@link #TYPE_RANGED_VALUE}
-         * type, and is not valid for any other type.
+         * type, and is not valid for any other type. A {@link #TYPE_RANGED_VALUE} complication
+         * visually presents a single value, which is usually a percentage. E.g. you have
+         * completed 70% of today's target of 10000 steps.
          *
          * <p>Returns this Builder to allow chaining.
          *
@@ -995,7 +1026,9 @@ public final class ComplicationData implements Parcelable {
 
         /**
          * Sets the <i>max value</i> field. This is required for the {@link #TYPE_RANGED_VALUE}
-         * type, and is not valid for any other type.
+         * type, and is not valid for any other type.A {@link #TYPE_RANGED_VALUE} complication
+         * visually presents a single value, which is usually a percentage. E.g. you have
+         * completed 70% of today's target of 10000 steps.
          *
          * <p>Returns this Builder to allow chaining.
          *

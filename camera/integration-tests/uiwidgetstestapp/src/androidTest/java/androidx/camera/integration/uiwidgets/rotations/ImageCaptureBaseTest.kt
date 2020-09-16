@@ -18,6 +18,7 @@ package androidx.camera.integration.uiwidgets.rotations
 
 import android.content.Intent
 import android.os.Build
+import android.os.Environment
 import android.view.View
 import androidx.camera.core.CameraSelector
 import androidx.camera.integration.uiwidgets.R
@@ -29,8 +30,10 @@ import androidx.test.platform.app.InstrumentationRegistry
 import androidx.test.uiautomator.UiDevice
 import androidx.testutils.withActivity
 import com.google.common.truth.Truth.assertThat
-import org.junit.Assume
 import org.junit.Assume.assumeFalse
+import org.junit.Assume.assumeTrue
+import org.junit.Rule
+import org.junit.rules.TestRule
 import java.util.concurrent.TimeUnit
 
 /**
@@ -47,6 +50,12 @@ import java.util.concurrent.TimeUnit
  */
 abstract class ImageCaptureBaseTest<A : CameraActivity> {
 
+    @get:Rule
+    val mUseCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+
+    protected val mDevice: UiDevice =
+        UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
+
     protected fun setUp(lensFacing: Int) {
         // TODO(b/147448711) Cuttlefish seems to have an issue handling rotation. Might be
         //  related to the attached bug.
@@ -56,17 +65,27 @@ abstract class ImageCaptureBaseTest<A : CameraActivity> {
         )
 
         CoreAppTestUtil.assumeCompatibleDevice()
-        Assume.assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
+        assumeTrue(CameraUtil.hasCameraWithLensFacing(lensFacing))
 
         // Clear the device's UI and ensure it's in a natural orientation
         CoreAppTestUtil.clearDeviceUI(InstrumentationRegistry.getInstrumentation())
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        device.setOrientationNatural()
+        mDevice.setOrientationNatural()
+
+        // Create pictures folder if it doesn't exist on the device. If this fails, abort test.
+        assumeTrue("Failed to create pictures directory", createPicturesFolder())
     }
 
     protected fun tearDown() {
-        val device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
-        device.unfreezeRotation()
+        mDevice.unfreezeRotation()
+    }
+
+    @Suppress("DEPRECATION")
+    private fun createPicturesFolder(): Boolean {
+        val folder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)
+        if (folder.exists()) {
+            return true
+        }
+        return folder.mkdir()
     }
 
     protected inline fun <reified A : CameraActivity> verifyRotation(

@@ -16,7 +16,7 @@
 
 package androidx.window;
 
-import android.os.IBinder;
+import android.content.Context;
 
 import androidx.annotation.NonNull;
 
@@ -41,19 +41,19 @@ interface ExtensionInterfaceCompat {
      * Gets current information about the display features present within the application window.
      */
     @NonNull
-    WindowLayoutInfo getWindowLayoutInfo(@NonNull IBinder windowToken);
+    WindowLayoutInfo getWindowLayoutInfo(@NonNull Context context);
 
     /**
      * Notifies extension that a listener for display feature layout changes was registered for the
-     * given window token.
+     * given activity or window context.
      */
-    void onWindowLayoutChangeListenerAdded(@NonNull IBinder windowToken);
+    void onWindowLayoutChangeListenerAdded(@NonNull Context context);
 
     /**
      * Notifies extension that a listener for display feature layout changes was removed for the
-     * given window token.
+     * given activity or window context.
      */
-    void onWindowLayoutChangeListenerRemoved(@NonNull IBinder windowToken);
+    void onWindowLayoutChangeListenerRemoved(@NonNull Context context);
 
     /**
      * Gets current device state.
@@ -81,7 +81,7 @@ interface ExtensionInterfaceCompat {
         /**
          * Called by extension when the feature layout inside the window changes.
          */
-        void onWindowLayoutChanged(@NonNull IBinder windowToken,
+        void onWindowLayoutChanged(@NonNull Context context,
                 @NonNull WindowLayoutInfo newLayout);
     }
 }

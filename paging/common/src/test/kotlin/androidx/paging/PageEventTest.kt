@@ -89,18 +89,20 @@ class PageEventTest {
         assertFailsWith<IllegalArgumentException> {
             Drop<Char>(
                 loadType = REFRESH,
-                count = 2,
+                minPageOffset = 0,
+                maxPageOffset = 0,
                 placeholdersRemaining = 4
             )
         }
     }
 
     @Test
-    fun dropCount() {
+    fun dropRange() {
         assertFailsWith<IllegalArgumentException> {
             Drop<Char>(
                 loadType = REFRESH,
-                count = -1,
+                minPageOffset = 2,
+                maxPageOffset = 0,
                 placeholdersRemaining = 4
             )
         }
@@ -111,7 +113,8 @@ class PageEventTest {
         assertFailsWith<IllegalArgumentException> {
             Drop<Char>(
                 loadType = REFRESH,
-                count = 1,
+                minPageOffset = 0,
+                maxPageOffset = 0,
                 placeholdersRemaining = -1
             )
         }
@@ -121,7 +124,8 @@ class PageEventTest {
     fun dropTransform() = runBlockingTest {
         val drop = Drop<Char>(
             loadType = PREPEND,
-            count = 0,
+            minPageOffset = 0,
+            maxPageOffset = 0,
             placeholdersRemaining = 0
         )
 
@@ -171,10 +175,10 @@ class PageEventTest {
             Append(
                 pages = listOf(
                     TransformablePage(
-                        originalPageOffset = 0,
+                        originalPageOffsets = intArrayOf(0),
                         data = listOf("a", "b"),
-                        originalPageSize = 4,
-                        originalIndices = listOf(0, 2)
+                        hintOriginalPageOffset = 0,
+                        hintOriginalIndices = listOf(0, 2)
                     )
                 ),
                 placeholdersAfter = 4,
@@ -183,10 +187,10 @@ class PageEventTest {
             Append(
                 pages = listOf(
                     TransformablePage(
-                        originalPageOffset = 0,
+                        originalPageOffsets = intArrayOf(0),
                         data = listOf('a', 'b'),
-                        originalPageSize = 4,
-                        originalIndices = listOf(0, 2)
+                        hintOriginalPageOffset = 0,
+                        hintOriginalIndices = listOf(0, 2)
                     )
                 ),
                 placeholdersAfter = 4,
@@ -209,10 +213,10 @@ class PageEventTest {
             Append(
                 pages = listOf(
                     TransformablePage(
-                        originalPageOffset = 0,
+                        originalPageOffsets = intArrayOf(0),
                         data = listOf('a', 'b', 'd'),
-                        originalPageSize = 4,
-                        originalIndices = listOf(0, 1, 3)
+                        hintOriginalPageOffset = 0,
+                        hintOriginalIndices = listOf(0, 1, 3)
                     )
                 ),
                 placeholdersAfter = 4,
@@ -226,10 +230,10 @@ class PageEventTest {
             Append(
                 pages = listOf(
                     TransformablePage(
-                        originalPageOffset = 0,
+                        originalPageOffsets = intArrayOf(0),
                         data = listOf('b', 'd'),
-                        originalPageSize = 4,
-                        originalIndices = listOf(1, 3)
+                        hintOriginalPageOffset = 0,
+                        hintOriginalIndices = listOf(1, 3)
                     )
                 ),
                 placeholdersAfter = 4,
@@ -255,10 +259,10 @@ class PageEventTest {
             Append(
                 pages = listOf(
                     TransformablePage(
-                        originalPageOffset = 0,
+                        originalPageOffsets = intArrayOf(0),
                         data = listOf("a1", "a2", "b1", "b2"),
-                        originalPageSize = 2,
-                        originalIndices = listOf(0, 0, 1, 1)
+                        hintOriginalPageOffset = 0,
+                        hintOriginalIndices = listOf(0, 0, 1, 1)
                     )
                 ),
                 placeholdersAfter = 4,
@@ -275,10 +279,10 @@ class PageEventTest {
             Append(
                 pages = listOf(
                     TransformablePage(
-                        originalPageOffset = 0,
+                        originalPageOffsets = intArrayOf(0),
                         data = listOf("a1", "-", "a2", "-", "b1", "-", "b2", "-"),
-                        originalPageSize = 2,
-                        originalIndices = listOf(0, 0, 0, 0, 1, 1, 1, 1)
+                        hintOriginalPageOffset = 0,
+                        hintOriginalIndices = listOf(0, 0, 0, 0, 1, 1, 1, 1)
                     )
                 ),
                 placeholdersAfter = 4,

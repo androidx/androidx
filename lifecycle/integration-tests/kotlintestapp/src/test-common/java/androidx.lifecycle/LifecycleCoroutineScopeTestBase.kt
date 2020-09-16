@@ -180,7 +180,9 @@ abstract class LifecycleCoroutineScopeTestBase {
                 throw IllegalArgumentException("why not ?")
             }
             val result = kotlin.runCatching {
-                @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER")
+                @Suppress("IMPLICIT_NOTHING_AS_TYPE_PARAMETER",
+                    "IMPLICIT_NOTHING_TYPE_ARGUMENT_IN_RETURN_POSITION"
+                )
                 action.await()
             }
             assertThat(result.exceptionOrNull())

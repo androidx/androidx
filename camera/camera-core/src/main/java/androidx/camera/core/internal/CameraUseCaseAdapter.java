@@ -17,18 +17,19 @@
 package androidx.camera.core.internal;
 
 import android.graphics.Rect;
-import android.util.Log;
 import android.util.Size;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.experimental.UseExperimental;
+import androidx.camera.core.Camera;
+import androidx.camera.core.CameraControl;
+import androidx.camera.core.CameraInfo;
+import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
-import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
-import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -51,7 +52,7 @@ import java.util.Map;
  * extensions in order to select the correct CameraInternal instance which has the required
  * camera id.
  */
-public final class CameraUseCaseAdapter {
+public final class CameraUseCaseAdapter implements Camera {
     private final CameraInternal mCameraInternal;
     private final LinkedHashSet<CameraInternal> mCameraInternals;
     private final CameraDeviceSurfaceManager mCameraDeviceSurfaceManager;
@@ -157,7 +158,7 @@ public final class CameraUseCaseAdapter {
 
             for (UseCase useCase : useCases) {
                 if (mUseCases.contains(useCase)) {
-                    Log.e(TAG, "Attempting to attach already attached UseCase");
+                    Logger.d(TAG, "Attempting to attach already attached UseCase");
                 } else {
                     useCaseListAfterUpdate.add(useCase);
                     newUseCases.add(useCase);
@@ -189,7 +190,8 @@ public final class CameraUseCaseAdapter {
                         mViewPort.getLayoutDirection(),
                         suggestedResolutionsMap);
                 for (UseCase useCase : useCases) {
-                    useCase.setViewPortCropRect(cropRectMap.get(useCase));
+                    useCase.setViewPortCropRect(
+                            Preconditions.checkNotNull(cropRectMap.get(useCase)));
                 }
             }
 
@@ -223,9 +225,8 @@ public final class CameraUseCaseAdapter {
             for (UseCase useCase : useCases) {
                 if (mUseCases.contains(useCase)) {
                     useCase.onDetach(mCameraInternal);
-                    useCase.onDestroy();
                 } else {
-                    Log.e(TAG, "Attempting to detach non-attached UseCase: " + useCase);
+                    Logger.e(TAG, "Attempting to detach non-attached UseCase: " + useCase);
                 }
             }
 
@@ -256,6 +257,13 @@ public final class CameraUseCaseAdapter {
         synchronized (mLock) {
             if (!mAttached) {
                 mCameraInternal.attachUseCases(mUseCases);
+
+                // Notify to update the use case's active state because it may be cleared if the
+                // use case was ever detached from a camera previously.
+                for (UseCase useCase : mUseCases) {
+                    useCase.notifyState();
+                }
+
                 mAttached = true;
             }
         }
@@ -279,49 +287,42 @@ public final class CameraUseCaseAdapter {
             @NonNull List<UseCase> currentUseCases) {
         List<SurfaceConfig> existingSurfaces = new ArrayList<>();
         String cameraId = mCameraInternal.getCameraInfoInternal().getCameraId();
+        Map<UseCase, Size> suggestedResolutions = new HashMap<>();
 
-        Map<UseCaseConfig<?>, UseCase> configToUseCaseMap = new HashMap<>();
-
+        // Get resolution for current use cases.
         for (UseCase useCase : currentUseCases) {
             SurfaceConfig surfaceConfig =
                     mCameraDeviceSurfaceManager.transformSurfaceConfig(cameraId,
                             useCase.getImageFormat(),
                             useCase.getAttachedSurfaceResolution());
             existingSurfaces.add(surfaceConfig);
+            suggestedResolutions.put(useCase, useCase.getAttachedSurfaceResolution());
         }
 
-        for (UseCase useCase : newUseCases) {
-            UseCaseConfig.Builder<?, ?, ?> defaultBuilder = useCase.getDefaultBuilder(
-                    mCameraInternal.getCameraInfoInternal());
+        // Calculate resolution for new use cases.
+        if (!newUseCases.isEmpty()) {
+            Map<UseCaseConfig<?>, UseCase> configToUseCaseMap = new HashMap<>();
+            for (UseCase useCase : newUseCases) {
+                UseCaseConfig.Builder<?, ?, ?> defaultBuilder = useCase.getDefaultBuilder();
 
-            // Combine with default configuration.
-            UseCaseConfig<?> combinedUseCaseConfig =
-                    useCase.applyDefaults(useCase.getUseCaseConfig(),
-                            defaultBuilder);
-            configToUseCaseMap.put(combinedUseCaseConfig, useCase);
+                // Combine with default configuration.
+                UseCaseConfig<?> combinedUseCaseConfig =
+                        useCase.applyDefaults(useCase.getUseCaseConfig(),
+                                defaultBuilder);
+                configToUseCaseMap.put(combinedUseCaseConfig, useCase);
+            }
+
+            // Get suggested resolutions and update the use case session configuration
+            Map<UseCaseConfig<?>, Size> useCaseConfigSizeMap = mCameraDeviceSurfaceManager
+                    .getSuggestedResolutions(cameraId, existingSurfaces,
+                            new ArrayList<>(configToUseCaseMap.keySet()));
+
+            for (Map.Entry<UseCaseConfig<?>, UseCase> entry : configToUseCaseMap.entrySet()) {
+                suggestedResolutions.put(entry.getValue(),
+                        useCaseConfigSizeMap.get(entry.getKey()));
+            }
         }
-
-        // Get suggested resolutions and update the use case session configuration
-        Map<UseCaseConfig<?>, Size> useCaseConfigSizeMap = mCameraDeviceSurfaceManager
-                .getSuggestedResolutions(cameraId, existingSurfaces,
-                        new ArrayList<>(configToUseCaseMap.keySet()));
-
-        Map<UseCase, Size> suggestedResolutions = new HashMap<>();
-        for (Map.Entry<UseCaseConfig<?>, UseCase> entry : configToUseCaseMap.entrySet()) {
-            suggestedResolutions.put(entry.getValue(), useCaseConfigSizeMap.get(entry.getKey()));
-        }
-
         return suggestedResolutions;
-    }
-
-    @NonNull
-    public CameraInfoInternal getCameraInfoInternal() {
-        return mCameraInternal.getCameraInfoInternal();
-    }
-
-    @NonNull
-    public CameraControlInternal getCameraControlInternal() {
-        return mCameraInternal.getCameraControlInternal();
     }
 
     /**
@@ -333,6 +334,7 @@ public final class CameraUseCaseAdapter {
      */
     public static final class CameraId {
         private final List<String> mIds;
+
         CameraId(LinkedHashSet<CameraInternal> cameraInternals) {
             mIds = new ArrayList<>();
             for (CameraInternal cameraInternal : cameraInternals) {
@@ -369,5 +371,26 @@ public final class CameraUseCaseAdapter {
         public CameraException(@NonNull Throwable cause) {
             super(cause);
         }
+    }
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Camera interface
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    @NonNull
+    @Override
+    public CameraControl getCameraControl() {
+        return mCameraInternal.getCameraControlInternal();
+    }
+
+    @NonNull
+    @Override
+    public CameraInfo getCameraInfo() {
+        return mCameraInternal.getCameraInfoInternal();
+    }
+
+    @NonNull
+    @Override
+    public Collection<CameraInternal> getCameraInternals() {
+        return mCameraInternals;
     }
 }

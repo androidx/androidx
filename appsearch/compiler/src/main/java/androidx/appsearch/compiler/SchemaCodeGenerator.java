@@ -117,6 +117,7 @@ class SchemaCodeGenerator {
         Types typeUtil = mEnv.getTypeUtils();
         TypeMirror propertyType;
         boolean repeated = false;
+        boolean isPropertyDocument = false;
         if (property.asType().getKind() == TypeKind.ERROR) {
             throw new ProcessingException("Property type unknown to java compiler", property);
         } else if (typeUtil.isAssignable(
@@ -132,7 +133,8 @@ class SchemaCodeGenerator {
         } else if (property.asType().getKind() == TypeKind.ARRAY
                 // Byte arrays have a native representation in Icing, so they are not considered a
                 // "repeated" type
-                && !typeUtil.isSameType(property.asType(), mHelper.mByteArrayType)) {
+                && !typeUtil.isSameType(property.asType(), mHelper.mBytePrimitiveArrayType)
+                && !typeUtil.isSameType(property.asType(), mHelper.mByteBoxArrayType)) {
             propertyType = ((ArrayType) property.asType()).getComponentType();
             repeated = true;
 
@@ -159,12 +161,14 @@ class SchemaCodeGenerator {
                 || typeUtil.isSameType(propertyType, mHelper.mBooleanPrimitiveType)) {
             propertyTypeEnum = mHelper.getAppSearchClass(
                     "AppSearchSchema", "PropertyConfig", "DATA_TYPE_BOOLEAN");
-        } else if (typeUtil.isSameType(propertyType, mHelper.mByteArrayType)) {
+        } else if (typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)
+                || typeUtil.isSameType(propertyType, mHelper.mByteBoxArrayType)) {
             propertyTypeEnum = mHelper.getAppSearchClass(
                     "AppSearchSchema", "PropertyConfig", "DATA_TYPE_BYTES");
         } else {
             propertyTypeEnum = mHelper.getAppSearchClass(
                     "AppSearchSchema", "PropertyConfig", "DATA_TYPE_DOCUMENT");
+            isPropertyDocument = true;
         }
         codeBlock.add("\n.setDataType($T)", propertyTypeEnum);
 
@@ -185,7 +189,9 @@ class SchemaCodeGenerator {
         // Find tokenizer type
         int tokenizerType = Integer.parseInt(params.get("tokenizerType").toString());
         ClassName tokenizerEnum;
-        if (tokenizerType == 0) {  // TOKENIZER_TYPE_NONE
+        if (tokenizerType == 0 || isPropertyDocument) {  // TOKENIZER_TYPE_NONE
+            //It is only valid for tokenizer_type to be 'NONE' if the data type is
+            // {@link PropertyConfig#DATA_TYPE_DOCUMENT}.
             tokenizerEnum = mHelper.getAppSearchClass(
                     "AppSearchSchema", "PropertyConfig", "TOKENIZER_TYPE_NONE");
         } else if (tokenizerType == 1) {  // TOKENIZER_TYPE_PLAIN

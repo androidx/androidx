@@ -44,11 +44,11 @@ data class Constructor(val element: XExecutableElement, val params: List<Param>)
         when {
             element.isConstructor() -> {
                 builder.addStatement("$L = new $T($L)", outVar,
-                        element.enclosingElement.asDeclaredType().typeName, args)
+                        element.enclosingTypeElement.asDeclaredType().typeName, args)
             }
             element.isMethod() -> {
                 builder.addStatement("$L = $T.$L($L)", outVar,
-                        element.enclosingElement.asDeclaredType().typeName,
+                        element.enclosingTypeElement.asDeclaredType().typeName,
                         element.name, args)
             }
             else -> throw IllegalStateException("Invalid constructor kind ${element.kindName()}")

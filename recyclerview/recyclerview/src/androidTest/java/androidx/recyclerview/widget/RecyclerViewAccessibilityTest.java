@@ -310,7 +310,7 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
                 return true;
             }
         };
-        final DumbLayoutManager layoutManager = new DumbLayoutManager();
+        final SimpleTestLayoutManager layoutManager = new SimpleTestLayoutManager();
         final TestAdapter adapter = new TestAdapter(10);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(layoutManager);
@@ -327,7 +327,7 @@ public class RecyclerViewAccessibilityTest extends BaseRecyclerViewInstrumentati
                 delegateCompat.onInitializeAccessibilityNodeInfo(recyclerView, info);
             }
         });
-        assertTrue("test sanity", info.isScrollable());
+        assertTrue("Assumption check", info.isScrollable());
         final AccessibilityNodeInfoCompat info2 = AccessibilityNodeInfoCompat.obtain();
         mActivityRule.runOnUiThread(new Runnable() {
             @Override

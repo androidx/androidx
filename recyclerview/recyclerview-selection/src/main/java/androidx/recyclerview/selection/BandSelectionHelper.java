@@ -210,7 +210,7 @@ class BandSelectionHelper<K> implements OnItemTouchListener, Resettable {
         }
 
         // We shouldn't get any events in this method when band select is not active,
-        // but it turns some guests show up late to the party.
+        // but it turns out some guests show up late to the party.
         // Probably happening when a re-layout is happening to the ReyclerView (ie. Pull-To-Refresh)
         if (!isActive()) {
             return;
@@ -254,6 +254,8 @@ class BandSelectionHelper<K> implements OnItemTouchListener, Resettable {
         mLock.start();
         mFocusDelegate.clearFocus();
         mOrigin = origin;
+        mCurrentPosition = origin;
+
         // NOTE: Pay heed that resizeBand modifies the y coordinates
         // in onScrolled. Not sure if model expects this. If not
         // it should be defending against this.
@@ -320,6 +322,22 @@ class BandSelectionHelper<K> implements OnItemTouchListener, Resettable {
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
         if (!isActive()) {
+            return;
+        }
+
+        // mOrigin and mCurrentPosition should never be null when onScrolled is called,
+        // but "never say never" increasingly looks like a motto to follow.
+        // For this reason we guard those specific cases and provide a clear
+        // error message in the logs.
+        if (mOrigin == null) {
+            Log.e(TAG, "onScrolled called while mOrigin null.");
+            if (DEBUG) throw new IllegalStateException("mOrigin is null.");
+            return;
+        }
+
+        if (mCurrentPosition == null) {
+            Log.e(TAG, "onScrolled called while mCurrentPosition null.");
+            if (DEBUG) throw new IllegalStateException("mCurrentPosition is null.");
             return;
         }
 

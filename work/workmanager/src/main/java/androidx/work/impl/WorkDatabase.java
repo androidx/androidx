@@ -91,7 +91,7 @@ public abstract class WorkDatabase extends RoomDatabase {
             + "    work_spec_id NOT IN "
             + "        (SELECT id FROM workspec WHERE state IN " + COMPLETED_STATES + "))";
 
-    private static final long PRUNE_THRESHOLD_MILLIS = TimeUnit.DAYS.toMillis(7);
+    private static final long PRUNE_THRESHOLD_MILLIS = TimeUnit.DAYS.toMillis(1);
 
     /**
      * Creates an instance of the WorkDatabase.

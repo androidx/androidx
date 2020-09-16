@@ -325,8 +325,10 @@ class CachingTest {
                             indexInPage = it.pages.last().data.size - 1,
                             presentedItemsBefore = 0,
                             presentedItemsAfter = 0,
-                            originalPageOffsetFirst = it.pages.first().originalPageOffset,
-                            originalPageOffsetLast = it.pages.last().originalPageOffset
+                            originalPageOffsetFirst =
+                                it.pages.first().originalPageOffsets.minOrNull()!!,
+                            originalPageOffsetLast =
+                                it.pages.last().originalPageOffsets.maxOrNull()!!
                         )
                     )
                 } else {

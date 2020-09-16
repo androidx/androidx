@@ -72,9 +72,9 @@ class XTypeTest {
             type.asTypeElement().getMethod("wildcardParam").let { method ->
                 val wildcardParam = method.parameters.first()
                 val extendsBoundOrSelf = wildcardParam.type.extendsBoundOrSelf()
-                assertThat(extendsBoundOrSelf.erasure())
+                assertThat(extendsBoundOrSelf.rawType)
                     .isEqualTo(
-                        it.processingEnv.requireType("java.util.Set").erasure()
+                        it.processingEnv.requireType("java.util.Set").rawType
                     )
             }
         }
@@ -214,7 +214,7 @@ class XTypeTest {
     }
 
     @Test
-    fun erasure() {
+    fun rawType() {
         runProcessorTest {
             val subject = it.processingEnv.getDeclaredType(
                 it.processingEnv.requireTypeElement(List::class),
@@ -224,9 +224,19 @@ class XTypeTest {
             assertThat(subject.typeName).isEqualTo(
                 ParameterizedTypeName.get(listClassName, TypeName.get(String::class.java))
             )
-            assertThat(subject.erasure().typeName).isEqualTo(
-                listClassName
+            assertThat(subject.rawType.typeName).isEqualTo(listClassName)
+
+            val listOfInts = it.processingEnv.getDeclaredType(
+                it.processingEnv.requireTypeElement(List::class),
+                it.processingEnv.requireType(Integer::class)
             )
+            assertThat(subject.rawType).isEqualTo(listOfInts.rawType)
+
+            val setOfStrings = it.processingEnv.getDeclaredType(
+                it.processingEnv.requireTypeElement(Set::class),
+                it.processingEnv.requireType(String::class)
+            )
+            assertThat(subject.rawType).isNotEqualTo(setOfStrings.rawType)
         }
     }
 }

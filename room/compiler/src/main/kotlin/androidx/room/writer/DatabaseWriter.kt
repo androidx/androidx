@@ -36,6 +36,7 @@ import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
+import decapitalize
 import stripNonJava
 import java.util.Locale
 import javax.lang.model.element.Modifier.FINAL
@@ -165,7 +166,7 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
         val scope = CodeGenScope(this)
         builder.apply {
             database.daoMethods.forEach { method ->
-                val name = method.dao.typeName.simpleName().decapitalize().stripNonJava()
+                val name = method.dao.typeName.simpleName().decapitalize(Locale.US).stripNonJava()
                 val fieldName = scope.getTmpVar("_$name")
                 val field = FieldSpec.builder(method.dao.typeName, fieldName,
                         PRIVATE, VOLATILE).build()

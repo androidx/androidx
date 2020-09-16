@@ -37,7 +37,8 @@ import java.util.List;
  * Transfer a large list of {@link ParcelImpl} objects across an IPC. Splits into
  * multiple transactions if needed.
  *
- * Note: Using this class makes synchronous binder calls, and also loses oneway property.
+ * Note: Using this class causes synchronous binder calls in the opposite direction regardless of
+ * "oneway" property.
  *
  * @hide
  */
@@ -48,6 +49,7 @@ public class ParcelImplListSlice implements Parcelable {
     private static final boolean DEBUG = false;
 
     private static final int MAX_IPC_SIZE = 64 * 1024; // IBinder.MAX_IPC_SIZE
+    private static final int INLINE_COUNT_LIMIT = 1;
 
     final List<ParcelImpl> mList;
 
@@ -136,7 +138,7 @@ public class ParcelImplListSlice implements Parcelable {
         }
         if (itemCount > 0) {
             int i = 0;
-            while (i < itemCount && dest.dataSize() < MAX_IPC_SIZE) {
+            while (i < itemCount && i < INLINE_COUNT_LIMIT && dest.dataSize() < MAX_IPC_SIZE) {
                 dest.writeInt(1);
 
                 final ParcelImpl parcelable = mList.get(i);

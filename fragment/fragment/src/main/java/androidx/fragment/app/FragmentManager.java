@@ -1692,6 +1692,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
     void addFragment(@NonNull Fragment fragment) {
         if (isLoggingEnabled(Log.VERBOSE)) Log.v(TAG, "add: " + fragment);
         FragmentStateManager fragmentStateManager = createOrGetFragmentStateManager(fragment);
+        fragment.mFragmentManager = this;
         mFragmentStore.makeActive(fragmentStateManager);
         if (!fragment.mDetached) {
             mFragmentStore.addFragment(fragment);
@@ -2129,7 +2130,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
                     BackStackRecord record = records.get(index);
                     for (FragmentTransaction.Op op : record.mOps) {
                         Fragment fragment = op.mFragment;
-                        if (fragment != null) {
+                        if (fragment != null && fragment.mFragmentManager != null) {
                             FragmentStateManager fragmentStateManager =
                                     createOrGetFragmentStateManager(fragment);
                             mFragmentStore.makeActive(fragmentStateManager);
@@ -2399,7 +2400,7 @@ public abstract class FragmentManager implements FragmentResultOwner {
      */
     private void setVisibleRemovingFragment(@NonNull Fragment f) {
         ViewGroup container = getFragmentContainer(f);
-        if (container != null) {
+        if (container != null && f.mView != null) {
             if (container.getTag(R.id.visible_removing_fragment_view_tag) == null) {
                 container.setTag(R.id.visible_removing_fragment_view_tag, f);
             }

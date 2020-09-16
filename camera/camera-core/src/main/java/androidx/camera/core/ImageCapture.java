@@ -120,6 +120,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CancellationException;
@@ -130,6 +131,7 @@ import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * A use case for taking a picture.
@@ -149,6 +151,11 @@ import java.util.concurrent.atomic.AtomicInteger;
  * via an {@link ImageCapture.OnImageCapturedCallback}.
  */
 public final class ImageCapture extends UseCase {
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // [UseCase lifetime constant] - Stays constant for the lifetime of the UseCase. Which means
+    // they could be created in the constructor.
+    ////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
      * An unknown error occurred.
@@ -193,6 +200,7 @@ public final class ImageCapture extends UseCase {
      * Auto flash. The flash will be used according to the camera system's determination when taking
      * a picture.
      */
+    private static final int FLASH_MODE_UNKNOWN = -1;
     public static final int FLASH_MODE_AUTO = 0;
     /** Always flash. The flash will always be used when taking a picture. */
     public static final int FLASH_MODE_ON = 1;
@@ -208,45 +216,80 @@ public final class ImageCapture extends UseCase {
     public static final Defaults DEFAULT_CONFIG = new Defaults();
     private static final String TAG = "ImageCapture";
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-    static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
     private static final long CHECK_3A_TIMEOUT_IN_MS = 1000L;
     private static final int MAX_IMAGES = 2;
     // TODO(b/149336664) Move the quality to a compatibility class when there is a per device case.
     private static final byte JPEG_QUALITY_MAXIMIZE_QUALITY_MODE = 100;
     private static final byte JPEG_QUALITY_MINIMIZE_LATENCY_MODE = 95;
+    @CaptureMode
+    private static final int DEFAULT_CAPTURE_MODE = CAPTURE_MODE_MINIMIZE_LATENCY;
+    @FlashMode
+    private static final int DEFAULT_FLASH_MODE = FLASH_MODE_OFF;
 
-    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
-            SessionConfig.Builder mSessionConfigBuilder;
-    private final CaptureConfig mCaptureConfig;
-    private final ExecutorService mExecutor =
-            Executors.newFixedThreadPool(
-                    1,
-                    new ThreadFactory() {
-                        private final AtomicInteger mId = new AtomicInteger(0);
+    private final CaptureCallbackChecker mSessionCallbackChecker = new CaptureCallbackChecker();
 
-                        @Override
-                        public Thread newThread(@NonNull Runnable r) {
-                            return new Thread(
-                                    r,
-                                    CameraXThreads.TAG + "image_capture_" + mId.getAndIncrement());
-                        }
-                    });
+    private final ImageReaderProxy.OnImageAvailableListener mClosingListener = (imageReader -> {
+        try (ImageProxy image = imageReader.acquireLatestImage()) {
+            Log.d(TAG, "Discarding ImageProxy which was inadvertently acquired: " + image);
+        } catch (IllegalStateException e) {
+            Log.e(TAG, "Failed to acquire latest image.", e);
+        }
+    });
+
     @NonNull
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     final Executor mIoExecutor;
-    private final CaptureCallbackChecker mSessionCallbackChecker = new CaptureCallbackChecker();
     @CaptureMode
     private final int mCaptureMode;
 
+    /**
+     * A flag to check 3A converged or not.
+     *
+     * <p>In order to speed up the taking picture process, trigger AF / AE should be skipped when
+     * the flag is disabled. Set it to be enabled in the maximum quality mode and disabled in the
+     * minimum latency mode.
+     */
+    private final boolean mEnableCheck3AConverged;
+
+    @GuardedBy("mLockedFlashMode")
+    private final AtomicReference<Integer> mLockedFlashMode = new AtomicReference<>(null);
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // [UseCase lifetime dynamic] - Dynamic variables which could change during anytime during
+    // the UseCase lifetime.
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
+    /** Current flash mode. */
+    @GuardedBy("mLockedFlashMode")
+    @FlashMode
+    private int mFlashMode = FLASH_MODE_UNKNOWN;
+    private Rational mCropAspectRatio = null;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // [UseCase attached constant] - Is only valid when the UseCase is attached to a camera.
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
+    private ExecutorService mExecutor;
+
+    private CaptureConfig mCaptureConfig;
+
     /** The set of requests that will be sent to the camera for the final captured image. */
-    private final CaptureBundle mCaptureBundle;
-    private final int mMaxCaptureStages;
+    private CaptureBundle mCaptureBundle;
+    private int mMaxCaptureStages;
 
     /**
      * Processing that gets done to the mCaptureBundle to produce the final image that is produced
      * by {@link #takePicture(Executor, OnImageCapturedCallback)}
      */
-    private final CaptureProcessor mCaptureProcessor;
+    private CaptureProcessor mCaptureProcessor;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////
+    // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
+    ////////////////////////////////////////////////////////////////////////////////////////////
+
+    @SuppressWarnings("WeakerAccess") /* synthetic accessor */
+            SessionConfig.Builder mSessionConfigBuilder;
+
     /** synthetic accessor */
     @SuppressWarnings("WeakerAccess")
     SafeCloseImageReaderProxy mImageReader;
@@ -258,27 +301,6 @@ public final class ImageCapture extends UseCase {
     private CameraCaptureCallback mMetadataMatchingCaptureCallback;
     private DeferrableSurface mDeferrableSurface;
     private ImageCaptureRequestProcessor mImageCaptureRequestProcessor;
-    private Rational mCropAspectRatio;
-
-    private final ImageReaderProxy.OnImageAvailableListener mClosingListener = (imageReader -> {
-        try (ImageProxy image = imageReader.acquireLatestImage()) {
-            Log.d(TAG, "Discarding ImageProxy which was inadvertently acquired: " + image);
-        } catch (IllegalStateException e) {
-            Log.e(TAG, "Failed to acquire latest image.", e);
-        }
-    });
-
-    /**
-     * A flag to check 3A converged or not.
-     *
-     * <p>In order to speed up the taking picture process, trigger AF / AE should be skipped when
-     * the flag is disabled. Set it to be enabled in the maximum quality mode and disabled in the
-     * minimum latency mode.
-     */
-    private boolean mEnableCheck3AConverged;
-    /** Current flash mode. */
-    @FlashMode
-    private int mFlashMode;
 
     /**
      * Creates a new image capture use case from the given configuration.
@@ -288,30 +310,23 @@ public final class ImageCapture extends UseCase {
      */
     ImageCapture(@NonNull ImageCaptureConfig userConfig) {
         super(userConfig);
-        // Ensure we're using the combined configuration (user config + defaults)
+
         ImageCaptureConfig useCaseConfig = (ImageCaptureConfig) getUseCaseConfig();
-        mCaptureMode = useCaseConfig.getCaptureMode();
-        mFlashMode = useCaseConfig.getFlashMode();
 
-        mCaptureProcessor = useCaseConfig.getCaptureProcessor(null);
-        mMaxCaptureStages = useCaseConfig.getMaxCaptureStages(MAX_IMAGES);
-        Preconditions.checkArgument(mMaxCaptureStages >= 1,
-                "Maximum outstanding image count must be at least 1");
-
-        mCaptureBundle = useCaseConfig.getCaptureBundle(
-                CaptureBundles.singleDefaultCaptureBundle());
+        if (useCaseConfig.containsOption(OPTION_IMAGE_CAPTURE_MODE)) {
+            mCaptureMode = useCaseConfig.getCaptureMode();
+        } else {
+            mCaptureMode = DEFAULT_CAPTURE_MODE;
+        }
 
         mIoExecutor = Preconditions.checkNotNull(
                 useCaseConfig.getIoExecutor(CameraXExecutors.ioExecutor()));
 
         if (mCaptureMode == CAPTURE_MODE_MAXIMIZE_QUALITY) {
             mEnableCheck3AConverged = true; // check 3A convergence in MAX_QUALITY mode
-        } else if (mCaptureMode == CAPTURE_MODE_MINIMIZE_LATENCY) {
+        } else {
             mEnableCheck3AConverged = false; // skip 3A convergence in MIN_LATENCY mode
         }
-
-        CaptureConfig.Builder captureBuilder = CaptureConfig.Builder.createFrom(useCaseConfig);
-        mCaptureConfig = captureBuilder.build();
     }
 
     @UiThread
@@ -405,9 +420,8 @@ public final class ImageCapture extends UseCase {
     @Override
     @Nullable
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(@Nullable CameraInfo cameraInfo) {
-        ImageCaptureConfig defaults = CameraX.getDefaultUseCaseConfig(ImageCaptureConfig.class,
-                cameraInfo);
+    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder() {
+        ImageCaptureConfig defaults = CameraX.getDefaultUseCaseConfig(ImageCaptureConfig.class);
         if (defaults != null) {
             return Builder.fromConfig(defaults);
         }
@@ -435,7 +449,7 @@ public final class ImageCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     protected void onCameraControlReady() {
-        getCameraControl().setFlashMode(mFlashMode);
+        trySetFlashModeToCameraControl();
     }
 
     /**
@@ -446,7 +460,10 @@ public final class ImageCapture extends UseCase {
      */
     @FlashMode
     public int getFlashMode() {
-        return mFlashMode;
+        synchronized (mLockedFlashMode) {
+            return mFlashMode != FLASH_MODE_UNKNOWN ? mFlashMode
+                    : ((ImageCaptureConfig) getUseCaseConfig()).getFlashMode(DEFAULT_FLASH_MODE);
+        }
     }
 
     /**
@@ -465,15 +482,14 @@ public final class ImageCapture extends UseCase {
      *                  or {@link #FLASH_MODE_OFF}.
      */
     public void setFlashMode(@FlashMode int flashMode) {
-        this.mFlashMode = flashMode;
-        // The camera control will be ready after the use case is attached. The {@link
-        // CameraSelector} containing camera id info is also generated at meanwhile. Developers
-        // may update flash mode before the use case is bound. If the camera control has been
-        // ready, directly updating the flash mode into camera control. If the camera control has
-        // been not ready yet, just saving the flash mode and updating into camera control when
-        // camera control ready callback is called.
-        if (getCamera() != null) {
-            getCameraControl().setFlashMode(flashMode);
+        if (flashMode != FLASH_MODE_AUTO && flashMode != FLASH_MODE_ON
+                && flashMode != FLASH_MODE_OFF) {
+            throw new IllegalArgumentException("Invalid flash mode: " + flashMode);
+        }
+
+        synchronized (mLockedFlashMode) {
+            mFlashMode = flashMode;
+            trySetFlashModeToCameraControl();
         }
     }
 
@@ -494,7 +510,8 @@ public final class ImageCapture extends UseCase {
      * of the output {@link ImageProxy} would be 360x480 after applying the rotation degrees.
      *
      * <p>This crops the saved image when calling
-     * {@link ImageCapture#takePicture(OutputFileOptions, Executor, OnImageSavedCallback)}.
+     * {@link ImageCapture#takePicture(OutputFileOptions, Executor, OnImageSavedCallback)}. Note
+     * that the cropping will introduce an additional latency.
      *
      * <p>Cropping occurs around the center of the image and as though it were in the target
      * rotation. For example, assume the {@code aspectRatio} of 3x4. If an image has a resolution
@@ -524,10 +541,12 @@ public final class ImageCapture extends UseCase {
      * <p>If no target rotation is set by the application, it is set to the value of
      * {@link Display#getRotation()} of the default display at the time the use case is
      * created. The use case is fully created once it has been attached to a camera.
+     *
+     * @return The rotation of the intended target.
      */
     @RotationValue
     public int getTargetRotation() {
-        return ((ImageOutputConfig) getUseCaseConfig()).getTargetRotation();
+        return getTargetRotationInternal();
     }
 
     /**
@@ -628,9 +647,14 @@ public final class ImageCapture extends UseCase {
      *
      * <p>The callback will be called only once for every invocation of this method.
      *
+     * <p> If the {@link ImageCapture} is in a {@link UseCaseGroup} where {@link ViewPort} is
+     * set, or {@link #setCropAspectRatio} is used, the image may be cropped before saving to
+     * disk which causes an additional latency.
+     *
      * @param outputFileOptions  Options to store the newly captured image.
      * @param executor           The executor in which the callback methods will be run.
      * @param imageSavedCallback Callback to be called for the newly captured image.
+     * @see ViewPort
      */
     public void takePicture(
             final @NonNull OutputFileOptions outputFileOptions,
@@ -639,6 +663,14 @@ public final class ImageCapture extends UseCase {
         if (Looper.getMainLooper() != Looper.myLooper()) {
             CameraXExecutors.mainThreadExecutor().execute(
                     () -> takePicture(outputFileOptions, executor, imageSavedCallback));
+            return;
+        }
+
+        // Check whether the captured image can be saved. If it cannot, fail fast and notify user
+        if (!ImageSaveLocationValidator.isValid(outputFileOptions)) {
+            executor.execute(() -> imageSavedCallback.onError(
+                    new ImageCaptureException(ERROR_FILE_IO,
+                            "Cannot save capture result to specified location", null)));
             return;
         }
 
@@ -750,6 +782,40 @@ public final class ImageCapture extends UseCase {
         mImageCaptureRequestProcessor.sendRequest(new ImageCaptureRequest(
                 getRelativeRotation(attachedCamera), getJpegQuality(), mCropAspectRatio,
                 getViewPortCropRect(), callbackExecutor, callback));
+    }
+
+    private void lockFlashMode() {
+        synchronized (mLockedFlashMode) {
+            if (mLockedFlashMode.get() != null) {
+                // FlashMode is locked.
+                return;
+            }
+            mLockedFlashMode.set(getFlashMode());
+        }
+    }
+
+    private void unlockFlashMode() {
+        synchronized (mLockedFlashMode) {
+            Integer lockedFlashMode = mLockedFlashMode.getAndSet(null);
+            if (lockedFlashMode == null) {
+                // FlashMode is not locked yet.
+                return;
+            }
+            if (lockedFlashMode.intValue() != getFlashMode()) {
+                // Flash Mode is changed during lock session.
+                trySetFlashModeToCameraControl();
+            }
+        }
+    }
+
+    private void trySetFlashModeToCameraControl() {
+        synchronized (mLockedFlashMode) {
+            if (mLockedFlashMode.get() != null) {
+                // Flash Mode is locked.
+                return;
+            }
+            getCameraControl().setFlashMode(getFlashMode());
+        }
     }
 
     /**
@@ -879,7 +945,7 @@ public final class ImageCapture extends UseCase {
         public void sendRequest(@NonNull ImageCaptureRequest imageCaptureRequest) {
             synchronized (mLock) {
                 mPendingRequests.offer(imageCaptureRequest);
-                Log.d(TAG, String.format(
+                Logger.d(TAG, String.format(Locale.US,
                         "Send image capture request [current, pending] = [%d, %d]",
                         mCurrentRequest != null ? 1 : 0, mPendingRequests.size()));
                 processNextRequest();
@@ -927,7 +993,8 @@ public final class ImageCapture extends UseCase {
 
                 // Unable to issue request if the ImageReader has no available image buffer left.
                 if (mOutstandingImages >= mMaxImages) {
-                    Log.w(TAG, "Too many acquire images. Close image to be able to process next.");
+                    Logger.w(TAG,
+                            "Too many acquire images. Close image to be able to process next.");
                     return;
                 }
 
@@ -1014,10 +1081,45 @@ public final class ImageCapture extends UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
-    public void clear() {
+    public void onDetached() {
         abortImageCaptureRequests();
         clearPipeline();
         mExecutor.shutdown();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @Override
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    public void onAttached() {
+        ImageCaptureConfig useCaseConfig = (ImageCaptureConfig) getUseCaseConfig();
+
+        CaptureConfig.Builder captureBuilder = CaptureConfig.Builder.createFrom(useCaseConfig);
+        mCaptureConfig = captureBuilder.build();
+
+        // Retrieve camera specific settings.
+        mCaptureProcessor = useCaseConfig.getCaptureProcessor(null);
+        mMaxCaptureStages = useCaseConfig.getMaxCaptureStages(MAX_IMAGES);
+        mCaptureBundle = useCaseConfig.getCaptureBundle(
+                CaptureBundles.singleDefaultCaptureBundle());
+
+        mExecutor =
+                Executors.newFixedThreadPool(
+                        1,
+                        new ThreadFactory() {
+                            private final AtomicInteger mId = new AtomicInteger(0);
+
+                            @Override
+                            public Thread newThread(@NonNull Runnable r) {
+                                return new Thread(
+                                        r,
+                                        CameraXThreads.TAG + "image_capture_"
+                                                + mId.getAndIncrement());
+                            }
+                        });
     }
 
     /**
@@ -1047,6 +1149,7 @@ public final class ImageCapture extends UseCase {
      * <p>For example, trigger 3A scan, open torch and check 3A converged if necessary.
      */
     private ListenableFuture<Void> preTakePicture(final TakePictureState state) {
+        lockFlashMode();
         return FutureChain.from(getPreCaptureStateIfNeeded())
                 .transformAsync(captureResult -> {
                     state.mPreCaptureState = captureResult;
@@ -1069,6 +1172,7 @@ public final class ImageCapture extends UseCase {
      */
     void postTakePicture(final TakePictureState state) {
         cancelAfAeTrigger(state);
+        unlockFlashMode();
     }
 
     /**
@@ -1091,8 +1195,8 @@ public final class ImageCapture extends UseCase {
                         @Override
                         public CameraCaptureResult check(
                                 @NonNull CameraCaptureResult captureResult) {
-                            if (DEBUG) {
-                                Log.d(TAG, "preCaptureState, AE=" + captureResult.getAeState()
+                            if (Logger.isDebugEnabled(TAG)) {
+                                Logger.d(TAG, "preCaptureState, AE=" + captureResult.getAeState()
                                         + " AF =" + captureResult.getAfState()
                                         + " AWB=" + captureResult.getAwbState());
                             }
@@ -1126,8 +1230,8 @@ public final class ImageCapture extends UseCase {
                 new CaptureCallbackChecker.CaptureResultChecker<Boolean>() {
                     @Override
                     public Boolean check(@NonNull CameraCaptureResult captureResult) {
-                        if (DEBUG) {
-                            Log.d(TAG, "checkCaptureResult, AE=" + captureResult.getAeState()
+                        if (Logger.isDebugEnabled(TAG)) {
+                            Logger.d(TAG, "checkCaptureResult, AE=" + captureResult.getAeState()
                                     + " AF =" + captureResult.getAfState()
                                     + " AWB=" + captureResult.getAwbState());
                         }
@@ -1188,7 +1292,7 @@ public final class ImageCapture extends UseCase {
 
     /** Issues a request to start auto focus scan. */
     private void triggerAf(TakePictureState state) {
-        if (DEBUG) Log.d(TAG, "triggerAf");
+        Logger.d(TAG, "triggerAf");
         state.mIsAfTriggered = true;
         ListenableFuture<CameraCaptureResult> future = getCameraControl().triggerAf();
         // Add listener to avoid FutureReturnValueIgnored error.
@@ -1198,7 +1302,7 @@ public final class ImageCapture extends UseCase {
 
     /** Issues a request to start auto exposure scan. */
     ListenableFuture<CameraCaptureResult> triggerAePrecapture(TakePictureState state) {
-        if (DEBUG) Log.d(TAG, "triggerAePrecapture");
+        Logger.d(TAG, "triggerAePrecapture");
         state.mIsAePrecaptureTriggered = true;
         return getCameraControl().triggerAePrecapture();
     }
@@ -1224,7 +1328,7 @@ public final class ImageCapture extends UseCase {
      * is safe to reset or modify the 3A state.
      */
     ListenableFuture<Void> issueTakePicture(@NonNull ImageCaptureRequest imageCaptureRequest) {
-        if (DEBUG) Log.d(TAG, "issueTakePicture");
+        Logger.d(TAG, "issueTakePicture");
 
         final List<ListenableFuture<Void>> futureList = new ArrayList<>();
         final List<CaptureConfig> captureConfigs = new ArrayList<>();
@@ -1389,7 +1493,7 @@ public final class ImageCapture extends UseCase {
      *
      * @hide
      */
-    @IntDef({FLASH_MODE_AUTO, FLASH_MODE_ON, FLASH_MODE_OFF})
+    @IntDef({FLASH_MODE_UNKNOWN, FLASH_MODE_AUTO, FLASH_MODE_ON, FLASH_MODE_OFF})
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     public @interface FlashMode {
@@ -1467,27 +1571,20 @@ public final class ImageCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     public static final class Defaults
             implements ConfigProvider<ImageCaptureConfig> {
-        @CaptureMode
-        private static final int DEFAULT_CAPTURE_MODE = CAPTURE_MODE_MINIMIZE_LATENCY;
-        @FlashMode
-        private static final int DEFAULT_FLASH_MODE = FLASH_MODE_OFF;
         private static final int DEFAULT_SURFACE_OCCUPANCY_PRIORITY = 4;
 
         private static final ImageCaptureConfig DEFAULT_CONFIG;
 
         static {
-            Builder builder =
-                    new Builder()
-                            .setCaptureMode(DEFAULT_CAPTURE_MODE)
-                            .setFlashMode(DEFAULT_FLASH_MODE)
-                            .setSurfaceOccupancyPriority(DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
+            Builder builder = new Builder().setSurfaceOccupancyPriority(
+                    DEFAULT_SURFACE_OCCUPANCY_PRIORITY);
 
             DEFAULT_CONFIG = builder.getUseCaseConfig();
         }
 
         @NonNull
         @Override
-        public ImageCaptureConfig getConfig(@Nullable CameraInfo cameraInfo) {
+        public ImageCaptureConfig getConfig() {
             return DEFAULT_CONFIG;
         }
     }
@@ -2024,7 +2121,7 @@ public final class ImageCapture extends UseCase {
                     mCallback.onCaptureSuccess(dispatchedImageProxy);
                 });
             } catch (RejectedExecutionException e) {
-                Log.e(TAG, "Unable to post to the supplied executor.");
+                Logger.e(TAG, "Unable to post to the supplied executor.");
 
                 // Unable to execute on the supplied executor, close the image.
                 image.close();
@@ -2042,7 +2139,7 @@ public final class ImageCapture extends UseCase {
                 mListenerExecutor.execute(() -> mCallback.onError(
                         new ImageCaptureException(imageCaptureError, message, cause)));
             } catch (RejectedExecutionException e) {
-                Log.e(TAG, "Unable to post to the supplied executor.");
+                Logger.e(TAG, "Unable to post to the supplied executor.");
             }
         }
     }
@@ -2159,6 +2256,23 @@ public final class ImageCapture extends UseCase {
             if (targetResolution != null) {
                 imageCapture.setCropAspectRatio(new Rational(targetResolution.getWidth(),
                         targetResolution.getHeight()));
+            }
+
+            Preconditions.checkArgument(
+                    getMutableConfig().retrieveOption(OPTION_MAX_CAPTURE_STAGES, MAX_IMAGES) >= 1,
+                    "Maximum outstanding image count must be at least 1");
+
+            Preconditions.checkNotNull(getMutableConfig().retrieveOption(OPTION_IO_EXECUTOR,
+                    CameraXExecutors.ioExecutor()), "The IO executor can't be null");
+
+            if (getMutableConfig().containsOption(OPTION_FLASH_MODE)) {
+                int flashMode = getMutableConfig().retrieveOption(OPTION_FLASH_MODE);
+
+                if (flashMode != FLASH_MODE_AUTO && flashMode != FLASH_MODE_ON
+                        && flashMode != FLASH_MODE_OFF) {
+                    throw new IllegalArgumentException(
+                            "The flash mode is not allowed to set: " + flashMode);
+                }
             }
 
             return imageCapture;

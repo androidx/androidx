@@ -16,12 +16,14 @@
 
 package androidx.contentaccess.compiler.vo
 
+import javax.lang.model.element.Element
 import javax.lang.model.type.TypeMirror
 
 data class ContentAccessObjectVO (
     // TODO(obenabde): eventually clean up some of these fields if unused anywhere, same for all
     //  other VOs.
     val contentEntity: ContentEntityVO?,
+    val interfaceElement: Element,
     val interfaceName: String,
     val packageName: String,
     val interfaceType: TypeMirror,

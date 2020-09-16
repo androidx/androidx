@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<issues format="5" by="lint 4.1.0-alpha08" client="gradle" variant="debug" version="4.1.0-alpha08">
+<issues format="5" by="lint 4.2.0-alpha06" client="gradle" variant="debug" version="4.2.0-alpha06">
 
     <issue
         id="UnknownNullness"
@@ -96,7 +96,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="203"
+            line="205"
             column="12"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="                                                          ~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="203"
+            line="205"
             column="59"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="                                           ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="204"
+            line="206"
             column="44"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="                            ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="252"
+            line="256"
             column="29"/>
     </issue>
 
@@ -140,7 +140,7 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="279"
+            line="283"
             column="35"/>
     </issue>
 
@@ -151,7 +151,7 @@
         errorLine2="                                  ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/testing/MigrationTestHelper.java"
-            line="296"
+            line="300"
             column="35"/>
     </issue>
 

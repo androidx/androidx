@@ -28,29 +28,31 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class SynchronizationMethodsTest {
 
+    val rule = createComposeRule()
+
     @Test
     fun runOnUiThread() {
-        val result = runOnUiThread { "Hello" }
+        val result = rule.runOnUiThread { "Hello" }
         assertThat(result).isEqualTo("Hello")
     }
 
     @Test
     fun runOnUiThread_void() {
         var called = false
-        runOnUiThread { called = true }
+        rule.runOnUiThread { called = true }
         assertThat(called).isTrue()
     }
 
     @Test
     fun runOnUiThread_nullable() {
-        val result: String? = runOnUiThread { null }
+        val result: String? = rule.runOnUiThread { null }
         assertThat(result).isEqualTo(null)
     }
 
     @Test
     fun runOnIdle() {
         withAndroidOwnerRegistry {
-            val result = runOnIdle { "Hello" }
+            val result = rule.runOnIdle { "Hello" }
             assertThat(result).isEqualTo("Hello")
         }
     }
@@ -59,7 +61,7 @@ class SynchronizationMethodsTest {
     fun runOnIdle_void() {
         withAndroidOwnerRegistry {
             var called = false
-            runOnIdle { called = true }
+            rule.runOnIdle { called = true }
             assertThat(called).isTrue()
         }
     }
@@ -67,7 +69,7 @@ class SynchronizationMethodsTest {
     @Test
     fun runOnIdle_nullable() {
         withAndroidOwnerRegistry {
-            val result: String? = runOnIdle { null }
+            val result: String? = rule.runOnIdle { null }
             assertThat(result).isEqualTo(null)
         }
     }
@@ -75,9 +77,9 @@ class SynchronizationMethodsTest {
     @Test
     fun runOnIdle_assert_fails() {
         withAndroidOwnerRegistry {
-            runOnIdle {
+            rule.runOnIdle {
                 expectError<IllegalStateException> {
-                    onNodeWithTag("dummy").assertExists()
+                    rule.onNodeWithTag("dummy").assertExists()
                 }
             }
         }
@@ -86,9 +88,9 @@ class SynchronizationMethodsTest {
     @Test
     fun runOnIdle_waitForIdle_fails() {
         withAndroidOwnerRegistry {
-            runOnIdle {
+            rule.runOnIdle {
                 expectError<IllegalStateException> {
-                    waitForIdle()
+                    rule.waitForIdle()
                 }
             }
         }
@@ -97,9 +99,9 @@ class SynchronizationMethodsTest {
     @Test
     fun runOnIdle_runOnIdle_fails() {
         withAndroidOwnerRegistry {
-            runOnIdle {
+            rule.runOnIdle {
                 expectError<IllegalStateException> {
-                    runOnIdle {}
+                    rule.runOnIdle {}
                 }
             }
         }

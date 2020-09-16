@@ -570,7 +570,7 @@ public class PrepackageTest {
     public void onCreateFromAsset_calledOnOpenPrepackagedDatabase() {
         Context context = ApplicationProvider.getApplicationContext();
         context.deleteDatabase("products.db");
-        TestPrepackagedCallback callback = new TestPrepackagedCallback();
+        TestPrepackagedDatabaseCallback callback = new TestPrepackagedDatabaseCallback();
         ProductsDatabase database = Room.databaseBuilder(
                 context, ProductsDatabase.class, "products.db")
                 .createFromAsset("databases/products_v1.db", callback)
@@ -594,7 +594,7 @@ public class PrepackageTest {
         InputStream toCopyInput = context.getAssets().open("databases/products_v1.db");
         copyAsset(toCopyInput, dataDbFile);
 
-        TestPrepackagedCallback callback = new TestPrepackagedCallback();
+        TestPrepackagedDatabaseCallback callback = new TestPrepackagedDatabaseCallback();
         ProductsDatabase database = Room.databaseBuilder(
                 context, ProductsDatabase.class, "products_external.db")
                 .createFromFile(dataDbFile, callback)
@@ -621,7 +621,7 @@ public class PrepackageTest {
             return zipInputStream;
         };
 
-        TestPrepackagedCallback callback = new TestPrepackagedCallback();
+        TestPrepackagedDatabaseCallback callback = new TestPrepackagedDatabaseCallback();
         ProductsDatabase database = Room.databaseBuilder(
                 context, ProductsDatabase.class, "products.db")
                 .createFromInputStream(inputStreamCallable, callback)
@@ -644,7 +644,7 @@ public class PrepackageTest {
         ProductsDatabase db1 = null;
         ProductsDatabase db2 = null;
         try {
-            TestPrepackagedCallback callback = new TestPrepackagedCallback();
+            TestPrepackagedDatabaseCallback callback = new TestPrepackagedDatabaseCallback();
             db1 = Room.databaseBuilder(
                     context, ProductsDatabase.class, "products.db")
                     .createFromAsset("databases/products_v1.db", callback)
@@ -677,14 +677,14 @@ public class PrepackageTest {
     public void onPrepackagedCallbackException_calledOnPrepackagedCallbackWhenOpenedAgain() {
         Context context = ApplicationProvider.getApplicationContext();
         context.deleteDatabase("products.db");
-        TestPrepackagedCallback throwingCallback = new TestPrepackagedCallback() {
+        TestPrepackagedDatabaseCallback throwingCallback = new TestPrepackagedDatabaseCallback() {
             @Override
             public void onOpenPrepackagedDatabase(@NonNull SupportSQLiteDatabase db) {
                 throw new RuntimeException("Something went wrong!");
             }
         };
 
-        TestPrepackagedCallback callback = new TestPrepackagedCallback();
+        TestPrepackagedDatabaseCallback callback = new TestPrepackagedDatabaseCallback();
 
         ProductsDatabase db1 = null;
         ProductsDatabase db2 = null;
@@ -743,7 +743,8 @@ public class PrepackageTest {
         }
     }
 
-    public static class TestPrepackagedCallback extends RoomDatabase.PrepackagedCallback {
+    public static class TestPrepackagedDatabaseCallback extends
+            RoomDatabase.PrepackagedDatabaseCallback {
 
         int mOpenPrepackagedDatabaseCount;
 

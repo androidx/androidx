@@ -67,6 +67,22 @@ BuilderSetStyle: androidx.leanback.widget.ShadowOverlayHelper.Builder#preferZOrd
     Builder methods names should use setFoo() / addFoo() / clearFoo() style: method androidx.leanback.widget.ShadowOverlayHelper.Builder.preferZOrder(boolean)
 
 
+CallbackMethodName: androidx.leanback.widget.DiffCallback#areContentsTheSame(Value, Value):
+    Callback method names must follow the on<Something> style: areContentsTheSame
+CallbackMethodName: androidx.leanback.widget.DiffCallback#areItemsTheSame(Value, Value):
+    Callback method names must follow the on<Something> style: areItemsTheSame
+CallbackMethodName: androidx.leanback.widget.DiffCallback#getChangePayload(Value, Value):
+    Callback method names must follow the on<Something> style: getChangePayload
+CallbackMethodName: androidx.leanback.widget.GuidedActionDiffCallback#areContentsTheSame(androidx.leanback.widget.GuidedAction, androidx.leanback.widget.GuidedAction):
+    Callback method names must follow the on<Something> style: areContentsTheSame
+CallbackMethodName: androidx.leanback.widget.GuidedActionDiffCallback#areItemsTheSame(androidx.leanback.widget.GuidedAction, androidx.leanback.widget.GuidedAction):
+    Callback method names must follow the on<Something> style: areItemsTheSame
+CallbackMethodName: androidx.leanback.widget.SearchBar.SearchBarPermissionListener#requestAudioPermission():
+    Listener method names must follow the on<Something> style: requestAudioPermission
+CallbackMethodName: androidx.leanback.widget.SpeechRecognitionCallback#recognizeSpeech():
+    Callback method names must follow the on<Something> style: recognizeSpeech
+
+
 CallbackName: androidx.leanback.widget.ObjectAdapter.DataObserver:
     Class should be named DataCallback
 
@@ -81,6 +97,20 @@ ContextFirst: androidx.leanback.widget.GuidedAction.BuilderBase#iconResourceId(i
     Context is distinct, so it must be the first argument (method `iconResourceId`)
 ContextFirst: androidx.leanback.widget.PlaybackControlsRow.ThumbsAction#ThumbsAction(int, android.content.Context, int, int) parameter #1:
     Context is distinct, so it must be the first argument (method `ThumbsAction`)
+
+
+ExecutorRegistration: androidx.leanback.media.PlaybackGlue#addPlayerCallback(androidx.leanback.media.PlaybackGlue.PlayerCallback):
+    Registration methods should have overload that accepts delivery Executor: `addPlayerCallback`
+ExecutorRegistration: androidx.leanback.media.PlaybackGlueHost#setHostCallback(androidx.leanback.media.PlaybackGlueHost.HostCallback):
+    Registration methods should have overload that accepts delivery Executor: `setHostCallback`
+ExecutorRegistration: androidx.leanback.media.PlaybackGlueHost#setOnActionClickedListener(androidx.leanback.widget.OnActionClickedListener):
+    Registration methods should have overload that accepts delivery Executor: `setOnActionClickedListener`
+ExecutorRegistration: androidx.leanback.media.PlaybackGlueHost#setOnKeyInterceptListener(android.view.View.OnKeyListener):
+    Registration methods should have overload that accepts delivery Executor: `setOnKeyInterceptListener`
+ExecutorRegistration: androidx.leanback.media.PlayerAdapter#setCallback(androidx.leanback.media.PlayerAdapter.Callback):
+    Registration methods should have overload that accepts delivery Executor: `setCallback`
+ExecutorRegistration: androidx.leanback.media.SurfaceHolderGlueHost#setSurfaceHolderCallback(android.view.SurfaceHolder.Callback):
+    Registration methods should have overload that accepts delivery Executor: `setSurfaceHolderCallback`
 
 
 FractionFloat: androidx.leanback.widget.Parallax.FloatProperty#atFraction(float):

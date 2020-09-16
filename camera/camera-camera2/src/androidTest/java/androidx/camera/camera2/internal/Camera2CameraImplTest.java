@@ -45,7 +45,6 @@ import androidx.camera.camera2.internal.util.SemaphoreReleasingCamera2Callbacks;
 import androidx.camera.camera2.interop.Camera2Interop;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
-import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.UseCase;
@@ -60,7 +59,6 @@ import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.SessionConfig;
-import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.HandlerUtil;
@@ -174,7 +172,7 @@ public final class Camera2CameraImplTest {
         }
 
         for (FakeUseCase fakeUseCase : mFakeUseCases) {
-            fakeUseCase.clear();
+            fakeUseCase.onDetached();
         }
     }
 
@@ -623,7 +621,8 @@ public final class Camera2CameraImplTest {
 
     private UseCase createUseCase() {
         FakeUseCaseConfig.Builder configBuilder =
-                new FakeUseCaseConfig.Builder().setTargetName("UseCase");
+                new FakeUseCaseConfig.Builder().setSessionOptionUnpacker(
+                        new Camera2SessionOptionUnpacker()).setTargetName("UseCase");
         new Camera2Interop.Extender<>(configBuilder).setSessionStateCallback(mSessionStateCallback);
         CameraSelector selector =
                 new CameraSelector.Builder().requireLensFacing(
@@ -674,8 +673,8 @@ public final class Camera2CameraImplTest {
         verify(useCase3, times(0)).onStateDetached();
     }
 
-    private boolean isCameraControlActive(Camera2CameraControl camera2CameraControl) {
-        ListenableFuture<Void> listenableFuture = camera2CameraControl.setZoomRatio(2.0f);
+    private boolean isCameraControlActive(Camera2CameraControlImpl camera2CameraControlImpl) {
+        ListenableFuture<Void> listenableFuture = camera2CameraControlImpl.setZoomRatio(2.0f);
         try {
             // setZoom() will fail immediately when Cameracontrol is not active.
             listenableFuture.get(50, TimeUnit.MILLISECONDS);
@@ -690,35 +689,35 @@ public final class Camera2CameraImplTest {
 
     @Test
     public void activateCameraControl_whenExistsAttachedUseCases() throws InterruptedException {
-        Camera2CameraControl camera2CameraControl =
-                (Camera2CameraControl) mCamera2CameraImpl.getCameraControlInternal();
+        Camera2CameraControlImpl camera2CameraControlImpl =
+                (Camera2CameraControlImpl) mCamera2CameraImpl.getCameraControlInternal();
 
-        assertThat(isCameraControlActive(camera2CameraControl)).isFalse();
+        assertThat(isCameraControlActive(camera2CameraControlImpl)).isFalse();
 
         UseCase useCase1 = createUseCase();
 
         mCamera2CameraImpl.attachUseCases(Collections.singletonList(useCase1));
         HandlerUtil.waitForLooperToIdle(sCameraHandler);
 
-        assertThat(isCameraControlActive(camera2CameraControl)).isTrue();
+        assertThat(isCameraControlActive(camera2CameraControlImpl)).isTrue();
 
         mCamera2CameraImpl.detachUseCases(Collections.singletonList(useCase1));
     }
 
     @Test
     public void deactivateCameraControl_whenNoAttachedUseCases() throws InterruptedException {
-        Camera2CameraControl camera2CameraControl =
-                (Camera2CameraControl) mCamera2CameraImpl.getCameraControlInternal();
+        Camera2CameraControlImpl camera2CameraControlImpl =
+                (Camera2CameraControlImpl) mCamera2CameraImpl.getCameraControlInternal();
         UseCase useCase1 = createUseCase();
 
         mCamera2CameraImpl.attachUseCases(Arrays.asList(useCase1));
         HandlerUtil.waitForLooperToIdle(sCameraHandler);
-        assertThat(isCameraControlActive(camera2CameraControl)).isTrue();
+        assertThat(isCameraControlActive(camera2CameraControlImpl)).isTrue();
 
         mCamera2CameraImpl.detachUseCases(Arrays.asList(useCase1));
         HandlerUtil.waitForLooperToIdle(sCameraHandler);
 
-        assertThat(isCameraControlActive(camera2CameraControl)).isFalse();
+        assertThat(isCameraControlActive(camera2CameraControlImpl)).isFalse();
     }
 
     private DeferrableSurface getUseCaseSurface(UseCase useCase) {
@@ -790,17 +789,9 @@ public final class Camera2CameraImplTest {
         }
 
         @Override
-        public void clear() {
-            super.clear();
+        public void onDetached() {
+            super.onDetached();
             close();
-        }
-
-        // we need to set Camera2OptionUnpacker to the Config to enable the camera2 callback hookup.
-        @Override
-        public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder(
-                @Nullable CameraInfo cameraInfo) {
-            return new FakeUseCaseConfig.Builder()
-                    .setSessionOptionUnpacker(new Camera2SessionOptionUnpacker());
         }
 
         @Override

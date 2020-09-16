@@ -45,13 +45,16 @@ class DisplayFeaturesActivity : BaseSampleActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_display_features)
 
-        windowManager = WindowManager(this, getTestBackend())
+        windowManager = getTestBackend()?.let { backend -> WindowManager(this, backend) }
+            ?: WindowManager(this)
 
         stateLog.clear()
         stateLog.append(getString(R.string.stateUpdateLog)).append("\n")
 
-        windowManager.registerDeviceStateChangeCallback(mainThreadExecutor,
-            deviceStateChangeCallback)
+        windowManager.registerDeviceStateChangeCallback(
+            mainThreadExecutor,
+            deviceStateChangeCallback
+        )
 
         window.decorView.doOnLayout {
             updateCurrentState()

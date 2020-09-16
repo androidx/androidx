@@ -55,24 +55,26 @@ import java.util.concurrent.TimeUnit;
 /**
  * Implementation of focus and metering.
  *
- * <p>It is intended to be used within {@link Camera2CameraControl} to implement the
- * functionality of {@link Camera2CameraControl#startFocusAndMetering(FocusMeteringAction)} and
- * {@link Camera2CameraControl#cancelFocusAndMetering()}. This class depends on
- * {@link Camera2CameraControl} to provide some low-level methods such as updateSessionConfig,
+ * <p>It is intended to be used within {@link Camera2CameraControlImpl} to implement the
+ * functionality of {@link Camera2CameraControlImpl#startFocusAndMetering(FocusMeteringAction)} and
+ * {@link Camera2CameraControlImpl#cancelFocusAndMetering()}. This class depends on
+ * {@link Camera2CameraControlImpl} to provide some low-level methods such as updateSessionConfig,
  * triggerAfInternal and cancelAfAeTriggerInternal to achieve the focus and metering functions.
  *
  * <p>To wait for the auto-focus lock, it calls
- * {@link Camera2CameraControl#addCaptureResultListener(Camera2CameraControl.CaptureResultListener)}
+ * {@link Camera2CameraControlImpl
+ * #addCaptureResultListener(Camera2CameraControlImpl.CaptureResultListener)}
  * to monitor the capture result. It also requires {@link ScheduledExecutorService} to schedule the
  * auto-cancel event and {@link Executor} to ensure all the methods within this class are called
- * in the same thread as the Camera2CameraControl.
+ * in the same thread as the Camera2CameraControlImpl.
  *
- * <p>The {@link Camera2CameraControl} calls {@link FocusMeteringControl#addFocusMeteringOptions} to
- * construct the 3A regions and append them to all repeating requests and single requests.
+ * <p>The {@link Camera2CameraControlImpl} calls
+ * {@link FocusMeteringControl#addFocusMeteringOptions} to construct the 3A regions and append
+ * them to all repeating requests and single requests.
  */
 class FocusMeteringControl {
     private static final String TAG = "FocusMeteringControl";
-    private final Camera2CameraControl mCameraControl;
+    private final Camera2CameraControlImpl mCameraControl;
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     @CameraExecutor
     final Executor mExecutor;
@@ -93,8 +95,8 @@ class FocusMeteringControl {
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     boolean mIsFocusSuccessful = false;
 
-    private Camera2CameraControl.CaptureResultListener mSessionListenerForFocus = null;
-    private Camera2CameraControl.CaptureResultListener mSessionListenerForCancel = null;
+    private Camera2CameraControlImpl.CaptureResultListener mSessionListenerForFocus = null;
+    private Camera2CameraControlImpl.CaptureResultListener mSessionListenerForCancel = null;
     private MeteringRectangle[] mAfRects = new MeteringRectangle[]{};
     private MeteringRectangle[] mAeRects = new MeteringRectangle[]{};
     private MeteringRectangle[] mAwbRects = new MeteringRectangle[]{};
@@ -120,7 +122,7 @@ class FocusMeteringControl {
      * @param scheduler     Scheduler used for scheduling tasks in the future.
      * @param executor      Camera executor used to run all tasks scheduled on {@code scheduler}.
      */
-    FocusMeteringControl(@NonNull Camera2CameraControl cameraControl,
+    FocusMeteringControl(@NonNull Camera2CameraControlImpl cameraControl,
             @NonNull ScheduledExecutorService scheduler,
             @NonNull @CameraExecutor Executor executor) {
         mCameraControl = cameraControl;
@@ -160,7 +162,7 @@ class FocusMeteringControl {
     }
 
     /**
-     * Called by {@link Camera2CameraControl} to append the 3A regions to the shared options. It
+     * Called by {@link Camera2CameraControlImpl} to append the 3A regions to the shared options. It
      * applies to all repeating requests and single requests.
      */
     @ExecutedBy("mExecutor")

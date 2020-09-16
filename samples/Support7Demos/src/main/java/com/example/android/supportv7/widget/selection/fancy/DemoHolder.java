@@ -16,12 +16,25 @@
 
 package com.example.android.supportv7.widget.selection.fancy;
 
+import android.content.Context;
+import android.net.Uri;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 abstract class DemoHolder extends RecyclerView.ViewHolder {
     DemoHolder(LinearLayout layout) {
         super(layout);
+    }
+
+    abstract void update(@NonNull Uri uri);
+
+    @SuppressWarnings("TypeParameterUnusedInFormals")  // Convenience to avoid clumsy cast.
+    static <V extends View> V inflateLayout(Context context, ViewGroup parent, int layout) {
+        return (V) LayoutInflater.from(context).inflate(layout, parent, false);
     }
 }

@@ -103,6 +103,6 @@ public final class LifecycleCameraController extends CameraController {
             // Use cases can't be created.
             return null;
         }
-        return mCameraProvider.bindToLifecycle(mLifecycleOwner, CAMERA_SELECTOR, useCaseGroup);
+        return mCameraProvider.bindToLifecycle(mLifecycleOwner, mCameraSelector, useCaseGroup);
     }
 }

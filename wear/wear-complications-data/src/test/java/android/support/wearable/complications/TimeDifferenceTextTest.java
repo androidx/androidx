@@ -60,22 +60,22 @@ public class TimeDifferenceTextTest {
         // WHEN getText is called for times after the end of the ref period...
         // THEN the result is formatted according to the style.
         long testTime = refTime + SECONDS.toMillis(35);
-        assertEquals("1m", tdt.getText(mResources, testTime));
+        assertEquals("1m", tdt.getTextAt(mResources, testTime));
 
         testTime += MINUTES.toMillis(12);
-        assertEquals("13m", tdt.getText(mResources, testTime));
+        assertEquals("13m", tdt.getTextAt(mResources, testTime));
 
         testTime += HOURS.toMillis(4);
-        assertEquals("5h", tdt.getText(mResources, testTime));
+        assertEquals("5h", tdt.getTextAt(mResources, testTime));
 
         testTime += HOURS.toMillis(10);
-        assertEquals("15h", tdt.getText(mResources, testTime));
+        assertEquals("15h", tdt.getTextAt(mResources, testTime));
 
         testTime += DAYS.toMillis(3);
-        assertEquals("4d", tdt.getText(mResources, testTime));
+        assertEquals("4d", tdt.getTextAt(mResources, testTime));
 
         testTime += DAYS.toMillis(10);
-        assertEquals("14d", tdt.getText(mResources, testTime));
+        assertEquals("14d", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -88,22 +88,22 @@ public class TimeDifferenceTextTest {
         // WHEN getText is called for times after the end of the ref period...
         // THEN the result is formatted according to the style.
         long testTime = refTime + SECONDS.toMillis(35);
-        assertEquals("1m", tdt.getText(mResources, testTime));
+        assertEquals("1m", tdt.getTextAt(mResources, testTime));
 
         testTime += MINUTES.toMillis(12);
-        assertEquals("13m", tdt.getText(mResources, testTime));
+        assertEquals("13m", tdt.getTextAt(mResources, testTime));
 
         testTime += HOURS.toMillis(4);
-        assertEquals("4h 13m", tdt.getText(mResources, testTime));
+        assertEquals("4h 13m", tdt.getTextAt(mResources, testTime));
 
         testTime += HOURS.toMillis(10);
-        assertEquals("14h 13m", tdt.getText(mResources, testTime));
+        assertEquals("14h 13m", tdt.getTextAt(mResources, testTime));
 
         testTime += DAYS.toMillis(3);
-        assertEquals("3d 15h", tdt.getText(mResources, testTime));
+        assertEquals("3d 15h", tdt.getTextAt(mResources, testTime));
 
         testTime += DAYS.toMillis(10);
-        assertEquals("14d", tdt.getText(mResources, testTime));
+        assertEquals("14d", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -116,22 +116,22 @@ public class TimeDifferenceTextTest {
         // WHEN getText is called for times after the end of the ref period...
         // THEN the result is formatted according to the style.
         long testTime = refTime + SECONDS.toMillis(35);
-        assertEquals("00:35", tdt.getText(mResources, testTime));
+        assertEquals("00:35", tdt.getTextAt(mResources, testTime));
 
         testTime += MINUTES.toMillis(12);
-        assertEquals("12:35", tdt.getText(mResources, testTime));
+        assertEquals("12:35", tdt.getTextAt(mResources, testTime));
 
         testTime += HOURS.toMillis(4);
-        assertEquals("4:13", tdt.getText(mResources, testTime));
+        assertEquals("4:13", tdt.getTextAt(mResources, testTime));
 
         testTime += HOURS.toMillis(10);
-        assertEquals("14:13", tdt.getText(mResources, testTime));
+        assertEquals("14:13", tdt.getTextAt(mResources, testTime));
 
         testTime += DAYS.toMillis(3);
-        assertEquals("3d 15h", tdt.getText(mResources, testTime));
+        assertEquals("3d 15h", tdt.getTextAt(mResources, testTime));
 
         testTime += DAYS.toMillis(10);
-        assertEquals("14d", tdt.getText(mResources, testTime));
+        assertEquals("14d", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -144,28 +144,28 @@ public class TimeDifferenceTextTest {
         // WHEN getText is called for times after the end of the ref period...
         // THEN the result is formatted according to the style.
         long testTime = refTime + SECONDS.toMillis(35);
-        assertEquals("1 min", tdt.getText(mResources, testTime));
+        assertEquals("1 min", tdt.getTextAt(mResources, testTime));
 
         testTime += MINUTES.toMillis(1);
-        assertEquals("2 mins", tdt.getText(mResources, testTime));
+        assertEquals("2 mins", tdt.getTextAt(mResources, testTime));
 
         testTime += MINUTES.toMillis(11);
-        assertEquals("13 mins", tdt.getText(mResources, testTime));
+        assertEquals("13 mins", tdt.getTextAt(mResources, testTime));
 
         testTime += HOURS.toMillis(1);
-        assertEquals("2 hours", tdt.getText(mResources, testTime));
+        assertEquals("2 hours", tdt.getTextAt(mResources, testTime));
 
         testTime += HOURS.toMillis(4);
-        assertEquals("6 hours", tdt.getText(mResources, testTime));
+        assertEquals("6 hours", tdt.getTextAt(mResources, testTime));
 
         testTime += HOURS.toMillis(18);
-        assertEquals("1 day", tdt.getText(mResources, testTime));
+        assertEquals("1 day", tdt.getTextAt(mResources, testTime));
 
         testTime += DAYS.toMillis(1);
-        assertEquals("2 days", tdt.getText(mResources, testTime));
+        assertEquals("2 days", tdt.getTextAt(mResources, testTime));
 
         testTime += DAYS.toMillis(10);
-        assertEquals("12 days", tdt.getText(mResources, testTime));
+        assertEquals("12 days", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -179,31 +179,31 @@ public class TimeDifferenceTextTest {
         // WHEN getText is called for times after the end of the ref period...
         // THEN the result is formatted according to the style.
         long testTime = refTime + SECONDS.toMillis(35);
-        assertEquals("1 min", tdt.getText(mResources, testTime));
+        assertEquals("1 min", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + MINUTES.toMillis(1) + SECONDS.toMillis(35);
-        assertEquals("2 mins", tdt.getText(mResources, testTime));
+        assertEquals("2 mins", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("13 mins", tdt.getText(mResources, testTime));
+        assertEquals("13 mins", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(1) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("2 hours", tdt.getText(mResources, testTime));
+        assertEquals("2 hours", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(9) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("10h", tdt.getText(mResources, testTime));
+        assertEquals("10h", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(23) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("1 day", tdt.getText(mResources, testTime));
+        assertEquals("1 day", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(1) + HOURS.toMillis(23) + MINUTES.toMillis(12);
-        assertEquals("2 days", tdt.getText(mResources, testTime));
+        assertEquals("2 days", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(11) + HOURS.toMillis(23) + MINUTES.toMillis(12);
-        assertEquals("12 days", tdt.getText(mResources, testTime));
+        assertEquals("12 days", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(125);
-        assertEquals("125d", tdt.getText(mResources, testTime));
+        assertEquals("125d", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -217,22 +217,22 @@ public class TimeDifferenceTextTest {
         // WHEN getText is called for times before the end of the ref period...
         // THEN the result is formatted according to the style.
         long testTime = refTime - SECONDS.toMillis(35);
-        assertEquals("1m", tdt.getText(mResources, testTime));
+        assertEquals("1m", tdt.getTextAt(mResources, testTime));
 
         testTime -= MINUTES.toMillis(12);
-        assertEquals("13m", tdt.getText(mResources, testTime));
+        assertEquals("13m", tdt.getTextAt(mResources, testTime));
 
         testTime -= HOURS.toMillis(4);
-        assertEquals("5h", tdt.getText(mResources, testTime));
+        assertEquals("5h", tdt.getTextAt(mResources, testTime));
 
         testTime -= HOURS.toMillis(10);
-        assertEquals("15h", tdt.getText(mResources, testTime));
+        assertEquals("15h", tdt.getTextAt(mResources, testTime));
 
         testTime -= DAYS.toMillis(3);
-        assertEquals("4d", tdt.getText(mResources, testTime));
+        assertEquals("4d", tdt.getTextAt(mResources, testTime));
 
         testTime -= DAYS.toMillis(10);
-        assertEquals("14d", tdt.getText(mResources, testTime));
+        assertEquals("14d", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -246,22 +246,22 @@ public class TimeDifferenceTextTest {
         // WHEN getText is called for times before the end of the ref period...
         // THEN the result is formatted according to the style.
         long testTime = refTime - SECONDS.toMillis(35);
-        assertEquals("1m", tdt.getText(mResources, testTime));
+        assertEquals("1m", tdt.getTextAt(mResources, testTime));
 
         testTime -= MINUTES.toMillis(12);
-        assertEquals("13m", tdt.getText(mResources, testTime));
+        assertEquals("13m", tdt.getTextAt(mResources, testTime));
 
         testTime -= HOURS.toMillis(4);
-        assertEquals("4h 13m", tdt.getText(mResources, testTime));
+        assertEquals("4h 13m", tdt.getTextAt(mResources, testTime));
 
         testTime -= HOURS.toMillis(10);
-        assertEquals("14h 13m", tdt.getText(mResources, testTime));
+        assertEquals("14h 13m", tdt.getTextAt(mResources, testTime));
 
         testTime -= DAYS.toMillis(3);
-        assertEquals("3d 15h", tdt.getText(mResources, testTime));
+        assertEquals("3d 15h", tdt.getTextAt(mResources, testTime));
 
         testTime -= DAYS.toMillis(10);
-        assertEquals("14d", tdt.getText(mResources, testTime));
+        assertEquals("14d", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -275,22 +275,22 @@ public class TimeDifferenceTextTest {
         // WHEN getText is called for times before the end of the ref period...
         // THEN the result is formatted according to the style.
         long testTime = refTime - SECONDS.toMillis(35);
-        assertEquals("00:35", tdt.getText(mResources, testTime));
+        assertEquals("00:35", tdt.getTextAt(mResources, testTime));
 
         testTime -= MINUTES.toMillis(12);
-        assertEquals("12:35", tdt.getText(mResources, testTime));
+        assertEquals("12:35", tdt.getTextAt(mResources, testTime));
 
         testTime -= HOURS.toMillis(4);
-        assertEquals("4:13", tdt.getText(mResources, testTime));
+        assertEquals("4:13", tdt.getTextAt(mResources, testTime));
 
         testTime -= HOURS.toMillis(10);
-        assertEquals("14:13", tdt.getText(mResources, testTime));
+        assertEquals("14:13", tdt.getTextAt(mResources, testTime));
 
         testTime -= DAYS.toMillis(3);
-        assertEquals("3d 15h", tdt.getText(mResources, testTime));
+        assertEquals("3d 15h", tdt.getTextAt(mResources, testTime));
 
         testTime -= DAYS.toMillis(10);
-        assertEquals("14d", tdt.getText(mResources, testTime));
+        assertEquals("14d", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -304,28 +304,28 @@ public class TimeDifferenceTextTest {
         // WHEN getText is called for times before the end of the ref period...
         // THEN the result is formatted according to the style.
         long testTime = refTime - SECONDS.toMillis(35);
-        assertEquals("1 min", tdt.getText(mResources, testTime));
+        assertEquals("1 min", tdt.getTextAt(mResources, testTime));
 
         testTime -= MINUTES.toMillis(1);
-        assertEquals("2 mins", tdt.getText(mResources, testTime));
+        assertEquals("2 mins", tdt.getTextAt(mResources, testTime));
 
         testTime -= MINUTES.toMillis(11);
-        assertEquals("13 mins", tdt.getText(mResources, testTime));
+        assertEquals("13 mins", tdt.getTextAt(mResources, testTime));
 
         testTime -= HOURS.toMillis(1);
-        assertEquals("2 hours", tdt.getText(mResources, testTime));
+        assertEquals("2 hours", tdt.getTextAt(mResources, testTime));
 
         testTime -= HOURS.toMillis(4);
-        assertEquals("6 hours", tdt.getText(mResources, testTime));
+        assertEquals("6 hours", tdt.getTextAt(mResources, testTime));
 
         testTime -= HOURS.toMillis(18);
-        assertEquals("1 day", tdt.getText(mResources, testTime));
+        assertEquals("1 day", tdt.getTextAt(mResources, testTime));
 
         testTime -= DAYS.toMillis(1);
-        assertEquals("2 days", tdt.getText(mResources, testTime));
+        assertEquals("2 days", tdt.getTextAt(mResources, testTime));
 
         testTime -= DAYS.toMillis(10);
-        assertEquals("12 days", tdt.getText(mResources, testTime));
+        assertEquals("12 days", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -338,7 +338,7 @@ public class TimeDifferenceTextTest {
 
         // WHEN getText is called for a time within the ref period
         // THEN "Now" is returned.
-        assertEquals("Now", tdt.getText(mResources, refTime + 1000));
+        assertEquals("Now", tdt.getTextAt(mResources, refTime + 1000));
     }
 
     @Test
@@ -351,7 +351,7 @@ public class TimeDifferenceTextTest {
 
         // WHEN getText is called for a time within the ref period
         // THEN a zero value is returned.
-        assertEquals("0m", tdt.getText(mResources, refTime + 1000));
+        assertEquals("0m", tdt.getTextAt(mResources, refTime + 1000));
     }
 
     @Test
@@ -364,7 +364,7 @@ public class TimeDifferenceTextTest {
 
         // WHEN getText is called for a time within the ref period
         // THEN a zero value is returned.
-        assertEquals("0m", tdt.getText(mResources, refTime + 1000));
+        assertEquals("0m", tdt.getTextAt(mResources, refTime + 1000));
     }
 
     @Test
@@ -377,7 +377,7 @@ public class TimeDifferenceTextTest {
 
         // WHEN getText is called for a time within the ref period
         // THEN a zero value is returned.
-        assertEquals("0 mins", tdt.getText(mResources, refTime + 1000));
+        assertEquals("0 mins", tdt.getTextAt(mResources, refTime + 1000));
     }
 
     @Test
@@ -390,7 +390,7 @@ public class TimeDifferenceTextTest {
 
         // WHEN getText is called for a time within the ref period
         // THEN a zero value is returned.
-        assertEquals("00:00", tdt.getText(mResources, refTime + 1000));
+        assertEquals("00:00", tdt.getTextAt(mResources, refTime + 1000));
     }
 
     @Test
@@ -403,7 +403,7 @@ public class TimeDifferenceTextTest {
 
         // WHEN getText is called for a time within the ref period
         // THEN "Now" is returned.
-        assertEquals("Now", tdt.getText(mResources, refTime + 1000));
+        assertEquals("Now", tdt.getTextAt(mResources, refTime + 1000));
     }
 
     @Test
@@ -416,7 +416,7 @@ public class TimeDifferenceTextTest {
 
         // WHEN getText is called for the ref period start time
         // THEN "Now" is returned.
-        assertEquals("Now", tdt.getText(mResources, refTime));
+        assertEquals("Now", tdt.getTextAt(mResources, refTime));
     }
 
     @Test
@@ -429,7 +429,7 @@ public class TimeDifferenceTextTest {
 
         // WHEN getText is called for the ref period end time
         // THEN "Now" is returned.
-        assertEquals("Now", tdt.getText(mResources, refTime));
+        assertEquals("Now", tdt.getTextAt(mResources, refTime));
     }
 
     @Test
@@ -648,21 +648,21 @@ public class TimeDifferenceTextTest {
         // ref time
         long testTime = refTime + HOURS.toMillis(4) + SECONDS.toMillis(35);
         // THEN the time is rounded up to the next hour
-        assertEquals("5h", tdt.getText(mResources, testTime));
+        assertEquals("5h", tdt.getTextAt(mResources, testTime));
 
         // WHEN getText is called for a time a few seconds more than a whole number of days after
         // the
         // ref time
         testTime = refTime + DAYS.toMillis(12) + SECONDS.toMillis(35);
         // THEN the text is rounded up to the next day
-        assertEquals("13d", tdt.getText(mResources, testTime));
+        assertEquals("13d", tdt.getTextAt(mResources, testTime));
 
         // WHEN getText is called for a time a few minutes more than a whole number of days after
         // the
         // ref time
         testTime = refTime + DAYS.toMillis(12) + MINUTES.toMillis(35);
         // THEN the text is rounded up to the next day
-        assertEquals("13d", tdt.getText(mResources, testTime));
+        assertEquals("13d", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -675,17 +675,17 @@ public class TimeDifferenceTextTest {
         // WHEN getText is called for a time a whole number of minutes after the ref time
         long testTime = refTime + MINUTES.toMillis(35);
         // THEN the output shows that number of minutes.
-        assertEquals("35m", tdt.getText(mResources, testTime));
+        assertEquals("35m", tdt.getTextAt(mResources, testTime));
 
         // WHEN getText is called for a time a whole number of hours after the ref time
         testTime = refTime + HOURS.toMillis(12);
         // THEN the output shows that number of hours.
-        assertEquals("12h", tdt.getText(mResources, testTime));
+        assertEquals("12h", tdt.getTextAt(mResources, testTime));
 
         // WHEN getText is called for a time a whole number of days after the ref time
         testTime = refTime + DAYS.toMillis(3);
         // THEN the output shows that number of days.
-        assertEquals("3d", tdt.getText(mResources, testTime));
+        assertEquals("3d", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -697,22 +697,22 @@ public class TimeDifferenceTextTest {
         // WHEN getText is called for times after the end of the ref period...
         // THEN the result is formatted according to the default style.
         long testTime = refTime + SECONDS.toMillis(35);
-        assertEquals("1m", tdt.getText(mResources, testTime));
+        assertEquals("1m", tdt.getTextAt(mResources, testTime));
 
         testTime += MINUTES.toMillis(12);
-        assertEquals("13m", tdt.getText(mResources, testTime));
+        assertEquals("13m", tdt.getTextAt(mResources, testTime));
 
         testTime += HOURS.toMillis(4);
-        assertEquals("5h", tdt.getText(mResources, testTime));
+        assertEquals("5h", tdt.getTextAt(mResources, testTime));
 
         testTime += HOURS.toMillis(10);
-        assertEquals("15h", tdt.getText(mResources, testTime));
+        assertEquals("15h", tdt.getTextAt(mResources, testTime));
 
         testTime += DAYS.toMillis(3);
-        assertEquals("4d", tdt.getText(mResources, testTime));
+        assertEquals("4d", tdt.getTextAt(mResources, testTime));
 
         testTime += DAYS.toMillis(10);
-        assertEquals("14d", tdt.getText(mResources, testTime));
+        assertEquals("14d", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -725,12 +725,12 @@ public class TimeDifferenceTextTest {
         // WHEN getText is called for a time a whole number of hours after the ref time
         long testTime = refTime + HOURS.toMillis(4);
         // THEN the text shows hours but not minutes.
-        assertEquals("4h", tdt.getText(mResources, testTime));
+        assertEquals("4h", tdt.getTextAt(mResources, testTime));
 
         // WHEN getText is called for a time a whole number of days after the ref time
         testTime = refTime + DAYS.toMillis(35);
         // THEN the text shows days but not hours.
-        assertEquals("35d", tdt.getText(mResources, testTime));
+        assertEquals("35d", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -744,22 +744,22 @@ public class TimeDifferenceTextTest {
         // THEN the result is formatted according to the style, not including any units smaller than
         // an hour
         long testTime = refTime + SECONDS.toMillis(35);
-        assertEquals("1h", tdt.getText(mResources, testTime));
+        assertEquals("1h", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("1h", tdt.getText(mResources, testTime));
+        assertEquals("1h", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(4) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("5h", tdt.getText(mResources, testTime));
+        assertEquals("5h", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(14) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("15h", tdt.getText(mResources, testTime));
+        assertEquals("15h", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(3) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("4d", tdt.getText(mResources, testTime));
+        assertEquals("4d", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(13) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("14d", tdt.getText(mResources, testTime));
+        assertEquals("14d", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -773,22 +773,22 @@ public class TimeDifferenceTextTest {
         // THEN the result is formatted according to the style, not including any units smaller than
         // an hour
         long testTime = refTime + SECONDS.toMillis(35);
-        assertEquals("1d", tdt.getText(mResources, testTime));
+        assertEquals("1d", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("1d", tdt.getText(mResources, testTime));
+        assertEquals("1d", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(4) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("1d", tdt.getText(mResources, testTime));
+        assertEquals("1d", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(14) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("1d", tdt.getText(mResources, testTime));
+        assertEquals("1d", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(3) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("4d", tdt.getText(mResources, testTime));
+        assertEquals("4d", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(13) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("14d", tdt.getText(mResources, testTime));
+        assertEquals("14d", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -803,22 +803,22 @@ public class TimeDifferenceTextTest {
         // THEN the result is formatted according to the style, with no change due to the minimum
         // unit.
         long testTime = refTime + SECONDS.toMillis(35);
-        assertEquals("1m", tdt.getText(mResources, testTime));
+        assertEquals("1m", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("13m", tdt.getText(mResources, testTime));
+        assertEquals("13m", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(4) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("5h", tdt.getText(mResources, testTime));
+        assertEquals("5h", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(14) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("15h", tdt.getText(mResources, testTime));
+        assertEquals("15h", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(3) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("4d", tdt.getText(mResources, testTime));
+        assertEquals("4d", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(13) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("14d", tdt.getText(mResources, testTime));
+        assertEquals("14d", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -832,22 +832,22 @@ public class TimeDifferenceTextTest {
         // THEN the result is formatted according to the style, not including any units smaller than
         // an hour
         long testTime = refTime + SECONDS.toMillis(35);
-        assertEquals("1h", tdt.getText(mResources, testTime));
+        assertEquals("1h", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("1h", tdt.getText(mResources, testTime));
+        assertEquals("1h", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(4) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("5h", tdt.getText(mResources, testTime));
+        assertEquals("5h", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(14) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("15h", tdt.getText(mResources, testTime));
+        assertEquals("15h", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(3) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("3d 15h", tdt.getText(mResources, testTime));
+        assertEquals("3d 15h", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(13) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("14d", tdt.getText(mResources, testTime));
+        assertEquals("14d", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -861,22 +861,22 @@ public class TimeDifferenceTextTest {
         // THEN the result is formatted according to the style, not including any units smaller than
         // a day
         long testTime = refTime + SECONDS.toMillis(35);
-        assertEquals("1d", tdt.getText(mResources, testTime));
+        assertEquals("1d", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("1d", tdt.getText(mResources, testTime));
+        assertEquals("1d", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(4) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("1d", tdt.getText(mResources, testTime));
+        assertEquals("1d", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(14) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("1d", tdt.getText(mResources, testTime));
+        assertEquals("1d", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(3) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("4d", tdt.getText(mResources, testTime));
+        assertEquals("4d", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(13) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("14d", tdt.getText(mResources, testTime));
+        assertEquals("14d", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -890,22 +890,22 @@ public class TimeDifferenceTextTest {
         // THEN the result is formatted according to the style, with no change due to the minimum
         // unit.
         long testTime = refTime + SECONDS.toMillis(35);
-        assertEquals("1m", tdt.getText(mResources, testTime));
+        assertEquals("1m", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("13m", tdt.getText(mResources, testTime));
+        assertEquals("13m", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(4) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("4h 13m", tdt.getText(mResources, testTime));
+        assertEquals("4h 13m", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(14) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("14h 13m", tdt.getText(mResources, testTime));
+        assertEquals("14h 13m", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(3) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("3d 15h", tdt.getText(mResources, testTime));
+        assertEquals("3d 15h", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(13) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("14d", tdt.getText(mResources, testTime));
+        assertEquals("14d", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -919,22 +919,22 @@ public class TimeDifferenceTextTest {
         // THEN the result is formatted according to the style, with no change due to the minimum
         // unit.
         long testTime = refTime + SECONDS.toMillis(35);
-        assertEquals("1m", tdt.getText(mResources, testTime));
+        assertEquals("1m", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("13m", tdt.getText(mResources, testTime));
+        assertEquals("13m", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(4) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("4h 13m", tdt.getText(mResources, testTime));
+        assertEquals("4h 13m", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(14) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("14h 13m", tdt.getText(mResources, testTime));
+        assertEquals("14h 13m", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(3) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("3d 15h", tdt.getText(mResources, testTime));
+        assertEquals("3d 15h", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(13) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("14d", tdt.getText(mResources, testTime));
+        assertEquals("14d", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -948,22 +948,22 @@ public class TimeDifferenceTextTest {
         // THEN the result is formatted according to the style, not including any units smaller than
         // a minute.
         long testTime = refTime + SECONDS.toMillis(35);
-        assertEquals("0:01", tdt.getText(mResources, testTime));
+        assertEquals("0:01", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("0:13", tdt.getText(mResources, testTime));
+        assertEquals("0:13", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(4) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("4:13", tdt.getText(mResources, testTime));
+        assertEquals("4:13", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(14) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("14:13", tdt.getText(mResources, testTime));
+        assertEquals("14:13", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(3) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("3d 15h", tdt.getText(mResources, testTime));
+        assertEquals("3d 15h", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(13) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("14d", tdt.getText(mResources, testTime));
+        assertEquals("14d", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -977,22 +977,22 @@ public class TimeDifferenceTextTest {
         // THEN the result is formatted according to the style, not including any units smaller than
         // an hour (which means that the stopwatch-style format hh:mm cannot be used).
         long testTime = refTime + SECONDS.toMillis(35);
-        assertEquals("1h", tdt.getText(mResources, testTime));
+        assertEquals("1h", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("1h", tdt.getText(mResources, testTime));
+        assertEquals("1h", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(4) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("5h", tdt.getText(mResources, testTime));
+        assertEquals("5h", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(14) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("15h", tdt.getText(mResources, testTime));
+        assertEquals("15h", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(3) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("3d 15h", tdt.getText(mResources, testTime));
+        assertEquals("3d 15h", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(13) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("14d", tdt.getText(mResources, testTime));
+        assertEquals("14d", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -1006,22 +1006,22 @@ public class TimeDifferenceTextTest {
         // THEN the result is formatted according to the style, not including any units smaller than
         // a day..
         long testTime = refTime + SECONDS.toMillis(35);
-        assertEquals("1d", tdt.getText(mResources, testTime));
+        assertEquals("1d", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("1d", tdt.getText(mResources, testTime));
+        assertEquals("1d", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(4) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("1d", tdt.getText(mResources, testTime));
+        assertEquals("1d", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(14) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("1d", tdt.getText(mResources, testTime));
+        assertEquals("1d", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(3) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("4d", tdt.getText(mResources, testTime));
+        assertEquals("4d", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(13) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("14d", tdt.getText(mResources, testTime));
+        assertEquals("14d", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -1035,22 +1035,22 @@ public class TimeDifferenceTextTest {
         // THEN the result is formatted according to the style, with no change due to the minimum
         // unit.
         long testTime = refTime + SECONDS.toMillis(35);
-        assertEquals("00:35", tdt.getText(mResources, testTime));
+        assertEquals("00:35", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("12:35", tdt.getText(mResources, testTime));
+        assertEquals("12:35", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(4) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("4:13", tdt.getText(mResources, testTime));
+        assertEquals("4:13", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(14) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("14:13", tdt.getText(mResources, testTime));
+        assertEquals("14:13", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(3) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("3d 15h", tdt.getText(mResources, testTime));
+        assertEquals("3d 15h", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(13) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("14d", tdt.getText(mResources, testTime));
+        assertEquals("14d", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -1064,22 +1064,22 @@ public class TimeDifferenceTextTest {
         // THEN the result is formatted according to the style, not including any units smaller than
         // an hour
         long testTime = refTime + SECONDS.toMillis(35);
-        assertEquals("1 hour", tdt.getText(mResources, testTime));
+        assertEquals("1 hour", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("1 hour", tdt.getText(mResources, testTime));
+        assertEquals("1 hour", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(4) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("5 hours", tdt.getText(mResources, testTime));
+        assertEquals("5 hours", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(14) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("15 hours", tdt.getText(mResources, testTime));
+        assertEquals("15 hours", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(3) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("4 days", tdt.getText(mResources, testTime));
+        assertEquals("4 days", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(13) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("14 days", tdt.getText(mResources, testTime));
+        assertEquals("14 days", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -1093,22 +1093,22 @@ public class TimeDifferenceTextTest {
         // THEN the result is formatted according to the style, not including any units smaller than
         // an hour
         long testTime = refTime + SECONDS.toMillis(35);
-        assertEquals("1 day", tdt.getText(mResources, testTime));
+        assertEquals("1 day", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("1 day", tdt.getText(mResources, testTime));
+        assertEquals("1 day", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(4) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("1 day", tdt.getText(mResources, testTime));
+        assertEquals("1 day", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(14) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("1 day", tdt.getText(mResources, testTime));
+        assertEquals("1 day", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(3) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("4 days", tdt.getText(mResources, testTime));
+        assertEquals("4 days", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(13) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("14 days", tdt.getText(mResources, testTime));
+        assertEquals("14 days", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -1123,22 +1123,22 @@ public class TimeDifferenceTextTest {
         // THEN the result is formatted according to the style, with no change due to the minimum
         // unit.
         long testTime = refTime + SECONDS.toMillis(35);
-        assertEquals("1 min", tdt.getText(mResources, testTime));
+        assertEquals("1 min", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("13 mins", tdt.getText(mResources, testTime));
+        assertEquals("13 mins", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(4) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("5 hours", tdt.getText(mResources, testTime));
+        assertEquals("5 hours", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + HOURS.toMillis(14) + MINUTES.toMillis(12) + SECONDS.toMillis(35);
-        assertEquals("15 hours", tdt.getText(mResources, testTime));
+        assertEquals("15 hours", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(3) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("4 days", tdt.getText(mResources, testTime));
+        assertEquals("4 days", tdt.getTextAt(mResources, testTime));
 
         testTime = refTime + DAYS.toMillis(13) + HOURS.toMillis(14) + MINUTES.toMillis(12);
-        assertEquals("14 days", tdt.getText(mResources, testTime));
+        assertEquals("14 days", tdt.getTextAt(mResources, testTime));
     }
 
     @Test
@@ -1253,8 +1253,8 @@ public class TimeDifferenceTextTest {
 
         // THEN the object behaves as expected.
         long testTime = refTime + HOURS.toMillis(2) + MINUTES.toMillis(35);
-        assertEquals("3h", newText.getText(mResources, testTime).toString());
-        assertEquals("0m", newText.getText(mResources, refTime).toString());
+        assertEquals("3h", newText.getTextAt(mResources, testTime).toString());
+        assertEquals("0m", newText.getTextAt(mResources, refTime).toString());
     }
 
     @Test
@@ -1270,7 +1270,7 @@ public class TimeDifferenceTextTest {
 
         // THEN the object behaves as expected.
         long testTime = refTime + HOURS.toMillis(2) + MINUTES.toMillis(35);
-        assertEquals("3h", newText.getText(mResources, testTime).toString());
+        assertEquals("3h", newText.getTextAt(mResources, testTime).toString());
     }
 
     /** Writes {@code in} to a {@link Parcel} and reads it back, returning the result. */

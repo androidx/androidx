@@ -19,6 +19,7 @@ package androidx.room.solver.shortcut.binderprovider
 import androidx.room.ext.L
 import androidx.room.ext.T
 import androidx.room.compiler.processing.XDeclaredType
+import androidx.room.compiler.processing.XRawType
 import androidx.room.compiler.processing.XType
 import androidx.room.processor.Context
 import androidx.room.solver.RxType
@@ -44,8 +45,7 @@ open class RxCallableInsertMethodBinderProvider internal constructor(
             declared.typeArguments.size == 1 && matchesRxType(declared)
 
     private fun matchesRxType(declared: XDeclaredType): Boolean {
-        val erasure = declared.erasure()
-        return erasure.typeName == rxType.className
+        return declared.rawType.typeName == rxType.className
     }
 
     override fun provide(
@@ -76,8 +76,8 @@ private class RxCompletableInsertMethodBinderProvider(
     rxType: RxType
 ) : RxCallableInsertMethodBinderProvider(context, rxType) {
 
-    private val completableTypeMirror: XType? by lazy {
-        context.processingEnv.findType(rxType.className)
+    private val completableType: XRawType? by lazy {
+        context.processingEnv.findType(rxType.className)?.rawType
     }
 
     /**
@@ -90,10 +90,9 @@ private class RxCompletableInsertMethodBinderProvider(
     override fun matches(declared: XDeclaredType): Boolean = isCompletable(declared)
 
     private fun isCompletable(declared: XDeclaredType): Boolean {
-        if (completableTypeMirror == null) {
+        if (completableType == null) {
             return false
         }
-        val erasure = declared.erasure()
-        return erasure.isAssignableFrom(completableTypeMirror!!)
+        return declared.rawType.isAssignableFrom(completableType!!)
     }
 }

@@ -22,6 +22,7 @@ import androidx.room.parser.SQLTypeAffinity.REAL
 import androidx.room.compiler.processing.XProcessingEnv
 import androidx.room.compiler.processing.XType
 import androidx.room.solver.CodeGenScope
+import capitalize
 import com.squareup.javapoet.TypeName.BYTE
 import com.squareup.javapoet.TypeName.CHAR
 import com.squareup.javapoet.TypeName.DOUBLE
@@ -29,6 +30,7 @@ import com.squareup.javapoet.TypeName.FLOAT
 import com.squareup.javapoet.TypeName.INT
 import com.squareup.javapoet.TypeName.LONG
 import com.squareup.javapoet.TypeName.SHORT
+import java.util.Locale
 
 /**
  * Adapters for all primitives that has direct cursor mappings.
@@ -39,7 +41,7 @@ open class PrimitiveColumnTypeAdapter(
     val stmtSetter: String,
     typeAffinity: SQLTypeAffinity
 ) : ColumnTypeAdapter(out, typeAffinity) {
-    val cast = if (cursorGetter == "get${out.typeName.toString().capitalize()}")
+    val cast = if (cursorGetter == "get${out.typeName.toString().capitalize(Locale.US)}")
                     ""
                 else
                     "(${out.typeName}) "

@@ -16,6 +16,10 @@
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           package="android.support.mediacompat.client.test">
+    <queries>
+        <package android:name="android.support.mediacompat.service.test" />
+    </queries>
+
     <application android:supportsRtl="true">
         <receiver android:name="android.support.mediacompat.client.ClientBroadcastReceiver">
             <intent-filter>

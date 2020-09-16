@@ -378,6 +378,11 @@ public class ResourcesCompatTest {
         assertNotSame(Typeface.DEFAULT, callback.mTypeface);
     }
 
+    @Test(expected = Resources.NotFoundException.class)
+    public void testGetFont_brokenFont() {
+        ResourcesCompat.getFont(mContext, R.font.invalid_font);
+    }
+
     @Test
     public void testGetFont_xmlProviderFile_sync() {
         Typeface font = ResourcesCompat.getFont(mContext, R.font.samplexmldownloadedfont);

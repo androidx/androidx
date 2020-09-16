@@ -32,6 +32,7 @@ import androidx.work.impl.WorkContinuationImpl
 import androidx.work.impl.WorkManagerImpl
 import androidx.work.impl.model.WorkSpec
 import androidx.work.inspection.WorkManagerInspectorProtocol.Command
+import androidx.work.inspection.WorkManagerInspectorProtocol.Command.OneOfCase.CANCEL_WORK
 import androidx.work.inspection.WorkManagerInspectorProtocol.Command.OneOfCase.TRACK_WORK_MANAGER
 import androidx.work.inspection.WorkManagerInspectorProtocol.ErrorResponse
 import androidx.work.inspection.WorkManagerInspectorProtocol.Event
@@ -41,8 +42,7 @@ import androidx.work.inspection.WorkManagerInspectorProtocol.WorkAddedEvent
 import androidx.work.inspection.WorkManagerInspectorProtocol.WorkRemovedEvent
 import androidx.work.inspection.WorkManagerInspectorProtocol.WorkUpdatedEvent
 import java.util.UUID
-import java.util.concurrent.ExecutorService
-import java.util.concurrent.Executors
+import java.util.concurrent.Executor
 
 /**
  * Inspector to work with WorkManager
@@ -54,29 +54,31 @@ class WorkManagerInspector(
 
     private val lifecycleRegistry = LifecycleRegistry(this)
     private val workManager: WorkManagerImpl
-    private val executor = Executors.newSingleThreadExecutor()
+    private val executor = environment.executors().primary()
 
-    private val stackTraceMap = mutableMapOf<String, Array<StackTraceElement>>()
+    private val stackTraceMap = mutableMapOf<String, List<StackTraceElement>>()
+
+    private val mainHandler = Handler(Looper.getMainLooper())
 
     init {
-        workManager = environment.findInstances(Application::class.java).first()
+        workManager = environment.artTooling().findInstances(Application::class.java).first()
             .let { application -> WorkManager.getInstance(application) as WorkManagerImpl }
-        Handler(Looper.getMainLooper()).post {
+
+        mainHandler.post {
             lifecycleRegistry.currentState = Lifecycle.State.STARTED
         }
 
-        environment.registerEntryHook(
+        environment.artTooling().registerEntryHook(
             WorkContinuationImpl::class.java,
-            "enqueue()Landroidx/work/Operation;",
-            InspectorEnvironment.EntryHook { obj, _ ->
-                    val stackTrace = Throwable().stackTrace
-                    executor.submit {
-                        (obj as? WorkContinuationImpl)?.allIds?.forEach { id ->
-                            stackTraceMap[id] = stackTrace.prune()
-                        }
-                    }
+            "enqueue()Landroidx/work/Operation;"
+        ) { obj, _ ->
+            val stackTrace = Throwable().stackTrace
+            executor.execute {
+                (obj as? WorkContinuationImpl)?.allIds?.forEach { id ->
+                    stackTraceMap[id] = stackTrace.toList().prune()
+                }
             }
-        )
+        }
     }
 
     override fun onReceiveCommand(data: ByteArray, callback: CommandCallback) {
@@ -90,10 +92,17 @@ class WorkManagerInspector(
                     .workDatabase
                     .workSpecDao()
                     .allWorkSpecIdsLiveData
-                    .safeObserve(this, executor) { oldList, newList ->
+                    .safeObserveWhileNotNull(this, executor) { oldList, newList ->
                         updateWorkIdList(oldList ?: listOf(), newList)
                     }
                 callback.reply(response.toByteArray())
+            }
+            CANCEL_WORK -> {
+                val response = Response.newBuilder()
+                    .setTrackWorkManager(TrackWorkManagerResponse.getDefaultInstance())
+                    .build()
+                workManager.cancelWorkById(UUID.fromString(command.cancelWork.id)).result
+                    .addListener(Runnable { callback.reply(response.toByteArray()) }, executor)
             }
             else -> {
                 val errorResponse = ErrorResponse.newBuilder()
@@ -107,36 +116,48 @@ class WorkManagerInspector(
         }
     }
 
-    private fun <T> LiveData<T>.safeObserve(
+    /**
+     * Allows to observe LiveDatas from non-main thread.
+     * <p>
+     * Observation will last until "null" value is dispatched, then
+     * observer will be automatically removed.
+     */
+    private fun <T> LiveData<T>.safeObserveWhileNotNull(
         owner: LifecycleOwner,
-        executor: ExecutorService,
+        executor: Executor,
         listener: (oldValue: T?, newValue: T) -> Unit
     ) {
-        Handler(Looper.getMainLooper()).post {
-            observe(owner,
-                object : Observer<T> {
-                    private var lastValue: T? = null
-                    override fun onChanged(t: T) {
-                        executor.submit {
+        mainHandler.post {
+            observe(owner, object : Observer<T> {
+                private var lastValue: T? = null
+                override fun onChanged(t: T) {
+                    if (t == null) {
+                        removeObserver(this)
+                    } else {
+                        executor.execute {
                             listener(lastValue, t)
                             lastValue = t
                         }
                     }
                 }
-            )
+            })
         }
     }
 
     /**
-     * Prune internal [StackTraceElement]s with classes from work manager libraries.
+     * Prune internal [StackTraceElement]s above [WorkContinuationImpl.enqueue] or from
+     * work manager libraries.
      */
-    private fun Array<StackTraceElement>.prune(): Array<StackTraceElement> {
-        // Find the first element outside work manager libraries.
-        val validIndex = indexOfFirst {
-            !it.className.startsWith("androidx.work")
+    private fun List<StackTraceElement>.prune(): List<StackTraceElement> {
+        val entryHookIndex = indexOfFirst {
+            it.className.startsWith("androidx.work.impl.WorkContinuationImpl") &&
+                    it.methodName == "enqueue"
         }
-
-        return toList().subList(validIndex, size).toTypedArray()
+        if (entryHookIndex != -1) {
+            return subList(entryHookIndex + 1, size)
+                .dropWhile { it.className.startsWith("androidx.work") }
+        }
+        return this
     }
 
     private fun createWorkInfoProto(id: String): WorkManagerInspectorProtocol.WorkInfo {
@@ -179,7 +200,7 @@ class WorkManagerInspector(
     private fun observeWorkUpdates(id: String) {
         val workInfoLiveData = workManager.getWorkInfoByIdLiveData(UUID.fromString(id))
 
-        workInfoLiveData.safeObserve(this, executor) { oldWorkInfo, newWorkInfo ->
+        workInfoLiveData.safeObserveWhileNotNull(this, executor) { oldWorkInfo, newWorkInfo ->
             if (oldWorkInfo?.state != newWorkInfo.state) {
                 val updateWorkEvent = WorkUpdatedEvent.newBuilder()
                     .setId(id)
@@ -215,7 +236,7 @@ class WorkManagerInspector(
         workManager.workDatabase
             .workSpecDao()
             .getScheduleRequestedAtLiveData(id)
-            .safeObserve(this, executor) { _, newScheduledTime ->
+            .safeObserveWhileNotNull(this, executor) { _, newScheduledTime ->
                 val updateWorkEvent = WorkUpdatedEvent.newBuilder()
                     .setId(id)
                     .setScheduleRequestedAt(newScheduledTime)
@@ -243,7 +264,7 @@ class WorkManagerInspector(
 
     override fun onDispose() {
         super.onDispose()
-        Handler(Looper.getMainLooper()).post {
+        mainHandler.post {
             lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
         }
     }

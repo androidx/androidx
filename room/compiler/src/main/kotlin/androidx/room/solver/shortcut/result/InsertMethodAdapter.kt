@@ -16,14 +16,14 @@
 
 package androidx.room.solver.shortcut.result
 
+import androidx.room.compiler.processing.XType
+import androidx.room.compiler.processing.asDeclaredType
+import androidx.room.compiler.processing.isArray
 import androidx.room.ext.KotlinTypeNames
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.T
 import androidx.room.ext.typeName
-import androidx.room.compiler.processing.XType
-import androidx.room.compiler.processing.asDeclaredType
-import androidx.room.compiler.processing.isArray
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.ShortcutQueryParameter
 import com.squareup.javapoet.ArrayTypeName
@@ -80,7 +80,6 @@ class InsertMethodAdapter private constructor(private val insertionType: Inserti
 
         @Suppress("PLATFORM_CLASS_MAPPED_TO_KOTLIN")
         private fun getInsertionType(returnType: XType): InsertionType? {
-
             return if (returnType.isVoid()) {
                 InsertionType.INSERT_VOID
             } else if (returnType.isVoidObject()) {
@@ -88,17 +87,20 @@ class InsertMethodAdapter private constructor(private val insertionType: Inserti
             } else if (returnType.isKotlinUnit()) {
                 InsertionType.INSERT_UNIT
             } else if (returnType.isArray()) {
-                val arrayType = returnType.asArray()
-                val param = arrayType.componentType
-                when {
-                    param.isPrimitiveLong() -> InsertionType.INSERT_ID_ARRAY
-                    param.isBoxedLong() -> InsertionType.INSERT_ID_ARRAY_BOX
-                    else -> null
+                val param = returnType.componentType
+                if (param.isLong()) {
+                    if (param.typeName == TypeName.LONG) {
+                        InsertionType.INSERT_ID_ARRAY
+                    } else {
+                        InsertionType.INSERT_ID_ARRAY_BOX
+                    }
+                } else {
+                    null
                 }
             } else if (returnType.isList()) {
                 val declared = returnType.asDeclaredType()
                 val param = declared.typeArguments.first()
-                if (param.isBoxedLong()) {
+                if (param.isLong()) {
                     InsertionType.INSERT_ID_LIST
                 } else {
                     null

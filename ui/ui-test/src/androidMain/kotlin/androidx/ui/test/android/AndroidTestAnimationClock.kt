@@ -42,6 +42,7 @@ internal class AndroidTestAnimationClock : TestAnimationClock {
      * If not initializing on the main thread, a message will be posted on the main thread to
      * fetch the Choreographer, and initialization blocks until that fetch is completed.
      */
+    @Suppress("DEPRECATION")
     private val mainChoreographer: Choreographer = runOnUiThread {
         Choreographer.getInstance()
     }
@@ -110,6 +111,7 @@ internal class AndroidTestAnimationClock : TestAnimationClock {
     }
 
     private fun advanceClockOnMainThread(milliseconds: Long) {
+        @Suppress("DEPRECATION")
         runOnUiThread {
             synchronized(lock) {
                 check(!isDispatching) { "Can't advance clock while dispatching a frame time" }

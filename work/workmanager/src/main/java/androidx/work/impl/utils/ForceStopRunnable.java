@@ -38,6 +38,7 @@ import android.os.Build;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.work.Configuration;
 import androidx.work.InitializationExceptionHandler;
 import androidx.work.Logger;
 import androidx.work.impl.Schedulers;
@@ -81,6 +82,9 @@ public class ForceStopRunnable implements Runnable {
 
     @Override
     public void run() {
+        if (!multiProcessChecks()) {
+            return;
+        }
         // Migrate the database to the no-backup directory if necessary.
         WorkDatabasePathHelper.migrateDatabase(mContext);
         // Clean invalid jobs attributed to WorkManager, and Workers that might have been
@@ -158,11 +162,13 @@ public class ForceStopRunnable implements Runnable {
      */
     @VisibleForTesting
     public boolean cleanUp() {
-        // Mitigation for faulty implementations of JobScheduler (b/134058261
+        boolean needsReconciling = false;
         if (Build.VERSION.SDK_INT >= WorkManagerImpl.MIN_JOB_SCHEDULER_API_LEVEL) {
-            SystemJobScheduler.cancelInvalidJobs(mContext);
+            // Mitigation for faulty implementations of JobScheduler (b/134058261) and
+            // Mitigation for a platform bug, which causes jobs to get dropped when binding to
+            // SystemJobService fails.
+            needsReconciling = SystemJobScheduler.reconcileJobs(mContext, mWorkManager);
         }
-
         // Reset previously unfinished work.
         WorkDatabase workDatabase = mWorkManager.getWorkDatabase();
         WorkSpecDao workSpecDao = workDatabase.workSpecDao();
@@ -190,7 +196,7 @@ public class ForceStopRunnable implements Runnable {
         } finally {
             workDatabase.endTransaction();
         }
-        return needsScheduling;
+        return needsScheduling || needsReconciling;
     }
 
     /**
@@ -199,6 +205,21 @@ public class ForceStopRunnable implements Runnable {
     @VisibleForTesting
     boolean shouldRescheduleWorkers() {
         return mWorkManager.getPreferenceUtils().getNeedsReschedule();
+    }
+
+    /**
+     * @return {@code true} if we are allowed to run in the current app process.
+     */
+    @VisibleForTesting
+    public boolean multiProcessChecks() {
+        if (mWorkManager.getRemoteWorkManager() == null) {
+            return true;
+        }
+        Logger.get().debug(TAG, "Found a remote implementation for WorkManager");
+        Configuration configuration = mWorkManager.getConfiguration();
+        boolean isDefaultProcess = ProcessUtils.isDefaultProcess(mContext, configuration);
+        Logger.get().debug(TAG, String.format("Is default app process = %s", isDefaultProcess));
+        return isDefaultProcess;
     }
 
     /**

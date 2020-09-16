@@ -18,7 +18,6 @@ package androidx.camera.view;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.Manifest;
 import android.content.Context;
 import android.graphics.Bitmap;
 
@@ -39,18 +38,19 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.rule.ActivityTestRule;
-import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
 import org.junit.Assume;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 @LargeTest
 @RunWith(AndroidJUnit4.class)
@@ -60,8 +60,7 @@ public class PreviewViewBitmapTest {
     public final ActivityTestRule<FakeActivity> mActivityRule =
             new ActivityTestRule<>(FakeActivity.class);
     @Rule
-    public final GrantPermissionRule mPermissionRule = GrantPermissionRule.grant(
-            Manifest.permission.CAMERA);
+    public final TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
 
     private static final int CAMERA_LENS = CameraSelector.LENS_FACING_BACK;
     private ProcessCameraProvider mCameraProvider;
@@ -252,12 +251,15 @@ public class PreviewViewBitmapTest {
     @NonNull
     private PreviewView setUpPreviewView(@NonNull PreviewView.ImplementationMode mode,
             @NonNull PreviewView.ScaleType scaleType) {
-        final Context context = ApplicationProvider.getApplicationContext();
-        final PreviewView previewView = new PreviewView(context);
-        previewView.setImplementationMode(mode);
-        previewView.setScaleType(scaleType);
-        runOnMainThread(() -> mActivityRule.getActivity().setContentView(previewView));
-        return previewView;
+        AtomicReference<PreviewView> previewViewAtomicReference = new AtomicReference<>();
+        runOnMainThread(() -> {
+            PreviewView previewView = new PreviewView(ApplicationProvider.getApplicationContext());
+            previewView.setImplementationMode(mode);
+            previewView.setScaleType(scaleType);
+            mActivityRule.getActivity().setContentView(previewView);
+            previewViewAtomicReference.set(previewView);
+        });
+        return previewViewAtomicReference.get();
     }
 
     private void startPreview(@NonNull final PreviewView previewView) {
@@ -268,7 +270,7 @@ public class PreviewViewBitmapTest {
         lifecycleOwner.startAndResume();
 
         runOnMainThread(() -> {
-            preview.setSurfaceProvider(previewView.createSurfaceProvider());
+            preview.setSurfaceProvider(previewView.getSurfaceProvider());
             mCameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview);
         });
     }

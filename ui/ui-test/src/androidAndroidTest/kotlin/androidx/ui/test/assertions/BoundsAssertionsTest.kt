@@ -16,19 +16,20 @@
 
 package androidx.ui.test.assertions
 
-import androidx.test.filters.MediumTest
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.platform.testTag
 import androidx.compose.foundation.Box
 import androidx.compose.foundation.background
-import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.dp
+import androidx.test.filters.MediumTest
 import androidx.ui.test.assertHeightIsAtLeast
 import androidx.ui.test.assertHeightIsEqualTo
 import androidx.ui.test.assertIsEqualTo
@@ -41,7 +42,6 @@ import androidx.ui.test.assertWidthIsEqualTo
 import androidx.ui.test.createComposeRule
 import androidx.ui.test.onNodeWithTag
 import androidx.ui.test.util.expectError
-import androidx.compose.ui.unit.dp
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -52,12 +52,12 @@ import org.junit.runners.JUnit4
 class BoundsAssertionsTest {
 
     @get:Rule
-    val composeTestRule = createComposeRule()
+    val rule = createComposeRule()
 
     val tag = "box"
 
     private fun composeBox() {
-        composeTestRule.setContent {
+        rule.setContent {
             Box(modifier = Modifier
                 .fillMaxSize()
                 .wrapContentSize(Alignment.TopStart)
@@ -104,7 +104,7 @@ class BoundsAssertionsTest {
     fun assertSizeEquals() {
         composeBox()
 
-        onNodeWithTag(tag)
+        rule.onNodeWithTag(tag)
             .assertWidthIsEqualTo(80.dp)
             .assertHeightIsEqualTo(100.dp)
     }
@@ -113,7 +113,7 @@ class BoundsAssertionsTest {
     fun assertSizeAtLeast() {
         composeBox()
 
-        onNodeWithTag(tag)
+        rule.onNodeWithTag(tag)
             .assertWidthIsAtLeast(80.dp)
             .assertWidthIsAtLeast(79.dp)
             .assertHeightIsAtLeast(100.dp)
@@ -125,12 +125,12 @@ class BoundsAssertionsTest {
         composeBox()
 
         expectError<AssertionError> {
-            onNodeWithTag(tag)
+            rule.onNodeWithTag(tag)
                 .assertWidthIsEqualTo(70.dp)
         }
 
         expectError<AssertionError> {
-            onNodeWithTag(tag)
+            rule.onNodeWithTag(tag)
                 .assertHeightIsEqualTo(90.dp)
         }
     }
@@ -140,12 +140,12 @@ class BoundsAssertionsTest {
         composeBox()
 
         expectError<AssertionError> {
-            onNodeWithTag(tag)
+            rule.onNodeWithTag(tag)
                 .assertWidthIsAtLeast(81.dp)
         }
 
         expectError<AssertionError> {
-            onNodeWithTag(tag)
+            rule.onNodeWithTag(tag)
                 .assertHeightIsAtLeast(101.dp)
         }
     }
@@ -154,7 +154,7 @@ class BoundsAssertionsTest {
     fun assertPosition() {
         composeBox()
 
-        onNodeWithTag(tag)
+        rule.onNodeWithTag(tag)
             .assertPositionInRootIsEqualTo(expectedLeft = 50.dp, expectedTop = 100.dp)
             .assertLeftPositionInRootIsEqualTo(50.dp)
             .assertTopPositionInRootIsEqualTo(100.dp)
@@ -165,18 +165,18 @@ class BoundsAssertionsTest {
         composeBox()
 
         expectError<AssertionError> {
-            onNodeWithTag(tag)
+            rule.onNodeWithTag(tag)
                 .assertPositionInRootIsEqualTo(expectedLeft = 51.dp, expectedTop = 101.dp)
         }
 
         expectError<AssertionError> {
-            onNodeWithTag(tag)
+            rule.onNodeWithTag(tag)
                 .assertPositionInRootIsEqualTo(expectedLeft = 49.dp, expectedTop = 99.dp)
         }
     }
 
     private fun composeClippedBox() {
-        composeTestRule.setContent {
+        rule.setContent {
             Box(modifier = Modifier
                 .fillMaxSize()
                 .clipToBounds()
@@ -198,7 +198,7 @@ class BoundsAssertionsTest {
     fun assertClippedPosition() {
         composeClippedBox()
 
-        onNodeWithTag(tag)
+        rule.onNodeWithTag(tag)
             .assertPositionInRootIsEqualTo(expectedLeft = (-30).dp, expectedTop = (-10).dp)
             .assertLeftPositionInRootIsEqualTo((-30).dp)
             .assertTopPositionInRootIsEqualTo((-10).dp)
@@ -208,7 +208,7 @@ class BoundsAssertionsTest {
     fun assertClippedSize() {
         composeClippedBox()
 
-        onNodeWithTag(tag)
+        rule.onNodeWithTag(tag)
             .assertWidthIsEqualTo(80.dp)
             .assertHeightIsEqualTo(100.dp)
     }

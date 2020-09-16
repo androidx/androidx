@@ -62,7 +62,7 @@ private class CoroutineFlowResultBinderProviderImpl(
         if (declared.typeArguments.size != 1) {
             return false
         }
-        val typeName = declared.erasure().typeName
+        val typeName = declared.rawType.typeName
         if (typeName in CHANNEL_TYPE_NAMES) {
             context.logger.e(ProcessorErrors.invalidChannelType(typeName.toString()))
             return false

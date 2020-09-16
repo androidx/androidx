@@ -22,7 +22,6 @@ import android.graphics.PixelFormat;
 import android.graphics.SurfaceTexture;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 import android.util.Size;
 import android.view.Surface;
 
@@ -166,7 +165,7 @@ final class ProcessingSurface extends DeferrableSurface {
 
                     @Override
                     public void onFailure(Throwable t) {
-                        Log.e(TAG, "Failed to extract Listenable<Surface>.", t);
+                        Logger.e(TAG, "Failed to extract Listenable<Surface>.", t);
                     }
                 }, directExecutor());
 
@@ -236,7 +235,7 @@ final class ProcessingSurface extends DeferrableSurface {
         try {
             image = imageReader.acquireNextImage();
         } catch (IllegalStateException e) {
-            Log.e(TAG, "Failed to acquire next image.", e);
+            Logger.e(TAG, "Failed to acquire next image.", e);
         }
 
         if (image == null) {
@@ -256,7 +255,7 @@ final class ProcessingSurface extends DeferrableSurface {
         }
 
         if (mCaptureStage.getId() != tagValue) {
-            Log.w(TAG, "ImageProxyBundle does not contain this id: " + tagValue);
+            Logger.w(TAG, "ImageProxyBundle does not contain this id: " + tagValue);
             image.close();
         } else {
             SingleImageProxyBundle imageProxyBundle = new SingleImageProxyBundle(image,

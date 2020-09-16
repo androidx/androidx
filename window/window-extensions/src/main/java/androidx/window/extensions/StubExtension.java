@@ -16,7 +16,7 @@
 
 package androidx.window.extensions;
 
-import android.os.IBinder;
+import android.content.Context;
 
 import androidx.annotation.NonNull;
 
@@ -29,7 +29,7 @@ import java.util.Set;
  */
 abstract class StubExtension implements ExtensionInterface {
     private ExtensionCallback mExtensionCallback;
-    private final Set<IBinder> mWindowLayoutChangeListenerTokens = new HashSet<>();
+    private final Set<Context> mWindowLayoutChangeListenerContexts = new HashSet<>();
     private boolean mDeviceStateChangeListenerRegistered;
 
     @Override
@@ -38,14 +38,14 @@ abstract class StubExtension implements ExtensionInterface {
     }
 
     @Override
-    public void onWindowLayoutChangeListenerAdded(@NonNull IBinder windowToken) {
-        mWindowLayoutChangeListenerTokens.add(windowToken);
+    public void onWindowLayoutChangeListenerAdded(@NonNull Context context) {
+        mWindowLayoutChangeListenerContexts.add(context);
         onListenersChanged();
     }
 
     @Override
-    public void onWindowLayoutChangeListenerRemoved(@NonNull IBinder windowToken) {
-        mWindowLayoutChangeListenerTokens.remove(windowToken);
+    public void onWindowLayoutChangeListenerRemoved(@NonNull Context context) {
+        mWindowLayoutChangeListenerContexts.remove(context);
         onListenersChanged();
     }
 
@@ -61,20 +61,21 @@ abstract class StubExtension implements ExtensionInterface {
         }
     }
 
-    protected void updateWindowLayout(@NonNull IBinder windowToken,
+    protected void updateWindowLayout(@NonNull Context context,
             @NonNull ExtensionWindowLayoutInfo newLayout) {
         if (mExtensionCallback != null) {
-            mExtensionCallback.onWindowLayoutChanged(windowToken, newLayout);
+            mExtensionCallback.onWindowLayoutChanged(context, newLayout);
         }
     }
 
     @NonNull
-    protected Set<IBinder> getWindowsListeningForLayoutChanges() {
-        return mWindowLayoutChangeListenerTokens;
+    protected Set<Context> getWindowsListeningForLayoutChanges() {
+        return mWindowLayoutChangeListenerContexts;
     }
 
     protected boolean hasListeners() {
-        return !mWindowLayoutChangeListenerTokens.isEmpty() || mDeviceStateChangeListenerRegistered;
+        return !mWindowLayoutChangeListenerContexts.isEmpty()
+                || mDeviceStateChangeListenerRegistered;
     }
 
     /** Notification to the OEM level that the registered listeners changed. */

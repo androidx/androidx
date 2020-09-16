@@ -86,7 +86,7 @@ public final class WindowManagerTest extends WindowTestBase {
     @Test
     public void testRegisterLayoutChangeCallback() {
         WindowBackend backend = mock(WindowBackend.class);
-        Rect rect = new Rect(1, 2, 3, 4);
+        Rect rect = new Rect(1, 0, 1, 4);
         DisplayFeature feature = new DisplayFeature(rect, DisplayFeature.TYPE_FOLD);
         WindowLayoutInfo info = new WindowLayoutInfo(Collections.singletonList(feature));
         when(backend.getWindowLayoutInfo(any())).thenReturn(info);
@@ -96,8 +96,7 @@ public final class WindowManagerTest extends WindowTestBase {
         Executor executor = MoreExecutors.directExecutor();
         Consumer<WindowLayoutInfo> consumer = mock(Consumer.class);
         wm.registerLayoutChangeCallback(executor, consumer);
-        verify(backend).registerLayoutChangeCallback(eq(activity), eq(executor), eq(consumer));
-        verify(consumer).accept(info);
+        verify(backend).registerLayoutChangeCallback(activity, executor, consumer);
 
         wm.unregisterLayoutChangeCallback(consumer);
         verify(backend).unregisterLayoutChangeCallback(eq(consumer));
@@ -114,8 +113,7 @@ public final class WindowManagerTest extends WindowTestBase {
         Executor executor = MoreExecutors.directExecutor();
         Consumer<DeviceState> consumer = mock(Consumer.class);
         wm.registerDeviceStateChangeCallback(executor, consumer);
-        verify(backend).registerDeviceStateChangeCallback(eq(executor), eq(consumer));
-        verify(consumer).accept(state);
+        verify(backend).registerDeviceStateChangeCallback(executor, consumer);
 
         wm.unregisterDeviceStateChangeCallback(consumer);
         verify(backend).unregisterDeviceStateChangeCallback(eq(consumer));

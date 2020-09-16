@@ -22,7 +22,6 @@ import androidx.paging.LoadState.NotLoading
 import androidx.paging.LoadType.APPEND
 import androidx.paging.LoadType.PREPEND
 import androidx.paging.LoadType.REFRESH
-import androidx.paging.PageEvent.Drop
 import androidx.paging.PageEvent.LoadStateUpdate
 import androidx.paging.PagingSource.LoadParams
 import androidx.paging.PagingSource.LoadResult
@@ -498,9 +497,9 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
             }
 
             stateLock.withLock {
-                state.dropInfo(dropType, generationalHint.hint)?.let { info ->
-                    state.drop(dropType, info.pageCount, info.placeholdersRemaining)
-                    pageEventCh.send(Drop(dropType, info.pageCount, info.placeholdersRemaining))
+                state.dropEventOrNull(dropType, generationalHint.hint)?.let { event ->
+                    state.drop(event)
+                    pageEventCh.send(event)
                 }
 
                 loadKey = state.nextLoadKeyOrNull(loadType, generationalHint, itemsLoaded)
@@ -702,15 +701,4 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
  * Generation of cancel token not [PageFetcherSnapshot]. [generationId] is used to differentiate
  * between loads from jobs that have been cancelled, but continued to run to completion.
  */
-private data class GenerationalViewportHint(val generationId: Int, val hint: ViewportHint) {
-    companion object {
-        val PREPEND_INITIAL_VALUE = GenerationalViewportHint(
-            0,
-            ViewportHint(Int.MAX_VALUE, Int.MAX_VALUE, 0, 0, 0, 0)
-        )
-        val APPEND_INITIAL_VALUE = GenerationalViewportHint(
-            0,
-            ViewportHint(Int.MIN_VALUE, Int.MIN_VALUE, 0, 0, 0, 0)
-        )
-    }
-}
+private data class GenerationalViewportHint(val generationId: Int, val hint: ViewportHint)

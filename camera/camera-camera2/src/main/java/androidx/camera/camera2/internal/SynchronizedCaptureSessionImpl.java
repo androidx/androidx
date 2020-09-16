@@ -21,7 +21,6 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CaptureRequest;
 import android.os.Handler;
-import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.GuardedBy;
@@ -30,6 +29,7 @@ import androidx.annotation.Nullable;
 import androidx.camera.camera2.internal.SynchronizedCaptureSessionOpener.SynchronizedSessionFeature;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
+import androidx.camera.core.Logger;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureChain;
@@ -66,7 +66,6 @@ import java.util.concurrent.ScheduledExecutorService;
 class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl {
 
     private static final String TAG = "SyncCaptureSessionImpl";
-    private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
 
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     private final Object mObjectLock = new Object();
@@ -363,9 +362,7 @@ class SynchronizedCaptureSessionImpl extends SynchronizedCaptureSessionBaseImpl 
     }
 
     void debugLog(String message) {
-        if (DEBUG) {
-            Log.d(TAG, "[" + SynchronizedCaptureSessionImpl.this + "] " + message);
-        }
+        Logger.d(TAG, "[" + SynchronizedCaptureSessionImpl.this + "] " + message);
     }
 
     private final CameraCaptureSession.CaptureCallback mCaptureCallback =

@@ -18,6 +18,7 @@ package androidx.camera.core;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
@@ -48,6 +49,7 @@ import org.mockito.ArgumentCaptor;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -101,7 +103,7 @@ public class ImageCaptureTest {
         ImageCapture.OnImageCapturedCallback callback = mock(
                 ImageCapture.OnImageCapturedCallback.class);
         FakeCameraControl fakeCameraControl =
-                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControlInternal());
+                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControl());
 
         fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
             // Notify the cancel after the capture request has been successfully submitted
@@ -132,7 +134,7 @@ public class ImageCaptureTest {
         ImageCapture.OnImageCapturedCallback callback = mock(
                 ImageCapture.OnImageCapturedCallback.class);
         FakeCameraControl fakeCameraControl =
-                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControlInternal());
+                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControl());
         fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
             // Notify the failure after the capture request has been successfully submitted
             fakeCameraControl.notifyAllRequestsOnCaptureFailed();
@@ -162,8 +164,7 @@ public class ImageCaptureTest {
             }
         });
         FakeCameraControl fakeCameraControl =
-                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControlInternal());
-
+                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControl());
         FakeCameraControl.OnNewCaptureRequestListener mockCaptureRequestListener =
                 mock(FakeCameraControl.OnNewCaptureRequestListener.class);
         fakeCameraControl.setOnNewCaptureRequestListener(mockCaptureRequestListener);
@@ -179,6 +180,46 @@ public class ImageCaptureTest {
         verify(mockCaptureRequestListener,
                 timeout(1000).times(1)).onNewCaptureRequests(argumentCaptor.capture());
         assertThat(hasJpegQuality(argumentCaptor.getValue(), (byte) 95)).isTrue();
+    }
+
+    @Test
+    public void setFlashModeDuringPictureTaken() throws InterruptedException {
+        // Arrange.
+        ImageCapture imageCapture = createImageCapture();
+
+        mInstrumentation.runOnMainSync(() -> {
+            try {
+                mCameraUseCaseAdapter.addUseCases(Collections.singleton(imageCapture));
+            } catch (CameraUseCaseAdapter.CameraException ignore) {
+            }
+        });
+
+        ImageCapture.OnImageCapturedCallback callback = mock(
+                ImageCapture.OnImageCapturedCallback.class);
+        FakeCameraControl fakeCameraControl =
+                ((FakeCameraControl) mCameraUseCaseAdapter.getCameraControl());
+        CountDownLatch latch = new CountDownLatch(1);
+        fakeCameraControl.setOnNewCaptureRequestListener(captureConfigs -> {
+            latch.countDown();
+        });
+
+        // Act.
+        mInstrumentation.runOnMainSync(
+                () -> imageCapture.takePicture(CameraXExecutors.mainThreadExecutor(), callback));
+        latch.await(3, TimeUnit.SECONDS);
+        // Flash mode should not be changed during picture taken.
+        imageCapture.setFlashMode(ImageCapture.FLASH_MODE_ON);
+
+        // Assert.
+        assertThat(fakeCameraControl.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_OFF);
+
+        // Act.
+        // Complete the picture taken, then new flash mode should be applied.
+        fakeCameraControl.notifyAllRequestsOnCaptureFailed();
+
+        // Assert.
+        verify(callback, timeout(1000).times(1)).onError(any());
+        assertThat(fakeCameraControl.getFlashMode()).isEqualTo(ImageCapture.FLASH_MODE_ON);
     }
 
     private boolean hasJpegQuality(List<CaptureConfig> captureConfigs, byte jpegQuality) {

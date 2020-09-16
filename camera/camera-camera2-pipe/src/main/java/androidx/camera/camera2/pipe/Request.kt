@@ -231,3 +231,5 @@ private fun <T> Request.getUnchecked(key: CaptureRequest.Key<T>): T? =
 operator fun <T> Request.get(key: CaptureRequest.Key<T>): T? = getUnchecked(key)
 fun <T> Request.getOrDefault(key: CaptureRequest.Key<T>, default: T): T =
     getUnchecked(key) ?: default
+
+fun Request.formatForLogs(): String = "Request($streams)@${Integer.toHexString(hashCode())}"

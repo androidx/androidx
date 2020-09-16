@@ -19,7 +19,9 @@ package androidx.room.compiler.processing.javac
 import androidx.room.compiler.processing.XDeclaredType
 import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XMethodType
+import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.XVariableElement
+import androidx.room.compiler.processing.javac.kotlin.KmFunction
 import com.google.auto.common.MoreElements
 import com.google.auto.common.MoreTypes
 import javax.lang.model.element.ElementKind
@@ -41,15 +43,23 @@ internal class JavacMethodElement(
             "Method element is constructed with invalid type: $element"
         }
     }
-    private val isSuspend by lazy {
-        kotlinMetadata?.getFunctionMetadata(element)?.isSuspend() == true
+
+    override val name: String
+        get() = element.simpleName.toString()
+
+    override val enclosingTypeElement: XTypeElement by lazy {
+        element.requireEnclosingType(env)
+    }
+
+    override val kotlinMetadata: KmFunction? by lazy {
+        (enclosingTypeElement as? JavacTypeElement)?.kotlinMetadata?.getFunctionMetadata(element)
     }
 
     override val executableType: JavacMethodType by lazy {
         val asMemberOf = env.typeUtils.asMemberOf(containing.type.typeMirror, element)
         JavacMethodType(
             env = env,
-            element = element,
+            element = this,
             executableType = MoreTypes.asExecutable(asMemberOf)
         )
     }
@@ -59,7 +69,16 @@ internal class JavacMethodElement(
         val asExec = MoreTypes.asExecutable(asMember)
         env.wrap<JavacType>(
             typeMirror = asExec.returnType,
-            nullability = element.nullability
+            kotlinType = if (isSuspendFunction()) {
+                // Don't use Kotlin metadata for suspend functions since we want the Java
+                // perspective. In Java, a suspend function returns Object and contains an extra
+                // parameter of type Continuation<? extends T> where T is the actual return type as
+                // declared in the Kotlin source.
+                null
+            } else {
+                kotlinMetadata?.returnType
+            },
+            elementNullability = element.nullability
         )
     }
 
@@ -71,7 +90,7 @@ internal class JavacMethodElement(
             val asMemberOf = env.typeUtils.asMemberOf(other.typeMirror, element)
             JavacMethodType(
                 env = env,
-                element = element,
+                element = this,
                 executableType = MoreTypes.asExecutable(asMemberOf)
             )
         }
@@ -79,7 +98,7 @@ internal class JavacMethodElement(
 
     override fun isJavaDefault() = element.modifiers.contains(Modifier.DEFAULT)
 
-    override fun isSuspendFunction() = isSuspend
+    override fun isSuspendFunction() = kotlinMetadata?.isSuspend() == true
 
     override fun findKotlinDefaultImpl(): XMethodElement? {
         fun paramsMatch(

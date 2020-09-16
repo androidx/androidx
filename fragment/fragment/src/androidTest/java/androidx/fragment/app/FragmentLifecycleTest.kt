@@ -287,12 +287,16 @@ class FragmentLifecycleTest {
             .commitNow()
 
         assertThat(fragment.lifecycle.currentState).isEqualTo(Lifecycle.State.RESUMED)
+        val view = fragment.requireView()
+        assertThat(view.parent).isNotNull()
 
         fm.beginTransaction()
             .setMaxLifecycle(fragment, Lifecycle.State.CREATED)
             .commitNow()
 
         assertThat(fragment.lifecycle.currentState).isEqualTo(Lifecycle.State.CREATED)
+        assertThat(fragment.view).isNull()
+        assertThat(view.parent).isNull()
     }
 
     @Test
@@ -366,6 +370,36 @@ class FragmentLifecycleTest {
             .commitNow()
 
         fc.dispatchCreate()
+    }
+
+    @Test
+    @UiThreadTest
+    fun focusedInflatedView() {
+        val viewModelStore = ViewModelStore()
+        val fc = FragmentController.createController(
+            ControllerHostCallbacks(activityRule.activity, viewModelStore)
+        )
+
+        fc.attachHost(null)
+
+        val fm = fc.supportFragmentManager
+        // imitate inflating a fragment in FragmentContainerView
+        fm.beginTransaction()
+            .setReorderingAllowed(true)
+            .add(android.R.id.content, StrictViewFragment(R.layout.with_edit_text), "fragment1")
+            .commitNowAllowingStateLoss()
+
+        fc.dispatchCreate()
+        fc.dispatchActivityCreated()
+        fc.dispatchStart()
+        fc.dispatchResume()
+
+        val fragment = fc.supportFragmentManager.findFragmentByTag("fragment1")
+        assertThat(fragment).isNotNull()
+
+        val editText =
+            fragment!!.requireView().findViewById<View>(androidx.fragment.test.R.id.editText)
+        assertThat(editText.isFocused).isTrue()
     }
 
     /**
@@ -518,7 +552,7 @@ class FragmentLifecycleTest {
         val fc = activityRule.startupFragmentController(viewModelStore)
         val fm = fc.supportFragmentManager
 
-        val fragment = StrictViewFragment(R.layout.simple_container)
+        val fragment = ParentFragment()
         fm.beginTransaction()
             .add(android.R.id.content, fragment)
             .commitNow()
@@ -548,7 +582,7 @@ class FragmentLifecycleTest {
         val fc = activityRule.startupFragmentController(viewModelStore)
         val fm = fc.supportFragmentManager
 
-        val fragment = StrictViewFragment(R.layout.simple_container)
+        val fragment = ParentFragment()
         fm.beginTransaction()
             .add(android.R.id.content, fragment)
             .commitNow()
@@ -1330,6 +1364,8 @@ class FragmentLifecycleTest {
     private fun executePendingTransactions(fm: FragmentManager) {
         activityRule.runOnUiThread { fm.executePendingTransactions() }
     }
+
+    class ParentFragment : StrictViewFragment(R.layout.simple_container)
 
     /**
      * This tests a deliberately odd use of a child fragment, added in onCreateView instead

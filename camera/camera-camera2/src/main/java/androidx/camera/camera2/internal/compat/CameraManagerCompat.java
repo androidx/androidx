@@ -152,7 +152,17 @@ public final class CameraManagerCompat {
     @NonNull
     public CameraCharacteristics getCameraCharacteristics(@NonNull String cameraId)
             throws CameraAccessExceptionCompat {
-        return mImpl.getCameraCharacteristics(cameraId);
+
+        try {
+            return mImpl.getCameraCharacteristics(cameraId);
+        } catch (AssertionError e) {
+            // Some devices may throw AssertionError when creating CameraCharacteristics and FPS
+            // ranges are null. Catch the AssertionError and throw a CameraAccessExceptionCompat
+            // to make the app be able to receive an exception to gracefully handle it.
+            throw new CameraAccessExceptionCompat(
+                    CameraAccessExceptionCompat.CAMERA_CHARACTERISTICS_CREATION_ERROR,
+                    e.getMessage(), e);
+        }
     }
 
     /**

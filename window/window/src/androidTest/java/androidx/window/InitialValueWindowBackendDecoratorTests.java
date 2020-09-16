@@ -61,7 +61,7 @@ public class InitialValueWindowBackendDecoratorTests {
 
     @Test
     public void getWindowLayoutInfo_delegatesCall() {
-        Rect rect = new Rect(1, 2, 3, 4);
+        Rect rect = new Rect(1, 0, 1, 4);
         DisplayFeature feature = new DisplayFeature(rect, DisplayFeature.TYPE_FOLD);
         WindowLayoutInfo expected = new WindowLayoutInfo(Collections.singletonList(feature));
         when(mFakeBackend.getWindowLayoutInfo(any())).thenReturn(expected);
@@ -95,7 +95,7 @@ public class InitialValueWindowBackendDecoratorTests {
 
     @Test
     public void registerLayoutChangeCallback_emitsInitialValue() {
-        Rect rect = new Rect(1, 2, 3, 4);
+        Rect rect = new Rect(1, 0, 1, 4);
         DisplayFeature feature = new DisplayFeature(rect, DisplayFeature.TYPE_FOLD);
         WindowLayoutInfo expected = new WindowLayoutInfo(Collections.singletonList(feature));
         when(mFakeBackend.getWindowLayoutInfo(any())).thenReturn(expected);

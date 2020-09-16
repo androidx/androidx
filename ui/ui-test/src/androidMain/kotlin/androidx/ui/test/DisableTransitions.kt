@@ -16,6 +16,7 @@
 
 package androidx.ui.test
 
+import androidx.compose.animation.core.InternalAnimationApi
 import androidx.compose.animation.transition
 import androidx.compose.animation.transitionsEnabled
 import org.junit.rules.TestRule
@@ -31,9 +32,10 @@ class DisableTransitions : TestRule {
         return DisableTransitionsStatement(base)
     }
 
-    inner class DisableTransitionsStatement(
+    private class DisableTransitionsStatement(
         private val base: Statement
     ) : Statement() {
+        @OptIn(InternalAnimationApi::class)
         override fun evaluate() {
             transitionsEnabled = false
             try {

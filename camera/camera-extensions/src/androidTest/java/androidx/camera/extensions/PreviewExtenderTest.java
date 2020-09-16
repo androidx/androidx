@@ -32,7 +32,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.graphics.ImageFormat;
@@ -66,12 +65,12 @@ import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
@@ -108,8 +107,7 @@ public class PreviewExtenderTest {
             };
 
     @Rule
-    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
-            Manifest.permission.CAMERA);
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
 
     @Before
     public void setUp() throws InterruptedException, ExecutionException, TimeoutException {
@@ -126,6 +124,7 @@ public class PreviewExtenderTest {
     @After
     public void cleanUp() throws ExecutionException, InterruptedException, TimeoutException {
         CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+        ExtensionsManager.deinit().get();
     }
 
     @Test
@@ -151,7 +150,7 @@ public class PreviewExtenderTest {
         Preview useCase = configBuilder.build();
 
         CameraUseCaseAdapter cameraUseCaseAdapter =
-                CameraUtil.getCameraUseCaseAdapter(mContext, cameraSelector);
+                CameraUtil.createCameraUseCaseAdapter(mContext, cameraSelector);
         mInstrumentation.runOnMainSync(() -> {
             // To set the update listener and Preview will change to active state.
             useCase.setSurfaceProvider(
@@ -229,7 +228,7 @@ public class PreviewExtenderTest {
 
         Preview preview = configBuilder.build();
         CameraUseCaseAdapter cameraUseCaseAdapter =
-                CameraUtil.getCameraUseCaseAdapter(mContext, cameraSelector);
+                CameraUtil.createCameraUseCaseAdapter(mContext, cameraSelector);
         mInstrumentation.runOnMainSync(() -> {
             // To set the update listener and Preview will change to active state.
             preview.setSurfaceProvider(
@@ -285,7 +284,7 @@ public class PreviewExtenderTest {
         Preview preview = configBuilder.build();
 
         CameraUseCaseAdapter cameraUseCaseAdapter =
-                CameraUtil.getCameraUseCaseAdapter(mContext, cameraSelector);
+                CameraUtil.createCameraUseCaseAdapter(mContext, cameraSelector);
         mInstrumentation.runOnMainSync(() -> {
             // To set the update listener and Preview will change to active state.
             preview.setSurfaceProvider(

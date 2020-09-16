@@ -315,7 +315,7 @@ public final class SliceLiveData {
         final SliceViewManager.SliceCallback mSliceCallback =
                 new SliceViewManager.SliceCallback() {
             @Override
-            public void onSliceUpdated(@NonNull Slice s) {
+            public void onSliceUpdated(@Nullable Slice s) {
                 if (mPendingUri.size() > 0) {
                     if (s == null) {
                         onSliceError(OnErrorListener.ERROR_SLICE_NO_LONGER_PRESENT, null);
@@ -412,7 +412,7 @@ public final class SliceLiveData {
             }
         };
 
-        final SliceViewManager.SliceCallback mSliceCallback = this::postValue;
+        final SliceViewManager.SliceCallback mSliceCallback = value -> postValue(value);
 
         void onSliceError(int error, Throwable t) {
             if (mListener != null) {

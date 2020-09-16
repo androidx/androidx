@@ -234,7 +234,6 @@ class SpecialEffectsControllerTest {
             }
             assertThat(fragment.view)
                 .isNotNull()
-            controller.executePendingOperations()
             val operations = controller.operationsToExecute
             assertThat(operations)
                 .hasSize(1)
@@ -252,7 +251,7 @@ class SpecialEffectsControllerTest {
                 fragmentStateManager.moveToExpectedState()
                 controller.executePendingOperations()
             }
-            assertThat(firstOperation.cancellationSignal.isCanceled)
+            assertThat(firstOperation.isCanceled)
                 .isTrue()
             assertThat(controller.operationsToExecute)
                 .doesNotContain(firstOperation)
@@ -366,7 +365,7 @@ class SpecialEffectsControllerTest {
                 controller.forceCompleteAllOperations()
             }
 
-            assertThat(firstOperation.cancellationSignal.isCanceled)
+            assertThat(firstOperation.isCanceled)
                 .isTrue()
             assertThat(lifecycleImpactOnCompletion).isNull()
             assertThat(controller.operationsToExecute)
@@ -465,7 +464,7 @@ internal class TestSpecialEffectsController(
     override fun executeOperations(operations: MutableList<Operation>, isPop: Boolean) {
         operationsToExecute.addAll(operations)
         operations.forEach { operation ->
-            operation.cancellationSignal.setOnCancelListener {
+            operation.addCompletionListener {
                 operationsToExecute.remove(operation)
             }
         }

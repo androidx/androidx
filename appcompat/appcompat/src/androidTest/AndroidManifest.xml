@@ -18,6 +18,7 @@
     package="android.support.v7.appcompat.test">
 
     <application
+        android:name="androidx.multidex.MultiDexApplication"
         android:supportsRtl="true"
         android:theme="@style/Theme.AppCompat">
 
@@ -121,6 +122,11 @@
         <activity
             android:name="androidx.appcompat.widget.AppCompatButtonActivity"
             android:label="@string/app_compat_button_activity"
+            android:theme="@style/Theme.AppCompat.Light"/>
+
+        <activity
+            android:name="androidx.appcompat.widget.AppCompatIconsActivity"
+            android:label="@string/app_compat_icons_activity"
             android:theme="@style/Theme.AppCompat.Light"/>
 
         <activity

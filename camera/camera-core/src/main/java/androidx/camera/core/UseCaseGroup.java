@@ -17,6 +17,7 @@
 package androidx.camera.core;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.Lifecycle;
 
@@ -34,11 +35,13 @@ import java.util.List;
 @ExperimentalUseCaseGroup
 public final class UseCaseGroup {
 
-    private ViewPort mViewPort;
+    @Nullable
+    private final ViewPort mViewPort;
 
-    private List<UseCase> mUseCases;
+    @NonNull
+    private final List<UseCase> mUseCases;
 
-    UseCaseGroup(@NonNull ViewPort viewPort, @NonNull List<UseCase> useCases) {
+    UseCaseGroup(@Nullable ViewPort viewPort, @NonNull List<UseCase> useCases) {
         mViewPort = viewPort;
         mUseCases = useCases;
     }
@@ -46,7 +49,7 @@ public final class UseCaseGroup {
     /**
      * Gets the {@link ViewPort} shared by the {@link UseCase} collection.
      */
-    @NonNull
+    @Nullable
     public ViewPort getViewPort() {
         return mViewPort;
     }
@@ -63,11 +66,11 @@ public final class UseCaseGroup {
      * A builder for generating {@link UseCaseGroup}.
      */
     @ExperimentalUseCaseGroup
-    public static class Builder {
+    public static final class Builder {
 
         private ViewPort mViewPort;
 
-        private List<UseCase> mUseCases;
+        private final List<UseCase> mUseCases;
 
         public Builder() {
             mUseCases = new ArrayList<>();

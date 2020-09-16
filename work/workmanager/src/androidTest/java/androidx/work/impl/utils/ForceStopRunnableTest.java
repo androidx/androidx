@@ -34,6 +34,7 @@ import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
+import androidx.test.filters.SdkSuppress;
 import androidx.work.Configuration;
 import androidx.work.InitializationExceptionHandler;
 import androidx.work.OneTimeWorkRequest;
@@ -41,6 +42,7 @@ import androidx.work.WorkInfo;
 import androidx.work.impl.Scheduler;
 import androidx.work.impl.WorkDatabase;
 import androidx.work.impl.WorkManagerImpl;
+import androidx.work.impl.model.SystemIdInfo;
 import androidx.work.impl.model.WorkSpec;
 import androidx.work.worker.TestWorker;
 
@@ -139,6 +141,24 @@ public class ForceStopRunnableTest {
         runnable.run();
         WorkSpec updatedWorkSpec = mWorkDatabase.workSpecDao().getWorkSpec(workSpec.id);
         assertThat(updatedWorkSpec.scheduleRequestedAt, is(greaterThan(0L)));
+        ArgumentCaptor<WorkSpec> captor = ArgumentCaptor.forClass(WorkSpec.class);
+        verify(mScheduler, times(1)).schedule(captor.capture());
+        assertThat(workSpec.id, is(captor.getValue().id));
+    }
+
+    @Test
+    @SdkSuppress(minSdkVersion = 23)
+    public void testReconcileJobs() {
+        ForceStopRunnable runnable = spy(mRunnable);
+        when(runnable.shouldRescheduleWorkers()).thenReturn(false);
+        when(runnable.isForceStopped()).thenReturn(false);
+        OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(TestWorker.class)
+                .setInitialState(WorkInfo.State.ENQUEUED)
+                .build();
+        WorkSpec workSpec = request.getWorkSpec();
+        mWorkDatabase.workSpecDao().insertWorkSpec(workSpec);
+        mWorkDatabase.systemIdInfoDao().insertSystemIdInfo(new SystemIdInfo(workSpec.id, 0));
+        runnable.run();
         ArgumentCaptor<WorkSpec> captor = ArgumentCaptor.forClass(WorkSpec.class);
         verify(mScheduler, times(1)).schedule(captor.capture());
         assertThat(workSpec.id, is(captor.getValue().id));

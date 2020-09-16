@@ -224,13 +224,15 @@ public class MediaController implements Closeable {
         mPrimaryCallback = callback;
         mPrimaryCallbackExecutor = executor;
         SessionToken.createSessionToken(context, token, (compatToken, sessionToken) -> {
+            boolean closed;
             synchronized (mLock) {
-                if (!mClosed) {
+                closed = mClosed;
+                if (!closed) {
                     mImpl = createImpl(context, sessionToken, connectionHints);
-                } else {
-                    notifyAllControllerCallbacks(
-                            cb -> cb.onDisconnected(MediaController.this));
                 }
+            }
+            if (closed) {
+                notifyAllControllerCallbacks(cb -> cb.onDisconnected(MediaController.this));
             }
         });
     }

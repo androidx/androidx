@@ -20,10 +20,10 @@ import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
 import android.hardware.camera2.CameraDevice.StateCallback;
 import android.hardware.camera2.CaptureRequest;
-import android.util.Log;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
+import androidx.camera.core.Logger;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -429,7 +429,7 @@ public final class SessionConfig {
                                     + mCaptureConfigBuilder.getTemplateType()
                                     + " != "
                                     + captureConfig.getTemplateType();
-                    Log.d(TAG, errorMessage);
+                    Logger.d(TAG, errorMessage);
                     mValid = false;
                 }
             }
@@ -462,7 +462,7 @@ public final class SessionConfig {
                 String errorMessage =
                         "Invalid configuration due to capture request surfaces are not a subset "
                                 + "of surfaces";
-                Log.d(TAG, errorMessage);
+                Logger.d(TAG, errorMessage);
                 mValid = false;
             }
 

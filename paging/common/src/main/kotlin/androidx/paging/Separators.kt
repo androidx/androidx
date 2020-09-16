@@ -41,7 +41,7 @@ internal suspend fun <R : Any, T : R> TransformablePage<T>.insertInternalSeparat
     val outputIndices = ArrayList<Int>(initialCapacity)
 
     outputList.add(data.first())
-    outputIndices.add(originalIndices?.first() ?: 0)
+    outputIndices.add(hintOriginalIndices?.first() ?: 0)
     for (i in 1 until data.size) {
         val item = data[i]
         val separator = generator(data[i - 1], item)
@@ -63,138 +63,100 @@ internal suspend fun <R : Any, T : R> TransformablePage<T>.insertInternalSeparat
         this as TransformablePage<R>
     } else {
         TransformablePage(
-            originalPageOffset = originalPageOffset,
+            originalPageOffsets = originalPageOffsets,
             data = outputList,
-            originalPageSize = originalPageSize,
-            originalIndices = outputIndices
+            hintOriginalPageOffset = hintOriginalPageOffset,
+            hintOriginalIndices = outputIndices
         )
     }
 }
 
 /**
- * Create a TransformablePage with the given separator (or empty, if the separator is null)
+ * Create a [TransformablePage] with the given separator (or empty, if the separator is null)
  */
 internal fun <T : Any> separatorPage(
+    separator: T,
+    originalPageOffsets: IntArray,
+    hintOriginalPageOffset: Int,
+    hintOriginalIndex: Int
+): TransformablePage<T> = TransformablePage(
+    originalPageOffsets = originalPageOffsets,
+    data = listOf(separator),
+    hintOriginalPageOffset = hintOriginalPageOffset,
+    hintOriginalIndices = listOf(hintOriginalIndex)
+)
+
+/**
+ * Create a [TransformablePage] with the given separator, and add it if [separator] is non-null
+ *
+ * This is a helper to create separator pages that contain a single separator to be used to join
+ * pages provided from stream.
+ */
+internal fun <T : Any> MutableList<TransformablePage<T>>.addSeparatorPage(
     separator: T?,
-    originalPageOffset: Int,
-    originalPageSize: Int,
-    originalIndex: Int
-): TransformablePage<T> = if (separator != null) {
-    // page with just the separator
-    TransformablePage(
-        originalPageOffset = originalPageOffset,
-        data = listOf(separator),
-        originalPageSize = originalPageSize,
-        originalIndices = listOf(originalIndex)
-    )
-} else {
-    // empty page
-    TransformablePage(
-        originalPageOffset = originalPageOffset,
-        data = emptyList(),
-        originalPageSize = originalPageSize,
-        originalIndices = null
-    )
-}
-
-/**
- * Create a TransformablePage with the given separator (or empty, if the separator is null)
- */
-internal fun <R : Any, T : R> separatorPage(
-    separator: R?,
-    adjacentPage: TransformablePage<T>,
-    originalIndex: Int
-): TransformablePage<R> = separatorPage(
-    separator = separator,
-    originalPageOffset = adjacentPage.originalPageOffset,
-    originalPageSize = adjacentPage.originalPageSize,
-    originalIndex = originalIndex
-)
-
-/**
- * Create a TransformablePage with the given separator (or empty, if the separator is null)
- */
-internal fun <R : Any, T : R> separatorPage(
-    separator: R?,
-    adjacentPage: DataPage<T>,
-    originalIndex: Int
-): TransformablePage<R> = separatorPage(
-    separator = separator,
-    originalPageOffset = adjacentPage.originalPageOffset,
-    originalPageSize = adjacentPage.originalPageSize,
-    originalIndex = originalIndex
-)
-
-/**
- * Per-page adjacency info - used to create adjacent separators.
- */
-internal class DataPage<T : Any>(
-    page: TransformablePage<T>
+    originalPageOffsets: IntArray,
+    hintOriginalPageOffset: Int,
+    hintOriginalIndex: Int
 ) {
-    val first: T = page.data.first()
-    val last: T = page.data.last()
-    val originalPageOffset: Int = page.originalPageOffset
-    val originalPageSize: Int = page.originalPageSize
-    val originalLastIndex
-        get() = originalPageSize - 1
+    if (separator == null) return
+
+    val separatorPage = separatorPage(
+        separator = separator,
+        originalPageOffsets = originalPageOffsets,
+        hintOriginalPageOffset = hintOriginalPageOffset,
+        hintOriginalIndex = hintOriginalIndex
+    )
+    add(separatorPage)
 }
 
 /**
- * Iterate through the list of page info, dropping events, and mapping the incoming drop count to
- * an output count.
+ * Create a [TransformablePage] with the given separator, and add it if [separator] is non-null
+ *
+ * This is a helper to create separator pages that contain a single separator to be used to join
+ * pages provided from stream.
  */
-private inline fun <T : Any> MutableList<DataPage<T>?>.dropPages(
-    nonSeparatorCount: Int,
-    indexProvider: (List<DataPage<T>?>) -> Int
-): Int {
-    if (isEmpty()) {
-        // nothing to drop
-        check(nonSeparatorCount == 0)
-        return 0
-    }
-
-    // drop nonSeparatorCount of pages. Even if 0, we want to be sure to drop a terminal
-    // separator, since that side of the list is no longer done
-    var nonSeparatorPagesToDrop = nonSeparatorCount
-    var outputDropCount = 0
-    while (nonSeparatorPagesToDrop > 0) {
-        val page = removeAt(indexProvider(this))
-        if (page != null) {
-            nonSeparatorPagesToDrop--
-        }
-        outputDropCount++
-    }
-
-    // now check if last page is a separator. if so, we need to drop it too, since it was built
-    // with now-dropped data (unless nonSeparatorCount was 0, which is why the early return)
-    val finalPotentialSeparatorIndex = indexProvider(this)
-    val finalPage = get(finalPotentialSeparatorIndex)
-    if (finalPage == null) {
-        removeAt(finalPotentialSeparatorIndex)
-        outputDropCount++
-    }
-    return outputDropCount
+internal fun <R : Any, T : R> MutableList<TransformablePage<R>>.addSeparatorPage(
+    separator: R?,
+    adjacentPageBefore: TransformablePage<T>?,
+    adjacentPageAfter: TransformablePage<T>?,
+    hintOriginalPageOffset: Int,
+    hintOriginalIndex: Int
+) {
+    val beforeOffsets = adjacentPageBefore?.originalPageOffsets
+    val afterOffsets = adjacentPageAfter?.originalPageOffsets
+    addSeparatorPage(
+        separator = separator,
+        originalPageOffsets = when {
+            beforeOffsets != null && afterOffsets != null -> {
+                (beforeOffsets + afterOffsets).distinct().sorted().toIntArray()
+            }
+            beforeOffsets == null && afterOffsets != null -> afterOffsets
+            beforeOffsets != null && afterOffsets == null -> beforeOffsets
+            else -> throw IllegalArgumentException(
+                "Separator page expected adjacentPageBefore or adjacentPageAfter, but both were" +
+                        " null."
+            )
+        },
+        hintOriginalPageOffset = hintOriginalPageOffset,
+        hintOriginalIndex = hintOriginalIndex
+    )
 }
-
-internal fun <T : Any> MutableList<DataPage<T>?>.dropPagesStart(count: Int): Int =
-    dropPages(count) { 0 }
-
-internal fun <T : Any> MutableList<DataPage<T>?>.dropPagesEnd(count: Int): Int =
-    dropPages(count) { it.lastIndex }
 
 private class SeparatorState<R : Any, T : R>(
-    val generator: suspend (T?, T?) -> R?
+    val generator: suspend (before: T?, after: T?) -> R?
 ) {
     /**
-     * Lookup table of previously emitted pages.
+     * Lookup table of previously emitted pages, that skips empty pages.
      *
-     *     Separator -> null
-     *     Non-separator -> DataPage
+     * This table is used to keep track of originalPageOffsets for separators that would span
+     * across empty pages. It includes a simplified version of loaded pages which only has the
+     * first and last item in each page to reduce memory pressure.
      *
-     * This table is used to emit drops (so we know how much to pad drops to account for separators)
-     * and to provide adjacency data, to insert separators as new pages arrive.
+     * Note: [TransformablePage] added to this stash must always have
+     * [TransformablePage.originalPageOffsets] defined, since it needs to keep track of the
+     * originalPageOffset of the last item.
      */
-    val pageStash = mutableListOf<DataPage<T>?>()
+    val pageStash = mutableListOf<TransformablePage<T>>()
 
     /**
      * True if next insert event should be treated as terminal, as a previous terminal event was
@@ -203,10 +165,16 @@ private class SeparatorState<R : Any, T : R>(
     var endTerminalSeparatorDeferred = false
     var startTerminalSeparatorDeferred = false
 
+    var footerAdded = false
+    var headerAdded = false
+
     @Suppress("UNCHECKED_CAST")
     suspend fun onEvent(event: PageEvent<T>): PageEvent<R> = when (event) {
         is Insert<T> -> onInsert(event)
-        is Drop -> onDrop(event) as Drop<R>
+        is Drop -> {
+            onDrop(event) // Update pageStash state
+            event as Drop<R>
+        }
         is PageEvent.LoadStateUpdate -> event as PageEvent<R>
     }.also {
         // validate internal state after each modification
@@ -248,15 +216,13 @@ private class SeparatorState<R : Any, T : R>(
     suspend fun onInsert(event: Insert<T>): Insert<R> {
         val eventTerminatesStart = event.terminatesStart()
         val eventTerminatesEnd = event.terminatesEnd()
-        val eventEmpty = event.pages.isEmpty()
+        val eventEmpty = event.pages.all { it.data.isEmpty() }
 
-        if (pageStash.isNotEmpty()) {
-            require(pageStash.first() != null || event.loadType != PREPEND) {
-                "Additional prepend event after prepend state is done"
-            }
-            require(pageStash.last() != null || event.loadType != APPEND) {
-                "Additional append event after append state is done"
-            }
+        require(!headerAdded || event.loadType != PREPEND) {
+            "Additional prepend event after prepend state is done"
+        }
+        require(!footerAdded || event.loadType != APPEND) {
+            "Additional append event after append state is done"
         }
 
         if (eventEmpty) {
@@ -265,8 +231,13 @@ private class SeparatorState<R : Any, T : R>(
                 val separator = generator(null, null)
                 endTerminalSeparatorDeferred = false
                 startTerminalSeparatorDeferred = false
-                pageStash.add(null) // represents separator
-                return event.transformPages { listOf(separatorPage(separator, 0, 0, 0)) }
+                return if (separator == null) {
+                    event.asRType()
+                } else {
+                    event.transformPages {
+                        listOf(separatorPage(separator, intArrayOf(0), 0, 0))
+                    }
+                }
             } else if (!eventTerminatesStart && !eventTerminatesEnd) {
                 // If event is non terminal simply ignore it.
                 return event.asRType()
@@ -285,94 +256,186 @@ private class SeparatorState<R : Any, T : R>(
         // If we've gotten to this point, that means the outgoing insert will have data.
         // Either this event has data, or the pageStash does.
         val outList = ArrayList<TransformablePage<R>>(event.pages.size)
-        val outStateList = ArrayList<DataPage<T>?>(event.pages.size)
-        if (eventTerminatesStart) {
-            outStateList.add(null) // represents separator
-            if (eventEmpty) {
-                // header separator, using data from previous generation
-                val firstStash = pageStash.first()!!
-                val separator = generator(null, firstStash.first)
-                outList.add(separatorPage(separator, firstStash, originalIndex = 0))
-            } else {
-                val firstPage = event.pages.first()
-                val separator = generator(null, firstPage.data.first())
-                outList.add(separatorPage(separator, firstPage, originalIndex = 0))
+        val stashOutList = ArrayList<TransformablePage<T>>(event.pages.size)
+
+        var firstNonEmptyPage: TransformablePage<T>? = null
+        var firstNonEmptyPageIndex: Int? = null
+        var lastNonEmptyPage: TransformablePage<T>? = null
+        var lastNonEmptyPageIndex: Int? = null
+        if (!eventEmpty) {
+            // Compute the first non-empty page index to be used as adjacent pages for creating
+            // separator pages.
+            // Note: We're guaranteed to have at least one non-empty page at this point.
+            var pageIndex = 0
+            while (pageIndex < event.pages.lastIndex && event.pages[pageIndex].data.isEmpty()) {
+                pageIndex++
             }
+            firstNonEmptyPageIndex = pageIndex
+            firstNonEmptyPage = event.pages[pageIndex]
+
+            // Compute the last non-empty page index to be used as adjacent pages for creating separator
+            // pages.
+            // Note: We're guaranteed to have at least one non-empty page at this point.
+            pageIndex = event.pages.lastIndex
+            while (pageIndex > 0 && event.pages[pageIndex].data.isEmpty()) {
+                pageIndex--
+            }
+            lastNonEmptyPageIndex = pageIndex
+            lastNonEmptyPage = event.pages[pageIndex]
         }
 
-        // create pages based on data in the event
+        // Header separator
+        if (eventTerminatesStart) {
+            headerAdded = true
+
+            // Using data from previous generation if event is empty, adjacent page otherwise.
+            val pageAfter = if (eventEmpty) pageStash.first() else firstNonEmptyPage!!
+            outList.addSeparatorPage(
+                separator = generator(null, pageAfter.data.first()),
+                adjacentPageBefore = null,
+                adjacentPageAfter = pageAfter,
+                hintOriginalPageOffset = pageAfter.hintOriginalPageOffset,
+                hintOriginalIndex = pageAfter.hintOriginalIndices?.first() ?: 0
+            )
+        }
+
+        // Create pages based on data in the event
         if (!eventEmpty) {
-            var itemBefore = if (event.loadType == APPEND) pageStash.lastOrNull()?.last else null
-            event.pages.forEachIndexed { index, page ->
-                // If page is being appended, or if we're in between pages, insert separator page
-                if (index != 0 || (event.loadType == APPEND && pageStash.isNotEmpty())) {
-                    val separator = generator(itemBefore!!, page.data.first())
-                    outStateList.add(null) // represents separator
-                    outList.add(separatorPage(separator, page, originalIndex = 0))
+            // Add empty pages before [firstNonEmptyPageIndex] from event directly.
+            for (pageIndex in 0 until firstNonEmptyPageIndex!!) {
+                outList.add(event.pages[pageIndex].insertInternalSeparators(generator))
+            }
+
+            // Insert separator page between last stash and first non-empty event page if APPEND.
+            if (event.loadType == APPEND && pageStash.isNotEmpty()) {
+                val lastStash = pageStash.last()
+                val separator = generator(lastStash.data.last(), firstNonEmptyPage!!.data.first())
+                outList.addSeparatorPage(
+                    separator = separator,
+                    adjacentPageBefore = lastStash,
+                    adjacentPageAfter = firstNonEmptyPage,
+                    hintOriginalPageOffset = firstNonEmptyPage.hintOriginalPageOffset,
+                    hintOriginalIndex = firstNonEmptyPage.hintOriginalIndices?.first() ?: 0
+                )
+            }
+
+            // Add the first non-empty insert event page with separators inserted.
+            stashOutList.add(transformablePageToStash(firstNonEmptyPage!!))
+            outList.add(firstNonEmptyPage.insertInternalSeparators(generator))
+
+            // Handle event pages that may be sparsely populated by empty pages.
+            event.pages
+                .subList(firstNonEmptyPageIndex, lastNonEmptyPageIndex!! + 1)
+                // Note: If we enter reduce loop, pageBefore is guaranteed to be non-null.
+                .reduce { pageBefore, page ->
+                    if (page.data.isNotEmpty()) {
+                        // Insert separator pages in between insert event pages.
+                        val separator = generator(pageBefore.data.last(), page.data.first())
+                        outList.addSeparatorPage(
+                            separator = separator,
+                            adjacentPageBefore = pageBefore,
+                            adjacentPageAfter = page,
+                            hintOriginalPageOffset = if (event.loadType == PREPEND) {
+                                pageBefore.hintOriginalPageOffset
+                            } else {
+                                page.hintOriginalPageOffset
+                            },
+                            hintOriginalIndex = if (event.loadType == PREPEND) {
+                                pageBefore.hintOriginalIndices?.last() ?: pageBefore.data.lastIndex
+                            } else {
+                                page.hintOriginalIndices?.first() ?: 0
+                            }
+                        )
+                    }
+
+                    if (page.data.isNotEmpty()) {
+                        stashOutList.add(transformablePageToStash(page))
+                    }
+                    // Add the insert event page with separators inserted.
+                    outList.add(page.insertInternalSeparators(generator))
+
+                    // Current page becomes the next pageBefore on next iteration unless empty.
+                    if (page.data.isNotEmpty()) page else pageBefore
                 }
 
-                outStateList.add(DataPage(page))
-                outList.add(page.insertInternalSeparators(generator))
-
-                itemBefore = page.data.last()
-            }
+            // Insert separator page between first stash and last non-empty event page if PREPEND.
             if (event.loadType == PREPEND && pageStash.isNotEmpty()) {
-                val lastPage = event.pages.last()
-                val separator = generator(lastPage.data.last(), pageStash.first()!!.first)
-                outStateList.add(null) // represents separator
-                outList.add(
-                    separatorPage(separator, lastPage, lastPage.originalLastIndex)
+                val pageAfter = pageStash.first()
+                val separator = generator(lastNonEmptyPage!!.data.last(), pageAfter.data.first())
+                outList.addSeparatorPage(
+                    separator = separator,
+                    adjacentPageBefore = lastNonEmptyPage,
+                    adjacentPageAfter = pageAfter,
+                    hintOriginalPageOffset = lastNonEmptyPage.hintOriginalPageOffset,
+                    hintOriginalIndex = lastNonEmptyPage.hintOriginalIndices?.last()
+                        ?: lastNonEmptyPage.data.lastIndex
                 )
+            }
+
+            // Add empty pages after [lastNonEmptyPageIndex] from event directly.
+            for (pageIndex in (lastNonEmptyPageIndex + 1)..event.pages.lastIndex) {
+                outList.add(event.pages[pageIndex].insertInternalSeparators(generator))
             }
         }
 
+        // Footer separator
         if (eventTerminatesEnd) {
-            outStateList.add(null) // represents separator
-            if (eventEmpty) {
-                val lastStash = pageStash.last()!!
-                // header separator, using data from previous generation
-                val separator = generator(lastStash.last, null)
-                outList.add(separatorPage(separator, lastStash, lastStash.originalLastIndex))
-            } else {
-                // header separator, using data from adjacent page
-                val lastPage = event.pages.last()
-                val separator = generator(lastPage.data.first(), null)
-                outList.add(
-                    separatorPage(separator, lastPage, lastPage.originalLastIndex)
-                )
-            }
+            footerAdded = true
+
+            // Using data from previous generation if event is empty, adjacent page otherwise.
+            val pageBefore = if (eventEmpty) pageStash.last() else lastNonEmptyPage!!
+            outList.addSeparatorPage(
+                separator = generator(pageBefore.data.last(), null),
+                adjacentPageBefore = pageBefore,
+                adjacentPageAfter = null,
+                hintOriginalPageOffset = pageBefore.hintOriginalPageOffset,
+                hintOriginalIndex = pageBefore.hintOriginalIndices?.last()
+                    ?: pageBefore.data.lastIndex
+            )
         }
 
         endTerminalSeparatorDeferred = false
         startTerminalSeparatorDeferred = false
 
         if (event.loadType == APPEND) {
-            pageStash.addAll(outStateList)
+            pageStash.addAll(stashOutList)
         } else {
-            pageStash.addAll(0, outStateList)
+            pageStash.addAll(0, stashOutList)
         }
         return event.transformPages { outList }
     }
 
-    fun onDrop(event: Drop<T>): Drop<T> {
-        val newCount = if (event.loadType == PREPEND) {
-            if (pageStash.isEmpty()) {
+    /**
+     * Process a [Drop] event to update [pageStash] stage.
+     */
+    fun onDrop(event: Drop<T>) {
+        if (pageStash.isEmpty()) {
+            if (event.loadType == PREPEND) {
                 startTerminalSeparatorDeferred = false
-            }
-            pageStash.dropPagesStart(event.count)
-        } else {
-            if (pageStash.isEmpty()) {
+            } else {
                 endTerminalSeparatorDeferred = false
             }
-            pageStash.dropPagesEnd(event.count)
         }
 
-        @Suppress("UNCHECKED_CAST")
-        return if (newCount == event.count) {
-            event
-        } else {
-            event.copy(count = newCount)
+        // Drop all stashes that depend on pageOffset being dropped.
+        val pageOffsetsToDrop = event.minPageOffset..event.maxPageOffset
+        pageStash.removeAll { stash ->
+            stash.originalPageOffsets.any { pageOffsetsToDrop.contains(it) }
         }
+    }
+
+    private fun <T : Any> transformablePageToStash(
+        originalPage: TransformablePage<T>
+    ): TransformablePage<T> {
+        return TransformablePage(
+            originalPageOffsets = originalPage.originalPageOffsets,
+            data = listOf(originalPage.data.first(), originalPage.data.last()),
+            hintOriginalPageOffset = originalPage.hintOriginalPageOffset,
+            hintOriginalIndices = listOf(
+                originalPage.hintOriginalIndices?.first() ?: 0,
+                originalPage.hintOriginalIndices?.last() ?: originalPage.data.lastIndex
+            )
+        )
     }
 }
 
@@ -384,5 +447,5 @@ internal fun <T : R, R : Any> Flow<PageEvent<T>>.insertEventSeparators(
     generator: suspend (T?, T?) -> R?
 ): Flow<PageEvent<R>> {
     val separatorState = SeparatorState { before: T?, after: T? -> generator(before, after) }
-    return removeEmptyPages().map { separatorState.onEvent(it) }
+    return map { separatorState.onEvent(it) }
 }

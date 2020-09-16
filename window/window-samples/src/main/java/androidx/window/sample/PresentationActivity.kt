@@ -46,7 +46,8 @@ class PresentationActivity : BaseSampleActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_foldin)
 
-        windowManager = WindowManager(this, getTestBackend())
+        windowManager = getTestBackend()?.let { backend -> WindowManager(this, backend) }
+            ?: WindowManager(this)
         windowManager.registerDeviceStateChangeCallback(mainThreadExecutor,
             deviceStateChangeCallback)
 

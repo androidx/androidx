@@ -778,8 +778,8 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
                 toBeMoved.add(holder);
             }
         }
-        assertNotNull("test sanity", toBeRemoved);
-        assertEquals("test sanity", childCount - 1, toBeMoved.size());
+        assertNotNull("Assumption check", toBeRemoved);
+        assertEquals("Assumption check", childCount - 1, toBeMoved.size());
         LoggingItemAnimator loggingItemAnimator = new LoggingItemAnimator();
         mRecyclerView.setItemAnimator(loggingItemAnimator);
         loggingItemAnimator.reset();
@@ -870,8 +870,8 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         adapter.setHasStableIds(false);
         config.adapter(adapter);
         setupByConfig(config, true);
-        // Using DummyItemAnimator so we must end all animations manually at the end of the test.
-        final DummyItemAnimator itemAnimator = new DummyItemAnimator();
+        // Using ItemAnimatorDouble so we must end all animations manually at the end of the test.
+        final ItemAnimatorTestDouble itemAnimator = new ItemAnimatorTestDouble();
         mRecyclerView.setItemAnimator(itemAnimator);
 
         // push last item out by increasing first item's size
@@ -883,7 +883,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         assertTrue(ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_AUTO == originalAccessibility
                 || ViewCompat.IMPORTANT_FOR_ACCESSIBILITY_YES == originalAccessibility);
 
-        itemAnimator.expect(DummyItemAnimator.MOVE_START, 1);
+        itemAnimator.expect(ItemAnimatorTestDouble.MOVE_START, 1);
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -892,7 +892,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
             }
         });
         // wait till itemAnimator starts which will block itemView's accessibility
-        itemAnimator.waitFor(DummyItemAnimator.MOVE_START);
+        itemAnimator.waitFor(ItemAnimatorTestDouble.MOVE_START);
         // RV Changes accessiblity after onMoveStart, so wait one more cycle.
         waitOneCycle();
         assertTrue(itemAnimator.getMovesAnimations().contains(itemViewHolder));
@@ -934,16 +934,16 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
         adapter.setHasStableIds(false);
         config.adapter(adapter);
         setupByConfig(config, true);
-        // Using DummyItemAnimator so we must end all animations manually at the end of the test.
-        final DummyItemAnimator itemAnimator = new DummyItemAnimator();
+        // Using ItemAnimatorDouble so we must end all animations manually at the end of the test.
+        final ItemAnimatorTestDouble itemAnimator = new ItemAnimatorTestDouble();
         mRecyclerView.setItemAnimator(itemAnimator);
 
         final View firstItemView = mRecyclerView
                 .findViewHolderForAdapterPosition(0).itemView;
 
-        itemAnimator.expect(DummyItemAnimator.REMOVE_START, 1);
+        itemAnimator.expect(ItemAnimatorTestDouble.REMOVE_START, 1);
         mTestAdapter.deleteAndNotify(1, 1);
-        itemAnimator.waitFor(DummyItemAnimator.REMOVE_START);
+        itemAnimator.waitFor(ItemAnimatorTestDouble.REMOVE_START);
 
         mActivityRule.runOnUiThread(new Runnable() {
             @Override
@@ -1080,7 +1080,7 @@ public class LinearLayoutManagerTest extends BaseLinearLayoutManagerTest {
                     helper.getStartAfterPadding();
             endMargin = helper.getEndAfterPadding() -
                     helper.getDecoratedEnd(vh.itemView);
-            assertTrue("test sanity, view should not be fully visible", startMargin < 0
+            assertTrue("Assumption check, view should not be fully visible", startMargin < 0
                     || endMargin < 0);
         }
 

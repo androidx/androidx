@@ -16,6 +16,7 @@
 
 package androidx.room.writer
 
+import androidx.room.compiler.processing.XNullability
 import androidx.room.ext.L
 import androidx.room.ext.RoomTypeNames
 import androidx.room.ext.S
@@ -46,7 +47,7 @@ class EntityInsertionAdapterWriter private constructor(
             val primitiveAutoGenerateField = if (entity.primaryKey.autoGenerateId) {
                 entity.primaryKey.fields.firstOrNull()?.let { field ->
                     field.statementBinder?.typeMirror()?.let { binderType ->
-                        if (binderType.isPrimitive()) {
+                        if (binderType.nullability == XNullability.NONNULL) {
                             field
                         } else {
                             null

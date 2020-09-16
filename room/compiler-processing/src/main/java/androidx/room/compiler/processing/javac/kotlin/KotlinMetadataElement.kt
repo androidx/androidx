@@ -29,25 +29,23 @@ internal class KotlinMetadataElement(
     val element: Element,
     private val classMetadata: KotlinClassMetadata.Class
 ) {
-
+    private val typeInfo: KmClassTypeInfo by lazy {
+        lateinit var result: KmClassTypeInfo
+        classMetadata.accept(ClassAsKmTypeReader {
+            result = it
+        })
+        result
+    }
+    val kmType
+        get() = typeInfo.kmType
+    val superType
+        get() = typeInfo.superType
     private val functionList: List<KmFunction> by lazy { classMetadata.readFunctions() }
     private val constructorList: List<KmConstructor> by lazy { classMetadata.readConstructors() }
     private val propertyList: List<KmProperty> by lazy { classMetadata.readProperties() }
 
     private val ExecutableElement.descriptor: String
         get() = descriptor()
-
-    /**
-     * Returns the parameter names of the function or constructor if all have names embedded in the
-     * metadata.
-     */
-    fun getParameterNames(method: ExecutableElement): List<String>? {
-        val methodSignature = method.descriptor
-        val paramList =
-            functionList.firstOrNull { it.descriptor == methodSignature }?.parameters
-                ?: constructorList.firstOrNull { it.descriptor == methodSignature }?.parameters
-        return paramList?.map { it.name }
-    }
 
     fun findPrimaryConstructorSignature() = constructorList.first {
         it.isPrimary()

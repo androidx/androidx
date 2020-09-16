@@ -16,8 +16,8 @@
 
 package androidx.paging
 
-import androidx.concurrent.futures.await
 import com.google.common.util.concurrent.ListenableFuture
+import kotlinx.coroutines.guava.await
 
 /**
  * [ListenableFuture]-based compatibility wrapper around [PagingSource]'s suspending APIs.

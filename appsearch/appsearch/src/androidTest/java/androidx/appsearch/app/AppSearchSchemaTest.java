@@ -56,6 +56,7 @@ public class AppSearchSchemaTest {
                 .addProperties(PropertyConfigProto.newBuilder()
                         .setPropertyName("subject")
                         .setDataType(PropertyConfigProto.DataType.Code.STRING)
+                        .setSchemaType("")
                         .setCardinality(PropertyConfigProto.Cardinality.Code.OPTIONAL)
                         .setIndexingConfig(
                                 com.google.android.icing.proto.IndexingConfig.newBuilder()
@@ -65,6 +66,7 @@ public class AppSearchSchemaTest {
                 ).addProperties(PropertyConfigProto.newBuilder()
                         .setPropertyName("body")
                         .setDataType(PropertyConfigProto.DataType.Code.STRING)
+                        .setSchemaType("")
                         .setCardinality(PropertyConfigProto.Cardinality.Code.OPTIONAL)
                         .setIndexingConfig(
                                 com.google.android.icing.proto.IndexingConfig.newBuilder()
@@ -73,7 +75,7 @@ public class AppSearchSchemaTest {
                         )
                 ).build();
 
-        assertThat(emailSchema.getProto()).isEqualTo(expectedEmailProto);
+        assertThat(SchemaToProtoConverter.convert(emailSchema)).isEqualTo(expectedEmailProto);
     }
 
     @Test
@@ -98,6 +100,7 @@ public class AppSearchSchemaTest {
                 .addProperties(PropertyConfigProto.newBuilder()
                         .setPropertyName("artist")
                         .setDataType(PropertyConfigProto.DataType.Code.STRING)
+                        .setSchemaType("")
                         .setCardinality(PropertyConfigProto.Cardinality.Code.REPEATED)
                         .setIndexingConfig(
                                 com.google.android.icing.proto.IndexingConfig.newBuilder()
@@ -107,6 +110,7 @@ public class AppSearchSchemaTest {
                 ).addProperties(PropertyConfigProto.newBuilder()
                         .setPropertyName("pubDate")
                         .setDataType(PropertyConfigProto.DataType.Code.INT64)
+                        .setSchemaType("")
                         .setCardinality(PropertyConfigProto.Cardinality.Code.OPTIONAL)
                         .setIndexingConfig(
                                 com.google.android.icing.proto.IndexingConfig.newBuilder()
@@ -115,7 +119,8 @@ public class AppSearchSchemaTest {
                         )
                 ).build();
 
-        assertThat(musicRecordingSchema.getProto()).isEqualTo(expectedMusicRecordingProto);
+        assertThat(SchemaToProtoConverter.convert(musicRecordingSchema))
+                .isEqualTo(expectedMusicRecordingProto);
     }
 
     @Test
@@ -152,14 +157,14 @@ public class AppSearchSchemaTest {
                         .setIndexingType(PropertyConfig.INDEXING_TYPE_PREFIXES)
                         .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_PLAIN)
                         .build()
-                ).addProperty(new PropertyConfig.Builder("subject")
+                );
+        IllegalSchemaException e = assertThrows(IllegalSchemaException.class,
+                () -> builder.addProperty(new PropertyConfig.Builder("subject")
                         .setDataType(PropertyConfig.DATA_TYPE_STRING)
                         .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
                         .setIndexingType(PropertyConfig.INDEXING_TYPE_PREFIXES)
                         .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_PLAIN)
-                        .build()
-                );
-        IllegalSchemaException e = assertThrows(IllegalSchemaException.class, builder::build);
+                        .build()));
         assertThat(e).hasMessageThat().contains("Property defined more than once: subject");
     }
 }

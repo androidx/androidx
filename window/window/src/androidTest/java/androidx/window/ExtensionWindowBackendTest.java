@@ -34,7 +34,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
-import android.os.IBinder;
 
 import androidx.core.util.Consumer;
 import androidx.test.core.app.ApplicationProvider;
@@ -117,7 +116,6 @@ public final class ExtensionWindowBackendTest extends WindowTestBase {
         WindowLayoutInfo layoutInfo = backend.getWindowLayoutInfo(activity);
         assertNotNull(layoutInfo);
         assertNotNull(layoutInfo.getDisplayFeatures());
-        IBinder windowToken = getActivityWindowToken(activity);
     }
 
     @Test
@@ -131,10 +129,9 @@ public final class ExtensionWindowBackendTest extends WindowTestBase {
         WindowLayoutInfo layoutInfo = backend.getWindowLayoutInfo(activity);
         assertNotNull(layoutInfo);
         assertNotNull(layoutInfo.getDisplayFeatures());
-        IBinder windowToken = getActivityWindowToken(activity);
-        verify(backend.mWindowExtension).getWindowLayoutInfo(eq(windowToken));
+        verify(backend.mWindowExtension).getWindowLayoutInfo(activity);
         WindowLayoutInfo initialLastReportedState =
-                backend.mLastReportedWindowLayouts.get(windowToken);
+                backend.mLastReportedWindowLayouts.get(activity);
 
         // Verify method without extension
         backend.mWindowExtension = null;
@@ -144,7 +141,7 @@ public final class ExtensionWindowBackendTest extends WindowTestBase {
         assertTrue(layoutInfo.getDisplayFeatures().isEmpty());
 
         // Verify that last reported state does not change when using the getter
-        assertEquals(initialLastReportedState, backend.mLastReportedWindowLayouts.get(windowToken));
+        assertEquals(initialLastReportedState, backend.mLastReportedWindowLayouts.get(activity));
     }
 
     @Test
@@ -194,15 +191,13 @@ public final class ExtensionWindowBackendTest extends WindowTestBase {
         backend.registerLayoutChangeCallback(activity, Runnable::run, consumer);
 
         assertEquals(1, backend.mWindowLayoutChangeCallbacks.size());
-        verify(backend.mWindowExtension).onWindowLayoutChangeListenerAdded(
-                eq(getActivityWindowToken(activity)));
+        verify(backend.mWindowExtension).onWindowLayoutChangeListenerAdded(eq(activity));
 
         // Check unregistering the layout change callback
         backend.unregisterLayoutChangeCallback(consumer);
 
         assertTrue(backend.mWindowLayoutChangeCallbacks.isEmpty());
-        verify(backend.mWindowExtension).onWindowLayoutChangeListenerRemoved(
-                eq(getActivityWindowToken(activity)));
+        verify(backend.mWindowExtension).onWindowLayoutChangeListenerRemoved(eq(activity));
     }
 
     @Test(expected = IllegalStateException.class)
@@ -231,21 +226,20 @@ public final class ExtensionWindowBackendTest extends WindowTestBase {
         // Check that callbacks from the extension are propagated correctly
         Consumer<WindowLayoutInfo> consumer = mock(Consumer.class);
         TestActivity activity = mActivityTestRule.launchActivity(new Intent());
-        IBinder windowToken = getActivityWindowToken(activity);
 
         backend.registerLayoutChangeCallback(activity, Runnable::run, consumer);
         WindowLayoutInfo windowLayoutInfo = newTestWindowLayoutInfo();
 
         ExtensionWindowBackend.ExtensionListenerImpl backendListener =
                 backend.new ExtensionListenerImpl();
-        backendListener.onWindowLayoutChanged(windowToken, windowLayoutInfo);
+        backendListener.onWindowLayoutChanged(activity, windowLayoutInfo);
 
         verify(consumer).accept(eq(windowLayoutInfo));
-        assertEquals(windowLayoutInfo, backend.mLastReportedWindowLayouts.get(windowToken));
+        assertEquals(windowLayoutInfo, backend.mLastReportedWindowLayouts.get(activity));
 
         // Test that the same value wouldn't be reported again
         reset(consumer);
-        backendListener.onWindowLayoutChanged(windowToken, windowLayoutInfo);
+        backendListener.onWindowLayoutChanged(activity, windowLayoutInfo);
         verify(consumer, never()).accept(any());
     }
 
@@ -299,11 +293,11 @@ public final class ExtensionWindowBackendTest extends WindowTestBase {
 
         DisplayFeature.Builder featureBuilder = new DisplayFeature.Builder();
         featureBuilder.setType(DisplayFeature.TYPE_HINGE);
-        featureBuilder.setBounds(new Rect(1, 2, 3, 4));
+        featureBuilder.setBounds(new Rect(0, 2, 3, 4));
         DisplayFeature feature1 = featureBuilder.build();
 
         featureBuilder = new DisplayFeature.Builder();
-        featureBuilder.setBounds(new Rect(5, 6, 7, 8));
+        featureBuilder.setBounds(new Rect(0, 1, 5, 1));
         DisplayFeature feature2 = featureBuilder.build();
 
         List<DisplayFeature> displayFeatures = new ArrayList<>();

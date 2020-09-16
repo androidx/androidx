@@ -32,7 +32,6 @@ dependencies {
     implementation("co.nstant.in:cbor:0.8")
     implementation(project(":biometric:biometric"))
 
-    androidTestImplementation("androidx.test.ext:junit:1.1.0")
     androidTestImplementation(ANDROIDX_TEST_EXT_JUNIT)
     androidTestImplementation(ANDROIDX_TEST_CORE)
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
