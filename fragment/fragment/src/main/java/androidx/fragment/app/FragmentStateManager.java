@@ -334,8 +334,7 @@ class FragmentStateManager {
                                     saveViewState();
                                 }
                             }
-                            if (mFragment.mView != null && mFragment.mContainer != null
-                                    && mFragmentManagerState > Fragment.INITIALIZING) {
+                            if (mFragment.mView != null && mFragment.mContainer != null) {
                                 SpecialEffectsController controller = SpecialEffectsController
                                         .getOrCreateController(mFragment.mContainer,
                                                 mFragment.getParentFragmentManager());
