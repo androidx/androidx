@@ -89,7 +89,12 @@ internal class LegacyPagingSource<Key : Any, Value : Any>(
     @Suppress("UNCHECKED_CAST")
     override fun getRefreshKey(state: PagingState<Key, Value>): Key? {
         return when (dataSource.type) {
-            POSITIONAL -> state.anchorPosition as Key
+            POSITIONAL -> state.anchorPosition?.let { anchorPosition ->
+                state.anchorPositionToPagedIndices(anchorPosition) { _, indexInPage ->
+                    val offset = state.closestPageToPosition(anchorPosition)?.prevKey ?: 0
+                    (offset as Int).plus(indexInPage) as Key?
+                }
+            }
             PAGE_KEYED -> null
             ITEM_KEYED -> state.anchorPosition
                 ?.let { anchorPosition -> state.closestItemToPosition(anchorPosition) }

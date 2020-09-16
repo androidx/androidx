@@ -145,17 +145,17 @@ class LegacyPagingSourceTest {
         assertTrue { pagingSource.jumpingSupported }
 
         assertEquals(
-            3,
+            4,
             pagingSource.getRefreshKey(
                 PagingState(
                     pages = listOf(
                         Page(
                             data = listOf("fakeData"),
-                            prevKey = 3,
-                            nextKey = 8
+                            prevKey = 4,
+                            nextKey = 5
                         )
                     ),
-                    anchorPosition = 3,
+                    anchorPosition = 0,
                     config = PagingConfig(
                         pageSize = 1,
                         prefetchDistance = 1
@@ -164,18 +164,19 @@ class LegacyPagingSourceTest {
                 )
             )
         )
+
         assertEquals(
-            4,
+            6,
             pagingSource.getRefreshKey(
                 PagingState(
                     pages = listOf(
                         Page(
                             data = listOf("fakeData"),
-                            prevKey = 3,
-                            nextKey = 8
+                            prevKey = 4,
+                            nextKey = 5
                         )
                     ),
-                    anchorPosition = 4,
+                    anchorPosition = 2,
                     config = PagingConfig(
                         pageSize = 1,
                         prefetchDistance = 1
