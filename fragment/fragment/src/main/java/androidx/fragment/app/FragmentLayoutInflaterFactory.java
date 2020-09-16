@@ -22,6 +22,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -128,6 +129,9 @@ class FragmentLayoutInflaterFactory implements LayoutInflater.Factory2 {
             fragmentStateManager = mFragmentManager.createOrGetFragmentStateManager(fragment);
         }
 
+        // Explicitly set the container for the fragment as we already know
+        // the parent that the fragment will be added to by the LayoutInflater
+        fragment.mContainer = (ViewGroup) parent;
         // The <fragment> tag is the one case where we:
         // 1) Move the Fragment to CREATED even if the FragmentManager isn't yet CREATED
         fragmentStateManager.moveToExpectedState();
