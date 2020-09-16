@@ -40,6 +40,7 @@ import androidx.work.impl.constraints.WorkConstraintsTracker
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createCancelWorkIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createNotifyIntent
 import androidx.work.impl.foreground.SystemForegroundDispatcher.createStartForegroundIntent
+import androidx.work.impl.foreground.SystemForegroundDispatcher.createStopForegroundIntent
 import androidx.work.impl.utils.StopWorkRunnable
 import androidx.work.impl.utils.SynchronousExecutor
 import androidx.work.impl.utils.taskexecutor.InstantWorkTaskExecutor
@@ -141,7 +142,7 @@ class SystemForegroundDispatcherTest {
     fun testStopForeground() {
         // The Foreground Service now calls handleStop() directly without the need for an
         // additional startService().
-        dispatcher.handleStop()
+        dispatcher.handleStop(createStopForegroundIntent(context))
         verify(dispatcherCallback, times(1)).stop()
     }
 

@@ -97,19 +97,6 @@ public class SystemForegroundService extends LifecycleService implements
         mDispatcher.setCallback(this);
     }
 
-    /**
-     * Stops the foreground {@link Service} by asking {@link SystemForegroundDispatcher} to
-     * handle a stop request.
-     */
-    public void stopForegroundService() {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                mDispatcher.handleStop();
-            }
-        });
-    }
-
     @MainThread
     @Override
     public void stop() {
