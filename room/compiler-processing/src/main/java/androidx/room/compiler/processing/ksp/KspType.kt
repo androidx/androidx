@@ -36,44 +36,29 @@ import kotlin.reflect.KClass
  * We don't necessarily have a [KSTypeReference] (e.g. if we are getting it from an element).
  * Similarly, we may not be able to get a [KSType] (e.g. if it resolves to error).
  */
-internal class KspType private constructor(
+internal class KspType(
     private val env: KspProcessingEnv,
-    private val ksTypeReference: KSTypeReference?,
-    resolved: KSType?
+    val ksType: KSType
 ) : XDeclaredType, XEquality {
     constructor(env: KspProcessingEnv, ksTypeReference: KSTypeReference) : this(
         env = env,
-        ksTypeReference = ksTypeReference,
-        resolved = null
+        ksType = ksTypeReference.requireType()
     )
 
-    constructor(env: KspProcessingEnv, resolved: KSType) : this(
-        env = env,
-        ksTypeReference = null,
-        resolved = resolved
-    )
-
-    internal val ksType by lazy {
-        resolved ?: ksTypeReference?.resolve()
-    }
     override val rawType by lazy {
         KspRawType(this)
     }
+
     override val typeArguments: List<XType> by lazy {
-        // prioritize type reference if it exists as it will have actual types user picked.
-        val args = ksTypeReference?.element?.typeArguments
-            ?: resolved?.arguments
-            ?: emptyList()
-        args.map {
-            // TODO what if it.type is null?
+        ksType.arguments.map {
             env.wrap(it.type!!)
         }
     }
     override val typeName: TypeName by lazy {
-        ksType?.typeName() ?: ksTypeReference?.typeName() ?: UNDEFINED
+        ksType.typeName()
     }
     override val nullability by lazy {
-        when (ksType?.nullability) {
+        when (ksType.nullability) {
             Nullability.NULLABLE -> XNullability.NULLABLE
             Nullability.NOT_NULL -> XNullability.NONNULL
             else -> XNullability.UNKNOWN
@@ -86,22 +71,21 @@ internal class KspType private constructor(
 
     override fun isAssignableFrom(other: XType): Boolean {
         check(other is KspType)
-        return ksType.isAssignableFromWithErrorWorkaround(other.ksType)
+        return ksType.isAssignableFrom(other.ksType)
     }
 
     override fun isError(): Boolean {
-        return ksType == null || ksType!!.isError
+        return ksType.isError
     }
 
     override fun defaultValue(): String {
-        val type = ksType ?: return "null"
         // NOTE: this does not match the java implementation though it is probably more correct for
         // kotlin.
-        if (type.nullability == Nullability.NULLABLE) {
+        if (ksType.nullability == Nullability.NULLABLE) {
             return "null"
         }
         val builtIns = env.resolver.builtIns
-        return when (type) {
+        return when (ksType) {
             builtIns.booleanType -> "false"
             builtIns.byteType, builtIns.shortType, builtIns.intType, builtIns.longType, builtIns
                 .charType -> "0"
@@ -116,23 +100,25 @@ internal class KspType private constructor(
     }
 
     override fun isInt(): Boolean {
-        return env.commonTypes.nullableInt.isAssignableFromWithErrorWorkaround(ksType)
+        return env.commonTypes.nullableInt.isAssignableFrom(ksType)
     }
 
     override fun isLong(): Boolean {
-        return env.commonTypes.nullableLong.isAssignableFromWithErrorWorkaround(ksType)
+        return env.commonTypes.nullableLong.isAssignableFrom(ksType)
     }
 
     override fun isByte(): Boolean {
-        return env.commonTypes.nullableByte.isAssignableFromWithErrorWorkaround(ksType)
+        return env.commonTypes.nullableByte.isAssignableFrom(ksType)
     }
 
     override fun isNone(): Boolean {
-        return ksType == null
+        // even void is converted to Unit so we don't have none type in KSP
+        // see: KspTypeTest.noneType
+        return false
     }
 
     override fun isType(): Boolean {
-        return ksType != null && ksType!!.declaration is KSClassDeclaration
+        return ksType.declaration is KSClassDeclaration
     }
 
     override fun isTypeOf(other: KClass<*>): Boolean {
@@ -144,7 +130,7 @@ internal class KspType private constructor(
         check(other is KspType)
         // NOTE: this is inconsistent with java where nullability is ignored.
         // it is intentional but might be reversed if it happens to break use cases.
-        return ksType != null && ksType == other.ksType
+        return ksType == other.ksType
     }
 
     override fun extendsBound(): XType? {
@@ -167,6 +153,6 @@ internal class KspType private constructor(
     }
 
     override fun toString(): String {
-        return ksType?.toString() ?: ksTypeReference?.toString() ?: super.toString()
+        return ksType.toString()
     }
 }

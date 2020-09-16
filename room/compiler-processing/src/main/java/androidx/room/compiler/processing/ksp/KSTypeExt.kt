@@ -19,16 +19,15 @@ package androidx.room.compiler.processing.ksp
 import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
-import org.jetbrains.kotlin.ksp.symbol.KSClassifierReference
 import org.jetbrains.kotlin.ksp.symbol.KSDeclaration
-import org.jetbrains.kotlin.ksp.symbol.KSName
 import org.jetbrains.kotlin.ksp.symbol.KSType
+import org.jetbrains.kotlin.ksp.symbol.KSTypeArgument
 import org.jetbrains.kotlin.ksp.symbol.KSTypeReference
 
-internal val ERROR_PACKAGE_NAME = "androidx.room.compiler.processing.kotlin.error"
+internal const val ERROR_PACKAGE_NAME = "androidx.room.compiler.processing.kotlin.error"
 
 // catch-all type name when we cannot resolve to anything.
-internal val UNDEFINED = ClassName.get(ERROR_PACKAGE_NAME, "Undefined")
+internal val ERROR_TYPE_NAME = ClassName.get(ERROR_PACKAGE_NAME, "CannotResolve")
 
 /**
  * Turns a KSTypeReference into a TypeName
@@ -39,34 +38,19 @@ internal val UNDEFINED = ClassName.get(ERROR_PACKAGE_NAME, "Undefined")
  */
 internal fun KSTypeReference?.typeName(): TypeName {
     return if (this == null) {
-        UNDEFINED
+        ERROR_TYPE_NAME
     } else {
-        resolve()?.typeName() ?: fallbackClassName()
+        requireType().typeName()
     }
 }
 
-private fun KSTypeReference.fallbackClassName(): ClassName {
-    return (element as? KSClassifierReference)?.let {
-        ClassName.bestGuess(it.referencedName())
-    } ?: UNDEFINED
-}
-
-private fun KSName.typeName(): ClassName? {
-    if (asString().isBlank()) {
-        // fallback to reference
-        return null
-    }
-    // TODO KSP currently do not model package names separate from the simple names.
-    //  see: https://github.com/android/kotlin/issues/23
-    val shortNames = getShortName().split(".")
-    return ClassName.get(getQualifier(), shortNames.first(), *(shortNames.drop(1).toTypedArray()))
-}
-
-internal fun KSDeclaration.typeName(): ClassName? {
-    // if there is no qualified name, it is an error for room
-    val qualified = qualifiedName?.asString() ?: return null
+internal fun KSDeclaration.typeName(): ClassName {
+    // if there is no qualified name, it is a resolution error so just return shared instance
+    // KSP may improve that later and if not, we can improve it in Room
+    // TODO: https://issuetracker.google.com/issues/168639183
+    val qualified = qualifiedName?.asString() ?: return ERROR_TYPE_NAME
     // get the package name first, it might throw for invalid types, hence we use safeGetPackageName
-    val pkg = safeGetPackageName() ?: return null
+    val pkg = getNormalizedPackageName()
     // using qualified name and pkg, figure out the short names.
     val shortNames = if (pkg == "") {
         qualified
@@ -76,12 +60,12 @@ internal fun KSDeclaration.typeName(): ClassName? {
     return ClassName.get(pkg, shortNames.first(), *(shortNames.drop(1).toTypedArray()))
 }
 
-internal fun KSType.typeName(): TypeName? {
+internal fun KSType.typeName(): TypeName {
     return if (this.arguments.isNotEmpty()) {
         val args: Array<TypeName> = this.arguments.map {
             it.type.typeName()
         }.toTypedArray()
-        val className = declaration.typeName() ?: return null
+        val className = declaration.typeName()
         ParameterizedTypeName.get(
             className,
             *args
@@ -92,26 +76,26 @@ internal fun KSType.typeName(): TypeName? {
 }
 
 /**
- * KSDeclaration.packageName might throw for error types.
- * https://github.com/android/kotlin/issues/121
+ * Root package comes as <root> instead of "" so we work around it here.
  */
-internal fun KSDeclaration.safeGetPackageName(): String? {
-    return try {
-        packageName.asString().let {
-            if (it == "<root>") {
-                ""
-            } else {
-                it
-            }
+internal fun KSDeclaration.getNormalizedPackageName(): String {
+    return packageName.asString().let {
+        if (it == "<root>") {
+            ""
+        } else {
+            it
         }
-    } catch (t: Throwable) {
-        null
     }
 }
 
-// TODO remove after https://github.com/android/kotlin/issues/123
-internal fun KSType?.isAssignableFromWithErrorWorkaround(other: KSType?): Boolean {
-    if (other == null || this == null) return false
-    if (isError || other.isError) return false
-    return isAssignableFrom(other)
+internal fun KSTypeReference.requireType(): KSType {
+    return checkNotNull(resolve()) {
+        "Resolve in type reference should not have returned null, please file a bug. $this"
+    }
+}
+
+internal fun KSTypeArgument.requireType(): KSType {
+    return checkNotNull(type?.requireType()) {
+        "KSTypeArgument.type should not have been null, please file a bug. $this"
+    }
 }

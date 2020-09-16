@@ -23,6 +23,7 @@ import androidx.room.compiler.processing.util.TestInvocation
 import androidx.room.compiler.processing.util.runKspTest
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
+import org.jetbrains.kotlin.ksp.getClassDeclarationByName
 import org.jetbrains.kotlin.ksp.getDeclaredFunctions
 import org.jetbrains.kotlin.ksp.symbol.KSPropertyDeclaration
 import org.jetbrains.kotlin.ksp.symbol.KSTypeReference
@@ -87,7 +88,7 @@ class KspTypeTest {
             invocation.requirePropertyType("errorType").let { type ->
                 assertThat(type.isError()).isTrue()
                 assertThat(type.typeArguments).isEmpty()
-                assertThat(type.typeName).isEqualTo(ClassName.bestGuess("IDontExist"))
+                assertThat(type.typeName).isEqualTo(ERROR_TYPE_NAME)
             }
 
             invocation.requirePropertyType("listOfErrorType").let { type ->
@@ -95,7 +96,7 @@ class KspTypeTest {
                 assertThat(type.typeArguments).hasSize(1)
                 type.typeArguments.single().let { typeArg ->
                     assertThat(typeArg.isError()).isTrue()
-                    assertThat(typeArg.typeName).isEqualTo(ClassName.bestGuess("IDontExist"))
+                    assertThat(typeArg.typeName).isEqualTo(ERROR_TYPE_NAME)
                 }
             }
         }
@@ -220,6 +221,29 @@ class KspTypeTest {
                 assertThat(listOfMaps.rawType).isNotEqualTo(listOfMaps)
                 assertThat(listOfMaps.typeArguments).hasSize(1)
             }
+        }
+    }
+
+    @Test
+    fun noneType() {
+        val src = Source.java(
+            "foo.bar.Baz", """
+            package foo.bar;
+            public class Baz {
+                void voidMethod() {
+                }
+            }
+        """.trimIndent()
+        )
+        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+            val resolver = (invocation.processingEnv as KspProcessingEnv).resolver
+            val voidMethod = resolver.getClassDeclarationByName("foo.bar.Baz")!!
+                .getDeclaredFunctions()
+                .first {
+                    it.simpleName.asString() == "voidMethod"
+                }
+            val returnType = voidMethod.returnType
+            assertThat(returnType?.typeName()).isEqualTo(ClassName.get("kotlin", "Unit"))
         }
     }
 

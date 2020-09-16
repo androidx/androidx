@@ -82,7 +82,7 @@ internal class KspProcessingEnv(
     fun wrap(ksType: KSType): KspType {
         return KspType(
             env = this,
-            resolved = ksType)
+            ksType = ksType)
     }
 
     fun wrap(ksTypeReference: KSTypeReference): KspType {
