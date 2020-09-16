@@ -22,20 +22,17 @@ import com.squareup.javapoet.TypeName
 import org.jetbrains.kotlin.ksp.symbol.KSType
 
 internal class KspRawType private constructor(
-    private val ksType: KSType?,
+    private val ksType: KSType,
     override val typeName: TypeName
 ) : XRawType {
     constructor(original: KspType) : this(
-        ksType = original.ksType?.starProjection(),
+        ksType = original.ksType.starProjection(),
         typeName = original.typeName.rawTypeName()
     )
 
     override fun isAssignableFrom(other: XRawType): Boolean {
         check(other is KspRawType)
-        return when {
-            other.ksType == null || ksType == null -> this == other
-            else -> ksType.isAssignableFrom(other.ksType)
-        }
+        return ksType.isAssignableFrom(other.ksType)
     }
 
     override fun equals(other: Any?): Boolean {

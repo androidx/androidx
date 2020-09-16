@@ -119,16 +119,15 @@ class KSTypeExtTest {
             }
         """.trimIndent()
         )
-        val doesNotExistTypeName = ClassName.get("", "DoesNotExist")
         runTest(subjectSrc, succeed = false) { resolver ->
             val subject = resolver.requireClass("Foo")
             assertThat(subject.propertyType("errorField").typeName())
-                .isEqualTo(doesNotExistTypeName)
+                .isEqualTo(ERROR_TYPE_NAME)
             assertThat(subject.propertyType("listOfError").typeName())
                 .isEqualTo(
                     ParameterizedTypeName.get(
                         LIST_TYPE_NAME,
-                        doesNotExistTypeName
+                        ERROR_TYPE_NAME
                     )
                 )
             assertThat(subject.propertyType("mutableMapOfDontExist").typeName())
@@ -136,7 +135,7 @@ class KSTypeExtTest {
                     ParameterizedTypeName.get(
                         MUTABLE_MAP_TYPE_NAME,
                         STRING_TYPE_NAME,
-                        doesNotExistTypeName
+                        ERROR_TYPE_NAME
                     )
                 )
         }
