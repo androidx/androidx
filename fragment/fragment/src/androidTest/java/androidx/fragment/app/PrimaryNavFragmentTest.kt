@@ -233,7 +233,7 @@ class PrimaryNavFragmentTest {
             .commit()
         executePendingTransactions(fm)
 
-        assertThat(navigations.drain()).isEqualTo(listOf(trackingFragment1 to true))
+        assertThat(navigations.drain()).containsExactly(trackingFragment1 to true).inOrder()
         assertWithMessage("new fragment is not primary nav fragment")
             .that(fm.primaryNavigationFragment)
             .isSameInstanceAs(trackingFragment1)
@@ -246,8 +246,8 @@ class PrimaryNavFragmentTest {
             .commit()
         executePendingTransactions(fm)
 
-        assertThat(navigations.drain()).isEqualTo(
-            listOf(trackingFragment1 to false, trackingFragment2 to true))
+        assertThat(navigations.drain()).containsExactly(
+            trackingFragment1 to false, trackingFragment2 to true).inOrder()
         assertWithMessage("primary nav fragment not set correctly after replace")
             .that(fm.primaryNavigationFragment)
             .isSameInstanceAs(trackingFragment2)
@@ -256,7 +256,8 @@ class PrimaryNavFragmentTest {
 
         // Note that strictFragment2 does not get a callback since the
         // pop of the replace happens before the pop of the setPrimaryFragment
-        assertThat(navigations.drain()).isEqualTo(listOf(trackingFragment1 to true))
+        assertThat(navigations.drain()).containsExactly(
+            trackingFragment2 to false, trackingFragment1 to true).inOrder()
         assertWithMessage("primary nav fragment is restored after popping replace")
             .that(fm.primaryNavigationFragment)
             .isSameInstanceAs(trackingFragment1)

@@ -2662,7 +2662,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Calling postponeEnterTransition on Fragments with a null View will not postpone the
      * transition. Likewise, postponement only works if
      * {@link FragmentTransaction#setReorderingAllowed(boolean) FragmentTransaction reordering} is
-     * enabled.
+     * enabled if you have called {@link FragmentManager#enableNewStateManager(boolean)} with
+     * <code>false</code>.
      *
      * @see Activity#postponeEnterTransition()
      * @see FragmentTransaction#setReorderingAllowed(boolean)
@@ -2694,7 +2695,8 @@ public class Fragment implements ComponentCallbacks, OnCreateContextMenuListener
      * Calling postponeEnterTransition on Fragments with a null View will not postpone the
      * transition. Likewise, postponement only works if
      * {@link FragmentTransaction#setReorderingAllowed(boolean) FragmentTransaction reordering} is
-     * enabled.
+     * enabled if you have called {@link FragmentManager#enableNewStateManager(boolean)} with
+     * <code>false</code>.
      *
      * @param duration The length of the delay in {@code timeUnit} units
      * @param timeUnit The units of time for {@code duration}
