@@ -71,7 +71,7 @@ fun SemanticsNodeInteraction.performScrollTo(): SemanticsNodeInteraction {
     val parentInRoot = scrollableNode.componentNode.coordinates.parentCoordinates
         ?.positionInRoot ?: Offset.Zero
 
-    val viewPort = viewPortInParent.shift(parentInRoot)
+    val viewPort = viewPortInParent.translate(parentInRoot)
     val target = Rect(node.positionInRoot, node.size.toSize())
 
     val mustScrollUp = target.bottom > viewPort.bottom

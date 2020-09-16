@@ -62,7 +62,7 @@ internal actual fun SemanticsNode.clippedNodeBoundsInWindow(): Rect {
         composeView.getLocationInWindow(it)
         Offset(it[0].toFloat(), it[1].toFloat())
     }
-    return boundsInRoot.shift(rootLocationInWindow)
+    return boundsInRoot.translate(rootLocationInWindow)
 }
 
 @OptIn(ExperimentalLayoutNodeApi::class)
