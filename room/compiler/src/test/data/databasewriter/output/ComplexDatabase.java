@@ -5,7 +5,6 @@ import androidx.room.InvalidationTracker;
 import androidx.room.RoomOpenHelper;
 import androidx.room.RoomOpenHelper.Delegate;
 import androidx.room.RoomOpenHelper.ValidationResult;
-import androidx.room.TypeConverterFactory;
 import androidx.room.util.DBUtil;
 import androidx.room.util.TableInfo;
 import androidx.room.util.TableInfo.Column;
@@ -179,14 +178,11 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
     }
 
     @Override
-    protected
-    Map<String, List<Class<? extends TypeConverterFactory>>> getRequiredTypeConverterFactories() {
-        final HashMap<String, List<Class<? extends TypeConverterFactory>>>
-                _typeConverterFactoriesMap =
-                new HashMap<String, List<Class<? extends TypeConverterFactory>>>();
-        _typeConverterFactoriesMap.put("foo.bar.ComplexDao",
-                ComplexDao_Impl.getRequiredConverterFactories());
-        return _typeConverterFactoriesMap;
+    protected Map<String, List<Class<?>>> getRequiredTypeConverters() {
+        final HashMap<String, List<Class<?>>> _typeConvertersMap =
+                new HashMap<String, List<Class<?>>>();
+        _typeConvertersMap.put("foo.bar.ComplexDao", ComplexDao_Impl.getRequiredConverters());
+        return _typeConvertersMap;
     }
 
     @Override

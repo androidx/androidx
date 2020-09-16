@@ -29,7 +29,7 @@ data class CustomTypeConverter(
     val method: XMethodElement,
     val from: XType,
     val to: XType,
-    val enclosingClassFactory: XType?
+    val isProvidedConverter: Boolean
 ) {
     val typeName: TypeName by lazy { enclosingClass.typeName }
     val fromTypeName: TypeName by lazy { from.typeName }

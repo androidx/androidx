@@ -16,6 +16,7 @@
 
 package androidx.room.processor
 
+import androidx.room.ProvidedTypeConverter
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import androidx.room.compiler.processing.XDeclaredType
@@ -36,18 +37,12 @@ import java.util.LinkedHashSet
 /**
  * Processes classes that are referenced in TypeConverters annotations.
  */
-class CustomConverterProcessor(
-    val context: Context,
-    val element: XTypeElement
-) {
+class CustomConverterProcessor(val context: Context, val element: XTypeElement) {
     companion object {
         private fun XType.isInvalidReturnType() =
             isError() || isVoid() || isNone()
 
-        fun findConverters(
-            context: Context,
-            element: XElement
-        ): ProcessResult {
+        fun findConverters(context: Context, element: XElement): ProcessResult {
             val annotation = element.toAnnotationBox(TypeConverters::class)
             return annotation?.let {
                 val classes = it.getAsTypeList("value")
@@ -83,14 +78,13 @@ class CustomConverterProcessor(
         val converterMethods = methods.filter {
             it.hasAnnotation(TypeConverter::class)
         }
-        val typeConverterFactory = declaredType.asTypeElement()
-            .toAnnotationBox(TypeConverter.Factory::class)
-            ?.getAsType("value")
+        val isProvidedConverter = declaredType.asTypeElement()
+            .hasAnnotation(ProvidedTypeConverter::class)
         context.checker.check(converterMethods.isNotEmpty(), element, TYPE_CONVERTER_EMPTY_CLASS)
         val allStatic = converterMethods.all { it.isStatic() }
         val constructors = element.getConstructors()
         val isKotlinObjectDeclaration = element.isKotlinObject()
-        if (typeConverterFactory == null) {
+        if (!isProvidedConverter) {
             context.checker.check(
                 isKotlinObjectDeclaration || allStatic || constructors.isEmpty() ||
                         constructors.any {
@@ -103,7 +97,7 @@ class CustomConverterProcessor(
                 container = declaredType,
                 isContainerKotlinObject = isKotlinObjectDeclaration,
                 methodElement = it,
-                containerFactory = typeConverterFactory
+                isProvidedConverter = isProvidedConverter
             )
         }
     }
@@ -112,7 +106,7 @@ class CustomConverterProcessor(
         container: XDeclaredType,
         methodElement: XMethodElement,
         isContainerKotlinObject: Boolean,
-        containerFactory: XType?
+        isProvidedConverter: Boolean
     ): CustomTypeConverter? {
         val asMember = methodElement.asMemberOf(container)
         val returnType = asMember.returnType
@@ -144,7 +138,7 @@ class CustomConverterProcessor(
             method = methodElement,
             from = param,
             to = returnType,
-            enclosingClassFactory = containerFactory
+            isProvidedConverter = isProvidedConverter
         )
     }
 

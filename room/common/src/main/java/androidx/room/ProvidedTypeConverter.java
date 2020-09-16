@@ -16,21 +16,15 @@
 
 package androidx.room;
 
-import androidx.annotation.NonNull;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Implementations of {@code TypeConverterFactory} interface are responsible to instantiate
- * TypeConverters.
+ * Marks a class as a type converter that will be provided to Room at runtime.
  */
-public interface TypeConverterFactory {
-    /**
-     * Creates a new instance of the given {@code Class}.
-     * <p>
-     *
-     * @param converterClass a {@code Class} whose instance is requested
-     * @param <T> The type parameter for the TypeConverter.
-     * @return a newly created TypeConverter
-     */
-    @NonNull
-    <T> T create(@NonNull Class<T> converterClass);
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.CLASS)
+public @interface ProvidedTypeConverter {
 }

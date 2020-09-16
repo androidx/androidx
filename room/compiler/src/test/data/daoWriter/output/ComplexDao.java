@@ -5,7 +5,6 @@ import android.os.CancellationSignal;
 import androidx.lifecycle.LiveData;
 import androidx.room.RoomDatabase;
 import androidx.room.RoomSQLiteQuery;
-import androidx.room.TypeConverterFactory;
 import androidx.room.guava.GuavaRoom;
 import androidx.room.util.CursorUtil;
 import androidx.room.util.DBUtil;
@@ -538,7 +537,7 @@ public final class ComplexDao_Impl extends ComplexDao {
         }, _statement, true, _cancellationSignal);
     }
 
-    public static List<Class<? extends TypeConverterFactory>> getRequiredConverterFactories() {
+    public static List<Class<?>> getRequiredConverters() {
         return Collections.emptyList();
     }
 }

@@ -27,7 +27,6 @@ import androidx.room.ext.T
 import androidx.room.ext.typeName
 import androidx.room.compiler.processing.MethodSpecHelper
 import androidx.room.compiler.processing.addOriginatingElement
-import androidx.room.ext.RoomTypeNames.TYPE_CONVERTER_FACTORY
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.DaoMethod
 import androidx.room.vo.Database
@@ -62,15 +61,15 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
             addMethod(createCreateOpenHelper())
             addMethod(createCreateInvalidationTracker())
             addMethod(createClearAllTables())
-            addMethod(createCreateTypeConverterFactoriesMap())
+            addMethod(createCreateTypeConvertersMap())
         }
         addDaoImpls(builder)
         return builder
     }
 
-    private fun createCreateTypeConverterFactoriesMap(): MethodSpec {
+    private fun createCreateTypeConvertersMap(): MethodSpec {
         val scope = CodeGenScope(this)
-        return MethodSpec.methodBuilder("getRequiredTypeConverterFactories").apply {
+        return MethodSpec.methodBuilder("getRequiredTypeConverters").apply {
             addAnnotation(Override::class.java)
             addModifiers(PROTECTED)
             returns(ParameterizedTypeName.get(
@@ -79,35 +78,35 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
                     CommonTypeNames.LIST,
                     ParameterizedTypeName.get(
                         ClassName.get(Class::class.java),
-                        WildcardTypeName.subtypeOf(TYPE_CONVERTER_FACTORY)
+                        WildcardTypeName.subtypeOf(Object::class.java)
                     )
                 )
             ))
-            val typeConverterFactoriesVar = scope.getTmpVar("_typeConverterFactoriesMap")
-            val typeConverterFactoriesTypeName = ParameterizedTypeName.get(
+            val typeConvertersVar = scope.getTmpVar("_typeConvertersMap")
+            val typeConvertersTypeName = ParameterizedTypeName.get(
                 ClassName.get(HashMap::class.java), CommonTypeNames.STRING,
                 ParameterizedTypeName.get(
                     ClassName.get(List::class.java),
                     ParameterizedTypeName.get(
                         ClassName.get(Class::class.java),
-                        WildcardTypeName.subtypeOf(TYPE_CONVERTER_FACTORY)
+                        WildcardTypeName.subtypeOf(Object::class.java)
                     )
                 )
             )
             addStatement(
                 "final $T $L = new $T()",
-                typeConverterFactoriesTypeName,
-                typeConverterFactoriesVar,
-                typeConverterFactoriesTypeName
+                typeConvertersTypeName,
+                typeConvertersVar,
+                typeConvertersTypeName
             )
             database.daoMethods.forEach {
                 addStatement("$L.put($S, $T.$L())",
-                typeConverterFactoriesVar,
+                typeConvertersVar,
                 it.dao.typeName.canonicalName(),
                 it.dao.implTypeName,
-                DaoWriter.GET_LIST_OF_TYPE_CONVERTER_FACTORIES_METHOD)
+                DaoWriter.GET_LIST_OF_TYPE_CONVERTERS_METHOD)
             }
-            addStatement("return $L", typeConverterFactoriesVar)
+            addStatement("return $L", typeConvertersVar)
         }.build()
     }
 

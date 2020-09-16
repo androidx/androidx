@@ -142,6 +142,9 @@ package androidx.room {
     method public abstract boolean autoGenerate() default false;
   }
 
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface ProvidedTypeConverter {
+  }
+
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface Query {
     method public abstract String value();
   }
@@ -197,14 +200,6 @@ package androidx.room {
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD}) public @interface TypeConverter {
-  }
-
-  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public static @interface TypeConverter.Factory {
-    method public abstract Class<? extends androidx.room.TypeConverterFactory> value();
-  }
-
-  public interface TypeConverterFactory {
-    method public <T> T create(Class<T!>);
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target({java.lang.annotation.ElementType.METHOD, java.lang.annotation.ElementType.PARAMETER, java.lang.annotation.ElementType.TYPE, java.lang.annotation.ElementType.FIELD}) public @interface TypeConverters {

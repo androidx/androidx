@@ -28,7 +28,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
@@ -68,7 +67,7 @@ public class DatabaseConfiguration {
     public final RoomDatabase.PrepackagedDatabaseCallback prepackagedDatabaseCallback;
 
     @NonNull
-    public final List<TypeConverterFactory> typeConverterFactories;
+    public final List<Object> typeConverters;
 
     /**
      * Whether Room should throw an exception for queries run on the main thread.
@@ -141,7 +140,7 @@ public class DatabaseConfiguration {
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
      * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
      * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
-     * Callable, RoomDatabase.PrepackagedDatabaseCallback, Map<String, TypeConverterFactory>)}
+     * Callable, RoomDatabase.PrepackagedDatabaseCallback, List<Object>)}
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
@@ -180,7 +179,7 @@ public class DatabaseConfiguration {
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
      * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
      * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
-     * Callable, RoomDatabase.PrepackagedDatabaseCallback, Map<String, TypeConverterFactory>)}
+     * Callable, RoomDatabase.PrepackagedDatabaseCallback, List<Object>)}
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
@@ -226,7 +225,7 @@ public class DatabaseConfiguration {
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
      * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
      * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
-     * Callable, RoomDatabase.PrepackagedDatabaseCallback, Map<String, TypeConverterFactory>)}
+     * Callable, RoomDatabase.PrepackagedDatabaseCallback, List<Object>)}
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
@@ -276,7 +275,7 @@ public class DatabaseConfiguration {
      * @deprecated Use {@link #DatabaseConfiguration(Context, String,
      * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
      * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
-     * Callable, RoomDatabase.PrepackagedDatabaseCallback, Map<String, TypeConverterFactory>)}
+     * Callable, RoomDatabase.PrepackagedDatabaseCallback, List<Object>)}
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
@@ -330,7 +329,7 @@ public class DatabaseConfiguration {
       * @deprecated Use {@link #DatabaseConfiguration(Context, String,
      * SupportSQLiteOpenHelper.Factory, RoomDatabase.MigrationContainer, List, boolean,
      * RoomDatabase.JournalMode, Executor, Executor, boolean, boolean, boolean, Set, String, File,
-     * Callable, RoomDatabase.PrepackagedDatabaseCallback, Map<String, TypeConverterFactory>)}
+     * Callable, RoomDatabase.PrepackagedDatabaseCallback, List<Object>)}
      *
      * @param context The application context.
      * @param name Name of the database, can be null if it is in memory.
@@ -404,7 +403,7 @@ public class DatabaseConfiguration {
      * @param copyFromInputStream The callable to get the input stream from which a
      *                            pre-package database file will be copied from.
      * @param prepackagedDatabaseCallback The pre-packaged callback.
-     * @param typeConverterFactories The type converter factories.
+     * @param typeConverters The type converters.
      *
      * @hide
      */
@@ -426,7 +425,7 @@ public class DatabaseConfiguration {
             @Nullable File copyFromFile,
             @Nullable Callable<InputStream> copyFromInputStream,
             @Nullable RoomDatabase.PrepackagedDatabaseCallback prepackagedDatabaseCallback,
-            @Nullable List<TypeConverterFactory> typeConverterFactories) {
+            @Nullable List<Object> typeConverters) {
         this.sqliteOpenHelperFactory = sqliteOpenHelperFactory;
         this.context = context;
         this.name = name;
@@ -444,8 +443,7 @@ public class DatabaseConfiguration {
         this.copyFromFile = copyFromFile;
         this.copyFromInputStream = copyFromInputStream;
         this.prepackagedDatabaseCallback = prepackagedDatabaseCallback;
-        this.typeConverterFactories =
-                typeConverterFactories == null ? Collections.emptyList() : typeConverterFactories;
+        this.typeConverters = typeConverters == null ? Collections.emptyList() : typeConverters;
     }
 
     /**

@@ -3,7 +3,6 @@ package foo.bar;
 import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.SharedSQLiteStatement;
-import androidx.room.TypeConverterFactory;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import io.reactivex.Completable;
 import io.reactivex.Maybe;
@@ -395,7 +394,7 @@ public final class UpdateDao_Impl implements UpdateDao {
     });
   }
 
-  public static List<Class<? extends TypeConverterFactory>> getRequiredConverterFactories() {
+  public static List<Class<?>> getRequiredConverters() {
     return Collections.emptyList();
   }
 }

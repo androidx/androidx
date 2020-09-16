@@ -28,11 +28,11 @@ import androidx.room.Database;
 import androidx.room.Entity;
 import androidx.room.Insert;
 import androidx.room.PrimaryKey;
+import androidx.room.ProvidedTypeConverter;
 import androidx.room.Query;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverter;
-import androidx.room.TypeConverterFactory;
 import androidx.room.TypeConverters;
 import androidx.room.integration.testapp.TestDatabase;
 import androidx.room.integration.testapp.dao.PetDao;
@@ -59,14 +59,15 @@ import java.util.UUID;
 @SuppressWarnings("unchecked")
 @MediumTest
 @RunWith(AndroidJUnit4.class)
-public class TypeConverterFactoryTest {
+public class ProvidedTypeConverterTest {
 
     @Test
-    public void testTypeConverterFactory() {
+    public void testProvidedTypeConverter() {
         Context context = ApplicationProvider.getApplicationContext();
         TestDatabaseWithConverter db =
                 Room.inMemoryDatabaseBuilder(context, TestDatabaseWithConverter.class)
-                        .addTypeConverterFactory(new TestConverterFactory())
+                        .addTypeConverter(new TimeStampConverter())
+                        .addTypeConverter(new UUIDConverter())
                         .build();
         Pet pet = TestUtil.createPet(3);
         pet.setName("pet");
@@ -78,7 +79,7 @@ public class TypeConverterFactoryTest {
     }
 
     @Test
-    public void testMissingTypeConverterFactoryInstance() {
+    public void testMissingProvidedTypeConverterInstance() {
         Context context = ApplicationProvider.getApplicationContext();
         try {
             TestDatabaseWithConverter db =
@@ -93,11 +94,11 @@ public class TypeConverterFactoryTest {
     }
 
     @Test
-    public void testMissingTypeConverterFactoryAnnotation() {
+    public void testMissingProvidedTypeConverterAnnotation() {
         Context context = ApplicationProvider.getApplicationContext();
         try {
             TestDatabase db = Room.inMemoryDatabaseBuilder(context, TestDatabase.class)
-                    .addTypeConverterFactory(new TestConverterFactory())
+                    .addTypeConverter(new TimeStampConverter())
                     .build();
             Pet pet = TestUtil.createPet(3);
             pet.setName("pet");
@@ -111,17 +112,17 @@ public class TypeConverterFactoryTest {
     @Test
     public void differentSerializerForTheSameClassInDifferentDatabases() {
         Context context = ApplicationProvider.getApplicationContext();
-        TypeConverterFactoryNameLastNameDb db1 = Room
-                .inMemoryDatabaseBuilder(context, TypeConverterFactoryNameLastNameDb.class)
-                .addTypeConverterFactory(new NameLastNameSerializer.Factory())
+        ProvidedTypeConverterNameLastNameDb db1 = Room
+                .inMemoryDatabaseBuilder(context, ProvidedTypeConverterNameLastNameDb.class)
+                .addTypeConverter(new NameLastNameSerializer())
                 .build();
-        TypeConverterFactoryLastNameNameDb db2 = Room
-                .inMemoryDatabaseBuilder(context, TypeConverterFactoryLastNameNameDb.class)
-                .addTypeConverterFactory(new LastNameNameSerializer.Factory())
+        ProvidedTypeConverterLastNameNameDb db2 = Room
+                .inMemoryDatabaseBuilder(context, ProvidedTypeConverterLastNameNameDb.class)
+                .addTypeConverter(new LastNameNameSerializer())
                 .build();
-        TypeConverterFactoryEntity entity1 = new TypeConverterFactoryEntity(1,
+        ProvidedTypeConverterEntity entity1 = new ProvidedTypeConverterEntity(1,
                 new Username("foo1", "bar1"));
-        TypeConverterFactoryEntity entity2 = new TypeConverterFactoryEntity(2,
+        ProvidedTypeConverterEntity entity2 = new ProvidedTypeConverterEntity(2,
                 new Username("foo2", "bar2"));
         db1.getDao().insert(entity1);
         db2.getDao().insert(entity2);
@@ -143,21 +144,23 @@ public class TypeConverterFactoryTest {
 
 
 
-    @Database(entities = {TypeConverterFactoryEntity.class}, version = 1, exportSchema = false)
+    @Database(entities = {ProvidedTypeConverterEntity.class}, version = 1, exportSchema = false)
     @TypeConverters(NameLastNameSerializer.class)
-    abstract static class TypeConverterFactoryNameLastNameDb extends TypeConverterFactoryEntityDb {
+    abstract static class ProvidedTypeConverterNameLastNameDb extends
+            ProvidedTypeConverterEntityDb {
     }
 
-    @Database(entities = {TypeConverterFactoryEntity.class}, version = 1, exportSchema = false)
+    @Database(entities = {ProvidedTypeConverterEntity.class}, version = 1, exportSchema = false)
     @TypeConverters(LastNameNameSerializer.class)
-    abstract static class TypeConverterFactoryLastNameNameDb extends TypeConverterFactoryEntityDb {
+    abstract static class ProvidedTypeConverterLastNameNameDb extends
+            ProvidedTypeConverterEntityDb {
     }
 
-    abstract static class TypeConverterFactoryEntityDb extends RoomDatabase {
-        public abstract TypeConverterFactoryEntity.Dao getDao();
+    abstract static class ProvidedTypeConverterEntityDb extends RoomDatabase {
+        public abstract ProvidedTypeConverterEntity.Dao getDao();
     }
 
-    @TypeConverter.Factory(TestConverterFactory.class)
+    @ProvidedTypeConverter
     public static class TimeStampConverter {
         @TypeConverter
         public Date fromTimestamp(Long value) {
@@ -174,7 +177,7 @@ public class TypeConverterFactoryTest {
         }
     }
 
-    @TypeConverter.Factory(TestConverterFactory.class)
+    @ProvidedTypeConverter
     public static class UUIDConverter {
         @TypeConverter
         public UUID asUuid(byte[] bytes) {
@@ -193,27 +196,13 @@ public class TypeConverterFactoryTest {
         }
     }
 
-    public static final class TestConverterFactory implements TypeConverterFactory {
-        @NonNull
-        @Override
-        public <T> T create(@NonNull Class<T> converterClass) {
-            if (converterClass.isAssignableFrom(TimeStampConverter.class)) {
-                return (T) new TimeStampConverter();
-            } else if (converterClass.isAssignableFrom(UUIDConverter.class)) {
-                return (T) new UUIDConverter();
-            } else {
-                throw new IllegalStateException("Requested unknown converter");
-            }
-        }
-    }
-
     @Entity
-    public static class TypeConverterFactoryEntity {
+    public static class ProvidedTypeConverterEntity {
         @PrimaryKey
         private final int mId;
         private final Username mUsername;
 
-        public TypeConverterFactoryEntity(int id, Username username) {
+        public ProvidedTypeConverterEntity(int id, Username username) {
             mId = id;
             mUsername = username;
         }
@@ -230,7 +219,7 @@ public class TypeConverterFactoryTest {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            TypeConverterFactoryEntity that = (TypeConverterFactoryEntity) o;
+            ProvidedTypeConverterEntity that = (ProvidedTypeConverterEntity) o;
             return mId == that.mId &&
                     mUsername.equals(that.mUsername);
         }
@@ -243,13 +232,13 @@ public class TypeConverterFactoryTest {
         @androidx.room.Dao
         public interface Dao {
             @Insert
-            void insert(TypeConverterFactoryEntity entity);
+            void insert(ProvidedTypeConverterEntity entity);
 
-            @Query("SELECT mUsername FROM TypeConverterFactoryEntity WHERE mId = :id")
+            @Query("SELECT mUsername FROM ProvidedTypeConverterEntity WHERE mId = :id")
             String getRawUsername(int id);
 
-            @Query("SELECT * FROM TypeConverterFactoryEntity WHERE mId = :id")
-            TypeConverterFactoryEntity get(int id);
+            @Query("SELECT * FROM ProvidedTypeConverterEntity WHERE mId = :id")
+            ProvidedTypeConverterEntity get(int id);
         }
     }
 
@@ -292,59 +281,31 @@ public class TypeConverterFactoryTest {
         }
     }
 
-    @TypeConverter.Factory(NameLastNameSerializer.Factory.class)
-    public interface NameLastNameSerializer {
+    @ProvidedTypeConverter
+    public class NameLastNameSerializer {
         @TypeConverter
-        Username fromString(String input);
+        public Username fromString(String input) {
+            String[] sections = input.split("-");
+            return new Username(sections[0], sections[1]);
+        }
+
         @TypeConverter
-        String toString(Username input);
-
-        class Factory implements TypeConverterFactory {
-            @NonNull
-            @Override
-            public <T> T create(@NonNull Class<T> converterClass) {
-                assertThat(converterClass).isSameInstanceAs(NameLastNameSerializer.class);
-                return (T) new NameLastNameSerializer() {
-                    @Override
-                    public Username fromString(String input) {
-                        String[] sections = input.split("-");
-                        return new Username(sections[0], sections[1]);
-                    }
-
-                    @Override
-                    public String toString(Username input) {
-                        return input.getName() + "-" + input.getLastName();
-                    }
-                };
-            }
+        public String toString(Username input) {
+            return input.getName() + "-" + input.getLastName();
         }
     }
 
-    @TypeConverter.Factory(LastNameNameSerializer.Factory.class)
-    public interface LastNameNameSerializer {
+    @ProvidedTypeConverter
+    public class LastNameNameSerializer {
         @TypeConverter
-        Username fromString(String input);
+        public Username fromString(String input) {
+            String[] sections = input.split("-");
+            return new Username(sections[1], sections[0]);
+        }
+
         @TypeConverter
-        String toString(Username input);
-
-        class Factory implements TypeConverterFactory {
-            @NonNull
-            @Override
-            public <T> T create(@NonNull Class<T> converterClass) {
-                assertThat(converterClass).isSameInstanceAs(LastNameNameSerializer.class);
-                return (T) new LastNameNameSerializer() {
-                    @Override
-                    public Username fromString(String input) {
-                        String[] sections = input.split("-");
-                        return new Username(sections[1], sections[0]);
-                    }
-
-                    @Override
-                    public String toString(Username input) {
-                        return input.getLastName() + "-" + input.getName();
-                    }
-                };
-            }
+        public String toString(Username input) {
+            return input.getLastName() + "-" + input.getName();
         }
     }
 }

@@ -16,8 +16,7 @@
 
 package androidx.room.solver.types
 
-import androidx.room.TypeConverterFactory
-import androidx.room.compiler.processing.XType
+import androidx.room.ProvidedTypeConverter
 import androidx.room.ext.L
 import androidx.room.ext.N
 import androidx.room.ext.T
@@ -50,9 +49,9 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
                         outputVarName, custom.typeName,
                         custom.methodName, inputVarName)
             } else {
-                if (custom.enclosingClassFactory != null) {
+                if (custom.isProvidedConverter) {
                     addStatement("$L = $N().$L($L)",
-                        outputVarName, typeConverterFactory(scope, custom.enclosingClassFactory),
+                        outputVarName, providedTypeConverter(scope),
                         custom.methodName, inputVarName)
                 } else {
                     addStatement(
@@ -65,15 +64,12 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
         }
     }
 
-    private fun typeConverterFactory(
-        scope: CodeGenScope,
-        enclosingClassFactory: XType
-    ): MethodSpec {
+    private fun providedTypeConverter(scope: CodeGenScope): MethodSpec {
         val className = custom.typeName as ClassName
         val baseName = className.simpleName().decapitalize(Locale.US)
 
-        val factoryClassName = enclosingClassFactory.typeName as ClassName
-        scope.writer.addRequiredTypeConverterFactory(factoryClassName)
+        val converterClassName = custom.typeName as ClassName
+        scope.writer.addRequiredTypeConverter(converterClassName)
         val converterField = scope.writer.getOrCreateField(object : ClassWriter.SharedFieldSpec(
             baseName, custom.typeName
         ) {
@@ -111,10 +107,9 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
                 methodScope.builder().apply {
                     beginControlFlow("if ($N == null)", converterField)
                     addStatement(
-                        "$N = $N.getTypeConverterFactory($T.class).create($T.class)",
+                        "$N = $N.getTypeConverter($T.class)",
                         converterField,
                         DaoWriter.dbField,
-                        enclosingClassFactory.typeName,
                         custom.typeName
                     )
                     endControlFlow()
@@ -142,10 +137,10 @@ class CustomTypeConverterWrapper(val custom: CustomTypeConverter) :
     }
 }
 
-fun ClassWriter.addRequiredTypeConverterFactory(className: ClassName) {
-    this[TypeConverterFactory::class] = getRequiredTypeConverterFactories() + setOf(className)
+fun ClassWriter.addRequiredTypeConverter(className: ClassName) {
+    this[ProvidedTypeConverter::class] = getRequiredTypeConverters() + setOf(className)
 }
 
-fun ClassWriter.getRequiredTypeConverterFactories(): Set<ClassName> {
-    return this.get<Set<ClassName>>(TypeConverterFactory::class) ?: emptySet()
+fun ClassWriter.getRequiredTypeConverters(): Set<ClassName> {
+    return this.get<Set<ClassName>>(ProvidedTypeConverter::class) ?: emptySet()
 }

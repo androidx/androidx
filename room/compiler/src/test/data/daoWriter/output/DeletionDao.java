@@ -3,7 +3,6 @@ package foo.bar;
 import androidx.room.EntityDeletionOrUpdateAdapter;
 import androidx.room.RoomDatabase;
 import androidx.room.SharedSQLiteStatement;
-import androidx.room.TypeConverterFactory;
 import androidx.room.util.StringUtil;
 import androidx.sqlite.db.SupportSQLiteStatement;
 import io.reactivex.Completable;
@@ -391,7 +390,7 @@ public final class DeletionDao_Impl implements DeletionDao {
     }
   }
 
-  public static List<Class<? extends TypeConverterFactory>> getRequiredConverterFactories() {
+  public static List<Class<?>> getRequiredConverters() {
     return Collections.emptyList();
   }
 }

@@ -91,8 +91,6 @@ object RoomTypeNames {
             ClassName.get("$ROOM_PACKAGE.util", "DBUtil")
     val CURSOR_UTIL: ClassName =
             ClassName.get("$ROOM_PACKAGE.util", "CursorUtil")
-    val TYPE_CONVERTER_FACTORY: ClassName =
-        ClassName.get("$ROOM_PACKAGE", "TypeConverterFactory")
 }
 
 object PagingTypeNames {
