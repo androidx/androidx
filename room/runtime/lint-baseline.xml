@@ -59,12 +59,12 @@
     <issue
         id="PrivateConstructorForUtilityClass"
         message="Utility class with non private constructor"
-        errorLine1="/**"
-        errorLine2="^">
+        errorLine1="public class Room {"
+        errorLine2="             ~~~~">
         <location
             file="src/main/java/androidx/room/Room.java"
-            line="23"
-            column="1"/>
+            line="27"
+            column="14"/>
     </issue>
 
     <issue
@@ -646,7 +646,7 @@
         errorLine2="                                ~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="319"
+            line="322"
             column="33"/>
     </issue>
 
@@ -657,7 +657,7 @@
         errorLine2="                                            ~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="469"
+            line="475"
             column="45"/>
     </issue>
 
@@ -668,7 +668,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="558"
+            line="564"
             column="16"/>
     </issue>
 
@@ -679,7 +679,7 @@
         errorLine2="                                          ~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="558"
+            line="564"
             column="43"/>
     </issue>
 
@@ -690,7 +690,7 @@
         errorLine2="                                                               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="558"
+            line="564"
             column="64"/>
     </issue>
 
@@ -701,7 +701,7 @@
         errorLine2="               ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="578"
+            line="584"
             column="16"/>
     </issue>
 
@@ -712,7 +712,7 @@
         errorLine2="                                          ~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="578"
+            line="584"
             column="43"/>
     </issue>
 
@@ -723,7 +723,7 @@
         errorLine2="            ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="579"
+            line="585"
             column="13"/>
     </issue>
 
@@ -734,7 +734,7 @@
         errorLine2="                                                       ~~~~~~~~~">
         <location
             file="src/main/java/androidx/room/InvalidationTracker.java"
-            line="687"
+            line="693"
             column="56"/>
     </issue>
 

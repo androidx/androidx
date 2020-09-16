@@ -8,7 +8,7 @@
         errorLine2="                                                    ~~~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/CoroutineLiveData.kt"
-            line="458"
+            line="470"
             column="53"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                                             ~~~~~~~~">
         <location
             file="src/main/java/androidx/lifecycle/FlowLiveData.kt"
-            line="138"
+            line="148"
             column="46"/>
     </issue>
 

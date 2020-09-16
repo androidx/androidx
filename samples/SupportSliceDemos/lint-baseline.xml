@@ -85,7 +85,7 @@
         errorLine2="                                               ~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"
-            line="124"
+            line="127"
             column="48"/>
     </issue>
 
@@ -96,7 +96,7 @@
         errorLine2="                ~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"
-            line="124"
+            line="127"
             column="17"/>
     </issue>
 
@@ -107,7 +107,7 @@
         errorLine2="                                               ~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"
-            line="130"
+            line="133"
             column="48"/>
     </issue>
 
@@ -118,7 +118,7 @@
         errorLine2="                ~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"
-            line="130"
+            line="133"
             column="17"/>
     </issue>
 
@@ -129,7 +129,7 @@
         errorLine2="                ~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"
-            line="137"
+            line="140"
             column="17"/>
     </issue>
 
@@ -140,7 +140,7 @@
         errorLine2="                ~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"
-            line="138"
+            line="141"
             column="17"/>
     </issue>
 
@@ -151,7 +151,7 @@
         errorLine2="                ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"
-            line="144"
+            line="147"
             column="17"/>
     </issue>
 
@@ -162,7 +162,7 @@
         errorLine2="                          ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="82"
+            line="84"
             column="27"/>
     </issue>
 
@@ -173,7 +173,7 @@
         errorLine2="                                                        ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="95"
+            line="97"
             column="57"/>
     </issue>
 
@@ -184,7 +184,7 @@
         errorLine2="                        ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="131"
+            line="133"
             column="25"/>
     </issue>
 
@@ -195,7 +195,7 @@
         errorLine2="                         ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"
-            line="101"
+            line="104"
             column="26"/>
     </issue>
 
@@ -206,7 +206,7 @@
         errorLine2="                                       ~~~~">
         <location
             file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"
-            line="175"
+            line="180"
             column="40"/>
     </issue>
 
@@ -217,7 +217,7 @@
         errorLine2="                                         ~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"
-            line="196"
+            line="201"
             column="42"/>
     </issue>
 
@@ -228,7 +228,7 @@
         errorLine2="                                       ~~~~~~">
         <location
             file="src/main/java/com/example/androidx/slice/demos/SliceBrowser.java"
-            line="283"
+            line="288"
             column="40"/>
     </issue>
 
@@ -239,7 +239,7 @@
         errorLine2="                              ~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="78"
+            line="80"
             column="31"/>
     </issue>
 
@@ -250,7 +250,7 @@
         errorLine2="                                               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="78"
+            line="80"
             column="48"/>
     </issue>
 
@@ -261,7 +261,7 @@
         errorLine2="                     ~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="233"
+            line="235"
             column="22"/>
     </issue>
 
@@ -272,7 +272,7 @@
         errorLine2="                                            ~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="233"
+            line="235"
             column="45"/>
     </issue>
 
@@ -283,7 +283,7 @@
         errorLine2="                                                             ~~~~~">
         <location
             file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="233"
+            line="235"
             column="62"/>
     </issue>
 
@@ -294,7 +294,7 @@
         errorLine2="            ~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="234"
+            line="236"
             column="13"/>
     </issue>
 
@@ -305,7 +305,7 @@
         errorLine2="                     ~~~~~">
         <location
             file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="255"
+            line="257"
             column="22"/>
     </issue>
 
@@ -316,7 +316,7 @@
         errorLine2="                                                ~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="255"
+            line="257"
             column="49"/>
     </issue>
 
@@ -327,7 +327,7 @@
         errorLine2="                                                                 ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="255"
+            line="257"
             column="66"/>
     </issue>
 
@@ -338,7 +338,7 @@
         errorLine2="            ~~~">
         <location
             file="src/main/java/com/example/androidx/slice/demos/SliceSelectionDialog.java"
-            line="256"
+            line="258"
             column="13"/>
     </issue>
 
