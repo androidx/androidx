@@ -18,10 +18,8 @@ package androidx.camera.integration.uiwidgets.rotations
 
 import androidx.test.core.app.ActivityScenario
 import androidx.test.filters.LargeTest
-import androidx.test.rule.GrantPermissionRule
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -48,10 +46,6 @@ class ImageCaptureLockedOrientationTest(
             }
         }
     }
-
-    @get:Rule
-    val mCameraPermissionRule: GrantPermissionRule =
-        GrantPermissionRule.grant(*CameraActivity.PERMISSIONS)
 
     @Before
     fun before() {
