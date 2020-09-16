@@ -68,7 +68,7 @@ public final class ExtensionCameraFilter implements CameraFilter {
             Preconditions.checkState(camera instanceof CameraInternal,
                     "The camera doesn't contain internal implementation.");
             CameraInfo cameraInfo = camera.getCameraInfo();
-            String cameraId = Camera2CameraInfo.fromCameraInfo(cameraInfo).getCameraId();
+            String cameraId = Camera2CameraInfo.from(cameraInfo).getCameraId();
             CameraCharacteristics cameraCharacteristics =
                     Camera2CameraInfo.extractCameraCharacteristics(cameraInfo);
 

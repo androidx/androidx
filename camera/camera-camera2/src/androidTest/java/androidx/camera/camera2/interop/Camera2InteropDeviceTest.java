@@ -231,7 +231,7 @@ public final class Camera2InteropDeviceTest {
         ImageAnalysis imageAnalysis = new ImageAnalysis.Builder().build();
         mCamera = CameraUtil.createCameraAndAttachUseCase(mContext, mCameraSelector, imageAnalysis);
 
-        String cameraId = Camera2CameraInfo.fromCameraInfo(mCamera.getCameraInfo()).getCameraId();
+        String cameraId = Camera2CameraInfo.from(mCamera.getCameraInfo()).getCameraId();
         cameraIdRef.set(cameraId);
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() ->
