@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <!--
   Copyright 2020 The Android Open Source Project
 
@@ -16,10 +17,18 @@
   -->
 
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android"
-    android:opacity="opaque">
-    <item android:drawable="@color/cameraPipeThemeBgDark100" />
-
-    <item
-        android:drawable="@drawable/ic_launcher_foreground"
-        android:gravity="center" />
+    android:opacity="translucent">
+    <item xmlns:android="http://schemas.android.com/apk/res/android">
+        <shape
+            android:shape="rectangle">
+            <solid
+                android:width="3dp"
+                android:color="@color/cameraPipeThemeBgOverlayDark100"/>
+            <corners
+                android:bottomLeftRadius="12dp"
+                android:bottomRightRadius="12dp"
+                android:topLeftRadius="12dp"
+                android:topRightRadius="12dp"/>
+        </shape>
+    </item>
 </layer-list>
