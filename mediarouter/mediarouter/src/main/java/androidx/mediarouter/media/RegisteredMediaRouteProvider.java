@@ -42,6 +42,7 @@ import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_GRO
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_GROUP_ROUTE_DESCRIPTOR;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.DATA_KEY_TRANSFERABLE_SECTION_TITLE;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_DATA_ERROR;
+import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_CONTROLLER_RELEASED;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_CONTROL_REQUEST_FAILED;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_CONTROL_REQUEST_SUCCEEDED;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_DESCRIPTOR_CHANGED;
@@ -50,7 +51,6 @@ import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_GENERIC_FAILURE;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_GENERIC_SUCCESS;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_REGISTERED;
-import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_MSG_RELEASE_CONTROLLER;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.SERVICE_VERSION_1;
 import static androidx.mediarouter.media.MediaRouteProviderProtocol.isValidRemoteMessenger;
 
@@ -383,12 +383,13 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
         }
     }
 
-    void onConnectionRequestReleaseController(Connection connection, int controllerId) {
+    void onConnectionControllerReleasedByProvider(Connection connection, int controllerId) {
         if (mActiveConnection == connection) {
             ControllerConnection controller = findControllerById(controllerId);
             if (mControllerCallback != null && controller instanceof RouteController) {
-                mControllerCallback.onRequestReleaseController(((RouteController) controller));
+                mControllerCallback.onControllerReleasedByProvider(((RouteController) controller));
             }
+            onControllerReleased(controller);
         }
     }
 
@@ -850,8 +851,8 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
             }
         }
 
-        public void onRequestReleaseController(int controllerId) {
-            onConnectionRequestReleaseController(this, controllerId);
+        public void onControllerReleasedByProvider(int controllerId) {
+            onConnectionControllerReleasedByProvider(this, controllerId);
         }
 
         @Override
@@ -1075,8 +1076,8 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
                     }
                     break;
 
-                case SERVICE_MSG_RELEASE_CONTROLLER:
-                    connection.onRequestReleaseController(arg /* controllerId */);
+                case SERVICE_MSG_CONTROLLER_RELEASED:
+                    connection.onControllerReleasedByProvider(arg /* controllerId */);
                     break;
             }
             return false;
@@ -1084,6 +1085,6 @@ final class RegisteredMediaRouteProvider extends MediaRouteProvider
     }
 
     interface ControllerCallback {
-        void onRequestReleaseController(RouteController controller);
+        void onControllerReleasedByProvider(RouteController controller);
     }
 }

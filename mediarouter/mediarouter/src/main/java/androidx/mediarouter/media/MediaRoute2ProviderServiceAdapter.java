@@ -773,8 +773,9 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                 }
 
                 if (shouldUnselect) {
+                    mController.onUnselect(MediaRouter.UNSELECT_REASON_STOPPED);
+                    mController.onRelease();
                     if ((mFlags & SESSION_FLAG_MR2) == 0) {
-                        // Let the client release the controller
                         ClientRecord clientRecord = mClientRecord.get();
                         if (clientRecord != null) {
                             RouteController controller = mController;
@@ -782,12 +783,8 @@ class MediaRoute2ProviderServiceAdapter extends MediaRoute2ProviderService {
                                 controller = ((DynamicGroupRouteControllerProxy) mController)
                                         .mRouteController;
                             }
-                            mServiceImpl.requestReleaseController(clientRecord,
-                                    controller, mRouteId);
+                            clientRecord.releaseControllerByProvider(controller, mRouteId);
                         }
-                    } else {
-                        mController.onUnselect(MediaRouter.UNSELECT_REASON_STOPPED);
-                        mController.onRelease();
                     }
                 }
                 mIsReleased = true;
