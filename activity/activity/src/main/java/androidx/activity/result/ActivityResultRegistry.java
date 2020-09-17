@@ -58,8 +58,10 @@ public abstract class ActivityResultRegistry {
 
     private static final String LOG_TAG = "ActivityResultRegistry";
 
+    private static final int INITIAL_REQUEST_CODE_VALUE = 0x00010000;
+
     // Use upper 16 bits for request codes
-    private final AtomicInteger mNextRc = new AtomicInteger(0x00010000);
+    private final AtomicInteger mNextRc = new AtomicInteger(INITIAL_REQUEST_CODE_VALUE);
     private final Map<Integer, String> mRcToKey = new HashMap<>();
     private final Map<String, Integer> mKeyToRc = new HashMap<>();
     private final Map<String, LifecycleContainer> mKeyToLifecycleContainers = new HashMap<>();
@@ -278,7 +280,7 @@ public abstract class ActivityResultRegistry {
         for (int i = 0; i < numKeys; i++) {
             bindRcKey(rcs.get(i), keys.get(i));
         }
-        mNextRc.set(numKeys);
+        mNextRc.set(INITIAL_REQUEST_CODE_VALUE + numKeys);
         mPendingResults.putAll(
                 savedInstanceState.getBundle(KEY_COMPONENT_ACTIVITY_PENDING_RESULTS));
     }
