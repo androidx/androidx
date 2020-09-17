@@ -526,6 +526,7 @@ package androidx.tvprovider.media.tv {
     field public static final int ASPECT_RATIO_MOVIE_POSTER = 5; // 0x5
     field public static final int AVAILABILITY_AVAILABLE = 0; // 0x0
     field public static final int AVAILABILITY_FREE = 4; // 0x4
+    field public static final int AVAILABILITY_FREE_WITH_ADS = 5; // 0x5
     field public static final int AVAILABILITY_FREE_WITH_SUBSCRIPTION = 1; // 0x1
     field public static final int AVAILABILITY_PAID_CONTENT = 2; // 0x2
     field public static final int AVAILABILITY_PURCHASED = 3; // 0x3
