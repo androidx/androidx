@@ -107,7 +107,8 @@ public abstract class BasePreviewProgram extends BaseProgram {
             PreviewProgramColumns.AVAILABILITY_FREE_WITH_SUBSCRIPTION,
             PreviewProgramColumns.AVAILABILITY_PAID_CONTENT,
             PreviewProgramColumns.AVAILABILITY_PURCHASED,
-            PreviewProgramColumns.AVAILABILITY_FREE
+            PreviewProgramColumns.AVAILABILITY_FREE,
+            PreviewProgramColumns.AVAILABILITY_FREE_WITH_ADS,
     })
     @Retention(RetentionPolicy.SOURCE)
     @RestrictTo(LIBRARY)
@@ -830,9 +831,11 @@ public abstract class BasePreviewProgram extends BaseProgram {
          * {@link androidx.tvprovider.media.tv.TvContractCompat
          * .PreviewPrograms#AVAILABILITY_PAID_CONTENT},
          * {@link androidx.tvprovider.media.tv.TvContractCompat
-         * .PreviewPrograms#AVAILABILITY_PURCHASED}, and
+         * .PreviewPrograms#AVAILABILITY_PURCHASED},
          * {@link androidx.tvprovider.media.tv.TvContractCompat
-         * .PreviewPrograms#AVAILABILITY_FREE}.
+         * .PreviewPrograms#AVAILABILITY_FREE}, and
+         * {@link androidx.tvprovider.media.tv.TvContractCompat
+         * .PreviewPrograms#AVAILABILITY_FREE_WITH_ADS}.
          *
          * @param availability The availability of the program.
          * @return This Builder object to allow for chaining of calls to builder methods.

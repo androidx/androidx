@@ -1123,6 +1123,13 @@ public final class TvContractCompat {
         int AVAILABILITY_FREE = 4;
 
         /**
+         * The availability for free with ads content.
+         *
+         * @see #COLUMN_AVAILABILITY
+         */
+        int AVAILABILITY_FREE_WITH_ADS = 5;
+
+        /**
          * The interaction type for "views".
          *
          * @see #COLUMN_INTERACTION_TYPE
