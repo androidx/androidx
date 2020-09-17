@@ -24,6 +24,7 @@ import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
 import com.squareup.javapoet.ClassName
 import org.jetbrains.kotlin.ksp.getAllSuperTypes
+import org.jetbrains.kotlin.ksp.getDeclaredFunctions
 import org.jetbrains.kotlin.ksp.getDeclaredProperties
 import org.jetbrains.kotlin.ksp.isOpen
 import org.jetbrains.kotlin.ksp.symbol.ClassKind
@@ -83,8 +84,8 @@ internal class KspTypeElement(
         val selection = declaration
             .getDeclaredProperties()
             .associateByTo(mutableMapOf()) {
-            it.simpleName
-        }
+                it.simpleName
+            }
         declaration.getAllSuperTypes().map {
             it.declaration
         }.filterIsInstance(KSClassDeclaration::class.java)
@@ -102,6 +103,30 @@ internal class KspTypeElement(
                 containing = this
             )
         }
+    }
+
+    private val syntheticGetterSetterMethods: List<XMethodElement> by lazy {
+        val setters = declaration.getDeclaredProperties()
+            .mapNotNull {
+                it.setter?.let { setter ->
+                    KspSyntheticSetterMethodElement(
+                        env = env,
+                        containing = this,
+                        setter = setter
+                    )
+                }
+            }
+        val getters = declaration.getDeclaredProperties()
+            .mapNotNull {
+                it.getter?.let { getter ->
+                    KspSyntheticGetterMethodElement(
+                        env = env,
+                        containing = this,
+                        getter = getter
+                    )
+                }
+            }
+        setters + getters
     }
 
     override fun isInterface(): Boolean {
@@ -125,15 +150,63 @@ internal class KspTypeElement(
         TODO("Not yet implemented")
     }
 
+    private val _declaredMethods by lazy {
+        val myMethods = declaration.getDeclaredFunctions()
+            .filter {
+                // filter out constructors
+                it.simpleName.asString() != name
+            }.map {
+                KspMethodElement(
+                    env = env,
+                    containing = this,
+                    declaration = it
+                )
+            }
+        val companionMethods = declaration.findCompanionObject()
+            ?.let {
+                env.wrapClassDeclaration(it)
+            }?.getDeclaredMethods()
+            ?.filter {
+                it.isStatic()
+            } ?: emptyList()
+
+        myMethods + syntheticGetterSetterMethods + companionMethods
+    }
+
     override fun getDeclaredMethods(): List<XMethodElement> {
-        TODO("Not yet implemented")
+        return _declaredMethods
     }
 
     override fun getConstructors(): List<XConstructorElement> {
-        TODO("Not yet implemented")
+        val constructors = declaration.getDeclaredFunctions()
+            .filter {
+                it.simpleName.asString() == name
+            }.toMutableList()
+        declaration.primaryConstructor?.let { primary ->
+            // workaround for https://github.com/android/kotlin/issues/136
+            // TODO remove once that bug is fixed
+            if (primary.simpleName.asString() != "<init>") {
+                constructors.add(primary)
+            }
+        }
+
+        return constructors.map {
+            KspConstructorElement(
+                env = env,
+                containing = this,
+                declaration = it
+            )
+        }
     }
 
     override fun getSuperInterfaceElements(): List<XTypeElement> {
-        TODO("Not yet implemented")
+        return declaration.superTypes.asSequence().mapNotNull {
+            it.resolve()?.declaration
+        }.filterIsInstance<KSClassDeclaration>()
+            .filter {
+                it.classKind == ClassKind.INTERFACE
+            }.mapTo(mutableListOf()) {
+                env.wrapClassDeclaration(it)
+            }
     }
 }

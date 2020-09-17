@@ -87,6 +87,8 @@ private fun compileWithKsp(
         it.toKotlinSourceFile()
     }
     compilation.symbolProcessors = listOf(syntheticKspProcessor)
+    compilation.jvmDefault = "enable"
+    compilation.jvmTarget = "1.8"
     compilation.inheritClassPath = true
     compilation.verbose = false
 
