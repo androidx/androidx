@@ -56,6 +56,7 @@ dependencies {
 
     // Android Support Library
     implementation("androidx.appcompat:appcompat:1.1.0")
+    implementation(CONSTRAINT_LAYOUT, { transitive = true })
 
     // Camera Pipe
     implementation(project(":camera:camera-camera2-pipe"))

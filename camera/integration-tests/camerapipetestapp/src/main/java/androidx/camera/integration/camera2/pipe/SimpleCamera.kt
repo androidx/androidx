@@ -19,12 +19,15 @@ package androidx.camera.integration.camera2.pipe
 import android.graphics.ImageFormat
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraDevice
+import android.hardware.camera2.CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
 import android.media.ImageReader
 import android.os.Handler
 import android.util.Log
 import android.util.Size
 import android.view.Surface
 import androidx.camera.camera2.pipe.CameraGraph
+import androidx.camera.camera2.pipe.CameraId
+import androidx.camera.camera2.pipe.CameraMetadata
 import androidx.camera.camera2.pipe.CameraPipe
 import androidx.camera.camera2.pipe.Request
 import androidx.camera.camera2.pipe.RequestTemplate
@@ -33,33 +36,30 @@ import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamType
 import kotlin.math.absoluteValue
 
+private const val defaultWidth = 1280
+private const val defaultHeight = 720
+private const val defaultAspectRatio = defaultWidth.toDouble() / defaultHeight.toDouble()
+
 class SimpleCamera(
+    private val cameraId: CameraId,
+    private val cameraMetadata: CameraMetadata,
     private val cameraGraph: CameraGraph,
     private val imageReader: ImageReader
 ) {
     companion object {
-        private val defaultResolution = Size(1280, 720)
-        private const val defaultAspectRatio = 4.0 / 3.0
-
         fun create(
             cameraPipe: CameraPipe,
+            cameraId: CameraId,
             viewfinder: Viewfinder,
             listeners: List<Request.Listener> = emptyList()
         ): SimpleCamera {
             // TODO: It may be worthwhile to turn this into a suspending function to avoid running
             //   camera-finding and metadata querying on the main thread.
 
-            // Find first back facing camera, or any camera id at all if the back facing camera is
-            // not available.
-            val cameraId = cameraPipe.cameras().findAll().firstOrNull() {
-                cameraPipe.cameras().awaitMetadata(it)[CameraCharacteristics.LENS_FACING] ==
-                        CameraCharacteristics.LENS_FACING_BACK
-            } ?: cameraPipe.cameras().findAll().first()
-
             Log.i("CXCP-App", "Selected $cameraId to open.")
 
-            val metadata = cameraPipe.cameras().awaitMetadata(cameraId)
-            val yuvSizes = metadata.streamMap.getOutputSizes(ImageFormat.YUV_420_888)
+            val cameraMetadata = cameraPipe.cameras().awaitMetadata(cameraId)
+            val yuvSizes = cameraMetadata.streamMap.getOutputSizes(ImageFormat.YUV_420_888)
             val yuv43Sizes = yuvSizes.filter {
                 (((it.width.toDouble() / it.height.toDouble()) - defaultAspectRatio).absoluteValue
                         < 0.001)
@@ -67,8 +67,8 @@ class SimpleCamera(
 
             // Find the size that is the least different
             val yuvSize = yuv43Sizes.minByOrNull {
-                ((it.width * it.height) - (defaultResolution.width *
-                        defaultResolution.height)).absoluteValue
+                ((it.width * it.height) - (defaultWidth *
+                        defaultHeight)).absoluteValue
             }!!
 
             Log.i("CXCP-App", "Selected $yuvSize as the YUV output size")
@@ -122,7 +122,7 @@ class SimpleCamera(
                 10
             )
             cameraGraph.setSurface(yuvStream.id, imageReader.surface)
-            return SimpleCamera(cameraGraph, imageReader)
+            return SimpleCamera(cameraId, cameraMetadata, cameraGraph, imageReader)
         }
     }
 
@@ -152,5 +152,38 @@ class SimpleCamera(
         Log.i("CXCP-App", "Closing $cameraGraph")
         cameraGraph.close()
         imageReader.close()
+    }
+
+    fun cameraInfoString(): String {
+        val lensFacing = when (cameraMetadata[CameraCharacteristics.LENS_FACING]) {
+            CameraCharacteristics.LENS_FACING_FRONT -> "Front"
+            CameraCharacteristics.LENS_FACING_BACK -> "Back"
+            CameraCharacteristics.LENS_FACING_EXTERNAL -> "External"
+            else -> "Unknown"
+        }
+
+        val capabilities = cameraMetadata[CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES]
+        val cameraType = if (capabilities != null &&
+            capabilities.contains(REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA)
+        ) {
+            "Logical"
+        } else {
+            "Physical"
+        }
+
+        return StringBuilder().apply {
+            append("$cameraGraph (Camera ${cameraId.value})\n")
+            append("  Facing:    $lensFacing ($cameraType)\n")
+            append("Streams:")
+            for (stream in cameraGraph.streams) {
+                append("\n  ")
+                append(stream.value.id.toString().padEnd(12, ' '))
+                append(stream.value.size.toString().padEnd(12, ' '))
+                append(stream.value.format.name.padEnd(16, ' '))
+                append(stream.value.type.toString().padEnd(16, ' '))
+            }
+
+            // TODO: Add static configuration info.
+        }.toString()
     }
 }

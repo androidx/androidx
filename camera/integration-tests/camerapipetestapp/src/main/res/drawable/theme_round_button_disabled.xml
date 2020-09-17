@@ -15,11 +15,21 @@
   limitations under the License.
   -->
 
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
-    android:opacity="opaque">
-    <item android:drawable="@color/cameraPipeThemeBgDark100" />
-
-    <item
-        android:drawable="@drawable/ic_launcher_foreground"
-        android:gravity="center" />
-</layer-list>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="8dp"
+    android:shape="rectangle"
+    android:color="@color/cameraPipeThemeBtnOverlay100">
+    <solid
+        android:width="3dp"
+        android:color="@color/cameraPipeThemeBtnOverlay100" />
+    <padding
+        android:bottom="6dp"
+        android:left="20dp"
+        android:right="20dp"
+        android:top="6dp" />
+    <corners
+        android:bottomLeftRadius="25dp"
+        android:bottomRightRadius="25dp"
+        android:topLeftRadius="25dp"
+        android:topRightRadius="25dp" />
+</shape>
