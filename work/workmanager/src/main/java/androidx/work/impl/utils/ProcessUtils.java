@@ -24,6 +24,7 @@ import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.app.Application;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.os.Process;
 import android.text.TextUtils;
 
@@ -57,10 +58,12 @@ public class ProcessUtils {
             @NonNull Configuration configuration) {
 
         String processName = getProcessName(context);
+
         if (!TextUtils.isEmpty(configuration.getDefaultProcessName())) {
             return TextUtils.equals(processName, configuration.getDefaultProcessName());
         } else {
-            return TextUtils.equals(processName, context.getPackageName());
+            ApplicationInfo info = context.getApplicationInfo();
+            return TextUtils.equals(processName, info.processName);
         }
     }
 
