@@ -1191,7 +1191,15 @@ public class ViewDragHelper {
                     // If pointer is invalid then skip the ACTION_MOVE.
                     if (!isValidPointerForActionMove(mActivePointerId)) break;
 
+                    // If pointer index is not found then skip.
                     final int index = ev.findPointerIndex(mActivePointerId);
+                    if (index == -1) {
+                        Log.w(TAG, "Failed to find pointer index for active pointer ID "
+                                + mActivePointerId + ", which may indicate an inconsistent "
+                                + "MotionEvent stream");
+                        break;
+                    }
+
                     final float x = ev.getX(index);
                     final float y = ev.getY(index);
                     final int idx = (int) (x - mLastMotionX[mActivePointerId]);
