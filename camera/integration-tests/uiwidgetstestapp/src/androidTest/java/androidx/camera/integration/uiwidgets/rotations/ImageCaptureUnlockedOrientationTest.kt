@@ -24,10 +24,8 @@ import androidx.camera.integration.uiwidgets.rotations.CameraActivity.Companion.
 import androidx.camera.integration.uiwidgets.rotations.CameraActivity.Companion.IMAGE_CAPTURE_MODE_OUTPUT_STREAM
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
-import androidx.test.rule.GrantPermissionRule
 import org.junit.After
 import org.junit.Before
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.Parameterized
@@ -83,10 +81,6 @@ class ImageCaptureUnlockedOrientationTest(
             }
         }
     }
-
-    @get:Rule
-    val mCameraPermissionRule: GrantPermissionRule =
-        GrantPermissionRule.grant(*CameraActivity.PERMISSIONS)
 
     @Before
     fun before() {

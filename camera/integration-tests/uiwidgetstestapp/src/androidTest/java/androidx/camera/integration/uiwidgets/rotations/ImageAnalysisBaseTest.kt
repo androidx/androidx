@@ -17,14 +17,16 @@
 package androidx.camera.integration.uiwidgets.rotations
 
 import android.content.Intent
+import androidx.camera.core.CameraX
 import androidx.camera.testing.CameraUtil
 import androidx.camera.testing.CoreAppTestUtil
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.rule.GrantPermissionRule
 import androidx.test.uiautomator.UiDevice
 import androidx.testutils.withActivity
-import com.google.common.truth.Truth.assertThat
+import com.google.common.truth.Truth.assertWithMessage
 import org.junit.Assume
 import org.junit.Rule
 import org.junit.rules.TestRule
@@ -43,7 +45,11 @@ import java.util.concurrent.TimeUnit
 abstract class ImageAnalysisBaseTest<A : CameraActivity> {
 
     @get:Rule
-    val mUseCamera: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+    val mUseCameraRule: TestRule = CameraUtil.grantCameraPermissionAndPreTest()
+
+    @get:Rule
+    val mCameraActivityRules: GrantPermissionRule =
+        GrantPermissionRule.grant(*CameraActivity.PERMISSIONS)
 
     protected val mDevice: UiDevice =
         UiDevice.getInstance(InstrumentationRegistry.getInstrumentation())
@@ -58,6 +64,7 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity> {
     }
 
     protected fun tearDown() {
+        CameraX.shutdown().get()
         mDevice.unfreezeRotation()
     }
 
@@ -84,7 +91,12 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity> {
             val (sensorToTargetRotation, imageRotationDegrees) = scenario.withActivity {
                 Pair(getSensorRotationRelativeToAnalysisTargetRotation(), mAnalysisImageRotation)
             }
-            assertThat(sensorToTargetRotation).isEqualTo(imageRotationDegrees)
+            assertWithMessage(
+                "The image rotation degrees [$imageRotationDegrees] was expected to" +
+                        " be equal to [$sensorToTargetRotation]"
+            )
+                .that(imageRotationDegrees)
+                .isEqualTo(sensorToTargetRotation)
         }
     }
 
@@ -101,7 +113,9 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity> {
 
     protected inline fun <reified A : CameraActivity> ActivityScenario<A>.waitOnCameraFrames() {
         val analysisRunning = withActivity { mAnalysisRunning }
-        assertThat(analysisRunning.tryAcquire(IMAGES_COUNT, TIMEOUT, TimeUnit.SECONDS)).isTrue()
+        assertWithMessage("Timed out waiting on image analysis frames")
+            .that(analysisRunning.tryAcquire(IMAGES_COUNT, TIMEOUT, TimeUnit.SECONDS))
+            .isTrue()
     }
 
     protected inline fun <reified A : CameraActivity> ActivityScenario<A>.resetFramesCount() {
