@@ -18,10 +18,10 @@ package androidx.mediarouter.media;
 
 import android.content.Context;
 import android.content.IntentFilter;
-import android.util.ArrayMap;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.collection.ArrayMap;
 
 import java.util.ArrayList;
 import java.util.List;
