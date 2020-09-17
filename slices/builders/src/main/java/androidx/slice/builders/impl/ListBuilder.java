@@ -19,6 +19,7 @@ package androidx.slice.builders.impl;
 import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.app.PendingIntent;
+import android.os.PersistableBundle;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -146,9 +147,9 @@ public interface ListBuilder {
     /**
      * Sets additional information to be passed to the host of the slice.
      *
-     * @param key The name of the extra data
-     * @param value The String data value
+     * @param extras The Bundle of extras to add to this slice.
      */
-    void setHostExtra(@NonNull String key, @NonNull String value);
+    @RequiresApi(21)
+    void setHostExtras(@NonNull PersistableBundle extras);
 }
 

@@ -31,7 +31,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Handler;
+import android.os.PersistableBundle;
 import android.provider.Settings;
 import android.text.SpannableString;
 import android.text.TextUtils;
@@ -1397,11 +1399,7 @@ public class SampleSliceProvider extends SliceProvider {
     }
 
     private Slice createTtsSlice(Uri sliceUri) {
-        Slice slice = new ListBuilder(getContext(), sliceUri, INFINITY)
-                // Attach additional information for host. Depending on the host apps, this
-                // information might or might not be used.
-                // In this case, SliceBrowser is customized to play TTS when binding the slice.
-                .setHostExtra("tts", "hello world")
+        ListBuilder slice = new ListBuilder(getContext(), sliceUri, INFINITY)
                 .addRow(
                         new RowBuilder().setPrimaryAction(
                                 SliceAction.create(
@@ -1410,8 +1408,25 @@ public class SampleSliceProvider extends SliceProvider {
                                                 R.drawable.message),
                                         ICON_IMAGE, "TTS"
                                 )
-                        ).setTitle("Text to speech").setSubtitle("Play")).build();
-        return slice;
+                        ).setTitle("Text to speech").setSubtitle("Play"));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            SetHostExtraApi21Impl.setHostExtra(slice, "tts", "hello world");
+        }
+
+        return slice.build();
+    }
+
+    @RequiresApi(21)
+    private static class SetHostExtraApi21Impl {
+        private SetHostExtraApi21Impl() {}
+        static void setHostExtra(ListBuilder listBuilder, String key, String value) {
+            PersistableBundle extras = new PersistableBundle();
+            extras.putString("tts", "hello world");
+            // Attach additional information for host. Depending on the host apps, this
+            // information might or might not be used.
+            // In this case, SliceBrowser is customized to play TTS when binding the slice.
+            listBuilder.setHostExtras(extras);
+        }
     }
 
     private PendingIntent getIntent(String action) {

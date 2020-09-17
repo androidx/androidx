@@ -32,6 +32,7 @@ import static androidx.slice.core.SliceHints.SUBTYPE_MILLIS;
 
 import android.app.PendingIntent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 
 import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
@@ -243,11 +244,17 @@ public class ListBuilderBasicImpl extends TemplateBuilderImpl implements ListBui
     }
 
     @Override
-    public void setHostExtra(@NonNull String key, @NonNull String value) {
-        if (mHostExtras == null) {
-            mHostExtras = new Bundle();
+    @RequiresApi(21)
+    public void setHostExtras(@NonNull PersistableBundle extras) {
+        mHostExtras = ConvertPersistableBundleApi21Impl.toBundle(extras);
+    }
+
+    @RequiresApi(21)
+    private static class ConvertPersistableBundleApi21Impl {
+        private ConvertPersistableBundleApi21Impl() {}
+        static Bundle toBundle(@NonNull PersistableBundle extras) {
+            return new Bundle(extras);
         }
-        mHostExtras.putString(key, value);
     }
 
     /**
