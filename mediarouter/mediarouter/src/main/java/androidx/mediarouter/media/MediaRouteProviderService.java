@@ -70,6 +70,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -492,6 +493,14 @@ public abstract class MediaRouteProviderService extends Service {
         final ArrayList<ClientRecord> mClients = new ArrayList<ClientRecord>();
         MediaRouteDiscoveryRequest mCompositeDiscoveryRequest;
         MediaRouteDiscoveryRequest mBaseDiscoveryRequest;
+        long mBaseDiscoveryRequestTimestamp;
+        private final MediaRouterActiveScanThrottlingHelper mActiveScanThrottlingHelper =
+                new MediaRouterActiveScanThrottlingHelper(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateCompositeDiscoveryRequest();
+                    }
+                });
 
         MediaRouteProviderServiceImplBase(MediaRouteProviderService service) {
             mService = service;
@@ -863,8 +872,11 @@ public abstract class MediaRouteProviderService extends Service {
         }
 
         boolean setBaseDiscoveryRequest(MediaRouteDiscoveryRequest request) {
-            if (!ObjectsCompat.equals(mBaseDiscoveryRequest, request)) {
+            long timestamp = SystemClock.elapsedRealtime();
+            if (!ObjectsCompat.equals(mBaseDiscoveryRequest, request) || request.isActiveScan()) {
                 mBaseDiscoveryRequest = request;
+                mBaseDiscoveryRequestTimestamp = timestamp;
+
                 return updateCompositeDiscoveryRequest();
             }
             return false;
@@ -872,20 +884,24 @@ public abstract class MediaRouteProviderService extends Service {
 
         boolean updateCompositeDiscoveryRequest() {
             MediaRouteSelector.Builder selectorBuilder = null;
-            boolean activeScan = false;
+            mActiveScanThrottlingHelper.reset();
 
             if (mBaseDiscoveryRequest != null) {
-                activeScan = mBaseDiscoveryRequest.isActiveScan();
+                mActiveScanThrottlingHelper.requestActiveScan(
+                        mBaseDiscoveryRequest.isActiveScan(),
+                        mBaseDiscoveryRequestTimestamp);
                 selectorBuilder = new MediaRouteSelector.Builder(
                         mBaseDiscoveryRequest.getSelector());
             }
 
             final int count = mClients.size();
             for (int i = 0; i < count; i++) {
-                MediaRouteDiscoveryRequest request = mClients.get(i).mDiscoveryRequest;
+                ClientRecord clientRecord = mClients.get(i);
+                MediaRouteDiscoveryRequest request = clientRecord.mDiscoveryRequest;
                 if (request != null
                         && (!request.getSelector().isEmpty() || request.isActiveScan())) {
-                    activeScan |= request.isActiveScan();
+                    mActiveScanThrottlingHelper.requestActiveScan(request.isActiveScan(),
+                            clientRecord.mDiscoveryRequestTimestamp);
                     if (selectorBuilder == null) {
                         selectorBuilder = new MediaRouteSelector.Builder(request.getSelector());
                     } else {
@@ -894,6 +910,9 @@ public abstract class MediaRouteProviderService extends Service {
                 }
             }
 
+            boolean activeScan =
+                    mActiveScanThrottlingHelper
+                            .finalizeActiveScanAndScheduleSuppressActiveScanRunnable();
             MediaRouteDiscoveryRequest composite = (selectorBuilder == null) ? null
                     : new MediaRouteDiscoveryRequest(selectorBuilder.build(), activeScan);
             if (!ObjectsCompat.equals(mCompositeDiscoveryRequest, composite)) {
@@ -925,6 +944,7 @@ public abstract class MediaRouteProviderService extends Service {
             public final int mVersion;
             public final String mPackageName;
             public MediaRouteDiscoveryRequest mDiscoveryRequest;
+            public long mDiscoveryRequestTimestamp;
 
             final SparseArray<RouteController> mControllers = new SparseArray<>();
 
@@ -1023,10 +1043,13 @@ public abstract class MediaRouteProviderService extends Service {
             }
 
             public boolean setDiscoveryRequest(MediaRouteDiscoveryRequest request) {
+                long timestamp = SystemClock.elapsedRealtime();
                 if (!ObjectsCompat.equals(mDiscoveryRequest, request)) {
                     mDiscoveryRequest = request;
+                    mDiscoveryRequestTimestamp = timestamp;
                     return updateCompositeDiscoveryRequest();
                 }
+
                 return false;
             }
 
