@@ -24,7 +24,7 @@ usage() {
   echo "-Pandroidx.summarizeStderr"
   echo "  Run build_log_simplifier.py on failure to produce a summary of the build output"
   echo
-  echo "-Pandroidx.validateNoExtraMessages"
+  echo "-Pandroidx.validateNoUnrecognizedMessages"
   echo "  Run build_log_simplifier.py --validate on success to confirm that the build generated no unrecognized messages"
   exit 1
 }
@@ -37,9 +37,9 @@ summarizeOnFailure=false
 if [[ " ${@} " =~ " -Pandroidx.summarizeStderr " ]]; then
   summarizeOnFailure=true
 fi
-validateNoExtraMessagesOnSuccess=false
-if [[ " ${@} " =~ " -Pandroidx.validateNoExtraMessages " ]]; then
-  validateNoExtraMessagesOnSuccess=true
+validateNoUnrecognizedMessagesOnSuccess=false
+if [[ " ${@} " =~ " -Pandroidx.validateNoUnrecognizedMessages " ]]; then
+  validateNoUnrecognizedMessagesOnSuccess=true
 fi
 
 # run Gradle and save stdout and stderr into $logFile
@@ -66,14 +66,14 @@ programName="$1"
 shift
 echo Running "$programName" "$@"
 if "$programName" "$@" > >(tee -a "$logFile") 2>&1; then
-  echo "Succeeded: $*" >&2
-  if [ "$validateNoExtraMessagesOnSuccess" == "true" ]; then
+  echo "Succeeded: $programName $*" >&2
+  if [ "$validateNoUnrecognizedMessagesOnSuccess" == "true" ]; then
     echo "##########################################################################" >&2
     $SCRIPT_PATH/build_log_simplifier.py --validate $logFile >&2
   fi
 else
   echo >&2
-  echo "Failed: $*" >&2
+  echo "Failed: $programName $*" >&2
   echo "############################################################################" >&2
   echo "Attempting to locate the relevant error messages via build_log_simplifier.py" >&2
   echo "############################################################################" >&2

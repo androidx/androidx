@@ -199,6 +199,10 @@ def build_exemptions_matcher(config_lines):
             # skip comments
             continue
         regexes.append(line)
+        if remove_control_characters(line) != line:
+            raise Exception("Unexpected control characters found in configuration line:\n\n " +
+                "'" + line + "'\n\n. This line is unexpected to match anything. Is this a copying mistake?")
+
     return regexes_matcher(sorted(regexes))
 
 # Returns a regexes_matcher that matches the content of our config file
@@ -285,6 +289,22 @@ def collapse_tasks_having_no_output(lines):
                 pending_blanks = []
             result.append(line)
     return result
+
+# Removes color characters and other ANSI control characters from this input
+control_character_regex = re.compile(r"""
+        \x1B  # Escape
+        (?:   # 7-bit C1 Fe (except CSI)
+            [@-Z\\-_]
+        |     # or [ for CSI, followed by a control sequence
+            \[
+            [0-?]*  # Parameters
+            [ -/]*  # Intermediate bytes
+            [@-~]   # End
+        )
+        """, re.VERBOSE)
+
+def remove_control_characters(line):
+    return control_character_regex.sub("", line)
 
 # Normalizes some filepaths to more easily simplify/skip some messages
 def normalize_paths(lines):
@@ -434,6 +454,7 @@ def main():
     # read file
     log_path = arguments.log_path[0]
     lines = readlines(log_path)
+    lines = [remove_control_characters(line) for line in lines]
     lines = normalize_paths(lines)
     # load configuration
     exemption_regexes_from_file = readlines(get_exemptions_path())
@@ -470,7 +491,7 @@ def main():
     elif arguments.update:
         if len(lines) != 0:
             update_path = get_exemptions_path()
-            suggested = generate_suggested_exemptions(lines, configuration_lines)
+            suggested = generate_suggested_exemptions(lines, exemption_regexes_from_file)
             writelines(update_path, suggested)
             print("build_log_simplifier.py updated exemptions " + update_path)
     else:
