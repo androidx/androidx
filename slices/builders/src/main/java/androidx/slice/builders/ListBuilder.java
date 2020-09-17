@@ -23,6 +23,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.graphics.drawable.Icon;
 import android.net.Uri;
+import android.os.PersistableBundle;
 import android.view.View;
 
 import androidx.annotation.ColorInt;
@@ -385,12 +386,12 @@ public class ListBuilder extends TemplateSliceBuilder {
     /**
      * Sets additional information to be passed to the host of the slice.
      *
-     * @param key The name of the extra data
-     * @param value The String data value
+     * @param extras The Bundle of extras to add to this slice.
      */
     @NonNull
-    public ListBuilder setHostExtra(@NonNull String key, @NonNull String value) {
-        mImpl.setHostExtra(key, value);
+    @RequiresApi(21)
+    public ListBuilder setHostExtras(@NonNull PersistableBundle extras) {
+        mImpl.setHostExtras(extras);
         return this;
     }
 
