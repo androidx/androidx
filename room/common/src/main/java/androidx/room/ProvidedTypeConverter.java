@@ -23,6 +23,8 @@ import java.lang.annotation.Target;
 
 /**
  * Marks a class as a type converter that will be provided to Room at runtime.
+ * If Room uses the annotated type converter class, it will verify that it is provided in the builder and if not, will throw
+ * an exception.
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.CLASS)
