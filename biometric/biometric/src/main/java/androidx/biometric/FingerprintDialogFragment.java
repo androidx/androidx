@@ -133,12 +133,13 @@ public class FingerprintDialogFragment extends DialogFragment {
     /**
      * An icon shown on the dialog during authentication.
      */
-    private ImageView mFingerprintIcon;
+    @Nullable private ImageView mFingerprintIcon;
 
     /**
      * Help text shown below the fingerprint icon on the dialog.
      */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
+    @Nullable
     TextView mHelpMessageView;
 
     /**
@@ -179,22 +180,25 @@ public class FingerprintDialogFragment extends DialogFragment {
                 .inflate(R.layout.fingerprint_dialog_layout, null);
 
         final TextView subtitleView = layout.findViewById(R.id.fingerprint_subtitle);
-        final TextView descriptionView = layout.findViewById(R.id.fingerprint_description);
-
-        final CharSequence subtitle = mViewModel.getSubtitle();
-        if (TextUtils.isEmpty(subtitle)) {
-            subtitleView.setVisibility(View.GONE);
-        } else {
-            subtitleView.setVisibility(View.VISIBLE);
-            subtitleView.setText(subtitle);
+        if (subtitleView != null) {
+            final CharSequence subtitle = mViewModel.getSubtitle();
+            if (TextUtils.isEmpty(subtitle)) {
+                subtitleView.setVisibility(View.GONE);
+            } else {
+                subtitleView.setVisibility(View.VISIBLE);
+                subtitleView.setText(subtitle);
+            }
         }
 
-        final CharSequence description = mViewModel.getDescription();
-        if (TextUtils.isEmpty(description)) {
-            descriptionView.setVisibility(View.GONE);
-        } else {
-            descriptionView.setVisibility(View.VISIBLE);
-            descriptionView.setText(description);
+        final TextView descriptionView = layout.findViewById(R.id.fingerprint_description);
+        if (descriptionView != null) {
+            final CharSequence description = mViewModel.getDescription();
+            if (TextUtils.isEmpty(description)) {
+                descriptionView.setVisibility(View.GONE);
+            } else {
+                descriptionView.setVisibility(View.VISIBLE);
+                descriptionView.setText(description);
+            }
         }
 
         mFingerprintIcon = layout.findViewById(R.id.fingerprint_icon);
