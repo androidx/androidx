@@ -55,6 +55,7 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.`when`
 import org.mockito.Mockito.mock
+import org.mockito.Mockito.reset
 import org.mockito.Mockito.spy
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
@@ -201,7 +202,7 @@ class SystemForegroundDispatcherTest {
         verify(dispatcherCallback, times(1))
             .cancelNotification(secondId)
         assertThat(dispatcher.mForegroundInfoById.count(), `is`(1))
-
+        reset(dispatcherCallback)
         dispatcher.onExecuted(secondWorkSpecId, false)
         verify(dispatcherCallback, times(1))
             .cancelNotification(secondId)
