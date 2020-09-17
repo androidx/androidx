@@ -19,7 +19,6 @@ package androidx.camera.camera2;
 import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 
-import android.Manifest;
 import android.app.Instrumentation;
 import android.content.Context;
 import android.hardware.camera2.CameraCharacteristics;
@@ -41,7 +40,6 @@ import androidx.camera.testing.CameraUtil;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.filters.LargeTest;
 import androidx.test.platform.app.InstrumentationRegistry;
-import androidx.test.rule.GrantPermissionRule;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -49,6 +47,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -80,8 +79,7 @@ public class CameraControlDeviceTest {
     }
 
     @Rule
-    public GrantPermissionRule mRuntimePermissionRule = GrantPermissionRule.grant(
-            Manifest.permission.CAMERA);
+    public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
     private CameraUseCaseAdapter mCamera;
     private UseCase mBoundUseCase;
