@@ -37,6 +37,7 @@ import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
+import androidx.camera.camera2.internal.compat.quirk.CameraQuirks;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.Logger;
 import androidx.camera.core.Preview;
@@ -50,6 +51,7 @@ import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.LiveDataObservable;
 import androidx.camera.core.impl.Observable;
+import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.SessionConfig.ValidatingBuilder;
 import androidx.camera.core.impl.UseCaseAttachState;
@@ -166,6 +168,9 @@ final class Camera2CameraImpl implements CameraInternal {
     private final SynchronizedCaptureSessionOpener.Builder mCaptureSessionOpenerBuilder;
     private final Set<String> mNotifyStateAttachedSet = new HashSet<>();
 
+    @NonNull
+    private final Quirks mCameraQuirks;
+
     /**
      * Constructor for a camera.
      *
@@ -197,6 +202,7 @@ final class Camera2CameraImpl implements CameraInternal {
         try {
             CameraCharacteristicsCompat cameraCharacteristicsCompat =
                     mCameraManager.getCameraCharacteristicsCompat(cameraId);
+            mCameraQuirks = CameraQuirks.get(cameraId, cameraCharacteristicsCompat);
             mCameraControlInternal = new Camera2CameraControlImpl(cameraCharacteristicsCompat,
                     executorScheduler, mExecutor, new ControlUpdateListenerInternal());
             mCameraInfoInternal = new Camera2CameraInfoImpl(
@@ -866,6 +872,13 @@ final class Camera2CameraImpl implements CameraInternal {
     @Override
     public CameraInfoInternal getCameraInfoInternal() {
         return mCameraInfoInternal;
+    }
+
+    /** {@inheritDoc} */
+    @NonNull
+    @Override
+    public Quirks getCameraQuirks() {
+        return mCameraQuirks;
     }
 
     /** Opens the camera device */
