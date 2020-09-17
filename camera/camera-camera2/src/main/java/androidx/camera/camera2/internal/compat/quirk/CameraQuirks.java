@@ -47,6 +47,9 @@ public class CameraQuirks {
             @NonNull final CameraCharacteristicsCompat cameraCharacteristicsCompat) {
         final List<Quirk> quirks = new ArrayList<>();
         // Go through all defined camera quirks, and add them to `quirks` if they should be loaded
+        if (AeFpsRangeLegacyQuirk.load(cameraCharacteristicsCompat)) {
+            quirks.add(new AeFpsRangeLegacyQuirk(cameraCharacteristicsCompat));
+        }
         return new Quirks(quirks);
     }
 }

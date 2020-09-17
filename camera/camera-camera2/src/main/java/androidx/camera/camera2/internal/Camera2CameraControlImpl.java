@@ -37,6 +37,7 @@ import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.internal.compat.workaround.AeFpsRange;
 import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
@@ -48,6 +49,7 @@ import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.Config;
+import androidx.camera.core.impl.Quirks;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.annotation.ExecutedBy;
 import androidx.camera.core.impl.utils.futures.Futures;
@@ -56,6 +58,7 @@ import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -123,6 +126,15 @@ final class Camera2CameraControlImpl implements CameraControlInternal {
             new CameraCaptureCallbackSet();
     //**************************************************************************************//
 
+    @VisibleForTesting
+    Camera2CameraControlImpl(@NonNull CameraCharacteristicsCompat cameraCharacteristics,
+            @NonNull ScheduledExecutorService scheduler,
+            @NonNull @CameraExecutor Executor executor,
+            @NonNull ControlUpdateCallback controlUpdateCallback) {
+        this(cameraCharacteristics, scheduler, executor, controlUpdateCallback,
+                new Quirks(new ArrayList<>()));
+    }
+
     /**
      * Constructor for a Camera2CameraControlImpl.
      *
@@ -134,11 +146,13 @@ final class Camera2CameraControlImpl implements CameraControlInternal {
      * @param scheduler             Scheduler used for scheduling tasks in the future.
      * @param executor              Camera executor for synchronizing and offloading all commands.
      * @param controlUpdateCallback Listener which will be notified of control changes.
+     * @param cameraQuirks          Camera-related quirks of the camera being controlled
      */
     Camera2CameraControlImpl(@NonNull CameraCharacteristicsCompat cameraCharacteristics,
             @NonNull ScheduledExecutorService scheduler,
             @NonNull @CameraExecutor Executor executor,
-            @NonNull ControlUpdateCallback controlUpdateCallback) {
+            @NonNull ControlUpdateCallback controlUpdateCallback,
+            @NonNull final Quirks cameraQuirks) {
         mCameraCharacteristics = cameraCharacteristics;
         mControlUpdateCallback = controlUpdateCallback;
         mExecutor = executor;
@@ -155,7 +169,7 @@ final class Camera2CameraControlImpl implements CameraControlInternal {
         mFocusMeteringControl = new FocusMeteringControl(this, scheduler, mExecutor);
         mZoomControl = new ZoomControl(this, mCameraCharacteristics, mExecutor);
         mTorchControl = new TorchControl(this, mCameraCharacteristics, mExecutor);
-        mAeFpsRange = new AeFpsRange(mCameraCharacteristics);
+        mAeFpsRange = new AeFpsRange(cameraQuirks);
 
         // Initialize the session config
         mExecutor.execute(this::updateSessionConfig);
