@@ -43,3 +43,11 @@ androidx {
     inceptionYear = "2019"
     description = "AppCompat Lint Checks"
 }
+
+jar {
+    manifest {
+        // Only use the "-v2" key here if your checks have been updated to the
+        // new 3.0 APIs (including UAST)
+        attributes("Lint-Registry-v2": "androidx.appcompat.AppCompatIssueRegistry")
+    }
+}
