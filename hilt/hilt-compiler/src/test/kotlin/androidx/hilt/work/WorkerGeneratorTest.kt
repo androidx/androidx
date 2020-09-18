@@ -94,8 +94,10 @@ class WorkerGeneratorTest {
         """.toJFO("androidx.hilt.work.test.MyWorker_AssistedFactory")
 
         val compilation = compiler()
-            .compile(foo, myWorker, Sources.LISTENABLE_WORKER, Sources.WORKER,
-                Sources.WORKER_PARAMETERS)
+            .compile(
+                foo, myWorker, Sources.LISTENABLE_WORKER, Sources.WORKER,
+                Sources.WORKER_PARAMETERS
+            )
         assertThat(compilation).apply {
             succeeded()
             generatedSourceFile("androidx.hilt.work.test.MyWorker_AssistedFactory")

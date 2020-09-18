@@ -48,8 +48,10 @@ class WorkerInjectStepTest {
         assertThat(compilation).apply {
             failed()
             hadErrorCount(1)
-            hadErrorContainingMatch("@WorkerInject is only supported on types that subclass " +
-                        "androidx.work.ListenableWorker.")
+            hadErrorContainingMatch(
+                "@WorkerInject is only supported on types that subclass " +
+                    "androidx.work.ListenableWorker."
+            )
         }
     }
 
@@ -111,8 +113,10 @@ class WorkerInjectStepTest {
         assertThat(compilation).apply {
             failed()
             hadErrorCount(1)
-            hadErrorContainingMatch("@WorkerInject annotated constructors must not be " +
-                        "private.")
+            hadErrorContainingMatch(
+                "@WorkerInject annotated constructors must not be " +
+                    "private."
+            )
         }
     }
 
@@ -142,8 +146,10 @@ class WorkerInjectStepTest {
         assertThat(compilation).apply {
             failed()
             hadErrorCount(1)
-            hadErrorContainingMatch("@WorkerInject may only be used on inner classes " +
-                        "if they are static.")
+            hadErrorContainingMatch(
+                "@WorkerInject may only be used on inner classes " +
+                    "if they are static."
+            )
         }
     }
 }
