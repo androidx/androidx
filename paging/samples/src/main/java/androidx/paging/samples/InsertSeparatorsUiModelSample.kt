@@ -146,6 +146,6 @@ fun insertSeparatorsUiModelFutureSample() {
                         null
                     }
                 }, executor)
-            })
+            }, executor)
     }
 }
