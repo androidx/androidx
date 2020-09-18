@@ -20,6 +20,10 @@ import static androidx.appsearch.app.AppSearchManager.GetDocumentsRequest;
 import static androidx.appsearch.app.AppSearchManager.PutDocumentsRequest;
 import static androidx.appsearch.app.AppSearchManager.RemoveDocumentsRequest;
 import static androidx.appsearch.app.AppSearchManager.SetSchemaRequest;
+import static androidx.appsearch.app.AppSearchTestUtils.checkIsBatchResultSuccess;
+import static androidx.appsearch.app.AppSearchTestUtils.checkIsResultSuccess;
+import static androidx.appsearch.app.AppSearchTestUtils.doGet;
+import static androidx.appsearch.app.AppSearchTestUtils.doQuery;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -32,8 +36,6 @@ import androidx.appsearch.app.customer.EmailDataClass;
 import androidx.appsearch.localbackend.LocalBackend;
 import androidx.test.core.app.ApplicationProvider;
 
-import junit.framework.AssertionFailedError;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -41,7 +43,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Future;
 
 public class AppSearchManagerTest {
     private AppSearchManager mDb1;
@@ -1058,58 +1059,5 @@ public class AppSearchManagerTest {
         e = assertThrows(IllegalArgumentException.class,
                 () -> appSearchBuilder.setDatabaseName("/testDatabaseNameStartWith"));
         assertThat(e).hasMessageThat().isEqualTo("Database name cannot contain '/'");
-    }
-
-    private static List<GenericDocument> doGet(
-            AppSearchManager instance, String namespace, String... uris) throws Exception {
-        AppSearchBatchResult<String, GenericDocument> result = checkIsBatchResultSuccess(
-                instance.getDocuments(new GetDocumentsRequest.Builder()
-                        .setNamespace(namespace).addUris(uris).build()));
-        assertThat(result.getSuccesses()).hasSize(uris.length);
-        assertThat(result.getFailures()).isEmpty();
-        List<GenericDocument> list = new ArrayList<>(uris.length);
-        for (String uri : uris) {
-            list.add(result.getSuccesses().get(uri));
-        }
-        return list;
-    }
-
-    private List<GenericDocument> doQuery(
-            AppSearchManager instance, String queryExpression, SearchSpec spec)
-            throws Exception {
-        SearchResults searchResults = instance.query(queryExpression, spec);
-        List<SearchResults.Result> results = checkIsResultSuccess(searchResults.getNextPage());
-        List<GenericDocument> documents = new ArrayList<>();
-        while (results.size() > 0) {
-            for (SearchResults.Result result : results) {
-                documents.add(result.getDocument());
-            }
-            results = checkIsResultSuccess(searchResults.getNextPage());
-        }
-        return documents;
-    }
-
-    private List<GenericDocument> doQuery(AppSearchManager instance, String queryExpression)
-            throws Exception {
-        return doQuery(instance, queryExpression, new SearchSpec.Builder()
-                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
-                .build());
-    }
-
-    private static <K, V> AppSearchBatchResult<K, V> checkIsBatchResultSuccess(
-            Future<AppSearchBatchResult<K, V>> future) throws Exception {
-        AppSearchBatchResult<K, V> result = future.get();
-        if (!result.isSuccess()) {
-            throw new AssertionFailedError("AppSearchBatchResult not successful: " + result);
-        }
-        return result;
-    }
-
-    private static <V> V checkIsResultSuccess(Future<AppSearchResult<V>> future) throws Exception {
-        AppSearchResult<V> result = future.get();
-        if (!result.isSuccess()) {
-            throw new AssertionFailedError("AppSearchResult not successful: " + result);
-        }
-        return result.getResultValue();
     }
 }

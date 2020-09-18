@@ -446,7 +446,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (collectLongCopy != null) {
       collectLongConv = new ArrayList<>(collectLongCopy.length);
       for (int i = 0; i < collectLongCopy.length; i++) {
-        collectLongConv.set(i, collectLongCopy[i]);
+        collectLongConv.add(collectLongCopy[i]);
       }
     }
     long[] collectIntegerCopy = genericDoc.getPropertyLongArray("collectInteger");
@@ -454,7 +454,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (collectIntegerCopy != null) {
       collectIntegerConv = new ArrayList<>(collectIntegerCopy.length);
       for (int i = 0; i < collectIntegerCopy.length; i++) {
-        collectIntegerConv.set(i, collectIntegerCopy[i]);
+        collectIntegerConv.add(collectIntegerCopy[i]);
       }
     }
     double[] collectDoubleCopy = genericDoc.getPropertyDoubleArray("collectDouble");
@@ -462,7 +462,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (collectDoubleCopy != null) {
       collectDoubleConv = new ArrayList<>(collectDoubleCopy.length);
       for (int i = 0; i < collectDoubleCopy.length; i++) {
-        collectDoubleConv.set(i, collectDoubleCopy[i]);
+        collectDoubleConv.add(collectDoubleCopy[i]);
       }
     }
     double[] collectFloatCopy = genericDoc.getPropertyDoubleArray("collectFloat");
@@ -470,7 +470,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (collectFloatCopy != null) {
       collectFloatConv = new ArrayList<>(collectFloatCopy.length);
       for (int i = 0; i < collectFloatCopy.length; i++) {
-        collectFloatConv.set(i, collectFloatCopy[i]);
+        collectFloatConv.add(collectFloatCopy[i]);
       }
     }
     boolean[] collectBooleanCopy = genericDoc.getPropertyBooleanArray("collectBoolean");
@@ -478,7 +478,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (collectBooleanCopy != null) {
       collectBooleanConv = new ArrayList<>(collectBooleanCopy.length);
       for (int i = 0; i < collectBooleanCopy.length; i++) {
-        collectBooleanConv.set(i, collectBooleanCopy[i]);
+        collectBooleanConv.add(collectBooleanCopy[i]);
       }
     }
     byte[][] collectByteArrCopy = genericDoc.getPropertyBytesArray("collectByteArr");
@@ -486,7 +486,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (collectByteArrCopy != null) {
       collectByteArrConv = new ArrayList<>(collectByteArrCopy.length);
       for (int i = 0; i < collectByteArrCopy.length; i++) {
-        collectByteArrConv.set(i, collectByteArrCopy[i]);
+        collectByteArrConv.add(collectByteArrCopy[i]);
       }
     }
     String[] collectStringCopy = genericDoc.getPropertyStringArray("collectString");
@@ -559,7 +559,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     }
     boolean[] arrUnboxBooleanConv = genericDoc.getPropertyBooleanArray("arrUnboxBoolean");
     byte[][] arrUnboxByteArrConv = genericDoc.getPropertyBytesArray("arrUnboxByteArr");
-    byte[][] boxByteArrCopy = genericDoc.getPropertyBytesArray("boxByteArr");
+    byte[] boxByteArrCopy = genericDoc.getPropertyBytes("boxByteArr");
     Byte[] boxByteArrConv = null;
     if (boxByteArrCopy != null) {
       boxByteArrConv = new Byte[boxByteArrCopy.length];

@@ -72,8 +72,26 @@ class CodeGenerator {
         JavaFile.builder(mOutputPackage, mOutputClass).build().writeTo(folder);
     }
 
+    /**
+     * Creates factory class for any class annotated with
+     * {@link androidx.appsearch.annotation.AppSearchDocument}
+     * <p>Class Example 1:
+     *   For a class Foo annotated with @AppSearchDocument, we will generated a
+     *   $$__AppSearch__Foo.class under the output package.
+     * <p>Class Example 2:
+     *   For an inner class Foo.Bar annotated with @AppSearchDocument, we will generated a
+     *   $$__AppSearch__Foo$$__Bar.class under the output package.
+     */
     private TypeSpec createClass() throws ProcessingException {
-        String genClassName = GEN_CLASS_PREFIX + mModel.getClassElement().getSimpleName();
+        // Gets the full name of target class.
+        String qualifiedName = mModel.getClassElement().getQualifiedName().toString();
+        String packageName = mOutputPackage + ".";
+
+        // Creates the name of output class. $$__AppSearch__Foo for Foo, $$__AppSearch__Foo$$__Bar
+        // for inner class Foo.Bar.
+        String genClassName = GEN_CLASS_PREFIX
+                + qualifiedName.substring(packageName.length()).replace(".", "$$__");
+
         TypeName genClassType = TypeName.get(mModel.getClassElement().asType());
         TypeName factoryType = ParameterizedTypeName.get(
                 mHelper.getAppSearchClass("DataClassFactory"),

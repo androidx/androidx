@@ -109,12 +109,19 @@ public final class DataClassFactoryRegistry {
                     "Failed to find simple name for data class \"" + dataClass
                             + "\". Perhaps it is anonymous?");
         }
+
+        // Creates factory class name under the package.
+        // For a class Foo annotated with @AppSearchDocument, we will generated a
+        // $$__AppSearch__Foo.class under the package.
+        // For an inner class Foo.Bar annotated with @AppSearchDocument, we will generated a
+        // $$__AppSearch__Foo$$__Bar.class under the package.
         String packageName = "";
         if (pkg != null) {
             packageName = pkg.getName() + ".";
-            simpleName = simpleName.substring(packageName.length());
+            simpleName = simpleName.substring(packageName.length()).replace(".", "$$__");
         }
         String factoryClassName = packageName + GEN_CLASS_PREFIX + simpleName;
+
         Class<?> factoryClass;
         try {
             factoryClass = Class.forName(factoryClassName);
