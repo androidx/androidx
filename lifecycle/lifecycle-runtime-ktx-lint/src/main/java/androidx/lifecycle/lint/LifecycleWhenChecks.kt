@@ -50,8 +50,10 @@ import org.jetbrains.uast.visitor.UastVisitor
 import java.util.ArrayDeque
 
 // both old and new ones
-private val CONTINUATION_NAMES = setOf("kotlin.coroutines.Continuation<? super kotlin.Unit>",
-    "kotlin.coroutines.experimental.Continuation<? super kotlin.Unit>")
+private val CONTINUATION_NAMES = setOf(
+    "kotlin.coroutines.Continuation<? super kotlin.Unit>",
+    "kotlin.coroutines.experimental.Continuation<? super kotlin.Unit>"
+)
 
 internal fun errorMessage(whenMethodName: String) =
     "Unsafe View access from finally/catch block inside of `Lifecycle.$whenMethodName` scope"
@@ -77,7 +79,7 @@ class LifecycleWhenChecks : Detector(), SourceCodeScanner {
         val ISSUE = Issue.create(
             id = "UnsafeLifecycleWhenUsage",
             briefDescription = "Unsafe UI operation in finally/catch of " +
-                    "Lifecycle.whenStarted of similar method",
+                "Lifecycle.whenStarted of similar method",
             explanation = """If the `Lifecycle` is destroyed within the block of \
                     `Lifecycle.whenStarted` or any similar `Lifecycle.when` method is suspended, \
                     the block will be cancelled, which will also cancel any child coroutine \
@@ -193,8 +195,8 @@ private const val LIFECYCLE_CLASS_NAME = "androidx.lifecycle.Lifecycle"
 
 private fun PsiMethod.isLifecycleWhenExtension(context: JavaContext): Boolean {
     return name in APPLICABLE_METHOD_NAMES &&
-            context.evaluator.isMemberInClass(this, DISPATCHER_CLASS_NAME) &&
-            context.evaluator.isStatic(this)
+        context.evaluator.isMemberInClass(this, DISPATCHER_CLASS_NAME) &&
+        context.evaluator.isStatic(this)
 }
 
 private fun PsiMethod.isLifecycleIsAtLeastMethod(context: JavaContext): Boolean {

@@ -64,8 +64,10 @@ class WithLifecycleStateTest {
             owner.withStarted {}
         }
 
-        assertTrue("withStarted threw LifecycleDestroyedException",
-            result.exceptionOrNull() is LifecycleDestroyedException)
+        assertTrue(
+            "withStarted threw LifecycleDestroyedException",
+            result.exceptionOrNull() is LifecycleDestroyedException
+        )
     }
 
     @Test
@@ -84,7 +86,9 @@ class WithLifecycleStateTest {
 
         owner.setState(Lifecycle.State.DESTROYED)
 
-        assertTrue("result threw LifecycleDestroyedException",
-            resultTask.await().exceptionOrNull() is LifecycleDestroyedException)
+        assertTrue(
+            "result threw LifecycleDestroyedException",
+            resultTask.await().exceptionOrNull() is LifecycleDestroyedException
+        )
     }
 }

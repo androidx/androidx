@@ -31,7 +31,8 @@ class TransformationsTest {
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
     private val lifecycleOwner = TestLifecycleOwner(
-        coroutineDispatcher = TestCoroutineDispatcher())
+        coroutineDispatcher = TestCoroutineDispatcher()
+    )
 
     @Test fun map() {
         val source = MutableLiveData<String>()
