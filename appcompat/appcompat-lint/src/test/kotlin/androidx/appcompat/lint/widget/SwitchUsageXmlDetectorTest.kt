@@ -71,12 +71,14 @@ class SwitchUsageXmlDetectorTest {
             layout
         ).issues(SwitchUsageXmlDetector.USING_CORE_SWITCH_XML)
             .run()
-            .expect("""
+            .expect(
+                """
 res/layout/switch.xml:6: Warning: Use SwitchCompat from AppCompat or SwitchMaterial from Material library [UseSwitchCompatOrMaterialXml]
     <Switch
     ^
 0 errors, 1 warnings
-         """.trimIndent())
+                """.trimIndent()
+            )
         /* ktlint-enable max-line-length */
     }
 }

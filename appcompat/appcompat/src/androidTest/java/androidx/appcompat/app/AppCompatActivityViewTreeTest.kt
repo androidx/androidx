@@ -32,7 +32,8 @@ class AppCompatActivityViewTreeTest {
     @Suppress("DEPRECATION")
     @get:Rule
     val activityRule = androidx.test.rule.ActivityTestRule<AppCompatInflaterDefaultActivity>(
-        AppCompatInflaterDefaultActivity::class.java)
+        AppCompatInflaterDefaultActivity::class.java
+    )
 
     @Test
     fun queryViewTreeLifecycleTest() {

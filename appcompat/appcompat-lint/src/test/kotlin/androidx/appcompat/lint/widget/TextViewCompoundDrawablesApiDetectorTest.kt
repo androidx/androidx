@@ -52,12 +52,14 @@ class TextViewCompoundDrawablesApiDetectorTest {
             customActivity
         ).issues(TextViewCompoundDrawablesApiDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_APIS)
             .run()
-            .expect("""
+            .expect(
+                """
 src/com/example/CustomActivity.kt:11: Warning: Use TextViewCompat.setCompoundDrawableTintList() [UseCompatTextViewDrawableApis]
         textView.setCompoundDrawableTintList(csl)
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
-            """.trimIndent())
+                """.trimIndent()
+            )
         /* ktlint-enable max-line-length */
     }
 
@@ -90,12 +92,14 @@ src/com/example/CustomActivity.kt:11: Warning: Use TextViewCompat.setCompoundDra
             customActivity
         ).issues(TextViewCompoundDrawablesApiDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_APIS)
             .run()
-            .expect("""
+            .expect(
+                """
 src/com/example/CustomActivity.kt:11: Warning: Use TextViewCompat.setCompoundDrawableTintMode() [UseCompatTextViewDrawableApis]
         textView.setCompoundDrawableTintMode(PorterDuff.Mode.DST)
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
-            """.trimIndent())
+                """.trimIndent()
+            )
         /* ktlint-enable max-line-length */
     }
 }

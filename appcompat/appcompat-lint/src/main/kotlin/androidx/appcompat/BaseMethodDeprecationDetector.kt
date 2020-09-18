@@ -86,7 +86,8 @@ abstract class BaseMethodDeprecationDetector(
             method: PsiMethod
         ): Boolean {
             return context.evaluator.extendsClass(
-                (node.receiverType as? PsiClassType)?.resolve(), superClass, false)
+                (node.receiverType as? PsiClassType)?.resolve(), superClass, false
+            )
         }
     }
 

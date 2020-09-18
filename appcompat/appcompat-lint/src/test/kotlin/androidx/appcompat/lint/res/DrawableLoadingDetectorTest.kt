@@ -84,12 +84,14 @@ class DrawableLoadingDetectorTest {
             customActivity
         ).issues(DrawableLoadingDetector.NOT_USING_COMPAT_LOADING)
             .run()
-            .expect("""
+            .expect(
+                """
 src/com/example/CustomActivity.kt:9: Warning: Use AppCompatResources.getDrawable() [UseCompatLoadingForDrawables]
         getDrawable(android.R.drawable.ic_delete)
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
-            """.trimIndent())
+                """.trimIndent()
+            )
         /* ktlint-enable max-line-length */
     }
 
@@ -119,12 +121,14 @@ src/com/example/CustomActivity.kt:9: Warning: Use AppCompatResources.getDrawable
             customActivity
         ).issues(DrawableLoadingDetector.NOT_USING_COMPAT_LOADING)
             .run()
-            .expect("""
+            .expect(
+                """
 src/com/example/CustomActivity.kt:9: Warning: Use ResourcesCompat.getDrawable() [UseCompatLoadingForDrawables]
         getResources().getDrawable(android.R.drawable.ic_delete)
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
-            """.trimIndent())
+                """.trimIndent()
+            )
         /* ktlint-enable max-line-length */
     }
 
@@ -154,12 +158,14 @@ src/com/example/CustomActivity.kt:9: Warning: Use ResourcesCompat.getDrawable() 
             customActivity
         ).issues(DrawableLoadingDetector.NOT_USING_COMPAT_LOADING)
             .run()
-            .expect("""
+            .expect(
+                """
 src/com/example/CustomActivity.kt:9: Warning: Use ResourcesCompat.getDrawable() [UseCompatLoadingForDrawables]
         getResources().getDrawable(android.R.drawable.ic_delete, getTheme())
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
-            """.trimIndent())
+                """.trimIndent()
+            )
         /* ktlint-enable max-line-length */
     }
 }

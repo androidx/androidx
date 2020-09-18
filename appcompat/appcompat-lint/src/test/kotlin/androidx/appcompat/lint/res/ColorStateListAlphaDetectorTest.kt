@@ -32,17 +32,21 @@ class ColorStateListAlphaDetectorTest {
             Stubs.COLOR_STATE_LIST
         ).issues(ColorStateListAlphaDetector.NOT_USING_ANDROID_ALPHA)
             .run()
-            .expect("""
+            .expect(
+                """
 res/color/color_state_list.xml:4: Error: Must use android:alpha if app:alpha is used [UseAndroidAlpha]
     <item app:alpha="?android:disabledAlpha"
           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
-         """.trimIndent())
-            .expectFixDiffs("""
+                """.trimIndent()
+            )
+            .expectFixDiffs(
+                """
 Fix for res/color/color_state_list.xml line 4: Set alpha="?android:disabledAlpha":
 @@ -6 +6
 +         android:alpha="?android:disabledAlpha"
-            """.trimIndent())
+                """.trimIndent()
+            )
         /* ktlint-enable max-line-length */
     }
 }
