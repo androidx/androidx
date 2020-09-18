@@ -16,14 +16,15 @@
 
 package androidx.appsearch.localbackend;
 
-import android.content.Context;
 import android.util.Log;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.annotation.WorkerThread;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.exceptions.AppSearchException;
 
@@ -52,66 +53,67 @@ import com.google.android.icing.proto.SearchSpecProto;
 import com.google.android.icing.proto.SetSchemaResultProto;
 import com.google.android.icing.proto.StatusProto;
 
-import java.io.IOException;
+import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 
 /**
  * Manages interaction with the native IcingSearchEngine and other components to implement AppSearch
  * functionality.
  *
- * <p>Callers should use {@link #getInstance} to retrieve the singleton instance and call
- * {@link #initialize} before using the class.
+ * <p>Callers should call {@link #initialize} before using the AppSearchImpl instance. Never create
+ * two instances using the same folder.
  *
- * <p>The singleton instance of {@link AppSearchImpl} supports all instances of
- * {@link androidx.appsearch.app.AppSearchManager} with different database name. All logically
- * isolated schemas and documents will be physically saved together in IcingSearchEngine.
- * The way to isolated those schemas and documents for different database:
+ * <p>A single instance of {@link AppSearchImpl} can support all databases. Schemas and documents
+ * are physically saved together in {@link IcingSearchEngine}, but logically isolated:
  * <ul>
  *      <li>Rewrite SchemaType in SchemaProto by adding database name prefix and save into
- *          SchemaTypes set in {@link #setSchema(String, SchemaProto, boolean)}.
+ *          SchemaTypes set in {@link #setSchema}.
  *      <li>Rewrite namespace and SchemaType in DocumentProto by adding database name prefix and
- *          save to namespaces set in {@link #putDocument(String, DocumentProto)}.
- *      <li>Remove database name prefix when retrieve documents in
- *          {@link #getDocument(String, String, String)}, and
- *          {@link #query(String, SearchSpecProto, ResultSpecProto, ScoringSpecProto)}.
+ *          save to namespaces set in {@link #putDocument}.
+ *      <li>Remove database name prefix when retrieve documents in {@link #getDocument} and
+ *          {@link #query}.
  *      <li>Rewrite filters in {@link SearchSpecProto} to have all namespaces and schema types of
- *          the queried database when user using empty filters in
- *          {@link #query(String, SearchSpecProto, ResultSpecProto, ScoringSpecProto)}.
+ *          the queried database when user using empty filters in {@link #query}.
  * </ul>
  *
  * <p>Methods in this class belong to two groups, the query group and the mutate group.
  * <ul>
- *     <li>All methods are going to modify global parameters and data in Icing should be executed
- *     under WRITE lock to keep thread safety.
- *     <li>All methods are going to access global parameters or query data from Icing
- *     should be executed under READ lock to improve query performance.
+ *     <li>All methods are going to modify global parameters and data in Icing are executed under
+ *         WRITE lock to keep thread safety.
+ *     <li>All methods are going to access global parameters or query data from Icing are executed
+ *         under READ lock to improve query performance.
  * </ul>
+ *
+ * <p>This class is thread safe.
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@WorkerThread
 public final class AppSearchImpl {
-    private static volatile AppSearchImpl sInstance;
     private static final String TAG = "AppSearchImpl";
-    private static final String ICING_DIR = "/icing";
+
     @VisibleForTesting
     static final int OPTIMIZE_THRESHOLD_DOC_COUNT = 1000;
     @VisibleForTesting
     static final int OPTIMIZE_THRESHOLD_BYTES = 1_000_000; // 1MB
     @VisibleForTesting
     static final int CHECK_OPTIMIZE_INTERVAL = 100;
-    private final ReentrantReadWriteLock mReadWriteLock = new ReentrantReadWriteLock();
+
+    private final ReadWriteLock mReadWriteLock = new ReentrantReadWriteLock();
     private final CountDownLatch mInitCompleteLatch = new CountDownLatch(1);
+    private final File mIcingDir;
+    private IcingSearchEngine mIcingSearchEngine;
+
     // The map contains schemaTypes and namespaces for all database. All values in the map have
     // been already added database name prefix.
-    private final HashMap<String, Set<String>> mSchemaMap = new HashMap<>();
-    private final HashMap<String, Set<String>> mNamespaceMap = new HashMap<>();
-    private IcingSearchEngine mIcingSearchEngine;
-    private volatile boolean mInitialized = false;
+    private final Map<String, Set<String>> mSchemaMap = new HashMap<>();
+    private final Map<String, Set<String>> mNamespaceMap = new HashMap<>();
 
     /**
      * The counter to check when to call {@link #checkForOptimize(boolean)}. The interval is
@@ -119,20 +121,10 @@ public final class AppSearchImpl {
      */
     private int mOptimizeIntervalCount = 0;
 
-    /** Gets the singleton instance of {@link AppSearchImpl} */
-    @NonNull
-    public static AppSearchImpl getInstance() {
-        if (sInstance == null) {
-            synchronized (AppSearchImpl.class) {
-                if (sInstance == null) {
-                    sInstance = new AppSearchImpl();
-                }
-            }
-        }
-        return sInstance;
-    }
-
-    private AppSearchImpl() {
+    /** Creates an instance of {@link AppSearchImpl} which writes data to the given folder. */
+    @AnyThread
+    public AppSearchImpl(@NonNull File icingDir) {
+        mIcingDir = icingDir;
     }
 
     /**
@@ -140,10 +132,9 @@ public final class AppSearchImpl {
      *
      * <p>This method belongs to mutate group.
      *
-     * @throws IOException        on error opening directory.
      * @throws AppSearchException on IcingSearchEngine error.
      */
-    public void initialize(@NonNull Context context) throws IOException, AppSearchException {
+    public void initialize() throws AppSearchException {
         if (isInitialized()) {
             return;
         }
@@ -155,9 +146,8 @@ public final class AppSearchImpl {
             if (isInitialized()) {
                 return;
             }
-
-            IcingSearchEngineOptions options = IcingSearchEngineOptions.newBuilder().setBaseDir(
-                    context.getFilesDir().getCanonicalPath() + ICING_DIR).build();
+            IcingSearchEngineOptions options = IcingSearchEngineOptions.newBuilder()
+                    .setBaseDir(mIcingDir.getAbsolutePath()).build();
             mIcingSearchEngine = new IcingSearchEngine(options);
 
             InitializeResultProto initializeResultProto = mIcingSearchEngine.initialize();
@@ -180,7 +170,6 @@ public final class AppSearchImpl {
             for (String qualifiedNamespace : getAllNamespacesResultProto.getNamespacesList()) {
                 addToMap(mNamespaceMap, getDatabaseName(qualifiedNamespace), qualifiedNamespace);
             }
-            mInitialized = true;
             mInitCompleteLatch.countDown();
             if (!isReset) {
                 checkForOptimize(/* force= */ true);
@@ -191,8 +180,9 @@ public final class AppSearchImpl {
     }
 
     /** Checks if the internal state of {@link AppSearchImpl} has been initialized. */
+    @AnyThread
     public boolean isInitialized() {
-        return mInitialized;
+        return mInitCompleteLatch.getCount() == 0;
     }
 
     /**
@@ -209,7 +199,7 @@ public final class AppSearchImpl {
      */
     public void setSchema(@NonNull String databaseName, @NonNull SchemaProto origSchema,
             boolean forceOverride) throws AppSearchException, InterruptedException {
-        checkInitialized();
+        awaitInitialized();
 
         SchemaProto schemaProto = getSchemaProto();
 
@@ -251,7 +241,7 @@ public final class AppSearchImpl {
      */
     public void putDocument(@NonNull String databaseName, @NonNull DocumentProto document)
             throws AppSearchException, InterruptedException {
-        checkInitialized();
+        awaitInitialized();
 
         DocumentProto.Builder documentBuilder = document.toBuilder();
         rewriteDocumentTypes(getDatabasePrefix(databaseName), documentBuilder, /*add=*/ true);
@@ -285,7 +275,7 @@ public final class AppSearchImpl {
     @Nullable
     public DocumentProto getDocument(@NonNull String databaseName, @NonNull String namespace,
             @NonNull String uri) throws AppSearchException, InterruptedException {
-        checkInitialized();
+        awaitInitialized();
         GetResultProto getResultProto;
         mReadWriteLock.readLock().lock();
         try {
@@ -321,7 +311,7 @@ public final class AppSearchImpl {
             @NonNull SearchSpecProto searchSpec,
             @NonNull ResultSpecProto resultSpec,
             @NonNull ScoringSpecProto scoringSpec) throws AppSearchException, InterruptedException {
-        checkInitialized();
+        awaitInitialized();
 
         SearchSpecProto.Builder searchSpecBuilder = searchSpec.toBuilder();
         SearchResultProto searchResultProto;
@@ -362,7 +352,7 @@ public final class AppSearchImpl {
     @NonNull
     public SearchResultProto getNextPage(@NonNull String databaseName, long nextPageToken)
             throws AppSearchException, InterruptedException {
-        checkInitialized();
+        awaitInitialized();
 
         SearchResultProto searchResultProto = mIcingSearchEngine.getNextPage(nextPageToken);
         checkSuccess(searchResultProto.getStatus());
@@ -377,10 +367,8 @@ public final class AppSearchImpl {
      * @param nextPageToken The token of pre-loaded results of previously executed query to be
      *                      Invalidated.
      */
-    public void invalidateNextPageToken(long nextPageToken)
-            throws AppSearchException, InterruptedException {
-        checkInitialized();
-
+    public void invalidateNextPageToken(long nextPageToken) throws InterruptedException {
+        awaitInitialized();
         mIcingSearchEngine.invalidateNextPageToken(nextPageToken);
     }
 
@@ -397,7 +385,7 @@ public final class AppSearchImpl {
      */
     public void remove(@NonNull String databaseName, @NonNull String namespace,
             @NonNull String uri) throws AppSearchException, InterruptedException {
-        checkInitialized();
+        awaitInitialized();
 
         String qualifiedNamespace = getDatabasePrefix(databaseName) + namespace;
         DeleteResultProto deleteResultProto;
@@ -423,7 +411,7 @@ public final class AppSearchImpl {
      */
     public void removeByType(@NonNull String databaseName, @NonNull String schemaType)
             throws AppSearchException, InterruptedException {
-        checkInitialized();
+        awaitInitialized();
 
         String qualifiedType = getDatabasePrefix(databaseName) + schemaType;
         DeleteBySchemaTypeResultProto deleteBySchemaTypeResultProto;
@@ -453,7 +441,7 @@ public final class AppSearchImpl {
      */
     public void removeByNamespace(@NonNull String databaseName, @NonNull String namespace)
             throws AppSearchException, InterruptedException {
-        checkInitialized();
+        awaitInitialized();
 
         String qualifiedNamespace = getDatabasePrefix(databaseName) + namespace;
         DeleteByNamespaceResultProto deleteByNamespaceResultProto;
@@ -485,7 +473,7 @@ public final class AppSearchImpl {
      */
     public void removeAll(@NonNull String databaseName)
             throws AppSearchException, InterruptedException {
-        checkInitialized();
+        awaitInitialized();
         mReadWriteLock.writeLock().lock();
         try {
             Set<String> existingNamespaces = mNamespaceMap.get(databaseName);
@@ -518,8 +506,6 @@ public final class AppSearchImpl {
      */
     @VisibleForTesting
     public void reset() throws AppSearchException {
-        // Clear data from IcingSearchEngine.
-
         ResetResultProto resetResultProto;
         mReadWriteLock.writeLock().lock();
         try {
@@ -662,8 +648,6 @@ public final class AppSearchImpl {
      * safety.
      * @return false if the current database is brand new and contains nothing. We should just
      * return an empty query result to user.
-     * @throws AppSearchException if there is no schema type or document has been saved in this
-     * database.
      */
     @VisibleForTesting
     @GuardedBy("mReadWriteLock")
@@ -739,8 +723,7 @@ public final class AppSearchImpl {
     }
 
     @GuardedBy("mReadWriteLock")
-    private void addToMap(HashMap<String, Set<String>> map, String databaseName,
-            String prefixedValue) {
+    private void addToMap(Map<String, Set<String>> map, String databaseName, String prefixedValue) {
         Set<String> values = map.get(databaseName);
         if (values == null) {
             values = new HashSet<>();
@@ -750,17 +733,12 @@ public final class AppSearchImpl {
     }
 
     /**
-     * Ensure the instance is intialized.
+     * Waits for the instance to become initialized.
      *
-     * @throws AppSearchException if not.
-     * @throws InterruptedException if the current thread was interrupted during execution.
+     * @throws InterruptedException if the current thread was interrupted during waiting.
      */
-    private void checkInitialized() throws AppSearchException, InterruptedException {
+    private void awaitInitialized() throws InterruptedException {
         mInitCompleteLatch.await();
-        if (!isInitialized()) {
-            throw new AppSearchException(AppSearchResult.RESULT_INTERNAL_ERROR,
-                    "Accessing an uninitialized AppSearchImpl");
-        }
     }
 
     /**
