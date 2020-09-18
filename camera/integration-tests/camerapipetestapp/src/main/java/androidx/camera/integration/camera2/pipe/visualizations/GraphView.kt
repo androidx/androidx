@@ -108,8 +108,8 @@ abstract class GraphView(
 
     /** Calculate the y coordinate given a data point*/
     private fun getYFromPoint(point: GraphDataPoint): Float = layoutState.dataGraphHeight -
-            unitHeight *
-            point.value.toFloat()
+        unitHeight *
+        point.value.toFloat()
 
     private fun drawLatency(
         canvas: Canvas,
@@ -118,9 +118,13 @@ abstract class GraphView(
         x2: Float,
         latency2: Float,
         paint: Paint
-    ) = canvas.drawLine(x1, layoutState.latencyBaseline - latency1 * 150, x2, layoutState
-        .latencyBaseline - latency2 *
-            150, paint)
+    ) = canvas.drawLine(
+        x1, layoutState.latencyBaseline - latency1 * 150, x2,
+        layoutState
+            .latencyBaseline - latency2 *
+            150,
+        paint
+    )
 
     /** Draws all the data points within the time window */
     private fun drawPoints(
@@ -151,7 +155,7 @@ abstract class GraphView(
             val intervalsPassedSinceTimestamp = point.timestampNanos / TIME_INTERVAL_LENGTH_NANOS
                 .toFloat()
             val intervalsPassedSinceArrivalTime = point.timeArrivedNanos /
-                    TIME_INTERVAL_LENGTH_NANOS.toFloat()
+                TIME_INTERVAL_LENGTH_NANOS.toFloat()
 
             currentX = (intervalsPassedSinceTimestamp - xIntervalOffset) * width
 
@@ -163,8 +167,10 @@ abstract class GraphView(
             else latencyMap[point] = currentLatency
 
             if (lastLatency != null)
-                drawLatency(canvas, lastX, lastLatency, currentX, currentLatency,
-                    paints.latencyDataPaint)
+                drawLatency(
+                    canvas, lastX, lastLatency, currentX, currentLatency,
+                    paints.latencyDataPaint
+                )
 
             lastLatency = latencyMap[point]
 
@@ -179,8 +185,10 @@ abstract class GraphView(
                 val frameUnitWidth = (currentX - lastX) / (frameDifference)
                 (1 until frameDifference).forEach { i ->
                     val missingFrameX = lastX + i * frameUnitWidth
-                    canvas.drawLine(missingFrameX, 0f, missingFrameX, layoutState.dataGraphHeight,
-                        paints.missingDataPaint)
+                    canvas.drawLine(
+                        missingFrameX, 0f, missingFrameX, layoutState.dataGraphHeight,
+                        paints.missingDataPaint
+                    )
                 }
             }
 

@@ -95,7 +95,8 @@ class CameraControllerFragmentTest {
                 }
 
                 override fun onFailure(t: Throwable) {}
-            }, CameraXExecutors.directExecutor()
+            },
+            CameraXExecutors.directExecutor()
         )
         assertThat(semaphore.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
     }
@@ -233,8 +234,8 @@ class CameraControllerFragmentTest {
         val errorTolerance = 1F
         for ((i, colorShift) in RGB_SHIFTS.withIndex()) {
             val errorMsg = "Color $i Capture\n" +
-                    colorComponentToReadableString(captureBitmap, colorShift) + "Preview\n" +
-                    colorComponentToReadableString(previewBitmap, colorShift)
+                colorComponentToReadableString(captureBitmap, colorShift) + "Preview\n" +
+                colorComponentToReadableString(previewBitmap, colorShift)
             assertWithMessage(errorMsg).that(captureMoment[i].x).isWithin(errorTolerance)
                 .of(previewMoment[i].x)
             assertWithMessage(errorMsg).that(captureMoment[i].y).isWithin(errorTolerance)
@@ -346,19 +347,19 @@ class CameraControllerFragmentTest {
      * @param colorShift: color component in the format of right shift on Int color.
      */
     private fun colorComponentToReadableString(bitmap1: Bitmap, colorShift: Int):
-            String {
-        var result = ""
-        for (x in 0 until bitmap1.width) {
-            for (y in 0 until bitmap1.height) {
-                var color = (bitmap1.getPixel(x, y) shr colorShift and 0xFF).toString()
-                // 10x10 table Each column is a fixed size of 4.
-                color += " ".repeat((3 - color.length))
-                result += "$color "
+        String {
+            var result = ""
+            for (x in 0 until bitmap1.width) {
+                for (y in 0 until bitmap1.height) {
+                    var color = (bitmap1.getPixel(x, y) shr colorShift and 0xFF).toString()
+                    // 10x10 table Each column is a fixed size of 4.
+                    color += " ".repeat((3 - color.length))
+                    result += "$color "
+                }
+                result += "\n"
             }
-            result += "\n"
+            return result
         }
-        return result
-    }
 
     private fun rotationValueToRotationDegrees(rotationValue: Int): Int {
         return when (rotationValue) {
@@ -419,11 +420,11 @@ class CameraControllerFragmentTest {
     }
 
     private fun FragmentScenario<CameraControllerFragment?>.getFragment():
-            CameraControllerFragment {
-        var fragment: CameraControllerFragment? = null
-        this.onFragment { newValue: CameraControllerFragment -> fragment = newValue }
-        return fragment!!
-    }
+        CameraControllerFragment {
+            var fragment: CameraControllerFragment? = null
+            this.onFragment { newValue: CameraControllerFragment -> fragment = newValue }
+            return fragment!!
+        }
 
     private fun CameraControllerFragment.assertPreviewIsStreaming() {
         assertPreviewState(PreviewView.StreamState.STREAMING)
@@ -436,11 +437,14 @@ class CameraControllerFragmentTest {
     private fun CameraControllerFragment.assertPreviewState(state: PreviewView.StreamState) {
         val previewStreaming = Semaphore(0)
         instrumentation.runOnMainSync {
-            previewView.previewStreamState.observe(this, Observer {
-                if (it == state) {
-                    previewStreaming.release()
+            previewView.previewStreamState.observe(
+                this,
+                Observer {
+                    if (it == state) {
+                        previewStreaming.release()
+                    }
                 }
-            })
+            )
         }
         assertThat(previewStreaming.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
     }

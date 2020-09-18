@@ -175,11 +175,13 @@ private fun transformablePage(
     hintOriginalPageOffset = originalPageOffset,
     hintOriginalIndices = data.fold(mutableListOf()) { acc, s ->
         acc.apply {
-            add(when {
-                acc.isEmpty() -> 0
-                s.all { it.isUpperCase() } -> acc.last()
-                else -> acc.last() + 1
-            })
+            add(
+                when {
+                    acc.isEmpty() -> 0
+                    s.all { it.isUpperCase() } -> acc.last()
+                    else -> acc.last() + 1
+                }
+            )
         }
     }
 )

@@ -28,7 +28,8 @@ internal class JavacDeclaredType private constructor(
     override val kotlinType: KmType?
 ) : JavacType(
     env, typeMirror
-), XDeclaredType {
+),
+    XDeclaredType {
     constructor(
         env: JavacProcessingEnv,
         typeMirror: DeclaredType,

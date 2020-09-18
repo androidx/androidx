@@ -32,7 +32,8 @@ fun Data.toProto(): WorkManagerInspectorProtocol.Data {
                     .setKey(it.key)
                     .setValue(it.value.toString())
                     .build()
-            })
+            }
+        )
         .build()
 }
 

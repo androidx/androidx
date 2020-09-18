@@ -50,7 +50,8 @@ fun camera1OpenCamera(activity: MainActivity, params: CameraParams, testConfig: 
         logd("Camera1Switch Open camera: " + testConfig.switchTestCurrentCamera.toInt())
 
         if ((testConfig.currentRunningTest == TestType.SWITCH_CAMERA) ||
-            (testConfig.currentRunningTest == TestType.MULTI_SWITCH))
+            (testConfig.currentRunningTest == TestType.MULTI_SWITCH)
+        )
             camera1 = Camera.open(testConfig.switchTestCurrentCamera.toInt())
         else
             camera1 = Camera.open(testConfig.camera.toInt())
@@ -61,7 +62,7 @@ fun camera1OpenCamera(activity: MainActivity, params: CameraParams, testConfig: 
         val camera1Params: Camera.Parameters? = camera1?.parameters
         params.cam1AFSupported =
             camera1Params?.supportedFocusModes?.contains(Camera.Parameters.FOCUS_MODE_AUTO)
-                ?: false
+            ?: false
 
         when (testConfig.currentRunningTest) {
             TestType.INIT -> {
@@ -148,8 +149,10 @@ fun startCamera1Preview(activity: MainActivity, params: CameraParams, testConfig
                     closePreviewAndCamera(activity, params, testConfig)
                 }
             } else {
-                logd("Camera1Switch preview. On 2nd camera. Closing, ready to open first 1st " +
-                    "camera")
+                logd(
+                    "Camera1Switch preview. On 2nd camera. Closing, ready to open first 1st " +
+                        "camera"
+                )
                 params.timer.switchToSecondEnd = System.currentTimeMillis()
                 Thread.sleep(PrefHelper.getPreviewBuffer(activity)) // Let preview run
                 params.timer.switchToFirstStart = System.currentTimeMillis()
@@ -173,8 +176,10 @@ fun startCamera1Preview(activity: MainActivity, params: CameraParams, testConfig
  */
 fun camera1TakePicturePrep(activity: MainActivity, params: CameraParams, testConfig: TestConfig) {
     if (params.timer.isFirstPhoto) {
-        logd("camera1TakePicturePrep: 1st photo in multi-chain test. Pausing for " +
-            PrefHelper.getPreviewBuffer(activity) + "ms to let preview run.")
+        logd(
+            "camera1TakePicturePrep: 1st photo in multi-chain test. Pausing for " +
+                PrefHelper.getPreviewBuffer(activity) + "ms to let preview run."
+        )
         params.timer.previewFillStart = System.currentTimeMillis()
         Thread.sleep(PrefHelper.getPreviewBuffer(activity))
         params.timer.previewFillEnd = System.currentTimeMillis()
@@ -184,7 +189,8 @@ fun camera1TakePicturePrep(activity: MainActivity, params: CameraParams, testCon
     params.timer.captureStart = System.currentTimeMillis()
 
     if (params.cam1AFSupported &&
-        FocusMode.AUTO == testConfig.focusMode) {
+        FocusMode.AUTO == testConfig.focusMode
+    ) {
         MainActivity.logd("camera1TakePicturePrep: starting autofocus.")
         params.timer.autofocusStart = System.currentTimeMillis()
         camera1?.autoFocus(Camera1AutofocusCallback(activity, params, testConfig))

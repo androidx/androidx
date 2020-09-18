@@ -40,8 +40,10 @@ open class DynamicNavHostFragment : NavHostFragment() {
 
         navigatorProvider += DynamicActivityNavigator(requireActivity(), installManager)
 
-        val fragmentNavigator = DynamicFragmentNavigator(requireContext(),
-            childFragmentManager, id, installManager)
+        val fragmentNavigator = DynamicFragmentNavigator(
+            requireContext(),
+            childFragmentManager, id, installManager
+        )
         navigatorProvider += fragmentNavigator
 
         val graphNavigator = DynamicGraphNavigator(
@@ -56,8 +58,10 @@ open class DynamicNavHostFragment : NavHostFragment() {
         }
         navigatorProvider += graphNavigator
 
-        navigatorProvider += DynamicIncludeGraphNavigator(requireContext(),
-            navigatorProvider, navController.navInflater, installManager)
+        navigatorProvider += DynamicIncludeGraphNavigator(
+            requireContext(),
+            navigatorProvider, navController.navInflater, installManager
+        )
     }
 
     /**

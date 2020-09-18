@@ -57,7 +57,8 @@ class CallablePreparedQueryResultBinder private constructor(
                 binderScope.prepareQueryStmtBlock(),
                 preparedStmtField,
                 dbField,
-                binderScope)
+                binderScope
+            )
             addCode(binderScope.generate())
         }.build()
 

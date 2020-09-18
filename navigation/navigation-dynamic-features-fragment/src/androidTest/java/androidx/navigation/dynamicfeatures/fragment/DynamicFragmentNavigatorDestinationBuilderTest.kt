@@ -55,8 +55,8 @@ class DynamicFragmentNavigatorDestinationBuilderTest {
     @Test fun moduleName() {
         val navHostFragment = DynamicNavHostFragment()
         fragmentManager.beginTransaction()
-                .add(android.R.id.content, navHostFragment)
-                .commitNow()
+            .add(android.R.id.content, navHostFragment)
+            .commitNow()
         val graph = navHostFragment.createGraph(startDestination = DESTINATION_ID) {
             fragment(DESTINATION_ID, FRAGMENT_CLASS_NAME) {
                 moduleName = MODULE_NAME
@@ -75,8 +75,8 @@ class DynamicFragmentNavigatorDestinationBuilderTest {
     @Test fun no_moduleName() {
         val navHostFragment = DynamicNavHostFragment()
         fragmentManager.beginTransaction()
-                .add(android.R.id.content, navHostFragment)
-                .commitNow()
+            .add(android.R.id.content, navHostFragment)
+            .commitNow()
         val graph = navHostFragment.createGraph(startDestination = DESTINATION_ID) {
             fragment(DESTINATION_ID, FRAGMENT_CLASS_NAME) {}
         }

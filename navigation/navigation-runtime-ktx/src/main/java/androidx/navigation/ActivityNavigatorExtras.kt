@@ -28,9 +28,9 @@ import androidx.core.app.ActivityOptionsCompat
  */
 @Suppress("FunctionName")
 fun ActivityNavigatorExtras(activityOptions: ActivityOptionsCompat? = null, flags: Int = 0) =
-        ActivityNavigator.Extras.Builder().apply {
-            if (activityOptions != null) {
-                setActivityOptions(activityOptions)
-            }
-            addFlags(flags)
-        }.build()
+    ActivityNavigator.Extras.Builder().apply {
+        if (activityOptions != null) {
+            setActivityOptions(activityOptions)
+        }
+        addFlags(flags)
+    }.build()

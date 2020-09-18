@@ -51,7 +51,7 @@ class SpecifyJobSchedulerIdRangeIssueDetectorTest {
                 class TestJobService: JobService() {
                 ^
                 0 errors, 1 warnings
-            """.trimIndent()
+                """.trimIndent()
             )
         /* ktlint-enable max-line-length */
     }

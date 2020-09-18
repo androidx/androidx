@@ -62,10 +62,11 @@ internal open class KspType(
     }
 
     private val _typeElement by lazy {
-        check(ksType.declaration is KSClassDeclaration) { """
+        check(ksType.declaration is KSClassDeclaration) {
+            """
             Unexpected case where ksType's declaration is not a KSClassDeclaration.
             Please file a bug.
-        """.trimIndent()
+            """.trimIndent()
         }
         env.wrapClassDeclaration(ksType.declaration as KSClassDeclaration)
     }

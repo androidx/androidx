@@ -35,11 +35,13 @@ inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(@IdRes id: Int) =
 inline fun <reified F : DialogFragment> NavGraphBuilder.dialog(
     @IdRes id: Int,
     builder: DialogFragmentNavigatorDestinationBuilder.() -> Unit
-) = destination(DialogFragmentNavigatorDestinationBuilder(
+) = destination(
+    DialogFragmentNavigatorDestinationBuilder(
         provider[DialogFragmentNavigator::class],
         id,
         F::class
-).apply(builder))
+    ).apply(builder)
+)
 
 /**
  * DSL for constructing a new [DialogFragmentNavigator.Destination]
@@ -52,7 +54,7 @@ class DialogFragmentNavigatorDestinationBuilder(
 ) : NavDestinationBuilder<DialogFragmentNavigator.Destination>(navigator, id) {
 
     override fun build(): DialogFragmentNavigator.Destination =
-            super.build().also { destination ->
-                destination.className = fragmentClass.java.name
-            }
+        super.build().also { destination ->
+            destination.className = fragmentClass.java.name
+        }
 }

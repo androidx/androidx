@@ -100,7 +100,7 @@ class SpecifyForegroundServiceTypeIssueDetector : Detector(), SourceCodeScanner,
                                 issue = ISSUE,
                                 location = context.getLocation(node),
                                 message = "Missing $name foregroundServiceType in " +
-                                        "the AndroidManifest.xml"
+                                    "the AndroidManifest.xml"
                             )
                         }
                     }

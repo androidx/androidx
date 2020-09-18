@@ -347,55 +347,60 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
     @VisibleForTesting
     internal suspend fun loadInitial(params: LoadInitialParams) =
         suspendCancellableCoroutine<BaseResult<T>> { cont ->
-            loadInitial(params, object : LoadInitialCallback<T>() {
-                override fun onResult(data: List<T>, position: Int, totalCount: Int) {
-                    if (isInvalid) {
-                        // NOTE: this isInvalid check works around
-                        // https://issuetracker.google.com/issues/124511903
-                        cont.resume(BaseResult.empty())
-                    } else {
-                        val nextKey = position + data.size
-                        resume(
-                            params, BaseResult(
-                                data = data,
-                                // skip passing prevKey if nothing else to load
-                                prevKey = if (position == 0) null else position,
-                                // skip passing nextKey if nothing else to load
-                                nextKey = if (nextKey == totalCount) null else nextKey,
-                                itemsBefore = position,
-                                itemsAfter = totalCount - data.size - position
+            loadInitial(
+                params,
+                object : LoadInitialCallback<T>() {
+                    override fun onResult(data: List<T>, position: Int, totalCount: Int) {
+                        if (isInvalid) {
+                            // NOTE: this isInvalid check works around
+                            // https://issuetracker.google.com/issues/124511903
+                            cont.resume(BaseResult.empty())
+                        } else {
+                            val nextKey = position + data.size
+                            resume(
+                                params,
+                                BaseResult(
+                                    data = data,
+                                    // skip passing prevKey if nothing else to load
+                                    prevKey = if (position == 0) null else position,
+                                    // skip passing nextKey if nothing else to load
+                                    nextKey = if (nextKey == totalCount) null else nextKey,
+                                    itemsBefore = position,
+                                    itemsAfter = totalCount - data.size - position
+                                )
                             )
-                        )
+                        }
                     }
-                }
 
-                override fun onResult(data: List<T>, position: Int) {
-                    if (isInvalid) {
-                        // NOTE: this isInvalid check works around
-                        // https://issuetracker.google.com/issues/124511903
-                        cont.resume(BaseResult.empty())
-                    } else {
-                        resume(
-                            params, BaseResult(
-                                data = data,
-                                // skip passing prevKey if nothing else to load
-                                prevKey = if (position == 0) null else position,
-                                // can't do same for nextKey, since we don't know if load is terminal
-                                nextKey = position + data.size,
-                                itemsBefore = position,
-                                itemsAfter = COUNT_UNDEFINED
+                    override fun onResult(data: List<T>, position: Int) {
+                        if (isInvalid) {
+                            // NOTE: this isInvalid check works around
+                            // https://issuetracker.google.com/issues/124511903
+                            cont.resume(BaseResult.empty())
+                        } else {
+                            resume(
+                                params,
+                                BaseResult(
+                                    data = data,
+                                    // skip passing prevKey if nothing else to load
+                                    prevKey = if (position == 0) null else position,
+                                    // can't do same for nextKey, since we don't know if load is terminal
+                                    nextKey = position + data.size,
+                                    itemsBefore = position,
+                                    itemsAfter = COUNT_UNDEFINED
+                                )
                             )
-                        )
+                        }
                     }
-                }
 
-                private fun resume(params: LoadInitialParams, result: BaseResult<T>) {
-                    if (params.placeholdersEnabled) {
-                        result.validateForInitialTiling(params.pageSize)
+                    private fun resume(params: LoadInitialParams, result: BaseResult<T>) {
+                        if (params.placeholdersEnabled) {
+                            result.validateForInitialTiling(params.pageSize)
+                        }
+                        cont.resume(result)
                     }
-                    cont.resume(result)
                 }
-            })
+            )
         }
 
     /**
@@ -410,23 +415,26 @@ abstract class PositionalDataSource<T : Any> : DataSource<Int, T>(POSITIONAL) {
      */
     private suspend fun loadRange(params: LoadRangeParams) =
         suspendCancellableCoroutine<BaseResult<T>> { cont ->
-            loadRange(params, object : LoadRangeCallback<T>() {
-                override fun onResult(data: List<T>) {
-                    // skip passing prevKey if nothing else to load. We only do this for prepend
-                    // direction, since 0 as first index is well defined, but max index may not be
-                    val prevKey = if (params.startPosition == 0) null else params.startPosition
-                    when {
-                        isInvalid -> cont.resume(BaseResult.empty())
-                        else -> cont.resume(
-                            BaseResult(
-                                data = data,
-                                prevKey = prevKey,
-                                nextKey = params.startPosition + data.size
+            loadRange(
+                params,
+                object : LoadRangeCallback<T>() {
+                    override fun onResult(data: List<T>) {
+                        // skip passing prevKey if nothing else to load. We only do this for prepend
+                        // direction, since 0 as first index is well defined, but max index may not be
+                        val prevKey = if (params.startPosition == 0) null else params.startPosition
+                        when {
+                            isInvalid -> cont.resume(BaseResult.empty())
+                            else -> cont.resume(
+                                BaseResult(
+                                    data = data,
+                                    prevKey = prevKey,
+                                    nextKey = params.startPosition + data.size
+                                )
                             )
-                        )
+                        }
                     }
                 }
-            })
+            )
         }
 
     /**

@@ -68,8 +68,11 @@ class WindowInsetsControllerPlayground : Activity() {
             WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
 
         Log.e(
-            TAG, "FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS: " + (window.attributes.flags and
-                    FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS != 0)
+            TAG,
+            "FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS: " + (
+                window.attributes.flags and
+                    FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS != 0
+                )
         )
 
         checkbox.apply {
@@ -85,7 +88,7 @@ class WindowInsetsControllerPlayground : Activity() {
         ViewCompat.setOnApplyWindowInsetsListener(mRoot) { _: View?, insets: WindowInsetsCompat ->
             val systemBarInsets = insets.getInsets(
                 ime() or
-                        WindowInsetsCompat.Type.systemBars()
+                    WindowInsetsCompat.Type.systemBars()
             )
             mRoot.setPadding(
                 systemBarInsets.left,
@@ -111,8 +114,8 @@ class WindowInsetsControllerPlayground : Activity() {
                 visibility.post {
                     visibility.text =
                         currentType?.let {
-                            ViewCompat.getRootWindowInsets(mRoot)?.isVisible(it).toString()
-                        } + " " + window.attributes.flags + " " + SystemClock.elapsedRealtime()
+                        ViewCompat.getRootWindowInsets(mRoot)?.isVisible(it).toString()
+                    } + " " + window.attributes.flags + " " + SystemClock.elapsedRealtime()
                 }
                 Thread.sleep(500)
             }

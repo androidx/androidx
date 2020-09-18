@@ -44,8 +44,10 @@ class DataSourceQueryResultBinderProvider(val context: Context) : QueryResultBin
         val listAdapter = context.typeAdapterStore.findRowAdapter(typeArg, query)?.let {
             ListQueryResultAdapter(it)
         }
-        val tableNames = ((listAdapter?.accessedTableNames() ?: emptyList()) +
-                query.tables.map { it.name }).toSet()
+        val tableNames = (
+            (listAdapter?.accessedTableNames() ?: emptyList()) +
+                query.tables.map { it.name }
+            ).toSet()
         return PositionalDataSourceQueryResultBinder(listAdapter, tableNames)
     }
 

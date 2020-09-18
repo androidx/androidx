@@ -113,7 +113,8 @@ internal fun <T : Annotation> AnnotationMirror.box(
                 "getAsAnnotationBoxArray" -> map[args[0]]
                 else -> map[method.name]
             }
-        })
+        }
+    )
 }
 
 @Suppress("DEPRECATION")

@@ -75,7 +75,7 @@ internal fun NavType.addBundleGetStatement(
     is ObjectType -> builder.apply {
         beginControlFlow(
             "if (%T::class.java.isAssignableFrom(%T::class.java) " +
-                    "|| %T::class.java.isAssignableFrom(%T::class.java))",
+                "|| %T::class.java.isAssignableFrom(%T::class.java))",
             PARCELABLE_CLASSNAME, arg.type.typeName(),
             SERIALIZABLE_CLASSNAME, arg.type.typeName()
         )
@@ -96,7 +96,8 @@ internal fun NavType.addBundleGetStatement(
         val baseType = (arg.type.typeName() as ParameterizedTypeName).typeArguments.first()
         addStatement(
             "%L = %L.%L(%S)?.map { it as %T }?.toTypedArray()",
-            lValue, bundle, bundleGetMethod(), arg.name, baseType)
+            lValue, bundle, bundleGetMethod(), arg.name, baseType
+        )
     }
     else -> builder.addStatement(
         "%L = %L.%L(%S)",
@@ -165,9 +166,10 @@ internal fun NavType.typeName(): TypeName = when (this) {
     BoolArrayType -> BooleanArray::class.asTypeName()
     ReferenceType -> INT
     ReferenceArrayType -> IntArray::class.asTypeName()
-    is ObjectType -> canonicalName.toClassNameParts().let { (packageName, simpleName, innerNames) ->
-        ClassName(packageName, simpleName, *innerNames)
-    }
+    is ObjectType ->
+        canonicalName.toClassNameParts().let { (packageName, simpleName, innerNames) ->
+            ClassName(packageName, simpleName, *innerNames)
+        }
     is ObjectArrayType -> ARRAY.parameterizedBy(
         canonicalName.toClassNameParts().let { (packageName, simpleName, innerNames) ->
             ClassName(packageName, simpleName, *innerNames)

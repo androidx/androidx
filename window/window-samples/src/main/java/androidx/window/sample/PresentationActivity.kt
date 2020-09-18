@@ -48,8 +48,10 @@ class PresentationActivity : BaseSampleActivity() {
 
         windowManager = getTestBackend()?.let { backend -> WindowManager(this, backend) }
             ?: WindowManager(this)
-        windowManager.registerDeviceStateChangeCallback(mainThreadExecutor,
-            deviceStateChangeCallback)
+        windowManager.registerDeviceStateChangeCallback(
+            mainThreadExecutor,
+            deviceStateChangeCallback
+        )
 
         updateCurrentState(windowManager.deviceState)
     }
@@ -97,7 +99,8 @@ class PresentationActivity : BaseSampleActivity() {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
                 presentation!!.window?.attributes?.flags =
                     presentation!!.window?.attributes?.flags?.or(
-                        android.R.attr.showWhenLocked or android.R.attr.turnScreenOn)
+                        android.R.attr.showWhenLocked or android.R.attr.turnScreenOn
+                    )
             }
             presentation!!.show()
             break

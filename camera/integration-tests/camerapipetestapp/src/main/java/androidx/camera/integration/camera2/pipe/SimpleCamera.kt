@@ -104,12 +104,15 @@ class SimpleCamera(
             val cameraGraph = cameraPipe.create(config)
 
             val viewfinderStream = cameraGraph.streams[viewfinderStreamConfig]!!
-            viewfinder.configure(viewfinderStream.size, object : Viewfinder.SurfaceListener {
-                override fun onSurfaceChanged(surface: Surface?, size: Size?) {
-                    Log.i("CXCP-App", "Viewfinder surface changed to $surface at $size")
-                    cameraGraph.setSurface(viewfinderStream.id, surface)
+            viewfinder.configure(
+                viewfinderStream.size,
+                object : Viewfinder.SurfaceListener {
+                    override fun onSurfaceChanged(surface: Surface?, size: Size?) {
+                        Log.i("CXCP-App", "Viewfinder surface changed to $surface at $size")
+                        cameraGraph.setSurface(viewfinderStream.id, surface)
+                    }
                 }
-            })
+            )
             val yuvStream = cameraGraph.streams[yuvStreamConfig]!!
             cameraGraph.acquireSessionOrNull()!!.use {
                 it.setRepeating(

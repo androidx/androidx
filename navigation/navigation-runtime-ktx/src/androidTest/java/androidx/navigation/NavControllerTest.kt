@@ -36,8 +36,10 @@ class NavControllerTest {
         val graph = navController.createGraph(startDestination = DESTINATION_ID) {
             test(DESTINATION_ID)
         }
-        assertTrue("Destination should be added to the graph",
-                DESTINATION_ID in graph)
+        assertTrue(
+            "Destination should be added to the graph",
+            DESTINATION_ID in graph
+        )
     }
 }
 

@@ -69,7 +69,7 @@ class ListAdapterTest {
     fun initialState() {
         @Suppress("UNCHECKED_CAST")
         val listener = mock(AsyncListDiffer.ListListener::class.java)
-                as AsyncListDiffer.ListListener<String>
+            as AsyncListDiffer.ListListener<String>
 
         val adapter = Adapter(listener)
         assertEquals(0, adapter.itemCount)
@@ -108,7 +108,7 @@ class ListAdapterTest {
         val callback = mock(Runnable::class.java)
         @Suppress("UNCHECKED_CAST")
         val listener = mock(AsyncListDiffer.ListListener::class.java)
-                as AsyncListDiffer.ListListener<String>
+            as AsyncListDiffer.ListListener<String>
 
         val adapter = Adapter(listener)
 

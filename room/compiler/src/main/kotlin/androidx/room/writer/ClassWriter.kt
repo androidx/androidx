@@ -114,15 +114,21 @@ abstract class ClassWriter(private val className: ClassName) {
     }
 
     fun getOrCreateField(sharedField: SharedFieldSpec): FieldSpec {
-        return sharedFieldSpecs.getOrPut(sharedField.getUniqueKey(), {
-            sharedField.build(this, makeUnique(sharedFieldNames, sharedField.baseName))
-        })
+        return sharedFieldSpecs.getOrPut(
+            sharedField.getUniqueKey(),
+            {
+                sharedField.build(this, makeUnique(sharedFieldNames, sharedField.baseName))
+            }
+        )
     }
 
     fun getOrCreateMethod(sharedMethod: SharedMethodSpec): MethodSpec {
-        return sharedMethodSpecs.getOrPut(sharedMethod.getUniqueKey(), {
-            sharedMethod.build(this, makeUnique(sharedMethodNames, sharedMethod.baseName))
-        })
+        return sharedMethodSpecs.getOrPut(
+            sharedMethod.getUniqueKey(),
+            {
+                sharedMethod.build(this, makeUnique(sharedMethodNames, sharedMethod.baseName))
+            }
+        )
     }
 
     abstract class SharedFieldSpec(val baseName: String, val type: TypeName) {

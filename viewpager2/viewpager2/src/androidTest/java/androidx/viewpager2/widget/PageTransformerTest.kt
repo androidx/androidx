@@ -263,7 +263,8 @@ class PageTransformerTest(private val config: TestConfig) : BaseTest() {
 
     private fun List<Event>.assertSnappedRelativeToPage(snappedPage: Int) {
         map { it as TransformPageEvent }.forEach {
-            assertThat("transformPage() call must be snapped at page $snappedPage",
+            assertThat(
+                "transformPage() call must be snapped at page $snappedPage",
                 // event.page - event.offset resolves to the currently visible page index
                 it.page - it.offset.toDouble(), equalTo(snappedPage.toDouble())
             )

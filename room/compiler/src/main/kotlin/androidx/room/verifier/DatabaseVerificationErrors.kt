@@ -25,7 +25,7 @@ object DatabaseVerificationErrors {
     }
 
     private val CANNOT_CREATE_SQLITE_CONNECTION: String = "Room cannot create an SQLite" +
-            " connection to verify the queries. Query verification will be disabled. Error: %s"
+        " connection to verify the queries. Query verification will be disabled. Error: %s"
     fun cannotCreateConnection(exception: Throwable): String {
         return CANNOT_CREATE_SQLITE_CONNECTION.format(exception.message)
     }

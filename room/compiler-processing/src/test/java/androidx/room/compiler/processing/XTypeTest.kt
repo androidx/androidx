@@ -36,14 +36,15 @@ class XTypeTest {
     @Test
     fun declaredTypeArguments() {
         val parent = Source.java(
-            "foo.bar.Parent", """
+            "foo.bar.Parent",
+            """
             package foo.bar;
             import java.io.InputStream;
             import java.util.Set;
             class Parent<InputStreamType extends InputStream> {
                 public void wildcardParam(Set<?> param1) {}
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTest(
             sources = listOf(parent)
@@ -116,12 +117,13 @@ class XTypeTest {
     @Test
     fun sameType() {
         val subject = Source.java(
-            "foo.bar.Baz", """
+            "foo.bar.Baz",
+            """
             package foo.bar;
             interface Baz {
                 void method(String... inputs);
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTest(
             sources = listOf(subject)

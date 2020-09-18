@@ -124,24 +124,32 @@ class OffscreenPageLimitTest(private val config: TestConfig) : BaseTest() {
                     assertThat(lower.toDouble(), lessThanOrEqualTo(position))
                     assertThat(upper.toDouble(), greaterThanOrEqualTo(position))
                     // Then verify the onscreen pages:
-                    assertThat("There should be ${upper - lower + 1} pages laid out at event $i. " +
+                    assertThat(
+                        "There should be ${upper - lower + 1} pages laid out at event $i. " +
                             "Events: ${recorder.dumpEvents()}",
-                        onscreen.size, equalTo(upper - lower + 1))
+                        onscreen.size, equalTo(upper - lower + 1)
+                    )
                     (lower..upper).forEach { laidOutPage ->
-                        assertThat("Page $laidOutPage should be laid out at event $i. " +
+                        assertThat(
+                            "Page $laidOutPage should be laid out at event $i. " +
                                 "Events: ${recorder.dumpEvents()}",
-                            onscreen, hasItem(laidOutPage))
+                            onscreen, hasItem(laidOutPage)
+                        )
                     }
                 }
             }
         }
         // Verify that laid out pages don't change after the last scroll event
-        assertThat("The last OnChildViewAdded should be before an OnPageScrolledEvent. " +
+        assertThat(
+            "The last OnChildViewAdded should be before an OnPageScrolledEvent. " +
                 "Events: ${recorder.dumpEvents()}",
-            recorder.lastAddedIx, lessThan(recorder.lastScrolledIx))
-        assertThat("The last OnChildViewRemoved should be before an OnPageScrolledEvent. " +
+            recorder.lastAddedIx, lessThan(recorder.lastScrolledIx)
+        )
+        assertThat(
+            "The last OnChildViewRemoved should be before an OnPageScrolledEvent. " +
                 "Events: ${recorder.dumpEvents()}",
-            recorder.lastRemovedIx, lessThan(recorder.lastScrolledIx))
+            recorder.lastRemovedIx, lessThan(recorder.lastScrolledIx)
+        )
     }
 
     private fun ViewPager2.addNewRecordingCallback(): RecordingCallback {
@@ -163,7 +171,8 @@ class OffscreenPageLimitTest(private val config: TestConfig) : BaseTest() {
         data class OnChildViewRemoved(val position: Int) : Event()
     }
 
-    private class RecordingCallback : ViewPager2.OnPageChangeCallback(),
+    private class RecordingCallback :
+        ViewPager2.OnPageChangeCallback(),
         ViewGroup.OnHierarchyChangeListener {
         private val events = mutableListOf<Event>()
 

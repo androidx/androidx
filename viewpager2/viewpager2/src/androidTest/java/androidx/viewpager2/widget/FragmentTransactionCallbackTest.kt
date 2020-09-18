@@ -73,28 +73,33 @@ class FragmentTransactionCallbackTest : BaseTest() {
             latch1.awaitStrict(5)
 
             // then 1
-            assertThat(log.consume(), equalTo(listOf(
-                    "Adapter:onFragmentPreAdded(<no-tag>)",
-                    "Lifecycle:onFragmentPreAttached(f0)",
-                    "Lifecycle:onFragmentAttached(f0)",
-                    "Lifecycle:onFragmentPreCreated(f0)",
-                    "Lifecycle:onFragmentCreated(f0)",
-                    "Lifecycle:onFragmentViewCreated(f0)",
-                    "Lifecycle:onFragmentActivityCreated(f0)",
-                    "Lifecycle:onFragmentStarted(f0)",
-                    "Adapter:onFragmentMaxLifecyclePreUpdated(f0 at RESUMED)",
-                    "Lifecycle:onFragmentResumed(f0)",
-                    "Adapter:onFragmentMaxLifecycleUpdated(f0 at RESUMED)",
-                    "Adapter:onFragmentAdded(f0)",
-                    "Adapter:onFragmentPreAdded(<no-tag>)",
-                    "Lifecycle:onFragmentPreAttached(f1)",
-                    "Lifecycle:onFragmentAttached(f1)",
-                    "Lifecycle:onFragmentPreCreated(f1)",
-                    "Lifecycle:onFragmentCreated(f1)",
-                    "Lifecycle:onFragmentViewCreated(f1)",
-                    "Lifecycle:onFragmentActivityCreated(f1)",
-                    "Lifecycle:onFragmentStarted(f1)",
-                    "Adapter:onFragmentAdded(f1)"))
+            assertThat(
+                log.consume(),
+                equalTo(
+                    listOf(
+                        "Adapter:onFragmentPreAdded(<no-tag>)",
+                        "Lifecycle:onFragmentPreAttached(f0)",
+                        "Lifecycle:onFragmentAttached(f0)",
+                        "Lifecycle:onFragmentPreCreated(f0)",
+                        "Lifecycle:onFragmentCreated(f0)",
+                        "Lifecycle:onFragmentViewCreated(f0)",
+                        "Lifecycle:onFragmentActivityCreated(f0)",
+                        "Lifecycle:onFragmentStarted(f0)",
+                        "Adapter:onFragmentMaxLifecyclePreUpdated(f0 at RESUMED)",
+                        "Lifecycle:onFragmentResumed(f0)",
+                        "Adapter:onFragmentMaxLifecycleUpdated(f0 at RESUMED)",
+                        "Adapter:onFragmentAdded(f0)",
+                        "Adapter:onFragmentPreAdded(<no-tag>)",
+                        "Lifecycle:onFragmentPreAttached(f1)",
+                        "Lifecycle:onFragmentAttached(f1)",
+                        "Lifecycle:onFragmentPreCreated(f1)",
+                        "Lifecycle:onFragmentCreated(f1)",
+                        "Lifecycle:onFragmentViewCreated(f1)",
+                        "Lifecycle:onFragmentActivityCreated(f1)",
+                        "Lifecycle:onFragmentStarted(f1)",
+                        "Adapter:onFragmentAdded(f1)"
+                    )
+                )
             )
 
             // when 2: current item changed to next page
@@ -105,24 +110,29 @@ class FragmentTransactionCallbackTest : BaseTest() {
             latch2.awaitStrict(5)
 
             // then 2
-            assertThat(log.consume(), equalTo(listOf(
-                "Adapter:onFragmentPreAdded(<no-tag>)",
-                "Lifecycle:onFragmentPreAttached(f2)",
-                "Lifecycle:onFragmentAttached(f2)",
-                "Lifecycle:onFragmentPreCreated(f2)",
-                "Lifecycle:onFragmentCreated(f2)",
-                "Lifecycle:onFragmentViewCreated(f2)",
-                "Lifecycle:onFragmentActivityCreated(f2)",
-                "Lifecycle:onFragmentStarted(f2)",
-                "Adapter:onFragmentAdded(f2)",
-                "Adapter:onFragmentMaxLifecyclePreUpdated(f0 at STARTED)",
-                "Adapter:onFragmentMaxLifecyclePreUpdated(f2 at STARTED)",
-                "Adapter:onFragmentMaxLifecyclePreUpdated(f1 at RESUMED)",
-                "Lifecycle:onFragmentPaused(f0)",
-                "Lifecycle:onFragmentResumed(f1)",
-                "Adapter:onFragmentMaxLifecycleUpdated(f1 at RESUMED)",
-                "Adapter:onFragmentMaxLifecycleUpdated(f2 at STARTED)",
-                "Adapter:onFragmentMaxLifecycleUpdated(f0 at STARTED)"))
+            assertThat(
+                log.consume(),
+                equalTo(
+                    listOf(
+                        "Adapter:onFragmentPreAdded(<no-tag>)",
+                        "Lifecycle:onFragmentPreAttached(f2)",
+                        "Lifecycle:onFragmentAttached(f2)",
+                        "Lifecycle:onFragmentPreCreated(f2)",
+                        "Lifecycle:onFragmentCreated(f2)",
+                        "Lifecycle:onFragmentViewCreated(f2)",
+                        "Lifecycle:onFragmentActivityCreated(f2)",
+                        "Lifecycle:onFragmentStarted(f2)",
+                        "Adapter:onFragmentAdded(f2)",
+                        "Adapter:onFragmentMaxLifecyclePreUpdated(f0 at STARTED)",
+                        "Adapter:onFragmentMaxLifecyclePreUpdated(f2 at STARTED)",
+                        "Adapter:onFragmentMaxLifecyclePreUpdated(f1 at RESUMED)",
+                        "Lifecycle:onFragmentPaused(f0)",
+                        "Lifecycle:onFragmentResumed(f1)",
+                        "Adapter:onFragmentMaxLifecycleUpdated(f1 at RESUMED)",
+                        "Adapter:onFragmentMaxLifecycleUpdated(f2 at STARTED)",
+                        "Adapter:onFragmentMaxLifecycleUpdated(f0 at STARTED)"
+                    )
+                )
             )
 
             // when 3: the last page is removed from the collection
@@ -135,19 +145,24 @@ class FragmentTransactionCallbackTest : BaseTest() {
             latch3.awaitStrict(5)
 
             // then 3
-            assertThat(log.consume(), equalTo(listOf(
-                    "Adapter:onFragmentMaxLifecyclePreUpdated(f0 at STARTED)",
-                    "Adapter:onFragmentMaxLifecyclePreUpdated(f2 at STARTED)",
-                    "Adapter:onFragmentMaxLifecyclePreUpdated(f1 at RESUMED)",
-                    "Adapter:onFragmentMaxLifecycleUpdated(f1 at RESUMED)",
-                    "Adapter:onFragmentMaxLifecycleUpdated(f2 at STARTED)",
-                    "Adapter:onFragmentMaxLifecycleUpdated(f0 at STARTED)",
-                    "Adapter:onFragmentPreRemoved(f2)",
-                    "Lifecycle:onFragmentStopped(f2)",
-                    "Lifecycle:onFragmentViewDestroyed(f2)",
-                    "Lifecycle:onFragmentDestroyed(f2)",
-                    "Lifecycle:onFragmentDetached(f2)",
-                    "Adapter:onFragmentRemoved(<no-tag>)"))
+            assertThat(
+                log.consume(),
+                equalTo(
+                    listOf(
+                        "Adapter:onFragmentMaxLifecyclePreUpdated(f0 at STARTED)",
+                        "Adapter:onFragmentMaxLifecyclePreUpdated(f2 at STARTED)",
+                        "Adapter:onFragmentMaxLifecyclePreUpdated(f1 at RESUMED)",
+                        "Adapter:onFragmentMaxLifecycleUpdated(f1 at RESUMED)",
+                        "Adapter:onFragmentMaxLifecycleUpdated(f2 at STARTED)",
+                        "Adapter:onFragmentMaxLifecycleUpdated(f0 at STARTED)",
+                        "Adapter:onFragmentPreRemoved(f2)",
+                        "Lifecycle:onFragmentStopped(f2)",
+                        "Lifecycle:onFragmentViewDestroyed(f2)",
+                        "Lifecycle:onFragmentDestroyed(f2)",
+                        "Lifecycle:onFragmentDetached(f2)",
+                        "Adapter:onFragmentRemoved(<no-tag>)"
+                    )
+                )
             )
 
             // when 4: recreate activity
@@ -329,36 +344,39 @@ class FragmentTransactionCallbackTest : BaseTest() {
     }
 
     private fun createRecordingFragmentTransactionCallback(log: RecordingLogger):
-            FragmentTransactionCallback {
-        return object : FragmentTransactionCallback() {
-            override fun onFragmentPreAdded(fragment: Fragment): OnPostEventListener {
-                log.append("Adapter:onFragmentPreAdded(${fragment.name})")
-                return OnPostEventListener {
-                    log.append("Adapter:onFragmentAdded(${fragment.name})")
+        FragmentTransactionCallback {
+            return object : FragmentTransactionCallback() {
+                override fun onFragmentPreAdded(fragment: Fragment): OnPostEventListener {
+                    log.append("Adapter:onFragmentPreAdded(${fragment.name})")
+                    return OnPostEventListener {
+                        log.append("Adapter:onFragmentAdded(${fragment.name})")
+                    }
                 }
-            }
 
-            override fun onFragmentPreRemoved(fragment: Fragment): OnPostEventListener {
-                log.append("Adapter:onFragmentPreRemoved(${fragment.name})")
-                return OnPostEventListener {
-                    log.append("Adapter:onFragmentRemoved(${fragment.name})")
+                override fun onFragmentPreRemoved(fragment: Fragment): OnPostEventListener {
+                    log.append("Adapter:onFragmentPreRemoved(${fragment.name})")
+                    return OnPostEventListener {
+                        log.append("Adapter:onFragmentRemoved(${fragment.name})")
+                    }
                 }
-            }
 
-            override fun onFragmentMaxLifecyclePreUpdated(
-                fragment: Fragment,
-                maxLifecycleState: Lifecycle.State
-            ): OnPostEventListener {
-                log.append("Adapter:onFragmentMaxLifecyclePreUpdated(${fragment.name} " +
-                        "at $maxLifecycleState)")
-                return OnPostEventListener {
-                    log.append("Adapter:onFragmentMaxLifecycleUpdated(${fragment.name} " +
+                override fun onFragmentMaxLifecyclePreUpdated(
+                    fragment: Fragment,
+                    maxLifecycleState: Lifecycle.State
+                ): OnPostEventListener {
+                    log.append(
+                        "Adapter:onFragmentMaxLifecyclePreUpdated(${fragment.name} " +
                             "at $maxLifecycleState)"
                     )
+                    return OnPostEventListener {
+                        log.append(
+                            "Adapter:onFragmentMaxLifecycleUpdated(${fragment.name} " +
+                                "at $maxLifecycleState)"
+                        )
+                    }
                 }
             }
         }
-    }
 }
 
 private class RecordingLogger {

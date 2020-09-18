@@ -150,16 +150,16 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
     }
 
     private fun <E : Any> PagedList<E>.addLoadStateCapture(desiredType: LoadType):
-            Pair<Any, MutableList<StateChange>> {
-        val list = mutableListOf<StateChange>()
-        val listener = { type: LoadType, state: LoadState ->
-            if (type == desiredType) {
-                list.add(StateChange(type, state))
+        Pair<Any, MutableList<StateChange>> {
+            val list = mutableListOf<StateChange>()
+            val listener = { type: LoadType, state: LoadState ->
+                if (type == desiredType) {
+                    list.add(StateChange(type, state))
+                }
             }
+            addWeakLoadStateListener(listener)
+            return Pair(listener, list)
         }
-        addWeakLoadStateListener(listener)
-        return Pair(listener, list)
-    }
 
     private fun verifyRange(start: Int, count: Int, actual: PagedStorage<Item>) {
         if (placeholdersEnabled) {
@@ -191,7 +191,7 @@ class ContiguousPagedListTest(private val placeholdersEnabled: Boolean) {
         initialKey: Int,
         loadSize: Int,
         pageSize:
-        Int
+            Int
     ): Page<Int, Item> = runBlocking {
         val result = load(
             PagingSource.LoadParams.Refresh(

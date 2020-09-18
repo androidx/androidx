@@ -70,7 +70,7 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                         val builder = PeriodicWorkRequest.Builder(worker, 15L, TimeUnit.MILLISECONDS)
                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
-            """.trimIndent()
+                """.trimIndent()
             )
         /* ktlint-enable max-line-length */
     }
@@ -165,7 +165,7 @@ class InvalidPeriodicWorkRequestIntervalDetectorTest {
                         val builder = PeriodicWorkRequest.Builder(worker, Duration.ofNanos(15))
                                       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
-            """.trimIndent()
+                """.trimIndent()
             )
         /* ktlint-enable max-line-length */
     }

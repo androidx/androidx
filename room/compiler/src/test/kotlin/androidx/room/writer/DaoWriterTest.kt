@@ -36,11 +36,13 @@ class DaoWriterTest {
     @Test
     fun complexDao() {
         singleDao(
-                loadJavaCode("databasewriter/input/ComplexDatabase.java",
-                        "foo.bar.ComplexDatabase"),
-                loadJavaCode("daoWriter/input/ComplexDao.java", "foo.bar.ComplexDao")
+            loadJavaCode(
+                "databasewriter/input/ComplexDatabase.java",
+                "foo.bar.ComplexDatabase"
+            ),
+            loadJavaCode("daoWriter/input/ComplexDao.java", "foo.bar.ComplexDao")
         ).compilesWithoutError().and().generatesSources(
-                loadJavaCode("daoWriter/output/ComplexDao.java", "foo.bar.ComplexDao_Impl")
+            loadJavaCode("daoWriter/output/ComplexDao.java", "foo.bar.ComplexDao_Impl")
         )
     }
 
@@ -58,61 +60,68 @@ class DaoWriterTest {
     @Test
     fun writerDao() {
         singleDao(
-                loadJavaCode("daoWriter/input/WriterDao.java", "foo.bar.WriterDao")
+            loadJavaCode("daoWriter/input/WriterDao.java", "foo.bar.WriterDao")
         ).compilesWithoutError().and().generatesSources(
-                loadJavaCode("daoWriter/output/WriterDao.java", "foo.bar.WriterDao_Impl")
+            loadJavaCode("daoWriter/output/WriterDao.java", "foo.bar.WriterDao_Impl")
         )
     }
 
     @Test
     fun deletionDao() {
         singleDao(
-                loadJavaCode("daoWriter/input/DeletionDao.java", "foo.bar.DeletionDao")
+            loadJavaCode("daoWriter/input/DeletionDao.java", "foo.bar.DeletionDao")
         ).compilesWithoutError().and().generatesSources(
-                loadJavaCode("daoWriter/output/DeletionDao.java", "foo.bar.DeletionDao_Impl")
+            loadJavaCode("daoWriter/output/DeletionDao.java", "foo.bar.DeletionDao_Impl")
         )
     }
 
     @Test
     fun updateDao() {
         singleDao(
-                loadJavaCode("daoWriter/input/UpdateDao.java", "foo.bar.UpdateDao")
+            loadJavaCode("daoWriter/input/UpdateDao.java", "foo.bar.UpdateDao")
         ).compilesWithoutError().and().generatesSources(
-                loadJavaCode("daoWriter/output/UpdateDao.java", "foo.bar.UpdateDao_Impl")
+            loadJavaCode("daoWriter/output/UpdateDao.java", "foo.bar.UpdateDao_Impl")
         )
     }
 
     private fun singleDao(vararg jfo: JavaFileObject): CompileTester {
         return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-                .that(jfo.toList() + COMMON.USER + COMMON.MULTI_PKEY_ENTITY + COMMON.BOOK +
-                        COMMON.LIVE_DATA + COMMON.COMPUTABLE_LIVE_DATA + COMMON.RX2_SINGLE +
-                        COMMON.RX2_MAYBE + COMMON.RX2_COMPLETABLE + COMMON.USER_SUMMARY +
-                        COMMON.RX2_ROOM + COMMON.PARENT + COMMON.CHILD1 + COMMON.CHILD2 +
-                        COMMON.INFO + COMMON.LISTENABLE_FUTURE + COMMON.GUAVA_ROOM)
-                .processedWith(TestProcessor.builder()
-                        .forAnnotations(androidx.room.Dao::class)
-                        .nextRunHandler { invocation ->
-                            val dao = invocation.roundEnv
-                                    .getElementsAnnotatedWith(
-                                            androidx.room.Dao::class.java)
-                                    .first()
-                            val db = invocation.roundEnv
-                                    .getElementsAnnotatedWith(
-                                            androidx.room.Database::class.java)
-                                    .firstOrNull()
-                                    ?: invocation.context.processingEnv
-                                        .requireTypeElement(RoomTypeNames.ROOM_DB)
-                            val dbType = db.asDeclaredType()
-                            val parser = DaoProcessor(
-                                    baseContext = invocation.context,
-                                    element = dao.asTypeElement(),
-                                    dbType = dbType,
-                                    dbVerifier = createVerifierFromEntitiesAndViews(invocation))
-                            val parsedDao = parser.process()
-                            DaoWriter(parsedDao, db, invocation.processingEnv)
-                                .write(invocation.processingEnv)
-                            true
-                        }
-                        .build())
+            .that(
+                jfo.toList() + COMMON.USER + COMMON.MULTI_PKEY_ENTITY + COMMON.BOOK +
+                    COMMON.LIVE_DATA + COMMON.COMPUTABLE_LIVE_DATA + COMMON.RX2_SINGLE +
+                    COMMON.RX2_MAYBE + COMMON.RX2_COMPLETABLE + COMMON.USER_SUMMARY +
+                    COMMON.RX2_ROOM + COMMON.PARENT + COMMON.CHILD1 + COMMON.CHILD2 +
+                    COMMON.INFO + COMMON.LISTENABLE_FUTURE + COMMON.GUAVA_ROOM
+            )
+            .processedWith(
+                TestProcessor.builder()
+                    .forAnnotations(androidx.room.Dao::class)
+                    .nextRunHandler { invocation ->
+                        val dao = invocation.roundEnv
+                            .getElementsAnnotatedWith(
+                                androidx.room.Dao::class.java
+                            )
+                            .first()
+                        val db = invocation.roundEnv
+                            .getElementsAnnotatedWith(
+                                androidx.room.Database::class.java
+                            )
+                            .firstOrNull()
+                            ?: invocation.context.processingEnv
+                                .requireTypeElement(RoomTypeNames.ROOM_DB)
+                        val dbType = db.asDeclaredType()
+                        val parser = DaoProcessor(
+                            baseContext = invocation.context,
+                            element = dao.asTypeElement(),
+                            dbType = dbType,
+                            dbVerifier = createVerifierFromEntitiesAndViews(invocation)
+                        )
+                        val parsedDao = parser.process()
+                        DaoWriter(parsedDao, db, invocation.processingEnv)
+                            .write(invocation.processingEnv)
+                        true
+                    }
+                    .build()
+            )
     }
 }

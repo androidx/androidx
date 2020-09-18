@@ -51,10 +51,14 @@ class FieldProcessor(
             null
         }
 
-        context.checker.notBlank(columnName, element,
-                ProcessorErrors.COLUMN_NAME_CANNOT_BE_EMPTY)
-        context.checker.notUnbound(type, element,
-                ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS)
+        context.checker.notBlank(
+            columnName, element,
+            ProcessorErrors.COLUMN_NAME_CANNOT_BE_EMPTY
+        )
+        context.checker.notUnbound(
+            type, element,
+            ProcessorErrors.CANNOT_USE_UNBOUND_GENERICS_IN_ENTITY_FIELDS
+        )
 
         val adapter = context.typeAdapterStore.findColumnTypeAdapter(member, affinity)
         val adapterAffinity = adapter?.typeAffinity ?: affinity
@@ -86,14 +90,14 @@ class FieldProcessor(
             }
             BindingScope.BIND_TO_STMT -> {
                 field.statementBinder = context.typeAdapterStore
-                        .findStatementValueBinder(field.type, field.affinity)
+                    .findStatementValueBinder(field.type, field.affinity)
                 if (field.statementBinder == null) {
                     onBindingError(field, ProcessorErrors.CANNOT_FIND_STMT_BINDER)
                 }
             }
             BindingScope.READ_FROM_CURSOR -> {
                 field.cursorValueReader = context.typeAdapterStore
-                        .findCursorValueReader(field.type, field.affinity)
+                    .findCursorValueReader(field.type, field.affinity)
                 if (field.cursorValueReader == null) {
                     onBindingError(field, ProcessorErrors.CANNOT_FIND_CURSOR_READER)
                 }

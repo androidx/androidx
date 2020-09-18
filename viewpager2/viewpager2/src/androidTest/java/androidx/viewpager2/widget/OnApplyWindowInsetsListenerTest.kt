@@ -104,14 +104,14 @@ class OnApplyWindowInsetsListenerTest : BaseTest() {
             // dispatcher didn't stop the default dispatcher
             assertThat(
                 "WindowInsets were dispatched ${recordedInsets.size} times to page $i. " +
-                        "Expected only 1 dispatch",
+                    "Expected only 1 dispatch",
                 recordedInsets.size,
                 equalTo(1)
             )
             assertThat(
                 "Page $i received modified insets:\n" +
-                        "expected: $expectedWindowInsets\n" +
-                        "actual:   ${recordedInsets[0]}",
+                    "expected: $expectedWindowInsets\n" +
+                    "actual:   ${recordedInsets[0]}",
                 insetsEquals(recordedInsets[0], expectedWindowInsets),
                 equalTo(true)
             )
@@ -128,9 +128,9 @@ class OnApplyWindowInsetsListenerTest : BaseTest() {
         } else {
             // Otherwise, check what we can access (and what was present < 28)
             a.isConsumed == b.isConsumed &&
-                    a.isRound == b.isRound &&
-                    a.systemWindowInsets == b.systemWindowInsets &&
-                    a.stableInsets == b.stableInsets
+                a.isRound == b.isRound &&
+                a.systemWindowInsets == b.systemWindowInsets &&
+                a.stableInsets == b.stableInsets
         }
     }
 

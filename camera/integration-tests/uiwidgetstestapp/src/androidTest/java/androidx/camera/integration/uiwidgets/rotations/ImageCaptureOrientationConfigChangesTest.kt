@@ -84,14 +84,14 @@ class ImageCaptureOrientationConfigChangesTest(
     }
 
     private fun ActivityScenario<OrientationConfigChangesOverriddenActivity>.rotate(rotation: Int):
-            Boolean {
-        val currentRotation = withActivity {
-            val root = findViewById<View>(android.R.id.content)
-            root.display.rotation
+        Boolean {
+            val currentRotation = withActivity {
+                val root = findViewById<View>(android.R.id.content)
+                root.display.rotation
+            }
+            InstrumentationRegistry.getInstrumentation().uiAutomation.setRotation(rotation)
+            return currentRotation != rotation
         }
-        InstrumentationRegistry.getInstrumentation().uiAutomation.setRotation(rotation)
-        return currentRotation != rotation
-    }
 
     private fun ActivityScenario<OrientationConfigChangesOverriddenActivity>.waitForRotation() {
         val displayChanged = withActivity { mDisplayChanged }

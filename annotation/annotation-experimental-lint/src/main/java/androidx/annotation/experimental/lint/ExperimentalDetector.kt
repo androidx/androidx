@@ -68,7 +68,8 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
                 // Only allow Java annotations, since the Kotlin compiler doesn't understand our
                 // annotations and could get confused when it's trying to opt-in to some random
                 // annotation that it doesn't understand.
-                checkExperimentalUsage(context, annotation, usage,
+                checkExperimentalUsage(
+                    context, annotation, usage,
                     listOf(
                         JAVA_USE_EXPERIMENTAL_ANNOTATION,
                         JAVA_OPT_IN_ANNOTATION
@@ -81,7 +82,8 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
                 // we can enforce both and it's possible that a Kotlin-sourced experimental library
                 // is being used from Java without the Kotlin stdlib in the classpath.
                 if (!isKotlin(usage.sourcePsi)) {
-                    checkExperimentalUsage(context, annotation, usage,
+                    checkExperimentalUsage(
+                        context, annotation, usage,
                         listOf(
                             KOTLIN_USE_EXPERIMENTAL_ANNOTATION,
                             KOTLIN_OPT_IN_ANNOTATION,
@@ -113,10 +115,14 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         if (!hasOrUsesAnnotation(context, usage, useAnnotation, useAnnotationNames)) {
             val level = extractAttribute(annotation, "level")
             if (level != null) {
-                report(context, usage, """
+                report(
+                    context, usage,
+                    """
                     This declaration is opt-in and its usage should be marked with
                     '@$useAnnotation' or '@OptIn(markerClass = $useAnnotation.class)'
-                """, level)
+                """,
+                    level
+                )
             } else {
                 report(
                     context, annotation,

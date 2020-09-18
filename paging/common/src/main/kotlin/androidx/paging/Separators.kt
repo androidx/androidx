@@ -134,7 +134,7 @@ internal fun <R : Any, T : R> MutableList<TransformablePage<R>>.addSeparatorPage
             beforeOffsets != null && afterOffsets == null -> beforeOffsets
             else -> throw IllegalArgumentException(
                 "Separator page expected adjacentPageBefore or adjacentPageAfter, but both were" +
-                        " null."
+                    " null."
             )
         },
         hintOriginalPageOffset = hintOriginalPageOffset,

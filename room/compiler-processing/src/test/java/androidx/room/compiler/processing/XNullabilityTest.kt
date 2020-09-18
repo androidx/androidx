@@ -37,7 +37,8 @@ class XNullabilityTest {
     @Test
     fun elementInferredNullability() {
         val source = Source.java(
-            "foo.bar.Baz", """
+            "foo.bar.Baz",
+            """
             package foo.bar;
 
             import androidx.annotation.*;
@@ -63,7 +64,7 @@ class XNullabilityTest {
                     return "";
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTest(
             sources = listOf(source)
@@ -129,7 +130,8 @@ class XNullabilityTest {
     @Test
     fun kotlinNullability() {
         val source = Source.kotlin(
-            "Baz.kt", """
+            "Baz.kt",
+            """
             package foo.bar;
 
             import androidx.annotation.*;
@@ -157,7 +159,7 @@ class XNullabilityTest {
                 ) {
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTest(
             sources = listOf(source)
@@ -224,15 +226,17 @@ class XNullabilityTest {
                     .isEqualTo(NONNULL)
                 assertThat(method.getParameter("nullable").type.nullability)
                     .isEqualTo(NULLABLE)
-                assertThat(method.parameters.filter {
-                    it.type.isDeclared() && it.type.asDeclaredType().typeArguments.isNotEmpty()
-                }.map {
-                    Triple(
-                        first = it.name,
-                        second = it.type.nullability,
-                        third = it.type.asDeclaredType().typeArguments.single().nullability
-                    )
-                }).containsExactly(
+                assertThat(
+                    method.parameters.filter {
+                        it.type.isDeclared() && it.type.asDeclaredType().typeArguments.isNotEmpty()
+                    }.map {
+                        Triple(
+                            first = it.name,
+                            second = it.type.nullability,
+                            third = it.type.asDeclaredType().typeArguments.single().nullability
+                        )
+                    }
+                ).containsExactly(
                     Triple("nullableGenericWithNonNullType", NULLABLE, NONNULL),
                     Triple("nullableGenericWithNullableType", NULLABLE, NULLABLE),
                     Triple("nonNullGenericWithNonNullType", NONNULL, NONNULL),

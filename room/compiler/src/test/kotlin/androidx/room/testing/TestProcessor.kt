@@ -30,7 +30,8 @@ class TestProcessor(
     var count = 0
     override fun doProcess(annotations: Set<XTypeElement>, roundEnv: XRoundEnv): Boolean {
         return handlers.getOrNull(count++)?.invoke(
-            TestInvocation(xProcessingEnv, annotations, roundEnv)) ?: true
+            TestInvocation(xProcessingEnv, annotations, roundEnv)
+        ) ?: true
     }
 
     override fun getSupportedSourceVersion(): SourceVersion {

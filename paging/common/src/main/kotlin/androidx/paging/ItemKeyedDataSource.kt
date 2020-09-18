@@ -178,40 +178,45 @@ abstract class ItemKeyedDataSource<Key : Any, Value : Any> : DataSource<Key, Val
     @VisibleForTesting
     internal suspend fun loadInitial(params: LoadInitialParams<Key>) =
         suspendCancellableCoroutine<BaseResult<Value>> { cont ->
-            loadInitial(params, object : LoadInitialCallback<Value>() {
-                override fun onResult(data: List<Value>, position: Int, totalCount: Int) {
-                    cont.resume(
-                        BaseResult(
-                            data = data,
-                            prevKey = data.getPrevKey(),
-                            nextKey = data.getNextKey(),
-                            itemsBefore = position,
-                            itemsAfter = totalCount - data.size - position
+            loadInitial(
+                params,
+                object : LoadInitialCallback<Value>() {
+                    override fun onResult(data: List<Value>, position: Int, totalCount: Int) {
+                        cont.resume(
+                            BaseResult(
+                                data = data,
+                                prevKey = data.getPrevKey(),
+                                nextKey = data.getNextKey(),
+                                itemsBefore = position,
+                                itemsAfter = totalCount - data.size - position
+                            )
                         )
-                    )
-                }
+                    }
 
-                override fun onResult(data: List<Value>) {
-                    cont.resume(
-                        BaseResult(
-                            data = data,
-                            prevKey = data.getPrevKey(),
-                            nextKey = data.getNextKey()
+                    override fun onResult(data: List<Value>) {
+                        cont.resume(
+                            BaseResult(
+                                data = data,
+                                prevKey = data.getPrevKey(),
+                                nextKey = data.getNextKey()
+                            )
                         )
-                    )
+                    }
                 }
-            })
+            )
         }
 
     @Suppress("DEPRECATION")
     private fun CancellableContinuation<BaseResult<Value>>.asCallback() =
         object : ItemKeyedDataSource.LoadCallback<Value>() {
             override fun onResult(data: List<Value>) {
-                resume(BaseResult(
-                    data,
-                    data.getPrevKey(),
-                    data.getNextKey()
-                ))
+                resume(
+                    BaseResult(
+                        data,
+                        data.getPrevKey(),
+                        data.getNextKey()
+                    )
+                )
             }
         }
 

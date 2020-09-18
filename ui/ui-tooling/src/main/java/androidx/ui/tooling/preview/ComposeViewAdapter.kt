@@ -485,8 +485,10 @@ internal class ComposeViewAdapter : FrameLayout {
             -1L
         }
 
-        val forceCompositionInvalidation = attrs.getAttributeBooleanValue(TOOLS_NS_URI,
-            "forceCompositionInvalidation", false)
+        val forceCompositionInvalidation = attrs.getAttributeBooleanValue(
+            TOOLS_NS_URI,
+            "forceCompositionInvalidation", false
+        )
 
         init(
             className = className,

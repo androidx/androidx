@@ -90,7 +90,8 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
 
     init {
         val textDecorationCombination = TextDecoration.combine(
-            listOf(TextDecoration.LineThrough, TextDecoration.Underline))
+            listOf(TextDecoration.LineThrough, TextDecoration.Underline)
+        )
         valueLookup[textDecorationCombination] = "LineThrough+Underline"
         valueLookup[Color.Unspecified] = "Unspecified"
         valuesLoaded.add(Enum::class.java)
@@ -172,11 +173,11 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
             javaClass.declaredMethods.asSequence()
                 .filter {
                     it.returnType != Void.TYPE &&
-                            JavaModifier.isStatic(it.modifiers) &&
-                            JavaModifier.isFinal(it.modifiers) &&
-                            !it.returnType.isPrimitive &&
-                            it.parameterTypes.isEmpty() &&
-                            it.name.startsWith("get")
+                        JavaModifier.isStatic(it.modifiers) &&
+                        JavaModifier.isFinal(it.modifiers) &&
+                        !it.returnType.isPrimitive &&
+                        it.parameterTypes.isEmpty() &&
+                        it.name.startsWith("get")
                 }
                 .mapNotNull { javaClass.getDeclaredField(it.name.substring(3)) }
                 .mapNotNull { constantValueOf(it)?.let { key -> Pair(key, it.name) } }
@@ -215,8 +216,8 @@ internal class ParameterFactory(private val inlineClassConverter: InlineClassCon
 
     private fun ignoredValue(value: Any?): Boolean =
         value == null ||
-                ignoredClasses.any { ignored -> ignored.isInstance(value) } ||
-                value::class.java.isPrimitive
+            ignoredClasses.any { ignored -> ignored.isInstance(value) } ||
+            value::class.java.isPrimitive
 
     /**
      * Convenience class for building [NodeParameter]s.

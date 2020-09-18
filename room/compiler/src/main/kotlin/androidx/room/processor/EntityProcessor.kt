@@ -60,21 +60,22 @@ interface EntityProcessor : EntityOrViewProcessor {
 
         fun extractForeignKeys(annotation: XAnnotationBox<Entity>): List<ForeignKeyInput> {
             return annotation.getAsAnnotationBoxArray<ForeignKey>("foreignKeys")
-                    .mapNotNull { annotationBox ->
-                val foreignKey = annotationBox.value
-                val parent = annotationBox.getAsType("entity")
-                if (parent != null) {
-                    ForeignKeyInput(
+                .mapNotNull { annotationBox ->
+                    val foreignKey = annotationBox.value
+                    val parent = annotationBox.getAsType("entity")
+                    if (parent != null) {
+                        ForeignKeyInput(
                             parent = parent,
                             parentColumns = foreignKey.parentColumns.asList(),
                             childColumns = foreignKey.childColumns.asList(),
                             onDelete = ForeignKeyAction.fromAnnotationValue(foreignKey.onDelete),
                             onUpdate = ForeignKeyAction.fromAnnotationValue(foreignKey.onUpdate),
-                            deferred = foreignKey.deferred)
-                } else {
-                    null
+                            deferred = foreignKey.deferred
+                        )
+                    } else {
+                        null
+                    }
                 }
-            }
         }
     }
 }

@@ -28,7 +28,8 @@ class InvalidSetHasFixedSizeTest {
     @Test
     fun testCorrectUseOfHasFixedSize() {
         val resourceIds = kotlin(
-            "com/example/R.kt", """
+            "com/example/R.kt",
+            """
             package com.example
 
             object R {
@@ -40,7 +41,8 @@ class InvalidSetHasFixedSizeTest {
         ).indented().within("src")
 
         val source = kotlin(
-            "com/example/Example.kt", """
+            "com/example/Example.kt",
+            """
             package com.example
 
             import android.view.View
@@ -83,7 +85,8 @@ class InvalidSetHasFixedSizeTest {
     @Test
     fun testCorrectUseOfHasFixedSize2() {
         val resourceIds = kotlin(
-            "com/example/R.kt", """
+            "com/example/R.kt",
+            """
             package com.example
 
             object R {
@@ -95,7 +98,8 @@ class InvalidSetHasFixedSizeTest {
         ).indented().within("src")
 
         val source = kotlin(
-            "com/example/Example.kt", """
+            "com/example/Example.kt",
+            """
             package com.example
 
             import android.view.View
@@ -140,7 +144,8 @@ class InvalidSetHasFixedSizeTest {
     @Test
     fun testInCorrectUsageOfFixedSize() {
         val resourceIds = kotlin(
-            "com/example/R.kt", """
+            "com/example/R.kt",
+            """
             package com.example
 
             object R {
@@ -152,7 +157,8 @@ class InvalidSetHasFixedSizeTest {
         ).indented().within("src")
 
         val source = kotlin(
-            "com/example/Example.kt", """
+            "com/example/Example.kt",
+            """
             package com.example
 
             import android.view.View
@@ -190,19 +196,22 @@ class InvalidSetHasFixedSizeTest {
             .issues(InvalidSetHasFixedSizeDetector.ISSUE)
             .run()
             /* ktlint-disable max-line-length */
-            .expect("""
+            .expect(
+                """
                 src/com/example/Example.kt:10: Error: When using `setHasFixedSize() in an RecyclerView, wrap_content cannot be used as a value for size in the scrolling direction. [InvalidSetHasFixedSize]
                         recyclerView?.setHasFixedSize(true)
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
-            """.trimIndent())
-            /* ktlint-enable max-line-length */
+                """.trimIndent()
+            )
+        /* ktlint-enable max-line-length */
     }
 
     @Test
     fun testInCorrectUsageOfFixedSize2() {
         val resourceIds = kotlin(
-            "com/example/R.kt", """
+            "com/example/R.kt",
+            """
             package com.example
 
             object R {
@@ -214,7 +223,8 @@ class InvalidSetHasFixedSizeTest {
         ).indented().within("src")
 
         val source = kotlin(
-            "com/example/Example.kt", """
+            "com/example/Example.kt",
+            """
             package com.example
 
             import android.view.View
@@ -253,19 +263,22 @@ class InvalidSetHasFixedSizeTest {
             .issues(InvalidSetHasFixedSizeDetector.ISSUE)
             .run()
             /* ktlint-disable max-line-length */
-            .expect("""
+            .expect(
+                """
                 src/com/example/Example.kt:10: Error: When using `setHasFixedSize() in an RecyclerView, wrap_content cannot be used as a value for size in the scrolling direction. [InvalidSetHasFixedSize]
                         recyclerView?.setHasFixedSize(true)
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
-            """.trimIndent())
+                """.trimIndent()
+            )
         /* ktlint-enable max-line-length */
     }
 
     @Test
     fun testInCorrectUseOfHasFixedSize3() {
         val resourceIds = kotlin(
-            "com/example/R.kt", """
+            "com/example/R.kt",
+            """
             package com.example
 
             object R {
@@ -277,7 +290,8 @@ class InvalidSetHasFixedSizeTest {
         ).indented().within("src")
 
         val source = kotlin(
-            "com/example/Example.kt", """
+            "com/example/Example.kt",
+            """
             package com.example
 
             import android.view.View
@@ -319,12 +333,14 @@ class InvalidSetHasFixedSizeTest {
             .issues(InvalidSetHasFixedSizeDetector.ISSUE)
             .run()
             /* ktlint-disable max-line-length */
-            .expect("""
+            .expect(
+                """
                 src/com/example/Example.kt:14: Error: When using `setHasFixedSize() in an RecyclerView, wrap_content cannot be used as a value for size in the scrolling direction. [InvalidSetHasFixedSize]
                         recyclerView?.setHasFixedSize(true)
                         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
                 1 errors, 0 warnings
-            """.trimIndent())
-            /* ktlint-enable max-line-length */
+                """.trimIndent()
+            )
+        /* ktlint-enable max-line-length */
     }
 }

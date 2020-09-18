@@ -29,9 +29,10 @@ import androidx.room.solver.CodeGenScope
  * etc.
  */
 class NoOpConverter(type: XType) : TypeConverter(
-        type, type) {
+    type, type
+) {
     override fun convert(inputVarName: String, outputVarName: String, scope: CodeGenScope) {
         scope.builder()
-                .addStatement("$L = $L", outputVarName, inputVarName)
+            .addStatement("$L = $L", outputVarName, inputVarName)
     }
 }

@@ -74,7 +74,7 @@ internal class ConfigFragment : Fragment() {
         savedState: Bundle?
     ): View {
         view = inflater.inflate(R.layout.config_layout, container, false) as
-                SwipeDismissFrameLayout
+            SwipeDismissFrameLayout
 
         view.addCallback(object : SwipeDismissFrameLayout.Callback() {
             override fun onDismissed(layout: SwipeDismissFrameLayout) {
@@ -99,10 +99,10 @@ internal class ConfigFragment : Fragment() {
                 ConfigOption(
                     id = Constants.KEY_COMPLICATIONS_SETTINGS,
                     icon =
-                    Icon.createWithResource(
-                        context,
-                        R.drawable.ic_elements_settings_complications
-                    ),
+                        Icon.createWithResource(
+                            context,
+                            R.drawable.ic_elements_settings_complications
+                        ),
                     title = resources.getString(R.string.settings_complications),
                     summary = ""
                 )
@@ -153,13 +153,16 @@ internal class ConfigFragment : Fragment() {
             watchFaceConfigActivity.watchFaceComponentName,
             intArrayOf(watchFaceConfigActivity.backgroundComplicationId!!)
         )
-        future.addListener({
-            val provideInfo = future.get()
-            provideInfo.info?.apply {
-                backgroundConfigOption.summary = providerName!!
-                configViewAdapter.notifyDataSetChanged()
-            }
-        }, { runnable -> runnable.run() })
+        future.addListener(
+            {
+                val provideInfo = future.get()
+                provideInfo.info?.apply {
+                    backgroundConfigOption.summary = providerName!!
+                    configViewAdapter.notifyDataSetChanged()
+                }
+            },
+            { runnable -> runnable.run() }
+        )
         return backgroundConfigOption
     }
 
@@ -185,7 +188,8 @@ internal class ConfigFragment : Fragment() {
             Constants.KEY_BACKGROUND_IMAGE_SETTINGS -> {
                 val backgroundComplication =
                     watchFaceConfigActivity.watchFaceConfigDelegate.getComplicationsMap()[
-                            watchFaceConfigActivity.backgroundComplicationId!!]!!
+                        watchFaceConfigActivity.backgroundComplicationId!!
+                    ]!!
                 watchFaceConfigActivity.fragmentController.showComplicationConfig(
                     backgroundComplication.id,
                     *backgroundComplication.supportedTypes

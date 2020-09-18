@@ -33,9 +33,11 @@ class ImmutableListQueryResultAdapter(rowAdapter: RowAdapter) : QueryResultAdapt
             val immutableListBuilderType = ParameterizedTypeName
                 .get(ClassName.get(ImmutableList.Builder::class.java), type.typeName)
             val immutableListBuilderName = scope.getTmpVar("_immutableListBuilder")
-            addStatement("final $T $L = $T.<$T>builder()",
+            addStatement(
+                "final $T $L = $T.<$T>builder()",
                 immutableListBuilderType, immutableListBuilderName,
-                ClassName.get(ImmutableList::class.java), type.typeName)
+                ClassName.get(ImmutableList::class.java), type.typeName
+            )
             val tmpVarName = scope.getTmpVar("_item")
             beginControlFlow("while($L.moveToNext())", cursorVarName).apply {
                 addStatement("final $T $L", type.typeName, tmpVarName)
@@ -43,8 +45,10 @@ class ImmutableListQueryResultAdapter(rowAdapter: RowAdapter) : QueryResultAdapt
                 addStatement("$L.add($L)", immutableListBuilderName, tmpVarName)
             }
             endControlFlow()
-            addStatement("final $T $L = $L.build()",
-                collectionType, outVarName, immutableListBuilderName)
+            addStatement(
+                "final $T $L = $L.build()",
+                collectionType, outVarName, immutableListBuilderName
+            )
             rowAdapter?.onCursorFinished()?.invoke(scope)
         }
     }

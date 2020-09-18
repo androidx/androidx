@@ -93,7 +93,7 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity> {
             }
             assertWithMessage(
                 "The image rotation degrees [$imageRotationDegrees] was expected to" +
-                        " be equal to [$sensorToTargetRotation]"
+                    " be equal to [$sensorToTargetRotation]"
             )
                 .that(imageRotationDegrees)
                 .isEqualTo(sensorToTargetRotation)
@@ -101,15 +101,15 @@ abstract class ImageAnalysisBaseTest<A : CameraActivity> {
     }
 
     protected inline fun <reified A : CameraActivity> launchActivity(lensFacing: Int):
-            ActivityScenario<A> {
-        val intent = Intent(
-            ApplicationProvider.getApplicationContext(),
-            A::class.java
-        ).apply {
-            putExtra(CameraActivity.KEY_LENS_FACING, lensFacing)
+        ActivityScenario<A> {
+            val intent = Intent(
+                ApplicationProvider.getApplicationContext(),
+                A::class.java
+            ).apply {
+                putExtra(CameraActivity.KEY_LENS_FACING, lensFacing)
+            }
+            return ActivityScenario.launch<A>(intent)
         }
-        return ActivityScenario.launch<A>(intent)
-    }
 
     protected inline fun <reified A : CameraActivity> ActivityScenario<A>.waitOnCameraFrames() {
         val analysisRunning = withActivity { mAnalysisRunning }

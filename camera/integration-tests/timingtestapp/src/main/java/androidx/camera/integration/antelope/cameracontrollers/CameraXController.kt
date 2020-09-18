@@ -104,8 +104,10 @@ internal fun cameraXOpenCamera(
             previewUseCase.setSurfaceProvider { surfaceRequest ->
                 // Create the SurfaceTexture and Surface
                 val surfaceTexture = SurfaceTexture(0)
-                surfaceTexture.setDefaultBufferSize(surfaceRequest.resolution.width,
-                    surfaceRequest.resolution.height)
+                surfaceTexture.setDefaultBufferSize(
+                    surfaceRequest.resolution.width,
+                    surfaceRequest.resolution.height
+                )
                 surfaceTexture.detachFromGLContext()
                 val surface = Surface(surfaceTexture)
 
@@ -119,10 +121,13 @@ internal fun cameraXOpenCamera(
 
                 // Surface provided to camera for producing buffers into and
                 // Release the SurfaceTexture and Surface once camera is done with it
-                surfaceRequest.provideSurface(surface, CameraXExecutors.directExecutor(), Consumer {
+                surfaceRequest.provideSurface(
+                    surface, CameraXExecutors.directExecutor(),
+                    Consumer {
                         surface.release()
                         surfaceTexture.release()
-                })
+                    }
+                )
             }
         }
 
@@ -232,7 +237,7 @@ internal fun cameraXTakePicture(
     // Pause in multi-captures to make sure HDR routines don't get overloaded
     logd(
         "CameraX TakePicture. Pausing for " +
-                PrefHelper.getPreviewBuffer(activity) + "ms to let preview run."
+            PrefHelper.getPreviewBuffer(activity) + "ms to let preview run."
     )
 
     params.timer.previewFillStart = System.currentTimeMillis()
@@ -327,7 +332,7 @@ private fun cameraXPreviewUseCaseBuilder(
 private fun cameraXImageCaptureUseCaseBuilder(
     focusMode: FocusMode,
     deviceStateCallback:
-    CameraDevice.StateCallback,
+        CameraDevice.StateCallback,
     sessionCaptureCallback: CameraCaptureSession.CaptureCallback
 ): ImageCapture.Builder {
 

@@ -149,9 +149,12 @@ class LivePagedListBuilderTest {
         val pagedListHolder: Array<PagedList<String>?> = arrayOfNulls(1)
 
         @Suppress("DEPRECATION")
-        livePagedList.observe(lifecycleOwner, Observer<PagedList<String>> { newList ->
-            pagedListHolder[0] = newList
-        })
+        livePagedList.observe(
+            lifecycleOwner,
+            Observer<PagedList<String>> { newList ->
+                pagedListHolder[0] = newList
+            }
+        )
 
         // initially, immediately get passed empty initial list
         assertNotNull(pagedListHolder[0])
@@ -185,9 +188,12 @@ class LivePagedListBuilderTest {
         val pagedListHolder: Array<PagedList<String>?> = arrayOfNulls(1)
 
         @Suppress("DEPRECATION")
-        livePagedList.observe(lifecycleOwner, Observer<PagedList<String>> { newList ->
-            pagedListHolder[0] = newList
-        })
+        livePagedList.observe(
+            lifecycleOwner,
+            Observer<PagedList<String>> { newList ->
+                pagedListHolder[0] = newList
+            }
+        )
 
         val loadStates = mutableListOf<LoadStateEvent>()
 
@@ -215,7 +221,8 @@ class LivePagedListBuilderTest {
                 ),
                 LoadStateEvent(REFRESH, Loading),
                 LoadStateEvent(REFRESH, Error(EXCEPTION))
-            ), loadStates
+            ),
+            loadStates
         )
 
         initPagedList.retry()
@@ -236,7 +243,8 @@ class LivePagedListBuilderTest {
                 LoadStateEvent(REFRESH, Loading),
                 LoadStateEvent(REFRESH, Error(EXCEPTION)),
                 LoadStateEvent(REFRESH, Loading)
-            ), loadStates
+            ),
+            loadStates
         )
 
         // the IDLE result shows up on the next PagedList

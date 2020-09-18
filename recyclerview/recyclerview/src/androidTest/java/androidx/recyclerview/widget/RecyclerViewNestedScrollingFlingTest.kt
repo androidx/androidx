@@ -59,7 +59,8 @@ class RecyclerViewNestedScrollingFlingTest(
     @Rule
     @JvmField
     val mActivityResetRule: ActivityScenarioResetRule<TestActivity> = TestActivity.ResetRule(
-        mActivityRule.scenario)
+        mActivityRule.scenario
+    )
 
     @Before
     @Throws(Throwable::class)
@@ -151,10 +152,10 @@ class RecyclerViewNestedScrollingFlingTest(
         val up = MotionEvent.obtain(0, elapsedTime, MotionEvent.ACTION_UP, x3, y3, 0)
 
         mActivityRule.runOnUiThread {
-                mNestedScrollingParent.dispatchTouchEvent(down)
-                mNestedScrollingParent.dispatchTouchEvent(move1)
-                mNestedScrollingParent.dispatchTouchEvent(move2)
-                mNestedScrollingParent.dispatchTouchEvent(up)
+            mNestedScrollingParent.dispatchTouchEvent(down)
+            mNestedScrollingParent.dispatchTouchEvent(move1)
+            mNestedScrollingParent.dispatchTouchEvent(move2)
+            mNestedScrollingParent.dispatchTouchEvent(up)
         }
 
         val (expected, errorRange) =
@@ -173,8 +174,10 @@ class RecyclerViewNestedScrollingFlingTest(
         )
     }
 
-    inner class NestedScrollingParent(context: Context) : FrameLayout(context),
-        NestedScrollingChild3, NestedScrollingParent3 {
+    inner class NestedScrollingParent(context: Context) :
+        FrameLayout(context),
+        NestedScrollingChild3,
+        NestedScrollingParent3 {
 
         var preScrollX: Int = 0
         var postScrollX: Int = 0
@@ -424,10 +427,10 @@ class RecyclerViewNestedScrollingFlingTest(
         @JvmStatic
         @Parameterized.Parameters(
             name = "orientationVertical:{0}, " +
-                    "scrollDirectionForward:{1}, " +
-                    "rvIntercepts:{2}, " +
-                    "preScrollConsumption:{3}, " +
-                    "postScrollConsumption:{4}"
+                "scrollDirectionForward:{1}, " +
+                "rvIntercepts:{2}, " +
+                "preScrollConsumption:{3}, " +
+                "postScrollConsumption:{4}"
         )
         fun data(): Collection<Array<Any>> {
             val configurations = ArrayList<Array<Any>>()
@@ -443,55 +446,64 @@ class RecyclerViewNestedScrollingFlingTest(
                                     rvIntercepts,
                                     0,
                                     0
-                                ), arrayOf(
+                                ),
+                                arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     25,
                                     0
-                                ), arrayOf(
+                                ),
+                                arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     50,
                                     0
-                                ), arrayOf(
+                                ),
+                                arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     100,
                                     0
-                                ), arrayOf(
+                                ),
+                                arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     0,
                                     25
-                                ), arrayOf(
+                                ),
+                                arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     0,
                                     50
-                                ), arrayOf(
+                                ),
+                                arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     0,
                                     100
-                                ), arrayOf(
+                                ),
+                                arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     12,
                                     13
-                                ), arrayOf(
+                                ),
+                                arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,
                                     25,
                                     25
-                                ), arrayOf(
+                                ),
+                                arrayOf(
                                     orientationVertical,
                                     scrollDirectionForward,
                                     rvIntercepts,

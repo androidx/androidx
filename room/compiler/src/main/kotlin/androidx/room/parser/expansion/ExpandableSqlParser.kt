@@ -92,7 +92,8 @@ class ExpandableQueryVisitor(
                     }
                     c.table_name() != null -> {
                         addProjectionSection(
-                            c, ExpandableSection.Projection.Table(
+                            c,
+                            ExpandableSection.Projection.Table(
                                 c.table_name().text.trim('`'),
                                 original.substring(c.start.startIndex, c.stop.stopIndex + 1)
                             )
@@ -197,7 +198,7 @@ private fun RuleContext.ancestors(): Sequence<RuleContext> = generateSequence(pa
 private val RuleContext.isCoreSelect: Boolean
     get() {
         return this is SQLiteParser.Select_or_valuesContext &&
-                ancestors().none { it is SQLiteParser.Select_or_valuesContext }
+            ancestors().none { it is SQLiteParser.Select_or_valuesContext }
     }
 
 class ExpandableSqlParser {

@@ -34,16 +34,18 @@ class PreparedStatementWriter(val queryWriter: QueryWriter) {
         @Suppress("RemoveSingleExpressionStringTemplate")
         return TypeSpec.anonymousClassBuilder("$N", dbParam).apply {
             superclass(RoomTypeNames.SHARED_SQLITE_STMT)
-            addMethod(MethodSpec.methodBuilder("createQuery").apply {
-                addAnnotation(Override::class.java)
-                returns(ClassName.get("java.lang", "String"))
-                addModifiers(Modifier.PUBLIC)
-                val queryName = scope.getTmpVar("_query")
-                val queryGenScope = scope.fork()
-                queryWriter.prepareQuery(queryName, queryGenScope)
-                addCode(queryGenScope.builder().build())
-                addStatement("return $L", queryName)
-            }.build())
+            addMethod(
+                MethodSpec.methodBuilder("createQuery").apply {
+                    addAnnotation(Override::class.java)
+                    returns(ClassName.get("java.lang", "String"))
+                    addModifiers(Modifier.PUBLIC)
+                    val queryName = scope.getTmpVar("_query")
+                    val queryGenScope = scope.fork()
+                    queryWriter.prepareQuery(queryName, queryGenScope)
+                    addCode(queryGenScope.builder().build())
+                    addStatement("return $L", queryName)
+                }.build()
+            )
         }.build()
     }
 }

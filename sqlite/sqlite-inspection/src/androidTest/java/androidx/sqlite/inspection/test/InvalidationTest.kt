@@ -53,7 +53,8 @@ class InvalidationTest {
             "execute()V",
             "executeInsert()J",
             "executeUpdateDelete()I"
-        ).map { it to SQLiteStatement::class.java })
+        ).map { it to SQLiteStatement::class.java }
+    )
 
     @Test
     fun test_end_transaction_hook_method() =
@@ -69,7 +70,7 @@ class InvalidationTest {
                 expectedHooks.forEach { (method, clazz) ->
                     val hook = hooks.filter { hook ->
                         hook.originMethod == method &&
-                                hook.originClass == clazz
+                            hook.originClass == clazz
                     }
                     assertThat(hook).hasSize(1)
 
@@ -124,12 +125,12 @@ class InvalidationTest {
 
         // Hook method signatures
         val rawQueryMethodSignature = "rawQueryWithFactory(" +
-                "Landroid/database/sqlite/SQLiteDatabase\$CursorFactory;" +
-                "Ljava/lang/String;" +
-                "[Ljava/lang/String;" +
-                "Ljava/lang/String;" +
-                "Landroid/os/CancellationSignal;" +
-                ")Landroid/database/Cursor;"
+            "Landroid/database/sqlite/SQLiteDatabase\$CursorFactory;" +
+            "Ljava/lang/String;" +
+            "[Ljava/lang/String;" +
+            "Ljava/lang/String;" +
+            "Landroid/os/CancellationSignal;" +
+            ")Landroid/database/Cursor;"
         val getCountMethodSignature = "getCount()I"
         val onMoveSignatureMethodSignature = "onMove(II)Z"
 

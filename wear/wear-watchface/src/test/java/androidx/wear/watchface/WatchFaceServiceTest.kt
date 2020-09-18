@@ -272,10 +272,12 @@ class WatchFaceServiceTest {
         hasLowBitAmbient: Boolean,
         hasBurnInProtection: Boolean
     ) {
-        engine.onPropertiesChanged(Bundle().apply {
-            putBoolean(Constants.PROPERTY_LOW_BIT_AMBIENT, hasLowBitAmbient)
-            putBoolean(Constants.PROPERTY_BURN_IN_PROTECTION, hasBurnInProtection)
-        })
+        engine.onPropertiesChanged(
+            Bundle().apply {
+                putBoolean(Constants.PROPERTY_LOW_BIT_AMBIENT, hasLowBitAmbient)
+                putBoolean(Constants.PROPERTY_BURN_IN_PROTECTION, hasBurnInProtection)
+            }
+        )
     }
 
     private fun sendRequestStyle() {
@@ -903,9 +905,11 @@ class WatchFaceServiceTest {
         watchState.isKeyguardLocked.addObserver(isKeyguardLockedObserver)
 
         // Every indicator onXyz method should be called upon the initial update.
-        engineWrapper.onBackgroundAction(Bundle().apply {
-            putBundle(Constants.EXTRA_INDICATOR_STATUS, bundle)
-        })
+        engineWrapper.onBackgroundAction(
+            Bundle().apply {
+                putBundle(Constants.EXTRA_INDICATOR_STATUS, bundle)
+            }
+        )
 
         verify(isChargingObserver).onChanged(true)
         verify(inAirplaneModeObserver).onChanged(false)
@@ -923,9 +927,11 @@ class WatchFaceServiceTest {
 
         // Check only the modified setIsCharging state leads to a call.
         bundle.putBoolean(Constants.STATUS_CHARGING, false)
-        engineWrapper.onBackgroundAction(Bundle().apply {
-            putBundle(Constants.EXTRA_INDICATOR_STATUS, bundle)
-        })
+        engineWrapper.onBackgroundAction(
+            Bundle().apply {
+                putBundle(Constants.EXTRA_INDICATOR_STATUS, bundle)
+            }
+        )
         verify(isChargingObserver).onChanged(false)
         verify(inAirplaneModeObserver, times(0)).onChanged(anyBoolean())
         verify(isConnectedToCompanionObserver, times(0)).onChanged(anyBoolean())

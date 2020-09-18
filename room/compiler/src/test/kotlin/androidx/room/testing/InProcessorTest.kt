@@ -33,23 +33,29 @@ class InProcessorTest {
     fun testInProcessorTestRuns() {
         val didRun = AtomicBoolean(false)
         Truth.assertAbout(JavaSourceSubjectFactory.javaSource())
-                .that(JavaFileObjects.forSourceString("foo.bar.MyClass",
-                        """
+            .that(
+                JavaFileObjects.forSourceString(
+                    "foo.bar.MyClass",
+                    """
                         package foo.bar;
                         abstract public class MyClass {
                         @androidx.room.Query("foo")
                         abstract public void setFoo(String foo);
                         }
-                        """))
-                .processedWith(TestProcessor.builder()
-                        .nextRunHandler { invocation ->
-                            didRun.set(true)
-                            assertThat(invocation.annotations.size, `is`(1))
-                            true
-                        }
-                        .forAnnotations(Query::class)
-                        .build())
-                .compilesWithoutError()
+                        """
+                )
+            )
+            .processedWith(
+                TestProcessor.builder()
+                    .nextRunHandler { invocation ->
+                        didRun.set(true)
+                        assertThat(invocation.annotations.size, `is`(1))
+                        true
+                    }
+                    .forAnnotations(Query::class)
+                    .build()
+            )
+            .compilesWithoutError()
         assertThat(didRun.get(), `is`(true))
     }
 }

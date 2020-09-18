@@ -40,8 +40,10 @@ class CameraXCaptureSessionCallback(
 
     /** Capture has been aborted. */
     override fun onCaptureSequenceAborted(session: CameraCaptureSession, sequenceId: Int) {
-        MainActivity.logd("CameraX captureCallback: Sequence aborted. Current test: " +
-            testConfig.currentRunningTest.toString())
+        MainActivity.logd(
+            "CameraX captureCallback: Sequence aborted. Current test: " +
+                testConfig.currentRunningTest.toString()
+        )
         super.onCaptureSequenceAborted(session, sequenceId)
     }
 
@@ -51,8 +53,10 @@ class CameraXCaptureSessionCallback(
         request: CaptureRequest,
         failure: CaptureFailure
     ) {
-        MainActivity.logd("CameraX captureStillPicture captureCallback: Capture Failed. Failure: " +
-            failure.reason + " Current test: " + testConfig.currentRunningTest.toString())
+        MainActivity.logd(
+            "CameraX captureStillPicture captureCallback: Capture Failed. Failure: " +
+                failure.reason + " Current test: " + testConfig.currentRunningTest.toString()
+        )
         closeCameraX(activity, params, testConfig)
         cameraXOpenCamera(activity, params, testConfig)
     }
@@ -112,14 +116,18 @@ class CameraXCaptureSessionCallback(
         }
 
         params.timer.captureEnd = System.currentTimeMillis()
-        MainActivity.logd("CameraX StillCapture completed. CaptureEnd. Current test: " +
-            testConfig.currentRunningTest.toString())
+        MainActivity.logd(
+            "CameraX StillCapture completed. CaptureEnd. Current test: " +
+                testConfig.currentRunningTest.toString()
+        )
 
         // ImageReader might get the image before this callback is called, if so, the test is done
         if (0L != params.timer.imageSaveEnd) {
             params.timer.imageReaderStart = params.timer.imageReaderEnd // No ImageReader delay
-            MainActivity.logd("StillCapture completed. Ending Test. Current test: " +
-                testConfig.currentRunningTest.toString())
+            MainActivity.logd(
+                "StillCapture completed. Ending Test. Current test: " +
+                    testConfig.currentRunningTest.toString()
+            )
 
             if (TestType.MULTI_PHOTO_CHAIN == testConfig.currentRunningTest) {
                 testEnded(activity, params, testConfig)
@@ -128,8 +136,10 @@ class CameraXCaptureSessionCallback(
                 closeCameraX(activity, params, testConfig)
             }
         } else {
-            MainActivity.logd("StillCapture completed. Waiting on imageReader. Current test: " +
-                testConfig.currentRunningTest.toString())
+            MainActivity.logd(
+                "StillCapture completed. Waiting on imageReader. Current test: " +
+                    testConfig.currentRunningTest.toString()
+            )
             params.timer.imageReaderStart = System.currentTimeMillis()
         }
     }

@@ -37,13 +37,19 @@ class DatabaseWriterTest {
         @Test
         fun testCompileAndVerifySources() {
             singleDb(
-                    loadJavaCode("databasewriter/input/ComplexDatabase.java",
-                            "foo.bar.ComplexDatabase"),
-                    loadJavaCode("daoWriter/input/ComplexDao.java",
-                            "foo.bar.ComplexDao")
+                loadJavaCode(
+                    "databasewriter/input/ComplexDatabase.java",
+                    "foo.bar.ComplexDatabase"
+                ),
+                loadJavaCode(
+                    "daoWriter/input/ComplexDao.java",
+                    "foo.bar.ComplexDao"
+                )
             ).compilesWithoutError().and().generatesSources(
-                    loadJavaCode("databasewriter/output/ComplexDatabase.java",
-                            "foo.bar.ComplexDatabase_Impl")
+                loadJavaCode(
+                    "databasewriter/output/ComplexDatabase.java",
+                    "foo.bar.ComplexDatabase_Impl"
+                )
             )
         }
     }
@@ -60,16 +66,19 @@ class DatabaseWriterTest {
             while (statementCount < maxStatementCount) {
                 val entityValues = StringBuilder().apply {
                     for (i in 1..valuesPerEntity) {
-                        append("""
+                        append(
+                            """
                     private String value$i;
                     public String getValue$i() { return this.value$i; }
                     public void setValue$i(String value) { this.value$i = value; }
 
-                    """)
+                    """
+                        )
                     }
                 }
-                val entitySource = JavaFileObjects.forSourceLines("foo.bar.Entity$entityCount",
-                        """
+                val entitySource = JavaFileObjects.forSourceLines(
+                    "foo.bar.Entity$entityCount",
+                    """
                     package foo.bar;
 
                     import androidx.room.*;
@@ -85,23 +94,26 @@ class DatabaseWriterTest {
 
                         $entityValues
                     }
-                    """)
+                    """
+                )
                 entitySources.add("Entity$entityCount" to entitySource)
                 statementCount += valuesPerEntity
                 entityCount++
             }
             val entityClasses = entitySources.joinToString { "${it.first}.class" }
-            val dbSource = JavaFileObjects.forSourceLines("foo.bar.TestDatabase",
-                    """
+            val dbSource = JavaFileObjects.forSourceLines(
+                "foo.bar.TestDatabase",
+                """
                     package foo.bar;
 
                     import androidx.room.*;
 
                     @Database(entities = {$entityClasses}, version = 1)
                     public abstract class TestDatabase extends RoomDatabase {}
-                    """)
+                    """
+            )
             singleDb(*(listOf(dbSource) + entitySources.map { it.second }).toTypedArray())
-                    .compilesWithoutError()
+                .compilesWithoutError()
         }
 
         companion object {
@@ -122,8 +134,10 @@ class DatabaseWriterTest {
 
 private fun singleDb(vararg jfo: JavaFileObject): CompileTester {
     return Truth.assertAbout(JavaSourcesSubjectFactory.javaSources())
-            .that(jfo.toList() + COMMON.USER + COMMON.USER_SUMMARY + COMMON.LIVE_DATA +
-                    COMMON.COMPUTABLE_LIVE_DATA + COMMON.PARENT + COMMON.CHILD1 + COMMON.CHILD2 +
-                    COMMON.INFO + COMMON.GUAVA_ROOM + COMMON.LISTENABLE_FUTURE)
-            .processedWith(RoomProcessor())
+        .that(
+            jfo.toList() + COMMON.USER + COMMON.USER_SUMMARY + COMMON.LIVE_DATA +
+                COMMON.COMPUTABLE_LIVE_DATA + COMMON.PARENT + COMMON.CHILD1 + COMMON.CHILD2 +
+                COMMON.INFO + COMMON.GUAVA_ROOM + COMMON.LISTENABLE_FUTURE
+        )
+        .processedWith(RoomProcessor())
 }

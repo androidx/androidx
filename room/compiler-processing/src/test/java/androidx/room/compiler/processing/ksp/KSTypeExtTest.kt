@@ -39,7 +39,8 @@ class KSTypeExtTest {
     @Test
     fun kotlinTypeName() {
         val subjectSrc = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             package foo.bar;
             import kotlin.collections.*
             class Baz {
@@ -50,7 +51,7 @@ class KSTypeExtTest {
                 class Nested {
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runTest(subjectSrc) { resolver ->
             val subject = resolver.requireClass("foo.bar.Baz")
@@ -81,7 +82,8 @@ class KSTypeExtTest {
     @Test
     fun javaTypeName() {
         val subjectSrc = Source.java(
-            "Baz", """
+            "Baz",
+            """
             import java.util.List;
             class Baz {
                 int intField;
@@ -91,7 +93,7 @@ class KSTypeExtTest {
                 static class Nested {
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runTest(subjectSrc) { resolver ->
             val subject = resolver.requireClass("Baz")
@@ -116,14 +118,15 @@ class KSTypeExtTest {
     @Test
     fun kotlinErrorType() {
         val subjectSrc = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             import kotlin.collections.*
             class Foo {
                 val errorField : DoesNotExist = TODO()
                 val listOfError : List<DoesNotExist> = TODO()
                 val mutableMapOfDontExist : MutableMap<String, DoesNotExist> = TODO()
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runTest(subjectSrc, succeed = false) { resolver ->
             val subject = resolver.requireClass("Foo")
@@ -153,7 +156,8 @@ class KSTypeExtTest {
     @Test
     fun kaptGoldenTest() {
         val src = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             class MyType
             class MyGeneric<T>
             class Subject {
@@ -169,7 +173,7 @@ class KSTypeExtTest {
                 fun method7(): MyGeneric<MyType> = TODO()
                 fun method8(): MyGeneric<*> = TODO()
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         // methodName -> returnType, ...paramTypes
         val golden = mutableMapOf<String, List<TypeName>>()
@@ -181,9 +185,9 @@ class KSTypeExtTest {
             val subject = env.delegate.elementUtils.getTypeElement("Subject")
             ElementFilter.methodsIn(subject.enclosedElements).map { method ->
                 val types = listOf(method.returnType.safeTypeName()) +
-                        method.parameters.map {
-                            it.asType().safeTypeName()
-                        }
+                    method.parameters.map {
+                        it.asType().safeTypeName()
+                    }
                 golden[method.simpleName.toString()] = types
             }
         }
@@ -196,9 +200,9 @@ class KSTypeExtTest {
             val subject = env.resolver.requireClass("Subject")
             subject.getDeclaredFunctions().forEach { method ->
                 val types = listOf(method.returnType.typeName()) +
-                        method.parameters.map {
-                            it.type.typeName()
-                        }
+                    method.parameters.map {
+                        it.type.typeName()
+                    }
                 kspResults[method.simpleName.asString()] = types
             }
         }

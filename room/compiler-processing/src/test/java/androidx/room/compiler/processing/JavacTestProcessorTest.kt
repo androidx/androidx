@@ -28,13 +28,14 @@ class JavacTestProcessorTest {
     @Test
     fun testGetAnnotations() {
         val source = Source.java(
-            "foo.bar.Baz", """
+            "foo.bar.Baz",
+            """
             package foo.bar;
             import androidx.room.compiler.processing.testcode.OtherAnnotation;
             @OtherAnnotation(value="xx")
             class Baz {
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         val invoked = AtomicBoolean(false)
         val testProcessor = object : JavacTestProcessor() {

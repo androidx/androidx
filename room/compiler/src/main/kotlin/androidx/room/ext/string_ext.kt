@@ -45,8 +45,8 @@ private fun List<String>.joinToCamelCaseAsVar(): String = when (size) {
 private val javaCharRegex = "[^a-zA-Z0-9]".toRegex()
 fun String.stripNonJava(): String {
     return this.split(javaCharRegex)
-            .map(String::trim)
-            .joinToCamelCaseAsVar()
+        .map(String::trim)
+        .joinToCamelCaseAsVar()
 }
 
 // TODO: Replace this with the function from the Kotlin stdlib once the API becomes stable

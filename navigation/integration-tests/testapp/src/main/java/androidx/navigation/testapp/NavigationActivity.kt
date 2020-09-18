@@ -41,18 +41,22 @@ class NavigationActivity : AppCompatActivity(R.layout.navigation_activity) {
         super.onCreate(savedInstanceState)
 
         val navHostFragment = supportFragmentManager.findFragmentById(R.id.my_nav_host_fragment)
-                as NavHostFragment
+            as NavHostFragment
         val navController = navHostFragment.navController
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
         val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
-        toolbar.setupWithNavController(navController,
+        toolbar.setupWithNavController(
+            navController,
             AppBarConfiguration(
                 setOf(
                     R.id.main,
                     R.id.android_main
-                ), drawerLayout,
-                ::onSupportNavigateUp))
+                ),
+                drawerLayout,
+                ::onSupportNavigateUp
+            )
+        )
 
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
         if (navigationView != null) {
@@ -64,11 +68,16 @@ class NavigationActivity : AppCompatActivity(R.layout.navigation_activity) {
             toolbar.setOnMenuItemClickListener { item ->
                 when (item.itemId) {
                     R.id.help_activity -> {
-                        navController.navigate(R.id.help_activity, null, null,
-                                ActivityNavigatorExtras(
-                                    ActivityOptionsCompat
-                                        .makeSceneTransitionAnimation(this,
-                                                toolbar, "toolbar")))
+                        navController.navigate(
+                            R.id.help_activity, null, null,
+                            ActivityNavigatorExtras(
+                                ActivityOptionsCompat
+                                    .makeSceneTransitionAnimation(
+                                        this,
+                                        toolbar, "toolbar"
+                                    )
+                            )
+                        )
                         true
                     } else -> NavigationUI.onNavDestinationSelected(item, navController)
                 }

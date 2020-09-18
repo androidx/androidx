@@ -133,12 +133,15 @@ class PaddingMarginDecorationTest(private val config: TestConfig) : BaseTest() {
     }
 
     private val adapterProvider: AdapterProviderForItems get() {
-            return AdapterProviderForItems("adapterProvider", if (config.itemMarginPx > 0) {
+        return AdapterProviderForItems(
+            "adapterProvider",
+            if (config.itemMarginPx > 0) {
                 { items -> { MarginViewAdapter(config.itemMarginPx, items) } }
             } else {
                 { items -> { ViewAdapter(items) } }
-            })
-        }
+            }
+        )
+    }
 
     class MarginViewAdapter(private val margin: Int, items: List<String>) : ViewAdapter(items) {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -258,8 +261,8 @@ class PaddingMarginDecorationTest(private val config: TestConfig) : BaseTest() {
 
                 // dive into scroll events
                 val sortOrder =
-                        if (targetPage - initialPage > 0) SortOrder.ASC
-                        else SortOrder.DESC
+                    if (targetPage - initialPage > 0) SortOrder.ASC
+                    else SortOrder.DESC
                 scrollEvents.assertPositionSorted(sortOrder)
                 scrollEvents.assertOffsetSorted(sortOrder)
                 scrollEvents.assertValueCorrectness(initialPage, targetPage, viewPager.pageSize)
@@ -309,22 +312,34 @@ class PaddingMarginDecorationTest(private val config: TestConfig) : BaseTest() {
             if (targetPage == initialPage && edgePages.contains(targetPage)) {
                 callback.apply {
                     // verify all events
-                    assertThat("Events should start with a state change to DRAGGING",
-                        draggingIx, equalTo(0))
-                    assertThat("Last event should be a state change to IDLE",
-                        idleIx, equalTo(lastIx))
-                    assertThat("All events but the state changes to DRAGGING and IDLE" +
+                    assertThat(
+                        "Events should start with a state change to DRAGGING",
+                        draggingIx, equalTo(0)
+                    )
+                    assertThat(
+                        "Last event should be a state change to IDLE",
+                        idleIx, equalTo(lastIx)
+                    )
+                    assertThat(
+                        "All events but the state changes to DRAGGING and IDLE" +
                             " should be scroll events",
-                        scrollEventCount, equalTo(eventCount - 2))
+                        scrollEventCount, equalTo(eventCount - 2)
+                    )
 
                     // dive into scroll events
                     scrollEvents.forEach {
-                        assertThat("All scroll events should report page $targetPage",
-                            it.position, equalTo(targetPage))
-                        assertThat("All scroll events should report an offset of 0f",
-                            it.positionOffset, equalTo(0f))
-                        assertThat("All scroll events should report an offset of 0px",
-                            it.positionOffsetPixels, equalTo(0))
+                        assertThat(
+                            "All scroll events should report page $targetPage",
+                            it.position, equalTo(targetPage)
+                        )
+                        assertThat(
+                            "All scroll events should report an offset of 0f",
+                            it.positionOffset, equalTo(0f)
+                        )
+                        assertThat(
+                            "All scroll events should report an offset of 0px",
+                            it.positionOffsetPixels, equalTo(0)
+                        )
                     }
                 }
             }

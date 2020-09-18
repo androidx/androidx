@@ -148,11 +148,13 @@ public class NavActionBuilder {
         navOptions = NavOptionsBuilder().apply(optionsBuilder).build()
     }
 
-    internal fun build() = NavAction(destinationId, navOptions,
+    internal fun build() = NavAction(
+        destinationId, navOptions,
         if (defaultArguments.isEmpty())
             null
         else
-            bundleOf(*defaultArguments.toList().toTypedArray()))
+            bundleOf(*defaultArguments.toList().toTypedArray())
+    )
 }
 
 /**

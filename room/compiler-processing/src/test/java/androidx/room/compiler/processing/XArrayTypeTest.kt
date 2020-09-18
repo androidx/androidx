@@ -29,12 +29,13 @@ class XArrayTypeTest {
     @Test
     fun java() {
         val source = Source.java(
-            "foo.bar.Baz", """
+            "foo.bar.Baz",
+            """
             package foo.bar;
             class Baz {
                 String[] param;
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTestIncludingKsp(
             sources = listOf(source)
@@ -73,13 +74,14 @@ class XArrayTypeTest {
     @Test
     fun kotlin() {
         val source = Source.kotlin(
-            "Foo.kt", """
+            "Foo.kt",
+            """
             package foo.bar
             class Baz {
                 val nonNull:Array<String> = TODO()
                 val nullable:Array<String?> = TODO()
             }
-        """.trimIndent()
+            """.trimIndent()
         )
         runProcessorTestIncludingKsp(
             sources = listOf(source)

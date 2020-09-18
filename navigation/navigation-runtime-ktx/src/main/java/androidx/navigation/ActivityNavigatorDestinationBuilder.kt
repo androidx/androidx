@@ -30,10 +30,12 @@ import kotlin.reflect.KClass
 inline fun NavGraphBuilder.activity(
     @IdRes id: Int,
     builder: ActivityNavigatorDestinationBuilder.() -> Unit
-) = destination(ActivityNavigatorDestinationBuilder(
+) = destination(
+    ActivityNavigatorDestinationBuilder(
         provider[ActivityNavigator::class],
         id
-).apply(builder))
+    ).apply(builder)
+)
 
 /**
  * DSL for constructing a new [ActivityNavigator.Destination]
@@ -56,13 +58,13 @@ class ActivityNavigatorDestinationBuilder(
     var dataPattern: String? = null
 
     override fun build(): ActivityNavigator.Destination =
-            super.build().also { destination ->
-                destination.targetPackage = targetPackage
-                activityClass?.let { clazz ->
-                    destination.setComponentName(ComponentName(context, clazz.java))
-                }
-                destination.action = action
-                destination.data = data
-                destination.dataPattern = dataPattern
+        super.build().also { destination ->
+            destination.targetPackage = targetPackage
+            activityClass?.let { clazz ->
+                destination.setComponentName(ComponentName(context, clazz.java))
             }
+            destination.action = action
+            destination.data = data
+            destination.dataPattern = dataPattern
+        }
 }

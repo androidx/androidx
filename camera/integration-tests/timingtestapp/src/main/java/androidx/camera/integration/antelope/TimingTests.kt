@@ -39,10 +39,13 @@ internal fun initializeTest(
 
     // Camera1 cannot directly access physical cameras. If we try, abort.
     if ((CameraAPI.CAMERA1 == config.api) &&
-        !(PrefHelper.getLogicalCameraIds(cameraParams).contains(config.camera))) {
+        !(PrefHelper.getLogicalCameraIds(cameraParams).contains(config.camera))
+    ) {
         activity.resetUIAfterTest()
-        activity.updateLog("ABORTED: Camera1 API cannot access camera with id:" + config.camera,
-            false, false)
+        activity.updateLog(
+            "ABORTED: Camera1 API cannot access camera with id:" + config.camera,
+            false, false
+        )
         return
     }
 
@@ -91,10 +94,13 @@ internal fun runSwitchTest(activity: MainActivity, params: CameraParams, config:
     // For switch test, always go from default back camera to default front camera and back 0->1->0
     // TODO: Can we handle different permutations of physical cameras?
     if (!PrefHelper.getLogicalCameraIds(cameraParams).contains("0") ||
-        !PrefHelper.getLogicalCameraIds(cameraParams).contains("1")) {
+        !PrefHelper.getLogicalCameraIds(cameraParams).contains("1")
+    ) {
         activity.resetUIAfterTest()
-        activity.updateLog("ABORTED: Camera 0 and 1 needed for Switch test.",
-            false, false)
+        activity.updateLog(
+            "ABORTED: Camera 0 and 1 needed for Switch test.",
+            false, false
+        )
         return
     }
 
@@ -120,10 +126,13 @@ internal fun runMultiSwitchTest(activity: MainActivity, params: CameraParams, co
     // For switch test, always go from default back camera to default front camera and back 0->1->0
     // TODO: Can we handle different permutations of physical cameras?
     if (!PrefHelper.getLogicalCameraIds(cameraParams).contains("0") ||
-        !PrefHelper.getLogicalCameraIds(cameraParams).contains("1")) {
+        !PrefHelper.getLogicalCameraIds(cameraParams).contains("1")
+    ) {
         activity.resetUIAfterTest()
-        activity.updateLog("ABORTED: Camera 0 and 1 needed for Switch test.",
-            false, false)
+        activity.updateLog(
+            "ABORTED: Camera 0 and 1 needed for Switch test.",
+            false, false
+        )
         return
     }
 
@@ -209,8 +218,10 @@ internal fun runMultiPhotoTest(activity: MainActivity, params: CameraParams, con
         activity.showProgressBar(true, 0)
         multiCounter = PrefHelper.getNumTests(activity)
         config.currentRunningTest = TestType.MULTI_PHOTO
-        logd("About to start multi photo test. multi_counter: " + multiCounter + " and test: " +
-            config.currentRunningTest.toString())
+        logd(
+            "About to start multi photo test. multi_counter: " + multiCounter + " and test: " +
+                config.currentRunningTest.toString()
+        )
     } else {
         // Add previous result
         params.timer.testEnd = System.currentTimeMillis()
@@ -222,14 +233,18 @@ internal fun runMultiPhotoTest(activity: MainActivity, params: CameraParams, con
         config.testResults.previewFill
             .add(params.timer.previewFillEnd - params.timer.previewFillStart)
         config.testResults.autofocus.add(params.timer.autofocusEnd - params.timer.autofocusStart)
-        config.testResults.captureNoAF.add((params.timer.captureEnd - params.timer.captureStart) -
-            (params.timer.autofocusEnd - params.timer.autofocusStart))
+        config.testResults.captureNoAF.add(
+            (params.timer.captureEnd - params.timer.captureStart) -
+                (params.timer.autofocusEnd - params.timer.autofocusStart)
+        )
         config.testResults.capture.add(params.timer.captureEnd - params.timer.captureStart)
         config.testResults.imageready
             .add(params.timer.imageReaderEnd - params.timer.imageReaderStart)
         config.testResults.capturePlusImageReady
-            .add((params.timer.captureEnd - params.timer.captureStart) +
-                (params.timer.imageReaderEnd - params.timer.imageReaderStart))
+            .add(
+                (params.timer.captureEnd - params.timer.captureStart) +
+                    (params.timer.imageReaderEnd - params.timer.imageReaderStart)
+            )
         config.testResults.imagesave
             .add(params.timer.imageSaveEnd - params.timer.imageSaveStart)
         config.testResults.isHDRPlus.add(params.timer.isHDRPlus)
@@ -238,8 +253,10 @@ internal fun runMultiPhotoTest(activity: MainActivity, params: CameraParams, con
         config.testResults.cameraClose
             .add(params.timer.cameraCloseEnd - params.timer.cameraCloseStart)
         config.testResults.total.add(params.timer.testEnd - params.timer.testStart)
-        config.testResults.totalNoPreview.add((params.timer.testEnd - params.timer.testStart) -
-            (params.timer.previewFillEnd - params.timer.previewFillStart))
+        config.testResults.totalNoPreview.add(
+            (params.timer.testEnd - params.timer.testStart) -
+                (params.timer.previewFillEnd - params.timer.previewFillStart)
+        )
         config.testFinished = false
         config.isFirstOnActive = true
         config.isFirstOnCaptureComplete = true
@@ -277,8 +294,10 @@ internal fun runMultiPhotoChainTest(
         params.timer = CameraTimer()
         params.timer.testStart = System.currentTimeMillis()
         config.currentRunningTest = TestType.MULTI_PHOTO_CHAIN
-        logd("About to start multi chain test. multi_counter: " + multiCounter + " and test: " +
-            config.currentRunningTest.toString())
+        logd(
+            "About to start multi chain test. multi_counter: " + multiCounter + " and test: " +
+                config.currentRunningTest.toString()
+        )
 
         setupImageReader(activity, params, config)
         beginTest(activity, params, config)
@@ -294,14 +313,18 @@ internal fun runMultiPhotoChainTest(
             config.testResults.autofocus
                 .add(params.timer.autofocusEnd - params.timer.autofocusStart)
             config.testResults.captureNoAF
-                .add((params.timer.captureEnd - params.timer.captureStart) -
-                    (params.timer.autofocusEnd - params.timer.autofocusStart))
+                .add(
+                    (params.timer.captureEnd - params.timer.captureStart) -
+                        (params.timer.autofocusEnd - params.timer.autofocusStart)
+                )
             config.testResults.capture.add(params.timer.captureEnd - params.timer.captureStart)
             config.testResults.imageready
                 .add(params.timer.imageReaderEnd - params.timer.imageReaderStart)
             config.testResults.capturePlusImageReady
-                .add((params.timer.captureEnd - params.timer.captureStart) +
-                    (params.timer.imageReaderEnd - params.timer.imageReaderStart))
+                .add(
+                    (params.timer.captureEnd - params.timer.captureStart) +
+                        (params.timer.imageReaderEnd - params.timer.imageReaderStart)
+                )
             config.testResults.imagesave
                 .add(params.timer.imageSaveEnd - params.timer.imageSaveStart)
             config.testResults.isHDRPlus.add(params.timer.isHDRPlus)
@@ -326,8 +349,10 @@ internal fun runMultiPhotoChainTest(
 internal fun testEnded(activity: MainActivity, params: CameraParams?, config: TestConfig) {
     if (null == params)
         return
-    logd("In testEnded. multi_counter: " + multiCounter + " and test: " +
-        config.currentRunningTest.toString())
+    logd(
+        "In testEnded. multi_counter: " + multiCounter + " and test: " +
+            config.currentRunningTest.toString()
+    )
 
     when (config.currentRunningTest) {
 
@@ -391,8 +416,10 @@ internal fun testEnded(activity: MainActivity, params: CameraParams?, config: Te
 
                 multiCounter = 0
             } else {
-                logd("Switch " + (Math.abs(multiCounter - PrefHelper.getNumTests(activity)) + 1) +
-                    " completed.")
+                logd(
+                    "Switch " + (Math.abs(multiCounter - PrefHelper.getNumTests(activity)) + 1) +
+                        " completed."
+                )
                 multiCounter--
                 runMultiSwitchTest(activity, params, config)
                 return
@@ -409,14 +436,18 @@ internal fun testEnded(activity: MainActivity, params: CameraParams?, config: Te
             config.testResults.autofocus
                 .add(params.timer.autofocusEnd - params.timer.autofocusStart)
             config.testResults.captureNoAF
-                .add((params.timer.captureEnd - params.timer.captureStart) -
-                    (params.timer.autofocusEnd - params.timer.autofocusStart))
+                .add(
+                    (params.timer.captureEnd - params.timer.captureStart) -
+                        (params.timer.autofocusEnd - params.timer.autofocusStart)
+                )
             config.testResults.capture.add(params.timer.captureEnd - params.timer.captureStart)
             config.testResults.imageready
                 .add(params.timer.imageReaderEnd - params.timer.imageReaderStart)
             config.testResults.capturePlusImageReady
-                .add((params.timer.captureEnd - params.timer.captureStart) +
-                    (params.timer.imageReaderEnd - params.timer.imageReaderStart))
+                .add(
+                    (params.timer.captureEnd - params.timer.captureStart) +
+                        (params.timer.imageReaderEnd - params.timer.imageReaderStart)
+                )
             config.testResults.imagesave
                 .add(params.timer.imageSaveEnd - params.timer.imageSaveStart)
             config.testResults.isHDRPlus
@@ -426,8 +457,10 @@ internal fun testEnded(activity: MainActivity, params: CameraParams?, config: Te
             config.testResults.cameraClose
                 .add(params.timer.cameraCloseEnd - params.timer.cameraCloseStart)
             config.testResults.total.add(params.timer.testEnd - params.timer.testStart)
-            config.testResults.totalNoPreview.add((params.timer.testEnd - params.timer.testStart) -
-                (params.timer.previewFillEnd - params.timer.previewFillStart))
+            config.testResults.totalNoPreview.add(
+                (params.timer.testEnd - params.timer.testStart) -
+                    (params.timer.previewFillEnd - params.timer.previewFillStart)
+            )
         }
 
         TestType.MULTI_PHOTO -> {
@@ -448,14 +481,18 @@ internal fun testEnded(activity: MainActivity, params: CameraParams?, config: Te
                 config.testResults.autofocus
                     .add(params.timer.autofocusEnd - params.timer.autofocusStart)
                 config.testResults.captureNoAF
-                    .add((params.timer.captureEnd - params.timer.captureStart) -
-                        (params.timer.autofocusEnd - params.timer.autofocusStart))
+                    .add(
+                        (params.timer.captureEnd - params.timer.captureStart) -
+                            (params.timer.autofocusEnd - params.timer.autofocusStart)
+                    )
                 config.testResults.capture.add(params.timer.captureEnd - params.timer.captureStart)
                 config.testResults.imageready
                     .add(params.timer.imageReaderEnd - params.timer.imageReaderStart)
                 config.testResults.capturePlusImageReady
-                    .add((params.timer.captureEnd - params.timer.captureStart) +
-                        (params.timer.imageReaderEnd - params.timer.imageReaderStart))
+                    .add(
+                        (params.timer.captureEnd - params.timer.captureStart) +
+                            (params.timer.imageReaderEnd - params.timer.imageReaderStart)
+                    )
                 config.testResults.imagesave
                     .add(params.timer.imageSaveEnd - params.timer.imageSaveStart)
                 config.testResults.isHDRPlus.add(params.timer.isHDRPlus)
@@ -465,13 +502,17 @@ internal fun testEnded(activity: MainActivity, params: CameraParams?, config: Te
                     .add(params.timer.cameraCloseEnd - params.timer.cameraCloseStart)
                 config.testResults.total.add(params.timer.testEnd - params.timer.testStart)
                 config.testResults.totalNoPreview
-                    .add((params.timer.testEnd - params.timer.testStart) -
-                        (params.timer.previewFillEnd - params.timer.previewFillStart))
+                    .add(
+                        (params.timer.testEnd - params.timer.testStart) -
+                            (params.timer.previewFillEnd - params.timer.previewFillStart)
+                    )
 
                 multiCounter = 0
             } else {
-                logd("Capture " + (Math.abs(multiCounter - PrefHelper.getNumTests(activity)) + 1) +
-                    " completed: " + lastResult + "ms")
+                logd(
+                    "Capture " + (Math.abs(multiCounter - PrefHelper.getNumTests(activity)) + 1) +
+                        " completed: " + lastResult + "ms"
+                )
                 multiCounter--
                 runMultiPhotoTest(activity, params, config)
                 return
@@ -496,39 +537,65 @@ internal fun testEnded(activity: MainActivity, params: CameraParams?, config: Te
 
                 activity.showProgressBar(true, precentageCompleted(activity, multiCounter))
 
-                config.testResults.initialization.add(params.timer.openEnd -
-                    params.timer.openStart)
-                config.testResults.previewStart.add(params.timer.previewEnd -
-                    params.timer.previewStart)
-                config.testResults.previewFill.add(params.timer.previewFillEnd -
-                    params.timer.previewFillStart)
-                config.testResults.autofocus.add(params.timer.autofocusEnd -
-                    params.timer.autofocusStart)
+                config.testResults.initialization.add(
+                    params.timer.openEnd -
+                        params.timer.openStart
+                )
+                config.testResults.previewStart.add(
+                    params.timer.previewEnd -
+                        params.timer.previewStart
+                )
+                config.testResults.previewFill.add(
+                    params.timer.previewFillEnd -
+                        params.timer.previewFillStart
+                )
+                config.testResults.autofocus.add(
+                    params.timer.autofocusEnd -
+                        params.timer.autofocusStart
+                )
                 config.testResults.captureNoAF
-                    .add((params.timer.captureEnd - params.timer.captureStart) -
-                        (params.timer.autofocusEnd - params.timer.autofocusStart))
+                    .add(
+                        (params.timer.captureEnd - params.timer.captureStart) -
+                            (params.timer.autofocusEnd - params.timer.autofocusStart)
+                    )
                 config.testResults.capture.add(params.timer.captureEnd - params.timer.captureStart)
-                config.testResults.imageready.add(params.timer.imageReaderEnd -
-                    params.timer.imageReaderStart)
-                config.testResults.capturePlusImageReady.add((params.timer.captureEnd -
-                    params.timer.captureStart) +
-                    (params.timer.imageReaderEnd - params.timer.imageReaderStart))
-                config.testResults.imagesave.add(params.timer.imageSaveEnd -
-                    params.timer.imageSaveStart)
+                config.testResults.imageready.add(
+                    params.timer.imageReaderEnd -
+                        params.timer.imageReaderStart
+                )
+                config.testResults.capturePlusImageReady.add(
+                    (
+                        params.timer.captureEnd -
+                            params.timer.captureStart
+                        ) +
+                        (params.timer.imageReaderEnd - params.timer.imageReaderStart)
+                )
+                config.testResults.imagesave.add(
+                    params.timer.imageSaveEnd -
+                        params.timer.imageSaveStart
+                )
                 config.testResults.isHDRPlus.add(params.timer.isHDRPlus)
-                config.testResults.previewClose.add(params.timer.previewCloseEnd -
-                    params.timer.previewCloseStart)
-                config.testResults.cameraClose.add(params.timer.cameraCloseEnd -
-                    params.timer.cameraCloseStart)
+                config.testResults.previewClose.add(
+                    params.timer.previewCloseEnd -
+                        params.timer.previewCloseStart
+                )
+                config.testResults.cameraClose.add(
+                    params.timer.cameraCloseEnd -
+                        params.timer.cameraCloseStart
+                )
                 config.testResults.total.add(params.timer.testEnd - params.timer.testStart)
                 config.testResults.totalNoPreview
-                    .add((params.timer.testEnd - params.timer.testStart) -
-                        (params.timer.previewFillEnd - params.timer.previewFillStart))
+                    .add(
+                        (params.timer.testEnd - params.timer.testStart) -
+                            (params.timer.previewFillEnd - params.timer.previewFillStart)
+                    )
 
                 multiCounter = 0
             } else {
-                logd("Capture " + (Math.abs(multiCounter - PrefHelper.getNumTests(activity)) + 1) +
-                    " completed: " + lastResult + "ms")
+                logd(
+                    "Capture " + (Math.abs(multiCounter - PrefHelper.getNumTests(activity)) + 1) +
+                        " completed: " + lastResult + "ms"
+                )
                 multiCounter--
                 runMultiPhotoChainTest(activity, params, config)
                 return

@@ -268,8 +268,10 @@ class NavBackStackEntryLifecycleTest {
         assertWithMessage("The nested graph should be started when its children are started")
             .that(nestedGraphBackStackEntry.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.STARTED)
-        assertWithMessage("The nested start destination should be started when a " +
-                "FloatingWindow is open")
+        assertWithMessage(
+            "The nested start destination should be started when a " +
+                "FloatingWindow is open"
+        )
             .that(nestedBackStackEntry.lifecycle.currentState)
             .isEqualTo(Lifecycle.State.STARTED)
         val secondBackStackEntry = navController.getBackStackEntry(R.id.second_test)
@@ -323,49 +325,66 @@ class NavBackStackEntryLifecycleTest {
         nestedBackStackEntry.lifecycle.addObserver(nestedObserver)
         val inOrder = inOrder(graphObserver, nestedGraphObserver, nestedObserver)
         inOrder.verify(graphObserver).onStateChanged(
-            graphBackStackEntry, Lifecycle.Event.ON_CREATE)
+            graphBackStackEntry, Lifecycle.Event.ON_CREATE
+        )
         inOrder.verify(graphObserver).onStateChanged(
-            graphBackStackEntry, Lifecycle.Event.ON_START)
+            graphBackStackEntry, Lifecycle.Event.ON_START
+        )
         inOrder.verify(graphObserver).onStateChanged(
-            graphBackStackEntry, Lifecycle.Event.ON_RESUME)
+            graphBackStackEntry, Lifecycle.Event.ON_RESUME
+        )
 
         inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_CREATE)
+            nestedGraphBackStackEntry, Lifecycle.Event.ON_CREATE
+        )
         inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_START)
+            nestedGraphBackStackEntry, Lifecycle.Event.ON_START
+        )
         inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_RESUME)
+            nestedGraphBackStackEntry, Lifecycle.Event.ON_RESUME
+        )
 
         inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_CREATE)
+            nestedBackStackEntry, Lifecycle.Event.ON_CREATE
+        )
         inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_START)
+            nestedBackStackEntry, Lifecycle.Event.ON_START
+        )
         inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_RESUME)
+            nestedBackStackEntry, Lifecycle.Event.ON_RESUME
+        )
 
         navController.navigate(R.id.second_test)
 
         inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_PAUSE)
+            nestedBackStackEntry, Lifecycle.Event.ON_PAUSE
+        )
         inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_STOP)
+            nestedBackStackEntry, Lifecycle.Event.ON_STOP
+        )
 
         inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_PAUSE)
+            nestedGraphBackStackEntry, Lifecycle.Event.ON_PAUSE
+        )
         inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_STOP)
+            nestedGraphBackStackEntry, Lifecycle.Event.ON_STOP
+        )
 
         navController.popBackStack()
 
         inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_START)
+            nestedGraphBackStackEntry, Lifecycle.Event.ON_START
+        )
         inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_RESUME)
+            nestedGraphBackStackEntry, Lifecycle.Event.ON_RESUME
+        )
 
         inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_START)
+            nestedBackStackEntry, Lifecycle.Event.ON_START
+        )
         inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_RESUME)
+            nestedBackStackEntry, Lifecycle.Event.ON_RESUME
+        )
 
         inOrder.verifyNoMoreInteractions()
     }
@@ -401,41 +420,54 @@ class NavBackStackEntryLifecycleTest {
         nestedBackStackEntry.lifecycle.addObserver(nestedObserver)
         val inOrder = inOrder(graphObserver, nestedGraphObserver, nestedObserver)
         inOrder.verify(graphObserver).onStateChanged(
-            graphBackStackEntry, Lifecycle.Event.ON_CREATE)
+            graphBackStackEntry, Lifecycle.Event.ON_CREATE
+        )
         inOrder.verify(graphObserver).onStateChanged(
-            graphBackStackEntry, Lifecycle.Event.ON_START)
+            graphBackStackEntry, Lifecycle.Event.ON_START
+        )
         inOrder.verify(graphObserver).onStateChanged(
-            graphBackStackEntry, Lifecycle.Event.ON_RESUME)
+            graphBackStackEntry, Lifecycle.Event.ON_RESUME
+        )
 
         inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_CREATE)
+            nestedGraphBackStackEntry, Lifecycle.Event.ON_CREATE
+        )
         inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_START)
+            nestedGraphBackStackEntry, Lifecycle.Event.ON_START
+        )
         inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_RESUME)
+            nestedGraphBackStackEntry, Lifecycle.Event.ON_RESUME
+        )
 
         inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_CREATE)
+            nestedBackStackEntry, Lifecycle.Event.ON_CREATE
+        )
         inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_START)
+            nestedBackStackEntry, Lifecycle.Event.ON_START
+        )
         inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_RESUME)
+            nestedBackStackEntry, Lifecycle.Event.ON_RESUME
+        )
 
         navController.navigate(R.id.second_test)
 
         inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_PAUSE)
+            nestedBackStackEntry, Lifecycle.Event.ON_PAUSE
+        )
 
         inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_PAUSE)
+            nestedGraphBackStackEntry, Lifecycle.Event.ON_PAUSE
+        )
 
         navController.popBackStack()
 
         inOrder.verify(nestedGraphObserver).onStateChanged(
-            nestedGraphBackStackEntry, Lifecycle.Event.ON_RESUME)
+            nestedGraphBackStackEntry, Lifecycle.Event.ON_RESUME
+        )
 
         inOrder.verify(nestedObserver).onStateChanged(
-            nestedBackStackEntry, Lifecycle.Event.ON_RESUME)
+            nestedBackStackEntry, Lifecycle.Event.ON_RESUME
+        )
 
         inOrder.verifyNoMoreInteractions()
     }

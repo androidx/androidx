@@ -27,7 +27,7 @@ public annotation class NavOptionsDsl
  * Construct a new [NavOptions]
  */
 public fun navOptions(optionsBuilder: NavOptionsBuilder.() -> Unit): NavOptions =
-        NavOptionsBuilder().apply(optionsBuilder).build()
+    NavOptionsBuilder().apply(optionsBuilder).build()
 
 /**
  * DSL for constructing a new [NavOptions]
@@ -74,9 +74,9 @@ public class NavOptionsBuilder {
     public fun anim(animBuilder: AnimBuilder.() -> Unit) {
         AnimBuilder().apply(animBuilder).run {
             this@NavOptionsBuilder.builder.setEnterAnim(enter)
-                    .setExitAnim(exit)
-                    .setPopEnterAnim(popEnter)
-                    .setPopExitAnim(popExit)
+                .setExitAnim(exit)
+                .setPopEnterAnim(popEnter)
+                .setPopExitAnim(popExit)
         }
     }
 

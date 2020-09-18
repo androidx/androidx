@@ -128,35 +128,37 @@ abstract class AbstractProgressFragment : Fragment {
                         onInstalled()
                         navigate()
                     }
-                    SplitInstallSessionStatus.REQUIRES_USER_CONFIRMATION -> try {
-                        val splitInstallManager = monitor.splitInstallManager
-                        if (splitInstallManager == null) {
-                            onFailed(SplitInstallErrorCode.INTERNAL_ERROR)
-                            return
-                        }
-                        splitInstallManager.startConfirmationDialogForResult(
-                            sessionState,
-                            IntentSenderForResultStarter { intent,
-                                                           requestCode,
-                                                           fillInIntent,
-                                                           flagsMask,
-                                                           flagsValues,
-                                                           extraFlags,
-                                                           options ->
-                                startIntentSenderForResult(
-                                    intent,
+                    SplitInstallSessionStatus.REQUIRES_USER_CONFIRMATION ->
+                        try {
+                            val splitInstallManager = monitor.splitInstallManager
+                            if (splitInstallManager == null) {
+                                onFailed(SplitInstallErrorCode.INTERNAL_ERROR)
+                                return
+                            }
+                            splitInstallManager.startConfirmationDialogForResult(
+                                sessionState,
+                                IntentSenderForResultStarter { intent,
                                     requestCode,
                                     fillInIntent,
                                     flagsMask,
                                     flagsValues,
                                     extraFlags,
-                                    options
-                                )
-                            }, INSTALL_REQUEST_CODE
-                        )
-                    } catch (e: IntentSender.SendIntentException) {
-                        onFailed(SplitInstallErrorCode.INTERNAL_ERROR)
-                    }
+                                    options ->
+                                    startIntentSenderForResult(
+                                        intent,
+                                        requestCode,
+                                        fillInIntent,
+                                        flagsMask,
+                                        flagsValues,
+                                        extraFlags,
+                                        options
+                                    )
+                                },
+                                INSTALL_REQUEST_CODE
+                            )
+                        } catch (e: IntentSender.SendIntentException) {
+                            onFailed(SplitInstallErrorCode.INTERNAL_ERROR)
+                        }
                     SplitInstallSessionStatus.CANCELED -> onCancelled()
                     SplitInstallSessionStatus.FAILED -> onFailed(sessionState.errorCode())
                     SplitInstallSessionStatus.UNKNOWN ->

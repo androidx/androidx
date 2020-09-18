@@ -64,8 +64,8 @@ class NavDestinationTest {
             .that(destination.arguments.get("testArg")?.defaultValue)
             .isEqualTo("123")
         assertWithMessage("NavArgument shouldn't have a default value")
-                .that(destination.arguments.get("testArg2")?.isDefaultValuePresent)
-                .isFalse()
+            .that(destination.arguments.get("testArg2")?.isDefaultValuePresent)
+            .isFalse()
     }
 
     @Test

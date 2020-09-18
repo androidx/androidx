@@ -582,9 +582,11 @@ class SeparatorsTest {
                     combinedLoadStates = localLoadStatesOf()
                 )
             ).insertEventSeparators<PrimaryType, Base> { before, after ->
-                return@insertEventSeparators (if (before != null && after != null) {
-                    SeparatorType("B")
-                } else null)
+                return@insertEventSeparators (
+                    if (before != null && after != null) {
+                        SeparatorType("B")
+                    } else null
+                    )
             }.toList()
         )
     }

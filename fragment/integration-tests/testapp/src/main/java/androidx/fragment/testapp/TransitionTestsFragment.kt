@@ -35,14 +35,16 @@ class TransitionTestsFragment : Fragment(R.layout.transition_fragment) {
 }
 
 fun <T : FragmentActivity> Fragment.addButton(text: String, clazz: Class<T>) {
-    (requireView() as LinearLayout).addView(Button(context).apply {
-        this.text = text
+    (requireView() as LinearLayout).addView(
+        Button(context).apply {
+            this.text = text
 
-        setOnClickListener {
-            startActivity(Intent(activity, clazz))
+            setOnClickListener {
+                startActivity(Intent(activity, clazz))
+            }
+            layoutParams = LinearLayout.LayoutParams(-1, 0).apply {
+                weight = 1f
+            }
         }
-        layoutParams = LinearLayout.LayoutParams(-1, 0).apply {
-            weight = 1f
-        }
-    })
+    )
 }

@@ -56,10 +56,10 @@ class RecyclerViewMeasureTest(
         @JvmStatic
         @Parameterized.Parameters(
             name = "childWidth = {0}, childHeight = {1}, firstWidthMode = {2}, firstWidth = {3}, " +
-                    "firstHeightMode = {4}, firstHeight = {5}, secondWidthMode = {6}, " +
-                    "secondWidth = {7}, secondHeightMode = {8}, secondHeight = {9}, " +
-                    "expectedWidthMode = {10}, expectedWidth = {11}, expectedHeightMode = {12}, " +
-                    "expectedHeight = {13}"
+                "firstHeightMode = {4}, firstHeight = {5}, secondWidthMode = {6}, " +
+                "secondWidth = {7}, secondHeightMode = {8}, secondHeight = {9}, " +
+                "expectedWidthMode = {10}, expectedWidth = {11}, expectedHeightMode = {12}, " +
+                "expectedHeight = {13}"
         )
         fun data(): List<Array<Any>> {
 

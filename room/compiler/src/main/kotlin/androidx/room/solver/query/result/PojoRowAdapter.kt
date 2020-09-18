@@ -87,7 +87,8 @@ class PojoRowAdapter(
                     ProcessorErrors.pojoMissingNonNull(
                         pojoTypeName = pojo.typeName,
                         missingPojoFields = nonNulls.map { it.name },
-                        allQueryColumns = info.columns.map { it.name })
+                        allQueryColumns = info.columns.map { it.name }
+                    )
                 )
             }
             if (matchedFields.isEmpty()) {
@@ -120,7 +121,8 @@ class PojoRowAdapter(
     override fun onCursorReady(cursorVarName: String, scope: CodeGenScope) {
         mapping.fieldsWithIndices = mapping.matchedFields.map {
             val indexVar = scope.getTmpVar(
-                "_cursorIndexOf${it.name.stripNonJava().capitalize(Locale.US)}")
+                "_cursorIndexOf${it.name.stripNonJava().capitalize(Locale.US)}"
+            )
             val indexMethod = if (info == null) {
                 "getColumnIndex"
             } else {

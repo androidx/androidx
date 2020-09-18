@@ -44,8 +44,10 @@ fun AppCompatActivity.setupActionBarWithNavController(
     navController: NavController,
     drawerLayout: DrawerLayout?
 ) {
-    NavigationUI.setupActionBarWithNavController(this, navController,
-            AppBarConfiguration(navController.graph, drawerLayout))
+    NavigationUI.setupActionBarWithNavController(
+        this, navController,
+        AppBarConfiguration(navController.graph, drawerLayout)
+    )
 }
 
 /**

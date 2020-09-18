@@ -1024,14 +1024,15 @@ internal fun <R> Handler.runOnHandler(task: () -> R) =
         var returnVal: R? = null
         var exception: Exception? = null
         if (post {
-                try {
-                    returnVal = task.invoke()
-                } catch (e: Exception) {
-                    // Will rethrow on the calling thread.
-                    exception = e
-                }
-                latch.countDown()
-            }) {
+            try {
+                returnVal = task.invoke()
+            } catch (e: Exception) {
+                // Will rethrow on the calling thread.
+                exception = e
+            }
+            latch.countDown()
+        }
+        ) {
             latch.await()
             if (exception != null) {
                 throw exception as Exception

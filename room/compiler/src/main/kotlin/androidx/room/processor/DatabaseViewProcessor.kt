@@ -31,8 +31,10 @@ class DatabaseViewProcessor(
     val context = baseContext.fork(element)
 
     override fun process(): DatabaseView {
-        context.checker.hasAnnotation(element, androidx.room.DatabaseView::class,
-                ProcessorErrors.VIEW_MUST_BE_ANNOTATED_WITH_DATABASE_VIEW)
+        context.checker.hasAnnotation(
+            element, androidx.room.DatabaseView::class,
+            ProcessorErrors.VIEW_MUST_BE_ANNOTATED_WITH_DATABASE_VIEW
+        )
         val annotationBox = element.toAnnotationBox(androidx.room.DatabaseView::class)
 
         val viewName: String = if (annotationBox != null) {
@@ -42,37 +44,49 @@ class DatabaseViewProcessor(
         }
         val query: ParsedQuery = if (annotationBox != null) {
             SqlParser.parse(annotationBox.value.value).also {
-                context.checker.check(it.errors.isEmpty(), element,
-                        it.errors.joinToString("\n"))
-                context.checker.check(it.type == QueryType.SELECT, element,
-                        ProcessorErrors.VIEW_QUERY_MUST_BE_SELECT)
-                context.checker.check(it.bindSections.isEmpty(), element,
-                        ProcessorErrors.VIEW_QUERY_CANNOT_TAKE_ARGUMENTS)
+                context.checker.check(
+                    it.errors.isEmpty(), element,
+                    it.errors.joinToString("\n")
+                )
+                context.checker.check(
+                    it.type == QueryType.SELECT, element,
+                    ProcessorErrors.VIEW_QUERY_MUST_BE_SELECT
+                )
+                context.checker.check(
+                    it.bindSections.isEmpty(), element,
+                    ProcessorErrors.VIEW_QUERY_CANNOT_TAKE_ARGUMENTS
+                )
             }
         } else {
             ParsedQuery.MISSING
         }
 
-        context.checker.notBlank(viewName, element,
-                ProcessorErrors.VIEW_NAME_CANNOT_BE_EMPTY)
-        context.checker.check(!viewName.startsWith("sqlite_", true), element,
-                ProcessorErrors.VIEW_NAME_CANNOT_START_WITH_SQLITE)
+        context.checker.notBlank(
+            viewName, element,
+            ProcessorErrors.VIEW_NAME_CANNOT_BE_EMPTY
+        )
+        context.checker.check(
+            !viewName.startsWith("sqlite_", true), element,
+            ProcessorErrors.VIEW_NAME_CANNOT_START_WITH_SQLITE
+        )
 
         val pojo = PojoProcessor.createFor(
-                context = context,
-                element = element,
-                bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
-                parent = null,
-                referenceStack = referenceStack).process()
+            context = context,
+            element = element,
+            bindingScope = FieldProcessor.BindingScope.READ_FROM_CURSOR,
+            parent = null,
+            referenceStack = referenceStack
+        ).process()
 
         return DatabaseView(
-                element = element,
-                viewName = viewName,
-                query = query,
-                type = pojo.type,
-                fields = pojo.fields,
-                embeddedFields = pojo.embeddedFields,
-                constructor = pojo.constructor)
+            element = element,
+            viewName = viewName,
+            query = query,
+            type = pojo.type,
+            fields = pojo.fields,
+            embeddedFields = pojo.embeddedFields,
+            constructor = pojo.constructor
+        )
     }
 
     companion object {

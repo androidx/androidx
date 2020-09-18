@@ -78,18 +78,18 @@ class DatabaseVerifier private constructor(
             val tempDir = System.getProperty("org.sqlite.tmpdir", defaultTempDir)
             checkNotNull(tempDir) {
                 "Room needs the java.io.tmpdir or org.sqlite.tmpdir system property to be set to " +
-                        "setup SQLite."
+                    "setup SQLite."
             }
             File(tempDir).also {
                 check(
                     it.isDirectory &&
-                            (it.exists() || it.mkdirs()) &&
-                            it.canRead() &&
-                            it.canWrite()
+                        (it.exists() || it.mkdirs()) &&
+                        it.canRead() &&
+                        it.canWrite()
                 ) {
                     "The temp dir [$tempDir] needs to be a directory, must be readable, writable " +
-                            "and allow executables. Please, provide a temporary directory that " +
-                            "fits the requirements via the 'org.sqlite.tmpdir' property."
+                        "and allow executables. Please, provide a temporary directory that " +
+                        "fits the requirements via the 'org.sqlite.tmpdir' property."
                 }
             }
         }

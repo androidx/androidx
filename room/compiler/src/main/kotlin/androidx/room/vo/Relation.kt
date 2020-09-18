@@ -47,12 +47,14 @@ class Relation(
     private fun createSelect(resultFields: Set<String>) = buildString {
         if (junction != null) {
             val resultColumns = resultFields.map { "`${entity.tableName}`.`$it` AS `$it`" } +
-                    "_junction.`${junction.parentField.columnName}`"
+                "_junction.`${junction.parentField.columnName}`"
             append("SELECT ${resultColumns.joinToString(",")}")
             append(" FROM `${junction.entity.tableName}` AS _junction")
-            append(" INNER JOIN `${entity.tableName}` ON" +
+            append(
+                " INNER JOIN `${entity.tableName}` ON" +
                     " (_junction.`${junction.entityField.columnName}`" +
-                    " = `${entity.tableName}`.`${entityField.columnName}`)")
+                    " = `${entity.tableName}`.`${entityField.columnName}`)"
+            )
             append(" WHERE _junction.`${junction.parentField.columnName}` IN (:args)")
         } else {
             val resultColumns = resultFields.map { "`$it`" }.toSet() + "`${entityField.columnName}`"

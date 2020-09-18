@@ -147,8 +147,8 @@ class ProjectionExpander(
                     val table = tables.find { it.tableName == tableName }
                     pojo.fields.filter { field ->
                         field.parent == null &&
-                                field.columnName !in query.explicitColumns &&
-                                table?.columnNames?.contains(field.columnName) == true
+                            field.columnName !in query.explicitColumns &&
+                            table?.columnNames?.contains(field.columnName) == true
                     }.joinToString(", ") { field ->
                         "`${section.tableAlias}`.`${field.columnName}`"
                     }
@@ -173,7 +173,7 @@ class ProjectionExpander(
         // Try to find by the table name.
         return pojo.embeddedFields.find {
             it.prefix.isEmpty() &&
-                    findEntityOrView(it.pojo)?.tableName == tableAlias
+                findEntityOrView(it.pojo)?.tableName == tableAlias
         }
     }
 
@@ -185,22 +185,24 @@ class ProjectionExpander(
         resultInfo: QueryResultInfo?
     ): String {
         val table = findEntityOrView(pojo)
-        return (pojo.embeddedFields.flatMap {
-            expandEmbeddedField(it, findEntityOrView(it.pojo), shallow, nameToAlias)
-        } + pojo.fields.filter { field ->
-            field.parent == null &&
+        return (
+            pojo.embeddedFields.flatMap {
+                expandEmbeddedField(it, findEntityOrView(it.pojo), shallow, nameToAlias)
+            } + pojo.fields.filter { field ->
+                field.parent == null &&
                     field.columnName !in ignoredColumnNames &&
                     (resultInfo == null || resultInfo.hasColumn(field.columnName))
-        }.map { field ->
-            if (table != null && table is Entity) {
-                // Should not happen when defining a view
-                val tableAlias = nameToAlias[table.tableName.toLowerCase(Locale.ENGLISH)]
-                    ?: table.tableName
-                "`$tableAlias`.`${field.columnName}` AS `${field.columnName}`"
-            } else {
-                "`${field.columnName}`"
+            }.map { field ->
+                if (table != null && table is Entity) {
+                    // Should not happen when defining a view
+                    val tableAlias = nameToAlias[table.tableName.toLowerCase(Locale.ENGLISH)]
+                        ?: table.tableName
+                    "`$tableAlias`.`${field.columnName}` AS `${field.columnName}`"
+                } else {
+                    "`${field.columnName}`"
+                }
             }
-        }).joinToString(", ")
+            ).joinToString(", ")
     }
 
     private fun QueryResultInfo.hasColumn(columnName: String): Boolean {
@@ -221,7 +223,7 @@ class ProjectionExpander(
                         "`${embedded.prefix}${field.columnName}`"
                     } else {
                         "`${embedded.prefix}`.`${field.columnName}` " +
-                                "AS `${embedded.prefix}${field.columnName}`"
+                            "AS `${embedded.prefix}${field.columnName}`"
                     }
                 }
             } else {
@@ -241,7 +243,7 @@ class ProjectionExpander(
             ) {
                 pojo.fields.map { field ->
                     "`${embedded.prefix}`.`${field.columnNameWithoutPrefix(embedded.prefix)}` " +
-                            "AS `${field.columnName}`"
+                        "AS `${field.columnName}`"
                 }
             } else {
                 pojo.fields.map { field ->
