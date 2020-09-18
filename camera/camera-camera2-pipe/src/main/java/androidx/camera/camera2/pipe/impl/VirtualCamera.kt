@@ -220,7 +220,7 @@ internal class AndroidCameraState(
                 "Opened $cameraId in ${attemptDuration.formatNanoTime()}"
             } else {
                 "Opened $cameraId in ${attemptDuration.formatNanoTime()} " +
-                        "(${totalDuration.formatNanoTime()} total) after $attemptNumber attempts."
+                    "(${totalDuration.formatNanoTime()} total) after $attemptNumber attempts."
             }
         }
 

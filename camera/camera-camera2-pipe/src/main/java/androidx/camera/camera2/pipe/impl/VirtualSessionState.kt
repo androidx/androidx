@@ -280,7 +280,7 @@ class VirtualSessionState(
                     Log.info {
                         val finalizationTime = Metrics.monotonicNanos() - finalizedStartTime
                         "Finalized ${pendingOutputs.map { it.key }} for $this in " +
-                                finalizationTime.formatNanoTime()
+                            finalizationTime.formatNanoTime()
                     }
                     tryResubmit = true
                 }
@@ -329,7 +329,7 @@ class VirtualSessionState(
             if (deferred.isNotEmpty()) {
                 Log.info {
                     "Created $this with ${surfaces.keys.toList()}. " +
-                            "Waiting to finalize ${deferred.keys.toList()}"
+                        "Waiting to finalize ${deferred.keys.toList()}"
                 }
                 pendingOutputMap = deferred
 

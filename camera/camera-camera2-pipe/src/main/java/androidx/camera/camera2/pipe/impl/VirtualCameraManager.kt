@@ -349,7 +349,8 @@ class VirtualCameraManager @Inject constructor(
             timeout = 1000,
             callback = {
                 channel.offer(RequestClose(this))
-            })
+            }
+        )
 
         init {
             listenerJob = scope.launch {

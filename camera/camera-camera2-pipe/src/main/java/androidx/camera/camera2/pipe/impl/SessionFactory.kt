@@ -138,7 +138,7 @@ class AndroidMSessionFactory @Inject constructor(
             } catch (e: Throwable) {
                 Log.warn {
                     "Failed to create reprocessable captures session from $cameraDevice for" +
-                            " $virtualSessionState!"
+                        " $virtualSessionState!"
                 }
                 virtualSessionState.disconnect()
             }
