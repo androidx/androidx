@@ -32,21 +32,6 @@ android {
     }
 }
 
-// Add :icing as jarjar dependency
-// TODO(b/163453135): this code should be ported to use bundles instead of protos, and this
-//  dependency removed. It should exist ONLY inside appsearch:local-backend.
-android.libraryVariants.all { variant ->
-    def variantName = variant.name
-    def suffix = variantName.capitalize()
-    def jarjarConfigName = "jarjar${suffix}"
-    def jarjarConf = configurations.register(jarjarConfigName)
-    // Treat icing-java as a local jar and package it inside the aar.
-    dependencies.add(jarjarConfigName, project.dependencies.project(
-            path: ":icing",
-            configuration: jarjarConfigName))
-    dependencies.add("${variantName}Implementation", files(jarjarConf))
-}
-
 dependencies {
     api('androidx.annotation:annotation:1.1.0')
 
