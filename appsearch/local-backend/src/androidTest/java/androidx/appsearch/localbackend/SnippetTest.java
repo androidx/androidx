@@ -83,7 +83,7 @@ public class SnippetTest {
         for (SearchResultProto.ResultProto proto : searchResultProto.getResultsList()) {
             SearchResults.Result result =
                     SearchResultToProtoConverter.convert(proto);
-            MatchInfo match = result.getMatchInfo().get(0);
+            MatchInfo match = result.getMatches().get(0);
             assertThat(match.getPropertyPath()).isEqualTo(propertyKeyString);
             assertThat(match.getFullText()).isEqualTo(propertyValueString);
             assertThat(match.getExactMatch()).isEqualTo(exactMatch);
@@ -130,7 +130,7 @@ public class SnippetTest {
         for (SearchResultProto.ResultProto proto : searchResultProto.getResultsList()) {
             SearchResults.Result result =
                     SearchResultToProtoConverter.convert(proto);
-            assertThat(result.getMatchInfo()).isEqualTo(null);
+            assertThat(result.getMatches()).isEqualTo(null);
         }
     }
 
@@ -193,7 +193,7 @@ public class SnippetTest {
             SearchResults.Result result =
                     SearchResultToProtoConverter.convert(proto);
 
-            MatchInfo match1 = result.getMatchInfo().get(0);
+            MatchInfo match1 = result.getMatches().get(0);
             assertThat(match1.getPropertyPath()).isEqualTo("sender.name");
             assertThat(match1.getFullText()).isEqualTo("Test Name Jr.");
             assertThat(match1.getExactMatchPosition()).isEqualTo(
@@ -203,7 +203,7 @@ public class SnippetTest {
                     new MatchInfo.MatchRange(/*lower=*/0, /*upper=*/9));
             assertThat(match1.getSnippet()).isEqualTo("Test Name");
 
-            MatchInfo match2 = result.getMatchInfo().get(1);
+            MatchInfo match2 = result.getMatches().get(1);
             assertThat(match2.getPropertyPath()).isEqualTo("sender.email");
             assertThat(match2.getFullText()).isEqualTo("TestNameJr@gmail.com");
             assertThat(match2.getExactMatchPosition()).isEqualTo(

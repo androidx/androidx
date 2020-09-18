@@ -443,7 +443,7 @@ public class AppSearchManagerTest {
         // Set number of results per page is 7.
         SearchResults searchResults = mDb1.query("body",
                 new SearchSpec.Builder()
-                        .setTermMatchType(SearchSpec.TERM_MATCH_TYPE_EXACT_ONLY)
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .setNumPerPage(7)
                         .build());
         List<GenericDocument> documents = new ArrayList<>();
@@ -503,7 +503,7 @@ public class AppSearchManagerTest {
         // Query only for Document
         results = doQuery(mDb1, "body", new SearchSpec.Builder()
                 .setSchemaTypes("Generic")
-                .setTermMatchType(SearchSpec.TERM_MATCH_TYPE_EXACT_ONLY)
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
         assertThat(results).hasSize(1);
         assertThat(results).containsExactly(inDoc);
@@ -547,7 +547,7 @@ public class AppSearchManagerTest {
         results = doQuery(mDb1, "body",
                 new SearchSpec.Builder()
                         .setNamespaces("expectedNamespace")
-                        .setTermMatchType(SearchSpec.TERM_MATCH_TYPE_EXACT_ONLY)
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                         .build());
         assertThat(results).hasSize(1);
         assertThat(results).containsExactly(expectedEmail);
@@ -623,15 +623,15 @@ public class AppSearchManagerTest {
         SearchResults searchResults = mDb1.query("foo",
                 new SearchSpec.Builder()
                         .setSchemaTypes("Generic")
-                        .setNumToSnippet(1)
-                        .setNumMatchesPerProperty(1)
+                        .setSnippetCount(1)
+                        .setSnippetCountPerProperty(1)
                         .setMaxSnippetSize(10)
-                        .setTermMatchType(SearchSpec.TERM_MATCH_TYPE_PREFIX)
+                        .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
                         .build());
         List<SearchResults.Result> results = checkIsResultSuccess(searchResults.getNextPage());
         assertThat(results).hasSize(1);
 
-        List<MatchInfo> matchInfos = results.get(0).getMatchInfo();
+        List<MatchInfo> matchInfos = results.get(0).getMatches();
         assertThat(matchInfos).isNotNull();
         assertThat(matchInfos).hasSize(1);
         MatchInfo matchInfo = matchInfos.get(0);
@@ -1092,7 +1092,7 @@ public class AppSearchManagerTest {
     private List<GenericDocument> doQuery(AppSearchManager instance, String queryExpression)
             throws Exception {
         return doQuery(instance, queryExpression, new SearchSpec.Builder()
-                .setTermMatchType(SearchSpec.TERM_MATCH_TYPE_EXACT_ONLY)
+                .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
                 .build());
     }
 

@@ -177,6 +177,54 @@ package androidx.appsearch.app {
     method public BuilderType setTtlMillis(long);
   }
 
+  public final class MatchInfo {
+    method public CharSequence getExactMatch();
+    method public androidx.appsearch.app.MatchInfo.MatchRange getExactMatchPosition();
+    method public String getFullText();
+    method public String getPropertyPath();
+    method public CharSequence getSnippet();
+    method public androidx.appsearch.app.MatchInfo.MatchRange getSnippetPosition();
+  }
+
+  public static class MatchInfo.MatchRange {
+    method public int getEnd();
+    method public int getStart();
+  }
+
+  public final class SearchResults implements java.io.Closeable {
+    method public void close();
+    method public com.google.common.util.concurrent.ListenableFuture<androidx.appsearch.app.AppSearchResult<java.util.List<androidx.appsearch.app.SearchResults.Result!>!>!> getNextPage();
+  }
+
+  public static final class SearchResults.Result {
+    method public androidx.appsearch.app.GenericDocument getDocument();
+    method public java.util.List<androidx.appsearch.app.MatchInfo!>? getMatches();
+  }
+
+  public final class SearchSpec {
+    field public static final int ORDER_ASCENDING = 1; // 0x1
+    field public static final int ORDER_DESCENDING = 0; // 0x0
+    field public static final int RANKING_STRATEGY_CREATION_TIMESTAMP = 2; // 0x2
+    field public static final int RANKING_STRATEGY_DOCUMENT_SCORE = 1; // 0x1
+    field public static final int RANKING_STRATEGY_NONE = 0; // 0x0
+    field public static final int TERM_MATCH_EXACT_ONLY = 1; // 0x1
+    field public static final int TERM_MATCH_PREFIX = 2; // 0x2
+  }
+
+  public static final class SearchSpec.Builder {
+    ctor public SearchSpec.Builder();
+    method public androidx.appsearch.app.SearchSpec build();
+    method public androidx.appsearch.app.SearchSpec.Builder setMaxSnippetSize(int);
+    method public androidx.appsearch.app.SearchSpec.Builder setNamespaces(java.lang.String!...);
+    method public androidx.appsearch.app.SearchSpec.Builder setNumPerPage(int);
+    method public androidx.appsearch.app.SearchSpec.Builder setOrder(int);
+    method public androidx.appsearch.app.SearchSpec.Builder setRankingStrategy(int);
+    method public androidx.appsearch.app.SearchSpec.Builder setSchemaTypes(java.lang.String!...);
+    method public androidx.appsearch.app.SearchSpec.Builder setSnippetCount(int);
+    method public androidx.appsearch.app.SearchSpec.Builder setSnippetCountPerProperty(int);
+    method public androidx.appsearch.app.SearchSpec.Builder setTermMatch(int);
+  }
+
 }
 
 package androidx.appsearch.exceptions {
