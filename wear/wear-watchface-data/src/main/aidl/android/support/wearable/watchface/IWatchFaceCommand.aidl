@@ -17,6 +17,9 @@
 package android.support.wearable.watchface;
 
 import android.support.wearable.complications.ComplicationData;
+import androidx.wear.watchface.data.ImmutableSystemState;
+import androidx.wear.watchface.data.IndicatorState;
+import androidx.wear.watchface.data.SystemState;
 
 /**
  * Interface for controlling the watchface from the wearable device.
@@ -48,30 +51,18 @@ interface IWatchFaceCommand {
     /**
      * Sends the current system state to the Watch Face.
      */
-    void setSystemState(
-        in boolean inAmbientMode,
-        in int interruptionFilter,
-        in int unreadCount,
-        in int notificationCount
-    ) = 3;
+    void setSystemState(in SystemState systemState) = 3;
 
     /**
-     * Sends the current system state to the Watch Face, only called if
+     * Sends the current watch indicator state to the Watch Face, only called if
      * {@link WatchFaceStyle#hideNotificationIndicator} is true.
      */
-    void setIndicatorState(
-        in boolean isCharging,
-        in boolean inAirplaneMode,
-        in boolean isConnectedToCompanion,
-        in boolean inTheaterMode,
-        in boolean isGpsActive,
-        in boolean isKeyguardLocked
-    ) = 4;
+    void setIndicatorState(in IndicatorState indicatorState) = 4;
 
     /**
      * Sends the immutable system state to the Watch Face.
      */
-    void setImmutableSystemState(in boolean hasLowBitAmbient, in boolean hasBurnInProtection) = 5;
+    void setImmutableSystemState(in ImmutableSystemState immutableSystemState) = 5;
 
     /**
      * Sends new complication data for the specified complicationId.

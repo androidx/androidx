@@ -44,6 +44,7 @@ import androidx.wear.complications.SystemProviders
 import androidx.wear.watchface.ComplicationBoundsType
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.WatchFaceService
+import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
 import org.junit.Before
 import org.junit.Rule
@@ -247,10 +248,12 @@ class WatchFaceServiceImageTest {
 
     private fun setAmbient(ambient: Boolean) {
         watchFaceServiceStub.iWatchFaceCommand!!.setSystemState(
-            ambient,
-            0,
-            0,
-            0
+            SystemState(
+                ambient,
+                0,
+                0,
+                0
+            )
         )
     }
 
@@ -314,9 +317,7 @@ class WatchFaceServiceImageTest {
                 100,
                 123456789,
                 null
-            ).ashmemCompressedImageBundleToBitmap(
-
-            )
+            ).ashmemCompressedImageBundleToBitmap()
             latch.countDown()
         }
 
