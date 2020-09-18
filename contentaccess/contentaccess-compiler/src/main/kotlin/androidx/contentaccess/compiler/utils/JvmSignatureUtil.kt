@@ -261,10 +261,13 @@ class JvmSignatureUtil(
                         val typeElement =
                             MoreElements.asType(element)
                         return when (typeElement.getNestingKind()) {
-                            NestingKind.TOP_LEVEL -> typeElement.getQualifiedName()
-                                .toString().replace('.', '/')
-                            NestingKind.MEMBER -> getInternalName(typeElement.getEnclosingElement
-                                ()) + "$" + typeElement.getSimpleName()
+                            NestingKind.TOP_LEVEL ->
+                                typeElement.getQualifiedName()
+                                    .toString().replace('.', '/')
+                            NestingKind.MEMBER -> getInternalName(
+                                typeElement.getEnclosingElement
+                                ()
+                            ) + "$" + typeElement.getSimpleName()
                             else -> throw IllegalArgumentException("Unsupported nesting kind.")
                         }
                     } catch (e: IllegalArgumentException) {

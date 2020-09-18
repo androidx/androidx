@@ -27,6 +27,7 @@ class ErrorReporter(private val messager: Messager) {
     fun reportError(error: String, element: Element) {
         errorReported = true
         messager.printMessage(
-            Diagnostic.Kind.ERROR, error, element)
+            Diagnostic.Kind.ERROR, error, element
+        )
     }
 }

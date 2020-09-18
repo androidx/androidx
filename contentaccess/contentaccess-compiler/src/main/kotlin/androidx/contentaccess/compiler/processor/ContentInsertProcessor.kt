@@ -56,7 +56,8 @@ class ContentInsertProcessor(
             return null
         } else if (entitiesInParams.isEmpty()) {
             errorReporter.reportError(
-                insertMethodHasNoEntityInParameters(), method)
+                insertMethodHasNoEntityInParameters(), method
+            )
             return null
         }
 

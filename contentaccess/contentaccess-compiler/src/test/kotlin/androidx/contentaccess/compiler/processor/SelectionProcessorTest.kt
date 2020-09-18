@@ -33,7 +33,9 @@ class SelectionProcessorTest {
     val entityName = "androidx.contentaccess.compiler.processor.test.Entity"
 
     fun generateMainSourceFile(accessorBody: String): SourceFile {
-        return SourceFile.kotlin("MyClass.kt", """
+        return SourceFile.kotlin(
+            "MyClass.kt",
+            """
         package androidx.contentaccess.compiler.processor.test
 
         import androidx.contentaccess.ContentAccessObject
@@ -62,11 +64,13 @@ class SelectionProcessorTest {
 
     @Test
     fun validSelection() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentQuery(selection = "dtstart > 1 OR (dtstart < 5 AND description =  \"abc\")" + 
             " OR ((description = :parameter AND (dtstart * 6 = 30)))")
         fun getAll(parameter: String): List<Entity>
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -75,10 +79,12 @@ class SelectionProcessorTest {
 
     @Test
     fun ensureNoStraySelectionColumns() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentQuery(selection = "dtstart = : AND description > :parameter")
         fun getAll(parameter: String): List<Entity>
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -88,10 +94,12 @@ class SelectionProcessorTest {
 
     @Test
     fun ensureSelectionArgumentsAreSpecifiedInParameter() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentQuery(selection = "description > :parameter")
         fun getAll(): List<Entity>
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -101,16 +109,19 @@ class SelectionProcessorTest {
 
     @Test
     fun ensureColumnsMentionedInSelectionExistInEntity() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentQuery(selection = "unknown_column > 5")
         fun getAll(): List<Entity>
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
         assertThat(result.exitCode).isEqualTo(ExitCode.COMPILATION_ERROR)
         assertThat(result.messages).contains(
-            columnInSelectionMissingFromEntity("unknown_column", entityName))
+            columnInSelectionMissingFromEntity("unknown_column", entityName)
+        )
     }
 
     @Test

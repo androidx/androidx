@@ -32,8 +32,10 @@ class ContentDeleteProcessorTest {
     val entityName = "androidx.contentaccess.compiler.processor.test.Entity"
 
     fun generateMainSourceFile(accessorBody: String, entityWithoutUri: Boolean = false):
-            SourceFile {
-        return SourceFile.kotlin("MyClass.kt", """
+        SourceFile {
+            return SourceFile.kotlin(
+                "MyClass.kt",
+                """
         package androidx.contentaccess.compiler.processor.test
 
         import androidx.contentaccess.ContentAccessObject
@@ -65,20 +67,22 @@ class ContentDeleteProcessorTest {
         )
 
         @ContentAccessObject(${if (entityWithoutUri) "EntityWithoutUri::class" else
-            "Entity::class"})
+                    "Entity::class"})
         interface ContentAccessor {
             $accessorBody
         }
         """
-        )
-    }
+            )
+        }
 
     @Test
     fun validDelete() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentDelete
         fun deleteAll(): Int
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -87,10 +91,13 @@ class ContentDeleteProcessorTest {
 
     @Test
     fun validDeleteWithUriLessEntity() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentDelete(uri = ":uri")
         fun deleteUriLessEntity(uri: String): Int?
-        """.trimIndent(), true)
+            """.trimIndent(),
+            true
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -99,10 +106,13 @@ class ContentDeleteProcessorTest {
 
     @Test
     fun checkThereIsAUriSomewhere() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentDelete
         fun deleteWithNoUri(): Int?
-        """.trimIndent(), true)
+            """.trimIndent(),
+            true
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -112,10 +122,12 @@ class ContentDeleteProcessorTest {
 
     @Test
     fun ensureContentEntityInAnnotationTakesPrecedence() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentDelete(contentEntity = EntityWithoutUri::class)
         fun deleteAll(): Int?
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -127,10 +139,12 @@ class ContentDeleteProcessorTest {
 
     @Test
     fun ensureReturnsAnInt() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentDelete
         fun deleteAll(): String?
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -142,10 +156,12 @@ class ContentDeleteProcessorTest {
 
     @Test
     fun ensureColumnsInWhereExist() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentDelete(where = "unknown_column = :param")
         fun deleteAll(param: String): Int?
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 

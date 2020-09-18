@@ -61,8 +61,10 @@ class ContentQueryProcessor(
         val potentialContentEntity = method.toAnnotationBox(ContentQuery::class)!!
             .getAsTypeMirror("contentEntity")!!
         val resolvedContentEntity = if (!potentialContentEntity.isVoidObject()) {
-            ContentEntityProcessor(potentialContentEntity,
-                processingEnv, errorReporter).processEntity()
+            ContentEntityProcessor(
+                potentialContentEntity,
+                processingEnv, errorReporter
+            ).processEntity()
         } else {
             contentEntity
         }
@@ -70,8 +72,10 @@ class ContentQueryProcessor(
             errorReporter.reportError(missingEntityOnMethod(method.simpleName.toString()), method)
             return null
         }
-        val toBeUsedUri = determineToBeUsedUri(resolvedContentEntity, contentQueryAnnotation.uri,
-            errorReporter, method)
+        val toBeUsedUri = determineToBeUsedUri(
+            resolvedContentEntity, contentQueryAnnotation.uri,
+            errorReporter, method
+        )
         if (toBeUsedUri.isEmpty()) {
             errorReporter.reportError(missingUriOnMethod(), method)
         }
@@ -82,8 +86,11 @@ class ContentQueryProcessor(
                     // Maybe it was "column desc" or "column asc", check.
                     val splitOrderBy = trimmedOrderByMember.split(" ")
                     if (splitOrderBy.size == 2 && resolvedContentEntity.columns.containsKey
-                            (splitOrderBy.get(0)) && ORDER_BY_KEYWORDS.contains(splitOrderBy
-                            .get(1))) {
+                        (splitOrderBy.get(0)) && ORDER_BY_KEYWORDS.contains(
+                                splitOrderBy
+                                    .get(1)
+                            )
+                    ) {
                         continue
                     }
                     errorReporter.reportError(badlyFormulatedOrderBy(orderByMember), method)
@@ -100,27 +107,44 @@ class ContentQueryProcessor(
         val selectionVO = if (contentQueryAnnotation.selection.isEmpty()) {
             null
         } else {
-            SelectionProcessor(method, contentQueryAnnotation.selection,
-                paramsNamesAndTypes, errorReporter, resolvedContentEntity).process()
+            SelectionProcessor(
+                method, contentQueryAnnotation.selection,
+                paramsNamesAndTypes, errorReporter, resolvedContentEntity
+            ).process()
         }
         if (contentQueryAnnotation.projection.size == 1 &&
-            returnType.extractIntendedReturnType().isSupportedColumnType()) {
+            returnType.extractIntendedReturnType().isSupportedColumnType()
+        ) {
             val queriedColumn = contentQueryAnnotation.projection[0]
             if (!resolvedContentEntity.columns.containsKey(queriedColumn)) {
-                errorReporter.reportError(queriedColumnInProjectionNotInEntity(queriedColumn,
-                    resolvedContentEntity.type.toString()), method)
+                errorReporter.reportError(
+                    queriedColumnInProjectionNotInEntity(
+                        queriedColumn,
+                        resolvedContentEntity.type.toString()
+                    ),
+                    method
+                )
                 return null
             }
             val queriedColumnType = resolvedContentEntity.columns.get(queriedColumn)!!.type
             if (queriedColumnType.boxIfPrimitive(processingEnv).toString()
                 != returnType.boxIfPrimitive(processingEnv).toString() &&
-                ((!returnType.isSupportedGenericType() ||
-                    !processingEnv.typeUtils
-                        .isSameType(returnType.extractIntendedReturnType(),
-                            queriedColumnType.boxIfPrimitive(processingEnv))))) {
+                (
+                    (
+                        !returnType.isSupportedGenericType() ||
+                            !processingEnv.typeUtils
+                                .isSameType(
+                                        returnType.extractIntendedReturnType(),
+                                        queriedColumnType.boxIfPrimitive(processingEnv)
+                                    )
+                        )
+                    )
+            ) {
                 errorReporter.reportError(
-                    queriedColumnInProjectionTypeDoesntMatchReturnType(returnType.toString(),
-                        queriedColumnType.toString(), queriedColumn),
+                    queriedColumnInProjectionTypeDoesntMatchReturnType(
+                        returnType.toString(),
+                        queriedColumnType.toString(), queriedColumn
+                    ),
                     method
                 )
             }
@@ -135,7 +159,8 @@ class ContentQueryProcessor(
                 returnType = returnType,
                 method = method,
                 orderBy = orderBy,
-                isSuspend = isSuspendFunction)
+                isSuspend = isSuspendFunction
+            )
         } else {
             // Either empty projection or more than one field, either way infer the return columns
             // from the return type POJO/entity.
@@ -149,7 +174,8 @@ class ContentQueryProcessor(
                     uri = toBeUsedUri,
                     returnType = returnType,
                     method = method,
-                    isSuspend = isSuspendFunction)
+                    isSuspend = isSuspendFunction
+                )
             }
 
             val intendedReturnType = if (returnType.isSupportedGenericType()) {
@@ -159,27 +185,42 @@ class ContentQueryProcessor(
             }
 
             if (intendedReturnType.asTypeElement()
-                    .hasMoreThanOneNonPrivateNonIgnoredConstructor()) {
+                .hasMoreThanOneNonPrivateNonIgnoredConstructor()
+            ) {
                 errorReporter.reportError(
                     pojoHasMoreThanOneQualifyingConstructor(intendedReturnType.toString()),
-                    intendedReturnType.asTypeElement())
+                    intendedReturnType.asTypeElement()
+                )
                 return null
             } else if (intendedReturnType.asTypeElement().isNotInstantiable()) {
-                errorReporter.reportError(pojoIsNotInstantiable(intendedReturnType.asTypeElement()
-                    .qualifiedName.toString()), intendedReturnType.asTypeElement())
+                errorReporter.reportError(
+                    pojoIsNotInstantiable(
+                        intendedReturnType.asTypeElement()
+                            .qualifiedName.toString()
+                    ),
+                    intendedReturnType.asTypeElement()
+                )
                 return null
             }
             val pojo = PojoProcessor(intendedReturnType).process()
             // Apply the projection (if existing) to the POJO
-            val pojoWithProjection = validateAndApplyProjectionToPojo(contentQueryAnnotation
-                .projection, pojo, returnType, resolvedContentEntity)
+            val pojoWithProjection = validateAndApplyProjectionToPojo(
+                contentQueryAnnotation
+                    .projection,
+                pojo, returnType, resolvedContentEntity
+            )
             if (errorReporter.errorReported) {
                 return null
             }
             pojoWithProjection!!.pojoFields.forEach {
                 if (it.isNullable && it.type.isPrimitive()) {
-                    errorReporter.reportError(pojoWithNullablePrimitive(it.name,
-                        pojo.type.toString()), method)
+                    errorReporter.reportError(
+                        pojoWithNullablePrimitive(
+                            it.name,
+                            pojo.type.toString()
+                        ),
+                        method
+                    )
                 }
             }
             return ContentQueryVO(
@@ -204,24 +245,35 @@ class ContentQueryProcessor(
     ) {
         pojo.pojoFields.forEach { field ->
             if (!resolvedContentEntity.columns.containsKey(field.columnName) || !processingEnv
-                .typeUtils.isSameType(resolvedContentEntity.columns.get(field.columnName)!!
-                    .type.boxIfPrimitive(processingEnv),
-                    field.type.boxIfPrimitive(processingEnv)
-                )) {
-                errorReporter.reportError(pojoFieldNotInEntity(field.name, field.type.toString(),
-                    field.columnName, pojo.type.toString(), resolvedContentEntity.type.toString()),
-                    method)
+                .typeUtils.isSameType(
+                        resolvedContentEntity.columns.get(field.columnName)!!
+                            .type.boxIfPrimitive(processingEnv),
+                        field.type.boxIfPrimitive(processingEnv)
+                    )
+            ) {
+                errorReporter.reportError(
+                    pojoFieldNotInEntity(
+                        field.name, field.type.toString(),
+                        field.columnName, pojo.type.toString(),
+                        resolvedContentEntity.type.toString()
+                    ),
+                    method
+                )
             } else {
                 if (resolvedContentEntity.columns.get(field.columnName)!!.isNullable &&
-                    !field.isNullable) {
+                    !field.isNullable
+                ) {
                     // TODO(obenabde): clarify how to mark as nullable, i.e "?" for Kotlin and
                     // @androidx.annotations.Nullable for Java.
-                    errorReporter.reportError(nullableEntityColumnNotNullableInPojo(
-                        field.name,
-                        field.type.toString(),
-                        field.columnName,
-                        resolvedContentEntity.type.toString()
-                    ), method)
+                    errorReporter.reportError(
+                        nullableEntityColumnNotNullableInPojo(
+                            field.name,
+                            field.type.toString(),
+                            field.columnName,
+                            resolvedContentEntity.type.toString()
+                        ),
+                        method
+                    )
                 }
             }
         }
@@ -243,17 +295,28 @@ class ContentQueryProcessor(
         for (column in projection) {
             if (!extractedColumnNames.containsKey(column)) {
                 errorFound = true
-                errorReporter.reportError(columnInProjectionNotIncludedInReturnPojo(column,
-                    pojo.type.toString()), method)
+                errorReporter.reportError(
+                    columnInProjectionNotIncludedInReturnPojo(
+                        column,
+                        pojo.type.toString()
+                    ),
+                    method
+                )
             }
         }
         for (pojoField in pojo.pojoFields) {
             if (!projection.contains(pojoField.columnName) && !pojoField.isNullable &&
-                pojo.type.asTypeElement().isFilledThroughConstructor()) {
+                pojo.type.asTypeElement().isFilledThroughConstructor()
+            ) {
                 errorFound = true
                 errorReporter.reportError(
-                    constructorFieldNotIncludedInProjectionNotNullable(pojoField.name, returnType
-                        .extractIntendedReturnType().toString()), method)
+                    constructorFieldNotIncludedInProjectionNotNullable(
+                        pojoField.name,
+                        returnType
+                            .extractIntendedReturnType().toString()
+                    ),
+                    method
+                )
             }
         }
         if (errorFound) {
@@ -287,11 +350,14 @@ fun determineToBeUsedUri(
         errorReporter.reportError(columnOnlyAsUri(), method)
         return uriInAnnotation
     } else if (!method.parameters.map { it.simpleName.toString() }.contains
-            (specifiedParamName)) {
+        (specifiedParamName)
+    ) {
         errorReporter.reportError(missingUriParameter(specifiedParamName), method)
         return uriInAnnotation
     } else if (!method.parameters.filter {
-            it.simpleName.toString().equals(specifiedParamName) }[0].asType().isString()) {
+        it.simpleName.toString().equals(specifiedParamName)
+    }[0].asType().isString()
+    ) {
         errorReporter.reportError(uriParameterIsNotString(specifiedParamName), method)
         return uriInAnnotation
     }

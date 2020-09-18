@@ -36,7 +36,8 @@ class ContentInsertMethodWriter(
     fun createContentDeleteMethod(): FunSpec {
         val methodBuilder = funSpecOverriding(contentInsert.method, processingEnv)
         methodBuilder.annotations.add(
-            AnnotationSpec.builder(Suppress::class).addMember("%S", "DEPRECATION").build())
+            AnnotationSpec.builder(Suppress::class).addMember("%S", "DEPRECATION").build()
+        )
         if (contentInsert.isSuspend) {
             val withContext = MemberName("kotlinx.coroutines", "withContext")
             methodBuilder.beginControlFlow("return %M(_coroutineDispatcher)", withContext)
