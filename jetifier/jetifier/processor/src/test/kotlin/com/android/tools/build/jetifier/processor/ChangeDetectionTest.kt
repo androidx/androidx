@@ -49,10 +49,13 @@ class ChangeDetectionTest {
         pomRewriteRules = setOf(
             PomRewriteRule(
                 PomDependency(
-                    groupId = "supportGroup", artifactId = "supportArtifact", version = "4.0"),
+                    groupId = "supportGroup", artifactId = "supportArtifact", version = "4.0"
+                ),
                 PomDependency(
-                    groupId = "testGroup", artifactId = "testArtifact", version = "1.0")
-            )),
+                    groupId = "testGroup", artifactId = "testArtifact", version = "1.0"
+                )
+            )
+        ),
         typesMap = TypesMap(
             JavaType("android/support/v7/preference/Preference")
                 to JavaType("android/test/pref/Preference")
@@ -65,7 +68,7 @@ class ChangeDetectionTest {
             config = prefRewriteConfig,
             fileContent =
                 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                "<android.support.v7.preference.Preference/>",
+                    "<android.support.v7.preference.Preference/>",
             fileName = "test.xml",
             areChangesExpected = true
         )
@@ -77,7 +80,7 @@ class ChangeDetectionTest {
             config = Config.EMPTY,
             fileContent =
                 "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                "<android.support.v7.preference.Preference/>",
+                    "<android.support.v7.preference.Preference/>",
             fileName = "test.xml",
             areChangesExpected = false
         )
@@ -89,8 +92,8 @@ class ChangeDetectionTest {
             config = prefRewriteConfig,
             fileContent =
                 "-keep public class * extends android.support.v7.preference.Preference { \n" +
-                "  <fields>; \n" +
-                "}",
+                    "  <fields>; \n" +
+                    "}",
             fileName = "proguard.txt",
             areChangesExpected = true
         )
@@ -102,8 +105,8 @@ class ChangeDetectionTest {
             config = Config.EMPTY,
             fileContent =
                 "-keep public class * extends android.support.v7.preference.Preference { \n" +
-                "  <fields>; \n" +
-                "}",
+                    "  <fields>; \n" +
+                    "}",
             fileName = "test.xml",
             areChangesExpected = false
         )
@@ -115,18 +118,18 @@ class ChangeDetectionTest {
             config = prefRewriteConfig,
             fileContent =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" " +
-                "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-                "  xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0" +
-                "  http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
-                "  <dependencies>\n" +
-                "    <dependency>\n" +
-                "      <groupId>supportGroup</groupId>\n" +
-                "      <artifactId>supportArtifact</artifactId>\n" +
-                "      <version>4.0</version>\n" +
-                "    </dependency>\n" +
-                "  </dependencies>" +
-                "</project>\n",
+                    "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" " +
+                    "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+                    "  xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0" +
+                    "  http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
+                    "  <dependencies>\n" +
+                    "    <dependency>\n" +
+                    "      <groupId>supportGroup</groupId>\n" +
+                    "      <artifactId>supportArtifact</artifactId>\n" +
+                    "      <version>4.0</version>\n" +
+                    "    </dependency>\n" +
+                    "  </dependencies>" +
+                    "</project>\n",
             fileName = "pom.xml",
             areChangesExpected = true
         )
@@ -138,18 +141,18 @@ class ChangeDetectionTest {
             config = Config.EMPTY,
             fileContent =
                 "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" " +
-                "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-                "  xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0" +
-                "  http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
-                "  <dependencies>\n" +
-                "    <dependency>\n" +
-                "      <groupId>supportGroup</groupId>\n" +
-                "      <artifactId>supportArtifact</artifactId>\n" +
-                "      <version>4.0</version>\n" +
-                "    </dependency>\n" +
-                "  </dependencies>" +
-                "</project>\n",
+                    "<project xmlns=\"http://maven.apache.org/POM/4.0.0\" " +
+                    "  xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+                    "  xsi:schemaLocation=\"http://maven.apache.org/POM/4.0.0" +
+                    "  http://maven.apache.org/xsd/maven-4.0.0.xsd\">\n" +
+                    "  <dependencies>\n" +
+                    "    <dependency>\n" +
+                    "      <groupId>supportGroup</groupId>\n" +
+                    "      <artifactId>supportArtifact</artifactId>\n" +
+                    "      <version>4.0</version>\n" +
+                    "    </dependency>\n" +
+                    "  </dependencies>" +
+                    "</project>\n",
             fileName = "pom.xml",
             areChangesExpected = false
         )
@@ -254,7 +257,8 @@ class ChangeDetectionTest {
         testChange(
             config = config,
             files = listOf(ArchiveFile(Paths.get("/", fileName), fileContent.toByteArray())),
-            areChangesExpected = areChangesExpected)
+            areChangesExpected = areChangesExpected
+        )
     }
 
     /**
@@ -273,7 +277,8 @@ class ChangeDetectionTest {
 
         val expectedFileIfRefactored = Files.createTempFile("testRefactored", ".zip")
         val processor = Processor.createProcessor4(
-            config = config)
+            config = config
+        )
         val resultFiles = processor.transform2(
             input = setOf(FileMapping(sourceArchive, expectedFileIfRefactored.toFile())),
             copyUnmodifiedLibsAlso = copyUnmodifiedLibsAlso,
@@ -282,20 +287,23 @@ class ChangeDetectionTest {
 
         if (areChangesExpected) {
             Truth.assertThat(resultFiles).containsExactly(
-                sourceArchive, expectedFileIfRefactored.toFile())
+                sourceArchive, expectedFileIfRefactored.toFile()
+            )
             Truth.assertThat(sourceArchive.toMd5())
                 .isNotEqualTo(expectedFileIfRefactored.toFile().toMd5())
         } else {
             if (copyUnmodifiedLibsAlso) {
                 Truth.assertThat(resultFiles).containsExactly(
-                    sourceArchive, expectedFileIfRefactored.toFile())
+                    sourceArchive, expectedFileIfRefactored.toFile()
+                )
                 // Verifies that we actually copied the file from source instead of re-creating
                 // it as that could break checksums.
                 Truth.assertThat(sourceArchive.toMd5())
                     .isEqualTo(expectedFileIfRefactored.toFile().toMd5())
             } else {
                 Truth.assertThat(resultFiles).containsExactly(
-                    sourceArchive, null)
+                    sourceArchive, null
+                )
             }
         }
     }

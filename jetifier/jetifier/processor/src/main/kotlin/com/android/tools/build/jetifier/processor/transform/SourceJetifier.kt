@@ -31,17 +31,22 @@ class SourceJetifier {
             for (pair in mappings) {
                 val fromType = pair.key
                 val toType = pair.value
-                var startIndex = sourceCode.indexOf(string = fromType,
-                    startIndex = 0)
+                var startIndex = sourceCode.indexOf(
+                    string = fromType,
+                    startIndex = 0
+                )
                 while (startIndex != -1) {
                     // Replace only if the match is not followed by an alphanumeric character.
                     // This serves to avoid matches where we match to a subset of the type instead
                     // of the actual intended type (e.g com.foo.Class should not
                     // match for the start of com.foo.Class2)
                     if (startIndex + fromType.length == sourceCode.length ||
-                        !sourceCode[startIndex + fromType.length].isLetterOrDigit()) {
-                        sourceCode = sourceCode.replaceRange(startIndex,
-                            startIndex + fromType.length, toType)
+                        !sourceCode[startIndex + fromType.length].isLetterOrDigit()
+                    ) {
+                        sourceCode = sourceCode.replaceRange(
+                            startIndex,
+                            startIndex + fromType.length, toType
+                        )
                     }
                     startIndex += toType.length
                     startIndex = sourceCode.indexOf(string = fromType, startIndex = startIndex)
