@@ -224,6 +224,21 @@ class FragmentTransitionTest(
         verifyPopTransition(1, fragment2, fragment1)
     }
 
+    @Test
+    fun noSharedElementToSharedElement() {
+        val fragment1 = setupInitialFragment()
+
+        // Now do a transition to scene2
+        val fragment2 = SharedElementOnlyTransitionFragment()
+
+        verifyTransition(fragment1, fragment2, "blueSquare")
+
+        // Now pop the back stack
+        verifyPopTransition(1, fragment2, fragment1)
+
+        assertThat(fragment2.destroyViewCountDownLatch.await(1000, TimeUnit.MILLISECONDS)).isTrue()
+    }
+
     // Test that shared elements transition from one fragment to the next
     // and back during pop.
     @Suppress("DEPRECATION")
@@ -1242,9 +1257,11 @@ class FragmentTransitionTest(
         }
         verifyNoOtherTransitions(from)
 
-        to.enterTransition.verifyAndClearTransition {
-            epicenter = endBlueRect
-            enteringViews += listOfNotNull(endGreen, endRed)
+        if (to.getEnterTransition() != null) {
+            to.enterTransition.verifyAndClearTransition {
+                epicenter = endBlueRect
+                enteringViews += listOfNotNull(endGreen, endRed)
+            }
         }
 
         to.sharedElementEnter.verifyAndClearTransition {
@@ -1420,9 +1437,11 @@ class FragmentTransitionTest(
         val endRed = activityRule.findRed()
         val endSharedRect = endBlue.boundsOnScreen
 
-        from.returnTransition.verifyAndClearTransition {
-            epicenter = startSharedRect
-            exitingViews += listOfNotNull(startGreen, startRed)
+        if (from.getReturnTransition() != null) {
+            from.returnTransition.verifyAndClearTransition {
+                epicenter = startSharedRect
+                exitingViews += listOfNotNull(startGreen, startRed)
+            }
         }
         from.sharedElementReturn.verifyAndClearTransition {
             epicenter = startSharedRect
@@ -1480,6 +1499,28 @@ class FragmentTransitionTest(
             transitionCountInOnDestroyView = endTransitionCountDownLatch.count
             onDestroyViewCountDownLatch.countDown()
             super.onDestroyView()
+        }
+    }
+
+    // Transition fragment with only shared element transitions
+    class SharedElementOnlyTransitionFragment : TransitionFragment(R.layout.scene2) {
+        val destroyViewCountDownLatch = CountDownLatch(1)
+        override fun onCreate(savedInstanceState: Bundle?) {
+            super.onCreate(savedInstanceState)
+
+            setEnterTransition(null)
+            setReenterTransition(null)
+            setExitTransition(null)
+            setReturnTransition(null)
+            enterTransition.addListener(null)
+            reenterTransition.addListener(null)
+            exitTransition.addListener(null)
+            returnTransition.addListener(null)
+        }
+
+        override fun onDestroyView() {
+            super.onDestroyView()
+            destroyViewCountDownLatch.countDown()
         }
     }
 
