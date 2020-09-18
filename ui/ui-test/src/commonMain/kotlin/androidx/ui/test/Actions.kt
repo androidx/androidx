@@ -179,7 +179,8 @@ fun <T : Function<Boolean>> SemanticsNodeInteraction.performSemanticsAction(
         throw AssertionError(
             buildGeneralErrorMessage(
                 "Failed to perform ${key.name} action as it is not defined on the node.",
-                selector, node)
+                selector, node
+            )
         )
     }
 

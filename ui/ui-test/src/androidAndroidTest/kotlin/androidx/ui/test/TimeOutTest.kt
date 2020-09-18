@@ -62,18 +62,22 @@ class TimeOutTest {
     fun restoreTimeOutPolicies() {
         IdlingRegistry.getInstance().unregister(InfiniteResource)
         IdlingPolicies.setIdlingResourceTimeout(
-            idlingResourcePolicy!!.idleTimeout, idlingResourcePolicy!!.idleTimeoutUnit)
+            idlingResourcePolicy!!.idleTimeout, idlingResourcePolicy!!.idleTimeoutUnit
+        )
         IdlingPolicies.setMasterPolicyTimeout(
-            masterPolicy!!.idleTimeout, masterPolicy!!.idleTimeoutUnit)
+            masterPolicy!!.idleTimeout, masterPolicy!!.idleTimeoutUnit
+        )
     }
 
     @Composable
     fun infiniteCase() {
         Box {
             val infiniteCounter = remember { mutableStateOf(0) }
-            Box(Modifier.onPositioned {
-                infiniteCounter.value += 1
-            }) {
+            Box(
+                Modifier.onPositioned {
+                    infiniteCounter.value += 1
+                }
+            ) {
                 Text("Hello")
             }
 

@@ -202,22 +202,25 @@ class BitmapCapturingTest(val config: TestConfig) {
                                         .preferredSize(100.toDp(), 50.toDp())
                                         .background(color = color11)
                                 )
-                                Box(Modifier
-                                    .testTag(tag12)
-                                    .preferredSize(100.toDp(), 50.toDp())
-                                    .background(color12)
+                                Box(
+                                    Modifier
+                                        .testTag(tag12)
+                                        .preferredSize(100.toDp(), 50.toDp())
+                                        .background(color12)
                                 )
                             }
                             Row {
-                                Box(Modifier
-                                    .testTag(tag21)
-                                    .preferredSize(100.toDp(), 50.toDp())
-                                    .background(color21)
+                                Box(
+                                    Modifier
+                                        .testTag(tag21)
+                                        .preferredSize(100.toDp(), 50.toDp())
+                                        .background(color21)
                                 )
-                                Box(Modifier
-                                    .testTag(tag22)
-                                    .preferredSize(100.toDp(), 50.toDp())
-                                    .background(color22)
+                                Box(
+                                    Modifier
+                                        .testTag(tag22)
+                                        .preferredSize(100.toDp(), 50.toDp())
+                                        .background(color22)
                                 )
                             }
                         }

@@ -25,9 +25,9 @@ class BatchingTest : InputDispatcherTest() {
 
     companion object {
         private const val cannotEnqueueError = "Can't enqueue event \\(.*\\), " +
-                "events have already been \\(or are being\\) dispatched or disposed"
+            "events have already been \\(or are being\\) dispatched or disposed"
         private const val cannotSendError = "Events have already " +
-                "been \\(or are being\\) dispatched or disposed"
+            "been \\(or are being\\) dispatched or disposed"
     }
 
     /**

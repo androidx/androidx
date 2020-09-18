@@ -186,8 +186,10 @@ fun onAllNodesWithTag(
  */
 @Deprecated(
     "Moved to androidx.ui.test.ComposeTestRule",
-    ReplaceWith("androidx.ui.test.ComposeTestRule.onNodeWithLabel(label, ignoreCase, " +
-            "useUnmergedTree)")
+    ReplaceWith(
+        "androidx.ui.test.ComposeTestRule.onNodeWithLabel(label, ignoreCase, " +
+            "useUnmergedTree)"
+    )
 )
 @Suppress("DEPRECATION")
 fun onNodeWithLabel(
@@ -209,8 +211,10 @@ fun onNodeWithLabel(
  */
 @Deprecated(
     "Moved to androidx.ui.test.ComposeTestRule",
-    ReplaceWith("androidx.ui.test.ComposeTestRule.onNodeWithText(text, ignoreCase, " +
-            "useUnmergedTree)")
+    ReplaceWith(
+        "androidx.ui.test.ComposeTestRule.onNodeWithText(text, ignoreCase, " +
+            "useUnmergedTree)"
+    )
 )
 @Suppress("DEPRECATION")
 fun onNodeWithText(
@@ -232,8 +236,10 @@ fun onNodeWithText(
  */
 @Deprecated(
     "Moved to androidx.ui.test.ComposeTestRule",
-    ReplaceWith("androidx.ui.test.ComposeTestRule.onNodeWithSubstring(text, ignoreCase, " +
-            "useUnmergedTree)")
+    ReplaceWith(
+        "androidx.ui.test.ComposeTestRule.onNodeWithSubstring(text, ignoreCase, " +
+            "useUnmergedTree)"
+    )
 )
 @Suppress("DEPRECATION")
 fun onNodeWithSubstring(
@@ -253,8 +259,10 @@ fun onNodeWithSubstring(
  */
 @Deprecated(
     "Moved to androidx.ui.test.ComposeTestRule",
-    ReplaceWith("androidx.ui.test.ComposeTestRule.onAllNodesWithText(text, ignoreCase, " +
-            "useUnmergedTree)")
+    ReplaceWith(
+        "androidx.ui.test.ComposeTestRule.onAllNodesWithText(text, ignoreCase, " +
+            "useUnmergedTree)"
+    )
 )
 @Suppress("DEPRECATION")
 fun onAllNodesWithText(
@@ -274,8 +282,10 @@ fun onAllNodesWithText(
  */
 @Deprecated(
     "Moved to androidx.ui.test.ComposeTestRule",
-    ReplaceWith("androidx.ui.test.ComposeTestRule.onAllNodesWithLabel(label, ignoreCase, " +
-            "useUnmergedTree)")
+    ReplaceWith(
+        "androidx.ui.test.ComposeTestRule.onAllNodesWithLabel(label, ignoreCase, " +
+            "useUnmergedTree)"
+    )
 )
 @Suppress("DEPRECATION")
 fun onAllNodesWithLabel(

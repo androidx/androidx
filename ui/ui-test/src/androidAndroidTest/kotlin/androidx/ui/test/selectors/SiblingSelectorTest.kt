@@ -60,7 +60,8 @@ class SiblingSelectorTest {
             }
         }
 
-        expectErrorMessageStartsWith("" +
+        expectErrorMessageStartsWith(
+            "" +
                 "Failed to assert the following: (TestTag = 'Child2')\n" +
                 "Reason: Expected exactly '1' node but found '2' nodes that satisfy: " +
                 "((TestTag = 'Child1').sibling)\n" +

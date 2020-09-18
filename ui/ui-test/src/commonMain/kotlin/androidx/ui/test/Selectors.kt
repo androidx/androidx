@@ -156,7 +156,8 @@ fun SemanticsNodeInteractionCollection.filter(
 ): SemanticsNodeInteractionCollection {
     return SemanticsNodeInteractionCollection(
         useUnmergedTree,
-        selector.addSelectorViaMatcher("filter", matcher))
+        selector.addSelectorViaMatcher("filter", matcher)
+    )
 }
 
 /**
@@ -173,5 +174,6 @@ fun SemanticsNodeInteractionCollection.filterToOne(
 ): SemanticsNodeInteraction {
     return SemanticsNodeInteraction(
         useUnmergedTree,
-        selector.addSelectorViaMatcher("filterToOne", matcher))
+        selector.addSelectorViaMatcher("filterToOne", matcher)
+    )
 }

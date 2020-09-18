@@ -63,8 +63,10 @@ fun SemanticsNodeInteraction.captureToBitmap(): Bitmap {
     }
     if (popupParentMaybe != null) {
         // We do not support capturing popups to bitmap
-        throw IllegalArgumentException("The node that is being captured to bitmap is in " +
-                "a popup or is a popup itself. Popups currently cannot be captured to bitmap.")
+        throw IllegalArgumentException(
+            "The node that is being captured to bitmap is in " +
+                "a popup or is a popup itself. Popups currently cannot be captured to bitmap."
+        )
     }
 
     @OptIn(ExperimentalLayoutNodeApi::class)
@@ -76,8 +78,10 @@ fun SemanticsNodeInteraction.captureToBitmap(): Bitmap {
     }
     if (dialogParentNodeMaybe != null) {
         val dialogProvider = findDialogWindowProviderInParent(view)
-            ?: throw IllegalArgumentException("Could not find a dialog window provider to capture" +
-                    " its bitmap")
+            ?: throw IllegalArgumentException(
+                "Could not find a dialog window provider to capture" +
+                    " its bitmap"
+            )
         windowToUse = dialogProvider.window
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
@@ -91,7 +95,8 @@ fun SemanticsNodeInteraction.captureToBitmap(): Bitmap {
         nodeBounds.left.roundToInt(),
         nodeBounds.top.roundToInt(),
         nodeBounds.right.roundToInt(),
-        nodeBounds.bottom.roundToInt())
+        nodeBounds.bottom.roundToInt()
+    )
 
     val locationInWindow = intArrayOf(0, 0)
     view.getLocationInWindow(locationInWindow)
@@ -149,7 +154,7 @@ fun Bitmap.assertPixels(
         if (width != expectedSize.width || height != expectedSize.height) {
             throw AssertionError(
                 "Bitmap size is wrong! Expected '$expectedSize' but got " +
-                        "'$width x $height'"
+                    "'$width x $height'"
             )
         }
     }
@@ -290,11 +295,11 @@ fun Bitmap.assertShape(
             val point = Offset(x.toFloat(), y.toFloat())
             if (!backgroundPath.contains(
                     pixelFartherFromCenter(
-                        point,
-                        sizeX,
-                        sizeY,
-                        shapeOverlapPixelCount
-                    )
+                            point,
+                            sizeX,
+                            sizeY,
+                            shapeOverlapPixelCount
+                        )
                 )
             ) {
                 continue
@@ -370,22 +375,22 @@ private infix fun Float.until(until: Float): IntRange {
 }
 
 private fun pixelCloserToCenter(offset: Offset, shapeSizeX: Float, shapeSizeY: Float, delta: Float):
-        Offset {
-    val centerX = shapeSizeX / 2f
-    val centerY = shapeSizeY / 2f
-    val d = delta
-    val x = when {
-        offset.x > centerX -> offset.x - d
-        offset.x < centerX -> offset.x + d
-        else -> offset.x
+    Offset {
+        val centerX = shapeSizeX / 2f
+        val centerY = shapeSizeY / 2f
+        val d = delta
+        val x = when {
+            offset.x > centerX -> offset.x - d
+            offset.x < centerX -> offset.x + d
+            else -> offset.x
+        }
+        val y = when {
+            offset.y > centerY -> offset.y - d
+            offset.y < centerY -> offset.y + d
+            else -> offset.y
+        }
+        return Offset(x, y)
     }
-    val y = when {
-        offset.y > centerY -> offset.y - d
-        offset.y < centerY -> offset.y + d
-        else -> offset.y
-    }
-    return Offset(x, y)
-}
 
 private fun pixelFartherFromCenter(
     offset: Offset,

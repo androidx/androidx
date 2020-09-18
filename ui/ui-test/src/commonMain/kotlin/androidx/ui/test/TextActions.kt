@@ -109,8 +109,11 @@ fun SemanticsNodeInteraction.performImeAction(alreadyHasFocus: Boolean = false) 
         ImeAction.Unspecified
     }
     if (actionSpecified == ImeAction.Unspecified) {
-        throw AssertionError(buildGeneralErrorMessage(
-            "Failed to perform IME action as current node does not specify any.", selector, node))
+        throw AssertionError(
+            buildGeneralErrorMessage(
+                "Failed to perform IME action as current node does not specify any.", selector, node
+            )
+        )
     }
 
     actualPerformImeAction(node, actionSpecified)

@@ -61,7 +61,7 @@ internal object FirstDrawRegistry {
         return notYetDrawn.all {
             val viewTreeOwners = it.viewTreeOwners
             viewTreeOwners == null ||
-                    viewTreeOwners.lifecycleOwner.lifecycle.currentState != Lifecycle.State.RESUMED
+                viewTreeOwners.lifecycleOwner.lifecycle.currentState != Lifecycle.State.RESUMED
         }
     }
 

@@ -114,7 +114,7 @@ internal object ComposeIdlingResource : BaseIdlingResource(), IdlingResourceWith
             }
 
             hadNoSnapshotChanges && hadNoRecomposerChanges && hadAnimationClocksIdle &&
-                    lastCompositionAwaiters == 0
+                lastCompositionAwaiters == 0
         }
     }
 
@@ -134,14 +134,16 @@ internal object ComposeIdlingResource : BaseIdlingResource(), IdlingResourceWith
     private fun scheduleIdleCheck() {
         if (!isIdleCheckScheduled) {
             isIdleCheckScheduled = true
-            handler.postDelayed({
-                isIdleCheckScheduled = false
-                if (isIdle()) {
-                    transitionToIdle()
-                } else {
-                    scheduleIdleCheck()
-                }
-            }, /* delayMillis = */ 20)
+            handler.postDelayed(
+                {
+                    isIdleCheckScheduled = false
+                    if (isIdle()) {
+                        transitionToIdle()
+                    } else {
+                        scheduleIdleCheck()
+                    }
+                }, /* delayMillis = */ 20
+            )
         }
     }
 
@@ -187,7 +189,7 @@ internal object ComposeIdlingResource : BaseIdlingResource(), IdlingResourceWith
         val wasAwaitingCompositions = numCompositionAwaiters > 0
 
         val wasIdle = !hadSnapshotChanges && !hadRecomposerChanges &&
-                !hadRunningAnimations && !wasAwaitingCompositions
+            !hadRunningAnimations && !wasAwaitingCompositions
 
         if (wasIdle) {
             return null
@@ -205,7 +207,7 @@ internal object ComposeIdlingResource : BaseIdlingResource(), IdlingResourceWith
         var message = "$name is busy due to ${busyReasons.joinToString(", ")}.\n"
         if (busyRecomposing) {
             message += "- Note: Timeout on pending recomposition means that there are most likely" +
-                    " infinite re-compositions happening in the tested code.\n"
+                " infinite re-compositions happening in the tested code.\n"
             message += "- Debug: hadRecomposerChanges = $hadRecomposerChanges, "
             message += "hadSnapshotChanges = $hadSnapshotChanges, "
             message += "numCompositionAwaiters = $numCompositionAwaiters"
