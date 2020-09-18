@@ -76,6 +76,7 @@ import androidx.annotation.RestrictTo.Scope;
 import androidx.annotation.UiThread;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageOutputConfig;
@@ -86,6 +87,7 @@ import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.VideoCaptureConfig;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.ThreadConfig;
@@ -260,22 +262,16 @@ public final class VideoCapture extends UseCase {
         return format;
     }
 
-
     /**
      * {@inheritDoc}
      *
      * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder() {
-        VideoCaptureConfig defaults = CameraX.getDefaultUseCaseConfig(VideoCaptureConfig.class);
-        if (defaults != null) {
-            return Builder.fromConfig(defaults);
-        }
-
-        return null;
+    public UseCaseConfig<?> getDefaultConfig(@NonNull UseCaseConfigFactory factory) {
+        return factory.getConfig(VideoCaptureConfig.class);
     }
 
     /**
@@ -520,8 +516,20 @@ public final class VideoCapture extends UseCase {
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
+    public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder(@NonNull Config config) {
+        return Builder.fromConfig(config);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
     public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder() {
-        return Builder.fromConfig((VideoCaptureConfig) getUseCaseConfig());
+        return Builder.fromConfig(getCurrentConfig());
     }
 
     /**
@@ -581,7 +589,7 @@ public final class VideoCapture extends UseCase {
     @UiThread
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
     void setupEncoder(@NonNull String cameraId, @NonNull Size resolution) {
-        VideoCaptureConfig config = (VideoCaptureConfig) getUseCaseConfig();
+        VideoCaptureConfig config = (VideoCaptureConfig) getCurrentConfig();
 
         // video encoder setup
         mVideoEncoder.reset();
@@ -976,7 +984,7 @@ public final class VideoCapture extends UseCase {
         // In case no corresponding camcorder profile can be founded, * get default value from
         // VideoCaptureConfig.
         if (!isCamcorderProfileFound) {
-            VideoCaptureConfig config = (VideoCaptureConfig) getUseCaseConfig();
+            VideoCaptureConfig config = (VideoCaptureConfig) getCurrentConfig();
             mAudioChannelCount = config.getAudioChannelCount();
             mAudioSampleRate = config.getAudioSampleRate();
             mAudioBitRate = config.getAudioBitRate();
@@ -1197,6 +1205,20 @@ public final class VideoCapture extends UseCase {
 
             setTargetClass(VideoCapture.class);
         }
+
+        /**
+         * Generates a Builder from another Config object.
+         *
+         * @param configuration An immutable configuration to pre-populate this builder.
+         * @return The new Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static Builder fromConfig(@NonNull Config configuration) {
+            return new Builder(MutableOptionsBundle.from(configuration));
+        }
+
 
         /**
          * Generates a Builder from another Config object

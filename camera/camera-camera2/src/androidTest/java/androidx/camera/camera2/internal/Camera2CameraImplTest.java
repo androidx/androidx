@@ -59,6 +59,8 @@ import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImmediateSurface;
 import androidx.camera.core.impl.Observable;
 import androidx.camera.core.impl.SessionConfig;
+import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.HandlerUtil;
@@ -766,7 +768,7 @@ public final class Camera2CameraImplTest {
                 @NonNull ImageReader.OnImageAvailableListener listener) {
             super(config);
             // Ensure we're using the combined configuration (user config + defaults)
-            mConfig = (FakeUseCaseConfig) getUseCaseConfig();
+            mConfig = (FakeUseCaseConfig) getCurrentConfig();
 
             mImageAvailableListener = listener;
             mHandlerThread.start();
@@ -776,7 +778,15 @@ public final class Camera2CameraImplTest {
                             cameraSelector.getLensFacing();
             mCameraId = CameraUtil.getCameraIdWithLensFacing(lensFacing);
             onAttach(new FakeCamera(mCameraId, null,
-                    new FakeCameraInfoInternal(mCameraId, 0, lensFacing)));
+                            new FakeCameraInfoInternal(mCameraId, 0, lensFacing)),
+                    new UseCaseConfigFactory() {
+                        @Nullable
+                        @Override
+                        public <C extends UseCaseConfig<?>> C getConfig(
+                                @NonNull Class<C> configType) {
+                            return null;
+                        }
+                    });
             updateSuggestedResolution(new Size(640, 480));
         }
 

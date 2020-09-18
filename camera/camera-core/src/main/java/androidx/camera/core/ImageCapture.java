@@ -85,6 +85,7 @@ import androidx.camera.core.impl.CaptureBundle;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.CaptureProcessor;
 import androidx.camera.core.impl.CaptureStage;
+import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageCaptureConfig;
@@ -97,6 +98,7 @@ import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.CameraOrientationUtil;
 import androidx.camera.core.impl.utils.Exif;
 import androidx.camera.core.impl.utils.Threads;
@@ -315,7 +317,7 @@ public final class ImageCapture extends UseCase {
     ImageCapture(@NonNull ImageCaptureConfig userConfig) {
         super(userConfig);
 
-        ImageCaptureConfig useCaseConfig = (ImageCaptureConfig) getUseCaseConfig();
+        ImageCaptureConfig useCaseConfig = (ImageCaptureConfig) getCurrentConfig();
 
         if (useCaseConfig.containsOption(OPTION_IMAGE_CAPTURE_MODE)) {
             mCaptureMode = useCaseConfig.getCaptureMode();
@@ -421,16 +423,23 @@ public final class ImageCapture extends UseCase {
      *
      * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder() {
-        ImageCaptureConfig defaults = CameraX.getDefaultUseCaseConfig(ImageCaptureConfig.class);
-        if (defaults != null) {
-            return Builder.fromConfig(defaults);
-        }
+    public UseCaseConfig<?> getDefaultConfig(@NonNull UseCaseConfigFactory factory) {
+        return factory.getConfig(ImageCaptureConfig.class);
+    }
 
-        return null;
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
+    public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder(@NonNull Config config) {
+        return Builder.fromConfig(config);
     }
 
     /**
@@ -442,7 +451,7 @@ public final class ImageCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder() {
-        return Builder.fromConfig((ImageCaptureConfig) getUseCaseConfig());
+        return Builder.fromConfig((ImageCaptureConfig) getCurrentConfig());
     }
 
     /**
@@ -466,7 +475,7 @@ public final class ImageCapture extends UseCase {
     public int getFlashMode() {
         synchronized (mLockedFlashMode) {
             return mFlashMode != FLASH_MODE_UNKNOWN ? mFlashMode
-                    : ((ImageCaptureConfig) getUseCaseConfig()).getFlashMode(DEFAULT_FLASH_MODE);
+                    : ((ImageCaptureConfig) getCurrentConfig()).getFlashMode(DEFAULT_FLASH_MODE);
         }
     }
 
@@ -1099,7 +1108,7 @@ public final class ImageCapture extends UseCase {
     @Override
     @RestrictTo(Scope.LIBRARY_GROUP)
     public void onAttached() {
-        ImageCaptureConfig useCaseConfig = (ImageCaptureConfig) getUseCaseConfig();
+        ImageCaptureConfig useCaseConfig = (ImageCaptureConfig) getCurrentConfig();
 
         CaptureConfig.Builder captureBuilder = CaptureConfig.Builder.createFrom(useCaseConfig);
         mCaptureConfig = captureBuilder.build();
@@ -1136,7 +1145,7 @@ public final class ImageCapture extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
         mSessionConfigBuilder = createPipeline(getCameraId(),
-                (ImageCaptureConfig) getUseCaseConfig(), suggestedResolution);
+                (ImageCaptureConfig) getCurrentConfig(), suggestedResolution);
 
         updateSessionConfig(mSessionConfigBuilder.build());
 
@@ -2232,7 +2241,20 @@ public final class ImageCapture extends UseCase {
          */
         @RestrictTo(Scope.LIBRARY_GROUP)
         @NonNull
-        public static Builder fromConfig(@NonNull ImageCaptureConfig configuration) {
+        public static Builder fromConfig(@NonNull Config configuration) {
+            return new Builder(MutableOptionsBundle.from(configuration));
+        }
+
+        /**
+         * Generates a Builder from another Config object
+         *
+         * @param configuration An immutable configuration to pre-populate this builder.
+         * @return The new Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static Builder fromConfig(@NonNull ImageCaptureConfig configuration) {
             return new Builder(MutableOptionsBundle.from(configuration));
         }
 

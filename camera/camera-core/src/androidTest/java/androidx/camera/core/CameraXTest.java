@@ -33,7 +33,6 @@ import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
 import androidx.camera.testing.fakes.FakeLifecycleOwner;
-import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -217,15 +216,6 @@ public final class CameraXTest {
         CameraX cameraX1 = CameraX.getOrCreateInstance(mContext).get();
 
         assertThat(cameraX1.getCameraFactory()).isEqualTo(cameraFactory1);
-    }
-
-    @Test
-    public void requestingDefaultConfiguration_returnsDefaultConfiguration() {
-        initCameraX();
-        // Requesting a default configuration will throw if CameraX is not initialized.
-        FakeUseCaseConfig config = CameraX.getDefaultUseCaseConfig(FakeUseCaseConfig.class);
-        assertThat(config).isNotNull();
-        assertThat(config.getTargetClass(null)).isEqualTo(FakeUseCase.class);
     }
 
     @Test

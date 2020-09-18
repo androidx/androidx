@@ -36,7 +36,6 @@ import androidx.camera.core.impl.CameraFactory;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CameraRepository;
 import androidx.camera.core.impl.CameraThreadConfig;
-import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
@@ -152,26 +151,6 @@ public final class CameraX {
         CameraX cameraX = checkInitialized();
 
         return cameraX.getCameraDeviceSurfaceManager();
-    }
-
-    /**
-     * Returns the default configuration for the given use case configuration type.
-     *
-     * <p>The options contained in this configuration serve as fallbacks if they are not included in
-     * the user-provided configuration used to create a use case.
-     *
-     * @param configType the configuration type
-     * @return the default configuration for the given configuration type
-     * @throws IllegalStateException if CameraX has not yet been initialized.
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    @Nullable
-    public static <C extends UseCaseConfig<?>> C getDefaultUseCaseConfig(
-            @NonNull Class<C> configType) {
-        CameraX cameraX = checkInitialized();
-
-        return cameraX.getDefaultConfigFactory().getConfig(configType);
     }
 
     /**
@@ -530,7 +509,14 @@ public final class CameraX {
         return mCameraRepository;
     }
 
-    private UseCaseConfigFactory getDefaultConfigFactory() {
+    /**
+     * Returns the {@link UseCaseConfigFactory} instance.
+     *
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public UseCaseConfigFactory getDefaultConfigFactory() {
         if (mDefaultConfigFactory == null) {
             throw new IllegalStateException("CameraX not initialized yet.");
         }
