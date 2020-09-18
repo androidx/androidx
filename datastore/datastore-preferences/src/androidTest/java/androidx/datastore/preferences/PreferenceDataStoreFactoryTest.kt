@@ -62,9 +62,12 @@ class PreferenceDataStoreFactoryTest {
 
         val expectedPreferences = preferencesOf(stringKey to "value")
 
-        assertEquals(store.edit { prefs ->
-            prefs[stringKey] = "value"
-        }, expectedPreferences)
+        assertEquals(
+            store.edit { prefs ->
+                prefs[stringKey] = "value"
+            },
+            expectedPreferences
+        )
         assertEquals(expectedPreferences, store.data.first())
     }
 
@@ -131,9 +134,12 @@ class PreferenceDataStoreFactoryTest {
         assertEquals(prefs, store.data.first())
 
         // Check that the file name is context.filesDir + name + ".preferences_pb"
-        store = PreferenceDataStoreFactory.create(produceFile = {
-            File(context.filesDir, "datastore/my_settings.preferences_pb")
-        }, scope = dataStoreScope)
+        store = PreferenceDataStoreFactory.create(
+            produceFile = {
+                File(context.filesDir, "datastore/my_settings.preferences_pb")
+            },
+            scope = dataStoreScope
+        )
         assertEquals(prefs, store.data.first())
     }
 

@@ -58,7 +58,7 @@ object PreferenceDataStoreFactory {
                 val file = produceFile()
                 check(file.extension == PreferencesSerializer.fileExtension) {
                     "File extension for file: $file does not match required extension for" +
-                            " Preferences file: ${PreferencesSerializer.fileExtension}"
+                        " Preferences file: ${PreferencesSerializer.fileExtension}"
                 }
                 file
             },
@@ -103,10 +103,10 @@ fun Context.createDataStore(
 internal class PreferenceDataStore(private val delegate: DataStore<Preferences>) :
     DataStore<Preferences> by delegate {
     override suspend fun updateData(transform: suspend (t: Preferences) -> Preferences):
-            Preferences {
-        return delegate.updateData {
-            // Make a defensive copy
-            transform(it).toPreferences()
+        Preferences {
+            return delegate.updateData {
+                // Make a defensive copy
+                transform(it).toPreferences()
+            }
         }
-    }
 }
