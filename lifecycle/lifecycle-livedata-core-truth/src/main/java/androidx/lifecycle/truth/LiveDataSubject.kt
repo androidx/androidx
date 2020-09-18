@@ -47,7 +47,9 @@ class LiveDataSubject private constructor(
     companion object {
         @SuppressLint("MemberVisibilityCanBePrivate")
         val factory = Factory<LiveDataSubject, LiveData<*>> {
-            metadata, actual -> LiveDataSubject(metadata, actual) }
+            metadata, actual ->
+            LiveDataSubject(metadata, actual)
+        }
 
         @JvmStatic
         fun assertThat(actual: LiveData<*>): LiveDataSubject {
