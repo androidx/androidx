@@ -1419,6 +1419,10 @@ public abstract class FragmentManager implements FragmentResultOwner {
                                             mFragmentTransitionCallback);
                                 }
                                 container.removeView(view);
+                                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                                    Log.v(FragmentManager.TAG, "Removing view " + view + " for "
+                                            + "fragment " + f + " from container " + container);
+                                }
                                 // If the local container is different from the fragment
                                 // container, that means onAnimationEnd was called, onDestroyView
                                 // was dispatched and the fragment was already moved to state, so
