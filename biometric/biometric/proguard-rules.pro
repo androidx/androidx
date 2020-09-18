@@ -41,3 +41,7 @@
         class androidx.biometric.KeyguardUtils$Api* {
     <methods>;
 }
+-keepclassmembernames,allowobfuscation,allowshrinking
+        class androidx.biometric.PackageUtils$Api* {
+    <methods>;
+}
