@@ -28,6 +28,7 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
@@ -76,6 +77,7 @@ public class RemoteWorkManagerClient extends RemoteWorkManager {
 
     private Session mSession;
 
+    @Keep
     public RemoteWorkManagerClient(@NonNull Context context, @NonNull WorkManagerImpl workManager) {
         mContext = context.getApplicationContext();
         mWorkManager = workManager;
