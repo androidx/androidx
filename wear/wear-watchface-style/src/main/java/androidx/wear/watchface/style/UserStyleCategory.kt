@@ -73,7 +73,7 @@ abstract class UserStyleCategory(
             (LAYER_WATCH_FACE_BASE or LAYER_COMPLICATONS or LAYER_WATCH_FACE_UPPER).inv()
 
         internal const val KEY_CATEGORY_TYPE = "KEY_CATEGORY_TYPE"
-        internal const val KEY_DEFAULT_OPTION = "KEY_DEFAULT_OPTION"
+        internal const val KEY_DEFAULT_OPTION_INDEX = "KEY_DEFAULT_OPTION_INDEX"
         internal const val KEY_DESCRIPTION = "KEY_DESCRIPTION"
         internal const val KEY_DISPLAY_NAME = "KEY_DISPLAY_NAME"
         internal const val KEY_ICON = "KEY_ICON"
@@ -107,6 +107,9 @@ abstract class UserStyleCategory(
             "layerFlags must be either 0 or a combination of LAYER_WATCH_FACE_BASE, " +
                     "LAYER_COMPLICATONS, LAYER_WATCH_FACE_UPPER"
         }
+        require(options.contains(defaultOption)) {
+            "The defaultOption must be in the options list"
+        }
     }
 
     internal fun getCategoryOptionForId(id: String?) =
@@ -117,12 +120,17 @@ abstract class UserStyleCategory(
         }
 
     internal constructor(bundle: Bundle) : this(
+        bundle,
+        StyleUtils.readOptionsListFromBundle(bundle)
+    )
+
+    private constructor(bundle: Bundle, options: List<Option>) : this(
         bundle.getString(KEY_STYLE_CATEGORY_ID)!!,
         bundle.getString(KEY_DISPLAY_NAME)!!,
         bundle.getString(KEY_DESCRIPTION)!!,
         bundle.getParcelable(KEY_ICON),
-        StyleUtils.readOptionsListFromBundle(bundle),
-        Option.createFromBundle(bundle.getBundle(KEY_DEFAULT_OPTION)!!),
+        options,
+        options[bundle.getInt(KEY_DEFAULT_OPTION_INDEX)],
         bundle.getInt(KEY_LAYER_FLAGS)
     )
 
@@ -133,10 +141,7 @@ abstract class UserStyleCategory(
         bundle.putString(KEY_DISPLAY_NAME, displayName)
         bundle.putString(KEY_DESCRIPTION, description)
         bundle.putParcelable(KEY_ICON, icon)
-        bundle.putBundle(
-            KEY_DEFAULT_OPTION,
-            Bundle().apply { defaultOption.writeToBundle(this) }
-        )
+        bundle.putInt(KEY_DEFAULT_OPTION_INDEX, options.indexOf(defaultOption))
         bundle.putInt(KEY_LAYER_FLAGS, layerFlags)
         StyleUtils.writeOptionListToBundle(options, bundle)
     }
