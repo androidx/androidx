@@ -63,14 +63,17 @@ class PagingDataAdapterTest {
     fun testGetItem() = testScope.runBlockingTest {
         val pagingSource = TestPagingSource()
         val pagingDataAdapter =
-            PagingDataAdapter(diffCallback = object : DiffUtil.ItemCallback<Int>() {
-                override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
-                    return oldItem == newItem
-                }
-                override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
-                    return oldItem == newItem
-                }
-        }, workerDispatcher = Dispatchers.Main)
+            PagingDataAdapter(
+                diffCallback = object : DiffUtil.ItemCallback<Int>() {
+                    override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
+                        return oldItem == newItem
+                    }
+                    override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
+                        return oldItem == newItem
+                    }
+                },
+                workerDispatcher = Dispatchers.Main
+            )
         val refreshEvents = mutableListOf<Boolean>()
         pagingDataAdapter.addDataRefreshListener { refreshEvents.add(it) }
         val pager = Pager(
@@ -102,14 +105,17 @@ class PagingDataAdapterTest {
     @Test
     fun testDataRefreshListenerCallbacks() = testScope.runBlockingTest {
         val pagingDataAdapter =
-            PagingDataAdapter(diffCallback = object : DiffUtil.ItemCallback<Int>() {
-                override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
-                    return oldItem == newItem
-                }
-                override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
-                    return oldItem == newItem
-                }
-        }, workerDispatcher = Dispatchers.Main)
+            PagingDataAdapter(
+                diffCallback = object : DiffUtil.ItemCallback<Int>() {
+                    override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
+                        return oldItem == newItem
+                    }
+                    override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
+                        return oldItem == newItem
+                    }
+                },
+                workerDispatcher = Dispatchers.Main
+            )
         val refreshEvents = mutableListOf<Boolean>()
         pagingDataAdapter.addDataRefreshListener { refreshEvents.add(it) }
         val pager = Pager(
@@ -145,14 +151,17 @@ class PagingDataAdapterTest {
     @Test
     fun testLoadStateListenerCallbacks() = testScope.runBlockingTest {
         val pagingDataAdapter =
-            PagingDataAdapter(diffCallback = object : DiffUtil.ItemCallback<Int>() {
-                override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
-                    return oldItem == newItem
-                }
-                override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
-                    return oldItem == newItem
-                }
-        }, workerDispatcher = Dispatchers.Main)
+            PagingDataAdapter(
+                diffCallback = object : DiffUtil.ItemCallback<Int>() {
+                    override fun areContentsTheSame(oldItem: Int, newItem: Int): Boolean {
+                        return oldItem == newItem
+                    }
+                    override fun areItemsTheSame(oldItem: Int, newItem: Int): Boolean {
+                        return oldItem == newItem
+                    }
+                },
+                workerDispatcher = Dispatchers.Main
+            )
         val loadEvents = mutableListOf<CombinedLoadStates>()
         pagingDataAdapter.addLoadStateListener { loadEvents.add(it) }
         val pager = Pager(
