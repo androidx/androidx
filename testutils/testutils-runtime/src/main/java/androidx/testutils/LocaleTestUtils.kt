@@ -91,8 +91,10 @@ class LocaleTestUtils(private val mContext: Context) {
                 throw IllegalStateException("call restoreLocale() before calling setLocale() again")
             }
             if (!canSave) {
-                throw IllegalStateException("can't set locale after isLocaleChangedAndLock() is " +
-                        "called")
+                throw IllegalStateException(
+                    "can't set locale after isLocaleChangedAndLock() is " +
+                        "called"
+                )
             }
             this.locale = locale
             val locales = LocaleListCompat.create(locale)

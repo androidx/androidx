@@ -36,8 +36,10 @@ class TestNavigatorDestinationBuilderTest {
         val graph = provider.navigation(startDestination = DESTINATION_ID) {
             test(DESTINATION_ID)
         }
-        assertTrue("Destination should be added to the graph",
-                DESTINATION_ID in graph)
+        assertTrue(
+            "Destination should be added to the graph",
+            DESTINATION_ID in graph
+        )
     }
 
     @Test
@@ -47,10 +49,14 @@ class TestNavigatorDestinationBuilderTest {
                 label = LABEL
             }
         }
-        assertTrue("Destination should be added to the graph",
-                DESTINATION_ID in graph)
-        assertEquals("Destination should have label set",
-                LABEL, graph[DESTINATION_ID].label)
+        assertTrue(
+            "Destination should be added to the graph",
+            DESTINATION_ID in graph
+        )
+        assertEquals(
+            "Destination should have label set",
+            LABEL, graph[DESTINATION_ID].label
+        )
     }
 }
 

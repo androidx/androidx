@@ -46,15 +46,15 @@ open class TestNavigator : Navigator<TestNavigator.Destination>() {
         navOptions: NavOptions?,
         navigatorExtras: Extras?
     ) = if (navOptions != null && navOptions.shouldLaunchSingleTop() && !backStack.isEmpty() &&
-            current.first.id == destination.id
-        ) {
-            backStack.pop()
-            backStack.add(destination to args)
-            null
-        } else {
-            backStack.add(destination to args)
-            destination
-        }
+        current.first.id == destination.id
+    ) {
+        backStack.pop()
+        backStack.add(destination to args)
+        null
+    } else {
+        backStack.add(destination to args)
+        destination
+    }
 
     override fun popBackStack(): Boolean {
         return backStack.pollLast() != null

@@ -35,21 +35,27 @@ class MetadataTagInsideApplicationTagDetector : Detector(), Detector.XmlScanner 
 
     override fun visitElement(context: XmlContext, element: Element) {
         if (element.parentNode.nodeName == NODE_APPLICATION) {
-            context.report(ISSUE, element, context.getLocation(element), "Detected " +
-                    "<application>-level meta-data tag.")
+            context.report(
+                ISSUE, element, context.getLocation(element),
+                "Detected " +
+                    "<application>-level meta-data tag."
+            )
         }
     }
 
     companion object {
-        val ISSUE = Issue.create("MetadataTagInsideApplicationTag",
+        val ISSUE = Issue.create(
+            "MetadataTagInsideApplicationTag",
             "Detected <application>-level <meta-data> tag in library manifest",
             "Developers should not add <application>-level <meta-data> tags to library manifests" +
-                    " because doing so may inadvertently cause denial-of-service attacks against" +
-                    " other apps. Instead, developers may consider adding <metadata> nested " +
-                    "inside of dummy <service> tags.",
+                " because doing so may inadvertently cause denial-of-service attacks against" +
+                " other apps. Instead, developers may consider adding <metadata> nested " +
+                "inside of placeholder <service> tags.",
             Category.CORRECTNESS, 5, Severity.ERROR,
-            Implementation(MetadataTagInsideApplicationTagDetector::class.java,
-                Scope.MANIFEST_SCOPE)
+            Implementation(
+                MetadataTagInsideApplicationTagDetector::class.java,
+                Scope.MANIFEST_SCOPE
+            )
         )
     }
 }
