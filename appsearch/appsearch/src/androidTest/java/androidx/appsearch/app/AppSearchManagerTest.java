@@ -50,7 +50,7 @@ public class AppSearchManagerTest {
     @Before
     public void setUp() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-        LocalBackend backend = new LocalBackend.Builder(context).build().getResultValue();
+        LocalBackend backend = LocalBackend.getInstance(context).getResultValue();
         mDb1 = checkIsResultSuccess(new AppSearchManager.Builder()
                 .setDatabaseName("testDb1").setBackend(backend).build());
         mDb2 = checkIsResultSuccess(new AppSearchManager.Builder()

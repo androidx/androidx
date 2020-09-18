@@ -98,8 +98,7 @@ public class AppSearchManager {
         }
 
         /**
-         * Connects to the AppSearch database per this builder's configuration, and asynchronously
-         * returns the initialized instance.
+         * Asynchronously connects to the AppSearch backend and returns the initialized instance.
          */
         @NonNull
         public ListenableFuture<AppSearchResult<AppSearchManager>> build() {

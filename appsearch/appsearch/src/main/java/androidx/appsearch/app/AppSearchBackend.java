@@ -16,9 +16,11 @@
 
 package androidx.appsearch.app;
 
+import androidx.annotation.AnyThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
+import androidx.annotation.WorkerThread;
 
 import java.io.Closeable;
 import java.util.List;
@@ -31,8 +33,10 @@ import java.util.List;
 * @hide
 */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+@WorkerThread
 public interface AppSearchBackend {
     /** Returns {@code true} if this backend has been successfully initialized. */
+    @AnyThread
     boolean isInitialized();
 
     /**
@@ -125,6 +129,7 @@ public interface AppSearchBackend {
      * Abstracts a returned search results object, where the pagination of the results can be
      * implemented.
      */
+    @WorkerThread
     interface BackendSearchResults extends Closeable {
 
         /**
