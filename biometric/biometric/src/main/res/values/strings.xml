@@ -21,9 +21,6 @@
     <string name="fingerprint_dialog_touch_sensor">Touch the fingerprint sensor</string>
     <!-- Message shown by the fingerprint dialog when fingerprint is not recognized. [CHAR LIMIT=20] -->
     <string name="fingerprint_not_recognized">Not recognized</string>
-    <!-- Content description for the error/help message are when the system-provided fingerprint
-         dialog is showing, for accessibility (not shown on the screen). [CHAR LIMIT=NONE] -->
-    <string name="accessibility_fingerprint_dialog_help_area">Help message area</string>
     <!-- Error message shown when the fingerprint hardware can't be accessed. [CHAR LIMIT=NONE] -->
     <string name="fingerprint_error_hw_not_available">Fingerprint hardware not available.</string>
     <!-- Generic error message shown when the user has no enrolled fingerprints. [CHAR LIMIT=NONE] -->

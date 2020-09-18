@@ -54,8 +54,104 @@ import javax.crypto.Mac;
  * Note that {@code cancelAuthentication()} should not be called, and {@code authenticate()} does
  * not need to be invoked during activity/fragment creation.
  */
-public class BiometricPrompt implements BiometricConstants {
+public class BiometricPrompt {
     private static final String TAG = "BiometricPromptCompat";
+
+    /**
+     * There is no error, and the user can successfully authenticate.
+     */
+    static final int BIOMETRIC_SUCCESS = 0;
+
+    /**
+     * The hardware is unavailable. Try again later.
+     */
+    public static final int ERROR_HW_UNAVAILABLE = 1;
+
+    /**
+     * The sensor was unable to process the current image.
+     */
+    public static final int ERROR_UNABLE_TO_PROCESS = 2;
+
+    /**
+     * The current operation has been running too long and has timed out.
+     *
+     * <p>This is intended to prevent programs from waiting for the biometric sensor indefinitely.
+     * The timeout is platform and sensor-specific, but is generally on the order of ~30 seconds.
+     */
+    public static final int ERROR_TIMEOUT = 3;
+
+    /**
+     * The operation can't be completed because there is not enough device storage remaining.
+     */
+    public static final int ERROR_NO_SPACE = 4;
+
+    /**
+     * The operation was canceled because the biometric sensor is unavailable. This may happen when
+     * the user is switched, the device is locked, or another pending operation prevents it.
+     */
+    public static final int ERROR_CANCELED = 5;
+
+    /**
+     * The operation was canceled because the API is locked out due to too many attempts. This
+     * occurs after 5 failed attempts, and lasts for 30 seconds.
+     */
+    public static final int ERROR_LOCKOUT = 7;
+
+    /**
+     * The operation failed due to a vendor-specific error.
+     *
+     * <p>This error code may be used by hardware vendors to extend this list to cover errors that
+     * don't fall under one of the other predefined categories. Vendors are responsible for
+     * providing the strings for these errors.
+     *
+     * <p>These messages are typically reserved for internal operations such as enrollment but may
+     * be used to express any error that is not otherwise covered. In this case, applications are
+     * expected to show the error message, but they are advised not to rely on the message ID, since
+     * this may vary by vendor and device.
+     */
+    public static final int ERROR_VENDOR = 8;
+
+    /**
+     * The operation was canceled because {@link #ERROR_LOCKOUT} occurred too many times. Biometric
+     * authentication is disabled until the user unlocks with their device credential (i.e. PIN,
+     * pattern, or password).
+     */
+    public static final int ERROR_LOCKOUT_PERMANENT = 9;
+
+    /**
+     * The user canceled the operation.
+     *
+     * <p>Upon receiving this, applications should use alternate authentication, such as a password.
+     * The application should also provide the user a way of returning to biometric authentication,
+     * such as a button.
+     */
+    public static final int ERROR_USER_CANCELED = 10;
+
+    /**
+     * The user does not have any biometrics enrolled.
+     */
+    public static final int ERROR_NO_BIOMETRICS = 11;
+
+    /**
+     * The device does not have the required authentication hardware.
+     */
+    public static final int ERROR_HW_NOT_PRESENT = 12;
+
+    /**
+     * The user pressed the negative button.
+     */
+    public static final int ERROR_NEGATIVE_BUTTON = 13;
+
+    /**
+     * The device does not have pin, pattern, or password set up.
+     */
+    public static final int ERROR_NO_DEVICE_CREDENTIAL = 14;
+
+    /**
+     * A security vulnerability has been discovered with one or more hardware sensors. The
+     * affected sensor(s) are unavailable until a security update has addressed the issue.
+     */
+    public static final int ERROR_SECURITY_UPDATE_REQUIRED = 15;
 
     /**
      * An error code that may be returned during authentication.

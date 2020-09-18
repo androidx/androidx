@@ -44,7 +44,6 @@ import androidx.lifecycle.ViewModelProvider;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
-import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
@@ -436,7 +435,7 @@ public class BiometricFragment extends Fragment {
         androidx.core.hardware.fingerprint.FingerprintManagerCompat fingerprintManagerCompat =
                 androidx.core.hardware.fingerprint.FingerprintManagerCompat.from(context);
         final int errorCode = checkForFingerprintPreAuthenticationErrors(fingerprintManagerCompat);
-        if (errorCode != 0) {
+        if (errorCode != BiometricPrompt.BIOMETRIC_SUCCESS) {
             sendErrorAndDismiss(
                     errorCode, ErrorUtils.getFingerprintErrorString(context, errorCode));
             return;
@@ -521,14 +520,13 @@ public class BiometricFragment extends Fragment {
         final Executor executor = new PromptExecutor();
         final android.hardware.biometrics.BiometricPrompt.AuthenticationCallback callback =
                 mViewModel.getAuthenticationCallbackProvider().getBiometricCallback();
-        BiometricPrompt.CryptoObject crypto = mViewModel.getCryptoObject();
+        android.hardware.biometrics.BiometricPrompt.CryptoObject crypto =
+                CryptoObjectUtils.wrapForBiometricPrompt(mViewModel.getCryptoObject());
         if (crypto == null) {
             Api28Impl.authenticate(biometricPrompt, cancellationSignal, executor, callback);
         } else {
-            android.hardware.biometrics.BiometricPrompt.CryptoObject wrappedCrypto =
-                    Objects.requireNonNull(CryptoObjectUtils.wrapForBiometricPrompt(crypto));
             Api28Impl.authenticate(
-                    biometricPrompt, wrappedCrypto, cancellationSignal, executor, callback);
+                    biometricPrompt, crypto, cancellationSignal, executor, callback);
         }
     }
 
@@ -910,7 +908,7 @@ public class BiometricFragment extends Fragment {
         } else if (!fingerprintManager.hasEnrolledFingerprints()) {
             return BiometricPrompt.ERROR_NO_BIOMETRICS;
         }
-        return 0;
+        return BiometricPrompt.BIOMETRIC_SUCCESS;
     }
 
     /**
