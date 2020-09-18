@@ -134,23 +134,17 @@ public class PreviewView extends FrameLayout {
     private float mDownX = 0F;
     private float mDownY = 0F;
 
-    private final OnLayoutChangeListener mOnLayoutChangeListener = new OnLayoutChangeListener() {
-        @Override
-        public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft,
-                int oldTop, int oldRight, int oldBottom) {
+    private final OnLayoutChangeListener mOnLayoutChangeListener =
+            (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
 
-            mPreviewViewMeteringPointFactory.setViewSize(getWidth(), getHeight());
-            boolean isSizeChanged =
-                    right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop;
-            if (isSizeChanged) {
-                redrawPreview();
-            }
-            if (mCameraController != null && isSizeChanged) {
-                mCameraController.attachPreviewSurface(getSurfaceProvider(), getWidth(),
-                        getHeight());
-            }
-        }
-    };
+                mPreviewViewMeteringPointFactory.setViewSize(getWidth(), getHeight());
+                boolean isSizeChanged =
+                        right - left != oldRight - oldLeft || bottom - top != oldBottom - oldTop;
+                if (isSizeChanged) {
+                    redrawPreview();
+                    attachToControllerIfReady();
+                }
+            };
 
     private final Preview.SurfaceProvider mSurfaceProvider = new Preview.SurfaceProvider() {
 
@@ -249,10 +243,7 @@ public class PreviewView extends FrameLayout {
             mImplementation.onAttachedToWindow();
         }
         mPreviewViewMeteringPointFactory.setDisplay(getDisplay());
-        if (mCameraController != null) {
-            mCameraController.attachPreviewSurface(getSurfaceProvider(), getWidth(),
-                    getHeight());
-        }
+        attachToControllerIfReady();
     }
 
     @Override
@@ -758,10 +749,7 @@ public class PreviewView extends FrameLayout {
             mCameraController.clearPreviewSurface();
         }
         mCameraController = cameraController;
-        if (mCameraController != null) {
-            mCameraController.attachPreviewSurface(getSurfaceProvider(), getWidth(),
-                    getHeight());
-        }
+        attachToControllerIfReady();
     }
 
     /**
@@ -775,5 +763,15 @@ public class PreviewView extends FrameLayout {
     public CameraController getController() {
         Threads.checkMainThread();
         return mCameraController;
+    }
+
+    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
+    private void attachToControllerIfReady() {
+        Display display = getDisplay();
+        ViewPort viewPort = getViewPort();
+        if (mCameraController != null && viewPort != null && isAttachedToWindow()
+                && display != null) {
+            mCameraController.attachPreviewSurface(getSurfaceProvider(), viewPort, display);
+        }
     }
 }
