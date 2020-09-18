@@ -68,7 +68,8 @@ public class ViewPortsTest {
     private static final Rational NARROW = new Rational(1, 2);
 
     /**
-     * Parameterized tests for {@link ViewPorts#getScaledRect(RectF, Rational, int, int, int)}
+     * Parameterized tests for
+     * {@link ViewPorts#getScaledRect(RectF, Rational, int, boolean, int, int)}
      * testing all possible input combinations.
      */
     @SmallTest
@@ -184,7 +185,7 @@ public class ViewPortsTest {
         @Test
         public void testGetScaledRect() {
             Rect rect = new Rect();
-            ViewPorts.getScaledRect(FITTING_RECT, mAspectRatio, mScaleType, mLayoutDirection,
+            ViewPorts.getScaledRect(FITTING_RECT, mAspectRatio, mScaleType, false, mLayoutDirection,
                     mRotationDegrees).round(rect);
             assertThat(new int[]{rect.left, rect.top, rect.width(), rect.height()})
                     .isEqualTo(new int[]{mExpectedLeft, mExpectedTop, mExpectedSize.getWidth(),
@@ -199,10 +200,12 @@ public class ViewPortsTest {
         private static final Size SENSOR_SIZE = new Size(8, 8);
         private static final Size SURFACE_WIDE = new Size(8, 4);
         private static final Size SURFACE_NARROW = new Size(4, 8);
+        private static final boolean FRONT_CAMERA = true;
+        private static final boolean BACK_CAMERA = false;
 
         /**
          * Parameters for testing
-         * {@link ViewPorts#calculateViewPortRects(Rect, Rational, int, int, int, Map)}
+         * {@link ViewPorts#calculateViewPortRects(Rect, boolean, Rational, int, int, int, Map)}
          *
          * <p>The goal of the algorithm is to fit-a-minimum/fill-a-maximum 2:1 rectangle
          * with the given rotation/layout-direction to the intersection area (marked with "XXX").
@@ -228,25 +231,25 @@ public class ViewPortsTest {
             List<Object[]> result = new ArrayList<>();
 
             // Wide and LTR.
-            result.add(new Object[]{SENSOR_SIZE, WIDE, R0, FILL_START, LTR,
+            result.add(new Object[]{SENSOR_SIZE, BACK_CAMERA, WIDE, R0, FILL_START, LTR,
                     new Size[]{SURFACE_NARROW, SURFACE_WIDE},
                     new Rect[]{
                             new Rect(0, 2, 4, 4),
                             new Rect(2, 0, 6, 2)
                     }});
-            result.add(new Object[]{SENSOR_SIZE, WIDE, R90, FILL_START, LTR,
+            result.add(new Object[]{SENSOR_SIZE, BACK_CAMERA, WIDE, R90, FILL_START, LTR,
                     new Size[]{SURFACE_NARROW, SURFACE_WIDE},
                     new Rect[]{
                             new Rect(0, 2, 2, 6),
                             new Rect(2, 0, 4, 4)
                     }});
-            result.add(new Object[]{SENSOR_SIZE, WIDE, R180, FILL_START, LTR,
+            result.add(new Object[]{SENSOR_SIZE, BACK_CAMERA, WIDE, R180, FILL_START, LTR,
                     new Size[]{SURFACE_NARROW, SURFACE_WIDE},
                     new Rect[]{
                             new Rect(0, 4, 4, 6),
                             new Rect(2, 2, 6, 4)
                     }});
-            result.add(new Object[]{SENSOR_SIZE, WIDE, R270, FILL_START, LTR,
+            result.add(new Object[]{SENSOR_SIZE, BACK_CAMERA, WIDE, R270, FILL_START, LTR,
                     new Size[]{SURFACE_NARROW, SURFACE_WIDE},
                     new Rect[]{
                             new Rect(2, 2, 4, 6),
@@ -254,25 +257,51 @@ public class ViewPortsTest {
                     }});
 
             // Narrow and RTL.
-            result.add(new Object[]{SENSOR_SIZE, NARROW, R0, FILL_START, RTL,
+            result.add(new Object[]{SENSOR_SIZE, BACK_CAMERA, NARROW, R0, FILL_START, RTL,
                     new Size[]{SURFACE_NARROW, SURFACE_WIDE},
                     new Rect[]{
                             new Rect(2, 2, 4, 6),
                             new Rect(4, 0, 6, 4)
                     }});
-            result.add(new Object[]{SENSOR_SIZE, NARROW, R90, FILL_START, RTL,
+            result.add(new Object[]{SENSOR_SIZE, BACK_CAMERA, NARROW, R90, FILL_START, RTL,
                     new Size[]{SURFACE_NARROW, SURFACE_WIDE},
                     new Rect[]{
                             new Rect(0, 2, 4, 4),
                             new Rect(2, 0, 6, 2)
                     }});
-            result.add(new Object[]{SENSOR_SIZE, NARROW, R180, FILL_START, RTL,
+            result.add(new Object[]{SENSOR_SIZE, BACK_CAMERA, NARROW, R180, FILL_START, RTL,
                     new Size[]{SURFACE_NARROW, SURFACE_WIDE},
                     new Rect[]{
                             new Rect(0, 2, 2, 6),
                             new Rect(2, 0, 4, 4)
                     }});
-            result.add(new Object[]{SENSOR_SIZE, NARROW, R270, FILL_START, RTL,
+            result.add(new Object[]{SENSOR_SIZE, BACK_CAMERA, NARROW, R270, FILL_START, RTL,
+                    new Size[]{SURFACE_NARROW, SURFACE_WIDE},
+                    new Rect[]{
+                            new Rect(0, 4, 4, 6),
+                            new Rect(2, 2, 6, 4)
+                    }});
+
+            // Narrow and front camera.
+            result.add(new Object[]{SENSOR_SIZE, FRONT_CAMERA, NARROW, R0, FILL_START, LTR,
+                    new Size[]{SURFACE_NARROW, SURFACE_WIDE},
+                    new Rect[]{
+                            new Rect(2, 2, 4, 6),
+                            new Rect(4, 0, 6, 4)
+                    }});
+            result.add(new Object[]{SENSOR_SIZE, FRONT_CAMERA, NARROW, R90, FILL_START, LTR,
+                    new Size[]{SURFACE_NARROW, SURFACE_WIDE},
+                    new Rect[]{
+                            new Rect(0, 2, 4, 4),
+                            new Rect(2, 0, 6, 2)
+                    }});
+            result.add(new Object[]{SENSOR_SIZE, FRONT_CAMERA, NARROW, R180, FILL_START, LTR,
+                    new Size[]{SURFACE_NARROW, SURFACE_WIDE},
+                    new Rect[]{
+                            new Rect(0, 2, 2, 6),
+                            new Rect(2, 0, 4, 4)
+                    }});
+            result.add(new Object[]{SENSOR_SIZE, FRONT_CAMERA, NARROW, R270, FILL_START, LTR,
                     new Size[]{SURFACE_NARROW, SURFACE_WIDE},
                     new Rect[]{
                             new Rect(0, 4, 4, 6),
@@ -281,27 +310,30 @@ public class ViewPortsTest {
             return result;
         }
 
-        @Parameterized.Parameter()
+        @Parameterized.Parameter(0)
         public Size mSensorSize;
 
         @Parameterized.Parameter(1)
-        public Rational mAspectRatio;
+        public boolean mIsFrontCamera;
 
         @Parameterized.Parameter(2)
-        public int mRotationDegrees;
+        public Rational mAspectRatio;
 
         @Parameterized.Parameter(3)
+        public int mRotationDegrees;
+
+        @Parameterized.Parameter(4)
         @ViewPort.ScaleType
         public int mScaleType;
 
-        @Parameterized.Parameter(4)
+        @Parameterized.Parameter(5)
         @ViewPort.LayoutDirection
         public int mLayoutDirection;
 
-        @Parameterized.Parameter(5)
+        @Parameterized.Parameter(6)
         public Size[] mSurfaceSizes;
 
-        @Parameterized.Parameter(6)
+        @Parameterized.Parameter(7)
         public Rect[] mExpectedCropRects;
 
         @Test
@@ -322,6 +354,7 @@ public class ViewPortsTest {
             // Act.
             Map<UseCase, Rect> useCaseCropRects = ViewPorts.calculateViewPortRects(
                     new Rect(0, 0, mSensorSize.getWidth(), mSensorSize.getHeight()),
+                    mIsFrontCamera,
                     mAspectRatio,
                     mRotationDegrees,
                     mScaleType,
