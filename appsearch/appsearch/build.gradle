@@ -63,7 +63,6 @@ dependencies {
     // This dependency is unused by the test implementation, but it's here to validate that
     // icing's jarjar'ing of the Protobuf_lite doesn't conflict with external dependencies.
     androidTestImplementation(PROTOBUF_LITE)
-
 }
 
 // Create a jar for use by appsearch-compiler:test
