@@ -375,7 +375,7 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
                 CameraSelector.Builder.fromSelector(cameraSelector);
         // Append the camera filter required internally if there's any.
         for (UseCase useCase : useCases) {
-            CameraSelector selector = useCase.getUseCaseConfig().getCameraSelector(null);
+            CameraSelector selector = useCase.getCurrentConfig().getCameraSelector(null);
             if (selector != null) {
                 for (CameraFilter filter : selector.getCameraFilterSet()) {
                     selectorBuilder.addCameraFilter(filter);
@@ -414,7 +414,8 @@ public final class ProcessCameraProvider implements LifecycleCameraProvider {
                     mLifecycleCameraRepository.createLifecycleCamera(lifecycleOwner,
                             new CameraUseCaseAdapter(cameraInternals.iterator().next(),
                                     cameraInternals,
-                                    mCameraX.getCameraDeviceSurfaceManager()));
+                                    mCameraX.getCameraDeviceSurfaceManager(),
+                                    mCameraX.getDefaultConfigFactory()));
         }
 
         if (useCases.length == 0) {

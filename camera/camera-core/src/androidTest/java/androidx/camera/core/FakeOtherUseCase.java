@@ -19,7 +19,11 @@ package androidx.camera.core;
 import android.util.Size;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
+import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.testing.fakes.FakeUseCase;
 
 /**
@@ -28,7 +32,6 @@ import androidx.camera.testing.fakes.FakeUseCase;
  * <p>This is used to complement the {@link FakeUseCase} for testing instances where a use case of
  * different type is created.
  */
-
 public class FakeOtherUseCase extends UseCase {
     private volatile boolean mIsDetached = false;
 
@@ -48,10 +51,34 @@ public class FakeOtherUseCase extends UseCase {
         mIsDetached = true;
     }
 
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @Nullable
+    @Override
+    public UseCaseConfig<?> getDefaultConfig(@NonNull UseCaseConfigFactory factory) {
+        return null;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    @Override
+    public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder(@NonNull Config config) {
+        throw new RuntimeException("Not implemented");
+    }
+
     @NonNull
     @Override
     public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder() {
-        return null;
+        throw new RuntimeException("Not implemented");
     }
 
     @Override

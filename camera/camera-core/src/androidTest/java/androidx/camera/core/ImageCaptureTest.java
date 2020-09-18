@@ -24,7 +24,6 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
 import android.app.Instrumentation;
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.graphics.Rect;
@@ -33,21 +32,20 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.CaptureConfig;
 import androidx.camera.core.impl.ImageCaptureConfig;
+import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
-import androidx.camera.testing.fakes.FakeAppConfig;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraControl;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeImageInfo;
 import androidx.camera.testing.fakes.FakeImageProxy;
+import androidx.camera.testing.fakes.FakeUseCaseConfigFactory;
 import androidx.exifinterface.media.ExifInterface;
-import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -63,10 +61,8 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 /**
@@ -79,13 +75,7 @@ public class ImageCaptureTest {
     private final Instrumentation mInstrumentation = InstrumentationRegistry.getInstrumentation();
 
     @Before
-    public void setup() throws ExecutionException, InterruptedException {
-        CameraXConfig cameraXConfig = CameraXConfig.Builder.fromConfig(
-                FakeAppConfig.create()).build();
-
-        Context context = ApplicationProvider.getApplicationContext();
-        CameraX.initialize(context, cameraXConfig).get();
-
+    public void setup() {
         FakeCamera fakeCamera = new FakeCamera("fakeCameraId");
 
         FakeCameraDeviceSurfaceManager fakeCameraDeviceSurfaceManager =
@@ -94,14 +84,12 @@ public class ImageCaptureTest {
                 ImageCaptureConfig.class,
                 new Size(640, 480));
 
+        UseCaseConfigFactory useCaseConfigFactory = new FakeUseCaseConfigFactory();
+
         mCameraUseCaseAdapter = new CameraUseCaseAdapter(fakeCamera,
                 new LinkedHashSet<>(Collections.singleton(fakeCamera)),
-                fakeCameraDeviceSurfaceManager);
-    }
-
-    @After
-    public void tearDown() throws ExecutionException, InterruptedException, TimeoutException {
-        CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
+                fakeCameraDeviceSurfaceManager,
+                useCaseConfigFactory);
     }
 
     @Test

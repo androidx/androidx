@@ -33,6 +33,7 @@ import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.core.util.Preconditions;
 
 import java.util.ArrayList;
@@ -56,6 +57,7 @@ public final class CameraUseCaseAdapter implements Camera {
     private final CameraInternal mCameraInternal;
     private final LinkedHashSet<CameraInternal> mCameraInternals;
     private final CameraDeviceSurfaceManager mCameraDeviceSurfaceManager;
+    private final UseCaseConfigFactory mUseCaseConfigFactory;
 
     private static final String TAG = "CameraUseCaseAdapter";
 
@@ -85,11 +87,13 @@ public final class CameraUseCaseAdapter implements Camera {
      */
     public CameraUseCaseAdapter(@NonNull CameraInternal cameraInternal,
             @NonNull LinkedHashSet<CameraInternal> cameras,
-            @NonNull CameraDeviceSurfaceManager cameraDeviceSurfaceManager) {
+            @NonNull CameraDeviceSurfaceManager cameraDeviceSurfaceManager,
+            @NonNull UseCaseConfigFactory useCaseConfigFactory) {
         mCameraInternal = cameraInternal;
         mCameraInternals = new LinkedHashSet<>(cameras);
         mId = new CameraId(mCameraInternals);
         mCameraDeviceSurfaceManager = cameraDeviceSurfaceManager;
+        mUseCaseConfigFactory = useCaseConfigFactory;
     }
 
     /**
@@ -198,7 +202,7 @@ public final class CameraUseCaseAdapter implements Camera {
             // At this point the binding will succeed since all the calculations are done
             // Do all attaching related work
             for (UseCase useCase : newUseCases) {
-                useCase.onAttach(mCameraInternal);
+                useCase.onAttach(mCameraInternal, mUseCaseConfigFactory);
                 useCase.updateSuggestedResolution(
                         Preconditions.checkNotNull(suggestedResolutionsMap.get(useCase)));
             }
@@ -303,12 +307,11 @@ public final class CameraUseCaseAdapter implements Camera {
         if (!newUseCases.isEmpty()) {
             Map<UseCaseConfig<?>, UseCase> configToUseCaseMap = new HashMap<>();
             for (UseCase useCase : newUseCases) {
-                UseCaseConfig.Builder<?, ?, ?> defaultBuilder = useCase.getDefaultBuilder();
+                UseCaseConfig<?> defaultConfig =
+                        useCase.getDefaultConfig(mUseCaseConfigFactory);
 
                 // Combine with default configuration.
-                UseCaseConfig<?> combinedUseCaseConfig =
-                        useCase.applyDefaults(useCase.getUseCaseConfig(),
-                                defaultBuilder);
+                UseCaseConfig<?> combinedUseCaseConfig = useCase.mergeConfigs(null, defaultConfig);
                 configToUseCaseMap.put(combinedUseCaseConfig, useCase);
             }
 

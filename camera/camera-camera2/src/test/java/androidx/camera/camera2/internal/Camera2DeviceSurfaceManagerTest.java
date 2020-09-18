@@ -134,6 +134,7 @@ public final class Camera2DeviceSurfaceManagerTest {
 
     private final Context mContext = ApplicationProvider.getApplicationContext();
     private CameraDeviceSurfaceManager mSurfaceManager;
+    private UseCaseConfigFactory mUseCaseConfigFactory;
     private FakeCameraFactory mCameraFactory;
 
     @Before
@@ -352,7 +353,8 @@ public final class Camera2DeviceSurfaceManagerTest {
         useCases.add(preview);
 
         Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
-                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases);
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases,
+                        mUseCaseConfigFactory);
         // A legacy level camera device can't support JPEG (ImageCapture) + PRIV (VideoCapture) +
         // PRIV (Preview) combination. An IllegalArgumentException will be thrown when trying to
         // bind these use cases at the same time.
@@ -378,7 +380,8 @@ public final class Camera2DeviceSurfaceManagerTest {
         useCases.add(preview);
 
         Map<UseCase, UseCaseConfig<?>> useCaseToConfigMap =
-                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases);
+                Configs.useCaseConfigMapWithDefaultSettingsFromUseCaseList(useCases,
+                        mUseCaseConfigFactory);
         Map<UseCaseConfig<?>, Size> suggestedResolutionMap =
                 mSurfaceManager.getSuggestedResolutions(LIMITED_CAMERA_ID, Collections.emptyList(),
                         new ArrayList<>(useCaseToConfigMap.values()));
@@ -573,7 +576,14 @@ public final class Camera2DeviceSurfaceManagerTest {
     private void initCameraX() {
         CameraXConfig cameraXConfig = createFakeAppConfig();
         CameraX.initialize(mContext, cameraXConfig);
-        mSurfaceManager = CameraX.getSurfaceManager();
+        CameraX cameraX;
+        try {
+            cameraX = CameraX.getOrCreateInstance(mContext).get();
+        } catch (ExecutionException | InterruptedException e) {
+            throw new IllegalStateException("Unable to initialize CameraX for test.");
+        }
+        mSurfaceManager = cameraX.getCameraDeviceSurfaceManager();
+        mUseCaseConfigFactory = cameraX.getDefaultConfigFactory();
     }
 
     private CameraXConfig createFakeAppConfig() {

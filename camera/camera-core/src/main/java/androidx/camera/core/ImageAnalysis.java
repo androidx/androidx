@@ -49,6 +49,7 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.CaptureConfig;
+import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.DeferrableSurface;
 import androidx.camera.core.impl.ImageAnalysisConfig;
@@ -60,6 +61,7 @@ import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.internal.TargetConfig;
@@ -174,7 +176,7 @@ public final class ImageAnalysis extends UseCase {
         super(config);
 
         // Get the combined configuration with defaults
-        ImageAnalysisConfig combinedConfig = (ImageAnalysisConfig) getUseCaseConfig();
+        ImageAnalysisConfig combinedConfig = (ImageAnalysisConfig) getCurrentConfig();
 
         if (combinedConfig.getBackpressureStrategy(DEFAULT_BACKPRESSURE_STRATEGY)
                 == STRATEGY_BLOCK_PRODUCER) {
@@ -390,7 +392,7 @@ public final class ImageAnalysis extends UseCase {
      */
     @BackpressureStrategy
     public int getBackpressureStrategy() {
-        return ((ImageAnalysisConfig) getUseCaseConfig()).getBackpressureStrategy(
+        return ((ImageAnalysisConfig) getCurrentConfig()).getBackpressureStrategy(
                 DEFAULT_BACKPRESSURE_STRATEGY);
     }
 
@@ -409,7 +411,7 @@ public final class ImageAnalysis extends UseCase {
      * @see ImageAnalysis.Builder#setBackpressureStrategy(int)
      */
     public int getImageQueueDepth() {
-        return ((ImageAnalysisConfig) getUseCaseConfig()).getImageQueueDepth(
+        return ((ImageAnalysisConfig) getCurrentConfig()).getImageQueueDepth(
                 DEFAULT_IMAGE_QUEUE_DEPTH);
     }
 
@@ -435,16 +437,11 @@ public final class ImageAnalysis extends UseCase {
      *
      * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
     @Nullable
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder() {
-        ImageAnalysisConfig defaults = CameraX.getDefaultUseCaseConfig(ImageAnalysisConfig.class);
-        if (defaults != null) {
-            return Builder.fromConfig(defaults);
-        }
-
-        return null;
+    public UseCaseConfig<?> getDefaultConfig(@NonNull UseCaseConfigFactory factory) {
+        return factory.getConfig(ImageAnalysisConfig.class);
     }
 
     /**
@@ -473,8 +470,20 @@ public final class ImageAnalysis extends UseCase {
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
+    public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder(@NonNull Config config) {
+        return ImageAnalysis.Builder.fromConfig(config);
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
+    @NonNull
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @Override
     public UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder() {
-        return Builder.fromConfig((ImageAnalysisConfig) getUseCaseConfig());
+        return Builder.fromConfig((ImageAnalysisConfig) getCurrentConfig());
     }
 
     /**
@@ -486,7 +495,7 @@ public final class ImageAnalysis extends UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
-        final ImageAnalysisConfig config = (ImageAnalysisConfig) getUseCaseConfig();
+        final ImageAnalysisConfig config = (ImageAnalysisConfig) getCurrentConfig();
 
         SessionConfig.Builder sessionConfigBuilder = createPipeline(getCameraId(), config,
                 suggestedResolution);
@@ -630,6 +639,19 @@ public final class ImageAnalysis extends UseCase {
             }
 
             setTargetClass(ImageAnalysis.class);
+        }
+
+        /**
+         * Generates a Builder from another Config object.
+         *
+         * @param configuration An immutable configuration to pre-populate this builder.
+         * @return The new Builder.
+         * @hide
+         */
+        @RestrictTo(Scope.LIBRARY_GROUP)
+        @NonNull
+        static Builder fromConfig(@NonNull Config configuration) {
+            return new Builder(MutableOptionsBundle.from(configuration));
         }
 
         /**

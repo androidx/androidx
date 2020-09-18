@@ -61,6 +61,7 @@ import androidx.camera.testing.CameraUtil;
 import androidx.camera.testing.fakes.FakeCameraDeviceSurfaceManager;
 import androidx.camera.testing.fakes.FakeUseCase;
 import androidx.camera.testing.fakes.FakeUseCaseConfig;
+import androidx.camera.testing.fakes.FakeUseCaseConfigFactory;
 import androidx.core.os.HandlerCompat;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -103,7 +104,7 @@ public class ExposureDeviceTest {
     @Rule
     public TestRule mUseCamera = CameraUtil.grantCameraPermissionAndPreTest();
 
-    private ArrayList<FakeTestUseCase> mFakeTestUseCases = new ArrayList<>();
+    private final ArrayList<FakeTestUseCase> mFakeTestUseCases = new ArrayList<>();
     private Camera2CameraImpl mCamera2CameraImpl;
     private static ExecutorService sCameraExecutor;
     private static HandlerThread sCameraHandlerThread;
@@ -158,7 +159,7 @@ public class ExposureDeviceTest {
 
         mCameraUseCaseAdapter = new CameraUseCaseAdapter(mCamera2CameraImpl,
                 new LinkedHashSet<>(Collections.singleton(mCamera2CameraImpl)),
-                fakeCameraDeviceSurfaceManager);
+                fakeCameraDeviceSurfaceManager, new FakeUseCaseConfigFactory());
     }
 
     @After
@@ -459,7 +460,7 @@ public class ExposureDeviceTest {
 
     public static class FakeTestUseCase extends FakeUseCase {
         private DeferrableSurface mDeferrableSurface;
-        private CameraCaptureSession.StateCallback mSessionStateCallback;
+        private final CameraCaptureSession.StateCallback mSessionStateCallback;
         CameraCaptureSession.CaptureCallback mCameraCaptureCallback;
 
         FakeTestUseCase(
@@ -493,7 +494,7 @@ public class ExposureDeviceTest {
         }
 
         private void createPipeline(Size resolution) {
-            SessionConfig.Builder builder = SessionConfig.Builder.createFrom(getUseCaseConfig());
+            SessionConfig.Builder builder = SessionConfig.Builder.createFrom(getCurrentConfig());
 
             builder.setTemplateType(CameraDevice.TEMPLATE_PREVIEW);
             if (mDeferrableSurface != null) {

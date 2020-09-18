@@ -16,8 +16,6 @@
 
 package androidx.camera.core;
 
-import static androidx.camera.core.impl.ImageOutputConfig.OPTION_TARGET_ROTATION;
-
 import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.media.ImageReader;
@@ -33,11 +31,13 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.RestrictTo.Scope;
 import androidx.camera.core.impl.CameraControlInternal;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.impl.Config;
 import androidx.camera.core.impl.Config.Option;
 import androidx.camera.core.impl.ImageOutputConfig;
-import androidx.camera.core.impl.MutableConfig;
+import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
+import androidx.camera.core.impl.UseCaseConfigFactory;
 import androidx.camera.core.internal.utils.UseCaseConfigUtil;
 import androidx.core.util.Preconditions;
 
@@ -65,18 +65,7 @@ public abstract class UseCase {
      */
     private final Set<StateChangeCallback> mStateChangeCallbacks = new HashSet<>();
 
-    /**
-     * Store the initial {@link UseCaseConfig} used to create the use case.
-     */
-    private final UseCaseConfig<?> mInitialUseCaseConfig;
     private final Object mCameraLock = new Object();
-
-    /**
-     * The default target rotation value is determined when the use case is created. Detaching
-     * and attaching the use case won't change the use case's default target rotation value.
-     */
-    @ImageOutputConfig.RotationValue
-    private final int mDefaultTargetRotation;
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase lifetime dynamic] - Dynamic variables which could change during anytime during
@@ -85,11 +74,24 @@ public abstract class UseCase {
 
     private State mState = State.INACTIVE;
 
-    /** The target rotation setting set via {@link #setTargetRotationInternal(int)}. */
-    @ImageOutputConfig.RotationValue
-    private int mTargetRotation;
+    /** Extended config, applied on top of the app defined Config (mUseCaseConfig). */
+    @Nullable
+    private UseCaseConfig<?> mExtendedConfig;
 
+    /**
+     * Store the app defined {@link UseCaseConfig} used to create the use case.
+     */
+    @NonNull
     private UseCaseConfig<?> mUseCaseConfig;
+
+    /**
+     * The currently used Config.
+     *
+     * <p> This is the combination of the extended Config, app provided Config, and camera
+     * implementation Config (with decreasing priority).
+     */
+    @NonNull
+    private UseCaseConfig<?> mCurrentConfig;
 
     ////////////////////////////////////////////////////////////////////////////////////////////
     // [UseCase attached constant] - Is only valid when the UseCase is attached to a camera.
@@ -99,6 +101,13 @@ public abstract class UseCase {
      * The resolution assigned to the {@link UseCase} based on the attached camera.
      */
     private Size mAttachedResolution;
+
+    /**
+     * The camera implementation provided Config. Its options has lowest priority and will be
+     * overwritten by any app defined or extended configs.
+     */
+    @Nullable
+    private UseCaseConfig<?> mCameraConfig;
 
     /**
      * The crop rect calculated at the time of binding based on {@link ViewPort}.
@@ -119,131 +128,97 @@ public abstract class UseCase {
     /**
      * Creates a named instance of the use case.
      *
-     * @param useCaseConfig the configuration object used for this use case
+     * @param currentConfig the configuration object used for this use case
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    protected UseCase(@NonNull UseCaseConfig<?> useCaseConfig) {
-        mInitialUseCaseConfig = useCaseConfig;
-        mUseCaseConfig = useCaseConfig;
-
-        // Determine the use case's target rotation value. If it has been provided in the
-        // useCaseConfig, extract it. Otherwise, obtain it from the default config provider.
-        if (useCaseConfig.containsOption(OPTION_TARGET_ROTATION)) {
-            mDefaultTargetRotation = useCaseConfig.retrieveOption(OPTION_TARGET_ROTATION);
-        } else {
-            UseCaseConfig.Builder<?, ?, ?> defaultBuilder = getDefaultBuilder();
-            mDefaultTargetRotation =
-                    defaultBuilder != null ? defaultBuilder.getUseCaseConfig().retrieveOption(
-                            OPTION_TARGET_ROTATION, Surface.ROTATION_0) : Surface.ROTATION_0;
-        }
-
-        mTargetRotation = mDefaultTargetRotation;
+    protected UseCase(@NonNull UseCaseConfig<?> currentConfig) {
+        mUseCaseConfig = currentConfig;
+        mCurrentConfig = currentConfig;
     }
 
     /**
-     * Returns a use case configuration pre-populated with default configuration
-     * options.
+     * Retrieve the default {@link UseCaseConfig} for the UseCase.
      *
-     * <p>This is used to generate a final configuration by combining the user-supplied
-     * configuration with the default configuration. Subclasses can override this method to provide
-     * the pre-populated builder. If <code>null</code> is returned, then the user-supplied
-     * configuration will be used directly.
-     *
-     * @return A builder pre-populated with use case default options.
+     * @param factory the factory that contains the default UseCases.
+     * @return The UseCaseConfig or null if there is no default Config.
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Nullable
-    public UseCaseConfig.Builder<?, ?, ?> getDefaultBuilder() {
-        return null;
-    }
+    public abstract UseCaseConfig<?> getDefaultConfig(@NonNull UseCaseConfigFactory factory);
 
     /**
-     * Updates the stored use case configuration.
+     * Create a {@link UseCaseConfig.Builder} for the UseCase.
      *
-     * <p>This configuration will be combined with the default configuration that is contained in
-     * the pre-populated builder supplied by {@link #getDefaultBuilder}, if it exists and the
-     * behavior of {@link #applyDefaults(UseCaseConfig, UseCaseConfig.Builder)} is not overridden.
-     * Once this method returns, the combined use case configuration can be retrieved with
-     * {@link #getUseCaseConfig()}.
-     *
-     * <p>This method alone will not make any changes to the {@link SessionConfig}, it is up to
-     * the use case to decide when to modify the session configuration.
-     *
-     * @param useCaseConfig Configuration which will be applied on top of use case defaults, if a
-     *                      default builder is provided by {@link #getDefaultBuilder}.
-     * @throws IllegalStateException if this function is called when the UseCase is not attached
-     * to a camera.
-     * @hide
-     */
-    @RestrictTo(Scope.LIBRARY_GROUP)
-    protected final void updateUseCaseConfig(@NonNull UseCaseConfig<?> useCaseConfig) {
-        // updateUseCaseConfig() can only be called after the use case is attached to a camera
-        // and then the settings will only be applied to the use case config. This is to make the
-        // use case config static.
-        CameraInternal camera = getCamera();
-
-        if (camera == null) {
-            throw new IllegalStateException("Disallow to call updateUseCaseConfig() before the "
-                    + "use case is attached to a camera.");
-        }
-
-        // Attempt to retrieve builder containing defaults for this use case's config
-        UseCaseConfig.Builder<?, ?, ?> defaultBuilder = getDefaultBuilder();
-
-        // Combine with default configuration.
-        mUseCaseConfig = applyDefaults(useCaseConfig, defaultBuilder);
-    }
-
-    /**
-     * Combines user-supplied configuration with use case default configuration.
-     *
-     * <p>Subclasses can override this method to
-     * modify the behavior of combining user-supplied values and default values.
-     *
-     * @param userConfig           The user-supplied configuration.
-     * @param defaultConfigBuilder A builder containing use-case default values, or {@code null}
-     *                             if no default values exist.
-     * @return The configuration that will be used by this use case.
+     * @param config the Config to initialize the builder
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
-    public UseCaseConfig<?> applyDefaults(
-            @NonNull UseCaseConfig<?> userConfig,
-            @Nullable UseCaseConfig.Builder<?, ?, ?> defaultConfigBuilder) {
-        if (defaultConfigBuilder == null) {
+    public abstract UseCaseConfig.Builder<?, ?, ?> getUseCaseConfigBuilder(@NonNull Config config);
+
+    /**
+     * Create a merged {@link UseCaseConfig} from the UseCase, camera, and an extended config.
+     *
+     * @param extendedConfig      configs that take priority over the UseCase's default config
+     * @param cameraDefaultConfig configs that have lower priority than the UseCase's default.
+     *                            This Config comes from the camera implementation.
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    public UseCaseConfig<?> mergeConfigs(
+            @Nullable UseCaseConfig<?> extendedConfig,
+            @Nullable UseCaseConfig<?> cameraDefaultConfig) {
+        if (extendedConfig == null && cameraDefaultConfig == null) {
             // No default builder was retrieved, return config directly
-            return userConfig;
+            return mUseCaseConfig;
         }
 
-        MutableConfig defaultMutableConfig = defaultConfigBuilder.getMutableConfig();
+        MutableOptionsBundle mergedConfig;
+
+        if (cameraDefaultConfig != null) {
+            mergedConfig = MutableOptionsBundle.from(cameraDefaultConfig);
+        } else {
+            mergedConfig = MutableOptionsBundle.create();
+        }
+
+        // If any options need special handling, this is the place to do it. For now we'll just copy
+        // over all options.
+        for (Option<?> opt : mUseCaseConfig.listOptions()) {
+            @SuppressWarnings("unchecked") // Options/values are being copied directly
+                    Option<Object> objectOpt = (Option<Object>) opt;
+
+            mergedConfig.insertOption(objectOpt,
+                    mUseCaseConfig.getOptionPriority(opt),
+                    mUseCaseConfig.retrieveOption(objectOpt));
+        }
+
+        if (extendedConfig != null) {
+            // If any options need special handling, this is the place to do it. For now we'll
+            // just copy
+            // over all options.
+            for (Option<?> opt : extendedConfig.listOptions()) {
+                @SuppressWarnings("unchecked") // Options/values are being copied directly
+                        Option<Object> objectOpt = (Option<Object>) opt;
+
+                mergedConfig.insertOption(objectOpt,
+                        extendedConfig.getOptionPriority(opt),
+                        extendedConfig.retrieveOption(objectOpt));
+            }
+        }
 
         // If OPTION_TARGET_RESOLUTION has been set by the user, remove
         // OPTION_TARGET_ASPECT_RATIO from defaultConfigBuilder because these two settings can be
         // set at the same time.
-        if (userConfig.containsOption(ImageOutputConfig.OPTION_TARGET_RESOLUTION)
-                && defaultMutableConfig.containsOption(
+        if (mergedConfig.containsOption(ImageOutputConfig.OPTION_TARGET_RESOLUTION)
+                && mergedConfig.containsOption(
                 ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO)) {
-            defaultMutableConfig.removeOption(ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO);
+            mergedConfig.removeOption(ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO);
         }
 
-        // Overwrite the default config builder's target rotation value by the determined default
-        // target rotation value of the use case.
-        defaultMutableConfig.insertOption(OPTION_TARGET_ROTATION, mDefaultTargetRotation);
-
-        // If any options need special handling, this is the place to do it. For now we'll just copy
-        // over all options.
-        for (Option<?> opt : userConfig.listOptions()) {
-            @SuppressWarnings("unchecked") // Options/values are being copied directly
-                    Option<Object> objectOpt = (Option<Object>) opt;
-
-            defaultMutableConfig.insertOption(objectOpt,
-                    userConfig.getOptionPriority(opt), userConfig.retrieveOption(objectOpt));
-        }
-
-        return defaultConfigBuilder.getUseCaseConfig();
+        return getUseCaseConfigBuilder(mergedConfig).getUseCaseConfig();
     }
 
     /**
@@ -258,19 +233,15 @@ public abstract class UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     protected boolean setTargetRotationInternal(
             @ImageOutputConfig.RotationValue int targetRotation) {
-        ImageOutputConfig oldConfig = (ImageOutputConfig) getUseCaseConfig();
+        ImageOutputConfig oldConfig = (ImageOutputConfig) getCurrentConfig();
         int oldRotation = oldConfig.getTargetRotation(ImageOutputConfig.INVALID_ROTATION);
         if (oldRotation == ImageOutputConfig.INVALID_ROTATION || oldRotation != targetRotation) {
-            // Camera is not null if the use case has been attached to a camera. Only calling
-            // updateUseCaseConfig() when the use case has been attached to a camera. So that
-            // some default config will be applied to the use case config.
-            if (getCamera() != null) {
-                UseCaseConfig.Builder<?, ?, ?> builder = getUseCaseConfigBuilder();
-                UseCaseConfigUtil.updateTargetRotationAndRelatedConfigs(builder, targetRotation);
-                updateUseCaseConfig(builder.getUseCaseConfig());
-            }
+            UseCaseConfig.Builder<?, ?, ?> builder = getUseCaseConfigBuilder(mUseCaseConfig);
+            UseCaseConfigUtil.updateTargetRotationAndRelatedConfigs(builder, targetRotation);
+            mUseCaseConfig = builder.getUseCaseConfig();
 
-            mTargetRotation = targetRotation;
+            mCurrentConfig = mergeConfigs(mExtendedConfig, mCameraConfig);
+
             return true;
         }
         return false;
@@ -280,14 +251,13 @@ public abstract class UseCase {
      * Returns the rotation that the intended target resolution is expressed in.
      *
      * @return The rotation of the intended target.
-     *
      * @hide
      */
     @SuppressLint("WrongConstant")
     @RestrictTo(Scope.LIBRARY_GROUP)
     @ImageOutputConfig.RotationValue
     protected int getTargetRotationInternal() {
-        return mTargetRotation;
+        return ((ImageOutputConfig) mCurrentConfig).getTargetRotation(Surface.ROTATION_0);
     }
 
     /**
@@ -298,7 +268,8 @@ public abstract class UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @IntRange(from = 0, to = 359)
     protected int getRelativeRotation(@NonNull CameraInternal cameraInternal) {
-        return cameraInternal.getCameraInfoInternal().getSensorRotationDegrees(mTargetRotation);
+        return cameraInternal.getCameraInfoInternal().getSensorRotationDegrees(
+                getTargetRotationInternal());
     }
 
     /**
@@ -442,7 +413,7 @@ public abstract class UseCase {
     @RestrictTo(Scope.LIBRARY_GROUP)
     @NonNull
     public String getName() {
-        return mUseCaseConfig.getTargetName("<UnknownUseCase-" + this.hashCode() + ">");
+        return mCurrentConfig.getTargetName("<UnknownUseCase-" + this.hashCode() + ">");
     }
 
     /**
@@ -452,8 +423,9 @@ public abstract class UseCase {
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public UseCaseConfig<?> getUseCaseConfig() {
-        return mUseCaseConfig;
+    @NonNull
+    public UseCaseConfig<?> getCurrentConfig() {
+        return mCurrentConfig;
     }
 
     /**
@@ -535,18 +507,16 @@ public abstract class UseCase {
      */
     @SuppressLint("WrongConstant")
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void onAttach(@NonNull CameraInternal camera) {
+    public void onAttach(@NonNull CameraInternal camera, @NonNull UseCaseConfigFactory factory) {
         synchronized (mCameraLock) {
             mCamera = camera;
             addStateChangeCallback(camera);
         }
 
-        updateUseCaseConfig(mUseCaseConfig);
+        mCameraConfig = getDefaultConfig(factory);
+        mCurrentConfig = mergeConfigs(mExtendedConfig, mCameraConfig);
 
-        // Updates the user persistent target rotation setting to the use case config.
-        setTargetRotationInternal(mTargetRotation);
-
-        EventCallback eventCallback = mUseCaseConfig.getUseCaseEventCallback(null);
+        EventCallback eventCallback = mCurrentConfig.getUseCaseEventCallback(null);
         if (eventCallback != null) {
             eventCallback.onBind(camera.getCameraInfoInternal().getCameraId());
         }
@@ -580,7 +550,7 @@ public abstract class UseCase {
         onDetached();
 
         // Cleanup required for any type of UseCase
-        EventCallback eventCallback = mUseCaseConfig.getUseCaseEventCallback(null);
+        EventCallback eventCallback = mCurrentConfig.getUseCaseEventCallback(null);
         if (eventCallback != null) {
             eventCallback.onUnbind();
         }
@@ -596,7 +566,8 @@ public abstract class UseCase {
 
         // Resets the mUseCaseConfig to the initial status when the use case was created to make
         // the use case reusable.
-        mUseCaseConfig = mInitialUseCaseConfig;
+        mCurrentConfig = mUseCaseConfig;
+        mCameraConfig = null;
     }
 
     /**
@@ -673,7 +644,7 @@ public abstract class UseCase {
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
     public int getImageFormat() {
-        return mUseCaseConfig.getInputFormat();
+        return mCurrentConfig.getInputFormat();
     }
 
     enum State {
