@@ -81,14 +81,16 @@ class BackStackStateTest {
         fm1.beginTransaction().add(fragment1, "1").commitNow()
         try {
             fm2.beginTransaction().hide(fragment1).commitNow()
-            fail("Fragment associated with another" +
-                    " FragmentManager should throw IllegalStateException")
+            fail(
+                "Fragment associated with another" +
+                    " FragmentManager should throw IllegalStateException"
+            )
         } catch (e: IllegalStateException) {
             assertThat(e)
                 .hasMessageThat().contains(
                     "Cannot hide Fragment attached to " +
-                            "a different FragmentManager. Fragment " + fragment1.toString() +
-                            " is already attached to a FragmentManager."
+                        "a different FragmentManager. Fragment " + fragment1.toString() +
+                        " is already attached to a FragmentManager."
                 )
         }
 
@@ -113,14 +115,16 @@ class BackStackStateTest {
         fm1.beginTransaction().add(fragment1, "1").commitNow()
         try {
             fm2.beginTransaction().show(fragment1).commitNow()
-            fail("Fragment associated with another" +
-                    " FragmentManager should throw IllegalStateException")
+            fail(
+                "Fragment associated with another" +
+                    " FragmentManager should throw IllegalStateException"
+            )
         } catch (e: IllegalStateException) {
             assertThat(e)
                 .hasMessageThat().contains(
                     "Cannot show Fragment attached to " +
-                            "a different FragmentManager. Fragment " + fragment1.toString() +
-                            " is already attached to a FragmentManager."
+                        "a different FragmentManager. Fragment " + fragment1.toString() +
+                        " is already attached to a FragmentManager."
                 )
         }
 
@@ -145,14 +149,16 @@ class BackStackStateTest {
         fm1.beginTransaction().add(fragment1, "1").commitNow()
         try {
             fm2.beginTransaction().setPrimaryNavigationFragment(fragment1).commitNow()
-            fail("Fragment associated with another" +
-                    " FragmentManager should throw IllegalStateException")
+            fail(
+                "Fragment associated with another" +
+                    " FragmentManager should throw IllegalStateException"
+            )
         } catch (e: IllegalStateException) {
             assertThat(e)
                 .hasMessageThat().contains(
                     "Cannot setPrimaryNavigation for Fragment attached to " +
-                            "a different FragmentManager. Fragment " + fragment1.toString() +
-                            " is already attached to a FragmentManager."
+                        "a different FragmentManager. Fragment " + fragment1.toString() +
+                        " is already attached to a FragmentManager."
                 )
         }
 
@@ -179,14 +185,16 @@ class BackStackStateTest {
 
         try {
             fm2.beginTransaction().detach(fragment1).commitNow()
-            fail("Fragment associated with another" +
-                    " FragmentManager should throw IllegalStateException")
+            fail(
+                "Fragment associated with another" +
+                    " FragmentManager should throw IllegalStateException"
+            )
         } catch (e: IllegalStateException) {
             assertThat(e)
                 .hasMessageThat().contains(
                     "Cannot detach Fragment attached to " +
-                            "a different FragmentManager. Fragment " + fragment1.toString() +
-                            " is already attached to a FragmentManager."
+                        "a different FragmentManager. Fragment " + fragment1.toString() +
+                        " is already attached to a FragmentManager."
                 )
         }
 
@@ -213,14 +221,16 @@ class BackStackStateTest {
 
         try {
             fm2.beginTransaction().remove(fragment1).commitNow()
-            fail("Fragment associated with another" +
-                    " FragmentManager should throw IllegalStateException")
+            fail(
+                "Fragment associated with another" +
+                    " FragmentManager should throw IllegalStateException"
+            )
         } catch (e: IllegalStateException) {
             assertThat(e)
                 .hasMessageThat().contains(
                     "Cannot remove Fragment attached to " +
-                            "a different FragmentManager. Fragment " + fragment1.toString() +
-                            " is already attached to a FragmentManager."
+                        "a different FragmentManager. Fragment " + fragment1.toString() +
+                        " is already attached to a FragmentManager."
                 )
         }
 
@@ -250,13 +260,15 @@ class BackStackStateTest {
                 .commitNow()
             fail(
                 "setting maxLifecycle on fragment not attached to fragment manager should throw" +
-                        " IllegalArgumentException"
+                    " IllegalArgumentException"
             )
         } catch (e: IllegalArgumentException) {
             assertThat(e)
                 .hasMessageThat()
-                .contains("Cannot setMaxLifecycle for Fragment not attached to" +
-                        " FragmentManager $fm2")
+                .contains(
+                    "Cannot setMaxLifecycle for Fragment not attached to" +
+                        " FragmentManager $fm2"
+                )
         }
     }
 
@@ -302,14 +314,14 @@ class BackStackStateTest {
                 .commitNow()
             fail(
                 "setting maxLifecycle state to state lower than created should throw" +
-                        " IllegalArgumentException"
+                    " IllegalArgumentException"
             )
         } catch (e: IllegalArgumentException) {
             assertThat(e)
                 .hasMessageThat()
                 .contains(
                     "Cannot set maximum Lifecycle to INITIALIZED after the Fragment has been " +
-                            "created"
+                        "created"
                 )
         }
     }

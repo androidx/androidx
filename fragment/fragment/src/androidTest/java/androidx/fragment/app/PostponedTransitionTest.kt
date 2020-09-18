@@ -125,8 +125,10 @@ class PostponedTransitionTest(private val stateManager: StateManager) {
         fragment.startPostponedEnterTransition()
 
         // make sure it ran
-        assertForwardTransition(startBlue, startBlueBounds, startGreen,
-            beginningFragment, fragment)
+        assertForwardTransition(
+            startBlue, startBlueBounds, startGreen,
+            beginningFragment, fragment
+        )
 
         val startBlue2 = activityRule.findBlue()
         val startGreen2 = activityRule.findGreen()
@@ -141,8 +143,10 @@ class PostponedTransitionTest(private val stateManager: StateManager) {
         beginningFragment.startPostponedEnterTransition()
 
         // make sure it ran
-        assertBackTransition(startBlue2, startBlueBounds2, startGreen2,
-            fragment, beginningFragment)
+        assertBackTransition(
+            startBlue2, startBlueBounds2, startGreen2,
+            fragment, beginningFragment
+        )
     }
 
     @Test
@@ -198,8 +202,10 @@ class PostponedTransitionTest(private val stateManager: StateManager) {
             .commit()
 
         // make sure transition ran
-        assertForwardTransition(startBlue, startBlueBounds, startGreen,
-            beginningFragment, fragment1)
+        assertForwardTransition(
+            startBlue, startBlueBounds, startGreen,
+            beginningFragment, fragment1
+        )
 
         val endBlue = activityRule.findBlue()
         val endGreen = activityRule.findGreen()
@@ -229,8 +235,10 @@ class PostponedTransitionTest(private val stateManager: StateManager) {
             .commit()
 
         // make sure transition ran
-        assertForwardTransition(startBlue2, startBlueBounds2, startGreen2,
-            beginningFragment, fragment2)
+        assertForwardTransition(
+            startBlue2, startBlueBounds2, startGreen2,
+            beginningFragment, fragment2
+        )
 
         val endBlue2 = activityRule.findBlue()
         val endGreen2 = activityRule.findGreen()
@@ -291,12 +299,16 @@ class PostponedTransitionTest(private val stateManager: StateManager) {
             fragment3.startPostponedEnterTransition()
 
             // make sure it ran
-            assertForwardTransition(startBlue, startBlueBounds, startGreen,
-                beginningFragment, fragment3)
+            assertForwardTransition(
+                startBlue, startBlueBounds, startGreen,
+                beginningFragment, fragment3
+            )
         } else {
             // transition to fragment2 should be started
-            assertForwardTransition(startBlue, startBlueBounds, startGreen,
-                beginningFragment, fragment2)
+            assertForwardTransition(
+                startBlue, startBlueBounds, startGreen,
+                beginningFragment, fragment2
+            )
 
             // fragment3 should be postponed, but fragment2 should be executed with no transition.
             assertPostponedTransition(fragment2, fragment3, beginningFragment)
@@ -309,8 +321,10 @@ class PostponedTransitionTest(private val stateManager: StateManager) {
             fragment3.startPostponedEnterTransition()
 
             // make sure it ran
-            assertForwardTransition(startBlue2, startBlueBounds2, startGreen2,
-                fragment2, fragment3)
+            assertForwardTransition(
+                startBlue2, startBlueBounds2, startGreen2,
+                fragment2, fragment3
+            )
         }
 
         val startBlue3 = fragment3.requireView().findViewById<View>(R.id.blueSquare)
@@ -328,8 +342,10 @@ class PostponedTransitionTest(private val stateManager: StateManager) {
             beginningFragment.startPostponedEnterTransition()
 
             // make sure it ran
-            assertBackTransition(startBlue3, startBlueBounds3, startGreen3,
-                fragment3, beginningFragment)
+            assertBackTransition(
+                startBlue3, startBlueBounds3, startGreen3,
+                fragment3, beginningFragment
+            )
         } else {
             assertBackTransition(startBlue3, startBlueBounds3, startGreen3, fragment3, fragment2)
 
@@ -343,8 +359,10 @@ class PostponedTransitionTest(private val stateManager: StateManager) {
             beginningFragment.startPostponedEnterTransition()
 
             // make sure it ran
-            assertBackTransition(endBlue2, endBlueBounds2, endGreen2,
-                fragment2, beginningFragment)
+            assertBackTransition(
+                endBlue2, endBlueBounds2, endGreen2,
+                fragment2, beginningFragment
+            )
         }
     }
 
@@ -393,8 +411,10 @@ class PostponedTransitionTest(private val stateManager: StateManager) {
             fragment3.startPostponedEnterTransition()
 
             // make sure it ran
-            assertForwardTransition(startBlue, startBlueBounds, startGreen,
-                beginningFragment, fragment3)
+            assertForwardTransition(
+                startBlue, startBlueBounds, startGreen,
+                beginningFragment, fragment3
+            )
         } else {
             // fragment3 should be postponed, but fragment2 should be executed with no transition.
             assertPostponedTransition(fragment2, fragment3, beginningFragment)
@@ -433,8 +453,10 @@ class PostponedTransitionTest(private val stateManager: StateManager) {
             beginningFragment.startPostponedEnterTransition()
 
             // make sure it ran
-            assertBackTransition(startBlue3, startBlueBounds3, startGreen3,
-                fragment3, beginningFragment)
+            assertBackTransition(
+                startBlue3, startBlueBounds3, startGreen3,
+                fragment3, beginningFragment
+            )
             verifyNoOtherTransitions(fragment2)
         } else {
             assertPostponedTransition(fragment2, beginningFragment, fragment3)
@@ -447,8 +469,10 @@ class PostponedTransitionTest(private val stateManager: StateManager) {
             beginningFragment.startPostponedEnterTransition()
 
             // make sure it ran
-            assertBackTransition(endBlue2, endBlueBounds2, endGreen2,
-                fragment2, beginningFragment)
+            assertBackTransition(
+                endBlue2, endBlueBounds2, endGreen2,
+                fragment2, beginningFragment
+            )
         }
     }
 
@@ -482,8 +506,10 @@ class PostponedTransitionTest(private val stateManager: StateManager) {
         fragment2.startPostponedEnterTransition()
 
         // make sure it ran
-        assertForwardTransition(startBlue, startBlueBounds, startGreen,
-            beginningFragment, fragment2)
+        assertForwardTransition(
+            startBlue, startBlueBounds, startGreen,
+            beginningFragment, fragment2
+        )
 
         val startBlue2 = activityRule.findBlue()
         val startGreen2 = activityRule.findGreen()
@@ -498,8 +524,10 @@ class PostponedTransitionTest(private val stateManager: StateManager) {
         beginningFragment.startPostponedEnterTransition()
 
         // make sure it ran
-        assertBackTransition(startBlue2, startBlueBounds2, startGreen2,
-            fragment2, beginningFragment)
+        assertBackTransition(
+            startBlue2, startBlueBounds2, startGreen2,
+            fragment2, beginningFragment
+        )
     }
 
     // Execute transactions on different containers and ensure that they don't conflict
@@ -843,16 +871,20 @@ class PostponedTransitionTest(private val stateManager: StateManager) {
             // start the postponed transition
             fragment3.startPostponedEnterTransition()
 
-            assertForwardTransition(startBlue, startBlueBounds, startGreen,
-                beginningFragment, fragment3)
+            assertForwardTransition(
+                startBlue, startBlueBounds, startGreen,
+                beginningFragment, fragment3
+            )
         } else {
             assertPostponedTransition(fragment2, fragment3, beginningFragment)
 
             // start the postponed transition
             fragment3.startPostponedEnterTransition()
 
-            assertForwardTransition(startBlue2, startBlueBounds2, startGreen2,
-                fragment2, fragment3)
+            assertForwardTransition(
+                startBlue2, startBlueBounds2, startGreen2,
+                fragment2, fragment3
+            )
         }
     }
 
@@ -1009,8 +1041,10 @@ class PostponedTransitionTest(private val stateManager: StateManager) {
                 try {
                     // This should trigger an IllegalStateException
                     fm.executePendingTransactions()
-                    fail("commitNow() while executing a transaction should cause an" +
-                            " IllegalStateException")
+                    fail(
+                        "commitNow() while executing a transaction should cause an" +
+                            " IllegalStateException"
+                    )
                 } catch (e: IllegalStateException) {
                     assertThat(e)
                         .hasMessageThat()
@@ -1074,8 +1108,10 @@ class PostponedTransitionTest(private val stateManager: StateManager) {
 
         fragment.startPostponedEnterTransition()
 
-        assertForwardTransition(startBlue, startBlueBounds, startGreen,
-            beginningFragment, fragment)
+        assertForwardTransition(
+            startBlue, startBlueBounds, startGreen,
+            beginningFragment, fragment
+        )
 
         assertWithMessage("After startPostponed is called the transition should not be postponed")
             .that(fragment.isPostponed).isFalse()

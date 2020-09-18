@@ -61,7 +61,7 @@ class FragmentTransactionTest {
         activity = activityRule.activity
         onBackStackChangedTimes = 0
         onBackStackChangedListener =
-                FragmentManager.OnBackStackChangedListener { onBackStackChangedTimes++ }
+            FragmentManager.OnBackStackChangedListener { onBackStackChangedTimes++ }
         activity.supportFragmentManager.addOnBackStackChangedListener(onBackStackChangedListener)
     }
 
@@ -113,9 +113,11 @@ class FragmentTransactionTest {
             assertThat(onBackStackChangedTimes).isEqualTo(1)
         } catch (e: IllegalStateException) {
             assertThat(e)
-                .hasMessageThat().contains("Fragment " + fragment.javaClass.canonicalName +
+                .hasMessageThat().contains(
+                    "Fragment " + fragment.javaClass.canonicalName +
                         " must be a public static class to be  properly recreated from instance " +
-                        "state.")
+                        "state."
+                )
         } finally {
             assertWithMessage("Fragment shouldn't be added").that(fragment.isAdded).isFalse()
         }
@@ -133,9 +135,11 @@ class FragmentTransactionTest {
             activity.supportFragmentManager.executePendingTransactions()
             assertThat(onBackStackChangedTimes).isEqualTo(1)
         } catch (e: IllegalStateException) {
-            assertThat(e).hasMessageThat().contains("Fragment " + fragment.javaClass.canonicalName +
+            assertThat(e).hasMessageThat().contains(
+                "Fragment " + fragment.javaClass.canonicalName +
                     " must be a public static class to be  properly recreated from instance " +
-                    "state.")
+                    "state."
+            )
         } finally {
             assertWithMessage("Fragment shouldn't be added").that(fragment.isAdded).isFalse()
         }
@@ -153,8 +157,10 @@ class FragmentTransactionTest {
             activity.supportFragmentManager.executePendingTransactions()
             assertThat(onBackStackChangedTimes).isEqualTo(1)
         } catch (e: IllegalStateException) {
-            assertThat(e).hasMessageThat().contains("Fragment " + fragment.javaClass.canonicalName +
-                    " must be a public static class to be  properly recreated from instance state.")
+            assertThat(e).hasMessageThat().contains(
+                "Fragment " + fragment.javaClass.canonicalName +
+                    " must be a public static class to be  properly recreated from instance state."
+            )
         } finally {
             assertWithMessage("Fragment shouldn't be added").that(fragment.isAdded).isFalse()
         }
@@ -204,8 +210,10 @@ class FragmentTransactionTest {
             fragment1.layoutInflater
             fail("getLayoutInflater should throw when the Fragment is detached")
         } catch (e: IllegalStateException) {
-            assertThat(e).hasMessageThat().contains("onGetLayoutInflater() cannot be executed " +
-                    "until the Fragment is attached to the FragmentManager.")
+            assertThat(e).hasMessageThat().contains(
+                "onGetLayoutInflater() cannot be executed " +
+                    "until the Fragment is attached to the FragmentManager."
+            )
         }
 
         assertThat(fragment1.onGetLayoutInflaterCalls).isEqualTo(3)
@@ -223,8 +231,10 @@ class FragmentTransactionTest {
             activity.supportFragmentManager.executePendingTransactions()
             assertThat(onBackStackChangedTimes).isEqualTo(1)
         } catch (e: IllegalStateException) {
-            assertThat(e).hasMessageThat().contains("Fragment " + fragment.javaClass.canonicalName +
-                    " must be a public static class to be  properly recreated from instance state.")
+            assertThat(e).hasMessageThat().contains(
+                "Fragment " + fragment.javaClass.canonicalName +
+                    " must be a public static class to be  properly recreated from instance state."
+            )
         } finally {
             assertWithMessage("Fragment shouldn't be added").that(fragment.isAdded).isFalse()
         }
@@ -269,8 +279,10 @@ class FragmentTransactionTest {
         try {
             fm.beginTransaction().runOnCommit { ran = true }.addToBackStack(null).commit()
         } catch (e: IllegalStateException) {
-            assertThat(e).hasMessageThat().contains("This FragmentTransaction is not allowed to" +
-                    " be added to the back stack.")
+            assertThat(e).hasMessageThat().contains(
+                "This FragmentTransaction is not allowed to" +
+                    " be added to the back stack."
+            )
         }
 
         fm.executePendingTransactions()

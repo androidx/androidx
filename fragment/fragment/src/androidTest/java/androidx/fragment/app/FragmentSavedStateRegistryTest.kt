@@ -66,11 +66,13 @@ class FragmentSavedStateRegistryTest {
         initializeSavedState()
         val recreated = activityRule.recreate()
         activityRule.runOnUiThread {
-            recreated.fragment().lifecycle.addObserver(LifecycleEventObserver { _, event ->
-                if (event == Lifecycle.Event.ON_RESUME) {
-                    checkDefaultSavedState(recreated.fragment().savedStateRegistry)
+            recreated.fragment().lifecycle.addObserver(
+                LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_RESUME) {
+                        checkDefaultSavedState(recreated.fragment().savedStateRegistry)
+                    }
                 }
-            })
+            )
         }
     }
 

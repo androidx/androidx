@@ -84,7 +84,8 @@ class FragmentActivityResultTest {
                         .commitNow()
                     fail("Registering for activity result after onCreate() should fail")
                 } catch (e: IllegalStateException) {
-                    assertThat(e).hasMessageThat().contains("Fragment $fragment is attempting to " +
+                    assertThat(e).hasMessageThat().contains(
+                        "Fragment $fragment is attempting to " +
                             "registerForActivityResult after being created. Fragments must call " +
                             "registerForActivityResult() before they are created (i.e. " +
                             "initialization, onAttach(), or onCreate())."

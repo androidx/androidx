@@ -300,7 +300,7 @@ class FragmentTest {
                 .hasMessageThat()
                 .contains(
                     "Fragment $fragment did not return a View from onCreateView() or this was " +
-                            "called before onCreateView()."
+                        "called before onCreateView()."
                 )
         }
 
