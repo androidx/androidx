@@ -74,9 +74,11 @@ class LifecycleComponentActivity : ComponentActivity() {
         addOnContextAvailableListener {
             events.add(LifecycleSource.CONTEXT_AWARE to Lifecycle.Event.ON_CREATE)
         }
-        lifecycle.addObserver(LifecycleEventObserver { _, event ->
-            events.add(LifecycleSource.ACTIVITY to event)
-        })
+        lifecycle.addObserver(
+            LifecycleEventObserver { _, event ->
+                events.add(LifecycleSource.ACTIVITY to event)
+            }
+        )
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
