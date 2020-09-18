@@ -37,8 +37,11 @@ class ContentUpdateMethodWriter(
         val methodBuilder = funSpecOverriding(contentUpdate.method, processingEnv)
         methodBuilder.annotations.add(
             AnnotationSpec.builder(Suppress::class).addMember
-                ("%S", "USELESS_CAST").addMember("%S", "UNCHECKED_CAST").addMember("%S",
-                "PLATFORM_CLASS_MAPPED_TO_KOTLIN").build())
+            ("%S", "USELESS_CAST").addMember("%S", "UNCHECKED_CAST").addMember(
+                "%S",
+                "PLATFORM_CLASS_MAPPED_TO_KOTLIN"
+            ).build()
+        )
         if (contentUpdate.isSuspend) {
             val withContext = MemberName("kotlinx.coroutines", "withContext")
             methodBuilder.beginControlFlow(
@@ -47,14 +50,21 @@ class ContentUpdateMethodWriter(
             )
         }
         if (contentUpdate.uri.startsWith(":")) {
-            methodBuilder.addStatement("val _uri = %T.parse(%L)", uriTypePlaceHolder.copy(),
-                contentUpdate.uri.removePrefix(":"))
+            methodBuilder.addStatement(
+                "val _uri = %T.parse(%L)", uriTypePlaceHolder.copy(),
+                contentUpdate.uri.removePrefix(":")
+            )
         } else {
-            methodBuilder.addStatement("val _uri = %T.parse(%S)", uriTypePlaceHolder.copy(),
-                contentUpdate.uri)
+            methodBuilder.addStatement(
+                "val _uri = %T.parse(%S)", uriTypePlaceHolder.copy(),
+                contentUpdate.uri
+            )
         }
-        methodBuilder.addStatement("val _contentValues = %T(${contentUpdate.toUpdate
-            .size})", contentValuesPlaceHolder)
+        methodBuilder.addStatement(
+            "val _contentValues = %T(${contentUpdate.toUpdate
+                .size})",
+            contentValuesPlaceHolder
+        )
         for (value in contentUpdate.toUpdate) {
             methodBuilder.addStatement("_contentValues.put(\"${value.first}\", ${value.second})")
         }
@@ -74,8 +84,10 @@ class ContentUpdateMethodWriter(
         } else {
             methodBuilder.addStatement("val _where = \"\"")
         }
-        methodBuilder.addStatement("${returnOrSet}_contentResolver.update(_uri, _contentValues, " +
-                "_where, ${if (noSelectionArgs) "null" else "_selectionArgs"})")
+        methodBuilder.addStatement(
+            "${returnOrSet}_contentResolver.update(_uri, _contentValues, " +
+                "_where, ${if (noSelectionArgs) "null" else "_selectionArgs"})"
+        )
 
         if (contentUpdate.isSuspend) {
             methodBuilder.endControlFlow()

@@ -45,8 +45,10 @@ class ContentEntityProcessor(
     fun processEntity(): ContentEntityVO? {
         val entity = contentEntity.asTypeElement()
         if (entity.hasMoreThanOneNonPrivateNonIgnoredConstructor()) {
-            errorReporter.reportError(entityWithMultipleConstructors(contentEntity.toString()),
-                entity)
+            errorReporter.reportError(
+                entityWithMultipleConstructors(contentEntity.toString()),
+                entity
+            )
             return null
         } else if (entity.isNotInstantiable()) {
             errorReporter.reportError(nonInstantiableEntity(contentEntity.toString()), entity)
@@ -54,19 +56,34 @@ class ContentEntityProcessor(
         }
         val columns = entity.getAllConstructorParamsOrPublicFields()
         columns.forEach {
-            if (fieldIsNullable(it) && (it.asType().isPrimitive() &&
-                        !it.asType().isPrimitiveBlob())) {
-                errorReporter.reportError(entityWithNullablePrimitiveType(it.simpleName.toString(),
-                    contentEntity.toString()), it)
+            if (fieldIsNullable(it) && (
+                it.asType().isPrimitive() &&
+                    !it.asType().isPrimitiveBlob()
+                )
+            ) {
+                errorReporter.reportError(
+                    entityWithNullablePrimitiveType(
+                        it.simpleName.toString(),
+                        contentEntity.toString()
+                    ),
+                    it
+                )
             }
         }
         val contentColumns = HashMap<String, ContentColumnVO>()
         val contentPrimaryKey = ArrayList<ContentColumnVO>()
         columns.forEach { column ->
             if (column.hasAnnotation(ContentColumn::class) &&
-                column.hasAnnotation(ContentPrimaryKey::class)) {
-                errorReporter.reportError(entityFieldWithBothAnnotations(column.simpleName
-                    .toString(), entity.qualifiedName.toString()), entity)
+                column.hasAnnotation(ContentPrimaryKey::class)
+            ) {
+                errorReporter.reportError(
+                    entityFieldWithBothAnnotations(
+                        column.simpleName
+                            .toString(),
+                        entity.qualifiedName.toString()
+                    ),
+                    entity
+                )
             } else if (column.hasAnnotation(ContentColumn::class)) {
                 if (validateColumnType(column, errorReporter)) {
                     val vo = ContentColumnVO(
@@ -79,8 +96,10 @@ class ContentEntityProcessor(
                 }
             } else if (column.hasAnnotation(ContentPrimaryKey::class)) {
                 if (validateColumnType(column, errorReporter)) {
-                    val vo = ContentColumnVO(column.simpleName.toString(), column.asType(), column
-                        .getAnnotation(ContentPrimaryKey::class.java).columnName,
+                    val vo = ContentColumnVO(
+                        column.simpleName.toString(), column.asType(),
+                        column
+                            .getAnnotation(ContentPrimaryKey::class.java).columnName,
                         fieldIsNullable(column),
                         fieldRequiresApi(column)
                     )
@@ -99,11 +118,21 @@ class ContentEntityProcessor(
         }
         if (contentPrimaryKey.isEmpty()) {
             if (columns.isEmpty()) {
-                errorReporter.reportError(missingFieldsInContentEntityErrorMessage(entity
-                    .qualifiedName.toString()), entity)
+                errorReporter.reportError(
+                    missingFieldsInContentEntityErrorMessage(
+                        entity
+                            .qualifiedName.toString()
+                    ),
+                    entity
+                )
             } else {
-                errorReporter.reportError(missingEntityPrimaryKeyErrorMessage(entity
-                    .qualifiedName.toString()), entity)
+                errorReporter.reportError(
+                    missingEntityPrimaryKeyErrorMessage(
+                        entity
+                            .qualifiedName.toString()
+                    ),
+                    entity
+                )
             }
         }
         if (contentPrimaryKey.size > 1) {
@@ -115,17 +144,24 @@ class ContentEntityProcessor(
         if (errorReporter.errorReported) {
             return null
         }
-        return ContentEntityVO(entity.getAnnotation(ContentEntity::class.java).uri, MoreTypes
-            .asDeclared(entity.asType()), contentColumns, contentPrimaryKey.first())
+        return ContentEntityVO(
+            entity.getAnnotation(ContentEntity::class.java).uri,
+            MoreTypes
+                .asDeclared(entity.asType()),
+            contentColumns, contentPrimaryKey.first()
+        )
     }
 
     fun validateColumnType(column: VariableElement, errorReporter: ErrorReporter): Boolean {
         if (!column.asType().isSupportedColumnType()) {
             errorReporter.reportError(
-                unsupportedColumnType(column.simpleName.toString(),
+                unsupportedColumnType(
+                    column.simpleName.toString(),
                     contentEntity.toString(),
                     column.asType().toString()
-                ), column)
+                ),
+                column
+            )
             return false
         }
         return true

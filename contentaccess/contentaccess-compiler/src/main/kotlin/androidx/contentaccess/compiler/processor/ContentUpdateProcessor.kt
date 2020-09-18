@@ -53,8 +53,10 @@ class ContentUpdateProcessor(
         val potentialContentEntity = method.toAnnotationBox(ContentUpdate::class)!!
             .getAsTypeMirror("contentEntity")!!
         val resolvedContentEntity = if (!potentialContentEntity.isVoidObject()) {
-            ContentEntityProcessor(potentialContentEntity,
-                processingEnv, errorReporter).processEntity()
+            ContentEntityProcessor(
+                potentialContentEntity,
+                processingEnv, errorReporter
+            ).processEntity()
         } else {
             contentEntity
         }
@@ -62,8 +64,10 @@ class ContentUpdateProcessor(
             errorReporter.reportError(missingEntityOnMethod(method.simpleName.toString()), method)
             return null
         }
-        val toBeUsedUri = determineToBeUsedUri(resolvedContentEntity, contentUpdateAnnotation.uri,
-            errorReporter, method)
+        val toBeUsedUri = determineToBeUsedUri(
+            resolvedContentEntity, contentUpdateAnnotation.uri,
+            errorReporter, method
+        )
         if (toBeUsedUri.isEmpty()) {
             errorReporter.reportError(missingUriOnMethod(), method)
         }
@@ -82,22 +86,27 @@ class ContentUpdateProcessor(
             //  happen atomically. Anyhow it would be easier to do the other way through
             //  parameters annotated with @ContentColumn. Explore this further later on, although I
             //  doubt we need to worry about this so much for the updates
-            errorReporter.reportError(updatingMultipleEntitiesAtTheSameType
+            errorReporter.reportError(
+                updatingMultipleEntitiesAtTheSameType
                 (resolvedContentEntity.type.toString(), method.simpleName.toString()),
-                method)
+                method
+            )
             return null
         }
         if (entitiesInParams.size == 1) {
             // Assume the user wants to update a single entity
             if (contentUpdateAnnotation.where.isNotEmpty()) {
-                errorReporter.reportError(methodSpecifiesWhereClauseWhenUpdatingUsingEntity
-                    (entitiesInParams.first().toString()), method)
+                errorReporter.reportError(
+                    methodSpecifiesWhereClauseWhenUpdatingUsingEntity
+                    (entitiesInParams.first().toString()),
+                    method
+                )
                 return null
             }
             val primaryKeyColumnName = resolvedContentEntity.primaryKeyColumn.columnName
             val primaryKeyVariableName = resolvedContentEntity.primaryKeyColumn.name
             val whereClause = "$primaryKeyColumnName = \${${entitiesInParams.first()}" +
-                    ".$primaryKeyVariableName}"
+                ".$primaryKeyVariableName}"
             val updateList = mutableListOf<Pair<String, String>>()
             for (entityColumn in resolvedContentEntity.columns.values) {
                 if (entityColumn.columnName != primaryKeyColumnName) {
@@ -124,8 +133,10 @@ class ContentUpdateProcessor(
         val selectionVO = if (contentUpdateAnnotation.where.isEmpty()) {
             null
         } else {
-            SelectionProcessor(method, contentUpdateAnnotation.where,
-                paramsNamesAndTypes, errorReporter, resolvedContentEntity).process()
+            SelectionProcessor(
+                method, contentUpdateAnnotation.where,
+                paramsNamesAndTypes, errorReporter, resolvedContentEntity
+            ).process()
         }
         val contentValues = mutableListOf<Pair<String, String>>()
         var foundContentColumnAnnotatedParameters = false
@@ -134,22 +145,37 @@ class ContentUpdateProcessor(
                 foundContentColumnAnnotatedParameters = true
                 val columnName = param.getAnnotation(ContentColumn::class.java).columnName
                 if (!resolvedContentEntity.columns.containsKey(columnName)) {
-                    errorReporter.reportError(columnInContentUpdateParametersNotInEntity(
-                        param.simpleName.toString(), columnName,
-                            resolvedContentEntity.type.toString()), method)
-                } else if (param.asType().boxIfPrimitive(processingEnv) != resolvedContentEntity
-                        .columns.get(columnName)!!.type.boxIfPrimitive(processingEnv)) {
                     errorReporter.reportError(
-                        mismatchedColumnTypeForColumnToBeUpdated(param.simpleName.toString(),
-                            columnName, param.asType().toString(), resolvedContentEntity.type
-                                .toString(), resolvedContentEntity.columns.get(columnName)!!.type
-                                .toString()),
-                        method)
+                        columnInContentUpdateParametersNotInEntity(
+                            param.simpleName.toString(), columnName,
+                            resolvedContentEntity.type.toString()
+                        ),
+                        method
+                    )
+                } else if (param.asType().boxIfPrimitive(processingEnv) != resolvedContentEntity
+                    .columns.get(columnName)!!.type.boxIfPrimitive(processingEnv)
+                ) {
+                    errorReporter.reportError(
+                        mismatchedColumnTypeForColumnToBeUpdated(
+                            param.simpleName.toString(),
+                            columnName, param.asType().toString(),
+                            resolvedContentEntity.type
+                                .toString(),
+                            resolvedContentEntity.columns.get(columnName)!!.type
+                                .toString()
+                        ),
+                        method
+                    )
                 } else if (fieldIsNullable(param) && !resolvedContentEntity
-                        .columns.get(columnName)!!.isNullable) {
-                    errorReporter.reportError(nullableUpdateParamForNonNullableEntityColumn(
-                        param.simpleName.toString(), columnName,
-                        resolvedContentEntity.type.toString()), method)
+                    .columns.get(columnName)!!.isNullable
+                ) {
+                    errorReporter.reportError(
+                        nullableUpdateParamForNonNullableEntityColumn(
+                            param.simpleName.toString(), columnName,
+                            resolvedContentEntity.type.toString()
+                        ),
+                        method
+                    )
                 } else {
                     contentValues.add(Pair(columnName, param.simpleName.toString()))
                 }

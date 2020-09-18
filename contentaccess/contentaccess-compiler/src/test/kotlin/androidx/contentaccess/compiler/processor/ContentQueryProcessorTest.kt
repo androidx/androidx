@@ -49,7 +49,9 @@ class ContentQueryProcessorTest {
         pojos: String = "",
         withEntity: Boolean = true
     ): SourceFile {
-        return SourceFile.kotlin("MyClass.kt", """
+        return SourceFile.kotlin(
+            "MyClass.kt",
+            """
         package androidx.contentaccess.compiler.processor.test
 
         import androidx.contentaccess.ContentAccessObject
@@ -90,7 +92,9 @@ class ContentQueryProcessorTest {
     }
 
     fun generateJavaPojo(pojoBody: String): SourceFile {
-        return SourceFile.java("Pojo.java", """
+        return SourceFile.java(
+            "Pojo.java",
+            """
         package androidx.contentaccess.compiler.processor.test;
 
         import org.jetbrains.annotations.Nullable;
@@ -101,12 +105,14 @@ class ContentQueryProcessorTest {
         public class Pojo {
             $pojoBody
         }
-        """.trimIndent())
+            """.trimIndent()
+        )
     }
 
     @Test
     fun validQueries() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentQuery
         fun getAllStartTimeDescriptionAnnotatedPojo(): List<StartTimeDescription2>
 
@@ -148,7 +154,8 @@ class ContentQueryProcessorTest {
 
         @ContentQuery
         suspend fun getAllEntitiesSuspend(): List<EntityWithUri>
-        """.trimIndent(), """
+            """.trimIndent(),
+            """
         data class StartTimeDescription1(
             @ContentColumn("dtstart") val startingTime: Long?,
             @ContentColumn("description") val theDescription: String?
@@ -158,7 +165,8 @@ class ContentQueryProcessorTest {
             val dtstart: Long?,
             val description: String?
         )
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -167,10 +175,13 @@ class ContentQueryProcessorTest {
 
     @Test
     fun checkExistingEntity() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentQuery
         fun getAll(): List<String>
-        """.trimIndent(), withEntity = false)
+            """.trimIndent(),
+            withEntity = false
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -180,10 +191,12 @@ class ContentQueryProcessorTest {
 
     @Test
     fun checkingExistingUri() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentQuery(contentEntity = EntityWithoutUri::class)
         fun getAll(): List<String>
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -193,10 +206,12 @@ class ContentQueryProcessorTest {
 
     @Test
     fun missingOrderByColumn() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentQuery(orderBy = arrayOf("nonExistingColumn"))
         fun getAll(): List<String>
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -206,63 +221,81 @@ class ContentQueryProcessorTest {
 
     @Test
     fun badlyFormulatedOrderBy() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentQuery(orderBy = arrayOf("dtstart desc thisshouldntbehere"))
         fun getAll(): List<String>
-        """.trimIndent())
-
-        val result = runCompilation(listOf(sourceFile))
-
-        assertThat(result.exitCode).isEqualTo(ExitCode.COMPILATION_ERROR)
-        assertThat(result.messages).contains(badlyFormulatedOrderBy("dtstart desc " +
-                "thisshouldntbehere"))
-    }
-
-    @Test
-    fun ensureExistingColumn() {
-        val sourceFile = generateMainSourceFile("""
-        @ContentQuery(projection = arrayOf("nonExisting"))
-        fun getAll(): List<String>
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
         assertThat(result.exitCode).isEqualTo(ExitCode.COMPILATION_ERROR)
         assertThat(result.messages).contains(
-            queriedColumnInProjectionNotInEntity("nonExisting",
-                "androidx.contentaccess.compiler.processor.test.EntityWithUri")
+            badlyFormulatedOrderBy(
+                "dtstart desc " +
+                    "thisshouldntbehere"
+            )
+        )
+    }
+
+    @Test
+    fun ensureExistingColumn() {
+        val sourceFile = generateMainSourceFile(
+            """
+        @ContentQuery(projection = arrayOf("nonExisting"))
+        fun getAll(): List<String>
+            """.trimIndent()
+        )
+
+        val result = runCompilation(listOf(sourceFile))
+
+        assertThat(result.exitCode).isEqualTo(ExitCode.COMPILATION_ERROR)
+        assertThat(result.messages).contains(
+            queriedColumnInProjectionNotInEntity(
+                "nonExisting",
+                "androidx.contentaccess.compiler.processor.test.EntityWithUri"
+            )
         )
     }
 
     @Test
     fun ensureMatchingReturnTypeNonPojo() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentQuery(projection = arrayOf("description"))
         fun getAll(): Long
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
         assertThat(result.exitCode).isEqualTo(ExitCode.COMPILATION_ERROR)
         assertThat(result.messages).contains(
-            queriedColumnInProjectionTypeDoesntMatchReturnType("long",
+            queriedColumnInProjectionTypeDoesntMatchReturnType(
+                "long",
                 "java.lang.String",
-                "description")
+                "description"
+            )
         )
     }
 
     @Test
     // A "qualifying" constructor is a non private and non ignored constructor
     fun ensurePojoHasNoMoreThanOneQualifyingConstructor() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentQuery
         fun getAll(): Pojo
-        """.trimIndent())
-        val javaPojoFile = generateJavaPojo("""
+            """.trimIndent()
+        )
+        val javaPojoFile = generateJavaPojo(
+            """
             // Two public constructors
             public Pojo() {}
             public Pojo(int unused) {}
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile, javaPojoFile))
 
@@ -272,16 +305,20 @@ class ContentQueryProcessorTest {
 
     @Test
     fun ensurePojoIsInstantiable() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentQuery
         fun getAll(): Pojo
-        """.trimIndent())
-        val javaPojoFile = generateJavaPojo("""
+            """.trimIndent()
+        )
+        val javaPojoFile = generateJavaPojo(
+            """
             // Two public constructors
             private Pojo() {}
             @IgnoreConstructor
             public Pojo(int unused) {}
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile, javaPojoFile))
 
@@ -291,14 +328,18 @@ class ContentQueryProcessorTest {
 
     @Test
     fun ensurePojoDoesntHaveANullablePrimitive() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentQuery
         fun getAll(): Pojo
-        """.trimIndent())
-        val javaPojoFile = generateJavaPojo("""
+            """.trimIndent()
+        )
+        val javaPojoFile = generateJavaPojo(
+            """
             @Nullable
             public long dtstart;
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile, javaPojoFile))
 
@@ -308,66 +349,86 @@ class ContentQueryProcessorTest {
 
     @Test
     fun ensurePojoFieldsMatchOnesInEntity() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentQuery
         fun getAll(): IncorrectPojo
-        """.trimIndent(), """
+            """.trimIndent(),
+            """
             data class IncorrectPojo(@ContentColumn("irrelevant_column")val irrelevantField: String)
-        """.trimIndent())
-
-        val result = runCompilation(listOf(sourceFile))
-
-        assertThat(result.exitCode).isEqualTo(ExitCode.COMPILATION_ERROR)
-        assertThat(result.messages).contains(pojoFieldNotInEntity("irrelevantField",
-            "java.lang.String", "irrelevant_column",
-            "androidx.contentaccess.compiler.processor.test.IncorrectPojo",
-            entityName))
-    }
-
-    @Test
-    fun ensureFieldsNotInProjectionButInConstructorAreNullable() {
-        val sourceFile = generateMainSourceFile("""
-        @ContentQuery(projection = arrayOf("dtstart"))
-        fun getAll(): CustomPojo
-        """.trimIndent(), """
-            data class CustomPojo(val dtstart: Long?, val nonNullableField: Long)
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
         assertThat(result.exitCode).isEqualTo(ExitCode.COMPILATION_ERROR)
         assertThat(result.messages).contains(
-            constructorFieldNotIncludedInProjectionNotNullable("nonNullableField",
-                "androidx.contentaccess.compiler.processor.test.CustomPojo")
+            pojoFieldNotInEntity(
+                "irrelevantField",
+                "java.lang.String", "irrelevant_column",
+                "androidx.contentaccess.compiler.processor.test.IncorrectPojo",
+                entityName
+            )
+        )
+    }
+
+    @Test
+    fun ensureFieldsNotInProjectionButInConstructorAreNullable() {
+        val sourceFile = generateMainSourceFile(
+            """
+        @ContentQuery(projection = arrayOf("dtstart"))
+        fun getAll(): CustomPojo
+            """.trimIndent(),
+            """
+            data class CustomPojo(val dtstart: Long?, val nonNullableField: Long)
+            """.trimIndent()
+        )
+
+        val result = runCompilation(listOf(sourceFile))
+
+        assertThat(result.exitCode).isEqualTo(ExitCode.COMPILATION_ERROR)
+        assertThat(result.messages).contains(
+            constructorFieldNotIncludedInProjectionNotNullable(
+                "nonNullableField",
+                "androidx.contentaccess.compiler.processor.test.CustomPojo"
+            )
         )
     }
 
     @Test
     fun ensurePojoContainsAllProjectionFields() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentQuery(projection = arrayOf("dtstart", "description"))
         fun getAll(): PojoMissingField
-        """.trimIndent(), """
+            """.trimIndent(),
+            """
             data class PojoMissingField(val dtstart: Long?)
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
         assertThat(result.exitCode).isEqualTo(ExitCode.COMPILATION_ERROR)
         assertThat(result.messages).contains(
-            columnInProjectionNotIncludedInReturnPojo("description",
-                "androidx.contentaccess.compiler.processor.test.PojoMissingField")
+            columnInProjectionNotIncludedInReturnPojo(
+                "description",
+                "androidx.contentaccess.compiler.processor.test.PojoMissingField"
+            )
         )
     }
 
     @Test
     fun ensureNullableEntityFieldsAreAlsoNullableInPojo() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentQuery
         fun getAll(): PojoWithNonNullableField
-        """.trimIndent(), """
+            """.trimIndent(),
+            """
             data class PojoWithNonNullableField(val dtstart: Long)
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -384,10 +445,12 @@ class ContentQueryProcessorTest {
 
     @Test
     fun ensureUriParameterProperlySpecified() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentQuery(uri = ":")
         fun getAll(): List<EntityWithUri>
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -397,10 +460,12 @@ class ContentQueryProcessorTest {
 
     @Test
     fun ensureUriParameterExists() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentQuery(uri = ":param")
         fun getAll(): List<EntityWithUri>
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -410,10 +475,12 @@ class ContentQueryProcessorTest {
 
     @Test
     fun ensureUriParameterIsString() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentQuery(uri = ":param")
         fun getAll(param: Long): List<EntityWithUri>
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 

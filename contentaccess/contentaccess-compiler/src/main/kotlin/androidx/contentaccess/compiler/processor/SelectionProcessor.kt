@@ -43,18 +43,21 @@ class SelectionProcessor(
         val selectionsArgs = ArrayList<String>()
         val wordsStartingWithColumn = findWordsStartingWithColumn(selection)
         for (wordStartingWithColumn in wordsStartingWithColumn) {
-                if (wordStartingWithColumn.length == 1) {
-                    errorReporter.reportError(strayColumnInSelectionErrorMessage(), method)
-                    return null
-                }
-                val strippedParamName = wordStartingWithColumn.substring(1)
-                if (!paramsNamesAndTypes.containsKey(strippedParamName)) {
-                    errorReporter.reportError(selectionParameterNotInMethodParameters
-                        (strippedParamName), method)
-                    return null
-                }
-                selectionsArgs.add(strippedParamName)
-                modifiedSelection = modifiedSelection.replaceFirst(wordStartingWithColumn, "?")
+            if (wordStartingWithColumn.length == 1) {
+                errorReporter.reportError(strayColumnInSelectionErrorMessage(), method)
+                return null
+            }
+            val strippedParamName = wordStartingWithColumn.substring(1)
+            if (!paramsNamesAndTypes.containsKey(strippedParamName)) {
+                errorReporter.reportError(
+                    selectionParameterNotInMethodParameters
+                    (strippedParamName),
+                    method
+                )
+                return null
+            }
+            selectionsArgs.add(strippedParamName)
+            modifiedSelection = modifiedSelection.replaceFirst(wordStartingWithColumn, "?")
         }
         val selectionExpression = CCJSqlParserUtil.parseCondExpression(modifiedSelection)
         var foundMissingColumn = false
@@ -66,8 +69,13 @@ class SelectionProcessor(
                 // around this for now.
                 if (!columnString.startsWith('"') || !columnString.endsWith('"')) {
                     if (!resolvedContentEntity.columns.contains(columnString)) {
-                        errorReporter.reportError(columnInSelectionMissingFromEntity(columnString,
-                                resolvedContentEntity.type.toString()), method)
+                        errorReporter.reportError(
+                            columnInSelectionMissingFromEntity(
+                                columnString,
+                                resolvedContentEntity.type.toString()
+                            ),
+                            method
+                        )
                         foundMissingColumn = true
                     }
                 }
@@ -87,7 +95,8 @@ fun findWordsStartingWithColumn(expression: String): List<String> {
         if (expression[currIndex] == ':') {
             val startingIndex = currIndex
             while (currIndex + 1 < expression.length && expression[currIndex + 1]
-                    .isLetterOrDigit()) {
+                .isLetterOrDigit()
+            ) {
                 currIndex++
             }
             wordsStartingWithColumn.add(expression.substring(startingIndex, currIndex + 1))

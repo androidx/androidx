@@ -36,19 +36,25 @@ import javax.lang.model.element.TypeElement
 class ContentAccessObjectProcessor(
     val element: TypeElement,
     private val processingEnv:
-            ProcessingEnvironment
+        ProcessingEnvironment
 ) {
     @KotlinPoetMetadataPreview
     fun process() {
         val errorReporter = ErrorReporter(processingEnv.messager)
         if (element.kind != ElementKind.INTERFACE) {
-            errorReporter.reportError("Only interfaces should be annotated with " +
-                    "@ContentAccessObject, '${element.qualifiedName}' is not interface.", element)
+            errorReporter.reportError(
+                "Only interfaces should be annotated with " +
+                    "@ContentAccessObject, '${element.qualifiedName}' is not interface.",
+                element
+            )
         } else {
             if (element.getAllMethodsIncludingSupers().isEmpty()) {
-                errorReporter.reportError("Interface '${element.qualifiedName}' annotated with " +
+                errorReporter.reportError(
+                    "Interface '${element.qualifiedName}' annotated with " +
                         "@ContentAccessObject doesn't delcare any functions. Interfaces annotated" +
-                        " with @ContentAccessObject should declare at least one function.", element)
+                        " with @ContentAccessObject should declare at least one function.",
+                    element
+                )
             }
         }
         val contentEntityType = element.toAnnotationBox(ContentAccessObject::class)!!
