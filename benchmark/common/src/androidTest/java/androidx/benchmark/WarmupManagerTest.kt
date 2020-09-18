@@ -41,13 +41,15 @@ class WarmupManagerTest {
         // even if values are warming up slowly, we require max warmup duration
         val warmup = WarmupManager()
         warmup.warmupOnFakeData(
-                warmupNeededNs = TimeUnit.SECONDS.toNanos(20),
-                idealDurationNs = TimeUnit.MILLISECONDS.toNanos(5))
+            warmupNeededNs = TimeUnit.SECONDS.toNanos(20),
+            idealDurationNs = TimeUnit.MILLISECONDS.toNanos(5)
+        )
 
         assertApproxEquals(
-                WarmupManager.MAX_DURATION_NS,
-                warmup.totalDurationNs,
-                TimeUnit.MILLISECONDS.toNanos(100))
+            WarmupManager.MAX_DURATION_NS,
+            warmup.totalDurationNs,
+            TimeUnit.MILLISECONDS.toNanos(100)
+        )
     }
 
     @Test
@@ -74,8 +76,10 @@ class WarmupManagerTest {
 }
 
 private fun assertApproxEquals(expected: Long, observed: Long, threshold: Long) {
-    assertTrue("Expected: $expected, Observed: $observed, Thresh: $threshold",
-            Math.abs(expected - observed) < threshold)
+    assertTrue(
+        "Expected: $expected, Observed: $observed, Thresh: $threshold",
+        Math.abs(expected - observed) < threshold
+    )
 }
 
 private fun WarmupManager.warmupOnFakeData(warmupNeededNs: Long, idealDurationNs: Long) {
@@ -99,5 +103,5 @@ private fun generateFakeResults(warmupNeededNs: Long, idealDurationNs: Long): Se
 
     // warmup until warmupNeededNs, then just return idealDurationNs
     return generateSequence(1) { it + 1 }
-            .map { if (it < list.size) list[it] else idealDurationNs }
+        .map { if (it < list.size) list[it] else idealDurationNs }
 }

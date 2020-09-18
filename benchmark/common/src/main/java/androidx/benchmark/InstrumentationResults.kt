@@ -64,9 +64,11 @@ internal object InstrumentationResults {
         }
 
     internal fun reportAdditionalFileToCopy(key: String, absoluteFilePath: String) {
-        reportBundle(Bundle().also {
-            it.putString(ADDITIONAL_FILE_OUTPUT_KEY_PREFIX + key, absoluteFilePath)
-        })
+        reportBundle(
+            Bundle().also {
+                it.putString(ADDITIONAL_FILE_OUTPUT_KEY_PREFIX + key, absoluteFilePath)
+            }
+        )
     }
 
     internal fun report(bundle: Bundle) {

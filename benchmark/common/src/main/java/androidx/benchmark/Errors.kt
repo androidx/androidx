@@ -65,13 +65,13 @@ internal object Errors {
     }
 
     val isEmulator = Build.FINGERPRINT.startsWith("generic") ||
-            Build.FINGERPRINT.startsWith("unknown") ||
-            Build.MODEL.contains("google_sdk") ||
-            Build.MODEL.contains("Emulator") ||
-            Build.MODEL.contains("Android SDK built for x86") ||
-            Build.MANUFACTURER.contains("Genymotion") ||
-            Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic") ||
-            "google_sdk" == Build.PRODUCT
+        Build.FINGERPRINT.startsWith("unknown") ||
+        Build.MODEL.contains("google_sdk") ||
+        Build.MODEL.contains("Emulator") ||
+        Build.MODEL.contains("Android SDK built for x86") ||
+        Build.MANUFACTURER.contains("Genymotion") ||
+        Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic") ||
+        "google_sdk" == Build.PRODUCT
 
     private val isDeviceRooted =
         arrayOf(
@@ -98,7 +98,8 @@ internal object Errors {
         var warningPrefix = ""
         var warningString = ""
         if (Arguments.profiler?.requiresDebuggable != true &&
-            (appInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0)) {
+            (appInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE != 0)
+        ) {
             warningPrefix += "DEBUGGABLE_"
             warningString += """
                 |WARNING: Debuggable Benchmark
