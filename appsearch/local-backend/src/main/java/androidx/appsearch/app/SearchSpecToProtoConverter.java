@@ -71,9 +71,9 @@ public final class SearchSpecToProtoConverter {
                 .setNumPerPage(bundle.getInt(
                         SearchSpec.NUM_PER_PAGE_FIELD, SearchSpec.DEFAULT_NUM_PER_PAGE))
                 .setSnippetSpec(ResultSpecProto.SnippetSpecProto.newBuilder()
-                        .setNumToSnippet(bundle.getInt(SearchSpec.NUM_TO_SNIPPET_FIELD))
+                        .setNumToSnippet(bundle.getInt(SearchSpec.SNIPPET_COUNT_FIELD))
                         .setNumMatchesPerProperty(
-                                bundle.getInt(SearchSpec.NUM_MATCHED_PER_PROPERTY_FIELD))
+                                bundle.getInt(SearchSpec.SNIPPET_COUNT_PER_PROPERTY_FIELD))
                         .setMaxWindowBytes(bundle.getInt(SearchSpec.MAX_SNIPPET_FIELD)))
                 .build();
 
