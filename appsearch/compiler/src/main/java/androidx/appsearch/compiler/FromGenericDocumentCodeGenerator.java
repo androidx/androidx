@@ -269,7 +269,7 @@ class FromGenericDocumentCodeGenerator {
                 .addStatement(
                         "$NConv = new $T<>($NCopy.length)", fieldName, ArrayList.class, fieldName)
                 .add("for (int i = 0; i < $NCopy.length; i++) {\n", fieldName).indent()
-                .addStatement("$NConv.set(i, $NCopy[i])", fieldName, fieldName)
+                .addStatement("$NConv.add($NCopy[i])", fieldName, fieldName)
                 .unindent().add("}\n")
                 .unindent().add("}\n");
         method.add(body.build());
@@ -386,7 +386,7 @@ class FromGenericDocumentCodeGenerator {
 
         } else if (typeUtil.isSameType(propertyType, mHelper.mByteBoxType)) {
             body.addStatement(
-                    "byte[][] $NCopy = genericDoc.getPropertyBytesArray($S)",
+                    "byte[] $NCopy = genericDoc.getPropertyBytes($S)",
                     fieldName, propertyName);
 
         } else {

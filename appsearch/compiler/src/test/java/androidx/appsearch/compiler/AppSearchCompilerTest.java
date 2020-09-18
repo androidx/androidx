@@ -218,7 +218,7 @@ public class AppSearchCompilerTest {
                         + "  void setPrice(int n) {}\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
-        checkEqualsGolden();
+        checkEqualsGolden("Gift.java");
     }
 
     @Test
@@ -293,7 +293,7 @@ public class AppSearchCompilerTest {
                         + "  void setPrice(int n) {}\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
-        checkEqualsGolden();
+        checkEqualsGolden("Gift.java");
     }
 
     @Test
@@ -362,7 +362,7 @@ public class AppSearchCompilerTest {
                         + "  public boolean getDog() { return dog; }\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
-        checkEqualsGolden();
+        checkEqualsGolden("Gift.java");
     }
 
     @Test
@@ -373,7 +373,7 @@ public class AppSearchCompilerTest {
                         + "  @AppSearchDocument.Uri String uri;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
-        checkEqualsGolden();
+        checkEqualsGolden("Gift.java");
     }
 
     @Test
@@ -389,7 +389,7 @@ public class AppSearchCompilerTest {
                         + "  @AppSearchDocument.Property byte[] byteArray;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
-        checkEqualsGolden();
+        checkEqualsGolden("Gift.java");
     }
 
     @Test
@@ -405,7 +405,7 @@ public class AppSearchCompilerTest {
                         + "  @AppSearchDocument.Property(required=false) Float noReq;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
-        checkEqualsGolden();
+        checkEqualsGolden("Gift.java");
     }
 
     @Test
@@ -426,7 +426,7 @@ public class AppSearchCompilerTest {
                         //+ "  @AppSearchDocument.Property Gift documentProp;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
-        checkEqualsGolden();
+        checkEqualsGolden("Gift.java");
     }
 
     @Test
@@ -442,7 +442,7 @@ public class AppSearchCompilerTest {
                         + "  @AppSearchDocument.Property(tokenizerType=1) String tokPlain;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
-        checkEqualsGolden();
+        checkEqualsGolden("Gift.java");
     }
 
     @Test
@@ -473,7 +473,7 @@ public class AppSearchCompilerTest {
                         + "  @AppSearchDocument.Property(indexingType=2) String indexPrefix;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
-        checkEqualsGolden();
+        checkEqualsGolden("Gift.java");
     }
 
     @Test
@@ -500,7 +500,7 @@ public class AppSearchCompilerTest {
                         + "  @AppSearchDocument.Property(name=\"newName\") String oldName;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
-        checkEqualsGolden();
+        checkEqualsGolden("Gift.java");
     }
 
     @Test
@@ -558,7 +558,7 @@ public class AppSearchCompilerTest {
                         //+ "  @Property Gift gift;\n"            // 3c
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
-        checkEqualsGolden();
+        checkEqualsGolden("Gift.java");
     }
 
     @Test
@@ -637,7 +637,7 @@ public class AppSearchCompilerTest {
                         + "  @AppSearchDocument.Score int score;\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
-        checkEqualsGolden();
+        checkEqualsGolden("Gift.java");
     }
 
     @Test
@@ -664,7 +664,24 @@ public class AppSearchCompilerTest {
                         + "  public void setPrice(int price) { this.price = price; }\n"
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
-        checkEqualsGolden();
+        checkEqualsGolden("Gift.java");
+    }
+
+    @Test
+    public void testInnerClass() throws Exception {
+        Compilation compilation = compile(
+                "import java.util.*;\n"
+                        + "import androidx.appsearch.app.GenericDocument;\n"
+                        + "public class Gift {\n"
+                        + "  @AppSearchDocument\n"
+                        + "  public static class InnerGift{\n"
+                        + "    @AppSearchDocument.Uri String uri;\n"
+                        + "    @Property Collection<GenericDocument> collectGenDoc;\n" // 1b
+                        + "    @Property String[] arrString;\n"        // 2b
+                        + "  }\n"
+                        + "}\n");
+        CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
+        checkEqualsGolden("Gift$$__InnerGift.java");
     }
 
     private Compilation compile(String classBody) {
@@ -692,7 +709,7 @@ public class AppSearchCompilerTest {
                 .compile(jfo);
     }
 
-    private void checkEqualsGolden() throws IOException {
+    private void checkEqualsGolden(String className) throws IOException {
         // Get the expected file contents
         String goldenResPath = "goldens/" + mTestName.getMethodName() + ".JAVA";
         String expected = "";
@@ -707,7 +724,7 @@ public class AppSearchCompilerTest {
 
         // Get the actual file contents
         File actualPackageDir = new File(mGenFilesDir, "com/example/appsearch");
-        File actualPath = new File(actualPackageDir, CodeGenerator.GEN_CLASS_PREFIX + "Gift.java");
+        File actualPath = new File(actualPackageDir, CodeGenerator.GEN_CLASS_PREFIX + className);
         Truth.assertWithMessage("Path " + actualPath + " is not a file")
                 .that(actualPath.isFile()).isTrue();
         String actual = Files.asCharSource(actualPath, StandardCharsets.UTF_8).read();
