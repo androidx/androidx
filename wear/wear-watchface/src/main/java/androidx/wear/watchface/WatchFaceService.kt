@@ -496,15 +496,33 @@ abstract class WatchFaceService : WallpaperService() {
             override fun takeWatchfaceScreenshot(
                 drawMode: Int,
                 compressionQuality: Int,
-                calendarTimeMillis: Long
+                calendarTimeMillis: Long,
+                userStyle: Bundle?
             ): Bundle {
                 return runOnUiThread {
-                    watchFace.renderer.takeScreenshot(
+                    val oldStyle = HashMap(watchFace.userStyleRepository.userStyle)
+                    if (userStyle != null) {
+                        watchFace.onSetStyleInternal(
+                            StyleUtils.bundleToStyleMap(
+                                userStyle,
+                                watchFace.userStyleRepository.userStyleCategories
+                            )
+                        )
+                    }
+
+                    val bitmap = watchFace.renderer.takeScreenshot(
                         Calendar.getInstance().apply {
                             timeInMillis = calendarTimeMillis
                         },
                         drawMode
                     )
+
+                    // Restore previous style if required.
+                    if (userStyle != null) {
+                        watchFace.onSetStyleInternal(oldStyle)
+                    }
+
+                    bitmap
                 }.toAshmemCompressedImageBundle(
                     compressionQuality
                 )
@@ -515,7 +533,8 @@ abstract class WatchFaceService : WallpaperService() {
                 drawMode: Int,
                 compressionQuality: Int,
                 calendarTimeMillis: Long,
-                complicationData: ComplicationData?
+                complicationData: ComplicationData?,
+                userStyle: Bundle?
             ): Bundle? {
                 return runOnUiThread {
                     val calendar = Calendar.getInstance().apply {
@@ -523,6 +542,16 @@ abstract class WatchFaceService : WallpaperService() {
                     }
                     val complication = watchFace.complicationsManager[complicationId]
                     if (complication != null) {
+                        val oldStyle = HashMap(watchFace.userStyleRepository.userStyle)
+                        if (userStyle != null) {
+                            watchFace.onSetStyleInternal(
+                                StyleUtils.bundleToStyleMap(
+                                    userStyle,
+                                    watchFace.userStyleRepository.userStyleCategories
+                                )
+                            )
+                        }
+
                         val bounds = complication.computeBounds(watchFace.renderer.screenBounds)
                         val complicationBitmap =
                             Bitmap.createBitmap(
@@ -543,9 +572,13 @@ abstract class WatchFaceService : WallpaperService() {
                             drawMode
                         )
 
-                        // Restore previous ComplicationData if required.
+                        // Restore previous ComplicationData & style if required.
                         if (complicationData != null) {
                             complication.renderer.setData(prevComplicationData)
+                        }
+
+                        if (userStyle != null) {
+                            watchFace.onSetStyleInternal(oldStyle)
                         }
 
                         complicationBitmap.toAshmemCompressedImageBundle(
