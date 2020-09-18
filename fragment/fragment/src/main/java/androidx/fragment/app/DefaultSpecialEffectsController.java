@@ -601,7 +601,10 @@ class DefaultSpecialEffectsController extends SpecialEffectsController {
                 continue;
             }
             Object transition = transitionInfo.getTransition();
-            if (transition != null) {
+            Operation operation = transitionInfo.getOperation();
+            boolean involvedInSharedElementTransition = sharedElementTransition != null
+                    && (operation == firstOut || operation == lastIn);
+            if (transition != null || involvedInSharedElementTransition) {
                 transitionImpl.setListenerForTransitionEnd(
                         transitionInfo.getOperation().getFragment(),
                         mergedTransition,
