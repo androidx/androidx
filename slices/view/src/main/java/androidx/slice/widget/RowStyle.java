@@ -95,7 +95,9 @@ public class RowStyle {
             mDisableRecyclerViewItemAnimator = a.getBoolean(
                     R.styleable.RowStyle_disableRecyclerViewItemAnimator, false);
             mImageSize = (int) a.getDimension(
-                    R.styleable.RowStyle_imageSize, UNBOUNDED);
+                    R.styleable.RowStyle_imageSize,
+                    context.getResources().getDimensionPixelSize(
+                        R.dimen.abc_slice_small_image_size));
         } finally {
             a.recycle();
         }

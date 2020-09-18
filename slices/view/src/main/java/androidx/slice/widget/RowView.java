@@ -178,7 +178,6 @@ public class RowView extends SliceChildView implements View.OnClickListener,
 
     private int mImageSize;
     private int mIconSize;
-    private int mStyleRowHeight = HEIGHT_UNBOUND;
     // How big mRangeBar wants to be.
     private int mMeasuredRangeHeight;
 
@@ -921,7 +920,6 @@ public class RowView extends SliceChildView implements View.OnClickListener,
                 container.addView(iv);
             }
             if (mSliceStyle != null) {
-                mStyleRowHeight = mSliceStyle.getRowMinHeight();
                 if (mSliceStyle.getRowStyle() != null) {
                     int styleIconSize = mSliceStyle.getRowStyle().getIconSize();
                     mIconSize = styleIconSize > 0 ? styleIconSize : mIconSize;
@@ -936,8 +934,8 @@ public class RowView extends SliceChildView implements View.OnClickListener,
             iv.setLayoutParams(lp);
             int p = 0;
             if (isIcon) {
-                p = mStyleRowHeight == HEIGHT_UNBOUND
-                    ? mIconSize / 2 : (mStyleRowHeight - mIconSize) / 2;
+                p = mImageSize == HEIGHT_UNBOUND
+                    ? mIconSize / 2 : (mImageSize - mIconSize) / 2;
             }
             iv.setPadding(p, p, p, p);
             addedView = iv;

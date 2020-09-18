@@ -78,7 +78,6 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
 
     private int mIconSize;
     private int mImageSize;
-    private int mStyleRowHeight = HEIGHT_UNBOUND;
 
     public SliceActionView(Context context, SliceStyle style) {
         super(context);
@@ -86,7 +85,6 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
         mIconSize = res.getDimensionPixelSize(R.dimen.abc_slice_icon_size);
         mImageSize = res.getDimensionPixelSize(R.dimen.abc_slice_small_image_size);
         if (style != null) {
-            mStyleRowHeight = style.getRowMinHeight();
             if (style.getRowStyle() != null) {
                 mIconSize = style.getRowStyle().getIconSize();
                 mImageSize = style.getRowStyle().getImageSize();
@@ -176,8 +174,8 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
             mActionView.setLayoutParams(lp);
             int p = 0;
             if (action.getImageMode() == ICON_IMAGE) {
-                p = mStyleRowHeight == HEIGHT_UNBOUND
-                    ? mIconSize / 2 : (mStyleRowHeight - mIconSize) / 2;
+                p = mImageSize == HEIGHT_UNBOUND
+                    ? mIconSize / 2 : (mImageSize - mIconSize) / 2;
             }
             mActionView.setPadding(p, p, p, p);
             int touchFeedbackAttr = android.R.attr.selectableItemBackground;
