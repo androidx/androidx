@@ -28,7 +28,7 @@ import androidx.annotation.StyleRes
  * @see ContextCompat.getSystemService
  */
 inline fun <reified T : Any> Context.getSystemService(): T? =
-        ContextCompat.getSystemService(this, T::class.java)
+    ContextCompat.getSystemService(this, T::class.java)
 
 /**
  * Executes [block] on a [TypedArray] receiver. The [TypedArray] holds the attribute
