@@ -51,26 +51,9 @@ public class StubMediaRouteProviderService extends MediaRouteProviderService {
         CONTROL_FILTERS_TEST.add(f1);
     }
 
-    public static StubMediaRouteProvider getProvider() {
+    public static StubMediaRouteProviderService getInstance() {
         synchronized (sLock) {
-            if (sInstance == null) {
-                return null;
-            }
-            MediaRouteProvider provider = sInstance.getMediaRouteProvider();
-            return (provider == null) ? null : (StubMediaRouteProvider) provider;
-        }
-    }
-
-    public static MediaRoute2ProviderServiceAdapter getMr2ProviderServiceAdapter() {
-        synchronized (sLock) {
-            if (sInstance == null) {
-                return null;
-            }
-            if (!(sInstance.mImpl instanceof MediaRouteProviderServiceImplApi30)) {
-                return null;
-            }
-            return ((MediaRouteProviderServiceImplApi30) sInstance.mImpl)
-                    .mMR2ProviderServiceAdapter;
+            return sInstance;
         }
     }
 

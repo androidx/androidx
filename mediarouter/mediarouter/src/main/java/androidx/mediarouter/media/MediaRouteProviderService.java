@@ -1185,6 +1185,17 @@ public abstract class MediaRouteProviderService extends Service {
             }
 
             @Override
+            public void dispose() {
+                int count = mControllers.size();
+                for (int i = 0; i < count; i++) {
+                    int controllerId = mControllers.keyAt(i);
+                    mMR2ProviderServiceAdapter.notifyRouteControllerRemoved(controllerId);
+                }
+                mRouteIdToControllerMap.clear();
+                super.dispose();
+            }
+
+            @Override
             public boolean createRouteController(String routeId, String routeGroupId,
                     int controllerId) {
                 RouteController controller = mRouteIdToControllerMap.get(routeId);
