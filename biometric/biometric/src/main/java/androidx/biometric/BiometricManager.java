@@ -195,6 +195,14 @@ public class BiometricManager {
         boolean isDeviceSecuredWithCredential();
 
         /**
+         * Checks if the current device has a hardware sensor that may be used for fingerprint
+         * authentication.
+         *
+         * @return Whether the device has a fingerprint sensor.
+         */
+        boolean isFingerprintHardwarePresent();
+
+        /**
          * Checks if all biometric sensors on the device are known to meet or exceed the security
          * requirements for <strong>Class 3</strong> (formerly <strong>Strong</strong>).
          *
@@ -239,6 +247,11 @@ public class BiometricManager {
         @Override
         public boolean isDeviceSecuredWithCredential() {
             return KeyguardUtils.isDeviceSecuredWithCredential(mContext);
+        }
+
+        @Override
+        public boolean isFingerprintHardwarePresent() {
+            return PackageUtils.hasSystemFeatureFingerprint(mContext);
         }
 
         @Override
@@ -383,7 +396,11 @@ public class BiometricManager {
 
         // Non-fingerprint biometrics may be invoked but can't be checked on API 28.
         if (Build.VERSION.SDK_INT == Build.VERSION_CODES.P) {
-            return canAuthenticateWithFingerprintOrUnknown();
+            // Having fingerprint hardware is a prerequisite, since BiometricPrompt internally
+            // calls FingerprintManager#getErrorString() on API 28 (b/151443237).
+            return mInjector.isFingerprintHardwarePresent()
+                    ? canAuthenticateWithFingerprintOrUnknown()
+                    : BIOMETRIC_ERROR_NO_HARDWARE;
         }
 
         // No non-fingerprint biometric APIs exist prior to API 28.

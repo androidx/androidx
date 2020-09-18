@@ -122,11 +122,6 @@ public class BiometricFragment extends Fragment {
     private static final int REQUEST_CONFIRM_CREDENTIAL = 1;
 
     /**
-     * Force the fingerprint dialog to appear for debugging. Must NOT be checked in as {@code true}.
-     */
-    private static final boolean DEBUG_FORCE_FINGERPRINT = false;
-
-    /**
      * An executor used by {@link android.hardware.biometrics.BiometricPrompt} to run framework
      * code.
      */
@@ -938,23 +933,40 @@ public class BiometricFragment extends Fragment {
      * @return Whether this fragment should display the fingerprint dialog UI.
      */
     private boolean isUsingFingerprintDialog() {
-        return Build.VERSION.SDK_INT < Build.VERSION_CODES.P || shouldForceFingerprint();
+        return Build.VERSION.SDK_INT < Build.VERSION_CODES.P
+                || isFingerprintDialogNeededForCrypto()
+                || isFingerprintDialogNeededForErrorHandling();
     }
 
     /**
-     * Checks if this fragment should always display the fingerprint dialog authentication UI,
-     * regardless of Android version.
+     * Checks if this fragment should display the fingerprint dialog authentication UI for an
+     * ongoing crypto-based authentication attempt.
      *
-     * <p>This is needed to force some devices to fall back to fingerprint in order to support
-     * strong (crypto-based) authentication.
+     * @return Whether this fragment should display the fingerprint dialog UI.
      *
      * @see DeviceUtils#shouldUseFingerprintForCrypto(Context, String, String)
      */
-    private boolean shouldForceFingerprint() {
+    private boolean isFingerprintDialogNeededForCrypto() {
         final FragmentActivity activity = getActivity();
-        return DEBUG_FORCE_FINGERPRINT || (activity != null && mViewModel.getCryptoObject() != null
+        return activity != null
+                && mViewModel.getCryptoObject() != null
                 && DeviceUtils.shouldUseFingerprintForCrypto(
-                        activity, Build.MANUFACTURER, Build.MODEL));
+                        activity, Build.MANUFACTURER, Build.MODEL);
+    }
+
+    /**
+     * Checks if this fragment should invoke the fingerprint dialog, rather than the framework
+     * biometric prompt, to handle an authentication error.
+     *
+     * @return Whether this fragment should invoke the fingerprint dialog.
+     *
+     * @see DeviceUtils#shouldUseFingerprintForCrypto(Context, String, String)
+     */
+    private boolean isFingerprintDialogNeededForErrorHandling() {
+        // On API 28, BiometricPrompt internally calls FingerprintManager#getErrorString(), which
+        // requires fingerprint hardware to be present (b/151443237).
+        return Build.VERSION.SDK_INT == Build.VERSION_CODES.P
+                && !PackageUtils.hasSystemFeatureFingerprint(getContext());
     }
 
     /**
