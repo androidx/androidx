@@ -213,6 +213,7 @@ internal class AndroidCameraState(
         val openedTimestamp = Metrics.monotonicNanos()
         openTimestampNanos = openedTimestamp
 
+        Debug.traceStart { "Camera-${cameraId.value}#onOpened" }
         Log.info {
             val attemptDuration = openedTimestamp - requestTimestampNanos
             val totalDuration = openedTimestamp - attemptTimestampNanos
@@ -259,33 +260,40 @@ internal class AndroidCameraState(
             cameraDevice.closeWithTrace()
             _state.value = computeClosedState(closeInfo)
         }
+        Debug.traceStop()
     }
 
     override fun onDisconnected(cameraDevice: CameraDevice) {
         check(cameraDevice.id == cameraId.value)
+        Debug.traceStart { "Camera-${cameraId.value}#onDisconnected" }
         Log.debug { "$cameraId: onDisconnected" }
 
         closeWith(
             cameraDevice,
             ClosingInfo(ClosedReason.CAMERA2_DISCONNECTED)
         )
+        Debug.traceStop()
     }
 
     override fun onError(cameraDevice: CameraDevice, errorCode: Int) {
         check(cameraDevice.id == cameraId.value)
+        Debug.traceStart { "Camera-${cameraId.value}#onError-$errorCode" }
         Log.debug { "$cameraId: onError $errorCode" }
 
         closeWith(
             cameraDevice,
             ClosingInfo(ClosedReason.CAMERA2_ERROR, errorCode = errorCode)
         )
+        Debug.traceStop()
     }
 
     override fun onClosed(cameraDevice: CameraDevice) {
         check(cameraDevice.id == cameraId.value)
+        Debug.traceStart { "Camera-${cameraId.value}#onClosed" }
         Log.debug { "$cameraId: onClosed" }
 
         closeWith(cameraDevice, ClosingInfo(ClosedReason.CAMERA2_CLOSED))
+        Debug.traceStop()
     }
 
     internal fun closeWith(throwable: Throwable) {

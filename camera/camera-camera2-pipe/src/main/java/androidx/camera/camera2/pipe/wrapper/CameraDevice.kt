@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.wrapper
 
+import android.annotation.SuppressLint
 import android.hardware.camera2.CameraDevice
 import android.hardware.camera2.CaptureRequest
 import android.hardware.camera2.TotalCaptureResult
@@ -34,6 +35,7 @@ import androidx.camera.camera2.pipe.impl.Log
 import androidx.camera.camera2.pipe.impl.Metrics
 import androidx.camera.camera2.pipe.impl.formatNanoTime
 import androidx.camera.camera2.pipe.writeParameter
+import kotlin.jvm.Throws
 
 /** Interface around a [CameraDevice] with minor modifications.
  *
@@ -113,7 +115,7 @@ fun CameraDevice?.closeWithTrace() {
     this?.let {
         val start = Metrics.monotonicNanos()
         Log.info { "Closing Camera ${it.id}" }
-        Debug.trace("$it#close") {
+        Debug.trace("CameraDevice-${it.id}#close") {
             it.close()
         }
         val duration = Metrics.monotonicNanos() - start
@@ -216,6 +218,7 @@ class AndroidCameraDevice(
     }
 
     @RequiresApi(28)
+    @SuppressLint("UnsafeNewApiCall")
     override fun createCaptureSession(config: SessionConfigData) = rethrowCamera2Exceptions {
         val sessionConfig = SessionConfiguration(
             config.sessionType,
@@ -256,6 +259,7 @@ class AndroidCameraDevice(
         }
 
     @RequiresApi(23)
+    @SuppressLint("UnsafeNewApiCall")
     override fun createReprocessCaptureRequest(
         inputResult: TotalCaptureResult
     ): CaptureRequest.Builder = rethrowCamera2Exceptions {

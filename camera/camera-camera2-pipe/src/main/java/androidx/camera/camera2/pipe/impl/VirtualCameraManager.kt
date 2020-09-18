@@ -223,18 +223,18 @@ class VirtualCameraManager @Inject constructor(
 
             var exception: Throwable? = null
             try {
-                Debug.trace("CameraId ${cameraId.value}#openCamera") {
+                Debug.trace("CameraDevice-${cameraId.value}#openCamera") {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
                         instance.openCamera(
                             cameraId.value,
-                            threads.defaultExecutor,
+                            threads.camera2Executor,
                             cameraState
                         )
                     } else {
                         instance.openCamera(
                             cameraId.value,
                             cameraState,
-                            threads.defaultHandler
+                            threads.camera2Handler
                         )
                     }
                 }
@@ -289,6 +289,7 @@ class VirtualCameraManager @Inject constructor(
     /**
      * Wait for the specified duration, or until the availability callback is invoked.
      */
+    @SuppressLint("UnsafeNewApiCall")
     private suspend fun awaitAvailableCameraId(
         cameraId: CameraId,
         timeoutMillis: Long = 200
@@ -315,9 +316,9 @@ class VirtualCameraManager @Inject constructor(
         // TODO: Turn this into a broadcast service so that multiple listeners can be registered if
         //  needed.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            manager.registerAvailabilityCallback(threads.defaultExecutor, availabilityCallback)
+            manager.registerAvailabilityCallback(threads.camera2Executor, availabilityCallback)
         } else {
-            manager.registerAvailabilityCallback(availabilityCallback, threads.defaultHandler)
+            manager.registerAvailabilityCallback(availabilityCallback, threads.camera2Handler)
         }
 
         // Suspend until timeout fires or until availability callback fires.

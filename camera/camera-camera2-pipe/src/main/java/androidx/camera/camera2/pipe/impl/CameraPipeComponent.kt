@@ -78,7 +78,9 @@ abstract class CameraPipeModules {
         fun provideCameraPipeThreads(config: CameraPipe.Config): Threads {
 
             val threadIds = atomic(0)
-            val cameraExecutor = Executors.newFixedThreadPool(2) {
+            val cameraThreadPriority =
+                Process.THREAD_PRIORITY_DISPLAY + Process.THREAD_PRIORITY_LESS_FAVORABLE
+            val defaultExecutor = Executors.newFixedThreadPool(2) {
                 object : Thread(it) {
                     init {
                         val number = threadIds.incrementAndGet().toString().padStart(2, '0')
@@ -86,26 +88,12 @@ abstract class CameraPipeModules {
                     }
 
                     override fun run() {
-                        Process.setThreadPriority(
-                            Process.THREAD_PRIORITY_DISPLAY + Process.THREAD_PRIORITY_LESS_FAVORABLE
-                        )
+                        Process.setThreadPriority(cameraThreadPriority)
                         super.run()
                     }
                 }
             }
-            val cameraDispatcher = cameraExecutor.asCoroutineDispatcher()
-            val lazyCameraHandlerThread = lazy {
-                HandlerThread("CXCP-Hndlr").also {
-                    it.start()
-                }
-            }
-            val cameraHandlerProvider =
-                {
-                    @Suppress("DEPRECATION")
-                    config.cameraThread?.let { Handler(it.looper) } ?: Handler(
-                        lazyCameraHandlerThread.value.looper
-                    )
-                }
+            val defaultDispatcher = defaultExecutor.asCoroutineDispatcher()
             val ioExecutor = Executors.newFixedThreadPool(8) {
                 object : Thread(it) {
                     init {
@@ -116,8 +104,30 @@ abstract class CameraPipeModules {
             }
             val ioDispatcher = ioExecutor.asCoroutineDispatcher()
 
+            val cameraHandlerFn =
+                {
+                    config.cameraThread?.let { Handler(it.looper) }
+                        ?: Handler(HandlerThread("CXCP-Camera2-H").also {
+                            it.start()
+                        }.looper)
+                }
+            val cameraExecutorFn = {
+                Executors.newFixedThreadPool(1) {
+                    object : Thread(it) {
+                        init {
+                            name = "CXCP-Camera2-E"
+                        }
+
+                        override fun run() {
+                            Process.setThreadPriority(cameraThreadPriority)
+                            super.run()
+                        }
+                    }
+                }
+            }
+
             val globalScope = CoroutineScope(
-                cameraDispatcher.plus(
+                defaultDispatcher.plus(
                     CoroutineName
                     ("CXCP-Pipe")
                 )
@@ -125,11 +135,12 @@ abstract class CameraPipeModules {
 
             return Threads(
                 globalScope = globalScope,
-                defaultExecutor = cameraExecutor,
-                defaultDispatcher = cameraDispatcher,
+                defaultExecutor = defaultExecutor,
+                defaultDispatcher = defaultDispatcher,
                 ioExecutor = ioExecutor,
                 ioDispatcher = ioDispatcher,
-                handlerBuilder = cameraHandlerProvider
+                camera2Handler = cameraHandlerFn,
+                camera2Executor = cameraExecutorFn
             )
         }
     }

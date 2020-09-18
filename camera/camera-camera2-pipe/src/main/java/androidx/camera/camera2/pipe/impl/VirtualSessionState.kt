@@ -124,17 +124,23 @@ class VirtualSessionState(
 
     override fun onClosed(session: CameraCaptureSessionWrapper) {
         Log.debug { "$this Closed" }
+        Debug.traceStart { "$this#onClosed" }
         shutdown()
+        Debug.traceStop()
     }
 
     override fun onConfigureFailed(session: CameraCaptureSessionWrapper) {
         Log.warn { "Failed to configure $this" }
+        Debug.traceStart { "$this#onConfigureFailed" }
         shutdown()
+        Debug.traceStop()
     }
 
     override fun onConfigured(session: CameraCaptureSessionWrapper) {
         Log.debug { "$this Configured" }
+        Debug.traceStart { "$this#configure" }
         configure(session)
+        Debug.traceStop()
     }
 
     override fun onReady(session: CameraCaptureSessionWrapper) {
@@ -237,9 +243,21 @@ class VirtualSessionState(
         }
 
         if (captureSession != null) {
+            Debug.traceStart { "$this#shutdown" }
+
+            Debug.traceStart { "$graphProcessor#detach" }
             graphProcessor.detach(captureSession.processor)
+            Debug.traceStop()
+
+            Debug.traceStart { "$this#stopRepeating" }
             captureSession.processor.stopRepeating()
+            Debug.traceStop()
+
+            Debug.traceStart { "$this#stopRepeating" }
             captureSession.processor.abortCaptures()
+            Debug.traceStop()
+
+            Debug.traceStop()
         }
 
         synchronized(this) {
@@ -259,6 +277,7 @@ class VirtualSessionState(
         }
 
         if (captureSession != null && pendingOutputs != null && pendingSurfaces != null) {
+            Debug.traceStart { "$this#finalizeOutputConfigurations" }
             val finalizedStartTime = Metrics.monotonicNanos()
             for ((streamId, outputConfig) in pendingOutputs) {
                 // TODO: Consider adding support for experimental libraries on older devices.
@@ -289,6 +308,7 @@ class VirtualSessionState(
             if (tryResubmit && retryAllowed) {
                 graphProcessor.retry()
             }
+            Debug.traceStop()
         }
     }
 
@@ -315,7 +335,12 @@ class VirtualSessionState(
         Log.info {
             "Creating CameraCaptureSession from ${device?.cameraId} using $this with $surfaces"
         }
-        val deferred = sessionFactory.create(device!!, surfaces!!, this)
+
+        val deferred = Debug.trace(
+            "CameraDevice-${device?.cameraId?.value}#createCaptureSession"
+        ) {
+            sessionFactory.create(device!!, surfaces!!, this)
+        }
 
         synchronized(lock) {
             if (state == State.CLOSING || state == State.CLOSED) {
@@ -325,7 +350,7 @@ class VirtualSessionState(
             check(state == State.CREATING) { "Unexpected state: $state" }
             state = State.CREATED
 
-            activeSurfaceMap.putAll(surfaces)
+            activeSurfaceMap.putAll(surfaces!!)
             if (deferred.isNotEmpty()) {
                 Log.info {
                     "Created $this with ${surfaces.keys.toList()}. " +
