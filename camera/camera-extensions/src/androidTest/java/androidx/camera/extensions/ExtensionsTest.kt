@@ -96,7 +96,7 @@ class ExtensionsTest(
 
         assertThat(
             ExtensionsManager.isExtensionAvailable(mEffectMode, mLensFacing) ==
-                    mExtensions.isExtensionAvailable(camera, mExtensionMode)
+                mExtensions.isExtensionAvailable(camera, mExtensionMode)
         ).isTrue()
     }
 }

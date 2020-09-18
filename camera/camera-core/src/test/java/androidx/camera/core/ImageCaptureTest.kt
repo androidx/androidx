@@ -171,7 +171,8 @@ class ImageCaptureTest {
         fakeImageReaderProxy?.triggerImageAvailable(TagBundle.create(Pair("TagBundleKey", 0)), 0)
         flushHandler(callbackHandler)
         cameraUseCaseAdapter.removeUseCases(
-            Collections.singleton(imageCapture) as Collection<UseCase>)
+            Collections.singleton(imageCapture) as Collection<UseCase>
+        )
 
         // Assert.
         // The captured image should still be valid even if the ImageCapture has been unbound. It
@@ -361,8 +362,11 @@ class ImageCaptureTest {
             .setSessionOptionUnpacker(sessionOptionUnpacker)
             .build()
 
-        cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(ApplicationProvider
-            .getApplicationContext<Context>(), CameraSelector.DEFAULT_BACK_CAMERA)
+        cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
+            ApplicationProvider
+                .getApplicationContext<Context>(),
+            CameraSelector.DEFAULT_BACK_CAMERA
+        )
 
         cameraUseCaseAdapter.setViewPort(viewPort)
         cameraUseCaseAdapter.addUseCases(Collections.singleton<UseCase>(imageCapture))

@@ -187,7 +187,8 @@ class PreviewTransformationDeviceTest {
             SurfaceRequest.TransformationInfo.of(
                 CROP_RECT,
                 90, Surface.ROTATION_90
-            ), SURFACE_SIZE
+            ),
+            SURFACE_SIZE
         )
 
         // Act.

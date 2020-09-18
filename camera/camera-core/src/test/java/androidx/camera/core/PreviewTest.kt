@@ -100,8 +100,10 @@ class PreviewTest {
         )
         // The expected value is based on fitting the 1:1 view port into a rect with the size of
         // FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.
-        val expectedPadding = (FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.width -
-                FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.height) / 2
+        val expectedPadding = (
+            FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.width -
+                FakeCameraDeviceSurfaceManager.MAX_OUTPUT_SIZE.height
+            ) / 2
         assertThat(transformationInfo.cropRect).isEqualTo(
             Rect(
                 expectedPadding,
@@ -174,7 +176,8 @@ class PreviewTest {
                 CameraXExecutors.directExecutor(),
                 SurfaceRequest.TransformationInfoListener {
                     receivedTransformationInfo = it
-                })
+                }
+            )
         }
         shadowOf(getMainLooper()).idle()
         assertThat(receivedTransformationInfo!!.cropRect.getAspectRatio()).isEqualTo(rational1)
@@ -213,7 +216,8 @@ class PreviewTest {
                 CameraXExecutors.directExecutor(),
                 SurfaceRequest.TransformationInfoListener {
                     receivedTransformationInfo = it
-                })
+                }
+            )
         }
         shadowOf(getMainLooper()).idle()
         assertThat(receivedTransformationInfo!!.targetRotation).isEqualTo(Surface.ROTATION_0)
@@ -237,7 +241,8 @@ class PreviewTest {
             .build()
         val cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
             ApplicationProvider
-                .getApplicationContext(), TEST_CAMERA_SELECTOR
+                .getApplicationContext(),
+            TEST_CAMERA_SELECTOR
         )
         cameraUseCaseAdapter.addUseCases(Collections.singleton<UseCase>(preview))
 
@@ -252,7 +257,8 @@ class PreviewTest {
                 CameraXExecutors.directExecutor(),
                 SurfaceRequest.TransformationInfoListener {
                     receivedTransformationInfo = it
-                })
+                }
+            )
             receivedSurfaceRequest = request
         }
         shadowOf(getMainLooper()).idle()
@@ -267,7 +273,8 @@ class PreviewTest {
                 CameraXExecutors.directExecutor(),
                 SurfaceRequest.TransformationInfoListener {
                     receivedTransformationInfo = it
-                })
+                }
+            )
             receivedSurfaceRequest = request
         }
         shadowOf(getMainLooper()).idle()
@@ -287,7 +294,8 @@ class PreviewTest {
             .build()
         cameraUseCaseAdapter = CameraUtil.createCameraUseCaseAdapter(
             ApplicationProvider
-                .getApplicationContext(), TEST_CAMERA_SELECTOR
+                .getApplicationContext(),
+            TEST_CAMERA_SELECTOR
         )
         // Attach
         cameraUseCaseAdapter!!.addUseCases(Collections.singleton<UseCase>(preview))
@@ -317,12 +325,12 @@ class PreviewTest {
     }
 
     private fun bindToLifecycleAndGetTransformationInfo(viewPort: ViewPort?):
-            SurfaceRequest.TransformationInfo {
-        return bindToLifecycleAndGetResult(viewPort).second
-    }
+        SurfaceRequest.TransformationInfo {
+            return bindToLifecycleAndGetResult(viewPort).second
+        }
 
     private fun bindToLifecycleAndGetResult(viewPort: ViewPort?): Pair<SurfaceRequest,
-            SurfaceRequest.TransformationInfo> {
+        SurfaceRequest.TransformationInfo> {
         // Arrange.
         val sessionOptionUnpacker =
             { _: UseCaseConfig<*>?, _: SessionConfig.Builder? -> }
@@ -337,7 +345,8 @@ class PreviewTest {
                 CameraXExecutors.directExecutor(),
                 SurfaceRequest.TransformationInfoListener {
                     transformationInfo = it
-                })
+                }
+            )
             surfaceRequest = request
         }
 
