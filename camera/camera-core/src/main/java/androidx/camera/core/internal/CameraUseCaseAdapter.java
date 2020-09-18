@@ -134,12 +134,6 @@ public final class CameraUseCaseAdapter implements Camera {
      * <p> This does not take into account UseCases which are already attached to the camera.
      */
     public void checkAttachUseCases(@NonNull List<UseCase> useCases) throws CameraException {
-        // Only do resolution calculation if UseCases were bound
-        if (!UseCaseOccupancy.checkUseCaseLimitNotExceeded(useCases)) {
-            throw new CameraException("Attempting to bind too many ImageCapture or "
-                    + "VideoCapture instances");
-        }
-
         // If the UseCases exceed the resolutions then it will throw an exception
         try {
             calculateSuggestedResolutions(useCases, Collections.emptyList());
@@ -157,22 +151,14 @@ public final class CameraUseCaseAdapter implements Camera {
     @UseExperimental(markerClass = androidx.camera.core.ExperimentalUseCaseGroup.class)
     public void addUseCases(@NonNull Collection<UseCase> useCases) throws CameraException {
         synchronized (mLock) {
-            List<UseCase> useCaseListAfterUpdate = new ArrayList<>(mUseCases);
             List<UseCase> newUseCases = new ArrayList<>();
 
             for (UseCase useCase : useCases) {
                 if (mUseCases.contains(useCase)) {
                     Logger.d(TAG, "Attempting to attach already attached UseCase");
                 } else {
-                    useCaseListAfterUpdate.add(useCase);
                     newUseCases.add(useCase);
                 }
-            }
-
-            // Only do resolution calculation if UseCases were bound
-            if (!UseCaseOccupancy.checkUseCaseLimitNotExceeded(useCaseListAfterUpdate)) {
-                throw new CameraException("Attempting to bind too many ImageCapture or "
-                        + "VideoCapture instances");
             }
 
             Map<UseCase, Size> suggestedResolutionsMap;
