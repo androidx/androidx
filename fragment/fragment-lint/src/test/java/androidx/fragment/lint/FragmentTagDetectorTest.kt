@@ -33,7 +33,9 @@ class FragmentTagDetectorTest : LintDetectorTest() {
     @Test
     fun expectPass() {
         lint().files(
-            xml("res/layout/layout.xml", """
+            xml(
+                "res/layout/layout.xml",
+                """
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
@@ -43,7 +45,9 @@ class FragmentTagDetectorTest : LintDetectorTest() {
               android:layout_width="match_parent"
               android:layout_height="match_parent" />
 </FrameLayout>
-            """))
+            """
+            )
+        )
             .run()
             .expectClean()
     }
@@ -51,7 +55,9 @@ class FragmentTagDetectorTest : LintDetectorTest() {
     @Test
     fun expectFail() {
         lint().files(
-            xml("res/layout/layout.xml", """
+            xml(
+                "res/layout/layout.xml",
+                """
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
@@ -60,20 +66,26 @@ class FragmentTagDetectorTest : LintDetectorTest() {
               android:layout_width="match_parent"
               android:layout_height="match_parent" />
 </FrameLayout>
-            """))
+            """
+            )
+        )
             .run()
-            .expect("""
+            .expect(
+                """
 res/layout/layout.xml:5: Warning: Replace the <fragment> tag with FragmentContainerView. [FragmentTagUsage]
     <fragment android:name="androidx.fragment.app.Test'$'InflatedFragment"
      ~~~~~~~~
 0 errors, 1 warnings
-            """)
+            """
+            )
     }
 
     @Test
     fun expectFix() {
         lint().files(
-            xml("res/layout/layout.xml", """
+            xml(
+                "res/layout/layout.xml",
+                """
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
@@ -82,15 +94,23 @@ res/layout/layout.xml:5: Warning: Replace the <fragment> tag with FragmentContai
               android:layout_width="match_parent"
               android:layout_height="match_parent" />
 </FrameLayout>
-            """))
+            """
+            )
+        )
             .run()
-            .expect("""
+            .expect(
+                """
 res/layout/layout.xml:5: Warning: Replace the <fragment> tag with FragmentContainerView. [FragmentTagUsage]
     <fragment android:name="androidx.fragment.app.Test'$'InflatedFragment"
      ~~~~~~~~
 0 errors, 1 warnings
-            """)
-            .checkFix(null, xml("res/layout/layout.xml", """
+            """
+            )
+            .checkFix(
+                null,
+                xml(
+                    "res/layout/layout.xml",
+                    """
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
@@ -99,6 +119,8 @@ res/layout/layout.xml:5: Warning: Replace the <fragment> tag with FragmentContai
               android:layout_width="match_parent"
               android:layout_height="match_parent" />
 </FrameLayout>
-            """))
+            """
+                )
+            )
     }
 }

@@ -52,7 +52,7 @@ class FragmentTagDetector : ResourceXmlDetector() {
             androidSpecific = true
         ).addMoreInfo(
             "https://developer.android.com" +
-                    "/reference/androidx/fragment/app/FragmentContainerView.html"
+                "/reference/androidx/fragment/app/FragmentContainerView.html"
         )
     }
 
@@ -63,11 +63,13 @@ class FragmentTagDetector : ResourceXmlDetector() {
     override fun getApplicableElements(): Collection<String>? = Collections.singleton(VIEW_FRAGMENT)
 
     override fun visitElement(context: XmlContext, element: Element) {
-        context.report(ISSUE, context.getNameLocation(element),
+        context.report(
+            ISSUE, context.getNameLocation(element),
             "Replace the <fragment> tag with FragmentContainerView.",
             LintFix.create()
                 .replace()
                 .text(VIEW_FRAGMENT)
-                .with("androidx.fragment.app.FragmentContainerView").build())
+                .with("androidx.fragment.app.FragmentContainerView").build()
+        )
     }
 }

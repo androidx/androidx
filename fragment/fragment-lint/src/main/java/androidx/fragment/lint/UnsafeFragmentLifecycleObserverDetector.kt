@@ -51,7 +51,7 @@ class UnsafeFragmentLifecycleObserverDetector : Detector(), SourceCodeScanner {
         val LIVEDATA_ISSUE = Issue.create(
             id = "FragmentLiveDataObserve",
             briefDescription = "Use getViewLifecycleOwner() as the LifecycleOwner instead of " +
-                    "a Fragment instance when observing a LiveData object.",
+                "a Fragment instance when observing a LiveData object.",
             explanation = """When observing a LiveData object from a fragment's onCreateView, \
                 onViewCreated, onActivityCreated, or onViewStateRestored method \
                 getViewLifecycleOwner() should be used as the LifecycleOwner rather than the \
@@ -69,7 +69,7 @@ class UnsafeFragmentLifecycleObserverDetector : Detector(), SourceCodeScanner {
         val BACK_PRESSED_ISSUE = Issue.create(
             id = "FragmentBackPressedCallback",
             briefDescription = "Use getViewLifecycleOwner() as the LifecycleOwner instead of " +
-                    "a Fragment instance.",
+                "a Fragment instance.",
             explanation = """The Fragment lifecycle can result in a Fragment being active \
                 longer than its view. This can lead to unexpected behavior from lifecycle aware \
                 objects remaining active longer than the Fragment's view. To solve this issue, \
@@ -86,8 +86,10 @@ class UnsafeFragmentLifecycleObserverDetector : Detector(), SourceCodeScanner {
         )
     }
 
-    private val lifecycleMethods = setOf("onCreateView", "onViewCreated", "onActivityCreated",
-        "onViewStateRestored")
+    private val lifecycleMethods = setOf(
+        "onCreateView", "onViewCreated", "onActivityCreated",
+        "onViewStateRestored"
+    )
 
     override fun applicableSuperClasses(): List<String>? = listOf(FRAGMENT_CLASS)
 
@@ -148,7 +150,8 @@ private class RecursiveMethodVisitor(
         argMap.forEach { (arg, param) ->
             if (arg.getExpressionType().extends(context, FRAGMENT_CLASS) &&
                 !arg.getExpressionType().extends(context, DIALOG_FRAGMENT_CLASS) &&
-                param.type.extends(context, "androidx.lifecycle.LifecycleOwner")) {
+                param.type.extends(context, "androidx.lifecycle.LifecycleOwner")
+            ) {
                 val argType = PsiTypesUtil.getPsiClass(arg.getExpressionType())
                 if (argType == call.getContainingUClass()?.javaPsi) {
                     val methodFix = if (isKotlin(context.psiFile)) {
@@ -156,16 +159,20 @@ private class RecursiveMethodVisitor(
                     } else {
                         "getViewLifecycleOwner()"
                     }
-                    context.report(issue, context.getLocation(arg),
+                    context.report(
+                        issue, context.getLocation(arg),
                         "Use $methodFix as the LifecycleOwner.",
                         LintFix.create()
                             .replace()
                             .with(methodFix)
-                            .build())
+                            .build()
+                    )
                 } else {
-                    context.report(issue, context.getLocation(call),
+                    context.report(
+                        issue, context.getLocation(call),
                         "Unsafe call to ${call.methodName} with Fragment instance as " +
-                                "LifecycleOwner from $originFragmentName.$lifecycleMethod.")
+                            "LifecycleOwner from $originFragmentName.$lifecycleMethod."
+                    )
                 }
                 return true
             }
