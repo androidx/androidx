@@ -31,8 +31,10 @@ import org.junit.runners.JUnit4
 class ContentInsertProcessorTest {
 
     fun generateMainSourceFile(accessorBody: String):
-            SourceFile {
-        return SourceFile.kotlin("MyClass.kt", """
+        SourceFile {
+            return SourceFile.kotlin(
+                "MyClass.kt",
+                """
         package androidx.contentaccess.compiler.processor.test
 
         import androidx.contentaccess.ContentAccessObject
@@ -69,15 +71,17 @@ class ContentInsertProcessorTest {
             $accessorBody
         }
         """
-        )
-    }
+            )
+        }
 
     @Test
     fun validInsert() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentInsert
         fun insertEntity(entity: Entity): Uri?
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -86,13 +90,15 @@ class ContentInsertProcessorTest {
 
     @Test
     fun validInsertWithUriLessEntity() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentInsert(uri = ":uri")
         fun insertUriLessEntity(
             entity: EntityWithoutUri,
             uri: String
         ): Uri?
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -101,10 +107,12 @@ class ContentInsertProcessorTest {
 
     @Test
     fun checkThereIsAnEntityInParameters() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentInsert
         fun insertWithNoEntity(randomNonEntityParam: String): Uri?
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -114,10 +122,12 @@ class ContentInsertProcessorTest {
 
     @Test
     fun checkNoMoreThanOneEntityInParameters() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentInsert
         fun insertMultipleEntities(entity1: Entity, entity2: Entity): Uri?
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
@@ -127,29 +137,35 @@ class ContentInsertProcessorTest {
 
     @Test
     fun ensureReturnTypeIsUri() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentInsert
         fun insertEntity(entity: Entity): Int?
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
         assertThat(result.exitCode).isEqualTo(ExitCode.COMPILATION_ERROR)
-        assertThat(result.messages).contains(contentInsertAnnotatedMethodNotReturningAUri()
+        assertThat(result.messages).contains(
+            contentInsertAnnotatedMethodNotReturningAUri()
         )
     }
 
     @Test
     fun ensureUriExists() {
-        val sourceFile = generateMainSourceFile("""
+        val sourceFile = generateMainSourceFile(
+            """
         @ContentInsert
         fun insertEntity(entity: EntityWithoutUri): Int?
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         val result = runCompilation(listOf(sourceFile))
 
         assertThat(result.exitCode).isEqualTo(ExitCode.COMPILATION_ERROR)
-        assertThat(result.messages).contains(missingUriOnMethod()
+        assertThat(result.messages).contains(
+            missingUriOnMethod()
         )
     }
 }

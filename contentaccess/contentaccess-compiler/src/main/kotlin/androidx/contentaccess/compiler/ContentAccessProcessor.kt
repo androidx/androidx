@@ -46,13 +46,13 @@ class ContentAccessProcessor : BasicAnnotationProcessor() {
     class ContentAccessProcessStep(val processingEnv: ProcessingEnvironment) : ProcessingStep {
         @KotlinPoetMetadataPreview
         override fun process(elementsByAnnotation: SetMultimap<Class<out Annotation>, Element>?):
-                Set<Element> {
+            Set<Element> {
 
-            elementsByAnnotation?.get(ContentAccessObject::class.java)?.forEach {
-                ContentAccessObjectProcessor(MoreElements.asType(it), processingEnv).process()
+                elementsByAnnotation?.get(ContentAccessObject::class.java)?.forEach {
+                    ContentAccessObjectProcessor(MoreElements.asType(it), processingEnv).process()
+                }
+                return emptySet()
             }
-            return emptySet()
-        }
 
         override fun annotations(): MutableSet<out Class<out Annotation>> {
             return mutableSetOf(ContentAccessObject::class.java)
