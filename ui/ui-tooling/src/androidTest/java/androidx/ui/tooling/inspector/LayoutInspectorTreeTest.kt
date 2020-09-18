@@ -371,8 +371,8 @@ class LayoutInspectorTreeTest : ToolingTest() {
     private fun dumpNode(node: InspectorNode, indent: Int) {
         println(
             "\"${"  ".repeat(indent * 2)}\", \"${node.name}\", \"${node.fileName}\", " +
-                    "${node.lineNumber}, ${node.left}, ${node.top}, " +
-                    "${node.width}, ${node.height}"
+                "${node.lineNumber}, ${node.left}, ${node.top}, " +
+                "${node.width}, ${node.height}"
         )
         node.children.forEach { dumpNode(it, indent + 1) }
     }
@@ -389,7 +389,8 @@ class LayoutInspectorTreeTest : ToolingTest() {
                   validate(
                       name = "${node.name}",
                       fileName = "${node.fileName}",
-                      left = $left, top = $top, width = $width, height = $height""".trimIndent()
+                      left = $left, top = $top, width = $width, height = $height
+                """.trimIndent()
             )
         }
         if (node.id > 0L) {
@@ -455,9 +456,9 @@ class LayoutInspectorTreeTest : ToolingTest() {
             .singleOrNull() ?: 0
         println(
             "\"${"  ".repeat(indent)}\", ${group.javaClass.simpleName}, \"${group.name}\", " +
-                    "params: ${group.parameters.size}, children: ${group.children.size}, " +
-                    "$id, $position, " +
-                    "${box.left}, ${box.right}, ${box.right - box.left}, ${box.bottom - box.top}"
+                "params: ${group.parameters.size}, children: ${group.children.size}, " +
+                "$id, $position, " +
+                "${box.left}, ${box.right}, ${box.right - box.left}, ${box.bottom - box.top}"
         )
         for (parameter in group.parameters) {
             println("\"${"  ".repeat(indent + 4)}\"- ${parameter.name}")
