@@ -179,9 +179,8 @@ public final class ComplexDatabase_Impl extends ComplexDatabase {
 
     @Override
     protected Map<Class<?>, List<Class<?>>> getRequiredTypeConverters() {
-        final HashMap<Class<?>, List<Class<?>>> _typeConvertersMap =
-                new HashMap<Class<?>, List<Class<?>>>();
-        _typeConvertersMap.put(foo.bar.ComplexDao.class, ComplexDao_Impl.getRequiredConverters());
+        final HashMap<Class<?>, List<Class<?>>> _typeConvertersMap = new HashMap<Class<?>, List<Class<?>>>();
+        _typeConvertersMap.put(ComplexDao.class, ComplexDao_Impl.getRequiredConverters());
         return _typeConvertersMap;
     }
 
