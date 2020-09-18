@@ -85,9 +85,6 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     String mCurrentForegroundWorkSpecId;
 
     @SuppressWarnings("WeakerAccess") // Synthetic access
-    ForegroundInfo mLastForegroundInfo;
-
-    @SuppressWarnings("WeakerAccess") // Synthetic access
     final Map<String, ForegroundInfo> mForegroundInfoById;
 
     @SuppressWarnings("WeakerAccess") // Synthetic access
@@ -108,7 +105,6 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
         mWorkManagerImpl = WorkManagerImpl.getInstance(mContext);
         mTaskExecutor = mWorkManagerImpl.getWorkTaskExecutor();
         mCurrentForegroundWorkSpecId = null;
-        mLastForegroundInfo = null;
         mForegroundInfoById = new LinkedHashMap<>();
         mTrackedWorkSpecs = new HashSet<>();
         mWorkSpecById = new HashMap<>();
@@ -149,8 +145,8 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
             }
         }
 
+        ForegroundInfo removedInfo = mForegroundInfoById.remove(workSpecId);
         // Promote new notifications to the foreground if necessary.
-        mLastForegroundInfo = mForegroundInfoById.remove(workSpecId);
         if (workSpecId.equals(mCurrentForegroundWorkSpecId)) {
             if (mForegroundInfoById.size() > 0) {
                 // Find the next eligible ForegroundInfo
@@ -179,9 +175,23 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
                     mCallback.cancelNotification(info.getNotificationId());
                 }
             }
-        } else if (mLastForegroundInfo != null && mCallback != null) {
+        }
+        if (removedInfo != null && mCallback != null) {
             // Explicitly decrement the reference count for the notification
-            mCallback.cancelNotification(mLastForegroundInfo.getNotificationId());
+
+            // We are doing this without having to wait for the handleStop() to clean up
+            // Notifications. This is because the Processor stops foreground workers on the
+            // dedicated task executor thread. Meanwhile Notifications are managed on the main
+            // thread, so there is a chance that handleStop() fires before onExecuted() is called
+            // on the main thread.
+            Logger.get().debug(TAG,
+                    String.format("Removing Notification (id: %s, workSpecId: %s ,"
+                                    + "notificationType: %s)",
+                            removedInfo.getNotificationId(),
+                            workSpecId,
+                            removedInfo.getForegroundServiceType())
+            );
+            mCallback.cancelNotification(removedInfo.getNotificationId());
         }
     }
 
@@ -295,11 +305,6 @@ public class SystemForegroundDispatcher implements WorkConstraintsCallback, Exec
     void handleStop(@NonNull Intent intent) {
         Logger.get().info(TAG, "Stopping foreground service");
         if (mCallback != null) {
-            if (mLastForegroundInfo != null) {
-                // Explicitly decrement the reference count for the notification.
-                mCallback.cancelNotification(mLastForegroundInfo.getNotificationId());
-                mLastForegroundInfo = null;
-            }
             mCallback.stop();
         }
     }

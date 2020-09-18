@@ -1092,6 +1092,7 @@ src/main/java/androidx/appcompat/widget/Toolbar\.java:[0-9]+: warning: Parameter
 \$SUPPORT/core/core\-appdigest/src/androidTest/AndroidManifest\.xml Warning:
 Package name 'androidx\.core\.appdigest\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :core:core:generateApi
+src\/main\/java\/androidx\/core\/app\/NotificationCompat\.java\:[0-9]+\: warning\: Builder constructor arguments must be mandatory \(i\.e\. not \@Nullable\)\: parameter title in androidx\.core\.app\.NotificationCompat\.Action\.Builder\(int icon\, CharSequence title\, android\.app\.PendingIntent intent\) \[OptionalBuilderConstructorArgument\]See tools\/metalava\/API\-LINT\.md for how to handle these\.
 src/main/java/androidx/core/app/NotificationCompat\.java:[0-9]+: warning: Builder constructor arguments must be mandatory \(i\.e\. not @Nullable\): parameter title in androidx\.core\.app\.NotificationCompat\.Action\.Builder\(int icon, CharSequence title, android\.app\.PendingIntent intent\) \[OptionalBuilderConstructorArgument\]
 src/main/java/androidx/core/app/NotificationCompat\.java:[0-9]+: warning: Builder constructor arguments must be mandatory \(i\.e\. not @Nullable\): parameter intent in androidx\.core\.app\.NotificationCompat\.Action\.Builder\(int icon, CharSequence title, android\.app\.PendingIntent intent\) \[OptionalBuilderConstructorArgument\]
 [0-9]+ new API lint issues were found\.
@@ -1141,3 +1142,6 @@ src/main/java/androidx/transition/TransitionSet\.java:[0-9]+: warning: Parameter
 Package name 'androidx\.activity\.integration\.testapp\.test' used in: AndroidManifest\.xml, manifestMerger[0-9]+\.xml\.
 # > Task :room:integration-tests:room-testapp-autovalue:compileDebugAndroidTestJavaWithJavac
 Stream closed
+# > Task :benchmark:benchmark-macro:processDebugAndroidTestManifest
+\$SUPPORT\/benchmark\/macro\/src\/androidTest\/AndroidManifest\.xml Warning\:
+Package name \'androidx\.benchmark\.macro\.test\' used in\: AndroidManifest\.xml\, manifestMerger[0-9]+\.xml\.
