@@ -1089,7 +1089,8 @@ public abstract class RoomDatabase {
         /**
          * Adds a type converter instance to this database.
          *
-         * @param typeConverter The converter.
+         * @param typeConverter The converter. It must be an instance of a class annotated with
+         * {@link ProvidedTypeConverter} otherwise Room will throw an exception.
          * @return This {@link Builder} instance.
          */
         @NonNull
