@@ -3,6 +3,7 @@ package com.example.appsearch;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.DataClassFactory;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.exceptions.AppSearchException;
 import java.lang.Override;
 import java.lang.String;
 
@@ -15,7 +16,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
   }
 
   @Override
-  public AppSearchSchema getSchema() {
+  public AppSearchSchema getSchema() throws AppSearchException {
     return new AppSearchSchema.Builder(SCHEMA_TYPE)
           .addProperty(new AppSearchSchema.PropertyConfig.Builder("price")
             .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_INT64)
@@ -27,7 +28,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
   }
 
   @Override
-  public GenericDocument toGenericDocument(Gift dataClass) {
+  public GenericDocument toGenericDocument(Gift dataClass) throws AppSearchException {
     GenericDocument.Builder<?> builder =
         new GenericDocument.Builder<>(dataClass.getUri(), SCHEMA_TYPE);
     builder.setCreationTimestampMillis(dataClass.getCreationTs());
@@ -38,7 +39,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
   }
 
   @Override
-  public Gift fromGenericDocument(GenericDocument genericDoc) {
+  public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
     String uriConv = genericDoc.getUri();
     long creationTsConv = genericDoc.getCreationTimestampMillis();
     long ttlMsConv = genericDoc.getTtlMillis();
