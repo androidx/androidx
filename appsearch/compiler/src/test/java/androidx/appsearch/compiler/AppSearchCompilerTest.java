@@ -521,7 +521,6 @@ public class AppSearchCompilerTest {
                         + "  @Property Collection<Boolean> collectBoolean;\n"   // 1a
                         + "  @Property Collection<byte[]> collectByteArr;\n"    // 1a
                         + "  @Property Collection<String> collectString;\n"     // 1b
-                        + "  @Property Collection<GenericDocument> collectGenDoc;\n" // 1b
                         //+ "  @Property Collection<Gift> collectGift;\n"         // 1c
                         + "\n"
                         + "  // Arrays\n"
@@ -538,7 +537,6 @@ public class AppSearchCompilerTest {
                         + "  @Property byte[][] arrUnboxByteArr;\n"  // 2b
                         + "  @Property Byte[] boxByteArr;\n"         // 2a
                         + "  @Property String[] arrString;\n"        // 2b
-                        + "  @Property GenericDocument[] arrGenDoc;\n" // 2b
                         //+ "  @Property Gift[] arrGift;\n"            // 2c
                         + "\n"
                         + "  // Single values\n"
@@ -554,7 +552,6 @@ public class AppSearchCompilerTest {
                         + "  @Property Boolean boxBoolean;\n"   // 3a
                         + "  @Property boolean unboxBoolean;\n" // 3b
                         + "  @Property byte[] unboxByteArr;\n"  // 3a
-                        + "  @Property GenericDocument genDocument;\n" // 3a
                         //+ "  @Property Gift gift;\n"            // 3c
                         + "}\n");
         CompilationSubject.assertThat(compilation).succeededWithoutWarnings();
@@ -676,7 +673,6 @@ public class AppSearchCompilerTest {
                         + "  @AppSearchDocument\n"
                         + "  public static class InnerGift{\n"
                         + "    @AppSearchDocument.Uri String uri;\n"
-                        + "    @Property Collection<GenericDocument> collectGenDoc;\n" // 1b
                         + "    @Property String[] arrString;\n"        // 2b
                         + "  }\n"
                         + "}\n");
