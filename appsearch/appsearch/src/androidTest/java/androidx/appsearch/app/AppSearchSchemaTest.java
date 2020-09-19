@@ -25,104 +25,10 @@ import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.exceptions.IllegalSchemaException;
 import androidx.test.filters.SmallTest;
 
-import com.google.android.icing.proto.IndexingConfig;
-import com.google.android.icing.proto.PropertyConfigProto;
-import com.google.android.icing.proto.SchemaTypeConfigProto;
-import com.google.android.icing.proto.TermMatchType;
-
 import org.junit.Test;
 
 @SmallTest
 public class AppSearchSchemaTest {
-    @Test
-    public void testGetProto_Email() {
-        AppSearchSchema emailSchema = new AppSearchSchema.Builder("Email")
-                .addProperty(new PropertyConfig.Builder("subject")
-                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
-                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
-                        .setIndexingType(PropertyConfig.INDEXING_TYPE_PREFIXES)
-                        .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_PLAIN)
-                        .build()
-                ).addProperty(new PropertyConfig.Builder("body")
-                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
-                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
-                        .setIndexingType(PropertyConfig.INDEXING_TYPE_PREFIXES)
-                        .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_PLAIN)
-                        .build()
-                ).build();
-
-        SchemaTypeConfigProto expectedEmailProto = SchemaTypeConfigProto.newBuilder()
-                .setSchemaType("Email")
-                .addProperties(PropertyConfigProto.newBuilder()
-                        .setPropertyName("subject")
-                        .setDataType(PropertyConfigProto.DataType.Code.STRING)
-                        .setSchemaType("")
-                        .setCardinality(PropertyConfigProto.Cardinality.Code.OPTIONAL)
-                        .setIndexingConfig(
-                                com.google.android.icing.proto.IndexingConfig.newBuilder()
-                                        .setTokenizerType(IndexingConfig.TokenizerType.Code.PLAIN)
-                                        .setTermMatchType(TermMatchType.Code.PREFIX)
-                        )
-                ).addProperties(PropertyConfigProto.newBuilder()
-                        .setPropertyName("body")
-                        .setDataType(PropertyConfigProto.DataType.Code.STRING)
-                        .setSchemaType("")
-                        .setCardinality(PropertyConfigProto.Cardinality.Code.OPTIONAL)
-                        .setIndexingConfig(
-                                com.google.android.icing.proto.IndexingConfig.newBuilder()
-                                        .setTokenizerType(IndexingConfig.TokenizerType.Code.PLAIN)
-                                        .setTermMatchType(TermMatchType.Code.PREFIX)
-                        )
-                ).build();
-
-        assertThat(SchemaToProtoConverter.convert(emailSchema)).isEqualTo(expectedEmailProto);
-    }
-
-    @Test
-    public void testGetProto_MusicRecording() {
-        AppSearchSchema musicRecordingSchema = new AppSearchSchema.Builder("MusicRecording")
-                .addProperty(new PropertyConfig.Builder("artist")
-                        .setDataType(PropertyConfig.DATA_TYPE_STRING)
-                        .setCardinality(PropertyConfig.CARDINALITY_REPEATED)
-                        .setIndexingType(PropertyConfig.INDEXING_TYPE_PREFIXES)
-                        .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_PLAIN)
-                        .build()
-                ).addProperty(new PropertyConfig.Builder("pubDate")
-                        .setDataType(PropertyConfig.DATA_TYPE_INT64)
-                        .setCardinality(PropertyConfig.CARDINALITY_OPTIONAL)
-                        .setIndexingType(PropertyConfig.INDEXING_TYPE_NONE)
-                        .setTokenizerType(PropertyConfig.TOKENIZER_TYPE_NONE)
-                        .build()
-                ).build();
-
-        SchemaTypeConfigProto expectedMusicRecordingProto = SchemaTypeConfigProto.newBuilder()
-                .setSchemaType("MusicRecording")
-                .addProperties(PropertyConfigProto.newBuilder()
-                        .setPropertyName("artist")
-                        .setDataType(PropertyConfigProto.DataType.Code.STRING)
-                        .setSchemaType("")
-                        .setCardinality(PropertyConfigProto.Cardinality.Code.REPEATED)
-                        .setIndexingConfig(
-                                com.google.android.icing.proto.IndexingConfig.newBuilder()
-                                        .setTokenizerType(IndexingConfig.TokenizerType.Code.PLAIN)
-                                        .setTermMatchType(TermMatchType.Code.PREFIX)
-                        )
-                ).addProperties(PropertyConfigProto.newBuilder()
-                        .setPropertyName("pubDate")
-                        .setDataType(PropertyConfigProto.DataType.Code.INT64)
-                        .setSchemaType("")
-                        .setCardinality(PropertyConfigProto.Cardinality.Code.OPTIONAL)
-                        .setIndexingConfig(
-                                com.google.android.icing.proto.IndexingConfig.newBuilder()
-                                        .setTokenizerType(IndexingConfig.TokenizerType.Code.NONE)
-                                        .setTermMatchType(TermMatchType.Code.UNKNOWN)
-                        )
-                ).build();
-
-        assertThat(SchemaToProtoConverter.convert(musicRecordingSchema))
-                .isEqualTo(expectedMusicRecordingProto);
-    }
-
     @Test
     public void testInvalidEnums() {
         PropertyConfig.Builder builder = new PropertyConfig.Builder("test");
