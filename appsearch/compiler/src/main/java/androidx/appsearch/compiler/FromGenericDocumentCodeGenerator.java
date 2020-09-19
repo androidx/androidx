@@ -115,8 +115,7 @@ class FromGenericDocumentCodeGenerator {
         //       unboxing.
         //
         //   1b: ListCallArraysAsList
-        //       List contains String or GenericDocument.
-        //       We have to convert this from an array of String[] or GenericDocument[], but no
+        //       List contains String. We have to convert this from an array of String[], but no
         //       conversion of the collection elements is needed. We can use Arrays#asList for this.
         //
         //   1c: ListForLoopCallFromGenericDocument
@@ -138,8 +137,7 @@ class FromGenericDocumentCodeGenerator {
         //       of unboxing.
         //
         //   2b: ArrayUseDirectly
-        //       Array is of type String[], long[], double[], boolean[], byte[][] or
-        //       GenericDocument[].
+        //       Array is of type String[], long[], double[], boolean[], byte[][].
         //       We can directly use this field with no conversion.
         //
         //   2c: ArrayForLoopCallFromGenericDocument
@@ -156,8 +154,7 @@ class FromGenericDocumentCodeGenerator {
 
         // Scenario 3: Single valued fields
         //   3a: FieldUseDirectlyWithNullCheck
-        //       Field is of type String, Long, Integer, Double, Float, Boolean, byte[] or
-        //       GenericDocument.
+        //       Field is of type String, Long, Integer, Double, Float, Boolean, byte[].
         //       We can use this field directly, after testing for null. The java compiler will box
         //       or unbox as needed.
         //
@@ -277,8 +274,7 @@ class FromGenericDocumentCodeGenerator {
     }
 
     //   1b: ListCallArraysAsList
-    //       List contains String or GenericDocument.
-    //       We have to convert this from an array of String[] or GenericDocument[], but no
+    //       List contains String. We have to convert this from an array of String[], but no
     //       conversion of the collection elements is needed. We can use Arrays#asList for this.
     private boolean tryListCallArraysAsList(
             @NonNull CodeBlock.Builder method,
@@ -293,10 +289,6 @@ class FromGenericDocumentCodeGenerator {
                     "String[] $NCopy = genericDoc.getPropertyStringArray($S)",
                     fieldName, propertyName);
 
-        } else if (typeUtil.isSameType(propertyType, mHelper.mGenericDocumentType)) {
-            body.addStatement(
-                    "GenericDocument[] $NCopy = genericDoc.getPropertyDocumentArray($S)",
-                    fieldName, propertyName);
         } else {
             // This is not a type 1b list.
             return false;
@@ -411,8 +403,7 @@ class FromGenericDocumentCodeGenerator {
     }
 
     //   2b: ArrayUseDirectly
-    //       Array is of type String[], long[], double[], boolean[], byte[][] or
-    //       GenericDocument[].
+    //       Array is of type String[], long[], double[], boolean[], byte[][].
     //       We can directly use this field with no conversion.
     private boolean tryArrayUseDirectly(
             @NonNull CodeBlock.Builder method,
@@ -448,11 +439,6 @@ class FromGenericDocumentCodeGenerator {
                     "byte[][] $NConv = genericDoc.getPropertyBytesArray($S)",
                     fieldName, propertyName);
 
-        } else if (typeUtil.isSameType(propertyType, mHelper.mGenericDocumentType)) {
-            body.addStatement(
-                    "GenericDocument[] $NConv = genericDoc.getPropertyDocumentArray($S)",
-                    fieldName, propertyName);
-
         } else {
             // This is not a type 2b array.
             return false;
@@ -485,8 +471,7 @@ class FromGenericDocumentCodeGenerator {
     }
 
     //   3a: FieldUseDirectlyWithNullCheck
-    //       Field is of type String, Long, Integer, Double, Float, Boolean, byte[] or
-    //       GenericDocument.
+    //       Field is of type String, Long, Integer, Double, Float, Boolean, byte[].
     //       We can use this field directly, after testing for null. The java compiler will box
     //       or unbox as needed.
     private boolean tryFieldUseDirectlyWithNullCheck(
@@ -525,11 +510,6 @@ class FromGenericDocumentCodeGenerator {
         } else if (typeUtil.isSameType(propertyType, mHelper.mBytePrimitiveArrayType)) {
             body.addStatement(
                     "byte[][] $NCopy = genericDoc.getPropertyBytesArray($S)",
-                    fieldName, propertyName);
-
-        } else if (typeUtil.isSameType(propertyType, mHelper.mGenericDocumentType)) {
-            body.addStatement(
-                    "GenericDocument[] $NCopy = genericDoc.getPropertyDocumentArray($S)",
                     fieldName, propertyName);
 
         } else {
