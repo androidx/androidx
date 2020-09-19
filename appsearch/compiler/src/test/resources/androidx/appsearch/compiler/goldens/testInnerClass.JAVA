@@ -3,6 +3,7 @@ package com.example.appsearch;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.DataClassFactory;
 import androidx.appsearch.app.GenericDocument;
+import androidx.appsearch.exceptions.AppSearchException;
 import java.lang.Override;
 import java.lang.String;
 
@@ -15,7 +16,7 @@ public class $$__AppSearch__Gift$$__InnerGift implements DataClassFactory<Gift.I
   }
 
   @Override
-  public AppSearchSchema getSchema() {
+  public AppSearchSchema getSchema() throws AppSearchException {
     return new AppSearchSchema.Builder(SCHEMA_TYPE)
           .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrString")
             .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
@@ -27,7 +28,7 @@ public class $$__AppSearch__Gift$$__InnerGift implements DataClassFactory<Gift.I
   }
 
   @Override
-  public GenericDocument toGenericDocument(Gift.InnerGift dataClass) {
+  public GenericDocument toGenericDocument(Gift.InnerGift dataClass) throws AppSearchException {
     GenericDocument.Builder<?> builder =
         new GenericDocument.Builder<>(dataClass.uri, SCHEMA_TYPE);
     String[] arrStringCopy = dataClass.arrString;
@@ -38,7 +39,7 @@ public class $$__AppSearch__Gift$$__InnerGift implements DataClassFactory<Gift.I
   }
 
   @Override
-  public Gift.InnerGift fromGenericDocument(GenericDocument genericDoc) {
+  public Gift.InnerGift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
     String uriConv = genericDoc.getUri();
     String[] arrStringConv = genericDoc.getPropertyStringArray("arrString");
     Gift.InnerGift dataClass = new Gift.InnerGift();

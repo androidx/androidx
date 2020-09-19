@@ -61,7 +61,7 @@ public class AnnotationProcessorTest {
         @AppSearchDocument.Property Collection<Boolean> mCollectBoolean;   // 1a
         @AppSearchDocument.Property Collection<byte[]> mCollectByteArr;    // 1a
         @AppSearchDocument.Property Collection<String> mCollectString;     // 1b
-//        @AppSearchDocument.Property Collection<Gift> mCollectGift;         // 1c
+        @AppSearchDocument.Property Collection<Gift> mCollectGift;         // 1c
 
         // Arrays
         @AppSearchDocument.Property Long[] mArrBoxLong;         // 2a
@@ -93,6 +93,53 @@ public class AnnotationProcessorTest {
         @AppSearchDocument.Property boolean mUnboxBoolean; // 3b
         @AppSearchDocument.Property byte[] mUnboxByteArr;  // 3a
 //        @AppSearchDocument.Property Gift mGift;            // 3c
+
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) {
+                return true;
+            }
+            if (!(other instanceof Gift)) {
+                return false;
+            }
+            Gift otherGift = (Gift) other;
+            assertThat(otherGift.mUri).isEqualTo(this.mUri);
+            assertThat(otherGift.mArrBoxBoolean).isEqualTo(this.mArrBoxBoolean);
+            assertThat(otherGift.mArrBoxDouble).isEqualTo(this.mArrBoxDouble);
+            assertThat(otherGift.mArrBoxLong).isEqualTo(this.mArrBoxLong);
+            assertThat(otherGift.mArrString).isEqualTo(this.mArrString);
+            assertThat(otherGift.mBoxByteArr).isEqualTo(this.mBoxByteArr);
+            assertThat(otherGift.mArrUnboxBoolean).isEqualTo(this.mArrUnboxBoolean);
+            assertThat(otherGift.mArrUnboxByteArr).isEqualTo(this.mArrUnboxByteArr);
+            assertThat(otherGift.mArrUnboxDouble).isEqualTo(this.mArrUnboxDouble);
+            assertThat(otherGift.mArrUnboxLong).isEqualTo(this.mArrUnboxLong);
+
+            assertThat(otherGift.mLongCollection).isEqualTo(this.mLongCollection);
+            assertThat(otherGift.mCollectBoolean).isEqualTo(this.mCollectBoolean);
+            assertThat(otherGift.mCollectString).isEqualTo(this.mCollectString);
+            assertThat(otherGift.mCollectDouble).isEqualTo(this.mCollectDouble);
+            assertThat(otherGift.mCollectGift).isEqualTo(this.mCollectGift);
+            checkCollectByteArr(otherGift.mCollectByteArr, this.mCollectByteArr);
+
+            assertThat(otherGift.mString).isEqualTo(this.mString);
+            assertThat(otherGift.mBoxLong).isEqualTo(this.mBoxLong);
+            assertThat(otherGift.mUnboxLong).isEqualTo(this.mUnboxLong);
+            assertThat(otherGift.mBoxDouble).isEqualTo(this.mBoxDouble);
+            assertThat(otherGift.mUnboxDouble).isEqualTo(this.mUnboxDouble);
+            assertThat(otherGift.mBoxBoolean).isEqualTo(this.mBoxBoolean);
+            assertThat(otherGift.mUnboxBoolean).isEqualTo(this.mUnboxBoolean);
+            assertThat(otherGift.mUnboxByteArr).isEqualTo(this.mUnboxByteArr);
+            return true;
+        }
+
+        void checkCollectByteArr(Collection<byte[]> first, Collection<byte[]> second) {
+            if (first == null && second == null) {
+                return;
+            }
+            assertThat(first).isNotNull();
+            assertThat(second).isNotNull();
+            assertThat(first.toArray()).isEqualTo(second.toArray());
+        }
     }
 
     @Test
@@ -118,11 +165,16 @@ public class AnnotationProcessorTest {
         inputDataClass.mArrUnboxDouble = new double[]{1.0, 0.0};
         inputDataClass.mArrUnboxLong = new long[]{7, 6};
 
+        Gift innerGift1 = new Gift();
+        innerGift1.mUri = "innerGift.uri1";
+        Gift innerGift2 = new Gift();
+        innerGift2.mUri = "innerGift.uri2";
         inputDataClass.mLongCollection = Arrays.asList(inputDataClass.mArrBoxLong);
         inputDataClass.mCollectBoolean = Arrays.asList(inputDataClass.mArrBoxBoolean);
         inputDataClass.mCollectString = Arrays.asList(inputDataClass.mArrString);
         inputDataClass.mCollectDouble = Arrays.asList(inputDataClass.mArrBoxDouble);
         inputDataClass.mCollectByteArr = Arrays.asList(inputDataClass.mArrUnboxByteArr);
+        inputDataClass.mCollectGift = Arrays.asList(innerGift1, innerGift2);
 
         inputDataClass.mString = "String";
         inputDataClass.mBoxLong = 1L;
@@ -146,30 +198,6 @@ public class AnnotationProcessorTest {
 
         // Convert GenericDocument to Gift and check values.
         Gift outputDataClass = factory.fromGenericDocument(searchResults.get((0)));
-        assertThat(outputDataClass.mArrBoxBoolean).isEqualTo(inputDataClass.mArrBoxBoolean);
-        assertThat(outputDataClass.mArrBoxDouble).isEqualTo(inputDataClass.mArrBoxDouble);
-        assertThat(outputDataClass.mArrBoxLong).isEqualTo(inputDataClass.mArrBoxLong);
-        assertThat(outputDataClass.mArrString).isEqualTo(inputDataClass.mArrString);
-        assertThat(outputDataClass.mBoxByteArr).isEqualTo(inputDataClass.mBoxByteArr);
-        assertThat(outputDataClass.mArrUnboxBoolean).isEqualTo(inputDataClass.mArrUnboxBoolean);
-        assertThat(outputDataClass.mArrUnboxByteArr).isEqualTo(inputDataClass.mArrUnboxByteArr);
-        assertThat(outputDataClass.mArrUnboxDouble).isEqualTo(inputDataClass.mArrUnboxDouble);
-        assertThat(outputDataClass.mArrUnboxLong).isEqualTo(inputDataClass.mArrUnboxLong);
-
-        assertThat(outputDataClass.mLongCollection).isEqualTo(inputDataClass.mLongCollection);
-        assertThat(outputDataClass.mCollectBoolean).isEqualTo(inputDataClass.mCollectBoolean);
-        assertThat(outputDataClass.mCollectString).isEqualTo(inputDataClass.mCollectString);
-        assertThat(outputDataClass.mCollectDouble).isEqualTo(inputDataClass.mCollectDouble);
-        assertThat(outputDataClass.mCollectByteArr.toArray()).isEqualTo(
-                inputDataClass.mArrUnboxByteArr);
-
-        assertThat(outputDataClass.mString).isEqualTo(inputDataClass.mString);
-        assertThat(outputDataClass.mBoxLong).isEqualTo(inputDataClass.mBoxLong);
-        assertThat(outputDataClass.mUnboxLong).isEqualTo(inputDataClass.mUnboxLong);
-        assertThat(outputDataClass.mBoxDouble).isEqualTo(inputDataClass.mBoxDouble);
-        assertThat(outputDataClass.mUnboxDouble).isEqualTo(inputDataClass.mUnboxDouble);
-        assertThat(outputDataClass.mBoxBoolean).isEqualTo(inputDataClass.mBoxBoolean);
-        assertThat(outputDataClass.mUnboxBoolean).isEqualTo(inputDataClass.mUnboxBoolean);
-        assertThat(outputDataClass.mUnboxByteArr).isEqualTo(inputDataClass.mUnboxByteArr);
+        assertThat(outputDataClass).isEqualTo(inputDataClass);
     }
 }
