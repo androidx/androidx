@@ -17,22 +17,19 @@
 package androidx.appsearch.app;
 
 import android.annotation.SuppressLint;
+import android.os.Bundle;
 import android.util.Log;
 
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appsearch.exceptions.AppSearchException;
-import androidx.collection.ArrayMap;
 import androidx.core.util.Preconditions;
 
-import com.google.android.icing.proto.DocumentProto;
-import com.google.android.icing.proto.PropertyProto;
-import com.google.android.icing.protobuf.ByteString;
-
+import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.Set;
 
 /**
  * Represents a document unit.
@@ -60,6 +57,21 @@ public class GenericDocument {
     /** The maximum number of indexed properties a document can have. */
     private static final int MAX_INDEXED_PROPERTIES = 16;
 
+    /** The default score of document. */
+    private static final int DEFAULT_SCORE = 0;
+
+    /** The default time-to-live in millisecond of a document, which is infinity. */
+    private static final long DEFAULT_TTL_MILLIS = 0L;
+
+    static final String SCHEMA_TYPE_FIELD = "schemaType";
+    static final String URI_FIELD = "uri";
+    static final String SCORE_FIELD = "score";
+    static final String TTL_MILLIS_FIELD = "ttlMillis";
+    static final String CREATION_TIMESTAMP_MILLIS_FIELD = "creationTimestampMillis";
+    static final String NAMESPACE_FIELD = "namespace";
+    static final String PROPERTIES_FIELD = "properties";
+    static final String BYTE_ARRAY_FIELD = "byteArray";
+
     /**
      * The maximum number of indexed properties a document can have.
      *
@@ -72,30 +84,36 @@ public class GenericDocument {
         return MAX_INDEXED_PROPERTIES;
     }
 
-    /**
-     * Contains {@link GenericDocument} basic information (uri, schemaType etc) and properties
-     * ordered by keys.
-     */
+    /** Contains {@link GenericDocument} basic information (uri, schemaType etc).*/
     @NonNull
-    private final DocumentProto mProto;
+    final Bundle mBundle;
 
-    /** Contains all properties in {@link #mProto} to support getting properties via keys. */
+    /** Contains all properties in {@link GenericDocument} to support getting properties via keys.*/
     @NonNull
-    private final Map<String, Object> mProperties;
+    final Bundle mProperties;
+
+    @NonNull
+    private final String mUri;
+    @NonNull
+    private final String mSchemaType;
+    private final long mCreationTimestampMillis;
+    @Nullable
+    private Integer mHashCode;
 
     /**
-     * Creates a new {@link GenericDocument}.
-     * @param proto Contains {@link GenericDocument} basic information (uri, schemaType etc) and
-     *               properties ordered by keys.
-     * @param propertiesMap Contains all properties in {@link #mProto} to support get properties
-     *                      via keys.
+     * Rebuilds a {@link GenericDocument} by the a bundle.
+     * @param bundle Contains {@link GenericDocument} basic information (uri, schemaType etc) and
+     *               a properties bundle contains all properties in {@link GenericDocument} to
+     *               support getting properties via keys.
      */
-    GenericDocument(@NonNull DocumentProto proto,
-            @NonNull Map<String, Object> propertiesMap) {
-        Preconditions.checkNotNull(proto);
-        Preconditions.checkNotNull(propertiesMap);
-        mProto = proto;
-        mProperties = propertiesMap;
+    GenericDocument(@NonNull Bundle bundle) {
+        Preconditions.checkNotNull(bundle);
+        mBundle = bundle;
+        mProperties = Preconditions.checkNotNull(bundle.getParcelable(PROPERTIES_FIELD));
+        mUri = Preconditions.checkNotNull(mBundle.getString(URI_FIELD));
+        mSchemaType = Preconditions.checkNotNull(mBundle.getString(SCHEMA_TYPE_FIELD));
+        mCreationTimestampMillis = mBundle.getLong(CREATION_TIMESTAMP_MILLIS_FIELD,
+                System.currentTimeMillis());
     }
 
     /**
@@ -104,89 +122,30 @@ public class GenericDocument {
      * <p>This method should be only used by constructor of a subclass.
      */
     protected GenericDocument(@NonNull GenericDocument document) {
-        this(document.mProto, document.mProperties);
-    }
-
-    GenericDocument(@NonNull DocumentProto documentProto) {
-        this(documentProto, new ArrayMap<>());
-        for (int i = 0; i < documentProto.getPropertiesCount(); i++) {
-            PropertyProto property = documentProto.getProperties(i);
-            String name = property.getName();
-            if (property.getStringValuesCount() > 0) {
-                String[] values = new String[property.getStringValuesCount()];
-                for (int j = 0; j < values.length; j++) {
-                    values[j] = property.getStringValues(j);
-                }
-                mProperties.put(name, values);
-            } else if (property.getInt64ValuesCount() > 0) {
-                long[] values = new long[property.getInt64ValuesCount()];
-                for (int j = 0; j < values.length; j++) {
-                    values[j] = property.getInt64Values(j);
-                }
-                mProperties.put(property.getName(), values);
-            } else if (property.getDoubleValuesCount() > 0) {
-                double[] values = new double[property.getDoubleValuesCount()];
-                for (int j = 0; j < values.length; j++) {
-                    values[j] = property.getDoubleValues(j);
-                }
-                mProperties.put(property.getName(), values);
-            } else if (property.getBooleanValuesCount() > 0) {
-                boolean[] values = new boolean[property.getBooleanValuesCount()];
-                for (int j = 0; j < values.length; j++) {
-                    values[j] = property.getBooleanValues(j);
-                }
-                mProperties.put(property.getName(), values);
-            } else if (property.getBytesValuesCount() > 0) {
-                byte[][] values = new byte[property.getBytesValuesCount()][];
-                for (int j = 0; j < values.length; j++) {
-                    values[j] = property.getBytesValues(j).toByteArray();
-                }
-                mProperties.put(name, values);
-            } else if (property.getDocumentValuesCount() > 0) {
-                GenericDocument[] values =
-                        new GenericDocument[property.getDocumentValuesCount()];
-                for (int j = 0; j < values.length; j++) {
-                    values[j] = new GenericDocument(property.getDocumentValues(j));
-                }
-                mProperties.put(name, values);
-            } else {
-                throw new IllegalStateException("Unknown type of value: " + name);
-            }
-        }
-    }
-
-    /**
-     * Get the {@link DocumentProto} of the {@link GenericDocument}.
-     *
-     * <p>The {@link DocumentProto} contains {@link GenericDocument}'s basic information and all
-     *    properties ordered by keys.
-     */
-    @NonNull
-    DocumentProto getProto() {
-        return mProto;
+        this(document.mBundle);
     }
 
     /** Returns the URI of the {@link GenericDocument}. */
     @NonNull
     public String getUri() {
-        return mProto.getUri();
+        return mUri;
     }
 
     /** Returns the namespace of the {@link GenericDocument}. */
     @NonNull
     public String getNamespace() {
-        return mProto.getNamespace();
+        return mBundle.getString(NAMESPACE_FIELD, DEFAULT_NAMESPACE);
     }
 
     /** Returns the schema type of the {@link GenericDocument}. */
     @NonNull
     public String getSchemaType() {
-        return mProto.getSchema();
+        return mSchemaType;
     }
 
     /** Returns the creation timestamp of the {@link GenericDocument}, in milliseconds. */
     public long getCreationTimestampMillis() {
-        return mProto.getCreationTimestampMs();
+        return mCreationTimestampMillis;
     }
 
     /**
@@ -196,7 +155,7 @@ public class GenericDocument {
      *    until the app is uninstalled.
      */
     public long getTtlMillis() {
-        return mProto.getTtlMs();
+        return mBundle.getLong(TTL_MILLIS_FIELD, DEFAULT_TTL_MILLIS);
     }
 
     /**
@@ -208,7 +167,7 @@ public class GenericDocument {
      * <p>The default value is 0.
      */
     public int getScore() {
-        return mProto.getScore();
+        return mBundle.getInt(SCORE_FIELD, DEFAULT_SCORE);
     }
 
     /**
@@ -388,9 +347,28 @@ public class GenericDocument {
      */
     @SuppressLint("ArrayReturn")
     @Nullable
+    @SuppressWarnings("unchecked")
     public byte[][] getPropertyBytesArray(@NonNull String key) {
         Preconditions.checkNotNull(key);
-        return getAndCastPropertyArray(key, byte[][].class);
+        ArrayList<Bundle> bundles = getAndCastPropertyArray(key, ArrayList.class);
+        if (bundles == null || bundles.size() == 0) {
+            return null;
+        }
+        byte[][] bytes = new byte[bundles.size()][];
+        for (int i = 0; i < bundles.size(); i++) {
+            Bundle bundle = bundles.get(i);
+            if (bundle == null) {
+                Log.e(TAG, "The inner bundle is null at " + i + ", for key: " + key);
+                continue;
+            }
+            byte[] innerBytes = bundle.getByteArray(BYTE_ARRAY_FIELD);
+            if (innerBytes == null) {
+                Log.e(TAG, "The bundle at " + i + " contains a null byte[].");
+                continue;
+            }
+            bytes[i] = innerBytes;
+        }
+        return bytes;
     }
 
     /**
@@ -404,7 +382,19 @@ public class GenericDocument {
     @Nullable
     public GenericDocument[] getPropertyDocumentArray(@NonNull String key) {
         Preconditions.checkNotNull(key);
-        return getAndCastPropertyArray(key, GenericDocument[].class);
+        Bundle[] bundles = getAndCastPropertyArray(key, Bundle[].class);
+        if (bundles == null || bundles.length == 0) {
+            return null;
+        }
+        GenericDocument[] documents = new GenericDocument[bundles.length];
+        for (int i = 0; i < bundles.length; i++) {
+            if (bundles[i] == null) {
+                Log.e(TAG, "The inner bundle is null at " + i + ", for key: " + key);
+                continue;
+            }
+            documents[i] = new GenericDocument(bundles[i]);
+        }
+        return documents;
     }
 
     /**
@@ -458,20 +448,203 @@ public class GenericDocument {
             return false;
         }
         GenericDocument otherDocument = (GenericDocument) other;
-        return this.mProto.equals(otherDocument.mProto);
+        return bundleEquals(this.mBundle, otherDocument.mBundle);
+    }
+
+    /**
+     * Deeply checks two bundle is equally or not.
+     * <p> Two bundle will be considered equally if they contains same content.
+     */
+    @SuppressWarnings("unchecked")
+    private static boolean bundleEquals(Bundle one, Bundle two) {
+        if (one.size() != two.size()) {
+            return false;
+        }
+        Set<String> keySetOne = one.keySet();
+        Object valueOne;
+        Object valueTwo;
+        // Bundle inherit its equals() from Object.java, which only compare their memory address.
+        // We should iterate all keys and check their presents and values in both bundle.
+        for (String key : keySetOne) {
+            valueOne = one.get(key);
+            valueTwo = two.get(key);
+            if (valueOne instanceof Bundle
+                    && valueTwo instanceof Bundle
+                    && !bundleEquals((Bundle) valueOne, (Bundle) valueTwo)) {
+                return false;
+            } else if (valueOne == null && (valueTwo != null || !two.containsKey(key))) {
+                // If we call bundle.get(key) when the 'key' doesn't actually exist in the
+                // bundle, we'll get  back a null. So make sure that both values are null and
+                // both keys exist in the bundle.
+                return false;
+            } else if (valueOne instanceof boolean[]) {
+                if (!(valueTwo instanceof boolean[])
+                        || !Arrays.equals((boolean[]) valueOne, (boolean[]) valueTwo)) {
+                    return false;
+                }
+            } else if (valueOne instanceof long[]) {
+                if (!(valueTwo instanceof long[])
+                        || !Arrays.equals((long[]) valueOne, (long[]) valueTwo)) {
+                    return false;
+                }
+            } else if (valueOne instanceof double[]) {
+                if (!(valueTwo instanceof double[])
+                        || !Arrays.equals((double[]) valueOne, (double[]) valueTwo)) {
+                    return false;
+                }
+            } else if (valueOne instanceof Bundle[]) {
+                if (!(valueTwo instanceof Bundle[])) {
+                    return false;
+                }
+                Bundle[] bundlesOne = (Bundle[]) valueOne;
+                Bundle[] bundlesTwo = (Bundle[]) valueTwo;
+                if (bundlesOne.length != bundlesTwo.length) {
+                    return false;
+                }
+                for (int i = 0; i < bundlesOne.length; i++) {
+                    if (!bundleEquals(bundlesOne[i], bundlesTwo[i])) {
+                        return false;
+                    }
+                }
+            } else if (valueOne instanceof ArrayList) {
+                if (!(valueTwo instanceof ArrayList)) {
+                    return false;
+                }
+                ArrayList<Bundle> bundlesOne = (ArrayList<Bundle>) valueOne;
+                ArrayList<Bundle> bundlesTwo = (ArrayList<Bundle>) valueTwo;
+                if (bundlesOne.size() != bundlesTwo.size()) {
+                    return false;
+                }
+                for (int i = 0; i < bundlesOne.size(); i++) {
+                    if (!bundleEquals(bundlesOne.get(i), bundlesTwo.get(i))) {
+                        return false;
+                    }
+                }
+            } else if (valueOne instanceof Object[]) {
+                if (!(valueTwo instanceof Object[])
+                        || !Arrays.equals((Object[]) valueOne, (Object[]) valueTwo)) {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     @Override
     public int hashCode() {
-        // Hash only proto is sufficient here since all properties in mProperties are ordered by
-        // keys and stored in proto.
-        return mProto.hashCode();
+        if (mHashCode == null) {
+            mHashCode = bundleHashCode(mBundle);
+        }
+        return mHashCode;
+    }
+
+    /**
+     * Calculates the hash code for a bundle.
+     * <p> The hash code is only effected by the content in the bundle. Bundles will get
+     * consistent hash code if they have same content.
+     */
+    @SuppressWarnings("unchecked")
+    private static int bundleHashCode(Bundle bundle) {
+        int[] hashCodes = new int[bundle.size()];
+        int i = 0;
+        // Bundle inherit its hashCode() from Object.java, which only relative to their memory
+        // address. Bundle doesn't have an order, so we should iterate all keys and combine
+        // their value's hashcode into an array. And use the hashcode of the array to be
+        // the hashcode of the bundle.
+        for (String key : bundle.keySet()) {
+            Object value = bundle.get(key);
+            if (value instanceof boolean[]) {
+                hashCodes[i++] = Arrays.hashCode((boolean[]) value);
+            } else if (value instanceof long[]) {
+                hashCodes[i++] = Arrays.hashCode((long[]) value);
+            } else if (value instanceof double[]) {
+                hashCodes[i++] = Arrays.hashCode((double[]) value);
+            } else if (value instanceof String[]) {
+                hashCodes[i++] = Arrays.hashCode((Object[]) value);
+            } else if (value instanceof Bundle) {
+                hashCodes[i++] = bundleHashCode((Bundle) value);
+            } else if (value instanceof Bundle[]) {
+                Bundle[] bundles = (Bundle[]) value;
+                int[] innerHashCodes = new int[bundles.length];
+                for (int j = 0; j < innerHashCodes.length; j++) {
+                    innerHashCodes[j] = bundleHashCode(bundles[j]);
+                }
+                hashCodes[i++] = Arrays.hashCode(innerHashCodes);
+            } else if (value instanceof ArrayList) {
+                ArrayList<Bundle> bundles = (ArrayList<Bundle>) value;
+                int[] innerHashCodes = new int[bundles.size()];
+                for (int j = 0; j < innerHashCodes.length; j++) {
+                    innerHashCodes[j] = bundleHashCode(bundles.get(j));
+                }
+                hashCodes[i++] = Arrays.hashCode(innerHashCodes);
+            } else {
+                hashCodes[i++] = value.hashCode();
+            }
+        }
+        return Arrays.hashCode(hashCodes);
     }
 
     @Override
     @NonNull
     public String toString() {
-        return mProto.toString();
+        return bundleToString(mBundle).toString();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static StringBuilder bundleToString(Bundle bundle) {
+        StringBuilder stringBuilder = new StringBuilder();
+        try {
+            final Set<String> keySet = bundle.keySet();
+            String[] keys = keySet.toArray(new String[0]);
+            // Sort keys to make output deterministic. We need a custom comparator to handle
+            // nulls (arbitrarily putting them first, similar to Comparator.nullsFirst, which is
+            // only available since N).
+            Arrays.sort(
+                    keys,
+                    (@Nullable String s1, @Nullable String s2) -> {
+                        if (s1 == null) {
+                            return s2 == null ? 0 : -1;
+                        } else if (s2 == null) {
+                            return 1;
+                        } else {
+                            return s1.compareTo(s2);
+                        }
+                    });
+            for (String key : keys) {
+                stringBuilder.append("{ key: '").append(key).append("' value: ");
+                Object valueObject = bundle.get(key);
+                if (valueObject == null) {
+                    stringBuilder.append("<null>");
+                } else if (valueObject instanceof Bundle) {
+                    stringBuilder.append(bundleToString((Bundle) valueObject));
+                } else if (valueObject.getClass().isArray()) {
+                    stringBuilder.append("[ ");
+                    for (int i = 0; i < Array.getLength(valueObject); i++) {
+                        Object element = Array.get(valueObject, i);
+                        stringBuilder.append("'");
+                        if (element instanceof Bundle) {
+                            stringBuilder.append(bundleToString((Bundle) element));
+                        } else {
+                            stringBuilder.append(Array.get(valueObject, i));
+                        }
+                        stringBuilder.append("' ");
+                    }
+                    stringBuilder.append("]");
+                } else if (valueObject instanceof ArrayList) {
+                    for (Bundle innerBundle : (ArrayList<Bundle>) valueObject) {
+                        stringBuilder.append(bundleToString(innerBundle));
+                    }
+                } else {
+                    stringBuilder.append(valueObject.toString());
+                }
+                stringBuilder.append(" } ");
+            }
+        } catch (RuntimeException e) {
+            // Catch any exceptions here since corrupt Bundles can throw different types of
+            // exceptions (e.g. b/38445840 & b/68937025).
+            stringBuilder.append("<error>");
+        }
+        return stringBuilder;
     }
 
     /**
@@ -481,8 +654,8 @@ public class GenericDocument {
      */
     public static class Builder<BuilderType extends Builder> {
 
-        private final Map<String, Object> mProperties = new ArrayMap<>();
-        private final DocumentProto.Builder mProtoBuilder = DocumentProto.newBuilder();
+        private final Bundle mProperties = new Bundle();
+        private final Bundle mBundle = new Bundle();
         private final BuilderType mBuilderTypeInstance;
         private boolean mBuilt = false;
 
@@ -502,10 +675,15 @@ public class GenericDocument {
             Preconditions.checkNotNull(uri);
             Preconditions.checkNotNull(schemaType);
             mBuilderTypeInstance = (BuilderType) this;
-            mProtoBuilder.setUri(uri).setSchema(schemaType);
-            mProtoBuilder.setNamespace(DEFAULT_NAMESPACE);
+            mBundle.putString(GenericDocument.URI_FIELD, uri);
+            mBundle.putString(GenericDocument.SCHEMA_TYPE_FIELD, schemaType);
+            mBundle.putString(GenericDocument.NAMESPACE_FIELD, DEFAULT_NAMESPACE);
             // Set current timestamp for creation timestamp by default.
-            setCreationTimestampMillis(System.currentTimeMillis());
+            mBundle.putLong(GenericDocument.CREATION_TIMESTAMP_MILLIS_FIELD,
+                    System.currentTimeMillis());
+            mBundle.putLong(GenericDocument.TTL_MILLIS_FIELD, DEFAULT_TTL_MILLIS);
+            mBundle.putInt(GenericDocument.SCORE_FIELD, DEFAULT_SCORE);
+            mBundle.putBundle(PROPERTIES_FIELD, mProperties);
         }
 
         /**
@@ -515,7 +693,7 @@ public class GenericDocument {
          */
         @NonNull
         public BuilderType setNamespace(@NonNull String namespace) {
-            mProtoBuilder.setNamespace(namespace);
+            mBundle.putString(GenericDocument.NAMESPACE_FIELD, namespace);
             return mBuilderTypeInstance;
         }
 
@@ -533,7 +711,7 @@ public class GenericDocument {
             if (score < 0) {
                 throw new IllegalArgumentException("Document score cannot be negative.");
             }
-            mProtoBuilder.setScore(score);
+            mBundle.putInt(GenericDocument.SCORE_FIELD, score);
             return mBuilderTypeInstance;
         }
 
@@ -544,7 +722,8 @@ public class GenericDocument {
         @NonNull
         public BuilderType setCreationTimestampMillis(long creationTimestampMillis) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            mProtoBuilder.setCreationTimestampMs(creationTimestampMillis);
+            mBundle.putLong(GenericDocument.CREATION_TIMESTAMP_MILLIS_FIELD,
+                    creationTimestampMillis);
             return mBuilderTypeInstance;
         }
 
@@ -563,7 +742,7 @@ public class GenericDocument {
             if (ttlMillis < 0) {
                 throw new IllegalArgumentException("Document ttlMillis cannot be negative.");
             }
-            mProtoBuilder.setTtlMs(ttlMillis);
+            mBundle.putLong(GenericDocument.TTL_MILLIS_FIELD, ttlMillis);
             return mBuilderTypeInstance;
         }
 
@@ -579,7 +758,7 @@ public class GenericDocument {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(key);
             Preconditions.checkNotNull(values);
-            putInPropertyMap(key, values);
+            putInPropertyBundle(key, values);
             return mBuilderTypeInstance;
         }
 
@@ -595,7 +774,7 @@ public class GenericDocument {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(key);
             Preconditions.checkNotNull(values);
-            putInPropertyMap(key, values);
+            putInPropertyBundle(key, values);
             return mBuilderTypeInstance;
         }
 
@@ -611,7 +790,7 @@ public class GenericDocument {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(key);
             Preconditions.checkNotNull(values);
-            putInPropertyMap(key, values);
+            putInPropertyBundle(key, values);
             return mBuilderTypeInstance;
         }
 
@@ -627,7 +806,7 @@ public class GenericDocument {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(key);
             Preconditions.checkNotNull(values);
-            putInPropertyMap(key, values);
+            putInPropertyBundle(key, values);
             return mBuilderTypeInstance;
         }
 
@@ -642,7 +821,7 @@ public class GenericDocument {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(key);
             Preconditions.checkNotNull(values);
-            putInPropertyMap(key, values);
+            putInPropertyBundle(key, values);
             return mBuilderTypeInstance;
         }
 
@@ -658,11 +837,11 @@ public class GenericDocument {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkNotNull(key);
             Preconditions.checkNotNull(values);
-            putInPropertyMap(key, values);
+            putInPropertyBundle(key, values);
             return mBuilderTypeInstance;
         }
 
-        private void putInPropertyMap(@NonNull String key, @NonNull String[] values)
+        private void putInPropertyBundle(@NonNull String key, @NonNull String[] values)
                 throws IllegalArgumentException {
             validateRepeatedPropertyLength(key, values.length);
             for (int i = 0; i < values.length; i++) {
@@ -674,37 +853,54 @@ public class GenericDocument {
                             + MAX_STRING_LENGTH + ".");
                 }
             }
-            mProperties.put(key, values);
+            mProperties.putStringArray(key, values);
         }
 
-        private void putInPropertyMap(@NonNull String key, @NonNull boolean[] values) {
+        private void putInPropertyBundle(@NonNull String key, @NonNull boolean[] values) {
             validateRepeatedPropertyLength(key, values.length);
-            mProperties.put(key, values);
+            mProperties.putBooleanArray(key, values);
         }
 
-        private void putInPropertyMap(@NonNull String key, @NonNull double[] values) {
+        private void putInPropertyBundle(@NonNull String key, @NonNull double[] values) {
             validateRepeatedPropertyLength(key, values.length);
-            mProperties.put(key, values);
+            mProperties.putDoubleArray(key, values);
         }
 
-        private void putInPropertyMap(@NonNull String key, @NonNull long[] values) {
+        private void putInPropertyBundle(@NonNull String key, @NonNull long[] values) {
             validateRepeatedPropertyLength(key, values.length);
-            mProperties.put(key, values);
+            mProperties.putLongArray(key, values);
         }
 
-        private void putInPropertyMap(@NonNull String key, @NonNull byte[][] values) {
+        /**
+         * Converts and saves a byte[][] into {@link #mProperties}.
+         *
+         * <p>Bundle doesn't support for two dimension array byte[][], we are converting byte[][]
+         * into ArrayList<Bundle>, and each elements will contain a one dimension byte[].
+         */
+        private void putInPropertyBundle(@NonNull String key, @NonNull byte[][] values) {
             validateRepeatedPropertyLength(key, values.length);
-            mProperties.put(key, values);
+            ArrayList<Bundle> bundles = new ArrayList<>(values.length);
+            for (int i = 0; i < values.length; i++) {
+                if (values[i] == null) {
+                    throw new IllegalArgumentException("The byte[] at " + i + " is null.");
+                }
+                Bundle bundle = new Bundle();
+                bundle.putByteArray(BYTE_ARRAY_FIELD, values[i]);
+                bundles.add(bundle);
+            }
+            mProperties.putParcelableArrayList(key, bundles);
         }
 
-        private void putInPropertyMap(@NonNull String key, @NonNull GenericDocument[] values) {
+        private void putInPropertyBundle(@NonNull String key, @NonNull GenericDocument[] values) {
+            validateRepeatedPropertyLength(key, values.length);
+            Bundle[] documentBundles = new Bundle[values.length];
             for (int i = 0; i < values.length; i++) {
                 if (values[i] == null) {
                     throw new IllegalArgumentException("The document at " + i + " is null.");
                 }
+                documentBundles[i] = values[i].mBundle;
             }
-            validateRepeatedPropertyLength(key, values.length);
-            mProperties.put(key, values);
+            mProperties.putParcelableArray(key, documentBundles);
         }
 
         private static void validateRepeatedPropertyLength(@NonNull String key, int length) {
@@ -722,48 +918,8 @@ public class GenericDocument {
         @NonNull
         public GenericDocument build() {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
-            // Build proto by sorting the keys in mProperties to exclude the influence of
-            // order. Therefore documents will generate same proto as long as the contents are
-            // same. Note that the order of repeated fields is still preserved.
-            ArrayList<String> keys = new ArrayList<>(mProperties.keySet());
-            Collections.sort(keys);
-            for (int i = 0; i < keys.size(); i++) {
-                String name = keys.get(i);
-                Object values = mProperties.get(name);
-                PropertyProto.Builder propertyProto = PropertyProto.newBuilder().setName(name);
-                if (values instanceof boolean[]) {
-                    for (boolean value : (boolean[]) values) {
-                        propertyProto.addBooleanValues(value);
-                    }
-                } else if (values instanceof long[]) {
-                    for (long value : (long[]) values) {
-                        propertyProto.addInt64Values(value);
-                    }
-                } else if (values instanceof double[]) {
-                    for (double value : (double[]) values) {
-                        propertyProto.addDoubleValues(value);
-                    }
-                } else if (values instanceof String[]) {
-                    for (String value : (String[]) values) {
-                        propertyProto.addStringValues(value);
-                    }
-                } else if (values instanceof GenericDocument[]) {
-                    for (GenericDocument value : (GenericDocument[]) values) {
-                        propertyProto.addDocumentValues(value.getProto());
-                    }
-                } else if (values instanceof byte[][]) {
-                    for (byte[] value : (byte[][]) values) {
-                        propertyProto.addBytesValues(ByteString.copyFrom(value));
-                    }
-                } else {
-                    throw new IllegalStateException(
-                            "Property \"" + name + "\" has unsupported value type \""
-                                    + values.getClass().getSimpleName() + "\"");
-                }
-                mProtoBuilder.addProperties(propertyProto);
-            }
             mBuilt = true;
-            return new GenericDocument(mProtoBuilder.build(), mProperties);
+            return new GenericDocument(mBundle);
         }
     }
 }

@@ -22,26 +22,19 @@ import static org.junit.Assert.assertThrows;
 
 import androidx.test.filters.SmallTest;
 
-import com.google.android.icing.proto.DocumentProto;
-import com.google.android.icing.proto.PropertyProto;
-import com.google.android.icing.protobuf.ByteString;
-
 import org.junit.Test;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 
 @SmallTest
 public class GenericDocumentTest {
     private static final byte[] sByteArray1 = new byte[]{(byte) 1, (byte) 2, (byte) 3};
-    private static final byte[] sByteArray2 = new byte[]{(byte) 4, (byte) 5, (byte) 6};
+    private static final byte[] sByteArray2 = new byte[]{(byte) 4, (byte) 5, (byte) 6, (byte) 7};
     private static final GenericDocument sDocumentProperties1 = new GenericDocument
             .Builder("sDocumentProperties1", "sDocumentPropertiesSchemaType1")
+            .setCreationTimestampMillis(12345L)
             .build();
     private static final GenericDocument sDocumentProperties2 = new GenericDocument
             .Builder("sDocumentProperties2", "sDocumentPropertiesSchemaType2")
+            .setCreationTimestampMillis(6789L)
             .build();
 
     @Test
@@ -183,6 +176,49 @@ public class GenericDocumentTest {
     }
 
     @Test
+    public void testDocument_ToString() throws Exception {
+        GenericDocument document = new GenericDocument.Builder("uri1", "schemaType1")
+                .setCreationTimestampMillis(5L)
+                .setProperty("longKey1", 1L, 2L, 3L)
+                .setProperty("doubleKey1", 1.0, 2.0, 3.0)
+                .setProperty("booleanKey1", true, false, true)
+                .setProperty("stringKey1", "String1", "String2", "String3")
+                .setProperty("byteKey1", sByteArray1, sByteArray2)
+                .setProperty("documentKey1", sDocumentProperties1, sDocumentProperties2)
+                .build();
+        String exceptedString = "{ key: 'creationTimestampMillis' value: 5 } "
+                + "{ key: 'namespace' value:  } "
+                + "{ key: 'properties' value: "
+                +       "{ key: 'booleanKey1' value: [ 'true' 'false' 'true' ] } "
+                +       "{ key: 'byteKey1' value: "
+                +             "{ key: 'byteArray' value: [ '1' '2' '3' ] } "
+                +             "{ key: 'byteArray' value: [ '4' '5' '6' '7' ] }  } "
+                +       "{ key: 'documentKey1' value: [ '"
+                +             "{ key: 'creationTimestampMillis' value: 12345 } "
+                +             "{ key: 'namespace' value:  } "
+                +             "{ key: 'properties' value:  } "
+                +             "{ key: 'schemaType' value: sDocumentPropertiesSchemaType1 } "
+                +             "{ key: 'score' value: 0 } "
+                +             "{ key: 'ttlMillis' value: 0 } "
+                +             "{ key: 'uri' value: sDocumentProperties1 } ' '"
+                +             "{ key: 'creationTimestampMillis' value: 6789 } "
+                +             "{ key: 'namespace' value:  } "
+                +             "{ key: 'properties' value:  } "
+                +             "{ key: 'schemaType' value: sDocumentPropertiesSchemaType2 } "
+                +             "{ key: 'score' value: 0 } "
+                +             "{ key: 'ttlMillis' value: 0 } "
+                +             "{ key: 'uri' value: sDocumentProperties2 } ' ] } "
+                +       "{ key: 'doubleKey1' value: [ '1.0' '2.0' '3.0' ] } "
+                +       "{ key: 'longKey1' value: [ '1' '2' '3' ] } "
+                +       "{ key: 'stringKey1' value: [ 'String1' 'String2' 'String3' ] }  } "
+                + "{ key: 'schemaType' value: schemaType1 } "
+                + "{ key: 'score' value: 0 } "
+                + "{ key: 'ttlMillis' value: 0 } "
+                + "{ key: 'uri' value: uri1 } ";
+        assertThat(document.toString()).isEqualTo(exceptedString);
+    }
+
+    @Test
     public void testDocumentGetValues_DifferentTypes() {
         GenericDocument document = new GenericDocument.Builder("uri1", "schemaType1")
                 .setScore(1)
@@ -214,51 +250,5 @@ public class GenericDocumentTest {
         GenericDocument.Builder builder = new GenericDocument.Builder("uri1", "schemaType1");
         assertThrows(
                 IllegalArgumentException.class, () -> builder.setProperty("test", new boolean[]{}));
-    }
-
-    @Test
-    public void testDocumentProtoPopulation() {
-        GenericDocument document = new GenericDocument.Builder("uri1", "schemaType1")
-                .setCreationTimestampMillis(5L)
-                .setScore(1)
-                .setTtlMillis(1L)
-                .setNamespace("namespace")
-                .setProperty("longKey1", 1L)
-                .setProperty("doubleKey1", 1.0)
-                .setProperty("booleanKey1", true)
-                .setProperty("stringKey1", "test-value1")
-                .setProperty("byteKey1", sByteArray1)
-                .setProperty("documentKey1", sDocumentProperties1)
-                .build();
-
-        // Create the Document proto. Need to sort the property order by key.
-        DocumentProto.Builder documentProtoBuilder = DocumentProto.newBuilder()
-                .setUri("uri1")
-                .setSchema("schemaType1")
-                .setCreationTimestampMs(5L)
-                .setScore(1)
-                .setTtlMs(1L)
-                .setNamespace("namespace");
-        HashMap<String, PropertyProto.Builder> propertyProtoMap = new HashMap<>();
-        propertyProtoMap.put("longKey1",
-                PropertyProto.newBuilder().setName("longKey1").addInt64Values(1L));
-        propertyProtoMap.put("doubleKey1",
-                PropertyProto.newBuilder().setName("doubleKey1").addDoubleValues(1.0));
-        propertyProtoMap.put("booleanKey1",
-                PropertyProto.newBuilder().setName("booleanKey1").addBooleanValues(true));
-        propertyProtoMap.put("stringKey1",
-                PropertyProto.newBuilder().setName("stringKey1").addStringValues("test-value1"));
-        propertyProtoMap.put("byteKey1",
-                PropertyProto.newBuilder().setName("byteKey1").addBytesValues(
-                        ByteString.copyFrom(sByteArray1)));
-        propertyProtoMap.put("documentKey1",
-                PropertyProto.newBuilder().setName("documentKey1")
-                        .addDocumentValues(sDocumentProperties1.getProto()));
-        List<String> sortedKey = new ArrayList<>(propertyProtoMap.keySet());
-        Collections.sort(sortedKey);
-        for (String key : sortedKey) {
-            documentProtoBuilder.addProperties(propertyProtoMap.get(key));
-        }
-        assertThat(document.getProto()).isEqualTo(documentProtoBuilder.build());
     }
 }
