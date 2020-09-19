@@ -41,7 +41,7 @@ public class AnnotationProcessorTest {
     @Before
     public void setUp() throws Exception {
         Context context = ApplicationProvider.getApplicationContext();
-        LocalBackend backend = new LocalBackend.Builder(context).build().getResultValue();
+        LocalBackend backend = LocalBackend.getInstance(context).getResultValue();
         mAppSearchManager = checkIsResultSuccess(new AppSearchManager.Builder()
                 .setDatabaseName("testDb").setBackend(backend).build());
 
@@ -61,7 +61,6 @@ public class AnnotationProcessorTest {
         @AppSearchDocument.Property Collection<Boolean> mCollectBoolean;   // 1a
         @AppSearchDocument.Property Collection<byte[]> mCollectByteArr;    // 1a
         @AppSearchDocument.Property Collection<String> mCollectString;     // 1b
-//        @AppSearchDocument.Property Collection<GenericDocument> mCollectGenDoc; // 1b
 //        @AppSearchDocument.Property Collection<Gift> mCollectGift;         // 1c
 
         // Arrays

@@ -9,9 +9,6 @@ import java.lang.String;
 public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
   private static final String SCHEMA_TYPE = "DifferentType";
 
-  private static final AppSearchSchema SCHEMA = new AppSearchSchema.Builder(SCHEMA_TYPE)
-    .build();
-
   @Override
   public String getSchemaType() {
     return SCHEMA_TYPE;
@@ -19,7 +16,8 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
 
   @Override
   public AppSearchSchema getSchema() {
-    return SCHEMA;
+    return new AppSearchSchema.Builder(SCHEMA_TYPE)
+          .build();
   }
 
   @Override

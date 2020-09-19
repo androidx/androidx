@@ -12,21 +12,6 @@ import java.util.List;
 public class $$__AppSearch__Gift$$__InnerGift implements DataClassFactory<Gift.InnerGift> {
   private static final String SCHEMA_TYPE = "InnerGift";
 
-  private static final AppSearchSchema SCHEMA = new AppSearchSchema.Builder(SCHEMA_TYPE)
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("collectGenDoc")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOCUMENT)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrString")
-      .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
-      .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
-      .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
-      .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
-      .build())
-    .build();
-
   @Override
   public String getSchemaType() {
     return SCHEMA_TYPE;
@@ -34,7 +19,20 @@ public class $$__AppSearch__Gift$$__InnerGift implements DataClassFactory<Gift.I
 
   @Override
   public AppSearchSchema getSchema() {
-    return SCHEMA;
+    return new AppSearchSchema.Builder(SCHEMA_TYPE)
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("collectGenDoc")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOCUMENT)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrString")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
+          .build();
   }
 
   @Override

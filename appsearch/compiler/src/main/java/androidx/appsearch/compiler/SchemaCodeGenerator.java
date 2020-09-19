@@ -65,12 +65,6 @@ class SchemaCodeGenerator {
                         .initializer("$S", mModel.getSchemaName())
                         .build());
 
-        classBuilder.addField(
-                FieldSpec.builder(mHelper.getAppSearchClass("AppSearchSchema"), "SCHEMA")
-                        .addModifiers(Modifier.PRIVATE, Modifier.STATIC, Modifier.FINAL)
-                        .initializer(createSchemaInitializer())
-                        .build());
-
         classBuilder.addMethod(
                 MethodSpec.methodBuilder("getSchemaType")
                         .addModifiers(Modifier.PUBLIC)
@@ -84,7 +78,7 @@ class SchemaCodeGenerator {
                         .addModifiers(Modifier.PUBLIC)
                         .returns(mHelper.getAppSearchClass("AppSearchSchema"))
                         .addAnnotation(Override.class)
-                        .addStatement("return SCHEMA")
+                        .addStatement("return $L", createSchemaInitializer())
                         .build());
     }
 
