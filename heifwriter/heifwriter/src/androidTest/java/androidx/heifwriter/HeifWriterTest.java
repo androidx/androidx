@@ -48,6 +48,7 @@ import androidx.heifwriter.test.R;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.FlakyTest;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.SmallTest;
 import androidx.test.rule.GrantPermissionRule;
 
 import org.junit.After;
@@ -278,6 +279,25 @@ public class HeifWriterTest {
                     IMAGE_FILENAMES[i]).getAbsolutePath();
             doTestForVariousNumberImages(builder.setInputPath(inputPath));
         }
+    }
+
+    @Test
+    @SmallTest
+    public void testCloseWithoutStart() throws Throwable {
+        if (shouldSkip()) return;
+
+        final String outputPath = new File(getApplicationContext().getExternalFilesDir(null),
+                        OUTPUT_FILENAME).getAbsolutePath();
+        HeifWriter heifWriter = new HeifWriter.Builder(
+                    outputPath, 1920, 1080, INPUT_MODE_SURFACE)
+                    .setGridEnabled(true)
+                    .setMaxImages(4)
+                    .setQuality(90)
+                    .setPrimaryIndex(0)
+                    .setHandler(mHandler)
+                    .build();
+
+        heifWriter.close();
     }
 
     private void doTestForVariousNumberImages(TestConfig.Builder builder) throws Exception {

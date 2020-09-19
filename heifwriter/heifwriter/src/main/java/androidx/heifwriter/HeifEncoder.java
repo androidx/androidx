@@ -46,7 +46,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * This class encodes images into HEIF-compatible samples using HEVC encoder.
@@ -128,7 +127,6 @@ public final class HeifEncoder implements AutoCloseable,
     private int mTextureId;
     private final float[] mTmpMatrix = new float[16];
     private final AtomicBoolean mStopping = new AtomicBoolean(false);
-    private final CountDownLatch mStoppedLatch;
 
     public static final int INPUT_MODE_BUFFER = HeifWriter.INPUT_MODE_BUFFER;
     public static final int INPUT_MODE_SURFACE = HeifWriter.INPUT_MODE_SURFACE;
@@ -380,8 +378,6 @@ public final class HeifEncoder implements AutoCloseable,
 
         mDstRect = new Rect(0, 0, mGridWidth, mGridHeight);
         mSrcRect = new Rect();
-
-        mStoppedLatch = new CountDownLatch(1);
     }
 
     private String findHevcFallback() {
@@ -748,9 +744,13 @@ public final class HeifEncoder implements AutoCloseable,
         mStopping.set(true);
 
         // after start, mEncoder is only accessed on handler, so no need to sync.
-        if (mEncoder != null) {
-            mEncoder.stop();
-            mEncoder.release();
+        try {
+            if (mEncoder != null) {
+                mEncoder.stop();
+                mEncoder.release();
+            }
+        } catch (Exception e) {
+        } finally {
             mEncoder = null;
         }
 
@@ -768,26 +768,36 @@ public final class HeifEncoder implements AutoCloseable,
         // those outputs were not returned. Shutting down the encoder will make break
         // the tile copier out of that.
         synchronized(this) {
-            if (mRectBlt != null) {
-                mRectBlt.release(false);
+            try {
+                if (mRectBlt != null) {
+                    mRectBlt.release(false);
+                }
+            } catch (Exception e) {
+            } finally {
                 mRectBlt = null;
             }
 
-            if (mEncoderEglSurface != null) {
-                // Note that this frees mEncoderSurface too. If mEncoderEglSurface is not
-                // there, client is responsible to release the input surface it got from us,
-                // we don't release mEncoderSurface here.
-                mEncoderEglSurface.release();
+            try {
+                if (mEncoderEglSurface != null) {
+                    // Note that this frees mEncoderSurface too. If mEncoderEglSurface is not
+                    // there, client is responsible to release the input surface it got from us,
+                    // we don't release mEncoderSurface here.
+                    mEncoderEglSurface.release();
+                }
+            } catch (Exception e) {
+            } finally {
                 mEncoderEglSurface = null;
             }
 
-            if (mInputTexture != null) {
-                mInputTexture.release();
+            try {
+                if (mInputTexture != null) {
+                    mInputTexture.release();
+                }
+            } catch (Exception e) {
+            } finally {
                 mInputTexture = null;
             }
         }
-
-        mStoppedLatch.countDown();
     }
 
     /**
@@ -997,11 +1007,12 @@ public final class HeifEncoder implements AutoCloseable,
         mHandler.postAtFrontOfQueue(new Runnable() {
             @Override
             public void run() {
-                stopInternal();
+                try {
+                    stopInternal();
+                } catch (Exception e) {
+                    // We don't want to crash when closing.
+                }
             }
         });
-        try {
-            mStoppedLatch.await();
-        } catch(InterruptedException e) {}
     }
 }
