@@ -28,6 +28,7 @@ import com.squareup.javapoet.JavaFile
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
+import kotlin.reflect.KClass
 
 /**
  * Base class for all writers that can produce a class.
@@ -37,8 +38,30 @@ abstract class ClassWriter(private val className: ClassName) {
     private val sharedMethodSpecs = mutableMapOf<String, MethodSpec>()
     private val sharedFieldNames = mutableSetOf<String>()
     private val sharedMethodNames = mutableSetOf<String>()
+    private val metadata = mutableMapOf<KClass<*>, Any>()
 
     abstract fun createTypeSpecBuilder(): TypeSpec.Builder
+
+    /**
+     * Read additional metadata that can be put by sub code generators.
+     *
+     * @see set for more details.
+     */
+    operator fun <T> get(key: KClass<*>): T? {
+        @Suppress("UNCHECKED_CAST")
+        return metadata[key] as? T
+    }
+
+    /**
+     * Add additional metadata to the ClassWriter that can be read back later.
+     * This is useful for additional functionality where a sub code generator needs to bubble up
+     * information to the main ClassWriter without copying it in every intermediate step.
+     *
+     * @see get
+     */
+    operator fun set(key: KClass<*>, value: Any) {
+        metadata[key] = value
+    }
 
     fun write(processingEnv: XProcessingEnv) {
         val builder = createTypeSpecBuilder()
