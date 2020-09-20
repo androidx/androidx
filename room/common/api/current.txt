@@ -142,6 +142,9 @@ package androidx.room {
     method public abstract boolean autoGenerate() default false;
   }
 
+  @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.TYPE) public @interface ProvidedTypeConverter {
+  }
+
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) @java.lang.annotation.Target(java.lang.annotation.ElementType.METHOD) public @interface Query {
     method public abstract String value();
   }

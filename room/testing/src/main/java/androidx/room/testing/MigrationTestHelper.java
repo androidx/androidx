@@ -168,6 +168,7 @@ public class MigrationTestHelper extends TestWatcher {
                 null,
                 null,
                 null,
+                null,
                 null);
         RoomOpenHelper roomOpenHelper = new RoomOpenHelper(configuration,
                 new CreatingDelegate(schemaBundle.getDatabase()),
@@ -227,6 +228,7 @@ public class MigrationTestHelper extends TestWatcher {
                 true,
                 false,
                 Collections.<Integer>emptySet(),
+                null,
                 null,
                 null,
                 null,

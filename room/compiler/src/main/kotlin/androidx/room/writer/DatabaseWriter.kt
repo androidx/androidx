@@ -30,12 +30,14 @@ import androidx.room.compiler.processing.addOriginatingElement
 import androidx.room.solver.CodeGenScope
 import androidx.room.vo.DaoMethod
 import androidx.room.vo.Database
+import com.squareup.javapoet.ClassName
 import com.squareup.javapoet.FieldSpec
 import com.squareup.javapoet.MethodSpec
 import com.squareup.javapoet.ParameterSpec
 import com.squareup.javapoet.ParameterizedTypeName
 import com.squareup.javapoet.TypeName
 import com.squareup.javapoet.TypeSpec
+import com.squareup.javapoet.WildcardTypeName
 import decapitalize
 import stripNonJava
 import java.util.Locale
@@ -59,9 +61,61 @@ class DatabaseWriter(val database: Database) : ClassWriter(database.implTypeName
             addMethod(createCreateOpenHelper())
             addMethod(createCreateInvalidationTracker())
             addMethod(createClearAllTables())
+            addMethod(createCreateTypeConvertersMap())
         }
         addDaoImpls(builder)
         return builder
+    }
+
+    private fun createCreateTypeConvertersMap(): MethodSpec {
+        val scope = CodeGenScope(this)
+        return MethodSpec.methodBuilder("getRequiredTypeConverters").apply {
+            addAnnotation(Override::class.java)
+            addModifiers(PROTECTED)
+            returns(ParameterizedTypeName.get(
+                CommonTypeNames.MAP,
+                ParameterizedTypeName.get(
+                    ClassName.get(Class::class.java),
+                    WildcardTypeName.subtypeOf(Object::class.java)
+                ),
+                ParameterizedTypeName.get(
+                    CommonTypeNames.LIST,
+                    ParameterizedTypeName.get(
+                        ClassName.get(Class::class.java),
+                        WildcardTypeName.subtypeOf(Object::class.java)
+                    )
+                )
+            ))
+            val typeConvertersVar = scope.getTmpVar("_typeConvertersMap")
+            val typeConvertersTypeName = ParameterizedTypeName.get(
+                ClassName.get(HashMap::class.java),
+                ParameterizedTypeName.get(
+                    ClassName.get(Class::class.java),
+                    WildcardTypeName.subtypeOf(Object::class.java)
+                ),
+                ParameterizedTypeName.get(
+                    ClassName.get(List::class.java),
+                    ParameterizedTypeName.get(
+                        ClassName.get(Class::class.java),
+                        WildcardTypeName.subtypeOf(Object::class.java)
+                    )
+                )
+            )
+            addStatement(
+                "final $T $L = new $T()",
+                typeConvertersTypeName,
+                typeConvertersVar,
+                typeConvertersTypeName
+            )
+            database.daoMethods.forEach {
+                addStatement("$L.put($T.class, $T.$L())",
+                typeConvertersVar,
+                it.dao.typeName,
+                it.dao.implTypeName,
+                DaoWriter.GET_LIST_OF_TYPE_CONVERTERS_METHOD)
+            }
+            addStatement("return $L", typeConvertersVar)
+        }.build()
     }
 
     private fun createClearAllTables(): MethodSpec {

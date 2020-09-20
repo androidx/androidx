@@ -294,7 +294,8 @@ object ProcessorErrors {
     val TYPE_CONVERTER_EMPTY_CLASS = "Class is referenced as a converter but it does not have any" +
             " converter methods."
     val TYPE_CONVERTER_MISSING_NOARG_CONSTRUCTOR = "Classes that are used as TypeConverters must" +
-            " have no-argument public constructors."
+            " have no-argument public constructors. Use a ProvidedTypeConverter annotation if you" +
+            " need to take control over creating an instance of a TypeConverter."
     val TYPE_CONVERTER_MUST_BE_PUBLIC = "Type converters must be public."
 
     fun duplicateTypeConverters(converters: List<CustomTypeConverter>): String {
