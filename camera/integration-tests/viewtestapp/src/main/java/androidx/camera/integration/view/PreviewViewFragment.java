@@ -114,6 +114,7 @@ public class PreviewViewFragment extends Fragment {
             public void onSuccess(@Nullable ProcessCameraProvider cameraProvider) {
                 Preconditions.checkNotNull(cameraProvider);
                 mPreview = new Preview.Builder()
+                        .setTargetRotation(view.getDisplay().getRotation())
                         .setTargetName("Preview")
                         .build();
                 mPreview.setSurfaceProvider(mPreviewView.getSurfaceProvider());
