@@ -1145,3 +1145,5 @@ Stream closed
 # > Task :benchmark:benchmark-macro:processDebugAndroidTestManifest
 \$SUPPORT\/benchmark\/macro\/src\/androidTest\/AndroidManifest\.xml Warning\:
 Package name \'androidx\.benchmark\.macro\.test\' used in\: AndroidManifest\.xml\, manifestMerger[0-9]+\.xml\.
+# > Task :sqlite:integration-tests:inspection-room-testapp:kaptDebugAndroidTestKotlin
+ZipFile closed
