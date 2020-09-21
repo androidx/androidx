@@ -127,8 +127,12 @@ class ProcessingImageReaderDeviceTest {
         imageWriter.queueInputImage(image)
         val fakeCameraCaptureResult = FakeCameraCaptureResult()
         fakeCameraCaptureResult.timestamp = timestamp
-        val tagBundle = TagBundle.create(Pair(mCaptureBundle.hashCode().toString(),
-            captureId))
+        val tagBundle = TagBundle.create(
+            Pair(
+                mCaptureBundle.hashCode().toString(),
+                captureId
+            )
+        )
         fakeCameraCaptureResult.setTag(tagBundle)
         callback.onCaptureCompleted(fakeCameraCaptureResult)
     }
