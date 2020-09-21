@@ -312,12 +312,16 @@ class ProcessCameraProviderTest {
             provider = ProcessCameraProvider.getInstance(context).await()
 
             val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
-            val camera0 = provider.bindToLifecycle(lifecycleOwner0,
-                CameraSelector.DEFAULT_BACK_CAMERA, useCase0)
+            val camera0 = provider.bindToLifecycle(
+                lifecycleOwner0,
+                CameraSelector.DEFAULT_BACK_CAMERA, useCase0
+            )
 
             val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
-            val camera1 = provider.bindToLifecycle(lifecycleOwner1,
-                CameraSelector.DEFAULT_BACK_CAMERA, useCase1)
+            val camera1 = provider.bindToLifecycle(
+                lifecycleOwner1,
+                CameraSelector.DEFAULT_BACK_CAMERA, useCase1
+            )
 
             assertThat(camera0).isNotEqualTo(camera1)
         }
@@ -347,11 +351,18 @@ class ProcessCameraProviderTest {
             val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
             val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
 
-            val camera0 = provider.bindToLifecycle(lifecycleOwner0, CameraSelector
-            .DEFAULT_BACK_CAMERA, useCase0)
-            val camera1 = provider.bindToLifecycle(lifecycleOwner0, CameraSelector
-            .DEFAULT_BACK_CAMERA,
-                useCase1)
+            val camera0 = provider.bindToLifecycle(
+                lifecycleOwner0,
+                CameraSelector
+                    .DEFAULT_BACK_CAMERA,
+                useCase0
+            )
+            val camera1 = provider.bindToLifecycle(
+                lifecycleOwner0,
+                CameraSelector
+                    .DEFAULT_BACK_CAMERA,
+                useCase1
+            )
 
             assertThat(camera0).isSameInstanceAs(camera1)
         }
@@ -389,11 +400,19 @@ class ProcessCameraProviderTest {
             val useCase0 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
             val useCase1 = Preview.Builder().setSessionOptionUnpacker { _, _ -> }.build()
 
-            val camera0 = provider.bindToLifecycle(lifecycleOwner0, CameraSelector
-                .DEFAULT_BACK_CAMERA, useCase0)
+            val camera0 = provider.bindToLifecycle(
+                lifecycleOwner0,
+                CameraSelector
+                    .DEFAULT_BACK_CAMERA,
+                useCase0
+            )
 
-            val camera1 = provider.bindToLifecycle(lifecycleOwner1, CameraSelector
-                .DEFAULT_FRONT_CAMERA, useCase1)
+            val camera1 = provider.bindToLifecycle(
+                lifecycleOwner1,
+                CameraSelector
+                    .DEFAULT_FRONT_CAMERA,
+                useCase1
+            )
 
             assertThat(camera0).isNotEqualTo(camera1)
         }
@@ -450,7 +469,7 @@ class ProcessCameraProviderTest {
             provider = ProcessCameraProvider.getInstance(context).await()
             val camera: LifecycleCamera =
                 provider.bindToLifecycle(lifecycleOwner0, CameraSelector.DEFAULT_BACK_CAMERA) as
-                        LifecycleCamera
+                    LifecycleCamera
             lifecycleOwner0.startAndResume()
             assertThat(camera.isActive).isFalse()
         }
@@ -464,7 +483,7 @@ class ProcessCameraProviderTest {
             lifecycleOwner0.startAndResume()
             val camera: LifecycleCamera =
                 provider.bindToLifecycle(lifecycleOwner0, CameraSelector.DEFAULT_BACK_CAMERA) as
-                        LifecycleCamera
+                    LifecycleCamera
             assertThat(camera.isActive).isFalse()
         }
     }
@@ -539,7 +558,7 @@ class ProcessCameraProviderTest {
 }
 
 private class TestAppContextWrapper(base: Context, val app: Application? = null) : ContextWrapper
-    (base) {
+(base) {
 
     val testResources = TestResources(base.resources)
 
@@ -565,7 +584,8 @@ private class TestApplication : Application(), CameraXConfig.Provider {
 
 @Suppress("DEPRECATION")
 private class TestResources(base: Resources) : Resources(
-    base.assets, base.displayMetrics, base
+    base.assets, base.displayMetrics,
+    base
         .configuration
 ) {
 
