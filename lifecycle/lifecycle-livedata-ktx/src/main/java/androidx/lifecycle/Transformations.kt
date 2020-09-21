@@ -33,7 +33,7 @@ package androidx.lifecycle
  * ```
  */
 inline fun <X, Y> LiveData<X>.map(crossinline transform: (X) -> Y): LiveData<Y> =
-        Transformations.map(this) { transform(it) }
+    Transformations.map(this) { transform(it) }
 
 /**
  * Returns a [LiveData] mapped from the input `this` `LiveData` by applying
@@ -84,4 +84,4 @@ inline fun <X, Y> LiveData<X>.switchMap(
  */
 @Suppress("NOTHING_TO_INLINE")
 inline fun <X> LiveData<X>.distinctUntilChanged(): LiveData<X> =
-        Transformations.distinctUntilChanged(this)
+    Transformations.distinctUntilChanged(this)

@@ -41,8 +41,10 @@ class ViewTreeLifecycleOwnerTest {
 
         ViewTreeLifecycleOwner.set(v, fakeOwner)
 
-        assertEquals("get the LifecycleOwner set directly",
-            fakeOwner, v.findViewTreeLifecycleOwner())
+        assertEquals(
+            "get the LifecycleOwner set directly",
+            fakeOwner, v.findViewTreeLifecycleOwner()
+        )
     }
 
     /**
@@ -90,8 +92,10 @@ class ViewTreeLifecycleOwnerTest {
         ViewTreeLifecycleOwner.set(parent, parentFakeOwner)
 
         assertEquals("root sees owner", rootFakeOwner, root.findViewTreeLifecycleOwner())
-        assertEquals("direct child sees owner",
-            parentFakeOwner, parent.findViewTreeLifecycleOwner())
+        assertEquals(
+            "direct child sees owner",
+            parentFakeOwner, parent.findViewTreeLifecycleOwner()
+        )
         assertEquals("grandchild sees owner", parentFakeOwner, child.findViewTreeLifecycleOwner())
     }
 
