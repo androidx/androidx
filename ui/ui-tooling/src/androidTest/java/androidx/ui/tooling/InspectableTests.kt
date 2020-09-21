@@ -54,9 +54,11 @@ class InspectableTests : ToolingTest() {
         show {
             Inspectable(slotTableRecord) {
                 Column {
-                    Box(Modifier.preferredSize(100.dp).drawBehind {
-                        drawRect(Color(0xFF))
-                    })
+                    Box(
+                        Modifier.preferredSize(100.dp).drawBehind {
+                            drawRect(Color(0xFF))
+                        }
+                    )
                 }
             }
         }
@@ -354,9 +356,11 @@ class InspectableTests : ToolingTest() {
             ModalDrawerLayout(
                 drawerContent = { Text("Something") },
                 bodyContent = {
-                    Column(Modifier.onPositioned {
-                        positioned.countDown()
-                    }) {
+                    Column(
+                        Modifier.onPositioned {
+                            positioned.countDown()
+                        }
+                    ) {
                         Text(text = "Hello World", color = Color.Green)
                         Button(onClick = {}) { Text(text = "OK") }
                     }
