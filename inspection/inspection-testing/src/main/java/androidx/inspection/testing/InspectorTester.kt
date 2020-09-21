@@ -67,7 +67,7 @@ suspend fun InspectorTester(
         val loader = ServiceLoader.load(InspectorFactory::class.java)
         val factory =
             factoryOverride ?: loader.iterator().asSequence().find { it.inspectorId == inspectorId }
-            ?: throw AssertionError("Failed to find with inspector with $inspectorId")
+                ?: throw AssertionError("Failed to find with inspector with $inspectorId")
         val channel = Channel<ByteArray>(Channel.UNLIMITED)
         val scope = CoroutineScope(dispatcher + inspectorTesterJob)
         val inspector = factory.createInspector(ConnectionImpl(scope, channel), resolved)

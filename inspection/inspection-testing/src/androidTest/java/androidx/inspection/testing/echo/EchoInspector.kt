@@ -46,9 +46,12 @@ class EchoInspector(connection: Connection) : Inspector(connection) {
     override fun onReceiveCommand(data: ByteArray, callback: CommandCallback) {
         val command = String(data)
         if (command == "<cancellation-test>") {
-            callback.addCancellationListener(DirectExecutor, Runnable {
-                connection.sendEvent("cancellation: successfully cancelled".toByteArray())
-            })
+            callback.addCancellationListener(
+                DirectExecutor,
+                Runnable {
+                    connection.sendEvent("cancellation: successfully cancelled".toByteArray())
+                }
+            )
             connection.sendEvent("cancellation: listener added".toByteArray())
         } else {
             callback.reply("echoed: $command".toByteArray())
