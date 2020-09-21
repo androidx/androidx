@@ -17,6 +17,9 @@
 package android.support.wearable.watchface;
 
 import android.support.wearable.complications.ComplicationData;
+import androidx.wear.watchface.data.ImmutableSystemState;
+import androidx.wear.watchface.data.IndicatorState;
+import androidx.wear.watchface.data.SystemState;
 
 /**
  * Interface for controlling the watchface from the wearable device.
@@ -48,30 +51,18 @@ interface IWatchFaceCommand {
     /**
      * Sends the current system state to the Watch Face.
      */
-    void setSystemState(
-        in boolean inAmbientMode,
-        in int interruptionFilter,
-        in int unreadCount,
-        in int notificationCount
-    ) = 3;
+    void setSystemState(in SystemState systemState) = 3;
 
     /**
-     * Sends the current system state to the Watch Face, only called if
+     * Sends the current watch indicator state to the Watch Face, only called if
      * {@link WatchFaceStyle#hideNotificationIndicator} is true.
      */
-    void setIndicatorState(
-        in boolean isCharging,
-        in boolean inAirplaneMode,
-        in boolean isConnectedToCompanion,
-        in boolean inTheaterMode,
-        in boolean isGpsActive,
-        in boolean isKeyguardLocked
-    ) = 4;
+    void setIndicatorState(in IndicatorState indicatorState) = 4;
 
     /**
      * Sends the immutable system state to the Watch Face.
      */
-    void setImmutableSystemState(in boolean hasLowBitAmbient, in boolean hasBurnInProtection) = 5;
+    void setImmutableSystemState(in ImmutableSystemState immutableSystemState) = 5;
 
     /**
      * Sends new complication data for the specified complicationId.
@@ -101,12 +92,15 @@ interface IWatchFaceCommand {
      * @param drawMode The {@link androidx.wear.watchface.DrawMode} to render with
      * @param compressionQuality The WebP compression quality, 100 = lossless
      * @param calendarTimeMillis The calendar time (millis since the epoch) to render with
+     * @param style A {@link Bundle} containing a mapping from {@link UserStyleCategory} to
+     *    {@link UserStyleCategory.Option}s. If null then the current style is used.
      * @return A bundle containing a compressed shared memory backed {@link Bitmap} of the watch
      *     face with the requested settings
      */
     Bundle takeWatchfaceScreenshot(in int drawMode,
                                    in int compressionQuality,
-                                   in long calendarTimeMillis) = 9;
+                                   in long calendarTimeMillis,
+                                   in Bundle style) = 9;
 
     /**
      * Request for a {@link Bundle} containing a WebP compressed shared memory backed {@link Bitmap}
@@ -120,6 +114,8 @@ interface IWatchFaceCommand {
      * @param calendarTimeMillis The calendar time (millis since the epoch) to render with
      * @param complicationData The {@link ComplicationData} to render the complication with, if
      *     null then the last ComplicationData sent to the watch face if any is used
+     * @param style A {@link Bundle} containing a mapping from {@link UserStyleCategory} to
+     *    {@link UserStyleCategory.Option}s. If null then the current style is used.
      * @return A bundle containing a compressed shared memory backed {@link Bitmap} of the
      *     complication with the requested settings
      */
@@ -127,7 +123,8 @@ interface IWatchFaceCommand {
                                       in int drawMode,
                                       in int compressionQuality,
                                       in long calendarTimeMillis,
-                                      in ComplicationData complicationData) = 10;
+                                      in ComplicationData complicationData,
+                                      in Bundle style) = 10;
 
     /**
      * Forwards a touch event for the WatchFace to process.
