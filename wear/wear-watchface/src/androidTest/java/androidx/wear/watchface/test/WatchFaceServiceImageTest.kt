@@ -44,6 +44,7 @@ import androidx.wear.complications.SystemProviders
 import androidx.wear.watchface.ComplicationBoundsType
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.WatchFaceService
+import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
 import org.junit.Before
 import org.junit.Rule
@@ -247,10 +248,12 @@ class WatchFaceServiceImageTest {
 
     private fun setAmbient(ambient: Boolean) {
         watchFaceServiceStub.iWatchFaceCommand!!.setSystemState(
-            ambient,
-            0,
-            0,
-            0
+            SystemState(
+                ambient,
+                0,
+                0,
+                0
+            )
         )
     }
 
@@ -287,10 +290,9 @@ class WatchFaceServiceImageTest {
             bitmap = watchFaceServiceStub.iWatchFaceCommand!!.takeWatchfaceScreenshot(
                 DrawMode.AMBIENT,
                 100,
-                123456789
-            ).ashmemCompressedImageBundleToBitmap(
-
-            )
+                123456789,
+                null
+            ).ashmemCompressedImageBundleToBitmap()
             latch.countDown()
         }
 
@@ -313,10 +315,9 @@ class WatchFaceServiceImageTest {
                 DrawMode.AMBIENT,
                 100,
                 123456789,
+                null,
                 null
-            ).ashmemCompressedImageBundleToBitmap(
-
-            )
+            ).ashmemCompressedImageBundleToBitmap()
             latch.countDown()
         }
 
@@ -337,7 +338,8 @@ class WatchFaceServiceImageTest {
             bitmap = watchFaceServiceStub.iWatchFaceCommand!!.takeWatchfaceScreenshot(
                 DrawMode.INTERACTIVE,
                 100,
-                123456789
+                123456789,
+                null
             ).ashmemCompressedImageBundleToBitmap()!!
             latch.countDown()
         }
@@ -364,10 +366,9 @@ class WatchFaceServiceImageTest {
                 ComplicationData.Builder(ComplicationData.TYPE_SHORT_TEXT)
                     .setShortTitle(ComplicationText.plainText("Title"))
                     .setShortText(ComplicationText.plainText("Text"))
-                    .build()
-            ).ashmemCompressedImageBundleToBitmap(
-
-            )
+                    .build(),
+                null
+            ).ashmemCompressedImageBundleToBitmap()
             latch.countDown()
         }
 
@@ -388,6 +389,7 @@ class WatchFaceServiceImageTest {
                 DrawMode.INTERACTIVE,
                 100,
                 123456789,
+                null,
                 null
             ).ashmemCompressedImageBundleToBitmap()
             latch2.countDown()
