@@ -17,9 +17,8 @@
 package androidx.ui.test
 
 import androidx.activity.ComponentActivity
-import androidx.compose.foundation.Box
 import androidx.compose.foundation.Text
-import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,7 +69,7 @@ class TimeOutTest {
 
     @Composable
     fun infiniteCase() {
-        Stack {
+        Box {
             val infiniteCounter = remember { mutableStateOf(0) }
             Box(Modifier.onPositioned {
                 infiniteCounter.value += 1

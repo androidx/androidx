@@ -19,7 +19,7 @@ package androidx.ui.test
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Text
-import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.Box
 import androidx.compose.material.Button
 import androidx.compose.material.MaterialTheme
 import androidx.compose.ui.platform.setContent
@@ -36,7 +36,7 @@ class CustomActivity : ComponentActivity() {
 
         setContent {
             MaterialTheme {
-                Stack {
+                Box {
                     Button(onClick = {}) {
                         Text("Hello")
                     }

@@ -23,7 +23,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.onPositioned
 import androidx.compose.ui.platform.setContent
-import androidx.compose.foundation.Box
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.SlotTable
 import androidx.compose.ui.R
@@ -57,10 +57,9 @@ open class ToolingTest {
         positionedLatch = CountDownLatch(1)
         activityTestRule.onUiThread {
             activity.setContent {
-                Box(
-                    Modifier.onPositioned { positionedLatch.countDown() }.fillMaxSize(),
-                    children = composable
-                )
+                Box(Modifier.onPositioned { positionedLatch.countDown() }.fillMaxSize()) {
+                    composable()
+                }
             }
         }
 
@@ -91,10 +90,9 @@ open class ToolingTest {
 
             owner.view.setTag(R.id.inspection_slot_table_set, map)
             activity.setContent {
-                Box(
-                    Modifier.onPositioned { positionedLatch.countDown() }.fillMaxSize(),
-                    children = content
-                )
+                Box(Modifier.onPositioned { positionedLatch.countDown() }.fillMaxSize()) {
+                    content()
+                }
             }
 
             // Wait for the layout to be performed
