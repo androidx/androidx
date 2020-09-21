@@ -19,6 +19,7 @@ package androidx.paging
 import com.google.common.util.concurrent.AsyncFunction
 import com.google.common.util.concurrent.Futures
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.asExecutor
 import kotlinx.coroutines.test.TestCoroutineDispatcher
 import kotlinx.coroutines.test.runBlockingTest
 import org.junit.Assert.assertEquals
@@ -38,7 +39,7 @@ class ListenableFuturePagingDataTest {
     fun map() = testDispatcher.runBlockingTest {
         val transformed = original.mapAsync(AsyncFunction<String, String> {
             Futures.immediateFuture(it + it)
-        })
+        }, testDispatcher.asExecutor())
         differ.collectFrom(transformed)
         assertEquals(listOf("aa", "bb", "cc"), differ.currentList)
     }
@@ -47,7 +48,7 @@ class ListenableFuturePagingDataTest {
     fun flatMap() = testDispatcher.runBlockingTest {
         val transformed = original.flatMapAsync(AsyncFunction<String, Iterable<String>> {
             Futures.immediateFuture(listOf(it!!, it))
-        })
+        }, testDispatcher.asExecutor())
         differ.collectFrom(transformed)
         assertEquals(listOf("a", "a", "b", "b", "c", "c"), differ.currentList)
     }
@@ -56,7 +57,7 @@ class ListenableFuturePagingDataTest {
     fun filter() = testDispatcher.runBlockingTest {
         val filtered = original.filterAsync(AsyncFunction {
             Futures.immediateFuture(it != "b")
-        })
+        }, testDispatcher.asExecutor())
         differ.collectFrom(filtered)
         assertEquals(listOf("a", "c"), differ.currentList)
     }
@@ -67,7 +68,8 @@ class ListenableFuturePagingDataTest {
             AsyncFunction<AdjacentItems<String>, String?> {
                 val (before, after) = it!!
                 Futures.immediateFuture(if (before == null || after == null) null else "|")
-            }
+            },
+            testDispatcher.asExecutor()
         )
         differ.collectFrom(separated)
         assertEquals(listOf("a", "|", "b", "|", "c"), differ.currentList)
