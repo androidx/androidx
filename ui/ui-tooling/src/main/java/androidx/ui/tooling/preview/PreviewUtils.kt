@@ -28,8 +28,8 @@ import kotlin.math.ceil
  */
 private fun compatibleTypes(methodTypes: Array<Class<*>>, actualTypes: Array<Class<*>>): Boolean =
     methodTypes.size == actualTypes.size &&
-            methodTypes.mapIndexed { index, clazz -> clazz.isAssignableFrom(actualTypes[index]) }
-                .all { it }
+        methodTypes.mapIndexed { index, clazz -> clazz.isAssignableFrom(actualTypes[index]) }
+            .all { it }
 
 /**
  * Same as [Class#getDeclaredMethod] but it accounts for compatible types so the signature does
@@ -37,12 +37,12 @@ private fun compatibleTypes(methodTypes: Array<Class<*>>, actualTypes: Array<Cla
  * instead of the exact types.
  */
 private fun Class<*>.getDeclaredCompatibleMethod(methodName: String, vararg args: Class<*>):
-        Method {
-    val actualTypes: Array<Class<*>> = arrayOf(*args)
-    return declaredMethods.firstOrNull {
-        methodName == it.name && compatibleTypes(it.parameterTypes, actualTypes)
-    } ?: throw NoSuchMethodException("$methodName not found")
-}
+    Method {
+        val actualTypes: Array<Class<*>> = arrayOf(*args)
+        return declaredMethods.firstOrNull {
+            methodName == it.name && compatibleTypes(it.parameterTypes, actualTypes)
+        } ?: throw NoSuchMethodException("$methodName not found")
+    }
 
 private inline fun <reified T> T.dup(count: Int): Array<T> {
     return (0..count).map { this }.toTypedArray()
@@ -104,8 +104,8 @@ private fun Method.invokeComposableMethod(
     val thisParams = if (instance != null) 1 else 0
     val changedParams = changedParamCount(realParams, thisParams)
     val totalParamsWithoutDefaults = realParams +
-            1 + // composer
-            changedParams
+        1 + // composer
+        changedParams
     val totalParams = parameterTypes.size
     val isDefault = totalParams != totalParamsWithoutDefaults
     val defaultParams = if (isDefault)
@@ -115,10 +115,10 @@ private fun Method.invokeComposableMethod(
 
     check(
         realParams +
-        1 + // composer
-        changedParams +
-        defaultParams ==
-                totalParams
+            1 + // composer
+            changedParams +
+            defaultParams ==
+            totalParams
     )
 
     val changedStartIndex = composerIndex + 1
@@ -222,7 +222,7 @@ internal fun getPreviewProviderParameters(
                 }
                 ?: throw IllegalArgumentException(
                     "PreviewParameterProvider constructor can not" +
-                            " have parameters"
+                        " have parameters"
                 )
             val params = constructor.newInstance() as PreviewParameterProvider<*>
             if (parameterProviderIndex < 0) {
@@ -233,10 +233,10 @@ internal fun getPreviewProviderParameters(
             // kotlin-reflect runtime dependency not found. Suggest adding it.
             throw IllegalStateException(
                 "Deploying Compose Previews with PreviewParameterProvider " +
-                        "arguments requires adding a dependency to the kotlin-reflect library.\n" +
-                        "Consider adding 'debugImplementation " +
-                        "\"org.jetbrains.kotlin:kotlin-reflect:\$kotlin_version\"' " +
-                        "to the module's build.gradle."
+                    "arguments requires adding a dependency to the kotlin-reflect library.\n" +
+                    "Consider adding 'debugImplementation " +
+                    "\"org.jetbrains.kotlin:kotlin-reflect:\$kotlin_version\"' " +
+                    "to the module's build.gradle."
             )
         }
     } else {

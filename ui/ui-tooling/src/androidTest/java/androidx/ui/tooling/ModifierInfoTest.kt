@@ -77,11 +77,15 @@ class ModifierInfoTest : ToolingTest() {
 
             val boxModifierInfo = modifierInfo[0]
             assertEquals(2, boxModifierInfo.size)
-            assertTrue("Box should only have LayoutModifiers, but the first was " +
-                "${boxModifierInfo[0].modifier}", boxModifierInfo[0].modifier is LayoutModifier)
+            assertTrue(
+                "Box should only have LayoutModifiers, but the first was " +
+                    "${boxModifierInfo[0].modifier}",
+                boxModifierInfo[0].modifier is LayoutModifier
+            )
             assertEquals(10f, boxModifierInfo[0].coordinates.positionInRoot.x)
 
-            assertTrue("Box should only have LayoutModifiers, but the second was " +
+            assertTrue(
+                "Box should only have LayoutModifiers, but the second was " +
                     "${boxModifierInfo[1].modifier}",
                 boxModifierInfo[1].modifier is LayoutModifier
             )
@@ -91,20 +95,20 @@ class ModifierInfoTest : ToolingTest() {
             assertEquals(3, columnModifierInfo.size)
             assertTrue(
                 "The first modifier in the column should be a LayoutModifier" +
-                        "but was ${columnModifierInfo[0].modifier}",
+                    "but was ${columnModifierInfo[0].modifier}",
                 columnModifierInfo[0].modifier is LayoutModifier
             )
             assertEquals(0f, columnModifierInfo[0].coordinates.positionInRoot.x)
             assertTrue(
                 "The second modifier in the column should be a DrawLayerModifier" +
-                        "but was ${columnModifierInfo[1].modifier}",
+                    "but was ${columnModifierInfo[1].modifier}",
                 columnModifierInfo[1].modifier is DrawLayerModifier
             )
             assertTrue(columnModifierInfo[1].extra is OwnedLayer)
             assertEquals(10f, columnModifierInfo[1].coordinates.positionInRoot.x)
             assertTrue(
                 "The third modifier in the column should be a DrawModifier" +
-                        "but was ${columnModifierInfo[2].modifier}",
+                    "but was ${columnModifierInfo[2].modifier}",
                 columnModifierInfo[2].modifier is DrawModifier
             )
             assertEquals(10f, columnModifierInfo[2].coordinates.positionInRoot.x)

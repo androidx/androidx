@@ -112,8 +112,10 @@ internal class ParameterFactory {
             is InspectableParameter -> createFromInspectableParameter(node, name, value)
             is Int -> NodeParameter(name, ParameterType.Int32, value)
             is Locale -> NodeParameter(name, ParameterType.String, value.toString())
-            is LocaleList -> NodeParameter(name, ParameterType.String,
-                value.localeList.joinToString())
+            is LocaleList -> NodeParameter(
+                name, ParameterType.String,
+                value.localeList.joinToString()
+            )
             is Long -> NodeParameter(name, ParameterType.Int64, value)
             is Offset -> createFromOffset(name, value)
             is Shadow -> createFromShadow(node, name, value)
@@ -160,8 +162,10 @@ internal class ParameterFactory {
         name: String,
         value: CornerBasedShape
     ): NodeParameter? {
-        val parameter = NodeParameter(name, ParameterType.String,
-            classNameOf(value, CornerBasedShape::class.java))
+        val parameter = NodeParameter(
+            name, ParameterType.String,
+            classNameOf(value, CornerBasedShape::class.java)
+        )
         val elements = parameter.elements
         create(node, "topLeft", value.topLeft)?.let { elements.add(it) }
         create(node, "topRight", value.topRight)?.let { elements.add(it) }
@@ -260,8 +264,10 @@ internal class ParameterFactory {
         name: String,
         value: TextGeometricTransform
     ): NodeParameter {
-        val parameter = NodeParameter(name, ParameterType.String,
-            TextGeometricTransform::class.java.simpleName)
+        val parameter = NodeParameter(
+            name, ParameterType.String,
+            TextGeometricTransform::class.java.simpleName
+        )
         val elements = parameter.elements
         create(node, "scaleX", value.scaleX)?.let { elements.add(it) }
         create(node, "skewX", value.skewX)?.let { elements.add(it) }
@@ -341,10 +347,10 @@ internal class ParameterFactory {
         companionInstance::class.java.declaredMethods.asSequence()
             .filter {
                 java.lang.reflect.Modifier.isPublic(it.modifiers) &&
-                        it.returnType != Void.TYPE &&
-                        it.parameterTypes.isEmpty() &&
-                        it.name.startsWith("get") &&
-                        (ignore == null || !it.name.startsWith(ignore))
+                    it.returnType != Void.TYPE &&
+                    it.parameterTypes.isEmpty() &&
+                    it.name.startsWith("get") &&
+                    (ignore == null || !it.name.startsWith(ignore))
             }
             .associateByTo(valueLookup, { it(companionInstance)!! }, { it.name.substring(3) })
     }

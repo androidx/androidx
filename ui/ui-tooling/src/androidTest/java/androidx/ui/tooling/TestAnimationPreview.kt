@@ -56,7 +56,8 @@ fun PressStateAnimation() {
         Modifier.pressIndicatorGestureFilter(
             onStart = { toState.value = PressState.Pressed },
             onStop = { toState.value = PressState.Released },
-            onCancel = { toState.value = PressState.Released })
+            onCancel = { toState.value = PressState.Released }
+        )
 
     val state = transition(label = "colorAnim", definition = definition, toState = toState.value)
     ColorRect(pressIndicator, color = state[color])

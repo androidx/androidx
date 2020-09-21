@@ -80,10 +80,13 @@ open class ToolingTest {
         activityTestRule.onUiThread {
             val activity = activity
             val owner = AndroidOwner(activity, activity, activity).also {
-                activity.setContentView(it.view, ViewGroup.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT
-                ))
+                activity.setContentView(
+                    it.view,
+                    ViewGroup.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                    )
+                )
             }
 
             owner.view.setTag(R.id.inspection_slot_table_set, map)
