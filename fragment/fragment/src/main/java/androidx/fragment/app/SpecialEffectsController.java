@@ -226,7 +226,7 @@ abstract class SpecialEffectsController {
 
     void markPostponedState() {
         synchronized (mPendingOperations) {
-            updateFinalState(false);
+            updateFinalState();
             // Default to not postponed
             mIsContainerPostponed = false;
             for (int index = mPendingOperations.size() - 1; index >= 0; index--) {
@@ -272,12 +272,16 @@ abstract class SpecialEffectsController {
                     mRunningOperations.add(operation);
                 }
             }
-            updateFinalState(true);
+
+            updateFinalState();
 
             if (!mPendingOperations.isEmpty()) {
                 ArrayList<Operation> newPendingOperations = new ArrayList<>(mPendingOperations);
                 mPendingOperations.clear();
                 mRunningOperations.addAll(newPendingOperations);
+                for (Operation operation : newPendingOperations) {
+                    operation.onStart();
+                }
                 executeOperations(newPendingOperations, mOperationDirectionIsPop);
                 mOperationDirectionIsPop = false;
             }
@@ -286,7 +290,10 @@ abstract class SpecialEffectsController {
 
     void forceCompleteAllOperations() {
         synchronized (mPendingOperations) {
-            updateFinalState(true);
+            updateFinalState();
+            for (Operation operation : mPendingOperations) {
+                operation.onStart();
+            }
 
             // First cancel running operations
             ArrayList<Operation> runningOperations = new ArrayList<>(mRunningOperations);
@@ -312,7 +319,7 @@ abstract class SpecialEffectsController {
         }
     }
 
-    private void updateFinalState(boolean updateAlpha) {
+    private void updateFinalState() {
         for (Operation operation: mPendingOperations) {
             // update the final state of adding operations
             if (operation.getLifecycleImpact() == Operation.LifecycleImpact.ADDING) {
@@ -320,14 +327,6 @@ abstract class SpecialEffectsController {
                 View view = fragment.requireView();
                 Operation.State finalState = Operation.State.from(view.getVisibility());
                 operation.mergeWith(finalState, Operation.LifecycleImpact.NONE);
-                // Change the view alphas back to their original values before we execute our
-                // transitions.
-                if (updateAlpha) {
-                    if (view.getAlpha() == 0f && view.getVisibility() == View.VISIBLE) {
-                        view.setVisibility(View.INVISIBLE);
-                    }
-                    view.setAlpha(fragment.getPostOnViewCreatedAlpha());
-                }
             }
         }
     }
@@ -632,11 +631,17 @@ abstract class SpecialEffectsController {
         }
 
         /**
+         * Callback for when the operation is about to start.
+         */
+        void onStart() {}
+
+        /**
          * Add new {@link CancellationSignal} for special effects.
          *
          * @param signal A CancellationSignal that can be used to cancel this special effect.
          */
         public final void markStartedSpecialEffect(@NonNull CancellationSignal signal) {
+            onStart();
             mSpecialEffectsSignals.add(signal);
         }
 
@@ -688,6 +693,28 @@ abstract class SpecialEffectsController {
             super(finalState, lifecycleImpact, fragmentStateManager.getFragment(),
                     cancellationSignal);
             mFragmentStateManager = fragmentStateManager;
+        }
+
+        @Override
+        void onStart() {
+            Fragment fragment = mFragmentStateManager.getFragment();
+            View focusedView = fragment.mView.findFocus();
+            if (focusedView != null) {
+                fragment.setFocusedView(focusedView);
+                if (FragmentManager.isLoggingEnabled(Log.VERBOSE)) {
+                    Log.v(FragmentManager.TAG, "requestFocus: Saved focused view " + focusedView
+                            + " for Fragment " + fragment);
+                }
+            }
+            if (getLifecycleImpact() == Operation.LifecycleImpact.ADDING) {
+                View view = getFragment().requireView();
+                // Change the view alphas back to their original values before we execute our
+                // transitions.
+                if (view.getAlpha() == 0f && view.getVisibility() == View.VISIBLE) {
+                    view.setVisibility(View.INVISIBLE);
+                }
+                view.setAlpha(fragment.getPostOnViewCreatedAlpha());
+            }
         }
 
         @Override
