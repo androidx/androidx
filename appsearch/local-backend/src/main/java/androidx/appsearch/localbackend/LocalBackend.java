@@ -152,8 +152,8 @@ public class LocalBackend implements AppSearchBackend {
 
     @Override
     @NonNull
-    public AppSearchBatchResult<String, GenericDocument> getDocuments(
-            @NonNull String databaseName, @NonNull AppSearchManager.GetDocumentsRequest request) {
+    public AppSearchBatchResult<String, GenericDocument> getByUri(
+            @NonNull String databaseName, @NonNull AppSearchManager.GetByUriRequest request) {
         Preconditions.checkNotNull(databaseName);
         Preconditions.checkNotNull(request);
         AppSearchBatchResult.Builder<String, GenericDocument> resultBuilder =
@@ -194,9 +194,9 @@ public class LocalBackend implements AppSearchBackend {
 
     @Override
     @NonNull
-    public AppSearchBatchResult<String, Void> removeDocuments(
+    public AppSearchBatchResult<String, Void> removeByUri(
             @NonNull String databaseName,
-            @NonNull AppSearchManager.RemoveDocumentsRequest request) {
+            @NonNull AppSearchManager.RemoveByUriRequest request) {
         Preconditions.checkNotNull(databaseName);
         Preconditions.checkNotNull(request);
         AppSearchBatchResult.Builder<String, Void> resultBuilder =

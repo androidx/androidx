@@ -16,9 +16,9 @@
 
 package androidx.appsearch.app;
 
-import static androidx.appsearch.app.AppSearchManager.GetDocumentsRequest;
+import static androidx.appsearch.app.AppSearchManager.GetByUriRequest;
 import static androidx.appsearch.app.AppSearchManager.PutDocumentsRequest;
-import static androidx.appsearch.app.AppSearchManager.RemoveDocumentsRequest;
+import static androidx.appsearch.app.AppSearchManager.RemoveByUriRequest;
 import static androidx.appsearch.app.AppSearchManager.SetSchemaRequest;
 import static androidx.appsearch.app.AppSearchTestUtils.checkIsBatchResultSuccess;
 import static androidx.appsearch.app.AppSearchTestUtils.checkIsResultSuccess;
@@ -234,9 +234,11 @@ public class AppSearchManagerTest {
                         new SetSchemaRequest.Builder().setForceOverride(true).build()));
 
         // Make sure the indexed email is gone.
-        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getDocuments(
-                new GetDocumentsRequest.Builder().setNamespace(GenericDocument.DEFAULT_NAMESPACE)
-                        .addUris("email1").build()).get();
+        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
+                new AppSearchManager.GetByUriRequest.Builder()
+                        .setNamespace(GenericDocument.DEFAULT_NAMESPACE)
+                        .addUris("email1")
+                        .build()).get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("email1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
@@ -309,8 +311,8 @@ public class AppSearchManagerTest {
                         new SetSchemaRequest.Builder().setForceOverride(true).build()));
 
         // Make sure the indexed email is gone in database 1.
-        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getDocuments(
-                new GetDocumentsRequest.Builder().setNamespace(GenericDocument.DEFAULT_NAMESPACE)
+        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
+                new GetByUriRequest.Builder().setNamespace(GenericDocument.DEFAULT_NAMESPACE)
                         .addUris("email1").build()).get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("email1").getResultCode())
@@ -362,8 +364,8 @@ public class AppSearchManagerTest {
         assertThat(outEmail).isEqualTo(inEmail);
 
         // Can't get the document in the other instance.
-        AppSearchBatchResult<String, GenericDocument> failResult = mDb2.getDocuments(
-                new GetDocumentsRequest.Builder().addUris("uri1").build()).get();
+        AppSearchBatchResult<String, GenericDocument> failResult = mDb2.getByUri(
+                new AppSearchManager.GetByUriRequest.Builder().addUris("uri1").build()).get();
         assertThat(failResult.isSuccess()).isFalse();
         assertThat(failResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
@@ -675,12 +677,12 @@ public class AppSearchManagerTest {
         assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri2")).hasSize(1);
 
         // Delete the document
-        checkIsBatchResultSuccess(mDb1.removeDocuments(
-                new RemoveDocumentsRequest.Builder().addUris("uri1").build()));
+        checkIsBatchResultSuccess(mDb1.removeByUri(
+                new AppSearchManager.RemoveByUriRequest.Builder().addUris("uri1").build()));
 
         // Make sure it's really gone
-        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getDocuments(
-                new GetDocumentsRequest.Builder().addUris("uri1", "uri2").build())
+        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
+                new GetByUriRequest.Builder().addUris("uri1", "uri2").build())
                 .get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
@@ -688,8 +690,8 @@ public class AppSearchManagerTest {
         assertThat(getResult.getSuccesses().get("uri2")).isEqualTo(email2);
 
         // Test if we delete a nonexistent URI.
-        AppSearchBatchResult<String, Void> deleteResult = mDb1.removeDocuments(
-                new RemoveDocumentsRequest.Builder().addUris("uri1").build()).get();
+        AppSearchBatchResult<String, Void> deleteResult = mDb1.removeByUri(
+                new RemoveByUriRequest.Builder().addUris("uri1").build()).get();
 
         assertThat(deleteResult.getFailures().get("uri1").getResultCode()).isEqualTo(
                 AppSearchResult.RESULT_NOT_FOUND);
@@ -716,26 +718,26 @@ public class AppSearchManagerTest {
         assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1")).hasSize(1);
 
         // Can't delete in the other instance.
-        AppSearchBatchResult<String, Void> deleteResult = mDb2.removeDocuments(
-                new RemoveDocumentsRequest.Builder().addUris("uri1").build()).get();
+        AppSearchBatchResult<String, Void> deleteResult = mDb2.removeByUri(
+                new AppSearchManager.RemoveByUriRequest.Builder().addUris("uri1").build()).get();
         assertThat(deleteResult.getFailures().get("uri1").getResultCode()).isEqualTo(
                 AppSearchResult.RESULT_NOT_FOUND);
         assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1")).hasSize(1);
 
         // Delete the document
-        checkIsBatchResultSuccess(mDb1.removeDocuments(
-                new RemoveDocumentsRequest.Builder().addUris("uri1").build()));
+        checkIsBatchResultSuccess(mDb1.removeByUri(
+                new RemoveByUriRequest.Builder().addUris("uri1").build()));
 
         // Make sure it's really gone
-        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getDocuments(
-                new GetDocumentsRequest.Builder().addUris("uri1").build()).get();
+        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
+                new AppSearchManager.GetByUriRequest.Builder().addUris("uri1").build()).get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
 
         // Test if we delete a nonexistent URI.
-        deleteResult = mDb1.removeDocuments(
-                new RemoveDocumentsRequest.Builder().addUris("uri1").build()).get();
+        deleteResult = mDb1.removeByUri(
+                new AppSearchManager.RemoveByUriRequest.Builder().addUris("uri1").build()).get();
         assertThat(deleteResult.getFailures().get("uri1").getResultCode()).isEqualTo(
                 AppSearchResult.RESULT_NOT_FOUND);
     }
@@ -777,8 +779,8 @@ public class AppSearchManagerTest {
         checkIsBatchResultSuccess(mDb1.removeByType(AppSearchEmail.SCHEMA_TYPE));
 
         // Make sure it's really gone
-        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getDocuments(
-                new GetDocumentsRequest.Builder().addUris("uri1", "uri2", "uri3").build())
+        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
+                new GetByUriRequest.Builder().addUris("uri1", "uri2", "uri3").build())
                 .get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
@@ -824,15 +826,15 @@ public class AppSearchManagerTest {
         checkIsBatchResultSuccess(mDb1.removeByType(AppSearchEmail.SCHEMA_TYPE));
 
         // Make sure it's really gone in instance 1
-        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getDocuments(
-                new GetDocumentsRequest.Builder().addUris("uri1").build()).get();
+        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
+                new GetByUriRequest.Builder().addUris("uri1").build()).get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
 
         // Make sure it's still in instance 2.
-        getResult = mDb2.getDocuments(
-                new GetDocumentsRequest.Builder().addUris("uri2").build()).get();
+        getResult = mDb2.getByUri(
+                new GetByUriRequest.Builder().addUris("uri2").build()).get();
         assertThat(getResult.isSuccess()).isTrue();
         assertThat(getResult.getSuccesses().get("uri2")).isEqualTo(email2);
     }
@@ -885,16 +887,16 @@ public class AppSearchManagerTest {
         checkIsBatchResultSuccess(mDb1.removeByNamespace("email"));
 
         // Make sure it's really gone
-        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getDocuments(
-                new GetDocumentsRequest.Builder().setNamespace("email")
+        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
+                new AppSearchManager.GetByUriRequest.Builder().setNamespace("email")
                         .addUris("uri1", "uri2").build()).get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
         assertThat(getResult.getFailures().get("uri2").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
-        getResult = mDb1.getDocuments(
-                new GetDocumentsRequest.Builder().setNamespace("document")
+        getResult = mDb1.getByUri(
+                new AppSearchManager.GetByUriRequest.Builder().setNamespace("document")
                         .addUris("uri3").build()).get();
         assertThat(getResult.isSuccess()).isTrue();
         assertThat(getResult.getSuccesses().get("uri3")).isEqualTo(document1);
@@ -938,16 +940,16 @@ public class AppSearchManagerTest {
         checkIsBatchResultSuccess(mDb1.removeByNamespace("email"));
 
         // Make sure it's really gone in instance 1
-        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getDocuments(
-                new GetDocumentsRequest.Builder().setNamespace("email")
+        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
+                new AppSearchManager.GetByUriRequest.Builder().setNamespace("email")
                         .addUris("uri1").build()).get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
 
         // Make sure it's still in instance 2.
-        getResult = mDb2.getDocuments(
-                new GetDocumentsRequest.Builder().setNamespace("email")
+        getResult = mDb2.getByUri(
+                new AppSearchManager.GetByUriRequest.Builder().setNamespace("email")
                         .addUris("uri2").build()).get();
         assertThat(getResult.isSuccess()).isTrue();
         assertThat(getResult.getSuccesses().get("uri2")).isEqualTo(email2);
@@ -989,15 +991,15 @@ public class AppSearchManagerTest {
         checkIsResultSuccess(mDb1.removeAll());
 
         // Make sure it's really gone in instance 1
-        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getDocuments(
-                new GetDocumentsRequest.Builder().addUris("uri1").build()).get();
+        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
+                new AppSearchManager.GetByUriRequest.Builder().addUris("uri1").build()).get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
 
         // Make sure it's still in instance 2.
-        getResult = mDb2.getDocuments(
-                new GetDocumentsRequest.Builder().addUris("uri2").build()).get();
+        getResult = mDb2.getByUri(
+                new AppSearchManager.GetByUriRequest.Builder().addUris("uri2").build()).get();
         assertThat(getResult.isSuccess()).isTrue();
         assertThat(getResult.getSuccesses().get("uri2")).isEqualTo(email2);
     }
@@ -1025,12 +1027,12 @@ public class AppSearchManagerTest {
 
         // Remove the document
         checkIsBatchResultSuccess(
-                mDb1.removeDocuments(new RemoveDocumentsRequest.Builder()
+                mDb1.removeByUri(new RemoveByUriRequest.Builder()
                         .setNamespace("namespace").addUris("uri1").build()));
 
         // Make sure it's really gone
-        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getDocuments(
-                new GetDocumentsRequest.Builder().addUris("uri1").build()).get();
+        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
+                new AppSearchManager.GetByUriRequest.Builder().addUris("uri1").build()).get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
@@ -1039,8 +1041,8 @@ public class AppSearchManagerTest {
         checkIsResultSuccess(mDb1.removeAll());
 
         // Make sure it's still gone
-        getResult = mDb1.getDocuments(
-                new GetDocumentsRequest.Builder().addUris("uri1").build()).get();
+        getResult = mDb1.getByUri(
+                new AppSearchManager.GetByUriRequest.Builder().addUris("uri1").build()).get();
         assertThat(getResult.isSuccess()).isFalse();
         assertThat(getResult.getFailures().get("uri1").getResultCode())
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
