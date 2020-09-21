@@ -59,21 +59,22 @@ private val TEST_CAMERA_SELECTOR = CameraSelector.DEFAULT_BACK_CAMERA
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(
-    minSdk = Build.VERSION_CODES.LOLLIPOP, shadows = [ShadowCameraX::class]
+    minSdk = Build.VERSION_CODES.LOLLIPOP
 )
 class PreviewTest {
-
     var cameraUseCaseAdapter: CameraUseCaseAdapter? = null
 
     @Before
     @Throws(ExecutionException::class, InterruptedException::class)
     fun setUp() {
+        val camera = FakeCamera()
+
         val cameraFactoryProvider =
             CameraFactory.Provider { _: Context?, _: CameraThreadConfig? ->
                 val cameraFactory = FakeCameraFactory()
                 cameraFactory.insertDefaultBackCamera(
-                    ShadowCameraX.DEFAULT_CAMERA_ID
-                ) { FakeCamera(ShadowCameraX.DEFAULT_CAMERA_ID) }
+                    camera.cameraInfoInternal.cameraId
+                ) { camera }
                 cameraFactory
             }
         val cameraXConfig = CameraXConfig.Builder.fromConfig(
