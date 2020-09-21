@@ -990,13 +990,40 @@ class WatchFaceServiceTest {
         backgroundComplication.enabled = false
         runPostedTasksFor(0)
 
+        verify(iWatchFaceService).setActiveComplications(
+            intArrayOf(rightComplication.id),
+            true
+        )
+
         // Despite disabling the background complication we should still get a
         // ContentDescriptionLabel for the main clock element.
         val argument = ArgumentCaptor.forClass(Array<ContentDescriptionLabel>::class.java)
         verify(iWatchFaceService).setContentDescriptionLabels(argument.capture())
         assertThat(argument.value.size).isEqualTo(2)
         assertThat(argument.value[0].bounds).isEqualTo(Rect(25, 25, 75, 75)) // Clock element.
-        assertThat(argument.value[1].bounds).isEqualTo(Rect(60, 40, 80, 60)) // Right complicaiton.
+        assertThat(argument.value[1].bounds).isEqualTo(Rect(60, 40, 80, 60)) // Right complication.
+    }
+
+    @Test
+    fun moveComplications() {
+        initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
+
+        // Ignore initial setContentDescriptionLabels call.
+        reset(iWatchFaceService)
+
+        leftComplication.unitSquareBounds = RectF(0.3f, 0.3f, 0.5f, 0.5f)
+        rightComplication.unitSquareBounds = RectF(0.7f, 0.75f, 0.9f, 0.95f)
+
+        runPostedTasksFor(0)
+
+        // Despite disabling the background complication we should still get a
+        // ContentDescriptionLabel for the main clock element.
+        val argument = ArgumentCaptor.forClass(Array<ContentDescriptionLabel>::class.java)
+        verify(iWatchFaceService).setContentDescriptionLabels(argument.capture())
+        assertThat(argument.value.size).isEqualTo(3)
+        assertThat(argument.value[0].bounds).isEqualTo(Rect(25, 25, 75, 75)) // Clock element.
+        assertThat(argument.value[1].bounds).isEqualTo(Rect(30, 30, 50, 50)) // Left complication.
+        assertThat(argument.value[2].bounds).isEqualTo(Rect(70, 75, 90, 95)) // Right complication.
     }
 
     @Test

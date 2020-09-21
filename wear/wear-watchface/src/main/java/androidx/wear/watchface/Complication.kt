@@ -204,7 +204,7 @@ open class ComplicationDrawableRenderer(
 class Complication internal constructor(
     internal val id: Int,
     @ComplicationBoundsType internal val boundsType: Int,
-    val unitSquareBounds: RectF,
+    unitSquareBounds: RectF,
     renderer: ComplicationRenderer,
     internal val supportedTypes: IntArray,
     internal val defaultProviderPolicy: DefaultComplicationProviderPolicy,
@@ -311,12 +311,27 @@ class Complication internal constructor(
 
     private lateinit var complicationsManager: ComplicationsManager
     private lateinit var invalidateCallback: ComplicationRenderer.InvalidateCallback
-    private var _enabled = true
 
+    private var _unitSquareBounds = unitSquareBounds
+    var unitSquareBounds: RectF
+        @UiThread
+        get() = _unitSquareBounds
+
+        @UiThread
+        set(value) {
+            _unitSquareBounds = value
+
+            // The caller might modify a number of complications. For efficiency we need to coalesce
+            // these into one update task.
+            complicationsManager.scheduleUpdateActiveComplications()
+        }
+
+    private var _enabled = true
     var enabled: Boolean
         @JvmName("isEnabled")
         @UiThread
         get() = _enabled
+
         @UiThread
         set(value) {
             _enabled = value
@@ -327,10 +342,10 @@ class Complication internal constructor(
         }
 
     private var _renderer = renderer
-
     var renderer: ComplicationRenderer
         @UiThread
         get() = _renderer
+
         @UiThread
         set(value) {
             renderer.onDetach()
