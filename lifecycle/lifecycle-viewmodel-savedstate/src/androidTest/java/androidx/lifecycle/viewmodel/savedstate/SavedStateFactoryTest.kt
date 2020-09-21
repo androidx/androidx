@@ -47,7 +47,8 @@ class SavedStateFactoryTest {
     fun testCreateAndroidVM() {
         val savedStateVMFactory = SavedStateViewModelFactory(
             activityRule.activity.application,
-            activityRule.activity)
+            activityRule.activity
+        )
         val vm = ViewModelProvider(ViewModelStore(), savedStateVMFactory)
         assertThat(vm.get(MyAndroidViewModel::class.java).handle).isNotNull()
         assertThat(vm.get(MyViewModel::class.java).handle).isNotNull()
@@ -58,14 +59,17 @@ class SavedStateFactoryTest {
     fun testCreateFailAndroidVM() {
         val savedStateVMFactory = SavedStateViewModelFactory(
             null,
-            activityRule.activity)
+            activityRule.activity
+        )
         val vm = ViewModelProvider(ViewModelStore(), savedStateVMFactory)
         try {
             vm.get(MyAndroidViewModel::class.java)
             fail("Creating an AndroidViewModel should fail when no Application is provided")
         } catch (e: RuntimeException) {
-            assertThat(e).hasMessageThat().isEqualTo("Cannot create an instance of " +
-                    MyAndroidViewModel::class.java)
+            assertThat(e).hasMessageThat().isEqualTo(
+                "Cannot create an instance of " +
+                    MyAndroidViewModel::class.java
+            )
         }
         assertThat(vm.get(MyViewModel::class.java).handle).isNotNull()
     }
@@ -76,7 +80,8 @@ class SavedStateFactoryTest {
         val activity = activityRule.activity
         val app = activity.application
         val savedStateVMFactory = object : AbstractSavedStateViewModelFactory(
-            activity, null) {
+            activity, null
+        ) {
             override fun <T : ViewModel?> create(
                 key: String,
                 modelClass: Class<T>,
