@@ -180,22 +180,31 @@ public class GridWidgetTest {
             }
         });
     }
+
     /**
      * Scrolls using given key.
      */
     protected void scroll(int key, Runnable verify) throws Throwable {
+        // Keep pressing keys until the GridView will no longer scroll.
+        int retryCount = 0;
         do {
             if (verify != null) {
                 mActivityTestRule.runOnUiThread(verify);
             }
-            sendRepeatedKeys(100, key);
+            sendRepeatedKeys(10, key);
             try {
                 Thread.sleep(300);
             } catch (InterruptedException ex) {
                 break;
             }
-        } while (mGridView.getLayoutManager().isSmoothScrolling()
-                || mGridView.getScrollState() != BaseGridView.SCROLL_STATE_IDLE);
+            if (mGridView.getLayoutManager().isSmoothScrolling()
+                    || mGridView.getScrollState() != BaseGridView.SCROLL_STATE_IDLE) {
+                retryCount = 0;
+                continue;
+            }
+            // It's possible that scroll stops after pressing a key, retry resume scrolling
+            retryCount++;
+        } while (retryCount < 4);
     }
 
     protected void scrollToBegin(Runnable verify) throws Throwable {
@@ -6795,4 +6804,23 @@ public class GridWidgetTest {
         testPreferKeyLine(VerticalGridView.WINDOW_ALIGN_BOTH_EDGE, true, true,
                 ItemLocation.ITEM_AT_LOW, ItemLocation.ITEM_AT_HIGH);
     }
+
+    @Test
+    public void testConcat() throws Throwable {
+
+        Intent intent = new Intent();
+        intent.putExtra(GridActivity.EXTRA_LAYOUT_RESOURCE_ID, R.layout.vertical_grid);
+        intent.putExtra(GridActivity.EXTRA_NUM_ITEMS, 80);
+        intent.putExtra(GridActivity.EXTRA_CONCAT_ADAPTER, true);
+        initActivity(intent);
+        mOrientation = BaseGridView.VERTICAL;
+        mNumRows = 3;
+
+        scrollToEnd(mVerifyLayout);
+
+        scrollToBegin(mVerifyLayout);
+
+        verifyBeginAligned();
+    }
+
 }

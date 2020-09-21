@@ -965,7 +965,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             // when item is removed, the position value can be any value.
             return NO_POSITION;
         }
-        return params.getViewAdapterPosition();
+        return params.getAbsoluteAdapterPosition();
     }
 
     int getSubPositionByView(View view, View childView) {
@@ -2211,8 +2211,10 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
                     // 3. item is gaining focus
                     // 4. item is moved out of old adapter position range.
                     if (lp.isItemChanged() || lp.isItemRemoved() || view.isLayoutRequested()
-                            || (!view.hasFocus() && mFocusPosition == lp.getViewAdapterPosition())
-                            || (view.hasFocus() && mFocusPosition != lp.getViewAdapterPosition())
+                            || (!view.hasFocus()
+                                && mFocusPosition == lp.getAbsoluteAdapterPosition())
+                            || (view.hasFocus()
+                                && mFocusPosition != lp.getAbsoluteAdapterPosition())
                             || newAdapterPosition < minOldAdapterPosition
                             || newAdapterPosition > maxOldAdapterPosition) {
                         minChangedEdge = Math.min(minChangedEdge, getViewMin(view));
@@ -3707,7 +3709,7 @@ final class GridLayoutManager extends RecyclerView.LayoutManager {
             return;
         }
         LayoutParams glp = (LayoutParams) lp;
-        int position = glp.getViewAdapterPosition();
+        int position = glp.getAbsoluteAdapterPosition();
         int rowIndex = position >= 0 ? mGrid.getRowIndex(position) : -1;
         if (rowIndex < 0) {
             return;
