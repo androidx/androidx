@@ -46,7 +46,8 @@ class DynamicAnimationTest {
 
     @Suppress("DEPRECATION")
     @get:Rule val activityTestRule = androidx.test.rule.ActivityTestRule<AnimationActivity>(
-        AnimationActivity::class.java)
+        AnimationActivity::class.java
+    )
 
     private lateinit var view: View
 
@@ -80,19 +81,22 @@ class DynamicAnimationTest {
         assertEquals(springAnimationWithFinalPosition.spring.finalPosition, 100f)
 
         val listener: DynamicAnimation.OnAnimationEndListener = mock(
-                DynamicAnimation.OnAnimationEndListener::class.java)
+            DynamicAnimation.OnAnimationEndListener::class.java
+        )
         springAnimationWithFinalPosition.addEndListener(listener)
         InstrumentationRegistry.getInstrumentation().runOnMainSync({
-                springAnimationWithFinalPosition.setStartValue(0f).start()
+            springAnimationWithFinalPosition.setStartValue(0f).start()
         })
         assertTrue(springAnimationWithFinalPosition.isRunning())
 
         InstrumentationRegistry.getInstrumentation().runOnMainSync({
-                springAnimationWithFinalPosition.skipToEnd()
+            springAnimationWithFinalPosition.skipToEnd()
         })
 
-        verify(listener, timeout(2000)).onAnimationEnd(springAnimationWithFinalPosition, false,
-            100f, 0f)
+        verify(listener, timeout(2000)).onAnimationEnd(
+            springAnimationWithFinalPosition, false,
+            100f, 0f
+        )
 
         assertEquals(100f, view.getScaleX())
     }
@@ -102,7 +106,8 @@ class DynamicAnimationTest {
      */
     @Test fun testSpringForce() {
         val springAnimationWithoutFinalPosition = springAnimationOf(
-            view::setTranslationX, view::getTranslationX)
+            view::setTranslationX, view::getTranslationX
+        )
             .withSpringForceProperties {
                 finalPosition = 100f
                 dampingRatio = SpringForce.DAMPING_RATIO_HIGH_BOUNCY
@@ -119,7 +124,8 @@ class DynamicAnimationTest {
             SpringForce.STIFFNESS_HIGH
         )
         val springAnimationWithFinalPosition = springAnimationOf(
-            view::setTranslationX, view::getTranslationX, 120f)
+            view::setTranslationX, view::getTranslationX, 120f
+        )
             .withSpringForceProperties {
                 dampingRatio = SpringForce.DAMPING_RATIO_LOW_BOUNCY
                 stiffness = SpringForce.STIFFNESS_LOW
