@@ -51,13 +51,33 @@ class BooleanUserStyleCategory :
          * #LAYER_UPPER}.
          */
         layerFlags: Int
-    ) : super(
+    ) : this(
         id,
         displayName,
         description,
         icon,
         listOf(BooleanOption(true), BooleanOption(false)),
-        BooleanOption(defaultValue),
+        defaultValue,
+        layerFlags
+    )
+
+    // Helper lets us obey the contract that the default value's object must be in the options list.
+    private constructor(
+        id: String,
+        displayName: String,
+        description: String,
+        icon: Icon?,
+        options: List<BooleanOption>,
+        defaultValue: Boolean,
+        layerFlags: Int
+    ) : super(
+        id,
+        displayName,
+        description,
+        icon,
+        options,
+        options.first
+        { it.value == defaultValue },
         layerFlags
     )
 

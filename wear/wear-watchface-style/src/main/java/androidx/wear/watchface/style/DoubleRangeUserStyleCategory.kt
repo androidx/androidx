@@ -28,6 +28,26 @@ class DoubleRangeUserStyleCategory : UserStyleCategory {
     internal companion object {
         internal const val CATEGORY_TYPE = "DoubleRangeUserStyleCategory"
         internal const val OPTION_TYPE = "DoubleRangeOption"
+
+        internal fun createOptionsList(
+            minimumValue: Double,
+            maximumValue: Double,
+            defaultValue: Double
+        ): List<DoubleRangeOption> {
+            require(minimumValue < maximumValue)
+            require(defaultValue >= minimumValue)
+            require(defaultValue <= maximumValue)
+
+            return if (defaultValue != minimumValue && defaultValue != maximumValue) {
+                listOf(
+                    DoubleRangeOption(minimumValue),
+                    DoubleRangeOption(defaultValue),
+                    DoubleRangeOption(maximumValue)
+                )
+            } else {
+                listOf(DoubleRangeOption(minimumValue), DoubleRangeOption(maximumValue))
+            }
+        }
     }
 
     constructor (
@@ -59,13 +79,32 @@ class DoubleRangeUserStyleCategory : UserStyleCategory {
          * #LAYER_UPPER}.
          */
         layerFlags: Int
+    ) : this(
+        id,
+        displayName,
+        description,
+        icon,
+        createOptionsList(minimumValue, maximumValue, defaultValue),
+        defaultValue,
+        layerFlags
+    )
+
+    // Helper lets us obey the contract that the default value's object must be in the options list.
+    private constructor(
+        id: String,
+        displayName: String,
+        description: String,
+        icon: Icon?,
+        options: List<DoubleRangeOption>,
+        defaultValue: Double,
+        layerFlags: Int
     ) : super(
         id,
         displayName,
         description,
         icon,
-        listOf(DoubleRangeOption(minimumValue), DoubleRangeOption(maximumValue)),
-        DoubleRangeOption(defaultValue),
+        options,
+        options.first { it.value == defaultValue },
         layerFlags
     )
 
