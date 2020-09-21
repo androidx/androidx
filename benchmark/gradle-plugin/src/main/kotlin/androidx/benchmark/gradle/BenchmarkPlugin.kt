@@ -152,12 +152,13 @@ class BenchmarkPlugin : Plugin<Project> {
                         it.finalizedBy("benchmarkReport")
                     }
                 } else {
+                    val projectBuildDir = project.buildDir.path
                     project.tasks.named("connectedAndroidTest").configure {
                         it.doLast {
                             Log.logAndDisplay(
                                 Log.LogLevel.INFO,
                                 "Benchmark",
-                                "Benchmark report files generated at ${project.buildDir}" +
+                                "Benchmark report files generated at $projectBuildDir" +
                                         "/outputs/connected_android_test_additional_output"
                             )
                         }
