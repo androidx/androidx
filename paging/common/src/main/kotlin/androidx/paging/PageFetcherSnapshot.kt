@@ -678,23 +678,6 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
         val shouldLoad = hint.presentedItemsAfter + itemsLoaded < prefetchDistance
         return if (shouldLoad) pages.last().nextKey else null
     }
-
-    private fun PageFetcherSnapshotState<Key, Value>.currentPagingState(
-        viewportHint: ViewportHint?
-    ) = PagingState<Key, Value>(
-        pages = pages.toList(),
-        anchorPosition = viewportHint?.let { hint ->
-            var anchorPosition = 0
-            val targetPageIndex = initialPageIndex + hint.pageOffset
-            for (pageIndex in 0 until targetPageIndex) {
-                anchorPosition += pages[pageIndex].data.size
-            }
-            anchorPosition += placeholdersBefore + hint.indexInPage
-            anchorPosition
-        },
-        config = config,
-        leadingPlaceholderCount = state.placeholdersBefore
-    )
 }
 
 /**
