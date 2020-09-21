@@ -382,7 +382,7 @@
         errorLine2="                                                                      ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/work/impl/WorkManagerImpl.java"
-            line="756"
+            line="759"
             column="71"/>
     </issue>
 

@@ -16,7 +16,7 @@
 
 package androidx.build.lint
 
-import com.android.tools.lint.detector.api.AnnotationUsageType
+import com.android.tools.lint.client.api.UElementHandler
 
 import com.android.tools.lint.detector.api.Category
 import com.android.tools.lint.detector.api.Detector
@@ -25,32 +25,22 @@ import com.android.tools.lint.detector.api.Issue
 import com.android.tools.lint.detector.api.JavaContext
 import com.android.tools.lint.detector.api.Scope
 import com.android.tools.lint.detector.api.Severity
-import com.intellij.psi.PsiMethod
 import org.jetbrains.uast.UAnnotation
-import org.jetbrains.uast.UElement
-import java.util.Collections
 
 class BanTargetApiAnnotation : Detector(), Detector.UastScanner {
 
-    override fun applicableAnnotations(): List<String>? {
-        return Collections.singletonList("android.annotation.TargetApi")
+    override fun getApplicableUastTypes() = listOf(UAnnotation::class.java)
+
+    override fun createUastHandler(context: JavaContext): UElementHandler? {
+        return AnnotationChecker(context)
     }
 
-    override fun visitAnnotationUsage(
-        context: JavaContext,
-        usage: UElement,
-        type: AnnotationUsageType,
-        annotation: UAnnotation,
-        qualifiedName: String,
-        method: PsiMethod?,
-        annotations: List<UAnnotation>,
-        allMemberAnnotations: List<UAnnotation>,
-        allClassAnnotations: List<UAnnotation>,
-        allPackageAnnotations: List<UAnnotation>
-    ) {
-        if (type == AnnotationUsageType.METHOD_CALL) {
-            context.report(ISSUE, annotation, context.getNameLocation(annotation),
+    private inner class AnnotationChecker(val context: JavaContext) : UElementHandler() {
+        override fun visitAnnotation(node: UAnnotation) {
+            if (node.qualifiedName == "android.annotation.TargetApi") {
+                context.report(ISSUE, node, context.getNameLocation(node),
                     "Uses @TargetApi annotation")
+            }
         }
     }
 

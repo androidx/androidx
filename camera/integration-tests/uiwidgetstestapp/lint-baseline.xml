@@ -3,17 +3,6 @@
 
     <issue
         id="UnsafeNewApiCall"
-        message="This call is to a method from API 23, the call containing class androidx.camera.integration.uiwidgets.rotations.CameraActivity is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
-        errorLine1="            requestPermissions(PERMISSIONS, REQUEST_CODE_PERMISSIONS)"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/camera/integration/uiwidgets/rotations/CameraActivity.kt"
-            line="59"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnsafeNewApiCall"
         message="This call is to a method from API 23, the call containing class androidx.camera.integration.uiwidgets.ViewPager2Activity is not annotated with @RequiresApi(x) where x is at least 23. Either annotate the containing class with at least @RequiresApi(23) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(23)."
         errorLine1="                requestPermissions("
         errorLine2="                ~~~~~~~~~~~~~~~~~~">

@@ -13,6 +13,17 @@
     </issue>
 
     <issue
+        id="BanTargetApiAnnotation"
+        message="Uses @TargetApi annotation"
+        errorLine1="    @TargetApi(Build.VERSION_CODES.LOLLIPOP)"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/java/androidx/slice/widget/LocationBasedViewTracker.java"
+            line="47"
+            column="5"/>
+    </issue>
+
+    <issue
         id="UnsafeNewApiCall"
         message="This call is to a method from API 20, the call containing class androidx.slice.widget.ActionRow is not annotated with @RequiresApi(x) where x is at least 20. Either annotate the containing class with at least @RequiresApi(20) or move the call to a static method in a wrapper class annotated with at least @RequiresApi(20)."
         errorLine1="        if (input.getRemoteInput().getAllowFreeFormInput()) {"
@@ -778,7 +789,7 @@
         errorLine2="                      ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowContent.java"
-            line="81"
+            line="82"
             column="23"/>
     </issue>
 
@@ -789,7 +800,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowContent.java"
-            line="332"
+            line="337"
             column="12"/>
     </issue>
 
@@ -800,7 +811,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowContent.java"
-            line="339"
+            line="344"
             column="12"/>
     </issue>
 
@@ -811,7 +822,7 @@
         errorLine2="                         ~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowContent.java"
-            line="351"
+            line="356"
             column="26"/>
     </issue>
 
@@ -822,7 +833,7 @@
         errorLine2="                                           ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/widget/RowContent.java"
-            line="351"
+            line="356"
             column="44"/>
     </issue>
 
@@ -1588,22 +1599,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public static SliceMetadata from(@NonNull Context context, @NonNull Slice slice) {"
-        errorLine2="                  ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/SliceMetadata.java"
-            line="117"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public List&lt;SliceAction> getToggles() {"
         errorLine2="           ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceMetadata.java"
-            line="232"
+            line="246"
             column="12"/>
     </issue>
 
@@ -1614,7 +1614,7 @@
         errorLine2="                                    ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceMetadata.java"
-            line="257"
+            line="276"
             column="37"/>
     </issue>
 
@@ -1625,7 +1625,7 @@
         errorLine2="           ~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/SliceMetadata.java"
-            line="502"
+            line="523"
             column="12"/>
     </issue>
 

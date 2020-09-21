@@ -19,7 +19,7 @@
         errorLine2="                            ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/biometric/BiometricFragment.java"
-            line="469"
+            line="534"
             column="29"/>
     </issue>
 
