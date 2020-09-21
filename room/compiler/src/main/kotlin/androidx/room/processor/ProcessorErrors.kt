@@ -668,8 +668,6 @@ object ProcessorErrors {
 
     val INVALID_FTS_ENTITY_PREFIX_SIZES = "Prefix sizes to index must non-zero positive values."
 
-    val INVALID_FOREIGN_KEY_IN_FTS_ENTITY = "@ForeignKey is not allowed in an FTS entity fields."
-
     val FTS_EXTERNAL_CONTENT_CANNOT_FIND_ENTITY = "Cannot find external content entity class."
 
     fun externalContentNotAnEntity(className: String) = "External content entity referenced in " +
