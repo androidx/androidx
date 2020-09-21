@@ -119,7 +119,7 @@ abstract class CameraPipeModules {
             val globalScope = CoroutineScope(
                 cameraDispatcher.plus(
                     CoroutineName
-                        ("CXCP-Pipe")
+                    ("CXCP-Pipe")
                 )
             )
 

@@ -149,7 +149,7 @@ class AndroidOutputConfiguration(
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
                     throw IllegalStateException(
                         "Deferred OutputConfigurations are not supported on API " +
-                                "${Build.VERSION.SDK_INT} (requires API ${Build.VERSION_CODES.O})"
+                            "${Build.VERSION.SDK_INT} (requires API ${Build.VERSION_CODES.O})"
                     )
                 }
 
