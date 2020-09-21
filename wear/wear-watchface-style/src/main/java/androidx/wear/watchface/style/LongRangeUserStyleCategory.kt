@@ -28,6 +28,29 @@ class LongRangeUserStyleCategory : UserStyleCategory {
     internal companion object {
         internal const val CATEGORY_TYPE = "LongRangeUserStyleCategory"
         internal const val OPTION_TYPE = "LongRangeOption"
+
+        internal fun createOptionsList(
+            minimumValue: Long,
+            maximumValue: Long,
+            defaultValue: Long
+        ): List<LongRangeOption> {
+            require(minimumValue < maximumValue)
+            require(defaultValue >= minimumValue)
+            require(defaultValue <= maximumValue)
+
+            return if (defaultValue != minimumValue && defaultValue != maximumValue) {
+                listOf(
+                    LongRangeOption(minimumValue),
+                    LongRangeOption(defaultValue),
+                    LongRangeOption(maximumValue)
+                )
+            } else {
+                listOf(
+                    LongRangeOption(minimumValue),
+                    LongRangeOption(maximumValue)
+                )
+            }
+        }
     }
 
     constructor (
@@ -59,13 +82,32 @@ class LongRangeUserStyleCategory : UserStyleCategory {
          * #LAYER_UPPER}.
          */
         layerFlags: Int
+    ) : this(
+        id,
+        displayName,
+        description,
+        icon,
+        createOptionsList(minimumValue, maximumValue, defaultValue),
+        defaultValue,
+        layerFlags
+    )
+
+    // Helper lets us obey the contract that the default value's object must be in the options list.
+    private constructor(
+        id: String,
+        displayName: String,
+        description: String,
+        icon: Icon?,
+        options: List<LongRangeOption>,
+        defaultValue: Long,
+        layerFlags: Int
     ) : super(
         id,
         displayName,
         description,
         icon,
-        listOf(LongRangeOption(minimumValue), LongRangeOption(maximumValue)),
-        LongRangeOption(defaultValue),
+        options,
+        options.first { it.value == defaultValue },
         layerFlags
     )
 
