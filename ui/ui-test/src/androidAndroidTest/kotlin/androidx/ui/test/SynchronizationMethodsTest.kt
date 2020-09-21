@@ -16,10 +16,16 @@
 
 package androidx.ui.test
 
+import androidx.compose.ui.platform.AndroidOwner
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.test.filters.MediumTest
 import androidx.ui.test.android.AndroidOwnerRegistry
 import androidx.ui.test.util.expectError
 import com.google.common.truth.Truth.assertThat
+import com.nhaarman.mockitokotlin2.doReturn
+import com.nhaarman.mockitokotlin2.mock
+import com.nhaarman.mockitokotlin2.whenever
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -108,11 +114,30 @@ class SynchronizationMethodsTest {
     }
 
     private fun withAndroidOwnerRegistry(block: () -> Unit) {
-        AndroidOwnerRegistry.setupRegistry()
         try {
+            AndroidOwnerRegistry.setupRegistry()
+            AndroidOwnerRegistry.registerOwner(mockResumedAndroidOwner())
             block()
         } finally {
             AndroidOwnerRegistry.tearDownRegistry()
         }
+    }
+
+    private fun mockResumedAndroidOwner(): AndroidOwner {
+        val lifecycle = mock<Lifecycle>()
+        doReturn(Lifecycle.State.RESUMED).whenever(lifecycle).currentState
+
+        val lifecycleOwner = mock<LifecycleOwner>()
+        doReturn(lifecycle).whenever(lifecycleOwner).lifecycle
+
+        val viewTreeOwners = AndroidOwner.ViewTreeOwners(
+            lifecycleOwner = lifecycleOwner,
+            viewModelStoreOwner = mock(),
+            savedStateRegistryOwner = mock()
+        )
+        val owner = mock<AndroidOwner>()
+        doReturn(viewTreeOwners).whenever(owner).viewTreeOwners
+
+        return owner
     }
 }
