@@ -20,11 +20,11 @@ import androidx.room.Fts3
 import androidx.room.Fts4
 import androidx.room.FtsOptions.MatchInfo
 import androidx.room.FtsOptions.Order
-import androidx.room.parser.FtsVersion
-import androidx.room.parser.SQLTypeAffinity
 import androidx.room.compiler.processing.XAnnotationBox
 import androidx.room.compiler.processing.XType
 import androidx.room.compiler.processing.XTypeElement
+import androidx.room.parser.FtsVersion
+import androidx.room.parser.SQLTypeAffinity
 import androidx.room.processor.EntityProcessor.Companion.extractForeignKeys
 import androidx.room.processor.EntityProcessor.Companion.extractIndices
 import androidx.room.processor.EntityProcessor.Companion.extractTableName
@@ -98,10 +98,6 @@ class FtsTableEntityProcessor internal constructor(
         val missingNotIndexed = ftsOptions.notIndexedColumns - pojo.columnNames
         context.checker.check(missingNotIndexed.isEmpty(), element,
                 ProcessorErrors.missingNotIndexedField(missingNotIndexed))
-
-        pojo.fields.filter { it.element.hasAnnotation(androidx.room.ForeignKey::class) }.forEach {
-            context.logger.e(ProcessorErrors.INVALID_FOREIGN_KEY_IN_FTS_ENTITY, it.element)
-        }
 
         context.checker.check(ftsOptions.prefixSizes.all { it > 0 },
                 element, ProcessorErrors.INVALID_FTS_ENTITY_PREFIX_SIZES)
