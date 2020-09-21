@@ -114,6 +114,6 @@ fun insertSeparatorsFutureSample() {
                     null
                 }
             }, executor)
-        })
+        }, executor)
     }
 }
