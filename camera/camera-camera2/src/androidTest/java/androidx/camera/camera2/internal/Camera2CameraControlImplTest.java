@@ -877,7 +877,7 @@ public final class Camera2CameraControlImplTest {
     @Test
     public void setZoomRatio_cameraControlInactive_operationCanceled() {
         mCamera2CameraControlImpl.setActive(false);
-        ListenableFuture<Void> listenableFuture = mCamera2CameraControlImpl.setZoomRatio(2.0f);
+        ListenableFuture<Void> listenableFuture = mCamera2CameraControlImpl.setZoomRatio(1.0f);
         try {
             listenableFuture.get(1000, TimeUnit.MILLISECONDS);
         } catch (ExecutionException e) {
