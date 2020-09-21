@@ -384,10 +384,11 @@ class FromGenericDocumentCodeGenerator {
 
         TypeMirror propertyType = ((ArrayType) property.asType()).getComponentType();
 
-        // TODO(b/156296904): Handle scenario 2c (ArrayForLoopCallToGenericDocument)
         CodeBlock.Builder builder = CodeBlock.builder();
-        if (!tryArrayForLoopAssign(builder, fieldName, propertyName, propertyType)  // 2a
-                && !tryArrayUseDirectly(builder, fieldName, propertyName, propertyType)) {  // 2b
+        if (!tryArrayForLoopAssign(builder, fieldName, propertyName, propertyType)             // 2a
+                && !tryArrayUseDirectly(builder, fieldName, propertyName, propertyType)        // 2b
+                && !tryArrayForLoopCallFromGenericDocument(
+                        builder, fieldName, propertyName, propertyType)) {                     // 2c
             // Scenario 2x
             throw new ProcessingException(
                     "Unhandled in property type (2x): " + property.asType().toString(), property);
@@ -500,6 +501,60 @@ class FromGenericDocumentCodeGenerator {
         }
 
         method.add(body.build());
+        return true;
+    }
+
+    //   2c: ArrayForLoopCallFromGenericDocument
+    //       Array is of a class which is annotated with @AppSearchDocument.
+    //       We have to convert this from an array of GenericDocument[], by reading each element
+    //       one-by-one and converting it through the standard conversion machinery.
+    private boolean tryArrayForLoopCallFromGenericDocument(
+            @NonNull CodeBlock.Builder method,
+            @NonNull String fieldName,
+            @NonNull String propertyName,
+            @NonNull TypeMirror propertyType) {
+        Types typeUtil = mEnv.getTypeUtils();
+        CodeBlock.Builder body = CodeBlock.builder();
+
+        Element element = typeUtil.asElement(propertyType);
+        if (element == null) {
+            // The propertyType is not an element, this is not a type 2c array.
+            return false;
+        }
+        try {
+            mHelper.getAnnotation(element, IntrospectionHelper.APP_SEARCH_DOCUMENT_CLASS);
+        } catch (ProcessingException e) {
+            // The propertyType doesn't have @AppSearchDocument annotation, this is not a type 2c
+            // array.
+            return false;
+        }
+
+        // Copy the field to a local variable to make it easier to refer to repeatedly
+
+        body.addStatement(
+                "GenericDocument[] $NCopy = genericDoc.getPropertyDocumentArray($S)",
+                fieldName, propertyName);
+
+        // Create the destination array
+        body.addStatement(
+                "$T[] $NConv = null", propertyType, fieldName);
+
+        // If not null, iterate and assign
+        body.add("if ($NCopy != null) {\n", fieldName).indent();
+        body.addStatement("$NConv = new $T[$NCopy.length]", fieldName, propertyType, fieldName);
+        body.addStatement("$T factory = $T.getInstance().getOrCreateFactory($T.class)",
+                ParameterizedTypeName.get(mHelper.getAppSearchClass("DataClassFactory"),
+                        TypeName.get(propertyType)),
+                mHelper.getAppSearchClass("DataClassFactoryRegistry"), propertyType);
+
+        body.add("for (int i = 0; i < $NCopy.length; i++) {\n", fieldName).indent();
+        body.addStatement("$NConv[i] = factory.fromGenericDocument($NCopy[i])", fieldName,
+                fieldName);
+        body.unindent().add("}\n");
+
+        body.unindent().add("}\n");  //  if ($NCopy != null) {
+        method.add(body.build());
+
         return true;
     }
 

@@ -156,6 +156,13 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
             .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_PLAIN)
             .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
             .build())
+          .addProperty(new AppSearchSchema.PropertyConfig.Builder("arrGift")
+            .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_DOCUMENT)
+            .setSchemaType(DataClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class).getSchemaType())
+            .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_REPEATED)
+            .setTokenizerType(AppSearchSchema.PropertyConfig.TOKENIZER_TYPE_NONE)
+            .setIndexingType(AppSearchSchema.PropertyConfig.INDEXING_TYPE_NONE)
+            .build())
           .addProperty(new AppSearchSchema.PropertyConfig.Builder("string")
             .setDataType(AppSearchSchema.PropertyConfig.DATA_TYPE_STRING)
             .setCardinality(AppSearchSchema.PropertyConfig.CARDINALITY_OPTIONAL)
@@ -388,6 +395,15 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (arrStringCopy != null) {
       builder.setProperty("arrString", arrStringCopy);
     }
+    Gift[] arrGiftCopy = dataClass.arrGift;
+    if (arrGiftCopy != null) {
+      GenericDocument[] arrGiftConv = new GenericDocument[arrGiftCopy.length];
+      DataClassFactory<Gift> factory = DataClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class);
+      for (int i = 0; i < arrGiftConv.length; i++) {
+        arrGiftConv[i] = factory.toGenericDocument(arrGiftCopy[i]);
+      }
+      builder.setProperty("arrGift", arrGiftConv);
+    }
     String stringCopy = dataClass.string;
     if (stringCopy != null) {
       builder.setProperty("string", stringCopy);
@@ -558,6 +574,15 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
       }
     }
     String[] arrStringConv = genericDoc.getPropertyStringArray("arrString");
+    GenericDocument[] arrGiftCopy = genericDoc.getPropertyDocumentArray("arrGift");
+    Gift[] arrGiftConv = null;
+    if (arrGiftCopy != null) {
+      arrGiftConv = new Gift[arrGiftCopy.length];
+      DataClassFactory<Gift> factory = DataClassFactoryRegistry.getInstance().getOrCreateFactory(Gift.class);
+      for (int i = 0; i < arrGiftCopy.length; i++) {
+        arrGiftConv[i] = factory.fromGenericDocument(arrGiftCopy[i]);
+      }
+    }
     String[] stringCopy = genericDoc.getPropertyStringArray("string");
     String stringConv = null;
     if (stringCopy != null && stringCopy.length != 0) {
@@ -621,6 +646,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     dataClass.arrUnboxByteArr = arrUnboxByteArrConv;
     dataClass.boxByteArr = boxByteArrConv;
     dataClass.arrString = arrStringConv;
+    dataClass.arrGift = arrGiftConv;
     dataClass.string = stringConv;
     dataClass.boxLong = boxLongConv;
     dataClass.unboxLong = unboxLongConv;
