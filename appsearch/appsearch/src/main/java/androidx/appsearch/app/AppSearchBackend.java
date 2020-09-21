@@ -67,11 +67,11 @@ public interface AppSearchBackend {
     /**
      * Retrieves {@link GenericDocument}s by URI.
      *
-     * @see AppSearchManager#getDocuments
+     * @see AppSearchManager#getByUri
      */
     @NonNull
-    AppSearchBatchResult<String, GenericDocument> getDocuments(
-            @NonNull String databaseName, @NonNull AppSearchManager.GetDocumentsRequest request);
+    AppSearchBatchResult<String, GenericDocument> getByUri(
+            @NonNull String databaseName, @NonNull AppSearchManager.GetByUriRequest request);
 
     /**
      * Searches a document based on a given query string.
@@ -88,11 +88,11 @@ public interface AppSearchBackend {
     /**
      * Removes {@link GenericDocument}s from the index by URI.
      *
-     * @see AppSearchManager#removeDocuments
+     * @see AppSearchManager#removeByUri
      */
     @NonNull
-    AppSearchBatchResult<String, Void> removeDocuments(
-            @NonNull String databaseName, @NonNull AppSearchManager.RemoveDocumentsRequest request);
+    AppSearchBatchResult<String, Void> removeByUri(
+            @NonNull String databaseName, @NonNull AppSearchManager.RemoveByUriRequest request);
 
     /**
      * Removes {@link GenericDocument}s from the index by schema type.
