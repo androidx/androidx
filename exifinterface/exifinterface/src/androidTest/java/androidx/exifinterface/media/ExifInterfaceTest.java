@@ -637,6 +637,7 @@ public class ExifInterfaceTest {
         assertEquals(expectedDatetimeValue, (long) exif.getDateTime());
         assertEquals(expectedDatetimeValue, (long) exif.getDateTimeOriginal());
         assertEquals(expectedDatetimeValue, (long) exif.getDateTimeDigitized());
+        assertEquals(expectedDatetimeValue, (long) exif.getGpsDateTime());
         // getDateTime() = TAG_DATETIME + TAG_OFFSET_TIME
         assertEquals(expectedDatetimeOffsetStringValue,
                 exif.getAttribute(ExifInterface.TAG_OFFSET_TIME));
