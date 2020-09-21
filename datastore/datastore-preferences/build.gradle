@@ -31,6 +31,11 @@ plugins {
     id("org.anarres.jarjar")
 }
 
+android{
+    buildTypes.all{
+        consumerProguardFiles 'proguard-rules.pro'
+    }
+}
 
 // Include :datastore-preferences-proto
 android.libraryVariants.all { variant ->
