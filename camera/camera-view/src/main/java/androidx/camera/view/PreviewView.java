@@ -59,7 +59,6 @@ import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.ImageOutputConfig;
 import androidx.camera.core.impl.utils.Threads;
 import androidx.core.content.ContextCompat;
-import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -130,9 +129,8 @@ public class PreviewView extends FrameLayout {
     @NonNull
     private final ScaleGestureDetector mScaleGestureDetector;
 
-    // Coordinates of the touchdown event for tap-to-focus.
-    private float mDownX = 0F;
-    private float mDownY = 0F;
+    @Nullable
+    private MotionEvent mTouchUpEvent;
 
     private final OnLayoutChangeListener mOnLayoutChangeListener =
             (v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) -> {
@@ -261,41 +259,33 @@ public class PreviewView extends FrameLayout {
 
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
-        // Detect pinch-to-zoom
-        mScaleGestureDetector.onTouchEvent(event);
-
-        // Detect tap-to-focus.
-        if (event.getPointerCount() == 1) {
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    mDownX = event.getX();
-                    mDownY = event.getY();
-                    break;
-                case MotionEvent.ACTION_UP:
-                    if (isTapEvent(event) && mCameraController != null) {
-                        mCameraController.onTapToFocus(
-                                mPreviewViewMeteringPointFactory.createPoint(event.getX(),
-                                        event.getY()));
-                    }
-                    break;
-            }
+        boolean isSingleTouch = event.getPointerCount() == 1;
+        boolean isUpEvent = event.getAction() == MotionEvent.ACTION_UP;
+        boolean notALongPress = event.getEventTime() - event.getDownTime()
+                < ViewConfiguration.getLongPressTimeout();
+        if (isSingleTouch && isUpEvent && notALongPress) {
+            // If the event is a click, invoke tap-to-focus and forward it to user's
+            // OnClickListener#onClick.
+            mTouchUpEvent = event;
+            performClick();
+            // A click has been detected and forwarded. Consume the event so onClick won't be
+            // invoked twice.
+            return true;
         }
-        return super.onTouchEvent(event);
+        return mScaleGestureDetector.onTouchEvent(event)
+                || super.onTouchEvent(event);
     }
 
-    /**
-     * Checks if the up event is a tap on the view.
-     */
-    private boolean isTapEvent(MotionEvent event) {
-        Preconditions.checkArgument(event.getAction() == MotionEvent.ACTION_UP);
-        // Elapsed time since last touch down.
-        long elapsedTime = event.getEventTime() - event.getDownTime();
-        // Distance since last touch down.
-        float distance = (float) Math.hypot(event.getX() - mDownX, event.getY() - mDownY);
-        // This should be ViewConfiguration#getTapTimeout(), but system time out is 100ms which
-        // is too short.
-        return elapsedTime < ViewConfiguration.getLongPressTimeout()
-                && distance < ViewConfiguration.get(getContext()).getScaledTouchSlop();
+    @Override
+    public boolean performClick() {
+        if (mCameraController != null) {
+            // mTouchUpEvent == null means it's an accessibility click. Focus at the center instead.
+            float x = mTouchUpEvent != null ? mTouchUpEvent.getX() : getWidth() / 2f;
+            float y = mTouchUpEvent != null ? mTouchUpEvent.getY() : getHeight() / 2f;
+            mCameraController.onTapToFocus(mPreviewViewMeteringPointFactory, x, y);
+        }
+        mTouchUpEvent = null;
+        return super.performClick();
     }
 
     /**
