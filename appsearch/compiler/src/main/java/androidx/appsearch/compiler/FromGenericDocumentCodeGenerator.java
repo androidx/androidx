@@ -269,10 +269,19 @@ class FromGenericDocumentCodeGenerator {
                 .add("if ($NCopy != null) {\n", fieldName).indent()
                 .addStatement(
                         "$NConv = new $T<>($NCopy.length)", fieldName, ArrayList.class, fieldName)
-                .add("for (int i = 0; i < $NCopy.length; i++) {\n", fieldName).indent()
-                .addStatement("$NConv.add($NCopy[i])", fieldName, fieldName)
-                .unindent().add("}\n")
-                .unindent().add("}\n");
+                .add("for (int i = 0; i < $NCopy.length; i++) {\n", fieldName).indent();
+
+        if (typeUtil.isSameType(propertyType, mHelper.mIntegerBoxType)) {
+            body.addStatement("$NConv.add((int) $NCopy[i])", fieldName, fieldName);
+        } else if (typeUtil.isSameType(propertyType, mHelper.mFloatBoxType)) {
+            body.addStatement("$NConv.add((float) $NCopy[i])", fieldName, fieldName);
+        } else {
+            body.addStatement("$NConv.add($NCopy[i])", fieldName, fieldName);
+        }
+
+        body
+                .unindent().add("}\n")  // for loop
+                .unindent().add("}\n"); // if ($NCopy != null)
         method.add(body.build());
         return true;
     }
@@ -449,10 +458,21 @@ class FromGenericDocumentCodeGenerator {
         body
                 .add("if ($NCopy != null) {\n", fieldName).indent()
                 .addStatement("$NConv = new $T[$NCopy.length]", fieldName, propertyType, fieldName)
-                .add("for (int i = 0; i < $NCopy.length; i++) {\n", fieldName).indent()
-                .addStatement("$NConv[i] = $NCopy[i]", fieldName, fieldName)
-                .unindent().add("}\n")
-                .unindent().add("}\n");
+                .add("for (int i = 0; i < $NCopy.length; i++) {\n", fieldName).indent();
+
+        if (typeUtil.isSameType(propertyType, mHelper.mIntegerBoxType)
+                || typeUtil.isSameType(propertyType, mHelper.mIntPrimitiveType)) {
+            body.addStatement("$NConv[i] = (int) $NCopy[i]", fieldName, fieldName);
+        } else if (typeUtil.isSameType(propertyType, mHelper.mFloatBoxType)
+                || typeUtil.isSameType(propertyType, mHelper.mFloatPrimitiveType)) {
+            body.addStatement("$NConv[i] = (float) $NCopy[i]", fieldName, fieldName);
+        } else {
+            body.addStatement("$NConv[i] = $NCopy[i]", fieldName, fieldName);
+        }
+
+        body
+                .unindent().add("}\n")  // for loop
+                .unindent().add("}\n"); // if ($NCopy != null)
 
         method.add(body.build());
         return true;
@@ -633,9 +653,17 @@ class FromGenericDocumentCodeGenerator {
         // If not null, assign
         body
                 .add("if ($NCopy != null && $NCopy.length != 0) {\n", fieldName, fieldName)
-                .indent()
-                .addStatement("$NConv = $NCopy[0]", fieldName, fieldName)
-                .unindent().add("}\n");
+                .indent();
+
+        if (typeUtil.isSameType(propertyType, mHelper.mIntegerBoxType)) {
+            body.addStatement("$NConv = (int) $NCopy[0]", fieldName, fieldName);
+        } else if (typeUtil.isSameType(propertyType, mHelper.mFloatBoxType)) {
+            body.addStatement("$NConv = (float) $NCopy[0]", fieldName, fieldName);
+        } else {
+            body.addStatement("$NConv = $NCopy[0]", fieldName, fieldName);
+        }
+
+        body.unindent().add("}\n");
 
         method.add(body.build());
         return true;
@@ -652,16 +680,24 @@ class FromGenericDocumentCodeGenerator {
             @NonNull String propertyName,
             @NonNull TypeMirror propertyType) {
         Types typeUtil = mEnv.getTypeUtils();
-        if (typeUtil.isSameType(propertyType, mHelper.mLongPrimitiveType)
-                || typeUtil.isSameType(propertyType, mHelper.mIntPrimitiveType)) {
+        if (typeUtil.isSameType(propertyType, mHelper.mLongPrimitiveType)) {
             method.addStatement(
                     "$T $NConv = genericDoc.getPropertyLong($S)",
                     propertyType, fieldName, propertyName);
 
-        } else if (typeUtil.isSameType(propertyType, mHelper.mDoublePrimitiveType)
-                || typeUtil.isSameType(propertyType, mHelper.mFloatPrimitiveType)) {
+        } else if (typeUtil.isSameType(propertyType, mHelper.mIntPrimitiveType)) {
+            method.addStatement(
+                    "$T $NConv = (int) genericDoc.getPropertyLong($S)",
+                    propertyType, fieldName, propertyName);
+
+        } else if (typeUtil.isSameType(propertyType, mHelper.mDoublePrimitiveType)) {
             method.addStatement(
                     "$T $NConv = genericDoc.getPropertyDouble($S)",
+                    propertyType, fieldName, propertyName);
+
+        } else if (typeUtil.isSameType(propertyType, mHelper.mFloatPrimitiveType)) {
+            method.addStatement(
+                    "$T $NConv = (float) genericDoc.getPropertyDouble($S)",
                     propertyType, fieldName, propertyName);
 
         } else if (typeUtil.isSameType(propertyType, mHelper.mBooleanPrimitiveType)) {

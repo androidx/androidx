@@ -89,12 +89,12 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     double[] reqCopy = genericDoc.getPropertyDoubleArray("req");
     Float reqConv = null;
     if (reqCopy != null && reqCopy.length != 0) {
-      reqConv = reqCopy[0];
+      reqConv = (float) reqCopy[0];
     }
     double[] noReqCopy = genericDoc.getPropertyDoubleArray("noReq");
     Float noReqConv = null;
     if (noReqCopy != null && noReqCopy.length != 0) {
-      noReqConv = noReqCopy[0];
+      noReqConv = (float) noReqCopy[0];
     }
     Gift dataClass = new Gift();
     dataClass.uri = uriConv;

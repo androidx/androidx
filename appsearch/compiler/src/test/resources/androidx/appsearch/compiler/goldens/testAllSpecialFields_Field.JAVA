@@ -49,7 +49,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     long creationTsConv = genericDoc.getCreationTimestampMillis();
     long ttlMsConv = genericDoc.getTtlMillis();
     int scoreConv = genericDoc.getScore();
-    int priceConv = genericDoc.getPropertyLong("price");
+    int priceConv = (int) genericDoc.getPropertyLong("price");
     Gift dataClass = new Gift();
     dataClass.uri = uriConv;
     dataClass.namespace = namespaceConv;

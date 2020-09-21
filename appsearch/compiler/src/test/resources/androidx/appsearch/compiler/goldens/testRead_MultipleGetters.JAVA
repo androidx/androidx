@@ -38,7 +38,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
   @Override
   public Gift fromGenericDocument(GenericDocument genericDoc) throws AppSearchException {
     String uriConv = genericDoc.getUri();
-    int priceConv = genericDoc.getPropertyLong("price");
+    int priceConv = (int) genericDoc.getPropertyLong("price");
     Gift dataClass = new Gift();
     dataClass.uri = uriConv;
     dataClass.setPrice(priceConv);
