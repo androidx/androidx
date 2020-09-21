@@ -21,7 +21,7 @@ import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.DrawModifier
 import androidx.compose.ui.LayoutModifier
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.Box
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.background
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Column

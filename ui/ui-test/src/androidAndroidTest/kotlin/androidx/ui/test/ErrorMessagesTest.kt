@@ -16,7 +16,7 @@
 
 package androidx.ui.test
 
-import androidx.compose.foundation.Box
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -339,7 +339,7 @@ class ErrorMessagesTest {
     ) {
         Surface {
             Box(modifier.clickable(onClick = onClick ?: {}, enabled = onClick != null)) {
-                Box(children = children)
+                Box { children() }
             }
         }
     }

@@ -16,7 +16,7 @@
 
 package androidx.ui.test.gesturescope
 
-import androidx.compose.foundation.layout.Stack
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -53,7 +53,7 @@ class SendPinchTest {
     @Test
     fun pinch() {
         rule.setContent {
-            Stack(Modifier.fillMaxSize()) {
+            Box(Modifier.fillMaxSize()) {
                 ClickableTestBox(modifier = recorder, tag = TAG)
             }
         }
