@@ -4,12 +4,12 @@
     <issue
         id="PrivateConstructorForUtilityClass"
         message="Utility class with non private constructor"
-        errorLine1="    /**"
-        errorLine2="    ^">
+        errorLine1="    private static class ArrayListManager {"
+        errorLine2="                         ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/transition/Transition.java"
-            line="2369"
-            column="5"/>
+            line="2379"
+            column="26"/>
     </issue>
 
     <issue

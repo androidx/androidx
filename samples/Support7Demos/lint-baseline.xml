@@ -636,11 +636,11 @@
         id="PrivateConstructorForUtilityClass"
         message="Utility class with non private constructor"
         errorLine1="    private static final class ICSMediaPlayer {"
-        errorLine2="    ^">
+        errorLine2="                               ~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/android/supportv7/media/LocalPlayer.java"
             line="378"
-            column="5"/>
+            column="32"/>
     </issue>
 
     <issue
@@ -1064,7 +1064,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="108"
+            line="109"
             column="13"/>
     </issue>
 
@@ -1075,7 +1075,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="115"
+            line="116"
             column="13"/>
     </issue>
 
@@ -1086,7 +1086,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="116"
+            line="117"
             column="13"/>
     </issue>
 
@@ -1097,7 +1097,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="117"
+            line="118"
             column="13"/>
     </issue>
 
@@ -1108,7 +1108,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="118"
+            line="119"
             column="13"/>
     </issue>
 
@@ -1119,7 +1119,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="129"
+            line="130"
             column="13"/>
     </issue>
 
@@ -1130,7 +1130,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="131"
+            line="132"
             column="13"/>
     </issue>
 

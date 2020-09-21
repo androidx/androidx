@@ -8,7 +8,7 @@
         errorLine2="                                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="227"
+            line="232"
             column="45"/>
     </issue>
 
@@ -19,7 +19,7 @@
         errorLine2="                                            ~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="281"
+            line="295"
             column="45"/>
     </issue>
 
@@ -147,17 +147,6 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void apply(Slice.Builder builder) {"
-        errorLine2="                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="80"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public void addCell(CellBuilder builder) {"
         errorLine2="                        ~~~~~~~~~~~">
         <location
@@ -213,495 +202,11 @@
     <issue
         id="UnknownNullness"
         message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void apply(Slice.Builder b) {"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/GridRowBuilderListV1Impl.java"
-            line="233"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void addRow(RowBuilder impl);"
-        errorLine2="                ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilder.java"
-            line="48"
-            column="17"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void addGridRow(GridRowBuilder impl);"
-        errorLine2="                    ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilder.java"
-            line="52"
-            column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void setHeader(HeaderBuilder impl);"
-        errorLine2="                   ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilder.java"
-            line="60"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void addAction(SliceAction action);"
-        errorLine2="                   ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilder.java"
-            line="66"
-            column="20"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void addInputRange(InputRangeBuilder builder);"
-        errorLine2="                       ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilder.java"
-            line="71"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void addRange(RangeBuilder builder);"
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilder.java"
-            line="76"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void addSelection(SelectionBuilder builder);"
-        errorLine2="                      ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilder.java"
-            line="81"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void setSeeMoreRow(RowBuilder builder);"
-        errorLine2="                       ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilder.java"
-            line="92"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void setSeeMoreAction(PendingIntent intent);"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilder.java"
-            line="103"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    void setKeywords(Set&lt;String> keywords);"
-        errorLine2="                     ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilder.java"
-            line="113"
-            column="22"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ListBuilder setKeywords(Set&lt;String> keywords) {"
-        errorLine2="                                   ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="368"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    protected TemplateBuilderImpl selectImpl() {"
-        errorLine2="              ~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="467"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public androidx.slice.builders.impl.ListBuilder getImpl() {"
-        errorLine2="           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="482"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public IconCompat getTitleIcon() {"
-        errorLine2="               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="703"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getTitle() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="735"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getSubtitle() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="743"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public SliceAction getPrimaryAction() {"
-        errorLine2="               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="751"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getContentDescription() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="759"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public IconCompat getTitleIcon() {"
-        errorLine2="               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1027"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public List&lt;Object> getEndItems() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1041"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public List&lt;Integer> getEndTypes() {"
-        errorLine2="               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1049"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public List&lt;Boolean> getEndLoads() {"
-        errorLine2="               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1057"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getTitle() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1097"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getSubtitle() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1105"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public PendingIntent getAction() {"
-        errorLine2="               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1113"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public PendingIntent getInputAction() {"
-        errorLine2="               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1121"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public IconCompat getThumb() {"
-        errorLine2="               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1129"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public SliceAction getPrimaryAction() {"
-        errorLine2="               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1137"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getContentDescription() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1145"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public RowBuilder(Uri uri) {"
-        errorLine2="                          ~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1242"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public RowBuilder setTitleItem(@NonNull IconCompat icon, @ImageMode int imageMode) {"
-        errorLine2="               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1275"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Uri getUri() {"
-        errorLine2="               ~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1524"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public IconCompat getTitleIcon() {"
-        errorLine2="               ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1588"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public SliceAction getTitleAction() {"
-        errorLine2="               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1596"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public SliceAction getPrimaryAction() {"
-        errorLine2="               ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1604"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getTitle() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1612"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getSubtitle() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1628"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public CharSequence getContentDescription() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1644"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public List&lt;Object> getEndItems() {"
-        errorLine2="               ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1660"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public List&lt;Integer> getEndTypes() {"
-        errorLine2="               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1668"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public List&lt;Boolean> getEndLoads() {"
-        errorLine2="               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1676"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public HeaderBuilder(Uri uri) {"
-        errorLine2="                             ~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1736"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public Uri getUri() {"
-        errorLine2="               ~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/ListBuilder.java"
-            line="1860"
-            column="16"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
         errorLine1="    public ListBuilderBasicImpl(Slice.Builder b, SliceSpec spec) {"
         errorLine2="                                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="69"
+            line="74"
             column="33"/>
     </issue>
 
@@ -712,371 +217,8 @@
         errorLine2="                                                 ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="69"
+            line="74"
             column="50"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void addRow(RowBuilder builder) {"
-        errorLine2="                       ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="76"
-            column="24"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void addGridRow(GridRowBuilder builder) {"
-        errorLine2="                           ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="97"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void addAction(SliceAction action) {"
-        errorLine2="                          ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="127"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setHeader(HeaderBuilder builder) {"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="134"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void addInputRange(InputRangeBuilder builder) {"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="147"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void addRange(RangeBuilder builder) {"
-        errorLine2="                         ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="163"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void addSelection(SelectionBuilder builder) {"
-        errorLine2="                             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="176"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setSeeMoreRow(RowBuilder builder) {"
-        errorLine2="                              ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="191"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setSeeMoreAction(PendingIntent intent) {"
-        errorLine2="                                 ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="198"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setKeywords(Set&lt;String> keywords) {"
-        errorLine2="                            ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="212"
-            column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void apply(Slice.Builder builder) {"
-        errorLine2="                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderBasicImpl.java"
-            line="243"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ListBuilderImpl(Slice.Builder b, SliceSpec spec) {"
-        errorLine2="                           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="92"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ListBuilderImpl(Slice.Builder b, SliceSpec spec) {"
-        errorLine2="                                            ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="92"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ListBuilderImpl(Slice.Builder b, SliceSpec spec, Clock clock) {"
-        errorLine2="                           ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="98"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ListBuilderImpl(Slice.Builder b, SliceSpec spec, Clock clock) {"
-        errorLine2="                                            ~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="98"
-            column="45"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public ListBuilderImpl(Slice.Builder b, SliceSpec spec, Clock clock) {"
-        errorLine2="                                                            ~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="98"
-            column="61"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void apply(Slice.Builder builder) {"
-        errorLine2="                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="105"
-            column="23"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public Slice build() {"
-        errorLine2="           ~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="133"
-            column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void addInputRange(InputRangeBuilder builder) {"
-        errorLine2="                              ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="209"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void addRange(RangeBuilder builder) {"
-        errorLine2="                         ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="216"
-            column="26"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void addSelection(SelectionBuilder builder) {"
-        errorLine2="                             ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="223"
-            column="30"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setSeeMoreRow(RowBuilder builder) {"
-        errorLine2="                              ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="237"
-            column="31"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void setSeeMoreAction(PendingIntent intent) {"
-        errorLine2="                                 ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="247"
-            column="34"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        protected CharSequence mTitle;"
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="314"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        protected CharSequence mSubtitle;"
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="315"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        protected CharSequence mContentDescr;"
-        errorLine2="                  ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="316"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        protected SliceAction mPrimaryAction;"
-        errorLine2="                  ~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="317"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void apply(Slice.Builder builder) {"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="351"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void apply(Slice.Builder builder) {"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="446"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        protected void setTitleItem(IconCompat icon, int imageMode) {"
-        errorLine2="                                    ~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="549"
-            column="37"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        protected void setSubtitle(CharSequence subtitle) {"
-        errorLine2="                                   ~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="591"
-            column="36"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void apply(Slice.Builder b) {"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="647"
-            column="27"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void apply(Slice.Builder b) {"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/ListBuilderImpl.java"
-            line="717"
-            column="27"/>
     </issue>
 
     <issue
@@ -1086,7 +228,7 @@
         errorLine2="                              ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingBasicImpl.java"
-            line="46"
+            line="47"
             column="31"/>
     </issue>
 
@@ -1097,19 +239,8 @@
         errorLine2="                                                     ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingBasicImpl.java"
-            line="46"
+            line="47"
             column="54"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void apply(Slice.Builder builder) {"
-        errorLine2="                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/MessagingBasicImpl.java"
-            line="53"
-            column="23"/>
     </issue>
 
     <issue
@@ -1119,7 +250,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingBasicImpl.java"
-            line="71"
+            line="72"
             column="21"/>
     </issue>
 
@@ -1130,7 +261,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingBasicImpl.java"
-            line="81"
+            line="82"
             column="12"/>
     </issue>
 
@@ -1141,7 +272,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingBasicImpl.java"
-            line="97"
+            line="98"
             column="31"/>
     </issue>
 
@@ -1152,7 +283,7 @@
         errorLine2="                              ~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingBasicImpl.java"
-            line="111"
+            line="112"
             column="31"/>
     </issue>
 
@@ -1163,19 +294,8 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingBasicImpl.java"
-            line="119"
+            line="120"
             column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void apply(Slice.Builder builder) {"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/MessagingBasicImpl.java"
-            line="133"
-            column="27"/>
     </issue>
 
     <issue
@@ -1229,7 +349,7 @@
         errorLine2="                               ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingListV1Impl.java"
-            line="42"
+            line="43"
             column="32"/>
     </issue>
 
@@ -1240,7 +360,7 @@
         errorLine2="                                                ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingListV1Impl.java"
-            line="42"
+            line="43"
             column="49"/>
     </issue>
 
@@ -1251,7 +371,7 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingListV1Impl.java"
-            line="51"
+            line="52"
             column="21"/>
     </issue>
 
@@ -1262,19 +382,8 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingListV1Impl.java"
-            line="59"
+            line="60"
             column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void apply(Slice.Builder builder) {"
-        errorLine2="                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/MessagingListV1Impl.java"
-            line="66"
-            column="23"/>
     </issue>
 
     <issue
@@ -1284,7 +393,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingListV1Impl.java"
-            line="78"
+            line="79"
             column="31"/>
     </issue>
 
@@ -1295,7 +404,7 @@
         errorLine2="                              ~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingListV1Impl.java"
-            line="91"
+            line="92"
             column="31"/>
     </issue>
 
@@ -1306,19 +415,8 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingListV1Impl.java"
-            line="98"
+            line="99"
             column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void apply(Slice.Builder builder) {"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/MessagingListV1Impl.java"
-            line="112"
-            column="27"/>
     </issue>
 
     <issue
@@ -1471,7 +569,7 @@
         errorLine2="                           ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingV1Impl.java"
-            line="38"
+            line="39"
             column="28"/>
     </issue>
 
@@ -1482,7 +580,7 @@
         errorLine2="                                            ~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingV1Impl.java"
-            line="38"
+            line="39"
             column="45"/>
     </issue>
 
@@ -1493,19 +591,8 @@
         errorLine2="                    ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingV1Impl.java"
-            line="45"
+            line="46"
             column="21"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void apply(Slice.Builder builder) {"
-        errorLine2="                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/MessagingV1Impl.java"
-            line="52"
-            column="23"/>
     </issue>
 
     <issue
@@ -1515,7 +602,7 @@
         errorLine2="           ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingV1Impl.java"
-            line="59"
+            line="60"
             column="12"/>
     </issue>
 
@@ -1526,7 +613,7 @@
         errorLine2="                              ~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingV1Impl.java"
-            line="69"
+            line="70"
             column="31"/>
     </issue>
 
@@ -1537,7 +624,7 @@
         errorLine2="                              ~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingV1Impl.java"
-            line="77"
+            line="78"
             column="31"/>
     </issue>
 
@@ -1548,19 +635,8 @@
         errorLine2="                            ~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/MessagingV1Impl.java"
-            line="85"
+            line="86"
             column="29"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="        public void apply(Slice.Builder builder) {"
-        errorLine2="                          ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/MessagingV1Impl.java"
-            line="99"
-            column="27"/>
     </issue>
 
     <issue
@@ -1779,7 +855,7 @@
         errorLine2="                                     ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/SelectionBuilderBasicImpl.java"
-            line="37"
+            line="38"
             column="38"/>
     </issue>
 
@@ -1790,19 +866,8 @@
         errorLine2="                                     ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/SelectionBuilderBasicImpl.java"
-            line="38"
+            line="39"
             column="38"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void apply(Slice.Builder sliceBuilder) {"
-        errorLine2="                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/SelectionBuilderBasicImpl.java"
-            line="43"
-            column="23"/>
     </issue>
 
     <issue
@@ -1812,7 +877,7 @@
         errorLine2="                                ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/SelectionBuilderImpl.java"
-            line="34"
+            line="35"
             column="33"/>
     </issue>
 
@@ -1823,19 +888,8 @@
         errorLine2="                                ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/SelectionBuilderImpl.java"
-            line="35"
+            line="36"
             column="33"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void apply(Slice.Builder sliceBuilder);"
-        errorLine2="                               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/SelectionBuilderImpl.java"
-            line="45"
-            column="32"/>
     </issue>
 
     <issue
@@ -1845,7 +899,7 @@
         errorLine2="              ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/SelectionBuilderImpl.java"
-            line="47"
+            line="48"
             column="15"/>
     </issue>
 
@@ -1856,7 +910,7 @@
         errorLine2="                                      ~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/SelectionBuilderListV2Impl.java"
-            line="45"
+            line="46"
             column="39"/>
     </issue>
 
@@ -1867,19 +921,8 @@
         errorLine2="                                  ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/androidx/slice/builders/impl/SelectionBuilderListV2Impl.java"
-            line="46"
+            line="47"
             column="35"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public void apply(Slice.Builder sliceBuilder) {"
-        errorLine2="                      ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/SelectionBuilderListV2Impl.java"
-            line="51"
-            column="23"/>
     </issue>
 
     <issue
@@ -2067,17 +1110,6 @@
             file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
             line="86"
             column="12"/>
-    </issue>
-
-    <issue
-        id="UnknownNullness"
-        message="Unknown nullability; explicitly declare as `@Nullable` or `@NonNull` to improve Kotlin interoperability; see https://android.github.io/kotlin-guides/interop.html#nullability-annotations"
-        errorLine1="    public abstract void apply(Slice.Builder builder);"
-        errorLine2="                               ~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/androidx/slice/builders/impl/TemplateBuilderImpl.java"
-            line="94"
-            column="32"/>
     </issue>
 
     <issue
