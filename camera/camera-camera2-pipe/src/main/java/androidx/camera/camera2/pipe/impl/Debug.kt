@@ -97,8 +97,8 @@ object Debug {
             val capabilities = metadata[REQUEST_AVAILABLE_CAPABILITIES]
             val cameraType = if (capabilities != null &&
                 capabilities.contains(
-                    REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
-                )
+                        REQUEST_AVAILABLE_CAPABILITIES_LOGICAL_MULTI_CAMERA
+                    )
             ) {
                 "Logical"
             } else {
@@ -123,9 +123,11 @@ object Debug {
                     append("Default Parameters: (None)")
                 } else {
                     append("Default Parameters:\n")
-                    for (parameter in graphConfig.defaultParameters.filter {
-                        it is CaptureRequest.Key<*>
-                    }) {
+                    for (
+                        parameter in graphConfig.defaultParameters.filter {
+                            it is CaptureRequest.Key<*>
+                        }
+                    ) {
                         append("  ")
                         append((parameter.key as CaptureRequest.Key<*>).name.padEnd(50, ' '))
                         append(parameter.value)

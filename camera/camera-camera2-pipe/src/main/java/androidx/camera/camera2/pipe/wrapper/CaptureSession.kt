@@ -313,8 +313,8 @@ open class AndroidCameraCaptureSession(
     override fun finalizeOutputConfigurations(outputConfigs: List<OutputConfigurationWrapper>) {
         check(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             "Attempting to call finalizeOutputConfigurations before O is not supported and may " +
-                    "lead to to unexpected behavior if an application is expects this call to " +
-                    "succeed."
+                "lead to to unexpected behavior if an application is expects this call to " +
+                "succeed."
         }
 
         rethrowCamera2Exceptions {
@@ -362,7 +362,7 @@ class AndroidCameraConstrainedHighSpeedCaptureSession internal constructor(
             // exception that can be ignored.
             Log.warn {
                 "Failed to createHighSpeedRequestList from $device because the output surface" +
-                        " was destroyed before calling createHighSpeedRequestList."
+                    " was destroyed before calling createHighSpeedRequestList."
             }
             throw ObjectUnavailableException(e)
         }

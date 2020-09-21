@@ -38,7 +38,8 @@ annotation class ForCameraGraph
 @Subcomponent(
     modules = [
         CameraGraphModules::class,
-        CameraGraphConfigModule::class]
+        CameraGraphConfigModule::class
+    ]
 )
 interface CameraGraphComponent {
     fun cameraGraph(): CameraGraph

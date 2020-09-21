@@ -123,7 +123,7 @@ class GraphProcessorImpl @Inject constructor(
             } else {
                 warn {
                     "Refusing to detach $requestProcessor. " +
-                            "It is different from $_requestProcessor"
+                        "It is different from $_requestProcessor"
                 }
             }
         }
