@@ -35,15 +35,18 @@ internal data class ViewModelInjectElements(
 
     val factoryClassName = ClassName.get(
         MoreElements.getPackage(typeElement).qualifiedName.toString(),
-        "${className.simpleNames().joinToString("_")}_AssistedFactory")
+        "${className.simpleNames().joinToString("_")}_AssistedFactory"
+    )
 
     val factorySuperTypeName = ParameterizedTypeName.get(
         ClassNames.VIEW_MODEL_ASSISTED_FACTORY,
-        className)
+        className
+    )
 
     val moduleClassName = ClassName.get(
         MoreElements.getPackage(typeElement).qualifiedName.toString(),
-        "${className.simpleNames().joinToString("_")}_HiltModule")
+        "${className.simpleNames().joinToString("_")}_HiltModule"
+    )
 
     val dependencyRequests = constructorElement.parameters.map { constructorArg ->
         constructorArg.toDependencyRequest()
