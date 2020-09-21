@@ -66,15 +66,22 @@ class ViewModelInjectStep(
         var valid = true
 
         if (elements.getTypeElement(ClassNames.VIEW_MODEL_ASSISTED_FACTORY.toString()) == null) {
-            error("To use @ViewModelInject you must add the 'lifecycle-viewmodel' " +
-                    "artifact. androidx.hilt:hilt-lifecyclew-viewmodel:<version>")
+            error(
+                "To use @ViewModelInject you must add the 'lifecycle-viewmodel' " +
+                    "artifact. androidx.hilt:hilt-lifecyclew-viewmodel:<version>"
+            )
             valid = false
         }
 
-        if (!types.isSubtype(typeElement.asType(),
-                elements.getTypeElement(ClassNames.VIEW_MODEL.toString()).asType())) {
-            error("@ViewModelInject is only supported on types that subclass " +
-                    "${ClassNames.VIEW_MODEL}.")
+        if (!types.isSubtype(
+                typeElement.asType(),
+                elements.getTypeElement(ClassNames.VIEW_MODEL.toString()).asType()
+            )
+        ) {
+            error(
+                "@ViewModelInject is only supported on types that subclass " +
+                    "${ClassNames.VIEW_MODEL}."
+            )
             valid = false
         }
 
@@ -92,9 +99,12 @@ class ViewModelInjectStep(
         }
 
         if (typeElement.nestingKind == NestingKind.MEMBER &&
-            !typeElement.modifiers.contains(Modifier.STATIC)) {
-            error("@ViewModelInject may only be used on inner classes if they are static.",
-                typeElement)
+            !typeElement.modifiers.contains(Modifier.STATIC)
+        ) {
+            error(
+                "@ViewModelInject may only be used on inner classes if they are static.",
+                typeElement
+            )
             valid = false
         }
 
@@ -103,8 +113,11 @@ class ViewModelInjectStep(
             TypeName.get(it.asType()) == ClassNames.SAVED_STATE_HANDLE
         }.apply {
             if (size > 1) {
-                error("Expected zero or one constructor argument of type " +
-                        "${ClassNames.SAVED_STATE_HANDLE}, found $size", constructorElement)
+                error(
+                    "Expected zero or one constructor argument of type " +
+                        "${ClassNames.SAVED_STATE_HANDLE}, found $size",
+                    constructorElement
+                )
                 valid = false
             }
             firstOrNull()?.let {

@@ -107,8 +107,10 @@ internal class AssistedFactoryGenerator(
             .addModifiers(Modifier.PUBLIC)
             .returns(productClassName)
             .addParameters(parameterSpecs)
-            .addStatement("return new $T($L)",
-                productClassName, CodeBlock.join(constructorArgs, ",$W"))
+            .addStatement(
+                "return new $T($L)",
+                productClassName, CodeBlock.join(constructorArgs, ",$W")
+            )
             .build()
     }
 }
