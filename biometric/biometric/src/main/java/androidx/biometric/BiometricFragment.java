@@ -239,7 +239,7 @@ public class BiometricFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
                 && !mViewModel.isConfirmingDeviceCredential()
                 && !isChangingConfigurations()) {
             cancelAuthentication(BiometricFragment.CANCELED_FROM_INTERNAL);
@@ -613,24 +613,36 @@ public class BiometricFragment extends Fragment {
      */
     @SuppressWarnings("WeakerAccess") /* synthetic access */
     @VisibleForTesting
-    void onAuthenticationError(final int errorCode, @Nullable CharSequence errorMessage) {
+    void onAuthenticationError(int errorCode, @Nullable CharSequence errorMessage) {
         // Ensure we're only sending publicly defined errors.
         final int knownErrorCode = ErrorUtils.isKnownError(errorCode)
                 ? errorCode
                 : BiometricPrompt.ERROR_VENDOR;
 
+        final Context context = getContext();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP
+                && Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
+                && ErrorUtils.isLockoutError(knownErrorCode)
+                && context != null
+                && KeyguardUtils.isDeviceSecuredWithCredential(context)
+                && AuthenticatorUtils.isDeviceCredentialAllowed(
+                        mViewModel.getAllowedAuthenticators())) {
+            launchConfirmCredentialActivity();
+            return;
+        }
+
         if (isUsingFingerprintDialog()) {
             // Avoid passing a null error string to the client callback.
             final CharSequence errorString = errorMessage != null
                     ? errorMessage
-                    : ErrorUtils.getFingerprintErrorString(getContext(), errorCode);
+                    : ErrorUtils.getFingerprintErrorString(getContext(), knownErrorCode);
 
-            if (errorCode == BiometricPrompt.ERROR_CANCELED) {
+            if (knownErrorCode == BiometricPrompt.ERROR_CANCELED) {
                 // User-initiated cancellation errors should already be handled.
                 @CanceledFrom final int canceledFrom = mViewModel.getCanceledFrom();
                 if (canceledFrom == CANCELED_FROM_INTERNAL
                         || canceledFrom == CANCELED_FROM_CLIENT) {
-                    sendErrorToClient(errorCode, errorString);
+                    sendErrorToClient(knownErrorCode, errorString);
                 }
 
                 dismiss();
@@ -643,7 +655,7 @@ public class BiometricFragment extends Fragment {
                             new Runnable() {
                                 @Override
                                 public void run() {
-                                    sendErrorAndDismiss(errorCode, errorString);
+                                    sendErrorAndDismiss(knownErrorCode, errorString);
                                 }
                             },
                             getDismissDialogDelay());
@@ -656,9 +668,7 @@ public class BiometricFragment extends Fragment {
         } else {
             final CharSequence errorString = errorMessage != null
                     ? errorMessage
-                    : getString(R.string.default_error_msg)
-                            + " "
-                            + errorCode;
+                    : getString(R.string.default_error_msg) + " " + knownErrorCode;
             sendErrorAndDismiss(knownErrorCode, errorString);
         }
     }
