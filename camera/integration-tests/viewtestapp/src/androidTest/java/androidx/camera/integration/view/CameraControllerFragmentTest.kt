@@ -26,6 +26,9 @@ import android.view.Surface
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.impl.utils.Exif
+import androidx.camera.core.impl.utils.executor.CameraXExecutors
+import androidx.camera.core.impl.utils.futures.FutureCallback
+import androidx.camera.core.impl.utils.futures.Futures
 import androidx.camera.testing.CameraUtil
 import androidx.camera.view.PreviewView
 import androidx.fragment.app.testing.FragmentScenario
@@ -79,6 +82,22 @@ class CameraControllerFragmentTest {
     )
 
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
+
+    @Test
+    fun fragmentLaunch_cameraInitializationCompletes() {
+        val semaphore = Semaphore(0)
+        Futures.addCallback(
+            createFragmentScenario().getFragment().cameraController.initializationFuture,
+            object : FutureCallback<Void> {
+                override fun onSuccess(result: Void?) {
+                    semaphore.release()
+                }
+
+                override fun onFailure(t: Throwable) {}
+            }, CameraXExecutors.directExecutor()
+        )
+        assertThat(semaphore.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
+    }
 
     @Test
     fun capturedImage_sameAsPreviewSnapshot() {

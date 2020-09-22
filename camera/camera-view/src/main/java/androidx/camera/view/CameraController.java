@@ -27,6 +27,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.experimental.UseExperimental;
+import androidx.arch.core.util.Function;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
@@ -35,6 +36,7 @@ import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.ImageProxy;
+import androidx.camera.core.InitializationException;
 import androidx.camera.core.Logger;
 import androidx.camera.core.MeteringPoint;
 import androidx.camera.core.MeteringPointFactory;
@@ -50,6 +52,7 @@ import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.camera.core.impl.utils.futures.FutureCallback;
 import androidx.camera.core.impl.utils.futures.Futures;
 import androidx.camera.lifecycle.ProcessCameraProvider;
+import androidx.core.content.ContextCompat;
 import androidx.core.util.Preconditions;
 import androidx.lifecycle.LiveData;
 
@@ -153,14 +156,19 @@ abstract class CameraController {
 
     private final Context mAppContext;
 
+    @NonNull
+    private final ListenableFuture<ProcessCameraProvider> mProcessCameraProviderListenableFuture;
+
     CameraController(@NonNull Context context) {
         mAppContext = context.getApplicationContext();
         mPreview = new Preview.Builder().build();
         mImageCapture = new ImageCapture.Builder().build();
         mVideoCapture = new VideoCapture.Builder().build();
+
         // Wait for camera to be initialized before binding use cases.
+        mProcessCameraProviderListenableFuture = ProcessCameraProvider.getInstance(mAppContext);
         Futures.addCallback(
-                ProcessCameraProvider.getInstance(mAppContext),
+                mProcessCameraProviderListenableFuture,
                 new FutureCallback<ProcessCameraProvider>() {
 
                     @SuppressLint("MissingPermission")
@@ -190,6 +198,28 @@ abstract class CameraController {
                 mVideoCapture.setTargetRotation(rotation);
             }
         };
+    }
+
+    /**
+     * Gets a {@link ListenableFuture} that completes when camera initialization completes.
+     *
+     * <p> Cancellation of this future is a no-op. This future may fail with an
+     * {@link InitializationException} and associated cause that can be retrieved by
+     * {@link Throwable#getCause()). The cause will be a
+     * {@link androidx.camera.core.CameraUnavailableException} if it fails to access any
+     * camera during initialization.
+     *
+     * <p> In the rare case that the future fails, the camera will become unusable. This could
+     * happen for various reasons, for example hardware failure or the camera being held by
+     * another process. If the failure is temporary, killing and restarting the app might fix the
+     * issue.
+     *
+     * @see ProcessCameraProvider#getInstance
+     */
+    public ListenableFuture<Void> getInitializationFuture() {
+        return Futures.transform(mProcessCameraProviderListenableFuture,
+                (Function<ProcessCameraProvider, Void>) input -> null,
+                ContextCompat.getMainExecutor(mAppContext));
     }
 
     /**
