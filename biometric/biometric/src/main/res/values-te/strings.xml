@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
+<!--
   ~ Copyright (C) 2017 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,6 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"వేలిముద్ర సెన్సార్‌ను తాకండి"</string>
     <string name="fingerprint_not_recognized" msgid="3873359464293253009">"గుర్తించబడలేదు"</string>
-    <string name="accessibility_fingerprint_dialog_help_area" msgid="549244739212894678">"సహాయ సందేశ ప్రాంతం"</string>
     <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"వేలిముద్ర హార్డ్‌వేర్ అందుబాటులో లేదు."</string>
     <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"వేలిముద్రలు నమోదు చేయబడలేదు."</string>
     <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"ఈ పరికరంలో వేలిముద్ర సెన్సార్ లేదు"</string>

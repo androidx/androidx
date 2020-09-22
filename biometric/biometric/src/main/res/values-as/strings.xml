@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
+<!--
   ~ Copyright (C) 2017 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,6 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"ফিংগাৰপ্ৰিণ্ট ছেন্সৰটো স্পৰ্শ কৰক"</string>
     <string name="fingerprint_not_recognized" msgid="3873359464293253009">"চিনাক্ত কৰিব পৰা নাই"</string>
-    <string name="accessibility_fingerprint_dialog_help_area" msgid="549244739212894678">"সহায় বাৰ্তাৰ ক্ষেত্ৰ"</string>
     <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"ফিংগাৰপ্ৰিণ্ট হাৰ্ডৱেৰ নাই।"</string>
     <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"কোনো ফিংগাৰপ্ৰিণ্ট যোগ কৰা নহ\'ল।"</string>
     <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"এই ডিভাইচটোত ফিংগাৰপ্ৰিণ্ট ছেন্সৰ নাই"</string>

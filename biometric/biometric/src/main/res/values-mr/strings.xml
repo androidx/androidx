@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- 
+<!--
   ~ Copyright (C) 2017 The Android Open Source Project
   ~
   ~ Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,6 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="fingerprint_dialog_touch_sensor" msgid="1072308044213194243">"फिंगरप्रिंट सेन्सरला स्पर्श करा"</string>
     <string name="fingerprint_not_recognized" msgid="3873359464293253009">"ओळखले नाही"</string>
-    <string name="accessibility_fingerprint_dialog_help_area" msgid="549244739212894678">"मदत मेसेज परिसर"</string>
     <string name="fingerprint_error_hw_not_available" msgid="8216738333501875566">"फिंगरप्रिंट हार्डवेअर उपलब्‍ध नाही."</string>
     <string name="fingerprint_error_no_fingerprints" msgid="7520712796891883488">"कोणत्याही फिंगरप्रिंटची नोंद झाली नाही."</string>
     <string name="fingerprint_error_hw_not_present" msgid="6306988885793029438">"या डिव्हाइसवर फिंगरप्रिंट सेन्सर नाही"</string>

@@ -48,8 +48,7 @@ public class BiometricManager {
     /**
      * The user can successfully authenticate.
      */
-    public static final int BIOMETRIC_SUCCESS =
-            android.hardware.biometrics.BiometricManager.BIOMETRIC_SUCCESS;
+    public static final int BIOMETRIC_SUCCESS = 0;
 
     /**
      * Unable to determine whether the user can authenticate.
@@ -70,29 +69,25 @@ public class BiometricManager {
     /**
      * The user can't authenticate because the hardware is unavailable. Try again later.
      */
-    public static final int BIOMETRIC_ERROR_HW_UNAVAILABLE =
-            android.hardware.biometrics.BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE;
+    public static final int BIOMETRIC_ERROR_HW_UNAVAILABLE = 1;
 
     /**
      * The user can't authenticate because no biometric or device credential is enrolled.
      */
-    public static final int BIOMETRIC_ERROR_NONE_ENROLLED =
-            android.hardware.biometrics.BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED;
+    public static final int BIOMETRIC_ERROR_NONE_ENROLLED = 11;
 
     /**
      * The user can't authenticate because there is no suitable hardware (e.g. no biometric sensor
      * or no keyguard).
      */
-    public static final int BIOMETRIC_ERROR_NO_HARDWARE =
-            android.hardware.biometrics.BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE;
+    public static final int BIOMETRIC_ERROR_NO_HARDWARE = 12;
 
     /**
      * The user can't authenticate because a security vulnerability has been discovered with one or
      * more hardware sensors. The affected sensor(s) are unavailable until a security update has
      * addressed the issue.
      */
-    public static final int BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED =
-            android.hardware.biometrics.BiometricManager.BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED;
+    public static final int BIOMETRIC_ERROR_SECURITY_UPDATE_REQUIRED = 15;
 
     /**
      * A status code that may be returned when checking for biometric authentication.
