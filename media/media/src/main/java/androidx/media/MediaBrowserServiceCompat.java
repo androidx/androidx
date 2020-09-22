@@ -1113,6 +1113,7 @@ public abstract class MediaBrowserServiceCompat extends Service {
                                         rootHints, callbacks);
                             }
                             iter.remove();
+                            break;
                         }
                     }
                     if (connection == null) {
