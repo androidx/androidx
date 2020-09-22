@@ -41,8 +41,10 @@ class DrawableLoadingDetector : BaseMethodDeprecationDetector(
     ),
     // Suggest using ResourcesCompat.getDrawable for two-parameter Resources.getDrawable calls
     DeprecationCondition(
-        MethodLocation("android.content.res.Resources", "getDrawable", TYPE_INT,
-            "android.content.res.Resources.Theme"),
+        MethodLocation(
+            "android.content.res.Resources", "getDrawable", TYPE_INT,
+            "android.content.res.Resources.Theme"
+        ),
         "Use `ResourcesCompat.getDrawable()`"
     )
 ) {

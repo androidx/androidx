@@ -51,7 +51,7 @@ class AppCompatAttributeTest {
     fun setup() {
         InstrumentationRegistry.getInstrumentation().uiAutomation.executeShellCommand(
             "settings put global debug_view_attributes_application_package " +
-                    "androidx.appcompat.test"
+                "androidx.appcompat.test"
         )
         activityRule.launchActivity(null)
     }

@@ -97,57 +97,73 @@ class TextViewCompoundDrawablesXmlDetectorTest {
             layout
         ).issues(TextViewCompoundDrawablesXmlDetector.NOT_USING_COMPAT_TEXT_VIEW_DRAWABLE_ATTRS)
             .run()
-            .expect("""
+            .expect(
+                """
 res/layout-v23/text_view.xml:9: Warning: Use app:$appAttrName instead of android:$androidAttrName [UseCompatTextViewDrawableXml]
         $originalAttrDefinition />
         $highlight
 0 errors, 1 warnings
-         """.trimIndent())
-            .expectFixDiffs("""
+                """.trimIndent()
+            )
+            .expectFixDiffs(
+                """
 Fix for res/layout-v23/text_view.xml line 9: Set $appAttrName="$attrValue":
 @@ -3 +3
 +     xmlns:app="http://schemas.android.com/apk/res-auto"
 @@ -10 +11
 -         android:$androidAttrName="$attrValue" />
 +         app:$appAttrName="$attrValue" />
-            """.trimIndent())
+                """.trimIndent()
+            )
         /* ktlint-enable max-line-length */
     }
 
     @Test
     fun testUsingAndroidCompoundDrawableStartAttribute() {
-        verifyCompoundDrawableLintPass("drawableStart", "drawableStartCompat",
-            "@android:drawable/ic_delete")
+        verifyCompoundDrawableLintPass(
+            "drawableStart", "drawableStartCompat",
+            "@android:drawable/ic_delete"
+        )
     }
 
     @Test
     fun testUsingAndroidCompoundDrawableLeftAttribute() {
-        verifyCompoundDrawableLintPass("drawableLeft", "drawableLeftCompat",
-            "@android:drawable/ic_delete")
+        verifyCompoundDrawableLintPass(
+            "drawableLeft", "drawableLeftCompat",
+            "@android:drawable/ic_delete"
+        )
     }
 
     @Test
     fun testUsingAndroidCompoundDrawableEndAttribute() {
-        verifyCompoundDrawableLintPass("drawableEnd", "drawableEndCompat",
-            "@android:drawable/ic_delete")
+        verifyCompoundDrawableLintPass(
+            "drawableEnd", "drawableEndCompat",
+            "@android:drawable/ic_delete"
+        )
     }
 
     @Test
     fun testUsingAndroidCompoundDrawableRightAttribute() {
-        verifyCompoundDrawableLintPass("drawableRight", "drawableRightCompat",
-            "@android:drawable/ic_delete")
+        verifyCompoundDrawableLintPass(
+            "drawableRight", "drawableRightCompat",
+            "@android:drawable/ic_delete"
+        )
     }
 
     @Test
     fun testUsingAndroidCompoundDrawableTopAttribute() {
-        verifyCompoundDrawableLintPass("drawableTop", "drawableTopCompat",
-            "@android:drawable/ic_delete")
+        verifyCompoundDrawableLintPass(
+            "drawableTop", "drawableTopCompat",
+            "@android:drawable/ic_delete"
+        )
     }
 
     @Test
     fun testUsingAndroidCompoundDrawableBottomAttribute() {
-        verifyCompoundDrawableLintPass("drawableBottom", "drawableBottomCompat",
-            "@android:drawable/ic_delete")
+        verifyCompoundDrawableLintPass(
+            "drawableBottom", "drawableBottomCompat",
+            "@android:drawable/ic_delete"
+        )
     }
 
     @Test

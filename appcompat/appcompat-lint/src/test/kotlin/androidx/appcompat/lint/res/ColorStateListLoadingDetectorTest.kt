@@ -110,12 +110,14 @@ class ColorStateListLoadingDetectorTest {
             customActivity
         ).issues(ColorStateListLoadingDetector.NOT_USING_COMPAT_LOADING)
             .run()
-            .expect("""
+            .expect(
+                """
 src/com/example/CustomActivity.kt:8: Warning: Use ContextCompat.getColorStateList() [UseCompatLoadingForColorStateLists]
         getResources().getColorStateList(R.color.color_state_list)
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
-            """.trimIndent())
+                """.trimIndent()
+            )
         /* ktlint-enable max-line-length */
     }
 
@@ -167,12 +169,14 @@ src/com/example/CustomActivity.kt:8: Warning: Use ContextCompat.getColorStateLis
             customActivity
         ).issues(ColorStateListLoadingDetector.NOT_USING_COMPAT_LOADING)
             .run()
-            .expect("""
+            .expect(
+                """
 src/com/example/CustomActivity.kt:8: Warning: Use AppCompatResources.getColorStateList() [UseCompatLoadingForColorStateLists]
         getResources().getColorStateList(R.color.color_state_list)
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
-            """.trimIndent())
+                """.trimIndent()
+            )
         /* ktlint-enable max-line-length */
     }
 }
