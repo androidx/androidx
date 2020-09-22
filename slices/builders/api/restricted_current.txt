@@ -34,6 +34,7 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder addGridRow(androidx.slice.builders.GridRowBuilder);
     method public androidx.slice.builders.ListBuilder addInputRange(androidx.slice.builders.ListBuilder.InputRangeBuilder);
     method public androidx.slice.builders.ListBuilder addRange(androidx.slice.builders.ListBuilder.RangeBuilder);
+    method public androidx.slice.builders.ListBuilder addRating(androidx.slice.builders.ListBuilder.RatingBuilder);
     method public androidx.slice.builders.ListBuilder addRow(androidx.slice.builders.ListBuilder.RowBuilder);
     method public androidx.slice.builders.ListBuilder addSelection(androidx.slice.builders.SelectionBuilder);
     method public androidx.slice.builders.ListBuilder setAccentColor(@ColorInt int);
@@ -50,6 +51,7 @@ package androidx.slice.builders {
     field public static final int LARGE_IMAGE = 2; // 0x2
     field public static final int RANGE_MODE_DETERMINATE = 0; // 0x0
     field public static final int RANGE_MODE_INDETERMINATE = 1; // 0x1
+    field public static final int RANGE_MODE_STAR_RATING = 2; // 0x2
     field public static final int RAW_IMAGE_LARGE = 4; // 0x4
     field public static final int RAW_IMAGE_SMALL = 3; // 0x3
     field public static final int SMALL_IMAGE = 1; // 0x1
@@ -101,6 +103,21 @@ package androidx.slice.builders {
     method public androidx.slice.builders.ListBuilder.RangeBuilder setTitleItem(androidx.core.graphics.drawable.IconCompat, int);
     method public androidx.slice.builders.ListBuilder.RangeBuilder setTitleItem(androidx.core.graphics.drawable.IconCompat, int, boolean);
     method public androidx.slice.builders.ListBuilder.RangeBuilder setValue(int);
+  }
+
+  public static final class ListBuilder.RatingBuilder {
+    ctor public ListBuilder.RatingBuilder();
+    method public androidx.slice.builders.ListBuilder.RatingBuilder setContentDescription(CharSequence);
+    method public androidx.slice.builders.ListBuilder.RatingBuilder setInputAction(android.app.PendingIntent);
+    method public androidx.slice.builders.ListBuilder.RatingBuilder setInputAction(androidx.remotecallback.RemoteCallback);
+    method public androidx.slice.builders.ListBuilder.RatingBuilder setMax(int);
+    method public androidx.slice.builders.ListBuilder.RatingBuilder setMin(int);
+    method public androidx.slice.builders.ListBuilder.RatingBuilder setPrimaryAction(androidx.slice.builders.SliceAction);
+    method public androidx.slice.builders.ListBuilder.RatingBuilder setSubtitle(CharSequence);
+    method public androidx.slice.builders.ListBuilder.RatingBuilder setTitle(CharSequence);
+    method public androidx.slice.builders.ListBuilder.RatingBuilder setTitleItem(androidx.core.graphics.drawable.IconCompat, int);
+    method public androidx.slice.builders.ListBuilder.RatingBuilder setTitleItem(androidx.core.graphics.drawable.IconCompat, int, boolean);
+    method public androidx.slice.builders.ListBuilder.RatingBuilder setValue(float);
   }
 
   public static class ListBuilder.RowBuilder {
