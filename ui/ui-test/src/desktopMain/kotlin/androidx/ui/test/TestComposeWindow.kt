@@ -13,7 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package androidx.compose.ui.test
+
+package androidx.ui.test
 
 import androidx.compose.desktop.initCompose
 import androidx.compose.runtime.Composable
@@ -27,8 +28,7 @@ import androidx.compose.ui.unit.Density
 import org.jetbrains.skija.Surface
 import java.awt.Component
 
-// TODO(demin): move to :ui:ui-test after it will have desktopMain source set
-internal class TestComposeWindow(
+class TestComposeWindow(
     val width: Int,
     val height: Int,
     val density: Density = Density(1f, 1f),
