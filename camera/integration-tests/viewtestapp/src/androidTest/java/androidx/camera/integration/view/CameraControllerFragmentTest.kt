@@ -99,8 +99,7 @@ class CameraControllerFragmentTest {
         // Get the capture bitmap and the preview bitmap.
         val captureTargetDegrees = rotationValueToRotationDegrees(fragment.accelerometerRotation)
         val captureResult = fragment.assertCanTakePicture()
-        var captureBitmap = Bitmap.createScaledBitmap(captureResult.first, width, height, true)
-        val captureDegrees = captureResult.second
+        var captureBitmap = Bitmap.createScaledBitmap(captureResult.bitmap, width, height, true)
 
         val previewTargetDegrees =
             rotationValueToRotationDegrees(fragment.previewView.display.rotation)
@@ -108,14 +107,21 @@ class CameraControllerFragmentTest {
         previewBitmap = Bitmap.createScaledBitmap(previewBitmap, width, height, true)
 
         // Rotate capture bitmap to match preview orientation
-        val captureToPreviewDegrees = captureTargetDegrees - previewTargetDegrees + captureDegrees
-        val rotateCapture = Matrix()
-        rotateCapture.postRotate(
+        val captureToPreviewDegrees =
+            captureTargetDegrees - previewTargetDegrees + captureResult.rotationDegrees
+        val transformCapture = Matrix()
+        transformCapture.postRotate(
             captureToPreviewDegrees.toFloat(),
             width.toFloat() / 2,
             height.toFloat() / 2
         )
-        captureBitmap = Bitmap.createBitmap(captureBitmap, 0, 0, width, height, rotateCapture, true)
+        if (captureResult.isFlippedHorizontally) {
+            transformCapture.postScale(-1F, 1F, width / 2F, height / 2F)
+        } else if (captureResult.isFlippedVertically) {
+            transformCapture.postScale(1F, -1F, width / 2F, height / 2F)
+        }
+        captureBitmap =
+            Bitmap.createBitmap(captureBitmap, 0, 0, width, height, transformCapture, true)
 
         // Assert.
         val captureMoment = getRgbMoments(captureBitmap)
@@ -268,7 +274,7 @@ class CameraControllerFragmentTest {
      *
      * <p> Also cleans up the saved picture afterwards.
      */
-    private fun CameraControllerFragment.assertCanTakePicture(): Pair<Bitmap, Int> {
+    private fun CameraControllerFragment.assertCanTakePicture(): CaptureResult {
         val imageCallbackSemaphore = Semaphore(0)
         var uri: Uri? = null
         instrumentation.runOnMainSync {
@@ -289,14 +295,16 @@ class CameraControllerFragmentTest {
         val bitmap = this.activity!!.contentResolver.openInputStream(uri!!)!!.use {
             BitmapFactory.decodeStream(it)
         }
-        val rotationDegrees = this.activity!!.contentResolver.openInputStream(uri!!)!!.use {
+        val rotationAndFlip = this.activity!!.contentResolver.openInputStream(uri!!)!!.use {
             val exif = Exif.createFromInputStream(it)
-            exif.rotation
+            Triple(exif.rotation, exif.isFlippedHorizontally, exif.isFlippedVertically)
         }
 
         // Delete the saved picture. Assert 1 row was deleted.
         assertThat(this.activity!!.contentResolver.delete(uri!!, null, null)).isEqualTo(1)
-        return Pair(bitmap, rotationDegrees)
+        return CaptureResult(
+            bitmap, rotationAndFlip.first, rotationAndFlip.second, rotationAndFlip.third
+        )
     }
 
     private fun createFragmentScenario(): FragmentScenario<CameraControllerFragment?> {
@@ -335,4 +343,14 @@ class CameraControllerFragmentTest {
         }
         assertThat(previewStreaming.tryAcquire(TIMEOUT_SECONDS, TimeUnit.SECONDS)).isTrue()
     }
+
+    /**
+     * Return value of [CameraControllerFragment.assertCanTakePicture].
+     */
+    private data class CaptureResult(
+        val bitmap: Bitmap,
+        val rotationDegrees: Int,
+        val isFlippedHorizontally: Boolean,
+        val isFlippedVertically: Boolean
+    )
 }
