@@ -31,13 +31,13 @@ import androidx.appsearch.app.AppSearchManager;
 import androidx.appsearch.app.AppSearchResult;
 import androidx.appsearch.app.AppSearchSchema;
 import androidx.appsearch.app.GenericDocument;
-import androidx.appsearch.app.GenericDocumentToProtoConverter;
-import androidx.appsearch.app.SchemaToProtoConverter;
-import androidx.appsearch.app.SearchResultToProtoConverter;
 import androidx.appsearch.app.SearchResults;
 import androidx.appsearch.app.SearchSpec;
-import androidx.appsearch.app.SearchSpecToProtoConverter;
 import androidx.appsearch.exceptions.AppSearchException;
+import androidx.appsearch.localbackend.converter.GenericDocumentToProtoConverter;
+import androidx.appsearch.localbackend.converter.SchemaToProtoConverter;
+import androidx.appsearch.localbackend.converter.SearchResultToProtoConverter;
+import androidx.appsearch.localbackend.converter.SearchSpecToProtoConverter;
 import androidx.core.util.Preconditions;
 
 import com.google.android.icing.proto.DocumentProto;

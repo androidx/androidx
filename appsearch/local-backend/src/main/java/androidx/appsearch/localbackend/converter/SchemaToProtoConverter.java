@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.app;
+package androidx.appsearch.localbackend.converter;
 
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.AppSearchSchema;
 import androidx.core.util.Preconditions;
 
 import com.google.android.icing.proto.IndexingConfig;
