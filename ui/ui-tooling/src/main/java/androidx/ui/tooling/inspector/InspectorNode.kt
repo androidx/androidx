@@ -16,6 +16,9 @@
 
 package androidx.ui.tooling.inspector
 
+import androidx.compose.ui.node.ExperimentalLayoutNodeApi
+import androidx.compose.ui.node.LayoutNode
+
 /**
  * Node representing a Composable for the Layout Inspector.
  */
@@ -97,8 +100,10 @@ class InspectorNode internal constructor(
 /**
  * Mutable version of [InspectorNode].
  */
+@ExperimentalLayoutNodeApi
 internal class MutableInspectorNode {
     var id = 0L
+    var layoutNodes = mutableListOf<LayoutNode>()
     var name = ""
     var fileName = ""
     var packageHash = -1
@@ -113,12 +118,13 @@ internal class MutableInspectorNode {
     val children = mutableListOf<InspectorNode>()
 
     fun reset() {
-        resetExceptIdAndChildren()
+        resetExceptIdLayoutNodesAndChildren()
         id = 0L
+        layoutNodes.clear()
         children.clear()
     }
 
-    fun resetExceptIdAndChildren() {
+    fun resetExceptIdLayoutNodesAndChildren() {
         name = ""
         fileName = ""
         packageHash = -1
@@ -130,6 +136,22 @@ internal class MutableInspectorNode {
         width = 0
         height = 0
         parameters.clear()
+    }
+
+    fun shallowCopy(node: InspectorNode): MutableInspectorNode = apply {
+        id = node.id
+        name = node.name
+        fileName = node.fileName
+        packageHash = node.packageHash
+        lineNumber = node.lineNumber
+        offset = node.offset
+        length = node.length
+        left = node.left
+        top = node.top
+        width = node.width
+        height = node.height
+        parameters.addAll(node.parameters)
+        children.addAll(node.children)
     }
 
     fun build(): InspectorNode =
