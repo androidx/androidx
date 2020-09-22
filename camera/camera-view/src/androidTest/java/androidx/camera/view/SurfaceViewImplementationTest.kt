@@ -22,6 +22,7 @@ import android.util.Size
 import android.view.View
 import android.widget.FrameLayout
 import androidx.camera.core.SurfaceRequest
+import androidx.camera.testing.CoreAppTestUtil
 import androidx.camera.testing.fakes.FakeActivity
 import androidx.camera.testing.fakes.FakeCamera
 import androidx.test.core.app.ApplicationProvider
@@ -49,6 +50,7 @@ class SurfaceViewImplementationTest {
     private val mInstrumentation =
         InstrumentationRegistry.getInstrumentation()
     private lateinit var mSurfaceRequest: SurfaceRequest
+    private lateinit var mContext: Context
 
     // Shows the view in activity so that SurfaceView can work normally
     @Suppress("DEPRECATION")
@@ -65,8 +67,8 @@ class SurfaceViewImplementationTest {
 
     @Before
     fun setUp() {
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        mParent = FrameLayout(context)
+        mContext = ApplicationProvider.getApplicationContext<Context>()
+        mParent = FrameLayout(mContext)
         setContentView(mParent)
 
         mSurfaceRequest = SurfaceRequest(ANY_SIZE, FakeCamera(), false)
@@ -75,16 +77,20 @@ class SurfaceViewImplementationTest {
 
     @Test
     fun surfaceProvidedSuccessfully() {
+        CoreAppTestUtil.checkKeyguard(mContext)
+
         mInstrumentation.runOnMainSync {
             mImplementation.onSurfaceRequested(mSurfaceRequest, null)
         }
 
-        mSurfaceRequest.deferrableSurface.surface.get(300, TimeUnit.MILLISECONDS)
+        mSurfaceRequest.deferrableSurface.surface.get(1000, TimeUnit.MILLISECONDS)
         mSurfaceRequest.deferrableSurface.close()
     }
 
     @Test
     fun onSurfaceNotInUseListener_isCalledWhenSurfaceIsNotUsedAnyMore() {
+        CoreAppTestUtil.checkKeyguard(mContext)
+
         var listenerLatch = CountDownLatch(1)
         val onSurfaceNotInUseListener = {
             listenerLatch.countDown()
@@ -93,7 +99,7 @@ class SurfaceViewImplementationTest {
         mInstrumentation.runOnMainSync {
             mImplementation.onSurfaceRequested(mSurfaceRequest, onSurfaceNotInUseListener)
         }
-        mSurfaceRequest.deferrableSurface.surface.get(300, TimeUnit.MILLISECONDS)
+        mSurfaceRequest.deferrableSurface.surface.get(1000, TimeUnit.MILLISECONDS)
         mSurfaceRequest.deferrableSurface.close()
 
         assertThat(listenerLatch.await(300, TimeUnit.MILLISECONDS)).isTrue()
