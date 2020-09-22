@@ -41,7 +41,7 @@ import kotlin.math.max
 internal actual fun InputDispatcher(owner: Owner): InputDispatcher {
     require(owner is AndroidOwner) {
         "InputDispatcher currently only supports dispatching to AndroidOwner, not to " +
-                owner::class.java.simpleName
+            owner::class.java.simpleName
     }
     val view = owner.view
     return AndroidInputDispatcher(owner) { view.dispatchTouchEvent(it) }
@@ -134,13 +134,13 @@ internal class AndroidInputDispatcher(
         synchronized(batchLock) {
             check(acceptEvents) {
                 "Can't enqueue event (" +
-                        "downTime=$downTime, " +
-                        "eventTime=$eventTime, " +
-                        "action=$action, " +
-                        "actionIndex=$actionIndex, " +
-                        "pointerIds=$pointerIds, " +
-                        "coordinates=$coordinates" +
-                        "), events have already been (or are being) dispatched or disposed"
+                    "downTime=$downTime, " +
+                    "eventTime=$eventTime, " +
+                    "action=$action, " +
+                    "actionIndex=$actionIndex, " +
+                    "pointerIds=$pointerIds, " +
+                    "coordinates=$coordinates" +
+                    "), events have already been (or are being) dispatched or disposed"
             }
             if (firstEventTime == Long.MAX_VALUE) {
                 firstEventTime = eventTime

@@ -58,15 +58,17 @@ class BoundsAssertionsTest {
 
     private fun composeBox() {
         rule.setContent {
-            Box(modifier = Modifier
-                .fillMaxSize()
-                .wrapContentSize(Alignment.TopStart)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .wrapContentSize(Alignment.TopStart)
             ) {
                 Box(modifier = Modifier.padding(start = 50.dp, top = 100.dp)) {
-                    Box(modifier = Modifier
-                        .testTag(tag)
-                        .size(80.dp, 100.dp)
-                        .background(color = Color.Black)
+                    Box(
+                        modifier = Modifier
+                            .testTag(tag)
+                            .size(80.dp, 100.dp)
+                            .background(color = Color.Black)
                     )
                 }
             }
@@ -177,18 +179,20 @@ class BoundsAssertionsTest {
 
     private fun composeClippedBox() {
         rule.setContent {
-            Box(modifier = Modifier
-                .fillMaxSize()
-                .clipToBounds()
-                .wrapContentSize(Alignment.TopStart)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clipToBounds()
+                    .wrapContentSize(Alignment.TopStart)
             ) {
                 // Box is shifted 30dp to the left and 10dp to the top,
                 // so it is clipped to a size of 50 x 90
-                Box(modifier = Modifier
-                    .testTag(tag)
-                    .offset((-30).dp, (-10).dp)
-                    .size(80.dp, 100.dp)
-                    .background(color = Color.Black)
+                Box(
+                    modifier = Modifier
+                        .testTag(tag)
+                        .offset((-30).dp, (-10).dp)
+                        .size(80.dp, 100.dp)
+                        .background(color = Color.Black)
                 )
             }
         }

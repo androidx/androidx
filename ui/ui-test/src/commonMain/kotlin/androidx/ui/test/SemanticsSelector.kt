@@ -64,7 +64,8 @@ internal fun SemanticsSelector(matcher: SemanticsMatcher): SemanticsSelector {
         requiresExactlyOneNode = false,
         chainedInputSelector = null
     ) {
-        nodes -> SelectionResult(nodes.filter { matcher.matches(it) })
+        nodes ->
+        SelectionResult(nodes.filter { matcher.matches(it) })
     }
 }
 
@@ -95,7 +96,8 @@ internal fun SemanticsSelector.addSelectionFromSingleNode(
         requiresExactlyOneNode = true,
         chainedInputSelector = this
     ) {
-        nodes -> SelectionResult(selector(nodes.first()))
+        nodes ->
+        SelectionResult(selector(nodes.first()))
     }
 }
 

@@ -50,10 +50,12 @@ class LayoutCoordinatesHelperTest {
         var parentCoordinates: LayoutCoordinates? = null
         var childCoordinates: LayoutCoordinates? = null
         rule.setContent {
-            Column(Modifier.onPositioned { coordinates: LayoutCoordinates ->
-                parentCoordinates = coordinates
-                latch.countDown()
-            }) {
+            Column(
+                Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                    parentCoordinates = coordinates
+                    latch.countDown()
+                }
+            ) {
                 Box(
                     Modifier.preferredSize(10.dp)
                         .align(Alignment.Start)

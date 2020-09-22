@@ -175,8 +175,8 @@ fun SemanticsNodeInteraction.assertValueEquals(value: String): SemanticsNodeInte
  * Throws [AssertionError] if the node's value is not equal to `value`, or if the node has no value
  */
 fun SemanticsNodeInteraction.assertRangeInfoEquals(value: AccessibilityRangeInfo):
-        SemanticsNodeInteraction =
-    assert(hasRangeInfo(value))
+    SemanticsNodeInteraction =
+        assert(hasRangeInfo(value))
 
 /**
  * Asserts that the current semantics node has a click action.
@@ -232,11 +232,14 @@ fun SemanticsNodeInteractionCollection.assertCountEquals(
     val errorOnFail = "Failed to assert count of nodes."
     val matchedNodes = fetchSemanticsNodes(errorOnFail)
     if (matchedNodes.size != expectedSize) {
-        throw AssertionError(buildErrorMessageForCountMismatch(
-            errorMessage = errorOnFail,
-            selector = selector,
-            foundNodes = matchedNodes,
-            expectedCount = expectedSize))
+        throw AssertionError(
+            buildErrorMessageForCountMismatch(
+                errorMessage = errorOnFail,
+                selector = selector,
+                foundNodes = matchedNodes,
+                expectedCount = expectedSize
+            )
+        )
     }
     return this
 }

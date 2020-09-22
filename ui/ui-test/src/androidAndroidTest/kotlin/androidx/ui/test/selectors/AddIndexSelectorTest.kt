@@ -76,10 +76,12 @@ class AddIndexSelectorTest {
             }
         }
 
-        expectErrorMessageStartsWith("" +
+        expectErrorMessageStartsWith(
+            "" +
                 "Failed: assertExists.\n" +
                 "Can't retrieve node at index '2' of '(TestTag = 'Parent').children'\n" +
-                "There are '2' nodes only:") {
+                "There are '2' nodes only:"
+        ) {
             rule.onNodeWithTag("Parent")
                 .onChildAt(2)
                 .assertExists()
@@ -103,10 +105,12 @@ class AddIndexSelectorTest {
             BoundaryNode(testTag = "Parent")
         }
 
-        expectErrorMessageStartsWith("" +
+        expectErrorMessageStartsWith(
+            "" +
                 "Failed: assertExists.\n" +
                 "Can't retrieve node at index '2' of '(TestTag = 'Parent').children'\n" +
-                "There are no existing nodes for that selector.") {
+                "There are no existing nodes for that selector."
+        ) {
             rule.onNodeWithTag("Parent")
                 .onChildAt(2)
                 .assertExists()

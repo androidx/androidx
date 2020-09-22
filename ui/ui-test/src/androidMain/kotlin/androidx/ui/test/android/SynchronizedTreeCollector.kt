@@ -52,8 +52,10 @@ internal object SynchronizedTreeCollector {
 
         return AndroidOwnerRegistry.getOwners().also {
             // TODO(b/153632210): This check should be done by callers of collectOwners
-            check(it.isNotEmpty()) { "No compose views found in the app. Is your Activity " +
-                    "resumed?" }
+            check(it.isNotEmpty()) {
+                "No compose views found in the app. Is your Activity " +
+                    "resumed?"
+            }
         }.flatMap { it.semanticsOwner.getAllSemanticsNodes(useUnmergedTree) }
     }
 
@@ -68,9 +70,9 @@ internal object SynchronizedTreeCollector {
     internal fun waitForIdle() {
         check(!isOnUiThread()) {
             "Functions that involve synchronization (Assertions, Actions, Synchronization; " +
-                    "e.g. assertIsSelected(), doClick(), runOnIdle()) cannot be run " +
-                    "from the main thread. Did you nest such a function inside " +
-                    "runOnIdle {}, runOnUiThread {} or setContent {}?"
+                "e.g. assertIsSelected(), doClick(), runOnIdle()) cannot be run " +
+                "from the main thread. Did you nest such a function inside " +
+                "runOnIdle {}, runOnUiThread {} or setContent {}?"
         }
 
         registerComposeWithEspresso()
@@ -105,10 +107,13 @@ internal object SynchronizedTreeCollector {
                 } else {
                     "Idling resource timed out"
                 }
-                throw ComposeNotIdleException("$prefix: possibly due to compose being busy.\n" +
+                throw ComposeNotIdleException(
+                    "$prefix: possibly due to compose being busy.\n" +
                         "$diagnosticInfo" +
                         "All registered idling resources: " +
-                        "${listOfIdlingResources.joinToString(", ")}", e)
+                        "${listOfIdlingResources.joinToString(", ")}",
+                    e
+                )
             }
             // No extra info, re-throw the original exception
             throw e
@@ -163,7 +168,7 @@ internal object SynchronizedTreeCollector {
     private fun ensureAndroidOwnerRegistryIsSetUp() {
         check(AndroidOwnerRegistry.isSetUp) {
             "Test not setup properly. Use a ComposeTestRule in your test to be able to interact " +
-                    "with composables"
+                "with composables"
         }
     }
 

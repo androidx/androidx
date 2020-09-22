@@ -61,7 +61,8 @@ class FilterToOneSelectorTest {
             }
         }
 
-        expectErrorMessageStartsWith("" +
+        expectErrorMessageStartsWith(
+            "" +
                 "Failed: assertExists.\n" +
                 "Reason: Expected exactly '1' node but found '2' nodes that satisfy: " +
                 "(((TestTag = 'Parent').children).filterToOne((TestTag = 'Child1') || " +
@@ -100,10 +101,12 @@ class FilterToOneSelectorTest {
             }
         }
 
-        expectErrorMessageStartsWith("" +
+        expectErrorMessageStartsWith(
+            "" +
                 "Failed: assertExists.\n" +
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
-                "(((TestTag = 'Parent').children).filterToOne(TestTag = 'Child'))") {
+                "(((TestTag = 'Parent').children).filterToOne(TestTag = 'Child'))"
+        ) {
             rule.onNodeWithTag("Parent")
                 .onChildren()
                 .filterToOne(hasTestTag("Child"))

@@ -80,7 +80,8 @@ class ChildSelectorTest {
             }
         }
 
-        expectErrorMessageStartsWith("" +
+        expectErrorMessageStartsWith(
+            "" +
                 "Failed: assertExists.\n" +
                 "Reason: Expected exactly '1' node but found '2' nodes that satisfy: " +
                 "((TestTag = 'Parent').child)\n" +

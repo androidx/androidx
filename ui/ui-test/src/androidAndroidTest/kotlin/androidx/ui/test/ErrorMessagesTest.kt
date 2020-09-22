@@ -49,7 +49,8 @@ class ErrorMessagesTest {
             ComposeSimpleCase()
         }
 
-        expectErrorMessage("" +
+        expectErrorMessage(
+            "" +
                 "Failed to assert the following: (OnClick is defined)\n" +
                 "Semantics of the node:\n" +
                 "Node #X at (X, X, X, X)px, Tag: 'MyButton'\n" +
@@ -73,7 +74,8 @@ class ErrorMessagesTest {
             ComposeSimpleCase()
         }
 
-        expectErrorMessage("" +
+        expectErrorMessage(
+            "" +
                 "Failed: assertExists.\n" +
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
                 "(TestTag = 'MyButton3')"
@@ -89,7 +91,8 @@ class ErrorMessagesTest {
             ComposeSimpleCase()
         }
 
-        expectErrorMessage("" +
+        expectErrorMessage(
+            "" +
                 "Failed to perform a gesture.\n" +
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
                 "(TestTag = 'MyButton3')"
@@ -105,7 +108,8 @@ class ErrorMessagesTest {
             ComposeSimpleCase()
         }
 
-        expectErrorMessage("" +
+        expectErrorMessage(
+            "" +
                 "Failed to perform a gesture.\n" +
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
                 "((TestTag = 'MyButton3') && (OnClick is defined))"
@@ -121,7 +125,8 @@ class ErrorMessagesTest {
             ComposeSimpleCase()
         }
 
-        expectErrorMessageStartsWith("" +
+        expectErrorMessageStartsWith(
+            "" +
                 "Failed to perform a gesture.\n" +
                 "Reason: Expected exactly '1' node but found '2' nodes that satisfy: " +
                 "(Text = 'Toggle' (ignoreCase: false))\n" +
@@ -139,7 +144,8 @@ class ErrorMessagesTest {
             ComposeSimpleCase()
         }
 
-        expectErrorMessageStartsWith("" +
+        expectErrorMessageStartsWith(
+            "" +
                 "Failed to perform OnClick action as it is not defined on the node.\n" +
                 "Semantics of the node:"
         ) {
@@ -154,7 +160,8 @@ class ErrorMessagesTest {
             ComposeSimpleCase()
         }
 
-        expectErrorMessageStartsWith("" +
+        expectErrorMessageStartsWith(
+            "" +
                 "Failed to perform OnClick action.\n" +
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
                 "(TestTag = 'MyButton3')"
@@ -170,7 +177,8 @@ class ErrorMessagesTest {
             ComposeSimpleCase()
         }
 
-        expectErrorMessageStartsWith("" +
+        expectErrorMessageStartsWith(
+            "" +
                 "Failed: assertDoesNotExist.\n" +
                 "Reason: Did not expect any node but found '1' node that satisfies: " +
                 "(TestTag = 'MyButton')\n" +
@@ -188,7 +196,8 @@ class ErrorMessagesTest {
             ComposeSimpleCase()
         }
 
-        expectErrorMessageStartsWith("" +
+        expectErrorMessageStartsWith(
+            "" +
                 "Failed to assert count of nodes.\n" +
                 "Reason: Expected '3' nodes but found '2' nodes that satisfy: " +
                 "(Text = 'Toggle' (ignoreCase: false))\n" +
@@ -206,7 +215,8 @@ class ErrorMessagesTest {
             ComposeSimpleCase()
         }
 
-        expectErrorMessage("" +
+        expectErrorMessage(
+            "" +
                 "Failed to assert count of nodes.\n" +
                 "Reason: Expected '3' nodes but could not find any node that satisfies: " +
                 "(Text = 'Toggle2' (ignoreCase: false))"
@@ -228,7 +238,8 @@ class ErrorMessagesTest {
         rule.onNodeWithTag("MyButton")
             .performClick()
 
-        expectErrorMessage("" +
+        expectErrorMessage(
+            "" +
                 "Failed to perform a gesture.\n" +
                 "The node is no longer in the tree, last known semantics:\n" +
                 "Node #X at (X, X, X, X)px\n" +
@@ -256,7 +267,8 @@ class ErrorMessagesTest {
         rule.onNodeWithTag("MyButton")
             .performClick()
 
-        expectErrorMessage("" +
+        expectErrorMessage(
+            "" +
                 "Failed: assertExists.\n" +
                 "The node is no longer in the tree, last known semantics:\n" +
                 "Node #X at (X, X, X, X)px\n" +
@@ -284,7 +296,8 @@ class ErrorMessagesTest {
         rule.onNodeWithTag("MyButton")
             .performClick()
 
-        expectErrorMessage("" +
+        expectErrorMessage(
+            "" +
                 "Failed to assert the following: (OnClick is defined)\n" +
                 "The node is no longer in the tree, last known semantics:\n" +
                 "Node #X at (X, X, X, X)px\n" +

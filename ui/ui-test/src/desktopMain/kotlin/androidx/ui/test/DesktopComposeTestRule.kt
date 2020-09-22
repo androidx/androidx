@@ -90,8 +90,8 @@ class DesktopComposeTestRule(
 
     @OptIn(ExperimentalComposeApi::class)
     private fun isIdle() =
-                !Snapshot.current.hasPendingChanges() &&
-                !Recomposer.current().hasPendingChanges()
+        !Snapshot.current.hasPendingChanges() &&
+            !Recomposer.current().hasPendingChanges()
 
     override fun waitForIdle() {
         while (!isIdle()) {
