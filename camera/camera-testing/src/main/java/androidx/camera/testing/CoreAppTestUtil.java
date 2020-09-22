@@ -26,10 +26,16 @@ import androidx.test.uiautomator.UiDevice;
 
 import org.junit.AssumptionViolatedException;
 
+import java.io.IOException;
+
 /** Utility functions of tests on CoreTestApp. */
 public final class CoreAppTestUtil {
 
+    /** ADB shell input key code for dismissing keyguard for device with API level <= 22. */
     private static final int DISMISS_LOCK_SCREEN_CODE = 82;
+    /** ADB shell command for dismissing keyguard for device with API level >= 23. */
+    private static final String ADB_SHELL_DISMISS_KEYGUARD_API23_AND_ABOVE = "wm dismiss-keyguard";
+
     private static final int MAX_TIMEOUT_MS = 3000;
 
     private CoreAppTestUtil() {
@@ -72,8 +78,16 @@ public final class CoreAppTestUtil {
             device.wakeUp();
         } catch (RemoteException remoteException) {
         }
+
         // In case the lock screen on top, the action to dismiss it.
-        device.pressKeyCode(DISMISS_LOCK_SCREEN_CODE);
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+            device.pressKeyCode(DISMISS_LOCK_SCREEN_CODE);
+        } else {
+            try {
+                device.executeShellCommand(ADB_SHELL_DISMISS_KEYGUARD_API23_AND_ABOVE);
+            } catch (IOException e) {
+            }
+        }
 
         device.pressHome();
         device.waitForIdle(MAX_TIMEOUT_MS);
