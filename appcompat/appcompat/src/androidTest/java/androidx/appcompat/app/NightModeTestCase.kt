@@ -62,14 +62,18 @@ class NightModeTestCase(private val setMode: NightSetMode) {
     fun testSwitchingYesDoesNotAffectApplication() {
         // This test is only useful when the dark system theme is not enabled
         if (!isSystemNightThemeEnabled(rule.activity)) {
-            assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_NO,
-                rule.activity.applicationContext.resources.configuration)
+            assertConfigurationNightModeEquals(
+                Configuration.UI_MODE_NIGHT_NO,
+                rule.activity.applicationContext.resources.configuration
+            )
 
             // Force the night mode to be yes (aka night mode)
             setNightModeAndWaitForRecreate(rule, MODE_NIGHT_YES, setMode)
 
-            assertConfigurationNightModeEquals(Configuration.UI_MODE_NIGHT_NO,
-                rule.activity.applicationContext.resources.configuration)
+            assertConfigurationNightModeEquals(
+                Configuration.UI_MODE_NIGHT_NO,
+                rule.activity.applicationContext.resources.configuration
+            )
         }
     }
 

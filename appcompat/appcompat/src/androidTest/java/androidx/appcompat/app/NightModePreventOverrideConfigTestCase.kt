@@ -68,9 +68,9 @@ class NightModePreventOverrideConfigTestCase(private val setMode: NightSetMode) 
         @JvmStatic
         @Parameterized.Parameters
         fun data() = if (Build.VERSION.SDK_INT >= 17) {
-                listOf(NightSetMode.DEFAULT, NightSetMode.LOCAL)
-            } else {
-                listOf(NightSetMode.DEFAULT)
-            }
+            listOf(NightSetMode.DEFAULT, NightSetMode.LOCAL)
+        } else {
+            listOf(NightSetMode.DEFAULT)
+        }
     }
 }

@@ -48,8 +48,10 @@ class TextViewCompoundDrawablesXmlDetector : LayoutDetector() {
             Category.CORRECTNESS,
             1,
             Severity.WARNING,
-            Implementation(TextViewCompoundDrawablesXmlDetector::class.java,
-                Scope.RESOURCE_FILE_SCOPE)
+            Implementation(
+                TextViewCompoundDrawablesXmlDetector::class.java,
+                Scope.RESOURCE_FILE_SCOPE
+            )
         )
     }
 

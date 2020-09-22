@@ -79,12 +79,14 @@ class SetActionBarDetectorTest {
             customActivityClass
         ).issues(SetActionBarDetector.USING_CORE_ACTION_BAR)
             .run()
-            .expect("""
+            .expect(
+                """
 src/com/example/CustomActivity.kt:9: Warning: Use AppCompatActivity.setSupportActionBar [UseSupportActionBar]
        setActionBar(Toolbar(this))
        ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
-            """.trimIndent())
+                """.trimIndent()
+            )
         /* ktlint-enable max-line-length */
     }
 
@@ -117,12 +119,14 @@ src/com/example/CustomActivity.kt:9: Warning: Use AppCompatActivity.setSupportAc
             customActivityClass
         ).issues(SetActionBarDetector.USING_CORE_ACTION_BAR)
             .run()
-            .expect("""
+            .expect(
+                """
 src/com/example/CustomActivity.kt:11: Warning: Use AppCompatActivity.setSupportActionBar [UseSupportActionBar]
        setActionBar(Toolbar(this))
        ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 0 errors, 1 warnings
-            """.trimIndent())
+                """.trimIndent()
+            )
         /* ktlint-enable max-line-length */
     }
 }

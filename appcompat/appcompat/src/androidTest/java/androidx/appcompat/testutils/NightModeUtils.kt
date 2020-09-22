@@ -82,9 +82,10 @@ object NightModeUtils {
         setMode: NightSetMode
     ) {
         Log.d(
-            LOG_TAG, "setNightModeAndWait on Activity: " + activity +
-                    " to mode: " + nightMode +
-                    " using set mode: " + setMode
+            LOG_TAG,
+            "setNightModeAndWait on Activity: " + activity +
+                " to mode: " + nightMode +
+                " using set mode: " + setMode
         )
 
         val instrumentation = InstrumentationRegistry.getInstrumentation()
@@ -104,9 +105,10 @@ object NightModeUtils {
         setMode: NightSetMode
     ): T {
         Log.d(
-            LOG_TAG, "setNightModeAndWaitForRecreate on Activity: " + activity +
-                    " to mode: " + nightMode +
-                    " using set mode: " + setMode
+            LOG_TAG,
+            "setNightModeAndWaitForRecreate on Activity: " + activity +
+                " to mode: " + nightMode +
+                " using set mode: " + setMode
         )
 
         LifecycleOwnerUtils.waitUntilState(activity, Lifecycle.State.RESUMED)
@@ -132,7 +134,8 @@ object NightModeUtils {
         return LifecycleOwnerUtils.waitForRecreation(activity) {
             Log.e(LOG_TAG, "request rotate on ui thread")
             if (activity.resources.configuration.orientation ==
-                Configuration.ORIENTATION_LANDSCAPE) {
+                Configuration.ORIENTATION_LANDSCAPE
+            ) {
                 activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
             } else {
                 activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
@@ -160,7 +163,8 @@ object NightModeUtils {
         setMode: NightSetMode
     ) = when (setMode) {
         NightSetMode.DEFAULT -> AppCompatDelegate.setDefaultNightMode(nightMode)
-        NightSetMode.LOCAL -> if (Build.VERSION.SDK_INT >= 17) {
+        NightSetMode.LOCAL ->
+            if (Build.VERSION.SDK_INT >= 17) {
                 activity!!.delegate.localNightMode = nightMode
             } else {
                 throw Exception("Local night mode is not supported on SDK_INT < 17")
