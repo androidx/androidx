@@ -72,7 +72,7 @@ class PreferencesDataStoreActivity : AppCompatActivity() {
         findViewById<Button>(R.id.counter_dec).setOnClickListener {
             lifecycleScope.launch {
                 preferenceStore.edit { prefs ->
-                    prefs[COUNTER_KEY] = prefs[COUNTER_KEY] ?: 0 - 1
+                    prefs[COUNTER_KEY] = (prefs[COUNTER_KEY] ?: 0) - 1
                 }
             }
         }
@@ -80,7 +80,7 @@ class PreferencesDataStoreActivity : AppCompatActivity() {
         findViewById<Button>(R.id.counter_inc).setOnClickListener {
             lifecycleScope.launch {
                 preferenceStore.edit { prefs ->
-                    prefs[COUNTER_KEY] = prefs[COUNTER_KEY] ?: 0 + 1
+                    prefs[COUNTER_KEY] = (prefs[COUNTER_KEY] ?: 0) + 1
                 }
             }
         }
