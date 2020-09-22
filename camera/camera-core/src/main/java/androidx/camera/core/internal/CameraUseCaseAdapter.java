@@ -26,6 +26,7 @@ import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
@@ -171,8 +172,11 @@ public final class CameraUseCaseAdapter implements Camera {
 
             if (mViewPort != null) {
                 // Calculate crop rect if view port is provided.
+                boolean isFrontCamera = mCameraInternal.getCameraInfoInternal().getLensFacing()
+                        == CameraSelector.LENS_FACING_FRONT;
                 Map<UseCase, Rect> cropRectMap = ViewPorts.calculateViewPortRects(
                         mCameraInternal.getCameraControlInternal().getSensorRect(),
+                        isFrontCamera,
                         mViewPort.getAspectRatio(),
                         mCameraInternal.getCameraInfoInternal().getSensorRotationDegrees(
                                 mViewPort.getRotation()),

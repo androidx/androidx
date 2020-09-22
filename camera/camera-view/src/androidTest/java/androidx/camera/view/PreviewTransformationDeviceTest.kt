@@ -41,6 +41,8 @@ class PreviewTransformationDeviceTest {
     companion object {
         // Size of the PreviewView. Aspect ratio 2:1.
         private val PREVIEW_VIEW_SIZE = Size(400, 200)
+        private val PIVOTED_PREVIEW_VIEW_SIZE =
+            Size(PREVIEW_VIEW_SIZE.height, PREVIEW_VIEW_SIZE.width)
 
         // Size of the Surface. Aspect ratio 3:2.
         private val SURFACE_SIZE = Size(60, 40)
@@ -48,10 +50,21 @@ class PreviewTransformationDeviceTest {
         // 2:1 crop rect.
         private val CROP_RECT = Rect(20, 0, 40, 40)
 
+        // Off-center crop rect with 0 rotation.
+        private val CROP_RECT_0 = Rect(0, 15, 20, 25)
+
+        // Off-center crop rect with 90 rotation.
+        private val CROP_RECT_90 = Rect(10, 0, 50, 20)
+
         // 1:1 crop rect.
         private val FIT_SURFACE_SIZE = Size(60, 60)
         private val MISMATCHED_CROP_RECT = Rect(0, 0, 60, 60)
         private const val FLOAT_ERROR = 1e-3f
+
+        private const val FRONT_CAMERA = true
+        private const val BACK_CAMERA = false
+
+        private const val ARBITRARY_ROTATION = Surface.ROTATION_0
     }
 
     private lateinit var mPreviewTransform: PreviewTransformation
@@ -94,8 +107,9 @@ class PreviewTransformationDeviceTest {
     private fun isCropRectAspectRatioMatchPreviewView(cropRect: Rect): Boolean {
         mPreviewTransform.setTransformationInfo(
             // Height and width is swapped because rotation is 90°.
-            SurfaceRequest.TransformationInfo.of(cropRect, 90, Surface.ROTATION_0),
-            SURFACE_SIZE
+            SurfaceRequest.TransformationInfo.of(cropRect, 90, ARBITRARY_ROTATION),
+            SURFACE_SIZE,
+            BACK_CAMERA
         )
         return mPreviewTransform.isCropRectAspectRatioMatchPreviewView(PREVIEW_VIEW_SIZE)
     }
@@ -165,17 +179,18 @@ class PreviewTransformationDeviceTest {
     }
 
     /**
-     * Corrects TextureView based on target rotation and return the corrected vertexes.
+     * Corrects TextureView based on target rotation and return the corrected vertices.
      */
     private fun getTextureViewCorrection(@RotationValue rotation: Int): FloatArray {
         // Arrange.
         mPreviewTransform.setTransformationInfo(
             SurfaceRequest.TransformationInfo.of(CROP_RECT, 90, rotation),
-            SURFACE_SIZE
+            SURFACE_SIZE,
+            BACK_CAMERA
         )
 
         // Act.
-        val surfaceVertexes = PreviewTransformation.sizeToVertexes(SURFACE_SIZE)
+        val surfaceVertexes = PreviewTransformation.sizeToVertices(SURFACE_SIZE)
         mPreviewTransform.textureViewCorrectionMatrix.mapPoints(surfaceVertexes)
         return surfaceVertexes
     }
@@ -186,9 +201,9 @@ class PreviewTransformationDeviceTest {
         mPreviewTransform.setTransformationInfo(
             SurfaceRequest.TransformationInfo.of(
                 CROP_RECT,
-                90, Surface.ROTATION_90
-            ),
-            SURFACE_SIZE
+                90,
+                ARBITRARY_ROTATION
+            ), SURFACE_SIZE, BACK_CAMERA
         )
 
         // Act.
@@ -215,7 +230,8 @@ class PreviewTransformationDeviceTest {
             LayoutDirection.LTR,
             PREVIEW_VIEW_SIZE.height.toFloat() / MISMATCHED_CROP_RECT.height(),
             0f,
-            0f
+            0f,
+            BACK_CAMERA
         )
     }
 
@@ -226,7 +242,8 @@ class PreviewTransformationDeviceTest {
             LayoutDirection.LTR,
             PREVIEW_VIEW_SIZE.height.toFloat() / MISMATCHED_CROP_RECT.height(),
             100f,
-            0f
+            0f,
+            BACK_CAMERA
         )
     }
 
@@ -237,7 +254,20 @@ class PreviewTransformationDeviceTest {
             LayoutDirection.LTR,
             PREVIEW_VIEW_SIZE.height.toFloat() / MISMATCHED_CROP_RECT.height(),
             200f,
-            0f
+            0f,
+            BACK_CAMERA
+        )
+    }
+
+    @Test
+    fun mismatchedCropRectFrontCamera_fitStart() {
+        assertForMismatchedCropRect(
+            PreviewView.ScaleType.FIT_START,
+            LayoutDirection.LTR,
+            PREVIEW_VIEW_SIZE.height.toFloat() / MISMATCHED_CROP_RECT.height(),
+            0f,
+            0f,
+            FRONT_CAMERA
         )
     }
 
@@ -248,7 +278,8 @@ class PreviewTransformationDeviceTest {
             LayoutDirection.LTR,
             PREVIEW_VIEW_SIZE.width.toFloat() / MISMATCHED_CROP_RECT.width(),
             0f,
-            0f
+            0f,
+            BACK_CAMERA
         )
     }
 
@@ -259,7 +290,8 @@ class PreviewTransformationDeviceTest {
             LayoutDirection.LTR,
             PREVIEW_VIEW_SIZE.width.toFloat() / MISMATCHED_CROP_RECT.width(),
             0f,
-            -100f
+            -100f,
+            BACK_CAMERA
         )
     }
 
@@ -270,7 +302,8 @@ class PreviewTransformationDeviceTest {
             LayoutDirection.LTR,
             PREVIEW_VIEW_SIZE.width.toFloat() / MISMATCHED_CROP_RECT.width(),
             0f,
-            -200f
+            -200f,
+            BACK_CAMERA
         )
     }
 
@@ -281,7 +314,8 @@ class PreviewTransformationDeviceTest {
             LayoutDirection.RTL,
             PREVIEW_VIEW_SIZE.height.toFloat() / MISMATCHED_CROP_RECT.height(),
             200f,
-            0f
+            0f,
+            BACK_CAMERA
         )
     }
 
@@ -290,12 +324,14 @@ class PreviewTransformationDeviceTest {
         layoutDirection: Int,
         scale: Float,
         translationX: Float,
-        translationY: Float
+        translationY: Float,
+        isFrontCamera: Boolean
     ) {
         // Arrange.
         mPreviewTransform.setTransformationInfo(
-            SurfaceRequest.TransformationInfo.of(MISMATCHED_CROP_RECT, 90, Surface.ROTATION_90),
-            FIT_SURFACE_SIZE
+            SurfaceRequest.TransformationInfo.of(MISMATCHED_CROP_RECT, 90, ARBITRARY_ROTATION),
+            FIT_SURFACE_SIZE,
+            isFrontCamera
         )
         mPreviewTransform.scaleType = scaleType
 
@@ -307,5 +343,69 @@ class PreviewTransformationDeviceTest {
         assertThat(mView.scaleY).isWithin(FLOAT_ERROR).of(scale)
         assertThat(mView.translationX).isWithin(FLOAT_ERROR).of(translationX)
         assertThat(mView.translationY).isWithin(FLOAT_ERROR).of(translationY)
+    }
+
+    @Test
+    fun frontCamera0_transformationIsMirrored() {
+        testOffCenterCropRectMirroring(FRONT_CAMERA, CROP_RECT_0, PREVIEW_VIEW_SIZE, 0)
+
+        // Assert:
+        assertThat(mView.scaleX).isWithin(FLOAT_ERROR).of(20F)
+        assertThat(mView.scaleY).isWithin(FLOAT_ERROR).of(20F)
+        assertThat(mView.translationX).isWithin(FLOAT_ERROR).of(-800F)
+        assertThat(mView.translationY).isWithin(FLOAT_ERROR).of(-300F)
+    }
+
+    @Test
+    fun backCamera0_transformationIsNotMirrored() {
+        testOffCenterCropRectMirroring(BACK_CAMERA, CROP_RECT_0, PREVIEW_VIEW_SIZE, 0)
+
+        // Assert:
+        assertThat(mView.scaleX).isWithin(FLOAT_ERROR).of(20F)
+        assertThat(mView.scaleY).isWithin(FLOAT_ERROR).of(20F)
+        assertThat(mView.translationX).isWithin(FLOAT_ERROR).of(0F)
+        assertThat(mView.translationY).isWithin(FLOAT_ERROR).of(-300F)
+    }
+
+    @Test
+    fun frontCameraRotated90_transformationIsMirrored() {
+        testOffCenterCropRectMirroring(
+            FRONT_CAMERA, CROP_RECT_90, PIVOTED_PREVIEW_VIEW_SIZE, 90
+        )
+
+        // Assert:
+        assertThat(mView.scaleX).isWithin(FLOAT_ERROR).of(6.666F)
+        assertThat(mView.scaleY).isWithin(FLOAT_ERROR).of(15F)
+        assertThat(mView.translationX).isWithin(FLOAT_ERROR).of(0F)
+        assertThat(mView.translationY).isWithin(FLOAT_ERROR).of(-100F)
+    }
+
+    @Test
+    fun backCameraRotated90_transformationIsNotMirrored() {
+        testOffCenterCropRectMirroring(BACK_CAMERA, CROP_RECT_90, PIVOTED_PREVIEW_VIEW_SIZE, 90)
+
+        // Assert:
+        assertThat(mView.scaleX).isWithin(FLOAT_ERROR).of(6.666F)
+        assertThat(mView.scaleY).isWithin(FLOAT_ERROR).of(15F)
+        assertThat(mView.translationX).isWithin(FLOAT_ERROR).of(-200F)
+        assertThat(mView.translationY).isWithin(FLOAT_ERROR).of(-100F)
+    }
+
+    private fun testOffCenterCropRectMirroring(
+        isFrontCamera: Boolean,
+        cropRect: Rect,
+        previewViewSize: Size,
+        rotationDegrees: Int
+    ) {
+        mPreviewTransform.setTransformationInfo(
+            SurfaceRequest.TransformationInfo.of(
+                cropRect,
+                rotationDegrees,
+                ARBITRARY_ROTATION
+            ),
+            SURFACE_SIZE,
+            isFrontCamera
+        )
+        mPreviewTransform.transformView(previewViewSize, LayoutDirection.LTR, mView)
     }
 }

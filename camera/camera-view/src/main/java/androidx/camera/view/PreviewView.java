@@ -44,6 +44,7 @@ import androidx.annotation.UiThread;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.CameraInfo;
+import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.Logger;
@@ -156,8 +157,11 @@ public class PreviewView extends FrameLayout {
                         Logger.d(TAG, "Preview transformation info updated. " + transformationInfo);
                         // TODO(b/159127402): maybe switch to COMPATIBLE mode if target rotation is
                         //  not display rotation.
+                        boolean isFrontCamera =
+                                surfaceRequest.getCamera().getCameraInfoInternal().getLensFacing()
+                                        == CameraSelector.LENS_FACING_FRONT;
                         mPreviewTransform.setTransformationInfo(transformationInfo,
-                                surfaceRequest.getResolution());
+                                surfaceRequest.getResolution(), isFrontCamera);
                         redrawPreview();
                     });
 
