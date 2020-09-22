@@ -80,6 +80,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.ColorInt;
+import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -216,30 +217,32 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     }
 
     @Override
-    public void setStyle(SliceStyle styles) {
-        super.setStyle(styles);
+    public void setStyle(SliceStyle styles, RowStyle rowStyle) {
+        super.setStyle(styles, rowStyle);
         applyRowStyle();
     }
 
     private void applyRowStyle() {
-        if (mSliceStyle == null || mSliceStyle.getRowStyle() == null) {
+        if (mSliceStyle == null || mRowStyle == null) {
             return;
         }
 
-        final RowStyle rowStyle = mSliceStyle.getRowStyle();
         setViewSidePaddings(mStartContainer,
-                rowStyle.getTitleItemStartPadding(), rowStyle.getTitleItemEndPadding());
+                mRowStyle.getTitleItemStartPadding(), mRowStyle.getTitleItemEndPadding());
         setViewSidePaddings(mContent,
-                rowStyle.getContentStartPadding(), rowStyle.getContentEndPadding());
+                mRowStyle.getContentStartPadding(), mRowStyle.getContentEndPadding());
         setViewSidePaddings(mPrimaryText,
-                rowStyle.getTitleStartPadding(), rowStyle.getTitleEndPadding());
+                mRowStyle.getTitleStartPadding(), mRowStyle.getTitleEndPadding());
         setViewSidePaddings(mSubContent,
-                rowStyle.getSubContentStartPadding(), rowStyle.getSubContentEndPadding());
+                mRowStyle.getSubContentStartPadding(), mRowStyle.getSubContentEndPadding());
         setViewSidePaddings(mEndContainer,
-                rowStyle.getEndItemStartPadding(), rowStyle.getEndItemEndPadding());
+                mRowStyle.getEndItemStartPadding(), mRowStyle.getEndItemEndPadding());
         setViewSideMargins(mBottomDivider,
-                rowStyle.getBottomDividerStartPadding(), rowStyle.getBottomDividerEndPadding());
-        setViewHeight(mActionDivider, rowStyle.getActionDividerHeight());
+                mRowStyle.getBottomDividerStartPadding(), mRowStyle.getBottomDividerEndPadding());
+        setViewHeight(mActionDivider, mRowStyle.getActionDividerHeight());
+        if (mRowStyle.getTintColor() != -1) {
+            setTint(mRowStyle.getTintColor());
+        }
     }
 
     private void setViewSidePaddings(View v, int start, int end) {
@@ -472,7 +475,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
             mPrimaryText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mIsHeader
                     ? mSliceStyle.getHeaderTitleSize()
                     : mSliceStyle.getTitleSize());
-            mPrimaryText.setTextColor(mSliceStyle.getTitleColor());
+            mPrimaryText.setTextColor(mRowStyle.getTitleColor());
         }
         mPrimaryText.setVisibility(titleItem != null ? View.VISIBLE : View.GONE);
 
@@ -636,7 +639,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
                 mSecondaryText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mIsHeader
                         ? mSliceStyle.getHeaderSubtitleSize()
                         : mSliceStyle.getSubtitleSize());
-                mSecondaryText.setTextColor(mSliceStyle.getSubtitleColor());
+                mSecondaryText.setTextColor(mRowStyle.getSubtitleColor());
                 int verticalPadding = mIsHeader
                         ? mSliceStyle.getVerticalHeaderTextPadding()
                         : mSliceStyle.getVerticalTextPadding();
@@ -653,7 +656,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
             if (mSliceStyle != null) {
                 mLastUpdatedText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mIsHeader
                         ? mSliceStyle.getHeaderSubtitleSize() : mSliceStyle.getSubtitleSize());
-                mLastUpdatedText.setTextColor(mSliceStyle.getSubtitleColor());
+                mLastUpdatedText.setTextColor(mRowStyle.getSubtitleColor());
             }
         }
         mLastUpdatedText.setVisibility(TextUtils.isEmpty(subtitleTimeString) ? GONE : VISIBLE);
@@ -737,9 +740,8 @@ public class RowView extends SliceChildView implements View.OnClickListener,
             } else {
                 progressBar = (SeekBar) LayoutInflater.from(getContext()).inflate(
                         R.layout.abc_slice_seekbar_view, this, false);
-                if (mSliceStyle != null && mSliceStyle.getRowStyle() != null) {
-                    setViewWidth(progressBar,
-                            mSliceStyle.getRowStyle().getSeekBarInlineWidth());
+                if (mRowStyle != null) {
+                    setViewWidth(progressBar, mRowStyle.getSeekBarInlineWidth());
                 }
             }
         } else {
@@ -750,12 +752,12 @@ public class RowView extends SliceChildView implements View.OnClickListener,
             } else {
                 progressBar = (ProgressBar) LayoutInflater.from(getContext()).inflate(
                         R.layout.abc_slice_progress_inline_view, this, false);
-                if (mSliceStyle != null && mSliceStyle.getRowStyle() != null) {
+                if (mRowStyle != null) {
                     setViewWidth(progressBar,
-                            mSliceStyle.getRowStyle().getProgressBarInlineWidth());
+                            mRowStyle.getProgressBarInlineWidth());
                     setViewSidePaddings(progressBar,
-                            mSliceStyle.getRowStyle().getProgressBarStartPadding(),
-                            mSliceStyle.getRowStyle().getProgressBarEndPadding());
+                            mRowStyle.getProgressBarStartPadding(),
+                            mRowStyle.getProgressBarEndPadding());
                 }
             }
             if (isIndeterminate) {
@@ -893,7 +895,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
      */
     private void addAction(final SliceActionImpl actionContent, int color, ViewGroup container,
                            boolean isStart) {
-        SliceActionView sav = new SliceActionView(getContext(), mSliceStyle);
+        SliceActionView sav = new SliceActionView(getContext(), mSliceStyle, mRowStyle);
         container.addView(sav);
         if (container.getVisibility() == GONE) {
             container.setVisibility(VISIBLE);
@@ -961,13 +963,11 @@ public class RowView extends SliceChildView implements View.OnClickListener,
             } else {
                 container.addView(iv);
             }
-            if (mSliceStyle != null) {
-                if (mSliceStyle.getRowStyle() != null) {
-                    int styleIconSize = mSliceStyle.getRowStyle().getIconSize();
-                    mIconSize = styleIconSize > 0 ? styleIconSize : mIconSize;
-                    int styleImageSize = mSliceStyle.getRowStyle().getImageSize();
-                    mImageSize = styleImageSize > 0 ? styleImageSize : mImageSize;
-                }
+            if (mRowStyle != null) {
+                int styleIconSize = mRowStyle.getIconSize();
+                mIconSize = styleIconSize > 0 ? styleIconSize : mIconSize;
+                int styleImageSize = mRowStyle.getImageSize();
+                mImageSize = styleImageSize > 0 ? styleImageSize : mImageSize;
             }
             LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) iv.getLayoutParams();
             lp.width = useIntrinsicSize ? Math.round(d.getIntrinsicWidth() / density) : mImageSize;
@@ -986,7 +986,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
             tv.setText(SliceViewUtil.getTimestampString(getContext(), sliceItem.getLong()));
             if (mSliceStyle != null) {
                 tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, mSliceStyle.getSubtitleSize());
-                tv.setTextColor(mSliceStyle.getSubtitleColor());
+                tv.setTextColor(mRowStyle.getSubtitleColor());
             }
             container.addView(tv);
             addedView = tv;
@@ -1125,7 +1125,7 @@ public class RowView extends SliceChildView implements View.OnClickListener,
     }
 
     @Override
-    public void onNothingSelected(AdapterView<?> parent) {
+    public void onNothingSelected(@NonNull AdapterView<?> parent) {
 
     }
 

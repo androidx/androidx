@@ -79,16 +79,14 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
     private int mIconSize;
     private int mImageSize;
 
-    public SliceActionView(Context context, SliceStyle style) {
+    public SliceActionView(Context context, SliceStyle style, RowStyle rowStyle) {
         super(context);
         Resources res = getContext().getResources();
         mIconSize = res.getDimensionPixelSize(R.dimen.abc_slice_icon_size);
         mImageSize = res.getDimensionPixelSize(R.dimen.abc_slice_small_image_size);
-        if (style != null) {
-            if (style.getRowStyle() != null) {
-                mIconSize = style.getRowStyle().getIconSize();
-                mImageSize = style.getRowStyle().getImageSize();
-            }
+        if (rowStyle != null) {
+            mIconSize = rowStyle.getIconSize();
+            mImageSize = rowStyle.getImageSize();
         }
     }
 
@@ -228,7 +226,7 @@ public class SliceActionView extends FrameLayout implements View.OnClickListener
     }
 
     @Override
-    public void onClick(View v) {
+    public void onClick(@NonNull View v) {
         if (mSliceAction == null || mActionView == null) {
             return;
         }

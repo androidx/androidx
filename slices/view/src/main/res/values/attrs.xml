@@ -16,15 +16,24 @@
   -->
 
 <resources>
+    <!-- Color to use for any title text within the slice. -->
+    <attr name="titleColor" format="color" />
+    <!-- Color to use for any other text within the slice. -->
+    <attr name="subtitleColor" format="color" />
+    <!-- Color to use for tinting elements within the slice. Normally an app
+     providing a slice is able to specify a color to use for tinting, specifying
+     a tint color here will override the app supplied color. -->
+    <attr name="tintColor" format="color" />
+
     <declare-styleable name="SliceView">
         <!-- Color to use for any title text within the slice. -->
-        <attr name="titleColor" format="color" />
+        <attr name="titleColor" />
         <!-- Color to use for any other text within the slice. -->
-        <attr name="subtitleColor" format="color" />
+        <attr name="subtitleColor" />
         <!-- Color to use for tinting elements within the slice. Normally an app
          providing a slice is able to specify a color to use for tinting, specifying
          a tint color here will override the app supplied color. -->
-        <attr name="tintColor" format="color" />
+        <attr name="tintColor" />
 
         <!-- Text size to use for title text in the header of the slice. -->
         <attr name="headerTitleSize" format="dimension" />
@@ -139,5 +148,11 @@
         <!-- Control whether RecyclerView item animator is disable or not, true for disable
         otherwise enable. -->
         <attr name="disableRecyclerViewItemAnimator" format="boolean" />
+
+        <!-- These override the corresponding styles from SliceView. -->
+        <attr name="titleColor" />
+        <attr name="subtitleColor" />
+        <attr name="tintColor" />
+
     </declare-styleable>
 </resources>

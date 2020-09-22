@@ -294,9 +294,9 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
 
             // Update text appearance
             TextView moreText = seeMoreView.findViewById(R.id.text_see_more);
-            if (mSliceStyle != null) {
+            if (mSliceStyle != null && mRowStyle != null) {
                 moreText.setTextSize(TypedValue.COMPLEX_UNIT_PX, mSliceStyle.getGridTitleSize());
-                moreText.setTextColor(mSliceStyle.getTitleColor());
+                moreText.setTextColor(mRowStyle.getTitleColor());
             }
         }
         mViewContainer.addView(seeMoreView, new LinearLayout.LayoutParams(0, MATCH_PARENT, 1));
@@ -413,11 +413,11 @@ public class GridRowView extends SliceChildView implements View.OnClickListener,
         boolean isTitle = SliceQuery.hasAnyHints(item, HINT_LARGE, HINT_TITLE);
         TextView tv = (TextView) LayoutInflater.from(getContext()).inflate(isTitle
                 ? TITLE_TEXT_LAYOUT : TEXT_LAYOUT, null);
-        if (mSliceStyle != null) {
+        if (mSliceStyle != null && mRowStyle != null) {
             tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, isTitle
                     ? mSliceStyle.getGridTitleSize() : mSliceStyle.getGridSubtitleSize());
             tv.setTextColor(isTitle
-                    ? mSliceStyle.getTitleColor() : mSliceStyle.getSubtitleColor());
+                    ? mRowStyle.getTitleColor() : mRowStyle.getSubtitleColor());
         }
         CharSequence text = FORMAT_LONG.equals(format)
                 ? SliceViewUtil.getTimestampString(getContext(), item.getLong())
