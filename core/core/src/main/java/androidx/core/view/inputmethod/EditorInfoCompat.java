@@ -28,6 +28,7 @@ import static java.lang.annotation.RetentionPolicy.SOURCE;
 
 import android.os.Build;
 import android.os.Bundle;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
@@ -483,7 +484,10 @@ public final class EditorInfoCompat {
         if (editorInfo.extras == null) {
             editorInfo.extras = new Bundle();
         }
-        editorInfo.extras.putCharSequence(CONTENT_SURROUNDING_TEXT_KEY, surroundingText);
+
+        CharSequence surroundingTextCopy = surroundingText != null
+                ? new SpannableStringBuilder(surroundingText) : null;
+        editorInfo.extras.putCharSequence(CONTENT_SURROUNDING_TEXT_KEY, surroundingTextCopy);
         editorInfo.extras.putInt(CONTENT_SELECTION_HEAD_KEY, selectionHead);
         editorInfo.extras.putInt(CONTENT_SELECTION_END_KEY, selectionEnd);
     }
