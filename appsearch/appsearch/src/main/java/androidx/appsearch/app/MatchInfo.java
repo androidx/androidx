@@ -85,16 +85,22 @@ public final class MatchInfo {
     private MatchRange mExactMatchRange;
     private MatchRange mWindowRange;
 
-
-    MatchInfo(@NonNull Bundle bundle, @NonNull GenericDocument document) {
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public MatchInfo(@NonNull Bundle bundle, @NonNull GenericDocument document) {
         mBundle = Preconditions.checkNotNull(bundle);
         Preconditions.checkNotNull(document);
         mPropertyPath = Preconditions.checkNotNull(bundle.getString(PROPERTY_PATH_FIELD));
         mFullText = getPropertyValues(document, mPropertyPath, mBundle.getInt(VALUES_INDEX_FIELD));
     }
 
-    /** Returns the {@link Bundle} populated by this builder. */
-    Bundle getBundle() {
+    /**
+     * Returns the {@link Bundle} populated by this builder.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public Bundle getBundle() {
         return mBundle;
     }
 
@@ -256,13 +262,17 @@ public final class MatchInfo {
         }
     }
 
-    /** Builder for {@link MatchInfo objects}. */
-    static class Builder {
+    /**
+     * Builder for {@link MatchInfo objects}.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static class Builder {
         private final Bundle mBundle = new Bundle();
         private final GenericDocument mDocument;
         private boolean mBuilt = false;
 
-        Builder(@NonNull GenericDocument document) {
+        public Builder(@NonNull GenericDocument document) {
             mDocument = Preconditions.checkNotNull(document);
         }
 
@@ -270,7 +280,8 @@ public final class MatchInfo {
          * Sets the path of the matching snippet property.
          * @see MatchRange#getPropertyPath()
          */
-        Builder setPropertyPath(@NonNull String propertyPath) {
+        @NonNull
+        public Builder setPropertyPath(@NonNull String propertyPath) {
             Preconditions.checkNotNull(propertyPath);
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             mBundle.putString(PROPERTY_PATH_FIELD, propertyPath);
@@ -278,7 +289,8 @@ public final class MatchInfo {
         }
 
         /** Sets the index of matching value in its property. */
-        Builder setValuesIndex(int valuesIndex) {
+        @NonNull
+        public Builder setValuesIndex(int valuesIndex) {
             mBundle.putInt(VALUES_INDEX_FIELD, valuesIndex);
             return this;
         }
@@ -286,23 +298,27 @@ public final class MatchInfo {
          * Sets the position range within the matched string at which the exact match begins and
          * ends.
          */
-        Builder setExactMatchPositionRange(int exactMatchPositionLower,
-                int exactMatchPositionUpper) {
+        @NonNull
+        public Builder setExactMatchPositionRange(
+                int exactMatchPositionLower, int exactMatchPositionUpper) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             mBundle.putInt(EXACT_MATCH_POSITION_LOWER_FIELD, exactMatchPositionLower);
             mBundle.putInt(EXACT_MATCH_POSITION_UPPER_FIELD, exactMatchPositionUpper);
             return this;
         }
 
-        /** Sets the position range of the suggested snippet window.         */
-        Builder setWindowPositionRange(int windowPositionLower, int windowPositionUpper) {
+        /** Sets the position range of the suggested snippet window. */
+        @NonNull
+        public Builder setWindowPositionRange(int windowPositionLower, int windowPositionUpper) {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             mBundle.putInt(WINDOW_POSITION_LOWER_FIELD, windowPositionLower);
             mBundle.putInt(WINDOW_POSITION_UPPER_FIELD, windowPositionUpper);
             return this;
         }
 
-        MatchInfo build() {
+        /** Builds a {@link MatchInfo} object. */
+        @NonNull
+        public MatchInfo build() {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             if (!mBundle.containsKey(PROPERTY_PATH_FIELD)) {
                 throw new IllegalArgumentException("Missing field: PROPERTY_PATH");

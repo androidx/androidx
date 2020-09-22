@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.app;
+package androidx.appsearch.localbackend.converter;
 
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.SearchSpec;
 import androidx.core.util.Preconditions;
 
 import com.google.android.icing.proto.ResultSpecProto;
@@ -87,7 +88,7 @@ public final class SearchSpecToProtoConverter {
         Bundle bundle = spec.getBundle();
         ScoringSpecProto.Builder protoBuilder = ScoringSpecProto.newBuilder();
 
-        @SearchSpec.OrderCode int orderCode = bundle.getInt(SearchSpec.ORDER_FILED);
+        @SearchSpec.OrderCode int orderCode = bundle.getInt(SearchSpec.ORDER_FIELD);
         ScoringSpecProto.Order.Code orderCodeProto =
                 ScoringSpecProto.Order.Code.forNumber(orderCode);
         if (orderCodeProto == null) {

@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.app;
+package androidx.appsearch.localbackend.converter;
 
 import static com.google.common.truth.Truth.assertThat;
+
+import androidx.appsearch.app.AppSearchSchema;
 
 import com.google.android.icing.proto.IndexingConfig;
 import com.google.android.icing.proto.PropertyConfigProto;
