@@ -15,6 +15,7 @@
  */
 
 @file:OptIn(InternalComposeApi::class)
+
 package androidx.ui.tooling
 
 import androidx.compose.runtime.InternalComposeApi
@@ -83,7 +84,8 @@ data class ParameterInformation(
     val fromDefault: Boolean,
     val static: Boolean,
     val compared: Boolean,
-    val inlineClass: String?
+    val inlineClass: String?,
+    val stable: Boolean
 )
 
 /**
@@ -580,11 +582,13 @@ private fun extractParameterInfo(
                                 field.isAccessible = true
                                 val value = field.get(block)
                                 val fromDefault = (1 shl index) and default != 0
-                                val changedOffset = index * 2 + 1
-                                val parameterChanged =
-                                    ((3 shl changedOffset) and changed) shr changedOffset
-                                val static = parameterChanged == 3
-                                val compared = parameterChanged == 0
+                                val changedOffset = index * BITS_PER_SLOT + 1
+                                val parameterChanged = (
+                                    (SLOT_MASK shl changedOffset) and changed
+                                    ) shr changedOffset
+                                val static = parameterChanged and STATIC_BITS == STATIC_BITS
+                                val compared = parameterChanged and STATIC_BITS == 0
+                                val stable = parameterChanged and STABLE_BITS == 0
                                 parameters.add(
                                     ParameterInformation(
                                         name = field.name.substring(1),
@@ -592,7 +596,8 @@ private fun extractParameterInfo(
                                         fromDefault = fromDefault,
                                         static = static,
                                         compared = compared && !fromDefault,
-                                        inlineClass = metadata.inlineClass
+                                        inlineClass = metadata.inlineClass,
+                                        stable = stable
                                     )
                                 )
                             }
@@ -606,6 +611,11 @@ private fun extractParameterInfo(
     }
     return emptyList()
 }
+
+private const val BITS_PER_SLOT = 3
+private const val SLOT_MASK = 0b111
+private const val STATIC_BITS = 0b011
+private const val STABLE_BITS = 0b100
 
 /**
  * The source position of the group extracted from the key, if one exists for the group.
