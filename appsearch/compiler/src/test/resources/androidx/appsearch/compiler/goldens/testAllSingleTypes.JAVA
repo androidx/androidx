@@ -114,7 +114,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     long[] integerPropCopy = genericDoc.getPropertyLongArray("integerProp");
     Integer integerPropConv = null;
     if (integerPropCopy != null && integerPropCopy.length != 0) {
-      integerPropConv = integerPropCopy[0];
+      integerPropConv = (int) integerPropCopy[0];
     }
     long[] longPropCopy = genericDoc.getPropertyLongArray("longProp");
     Long longPropConv = null;
@@ -124,7 +124,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     double[] floatPropCopy = genericDoc.getPropertyDoubleArray("floatProp");
     Float floatPropConv = null;
     if (floatPropCopy != null && floatPropCopy.length != 0) {
-      floatPropConv = floatPropCopy[0];
+      floatPropConv = (float) floatPropCopy[0];
     }
     double[] doublePropCopy = genericDoc.getPropertyDoubleArray("doubleProp");
     Double doublePropConv = null;

@@ -468,7 +468,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (collectIntegerCopy != null) {
       collectIntegerConv = new ArrayList<>(collectIntegerCopy.length);
       for (int i = 0; i < collectIntegerCopy.length; i++) {
-        collectIntegerConv.add(collectIntegerCopy[i]);
+        collectIntegerConv.add((int) collectIntegerCopy[i]);
       }
     }
     double[] collectDoubleCopy = genericDoc.getPropertyDoubleArray("collectDouble");
@@ -484,7 +484,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (collectFloatCopy != null) {
       collectFloatConv = new ArrayList<>(collectFloatCopy.length);
       for (int i = 0; i < collectFloatCopy.length; i++) {
-        collectFloatConv.add(collectFloatCopy[i]);
+        collectFloatConv.add((float) collectFloatCopy[i]);
       }
     }
     boolean[] collectBooleanCopy = genericDoc.getPropertyBooleanArray("collectBoolean");
@@ -531,7 +531,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (arrBoxIntegerCopy != null) {
       arrBoxIntegerConv = new Integer[arrBoxIntegerCopy.length];
       for (int i = 0; i < arrBoxIntegerCopy.length; i++) {
-        arrBoxIntegerConv[i] = arrBoxIntegerCopy[i];
+        arrBoxIntegerConv[i] = (int) arrBoxIntegerCopy[i];
       }
     }
     long[] arrUnboxIntCopy = genericDoc.getPropertyLongArray("arrUnboxInt");
@@ -539,7 +539,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (arrUnboxIntCopy != null) {
       arrUnboxIntConv = new int[arrUnboxIntCopy.length];
       for (int i = 0; i < arrUnboxIntCopy.length; i++) {
-        arrUnboxIntConv[i] = arrUnboxIntCopy[i];
+        arrUnboxIntConv[i] = (int) arrUnboxIntCopy[i];
       }
     }
     double[] arrBoxDoubleCopy = genericDoc.getPropertyDoubleArray("arrBoxDouble");
@@ -556,7 +556,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (arrBoxFloatCopy != null) {
       arrBoxFloatConv = new Float[arrBoxFloatCopy.length];
       for (int i = 0; i < arrBoxFloatCopy.length; i++) {
-        arrBoxFloatConv[i] = arrBoxFloatCopy[i];
+        arrBoxFloatConv[i] = (float) arrBoxFloatCopy[i];
       }
     }
     double[] arrUnboxFloatCopy = genericDoc.getPropertyDoubleArray("arrUnboxFloat");
@@ -564,7 +564,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (arrUnboxFloatCopy != null) {
       arrUnboxFloatConv = new float[arrUnboxFloatCopy.length];
       for (int i = 0; i < arrUnboxFloatCopy.length; i++) {
-        arrUnboxFloatConv[i] = arrUnboxFloatCopy[i];
+        arrUnboxFloatConv[i] = (float) arrUnboxFloatCopy[i];
       }
     }
     boolean[] arrBoxBooleanCopy = genericDoc.getPropertyBooleanArray("arrBoxBoolean");
@@ -609,9 +609,9 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     long[] boxIntegerCopy = genericDoc.getPropertyLongArray("boxInteger");
     Integer boxIntegerConv = null;
     if (boxIntegerCopy != null && boxIntegerCopy.length != 0) {
-      boxIntegerConv = boxIntegerCopy[0];
+      boxIntegerConv = (int) boxIntegerCopy[0];
     }
-    int unboxIntConv = genericDoc.getPropertyLong("unboxInt");
+    int unboxIntConv = (int) genericDoc.getPropertyLong("unboxInt");
     double[] boxDoubleCopy = genericDoc.getPropertyDoubleArray("boxDouble");
     Double boxDoubleConv = null;
     if (boxDoubleCopy != null && boxDoubleCopy.length != 0) {
@@ -621,9 +621,9 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     double[] boxFloatCopy = genericDoc.getPropertyDoubleArray("boxFloat");
     Float boxFloatConv = null;
     if (boxFloatCopy != null && boxFloatCopy.length != 0) {
-      boxFloatConv = boxFloatCopy[0];
+      boxFloatConv = (float) boxFloatCopy[0];
     }
-    float unboxFloatConv = genericDoc.getPropertyDouble("unboxFloat");
+    float unboxFloatConv = (float) genericDoc.getPropertyDouble("unboxFloat");
     boolean[] boxBooleanCopy = genericDoc.getPropertyBooleanArray("boxBoolean");
     Boolean boxBooleanConv = null;
     if (boxBooleanCopy != null && boxBooleanCopy.length != 0) {
