@@ -104,7 +104,7 @@ class ExpectTest {
     fun expectErrorWithMessage_gotErrorWithDifferentMessage() {
         expectErrorMessage(
             "Expected that a TestException with message \"message\" was thrown, " +
-                    "but a TestException with message \"message x\" was thrown:\n=="
+                "but a TestException with message \"message x\" was thrown:\n=="
         ) {
             expectError<TestException>(expectedMessage = "message") {
                 throw TestException("message x")

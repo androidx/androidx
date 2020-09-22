@@ -51,7 +51,7 @@ class PrintToStringTest {
 
         expectErrorMessageStartsWith(
             "Failed: assertExists.\n" +
-            "Reason: Expected exactly '1' node but could not find any node that satisfies:"
+                "Reason: Expected exactly '1' node but could not find any node that satisfies:"
         ) {
             rule.onNodeWithText("Oops").printToString()
         }
@@ -66,12 +66,14 @@ class PrintToStringTest {
         val result = rule.onNodeWithText("Hello")
             .printToString(maxDepth = 0)
 
-        assertThat(obfuscateNodesInfo(result)).isEqualTo("" +
+        assertThat(obfuscateNodesInfo(result)).isEqualTo(
+            "" +
                 "Node #X at (X, X, X, X)px\n" +
                 "Text = 'Hello'\n" +
                 "GetTextLayoutResult = 'AccessibilityAction(label=null, action=Function1<java" +
                 ".util.List<androidx.compose.ui.text.TextLayoutResult>, java.lang.Boolean>)'\n" +
-                "Has 1 sibling")
+                "Has 1 sibling"
+        )
     }
 
     @Test
@@ -84,7 +86,8 @@ class PrintToStringTest {
             .onChildren()
             .printToString()
 
-        assertThat(obfuscateNodesInfo(result)).isEqualTo("" +
+        assertThat(obfuscateNodesInfo(result)).isEqualTo(
+            "" +
                 "1) Node #X at (X, X, X, X)px\n" +
                 "Text = 'Hello'\n" +
                 "GetTextLayoutResult = 'AccessibilityAction(label=null, action=Function1<java" +
@@ -94,7 +97,8 @@ class PrintToStringTest {
                 "Text = 'World'\n" +
                 "GetTextLayoutResult = 'AccessibilityAction(label=null, action=Function1<java" +
                 ".util.List<androidx.compose.ui.text.TextLayoutResult>, java.lang.Boolean>)'\n" +
-                "Has 1 sibling")
+                "Has 1 sibling"
+        )
     }
 
     @Test
@@ -113,7 +117,8 @@ class PrintToStringTest {
         val result = rule.onRoot()
             .printToString()
 
-        assertThat(obfuscateNodesInfo(result)).isEqualTo("" +
+        assertThat(obfuscateNodesInfo(result)).isEqualTo(
+            "" +
                 "Node #X at (X, X, X, X)px\n" +
                 " |-Node #X at (X, X, X, X)px, Tag: 'column'\n" +
                 "   Disabled = 'kotlin.Unit'\n" +
@@ -133,7 +138,8 @@ class PrintToStringTest {
                 "      GetTextLayoutResult = 'AccessibilityAction(label=null, " +
                 "action=Function1<java.util.List<androidx.compose.ui.text.TextLayoutResult>," +
                 " java.lang" +
-                ".Boolean>)'")
+                ".Boolean>)'"
+        )
     }
 
     @Test
@@ -155,13 +161,15 @@ class PrintToStringTest {
             .onChildren()
             .printToString(maxDepth = 1)
 
-        assertThat(obfuscateNodesInfo(result)).isEqualTo("" +
+        assertThat(obfuscateNodesInfo(result)).isEqualTo(
+            "" +
                 "1) Node #X at (X, X, X, X)px, Tag: 'tag1'\n" +
                 " |-Node #X at (X, X, X, X)px, Tag: 'tag11'\n" +
                 "   Has 1 child\n" +
                 "2) Node #X at (X, X, X, X)px, Tag: 'tag2'\n" +
                 " |-Node #X at (X, X, X, X)px, Tag: 'tag22'\n" +
-                "   Has 1 child")
+                "   Has 1 child"
+        )
     }
 
     @Composable

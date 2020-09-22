@@ -70,10 +70,12 @@ class LastNodeSelectorTest {
             BoundaryNode(testTag = "Parent")
         }
 
-        expectErrorMessageStartsWith("" +
+        expectErrorMessageStartsWith(
+            "" +
                 "Failed: assertExists.\n" +
                 "Reason: Expected exactly '1' node but could not find any node that satisfies: " +
-                "(((TestTag = 'Parent').children).last)") {
+                "(((TestTag = 'Parent').children).last)"
+        ) {
             rule.onNodeWithTag("Parent")
                 .onChildren()
                 .onLast()

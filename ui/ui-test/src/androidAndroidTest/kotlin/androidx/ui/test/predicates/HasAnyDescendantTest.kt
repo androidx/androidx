@@ -59,8 +59,10 @@ class HasAnyDescendantTest {
             }
         }
 
-        rule.onNode(hasAnyDescendant(hasTestTag("Child")) and !hasTestTag("Parent")
-                and hasTestTag("Grandparent"))
+        rule.onNode(
+            hasAnyDescendant(hasTestTag("Child")) and !hasTestTag("Parent")
+                and hasTestTag("Grandparent")
+        )
             .assert(hasTestTag("Grandparent"))
     }
 

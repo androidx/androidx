@@ -434,7 +434,7 @@ fun GestureScope.swipeWithVelocity(
     val minimumDuration = ceil(2.5f * eventPeriod).roundToInt()
     require(duration >= minimumDuration.milliseconds) {
         "Duration must be at least ${minimumDuration}ms because " +
-                "velocity requires at least 3 input events"
+            "velocity requires at least 3 input events"
     }
     val globalStart = localToGlobal(start)
     val globalEnd = localToGlobal(end)
@@ -564,8 +564,8 @@ private fun createFunctionForVelocity(
         val cutOffValue = function(cutOffTime)
         require(sign(cutOffValue - start) == sign(end - start)) {
             "Creating a gesture between $start and $end with a duration of $duration and a " +
-                    "resulting velocity of $velocity results in a movement that goes outside " +
-                    "of the range [$start..$end]"
+                "resulting velocity of $velocity results in a movement that goes outside " +
+                "of the range [$start..$end]"
         }
         return { t ->
             if (t < cutOffTime) {

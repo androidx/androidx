@@ -225,7 +225,8 @@ private fun StringBuilder.appendConfigInfo(config: SemanticsConfiguration, inden
 
         if (value is AnnotatedString) {
             if (value.paragraphStyles.isEmpty() && value.spanStyles.isEmpty() && value
-                    .getStringAnnotations(0, value.text.length).isEmpty()) {
+                .getStringAnnotations(0, value.text.length).isEmpty()
+            ) {
                 append(value.text)
             } else {
                 // Save space if we there is text only in the object

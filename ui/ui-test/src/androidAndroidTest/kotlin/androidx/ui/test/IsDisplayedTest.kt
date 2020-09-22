@@ -81,9 +81,9 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
         BoundaryNode("item$i") {
             Box(
                 modifier =
-                with(Modifier) { width?.let { width(it) } ?: fillMaxWidth() }
-                    .then(with(Modifier) { height?.let { height(it) } ?: fillMaxHeight() })
-                    .background(colors[i % colors.size])
+                    with(Modifier) { width?.let { width(it) } ?: fillMaxWidth() }
+                        .then(with(Modifier) { height?.let { height(it) } ?: fillMaxHeight() })
+                        .background(colors[i % colors.size])
             )
         }
     }

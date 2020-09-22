@@ -63,6 +63,8 @@ internal actual fun SemanticsNodeInteraction.actualSendTextInputCommand(
 
 internal fun AndroidOwner.getTextInputServiceOrDie(): TextInputServiceForTests {
     return this.textInputService as TextInputServiceForTests?
-        ?: throw IllegalStateException ("Text input service wrapper not set up! Did you use " +
-                "ComposeTestRule?")
+        ?: throw IllegalStateException (
+            "Text input service wrapper not set up! Did you use " +
+                "ComposeTestRule?"
+        )
 }

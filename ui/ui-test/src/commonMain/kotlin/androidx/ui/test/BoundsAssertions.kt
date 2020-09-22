@@ -173,7 +173,8 @@ fun Dp.assertIsEqualTo(expected: Dp, subject: String = "", tolerance: Dp = Dp(.5
     if (diff > tolerance.value) {
         // Comparison failed, report the error in DPs
         throw AssertionError(
-            "Actual $subject is $this, expected $expected (tolerance: $tolerance)")
+            "Actual $subject is $this, expected $expected (tolerance: $tolerance)"
+        )
     }
 }
 
@@ -198,7 +199,8 @@ fun Dp.assertIsNotEqualTo(unexpected: Dp, subject: String = "", tolerance: Dp = 
         // Comparison failed, report the error in DPs
         throw AssertionError(
             "Actual $subject is $this, not expected to be equal to $unexpected within a " +
-                    "tolerance of $tolerance")
+                "tolerance of $tolerance"
+        )
     }
 }
 
@@ -223,6 +225,7 @@ private fun Density.isAtLeastOrThrow(
     if (actualPx + floatTolerance < expected.toPx()) {
         // Comparison failed, report the error in DPs
         throw AssertionError(
-            "Actual $subject is ${actualPx.toDp()}, expected at least $expected")
+            "Actual $subject is ${actualPx.toDp()}, expected at least $expected"
+        )
     }
 }

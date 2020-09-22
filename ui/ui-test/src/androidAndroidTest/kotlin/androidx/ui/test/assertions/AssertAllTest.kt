@@ -60,8 +60,8 @@ class AssertAllTest {
             }
         }
 
-        expectErrorMessageStartsWith("" +
-                "Failed to assertAll(TestTag = 'Child1')\n" +
+        expectErrorMessageStartsWith(
+            "Failed to assertAll(TestTag = 'Child1')\n" +
                 "Found '1' node not matching:\n" +
                 "Node #X"
         ) {
@@ -81,8 +81,8 @@ class AssertAllTest {
             }
         }
 
-        expectErrorMessageStartsWith("" +
-                "Failed to assertAll(TestTag = 'Child1')\n" +
+        expectErrorMessageStartsWith(
+            "Failed to assertAll(TestTag = 'Child1')\n" +
                 "Found '2' nodes not matching:\n" +
                 "1) "
         ) {

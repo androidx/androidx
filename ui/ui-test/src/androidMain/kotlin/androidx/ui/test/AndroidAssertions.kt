@@ -82,7 +82,7 @@ internal actual fun SemanticsNode.isInScreenBounds(): Boolean {
     }
 
     return nodeBoundsInWindow.top >= globalRootRect.top &&
-            nodeBoundsInWindow.left >= globalRootRect.left &&
-            nodeBoundsInWindow.right <= globalRootRect.right &&
-            nodeBoundsInWindow.bottom <= globalRootRect.bottom
+        nodeBoundsInWindow.left >= globalRootRect.left &&
+        nodeBoundsInWindow.right <= globalRootRect.right &&
+        nodeBoundsInWindow.bottom <= globalRootRect.bottom
 }
