@@ -73,12 +73,13 @@ public final class GenericDocumentToProtoConverter {
                 }
             } else if (values instanceof ArrayList) {
                 for (Bundle bundle : (ArrayList<Bundle>) values) {
-                    propertyProto.addBytesValues(ByteString.copyFrom(
-                            bundle.getByteArray(GenericDocument.BYTE_ARRAY_FIELD)));
+                    byte[] value = bundle.getByteArray(GenericDocument.BYTE_ARRAY_FIELD);
+                    propertyProto.addBytesValues(ByteString.copyFrom(value));
                 }
             } else if (values instanceof Bundle[]) {
                 for (Bundle bundle : (Bundle[]) values) {
-                    propertyProto.addDocumentValues(convert(new GenericDocument(bundle)));
+                    GenericDocument value = new GenericDocument(bundle);
+                    propertyProto.addDocumentValues(convert(value));
                 }
             } else {
                 throw new IllegalStateException(
@@ -94,7 +95,7 @@ public final class GenericDocumentToProtoConverter {
     @NonNull
     public static GenericDocument convert(@NonNull DocumentProto proto) {
         Preconditions.checkNotNull(proto);
-        GenericDocument.Builder documentBuilder =
+        GenericDocument.Builder<?> documentBuilder =
                 new GenericDocument.Builder<>(proto.getUri(), proto.getSchema())
                         .setNamespace(proto.getNamespace())
                         .setScore(proto.getScore())
@@ -135,10 +136,9 @@ public final class GenericDocumentToProtoConverter {
                 }
                 documentBuilder.setProperty(name, values);
             } else if (property.getDocumentValuesCount() > 0) {
-                GenericDocument[] values =
-                        new GenericDocument[property.getDocumentValuesCount()];
+                GenericDocument[] values = new GenericDocument[property.getDocumentValuesCount()];
                 for (int j = 0; j < values.length; j++) {
-                    values[j] = new GenericDocument(convert(property.getDocumentValues(j)));
+                    values[j] = convert(property.getDocumentValues(j));
                 }
                 documentBuilder.setProperty(name, values);
             } else {

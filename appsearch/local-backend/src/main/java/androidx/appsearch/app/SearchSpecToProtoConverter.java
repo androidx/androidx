@@ -44,13 +44,14 @@ public final class SearchSpecToProtoConverter {
         Bundle bundle = spec.getBundle();
         SearchSpecProto.Builder protoBuilder = SearchSpecProto.newBuilder();
 
-        TermMatchType.Code termMatchTypeCode = TermMatchType.Code.forNumber(
-                bundle.getInt(SearchSpec.TERM_MATCH_TYPE_FIELD));
-        if (termMatchTypeCode == null || termMatchTypeCode.equals(TermMatchType.Code.UNKNOWN)) {
-            throw new IllegalArgumentException("Invalid term match type: " + termMatchTypeCode);
+        @SearchSpec.TermMatchCode int termMatchCode =
+                bundle.getInt(SearchSpec.TERM_MATCH_TYPE_FIELD);
+        TermMatchType.Code termMatchCodeProto = TermMatchType.Code.forNumber(termMatchCode);
+        if (termMatchCodeProto == null || termMatchCodeProto.equals(TermMatchType.Code.UNKNOWN)) {
+            throw new IllegalArgumentException("Invalid term match type: " + termMatchCode);
         }
+        protoBuilder.setTermMatchType(termMatchCodeProto);
 
-        protoBuilder.setTermMatchType(termMatchTypeCode);
         String[] schemaTypes = bundle.getStringArray(SearchSpec.SCHEMA_TYPES_FIELD);
         if (schemaTypes != null) {
             protoBuilder.addAllSchemaTypeFilters(Arrays.asList(schemaTypes));
@@ -85,20 +86,22 @@ public final class SearchSpecToProtoConverter {
         Preconditions.checkNotNull(spec);
         Bundle bundle = spec.getBundle();
         ScoringSpecProto.Builder protoBuilder = ScoringSpecProto.newBuilder();
+
+        @SearchSpec.OrderCode int orderCode = bundle.getInt(SearchSpec.ORDER_FILED);
         ScoringSpecProto.Order.Code orderCodeProto =
-                ScoringSpecProto.Order.Code.forNumber(bundle.getInt(SearchSpec.ORDER_FILED));
+                ScoringSpecProto.Order.Code.forNumber(orderCode);
         if (orderCodeProto == null) {
-            throw new IllegalArgumentException("Invalid result ranking order: "
-                    + orderCodeProto);
+            throw new IllegalArgumentException("Invalid result ranking order: " + orderCode);
         }
         protoBuilder.setOrderBy(orderCodeProto);
 
+        @SearchSpec.RankingStrategyCode int rankingStrategyCode =
+                bundle.getInt(SearchSpec.RANKING_STRATEGY_FIELD);
         ScoringSpecProto.RankingStrategy.Code rankingStrategyCodeProto =
-                ScoringSpecProto.RankingStrategy.Code.forNumber(
-                        bundle.getInt(SearchSpec.RANKING_STRATEGY_FIELD));
+                ScoringSpecProto.RankingStrategy.Code.forNumber(rankingStrategyCode);
         if (rankingStrategyCodeProto == null) {
             throw new IllegalArgumentException("Invalid result ranking strategy: "
-                    + rankingStrategyCodeProto);
+                    + rankingStrategyCode);
         }
         protoBuilder.setRankBy(rankingStrategyCodeProto);
 
