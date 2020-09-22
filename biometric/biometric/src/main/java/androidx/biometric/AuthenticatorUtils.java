@@ -102,7 +102,6 @@ class AuthenticatorUtils {
      */
     static boolean isSupportedCombination(@BiometricManager.AuthenticatorTypes int authenticators) {
         switch (authenticators) {
-            case 0:
             case Authenticators.BIOMETRIC_STRONG:
             case Authenticators.BIOMETRIC_WEAK:
             case Authenticators.BIOMETRIC_WEAK | Authenticators.DEVICE_CREDENTIAL:
@@ -118,7 +117,8 @@ class AuthenticatorUtils {
                         || Build.VERSION.SDK_INT > Build.VERSION_CODES.Q;
 
             default:
-                return false;
+                // 0 means "no authenticator types" and is supported. Other values are not.
+                return authenticators == 0;
         }
     }
 
