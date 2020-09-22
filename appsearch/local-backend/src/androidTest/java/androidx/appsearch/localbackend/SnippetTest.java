@@ -20,8 +20,8 @@ package androidx.appsearch.localbackend;
 import static com.google.common.truth.Truth.assertThat;
 
 import androidx.appsearch.app.MatchInfo;
-import androidx.appsearch.app.SearchResultToProtoConverter;
 import androidx.appsearch.app.SearchResults;
+import androidx.appsearch.localbackend.converter.SearchResultToProtoConverter;
 import androidx.test.filters.SmallTest;
 
 import com.google.android.icing.proto.DocumentProto;

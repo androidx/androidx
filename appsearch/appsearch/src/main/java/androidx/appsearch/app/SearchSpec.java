@@ -20,6 +20,7 @@ import android.os.Bundle;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
+import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.IllegalSearchSpecException;
 import androidx.core.util.Preconditions;
 
@@ -32,17 +33,46 @@ import java.lang.annotation.RetentionPolicy;
  */
 // TODO(sidchhabra) : AddResultSpec fields for Snippets etc.
 public final class SearchSpec {
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String TERM_MATCH_TYPE_FIELD = "termMatchType";
 
-    static final String TERM_MATCH_TYPE_FIELD = "termMatchType";
-    static final String SCHEMA_TYPES_FIELD = "schemaType";
-    static final String NAMESPACE_FIELD = "namespace";
-    static final String NUM_PER_PAGE_FIELD = "numPerPage";
-    static final String RANKING_STRATEGY_FIELD = "rankingStrategy";
-    static final String ORDER_FILED = "order";
-    static final String SNIPPET_COUNT_FIELD = "snippetCount";
-    static final String SNIPPET_COUNT_PER_PROPERTY_FIELD = "snippetCountPerProperty";
-    static final String MAX_SNIPPET_FIELD = "maxSnippet";
-    static final int DEFAULT_NUM_PER_PAGE = 10;
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String SCHEMA_TYPES_FIELD = "schemaType";
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String NAMESPACE_FIELD = "namespace";
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String NUM_PER_PAGE_FIELD = "numPerPage";
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String RANKING_STRATEGY_FIELD = "rankingStrategy";
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String ORDER_FIELD = "order";
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String SNIPPET_COUNT_FIELD = "snippetCount";
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String SNIPPET_COUNT_PER_PROPERTY_FIELD = "snippetCountPerProperty";
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String MAX_SNIPPET_FIELD = "maxSnippet";
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final int DEFAULT_NUM_PER_PAGE = 10;
+
     private static final int MAX_NUM_PER_PAGE = 10_000;
     private static final int MAX_SNIPPET_COUNT = 10_000;
     private static final int MAX_SNIPPET_PER_PROPERTY_COUNT = 10_000;
@@ -50,14 +80,19 @@ public final class SearchSpec {
 
     private final Bundle mBundle;
 
-    SearchSpec(@NonNull Bundle bundle) {
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public SearchSpec(@NonNull Bundle bundle) {
         Preconditions.checkNotNull(bundle);
         mBundle = bundle;
     }
 
-    /** Returns the {@link Bundle} populated by this builder. */
+    /**
+     * Returns the {@link Bundle} populated by this builder.
+     * @hide
+     */
     @NonNull
-    Bundle getBundle() {
+    public Bundle getBundle() {
         return mBundle;
     }
 
@@ -206,7 +241,7 @@ public final class SearchSpec {
             Preconditions.checkState(!mBuilt, "Builder has already been used");
             Preconditions.checkArgumentInRange(order, ORDER_DESCENDING, ORDER_ASCENDING,
                     "Result ranking order");
-            mBundle.putInt(ORDER_FILED, order);
+            mBundle.putInt(ORDER_FIELD, order);
             return this;
         }
 

@@ -23,11 +23,9 @@ import static org.junit.Assert.assertThrows;
 
 import androidx.appsearch.app.AppSearchSchema.PropertyConfig;
 import androidx.appsearch.exceptions.IllegalSchemaException;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 
-@SmallTest
 public class AppSearchSchemaTest {
     @Test
     public void testInvalidEnums() {

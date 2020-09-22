@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.app;
+package androidx.appsearch.localbackend.converter;
 
 import static com.google.common.truth.Truth.assertThat;
+
+import androidx.appsearch.app.GenericDocument;
 
 import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.PropertyProto;
@@ -32,30 +34,33 @@ import java.util.List;
 public class GenericDocumentToProtoConverterTest {
     private static final byte[] BYTE_ARRAY_1 = new byte[]{(byte) 1, (byte) 2, (byte) 3};
     private static final byte[] BYTE_ARRAY_2 = new byte[]{(byte) 4, (byte) 5, (byte) 6, (byte) 7};
-    private static final GenericDocument DOCUMENT_PROPERTIES_1 = new GenericDocument
-            .Builder("sDocumentProperties1", "sDocumentPropertiesSchemaType1")
+    private static final GenericDocument DOCUMENT_PROPERTIES_1 =
+            new GenericDocument.Builder<GenericDocument.Builder<?>>(
+                    "sDocumentProperties1", "sDocumentPropertiesSchemaType1")
             .setCreationTimestampMillis(12345L)
             .build();
-    private static final GenericDocument DOCUMENT_PROPERTIES_2 = new GenericDocument
-            .Builder("sDocumentProperties2", "sDocumentPropertiesSchemaType2")
+    private static final GenericDocument DOCUMENT_PROPERTIES_2 =
+            new GenericDocument.Builder<GenericDocument.Builder<?>>(
+                    "sDocumentProperties2", "sDocumentPropertiesSchemaType2")
             .setCreationTimestampMillis(6789L)
             .build();
 
     @Test
     public void testDocumentProtoConvert() {
-        GenericDocument document = new GenericDocument.Builder("uri1", "schemaType1")
-                .setCreationTimestampMillis(5L)
-                .setScore(1)
-                .setTtlMillis(1L)
-                .setNamespace("namespace")
-                .setProperty("longKey1", 1L)
-                .setProperty("doubleKey1", 1.0)
-                .setProperty("booleanKey1", true)
-                .setProperty("stringKey1", "test-value1")
-                .setProperty("byteKey1", BYTE_ARRAY_1, BYTE_ARRAY_2)
-                .setProperty("documentKey1", DOCUMENT_PROPERTIES_1)
-                .setProperty(GenericDocument.PROPERTIES_FIELD, DOCUMENT_PROPERTIES_2)
-                .build();
+        GenericDocument document =
+                new GenericDocument.Builder<GenericDocument.Builder<?>>("uri1", "schemaType1")
+                        .setCreationTimestampMillis(5L)
+                        .setScore(1)
+                        .setTtlMillis(1L)
+                        .setNamespace("namespace")
+                        .setProperty("longKey1", 1L)
+                        .setProperty("doubleKey1", 1.0)
+                        .setProperty("booleanKey1", true)
+                        .setProperty("stringKey1", "test-value1")
+                        .setProperty("byteKey1", BYTE_ARRAY_1, BYTE_ARRAY_2)
+                        .setProperty("documentKey1", DOCUMENT_PROPERTIES_1)
+                        .setProperty(GenericDocument.PROPERTIES_FIELD, DOCUMENT_PROPERTIES_2)
+                        .build();
 
         // Create the Document proto. Need to sort the property order by key.
         DocumentProto.Builder documentProtoBuilder = DocumentProto.newBuilder()

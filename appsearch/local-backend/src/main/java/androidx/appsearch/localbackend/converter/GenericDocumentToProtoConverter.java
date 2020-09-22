@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.appsearch.app;
+package androidx.appsearch.localbackend.converter;
 
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
+import androidx.appsearch.app.GenericDocument;
 import androidx.core.util.Preconditions;
 
 import com.google.android.icing.proto.DocumentProto;
@@ -42,6 +43,7 @@ public final class GenericDocumentToProtoConverter {
     @SuppressWarnings("unchecked")
     public static DocumentProto convert(@NonNull GenericDocument document) {
         Preconditions.checkNotNull(document);
+        Bundle properties = document.getBundle().getBundle(GenericDocument.PROPERTIES_FIELD);
         DocumentProto.Builder mProtoBuilder = DocumentProto.newBuilder();
         mProtoBuilder.setUri(document.getUri())
                 .setSchema(document.getSchemaType())
@@ -49,11 +51,11 @@ public final class GenericDocumentToProtoConverter {
                 .setScore(document.getScore())
                 .setTtlMs(document.getTtlMillis())
                 .setCreationTimestampMs(document.getCreationTimestampMillis());
-        ArrayList<String> keys = new ArrayList<>(document.mProperties.keySet());
+        ArrayList<String> keys = new ArrayList<>(properties.keySet());
         Collections.sort(keys);
         for (int i = 0; i < keys.size(); i++) {
             String name = keys.get(i);
-            Object values = document.mProperties.get(name);
+            Object values = properties.get(name);
             PropertyProto.Builder propertyProto = PropertyProto.newBuilder().setName(name);
             if (values instanceof boolean[]) {
                 for (boolean value : (boolean[]) values) {

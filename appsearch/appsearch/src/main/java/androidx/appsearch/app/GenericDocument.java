@@ -23,6 +23,7 @@ import android.util.Log;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.appsearch.exceptions.AppSearchException;
 import androidx.core.util.Preconditions;
 
@@ -63,14 +64,20 @@ public class GenericDocument {
     /** The default time-to-live in millisecond of a document, which is infinity. */
     private static final long DEFAULT_TTL_MILLIS = 0L;
 
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String PROPERTIES_FIELD = "properties";
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public static final String BYTE_ARRAY_FIELD = "byteArray";
+
     static final String SCHEMA_TYPE_FIELD = "schemaType";
     static final String URI_FIELD = "uri";
     static final String SCORE_FIELD = "score";
     static final String TTL_MILLIS_FIELD = "ttlMillis";
     static final String CREATION_TIMESTAMP_MILLIS_FIELD = "creationTimestampMillis";
     static final String NAMESPACE_FIELD = "namespace";
-    static final String PROPERTIES_FIELD = "properties";
-    static final String BYTE_ARRAY_FIELD = "byteArray";
 
     /**
      * The maximum number of indexed properties a document can have.
@@ -90,7 +97,7 @@ public class GenericDocument {
 
     /** Contains all properties in {@link GenericDocument} to support getting properties via keys.*/
     @NonNull
-    final Bundle mProperties;
+    private final Bundle mProperties;
 
     @NonNull
     private final String mUri;
@@ -105,8 +112,10 @@ public class GenericDocument {
      * @param bundle Contains {@link GenericDocument} basic information (uri, schemaType etc) and
      *               a properties bundle contains all properties in {@link GenericDocument} to
      *               support getting properties via keys.
+     * @hide
      */
-    GenericDocument(@NonNull Bundle bundle) {
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    public GenericDocument(@NonNull Bundle bundle) {
         Preconditions.checkNotNull(bundle);
         mBundle = bundle;
         mProperties = Preconditions.checkNotNull(bundle.getParcelable(PROPERTIES_FIELD));
@@ -123,6 +132,16 @@ public class GenericDocument {
      */
     protected GenericDocument(@NonNull GenericDocument document) {
         this(document.mBundle);
+    }
+
+    /**
+     * Returns the {@link Bundle} populated by this builder.
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    public Bundle getBundle() {
+        return mBundle;
     }
 
     /** Returns the URI of the {@link GenericDocument}. */

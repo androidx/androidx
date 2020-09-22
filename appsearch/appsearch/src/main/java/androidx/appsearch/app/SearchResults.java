@@ -20,6 +20,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.concurrent.futures.ResolvableFuture;
 
 import com.google.common.util.concurrent.ListenableFuture;
@@ -89,9 +90,8 @@ public final class SearchResults implements Closeable {
      * which matched the specified query string and specifications.
      */
     public static final class Result {
-
         @NonNull
-        private GenericDocument mDocument;
+        private final GenericDocument mDocument;
 
         /**
          * Contains a list of Snippets that matched the request. Only populated when requested in
@@ -103,7 +103,9 @@ public final class SearchResults implements Closeable {
         @Nullable
         private final List<MatchInfo> mMatches;
 
-        Result(@NonNull GenericDocument document, @Nullable List<MatchInfo> matches) {
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+        public Result(@NonNull GenericDocument document, @Nullable List<MatchInfo> matches) {
             mDocument = document;
             mMatches = matches;
         }
