@@ -47,8 +47,9 @@ import androidx.wear.complications.SystemProviders.ProviderId
 import androidx.wear.watchface.data.ImmutableSystemState
 import androidx.wear.watchface.data.IndicatorState
 import androidx.wear.watchface.data.SystemState
-import androidx.wear.watchface.style.StyleUtils
-import androidx.wear.watchface.style.UserStyleCategory
+import androidx.wear.watchface.style.UserStyle
+import androidx.wear.watchface.style.data.UserStyleWireFormat
+import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import java.util.concurrent.CountDownLatch
 
 /**
@@ -442,13 +443,10 @@ abstract class WatchFaceService : WallpaperService() {
                 }
             }
 
-            override fun setUserStyle(userStyle: Bundle) {
+            override fun setUserStyle(userStyle: UserStyleWireFormat) {
                 runOnUiThread {
                     watchFace.onSetStyleInternal(
-                        StyleUtils.bundleToStyleMap(
-                            userStyle,
-                            watchFace.userStyleRepository.userStyleCategories
-                        )
+                        UserStyle(userStyle, watchFace.userStyleRepository.userStyleCategories)
                     )
                 }
             }
@@ -497,16 +495,13 @@ abstract class WatchFaceService : WallpaperService() {
                 drawMode: Int,
                 compressionQuality: Int,
                 calendarTimeMillis: Long,
-                userStyle: Bundle?
+                userStyle: UserStyleWireFormat?
             ): Bundle {
                 return runOnUiThread {
-                    val oldStyle = HashMap(watchFace.userStyleRepository.userStyle)
+                    val oldStyle = HashMap(watchFace.userStyleRepository.userStyle.options)
                     if (userStyle != null) {
                         watchFace.onSetStyleInternal(
-                            StyleUtils.bundleToStyleMap(
-                                userStyle,
-                                watchFace.userStyleRepository.userStyleCategories
-                            )
+                            UserStyle(userStyle, watchFace.userStyleRepository.userStyleCategories)
                         )
                     }
 
@@ -519,7 +514,7 @@ abstract class WatchFaceService : WallpaperService() {
 
                     // Restore previous style if required.
                     if (userStyle != null) {
-                        watchFace.onSetStyleInternal(oldStyle)
+                        watchFace.onSetStyleInternal(UserStyle(oldStyle))
                     }
 
                     bitmap
@@ -534,7 +529,7 @@ abstract class WatchFaceService : WallpaperService() {
                 compressionQuality: Int,
                 calendarTimeMillis: Long,
                 complicationData: ComplicationData?,
-                userStyle: Bundle?
+                userStyle: UserStyleWireFormat?
             ): Bundle? {
                 return runOnUiThread {
                     val calendar = Calendar.getInstance().apply {
@@ -542,10 +537,10 @@ abstract class WatchFaceService : WallpaperService() {
                     }
                     val complication = watchFace.complicationsManager[complicationId]
                     if (complication != null) {
-                        val oldStyle = HashMap(watchFace.userStyleRepository.userStyle)
+                        val oldStyle = HashMap(watchFace.userStyleRepository.userStyle.options)
                         if (userStyle != null) {
                             watchFace.onSetStyleInternal(
-                                StyleUtils.bundleToStyleMap(
+                                UserStyle(
                                     userStyle,
                                     watchFace.userStyleRepository.userStyleCategories
                                 )
@@ -578,7 +573,7 @@ abstract class WatchFaceService : WallpaperService() {
                         }
 
                         if (userStyle != null) {
-                            watchFace.onSetStyleInternal(oldStyle)
+                            watchFace.onSetStyleInternal(UserStyle(oldStyle))
                         }
 
                         complicationBitmap.toAshmemCompressedImageBundle(
@@ -662,7 +657,6 @@ abstract class WatchFaceService : WallpaperService() {
                 Constants.COMMAND_REQUEST_STYLE -> onRequestStyle()
                 Constants.COMMAND_SET_BINDER -> onSetBinder(extras!!)
                 Constants.COMMAND_SET_PROPERTIES -> onPropertiesChanged(extras!!)
-                Constants.COMMAND_SET_USER_STYLE -> watchFaceCommand.setUserStyle(extras!!)
                 Constants.COMMAND_TAP -> watchFaceCommand.sendTouchEvent(x, y, TapType.TAP)
                 Constants.COMMAND_TOUCH -> watchFaceCommand.sendTouchEvent(x, y, TapType.TOUCH)
                 Constants.COMMAND_TOUCH_CANCEL -> watchFaceCommand.sendTouchEvent(
@@ -1016,34 +1010,25 @@ abstract class WatchFaceService : WallpaperService() {
             }
         }
 
-        override fun registerUserStyleSchema(styleSchema: List<UserStyleCategory>) {
+        override fun registerUserStyleSchema(userStyleSchema: UserStyleSchemaWireFormat) {
             if (systemApiVersion >= 3) {
-                iWatchFaceService.registerUserStyleSchema(
-                    StyleUtils.userStyleCategoriesToBundles(styleSchema)
-                )
+                iWatchFaceService.registerUserStyleSchema(userStyleSchema)
             }
         }
 
         override fun setCurrentUserStyle(
-            userStyle: Map<UserStyleCategory, UserStyleCategory.Option>
+            userStyle: UserStyleWireFormat
         ) {
             if (systemApiVersion >= 3) {
-                iWatchFaceService.setCurrentUserStyle(
-                    StyleUtils.styleMapToBundle(userStyle)
-                )
+                iWatchFaceService.setCurrentUserStyle(userStyle)
             }
         }
 
-        override fun getStoredUserStyle(
-            schema: List<UserStyleCategory>
-        ): Map<UserStyleCategory, UserStyleCategory.Option>? {
+        override fun getStoredUserStyle(): UserStyleWireFormat? {
             if (systemApiVersion < 3) {
                 return null
             }
-            return StyleUtils.bundleToStyleMap(
-                iWatchFaceService.storedUserStyle ?: Bundle(),
-                schema
-            )
+            return iWatchFaceService.storedUserStyle
         }
 
         override fun setComplicationDetails(

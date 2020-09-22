@@ -46,6 +46,8 @@ import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.WatchFaceService
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
+import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
+import androidx.wear.watchface.style.data.UserStyleWireFormat
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -71,7 +73,7 @@ private class WatchFaceServiceStub(
     override fun setStyle(style: WatchFaceStyle) {
     }
 
-    override fun registerUserStyleSchema(styleSchema: MutableList<Bundle>?) {
+    override fun registerUserStyleSchema(styleSchema: UserStyleSchemaWireFormat) {
     }
 
     override fun setActiveComplications(ids: IntArray, updateAll: Boolean) {
@@ -116,11 +118,11 @@ private class WatchFaceServiceStub(
         setComplication(watchFaceComplicationId, complicationProviders[fallbackSystemProvider]!!)
     }
 
-    override fun getStoredUserStyle(): Bundle? {
+    override fun getStoredUserStyle(): UserStyleWireFormat? {
         return null
     }
 
-    override fun setCurrentUserStyle(style: Bundle?) {
+    override fun setCurrentUserStyle(style: UserStyleWireFormat?) {
     }
 
     override fun getApiVersion() = apiVersion
@@ -406,15 +408,8 @@ class WatchFaceServiceImageTest {
     fun testSetGreenStyle() {
         handler.post {
             initCanvasWatchFace()
-            engineWrapper.onCommand(
-                Constants.COMMAND_SET_USER_STYLE,
-                0,
-                0,
-                0,
-                Bundle().apply {
-                    putString("color_style_category", "green_style")
-                },
-                false
+            watchFaceServiceStub.iWatchFaceCommand!!.setUserStyle(
+                UserStyleWireFormat(mapOf("color_style_category" to "green_style"))
             )
             engineWrapper.draw()
         }

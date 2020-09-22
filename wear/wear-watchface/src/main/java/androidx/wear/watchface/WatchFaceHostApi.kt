@@ -25,7 +25,8 @@ import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.wear.complications.SystemProviders
-import androidx.wear.watchface.style.UserStyleCategory
+import androidx.wear.watchface.style.data.UserStyleWireFormat
+import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 
 /** @hide */
 @IntDef(
@@ -65,15 +66,13 @@ interface WatchFaceHostApi {
     fun registerWatchFaceType(@WatchFaceType watchFaceType: Int)
 
     /** Registers the watch face's user style schema with the system. */
-    fun registerUserStyleSchema(styleSchema: List<UserStyleCategory>)
+    fun registerUserStyleSchema(userStyleSchema: UserStyleSchemaWireFormat)
 
     /** Registers the watch face's current user style with the system. */
-    fun setCurrentUserStyle(userStyle: Map<UserStyleCategory, UserStyleCategory.Option>)
+    fun setCurrentUserStyle(userStyle: UserStyleWireFormat)
 
     /** Returns the user style stored by the system if there is one or null otherwise. */
-    fun getStoredUserStyle(
-        schema: List<UserStyleCategory>
-    ): Map<UserStyleCategory, UserStyleCategory.Option>?
+    fun getStoredUserStyle(): UserStyleWireFormat?
 
     /** Registers the current bounds of the specified complication with the system. */
     fun setComplicationDetails(complicationId: Int, bounds: Rect, @ComplicationBoundsType type: Int)

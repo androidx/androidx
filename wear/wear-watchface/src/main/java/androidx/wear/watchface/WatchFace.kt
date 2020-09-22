@@ -28,7 +28,6 @@ import android.graphics.Point
 import android.graphics.Rect
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
-import android.os.Bundle
 import android.support.wearable.complications.ComplicationData
 import android.support.wearable.watchface.WatchFaceStyle
 import android.view.SurfaceHolder
@@ -41,9 +40,9 @@ import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.lifecycle.Observer
 import androidx.wear.complications.SystemProviders
-import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
-import androidx.wear.watchface.style.StyleUtils
+import androidx.wear.watchface.style.UserStyle
+import androidx.wear.watchface.style.data.UserStyleWireFormat
 import androidx.wear.watchface.ui.WatchFaceConfigActivity
 import androidx.wear.watchface.ui.WatchFaceConfigDelegate
 import java.io.FileNotFoundException
@@ -75,7 +74,7 @@ annotation class WatchFaceType {
     }
 }
 
-private fun readPrefs(context: Context, fileName: String): Map<String, String> {
+private fun readPrefs(context: Context, fileName: String): UserStyleWireFormat {
     val hashMap = HashMap<String, String>()
     try {
         val reader = InputStreamReader(context.openFileInput(fileName)).buffered()
@@ -88,16 +87,12 @@ private fun readPrefs(context: Context, fileName: String): Map<String, String> {
     } catch (e: FileNotFoundException) {
         // We don't need to do anything special here.
     }
-    return hashMap
+    return UserStyleWireFormat(hashMap)
 }
 
-private fun writePrefs(
-    context: Context,
-    fileName: String,
-    style: Map<UserStyleCategory, UserStyleCategory.Option>
-) {
+private fun writePrefs(context: Context, fileName: String, style: UserStyle) {
     val writer = context.openFileOutput(fileName, Context.MODE_PRIVATE).bufferedWriter()
-    for ((key, value) in style) {
+    for ((key, value) in style.options) {
         writer.write(key.id)
         writer.newLine()
         writer.write(value.id)
@@ -414,16 +409,16 @@ class WatchFace private constructor(
     init {
         // If the system has a stored user style then Home/SysUI is in charge of style
         // persistence, otherwise we need to do our own.
-        val storedUserStyle =
-            watchFaceHostApi.getStoredUserStyle(userStyleRepository.userStyleCategories)
+        val storedUserStyle = watchFaceHostApi.getStoredUserStyle()
         if (storedUserStyle != null) {
-            userStyleRepository.userStyle = storedUserStyle
+            userStyleRepository.userStyle =
+                UserStyle(storedUserStyle, userStyleRepository.userStyleCategories)
         } else {
             // The system doesn't support preference persistence we need to do it ourselves.
             val preferencesFile =
                 "watchface_prefs_${watchFaceHostApi.getContext().javaClass.typeName}.txt"
 
-            userStyleRepository.userStyle = StyleUtils.idMapToStyleMap(
+            userStyleRepository.userStyle = UserStyle(
                 readPrefs(watchFaceHostApi.getContext(), preferencesFile),
                 userStyleRepository.userStyleCategories
             )
@@ -431,9 +426,7 @@ class WatchFace private constructor(
             userStyleRepository.addUserStyleListener(
                 object : UserStyleRepository.UserStyleListener {
                     @SuppressLint("SyntheticAccessor")
-                    override fun onUserStyleChanged(
-                        userStyle: Map<UserStyleCategory, UserStyleCategory.Option>
-                    ) {
+                    override fun onUserStyleChanged(userStyle: UserStyle) {
                         writePrefs(watchFaceHostApi.getContext(), preferencesFile, userStyle)
                     }
                 })
@@ -444,9 +437,7 @@ class WatchFace private constructor(
 
     private inner class WfUserStyleListener : UserStyleRepository.UserStyleListener {
         @SuppressWarnings("SyntheticAccessor")
-        override fun onUserStyleChanged(
-            userStyle: Map<UserStyleCategory, UserStyleCategory.Option>
-        ) {
+        override fun onUserStyleChanged(userStyle: UserStyle) {
             // No need to echo the userStyle back.
             if (!inOnSetStyle) {
                 sendCurrentUserStyle(userStyle)
@@ -456,9 +447,9 @@ class WatchFace private constructor(
 
     private val styleListener = WfUserStyleListener()
 
-    private fun sendCurrentUserStyle(userStyle: Map<UserStyleCategory, UserStyleCategory.Option>) {
+    private fun sendCurrentUserStyle(userStyle: UserStyle) {
         // Sync the user style with the system.
-        watchFaceHostApi.setCurrentUserStyle(userStyle)
+        watchFaceHostApi.setCurrentUserStyle(userStyle.toWireFormat())
     }
 
     private val ambientObserver = Observer<Boolean> {
@@ -516,20 +507,13 @@ class WatchFace private constructor(
         )
 
         WatchFaceConfigActivity.registerWatchFace(componentName, object : WatchFaceConfigDelegate {
-            override fun getUserStyleSchema() =
-                StyleUtils.userStyleCategoriesToBundles(
-                    userStyleRepository.userStyleCategories
-                )
+            override fun getUserStyleSchema() = userStyleRepository.toSchemaWireFormat()
 
-            override fun getUserStyle() =
-                StyleUtils.styleMapToBundle(userStyleRepository.userStyle)
+            override fun getUserStyle() = userStyleRepository.userStyle.toWireFormat()
 
-            override fun setUserStyle(style: Bundle) {
+            override fun setUserStyle(userStyle: UserStyleWireFormat) {
                 userStyleRepository.userStyle =
-                    StyleUtils.bundleToStyleMap(
-                        style,
-                        userStyleRepository.userStyleCategories
-                    )
+                    UserStyle(userStyle, userStyleRepository.userStyleCategories)
             }
 
             override fun getBackgroundComplicationId() =
@@ -563,7 +547,7 @@ class WatchFace private constructor(
         })
 
         watchFaceHostApi.registerWatchFaceType(watchFaceType)
-        watchFaceHostApi.registerUserStyleSchema(userStyleRepository.userStyleCategories)
+        watchFaceHostApi.registerUserStyleSchema(userStyleRepository.toSchemaWireFormat())
         watchState.isAmbient.observe(ambientObserver)
         watchState.interruptionFilter.observe(interruptionFilterObserver)
         watchState.isVisible.observe(visibilityObserver)
@@ -576,7 +560,7 @@ class WatchFace private constructor(
     /**
      * Called by the system in response to remote configuration, on the main thread.
      */
-    internal fun onSetStyleInternal(style: Map<UserStyleCategory, UserStyleCategory.Option>) {
+    internal fun onSetStyleInternal(style: UserStyle) {
         // No need to echo the userStyle back.
         inOnSetStyle = true
         userStyleRepository.userStyle = style

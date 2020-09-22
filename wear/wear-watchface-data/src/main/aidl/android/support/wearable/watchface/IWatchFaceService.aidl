@@ -21,6 +21,8 @@ import android.os.Bundle;
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel;
 import android.support.wearable.watchface.IWatchFaceCommand;
 import android.support.wearable.watchface.WatchFaceStyle;
+import androidx.wear.watchface.style.data.UserStyleWireFormat;
+import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
 
 /**
  * Interface of a service that allows the watch face to interact with the wearable.
@@ -106,26 +108,24 @@ interface IWatchFaceService {
       * Registers the user style schema which the companion will use to construct the style
       * configuration UI. Supported from API version 3.
       *
-      * @param styleSchema A list of {@link Bundle}s populated by
-      *    {@link UserStyleCategory#writeToBundle}
+      * @param styleSchema A {@link StyleSchemaWireFormat}.
       */
-    void registerUserStyleSchema(in List<Bundle> styleSchema) = 10;
+    void registerUserStyleSchema(in UserStyleSchemaWireFormat styleSchema) = 10;
 
     /**
      * Called when the user selects the user style for the watch. For some types of UI widget,
      * (e.g a LIST_VIEW) the Option must be from the list associated with the UserStyleCategory in
      * registerStyleSchema. Supported from API version 3.
      *
-     * @param style A {@link Bundle} containing a mapping from {@link UserStyleCategory} to
-     *    {@link UserStyleCategory.Option}s.
+     * @param style A {@link UserStyleWireFormat}.
      */
-    void setCurrentUserStyle(in Bundle style) = 11;
+    void setCurrentUserStyle(in UserStyleWireFormat style) = 11;
 
     /**
      * Returns the user style (set by {@link #setCurrentUserStyle} if there is one or null
-     * otherwise. See {@link androidx.wear.watchfacestyle.UserStyleCategory#styleMapToBundle}.
+     * otherwise.
      */
-    Bundle getStoredUserStyle() = 12;
+    UserStyleWireFormat getStoredUserStyle() = 12;
 
     /**
      * Registers whether the watch face is digital or analog with the system. Supported from API

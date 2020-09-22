@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.wear.watchface.data;
+package androidx.wear.watchface.style.data;
 
 import android.annotation.SuppressLint;
 import android.os.Parcel;
@@ -27,61 +27,25 @@ import androidx.versionedparcelable.ParcelUtils;
 import androidx.versionedparcelable.VersionedParcelable;
 import androidx.versionedparcelable.VersionedParcelize;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * Data sent over AIDL for {@link IWatchFaceCommand#setSystemState}.
- *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @VersionedParcelize
 @SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
-public final class SystemState implements VersionedParcelable, Parcelable {
+public class UserStyleWireFormat implements VersionedParcelable, Parcelable {
     @ParcelField(1)
-    boolean mInAmbientMode;
+    @NonNull
+    /** Map from user style category id to user style option id. */
+    public Map<String, String> mUserStyle = new HashMap<>();
 
-    @ParcelField(2)
-    int mInterruptionFilter;
+    UserStyleWireFormat() {}
 
-    @ParcelField(3)
-    int mUnreadCount;
-
-    @ParcelField(4)
-    int mNotificationCount;
-
-    /** Used by VersionedParcelable. */
-    SystemState() {}
-
-    public SystemState(
-            boolean inAmbientMode,
-            int interruptionFilter,
-            int unreadCount,
-            int notificationCount) {
-        mInAmbientMode = inAmbientMode;
-        mInterruptionFilter = interruptionFilter;
-        mUnreadCount = unreadCount;
-        mNotificationCount = notificationCount;
-    }
-
-    public boolean getInAmbientMode() {
-        return mInAmbientMode;
-    }
-
-    public int getInterruptionFilter() {
-        return mInterruptionFilter;
-    }
-
-    public int getUnreadCount() {
-        return mUnreadCount;
-    }
-
-    public int getNotificationCount() {
-        return mNotificationCount;
-    }
-
-    /** Serializes this SystemState to the specified {@link Parcel}. */
-    @Override
-    public void writeToParcel(@NonNull Parcel parcel, int flags) {
-        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);
+    public UserStyleWireFormat(@NonNull Map<String, String> userStyle) {
+        mUserStyle = userStyle;
     }
 
     @Override
@@ -89,18 +53,24 @@ public final class SystemState implements VersionedParcelable, Parcelable {
         return 0;
     }
 
-    public static final Parcelable.Creator<SystemState> CREATOR =
-            new Parcelable.Creator<SystemState>() {
+    /** Serializes this UserStyleWireFormat to the specified {@link Parcel}. */
+    @Override
+    public void writeToParcel(@NonNull Parcel parcel, int flags) {
+        parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);
+    }
+
+    public static final Parcelable.Creator<UserStyleWireFormat> CREATOR =
+            new Parcelable.Creator<UserStyleWireFormat>() {
                 @Override
-                public SystemState createFromParcel(Parcel source) {
-                    return SystemStateParcelizer.read(
+                public UserStyleWireFormat createFromParcel(Parcel source) {
+                    return UserStyleWireFormatParcelizer.read(
                             ParcelUtils.fromParcelable(source.readParcelable(
                                     getClass().getClassLoader())));
                 }
 
                 @Override
-                public SystemState[] newArray(int size) {
-                    return new SystemState[size];
+                public UserStyleWireFormat[] newArray(int size) {
+                    return new UserStyleWireFormat[size];
                 }
             };
 }

@@ -31,12 +31,14 @@ import androidx.annotation.RestrictTo.Scope.LIBRARY
 import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
+import androidx.versionedparcelable.ParcelUtils
 import androidx.wear.watchface.R
 import androidx.wear.watchface.style.BooleanUserStyleCategory
 import androidx.wear.watchface.style.DoubleRangeUserStyleCategory
 import androidx.wear.watchface.style.ListUserStyleCategory
-import androidx.wear.watchface.style.StyleUtils
+import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleCategory
+import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.widget.SwipeDismissFrameLayout
 import androidx.wear.widget.WearableLinearLayoutManager
 import androidx.wear.widget.WearableRecyclerView
@@ -55,29 +57,32 @@ internal class StyleConfigFragment : Fragment(),
     private lateinit var categoryId: String
     private lateinit var styleSchema: List<UserStyleCategory>
     private lateinit var styleCategory: UserStyleCategory
-    private lateinit var styleMap: MutableMap<UserStyleCategory, UserStyleCategory.Option>
+    private lateinit var userStyle: UserStyle
 
     companion object {
         const val CATEGORY_ID = "CATEGORY_ID"
-        const val STYLE_MAP = "STYLE_MAP"
+        const val USER_STYLE = "USER_STYLE"
         const val STYLE_SCHEMA = "STYLE_SCHEMA"
 
         fun newInstance(
             categoryId: String,
             styleSchema: List<UserStyleCategory>,
-            styleMap: Map<UserStyleCategory, UserStyleCategory.Option>
+            userStyle: UserStyle
         ) = StyleConfigFragment().apply {
             arguments = Bundle().apply {
                 putCharSequence(CATEGORY_ID, categoryId)
-                putParcelableArrayList(
+                putParcelable(
                     STYLE_SCHEMA,
-                    ArrayList(styleSchema.map { Bundle().apply { it.writeToBundle(this) } })
+                    ParcelUtils.toParcelable(
+                        UserStyleSchemaWireFormat(styleSchema.map { it.toWireFormat() })
+                    )
                 )
-                putBundle(STYLE_MAP, StyleUtils.styleMapToBundle(styleMap))
+                putParcelable(USER_STYLE, ParcelUtils.toParcelable(userStyle.toWireFormat()))
             }
         }
     }
 
+    @SuppressWarnings("deprecation")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         watchFaceConfigActivity = activity as WatchFaceConfigActivity
@@ -108,7 +113,7 @@ internal class StyleConfigFragment : Fragment(),
 
         when {
             booleanUserStyleCategory.isNotEmpty() -> {
-                booleanStyle.isChecked = styleMap[styleCategory]!!.id.toBoolean()
+                booleanStyle.isChecked = userStyle.options[styleCategory]!!.id.toBoolean()
                 booleanStyle.setOnCheckedChangeListener { _, isChecked ->
                     setUserStyleOption(styleCategory.getOptionForId(isChecked.toString()))
                 }
@@ -141,7 +146,7 @@ internal class StyleConfigFragment : Fragment(),
                     (rangedStyleCategory.options.last() as
                             DoubleRangeUserStyleCategory.DoubleRangeOption).value
                 val delta = (maxValue - minValue) / 100.0f
-                val value = styleMap[styleCategory]!!.id.toFloat()
+                val value = userStyle.options[styleCategory]!!.id.toFloat()
                 rangedStyle.progress = ((value - minValue) / delta).toInt()
                 rangedStyle.setOnSeekBarChangeListener(
                     object : SeekBar.OnSeekBarChangeListener {
@@ -181,12 +186,12 @@ internal class StyleConfigFragment : Fragment(),
     internal fun readOptionsFromArguments() {
         categoryId = requireArguments().getCharSequence(CATEGORY_ID).toString()
 
-        styleSchema =
-            (requireArguments().getParcelableArrayList<Bundle>(STYLE_SCHEMA))!!
-                .map { UserStyleCategory.createFromBundle(it) }
+        val wireFormat: UserStyleSchemaWireFormat =
+            ParcelUtils.fromParcelable(requireArguments().getParcelable(STYLE_SCHEMA)!!)
+        styleSchema = wireFormat.mSchema.map { UserStyleCategory.createFromWireFormat(it) }
 
-        styleMap = StyleUtils.bundleToStyleMap(
-            requireArguments().getBundle(STYLE_MAP)!!,
+        userStyle = UserStyle(
+            ParcelUtils.fromParcelable(requireArguments().getParcelable(USER_STYLE)!!),
             styleSchema
         )
 
@@ -194,12 +199,9 @@ internal class StyleConfigFragment : Fragment(),
     }
 
     internal fun setUserStyleOption(userStyleOption: UserStyleCategory.Option) {
-        styleMap[styleCategory] = userStyleOption
-
-        // These will become IPCs eventually, hence the use of Bundles.
-        watchFaceConfigActivity.watchFaceConfigDelegate.setUserStyle(
-            StyleUtils.styleMapToBundle(styleMap)
-        )
+        val hashmap = userStyle.options as HashMap<UserStyleCategory, UserStyleCategory.Option>
+        hashmap[styleCategory] = userStyleOption
+        watchFaceConfigActivity.watchFaceConfigDelegate.setUserStyle(userStyle.toWireFormat())
     }
 
     override fun onItemClick(userStyleOption: UserStyleCategory.Option) {
