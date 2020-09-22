@@ -45,6 +45,7 @@ import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.annotation.VisibleForTesting;
 import androidx.collection.ArrayMap;
 import androidx.core.app.ActivityManagerCompat;
 import androidx.core.content.ContextCompat;
@@ -2324,7 +2325,7 @@ public final class MediaRouter {
      * state and the bulk of the media router implementation lives here.
      * </p>
      */
-    private static final class GlobalMediaRouter
+    static final class GlobalMediaRouter
             implements SystemMediaRouteProvider.SyncCallback,
             RegisteredMediaRouteProviderWatcher.Callback {
         final Context mApplicationContext;
@@ -2353,7 +2354,8 @@ public final class MediaRouter {
                 });
 
         private MediaRouterParams mRouterParams;
-        private RegisteredMediaRouteProviderWatcher mRegisteredProviderWatcher;
+        @VisibleForTesting
+        RegisteredMediaRouteProviderWatcher mRegisteredProviderWatcher;
         private RouteInfo mDefaultRoute;
         private RouteInfo mBluetoothRoute;
         RouteInfo mSelectedRoute;

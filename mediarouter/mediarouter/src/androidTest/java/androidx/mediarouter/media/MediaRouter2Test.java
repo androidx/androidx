@@ -25,6 +25,7 @@ import android.content.Context;
 import android.media.MediaRoute2ProviderService;
 import android.media.RoutingSessionInfo;
 import android.os.Build;
+import android.os.Messenger;
 import android.support.mediacompat.testlib.util.PollingCheck;
 import android.text.TextUtils;
 
@@ -58,7 +59,9 @@ public class MediaRouter2Test {
 
     Context mContext;
     MediaRouter mRouter;
+    StubMediaRouteProviderService mService;
     StubMediaRouteProviderService.StubMediaRouteProvider mProvider;
+    MediaRouteProviderService.MediaRouteProviderServiceImplApi30 mServiceImpl;
     MediaRoute2ProviderServiceAdapter mMr2ProviderServiceAdapter;
 
     List<MediaRouter.Callback> mCallbacks;
@@ -81,12 +84,13 @@ public class MediaRouter2Test {
         new PollingCheck(TIMEOUT_MS) {
             @Override
             protected boolean check() {
-                StubMediaRouteProviderService.StubMediaRouteProvider provider =
-                        StubMediaRouteProviderService.getProvider();
-                if (provider != null) {
-                    mProvider = provider;
-                    mMr2ProviderServiceAdapter =
-                            StubMediaRouteProviderService.getMr2ProviderServiceAdapter();
+                mService = StubMediaRouteProviderService.getInstance();
+                if (mService != null && mService.getMediaRouteProvider() != null) {
+                    mProvider = (StubMediaRouteProviderService.StubMediaRouteProvider)
+                            mService.getMediaRouteProvider();
+                    mServiceImpl = (MediaRouteProviderService.MediaRouteProviderServiceImplApi30)
+                            mService.mImpl;
+                    mMr2ProviderServiceAdapter = mServiceImpl.mMR2ProviderServiceAdapter;
                     return true;
                 }
                 return false;
@@ -166,6 +170,42 @@ public class MediaRouter2Test {
         assertTrue(onRouteUnselectedLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
         // Make sure the route is enabled
         assertTrue(onRouteEnabledLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+    }
+
+    @SmallTest
+    @Test
+    public void onBinderDied_releaseRoutingSessions() throws Exception {
+        String descriptorId = StubMediaRouteProviderService.ROUTE_ID1;
+
+        waitForRoutesAdded();
+        assertNotNull(mRoutes);
+
+        RouteInfo routeToSelect = mRoutes.get(descriptorId);
+        assertNotNull(routeToSelect);
+
+        getInstrumentation().runOnMainSync(() -> mRouter.selectRoute(routeToSelect));
+
+        // Wait for a session being created.
+        PollingCheck.waitFor(TIMEOUT_MS,
+                () -> !mMr2ProviderServiceAdapter.getAllSessionInfo().isEmpty());
+
+        try {
+            List<Messenger> messengers =
+                    mServiceImpl.mClients.stream().map(client -> client.mMessenger)
+                    .collect(Collectors.toList());
+            getInstrumentation().runOnMainSync(() ->
+                    messengers.forEach(mServiceImpl::onBinderDied));
+            // It should have no session info.
+            PollingCheck.waitFor(TIMEOUT_MS,
+                    () -> mMr2ProviderServiceAdapter.getAllSessionInfo().isEmpty());
+        } finally {
+            // Rebind for future tests
+            getInstrumentation().runOnMainSync(
+                    () -> {
+                        MediaRouter.sGlobal.mRegisteredProviderWatcher.stop();
+                        MediaRouter.sGlobal.mRegisteredProviderWatcher.start();
+                    });
+        }
     }
 
     void addCallback(MediaRouter.Callback callback) {
