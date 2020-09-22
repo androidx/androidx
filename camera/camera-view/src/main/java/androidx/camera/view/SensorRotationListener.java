@@ -24,19 +24,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
 
 /**
- * Listens to accelerometer reading and converts the orientation degrees to {@link Surface}
+ * Listens to motion sensor reading and converts the orientation degrees to {@link Surface}
  * rotation.
  *
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-public abstract class AccelerometerRotationListener extends OrientationEventListener {
+public abstract class SensorRotationListener extends OrientationEventListener {
 
     public static final int INVALID_SURFACE_ROTATION = -1;
 
     private int mRotation = INVALID_SURFACE_ROTATION;
 
-    public AccelerometerRotationListener(@NonNull Context context) {
+    public SensorRotationListener(@NonNull Context context) {
         super(context);
     }
 

@@ -97,7 +97,7 @@ class CameraControllerFragmentTest {
 
         // Act.
         // Get the capture bitmap and the preview bitmap.
-        val captureTargetDegrees = rotationValueToRotationDegrees(fragment.accelerometerRotation)
+        val captureTargetDegrees = rotationValueToRotationDegrees(fragment.sensorRotation)
         val captureResult = fragment.assertCanTakePicture()
         var captureBitmap = Bitmap.createScaledBitmap(captureResult.first, width, height, true)
         val captureDegrees = captureResult.second
