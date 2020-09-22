@@ -26,9 +26,13 @@ import sys
 
 
 JETPACK_API_ROOT = 'appsearch/src/main/java/androidx/appsearch'
+JETPACK_API_TEST_ROOT = 'appsearch/src/androidTest/java/androidx/appsearch'
 JETPACK_IMPL_ROOT = 'local-backend/src/main/java/androidx/appsearch'
 JETPACK_IMPL_TEST_ROOT = 'local-backend/src/androidTest/java/androidx/appsearch'
 FRAMEWORK_API_ROOT = 'framework/java/android/app/appsearch'
+FRAMEWORK_API_TEST_ROOT = (
+        '../../core/tests/coretests/src/'
+        'android/app/appsearch/external')
 FRAMEWORK_IMPL_ROOT = 'service/java/com/android/server/appsearch/external'
 FRAMEWORK_IMPL_TEST_ROOT = (
         '../../services/tests/servicestests/src/'
@@ -63,7 +67,7 @@ def _TransformAndCopyFile(source_path, dest_path, transform_func=None):
 
 
 def _TransformCommonCode(contents):
-    contents = (contents
+    return (contents
         .replace('androidx.appsearch.app', 'android.app.appsearch')
         .replace('androidx.appsearch', 'android.app.appsearch')
         .replace(
@@ -80,49 +84,54 @@ def _TransformCommonCode(contents):
         .replace('@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)', '')
         .replace('androidx', 'android')
     )
-    return contents
 
 
-def _TransformApiCode(contents):
+def _TransformTestCode(contents):
     contents = (contents
-        .replace(
-                'package androidx.appsearch.app;',
-                'package android.app.appsearch;')
-    )
-    return _TransformCommonCode(contents)
-
-
-def _TransformImplCode(contents):
-    contents = (contents
-        .replace(
-                'package androidx.appsearch',
-                'package com.android.server.appsearch.external')
-    )
-    return _TransformCommonCode(contents)
-
-
-def _TransformImplTestCode(contents):
-    return (_TransformImplCode(contents)
-        .replace(
-                'com.google.android.icing.proto.',
-                'com.android.server.appsearch.proto.')
         .replace('org.junit.Assert.assertThrows',
                  'org.testng.Assert.expectThrows')
         .replace('assertThrows(', 'expectThrows(')
     )
+    return _TransformCommonCode(contents)
+
+
+def _TransformAndCopyFolder(
+        source_dir, dest_dir, transform_func=None, block_list=None):
+    for currentpath, folders, files in os.walk(source_dir):
+        dir_rel_to_root = os.path.relpath(currentpath, source_dir)
+        for filename in files:
+            # Copy all files, except those in the block list
+            source_abs_path = os.path.join(currentpath, filename)
+            rel_to_source = os.path.relpath(source_abs_path, source_dir)
+            if block_list and rel_to_source in block_list:
+                print('Skipping copy: "%s"' % rel_to_source)
+                continue
+
+            dest_path = os.path.join(dest_dir, dir_rel_to_root, filename)
+            _TransformAndCopyFile(source_abs_path, dest_path, transform_func)
 
 
 def _CopyAllApi(source_dir, dest_dir):
     api_source_dir = os.path.join(source_dir, JETPACK_API_ROOT)
+    api_test_source_dir = os.path.join(source_dir, JETPACK_API_TEST_ROOT)
     api_dest_dir = os.path.join(dest_dir, FRAMEWORK_API_ROOT)
+    api_test_dest_dir = os.path.join(dest_dir, FRAMEWORK_API_TEST_ROOT)
+
     # Prune existing files
     _PruneDir(api_dest_dir, allow_list=[
         'AppSearchManager.java',
         'AppSearchManagerFrameworkInitializer.java',
         'IAppSearchManager.aidl',
     ])
+    _PruneDir(api_test_dest_dir)
 
-    # Copy new files
+    # Copy api classes. We can't use _TransformAndCopyFolder here because we
+    # need to specially handle the 'app' package.
+    def _TransformApiCode(contents):
+        contents = contents.replace(
+                'package androidx.appsearch.app;',
+                'package android.app.appsearch;')
+        return _TransformCommonCode(contents)
     for currentpath, folders, files in os.walk(api_source_dir):
         dir_rel_to_root = os.path.relpath(currentpath, api_source_dir)
         for filename in files:
@@ -143,21 +152,10 @@ def _CopyAllApi(source_dir, dest_dir):
                         api_dest_dir, dir_rel_to_root, filename)
             _TransformAndCopyFile(source_abs_path, dest_path, _TransformApiCode)
 
-
-def _TransformAndCopyFolder(
-        source_dir, dest_dir, transform_func=None, block_list=None):
-    for currentpath, folders, files in os.walk(source_dir):
-        dir_rel_to_root = os.path.relpath(currentpath, source_dir)
-        for filename in files:
-            # Copy all files, except those in the block list
-            source_abs_path = os.path.join(currentpath, filename)
-            rel_to_source = os.path.relpath(source_abs_path, source_dir)
-            if block_list and rel_to_source in block_list:
-                print('Skipping copy: "%s"' % rel_to_source)
-                continue
-
-            dest_path = os.path.join(dest_dir, dir_rel_to_root, filename)
-            _TransformAndCopyFile(source_abs_path, dest_path, transform_func)
+    # Copy api test classes.
+    _TransformAndCopyFolder(
+            api_test_source_dir, api_test_dest_dir,
+            transform_func=_TransformTestCode)
 
 
 def _CopyAllImpl(source_dir, dest_dir):
@@ -171,6 +169,12 @@ def _CopyAllImpl(source_dir, dest_dir):
     _PruneDir(impl_test_dest_dir)
 
     # Copy impl classes
+    def _TransformImplCode(contents):
+        contents = (contents
+                .replace('package androidx.appsearch',
+                         'package com.android.server.appsearch.external')
+        )
+        return _TransformCommonCode(contents)
     _TransformAndCopyFolder(
             impl_source_dir, impl_dest_dir,
             transform_func=_TransformImplCode,
@@ -179,6 +183,14 @@ def _CopyAllImpl(source_dir, dest_dir):
             ])
 
     # Copy servicestests
+    def _TransformImplTestCode(contents):
+        contents = (contents
+                .replace('package androidx.appsearch',
+                         'package com.android.server.appsearch.external')
+                .replace('com.google.android.icing.proto.',
+                         'com.android.server.appsearch.proto.')
+        )
+        return _TransformTestCode(contents)
     _TransformAndCopyFolder(
             impl_test_source_dir, impl_test_dest_dir,
             transform_func=_TransformImplTestCode,
@@ -188,7 +200,7 @@ def _CopyAllImpl(source_dir, dest_dir):
 
 
 def _CopyMain(source_dir, dest_dir):
-    #_CopyAllApi(source_dir, dest_dir)
+    _CopyAllApi(source_dir, dest_dir)
     _CopyAllImpl(source_dir, dest_dir)
 
 
