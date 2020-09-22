@@ -50,6 +50,11 @@ public class SliceHints {
     public static final int INDETERMINATE_RANGE = 1;
 
     /**
+     * Indicates that the content is the star rating mode for a range.
+     */
+    public static final int STAR_RATING = 2;
+
+    /**
      * The meta-data key that allows an activity to easily be linked directly to a slice.
      * <p>
      * An activity can be statically linked to a slice uri by including a meta-data item
