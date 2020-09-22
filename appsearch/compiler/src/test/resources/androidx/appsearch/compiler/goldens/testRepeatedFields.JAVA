@@ -92,7 +92,7 @@ public class $$__AppSearch__Gift implements DataClassFactory<Gift> {
     if (setOfIntCopy != null) {
       setOfIntConv = new ArrayList<>(setOfIntCopy.length);
       for (int i = 0; i < setOfIntCopy.length; i++) {
-        setOfIntConv.add(setOfIntCopy[i]);
+        setOfIntConv.add((int) setOfIntCopy[i]);
       }
     }
     byte[][] repeatedByteArrayConv = genericDoc.getPropertyBytesArray("repeatedByteArray");
