@@ -269,9 +269,11 @@ import java.util.Map;
  * <code>content://com.mydomain.fileprovider/my_images/default_image.jpg</code>.
  * <h3 id="Permissions">Granting Temporary Permissions to a URI</h3>
  * To grant an access permission to a content URI returned from
- * {@link #getUriForFile(Context, String, File) getUriForFile()}, do one of the following:
- * <ul>
- * <li>
+ * {@link #getUriForFile(Context, String, File) getUriForFile()}, you can either grant the
+ * permission to a specific package or include the permission in an intent, as shown in the
+ * following sections.
+ * <h4>Grant Permission to a Specific Package</h4>
+ * <p>
  *     Call the method
  *     {@link Context#grantUriPermission(String, Uri, int)
  *     Context.grantUriPermission(package, Uri, mode_flags)} for the <code>content://</code>
@@ -282,27 +284,45 @@ import java.util.Map;
  *     or both. The permission remains in effect until you revoke it by calling
  *     {@link Context#revokeUriPermission(Uri, int) revokeUriPermission()} or until the device
  *     reboots.
- * </li>
+ * </p>
+ * <h4>Include the Permission in an Intent</h4>
+ * <p>
+ *     To allow the user to choose which app receives the intent, and the permission to access the
+ *     content, do the following:
+ * </p>
+ * <ol>
  * <li>
  *     Put the content URI in an {@link Intent} by calling {@link Intent#setData(Uri) setData()}.
  * </li>
  * <li>
- *     Next, call the method {@link Intent#setFlags(int) Intent.setFlags()} with either
+ * <p>
+ *     Call the method {@link Intent#setFlags(int) Intent.setFlags()} with either
  *     {@link Intent#FLAG_GRANT_READ_URI_PERMISSION} or
  *     {@link Intent#FLAG_GRANT_WRITE_URI_PERMISSION} or both.
+ * </p>
+ * <p>
+ *     To support devices that run a version between Android 4.1 (API level 16) and Android 5.1
+ *     (API level 22) inclusive, create a {@link android.content.ClipData} object from the content
+ *     URI, and set the access permissions on the <code>ClipData</code> object:
+ * </p>
+ * <pre class="prettyprint">
+ *shareContentIntent.setClipData(ClipData.newRawUri("", contentUri));
+ *shareContentIntent.addFlags(
+ *         Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+ *</pre>
  * </li>
  * <li>
- *     Finally, send the {@link Intent} to
+ *     Send the {@link Intent} to
  *     another app. Most often, you do this by calling
  *     {@link android.app.Activity#setResult(int, android.content.Intent) setResult()}.
- *     <p>
- *     Permissions granted in an {@link Intent} remain in effect while the stack of the receiving
- *     {@link android.app.Activity} is active. When the stack finishes, the permissions are
- *     automatically removed. Permissions granted to one {@link android.app.Activity} in a client
- *     app are automatically extended to other components of that app.
- *     </p>
  * </li>
- * </ul>
+ * </ol>
+ * <p>
+ * Permissions granted in an {@link Intent} remain in effect while the stack of the receiving
+ * {@link android.app.Activity} is active. When the stack finishes, the permissions are
+ * automatically removed. Permissions granted to one {@link android.app.Activity} in a client
+ * app are automatically extended to other components of that app.
+ * </p>
  * <h3 id="ServeUri">Serving a Content URI to Another App</h3>
  * <p>
  * There are a variety of ways to serve the content URI for a file to a client app. One common way
