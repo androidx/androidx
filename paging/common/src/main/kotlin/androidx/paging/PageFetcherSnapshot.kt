@@ -47,7 +47,7 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.scanReduce
+import kotlinx.coroutines.flow.runningReduce
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -262,7 +262,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                         .drop(if (generationId == 0) 0 else 1)
                         .map { hint -> GenerationalViewportHint(generationId, hint) }
                 }
-                .scanReduce { acc, it ->
+                .runningReduce { acc, it ->
                     when {
                         // Prioritize hints from new generations, which increments after dropping.
                         it.generationId > acc.generationId -> it
@@ -299,7 +299,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                         .drop(if (generationId == 0) 0 else 1)
                         .map { hint -> GenerationalViewportHint(generationId, hint) }
                 }
-                .scanReduce { acc, it ->
+                .runningReduce { acc, it ->
                     when {
                         // Prioritize hints from new generations, which increments after dropping.
                         it.generationId > acc.generationId -> it
