@@ -17,6 +17,7 @@
 package androidx.ui.tooling.inspector
 
 import android.view.View
+import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.SlotTable
 import androidx.compose.ui.node.ExperimentalLayoutNodeApi
 import androidx.compose.ui.node.LayoutNode
@@ -76,6 +77,7 @@ class LayoutInspectorTree {
     /**
      * Converts the [SlotTable] set held by [view] into a list of root nodes.
      */
+    @OptIn(InternalComposeApi::class)
     fun convert(view: View): List<InspectorNode> {
         parameterFactory.density = Density(view.context)
         @Suppress("UNCHECKED_CAST")
@@ -97,6 +99,7 @@ class LayoutInspectorTree {
         stitched.clear()
     }
 
+    @OptIn(InternalComposeApi::class)
     private fun convert(tables: Set<SlotTable>): List<InspectorNode> {
         val trees = tables.map { convert(it) }
         return when (trees.size) {
@@ -184,6 +187,7 @@ class LayoutInspectorTree {
         return buildAndRelease(newCopy)
     }
 
+    @OptIn(InternalComposeApi::class)
     private fun convert(table: SlotTable): MutableInspectorNode {
         val fakeParent = newNode()
         addToParent(fakeParent, listOf(convert(table.asTree())))

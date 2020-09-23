@@ -24,6 +24,7 @@ import androidx.compose.ui.onGloballyPositioned
 import androidx.compose.ui.platform.setContent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.SlotTable
 import androidx.compose.ui.R
 import androidx.compose.ui.platform.AndroidOwner
@@ -72,6 +73,7 @@ open class ToolingTest {
         activityTestRule.onUiThread { }
     }
 
+    @OptIn(InternalComposeApi::class)
     internal fun showAndRecord(content: @Composable () -> Unit): MutableSet<SlotTable>? {
 
         positionedLatch = CountDownLatch(1)
