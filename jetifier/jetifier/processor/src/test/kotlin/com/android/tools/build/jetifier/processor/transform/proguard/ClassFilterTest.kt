@@ -65,11 +65,11 @@ class ClassFilterTest {
             )
             .testThatGivenProGuard(
                 "-adaptclassstrings support.Activity, support.Fragment, keep.Me \n" +
-                " support.Activity"
+                    " support.Activity"
             )
             .rewritesTo(
                 "-adaptclassstrings test.Activity, test.Fragment, keep.Me\n" +
-                " support.Activity"
+                    " support.Activity"
             )
     }
 
@@ -121,7 +121,7 @@ class ClassFilterTest {
             )
             .rewritesTo(
                 "-adaptclassstrings test.Activity1*, test.Activity2*, test.Annotation1*, " +
-                "test.Annotation2*, keep.Me"
+                    "test.Annotation2*, keep.Me"
             )
     }
 }

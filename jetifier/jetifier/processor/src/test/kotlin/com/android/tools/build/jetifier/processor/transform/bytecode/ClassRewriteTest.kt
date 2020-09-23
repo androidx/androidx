@@ -45,10 +45,12 @@ class ClassRewriteTest {
         val config = Config.fromOptional(
             restrictToPackagePrefixes = setOf("android/support"),
             reversedRestrictToPackagesPrefixes = setOf("androidx"),
-            typesMap = TypesMap(mapOf(
-                "android/support/v4/app/Fragment"
-                    to "androidx/fragment/app/Fragment"
-            ).map { JavaType(it.key) to JavaType(it.value) }.toMap())
+            typesMap = TypesMap(
+                mapOf(
+                    "android/support/v4/app/Fragment"
+                        to "androidx/fragment/app/Fragment"
+                ).map { JavaType(it.key) to JavaType(it.value) }.toMap()
+            )
         )
 
         val inputClassPath = "/classRewriteTest/FragmentKt.class"
@@ -74,13 +76,18 @@ class ClassRewriteTest {
         val config = Config.fromOptional(
             restrictToPackagePrefixes = setOf("android/support"),
             reversedRestrictToPackagesPrefixes = setOf("androidx"),
-            typesMap = TypesMap(mapOf(
-                "android/support/design/widget/Snackbar"
-                    to "com/google/android/material/snackbar/Snackbar"
-            ).map { JavaType(it.key) to JavaType(it.value) }.toMap()),
-            rulesMap = RewriteRulesMap(RewriteRule(
-                from = "android/support/annotation/(.*)",
-                to = "androidx/annotation/()"))
+            typesMap = TypesMap(
+                mapOf(
+                    "android/support/design/widget/Snackbar"
+                        to "com/google/android/material/snackbar/Snackbar"
+                ).map { JavaType(it.key) to JavaType(it.value) }.toMap()
+            ),
+            rulesMap = RewriteRulesMap(
+                RewriteRule(
+                    from = "android/support/annotation/(.*)",
+                    to = "androidx/annotation/()"
+                )
+            )
         )
 
         val inputClassPath = "/classRewriteTest/RxSnackbarKt.class"
@@ -96,14 +103,15 @@ class ClassRewriteTest {
 
         Truth.assertThat(decompiledResult).contains("com/google/android/material/snackbar/Snackbar")
         Truth.assertThat(decompiledResult)
-                .doesNotContain("Lcom.google.android.material.snackbar.Snackbar")
+            .doesNotContain("Lcom.google.android.material.snackbar.Snackbar")
         Truth.assertThat(decompiledResult).doesNotContain("android/support/design/widget/Snackbar")
         Truth.assertThat(decompiledResult).doesNotContain("android.support.design.widget.Snackbar")
 
         val expectedFileContent = File(
-            javaClass.getResource("/classRewriteTest/RxSnackbarKt-expected-decompiled.txt").file)
-                .readBytes()
-                .toString(Charset.defaultCharset())
+            javaClass.getResource("/classRewriteTest/RxSnackbarKt-expected-decompiled.txt").file
+        )
+            .readBytes()
+            .toString(Charset.defaultCharset())
         Truth.assertThat(decompiledResult).isEqualTo(expectedFileContent)
     }
 
@@ -124,9 +132,11 @@ class ClassRewriteTest {
 
         // Both constants need to be present
         Truth.assertThat(decompiledResult).contains(
-            "EXTRA_CALLING_PACKAGE = \"androidx.core.app.EXTRA_CALLING_PACKAGE\"")
+            "EXTRA_CALLING_PACKAGE = \"androidx.core.app.EXTRA_CALLING_PACKAGE\""
+        )
         Truth.assertThat(decompiledResult).contains(
-            "EXTRA_CALLING_PACKAGE_INTEROP = \"android.support.v4.app.EXTRA_CALLING_PACKAGE\"")
+            "EXTRA_CALLING_PACKAGE_INTEROP = \"android.support.v4.app.EXTRA_CALLING_PACKAGE\""
+        )
     }
 
     private fun decompileClassFileToString(data: ByteArray): String {

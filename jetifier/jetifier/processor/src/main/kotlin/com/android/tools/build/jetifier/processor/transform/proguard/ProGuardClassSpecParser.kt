@@ -53,8 +53,10 @@ class ProGuardClassSpecParser(private val mapper: ProGuardTypesMapper) {
     val replacer = GroupsReplacer(
         pattern = PatternHelper.build(
             "^ *-$RULES ($RULES_MODIFIERS )*(@｟$ANNOTATION_TYPE｠ )?($CLASS_MODIFIERS )" +
-            "*$CLASS_TYPES ｟$CLASS_NAME｠( (extends|implements) ｟$CLASS_NAME｠)?+ " +
-            "*( *\\{｟[^}#]*｠\\} *)?+", Pattern.MULTILINE),
+                "*$CLASS_TYPES ｟$CLASS_NAME｠( (extends|implements) ｟$CLASS_NAME｠)?+ " +
+                "*( *\\{｟[^}#]*｠\\} *)?+",
+            Pattern.MULTILINE
+        ),
         groupsMap = listOf(
             { annotation: String -> mapper.replaceType(annotation) },
             { className: String -> mapper.replaceType(className) },
@@ -67,57 +69,69 @@ class ProGuardClassSpecParser(private val mapper: ProGuardTypesMapper) {
         // [@annotation] [[!]public|private|etc...] <fields>;
         GroupsReplacer(
             pattern = PatternHelper.build(
-                "^ *(@｟$ANNOTATION_TYPE｠ )?($FIELD_MODIFIERS )*<fields> *$"),
+                "^ *(@｟$ANNOTATION_TYPE｠ )?($FIELD_MODIFIERS )*<fields> *$"
+            ),
             groupsMap = listOf(
                 { annotation: String -> mapper.replaceType(annotation) }
-        )),
+            )
+        ),
 
         // [@annotation] [[!]public|private|etc...] fieldType fieldName;
         GroupsReplacer(
             pattern = PatternHelper.build(
-                "^ *(@｟$ANNOTATION_TYPE｠ )?($FIELD_MODIFIERS )*(｟$FIELD_TYPE｠ $FIELD_NAME) *$"),
+                "^ *(@｟$ANNOTATION_TYPE｠ )?($FIELD_MODIFIERS )*(｟$FIELD_TYPE｠ $FIELD_NAME) *$"
+            ),
             groupsMap = listOf(
                 { annotation: String -> mapper.replaceType(annotation) },
                 { fieldType: String -> mapper.replaceType(fieldType) }
-        )),
+            )
+        ),
 
         // [@annotation] [[!]public|private|etc...] <methods>;
         GroupsReplacer(
             pattern = PatternHelper.build(
-                "^ *(@｟$ANNOTATION_TYPE｠ )?($METHOD_MODIFIERS )*<methods> *$"),
+                "^ *(@｟$ANNOTATION_TYPE｠ )?($METHOD_MODIFIERS )*<methods> *$"
+            ),
             groupsMap = listOf(
                 { annotation: String -> mapper.replaceType(annotation) }
-        )),
+            )
+        ),
 
         // [@annotation] [[!]public|private|etc...] className(argumentType,...));
         GroupsReplacer(
             pattern = PatternHelper.build(
-                "^ *(@｟$ANNOTATION_TYPE｠ )?($METHOD_MODIFIERS )*｟$CLASS_NAME｠ *\\(｟$ARGS｠\\) *$"),
+                "^ *(@｟$ANNOTATION_TYPE｠ )?($METHOD_MODIFIERS )*｟$CLASS_NAME｠ *\\(｟$ARGS｠\\) *$"
+            ),
             groupsMap = listOf(
                 { annotation: String -> mapper.replaceType(annotation) },
                 { className: String -> mapper.replaceType(className) },
                 { argsType: String -> mapper.replaceMethodArgs(argsType) }
-        )),
+            )
+        ),
 
         // [@annotation] [[!]public|private|etc...] <init>(argumentType,...));
         GroupsReplacer(
             pattern = PatternHelper.build(
-                "^ *(@｟$ANNOTATION_TYPE｠ )?($METHOD_MODIFIERS )*<init> *\\(｟$ARGS｠\\) *$"),
+                "^ *(@｟$ANNOTATION_TYPE｠ )?($METHOD_MODIFIERS )*<init> *\\(｟$ARGS｠\\) *$"
+            ),
             groupsMap = listOf(
                 { annotation: String -> mapper.replaceType(annotation) },
                 { argsType: String -> mapper.replaceMethodArgs(argsType) }
-        )),
+            )
+        ),
 
         // [@annotation] [[!]public|private|etc...] returnType methodName(argumentType,...));
         GroupsReplacer(
             pattern = PatternHelper.build(
                 "^ *(@｟$ANNOTATION_TYPE｠ )?($METHOD_MODIFIERS )*" +
-                "｟$RETURN_TYPE_NAME｠ $METHOD_NAME *\\(｟$ARGS｠\\) *$"),
+                    "｟$RETURN_TYPE_NAME｠ $METHOD_NAME *\\(｟$ARGS｠\\) *$"
+            ),
             groupsMap = listOf(
                 { annotation: String -> mapper.replaceType(annotation) },
                 { returnType: String -> mapper.replaceType(returnType) },
                 { argsType: String -> mapper.replaceMethodArgs(argsType) }
-        ))
+            )
+        )
     )
 
     private fun rewriteBodyGroup(bodyGroup: String): List<String> {

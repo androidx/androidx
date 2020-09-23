@@ -37,26 +37,27 @@ class AnnotationsTransformationTest {
         testRewrite(
             givenXmls = listOf(
                 Paths.get("androidx/move/me/annotations.xml") to
-                "<root>\n" +
-                "  <item name=\"androidx.appcompat.app.ActionBar void setMode(int) 0\">\n" +
-                "    <annotation name=\"android.support.annotation.IntDef\">\n" +
-                "      <val name=\"value\" val=\"{" +
-                "androidx.appcompat.app.ActionBar.NAVIGATION_MODE_STANDARD, " +
-                "androidx.appcompat.app.ActionBar.NAVIGATION_MODE_LIST}\" />\n" +
-                "    </annotation>\n" +
-                "  </item>\n" +
-                "</root>"
+                    "<root>\n" +
+                    "  <item name=\"androidx.appcompat.app.ActionBar void setMode(int) 0\">\n" +
+                    "    <annotation name=\"android.support.annotation.IntDef\">\n" +
+                    "      <val name=\"value\" val=\"{" +
+                    "androidx.appcompat.app.ActionBar.NAVIGATION_MODE_STANDARD, " +
+                    "androidx.appcompat.app.ActionBar.NAVIGATION_MODE_LIST}\" />\n" +
+                    "    </annotation>\n" +
+                    "  </item>\n" +
+                    "</root>"
             ),
             expectedXml =
                 "<root>\n" +
-                "  <item name=\"android.support.appcompat.app.ActionBar void setMode(int) 0\">\n" +
-                "    <annotation name=\"android.support.annotation.IntDef\">\n" +
-                "      <val name=\"value\" val=\"{" +
-                "android.support.appcompat.app.ActionBar.NAVIGATION_MODE_STANDARD, " +
-                "android.support.appcompat.app.ActionBar.NAVIGATION_MODE_LIST}\" />\n" +
-                "    </annotation>\n" +
-                "  </item>\n" +
-                "</root>",
+                    "  <item name=\"android.support.appcompat.app.ActionBar void " +
+                    "setMode(int) 0\">\n" +
+                    "    <annotation name=\"android.support.annotation.IntDef\">\n" +
+                    "      <val name=\"value\" val=\"{" +
+                    "android.support.appcompat.app.ActionBar.NAVIGATION_MODE_STANDARD, " +
+                    "android.support.appcompat.app.ActionBar.NAVIGATION_MODE_LIST}\" />\n" +
+                    "    </annotation>\n" +
+                    "  </item>\n" +
+                    "</root>",
             expectedPath = "android/support/moved/annotations.xml",
             reversedPrefixes = setOf("androidx/"),
             typesMap = mapOf(
@@ -73,7 +74,8 @@ class AnnotationsTransformationTest {
                         "android/support/moved/(.*)",
                         "androidx/move/me/(.*)"
                     )
-                )),
+                )
+            ),
             reversedMode = true
         )
     }
@@ -82,48 +84,49 @@ class AnnotationsTransformationTest {
         testRewrite(
             givenXmls = listOf(
                 Paths.get("androidx/move/me/annotations.xml") to
-                "<root>\n" +
-                "  <item name=\"androidx.appcompat.app.ActionBar void setMode(int) 0\">\n" +
-                "    <annotation name=\"android.support.annotation.IntDef\">\n" +
-                "      <val name=\"value\" val=\"{" +
-                "androidx.appcompat.app.ActionBar.NAVIGATION_MODE_STANDARD, " +
-                "androidx.appcompat.app.ActionBar.NAVIGATION_MODE_LIST}\" />\n" +
-                "    </annotation>\n" +
-                "  </item>\n" +
-                "</root>\n",
+                    "<root>\n" +
+                    "  <item name=\"androidx.appcompat.app.ActionBar void setMode(int) 0\">\n" +
+                    "    <annotation name=\"android.support.annotation.IntDef\">\n" +
+                    "      <val name=\"value\" val=\"{" +
+                    "androidx.appcompat.app.ActionBar.NAVIGATION_MODE_STANDARD, " +
+                    "androidx.appcompat.app.ActionBar.NAVIGATION_MODE_LIST}\" />\n" +
+                    "    </annotation>\n" +
+                    "  </item>\n" +
+                    "</root>\n",
                 Paths.get("android/support/moved/annotations.xml") to
-                "<root>\n" +
-                "  <item name=\"hello.appcompat.app.ActionBar void setMode(int) 0\">\n" +
-                "    <annotation name=\"android.support.annotation.IntDef\">\n" +
-                "    </annotation>\n" +
-                "  </item>\n" +
-                "</root>\n",
+                    "<root>\n" +
+                    "  <item name=\"hello.appcompat.app.ActionBar void setMode(int) 0\">\n" +
+                    "    <annotation name=\"android.support.annotation.IntDef\">\n" +
+                    "    </annotation>\n" +
+                    "  </item>\n" +
+                    "</root>\n",
                 Paths.get("androidx/move/me/annotations.xml") to
-                "<root>\n" +
-                "  <item name=\"androidx.fragment.Fragment void setMode() 0\">\n" +
-                "    <annotation name=\"android.support.annotation.IntDef\">\n" +
-                "    </annotation>\n" +
-                "  </item>\n" +
-                "</root>"
+                    "<root>\n" +
+                    "  <item name=\"androidx.fragment.Fragment void setMode() 0\">\n" +
+                    "    <annotation name=\"android.support.annotation.IntDef\">\n" +
+                    "    </annotation>\n" +
+                    "  </item>\n" +
+                    "</root>"
             ),
             expectedXml =
                 "<root>\n" +
-                "  <item name=\"android.support.appcompat.app.ActionBar void setMode(int) 0\">\n" +
-                "    <annotation name=\"android.support.annotation.IntDef\">\n" +
-                "      <val name=\"value\" val=\"{" +
-                "android.support.appcompat.app.ActionBar.NAVIGATION_MODE_STANDARD, " +
-                "android.support.appcompat.app.ActionBar.NAVIGATION_MODE_LIST}\" />\n" +
-                "    </annotation>\n" +
-                "  </item>\n" +
-                "  <item name=\"hello.appcompat.app.ActionBar void setMode(int) 0\">\n" +
-                "    <annotation name=\"android.support.annotation.IntDef\">\n" +
-                "    </annotation>\n" +
-                "  </item>\n" +
-                "  <item name=\"android.support.fragment.Fragment void setMode() 0\">\n" +
-                "    <annotation name=\"android.support.annotation.IntDef\">\n" +
-                "    </annotation>\n" +
-                "  </item>\n" +
-                "</root>",
+                    "  <item name=\"android.support.appcompat.app.ActionBar void " +
+                    "setMode(int) 0\">\n" +
+                    "    <annotation name=\"android.support.annotation.IntDef\">\n" +
+                    "      <val name=\"value\" val=\"{" +
+                    "android.support.appcompat.app.ActionBar.NAVIGATION_MODE_STANDARD, " +
+                    "android.support.appcompat.app.ActionBar.NAVIGATION_MODE_LIST}\" />\n" +
+                    "    </annotation>\n" +
+                    "  </item>\n" +
+                    "  <item name=\"hello.appcompat.app.ActionBar void setMode(int) 0\">\n" +
+                    "    <annotation name=\"android.support.annotation.IntDef\">\n" +
+                    "    </annotation>\n" +
+                    "  </item>\n" +
+                    "  <item name=\"android.support.fragment.Fragment void setMode() 0\">\n" +
+                    "    <annotation name=\"android.support.annotation.IntDef\">\n" +
+                    "    </annotation>\n" +
+                    "  </item>\n" +
+                    "</root>",
             expectedPath = "android/support/moved/annotations.xml",
             reversedPrefixes = setOf("androidx/"),
             typesMap = mapOf(
@@ -144,7 +147,8 @@ class AnnotationsTransformationTest {
                         "android/support/moved/(.*)",
                         "androidx/move/me/(.*)"
                     )
-                )),
+                )
+            ),
             reversedMode = true
         )
     }
@@ -189,6 +193,6 @@ class AnnotationsTransformationTest {
 
     private fun addXmlHeader(innerXml: String): String {
         return "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n" +
-                "$innerXml\n"
+            "$innerXml\n"
     }
 }

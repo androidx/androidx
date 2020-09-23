@@ -37,8 +37,10 @@ interface Transformer {
      * Transforms the the given source file.
      */
     fun Transformer.transformSource(file: ArchiveFile, context: TransformationContext) {
-        SourceJetifier.jetifySourceFile(context.config,
+        SourceJetifier.jetifySourceFile(
+            context.config,
             String(file.data),
-            file.relativePath.toFile())
+            file.relativePath.toFile()
+        )
     }
 }

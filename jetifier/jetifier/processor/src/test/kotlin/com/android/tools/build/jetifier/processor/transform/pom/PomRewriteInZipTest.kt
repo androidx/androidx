@@ -40,13 +40,15 @@ class PomRewriteInZipTest {
                     from = PomDependency(
                         groupId = "old.group",
                         artifactId = "myOldArtifact",
-                        version = "0.1.0"),
+                        version = "0.1.0"
+                    ),
                     to = PomDependency(
                         groupId = "com.sample.my.group",
                         artifactId = "myArtifact",
                         version = "1.0.0"
                     )
-            ))
+                )
+            )
         )
     }
 
@@ -57,7 +59,8 @@ class PomRewriteInZipTest {
         val processor = Processor.createProcessor(
             TEST_CONFIG,
             rewritingSupportLib = true,
-            reversedMode = true)
+            reversedMode = true
+        )
 
         val inputFile = File(javaClass.getResource(inputZipPath).file)
 
@@ -93,7 +96,8 @@ class PomRewriteInZipTest {
         val processor = Processor.createProcessor(
             TEST_CONFIG,
             rewritingSupportLib = false,
-            reversedMode = true)
+            reversedMode = true
+        )
 
         val inputFile = File(javaClass.getResource(inputZipPath).file)
 

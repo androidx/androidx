@@ -29,8 +29,10 @@ class ByteCodeTransformerTest {
         processor.transform2(
             input = setOf(
                 FileMapping(
-                    File(javaClass
-                        .getResource("/malformedBytecodeTest/malformedBytecodeArchive.zip").file),
+                    File(
+                        javaClass
+                            .getResource("/malformedBytecodeTest/malformedBytecodeArchive.zip").file
+                    ),
                     File("test")
                 )
             )
@@ -43,8 +45,10 @@ class ByteCodeTransformerTest {
         processor.transform2(
             input = setOf(
                 FileMapping(
-                    File(javaClass
-                        .getResource("/malformedBytecodeTest/malformedBytecodeArchive.zip").file),
+                    File(
+                        javaClass
+                            .getResource("/malformedBytecodeTest/malformedBytecodeArchive.zip").file
+                    ),
                     File("test")
                 )
             ),

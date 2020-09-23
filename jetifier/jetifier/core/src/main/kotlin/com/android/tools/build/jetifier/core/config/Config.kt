@@ -73,7 +73,8 @@ data class Config(
 
     // Merges all packages prefixes into one regEx pattern
     private val packagePrefixPattern = Pattern.compile(
-        "^(" + restrictToPackagePrefixes.map { "($it)" }.joinToString("|") + ").*$")
+        "^(" + restrictToPackagePrefixes.map { "($it)" }.joinToString("|") + ").*$"
+    )
 
     val restrictToPackagePrefixesWithDots: List<String> = restrictToPackagePrefixes
         .map { it.replace("/", ".") }
@@ -233,10 +234,12 @@ data class Config(
                 reversedRestrictToPackagePrefixes = reversedRestrictToPackages
                     .orEmpty().filterNotNull().toSet(),
                 rulesMap = RewriteRulesMap(
-                    rules.orEmpty().filterNotNull().map { it.toRule() }.toList()),
+                    rules.orEmpty().filterNotNull().map { it.toRule() }.toList()
+                ),
                 slRules = slRules.orEmpty().filterNotNull().map { it.toRule() }.toList(),
                 packageMap = PackageMap(
-                    packageMap.filterNotNull().map { it.toMappings() }.toList()),
+                    packageMap.filterNotNull().map { it.toMappings() }.toList()
+                ),
                 pomRewriteRules = pomRules.filterNotNull().map { it.toRule() }.toSet(),
                 versionsMap = DependencyVersionsMap(versions.orEmpty()),
                 typesMap = mappings?.toMappings() ?: TypesMap.EMPTY,
