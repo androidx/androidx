@@ -36,8 +36,9 @@ import androidx.camera.camera2.pipe.StreamFormat
 import androidx.camera.camera2.pipe.StreamType
 import kotlin.math.absoluteValue
 
-private const val defaultWidth = 1280
+private const val defaultWidth = 960
 private const val defaultHeight = 720
+private const val defaultArea = defaultWidth * defaultHeight
 private const val defaultAspectRatio = defaultWidth.toDouble() / defaultHeight.toDouble()
 
 class SimpleCamera(
@@ -59,16 +60,19 @@ class SimpleCamera(
             Log.i("CXCP-App", "Selected $cameraId to open.")
 
             val cameraMetadata = cameraPipe.cameras().awaitMetadata(cameraId)
-            val yuvSizes = cameraMetadata.streamMap.getOutputSizes(ImageFormat.YUV_420_888)
-            val yuv43Sizes = yuvSizes.filter {
-                (((it.width.toDouble() / it.height.toDouble()) - defaultAspectRatio).absoluteValue
-                        < 0.001)
+            var yuvSizes = cameraMetadata.streamMap.getOutputSizes(ImageFormat.YUV_420_888).toList()
+
+            val closestAspectRatioSize = yuvSizes.minByOrNull {
+                (it.aspectRatio() - defaultAspectRatio).absoluteValue
+            }!!
+            val closestAspectRatio = closestAspectRatioSize.aspectRatio()
+            yuvSizes = yuvSizes.filterIf {
+                (it.aspectRatio() - closestAspectRatio).absoluteValue < 0.01
             }
 
             // Find the size that is the least different
-            val yuvSize = yuv43Sizes.minByOrNull {
-                ((it.width * it.height) - (defaultWidth *
-                        defaultHeight)).absoluteValue
+            val yuvSize = yuvSizes.minByOrNull {
+                (it.area() - defaultArea).absoluteValue
             }!!
 
             Log.i("CXCP-App", "Selected $yuvSize as the YUV output size")
@@ -123,6 +127,22 @@ class SimpleCamera(
             )
             cameraGraph.setSurface(yuvStream.id, imageReader.surface)
             return SimpleCamera(cameraId, cameraMetadata, cameraGraph, imageReader)
+        }
+
+        private fun Size.aspectRatio(): Double {
+            return this.width.toDouble() / this.height.toDouble()
+        }
+
+        private fun Size.area(): Int {
+            return this.width * this.height
+        }
+
+        private inline fun <T> List<T>.filterIf(predicate: (T) -> Boolean): List<T> {
+            val result = this.filter(predicate)
+            if (result.isEmpty()) {
+                return this
+            }
+            return result
         }
     }
 

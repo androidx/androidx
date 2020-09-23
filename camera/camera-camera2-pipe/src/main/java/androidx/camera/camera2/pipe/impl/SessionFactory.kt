@@ -101,7 +101,7 @@ class AndroidLSessionFactory @Inject constructor(
             cameraDevice.createCaptureSession(
                 surfaces.map { it.value },
                 virtualSessionState,
-                threads.defaultHandler
+                threads.camera2Handler
             )
         } catch (e: Throwable) {
             Log.warn {
@@ -113,6 +113,7 @@ class AndroidLSessionFactory @Inject constructor(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.M)
 class AndroidMSessionFactory @Inject constructor(
     private val threads: Threads,
     private val graphConfig: CameraGraph.Config
@@ -133,7 +134,7 @@ class AndroidMSessionFactory @Inject constructor(
                     ),
                     surfaces.map { it.value },
                     virtualSessionState,
-                    threads.defaultHandler
+                    threads.camera2Handler
                 )
             } catch (e: Throwable) {
                 Log.warn {
@@ -147,7 +148,7 @@ class AndroidMSessionFactory @Inject constructor(
                 cameraDevice.createCaptureSession(
                     surfaces.map { it.value },
                     virtualSessionState,
-                    threads.defaultHandler
+                    threads.camera2Handler
                 )
             } catch (e: Throwable) {
                 Log.warn {
@@ -195,14 +196,14 @@ class AndroidNSessionFactory @Inject constructor(
                 cameraDevice.createCaptureSessionByOutputConfigurations(
                     outputs.all,
                     virtualSessionState,
-                    threads.defaultHandler
+                    threads.camera2Handler
                 )
             } else {
                 cameraDevice.createReprocessableCaptureSessionByConfigurations(
                     graphConfig.inputStream,
                     outputs.all,
                     virtualSessionState,
-                    threads.defaultHandler
+                    threads.camera2Handler
                 )
             }
         } catch (e: Throwable) {
@@ -243,7 +244,7 @@ class AndroidPSessionFactory @Inject constructor(
             operatingMode,
             graphConfig.inputStream,
             outputs.all,
-            threads.defaultExecutor,
+            threads.camera2Executor,
             virtualSessionState,
             graphConfig.template.value,
             graphConfig.defaultParameters
@@ -261,6 +262,7 @@ class AndroidPSessionFactory @Inject constructor(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.N)
 internal fun buildOutputConfigurations(
     graphConfig: CameraGraph.Config,
     streamMap: StreamMap,

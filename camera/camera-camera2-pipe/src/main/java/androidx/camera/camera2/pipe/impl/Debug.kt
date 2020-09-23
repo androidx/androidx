@@ -44,34 +44,28 @@ object Debug {
      */
     inline fun <T> trace(label: String, crossinline block: () -> T): T {
         try {
-            if (ENABLE_TRACING) {
-                Trace.beginSection(label)
-            }
+            traceStart { label }
             return block()
         } finally {
-            if (ENABLE_TRACING) {
-                Trace.endSection()
-            }
+            traceStop()
         }
     }
 
     /**
-     * Asserts that the provided value *is* null.
+     * Forwarding call to [Trace.beginSection] that can be statically disabled at compile time.
      */
-    inline fun checkNull(value: Any?) {
-        if (value != null) {
-            throw IllegalArgumentException("Expected null, but got $value!")
+    inline fun traceStart(crossinline label: () -> String) {
+        if (ENABLE_TRACING) {
+            Trace.beginSection(label())
         }
     }
 
     /**
-     * Asserts that the provided value *is* null with an optional message.
-     *
-     * Syntax: checkNull(nullableValue) { "nullableValue should be null, but is $nullableValue }
+     * Forwarding call to [Trace.endSection] that can be statically disabled at compile time.
      */
-    inline fun checkNull(value: Any?, crossinline msg: () -> String) {
-        if (value != null) {
-            throw IllegalArgumentException(msg())
+    inline fun traceStop() {
+        if (ENABLE_TRACING) {
+            Trace.endSection()
         }
     }
 

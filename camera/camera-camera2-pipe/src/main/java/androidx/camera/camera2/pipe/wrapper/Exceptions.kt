@@ -18,6 +18,7 @@ package androidx.camera.camera2.pipe.wrapper
 
 import android.hardware.camera2.CameraAccessException
 import androidx.camera.camera2.pipe.impl.Log
+import kotlin.jvm.Throws
 
 /**
  * Thrown when an operation cannot be executed because underlying object is closed or in an

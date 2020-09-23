@@ -30,9 +30,14 @@ class Threads(
     val ioExecutor: Executor,
     val ioDispatcher: CoroutineDispatcher,
 
-    private val handlerBuilder: () -> Handler
+    camera2Handler: () -> Handler,
+    camera2Executor: () -> Executor
 ) {
-    private val _defaultHandler = lazy { handlerBuilder() }
-    val defaultHandler: Handler
-        get() = _defaultHandler.value
+    private val _camera2Handler = lazy { camera2Handler() }
+    private val _camera2Executor = lazy { camera2Executor() }
+
+    val camera2Handler: Handler
+        get() = _camera2Handler.value
+    val camera2Executor: Executor
+        get() = _camera2Executor.value
 }
