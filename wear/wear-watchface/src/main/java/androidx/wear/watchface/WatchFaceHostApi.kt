@@ -21,34 +21,12 @@ import android.content.Context
 import android.graphics.Rect
 import android.os.Handler
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
-import androidx.annotation.IntDef
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
 import androidx.wear.complications.SystemProviders
+import androidx.wear.watchface.data.ComplicationBoundsType
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
-
-/** @hide */
-@IntDef(
-    value = [
-        ComplicationBoundsType.ROUND_RECT,
-        ComplicationBoundsType.BACKGROUND,
-        ComplicationBoundsType.EDGE
-    ]
-)
-@RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-annotation class ComplicationBoundsType {
-    companion object {
-        /** The default, most complications are either circular or rounded rectangles. */
-        const val ROUND_RECT = 0
-
-        /** For full screen image complications drawn behind the watch face. */
-        const val BACKGROUND = 1
-
-        /** For edge of screen complications. */
-        const val EDGE = 2
-    }
-}
 
 /**
  * The API {@link WatchFace} uses to communicate with the system.
@@ -75,7 +53,11 @@ interface WatchFaceHostApi {
     fun getStoredUserStyle(): UserStyleWireFormat?
 
     /** Registers the current bounds of the specified complication with the system. */
-    fun setComplicationDetails(complicationId: Int, bounds: Rect, @ComplicationBoundsType type: Int)
+    fun setComplicationDetails(
+        complicationId: Int,
+        bounds: Rect,
+        @ComplicationBoundsType boundsType: Int
+    )
 
     /** Registers the supported complication types of the specified complication. */
     fun setComplicationSupportedTypes(complicationId: Int, types: IntArray)
