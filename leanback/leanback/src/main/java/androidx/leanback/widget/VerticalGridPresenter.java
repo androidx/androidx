@@ -104,7 +104,7 @@ public class VerticalGridPresenter extends Presenter {
 
     /**
      * Constructs a VerticalGridPresenter with defaults.
-     * Uses {@link FocusHighlight#ZOOM_FACTOR_MEDIUM} for focus zooming and
+     * Uses {@link FocusHighlight#ZOOM_FACTOR_LARGE} for focus zooming and
      * enabled dimming on focus.
      */
     public VerticalGridPresenter() {
