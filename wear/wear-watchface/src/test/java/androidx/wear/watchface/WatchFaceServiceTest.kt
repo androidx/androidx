@@ -1248,4 +1248,41 @@ class WatchFaceServiceTest {
         watchFace.maybeUpdateDrawMode()
         assertThat(testRenderer.drawMode).isEqualTo(DrawMode.AMBIENT)
     }
+
+    @Test
+    fun setComplicationSupportedTypes_called() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication, backgroundComplication),
+            emptyList(),
+            apiVersion = 4
+        )
+
+        verify(iWatchFaceService).setComplicationSupportedTypes(
+            LEFT_COMPLICATION_ID,
+            intArrayOf(
+                ComplicationData.TYPE_RANGED_VALUE,
+                ComplicationData.TYPE_LONG_TEXT,
+                ComplicationData.TYPE_SHORT_TEXT,
+                ComplicationData.TYPE_ICON,
+                ComplicationData.TYPE_SMALL_IMAGE
+            )
+        )
+
+        verify(iWatchFaceService).setComplicationSupportedTypes(
+            RIGHT_COMPLICATION_ID,
+            intArrayOf(
+                ComplicationData.TYPE_RANGED_VALUE,
+                ComplicationData.TYPE_LONG_TEXT,
+                ComplicationData.TYPE_SHORT_TEXT,
+                ComplicationData.TYPE_ICON,
+                ComplicationData.TYPE_SMALL_IMAGE
+            )
+        )
+
+        verify(iWatchFaceService).setComplicationSupportedTypes(
+            BACKGROUND_COMPLICATION_ID,
+            intArrayOf(ComplicationData.TYPE_LARGE_IMAGE)
+        )
+    }
 }
