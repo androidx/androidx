@@ -29,7 +29,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.platform.InspectableParameter
+import androidx.compose.ui.platform.InspectableValue
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontListFontFamily
@@ -165,7 +165,7 @@ internal class ParameterFactory {
                     is FontListFontFamily -> createFromFontListFamily(name, value)
                     is FontWeight -> NodeParameter(name, ParameterType.Int32, value.weight)
                     is Modifier -> createFromModifier(name, value)
-                    is InspectableParameter -> createFromInspectableParameter(name, value)
+                    is InspectableValue -> createFromInspectableValue(name, value)
                     is Int -> NodeParameter(name, ParameterType.Int32, value)
                     is Iterable<*> -> createFromIterable(name, value)
                     is Locale -> NodeParameter(name, ParameterType.String, value.toString())
@@ -247,13 +247,13 @@ internal class ParameterFactory {
                 null
             }
 
-        private fun createFromInspectableParameter(
+        private fun createFromInspectableValue(
             name: String,
-            value: InspectableParameter
+            value: InspectableValue
         ): NodeParameter {
             val tempValue = value.valueOverride ?: ""
             val parameterName = name.ifEmpty { value.nameFallback } ?: "element"
-            val parameterValue = if (tempValue is InspectableParameter) "" else tempValue
+            val parameterValue = if (tempValue is InspectableValue) "" else tempValue
             val parameter = create(parameterName, parameterValue)
                 ?: NodeParameter(parameterName, ParameterType.String, "")
             val elements = parameter.elements
@@ -281,7 +281,7 @@ internal class ParameterFactory {
                     }
                     parameter
                 }
-                value is InspectableParameter -> createFromInspectableParameter(name, value)
+                value is InspectableValue -> createFromInspectableValue(name, value)
                 else -> null
             }
 
