@@ -41,6 +41,7 @@ import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.style.BooleanUserStyleCategory
 import androidx.wear.watchface.style.DoubleRangeUserStyleCategory
 import androidx.wear.watchface.style.ListUserStyleCategory
+import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
 import kotlin.math.cos
@@ -220,11 +221,12 @@ class ExampleCanvasRenderer(
         userStyleRepository.addUserStyleListener(
             object : UserStyleRepository.UserStyleListener {
                 @SuppressLint("SyntheticAccessor")
-                override fun onUserStyleChanged(
-                    userStyle: Map<UserStyleCategory, UserStyleCategory.Option>
-                ) {
+                override fun onUserStyleChanged(userStyle: UserStyle) {
                     watchFaceColorStyle =
-                        WatchFaceColorStyle.create(context, userStyle[colorStyleCategory]!!.id)
+                        WatchFaceColorStyle.create(
+                            context,
+                            userStyle.options[colorStyleCategory]!!.id
+                        )
 
                     // Apply the userStyle to the complications. ComplicationDrawables for each of
                     // the styles are defined in XML so we need to replace the complication's
@@ -235,9 +237,10 @@ class ExampleCanvasRenderer(
                     }
 
                     val drawPipsOption =
-                        userStyle[drawPipsStyleCategory]!! as BooleanUserStyleCategory.BooleanOption
+                        userStyle.options[drawPipsStyleCategory]!! as BooleanUserStyleCategory
+                        .BooleanOption
                     val watchHandLengthOption =
-                        userStyle[watchHandLengthStyleCategoryDouble]!! as
+                        userStyle.options[watchHandLengthStyleCategoryDouble]!! as
                                 DoubleRangeUserStyleCategory.DoubleRangeOption
 
                     drawHourPips = drawPipsOption.value

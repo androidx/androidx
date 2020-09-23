@@ -17,7 +17,8 @@
 package androidx.wear.watchface.style
 
 import android.graphics.drawable.Icon
-import android.os.Bundle
+import androidx.annotation.RestrictTo
+import androidx.wear.watchface.style.data.DoubleRangeUserStyleCategoryWireFormat
 
 /**
  * A DoubleRangeUserStyleCategory represents a category with a {@link Double} value in the range
@@ -26,9 +27,6 @@ import android.os.Bundle
 class DoubleRangeUserStyleCategory : UserStyleCategory {
 
     internal companion object {
-        internal const val CATEGORY_TYPE = "DoubleRangeUserStyleCategory"
-        internal const val OPTION_TYPE = "DoubleRangeOption"
-
         internal fun createOptionsList(
             minimumValue: Double,
             maximumValue: Double,
@@ -79,36 +77,34 @@ class DoubleRangeUserStyleCategory : UserStyleCategory {
          * #LAYER_UPPER}.
          */
         layerFlags: Int
-    ) : this(
-        id,
-        displayName,
-        description,
-        icon,
-        createOptionsList(minimumValue, maximumValue, defaultValue),
-        defaultValue,
-        layerFlags
-    )
-
-    // Helper lets us obey the contract that the default value's object must be in the options list.
-    private constructor(
-        id: String,
-        displayName: String,
-        description: String,
-        icon: Icon?,
-        options: List<DoubleRangeOption>,
-        defaultValue: Double,
-        layerFlags: Int
     ) : super(
         id,
         displayName,
         description,
         icon,
-        options,
-        options.first { it.value == defaultValue },
+        createOptionsList(minimumValue, maximumValue, defaultValue),
+        // The index of defaultValue can only ever be 0 or 1.
+        when (defaultValue) {
+            minimumValue -> 0
+            else -> 1
+        },
         layerFlags
     )
 
-    internal constructor(bundle: Bundle) : super(bundle)
+    internal constructor(wireFormat: DoubleRangeUserStyleCategoryWireFormat) : super(wireFormat)
+
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    override fun toWireFormat() =
+        DoubleRangeUserStyleCategoryWireFormat(
+            id,
+            displayName,
+            description,
+            icon,
+            getWireFormatOptionsList(),
+            defaultOptionIndex,
+            layerFlags
+        )
 
     /**
      * Represents an option as a {@link Double} in the range [minimumValue .. maximumValue].
@@ -125,19 +121,17 @@ class DoubleRangeUserStyleCategory : UserStyleCategory {
             internal const val KEY_DOUBLE_VALUE = "KEY_DOUBLE_VALUE"
         }
 
-        internal constructor(bundle: Bundle) : super(bundle) {
-            value = bundle.getDouble(KEY_DOUBLE_VALUE)
+        internal constructor(
+            wireFormat: DoubleRangeUserStyleCategoryWireFormat.DoubleRangeOptionWireFormat
+        ) : super(wireFormat.mId) {
+            value = wireFormat.mValue
         }
 
-        override fun writeToBundle(bundle: Bundle) {
-            super.writeToBundle(bundle)
-            bundle.putDouble(KEY_DOUBLE_VALUE, value)
-        }
-
-        override fun getOptionType() = OPTION_TYPE
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        override fun toWireFormat() =
+            DoubleRangeUserStyleCategoryWireFormat.DoubleRangeOptionWireFormat(id, value)
     }
-
-    override fun getCategoryType() = CATEGORY_TYPE
 
     /**
      * Returns the minimum value.
@@ -152,7 +146,7 @@ class DoubleRangeUserStyleCategory : UserStyleCategory {
     /**
      * Returns the default value.
      */
-    fun getDefaultValue() = (defaultOption as DoubleRangeOption).value
+    fun getDefaultValue() = (options[defaultOptionIndex] as DoubleRangeOption).value
 
     /**
      * We support all values in the range [min ... max] not just min & max.
@@ -164,12 +158,12 @@ class DoubleRangeUserStyleCategory : UserStyleCategory {
         return try {
             val value = optionId.toDouble()
             if (value < getMinimumValue() || value > getMaximumValue()) {
-                defaultOption as DoubleRangeOption
+                options[defaultOptionIndex] as DoubleRangeOption
             } else {
                 DoubleRangeOption(value)
             }
         } catch (e: NumberFormatException) {
-            defaultOption as DoubleRangeOption
+            options[defaultOptionIndex] as DoubleRangeOption
         }
     }
 }

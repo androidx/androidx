@@ -19,10 +19,11 @@ package androidx.wear.watchface.ui
 import android.graphics.Bitmap
 import android.graphics.Rect
 import android.icu.util.Calendar
-import android.os.Bundle
 import androidx.annotation.RestrictTo
 import androidx.annotation.RestrictTo.Scope.LIBRARY
 import androidx.wear.watchface.Complication
+import androidx.wear.watchface.style.data.UserStyleWireFormat
+import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 
 /**
  * Interface for communication with the watch face.
@@ -31,20 +32,14 @@ import androidx.wear.watchface.Complication
  */
 @RestrictTo(LIBRARY)
 interface WatchFaceConfigDelegate {
-    /**
-     * Returns a list of UserStyleCategories serialized into bundles. See {@link
-     * UserStyleCategory.bundleToUserStyleCategoryLists}.
-     */
-    fun getUserStyleSchema(): List<Bundle>
+    /**  Returns the style schema. */
+    fun getUserStyleSchema(): UserStyleSchemaWireFormat
 
-    /**
-     * Returns the current user style map serialized into a bundle. See
-     * {@link UserStyleCategory.bundleToStyleMap}.
-     */
-    fun getUserStyle(): Bundle
+    /** Returns the current user style. */
+    fun getUserStyle(): UserStyleWireFormat
 
-    /** Sets the user style map. See {@link UserStyleCategory.styleMapToBundle}. */
-    fun setUserStyle(style: Bundle)
+    /** Sets the user style map. */
+    fun setUserStyle(userStyle: UserStyleWireFormat)
 
     /** Returns the id of the background complication or null if there isn't one. */
     fun getBackgroundComplicationId(): Int?

@@ -447,7 +447,7 @@ class ExampleOpenGLRenderer(
             GLES20.glClearColor(0f, 0f, 0f, 1f)
             ambientVpMatrix
         } else {
-            when (userStyleRepository.userStyle[colorStyleCategory]!!.id) {
+            when (userStyleRepository.userStyle.options[colorStyleCategory]!!.id) {
                 "red_style" -> GLES20.glClearColor(0.5f, 0.2f, 0.2f, 1f)
                 "green_style" -> GLES20.glClearColor(0.2f, 0.5f, 0.2f, 1f)
             }
@@ -493,7 +493,7 @@ class ExampleOpenGLRenderer(
                 modelMatrices[secIndex],
                 0
             )
-            secondHandTriangleMap[userStyleRepository.userStyle[colorStyleCategory]!!.id]
+            secondHandTriangleMap[userStyleRepository.userStyle.options[colorStyleCategory]!!.id]
                 ?.draw(mvpMatrix)
         }
 

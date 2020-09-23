@@ -32,7 +32,7 @@ import androidx.annotation.VisibleForTesting
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.wear.complications.ComplicationHelperActivity
-import androidx.wear.watchface.style.StyleUtils
+import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleCategory
 
 /** @hide */
@@ -51,7 +51,7 @@ internal interface FragmentController {
     fun showStyleConfigFragment(
         categoryId: String,
         styleSchema: List<UserStyleCategory>,
-        styleMap: Map<UserStyleCategory, UserStyleCategory.Option>
+        userStyle: UserStyle
     )
 
     /** Lets the user configure the complication provider for a single complication slot. */
@@ -134,15 +134,16 @@ class WatchFaceConfigActivity : FragmentActivity() {
             override fun showStyleConfigFragment(
                 categoryId: String,
                 styleSchema: List<UserStyleCategory>,
-                styleMap: Map<UserStyleCategory, UserStyleCategory.Option>
+                userStyle: UserStyle
             ) {
-                showFragment(StyleConfigFragment.newInstance(categoryId, styleSchema, styleMap))
+                showFragment(StyleConfigFragment.newInstance(categoryId, styleSchema, userStyle))
             }
 
             /**
              * Displays a config screen which allows the user to select the data source for the
              * complication.
              */
+            @SuppressWarnings("deprecation")
             override fun showComplicationConfig(
                 complicationId: Int,
                 vararg supportedComplicationDataTypes: Int
@@ -207,10 +208,9 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 }
             }
 
-        styleSchema =
-            StyleUtils.bundlesToUserStyleCategoryList(
-                watchFaceConfigDelegate.getUserStyleSchema()
-            )
+        styleSchema = watchFaceConfigDelegate.getUserStyleSchema().mSchema.map {
+            UserStyleCategory.createFromWireFormat(it)
+        }
 
         backgroundComplicationId = watchFaceConfigDelegate.getBackgroundComplicationId()
 
@@ -250,7 +250,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
                 fragmentController.showStyleConfigFragment(
                     onlyStyleCategory.id,
                     styleSchema,
-                    StyleUtils.bundleToStyleMap(
+                    UserStyle(
                         watchFaceConfigDelegate.getUserStyle(),
                         styleSchema
                     )

@@ -37,9 +37,10 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.style.ListUserStyleCategory
-import androidx.wear.watchface.style.StyleUtils
+import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleCategory
 import androidx.wear.watchface.style.UserStyleRepository
+import androidx.wear.watchface.style.data.UserStyleWireFormat
 import com.google.common.truth.Truth.assertThat
 import com.nhaarman.mockitokotlin2.mock
 import org.junit.After
@@ -741,10 +742,10 @@ class WatchFaceServiceTest {
         )
 
         // This should get persisted.
-        userStyleRepository.userStyle = mapOf(
+        userStyleRepository.userStyle = UserStyle(hashMapOf(
             colorStyleCategory to blueStyleOption,
             watchHandStyleCategory to gothicStyleOption
-        )
+        ))
 
         val userStyleRepository2 = UserStyleRepository(
             listOf(colorStyleCategory, watchHandStyleCategory)
@@ -767,17 +768,17 @@ class WatchFaceServiceTest {
         engine2.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engine2, apiVersion = 2)
 
-        assertThat(userStyleRepository2.userStyle[colorStyleCategory]).isEqualTo(
+        assertThat(userStyleRepository2.userStyle.options[colorStyleCategory]).isEqualTo(
             blueStyleOption
         )
-        assertThat(userStyleRepository2.userStyle[watchHandStyleCategory]).isEqualTo(
+        assertThat(userStyleRepository2.userStyle.options[watchHandStyleCategory]).isEqualTo(
             gothicStyleOption
         )
     }
 
     @Test
     fun getStoredUserStyleSupported_userStyle_isPersisted() {
-        var persistedStyle = Bundle()
+        var persistedStyle: UserStyleWireFormat? = null
 
         // Mock the behavior of Home/SysUI which should persist the style.
         doAnswer {
@@ -785,7 +786,7 @@ class WatchFaceServiceTest {
         }.`when`(iWatchFaceService).getStoredUserStyle()
 
         `when`(iWatchFaceService.setCurrentUserStyle(any())).then {
-            persistedStyle = it.arguments[0] as Bundle
+            persistedStyle = it.arguments[0] as UserStyleWireFormat
             Unit
         }
 
@@ -797,10 +798,10 @@ class WatchFaceServiceTest {
         )
 
         // This should get persisted.
-        userStyleRepository.userStyle = mapOf(
+        userStyleRepository.userStyle = UserStyle(hashMapOf(
             colorStyleCategory to blueStyleOption,
             watchHandStyleCategory to gothicStyleOption
-        )
+        ))
 
         val userStyleRepository2 = UserStyleRepository(
             listOf(colorStyleCategory, watchHandStyleCategory)
@@ -823,10 +824,10 @@ class WatchFaceServiceTest {
         engine2.onSurfaceChanged(surfaceHolder, 0, 100, 100)
         sendBinder(engine2, apiVersion = 3)
 
-        assertThat(userStyleRepository2.userStyle[colorStyleCategory]).isEqualTo(
+        assertThat(userStyleRepository2.userStyle.options[colorStyleCategory]).isEqualTo(
             blueStyleOption
         )
-        assertThat(userStyleRepository2.userStyle[watchHandStyleCategory]).isEqualTo(
+        assertThat(userStyleRepository2.userStyle.options[watchHandStyleCategory]).isEqualTo(
             gothicStyleOption
         )
     }
@@ -834,7 +835,7 @@ class WatchFaceServiceTest {
     @Test
     fun persistedStyleOptionMismatchIgnored() {
         `when`(iWatchFaceService.getStoredUserStyle()).thenReturn(
-            StyleUtils.styleMapToBundle(mapOf(watchHandStyleCategory to badStyleOption))
+            UserStyle(hashMapOf(watchHandStyleCategory to badStyleOption)).toWireFormat()
         )
 
         initEngine(
@@ -844,7 +845,7 @@ class WatchFaceServiceTest {
             3
         )
 
-        assertThat(testWatchFaceService.lastUserStyle!![watchHandStyleCategory])
+        assertThat(testWatchFaceService.lastUserStyle!!.options[watchHandStyleCategory])
             .isEqualTo(watchHandStyleList.first())
     }
 

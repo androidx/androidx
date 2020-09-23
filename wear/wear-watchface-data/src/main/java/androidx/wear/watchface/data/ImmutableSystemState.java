@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.data;
 
+import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -33,7 +34,8 @@ import androidx.versionedparcelable.VersionedParcelize;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @VersionedParcelize
-public final class ImmutableSystemState implements VersionedParcelable {
+@SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
+public final class ImmutableSystemState implements VersionedParcelable, Parcelable {
     @ParcelField(1)
     boolean mHasLowBitAmbient;
 
@@ -58,7 +60,13 @@ public final class ImmutableSystemState implements VersionedParcelable {
         return mHasBurnInProtection;
     }
 
-    /** Serializes this SystemState to the specified {@link Parcel}. */
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    /** Serializes this ImmutableSystemState to the specified {@link Parcel}. */
+    @Override
     public void writeToParcel(@NonNull Parcel parcel, int flags) {
         parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);
     }
