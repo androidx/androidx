@@ -156,9 +156,11 @@ class DataMigrationInitializerTest {
 
     @Test
     fun testCleanUpErrorPropagates() = runBlockingTest {
-        val cleanUpFailingMigration = TestingDataMigration(cleanUpFunction = {
-            throw IOException("Clean up failure")
-        })
+        val cleanUpFailingMigration = TestingDataMigration(
+            cleanUpFunction = {
+                throw IOException("Clean up failure")
+            }
+        )
 
         val store = newDataStore(
             initTasksList = listOf(
