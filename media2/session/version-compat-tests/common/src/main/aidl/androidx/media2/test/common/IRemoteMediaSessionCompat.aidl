@@ -20,8 +20,6 @@ import android.app.PendingIntent;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
-import java.lang.CharSequence;
-
 // Here, we use Bundle instead of the *Compat class (which implement parcelable).
 // This is to avoid making dependency of testlib module on media library.
 interface IRemoteMediaSessionCompat {
