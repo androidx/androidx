@@ -80,6 +80,12 @@ kotlin {
             implementation(TRUTH)
             implementation project(':compose:material:material')
             implementation project(":compose:ui:ui")
+
+            implementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+            implementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+            implementation MOCKITO_KOTLIN, {
+                exclude group: 'org.mockito' // to keep control on the mockito version
+            }
         }
 
         desktopMain.dependencies {
