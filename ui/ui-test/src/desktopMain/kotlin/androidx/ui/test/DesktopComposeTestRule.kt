@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import org.jetbrains.skija.Surface
 import org.junit.runner.Description
 import org.junit.runners.model.Statement
@@ -97,6 +98,14 @@ class DesktopComposeTestRule(
         while (!isIdle()) {
             runExecutionQueue()
             Thread.sleep(10)
+        }
+    }
+
+    @ExperimentalTesting
+    override suspend fun awaitIdle() {
+        while (!isIdle()) {
+            runExecutionQueue()
+            delay(10)
         }
     }
 
