@@ -1139,6 +1139,8 @@ package androidx.core.content.pm {
 
   public final class PackageInfoCompat {
     method public static long getLongVersionCode(android.content.pm.PackageInfo);
+    method public static java.util.List<android.content.pm.Signature!> getSignatures(android.content.pm.PackageManager, String) throws android.content.pm.PackageManager.NameNotFoundException;
+    method public static boolean hasSignatures(android.content.pm.PackageManager, String, @Size(min=1) java.util.Map<byte[]!,java.lang.Integer!>, boolean) throws android.content.pm.PackageManager.NameNotFoundException;
   }
 
   public final class PermissionInfoCompat {
