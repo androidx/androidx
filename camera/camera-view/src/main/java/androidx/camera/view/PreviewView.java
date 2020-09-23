@@ -263,6 +263,10 @@ public class PreviewView extends FrameLayout {
 
     @Override
     public boolean onTouchEvent(@NonNull MotionEvent event) {
+        if (mCameraController == null) {
+            // Do not consume events if controller is not set.
+            return super.onTouchEvent(event);
+        }
         boolean isSingleTouch = event.getPointerCount() == 1;
         boolean isUpEvent = event.getAction() == MotionEvent.ACTION_UP;
         boolean notALongPress = event.getEventTime() - event.getDownTime()
@@ -276,8 +280,7 @@ public class PreviewView extends FrameLayout {
             // invoked twice.
             return true;
         }
-        return mScaleGestureDetector.onTouchEvent(event)
-                || super.onTouchEvent(event);
+        return mScaleGestureDetector.onTouchEvent(event) || super.onTouchEvent(event);
     }
 
     @Override
