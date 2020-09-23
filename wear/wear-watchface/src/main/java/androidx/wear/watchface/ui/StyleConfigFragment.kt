@@ -59,6 +59,7 @@ internal class StyleConfigFragment : Fragment(),
     private lateinit var styleCategory: UserStyleCategory
     private lateinit var userStyle: UserStyle
 
+    /** @hide */
     companion object {
         const val CATEGORY_ID = "CATEGORY_ID"
         const val USER_STYLE = "USER_STYLE"
