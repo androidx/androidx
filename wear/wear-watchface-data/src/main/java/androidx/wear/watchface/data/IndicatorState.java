@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface.data;
 
+import android.annotation.SuppressLint;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -33,7 +34,8 @@ import androidx.versionedparcelable.VersionedParcelize;
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
 @VersionedParcelize
-public final class IndicatorState implements VersionedParcelable {
+@SuppressLint("BanParcelableUsage") // TODO(b/169214666): Remove Parcelable
+public final class IndicatorState implements VersionedParcelable, Parcelable {
     @ParcelField(1)
     boolean mIsCharging;
 
@@ -94,9 +96,15 @@ public final class IndicatorState implements VersionedParcelable {
         return mIsKeyguardLocked;
     }
 
-    /** Serializes this SystemState to the specified {@link Parcel}. */
+    /** Serializes this IndicatorState to the specified {@link Parcel}. */
+    @Override
     public void writeToParcel(@NonNull Parcel parcel, int flags) {
         parcel.writeParcelable(ParcelUtils.toParcelable(this), flags);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
     }
 
     public static final Parcelable.Creator<IndicatorState> CREATOR =

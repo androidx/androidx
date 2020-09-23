@@ -17,8 +17,12 @@
 package androidx.wear.watchface.style
 
 import android.graphics.drawable.Icon
-import android.os.Bundle
-import androidx.annotation.CallSuper
+import androidx.annotation.RestrictTo
+import androidx.wear.watchface.style.data.BooleanUserStyleCategoryWireFormat
+import androidx.wear.watchface.style.data.DoubleRangeUserStyleCategoryWireFormat
+import androidx.wear.watchface.style.data.ListUserStyleCategoryWireFormat
+import androidx.wear.watchface.style.data.LongRangeUserStyleCategoryWireFormat
+import androidx.wear.watchface.style.data.UserStyleCategoryWireFormat
 
 /**
  * Watch faces often have user configurable styles. The definition of what is a style is left up
@@ -35,7 +39,7 @@ abstract class UserStyleCategory(
     /** Localized description string displayed under the displayName. */
     val description: String,
 
-    /** Icon for use in the userStyle selection UI. */
+    /** Icon for use in the style selection UI. */
     val icon: Icon?,
 
     /**
@@ -45,8 +49,10 @@ abstract class UserStyleCategory(
      */
     val options: List<Option>,
 
-    /** The default option if nothing has been selected. Must be in the {@link #options} list.*/
-    val defaultOption: Option,
+    /**
+     * The default option index, used if nothing has been selected within the {@link #options} list.
+     */
+    val defaultOptionIndex: Int,
 
     /**
      * Used by the style configuration UI. Describes which rendering layer this style affects. Must
@@ -72,34 +78,23 @@ abstract class UserStyleCategory(
         internal const val INVALID_LAYER_MASK =
             (LAYER_WATCH_FACE_BASE or LAYER_COMPLICATONS or LAYER_WATCH_FACE_UPPER).inv()
 
-        internal const val KEY_CATEGORY_TYPE = "KEY_CATEGORY_TYPE"
-        internal const val KEY_DEFAULT_OPTION_INDEX = "KEY_DEFAULT_OPTION_INDEX"
-        internal const val KEY_DESCRIPTION = "KEY_DESCRIPTION"
-        internal const val KEY_DISPLAY_NAME = "KEY_DISPLAY_NAME"
-        internal const val KEY_ICON = "KEY_ICON"
-        internal const val KEY_OPTIONS = "KEY_OPTIONS"
-        internal const val KEY_STYLE_CATEGORY_ID = "KEY_STYLE_CATEGORY_ID"
-        internal const val KEY_LAYER_FLAGS = "KEY_LAYER_FLAGS"
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        fun createFromWireFormat(wireFormat: UserStyleCategoryWireFormat) =
+            when (wireFormat) {
+                is BooleanUserStyleCategoryWireFormat -> BooleanUserStyleCategory(wireFormat)
 
-        /**
-         * Constructs an {@link UserStyleCategory} serialized in a {@link Bundle}.
-         *
-         * @param bundle The {@link Bundle} containing a serialized {@link UserStyleCategory}
-         * @return The deserialized {@link UserStyleCategory}
-         * @throws IllegalArgumentException if the Bundle contains unrecognized data.
-         */
-        @JvmStatic
-        fun createFromBundle(bundle: Bundle): UserStyleCategory {
-            return when (val styleCategoryClass = bundle.getString(KEY_CATEGORY_TYPE)!!) {
-                BooleanUserStyleCategory.CATEGORY_TYPE -> BooleanUserStyleCategory(bundle)
-                DoubleRangeUserStyleCategory.CATEGORY_TYPE -> DoubleRangeUserStyleCategory(bundle)
-                ListUserStyleCategory.CATEGORY_TYPE -> ListUserStyleCategory(bundle)
-                LongRangeUserStyleCategory.CATEGORY_TYPE -> LongRangeUserStyleCategory(bundle)
+                is DoubleRangeUserStyleCategoryWireFormat ->
+                    DoubleRangeUserStyleCategory(wireFormat)
+
+                is ListUserStyleCategoryWireFormat -> ListUserStyleCategory(wireFormat)
+
+                is LongRangeUserStyleCategoryWireFormat -> LongRangeUserStyleCategory(wireFormat)
+
                 else -> throw IllegalArgumentException(
-                    "Unknown UserStyleCategory class " + styleCategoryClass
+                    "Unknown StyleCategoryWireFormat " + wireFormat::javaClass.name
                 )
             }
-        }
     }
 
     init {
@@ -107,44 +102,38 @@ abstract class UserStyleCategory(
             "layerFlags must be either 0 or a combination of LAYER_WATCH_FACE_BASE, " +
                     "LAYER_COMPLICATONS, LAYER_WATCH_FACE_UPPER"
         }
-        require(options.contains(defaultOption)) {
-            "The defaultOption must be in the options list"
+        require(defaultOptionIndex >= 0 && defaultOptionIndex < options.size) {
+            "defaultOptionIndex must be in the range [0 .. options.size)"
         }
     }
 
     internal fun getCategoryOptionForId(id: String?) =
         if (id == null) {
-            defaultOption
+            options[defaultOptionIndex]
         } else {
             getOptionForId(id)
         }
 
-    internal constructor(bundle: Bundle) : this(
-        bundle,
-        StyleUtils.readOptionsListFromBundle(bundle)
+    internal constructor(wireFormat: UserStyleCategoryWireFormat) : this(
+        wireFormat.mId,
+        wireFormat.mDisplayName,
+        wireFormat.mDescription,
+        wireFormat.mIcon,
+        wireFormat.mOptions.map { Option.createFromWireFormat(it) },
+        wireFormat.mDefaultOptionIndex,
+        wireFormat.mLayerFlags
     )
 
-    private constructor(bundle: Bundle, options: List<Option>) : this(
-        bundle.getString(KEY_STYLE_CATEGORY_ID)!!,
-        bundle.getString(KEY_DISPLAY_NAME)!!,
-        bundle.getString(KEY_DESCRIPTION)!!,
-        bundle.getParcelable(KEY_ICON),
-        options,
-        options[bundle.getInt(KEY_DEFAULT_OPTION_INDEX)],
-        bundle.getInt(KEY_LAYER_FLAGS)
-    )
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    abstract fun toWireFormat(): UserStyleCategoryWireFormat
 
-    @CallSuper
-    open fun writeToBundle(bundle: Bundle) {
-        bundle.putString(KEY_CATEGORY_TYPE, getCategoryType())
-        bundle.putString(KEY_STYLE_CATEGORY_ID, id)
-        bundle.putString(KEY_DISPLAY_NAME, displayName)
-        bundle.putString(KEY_DESCRIPTION, description)
-        bundle.putParcelable(KEY_ICON, icon)
-        bundle.putInt(KEY_DEFAULT_OPTION_INDEX, options.indexOf(defaultOption))
-        bundle.putInt(KEY_LAYER_FLAGS, layerFlags)
-        StyleUtils.writeOptionListToBundle(options, bundle)
-    }
+    /** @hide */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+    fun getWireFormatOptionsList() = options.map { it.toWireFormat() }
+
+    /** Returns the default for when the user hasn't selected an option. */
+    fun getDefaultOption() = options[defaultOptionIndex]
 
     /**
      * Represents a choice within a style category.
@@ -156,44 +145,33 @@ abstract class UserStyleCategory(
         val id: String
     ) {
         companion object {
-            private const val KEY_OPTION_TYPE = "KEY_OPTION_TYPE"
-            private const val KEY_OPTION_ID = "KEY_OPTION_ID"
 
-            /**
-             * Constructs an {@link Option} serialized in a {@link Bundle}.
-             *
-             * @param bundle The {@link Bundle} containing a serialized {@link Option}
-             * @return The deserialized {@link Option}
-             * @throws IllegalArgumentException if the Bundle contains unrecognized data.
-             */
-            @JvmStatic
-            fun createFromBundle(bundle: Bundle): Option {
-                return when (val optionClass = bundle.getString(KEY_OPTION_TYPE)!!) {
-                    BooleanUserStyleCategory.OPTION_TYPE ->
-                        BooleanUserStyleCategory.BooleanOption(bundle)
-                    DoubleRangeUserStyleCategory.OPTION_TYPE ->
-                        DoubleRangeUserStyleCategory.DoubleRangeOption(bundle)
-                    ListUserStyleCategory.OPTION_TYPE ->
-                        ListUserStyleCategory.ListOption(bundle)
-                    LongRangeUserStyleCategory.OPTION_TYPE ->
-                        LongRangeUserStyleCategory.LongRangeOption(bundle)
+            /** @hide */
+            @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+            fun createFromWireFormat(wireFormat: UserStyleCategoryWireFormat.OptionWireFormat) =
+                when (wireFormat) {
+                    is BooleanUserStyleCategoryWireFormat.BooleanOptionWireFormat ->
+                        BooleanUserStyleCategory.BooleanOption(wireFormat)
+
+                    is DoubleRangeUserStyleCategoryWireFormat.DoubleRangeOptionWireFormat ->
+                        DoubleRangeUserStyleCategory.DoubleRangeOption(wireFormat)
+
+                    is ListUserStyleCategoryWireFormat.ListOptionWireFormat ->
+                        ListUserStyleCategory.ListOption(wireFormat)
+
+                    is LongRangeUserStyleCategoryWireFormat.LongRangeOptionWireFormat ->
+                        LongRangeUserStyleCategory.LongRangeOption(wireFormat)
+
                     else -> throw IllegalArgumentException(
-                        "Unknown UserStyleCategory.Option class " + optionClass
+                        "Unknown StyleCategoryWireFormat.OptionWireFormat " +
+                                wireFormat::javaClass.name
                     )
                 }
-            }
         }
 
-        internal constructor(bundle: Bundle) : this(bundle.getString(KEY_OPTION_ID)!!)
-
-        @CallSuper
-        open fun writeToBundle(bundle: Bundle) {
-            bundle.putString(KEY_OPTION_TYPE, getOptionType())
-            bundle.putString(KEY_OPTION_ID, id)
-        }
-
-        /** @return The type name which is used when unbundeling. */
-        abstract fun getOptionType(): String
+        /** @hide */
+        @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
+        abstract fun toWireFormat(): UserStyleCategoryWireFormat.OptionWireFormat
     }
 
     /**
@@ -207,8 +185,5 @@ abstract class UserStyleCategory(
      *     category should be returned.
      */
     open fun getOptionForId(optionId: String) =
-        options.find { it.id == optionId } ?: defaultOption
-
-    /** @return The type name which is used by the UI to work out which widget to use. */
-    abstract fun getCategoryType(): String
+        options.find { it.id == optionId } ?: options[defaultOptionIndex]
 }

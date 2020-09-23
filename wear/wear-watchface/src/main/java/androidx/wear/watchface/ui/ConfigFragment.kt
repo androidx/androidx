@@ -38,7 +38,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.wear.complications.ProviderInfoRetriever
 import androidx.wear.watchface.R
-import androidx.wear.watchface.style.StyleUtils
+import androidx.wear.watchface.style.UserStyle
 import androidx.wear.widget.SwipeDismissFrameLayout
 import androidx.wear.widget.WearableLinearLayoutManager
 import androidx.wear.widget.WearableRecyclerView
@@ -58,6 +58,7 @@ internal class ConfigFragment : Fragment() {
     private lateinit var view: SwipeDismissFrameLayout
     private lateinit var configViewAdapter: ConfigViewAdapter
 
+    @SuppressWarnings("deprecation")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
@@ -195,7 +196,7 @@ internal class ConfigFragment : Fragment() {
                 watchFaceConfigActivity.fragmentController.showStyleConfigFragment(
                     configKey,
                     watchFaceConfigActivity.styleSchema,
-                    StyleUtils.bundleToStyleMap(
+                    UserStyle(
                         watchFaceConfigActivity.watchFaceConfigDelegate.getUserStyle(),
                         watchFaceConfigActivity.styleSchema
                     )
