@@ -22,9 +22,9 @@ import android.os.Build
 import android.util.ArrayMap
 import androidx.camera.camera2.pipe.CameraId
 import androidx.camera.camera2.pipe.FrameInfo
+import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.FrameNumber
 import androidx.camera.camera2.pipe.Metadata
-import androidx.camera.camera2.pipe.FrameMetadata
 import androidx.camera.camera2.pipe.RequestMetadata
 
 /**

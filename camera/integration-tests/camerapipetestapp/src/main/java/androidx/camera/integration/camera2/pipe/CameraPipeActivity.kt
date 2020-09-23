@@ -20,6 +20,7 @@ import android.app.Activity
 import android.hardware.camera2.CameraCharacteristics
 import android.os.Build
 import android.os.Bundle
+import android.os.Trace
 import android.util.Log
 import android.view.View
 import android.view.WindowManager
@@ -40,12 +41,13 @@ class CameraPipeActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Log.i("CXCP-App", "Activity onCreate")
+        cameraPipe = (applicationContext as CameraPipeApplication).cameraPipe
 
         // This adjusts the UI to make the activity run a a full screen application.
         configureFullScreenCameraWindow()
-        cameraPipe = (applicationContext as CameraPipeApplication).cameraPipe
 
         // Inflate the main ui for the camera activity.
+        Trace.beginSection("CXCP-App#inflate")
         ui = CameraPipeUi.inflate(this)
 
         // Configure and wire up basic UI behaviors.
@@ -53,6 +55,7 @@ class CameraPipeActivity : Activity() {
         ui.disableButton(ui.infoButton)
         ui.viewfinderText.visibility = View.VISIBLE
         ui.switchButton.setOnClickListener { startNextCamera() }
+        Trace.endSection()
 
         // TODO: Update this to work with newer versions of the visualizations and to accept
         //   the CameraPipeUi object as a parameter.
@@ -95,16 +98,28 @@ class CameraPipeActivity : Activity() {
     }
 
     private fun startNextCamera() {
+        Trace.beginSection("CXCP-App#startNextCamera")
+
+        Trace.beginSection("CXCP-App#stopCamera")
         var camera = currentCamera
         camera?.stop()
+        Trace.endSection()
 
+        Trace.beginSection("CXCP-App#findNextCamera")
         val cameraId = findNextCamera(lastCameraId)
+        Trace.endSection()
+
+        Trace.beginSection("CXCP-App#startCameraGraph")
         camera = SimpleCamera.create(cameraPipe, cameraId, ui.viewfinder, listOf())
+        Trace.endSection()
         currentCamera = camera
         lastCameraId = cameraId
         ui.viewfinderText.text = camera.cameraInfoString()
 
         camera.start()
+        Trace.endSection()
+
+        Trace.endSection()
     }
 
     private fun findNextCamera(lastCameraId: CameraId?): CameraId {
@@ -132,6 +147,7 @@ class CameraPipeActivity : Activity() {
 
     @Suppress("DEPRECATION")
     private fun configureFullScreenCameraWindow() {
+        Trace.beginSection("CXCP-App#windowFlags")
         // Make the navigation bar semi-transparent.
         window.setFlags(
             WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION,
@@ -161,5 +177,7 @@ class CameraPipeActivity : Activity() {
                 WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
         }
         window.attributes = windowParams
+
+        Trace.endSection()
     }
 }

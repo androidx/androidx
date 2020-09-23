@@ -398,20 +398,20 @@ class StandardRequestProcessor(
                     session.setRepeatingRequest(
                         captureRequests[0],
                         captureSequence,
-                        threads.defaultHandler
+                        threads.camera2Handler
                     )
                 } else {
-                    session.capture(captureRequests[0], captureSequence, threads.defaultHandler)
+                    session.capture(captureRequests[0], captureSequence, threads.camera2Handler)
                 }
             } else {
                 if (isRepeating) {
                     session.setRepeatingBurst(
                         captureRequests,
                         captureSequence,
-                        threads.defaultHandler
+                        threads.camera2Handler
                     )
                 } else {
-                    session.captureBurst(captureRequests, captureSequence, threads.defaultHandler)
+                    session.captureBurst(captureRequests, captureSequence, threads.camera2Handler)
                 }
             }
             captureSequence.setSequenceId(SequenceNumber(sequenceNumber))

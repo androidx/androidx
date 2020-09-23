@@ -16,6 +16,7 @@
 
 package androidx.camera.camera2.pipe.wrapper
 
+import android.annotation.SuppressLint
 import android.graphics.SurfaceTexture
 import android.hardware.camera2.params.OutputConfiguration
 import android.os.Build
@@ -116,6 +117,7 @@ interface OutputConfigurationWrapper : UnsafeWrapper<OutputConfiguration> {
 }
 
 @RequiresApi(24)
+@SuppressLint("UnsafeNewApiCall")
 class AndroidOutputConfiguration(
     private val output: OutputConfiguration,
     override val surfaceSharing: Boolean,
@@ -123,6 +125,7 @@ class AndroidOutputConfiguration(
     override val physicalCameraId: CameraId?
 ) : OutputConfigurationWrapper {
 
+    @RequiresApi(24)
     companion object {
         /**
          * Create and validate an OutputConfiguration for Camera2.

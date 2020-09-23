@@ -207,6 +207,7 @@ class GraphProcessorImpl @Inject constructor(
         }
 
         graphScope.launch {
+            Debug.traceStart { "$this#abort" }
             // Start with requests that have already been submitted
             if (processor != null) {
                 synchronized(processor) {
@@ -218,6 +219,7 @@ class GraphProcessorImpl @Inject constructor(
             for (burst in requests) {
                 abortBurst(burst)
             }
+            Debug.traceStop()
         }
     }
 
@@ -277,6 +279,7 @@ class GraphProcessorImpl @Inject constructor(
 
         if (processor != null && request != null) {
 
+            Debug.traceStart { "$this#setRepeating" }
             val extras: Map<CaptureRequest.Key<*>, Any> = read3AState()
 
             synchronized(processor) {
@@ -296,6 +299,7 @@ class GraphProcessorImpl @Inject constructor(
                     }
                 }
             }
+            Debug.traceStop()
         }
     }
 
@@ -325,6 +329,7 @@ class GraphProcessorImpl @Inject constructor(
 
         while (true) {
             var submitted = false
+            Debug.traceStart { "$this#submit" }
             try {
                 val extras: Map<CaptureRequest.Key<*>, Any> = read3AState()
                 submitted = synchronized(processor) {
@@ -335,6 +340,7 @@ class GraphProcessorImpl @Inject constructor(
                     }
                 }
             } finally {
+                Debug.traceStop()
                 synchronized(lock) {
                     if (submitted) {
                         check(requestQueue.removeAt(0) === burst)
