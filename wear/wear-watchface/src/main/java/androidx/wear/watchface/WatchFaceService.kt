@@ -240,7 +240,6 @@ annotation class TapType {
 @TargetApi(26)
 abstract class WatchFaceService : WallpaperService() {
 
-    /** @hide */
     private companion object {
         private const val TAG = "WatchFaceService"
 
