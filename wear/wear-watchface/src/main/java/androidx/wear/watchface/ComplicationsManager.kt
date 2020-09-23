@@ -106,6 +106,11 @@ class ComplicationsManager(
                     complication.defaultProviderType
                 )
             }
+
+            watchFaceHostApi.setComplicationSupportedTypes(
+                complication.id,
+                complication.supportedTypes
+            )
         }
 
         // Activate complications.
@@ -166,11 +171,6 @@ class ComplicationsManager(
                         ComplicationBoundsType.ROUND_RECT
                     )
                 }
-
-                watchFaceHostApi.setComplicationSupportedTypes(
-                    id,
-                    complication.supportedTypes
-                )
             }
         }
 
