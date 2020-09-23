@@ -46,6 +46,7 @@ class TestComposeWindow(
             }
         }
         owner.setSize(width, height)
+        owner.measureAndLayout()
         owner.draw(canvas)
         return owners
     }
