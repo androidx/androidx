@@ -26,6 +26,7 @@ import androidx.wear.watchface.style.data.LongRangeUserStyleCategoryWireFormat
  */
 class LongRangeUserStyleCategory : UserStyleCategory {
 
+    /** @hide */
     internal companion object {
         internal fun createOptionsList(
             minimumValue: Long,
@@ -118,10 +119,6 @@ class LongRangeUserStyleCategory : UserStyleCategory {
 
         constructor(value: Long) : super(value.toString()) {
             this.value = value
-        }
-
-        internal companion object {
-            internal const val KEY_LONG_VALUE = "KEY_LONG_VALUE"
         }
 
         internal constructor(
