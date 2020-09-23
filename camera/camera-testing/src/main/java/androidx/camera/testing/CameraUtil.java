@@ -29,6 +29,7 @@ import android.hardware.camera2.CameraMetadata;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.util.Log;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.IntDef;
@@ -577,7 +578,7 @@ public final class CameraUtil {
                         base.evaluate();
                     }
                 }).around(
-                new CameraUtil.PreTestCamera(Logger.isDebugEnabled(PRETEST_CAMERA_TAG)));
+                new CameraUtil.PreTestCamera(Log.isLoggable(PRETEST_CAMERA_TAG, Log.DEBUG)));
     }
 
     /**
