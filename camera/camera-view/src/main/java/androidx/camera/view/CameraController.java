@@ -16,8 +16,6 @@
 
 package androidx.camera.view;
 
-import static androidx.camera.view.AccelerometerRotationListener.INVALID_SURFACE_ROTATION;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.hardware.display.DisplayManager;
@@ -36,7 +34,6 @@ import androidx.camera.core.CameraSelector;
 import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.ImageCapture;
-import androidx.camera.core.ImageCaptureException;
 import androidx.camera.core.ImageProxy;
 import androidx.camera.core.Logger;
 import androidx.camera.core.MeteringPoint;
@@ -72,41 +69,38 @@ abstract class CameraController {
 
     private static final String TAG = "CameraController";
 
-    CameraSelector mCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
-
-    private static final String CAMERA_NOT_READY = "Camera is not ready.";
-
-    private static final String IMAGE_CAPTURE_DISABLED_ERR_MSG = "ImageCapture disabled.";
-    private static final String VIDEO_CAPTURE_DISABLED_ERR_MSG = "VideoCapture disabled.";
+    // Externally visible error messages.
+    private static final String CAMERA_NOT_INITIALIZED = "Camera not initialized.";
+    private static final String PREVIEW_VIEW_NOT_ATTACHED = "PreviewView not attached.";
+    private static final String CAMERA_NOT_ATTACHED = "Use cases not attached to camera.";
+    private static final String IMAGE_CAPTURE_DISABLED = "ImageCapture disabled.";
+    private static final String VIDEO_CAPTURE_DISABLED = "VideoCapture disabled.";
 
     // Auto focus is 1/6 of the area.
     private static final float AF_SIZE = 1.0f / 6.0f;
     private static final float AE_SIZE = AF_SIZE * 1.5f;
 
+    CameraSelector mCameraSelector = CameraSelector.DEFAULT_BACK_CAMERA;
+
     // CameraController and PreviewView hold reference to each other. The 2-way link is managed
     // by PreviewView.
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
-    @Nullable
-    Preview mPreview;
+    @NonNull
+    final Preview mPreview;
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
-    @Nullable
-    ImageCapture mImageCapture;
-
-    // Synthetic access
-    @SuppressWarnings("WeakerAccess")
-    @ImageCapture.FlashMode
-    int mFlashMode = ImageCapture.FLASH_MODE_OFF;
+    @NonNull
+    final ImageCapture mImageCapture;
 
     // ImageCapture is enabled by default.
     private boolean mImageCaptureEnabled = true;
 
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
-    @Nullable
-    VideoCapture mVideoCapture;
+    @NonNull
+    final VideoCapture mVideoCapture;
 
     // VideoCapture is disabled by default.
     private boolean mVideoCaptureEnabled = false;
@@ -143,16 +137,13 @@ abstract class CameraController {
     @Nullable
     Display mPreviewDisplay;
 
-    @NonNull
-    private final AccelerometerRotationListener mAccelerometerRotationListener;
-
-    @Nullable
-    private final DisplayChangeListener mDisplayChangeListener;
-
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
-    int mAccelerometerRotation = INVALID_SURFACE_ROTATION;
-    int mDisplayRotation = INVALID_SURFACE_ROTATION;
+    @NonNull
+    final SensorRotationListener mSensorRotationListener;
+
+    @Nullable
+    private final DisplayRotationListener mDisplayRotationListener;
 
     private boolean mPinchToZoomEnabled = true;
     private boolean mTapToFocusEnabled = true;
@@ -164,6 +155,9 @@ abstract class CameraController {
 
     CameraController(@NonNull Context context) {
         mAppContext = context.getApplicationContext();
+        mPreview = new Preview.Builder().build();
+        mImageCapture = new ImageCapture.Builder().build();
+        mVideoCapture = new VideoCapture.Builder().build();
         // Wait for camera to be initialized before binding use cases.
         Futures.addCallback(
                 ProcessCameraProvider.getInstance(mAppContext),
@@ -172,14 +166,7 @@ abstract class CameraController {
                     @SuppressLint("MissingPermission")
                     @Override
                     public void onSuccess(@Nullable ProcessCameraProvider provider) {
-                        mPreview = new Preview.Builder().build();
-                        mPreview.setSurfaceProvider(mSurfaceProvider);
-                        mImageCapture = new ImageCapture.Builder().setFlashMode(
-                                mFlashMode).build();
-                        mVideoCapture = new VideoCapture.Builder().build();
                         mCameraProvider = provider;
-                        updateImageAndVideoRotationIfCameraIsReady();
-                        updatePreviewRotationIfCameraIsReady();
                         startCameraAndTrackStates();
                     }
 
@@ -192,15 +179,15 @@ abstract class CameraController {
                 }, CameraXExecutors.mainThreadExecutor());
 
         // Listen to display rotation and set target rotation for Preview.
-        mDisplayChangeListener = new DisplayChangeListener();
+        mDisplayRotationListener = new DisplayRotationListener();
 
-        // Listen to accelerometer reading and set target rotation for ImageCapture and
+        // Listen to motion sensor reading and set target rotation for ImageCapture and
         // VideoCapture.
-        mAccelerometerRotationListener = new AccelerometerRotationListener(mAppContext) {
+        mSensorRotationListener = new SensorRotationListener(mAppContext) {
             @Override
             public void onRotationChanged(int rotation) {
-                mAccelerometerRotation = rotation;
-                updateImageAndVideoRotationIfCameraIsReady();
+                mImageCapture.setTargetRotation(rotation);
+                mVideoCapture.setTargetRotation(rotation);
             }
         };
     }
@@ -210,6 +197,23 @@ abstract class CameraController {
      */
     @Nullable
     abstract Camera startCamera();
+
+    private boolean isCameraInitialized() {
+        return mCameraProvider != null;
+    }
+
+    private boolean isPreviewViewAttached() {
+        return mSurfaceProvider != null && mViewPort != null && mPreviewDisplay != null;
+    }
+
+    private boolean isCameraAttached() {
+        return mCamera != null;
+    }
+
+    private void checkUseCasesAttachedToCamera() {
+        Preconditions.checkState(isCameraInitialized(), CAMERA_NOT_INITIALIZED);
+        Preconditions.checkState(isCameraAttached(), PREVIEW_VIEW_NOT_ATTACHED);
+    }
 
     // ------------------
     // Preview use case.
@@ -227,21 +231,10 @@ abstract class CameraController {
         if (mSurfaceProvider != surfaceProvider) {
             // Avoid setting provider unnecessarily which restarts Preview pipeline.
             mSurfaceProvider = surfaceProvider;
-            if (mPreview != null) {
-                mPreview.setSurfaceProvider(surfaceProvider);
-            }
+            mPreview.setSurfaceProvider(surfaceProvider);
         }
         mViewPort = viewPort;
         mPreviewDisplay = display;
-        // Update default rotation value with display rotation.
-        if (mAccelerometerRotation == INVALID_SURFACE_ROTATION) {
-            mAccelerometerRotation = display.getRotation();
-            updateImageAndVideoRotationIfCameraIsReady();
-        }
-        if (mDisplayRotation == INVALID_SURFACE_ROTATION) {
-            mDisplayRotation = display.getRotation();
-            updatePreviewRotationIfCameraIsReady();
-        }
         startListeningToRotationEvents();
         startCameraAndTrackStates();
     }
@@ -256,9 +249,7 @@ abstract class CameraController {
             // Preview is required. Unbind everything if Preview is down.
             mCameraProvider.unbindAll();
         }
-        if (mPreview != null) {
-            mPreview.setSurfaceProvider(null);
-        }
+        mPreview.setSurfaceProvider(null);
         mCamera = null;
         mSurfaceProvider = null;
         mViewPort = null;
@@ -267,16 +258,16 @@ abstract class CameraController {
     }
 
     private void startListeningToRotationEvents() {
-        getDisplayManager().registerDisplayListener(mDisplayChangeListener,
+        getDisplayManager().registerDisplayListener(mDisplayRotationListener,
                 new Handler(Looper.getMainLooper()));
-        if (mAccelerometerRotationListener.canDetectOrientation()) {
-            mAccelerometerRotationListener.enable();
+        if (mSensorRotationListener.canDetectOrientation()) {
+            mSensorRotationListener.enable();
         }
     }
 
     private void stopListeningToRotationEvents() {
-        getDisplayManager().unregisterDisplayListener(mDisplayChangeListener);
-        mAccelerometerRotationListener.disable();
+        getDisplayManager().unregisterDisplayListener(mDisplayRotationListener);
+        mSensorRotationListener.disable();
     }
 
     private DisplayManager getDisplayManager() {
@@ -307,9 +298,6 @@ abstract class CameraController {
     public void setImageCaptureEnabled(boolean imageCaptureEnabled) {
         Threads.checkMainThread();
         mImageCaptureEnabled = imageCaptureEnabled;
-        if (mCameraProvider != null && !imageCaptureEnabled) {
-            mCameraProvider.unbind(mImageCapture);
-        }
         startCameraAndTrackStates();
     }
 
@@ -322,8 +310,10 @@ abstract class CameraController {
      * @see ImageCapture.FlashMode
      */
     @ImageCapture.FlashMode
+    @MainThread
     public int getImageCaptureFlashMode() {
-        return mFlashMode;
+        Threads.checkMainThread();
+        return mImageCapture.getFlashMode();
     }
 
     /**
@@ -336,11 +326,6 @@ abstract class CameraController {
      */
     public void setImageCaptureFlashMode(@ImageCapture.FlashMode int flashMode) {
         Threads.checkMainThread();
-        mFlashMode = flashMode;
-        if (mImageCapture == null) {
-            // Camera is not ready.
-            return;
-        }
         mImageCapture.setFlashMode(flashMode);
         startCameraAndTrackStates();
     }
@@ -362,12 +347,8 @@ abstract class CameraController {
             Executor executor,
             ImageCapture.OnImageSavedCallback imageSavedCallback) {
         Threads.checkMainThread();
-        if (mImageCapture == null) {
-            imageSavedCallback.onError(new ImageCaptureException(ImageCapture.ERROR_UNKNOWN,
-                    CAMERA_NOT_READY, null));
-            return;
-        }
-        Preconditions.checkState(mImageCaptureEnabled, IMAGE_CAPTURE_DISABLED_ERR_MSG);
+        checkUseCasesAttachedToCamera();
+        Preconditions.checkState(mImageCaptureEnabled, IMAGE_CAPTURE_DISABLED);
 
         // Mirror the image for front camera.
         if (mCameraSelector.getLensFacing() != null) {
@@ -391,12 +372,9 @@ abstract class CameraController {
             Executor executor,
             ImageCapture.OnImageCapturedCallback callback) {
         Threads.checkMainThread();
-        if (mImageCapture == null) {
-            callback.onError(new ImageCaptureException(ImageCapture.ERROR_UNKNOWN,
-                    CAMERA_NOT_READY, null));
-            return;
-        }
-        Preconditions.checkState(mImageCaptureEnabled, IMAGE_CAPTURE_DISABLED_ERR_MSG);
+        checkUseCasesAttachedToCamera();
+        Preconditions.checkState(mImageCaptureEnabled, IMAGE_CAPTURE_DISABLED);
+
         mImageCapture.takePicture(executor, callback);
     }
 
@@ -430,9 +408,6 @@ abstract class CameraController {
             stopRecording();
         }
         mVideoCaptureEnabled = videoCaptureEnabled;
-        if (mCameraProvider != null && !videoCaptureEnabled) {
-            mCameraProvider.unbind(mVideoCapture);
-        }
         startCameraAndTrackStates();
     }
 
@@ -447,11 +422,9 @@ abstract class CameraController {
     public void startRecording(VideoCapture.OutputFileOptions outputFileOptions,
             Executor executor, final VideoCapture.OnVideoSavedCallback callback) {
         Threads.checkMainThread();
-        Preconditions.checkState(mVideoCaptureEnabled, VIDEO_CAPTURE_DISABLED_ERR_MSG);
-        if (mVideoCapture == null) {
-            callback.onError(ImageCapture.ERROR_UNKNOWN, CAMERA_NOT_READY, null);
-            return;
-        }
+        checkUseCasesAttachedToCamera();
+        Preconditions.checkState(mVideoCaptureEnabled, VIDEO_CAPTURE_DISABLED);
+
         mVideoCapture.startRecording(outputFileOptions, executor,
                 new VideoCapture.OnVideoSavedCallback() {
                     @Override
@@ -477,7 +450,7 @@ abstract class CameraController {
     @MainThread
     public void stopRecording() {
         Threads.checkMainThread();
-        if (mVideoIsRecording.get() && mVideoCapture != null) {
+        if (mVideoIsRecording.get()) {
             mVideoCapture.stopRecording();
         }
     }
@@ -501,12 +474,14 @@ abstract class CameraController {
      *
      * @see CameraSelector
      */
+    @MainThread
     public void setCameraSelector(@NonNull CameraSelector cameraSelector) {
-        mCameraSelector = cameraSelector;
-        if (mCameraProvider != null) {
-            // Preview is required. Unbind everything if Preview is down.
+        Threads.checkMainThread();
+        // Try to unbind everything if camera is switched.
+        if (mCameraProvider != null && mCameraSelector != cameraSelector) {
             mCameraProvider.unbindAll();
         }
+        mCameraSelector = cameraSelector;
         startCameraAndTrackStates();
     }
 
@@ -515,7 +490,9 @@ abstract class CameraController {
      *
      * @see CameraSelector
      */
+    @MainThread
     public CameraSelector getCameraSelector() {
+        Threads.checkMainThread();
         return mCameraSelector;
     }
 
@@ -551,8 +528,8 @@ abstract class CameraController {
      */
     @SuppressWarnings("FutureReturnValueIgnored")
     void onPinchToZoom(float pinchToZoomScale) {
-        if (mCamera == null) {
-            Logger.d(TAG, CAMERA_NOT_READY);
+        if (!isCameraAttached()) {
+            Logger.w(TAG, CAMERA_NOT_ATTACHED);
             return;
         }
         if (!mPinchToZoomEnabled) {
@@ -585,8 +562,8 @@ abstract class CameraController {
      */
     @SuppressWarnings("FutureReturnValueIgnored")
     void onTapToFocus(MeteringPointFactory meteringPointFactory, float x, float y) {
-        if (mCamera == null) {
-            Logger.w(TAG, CAMERA_NOT_READY);
+        if (!isCameraAttached()) {
+            Logger.w(TAG, CAMERA_NOT_ATTACHED);
             return;
         }
         if (!mTapToFocusEnabled) {
@@ -650,7 +627,7 @@ abstract class CameraController {
      * <p>Valid zoom values range from {@link ZoomState#getMinZoomRatio()} to
      * {@link ZoomState#getMaxZoomRatio()}.
      *
-     * <p> No-ops if camera is not ready.
+     * <p> No-ops if the controller is not set on a {@link PreviewView}.
      *
      * @param zoomRatio The requested zoom ratio.
      * @return a {@link ListenableFuture} which is finished when camera is set to the given ratio.
@@ -663,8 +640,8 @@ abstract class CameraController {
     @MainThread
     public ListenableFuture<Void> setZoomRatio(float zoomRatio) {
         Threads.checkMainThread();
-        if (mCamera == null) {
-            Logger.w(TAG, CAMERA_NOT_READY);
+        if (!isCameraAttached()) {
+            Logger.w(TAG, CAMERA_NOT_ATTACHED);
             return Futures.immediateFuture(null);
         }
         return mCamera.getCameraControl().setZoomRatio(zoomRatio);
@@ -678,7 +655,7 @@ abstract class CameraController {
      * linearly with the linearZoom value, for use with slider UI elements (while
      * {@link #setZoomRatio(float)} works well for pinch-zoom gestures).
      *
-     * <p> No-ops if camera is not ready.
+     * <p> No-ops if the controller is not set on a {@link PreviewView}.
      *
      * @return a {@link ListenableFuture} which is finished when camera is set to the given ratio.
      * It fails with {@link CameraControl.OperationCanceledException} if there is newer value
@@ -689,8 +666,8 @@ abstract class CameraController {
     @MainThread
     public ListenableFuture<Void> setLinearZoom(float linearZoom) {
         Threads.checkMainThread();
-        if (mCamera == null) {
-            Logger.w(TAG, CAMERA_NOT_READY);
+        if (!isCameraAttached()) {
+            Logger.w(TAG, CAMERA_NOT_ATTACHED);
             return Futures.immediateFuture(null);
         }
         return mCamera.getCameraControl().setLinearZoom(linearZoom);
@@ -714,7 +691,7 @@ abstract class CameraController {
     /**
      * Enable the torch or disable the torch.
      *
-     * <p> No-ops if camera is not ready.
+     * <p> No-ops if the controller is not set on a {@link PreviewView}.
      *
      * @param torchEnabled true to turn on the torch, false to turn it off.
      * @return A {@link ListenableFuture} which is successful when the torch was changed to the
@@ -725,8 +702,8 @@ abstract class CameraController {
     @MainThread
     public ListenableFuture<Void> enableTorch(boolean torchEnabled) {
         Threads.checkMainThread();
-        if (mCamera == null) {
-            Logger.w(TAG, CAMERA_NOT_READY);
+        if (!isCameraAttached()) {
+            Logger.w(TAG, CAMERA_NOT_ATTACHED);
             return Futures.immediateFuture(null);
         }
         return mCamera.getCameraControl().enableTorch(torchEnabled);
@@ -739,7 +716,8 @@ abstract class CameraController {
      */
     void startCameraAndTrackStates() {
         mCamera = startCamera();
-        if (mCamera == null) {
+        if (!isCameraAttached()) {
+            Logger.d(TAG, CAMERA_NOT_ATTACHED);
             return;
         }
         mZoomState.setSource(mCamera.getCameraInfo().getZoomState());
@@ -752,62 +730,47 @@ abstract class CameraController {
      * <p> Preview is required. If it is null, then controller is not ready. Return null and ignore
      * other use cases.
      */
+    @Nullable
     @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
     protected UseCaseGroup createUseCaseGroup() {
-        if (mCameraProvider == null || mPreview == null) {
-            Logger.d(TAG, CAMERA_NOT_READY);
+        if (!isCameraInitialized()) {
+            Logger.d(TAG, CAMERA_NOT_INITIALIZED);
             return null;
         }
-        if (mSurfaceProvider == null || mViewPort == null) {
+        if (!isPreviewViewAttached()) {
             // Preview is required. Return early if preview Surface is not ready.
-            Logger.d(TAG, "Preview is not ready.");
+            Logger.d(TAG, PREVIEW_VIEW_NOT_ATTACHED);
             return null;
         }
 
         UseCaseGroup.Builder builder = new UseCaseGroup.Builder().addUseCase(mPreview);
 
-        if (mImageCaptureEnabled && mImageCapture != null) {
+        if (mImageCaptureEnabled) {
             builder.addUseCase(mImageCapture);
+        } else {
+            mCameraProvider.unbind(mImageCapture);
         }
-        if (mVideoCaptureEnabled && mVideoCapture != null) {
+
+        if (mVideoCaptureEnabled) {
             builder.addUseCase(mVideoCapture);
+        } else {
+            mCameraProvider.unbind(mVideoCapture);
         }
 
         builder.setViewPort(mViewPort);
         return builder.build();
     }
 
-    // Synthetic access
-    @SuppressWarnings("WeakerAccess")
-    @SuppressLint("WrongConstant")
-    void updateImageAndVideoRotationIfCameraIsReady() {
-        if (mAccelerometerRotation != INVALID_SURFACE_ROTATION && mImageCapture != null
-                && mVideoCapture != null) {
-            mImageCapture.setTargetRotation(mAccelerometerRotation);
-            mVideoCapture.setTargetRotation(mAccelerometerRotation);
-        }
-
-    }
-
-    @SuppressLint("WrongConstant")
-    @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
-    void updatePreviewRotationIfCameraIsReady() {
-        if (mDisplayRotation != INVALID_SURFACE_ROTATION && mPreview != null) {
-            mPreview.setTargetRotation(mDisplayRotation);
-        }
-    }
-
     /**
-     * Listener for display changes.
+     * Listener for display rotation changes.
      *
-     * <p>When the device is rotated 180° from side to side, the activity is not
+     * <p> When the device is rotated 180° from side to side, the activity is not
      * destroyed and recreated, thus {@link #attachPreviewSurface} will not be invoked. This
-     * class is necessary to make sure preview's target rotation is the display rotation when
-     * that happens.
+     * class is necessary to make sure preview's target rotation gets updated when that happens.
      */
     // Synthetic access
     @SuppressWarnings("WeakerAccess")
-    class DisplayChangeListener implements DisplayManager.DisplayListener {
+    class DisplayRotationListener implements DisplayManager.DisplayListener {
 
         @Override
         public void onDisplayAdded(int displayId) {
@@ -819,11 +782,10 @@ abstract class CameraController {
 
         @SuppressLint("WrongConstant")
         @Override
+        @UseExperimental(markerClass = ExperimentalUseCaseGroup.class)
         public void onDisplayChanged(int displayId) {
-            if (mPreviewDisplay != null && mPreview != null
-                    && mPreviewDisplay.getDisplayId() == displayId) {
-                mDisplayRotation = mPreviewDisplay.getRotation();
-                updatePreviewRotationIfCameraIsReady();
+            if (mPreviewDisplay != null && mPreviewDisplay.getDisplayId() == displayId) {
+                mPreview.setTargetRotation(mPreviewDisplay.getRotation());
             }
         }
     }

@@ -83,6 +83,8 @@ public final class LifecycleCameraController extends CameraController {
 
     /**
      * Unbind and rebind all use cases to {@link LifecycleOwner}.
+     *
+     * @return null if failed to start camera.
      */
     @UseExperimental(markerClass = ExperimentalUseCaseGroupLifecycle.class)
     @RequiresPermission(Manifest.permission.CAMERA)
