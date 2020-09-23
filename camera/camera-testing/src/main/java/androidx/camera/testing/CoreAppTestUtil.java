@@ -17,6 +17,8 @@
 package androidx.camera.testing;
 
 import android.app.Instrumentation;
+import android.app.KeyguardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.RemoteException;
@@ -81,5 +83,22 @@ public final class CoreAppTestUtil {
         // Close system dialogs first to avoid interrupt.
         instrumentation.getTargetContext().sendBroadcast(
                 new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
+    }
+
+    /**
+     * Checks whether keyguard is locked.
+     *
+     * Keyguard is locked if the screen is off or the device is currently locked and requires a
+     * PIN, pattern or password to unlock.
+     *
+     * @throws IllegalStateException if keyguard is locked.
+     */
+    public static void checkKeyguard(@NonNull Context context) {
+        KeyguardManager keyguardManager = (KeyguardManager) context.getSystemService(
+                Context.KEYGUARD_SERVICE);
+
+        if (keyguardManager != null && keyguardManager.isKeyguardLocked()) {
+            throw new IllegalStateException("<KEYGUARD_STATE_ERROR> Keyguard is locked!");
+        }
     }
 }
