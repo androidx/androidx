@@ -1147,3 +1147,5 @@ Stream closed
 Package name \'androidx\.benchmark\.macro\.test\' used in\: AndroidManifest\.xml\, manifestMerger[0-9]+\.xml\.
 # > Task :sqlite:integration-tests:inspection-room-testapp:kaptDebugAndroidTestKotlin
 ZipFile closed
+# > Task :compose:internal-lint-checks:lint
+Classpath entry points to a non\-existent location\: \$OUT_DIR\/ui\/compose\/internal\-lint\-checks\/build\/classes\/kotlin\/main
