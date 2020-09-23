@@ -210,10 +210,12 @@ internal class ConfigView(
 
         val complications = watchFaceConfigActivity.watchFaceConfigDelegate.getComplicationsMap()
         for ((_, complication) in complications) {
-            drawComplicationSelectDashBorders(
-                canvas,
-                complication.computeBounds(drawRect)
-            )
+            if (complication.enabled) {
+                drawComplicationSelectDashBorders(
+                    canvas,
+                    complication.computeBounds(drawRect)
+                )
+            }
         }
     }
 

@@ -536,7 +536,7 @@ class WatchFace private constructor(
                 drawMode: Int
             ): Bitmap {
                 val oldDrawMode = renderer.drawMode
-                renderer.drawMode = DrawMode.INTERACTIVE
+                renderer.drawMode = drawMode
                 val bitmap = renderer.takeScreenshot(
                     calendar,
                     DrawMode.INTERACTIVE

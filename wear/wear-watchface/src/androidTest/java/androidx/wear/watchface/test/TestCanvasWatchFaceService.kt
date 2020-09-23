@@ -35,7 +35,11 @@ import androidx.wear.watchface.WatchState
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_RIGHT_COMPLICATION_ID
 import androidx.wear.watchface.samples.ExampleCanvasRenderer
+import androidx.wear.watchface.samples.LEFT_AND_RIGHT_COMPLICATIONS
+import androidx.wear.watchface.samples.LEFT_COMPLICATION
+import androidx.wear.watchface.samples.NO_COMPLICATIONS
 import androidx.wear.watchface.samples.R
+import androidx.wear.watchface.samples.RIGHT_COMPLICATION
 import androidx.wear.watchface.samples.WatchFaceColorStyle
 import androidx.wear.watchface.style.BooleanUserStyleCategory
 import androidx.wear.watchface.style.DoubleRangeUserStyleCategory
@@ -108,8 +112,42 @@ internal class TestCanvasWatchFaceService(
                 1.0,
                 UserStyleCategory.LAYER_WATCH_FACE_UPPER
             )
+        val complicationsStyleCategory = ListUserStyleCategory(
+            "complications_style_category",
+            "Complications",
+            "Number and position",
+            icon = null,
+            options = listOf(
+                ListUserStyleCategory.ListOption(
+                    LEFT_AND_RIGHT_COMPLICATIONS,
+                    "Both",
+                    null
+                ),
+                ListUserStyleCategory.ListOption(
+                    NO_COMPLICATIONS,
+                    "None",
+                    null
+                ),
+                ListUserStyleCategory.ListOption(
+                    LEFT_COMPLICATION,
+                    "Left",
+                    null
+                ),
+                ListUserStyleCategory.ListOption(
+                    RIGHT_COMPLICATION,
+                    "Right",
+                    null
+                )
+            ),
+            UserStyleCategory.LAYER_COMPLICATONS
+        )
         val userStyleRepository = UserStyleRepository(
-            listOf(colorStyleCategory, drawHourPipsStyleCategory, watchHandLengthStyleCategory)
+            listOf(
+                colorStyleCategory,
+                drawHourPipsStyleCategory,
+                watchHandLengthStyleCategory,
+                complicationsStyleCategory
+            )
         )
         val complicationSlots = ComplicationsManager(
             listOf(
@@ -152,6 +190,7 @@ internal class TestCanvasWatchFaceService(
             colorStyleCategory,
             drawHourPipsStyleCategory,
             watchHandLengthStyleCategory,
+            complicationsStyleCategory,
             complicationSlots
         )
 
