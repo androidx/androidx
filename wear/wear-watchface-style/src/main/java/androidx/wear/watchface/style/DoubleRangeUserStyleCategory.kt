@@ -26,6 +26,7 @@ import androidx.wear.watchface.style.data.DoubleRangeUserStyleCategoryWireFormat
  */
 class DoubleRangeUserStyleCategory : UserStyleCategory {
 
+    /** @hide */
     internal companion object {
         internal fun createOptionsList(
             minimumValue: Double,
@@ -115,10 +116,6 @@ class DoubleRangeUserStyleCategory : UserStyleCategory {
 
         constructor(value: Double) : super(value.toString()) {
             this.value = value
-        }
-
-        internal companion object {
-            internal const val KEY_DOUBLE_VALUE = "KEY_DOUBLE_VALUE"
         }
 
         internal constructor(

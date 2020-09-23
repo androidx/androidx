@@ -218,6 +218,7 @@ internal class ConfigViewHolder(view: View) : RecyclerView.ViewHolder(view) {
 }
 
 internal class Helper {
+    /** @hide */
     companion object {
         /**
          * Wraps a given [Drawable] with a standard background to match the normal preference icon

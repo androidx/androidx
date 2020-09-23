@@ -290,6 +290,7 @@ class WatchFace private constructor(
         }
     }
 
+    /** @hide */
     internal companion object {
         internal const val NO_DEFAULT_PROVIDER = SystemProviders.NO_PROVIDER
         internal const val DEFAULT_PROVIDER_TYPE_NONE = -2

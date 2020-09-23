@@ -85,12 +85,14 @@ class WatchFaceConfigActivity : FragmentActivity() {
     internal var backgroundComplicationId: Int? = null
         private set
 
+    /** @hide */
     companion object {
         private const val TAG = "WatchFaceConfigActivity"
 
         private val sComponentNameToIWatchFaceConfig =
             HashMap<ComponentName, WatchFaceConfigDelegate>()
 
+        /** @hide */
         @SuppressWarnings("SyntheticAccessor")
         @JvmStatic
         fun registerWatchFace(
@@ -100,6 +102,7 @@ class WatchFaceConfigActivity : FragmentActivity() {
             sComponentNameToIWatchFaceConfig[componentName] = watchFaceConfigDelegate
         }
 
+        /** @hide */
         @SuppressWarnings("SyntheticAccessor")
         @JvmStatic
         fun unregisterWatchFace(componentName: ComponentName) {
