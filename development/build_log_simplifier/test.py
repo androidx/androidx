@@ -124,6 +124,18 @@ def test_generate_suggested_exemptions():
     ]
     validate_suggested_exemptions(lines, config3, expect_config3)
 
+    # also validate that "> Configure project" gets ignored too
+    config4 = [
+        "# > Configure project a",
+        "some warning"
+    ]
+    lines4 = [
+        "> Configure project b",
+        "some warning"
+    ]
+    expect_config4 = config4
+    validate_suggested_exemptions(lines4, config4, expect_config4)
+
 def test_collapse_tasks_having_no_output():
     print("test_collapse_tasks_having_no_output")
     lines = [

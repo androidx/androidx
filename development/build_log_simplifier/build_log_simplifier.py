@@ -269,7 +269,7 @@ def collapse_tasks_having_no_output(lines):
     pending_task = None
     pending_blanks = []
     for line in lines:
-        is_task = line.startswith("> Task ")
+        is_task = line.startswith("> Task ") or line.startswith("> Configure project ")
         if is_task:
             pending_task = line
             pending_blanks = []
@@ -384,7 +384,7 @@ def generate_suggested_exemptions(messages, config_lines):
             continue
         # save task name
         is_task = False
-        if line.startswith("> Task :"):
+        if line.startswith("> Task :") or line.startswith("> Configure project "):
             # If a task creates output, we record its name
             line = "# " + line
             pending_task_line = line
