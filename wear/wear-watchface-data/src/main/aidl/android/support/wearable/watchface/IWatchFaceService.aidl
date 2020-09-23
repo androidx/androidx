@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel;
 import android.support.wearable.watchface.IWatchFaceCommand;
 import android.support.wearable.watchface.WatchFaceStyle;
+import androidx.wear.watchface.data.ComplicationDetails;
 import androidx.wear.watchface.style.data.UserStyleWireFormat;
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat;
 
@@ -89,14 +90,13 @@ interface IWatchFaceService {
     int getApiVersion() = 7;
 
     /**
-      * Updates the bounds and slot type associated with a complication slot. Supported from API
-      * version 3.
+      * Updates the {@link ComplicationDetails}  associated with a complication slot. Supported from
+      * API version 3.
       *
       * @param id The complication id
-      * @param bounds The bounds of the complicaiton
-      * @param complicationSlotType The {@link ComplicationSlotType} of the complication
+      * @param complicationDetails The {@link ComplicationDetails} to set
       */
-    void setComplicationDetails(int id, in Rect bounds, in int complicationSlotType) = 8;
+    void setComplicationDetails(int id, in ComplicationDetails complicationDetails) = 8;
 
     /**
      * Updates the supported types for a complication, required for remote configuration. Supported

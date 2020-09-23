@@ -41,9 +41,9 @@ import androidx.test.filters.MediumTest
 import androidx.test.screenshot.AndroidXScreenshotTestRule
 import androidx.test.screenshot.assertAgainstGolden
 import androidx.wear.complications.SystemProviders
-import androidx.wear.watchface.ComplicationBoundsType
 import androidx.wear.watchface.DrawMode
 import androidx.wear.watchface.WatchFaceService
+import androidx.wear.watchface.data.ComplicationDetails
 import androidx.wear.watchface.data.SystemState
 import androidx.wear.watchface.samples.EXAMPLE_CANVAS_WATCHFACE_LEFT_COMPLICATION_ID
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
@@ -79,7 +79,7 @@ private class WatchFaceServiceStub(
     override fun setActiveComplications(ids: IntArray, updateAll: Boolean) {
     }
 
-    override fun setComplicationDetails(id: Int, bounds: Rect?, @ComplicationBoundsType type: Int) {
+    override fun setComplicationDetails(id: Int, complicationDetails: ComplicationDetails) {
     }
 
     override fun setDefaultComplicationProvider(

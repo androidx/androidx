@@ -31,6 +31,7 @@ import android.support.wearable.watchface.WatchFaceStyle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.view.SurfaceHolder
 import androidx.test.core.app.ApplicationProvider
+import androidx.wear.watchface.data.ComplicationDetails
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleRepository
 import androidx.wear.watchface.style.data.UserStyleWireFormat
@@ -137,8 +138,8 @@ class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceService) :
         iWatchFaceService.setActiveComplications(ids, updateAll)
     }
 
-    override fun setComplicationDetails(id: Int, bounds: Rect?, @ComplicationBoundsType type: Int) {
-        iWatchFaceService.setComplicationDetails(id, bounds, type)
+    override fun setComplicationDetails(id: Int, complicationDetails: ComplicationDetails) {
+        iWatchFaceService.setComplicationDetails(id, complicationDetails)
     }
 
     override fun setDefaultComplicationProvider(

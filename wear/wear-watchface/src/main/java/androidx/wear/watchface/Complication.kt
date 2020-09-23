@@ -28,6 +28,7 @@ import androidx.annotation.UiThread
 import androidx.lifecycle.Observer
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.rendering.ComplicationDrawable
+import androidx.wear.watchface.data.ComplicationBoundsType
 
 /** Common interface for rendering complications. */
 interface ComplicationRenderer {
