@@ -79,7 +79,8 @@ fun bundleOf(vararg pairs: Pair<String, Any?>) = Bundle(pairs.size).apply {
                     else -> {
                         val valueType = componentType.canonicalName
                         throw IllegalArgumentException(
-                            "Illegal value array type $valueType for key \"$key\"")
+                            "Illegal value array type $valueType for key \"$key\""
+                        )
                     }
                 }
             }
