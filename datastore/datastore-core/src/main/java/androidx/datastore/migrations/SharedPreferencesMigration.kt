@@ -85,7 +85,8 @@ constructor(
             SharedPreferencesView(
                 sharedPrefs,
                 keySet
-            ), currentData
+            ),
+            currentData
         )
 
     @Throws(IOException::class)

@@ -332,7 +332,8 @@ class SingleProcessDataStoreTest {
         store.updateData { 1 }
 
         val count = AtomicInteger()
-        val newStore = newDataStore(testFile,
+        val newStore = newDataStore(
+            testFile,
             initTasksList = listOf { _ ->
                 count.incrementAndGet()
             }
@@ -354,7 +355,8 @@ class SingleProcessDataStoreTest {
             initTasksList = listOf { api ->
                 continueInit.await()
                 api.updateData { 1 }
-            })
+            }
+        )
 
         val update = async {
             store.updateData { b ->
@@ -373,11 +375,13 @@ class SingleProcessDataStoreTest {
     fun testCancelDuringInit() = runBlockingTest {
         val continueInit = CompletableDeferred<Unit>()
 
-        store = newDataStore(initTasksList =
-        listOf { api ->
-            continueInit.await()
-            api.updateData { 1 }
-        })
+        store = newDataStore(
+            initTasksList =
+                listOf { api ->
+                    continueInit.await()
+                    api.updateData { 1 }
+                }
+        )
 
         val update = async {
             store.updateData { it }
