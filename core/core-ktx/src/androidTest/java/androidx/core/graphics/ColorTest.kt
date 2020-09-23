@@ -138,7 +138,7 @@ class ColorTest {
 
         // Test color longs
         val colorLong =
-                Color.pack(1.0f, 0.0f, 0.0f, 1.0f, ColorSpace.get(ColorSpace.Named.DISPLAY_P3))
+            Color.pack(1.0f, 0.0f, 0.0f, 1.0f, ColorSpace.get(ColorSpace.Named.DISPLAY_P3))
         val c3 = colorLong convertTo ColorSpace.Named.BT2020
         assertEquals(bt2020, c3.colorSpace)
 

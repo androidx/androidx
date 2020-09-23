@@ -69,7 +69,8 @@ fun persistableBundleOf(vararg pairs: Pair<String, Any?>) = PersistableBundle(pa
                     else -> {
                         val valueType = componentType.canonicalName
                         throw IllegalArgumentException(
-                            "Illegal value array type $valueType for key \"$key\"")
+                            "Illegal value array type $valueType for key \"$key\""
+                        )
                     }
                 }
             }

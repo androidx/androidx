@@ -122,7 +122,7 @@ class RegionTest {
 
     @Test fun iteratorForLoop() {
         val region = Region(0, 0, 4, 4) -
-                Rect(2, 2, 6, 6)
+            Rect(2, 2, 6, 6)
         var count = 0
         var r = Rect()
         for (rect in region) {
@@ -135,7 +135,7 @@ class RegionTest {
 
     @Test fun iteratorOutOfBounds() {
         val region = Region(0, 0, 4, 4) -
-                Rect(2, 2, 6, 6)
+            Rect(2, 2, 6, 6)
         val it = region.iterator()
         it.next()
         it.next()
@@ -146,7 +146,7 @@ class RegionTest {
 
     @Test fun iteratorForEach() {
         val region = Region(0, 0, 4, 4) -
-                Rect(2, 2, 6, 6)
+            Rect(2, 2, 6, 6)
         var count = 0
         var r = Rect()
         region.forEach {

@@ -354,7 +354,7 @@ inline val @receiver:ColorLong Long.colorSpace: ColorSpace get() = Color.colorSp
 @RequiresApi(26)
 @ColorLong
 inline infix fun @receiver:ColorInt Int.convertTo(colorSpace: ColorSpace.Named) =
-        Color.convert(this, ColorSpace.get(colorSpace))
+    Color.convert(this, ColorSpace.get(colorSpace))
 
 /**
  * Converts the color int receiver to a color long in the specified color space. This is
@@ -366,7 +366,7 @@ inline infix fun @receiver:ColorInt Int.convertTo(colorSpace: ColorSpace.Named) 
 @RequiresApi(26)
 @ColorLong
 inline infix fun @receiver:ColorInt Int.convertTo(colorSpace: ColorSpace) =
-        Color.convert(this, colorSpace)
+    Color.convert(this, colorSpace)
 
 /**
  * Converts the color long receiver to a color long in the specified color space. This is
@@ -378,7 +378,7 @@ inline infix fun @receiver:ColorInt Int.convertTo(colorSpace: ColorSpace) =
 @RequiresApi(26)
 @ColorLong
 inline infix fun @receiver:ColorLong Long.convertTo(colorSpace: ColorSpace.Named) =
-        Color.convert(this, ColorSpace.get(colorSpace))
+    Color.convert(this, ColorSpace.get(colorSpace))
 
 /**
  * Converts the color long receiver to a color long in the specified color space. This is
@@ -390,7 +390,7 @@ inline infix fun @receiver:ColorLong Long.convertTo(colorSpace: ColorSpace.Named
 @RequiresApi(26)
 @ColorLong
 inline infix fun @receiver:ColorLong Long.convertTo(colorSpace: ColorSpace) =
-        Color.convert(this, colorSpace)
+    Color.convert(this, colorSpace)
 
 /**
  * Converts the color receiver to a color in the specified color space. This is
