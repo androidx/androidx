@@ -97,4 +97,11 @@ interface ComposeTestRule {
      * surfaces only in incorrect tests.
      */
     fun waitForIdle()
+
+    /**
+     * Suspends until compose is idle. Compose is idle if there are no pending compositions, no
+     * pending changes that could lead to another composition, and no pending draw calls.
+     */
+    @ExperimentalTesting
+    suspend fun awaitIdle()
 }
