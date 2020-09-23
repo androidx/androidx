@@ -37,7 +37,7 @@ class TypesMapTest {
                 "test.Class" to "test2.Class2"
             ),
             from = "test.Class\$Inner",
-                expected = "test2.Class2\$Inner"
+            expected = "test2.Class2\$Inner"
         )
     }
 
@@ -58,9 +58,11 @@ class TypesMapTest {
     }
 
     private fun testRewrites(map: List<Pair<String, String>>, from: String, expected: String) {
-        val typesMap = TypesMap(map
-            .map { JavaType.fromDotVersion(it.first) to JavaType.fromDotVersion(it.second) }
-            .toMap())
+        val typesMap = TypesMap(
+            map
+                .map { JavaType.fromDotVersion(it.first) to JavaType.fromDotVersion(it.second) }
+                .toMap()
+        )
         val result = typesMap.mapType(JavaType.fromDotVersion(from))
         Truth.assertThat(result).isEqualTo(JavaType.fromDotVersion(expected))
     }

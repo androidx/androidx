@@ -53,10 +53,12 @@ class RewriteRulesMap(val rewriteRules: List<RewriteRule>) {
     }
 
     fun reverse(): RewriteRulesMap {
-        return RewriteRulesMap(rewriteRules
-            .filter { !it.isIgnoreRule() }
-            .map { it.reverse() }
-            .toList())
+        return RewriteRulesMap(
+            rewriteRules
+                .filter { !it.isIgnoreRule() }
+                .map { it.reverse() }
+                .toList()
+        )
     }
 
     fun appendRules(rules: List<RewriteRule>): RewriteRulesMap {

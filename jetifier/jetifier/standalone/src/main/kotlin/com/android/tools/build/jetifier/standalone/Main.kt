@@ -88,7 +88,7 @@ class Main {
             argName = "stripSignatures",
             argNameLong = "stripSignatures",
             desc = "Don't throw an error when jetifying a signed library and instead strip " +
-                    "the signature files.",
+                "the signature files.",
             hasArgs = false,
             isRequired = false
         )
@@ -97,7 +97,7 @@ class Main {
             argName = "t",
             argNameLong = "timestampsPolicy",
             desc = "Timestamps policy to use for the archived entries as their modified time. " +
-                    "Values: $ELIGIBLE_TIMESTAMPS.",
+                "Values: $ELIGIBLE_TIMESTAMPS.",
             hasArgs = true,
             isRequired = false
         )
@@ -141,9 +141,11 @@ class Main {
                 "now" -> TimestampsPolicy.NOW
                 "epoch" -> TimestampsPolicy.EPOCH
                 "keepPrevious" -> TimestampsPolicy.KEEP_PREVIOUS
-                else -> throw IllegalArgumentException("The provided value '$timestampOp' of " +
+                else -> throw IllegalArgumentException(
+                    "The provided value '$timestampOp' of " +
                         "'${OPTION_TIMESTAMPS.longOpt}' argument is not recognized. Eligible " +
-                        "values are: $ELIGIBLE_TIMESTAMPS.")
+                        "values are: $ELIGIBLE_TIMESTAMPS."
+                )
             }
         } else {
             TimestampsPolicy.KEEP_PREVIOUS

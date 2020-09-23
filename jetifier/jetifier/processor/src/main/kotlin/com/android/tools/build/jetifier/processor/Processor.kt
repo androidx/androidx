@@ -135,7 +135,8 @@ class Processor private constructor(
                 isInReversedMode = reversedMode,
                 useFallbackIfTypeIsMissing = useFallbackIfTypeIsMissing,
                 allowAmbiguousPackages = allowAmbiguousPackages,
-                versions = versionsMap)
+                versions = versionsMap
+            )
             val transformers = if (rewritingSupportLib) {
                 createSLTransformers(context)
             } else {
@@ -165,7 +166,8 @@ class Processor private constructor(
          */
         @Deprecated(
             message = "Legacy method that is missing 'timestampsPolicy' attribute",
-            replaceWith = ReplaceWith(expression = "Processor.createProcessor4"))
+            replaceWith = ReplaceWith(expression = "Processor.createProcessor4")
+        )
         fun createProcessor3(
             config: Config,
             reversedMode: Boolean = false,
@@ -199,7 +201,8 @@ class Processor private constructor(
          */
         @Deprecated(
             message = "Legacy method that is missing 'throwErrorIsSignatureDetected' attribute",
-            replaceWith = ReplaceWith(expression = "Processor.createProcessor3"))
+            replaceWith = ReplaceWith(expression = "Processor.createProcessor3")
+        )
         fun createProcessor2(
             config: Config,
             reversedMode: Boolean = false,
@@ -232,8 +235,9 @@ class Processor private constructor(
          */
         @Deprecated(
             message = "Legacy method that is missing 'allowAmbiguousPackages' attribute and " +
-                    "'versionSetName' attribute is not used anymore.",
-            replaceWith = ReplaceWith(expression = "Processor.createProcessor3"))
+                "'versionSetName' attribute is not used anymore.",
+            replaceWith = ReplaceWith(expression = "Processor.createProcessor3")
+        )
         fun createProcessor(
             config: Config,
             reversedMode: Boolean = false,
@@ -255,19 +259,23 @@ class Processor private constructor(
     }
 
     private val oldDependenciesRegex: List<Regex> = context.config.pomRewriteRules.map {
-        Regex(".*" +
-            it.from.groupId!!.replace(".", "[./\\\\]") +
-            "[./\\\\]" +
-            it.from.artifactId +
-            "[./\\\\].*")
+        Regex(
+            ".*" +
+                it.from.groupId!!.replace(".", "[./\\\\]") +
+                "[./\\\\]" +
+                it.from.artifactId +
+                "[./\\\\].*"
+        )
     }
 
     private val newDependenciesRegex: List<Regex> = context.config.pomRewriteRules.map {
-        Regex(".*" +
-            it.to.groupId!!.replace(".", "[./\\\\]") +
-            "[./\\\\]" +
-            it.to.artifactId +
-            "[./\\\\].*")
+        Regex(
+            ".*" +
+                it.to.groupId!!.replace(".", "[./\\\\]") +
+                "[./\\\\]" +
+                it.to.artifactId +
+                "[./\\\\].*"
+        )
     }
 
     /**
@@ -336,15 +344,19 @@ class Processor private constructor(
 
         if (context.errorsTotal() > 0) {
             if (context.isInReversedMode && context.rewritingSupportLib) {
-                throw IllegalArgumentException("There were ${context.errorsTotal()} errors found " +
-                    "during the de-jetification. You have probably added new androidx types " +
-                    "into support library and dejetifier doesn't know where to move them. " +
-                    "Please update default.config and regenerate default.generated.config via " +
-                    "jetifier/jetifier/preprocessor/scripts/processDefaultConfig.sh")
+                throw IllegalArgumentException(
+                    "There were ${context.errorsTotal()} errors found " +
+                        "during the de-jetification. You have probably added new androidx types " +
+                        "into support library and dejetifier doesn't know where to move them. " +
+                        "Please update default.config and regenerate default.generated.config " +
+                        "via jetifier/jetifier/preprocessor/scripts/processDefaultConfig.sh"
+                )
             }
 
-            throw IllegalArgumentException("There were ${context.errorsTotal()}" +
-                " errors found during the remapping. Check the logs for more details.")
+            throw IllegalArgumentException(
+                "There were ${context.errorsTotal()}" +
+                    " errors found during the remapping. Check the logs for more details."
+            )
         }
 
         // TODO: Here we might need to modify the POM files if they point at a library that we have
@@ -371,7 +383,8 @@ class Processor private constructor(
 
         return TransformationResult(
             librariesMap = result,
-            numberOfLibsModified = numberOfLibsModified)
+            numberOfLibsModified = numberOfLibsModified
+        )
     }
 
     /**
@@ -393,7 +406,8 @@ class Processor private constructor(
      */
     @Deprecated(
         message = "Legacy method that is missing 'skipLibsWithAndroidXReferences' attribute",
-        replaceWith = ReplaceWith(expression = "Processor.transform2"))
+        replaceWith = ReplaceWith(expression = "Processor.transform2")
+    )
     fun transform(input: Set<FileMapping>, copyUnmodifiedLibsAlso: Boolean = true): Set<File> {
         return transform2(
             input = input,
@@ -421,15 +435,21 @@ class Processor private constructor(
         libraries.forEach {
             val androidXScanner = AndroidXRefScanner(it, context.config).scan()
             if (androidXScanner.androidXDetected && androidXScanner.androidSupportDetected) {
-                Log.w(TAG, "Library '${it.relativePath}' contains references to both AndroidX and" +
+                Log.w(
+                    TAG,
+                    "Library '${it.relativePath}' contains references to both AndroidX and" +
                         " old support library. This seems like the library is partially migrated." +
                         " Jetifier will try to rewrite the library anyway.\n Example of androidX" +
                         " reference: '${androidXScanner.androidXRefExample}'\n Example of" +
-                        " support library reference: '${androidXScanner.androidSupportRefExample}'")
+                        " support library reference: '${androidXScanner.androidSupportRefExample}'"
+                )
                 newLibraries.add(it)
             } else if (androidXScanner.androidXDetected) {
-                Log.i(TAG, "Library '${it.relativePath}' contains AndroidX reference and will be " +
-                        "skipped.")
+                Log.i(
+                    TAG,
+                    "Library '${it.relativePath}' contains AndroidX reference and will be " +
+                        "skipped."
+                )
             } else {
                 newLibraries.add(it)
             }
@@ -456,18 +476,18 @@ class Processor private constructor(
                         .forEach { file ->
                             sb.appendLine("- ${file.relativePath}")
                             file.markedForRemoval = true
-                    }
+                        }
                 }
             }
 
         if (wereSignaturesDetected && !stripSignatureFiles) {
             throw SignatureFilesFoundJetifierException(
                 "Jetifier found signature in at least one of the archives that need to be " +
-                "modified. However doing so would break the signatures. Please ask the library " +
-                "owner to provide jetpack compatible signed library. If you don't need " +
-                "the signatures you can re-run jetifier with 'stripSignatures' option on. " +
-                "Jetifier will then remove all affected signature files. Below is a list of all " +
-                "the signatures that were discovered: $sb}"
+                    "modified. However doing so would break the signatures. Please ask the " +
+                    "library owner to provide jetpack compatible signed library. If you don't " +
+                    "need the signatures you can re-run jetifier with 'stripSignatures' option " +
+                    "on. Jetifier will then remove all affected signature files. Below is a " +
+                    "list of all the signatures that were discovered: $sb}"
             )
         }
     }
@@ -485,7 +505,8 @@ class Processor private constructor(
         val inputDependency = PomDependency(
             groupId = parts[0],
             artifactId = parts[1],
-            version = parts[2])
+            version = parts[2]
+        )
 
         // TODO: We ignore version check for now
         val resultRule = context.config.pomRewriteRules
@@ -506,11 +527,18 @@ class Processor private constructor(
      */
     fun getDependenciesMap(filterOutBaseLibrary: Boolean = true): Map<String, String> {
         return context.config.pomRewriteRules
-            .filter { !filterOutBaseLibrary || !(it.from.artifactId == "baseLibrary" &&
-                    it.from.groupId == "com.android.databinding") }
+            .filter {
+                !filterOutBaseLibrary || !(
+                    it.from.artifactId == "baseLibrary" &&
+                        it.from.groupId == "com.android.databinding"
+                    )
+            }
             .map {
-                (context.versions.applyOnConfigPomDep(it.from).toStringNotationWithoutVersion()
-                    to context.versions.applyOnConfigPomDep(it.to).toStringNotation()) }
+                (
+                    context.versions.applyOnConfigPomDep(it.from).toStringNotationWithoutVersion()
+                        to context.versions.applyOnConfigPomDep(it.to).toStringNotation()
+                    )
+            }
             .toMap()
     }
 
@@ -549,8 +577,10 @@ class Processor private constructor(
 
         libraries.forEach { scanner.scanArchiveForPomFile(it) }
         if (scanner.wasErrorFound()) {
-            throw IllegalArgumentException("At least one of the libraries depends on an older" +
-                " version of support library. Check the logs for more details.")
+            throw IllegalArgumentException(
+                "At least one of the libraries depends on an older" +
+                    " version of support library. Check the logs for more details."
+            )
         }
 
         return scanner.pomFiles
