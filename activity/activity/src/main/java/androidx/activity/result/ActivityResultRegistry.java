@@ -35,7 +35,7 @@ import androidx.lifecycle.LifecycleOwner;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Random;
 
 /**
  * A registry that stores {@link ActivityResultCallback activity result callbacks} for
@@ -55,13 +55,15 @@ public abstract class ActivityResultRegistry {
             "KEY_COMPONENT_ACTIVITY_REGISTERED_KEYS";
     private static final String KEY_COMPONENT_ACTIVITY_PENDING_RESULTS =
             "KEY_COMPONENT_ACTIVITY_PENDING_RESULT";
+    private static final String KEY_COMPONENT_ACTIVITY_RANDOM_OBJECT =
+            "KEY_COMPONENT_ACTIVITY_RANDOM_OBJECT";
 
     private static final String LOG_TAG = "ActivityResultRegistry";
 
-    private static final int INITIAL_REQUEST_CODE_VALUE = 0x00010000;
-
     // Use upper 16 bits for request codes
-    private final AtomicInteger mNextRc = new AtomicInteger(INITIAL_REQUEST_CODE_VALUE);
+    private static final int INITIAL_REQUEST_CODE_VALUE = 0x00010000;
+    private Random mRandom = new Random();
+
     private final Map<Integer, String> mRcToKey = new HashMap<>();
     private final Map<String, Integer> mKeyToRc = new HashMap<>();
     private final Map<String, LifecycleContainer> mKeyToLifecycleContainers = new HashMap<>();
@@ -258,6 +260,7 @@ public abstract class ActivityResultRegistry {
         outState.putStringArrayList(KEY_COMPONENT_ACTIVITY_REGISTERED_KEYS,
                 new ArrayList<>(mRcToKey.values()));
         outState.putBundle(KEY_COMPONENT_ACTIVITY_PENDING_RESULTS, mPendingResults);
+        outState.putSerializable(KEY_COMPONENT_ACTIVITY_RANDOM_OBJECT, mRandom);
     }
 
     /**
@@ -280,7 +283,7 @@ public abstract class ActivityResultRegistry {
         for (int i = 0; i < numKeys; i++) {
             bindRcKey(rcs.get(i), keys.get(i));
         }
-        mNextRc.set(INITIAL_REQUEST_CODE_VALUE + numKeys);
+        mRandom = (Random) savedInstanceState.getSerializable(KEY_COMPONENT_ACTIVITY_RANDOM_OBJECT);
         mPendingResults.putAll(
                 savedInstanceState.getBundle(KEY_COMPONENT_ACTIVITY_PENDING_RESULTS));
     }
@@ -349,9 +352,26 @@ public abstract class ActivityResultRegistry {
         if (existing != null) {
             return existing;
         }
-        int rc = mNextRc.getAndIncrement();
+        int rc = generateRandomNumber();
         bindRcKey(rc, key);
         return rc;
+    }
+
+    /**
+     * Generate a random number between the initial value (00010000) inclusive, and the max
+     * integer value. If that number is already an existing request code, generate another until
+     * we find one that is new.
+     *
+     * @return the number
+     */
+    private int generateRandomNumber() {
+        int number = mRandom.nextInt((Integer.MAX_VALUE - INITIAL_REQUEST_CODE_VALUE) + 1)
+                + INITIAL_REQUEST_CODE_VALUE;
+        while (mRcToKey.containsKey(number)) {
+            number = mRandom.nextInt((Integer.MAX_VALUE - INITIAL_REQUEST_CODE_VALUE) + 1)
+                    + INITIAL_REQUEST_CODE_VALUE;
+        }
+        return number;
     }
 
     private void bindRcKey(int rc, String key) {
