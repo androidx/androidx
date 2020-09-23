@@ -55,8 +55,8 @@ class NoInvalidateWatchFaceHostApi(val api: WatchFaceHostApi) : WatchFaceHostApi
     override fun getStoredUserStyle() =
         api.getStoredUserStyle()
 
-    override fun setComplicationDetails(complicationId: Int, bounds: Rect, type: Int) {
-        api.setComplicationDetails(complicationId, bounds, type)
+    override fun setComplicationDetails(complicationId: Int, bounds: Rect, boundsType: Int) {
+        api.setComplicationDetails(complicationId, bounds, boundsType)
     }
 
     override fun setComplicationSupportedTypes(complicationId: Int, types: IntArray) {

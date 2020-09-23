@@ -36,6 +36,8 @@ import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.rendering.ComplicationDrawable
+import androidx.wear.watchface.data.ComplicationBoundsType
+import androidx.wear.watchface.data.ComplicationDetails
 import androidx.wear.watchface.style.ListUserStyleCategory
 import androidx.wear.watchface.style.UserStyle
 import androidx.wear.watchface.style.UserStyleCategory
@@ -1007,7 +1009,12 @@ class WatchFaceServiceTest {
 
     @Test
     fun moveComplications() {
-        initEngine(WatchFaceType.ANALOG, listOf(leftComplication, rightComplication), emptyList())
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            emptyList(),
+            4
+        )
 
         // Ignore initial setContentDescriptionLabels call.
         reset(iWatchFaceService)
@@ -1016,6 +1023,24 @@ class WatchFaceServiceTest {
         rightComplication.unitSquareBounds = RectF(0.7f, 0.75f, 0.9f, 0.95f)
 
         runPostedTasksFor(0)
+
+        val complicationId = ArgumentCaptor.forClass(Int::class.java)
+        val complicationDetails = ArgumentCaptor.forClass(ComplicationDetails::class.java)
+        verify(iWatchFaceService, times(2)).setComplicationDetails(
+            complicationId.capture(), complicationDetails.capture()
+        )
+
+        assertThat(complicationId.allValues[0]).isEqualTo(LEFT_COMPLICATION_ID)
+        assertThat(complicationDetails.allValues[0].boundsType).isEqualTo(
+            ComplicationBoundsType.ROUND_RECT)
+        assertThat(complicationDetails.allValues[0].bounds).isEqualTo(
+            Rect(30, 30, 50, 50))
+
+        assertThat(complicationId.allValues[1]).isEqualTo(RIGHT_COMPLICATION_ID)
+        assertThat(complicationDetails.allValues[1].boundsType).isEqualTo(
+            ComplicationBoundsType.ROUND_RECT)
+        assertThat(complicationDetails.allValues[1].bounds).isEqualTo(
+            Rect(70, 75, 90, 95))
 
         // Despite disabling the background complication we should still get a
         // ContentDescriptionLabel for the main clock element.
@@ -1154,6 +1179,36 @@ class WatchFaceServiceTest {
     fun registerIWatchFaceCommand_called() {
         initEngine(WatchFaceType.DIGITAL, emptyList(), emptyList(), apiVersion = 4)
         verify(iWatchFaceService).registerIWatchFaceCommand(any())
+    }
+
+    @Test
+    fun setComplicationDetails_called() {
+        initEngine(
+            WatchFaceType.ANALOG,
+            listOf(leftComplication, rightComplication),
+            emptyList(),
+            apiVersion = 4
+        )
+
+        runPostedTasksFor(0)
+
+        val complicationId = ArgumentCaptor.forClass(Int::class.java)
+        val complicationDetails = ArgumentCaptor.forClass(ComplicationDetails::class.java)
+        verify(iWatchFaceService, times(2)).setComplicationDetails(
+            complicationId.capture(), complicationDetails.capture()
+        )
+
+        assertThat(complicationId.allValues[0]).isEqualTo(LEFT_COMPLICATION_ID)
+        assertThat(complicationDetails.allValues[0].boundsType).isEqualTo(
+            ComplicationBoundsType.ROUND_RECT)
+        assertThat(complicationDetails.allValues[0].bounds).isEqualTo(
+            Rect(20, 40, 40, 60))
+
+        assertThat(complicationId.allValues[1]).isEqualTo(RIGHT_COMPLICATION_ID)
+        assertThat(complicationDetails.allValues[1].boundsType).isEqualTo(
+            ComplicationBoundsType.ROUND_RECT)
+        assertThat(complicationDetails.allValues[1].bounds).isEqualTo(
+            Rect(60, 40, 80, 60))
     }
 
     @Test

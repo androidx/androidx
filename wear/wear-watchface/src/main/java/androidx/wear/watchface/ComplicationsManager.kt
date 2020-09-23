@@ -27,6 +27,7 @@ import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import androidx.annotation.UiThread
 import androidx.annotation.VisibleForTesting
 import androidx.wear.complications.ComplicationHelperActivity
+import androidx.wear.watchface.data.ComplicationBoundsType
 import java.lang.ref.WeakReference
 
 private fun getComponentName(context: Context) = ComponentName(

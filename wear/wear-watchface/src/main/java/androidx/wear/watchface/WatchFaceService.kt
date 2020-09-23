@@ -44,6 +44,8 @@ import android.view.Choreographer
 import android.view.SurfaceHolder
 import androidx.annotation.IntDef
 import androidx.wear.complications.SystemProviders.ProviderId
+import androidx.wear.watchface.data.ComplicationBoundsType
+import androidx.wear.watchface.data.ComplicationDetails
 import androidx.wear.watchface.data.ImmutableSystemState
 import androidx.wear.watchface.data.IndicatorState
 import androidx.wear.watchface.data.SystemState
@@ -1034,10 +1036,13 @@ abstract class WatchFaceService : WallpaperService() {
         override fun setComplicationDetails(
             complicationId: Int,
             bounds: Rect,
-            @ComplicationBoundsType type: Int
+            @ComplicationBoundsType boundsType: Int
         ) {
             if (systemApiVersion >= 3) {
-                iWatchFaceService.setComplicationDetails(complicationId, bounds, type)
+                iWatchFaceService.setComplicationDetails(
+                    complicationId,
+                    ComplicationDetails(bounds, boundsType)
+                )
             }
         }
 
