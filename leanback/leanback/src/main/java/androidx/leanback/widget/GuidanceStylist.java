@@ -207,6 +207,7 @@ public class GuidanceStylist implements FragmentAnimationProvider {
         mDescriptionView = null;
         mIconView = null;
         mTitleView = null;
+        mGuidanceContainer = null;
     }
 
     /**
