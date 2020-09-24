@@ -24,9 +24,13 @@ import androidx.annotation.RestrictTo;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraFilter;
+import androidx.camera.core.CameraInfo;
 import androidx.camera.core.ExperimentalCameraFilter;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.impl.CameraFilters;
+import androidx.camera.core.impl.ExtendableUseCaseConfigFactory;
+import androidx.camera.core.impl.ImageCaptureConfig;
+import androidx.camera.core.impl.PreviewConfig;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.camera.extensions.impl.AutoImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.AutoPreviewExtenderImpl;
@@ -38,6 +42,8 @@ import androidx.camera.extensions.impl.HdrImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.HdrPreviewExtenderImpl;
 import androidx.camera.extensions.impl.NightImageCaptureExtenderImpl;
 import androidx.camera.extensions.impl.NightPreviewExtenderImpl;
+import androidx.camera.extensions.internal.ImageCaptureConfigProvider;
+import androidx.camera.extensions.internal.PreviewConfigProvider;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -90,6 +96,7 @@ public class Extensions {
      */
     public static final int EXTENSION_MODE_AUTO = 5;
 
+    private final Context mContext;
 
     /**
      * The different extension modes that a {@link Camera} can be configured for.
@@ -108,6 +115,7 @@ public class Extensions {
     }
 
     Extensions(@NonNull Context context) {
+        mContext = context;
     }
 
     /**
@@ -134,11 +142,24 @@ public class Extensions {
             throw new IllegalArgumentException("Extension mode not supported on camera: " + mode);
         }
 
+        CameraFilter extensionsFilter = getFilter(mode);
+        Camera extensionCamera =
+                extensionsFilter.filter(
+                        new LinkedHashSet<>(camera.getCameraInternals())).iterator().next();
+        CameraInfo extensionsCameraInfo = extensionCamera.getCameraInfo();
+
+        ExtendableUseCaseConfigFactory factory = new ExtendableUseCaseConfigFactory();
+        factory.installDefaultProvider(ImageCaptureConfig.class,
+                new ImageCaptureConfigProvider(mode, extensionsCameraInfo, mContext));
+        factory.installDefaultProvider(PreviewConfig.class,
+                new PreviewConfigProvider(mode, extensionsCameraInfo, mContext));
+
         // Set the Camera
         ExtensionsConfig extensionsConfig =
                 new ExtensionsConfig.Builder()
                         .setExtensionMode(mode)
                         .setCameraFilter(getFilter(mode))
+                        .setUseCaseConfigFactory(factory)
                         .build();
 
         // Set the config on the camera

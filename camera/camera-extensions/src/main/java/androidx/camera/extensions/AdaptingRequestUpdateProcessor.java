@@ -21,6 +21,7 @@ import android.hardware.camera2.TotalCaptureResult;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RestrictTo;
 import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.impl.CameraCaptureResult;
@@ -32,14 +33,19 @@ import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.impl.RequestUpdateProcessorImpl;
 import androidx.core.util.Preconditions;
 
-/** A {@link ImageInfoProcessor} that calls a vendor provided preview processing implementation. */
-final class AdaptingRequestUpdateProcessor implements ImageInfoProcessor,
+/**
+ * A {@link ImageInfoProcessor} that calls a vendor provided preview processing implementation.
+ *
+ * @hide
+ */
+@RestrictTo(RestrictTo.Scope.LIBRARY)
+public final class AdaptingRequestUpdateProcessor implements ImageInfoProcessor,
         PreviewExtender.CloseableProcessor {
     private final PreviewExtenderImpl mPreviewExtenderImpl;
     private final RequestUpdateProcessorImpl mProcessorImpl;
     private BlockingCloseAccessCounter mAccessCounter = new BlockingCloseAccessCounter();
 
-    AdaptingRequestUpdateProcessor(PreviewExtenderImpl previewExtenderImpl) {
+    public AdaptingRequestUpdateProcessor(@NonNull PreviewExtenderImpl previewExtenderImpl) {
         Preconditions.checkArgument(previewExtenderImpl.getProcessorType()
                         == PreviewExtenderImpl.ProcessorType.PROCESSOR_TYPE_REQUEST_UPDATE_ONLY,
                 "AdaptingRequestUpdateProcess can only adapt extender with "

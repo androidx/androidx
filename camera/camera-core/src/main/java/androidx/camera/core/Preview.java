@@ -164,11 +164,6 @@ public final class Preview extends UseCase {
     // [UseCase attached dynamic] - Can change but is only available when the UseCase is attached.
     ////////////////////////////////////////////////////////////////////////////////////////////
 
-    @Nullable
-    private HandlerThread mProcessingPreviewThread;
-    @Nullable
-    private Handler mProcessingPreviewHandler;
-
     private DeferrableSurface mSessionDeferrableSurface;
 
     @VisibleForTesting
@@ -219,13 +214,9 @@ public final class Preview extends UseCase {
         if (captureProcessor != null) {
             CaptureStage captureStage = new CaptureStage.DefaultCaptureStage();
             // TODO: To allow user to use an Executor for the processing.
-
-            if (mProcessingPreviewThread == null) {
-                mProcessingPreviewThread = new HandlerThread(
-                        CameraXThreads.TAG + "preview_processing");
-                mProcessingPreviewThread.start();
-                mProcessingPreviewHandler = new Handler(mProcessingPreviewThread.getLooper());
-            }
+            HandlerThread handlerThread = new HandlerThread(
+                    CameraXThreads.TAG + "preview_processing");
+            handlerThread.start();
 
             String tagBundleKey = Integer.toString(captureStage.hashCode());
 
@@ -233,7 +224,7 @@ public final class Preview extends UseCase {
                     resolution.getWidth(),
                     resolution.getHeight(),
                     config.getInputFormat(),
-                    mProcessingPreviewHandler,
+                    new Handler(handlerThread.getLooper()),
                     captureStage,
                     captureProcessor,
                     surfaceRequest.getDeferrableSurface(),
@@ -241,6 +232,9 @@ public final class Preview extends UseCase {
 
             sessionConfigBuilder.addCameraCaptureCallback(
                     processingSurface.getCameraCaptureCallback());
+
+            processingSurface.getTerminationFuture().addListener(handlerThread::quitSafely,
+                    CameraXExecutors.directExecutor());
 
             mSessionDeferrableSurface = processingSurface;
 
@@ -460,6 +454,25 @@ public final class Preview extends UseCase {
      *
      * @hide
      */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    @Override
+    UseCaseConfig<?> onMergeConfig(@NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
+        if (builder.getMutableConfig().retrieveOption(OPTION_PREVIEW_CAPTURE_PROCESSOR, null)
+                != null) {
+            builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT, ImageFormat.YUV_420_888);
+        } else {
+            builder.getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
+                    ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
+        }
+        return builder.getUseCaseConfig();
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @hide
+     */
     @NonNull
     @RestrictTo(Scope.LIBRARY_GROUP)
     @Override
@@ -489,12 +502,6 @@ public final class Preview extends UseCase {
     public void onDetached() {
         if (mSessionDeferrableSurface != null) {
             mSessionDeferrableSurface.close();
-            mSessionDeferrableSurface.getTerminationFuture().addListener(() -> {
-                if (mProcessingPreviewThread != null) {
-                    mProcessingPreviewThread.quitSafely();
-                    mProcessingPreviewThread = null;
-                }
-            }, CameraXExecutors.directExecutor());
         }
 
         mCurrentSurfaceRequest = null;
@@ -511,7 +518,7 @@ public final class Preview extends UseCase {
     protected Size onSuggestedResolutionUpdated(@NonNull Size suggestedResolution) {
         mSurfaceSize = suggestedResolution;
         updateConfigAndOutput(getCameraId(), (PreviewConfig) getCurrentConfig(),
-                suggestedResolution);
+                mSurfaceSize);
         return suggestedResolution;
     }
 
@@ -655,7 +662,6 @@ public final class Preview extends UseCase {
 
         /**
          * Generates a Builder from another Config object
-         * @return
          *
          * @hide
          */
@@ -715,13 +721,6 @@ public final class Preview extends UseCase {
                 throw new IllegalArgumentException(
                         "Cannot use both setTargetResolution and setTargetAspectRatio on the same "
                                 + "config.");
-            }
-
-            if (getMutableConfig().retrieveOption(OPTION_PREVIEW_CAPTURE_PROCESSOR, null) != null) {
-                getMutableConfig().insertOption(OPTION_INPUT_FORMAT, ImageFormat.YUV_420_888);
-            } else {
-                getMutableConfig().insertOption(OPTION_INPUT_FORMAT,
-                        ImageFormatConstants.INTERNAL_DEFINED_IMAGE_FORMAT_PRIVATE);
             }
 
             return new Preview(getUseCaseConfig());

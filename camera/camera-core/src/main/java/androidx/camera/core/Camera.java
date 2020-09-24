@@ -25,7 +25,7 @@ import androidx.camera.core.internal.CameraUseCaseAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.Collection;
+import java.util.LinkedHashSet;
 
 /**
  * The camera interface is used to control the flow of data to use cases, control the
@@ -75,12 +75,17 @@ public interface Camera {
      * However, it will be transparent to the {@link CameraControl} and {@link CameraInfo}
      * retrieved from {@link #getCameraControl()} and {@link #getCameraInfo()}.
      *
+     * <p> The CameraInternal are returned in the order of preference. The
+     * {@link CameraConfig} that is set via {@link #setExtendedConfig(CameraConfig)} can filter
+     * out specific instances of the CameraInternal. The remaining CameraInternal that comes
+     * first in this ordering will be used.
+     *
      * <p> The set of CameraInternal should be static for the lifetime of the Camera.
      * @hide
      */
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
-    Collection<CameraInternal> getCameraInternals();
+    LinkedHashSet<CameraInternal> getCameraInternals();
 
     /**
      * Get the currently set extended config of the Camera.

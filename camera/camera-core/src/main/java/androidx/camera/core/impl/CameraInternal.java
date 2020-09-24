@@ -28,6 +28,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 
 /**
  * The camera interface. It is controlled by the change of state in use cases.
@@ -172,10 +173,9 @@ public interface CameraInternal extends Camera, UseCase.StateChangeCallback {
      */
     @NonNull
     @Override
-    default Collection<CameraInternal> getCameraInternals() {
-        return Collections.singleton(this);
+    default LinkedHashSet<CameraInternal> getCameraInternals() {
+        return new LinkedHashSet<>(Collections.singleton(this));
     }
-
 
     @NonNull
     @Override

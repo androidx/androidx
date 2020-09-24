@@ -35,6 +35,7 @@ import androidx.lifecycle.OnLifecycleEvent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 /**
@@ -243,7 +244,7 @@ final class LifecycleCamera implements LifecycleObserver, Camera {
 
     @NonNull
     @Override
-    public Collection<CameraInternal> getCameraInternals() {
+    public LinkedHashSet<CameraInternal> getCameraInternals() {
         return mCameraUseCaseAdapter.getCameraInternals();
     }
 

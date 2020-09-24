@@ -38,6 +38,7 @@ import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.SessionConfig;
 import androidx.camera.core.impl.UseCaseConfig;
 import androidx.camera.core.impl.UseCaseConfigFactory;
+import androidx.camera.core.internal.TargetConfig;
 import androidx.camera.core.internal.utils.UseCaseConfigUtil;
 import androidx.core.util.Preconditions;
 
@@ -164,6 +165,9 @@ public abstract class UseCase {
      * @param extendedConfig      configs that take priority over the UseCase's default config
      * @param cameraDefaultConfig configs that have lower priority than the UseCase's default.
      *                            This Config comes from the camera implementation.
+     *
+     * @throws IllegalArgumentException if there exists conflicts in the merged config that can
+     * not be resolved
      * @hide
      */
     @RestrictTo(Scope.LIBRARY_GROUP)
@@ -171,15 +175,11 @@ public abstract class UseCase {
     public UseCaseConfig<?> mergeConfigs(
             @Nullable UseCaseConfig<?> extendedConfig,
             @Nullable UseCaseConfig<?> cameraDefaultConfig) {
-        if (extendedConfig == null && cameraDefaultConfig == null) {
-            // No default builder was retrieved, return config directly
-            return mUseCaseConfig;
-        }
-
         MutableOptionsBundle mergedConfig;
 
         if (cameraDefaultConfig != null) {
             mergedConfig = MutableOptionsBundle.from(cameraDefaultConfig);
+            mergedConfig.removeOption(TargetConfig.OPTION_TARGET_NAME);
         } else {
             mergedConfig = MutableOptionsBundle.create();
         }
@@ -202,7 +202,9 @@ public abstract class UseCase {
             for (Option<?> opt : extendedConfig.listOptions()) {
                 @SuppressWarnings("unchecked") // Options/values are being copied directly
                         Option<Object> objectOpt = (Option<Object>) opt;
-
+                if (objectOpt.getId().equals(TargetConfig.OPTION_TARGET_NAME.getId())) {
+                    continue;
+                }
                 mergedConfig.insertOption(objectOpt,
                         extendedConfig.getOptionPriority(opt),
                         extendedConfig.retrieveOption(objectOpt));
@@ -210,7 +212,7 @@ public abstract class UseCase {
         }
 
         // If OPTION_TARGET_RESOLUTION has been set by the user, remove
-        // OPTION_TARGET_ASPECT_RATIO from defaultConfigBuilder because these two settings can be
+        // OPTION_TARGET_ASPECT_RATIO from defaultConfigBuilder because these two settings cannot be
         // set at the same time.
         if (mergedConfig.containsOption(ImageOutputConfig.OPTION_TARGET_RESOLUTION)
                 && mergedConfig.containsOption(
@@ -218,7 +220,26 @@ public abstract class UseCase {
             mergedConfig.removeOption(ImageOutputConfig.OPTION_TARGET_ASPECT_RATIO);
         }
 
-        return getUseCaseConfigBuilder(mergedConfig).getUseCaseConfig();
+        return onMergeConfig(getUseCaseConfigBuilder(mergedConfig));
+    }
+
+    /**
+     * Called when a set of configs are merged so the UseCase can do additional handling.
+     *
+     * <p> This can be overridden by a UseCase which need to do additional verification of the
+     * configs to make sure there are no conflicting options.
+     *
+     * @param builder the builder containing the merged configs requiring addition conflict
+     *                resolution
+     * @return the conflict resolved config
+     * @throws IllegalArgumentException if there exists conflicts in the merged config that can
+     * not be resolved
+     * @hide
+     */
+    @RestrictTo(Scope.LIBRARY_GROUP)
+    @NonNull
+    UseCaseConfig<?> onMergeConfig(@NonNull UseCaseConfig.Builder<?, ?, ?> builder) {
+        return builder.getUseCaseConfig();
     }
 
     /**
@@ -507,18 +528,21 @@ public abstract class UseCase {
      */
     @SuppressLint("WrongConstant")
     @RestrictTo(Scope.LIBRARY_GROUP)
-    public void onAttach(@NonNull CameraInternal camera, @NonNull UseCaseConfigFactory factory) {
+    public void onAttach(@NonNull CameraInternal camera,
+            @Nullable UseCaseConfig<?> extendedConfig,
+            @Nullable UseCaseConfig<?> cameraConfig) {
         synchronized (mCameraLock) {
             mCamera = camera;
             addStateChangeCallback(camera);
         }
 
-        mCameraConfig = getDefaultConfig(factory);
+        mExtendedConfig = extendedConfig;
+        mCameraConfig = cameraConfig;
         mCurrentConfig = mergeConfigs(mExtendedConfig, mCameraConfig);
 
         EventCallback eventCallback = mCurrentConfig.getUseCaseEventCallback(null);
         if (eventCallback != null) {
-            eventCallback.onBind(camera.getCameraInfoInternal().getCameraId());
+            eventCallback.onAttach(camera.getCameraInfoInternal());
         }
         onAttached();
     }
@@ -552,7 +576,7 @@ public abstract class UseCase {
         // Cleanup required for any type of UseCase
         EventCallback eventCallback = mCurrentConfig.getUseCaseEventCallback(null);
         if (eventCallback != null) {
-            eventCallback.onUnbind();
+            eventCallback.onDetach();
         }
 
         synchronized (mCameraLock) {
@@ -567,6 +591,7 @@ public abstract class UseCase {
         // Resets the mUseCaseConfig to the initial status when the use case was created to make
         // the use case reusable.
         mCurrentConfig = mUseCaseConfig;
+        mExtendedConfig = null;
         mCameraConfig = null;
     }
 
@@ -698,7 +723,7 @@ public abstract class UseCase {
     }
 
     /**
-     * Callback for when a {@link UseCase} transitions between bind/unbind states.
+     * Callback for when a {@link UseCase} transitions between attach/detach states.
      *
      * @hide
      */
@@ -706,16 +731,16 @@ public abstract class UseCase {
     public interface EventCallback {
 
         /**
-         * Called when use case was bound to the life cycle.
+         * Called when use case is attached to a camera.
          *
-         * @param cameraId that current used.
+         * @param cameraInfo that current used.
          */
-        void onBind(@NonNull String cameraId);
+        void onAttach(@NonNull CameraInfo cameraInfo);
 
         /**
-         * Called when use case was unbind from the life cycle and clear the resource of the use
-         * case.
+         * Called when use case is detached from the camera to clear additional resources used
+         * for the UseCase.
          */
-        void onUnbind();
+        void onDetach();
     }
 }

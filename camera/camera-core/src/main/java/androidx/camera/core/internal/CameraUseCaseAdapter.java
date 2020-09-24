@@ -35,6 +35,7 @@ import androidx.camera.core.ViewPort;
 import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraConfigs;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
+import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.SurfaceConfig;
 import androidx.camera.core.impl.UseCaseConfig;
@@ -147,11 +148,16 @@ public final class CameraUseCaseAdapter implements Camera {
      * <p> This does not take into account UseCases which are already attached to the camera.
      */
     public void checkAttachUseCases(@NonNull List<UseCase> useCases) throws CameraException {
-        // If the UseCases exceed the resolutions then it will throw an exception
-        try {
-            calculateSuggestedResolutions(useCases, Collections.emptyList());
-        } catch (IllegalArgumentException e) {
-            throw new CameraException(e.getMessage());
+        synchronized (mLock) {
+            // If the UseCases exceed the resolutions then it will throw an exception
+            try {
+                Map<UseCase, ConfigPair> configs = getConfigs(useCases,
+                        mCameraConfig.getUseCaseConfigFactory(), mUseCaseConfigFactory);
+                calculateSuggestedResolutions(mCameraInternal.getCameraInfoInternal(),
+                        useCases, Collections.emptyList(), configs);
+            } catch (IllegalArgumentException e) {
+                throw new CameraException(e.getMessage());
+            }
         }
     }
 
@@ -174,37 +180,25 @@ public final class CameraUseCaseAdapter implements Camera {
                 }
             }
 
+            Map<UseCase, ConfigPair> configs = getConfigs(newUseCases,
+                    mCameraConfig.getUseCaseConfigFactory(), mUseCaseConfigFactory);
+
             Map<UseCase, Size> suggestedResolutionsMap;
             try {
                 suggestedResolutionsMap =
-                        calculateSuggestedResolutions(newUseCases, mUseCases);
+                        calculateSuggestedResolutions(mCameraInternal.getCameraInfoInternal(),
+                                newUseCases, mUseCases, configs);
             } catch (IllegalArgumentException e) {
                 throw new CameraException(e.getMessage());
             }
-
-            if (mViewPort != null) {
-                // Calculate crop rect if view port is provided.
-                boolean isFrontCamera = mCameraInternal.getCameraInfoInternal().getLensFacing()
-                        == CameraSelector.LENS_FACING_FRONT;
-                Map<UseCase, Rect> cropRectMap = ViewPorts.calculateViewPortRects(
-                        mCameraInternal.getCameraControlInternal().getSensorRect(),
-                        isFrontCamera,
-                        mViewPort.getAspectRatio(),
-                        mCameraInternal.getCameraInfoInternal().getSensorRotationDegrees(
-                                mViewPort.getRotation()),
-                        mViewPort.getScaleType(),
-                        mViewPort.getLayoutDirection(),
-                        suggestedResolutionsMap);
-                for (UseCase useCase : useCases) {
-                    useCase.setViewPortCropRect(
-                            Preconditions.checkNotNull(cropRectMap.get(useCase)));
-                }
-            }
+            updateViewPort(suggestedResolutionsMap, useCases);
 
             // At this point the binding will succeed since all the calculations are done
             // Do all attaching related work
             for (UseCase useCase : newUseCases) {
-                useCase.onAttach(mCameraInternal, mUseCaseConfigFactory);
+                ConfigPair configPair = configs.get(useCase);
+                useCase.onAttach(mCameraInternal, configPair.mExtendedConfig,
+                        configPair.mCameraConfig);
                 useCase.updateSuggestedResolution(
                         Preconditions.checkNotNull(suggestedResolutionsMap.get(useCase)));
             }
@@ -289,10 +283,13 @@ public final class CameraUseCaseAdapter implements Camera {
         }
     }
 
-    private Map<UseCase, Size> calculateSuggestedResolutions(@NonNull List<UseCase> newUseCases,
-            @NonNull List<UseCase> currentUseCases) {
+    private Map<UseCase, Size> calculateSuggestedResolutions(
+            @NonNull CameraInfoInternal cameraInfoInternal,
+            @NonNull List<UseCase> newUseCases,
+            @NonNull List<UseCase> currentUseCases,
+            @NonNull Map<UseCase, ConfigPair> configPairMap) {
         List<SurfaceConfig> existingSurfaces = new ArrayList<>();
-        String cameraId = mCameraInternal.getCameraInfoInternal().getCameraId();
+        String cameraId = cameraInfoInternal.getCameraId();
         Map<UseCase, Size> suggestedResolutions = new HashMap<>();
 
         // Get resolution for current use cases.
@@ -309,11 +306,10 @@ public final class CameraUseCaseAdapter implements Camera {
         if (!newUseCases.isEmpty()) {
             Map<UseCaseConfig<?>, UseCase> configToUseCaseMap = new HashMap<>();
             for (UseCase useCase : newUseCases) {
-                UseCaseConfig<?> defaultConfig =
-                        useCase.getDefaultConfig(mUseCaseConfigFactory);
-
+                ConfigPair configPair = configPairMap.get(useCase);
                 // Combine with default configuration.
-                UseCaseConfig<?> combinedUseCaseConfig = useCase.mergeConfigs(null, defaultConfig);
+                UseCaseConfig<?> combinedUseCaseConfig =
+                        useCase.mergeConfigs(configPair.mExtendedConfig, configPair.mCameraConfig);
                 configToUseCaseMap.put(combinedUseCaseConfig, useCase);
             }
 
@@ -328,6 +324,54 @@ public final class CameraUseCaseAdapter implements Camera {
             }
         }
         return suggestedResolutions;
+    }
+
+    @UseExperimental(markerClass = androidx.camera.core.ExperimentalUseCaseGroup.class)
+    private void updateViewPort(@NonNull Map<UseCase, Size> suggestedResolutionsMap,
+            @NonNull Collection<UseCase> useCases) {
+        synchronized (mLock) {
+            if (mViewPort != null) {
+                boolean isFrontCamera = mCameraInternal.getCameraInfoInternal().getLensFacing()
+                        == CameraSelector.LENS_FACING_FRONT;
+                // Calculate crop rect if view port is provided.
+                Map<UseCase, Rect> cropRectMap = ViewPorts.calculateViewPortRects(
+                        mCameraInternal.getCameraControlInternal().getSensorRect(),
+                        isFrontCamera,
+                        mViewPort.getAspectRatio(),
+                        mCameraInternal.getCameraInfoInternal().getSensorRotationDegrees(
+                                mViewPort.getRotation()),
+                        mViewPort.getScaleType(),
+                        mViewPort.getLayoutDirection(),
+                        suggestedResolutionsMap);
+                for (UseCase useCase : useCases) {
+                    useCase.setViewPortCropRect(
+                            Preconditions.checkNotNull(cropRectMap.get(useCase)));
+                }
+            }
+        }
+    }
+
+    // Pair of UseCase configs. One for the extended config applied on top of the use case and
+    // the camera default which applied underneath the use case's config.
+    private static class ConfigPair {
+        ConfigPair(UseCaseConfig<?> extendedConfig, UseCaseConfig<?> cameraConfig) {
+            mExtendedConfig = extendedConfig;
+            mCameraConfig = cameraConfig;
+        }
+
+        UseCaseConfig<?> mExtendedConfig;
+        UseCaseConfig<?> mCameraConfig;
+    }
+
+    // Get a map of the configs for the use cases from the respective factories
+    private Map<UseCase, ConfigPair> getConfigs(List<UseCase> useCases,
+            UseCaseConfigFactory extendedFactory, UseCaseConfigFactory cameraFactory) {
+        Map<UseCase, ConfigPair> configs = new HashMap<>();
+        for (UseCase useCase : useCases) {
+            configs.put(useCase, new ConfigPair(useCase.getDefaultConfig(extendedFactory),
+                    useCase.getDefaultConfig(cameraFactory)));
+        }
+        return configs;
     }
 
     /**
@@ -395,7 +439,7 @@ public final class CameraUseCaseAdapter implements Camera {
 
     @NonNull
     @Override
-    public Collection<CameraInternal> getCameraInternals() {
+    public LinkedHashSet<CameraInternal> getCameraInternals() {
         return mCameraInternals;
     }
 
@@ -418,6 +462,49 @@ public final class CameraUseCaseAdapter implements Camera {
             CameraSelector cameraSelector =
                     new CameraSelector.Builder().addCameraFilter(cameraFilter).build();
             CameraInternal cameraInternal = cameraSelector.select(mCameraInternals);
+
+            Map<UseCase, ConfigPair> configs = getConfigs(mUseCases,
+                    newCameraConfig.getUseCaseConfigFactory(), mUseCaseConfigFactory);
+
+            // Calculate the config
+            Map<UseCase, Size> suggestedResolutionsMap;
+            try {
+                suggestedResolutionsMap =
+                        calculateSuggestedResolutions(cameraInternal.getCameraInfoInternal(),
+                                mUseCases,
+                                Collections.emptyList(),
+                                configs);
+            } catch (IllegalArgumentException e) {
+                // It can fail because of the suggested resolution
+                // It can fail because the merged configs are no good
+                throw new CameraException(e.getMessage());
+            }
+
+            updateViewPort(suggestedResolutionsMap, mUseCases);
+
+            if (mAttached) {
+                mCameraInternal.detachUseCases(mUseCases);
+            }
+
+            for (UseCase useCase : mUseCases) {
+                useCase.onDetach(mCameraInternal);
+            }
+
+            for (UseCase useCase : mUseCases) {
+                ConfigPair configPair = configs.get(useCase);
+                useCase.onAttach(cameraInternal, configPair.mExtendedConfig,
+                        configPair.mCameraConfig);
+                useCase.updateSuggestedResolution(
+                        Preconditions.checkNotNull(suggestedResolutionsMap.get(useCase)));
+            }
+
+            if (mAttached) {
+                cameraInternal.attachUseCases(mUseCases);
+            }
+
+            for (UseCase useCase : mUseCases) {
+                useCase.notifyState();
+            }
 
             mCameraInternal = cameraInternal;
             // Update the config map now that the setting has succeeded

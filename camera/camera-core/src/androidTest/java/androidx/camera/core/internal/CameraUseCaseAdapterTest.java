@@ -18,6 +18,9 @@ package androidx.camera.core.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
@@ -133,7 +136,7 @@ public class CameraUseCaseAdapterTest {
         FakeUseCase fakeUseCase = spy(new FakeUseCase());
         cameraUseCaseAdapter.addUseCases(Collections.singleton(fakeUseCase));
 
-        verify(fakeUseCase).onAttach(mFakeCamera, mUseCaseConfigFactory);
+        verify(fakeUseCase).onAttach(eq(mFakeCamera), isNull(), any(FakeUseCaseConfig.class));
     }
 
     @Test
@@ -163,7 +166,7 @@ public class CameraUseCaseAdapterTest {
 
         cameraUseCaseAdapter.addUseCases(Collections.singleton(fakeUseCase));
 
-        verify(callback).onBind(mFakeCamera.getCameraInfoInternal().getCameraId());
+        verify(callback).onAttach(mFakeCamera.getCameraInfoInternal());
     }
 
     @Test
@@ -180,7 +183,7 @@ public class CameraUseCaseAdapterTest {
 
         cameraUseCaseAdapter.removeUseCases(Collections.singleton(fakeUseCase));
 
-        verify(callback).onUnbind();
+        verify(callback).onDetach();
     }
 
     @Test
