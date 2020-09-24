@@ -21,13 +21,13 @@ For more details see https://docs\.gradle\.org/[0-9]+\.[0-9]+\.[0-9]+/release\-n
 To honour the JVM settings for this build a new JVM will be forked\. Please consider using the daemon: https://docs\.gradle\.org/[0-9]+\.[0-9]+\.[0-9]+/userguide/gradle_daemon\.html\.
 Daemon will be stopped at the end of the build stopping after processing
 # > Task :buildSrc:build
-> Configure project :appsearch:appsearch\-local\-backend
+# > Configure project :appsearch:appsearch\-local\-backend
 WARNING: NDK was located by using ndk\.dir property\. This method is deprecated and will be removed in a future release\. Please use android\.ndkVersion or android\.ndkPath in build\.gradle to specify the NDK to use\. https://developer\.android\.com/r/studio\-ui/ndk\-dir
 NDK was located by using ndk\.dir property\. This method is deprecated and will be removed in a future release\. Please use android\.ndkVersion or android\.ndkPath in build\.gradle to specify the NDK to use\. https://developer\.android\.com/r/studio\-ui/ndk\-dir
 Configuration on demand is an incubating feature\.
-> Configure project :
+# > Configure project :
 updated local\.properties
-> Configure project :compose:test\-utils
+# > Configure project :compose:test\-utils
 Kotlin Multiplatform Projects are an Alpha feature\.
 The following Kotlin source sets were configured but not added to any Kotlin compilation:
 \* androidAndroidTestRelease
