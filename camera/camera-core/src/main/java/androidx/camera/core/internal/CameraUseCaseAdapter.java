@@ -25,11 +25,15 @@ import androidx.annotation.Nullable;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
+import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.CameraSelector;
+import androidx.camera.core.ExperimentalCameraFilter;
 import androidx.camera.core.Logger;
 import androidx.camera.core.UseCase;
 import androidx.camera.core.ViewPort;
+import androidx.camera.core.impl.CameraConfig;
+import androidx.camera.core.impl.CameraConfigs;
 import androidx.camera.core.impl.CameraDeviceSurfaceManager;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.impl.SurfaceConfig;
@@ -55,7 +59,8 @@ import java.util.Map;
  * camera id.
  */
 public final class CameraUseCaseAdapter implements Camera {
-    private final CameraInternal mCameraInternal;
+    @NonNull
+    private CameraInternal mCameraInternal;
     private final LinkedHashSet<CameraInternal> mCameraInternals;
     private final CameraDeviceSurfaceManager mCameraDeviceSurfaceManager;
     private final UseCaseConfigFactory mUseCaseConfigFactory;
@@ -71,6 +76,11 @@ public final class CameraUseCaseAdapter implements Camera {
     @Nullable
     private ViewPort mViewPort;
 
+    // Additional configs to apply onto the UseCases when added to this Camera
+    @GuardedBy("mLock")
+    @NonNull
+    private CameraConfig mCameraConfig = CameraConfigs.emptyConfig();
+
     private final Object mLock = new Object();
 
     // This indicates whether or not the UseCases that have been added to this adapter has
@@ -81,16 +91,18 @@ public final class CameraUseCaseAdapter implements Camera {
     /**
      * Create a new {@link CameraUseCaseAdapter} instance.
      *
-     * @param cameraInternal             the actual camera implementation that is current attached
-     * @param cameras                    the set of cameras that are wrapped
+     * @param cameras                    the set of cameras that are wrapped, with them in order
+     *                                   of preference. The actual camera used will be dependent
+     *                                   on configs set by
+     *                                   {@link #setExtendedConfig(CameraConfig)} which can
+     *                                   filter out specific camera instances
      * @param cameraDeviceSurfaceManager A class that checks for whether a specific camera
      *                                   can support the set of Surface with set resolutions.
      */
-    public CameraUseCaseAdapter(@NonNull CameraInternal cameraInternal,
-            @NonNull LinkedHashSet<CameraInternal> cameras,
+    public CameraUseCaseAdapter(@NonNull LinkedHashSet<CameraInternal> cameras,
             @NonNull CameraDeviceSurfaceManager cameraDeviceSurfaceManager,
             @NonNull UseCaseConfigFactory useCaseConfigFactory) {
-        mCameraInternal = cameraInternal;
+        mCameraInternal = cameras.iterator().next();
         mCameraInternals = new LinkedHashSet<>(cameras);
         mId = new CameraId(mCameraInternals);
         mCameraDeviceSurfaceManager = cameraDeviceSurfaceManager;
@@ -385,5 +397,31 @@ public final class CameraUseCaseAdapter implements Camera {
     @Override
     public Collection<CameraInternal> getCameraInternals() {
         return mCameraInternals;
+    }
+
+    @NonNull
+    @Override
+    public CameraConfig getExtendedConfig() {
+        synchronized (mLock) {
+            return mCameraConfig;
+        }
+    }
+
+    @Override
+    @UseExperimental(markerClass = ExperimentalCameraFilter.class)
+    public void setExtendedConfig(@Nullable CameraConfig cameraConfig) throws CameraException {
+        synchronized (mLock) {
+            CameraConfig newCameraConfig = cameraConfig == null ? CameraConfigs.emptyConfig() :
+                    cameraConfig;
+            // Check for new camera
+            CameraFilter cameraFilter = newCameraConfig.getCameraFilter();
+            CameraSelector cameraSelector =
+                    new CameraSelector.Builder().addCameraFilter(cameraFilter).build();
+            CameraInternal cameraInternal = cameraSelector.select(mCameraInternals);
+
+            mCameraInternal = cameraInternal;
+            // Update the config map now that the setting has succeeded
+            mCameraConfig = newCameraConfig;
+        }
     }
 }

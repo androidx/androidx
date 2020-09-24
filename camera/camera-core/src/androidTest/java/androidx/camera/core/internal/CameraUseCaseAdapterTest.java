@@ -64,8 +64,7 @@ public class CameraUseCaseAdapterTest {
 
     @Test
     public void attachUseCases() throws CameraUseCaseAdapter.CameraException {
-        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
-                mFakeCameraSet,
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
                 mFakeCameraDeviceSurfaceManager,
                 mUseCaseConfigFactory);
         FakeUseCase fakeUseCase = new FakeUseCase();
@@ -77,8 +76,7 @@ public class CameraUseCaseAdapterTest {
 
     @Test
     public void detachUseCases() throws CameraUseCaseAdapter.CameraException {
-        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
-                mFakeCameraSet,
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
                 mFakeCameraDeviceSurfaceManager,
                 mUseCaseConfigFactory);
         FakeUseCase fakeUseCase = new FakeUseCase();
@@ -90,8 +88,7 @@ public class CameraUseCaseAdapterTest {
 
     @Test
     public void closeCameraUseCaseAdapter() throws CameraUseCaseAdapter.CameraException {
-        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
-                mFakeCameraSet,
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
                 mFakeCameraDeviceSurfaceManager,
                 mUseCaseConfigFactory);
         FakeUseCase fakeUseCase = new FakeUseCase();
@@ -104,8 +101,7 @@ public class CameraUseCaseAdapterTest {
 
     @Test
     public void cameraIdEquals() {
-        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
-                mFakeCameraSet,
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
                 mFakeCameraDeviceSurfaceManager,
                 mUseCaseConfigFactory);
 
@@ -117,13 +113,11 @@ public class CameraUseCaseAdapterTest {
 
     @Test
     public void cameraEquivalent() {
-        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
-                mFakeCameraSet,
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
                 mFakeCameraDeviceSurfaceManager,
                 mUseCaseConfigFactory);
 
-        CameraUseCaseAdapter otherCameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
-                mFakeCameraSet,
+        CameraUseCaseAdapter otherCameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
                 mFakeCameraDeviceSurfaceManager,
                 mUseCaseConfigFactory);
         assertThat(cameraUseCaseAdapter.isEquivalent(otherCameraUseCaseAdapter)).isTrue();
@@ -132,8 +126,7 @@ public class CameraUseCaseAdapterTest {
     @Test
     @MediumTest
     public void useCase_onAttach() throws CameraUseCaseAdapter.CameraException {
-        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
-                mFakeCameraSet,
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
                 mFakeCameraDeviceSurfaceManager,
                 mUseCaseConfigFactory);
 
@@ -146,8 +139,7 @@ public class CameraUseCaseAdapterTest {
     @Test
     @MediumTest
     public void useCase_onDetach() throws CameraUseCaseAdapter.CameraException {
-        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
-                mFakeCameraSet,
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
                 mFakeCameraDeviceSurfaceManager,
                 mUseCaseConfigFactory);
 
@@ -161,8 +153,7 @@ public class CameraUseCaseAdapterTest {
 
     @Test
     public void eventCallbackOnBind() throws CameraUseCaseAdapter.CameraException {
-        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
-                mFakeCameraSet,
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
                 mFakeCameraDeviceSurfaceManager,
                 mUseCaseConfigFactory);
 
@@ -177,8 +168,7 @@ public class CameraUseCaseAdapterTest {
 
     @Test
     public void eventCallbackOnUnbind() throws CameraUseCaseAdapter.CameraException {
-        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
-                mFakeCameraSet,
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
                 mFakeCameraDeviceSurfaceManager,
                 mUseCaseConfigFactory);
 
@@ -201,8 +191,7 @@ public class CameraUseCaseAdapterTest {
         Rational aspectRatio2 = new Rational(2, 1);
 
         // Arrange: set up adapter with aspect ratio 1.
-        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCamera,
-                mFakeCameraSet,
+        CameraUseCaseAdapter cameraUseCaseAdapter = new CameraUseCaseAdapter(mFakeCameraSet,
                 mFakeCameraDeviceSurfaceManager,
                 mUseCaseConfigFactory);
         cameraUseCaseAdapter.setViewPort(

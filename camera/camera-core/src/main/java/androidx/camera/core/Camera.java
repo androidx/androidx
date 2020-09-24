@@ -17,8 +17,11 @@
 package androidx.camera.core;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
+import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraInternal;
+import androidx.camera.core.internal.CameraUseCaseAdapter;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
@@ -78,4 +81,31 @@ public interface Camera {
     @NonNull
     @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
     Collection<CameraInternal> getCameraInternals();
+
+    /**
+     * Get the currently set extended config of the Camera.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    @NonNull
+    CameraConfig getExtendedConfig();
+
+    /**
+     * Set the extended config of the Camera and potentially reconfigure the camera.
+     *
+     * <p> This is used to apply additional configs that modifying the behavior of the camera and
+     * any attached {@link UseCase}. For example, this may limit the instances of CameraInternal
+     * that are used or configure the {@link ImageCapture} to use a
+     * {@link androidx.camera.core.impl.CaptureProcessor} in order to implement effects such as
+     * HDR or bokeh.
+
+     * <p> This can cause the underlying camera to be reopen.
+     * @param cameraConfig if the null then it will reset the camera to an empty config.
+     *
+     * @hide
+     */
+    @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
+    void setExtendedConfig(@Nullable CameraConfig cameraConfig) throws
+            CameraUseCaseAdapter.CameraException;
 }

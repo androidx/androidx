@@ -18,10 +18,12 @@ package androidx.camera.lifecycle;
 
 import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.Camera;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.CameraInfo;
 import androidx.camera.core.UseCase;
+import androidx.camera.core.impl.CameraConfig;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.core.internal.CameraUseCaseAdapter;
 import androidx.lifecycle.Lifecycle;
@@ -243,5 +245,17 @@ final class LifecycleCamera implements LifecycleObserver, Camera {
     @Override
     public Collection<CameraInternal> getCameraInternals() {
         return mCameraUseCaseAdapter.getCameraInternals();
+    }
+
+    @NonNull
+    @Override
+    public CameraConfig getExtendedConfig() {
+        return mCameraUseCaseAdapter.getExtendedConfig();
+    }
+
+    @Override
+    public void setExtendedConfig(@Nullable CameraConfig cameraConfig) throws
+            CameraUseCaseAdapter.CameraException {
+        mCameraUseCaseAdapter.setExtendedConfig(cameraConfig);
     }
 }

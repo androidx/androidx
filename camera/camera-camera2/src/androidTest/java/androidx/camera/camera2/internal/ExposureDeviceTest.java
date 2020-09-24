@@ -157,7 +157,7 @@ public class ExposureDeviceTest {
         fakeCameraDeviceSurfaceManager.setSuggestedResolution(mCameraId, FakeUseCaseConfig.class,
                 new Size(640, 480));
 
-        mCameraUseCaseAdapter = new CameraUseCaseAdapter(mCamera2CameraImpl,
+        mCameraUseCaseAdapter = new CameraUseCaseAdapter(
                 new LinkedHashSet<>(Collections.singleton(mCamera2CameraImpl)),
                 fakeCameraDeviceSurfaceManager, new FakeUseCaseConfigFactory());
     }

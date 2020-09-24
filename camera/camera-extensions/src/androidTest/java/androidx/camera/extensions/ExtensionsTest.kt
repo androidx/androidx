@@ -28,8 +28,10 @@ import androidx.camera.testing.CameraUtil
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.filters.MediumTest
 import androidx.test.filters.SdkSuppress
+import androidx.testutils.assertThrows
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
+import org.junit.Assume.assumeFalse
 import org.junit.Assume.assumeTrue
 import org.junit.Before
 import org.junit.Test
@@ -98,5 +100,30 @@ class ExtensionsTest(
             ExtensionsManager.isExtensionAvailable(mEffectMode, mLensFacing) ==
                 mExtensions.isExtensionAvailable(camera, mExtensionMode)
         ).isTrue()
+    }
+
+    @Test
+    fun setExtensionSucceedsIfAvailable() {
+        val cameraSelector = CameraSelector.Builder().requireLensFacing(mLensFacing).build()
+        val camera = CameraUtil.createCameraUseCaseAdapter(mContext, cameraSelector)
+
+        assumeTrue(mExtensions.isExtensionAvailable(camera, mExtensionMode))
+
+        mExtensions.setExtension(camera, mExtensionMode)
+        assertThat(mExtensions.getExtension(camera)).isEqualTo(mExtensionMode)
+    }
+
+    @Test
+    fun setExtensionFailsIfNotAvailable() {
+        val cameraSelector = CameraSelector.Builder().requireLensFacing(mLensFacing).build()
+        val camera = CameraUtil.createCameraUseCaseAdapter(mContext, cameraSelector)
+
+        assumeFalse(mExtensions.isExtensionAvailable(camera, mExtensionMode))
+
+        assertThrows<IllegalArgumentException> {
+            mExtensions.setExtension(camera, mExtensionMode)
+        }
+
+        assertThat(mExtensions.getExtension(camera)).isEqualTo(Extensions.EXTENSION_MODE_NONE)
     }
 }
