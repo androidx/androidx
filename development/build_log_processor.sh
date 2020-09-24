@@ -64,16 +64,12 @@ echo "DIST_DIR=$DIST_DIR" | tee -a $logFile
 echo "CHECKOUT=$CHECKOUT" | tee -a $logFile
 programName="$1"
 shift
-echo Running "$programName" "$@"
 if "$programName" "$@" > >(tee -a "$logFile") 2>&1; then
-  echo "Succeeded: $programName $*" >&2
   if [ "$validateNoUnrecognizedMessagesOnSuccess" == "true" ]; then
-    echo "##########################################################################" >&2
     $SCRIPT_PATH/build_log_simplifier.py --validate $logFile >&2
   fi
 else
   echo >&2
-  echo "Failed: $programName $*" >&2
   echo "############################################################################" >&2
   echo "Attempting to locate the relevant error messages via build_log_simplifier.py" >&2
   echo "############################################################################" >&2
