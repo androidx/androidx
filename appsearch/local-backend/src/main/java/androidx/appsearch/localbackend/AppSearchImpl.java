@@ -29,8 +29,6 @@ import androidx.appsearch.exceptions.AppSearchException;
 import androidx.core.util.Preconditions;
 
 import com.google.android.icing.IcingSearchEngine;
-import com.google.android.icing.proto.DeleteByNamespaceResultProto;
-import com.google.android.icing.proto.DeleteBySchemaTypeResultProto;
 import com.google.android.icing.proto.DeleteResultProto;
 import com.google.android.icing.proto.DocumentProto;
 import com.google.android.icing.proto.GetAllNamespacesResultProto;
@@ -391,93 +389,37 @@ public final class AppSearchImpl {
     }
 
     /**
-     * Removes all documents having the given {@code schemaType} in given database.
+     * Removes documents by given query.
      *
      * <p>This method belongs to mutate group.
      *
-     * @param databaseName The databaseName that contains documents of schemaType.
-     * @param schemaType   The schemaType of documents to remove.
+     * @param databaseName The databaseName the document is in.
+     * @param searchSpec   Defines what and how to remove
      * @throws AppSearchException on IcingSearchEngine error.
      */
-    public void removeByType(@NonNull String databaseName, @NonNull String schemaType)
+    public void removeByQuery(@NonNull String databaseName, @NonNull SearchSpecProto searchSpec)
             throws AppSearchException {
-        String qualifiedType = getDatabasePrefix(databaseName) + schemaType;
-        DeleteBySchemaTypeResultProto deleteBySchemaTypeResultProto;
-        mReadWriteLock.writeLock().lock();
-        try {
-            Set<String> existingSchemaTypes = mSchemaMap.get(databaseName);
-            if (existingSchemaTypes == null || !existingSchemaTypes.contains(qualifiedType)) {
-                return;
-            }
-            deleteBySchemaTypeResultProto = mIcingSearchEngine.deleteBySchemaType(qualifiedType);
-            checkForOptimize(/* force= */true);
-        } finally {
-            mReadWriteLock.writeLock().unlock();
-        }
-        checkSuccess(deleteBySchemaTypeResultProto.getStatus());
-    }
 
-    /**
-     * Removes all documents having the given {@code namespace} in given database.
-     *
-     * <p>This method belongs to mutate group.
-     *
-     * @param databaseName The databaseName that contains documents of namespace.
-     * @param namespace    The namespace of documents to remove.
-     * @throws AppSearchException on IcingSearchEngine error.
-     */
-    public void removeByNamespace(@NonNull String databaseName, @NonNull String namespace)
-            throws AppSearchException {
-        String qualifiedNamespace = getDatabasePrefix(databaseName) + namespace;
-        DeleteByNamespaceResultProto deleteByNamespaceResultProto;
+        SearchSpecProto.Builder searchSpecBuilder = searchSpec.toBuilder();
+        DeleteResultProto deleteResultProto;
         mReadWriteLock.writeLock().lock();
         try {
-            Set<String> existingNamespaces = mNamespaceMap.get(databaseName);
-            if (existingNamespaces == null || !existingNamespaces.contains(qualifiedNamespace)) {
+            // Only rewrite SearchSpec for non empty database.
+            // rewriteSearchSpecForNonEmptyDatabase will return false for empty database, we
+            // should skip sending request to Icing and return in here.
+            if (!rewriteSearchSpecForNonEmptyDatabase(databaseName, searchSpecBuilder)) {
                 return;
             }
-            deleteByNamespaceResultProto = mIcingSearchEngine.deleteByNamespace(qualifiedNamespace);
+            deleteResultProto = mIcingSearchEngine.deleteByQuery(
+                    searchSpecBuilder.build());
             checkForOptimize(/* force= */true);
         } finally {
             mReadWriteLock.writeLock().unlock();
         }
-        checkSuccess(deleteByNamespaceResultProto.getStatus());
-    }
-
-    /**
-     * Clears the given database by removing all documents and types.
-     *
-     * <p>The schemas will remain. To clear everything including schemas, please call
-     * {@link #setSchema} with an empty schema and {@code forceOverride} set to true.
-     *
-     * <p>This method belongs to mutate group.
-     *
-     * @param databaseName The databaseName to remove all documents from.
-     * @throws AppSearchException on IcingSearchEngine error.
-     */
-    public void removeAll(@NonNull String databaseName)
-            throws AppSearchException {
-        mReadWriteLock.writeLock().lock();
-        try {
-            Set<String> existingNamespaces = mNamespaceMap.get(databaseName);
-            if (existingNamespaces == null) {
-                return;
-            }
-            for (String namespace : existingNamespaces) {
-                DeleteByNamespaceResultProto deleteByNamespaceResultProto =
-                        mIcingSearchEngine.deleteByNamespace(namespace);
-                // There's no way for AppSearch to know that all documents in a particular
-                // namespace have been deleted, but if you try to delete an empty namespace, Icing
-                // returns NOT_FOUND. Just ignore that code.
-                checkCodeOneOf(
-                        deleteByNamespaceResultProto.getStatus(),
-                        StatusProto.Code.OK, StatusProto.Code.NOT_FOUND);
-            }
-            mNamespaceMap.remove(databaseName);
-            checkForOptimize(/* force= */true);
-        } finally {
-            mReadWriteLock.writeLock().unlock();
-        }
+        // it seems that the caller wants to get success if the data matching the query is not in
+        // the DB because it was not there or was successfully deleted.
+        checkCodeOneOf(deleteResultProto.getStatus(),
+                StatusProto.Code.OK, StatusProto.Code.NOT_FOUND);
     }
 
     /**

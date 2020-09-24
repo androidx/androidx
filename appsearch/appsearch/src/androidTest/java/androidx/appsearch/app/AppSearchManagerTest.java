@@ -698,6 +698,56 @@ public class AppSearchManagerTest {
     }
 
     @Test
+    public void testRemoveByQuery() throws Exception {
+        // Schema registration
+        checkIsResultSuccess(mDb1.setSchema(
+                new SetSchemaRequest.Builder().addSchema(AppSearchEmail.SCHEMA).build()));
+
+        // Index documents
+        AppSearchEmail email1 =
+                new AppSearchEmail.Builder("uri1")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("foo")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        AppSearchEmail email2 =
+                new AppSearchEmail.Builder("uri2")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("bar")
+                        .setBody("This is the body of the testPut second email")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(email1, email2).build()));
+
+        // Check the presence of the documents
+        assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri1")).hasSize(1);
+        assertThat(doGet(mDb1, GenericDocument.DEFAULT_NAMESPACE, "uri2")).hasSize(1);
+
+        // Delete the email 1 by query "foo"
+        checkIsResultSuccess(mDb1.removeByQuery("foo",
+                new SearchSpec.Builder().setTermMatch(SearchSpec.TERM_MATCH_PREFIX).build()));
+        AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
+                new GetByUriRequest.Builder().addUris("uri1", "uri2").build())
+                .get();
+        assertThat(getResult.isSuccess()).isFalse();
+        assertThat(getResult.getFailures().get("uri1").getResultCode())
+                .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+        assertThat(getResult.getSuccesses().get("uri2")).isEqualTo(email2);
+
+        // Delete the email 2 by query "bar"
+        checkIsResultSuccess(mDb1.removeByQuery("bar",
+                new SearchSpec.Builder().setTermMatch(SearchSpec.TERM_MATCH_PREFIX).build()));
+        getResult = mDb1.getByUri(
+                new GetByUriRequest.Builder().addUris("uri2").build())
+                .get();
+        assertThat(getResult.isSuccess()).isFalse();
+        assertThat(getResult.getFailures().get("uri2").getResultCode())
+                .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
+    }
+
+    @Test
     public void testRemove_TwoInstances() throws Exception {
         // Schema registration
         checkIsResultSuccess(mDb1.setSchema(new SetSchemaRequest.Builder()
@@ -776,7 +826,11 @@ public class AppSearchManagerTest {
                 "uri3")).hasSize(3);
 
         // Delete the email type
-        checkIsBatchResultSuccess(mDb1.removeByType(AppSearchEmail.SCHEMA_TYPE));
+        checkIsResultSuccess(mDb1.removeByQuery("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                        .setSchemaTypes(AppSearchEmail.SCHEMA_TYPE)
+                        .build()));
 
         // Make sure it's really gone
         AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
@@ -823,7 +877,11 @@ public class AppSearchManagerTest {
         assertThat(doGet(mDb2, GenericDocument.DEFAULT_NAMESPACE, "uri2")).hasSize(1);
 
         // Delete the email type in instance 1
-        checkIsBatchResultSuccess(mDb1.removeByType(AppSearchEmail.SCHEMA_TYPE));
+        checkIsResultSuccess(mDb1.removeByQuery("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                        .setSchemaTypes(AppSearchEmail.SCHEMA_TYPE)
+                        .build()));
 
         // Make sure it's really gone in instance 1
         AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
@@ -884,7 +942,11 @@ public class AppSearchManagerTest {
         assertThat(doGet(mDb1, /*namespace=*/"document", "uri3")).hasSize(1);
 
         // Delete the email namespace
-        checkIsBatchResultSuccess(mDb1.removeByNamespace("email"));
+        checkIsResultSuccess(mDb1.removeByQuery("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                        .setNamespaces("email")
+                        .build()));
 
         // Make sure it's really gone
         AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
@@ -937,7 +999,11 @@ public class AppSearchManagerTest {
         assertThat(doGet(mDb2, /*namespace=*/"email", "uri2")).hasSize(1);
 
         // Delete the email namespace in instance 1
-        checkIsBatchResultSuccess(mDb1.removeByNamespace("email"));
+        checkIsResultSuccess(mDb1.removeByQuery("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                        .setNamespaces("email")
+                        .build()));
 
         // Make sure it's really gone in instance 1
         AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
@@ -988,7 +1054,10 @@ public class AppSearchManagerTest {
         assertThat(doGet(mDb2, GenericDocument.DEFAULT_NAMESPACE, "uri2")).hasSize(1);
 
         // Delete the all document in instance 1
-        checkIsResultSuccess(mDb1.removeAll());
+        checkIsResultSuccess(mDb1.removeByQuery("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                        .build()));
 
         // Make sure it's really gone in instance 1
         AppSearchBatchResult<String, GenericDocument> getResult = mDb1.getByUri(
@@ -1002,6 +1071,67 @@ public class AppSearchManagerTest {
                 new GetByUriRequest.Builder().addUris("uri2").build()).get();
         assertThat(getResult.isSuccess()).isTrue();
         assertThat(getResult.getSuccesses().get("uri2")).isEqualTo(email2);
+    }
+
+    @Test
+    public void testRemoveAll_TermMatchType() throws Exception {
+        // Schema registration
+        checkIsResultSuccess(mDb1.setSchema(new SetSchemaRequest.Builder()
+                .addSchema(AppSearchEmail.SCHEMA).build()));
+        checkIsResultSuccess(mDb2.setSchema(new SetSchemaRequest.Builder()
+                .addSchema(AppSearchEmail.SCHEMA).build()));
+
+        // Index documents
+        AppSearchEmail email1 =
+                new AppSearchEmail.Builder("uri1")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example")
+                        .setBody("This is the body of the testPut email")
+                        .build();
+        AppSearchEmail email2 =
+                new AppSearchEmail.Builder("uri2")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example 2")
+                        .setBody("This is the body of the testPut second email")
+                        .build();
+        AppSearchEmail email3 =
+                new AppSearchEmail.Builder("uri3")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example 3")
+                        .setBody("This is the body of the testPut second email")
+                        .build();
+        AppSearchEmail email4 =
+                new AppSearchEmail.Builder("uri4")
+                        .setFrom("from@example.com")
+                        .setTo("to1@example.com", "to2@example.com")
+                        .setSubject("testPut example 4")
+                        .setBody("This is the body of the testPut second email")
+                        .build();
+        checkIsBatchResultSuccess(mDb1.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(email1, email2).build()));
+        checkIsBatchResultSuccess(mDb2.putDocuments(
+                new PutDocumentsRequest.Builder().addGenericDocument(email3, email4).build()));
+
+        // Check the presence of the documents
+        assertThat(doQuery(mDb1, "")).hasSize(2);
+        assertThat(doQuery(mDb2, "")).hasSize(2);
+
+        // Delete the all document in instance 1 with TERM_MATCH_PREFIX
+        checkIsResultSuccess(mDb1.removeByQuery("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                        .build()));
+        assertThat(doQuery(mDb1, "")).isEmpty();
+
+        // Delete the all document in instance 2 with TERM_MATCH_EXACT_ONLY
+        checkIsResultSuccess(mDb2.removeByQuery("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_EXACT_ONLY)
+                        .build()));
+        assertThat(doQuery(mDb2, "")).isEmpty();
     }
 
     @Test
@@ -1038,7 +1168,10 @@ public class AppSearchManagerTest {
                 .isEqualTo(AppSearchResult.RESULT_NOT_FOUND);
 
         // Delete the all documents
-        checkIsResultSuccess(mDb1.removeAll());
+        checkIsResultSuccess(mDb1.removeByQuery("",
+                new SearchSpec.Builder()
+                        .setTermMatch(SearchSpec.TERM_MATCH_PREFIX)
+                        .build()));
 
         // Make sure it's still gone
         getResult = mDb1.getByUri(

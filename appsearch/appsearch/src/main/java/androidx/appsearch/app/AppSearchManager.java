@@ -22,9 +22,6 @@ import androidx.core.util.Preconditions;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.Arrays;
-import java.util.List;
-
 /**
  * This class provides access to the centralized AppSearch index maintained by the system.
  *
@@ -262,88 +259,25 @@ public class AppSearchManager {
     }
 
     /**
-     * Removes {@link GenericDocument}s from the index by schema type.
+     * Removes {@link GenericDocument}s from the index by Query. Documents will be removed if they
+     * match the query expression in given namespaces and schemaTypes.
      *
-     * @param schemaTypes Schema types whose documents to delete.
-     * @return The pending result of performing this operation. The keys of the returned
-     * {@link AppSearchBatchResult} are the input schema types. The values are {@code null} on
-     * success, or a failed {@link AppSearchResult} otherwise. Types that are not found will
-     * return a failed {@link AppSearchResult} with a result code of
-     * {@link AppSearchResult#RESULT_NOT_FOUND}.
-     * @hide
-     */
-    @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, Void>> removeByType(
-            @NonNull String... schemaTypes) {
-        Preconditions.checkNotNull(schemaTypes);
-        return removeByType(Arrays.asList(schemaTypes));
-    }
-
-    /**
-     * Removes {@link GenericDocument}s from the index by schema type.
+     * <p> An empty query matches all documents.
      *
-     * @param schemaTypes Schema types whose documents to delete.
-     * @return The pending result of performing this operation. The keys of the returned
-     * {@link AppSearchBatchResult} are the input schema types. The values are {@code null} on
-     * success, or a failed {@link AppSearchResult} otherwise. Types that are not found will
-     * return a failed {@link AppSearchResult} with a result code of
-     * {@link AppSearchResult#RESULT_NOT_FOUND}.
-     * @hide
-     */
-    @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, Void>> removeByType(
-            @NonNull List<String> schemaTypes) {
-        Preconditions.checkNotNull(schemaTypes);
-        return mBackend.removeByType(mDatabaseName, schemaTypes);
-    }
-
-    /**
-     * Removes {@link GenericDocument}s from the index by namespace.
+     * <p> An empty set of namespaces or of schemaTypes matches all namespaces or schemaTypes in
+     * the current database.
      *
-     * @param namespaces Namespaces whose documents to delete.
-     * @return The pending result of performing this operation. The keys of the returned
-     * {@link AppSearchBatchResult} are the input namespaces. The values are {@code null} on
-     * success, or a failed {@link AppSearchResult} otherwise. Namespaces that are not found
-     * will return a failed {@link AppSearchResult} with a result code of
-     * {@link AppSearchResult#RESULT_NOT_FOUND}.
-     * @hide
-     */
-    @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, Void>> removeByNamespace(
-            @NonNull String... namespaces) {
-        Preconditions.checkNotNull(namespaces);
-        return removeByNamespace(Arrays.asList(namespaces));
-    }
-
-    /**
-     * Removes {@link GenericDocument}s from the index by namespace.
-     *
-     * @param namespaces Namespaces whose documents to delete.
-     * @return The pending result of performing this operation. The keys of the returned
-     * {@link AppSearchBatchResult} are the input namespaces. The values are {@code null} on
-     * success, or a failed {@link AppSearchResult} otherwise. Namespaces that are not found
-     * will return a failed {@link AppSearchResult} with a result code of
-     * {@link AppSearchResult#RESULT_NOT_FOUND}.
-     * @hide
-     */
-    @NonNull
-    public ListenableFuture<AppSearchBatchResult<String, Void>> removeByNamespace(
-            @NonNull List<String> namespaces) {
-        Preconditions.checkNotNull(namespaces);
-        return mBackend.removeByNamespace(mDatabaseName, namespaces);
-    }
-
-    /**
-     * Removes all documents owned by this instance.
-     *
-     * <p>The schemas will remain. To clear everything including schemas, please call
-     * {@link #setSchema} with an empty schema and {@code forceOverride} set to true.
-     *
+     * @param queryExpression Query String to search.
+     * @param searchSpec Spec containing schemaTypes, namespaces and query expression
+     *                   indicates how document will be removed. All specific about how to
+     *                   scoring, ordering, snippeting and resulting will be ignored.
      * @return The pending result of performing this operation.
      * @hide
      */
     @NonNull
-    public ListenableFuture<AppSearchResult<Void>> removeAll() {
-        return mBackend.removeAll(mDatabaseName);
+    public ListenableFuture<AppSearchResult<Void>> removeByQuery(
+            @NonNull String queryExpression, @NonNull SearchSpec searchSpec) {
+        Preconditions.checkNotNull(searchSpec);
+        return mBackend.removeByQuery(mDatabaseName, queryExpression, searchSpec);
     }
 }

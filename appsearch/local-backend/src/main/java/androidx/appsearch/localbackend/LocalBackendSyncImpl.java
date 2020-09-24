@@ -178,48 +178,18 @@ class LocalBackendSyncImpl {
     }
 
     @NonNull
-    public AppSearchBatchResult<String, Void> removeByType(
-            @NonNull String databaseName, @NonNull List<String> schemaTypes) {
+    public AppSearchResult<Void> removeByQuery(@NonNull String databaseName,
+            @NonNull String queryExpression,
+            @NonNull SearchSpec searchSpec) {
         Preconditions.checkNotNull(databaseName);
-        Preconditions.checkNotNull(schemaTypes);
-        AppSearchBatchResult.Builder<String, Void> resultBuilder =
-                new AppSearchBatchResult.Builder<>();
-        for (int i = 0; i < schemaTypes.size(); i++) {
-            String schemaType = schemaTypes.get(i);
-            try {
-                mAppSearchImpl.removeByType(databaseName, schemaType);
-                resultBuilder.setSuccess(schemaType, /*result=*/ null);
-            } catch (Throwable t) {
-                resultBuilder.setResult(schemaType, throwableToFailedResult(t));
-            }
-        }
-        return resultBuilder.build();
-    }
-
-    @NonNull
-    public AppSearchBatchResult<String, Void> removeByNamespace(
-            @NonNull String databaseName, @NonNull List<String> namespaces) {
-        Preconditions.checkNotNull(databaseName);
-        Preconditions.checkNotNull(namespaces);
-        AppSearchBatchResult.Builder<String, Void> resultBuilder =
-                new AppSearchBatchResult.Builder<>();
-        for (int i = 0; i < namespaces.size(); i++) {
-            String namespace = namespaces.get(i);
-            try {
-                mAppSearchImpl.removeByNamespace(databaseName, namespace);
-                resultBuilder.setSuccess(namespace, /*result=*/ null);
-            } catch (Throwable t) {
-                resultBuilder.setResult(namespace, throwableToFailedResult(t));
-            }
-        }
-        return resultBuilder.build();
-    }
-
-    @NonNull
-    public AppSearchResult<Void> removeAll(@NonNull String databaseName) {
-        Preconditions.checkNotNull(databaseName);
+        Preconditions.checkNotNull(queryExpression);
+        Preconditions.checkNotNull(searchSpec);
+        SearchSpecProto searchSpecProto =
+                SearchSpecToProtoConverter.toSearchSpecProto(searchSpec);
+        searchSpecProto = searchSpecProto.toBuilder()
+                .setQuery(queryExpression).build();
         try {
-            mAppSearchImpl.removeAll(databaseName);
+            mAppSearchImpl.removeByQuery(databaseName, searchSpecProto);
             return AppSearchResult.newSuccessfulResult(null);
         } catch (Throwable t) {
             return throwableToFailedResult(t);
