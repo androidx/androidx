@@ -260,9 +260,33 @@ abstract class GlesRenderer (
         render(calendar)
         GLES20.glFinish()
         GLES20.glReadPixels(0, 0, width, height, GLES20.GL_RGBA, GLES20.GL_UNSIGNED_BYTE, pixelBuf)
+        // The image is flipped when using read pixels because the first pixel in the OpenGL buffer
+        // is in bottom left.
+        verticalFlip(pixelBuf, width, height)
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         bitmap.copyPixelsFromBuffer(pixelBuf)
         return bitmap
+    }
+
+    private fun verticalFlip(
+        buffer: ByteBuffer,
+        width: Int,
+        height: Int
+    ) {
+        var i = 0
+        val tmp = ByteArray(width * 4)
+        while (i++ < height / 2) {
+            buffer[tmp]
+            System.arraycopy(
+                buffer.array(),
+                buffer.limit() - buffer.position(),
+                buffer.array(),
+                buffer.position() - width * 4,
+                width * 4
+            )
+            System.arraycopy(tmp, 0, buffer.array(), buffer.limit() - buffer.position(), width * 4)
+        }
+        buffer.rewind()
     }
 
     /**
