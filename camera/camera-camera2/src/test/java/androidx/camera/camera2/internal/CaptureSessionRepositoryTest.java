@@ -18,16 +18,20 @@ package androidx.camera.camera2.internal;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.robolectric.Shadows.shadowOf;
 
 import android.hardware.camera2.CameraCaptureSession;
 import android.hardware.camera2.CameraDevice;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Handler;
+import android.os.Looper;
 
 import androidx.camera.camera2.internal.compat.params.OutputConfigurationCompat;
 import androidx.camera.camera2.internal.compat.params.SessionConfigurationCompat;
+import androidx.camera.core.impl.utils.executor.CameraXExecutors;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
@@ -60,11 +64,12 @@ public class CaptureSessionRepositoryTest {
     @Before
     public void setUp() {
         mCaptureSessionRepository =
-                new CaptureSessionRepository(AsyncTask.SERIAL_EXECUTOR);
+                new CaptureSessionRepository(CameraXExecutors.mainThreadExecutor());
 
         mCaptureSessionCompatBase =
                 new SynchronizedCaptureSessionBaseImpl(mCaptureSessionRepository,
-                        AsyncTask.SERIAL_EXECUTOR, mScheduledExecutorService, mock(Handler.class));
+                        CameraXExecutors.mainThreadExecutor(), mScheduledExecutorService,
+                        mock(Handler.class));
 
         mMockCaptureSession = mock(CameraCaptureSession.class);
         mMockStateCallback = mock(SynchronizedCaptureSession.StateCallback.class);
@@ -170,5 +175,32 @@ public class CaptureSessionRepositoryTest {
         assertThat(mCaptureSessionRepository.getCreatingCaptureSessions().size()).isEqualTo(0);
         assertThat(mCaptureSessionRepository.getCaptureSessions().size()).isEqualTo(0);
         assertThat(mCaptureSessionRepository.getClosingCaptureSession().size()).isEqualTo(0);
+    }
+
+    @Test
+    public void onErrorSessionInRepository() {
+        SessionConfigurationCompat sessionConfigurationCompat =
+                mCaptureSessionCompatBase.createSessionConfigurationCompat(
+                        SessionConfigurationCompat.SESSION_REGULAR,
+                        mOutputs,
+                        mMockStateCallback);
+
+        mCaptureSessionCompatBase.openCaptureSession(mock(CameraDevice.class),
+                sessionConfigurationCompat);
+
+        // Simulate the CameraCaptureSession is configured.
+        sessionConfigurationCompat.getStateCallback().onConfigured(mMockCaptureSession);
+        assertThat(mCaptureSessionRepository.getCaptureSessions().size()).isEqualTo(1);
+
+        mCaptureSessionRepository.getCameraStateCallback().onError(mock(CameraDevice.class),
+                anyInt());
+
+        shadowOf(Looper.getMainLooper()).idle();
+
+        assertThat(mCaptureSessionRepository.getCreatingCaptureSessions().size()).isEqualTo(0);
+        assertThat(mCaptureSessionRepository.getCaptureSessions().size()).isEqualTo(0);
+        assertThat(mCaptureSessionRepository.getClosingCaptureSession().size()).isEqualTo(0);
+        // Ensure the onClosed() is called to prevent from CaptureSession leak.
+        verify(mMockStateCallback).onClosed(mCaptureSessionCompatBase);
     }
 }
