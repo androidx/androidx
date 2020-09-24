@@ -34,20 +34,20 @@ import android.widget.FrameLayout;
 import androidx.annotation.Nullable;
 import androidx.leanback.R;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @SmallTest
-@RunWith(JUnit4.class)
+@RunWith(AndroidJUnit4.class)
 public class ObjectAdapterTest {
 
     private static final String ID = "id";

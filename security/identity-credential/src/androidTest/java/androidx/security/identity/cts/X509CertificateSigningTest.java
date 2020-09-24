@@ -29,11 +29,11 @@ import android.util.AtomicFile;
 import android.util.Log;
 
 import androidx.test.InstrumentationRegistry;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -50,7 +50,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
 @SmallTest
-@RunWith(JUnit4.class)
+@RunWith(AndroidJUnit4.class)
 public class X509CertificateSigningTest {
 
     private static final String TAG = "X509CertificateSigningTest";

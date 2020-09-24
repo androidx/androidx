@@ -19,6 +19,7 @@ package androidx.benchmark
 import android.Manifest
 import android.util.Log
 import androidx.benchmark.BenchmarkState.Companion.ExperimentalExternalReport
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.filters.SdkSuppress
 import androidx.test.rule.GrantPermissionRule
@@ -30,12 +31,11 @@ import org.junit.Assert.fail
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertFailsWith
 
 @LargeTest
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class BenchmarkStateTest {
     private fun us2ns(ms: Long): Long = TimeUnit.MICROSECONDS.toNanos(ms)
 

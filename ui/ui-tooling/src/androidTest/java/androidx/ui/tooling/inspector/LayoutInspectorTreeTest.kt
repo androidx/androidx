@@ -51,13 +51,13 @@ import org.junit.Before
 import org.junit.Ignore
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import kotlin.math.roundToInt
 
 private const val DEBUG = false
 
 @SmallTest
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class LayoutInspectorTreeTest : ToolingTest() {
     private lateinit var density: Density
     private lateinit var view: View

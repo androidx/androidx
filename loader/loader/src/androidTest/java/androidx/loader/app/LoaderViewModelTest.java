@@ -25,13 +25,13 @@ import android.content.Context;
 
 import androidx.loader.app.test.ImmediateLoader;
 import androidx.loader.content.Loader;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.junit.runners.JUnit4;
 
-@RunWith(JUnit4.class)
+@RunWith(AndroidJUnit4.class)
 @MediumTest
 public class LoaderViewModelTest {
 

@@ -76,11 +76,11 @@ import org.junit.After
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.runners.JUnit4
+import androidx.test.ext.junit.runners.AndroidJUnit4
 
 @ExperimentalLayoutNodeApi
 @SmallTest
-@RunWith(JUnit4::class)
+@RunWith(AndroidJUnit4::class)
 class ParameterFactoryTest {
     private val node = MutableInspectorNode()
     private val factory = ParameterFactory(InlineClassConverter())
