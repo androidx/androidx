@@ -33,9 +33,6 @@ import androidx.camera.core.impl.MutableConfig;
 import androidx.camera.core.impl.MutableOptionsBundle;
 import androidx.camera.core.impl.OptionsBundle;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * Internal shared implementation details for camera 2 interop.
  */
@@ -109,18 +106,8 @@ public final class Camera2ImplConfig extends CaptureRequestOptions {
      */
     @RestrictTo(Scope.LIBRARY)
     @NonNull
-    public Set<Option<?>> getCaptureRequestOptions() {
-        final Set<Option<?>> optionSet = new HashSet<>();
-        findOptions(
-                Camera2ImplConfig.CAPTURE_REQUEST_ID_STEM,
-                new OptionMatcher() {
-                    @Override
-                    public boolean onOptionMatched(@NonNull Option<?> option) {
-                        optionSet.add(option);
-                        return true;
-                    }
-                });
-        return optionSet;
+    public CaptureRequestOptions getCaptureRequestOptions() {
+        return CaptureRequestOptions.Builder.from(getConfig()).build();
     }
 
     /**

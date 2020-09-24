@@ -246,18 +246,8 @@ public class Camera2CameraControlImpl implements CameraControlInternal {
 
     @Override
     public void addInteropConfig(@NonNull Config config) {
-        CaptureRequestOptions.Builder bundleBuilder = new CaptureRequestOptions.Builder();
-        config.findOptions(
-                Camera2ImplConfig.CAPTURE_REQUEST_ID_STEM,
-                option -> {
-                    @SuppressWarnings("unchecked")
-                    Config.Option<Object> objectOpt = (Config.Option<Object>) option;
-                    bundleBuilder.getMutableConfig().insertOption(objectOpt,
-                            config.retrieveOption(objectOpt));
-                    return true;
-                });
         ListenableFuture<Void> future = mCamera2CameraControl.addCaptureRequestOptions(
-                bundleBuilder.build());
+                CaptureRequestOptions.Builder.from(config).build());
         future.addListener(() -> {
         }, CameraXExecutors.directExecutor());
     }
