@@ -15,5 +15,17 @@ mkdir -p "$DIST_DIR"
 # cd to checkout root
 cd "$SCRIPT_DIR/../../../.."
 
-OUT_DIR=out/ui DIST_DIR=$DIST_DIR/ui ANDROID_HOME=./prebuilts/fullsdk-linux frameworks/support/ui/gradlew -p frameworks/support/ui --stacktrace -Pandroidx.summarizeStderr "$@"
-OUT_DIR=out    DIST_DIR=$DIST_DIR    ANDROID_HOME=./prebuilts/fullsdk-linux frameworks/support/gradlew    -p frameworks/support    --stacktrace -Pandroidx.summarizeStderr "$@"
+# runs a given command and prints its result if it fails
+function run() {
+  echo Running "$*"
+  if eval "$*"; then
+    return 0
+  else
+    echo
+    echo "Failed: $*"
+    return 1
+  fi
+}
+
+run OUT_DIR=out/ui DIST_DIR=$DIST_DIR/ui ANDROID_HOME=./prebuilts/fullsdk-linux frameworks/support/ui/gradlew -p frameworks/support/ui --stacktrace -Pandroidx.summarizeStderr "$@"
+run OUT_DIR=out    DIST_DIR=$DIST_DIR    ANDROID_HOME=./prebuilts/fullsdk-linux frameworks/support/gradlew    -p frameworks/support    --stacktrace -Pandroidx.summarizeStderr "$@"
