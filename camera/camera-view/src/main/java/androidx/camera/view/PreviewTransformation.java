@@ -41,6 +41,7 @@ import android.view.TextureView;
 import android.view.View;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.core.ExperimentalUseCaseGroup;
@@ -408,6 +409,34 @@ final class PreviewTransformation {
         canvas.drawBitmap(original, canvasTransform,
                 new Paint(ANTI_ALIAS_FLAG | FILTER_BITMAP_FLAG | DITHER_FLAG));
         return transformed;
+    }
+
+    /**
+     * Calculates the mapping from a UI touch point (0, 0) - (width, height) to normalized
+     * sensor rect (0, 0) - (1, 1).
+     *
+     * <p> This is used by {@link PreviewViewMeteringPointFactory}.
+     *
+     * @return null if transformation info is not set.
+     */
+    @Nullable
+    Matrix getPreviewViewToNormalizedSurfaceMatrix(Size previewViewSize, int layoutDirection) {
+        if (!isTransformationInfoReady()) {
+            return null;
+        }
+        Matrix matrix = new Matrix();
+
+        // Map PreviewView coordinates to Surface coordinates.
+        getSurfaceToPreviewViewMatrix(previewViewSize, layoutDirection).invert(matrix);
+
+        // Map Surface coordinates to normalized coordinates (0, 0) - (1, 1).
+        Matrix normalization = new Matrix();
+        normalization.setRectToRect(
+                new RectF(0, 0, mResolution.getWidth(), mResolution.getHeight()),
+                new RectF(0, 0, 1, 1), Matrix.ScaleToFit.FILL);
+        matrix.postConcat(normalization);
+
+        return matrix;
     }
 
     static int rotationValueToRotationDegrees(int rotationValue) {
