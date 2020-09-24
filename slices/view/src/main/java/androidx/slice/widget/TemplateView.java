@@ -50,6 +50,7 @@ public class TemplateView extends SliceChildView implements
     private List<SliceContent> mDisplayedItems = new ArrayList<>();
     private int mDisplayedItemsHeight = 0;
     private int[] mLoc = new int[2];
+    private int mHiddenItemCount;
 
     public TemplateView(Context context) {
         super(context);
@@ -202,7 +203,10 @@ public class TemplateView extends SliceChildView implements
             resetView();
             return;
         }
-        mDisplayedItems = mListContent.getRowItems(height, mSliceStyle, mViewPolicy);
+        DisplayedListItems response = mListContent.getRowItems(
+                height, mSliceStyle, mViewPolicy);
+        mDisplayedItems = response.getDisplayedItems();
+        mHiddenItemCount = response.getHiddenItemCount();
         mDisplayedItemsHeight = mListContent.getListHeight(mDisplayedItems, mSliceStyle,
                 mViewPolicy);
         mAdapter.setSliceItems(mDisplayedItems, mTintColor, mViewPolicy.getMode());
@@ -254,5 +258,10 @@ public class TemplateView extends SliceChildView implements
         if (mListContent != null) {
             updateDisplayedItems(mListContent.getHeight(mSliceStyle, mViewPolicy));
         }
+    }
+
+    @Override
+    public int getHiddenItemCount() {
+        return mHiddenItemCount;
     }
 }

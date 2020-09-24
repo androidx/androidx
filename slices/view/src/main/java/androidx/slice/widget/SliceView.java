@@ -720,6 +720,16 @@ public class SliceView extends ViewGroup implements Observer<Slice>, View.OnClic
     }
 
     /**
+     * Returns the number of slice items not displayed in this view.
+     *
+     * If the slice mode is {@link #MODE_LARGE} and the slice is not scrollable, this is the number
+     * of slice items that don't fit into the available height.
+     */
+    public int getHiddenItemCount() {
+        return mCurrentView.getHiddenItemCount();
+    }
+
+    /**
      * Updates the current view to represent the correct type of view for the current mode.
      * If the view is changed for the mode any configurations are also applied to it.
      */
