@@ -26,7 +26,6 @@ import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.camera.core.impl.Config.Option;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +39,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @org.robolectric.annotation.Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

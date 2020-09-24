@@ -17,7 +17,6 @@
 package androidx.navigation.dynamicfeatures
 
 import android.content.Context
-import androidx.test.filters.SmallTest
 import com.google.android.play.core.splitinstall.SplitInstallManager
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -30,7 +29,6 @@ import org.mockito.Mockito.`when` as mockWhen
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.spy
 
-@SmallTest
 @RunWith(JUnit4::class)
 class DynamicInstallManagerTest {
 

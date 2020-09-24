@@ -23,7 +23,6 @@ import android.os.Build;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.internal.CameraCaptureResultImageInfo;
 import androidx.camera.testing.fakes.FakeImageInfo;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,7 +31,6 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

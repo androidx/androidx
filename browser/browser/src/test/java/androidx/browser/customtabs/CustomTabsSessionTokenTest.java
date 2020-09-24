@@ -22,7 +22,6 @@ import android.content.Intent;
 import android.support.customtabs.ICustomTabsCallback;
 
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,7 +35,6 @@ import org.robolectric.annotation.internal.DoNotInstrument;
  */
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
-@SmallTest
 public class CustomTabsSessionTokenTest {
     private Context mContext;
 

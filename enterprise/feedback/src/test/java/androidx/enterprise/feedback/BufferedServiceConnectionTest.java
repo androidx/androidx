@@ -39,7 +39,6 @@ import android.os.Message;
 import android.os.Messenger;
 
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -87,7 +86,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void construct_nullExecutor_throwsNullPointerException() {
         try {
             new BufferedServiceConnection(null, mContext, mBindIntent, mFlags);
@@ -96,7 +94,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void construct_nullContext_throwsNullPointerException() {
         try {
             new BufferedServiceConnection(mExecutor, null, mBindIntent, mFlags);
@@ -105,7 +102,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void construct_nullBindIntent_throwsNullPointerException() {
         try {
             new BufferedServiceConnection(mExecutor, mContext, null, mFlags);
@@ -114,7 +110,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void bind_startsService() {
         ShadowContextWrapper shadowContextWrapper = Shadow.extract(mContext);
 
@@ -125,7 +120,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void bind_bindingExists() {
         mBufferedServiceConnection.bindService();
 
@@ -133,7 +127,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void bind_alreadyBound_throwsIllegalStateException() {
         mBufferedServiceConnection.bindService();
 
@@ -144,7 +137,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void unbind_bindingDoesNotExist() {
         mBufferedServiceConnection.bindService();
 
@@ -154,7 +146,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void unbind_hasntBound_throwsIllegalStateException() {
         try {
             mBufferedServiceConnection.unbind();
@@ -163,7 +154,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void sendMessage_bound_sends() {
         mBufferedServiceConnection.bindService();
         shadowOf(getMainLooper()).idle();
@@ -176,7 +166,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void sendMessage_bound_reportsSuccess() {
         mBufferedServiceConnection.bindService();
         SendableMessage sendableMessage = buildTestMessage(mCallback);
@@ -189,7 +178,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void sendMessage_notBound_doesNotSend() {
         SendableMessage sendableMessage = buildTestMessage();
 
@@ -199,7 +187,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void sendMessage_notBound_doesNotCallback() {
         SendableMessage sendableMessage = buildTestMessage(mCallback);
 
@@ -209,7 +196,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     @Config(minSdk = 26)
     public void sendMessage_isDead_doesNotSend() {
         mBufferedServiceConnection.bindService();
@@ -221,7 +207,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     @Config(minSdk = 26)
     public void sendMessage_isDead_reportsSuccess() {
         mBufferedServiceConnection.bindService();
@@ -233,7 +218,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void sendMessage_notBound_isNotDoPoOrPhonesky_doesNotSendWhenBound() {
         setComponentBindingToTestHandler(mNotPhoneskyComponentName);
         shadowOf(mDevicePolicyManager).setDeviceOwner(null);
@@ -247,7 +231,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void sendMessage_notBound_isNotDoPoOrPhonesky_reportsSuccessWhenBound() {
         setComponentBindingToTestHandler(mNotPhoneskyComponentName);
         shadowOf(mDevicePolicyManager).setDeviceOwner(null);
@@ -261,7 +244,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void sendMessage_notBound_isNotDoPoOrPhonesky_isDeadWhenBound() {
         setComponentBindingToTestHandler(mNotPhoneskyComponentName);
         shadowOf(mDevicePolicyManager).setDeviceOwner(null);
@@ -275,7 +257,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void sendMessage_notBound_isDeviceOwner_sendsWhenBound() {
         shadowOf(mDevicePolicyManager).setDeviceOwner(mTestComponentName);
         SendableMessage sendableMessage = buildTestMessage();
@@ -288,7 +269,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void sendMessage_notBound_isDeviceOwner_reportsSuccessWhenBound() {
         shadowOf(mDevicePolicyManager).setDeviceOwner(mTestComponentName);
         SendableMessage sendableMessage = buildTestMessage(mCallback);
@@ -302,7 +282,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void sendMessage_notBound_isProfileOwner_sendsWhenBound() {
         shadowOf(mDevicePolicyManager).setProfileOwner(mTestComponentName);
         SendableMessage sendableMessage = buildTestMessage();
@@ -316,7 +295,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void sendMessage_notBound_isProfileOwner_reportsSuccessWhenBound() {
         shadowOf(mDevicePolicyManager).setProfileOwner(mTestComponentName);
         SendableMessage sendableMessage = buildTestMessage(mCallback);
@@ -330,7 +308,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void sendMessage_notBound_isPhonesky_sendsWhenBound() {
         setComponentBindingToTestHandler(mPhoneskyComponentName);
         SendableMessage sendableMessage = buildTestMessage();
@@ -344,7 +321,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void sendMessage_notBound_isPhonesky_reportsSuccessWhenBound() {
         setComponentBindingToTestHandler(mPhoneskyComponentName);
         SendableMessage sendableMessage = buildTestMessage(mCallback);
@@ -358,7 +334,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void sendMessage_notBound_sendToBufferLimit_sendsAll() {
         for (int i = 0; i < MAX_BUFFER_SIZE; i++) {
             mBufferedServiceConnection.send(buildTestMessage());
@@ -372,7 +347,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void sendMessage_notBound_sendBeyondBufferLimit_sendsToBufferLimit() {
         for (int i = 0; i < MAX_BUFFER_SIZE + 1; i++) {
             mBufferedServiceConnection.send(buildTestMessage());
@@ -386,7 +360,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void sendMessage_notBound_sendBeyondBufferLimit_skippedMessagesReportError() {
         mBufferedServiceConnection.send(buildTestMessage(mCallback));
 
@@ -400,14 +373,12 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void isDead_isFalse() {
         mBufferedServiceConnection.bindService();
         assertThat(mBufferedServiceConnection.isDead()).isFalse();
     }
 
     @Test
-    @SmallTest
     @Config(minSdk = 26)
     public void isDead_serviceHasDied_isTrue() {
         mBufferedServiceConnection.bindService();
@@ -418,7 +389,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void isDead_hasUnbound_isTrue() {
         mBufferedServiceConnection.bindService();
 
@@ -428,7 +398,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void hasBeenDisconnected_defaultsToFalse() {
         mBufferedServiceConnection.bindService();
 
@@ -436,7 +405,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void hasBeenDisconnected_disconnected_isTrue() {
         mBufferedServiceConnection.bindService();
 
@@ -446,7 +414,6 @@ public class BufferedServiceConnectionTest {
     }
 
     @Test
-    @SmallTest
     public void hasBeenDisconnected_reconnected_isFalse() {
         mBufferedServiceConnection.bindService();
         simulateDisconnectingServiceConnection();

@@ -26,7 +26,6 @@ import android.util.Size;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,7 +41,6 @@ import java.util.List;
 /**
  * Unit test for {@link ExcludedSupportedSizesContainer}
  */
-@SmallTest
 @RunWith(ParameterizedRobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

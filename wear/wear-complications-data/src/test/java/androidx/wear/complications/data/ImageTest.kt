@@ -17,14 +17,12 @@
 package androidx.wear.complications.data
 
 import android.graphics.drawable.Icon
-import androidx.test.filters.SmallTest
 import androidx.wear.complications.SharedRobolectricTestRunner
 import com.google.common.truth.Truth.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(SharedRobolectricTestRunner::class)
-@SmallTest
 public class ImageTest {
     @Test
     public fun monochromaticImage() {

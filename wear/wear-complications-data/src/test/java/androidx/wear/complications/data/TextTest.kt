@@ -19,7 +19,6 @@ package androidx.wear.complications.data
 import android.content.Context
 import android.icu.util.TimeZone
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.filters.SmallTest
 import androidx.wear.complications.ParcelableSubject
 import androidx.wear.complications.SharedRobolectricTestRunner
 import com.google.common.truth.Truth.assertThat
@@ -35,7 +34,6 @@ private typealias WireTimeFormatBuilder =
     android.support.wearable.complications.ComplicationText.TimeFormatBuilder
 
 @RunWith(SharedRobolectricTestRunner::class)
-@SmallTest
 public class AsWireComplicationTextTest {
     @Test
     public fun plainText() {
@@ -90,7 +88,6 @@ public class AsWireComplicationTextTest {
 }
 
 @RunWith(SharedRobolectricTestRunner::class)
-@SmallTest
 public class FromWireComplicationText {
     @Test
     public fun plainText() {

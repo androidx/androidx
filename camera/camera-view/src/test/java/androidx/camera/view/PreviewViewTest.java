@@ -37,7 +37,6 @@ import androidx.camera.core.SurfaceRequest;
 import androidx.camera.core.impl.CameraInfoInternal;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.test.core.app.ApplicationProvider;
-import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Test;
@@ -47,7 +46,6 @@ import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 import org.robolectric.shadows.ShadowDisplayManager;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

@@ -37,7 +37,6 @@ import androidx.browser.trusted.TrustedWebActivityDisplayMode.ImmersiveMode;
 import androidx.browser.trusted.sharing.ShareData;
 import androidx.browser.trusted.sharing.ShareTarget;
 import androidx.browser.trusted.splashscreens.SplashScreenParamKey;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -55,7 +54,6 @@ import java.util.List;
 @DoNotInstrument
 // minSdk For Bundle#getBinder
 @Config(minSdk = Build.VERSION_CODES.JELLY_BEAN_MR2)
-@SmallTest
 public class TrustedWebActivityIntentBuilderTest {
 
     @Test

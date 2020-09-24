@@ -31,7 +31,6 @@ import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.impl.CameraInternal;
 import androidx.camera.testing.fakes.FakeCamera;
-import androidx.test.filters.SmallTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +43,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

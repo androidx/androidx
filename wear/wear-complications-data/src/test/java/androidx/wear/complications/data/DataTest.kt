@@ -17,7 +17,6 @@
 package androidx.wear.complications.data
 
 import android.graphics.drawable.Icon
-import androidx.test.filters.SmallTest
 import androidx.wear.complications.ParcelableSubject
 import androidx.wear.complications.SharedRobolectricTestRunner
 import com.google.common.truth.Truth.assertThat
@@ -25,7 +24,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(SharedRobolectricTestRunner::class)
-@SmallTest
 public class AsWireComplicationDataTest {
     @Test
     public fun noDataComplicationData() {
@@ -156,7 +154,6 @@ public class AsWireComplicationDataTest {
 }
 
 @RunWith(SharedRobolectricTestRunner::class)
-@SmallTest
 public class FromWireComplicationDataTest {
     @Test
     public fun noDataComplicationData() {

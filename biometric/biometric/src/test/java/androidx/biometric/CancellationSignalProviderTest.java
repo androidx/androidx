@@ -25,7 +25,6 @@ import static org.mockito.Mockito.verify;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
-import androidx.test.filters.LargeTest;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,7 +35,6 @@ import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 import org.robolectric.annotation.internal.DoNotInstrument;
 
-@LargeTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 public class CancellationSignalProviderTest {

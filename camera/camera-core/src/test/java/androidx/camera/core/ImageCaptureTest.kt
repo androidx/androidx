@@ -47,7 +47,6 @@ import androidx.camera.testing.fakes.FakeImageProxy
 import androidx.camera.testing.fakes.FakeImageReaderProxy
 import androidx.concurrent.futures.ResolvableFuture
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.filters.MediumTest
 import com.google.common.truth.Truth.assertThat
 import org.junit.After
 import org.junit.Before
@@ -78,7 +77,6 @@ private const val MAX_IMAGES = 3
 /**
  * Unit tests for [ImageCapture].
  */
-@MediumTest
 @RunWith(RobolectricTestRunner::class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

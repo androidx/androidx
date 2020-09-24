@@ -26,7 +26,6 @@ import androidx.annotation.GuardedBy;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.camera.testing.fakes.FakeCameraInfoInternal;
-import androidx.test.filters.SmallTest;
 
 import org.junit.After;
 import org.junit.Before;
@@ -38,7 +37,6 @@ import org.robolectric.annotation.internal.DoNotInstrument;
 
 import java.util.concurrent.RejectedExecutionException;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @Config(minSdk = Build.VERSION_CODES.LOLLIPOP)

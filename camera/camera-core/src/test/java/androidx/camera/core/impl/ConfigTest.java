@@ -24,8 +24,6 @@ import static com.google.common.truth.Truth.assertThat;
 
 import android.os.Build;
 
-import androidx.test.filters.SmallTest;
-
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
@@ -36,7 +34,6 @@ import java.util.Set;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 
-@SmallTest
 @RunWith(RobolectricTestRunner.class)
 @DoNotInstrument
 @org.robolectric.annotation.Config(minSdk = Build.VERSION_CODES.LOLLIPOP)
