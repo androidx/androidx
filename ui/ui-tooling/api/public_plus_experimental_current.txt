@@ -109,6 +109,9 @@ package androidx.ui.tooling.inspector {
     property public final java.util.List<androidx.ui.tooling.inspector.NodeParameter> elements;
   }
 
+  public final class ParameterFactoryKt {
+  }
+
   public enum ParameterType {
     method public static androidx.ui.tooling.inspector.ParameterType valueOf(String name) throws java.lang.IllegalArgumentException;
     method public static androidx.ui.tooling.inspector.ParameterType[] values();
