@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+
+import androidx.build.AndroidXUiPlugin
 import androidx.build.LibraryGroups
 import androidx.build.LibraryVersions
 import androidx.build.Publish
@@ -25,77 +27,125 @@ plugins {
     id("AndroidXPlugin")
     id("com.android.library")
     id("AndroidXUiPlugin")
-    id("kotlin-multiplatform")
 }
+
+AndroidXUiPlugin.applyAndConfigureKotlinPlugin(project)
 
 dependencies {
-    kotlinPlugin project(path: ":compose:compiler:compiler")
+    kotlinPlugin project(":compose:compiler:compiler")
+
+    if(!AndroidXUiPlugin.isMultiplatformEnabled(project)) {
+        api project(":compose:animation:animation-core")
+        api project(":compose:runtime:runtime-dispatch")
+        api project(":compose:ui:ui")
+        api project(":compose:ui:ui-geometry")
+        api project(":compose:ui:ui-text")
+        api project(":compose:ui:ui-unit")
+        api project(":compose:ui:ui-util")
+        api "androidx.activity:activity:1.2.0-alpha02"
+        api(ANDROIDX_TEST_EXT_JUNIT)
+        api(JUNIT)
+        api(ANDROIDX_TEST_EXT_JUNIT)
+        api "androidx.activity:activity:1.2.0-alpha02"
+        api project(":compose:runtime:runtime")
+        api project(":compose:ui:ui-graphics")
+        api project(":compose:ui:ui")
+
+        implementation(KOTLIN_STDLIB)
+        implementation(ANDROIDX_TEST_RULES)
+        implementation(ANDROIDX_TEST_RUNNER)
+        implementation(ESPRESSO_CORE)
+        implementation(JUNIT)
+        implementation "androidx.collection:collection:1.1.0"
+        implementation(JUNIT)
+        implementation project(":compose:runtime:runtime")
+        implementation project(":compose:animation:animation")
+        implementation project(":compose:foundation:foundation")
+        implementation project(":compose:foundation:foundation-layout")
+        implementation project(":compose:ui:ui-util")
+        implementation project(":compose:foundation:foundation-text")
+        implementation project(":compose:runtime:runtime-saved-instance-state")
+
+        testImplementation(TRUTH)
+
+        androidTestImplementation(TRUTH)
+        androidTestImplementation project(":compose:ui:ui")
+        androidTestImplementation project(':compose:material:material')
+        androidTestImplementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+        androidTestImplementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+        androidTestImplementation MOCKITO_KOTLIN, {
+            exclude group: 'org.mockito' // to keep control on the mockito version
+        }
+    }
 }
 
-kotlin {
-    android()
-    jvm("desktop")
 
-    sourceSets {
-        commonMain.dependencies {
-            api project(":compose:animation:animation-core")
-            api project(":compose:runtime:runtime-dispatch")
-            api project(":compose:ui:ui")
-            api project(":compose:ui:ui-geometry")
-            api project(":compose:ui:ui-text")
-            api project(":compose:ui:ui-unit")
-            api project(":compose:ui:ui-util")
+if(AndroidXUiPlugin.isMultiplatformEnabled(project)) {
+    kotlin {
+        android()
+        jvm("desktop")
 
-            implementation(KOTLIN_STDLIB_COMMON)
-            implementation project(":compose:animation:animation")
-            implementation project(":compose:foundation:foundation")
-            implementation project(":compose:foundation:foundation-layout")
-            implementation project(":compose:foundation:foundation-text")
-            implementation project(":compose:runtime:runtime")
-            implementation project(":compose:runtime:runtime-saved-instance-state")
-        }
+        sourceSets {
+            commonMain.dependencies {
+                api project(":compose:animation:animation-core")
+                api project(":compose:runtime:runtime-dispatch")
+                api project(":compose:ui:ui")
+                api project(":compose:ui:ui-geometry")
+                api project(":compose:ui:ui-text")
+                api project(":compose:ui:ui-unit")
+                api project(":compose:ui:ui-util")
 
-        jvmMain.dependencies {
-            implementation "androidx.collection:collection:1.1.0"
-            implementation(JUNIT)
-        }
-
-        androidMain.dependencies {
-            api(JUNIT)
-            api(ANDROIDX_TEST_EXT_JUNIT)
-            api "androidx.activity:activity:1.2.0-alpha02"
-            api project(":compose:runtime:runtime")
-            api project(":compose:ui:ui-graphics")
-
-            implementation(ANDROIDX_TEST_RULES)
-            implementation(ANDROIDX_TEST_RUNNER)
-            implementation(ESPRESSO_CORE)
-        }
-
-        test.dependencies {
-            implementation(TRUTH)
-        }
-
-        androidAndroidTest.dependencies {
-            implementation(TRUTH)
-            implementation project(':compose:material:material')
-            implementation project(":compose:ui:ui")
-
-            implementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-            implementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
-            implementation MOCKITO_KOTLIN, {
-                exclude group: 'org.mockito' // to keep control on the mockito version
+                implementation(KOTLIN_STDLIB_COMMON)
+                implementation project(":compose:animation:animation")
+                implementation project(":compose:foundation:foundation")
+                implementation project(":compose:foundation:foundation-layout")
+                implementation project(":compose:foundation:foundation-text")
+                implementation project(":compose:runtime:runtime")
+                implementation project(":compose:runtime:runtime-saved-instance-state")
             }
-        }
 
-        desktopMain.dependencies {
-            implementation(JUNIT)
-            implementation(TRUTH)
-            implementation(SKIKO)
-        }
+            jvmMain.dependencies {
+                implementation "androidx.collection:collection:1.1.0"
+                implementation(JUNIT)
+            }
 
-        desktopMain.dependsOn jvmMain
-        jvmMain.dependsOn commonMain
+            androidMain.dependencies {
+                api(JUNIT)
+                api(ANDROIDX_TEST_EXT_JUNIT)
+                api "androidx.activity:activity:1.2.0-alpha02"
+                api project(":compose:runtime:runtime")
+                api project(":compose:ui:ui-graphics")
+
+                implementation(ANDROIDX_TEST_RULES)
+                implementation(ANDROIDX_TEST_RUNNER)
+                implementation(ESPRESSO_CORE)
+            }
+
+            test.dependencies {
+                implementation(TRUTH)
+            }
+
+            androidAndroidTest.dependencies {
+                implementation(TRUTH)
+                implementation project(':compose:material:material')
+                implementation project(":compose:ui:ui")
+
+                implementation(MOCKITO_CORE, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+                implementation(DEXMAKER_MOCKITO, libs.exclude_bytebuddy) // DexMaker has it"s own MockMaker
+                implementation MOCKITO_KOTLIN, {
+                    exclude group: 'org.mockito' // to keep control on the mockito version
+                }
+            }
+
+            desktopMain.dependencies {
+                implementation(JUNIT)
+                implementation(TRUTH)
+                implementation(SKIKO)
+            }
+
+            desktopMain.dependsOn jvmMain
+            jvmMain.dependsOn commonMain
+        }
     }
 }
 
