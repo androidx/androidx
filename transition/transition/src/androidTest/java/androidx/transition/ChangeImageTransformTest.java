@@ -22,7 +22,7 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.atMost;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
 import android.animation.Animator;
@@ -110,7 +110,7 @@ public class ChangeImageTransformTest extends BaseTransitionTest {
                 new ColorDrawable(Color.WHITE),
                 false,
                 false,
-                true);
+                false);
         assertNull(mStartMatrix);
         assertNull(mEndMatrix);
     }
@@ -306,7 +306,7 @@ public class ChangeImageTransformTest extends BaseTransitionTest {
             }
         });
         if (noMatrixChangeExpected) {
-            verify(mListener, never()).onTransitionStart(any(Transition.class));
+            verify(mListener, timeout(300).times(0)).onTransitionStart(any(Transition.class));
         } else {
             waitForStart();
             waitForEnd();
