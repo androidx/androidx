@@ -153,7 +153,7 @@ class MediaRoute2Provider extends MediaRouteProvider {
     }
 
     protected void refreshRoutes() {
-        // Syetem routes should not be published by this provider.
+        // System routes should not be published by this provider.
         List<MediaRoute2Info> newRoutes = mMediaRouter2.getRoutes().stream().distinct()
                 .filter(r -> !r.isSystemRoute())
                 .collect(Collectors.toList());
@@ -361,7 +361,6 @@ class MediaRoute2Provider extends MediaRouteProvider {
         @Override
         public void onTransfer(@NonNull MediaRouter2.RoutingController oldController,
                 @NonNull MediaRouter2.RoutingController newController) {
-            // TODO: Call onPrepareTransfer() when the API is added.
             mControllerMap.remove(oldController);
             if (newController == mMediaRouter2.getSystemController()) {
                 mCallback.onSelectFallbackRoute(UNSELECT_REASON_ROUTE_CHANGED);
