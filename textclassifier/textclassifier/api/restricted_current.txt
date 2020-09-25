@@ -84,53 +84,6 @@ package androidx.textclassifier {
     method public static java.util.Locale? getTopLanguage(android.content.Intent?);
   }
 
-  @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) public final class SelectionEvent {
-    method public static androidx.textclassifier.SelectionEvent createFromBundle(android.os.Bundle);
-    method public static androidx.textclassifier.SelectionEvent createSelectionActionEvent(int, int, int);
-    method public static androidx.textclassifier.SelectionEvent createSelectionActionEvent(int, int, int, androidx.textclassifier.TextClassification);
-    method public static androidx.textclassifier.SelectionEvent createSelectionModifiedEvent(int, int);
-    method public static androidx.textclassifier.SelectionEvent createSelectionModifiedEvent(int, int, androidx.textclassifier.TextClassification);
-    method public static androidx.textclassifier.SelectionEvent createSelectionModifiedEvent(int, int, androidx.textclassifier.TextSelection);
-    method public static androidx.textclassifier.SelectionEvent createSelectionStartedEvent(int, int);
-    method public long getDurationSincePreviousEvent();
-    method public long getDurationSinceSessionStart();
-    method public int getEnd();
-    method public String getEntityType();
-    method public int getEventIndex();
-    method public long getEventTime();
-    method public int getEventType();
-    method public int getInvocationMethod();
-    method public String getPackageName();
-    method public String? getResultId();
-    method public androidx.textclassifier.TextClassificationSessionId? getSessionId();
-    method public int getSmartEnd();
-    method public int getSmartStart();
-    method public int getStart();
-    method public String getWidgetType();
-    method public String? getWidgetVersion();
-    method public static boolean isTerminal(int);
-    method public android.os.Bundle toBundle();
-    field public static final int ACTION_ABANDON = 107; // 0x6b
-    field public static final int ACTION_COPY = 101; // 0x65
-    field public static final int ACTION_CUT = 103; // 0x67
-    field public static final int ACTION_DRAG = 106; // 0x6a
-    field public static final int ACTION_OTHER = 108; // 0x6c
-    field public static final int ACTION_OVERTYPE = 100; // 0x64
-    field public static final int ACTION_PASTE = 102; // 0x66
-    field public static final int ACTION_RESET = 201; // 0xc9
-    field public static final int ACTION_SELECT_ALL = 200; // 0xc8
-    field public static final int ACTION_SHARE = 104; // 0x68
-    field public static final int ACTION_SMART_SHARE = 105; // 0x69
-    field public static final int EVENT_AUTO_SELECTION = 5; // 0x5
-    field public static final int EVENT_SELECTION_MODIFIED = 2; // 0x2
-    field public static final int EVENT_SELECTION_STARTED = 1; // 0x1
-    field public static final int EVENT_SMART_SELECTION_MULTI = 4; // 0x4
-    field public static final int EVENT_SMART_SELECTION_SINGLE = 3; // 0x3
-    field public static final int INVOCATION_LINK = 2; // 0x2
-    field public static final int INVOCATION_MANUAL = 1; // 0x1
-    field public static final int INVOCATION_UNKNOWN = 0; // 0x0
-  }
-
   public final class TextClassification {
     method public static androidx.textclassifier.TextClassification createFromBundle(android.os.Bundle);
     method public java.util.List<androidx.core.app.RemoteActionCompat!> getActions();
@@ -366,20 +319,6 @@ package androidx.textclassifier {
     method public androidx.textclassifier.TextSelection.Request build();
     method public androidx.textclassifier.TextSelection.Request.Builder setDefaultLocales(androidx.core.os.LocaleListCompat?);
     method public androidx.textclassifier.TextSelection.Request.Builder setExtras(android.os.Bundle?);
-  }
-
-}
-
-package androidx.textclassifier.widget {
-
-  @RequiresApi(android.os.Build.VERSION_CODES.M) @RestrictTo(androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX) @UiThread public final class ToolbarController {
-    method public static androidx.textclassifier.widget.ToolbarController! getInstance(android.widget.TextView!);
-    method public static void setFloatingToolbarFactory(androidx.textclassifier.widget.ToolbarController.FloatingToolbarFactory);
-    method public void show(java.util.List<androidx.core.app.RemoteActionCompat!>!, int, int);
-  }
-
-  public static interface ToolbarController.FloatingToolbarFactory {
-    method public androidx.textclassifier.widget.IFloatingToolbar create(android.widget.TextView);
   }
 
 }

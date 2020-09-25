@@ -16,8 +16,6 @@
 
 package androidx.textclassifier.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
-
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.AnimatorSet;
@@ -61,7 +59,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
-import androidx.annotation.RestrictTo;
 import androidx.annotation.VisibleForTesting;
 import androidx.appcompat.view.menu.MenuItemImpl;
 import androidx.core.internal.view.SupportMenu;
@@ -82,11 +79,8 @@ import java.util.Objects;
  * This view shows as many menu item buttons as can fit in the horizontal toolbar and the
  * the remaining menu items in a vertical overflow view when the overflow button is clicked.
  * The horizontal toolbar morphs into the vertical overflow view.
- *
- * @hide
  */
 // TODO: Add nullability annotations.
-@RestrictTo(LIBRARY_GROUP_PREFIX)
 @RequiresApi(Build.VERSION_CODES.M)
 final class FloatingToolbar implements IFloatingToolbar {
 

@@ -16,7 +16,7 @@
 
 package androidx.textclassifier.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP_PREFIX;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.app.PendingIntent;
 import android.content.ClipData;
@@ -62,7 +62,7 @@ import java.util.Map;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP_PREFIX)
+@RestrictTo(LIBRARY)
 @RequiresApi(Build.VERSION_CODES.M)
 @UiThread
 public final class ToolbarController {
@@ -122,10 +122,11 @@ public final class ToolbarController {
      * the specified actions.
      *
      * @param actions actions to show in the toolbar
-     * @param start text start index for positioning the toolbar;
-     *              must be less at least 0 and less than end index
-     * @param end text end index for positioning the toolbar;
-     *            the toolbar will not be shown this index is invalid for the associated textView
+     * @param start   text start index for positioning the toolbar;
+     *                must be less at least 0 and less than end index
+     * @param end     text end index for positioning the toolbar;
+     *                the toolbar will not be shown this index is invalid for the associated
+     *                textView
      */
     public void show(List<RemoteActionCompat> actions, int start, int end) {
         Preconditions.checkNotNull(actions);
@@ -165,7 +166,7 @@ public final class ToolbarController {
     /**
      * Returns true if the textView should be allowed to show a toolbar. Otherwise, returns false.
      *
-     * @param textView the textView
+     * @param textView          the textView
      * @param assumeWindowFocus if true, this method assumes the window in which the textView is in
      *                          has focus. Should typically be set to {@code true} unless the caller
      *                          knows the window does not have focus.
@@ -177,7 +178,7 @@ public final class ToolbarController {
         final boolean canShowToolbar = assumeWindowFocus && viewFocus && viewAttached;
         if (!canShowToolbar) {
             logv(String.format("canShowToolbar=false. "
-                    + "Reason: windowFocus=%b, viewFocus=%b, viewAttached=%b",
+                            + "Reason: windowFocus=%b, viewFocus=%b, viewAttached=%b",
                     assumeWindowFocus, viewFocus, viewAttached));
         }
         return canShowToolbar;
@@ -314,7 +315,8 @@ public final class ToolbarController {
             }
 
             @Override
-            public void onMenuModeChange(MenuBuilder menu) {}
+            public void onMenuModeChange(MenuBuilder menu) {
+            }
 
             private void copyText() {
                 final ClipboardManager clipboard =
@@ -451,7 +453,8 @@ public final class ToolbarController {
     private static final class ActionModeCallback extends ActionMode.Callback2 {
 
         private final IFloatingToolbar mToolbar;
-        @Nullable final ActionMode.Callback mOriginalCallback;
+        @Nullable
+        final ActionMode.Callback mOriginalCallback;
         private final boolean mPreferMe;
 
         ActionModeCallback(
@@ -603,7 +606,8 @@ public final class ToolbarController {
 
         private static final CharacterStyle NON_PARCELABLE_UNDERLYING = new CharacterStyle() {
             @Override
-            public void updateDrawState(TextPaint textPaint) {}
+            public void updateDrawState(TextPaint textPaint) {
+            }
         };
 
         BackgroundSpan(int color) {
