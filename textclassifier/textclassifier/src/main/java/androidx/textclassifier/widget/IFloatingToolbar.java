@@ -16,7 +16,7 @@
 
 package androidx.textclassifier.widget;
 
-import static androidx.annotation.RestrictTo.Scope.LIBRARY_GROUP;
+import static androidx.annotation.RestrictTo.Scope.LIBRARY;
 
 import android.graphics.Rect;
 import android.widget.PopupWindow;
@@ -33,7 +33,7 @@ import androidx.textclassifier.R;
  *
  * @hide
  */
-@RestrictTo(LIBRARY_GROUP)
+@RestrictTo(LIBRARY)
 public interface IFloatingToolbar {
     int MENU_ID_SMART_ACTION = R.id.smartAction;
 
