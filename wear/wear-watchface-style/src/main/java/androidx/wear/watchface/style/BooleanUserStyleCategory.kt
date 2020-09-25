@@ -42,8 +42,7 @@ class BooleanUserStyleCategory : UserStyleCategory {
         /**
          * Used by the style configuration UI. Describes which rendering layer this style affects.
          * Must be either 0 (for a style change with no visual effect, e.g. sound controls) or a
-         * combination of {@link #LAYER_WATCH_FACE_BASE}, {@link #LAYER_COMPLICATONS}, {@link
-         * #LAYER_UPPER}.
+         * combination of [LAYER_WATCH_FACE_BASE], [LAYER_COMPLICATONS], [LAYER_UPPER].
          */
         layerFlags: Int
     ) : super(
@@ -79,7 +78,7 @@ class BooleanUserStyleCategory : UserStyleCategory {
      */
     fun getDefaultValue() = (options[defaultOptionIndex] as BooleanOption).value
 
-    /** Represents a true or false option in the {@link BooleanUserStyleCategory}. */
+    /** Represents a true or false option in the [BooleanUserStyleCategory]. */
     open class BooleanOption : Option {
         val value: Boolean
 

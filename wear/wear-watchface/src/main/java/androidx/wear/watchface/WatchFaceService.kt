@@ -100,14 +100,14 @@ annotation class DrawMode {
         const val AMBIENT = 3
 
         /**
-         * As {@link INTERACTIVE} but complications shouldn't be drawn, nor should any watch face
+         * As [INTERACTIVE] but complications shouldn't be drawn, nor should any watch face
          * elements that might occlude complications (e.g. watch hands).  Used by the
          * remote configuration UI.
          */
         const val BASE_WATCHFACE = 4
 
         /**
-         * Related to {@link BASE_WATCHFACE}, only watch face elements that might occlude
+         * Related to [BASE_WATCHFACE], only watch face elements that might occlude
          * complications should be drawn (e.g. watch hands).  If nothing can occlude the
          * complications then nothing should be drawn. Used by the remote configuration UI. A screen
          * shot taken in this mode needs to include an alpha channel.
@@ -155,7 +155,7 @@ annotation class TapType {
 }
 
 /**
- * WatchFaceService and {@link WatchFace} are a pair of base classes intended to handle much of
+ * WatchFaceService and [WatchFace] are a pair of base classes intended to handle much of
  * the boilerplate needed to implement a watch face without being too opinionated. The suggested
  * structure of an WatchFaceService based watch face is:
  *
@@ -246,7 +246,7 @@ abstract class WatchFaceService : WallpaperService() {
         /** Whether to log every frame. */
         private const val LOG_VERBOSE = false
 
-        /** Whether to enable tracing for each call to {@link Engine#onDraw}. */
+        /** Whether to enable tracing for each call to [Engine.onDraw]. */
         private const val TRACE_DRAW = false
     }
 
@@ -297,8 +297,8 @@ abstract class WatchFaceService : WallpaperService() {
         private val choreographer = Choreographer.getInstance()
 
         /**
-         * Whether we already have a {@link #frameCallback} posted and waiting in the {@link
-         * Choreographer} queue. This protects us from drawing multiple times in a single frame.
+         * Whether we already have a [frameCallback] posted and waiting in the [Choreographer]
+         * queue. This protects us from drawing multiple times in a single frame.
          */
         private var frameCallbackPending = false
 
@@ -774,7 +774,7 @@ abstract class WatchFaceService : WallpaperService() {
         }
 
         private fun maybeCreateWatchFace() {
-            // To simplify handling of watch face state, we only construct the {@link WatchFace}
+            // To simplify handling of watch face state, we only construct the [WatchFace]
             // once both currentSurfaceHolder and iWatchFaceService have been initialized.
             if (this::currentSurfaceHolder.isInitialized &&
                 this::iWatchFaceService.isInitialized && !watchFaceCreated()
@@ -832,7 +832,7 @@ abstract class WatchFaceService : WallpaperService() {
         }
 
         /**
-         * Registers {@link #timeTickReceiver} if it should be registered and isn't currently, or
+         * Registers [timeTickReceiver] if it should be registered and isn't currently, or
          * unregisters it if it shouldn't be registered but currently is. It also applies the right
          * intent filter depending on whether we are in ambient mode or not.
          */

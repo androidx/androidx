@@ -20,6 +20,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.graphics.Rect
 import android.os.Handler
+import android.support.wearable.complications.ComplicationData
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import androidx.annotation.RestrictTo
 import androidx.annotation.UiThread
@@ -29,15 +30,15 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 
 /**
- * The API {@link WatchFace} uses to communicate with the system.
+ * The API [WatchFace] uses to communicate with the system.
  * @hide
  */
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP)
 interface WatchFaceHostApi {
-    /** Returns the watch face's {@link Context}. */
+    /** Returns the watch face's [Context]. */
     fun getContext(): Context
 
-    /** Returns the main thread {@link Handler}. */
+    /** Returns the main thread [Handler]. */
     fun getHandler(): Handler
 
     /** Registers whether the watch face has an analog or digital display. */
@@ -73,9 +74,8 @@ interface WatchFaceHostApi {
      * array clears all labels.
      *
      * <p>In addition to labeling your complications, please include a label that will read the
-     * current time. You can use {@link
-     * android.support.wearable.watchface.accessibility.AccessibilityUtils
-     * #makeTimeAsComplicationText} to generate the proper ComplicationText.
+     * current time. You can use [android.support.wearable.watchface.accessibility
+     * .AccessibilityUtils.makeTimeAsComplicationText] to generate the proper ComplicationText.
      *
      * <p>This is a fairly expensive operation so use it sparingly (e.g. do not call it in
      * onDraw()).
@@ -91,7 +91,7 @@ interface WatchFaceHostApi {
      *
      * <p>If providers and complication data types have been configured, the data received will
      * match the type chosen by the user. If no provider has been configured, data of type
-     * {@link ComplicationData#TYPE_NOT_CONFIGURED} will be received.
+     * [ComplicationData.TYPE_NOT_CONFIGURED] will be received.
      *
      * <p>Ids here are chosen by the watch face to represent each complication and can be any
      * integer.
@@ -112,12 +112,12 @@ interface WatchFaceHostApi {
      * permission, it will not be able to receive data from the provider unless the provider is
      * from the same app package as the watch face, or the provider lists the watch face as a
      * safe watch face. For system providers that may be used before your watch face has the
-     * permission, use {@link #setDefaultSystemComplicationProvider} with a safe provider
+     * permission, use [.setDefaultSystemComplicationProvider] with a safe provider
      * instead.
      *
      * <p>A provider not satisfying the above conditions may still be set as a default using
-     * this method, but the watch face will receive placeholder data of type {@link
-     * ComplicationData#TYPE_NO_PERMISSION} until the permission has been granted.
+     * this method, but the watch face will receive placeholder data of type
+     * [ComplicationData.TYPE_NO_PERMISSION] until the permission has been granted.
      *
      * @param watchFaceComplicationId The watch face's ID for the complication
      * @param providers The list of non-system providers to try in order before falling back to
@@ -125,7 +125,7 @@ interface WatchFaceHostApi {
      * @param fallbackSystemProvider The system provider to use if none of the providers could
      *     be used.
      * @param type The type of complication data that should be provided. Must be one of the
-     *     types defined in {@link ComplicationData}
+     *     types defined in [ComplicationData]
      */
     fun setDefaultComplicationProviderWithFallbacks(
         watchFaceComplicationId: Int,
@@ -134,13 +134,13 @@ interface WatchFaceHostApi {
         type: Int
     )
 
-    /** Schedules a call to {@link Renderer#onDraw} to draw the next frame. */
+    /** Schedules a call to [Renderer.onDraw] to draw the next frame. */
     @UiThread
     fun invalidate()
 }
 
 /**
- * An opaque holder for the internal API {@link WatchFace} for it's host service.
+ * An opaque holder for the internal API [WatchFace] for it's host service.
  */
 class WatchFaceHost {
     internal var api: WatchFaceHostApi? = null

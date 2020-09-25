@@ -76,7 +76,7 @@ open class WatchData<T> protected constructor(protected var _value: T?) {
         }
     }
 
-    /** Removes an observer previously added by {@link observe}. */
+    /** Removes an observer previously added by [observe]. */
     @UiThread
     fun removeObserver(observer: Observer<T>) {
         require(observers.contains(observer))
@@ -90,7 +90,7 @@ open class WatchData<T> protected constructor(protected var _value: T?) {
 }
 
 /**
- * {@link WatchData} which publicly exposes {@link #setValue(T)} method
+ * [WatchData] which publicly exposes [setValue(T)] method
  *
  * @param <T> The type of data hold by this instance
  */

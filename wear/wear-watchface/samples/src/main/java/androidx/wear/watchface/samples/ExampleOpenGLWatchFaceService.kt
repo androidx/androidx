@@ -66,7 +66,7 @@ const val EXAMPLE_OPENGL_COMPLICATION_ID = 101
 
 /**
  * Sample watch face using OpenGL. The watch face is rendered using
- * {@link Gles2ColoredTriangleList}s. The camera moves around in interactive mode and stops moving
+ * [Gles2ColoredTriangleList]s. The camera moves around in interactive mode and stops moving
  * when the watch enters ambient mode.
  */
 class ExampleOpenGLWatchFaceService() : WatchFaceService() {

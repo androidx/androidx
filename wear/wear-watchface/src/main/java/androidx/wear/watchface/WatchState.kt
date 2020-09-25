@@ -16,19 +16,20 @@
 
 package androidx.wear.watchface
 
+import android.app.NotificationManager
 import androidx.annotation.RestrictTo
 
 class WatchState(
     /**
-     * The current user interruption settings. See {@link NotificationManager}. Based on the value
+     * The current user interruption settings. See [NotificationManager]. Based on the value
      * the watch face should adjust the amount of information it displays. For example, if it
      * displays the number of pending emails, it should hide it if interruptionFilter is equal to
-     * {@link NotificationManager.INTERRUPTION_FILTER_NONE}. {@code interruptionFilter} can be
-     * {@link NotificationManager.INTERRUPTION_FILTER_NONE}, {@link
-     * NotificationManager.INTERRUPTION_FILTER_PRIORITY},
-     * {@link NotificationManager.INTERRUPTION_FILTER_ALL},
-     * {@link NotificationManagerINTERRUPTION_FILTER_ALARMS}, or
-     * {@link NotificationManager.INTERRUPTION_FILTER_UNKNOWN}.
+     * [NotificationManager.INTERRUPTION_FILTER_NONE]. `interruptionFilter` can be
+     * [NotificationManager.INTERRUPTION_FILTER_NONE],
+     * [NotificationManager.INTERRUPTION_FILTER_PRIORITY],
+     * [NotificationManager.INTERRUPTION_FILTER_ALL],
+     * [NotificationManager.INTERRUPTION_FILTER_ALARMS], or
+     * [NotificationManager.INTERRUPTION_FILTER_UNKNOWN].
      */
     val interruptionFilter: WatchData<Int>,
 
@@ -41,7 +42,7 @@ class WatchState(
 
     /**
      * Whether or not the watch is in airplane mode. Only valid if
-     * {@link android.support.wearable.watchface.WatchFaceStyle#hideNotificationIndicator} is true.
+     * [android.support.wearable.watchface.WatchFaceStyle.hideNotificationIndicator] is true.
      *
      * @hide
      */
@@ -49,8 +50,8 @@ class WatchState(
 
     /**
      * Whether or not we should conserve power due to a low battery which isn't charging. Only
-     * valid if {@link android.support.wearable.watchface.WatchFaceStyle#hideNotificationIndicator}
-     * is true.
+     * valid if [android.support.wearable.watchface.WatchFaceStyle.hideNotificationIndicator] is
+     * true.
      *
      * @hide
      */
@@ -58,7 +59,7 @@ class WatchState(
 
     /**
      * Whether or not the watch is charging. Only valid if
-     * {@link android.support.wearable.watchface.WatchFaceStyle#hideNotificationIndicator} is true.
+     * [android.support.wearable.watchface.WatchFaceStyle.hideNotificationIndicator] is true.
      *
      * @hide
      */
@@ -66,7 +67,7 @@ class WatchState(
 
     /**
      * Whether or not the watch is connected to the companion phone. Only valid if
-     * {@link android.support.wearable.watchface.WatchFaceStyle#hideNotificationIndicator} is true.
+     * [android.support.wearable.watchface.WatchFaceStyle.hideNotificationIndicator] is true.
      *
      * @hide
      */
@@ -74,7 +75,7 @@ class WatchState(
 
     /**
      * Whether or not GPS is active on the watch. Only valid if
-     * {@link android.support.wearable.watchface.WatchFaceStyle#hideNotificationIndicator} is true.
+     * [android.support.wearable.watchface.WatchFaceStyle.hideNotificationIndicator] is true.
      *
      * @hide
      */
@@ -82,7 +83,7 @@ class WatchState(
 
     /**
      * Whether or not the watch's keyguard (lock screen) is locked. Only valid if
-     * {@link android.support.wearable.watchface.WatchFaceStyle#hideNotificationIndicator} is true.
+     * [android.support.wearable.watchface.WatchFaceStyle.hideNotificationIndicator] is true.
      *
      * @hide
      */
@@ -90,7 +91,7 @@ class WatchState(
 
     /**
      * Whether or not the watch is in theater mode. Only valid if
-     * {@link android.support.wearable.watchface.WatchFaceStyle#hideNotificationIndicator} is true.
+     * [android.support.wearable.watchface.WatchFaceStyle.hideNotificationIndicator] is true.
      *
      * @hide
      */

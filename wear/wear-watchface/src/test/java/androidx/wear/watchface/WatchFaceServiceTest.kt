@@ -733,7 +733,7 @@ class WatchFaceServiceTest {
     @Test
     fun getStoredUserStyleNotSupported_userStyle_isPersisted() {
         // The style should get persisted in a file because the API is old and
-        // {@link WatchFaceHostApi#getStoredUserStyle} returns null.
+        // [WatchFaceHostApi.getStoredUserStyle] returns null.
         `when`(iWatchFaceService.getStoredUserStyle()).thenReturn(null)
 
         initEngine(

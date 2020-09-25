@@ -28,7 +28,7 @@ import java.io.ByteArrayOutputStream
 import java.nio.ByteBuffer
 
 /**
- * WebP compresses a {@link Bitmap} with the specified quality (100 = lossless) which is
+ * WebP compresses a [Bitmap] with the specified quality (100 = lossless) which is
  * stored in shared memory and serialized to a bundle.
  *
  * @hide
@@ -55,8 +55,8 @@ fun Bitmap.toAshmemCompressedImageBundle(quality: Int): Bundle {
 }
 
 /**
- * Deserializes a {@link Bundle} containing a {@link Bitmap} serialized by {@link
- * #bitmapToAshmemCompressedImageBundle}.
+ * Deserializes a [Bundle] containing a [Bitmap] serialized by
+ * [Bitmap.toAshmemCompressedImageBundle].
  *
  * @hide
  */
