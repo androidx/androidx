@@ -56,10 +56,10 @@ cd androidx-master-dev
 4. Use `repo` command to initialize the repository.
 
 ```bash
-repo init -u https://android.googlesource.com/platform/manifest -b androidx-master-dev --partial-clone
+repo init -u https://android.googlesource.com/platform/manifest -b androidx-master-dev --partial-clone --clone-filter=blob:limit=10M
 ```
 
-5. Now your repository is set to pull only what you need for building and running AndroidX libraries. Download the code (and grab a coffee while we pull down 6GB):
+5. Now your repository is set to pull only what you need for building and running AndroidX libraries. Download the code (and grab a coffee while we pull down the files):
 
 ```bash
 repo sync -j8 -c
