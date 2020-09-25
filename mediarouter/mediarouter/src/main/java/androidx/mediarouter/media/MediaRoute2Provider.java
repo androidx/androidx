@@ -373,7 +373,6 @@ class MediaRoute2Provider extends MediaRouteProvider {
         @Override
         public void onTransfer(@NonNull MediaRouter2.RoutingController oldController,
                 @NonNull MediaRouter2.RoutingController newController) {
-            // TODO: Call onPrepareTransfer() when the API is added.
             mControllerMap.remove(oldController);
             if (newController == mMediaRouter2.getSystemController()) {
                 mCallback.onSelectFallbackRoute(UNSELECT_REASON_ROUTE_CHANGED);
