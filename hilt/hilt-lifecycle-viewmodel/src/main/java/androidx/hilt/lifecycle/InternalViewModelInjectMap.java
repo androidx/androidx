@@ -16,24 +16,23 @@
 
 package androidx.hilt.lifecycle;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
-import androidx.lifecycle.SavedStateHandle;
-import androidx.lifecycle.ViewModel;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+import javax.inject.Qualifier;
 
 /**
- * Factory interface to be implemented by generated code.
+ * Qualifier for the multibinding map of ViewModels used by the {@link HiltViewModelFactory}.
  *
- * @param <T> The ViewModel type.
  * @hide
  */
+@Qualifier
+@Retention(RetentionPolicy.CLASS)
+@Target({ElementType.METHOD, ElementType.PARAMETER})
 @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP_PREFIX)
-public interface ViewModelAssistedFactory<T extends ViewModel> {
-    /**
-     * Create the ViewModel.
-     *
-     * @param handle the saved state handle.
-     * @return the created ViewModel.
-     */
-    @NonNull T create(@NonNull SavedStateHandle handle);
+public @interface InternalViewModelInjectMap {
 }

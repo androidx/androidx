@@ -65,7 +65,9 @@ class ViewModelInjectStep(
     ): ViewModelInjectElements? {
         var valid = true
 
-        if (elements.getTypeElement(ClassNames.VIEW_MODEL_ASSISTED_FACTORY.toString()) == null) {
+        if (
+            elements.getTypeElement(ClassNames.HILT_VIEW_MODEL_FACTORY_MODULES.toString()) == null
+        ) {
             error(
                 "To use @ViewModelInject you must add the 'lifecycle-viewmodel' " +
                     "artifact. androidx.hilt:hilt-lifecyclew-viewmodel:<version>"
@@ -121,9 +123,12 @@ class ViewModelInjectStep(
                 valid = false
             }
             firstOrNull()?.let {
-                if (!it.hasAnnotation(ClassNames.ASSISTED.canonicalName())) {
-                    error("Missing @Assisted annotation in param '${it.simpleName}'.", it)
-                    valid = false
+                if (it.hasAnnotation(ClassNames.ASSISTED.canonicalName())) {
+                    warn(
+                        "@Assisted annotation for SavedStateHandle param " +
+                            "'${it.simpleName}' is no longer needed.",
+                        it
+                    )
                 }
             }
         }
@@ -138,5 +143,9 @@ class ViewModelInjectStep(
 
     private fun error(message: String, element: Element? = null) {
         messager.printMessage(Diagnostic.Kind.ERROR, message, element)
+    }
+
+    private fun warn(message: String, element: Element? = null) {
+        messager.printMessage(Diagnostic.Kind.WARNING, message, element)
     }
 }
