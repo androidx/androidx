@@ -100,6 +100,21 @@ internal class JavacMethodElement(
 
     override fun isSuspendFunction() = kotlinMetadata?.isSuspend() == true
 
+    override fun overrides(other: XMethodElement, owner: XTypeElement): Boolean {
+        check(other is JavacMethodElement)
+        check(owner is JavacTypeElement)
+        return env.elementUtils.overrides(element, other.element, owner.element)
+    }
+
+    override fun copyTo(newContainer: XTypeElement): XMethodElement {
+        check(newContainer is JavacTypeElement)
+        return JavacMethodElement(
+            env = env,
+            containing = newContainer,
+            element = element
+        )
+    }
+
     override fun findKotlinDefaultImpl(): XMethodElement? {
         fun paramsMatch(
             ourParams: List<XVariableElement>,

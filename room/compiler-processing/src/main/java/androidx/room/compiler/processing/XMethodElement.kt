@@ -75,4 +75,15 @@ interface XMethodElement : XExecutableElement {
     fun isOverrideableIgnoringContainer(): Boolean {
         return !isFinal() && !isPrivate() && !isStatic()
     }
+
+    /**
+     * Returns `true` if this method overrides the [other] method when this method is viewed as
+     * member of the [owner].
+     */
+    fun overrides(other: XMethodElement, owner: XTypeElement): Boolean
+
+    /**
+     * Creates a new [XMethodElement] where containing element is replaced with [newContainer].
+     */
+    fun copyTo(newContainer: XTypeElement): XMethodElement
 }

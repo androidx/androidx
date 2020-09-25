@@ -129,15 +129,11 @@ internal class KspTypeElement(
         TODO("Not yet implemented")
     }
 
-    override fun getAllMethods(): List<XMethodElement> {
-        TODO("Not yet implemented")
-    }
-
-    override fun getAllNonPrivateInstanceMethods(): List<XMethodElement> {
-        TODO("Not yet implemented")
-    }
-
     override fun getConstructors(): List<XConstructorElement> {
+        TODO("Not yet implemented")
+    }
+
+    override fun getSuperInterfaceElements(): List<XTypeElement> {
         TODO("Not yet implemented")
     }
 }
