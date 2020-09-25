@@ -30,7 +30,7 @@ import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.material.Button
 import androidx.compose.material.ModalDrawerLayout
 import androidx.compose.runtime.InternalComposeApi
-import androidx.compose.ui.onPositioned
+import androidx.compose.ui.onGloballyPositioned
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
@@ -357,7 +357,7 @@ class InspectableTests : ToolingTest() {
                 drawerContent = { Text("Something") },
                 bodyContent = {
                     Column(
-                        Modifier.onPositioned {
+                        Modifier.onGloballyPositioned {
                             positioned.countDown()
                         }
                     ) {

@@ -24,7 +24,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.onPositioned
+import androidx.compose.ui.onGloballyPositioned
 import androidx.compose.ui.platform.DensityAmbient
 import androidx.compose.ui.unit.dp
 import androidx.test.filters.MediumTest
@@ -51,7 +51,7 @@ class LayoutCoordinatesHelperTest {
         var childCoordinates: LayoutCoordinates? = null
         rule.setContent {
             Column(
-                Modifier.onPositioned { coordinates: LayoutCoordinates ->
+                Modifier.onGloballyPositioned { coordinates: LayoutCoordinates ->
                     parentCoordinates = coordinates
                     latch.countDown()
                 }
@@ -59,7 +59,7 @@ class LayoutCoordinatesHelperTest {
                 Box(
                     Modifier.preferredSize(10.dp)
                         .align(Alignment.Start)
-                        .onPositioned { coordinates ->
+                        .onGloballyPositioned { coordinates ->
                             childCoordinates = coordinates
                             latch.countDown()
                         }
@@ -84,7 +84,7 @@ class LayoutCoordinatesHelperTest {
                 Box(Modifier.preferredWidth(40.toDp()), alignment = Alignment.Center) {
                     Column(
                         Modifier.preferredWidth(20.toDp())
-                            .onPositioned { coordinates: LayoutCoordinates ->
+                            .onGloballyPositioned { coordinates: LayoutCoordinates ->
                                 parentCoordinates = coordinates
                                 latch.countDown()
                             }
@@ -92,7 +92,7 @@ class LayoutCoordinatesHelperTest {
                         Box(
                             Modifier.preferredSize(10.toDp())
                                 .align(Alignment.CenterHorizontally)
-                                .onPositioned { coordinates ->
+                                .onGloballyPositioned { coordinates ->
                                     childCoordinates = coordinates
                                     latch.countDown()
                                 }
