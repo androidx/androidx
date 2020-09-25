@@ -3,10 +3,12 @@
     <!-- custom colors. -->
     <color name="transparent">#00000000</color>
     <color name="white">@android:color/white</color>
+    <color name="white_10">#1DFFFFFF</color>
     <color name="white_30">#4DFFFFFF</color>
     <color name="white_50">#80FFFFFF</color>
     <color name="white_60">#96FFFFFF</color>
     <color name="white_70">#B3FFFFFF</color>
+    <color name="white_90">#D3FFFFFF</color>
     <color name="black">@android:color/black</color>
     <color name="black_40">#66000000</color>
     <color name="black_50">#80000000</color>

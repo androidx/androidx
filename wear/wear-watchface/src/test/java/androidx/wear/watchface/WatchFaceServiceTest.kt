@@ -136,7 +136,7 @@ class WatchFaceServiceTest {
     private val leftComplication =
         Complication.Builder(
             LEFT_COMPLICATION_ID,
-            ComplicationDrawableRenderer(
+            CanvasComplicationDrawableRenderer(
                 complicationDrawableLeft,
                 watchState.asWatchState()
             ).apply {
@@ -157,7 +157,7 @@ class WatchFaceServiceTest {
     private val rightComplication =
         Complication.Builder(
             RIGHT_COMPLICATION_ID,
-            ComplicationDrawableRenderer(
+            CanvasComplicationDrawableRenderer(
                 complicationDrawableRight,
                 watchState.asWatchState()
             ).apply {
@@ -178,7 +178,7 @@ class WatchFaceServiceTest {
     private val backgroundComplication =
         Complication.Builder(
             BACKGROUND_COMPLICATION_ID,
-            ComplicationDrawableRenderer(
+            CanvasComplicationDrawableRenderer(
                 complicationDrawableRight,
                 watchState.asWatchState()
             ).apply {
@@ -1122,7 +1122,7 @@ class WatchFaceServiceTest {
         val provider2 = ComponentName("com.app2", "com.app2.App2")
         val complication = Complication.Builder(
             LEFT_COMPLICATION_ID,
-            ComplicationDrawableRenderer(complicationDrawableLeft, watchState.asWatchState()),
+            CanvasComplicationDrawableRenderer(complicationDrawableLeft, watchState.asWatchState()),
             intArrayOf(),
             Complication.DefaultComplicationProviderPolicy(
                 listOf(provider1, provider2),
@@ -1147,7 +1147,7 @@ class WatchFaceServiceTest {
         val provider2 = ComponentName("com.app2", "com.app2.App2")
         val complication = Complication.Builder(
             LEFT_COMPLICATION_ID,
-            ComplicationDrawableRenderer(complicationDrawableLeft, watchState.asWatchState()),
+            CanvasComplicationDrawableRenderer(complicationDrawableLeft, watchState.asWatchState()),
             intArrayOf(),
             Complication.DefaultComplicationProviderPolicy(
                 listOf(provider1, provider2),

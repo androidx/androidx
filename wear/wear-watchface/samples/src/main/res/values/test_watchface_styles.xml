@@ -58,4 +58,23 @@
     </style>
     <!-- End of  green style -->
 
+    <!-- White style -->
+    <style name="white_style">
+        <item name="active">@style/white_style_active</item>
+        <item name="ambient">@style/white_style_ambient</item>
+        <item name="complication">@drawable/complication_white_style</item>
+    </style>
+
+    <style name="white_style_active">
+        <item name="hour_hand_color">@color/white_70</item>
+        <item name="minute_hand_color">@color/white_70</item>
+        <item name="second_hand_color">@color/white_50</item>
+        <item name="background_color">@color/white_10</item>
+        <item name="outer_element_color">@color/white_70</item>
+    </style>
+
+    <style name="white_style_ambient" parent="ambient_style">
+    </style>
+    <!-- End of  green style -->
+
 </resources>

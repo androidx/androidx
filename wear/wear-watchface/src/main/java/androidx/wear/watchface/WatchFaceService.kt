@@ -562,7 +562,7 @@ abstract class WatchFaceService : WallpaperService() {
                             complication.renderer.setData(complicationData)
                         }
 
-                        complication.renderer.onDraw(
+                        complication.renderer.render(
                             Canvas(complicationBitmap),
                             Rect(0, 0, bounds.width(), bounds.height()),
                             calendar,
