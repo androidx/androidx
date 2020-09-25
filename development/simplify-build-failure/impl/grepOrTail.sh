@@ -7,9 +7,9 @@
 query="$1"
 filepath="$2"
 
-if grep "$query" "$filepath"; then
+if grep -C 10 "$query" "$filepath"; then
   exit 0
 fi
 
-tail -n 20 "$filepath"
+tail -n 40 "$filepath"
 exit 1
