@@ -17,7 +17,10 @@
 package androidx.camera.camera2;
 
 
-import static androidx.camera.testing.CoreAppTestUtil.clearDeviceUI;
+import static androidx.camera.testing.CoreAppTestUtil.ForegroundOccupiedError;
+import static androidx.camera.testing.CoreAppTestUtil.assumeCanTestCameraDisconnect;
+import static androidx.camera.testing.CoreAppTestUtil.assumeCompatibleDevice;
+import static androidx.camera.testing.CoreAppTestUtil.prepareDeviceUI;
 
 import static org.junit.Assume.assumeNotNull;
 
@@ -27,7 +30,6 @@ import android.os.Build;
 
 import androidx.camera.core.CameraX;
 import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.CoreAppTestUtil;
 import androidx.camera.testing.activity.Camera2TestActivity;
 import androidx.camera.testing.activity.CameraXTestActivity;
 import androidx.test.core.app.ApplicationProvider;
@@ -68,14 +70,15 @@ public class CameraDisconnectTest {
     private CameraXTestActivity mCameraXTestActivity;
 
     @Before
-    public void setUp() {
-        CoreAppTestUtil.assumeCompatibleDevice();
+    public void setUp() throws ForegroundOccupiedError {
+        assumeCompatibleDevice();
 
         Context context = ApplicationProvider.getApplicationContext();
         CameraX.initialize(context, Camera2Config.defaultConfig());
 
-        // Clear the device UI before start each test.
-        clearDeviceUI(InstrumentationRegistry.getInstrumentation());
+        // Clear the device UI and check if there is no dialog or lock screen on the top of the
+        // window before start the test.
+        prepareDeviceUI(InstrumentationRegistry.getInstrumentation());
 
         mCameraXTestActivityRule.launchActivity(new Intent());
         mCameraXTestActivity = mCameraXTestActivityRule.getActivity();
@@ -93,7 +96,7 @@ public class CameraDisconnectTest {
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.M) // Known issue, checkout b/147393563.
     public void testDisconnect_launchCamera2App() {
         // Specific compatibility check for the test.
-        CoreAppTestUtil.assumeCanTestCameraDisconnect();
+        assumeCanTestCameraDisconnect();
 
         waitFor(mCameraXTestActivity.mPreviewReady);
         String cameraId = mCameraXTestActivity.mCameraId;
