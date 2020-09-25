@@ -523,7 +523,7 @@ class ExampleCanvasRenderer(
     private fun drawComplications(canvas: Canvas, calendar: Calendar) {
         for ((_, complication) in complicationsManager.complications) {
             if (complication.enabled) {
-                complication.draw(canvas, calendar, drawMode)
+                complication.render(canvas, calendar, drawMode)
             }
         }
     }
