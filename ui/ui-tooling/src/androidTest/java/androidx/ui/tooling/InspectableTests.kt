@@ -16,24 +16,25 @@
 
 package androidx.ui.tooling
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SlotTable
-import androidx.test.filters.SmallTest
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.drawBehind
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.Text
 import androidx.compose.foundation.background
-import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.preferredSize
 import androidx.compose.material.Button
 import androidx.compose.material.ModalDrawerLayout
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.InternalComposeApi
+import androidx.compose.runtime.SlotTable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.drawBehind
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.onGloballyPositioned
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.height
 import androidx.compose.ui.unit.width
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertNotEquals
@@ -41,11 +42,10 @@ import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-@SmallTest
+@MediumTest
 @RunWith(AndroidJUnit4::class)
 class InspectableTests : ToolingTest() {
     @Test

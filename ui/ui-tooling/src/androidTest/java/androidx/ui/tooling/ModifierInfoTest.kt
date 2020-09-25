@@ -16,28 +16,28 @@
 
 package androidx.ui.tooling
 
-import androidx.test.filters.SmallTest
-import androidx.compose.ui.platform.DensityAmbient
-import androidx.compose.ui.DrawModifier
-import androidx.compose.ui.LayoutModifier
-import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.background
-import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.ui.DrawLayerModifier
+import androidx.compose.ui.DrawModifier
+import androidx.compose.ui.LayoutModifier
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.drawLayer
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.node.OwnedLayer
+import androidx.compose.ui.platform.DensityAmbient
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.MediumTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.test.ext.junit.runners.AndroidJUnit4
 
-@SmallTest
+@MediumTest
 @RunWith(AndroidJUnit4::class)
 class ModifierInfoTest : ToolingTest() {
     fun Group.all(): Collection<Group> =

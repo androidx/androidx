@@ -25,7 +25,7 @@ import android.content.SharedPreferences;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 
 import com.google.crypto.tink.KeysetHandle;
 import com.google.crypto.tink.StreamingAead;
@@ -47,7 +47,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
 
-@SmallTest
+@MediumTest
 @RunWith(AndroidJUnit4.class)
 public class EncryptedFileTest {
 

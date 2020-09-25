@@ -16,30 +16,31 @@
 
 package androidx.ui.tooling
 
+import androidx.compose.foundation.Text
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.resetSourceInfo
 import androidx.compose.runtime.setValue
-import androidx.test.filters.SmallTest
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.WithConstraints
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.Text
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.filters.LargeTest
+import androidx.test.filters.MediumTest
 import org.junit.Assert
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
-import androidx.test.ext.junit.runners.AndroidJUnit4
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
-@SmallTest
+@MediumTest
 @RunWith(AndroidJUnit4::class)
 class BoundsTest : ToolingTest() {
     fun Group.all(): Collection<Group> =
@@ -127,6 +128,7 @@ class BoundsTest : ToolingTest() {
     }
 
     @Test
+    @LargeTest
     fun testDisposeWithComposeTables() {
         val slotTableRecord = SlotTableRecord.create()
         var value by mutableStateOf(0)

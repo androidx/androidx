@@ -29,7 +29,7 @@ import androidx.paging.localLoadStatesOf
 import androidx.paging.toCombinedLoadStatesLocal
 import androidx.recyclerview.widget.DiffUtil
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.SmallTest
+import androidx.test.filters.MediumTest
 import androidx.testutils.MainDispatcherRule
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
@@ -45,7 +45,7 @@ import kotlin.coroutines.ContinuationInterceptor
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalPagingApi::class)
-@SmallTest
+@MediumTest
 @RunWith(AndroidJUnit4::class)
 class PagingDataAdapterTest {
 

@@ -30,7 +30,7 @@ import androidx.security.identity.IdentityCredentialException;
 import androidx.security.identity.IdentityCredentialStore;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,7 +57,7 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
 // TODO: For better coverage, use different ECDH and HKDF implementations in test code.
-@SmallTest
+@MediumTest
 @RunWith(AndroidJUnit4.class)
 public class EphemeralKeyTest {
     private static final String TAG = "EphemeralKeyTest";

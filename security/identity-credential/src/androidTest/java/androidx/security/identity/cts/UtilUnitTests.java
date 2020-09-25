@@ -25,7 +25,7 @@ import android.security.keystore.KeyGenParameterSpec;
 import android.security.keystore.KeyProperties;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.MediumTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,7 +56,7 @@ import co.nstant.in.cbor.model.SinglePrecisionFloat;
 import co.nstant.in.cbor.model.UnicodeString;
 import co.nstant.in.cbor.model.UnsignedInteger;
 
-@SmallTest
+@MediumTest
 @RunWith(AndroidJUnit4.class)
 public class UtilUnitTests {
     @Test

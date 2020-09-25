@@ -28,7 +28,7 @@ import androidx.sqlite.inspection.test.MessageFactory.createKeepDatabasesOpenRes
 import androidx.sqlite.inspection.test.MessageFactory.createTrackDatabasesCommand
 import androidx.sqlite.inspection.test.MessageFactory.createTrackDatabasesResponse
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import androidx.test.filters.MediumTest
+import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry.getInstrumentation
 import com.google.common.truth.Truth.assertThat
 import kotlinx.coroutines.runBlocking
@@ -64,7 +64,7 @@ private const val ALL_REFERENCES_RELEASED_COMMAND_SIGNATURE = "onAllReferencesRe
 
 private const val RELEASE_REFERENCE_COMMAND_SIGNATURE = "releaseReference()V"
 
-@MediumTest
+@LargeTest
 @RunWith(AndroidJUnit4::class)
 class TrackDatabasesTest {
     @get:Rule

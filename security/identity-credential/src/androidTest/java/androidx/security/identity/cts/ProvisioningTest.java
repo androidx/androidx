@@ -42,7 +42,7 @@ import androidx.security.identity.ResultData;
 import androidx.security.identity.WritableIdentityCredential;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.filters.SmallTest;
+import androidx.test.filters.LargeTest;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -71,7 +71,7 @@ import co.nstant.in.cbor.model.UnsignedInteger;
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
-@SmallTest
+@LargeTest
 @RunWith(AndroidJUnit4.class)
 public class ProvisioningTest {
     private static final String TAG = "ProvisioningTest";
