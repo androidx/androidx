@@ -115,7 +115,7 @@ internal class JavacMethodElement(
         )
     }
 
-    override fun findKotlinDefaultImpl(): XMethodElement? {
+    override fun hasKotlinDefaultImpl(): Boolean {
         fun paramsMatch(
             ourParams: List<XVariableElement>,
             theirParams: List<XVariableElement>
@@ -134,9 +134,9 @@ internal class JavacMethodElement(
             }
             return true
         }
-        return kotlinDefaultImplClass?.getDeclaredMethods()?.find {
+        return kotlinDefaultImplClass?.getDeclaredMethods()?.any {
             it.name == this.name && paramsMatch(parameters, it.parameters)
-        }
+        } ?: false
     }
 
     @Suppress("UnstableApiUsage")

@@ -23,7 +23,6 @@ import androidx.room.compiler.processing.util.getParameter
 import androidx.room.compiler.processing.util.runProcessorTest
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
-import com.squareup.javapoet.TypeName
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
@@ -113,43 +112,29 @@ class XExecutableElementTest {
         ) {
             val element = it.processingEnv.requireTypeElement("foo.bar.Baz")
             element.getDeclaredMethod("noDefault").let { method ->
-                assertThat(method.findKotlinDefaultImpl()).isNull()
+                assertThat(method.hasKotlinDefaultImpl()).isFalse()
             }
             element.getDeclaredMethod("withDefault").let { method ->
-                val defaultImpl = method.findKotlinDefaultImpl()
-                assertThat(defaultImpl).isNotNull()
-                assertThat(defaultImpl!!.returnType.typeName).isEqualTo(TypeName.INT)
-                // default impl gets self as first parameter
-                assertThat(defaultImpl.parameters).hasSize(1)
-                assertThat(defaultImpl.parameters.first().type)
-                    .isEqualTo(element.type)
+                assertThat(method.hasKotlinDefaultImpl()).isTrue()
             }
             element.getDeclaredMethods().first {
                 it.name == "nameMatch" && it.parameters.isEmpty()
             }.let { nameMatchWithoutDefault ->
-                assertThat(nameMatchWithoutDefault.findKotlinDefaultImpl()).isNull()
+                assertThat(nameMatchWithoutDefault.hasKotlinDefaultImpl()).isFalse()
             }
 
             element.getDeclaredMethods().first {
                 it.name == "nameMatch" && it.parameters.size == 1
             }.let { nameMatchWithoutDefault ->
-                assertThat(nameMatchWithoutDefault.findKotlinDefaultImpl()).isNotNull()
+                assertThat(nameMatchWithoutDefault.hasKotlinDefaultImpl()).isTrue()
             }
 
             element.getDeclaredMethod("withDefaultWithParams").let { method ->
-                val defaultImpl = method.findKotlinDefaultImpl()
-                assertThat(defaultImpl).isNotNull()
-                assertThat(defaultImpl!!.parameters.drop(1).map {
-                    it.name
-                }).containsExactly("param1", "param2")
+                assertThat(method.hasKotlinDefaultImpl()).isTrue()
             }
 
             element.getDeclaredMethod("withDefaultWithTypeArgs").let { method ->
-                val defaultImpl = method.findKotlinDefaultImpl()
-                assertThat(defaultImpl).isNotNull()
-                assertThat(defaultImpl!!.parameters.drop(1).map {
-                    it.name
-                }).containsExactly("param1")
+                assertThat(method.hasKotlinDefaultImpl()).isTrue()
             }
         }
     }

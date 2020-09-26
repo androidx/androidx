@@ -476,7 +476,7 @@ class DaoWriter(
             KotlinDefaultMethodDelegateBinder.executeAndReturn(
                 daoName = dao.typeName,
                 daoImplName = dao.implTypeName,
-                methodName = method.delegateElement.name,
+                methodName = method.element.name,
                 returnType = method.element.returnType,
                 parameterNames = method.element.parameters.map { it.name },
                 scope = scope)
