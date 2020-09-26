@@ -63,7 +63,7 @@ import dagger.hilt.GeneratesRootInput;
  * dependencies. Both the {@code Context} and {@code WorkerParameters} must not be a type param
  * of {@link javax.inject.Provider} nor {@link dagger.Lazy} and must not be qualified.
  * <p>
- * Only dependencies available in the {@link dagger.hilt.android.components.ApplicationComponent}
+ * Only dependencies available in the {@link dagger.hilt.components.SingletonComponent}
  * can be injected into the {@code Worker}.
  */
 @Target(ElementType.CONSTRUCTOR)
