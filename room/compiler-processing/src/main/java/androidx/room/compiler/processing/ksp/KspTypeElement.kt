@@ -185,7 +185,7 @@ internal class KspTypeElement(
                 // filter out constructors
                 it.simpleName.asString() != name
             }.map {
-                KspMethodElement(
+                KspMethodElement.create(
                     env = env,
                     containing = this,
                     declaration = it

@@ -27,4 +27,5 @@ internal object KotlinTypeNames {
     val MUTABLELIST_CLASS_NAME = ClassName.get("kotlin.collections", "MutableList")
     val MAP_CLASS_NAME = ClassName.get("kotlin.collections", "Map")
     val PAIR_CLASS_NAME = ClassName.get(Pair::class.java)
+    val CONTINUATION_CLASS_NAME = ClassName.get("kotlin.coroutines", "Continuation")
 }

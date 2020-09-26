@@ -38,6 +38,7 @@ import kotlin.reflect.KClass
  *
  * @see KspSyntheticPropertyMethodElement.Getter
  * @see KspSyntheticPropertyMethodElement.Setter
+ * @see KspSyntheticPropertyMethodType
  */
 internal sealed class KspSyntheticPropertyMethodElement(
     env: KspProcessingEnv,
@@ -62,11 +63,18 @@ internal sealed class KspSyntheticPropertyMethodElement(
 
     final override fun isVarArgs() = false
 
-    final override val executableType: XMethodType
-        get() = TODO()
+    final override val executableType: XMethodType by lazy {
+        KspSyntheticPropertyMethodType.create(
+            element = this,
+            container = field.containing.type
+        )
+    }
 
     final override fun asMemberOf(other: XDeclaredType): XMethodType {
-        TODO()
+        return KspSyntheticPropertyMethodType.create(
+            element = this,
+            container = other
+        )
     }
 
     internal class Getter(

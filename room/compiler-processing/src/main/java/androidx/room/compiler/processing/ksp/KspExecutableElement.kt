@@ -22,7 +22,7 @@ import androidx.room.compiler.processing.XHasModifiers
 import androidx.room.compiler.processing.XTypeElement
 import org.jetbrains.kotlin.ksp.symbol.KSFunctionDeclaration
 
-internal open class KspExecutableElement(
+internal abstract class KspExecutableElement(
     env: KspProcessingEnv,
     val containing: KspTypeElement,
     override val declaration: KSFunctionDeclaration
@@ -39,13 +39,15 @@ internal open class KspExecutableElement(
         declaration.requireEnclosingTypeElement(env)
     }
 
-    override val parameters: List<XExecutableParameterElement>
-        get() = TODO(
-            """
-            implement parameters. need to be careful w/ suspend functions as they need to fake
-            an additional parameter to look like java
-        """.trimIndent()
-        )
+    override val parameters: List<XExecutableParameterElement> by lazy {
+        declaration.parameters.map {
+            KspExecutableParameterElement(
+                env = env,
+                method = this,
+                parameter = it
+            )
+        }
+    }
 
     override fun isVarArgs(): Boolean {
         return declaration.parameters.any {
