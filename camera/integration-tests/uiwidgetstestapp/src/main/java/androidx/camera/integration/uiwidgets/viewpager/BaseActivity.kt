@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.integration.uiwidgets
+package androidx.camera.integration.uiwidgets.viewpager
 
 import android.util.Log
 import androidx.annotation.VisibleForTesting

@@ -20,7 +20,7 @@
     <application
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
-        <activity android:name="androidx.camera.integration.uiwidgets.ViewPager2Activity"
+        <activity android:name=".viewpager.ViewPager2Activity"
             android:label="ViewPager2 CameraX Test" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -28,7 +28,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name="androidx.camera.integration.uiwidgets.ViewPagerActivity"
+        <activity android:name=".viewpager.ViewPagerActivity"
             android:label="ViewPager CameraX Test" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

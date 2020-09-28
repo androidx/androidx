@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package androidx.camera.integration.uiwidgets
+package androidx.camera.integration.uiwidgets.viewpager
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.camera.integration.uiwidgets.R
 import androidx.fragment.app.Fragment
 
 class TextViewFragment : Fragment() {
