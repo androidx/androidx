@@ -18,7 +18,8 @@ package androidx.lifecycle.lint.stubs
 
 import com.android.tools.lint.checks.infrastructure.LintDetectorTest.java
 
-private val LIVEDATA = java("""
+private val LIVEDATA = java(
+    """
     package androidx.lifecycle;
 
     public abstract class LiveData<T> {
@@ -26,9 +27,11 @@ private val LIVEDATA = java("""
         protected void setValue(T value) {}
         public T getValue() {}
     }
-""").indented()
+"""
+).indented()
 
-private val MUTABLE_LIVEDATA = java("""
+private val MUTABLE_LIVEDATA = java(
+    """
     package androidx.lifecycle;
 
     public class MutableLiveData<T> extends LiveData<T> {
@@ -36,7 +39,8 @@ private val MUTABLE_LIVEDATA = java("""
         @Override public void postValue(T value) { super.postValue(value); }
         @Override public void setValue(T value) { super.setValue(value); }
     }
-""").indented()
+"""
+).indented()
 
 internal val STUBS = arrayOf(
     LIVEDATA,
