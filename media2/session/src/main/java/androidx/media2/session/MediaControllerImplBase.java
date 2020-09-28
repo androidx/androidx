@@ -833,8 +833,8 @@ class MediaControllerImplBase implements MediaControllerImpl {
         //    bound service. But there had been request for the feature for system apps
         //    and using bindService() will be better fit with it.
         synchronized (mLock) {
-            boolean result = mContext.bindService(
-                    intent, mServiceConnection, Context.BIND_AUTO_CREATE);
+            boolean result = mContext.bindService(intent, mServiceConnection,
+                    Context.BIND_AUTO_CREATE | Context.BIND_INCLUDE_CAPABILITIES);
             if (!result) {
                 Log.w(TAG, "bind to " + mToken + " failed");
                 return false;
