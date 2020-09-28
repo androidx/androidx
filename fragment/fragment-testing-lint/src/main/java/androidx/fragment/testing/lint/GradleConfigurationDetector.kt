@@ -34,7 +34,7 @@ class GradleConfigurationDetector : Detector(), GradleScanner {
         val ISSUE = Issue.create(
             id = "FragmentGradleConfiguration",
             briefDescription = "Include the fragment-testing library using the " +
-                    "debugImplementation configuration.",
+                "debugImplementation configuration.",
             explanation = """The fragment-testing library contains a FragmentScenario class that \
                 creates an Activity that must exist in the runtime APK. To include the \
                 fragment-testing library in the runtime APK it must be added using the \
@@ -63,13 +63,16 @@ class GradleConfigurationDetector : Detector(), GradleScanner {
         // will not be detected.
         val library = getStringLiteralValue(value)
         if (library.startsWith("androidx.fragment:fragment-testing") &&
-            property != "debugImplementation") {
-            context.report(ISSUE, statementCookie, context.getLocation(statementCookie),
+            property != "debugImplementation"
+        ) {
+            context.report(
+                ISSUE, statementCookie, context.getLocation(statementCookie),
                 "Replace with debugImplementation.",
                 fix().replace()
                     .text(property)
                     .with("debugImplementation")
-                    .build())
+                    .build()
+            )
         }
     }
 
@@ -79,8 +82,11 @@ class GradleConfigurationDetector : Detector(), GradleScanner {
      * Returns an empty string if [value] is not a string literal.
      */
     private fun getStringLiteralValue(value: String): String {
-        if (value.length > 2 && (value.startsWith("'") && value.endsWith("'") ||
-                    value.startsWith("\"") && value.endsWith("\""))) {
+        if (value.length > 2 && (
+            value.startsWith("'") && value.endsWith("'") ||
+                value.startsWith("\"") && value.endsWith("\"")
+            )
+        ) {
             return value.substring(1, value.length - 1)
         }
         return ""
