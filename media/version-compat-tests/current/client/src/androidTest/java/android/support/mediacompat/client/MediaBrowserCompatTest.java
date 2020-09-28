@@ -512,7 +512,7 @@ public class MediaBrowserCompatTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testSubscribeInvalidItem() throws Exception {
         connectMediaBrowserService();
 
@@ -751,7 +751,7 @@ public class MediaBrowserCompatTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testSendCustomAction() throws Exception {
         connectMediaBrowserService();
 

@@ -314,7 +314,7 @@ public class MediaSessionCompatCallbackTest {
      * No callback messages should be posted once {@code setCallback(null)} is done.
      */
     @Test
-    @SmallTest
+    @MediumTest
     public void testSetCallbackWithNull() throws Exception {
         mSession.setActive(true);
         mCallback.reset(1);
@@ -331,7 +331,7 @@ public class MediaSessionCompatCallbackTest {
      * Therefore, no callback should be called once {@code setCallback(null)} is done.
      */
     @Test
-    @SmallTest
+    @MediumTest
     @SdkSuppress(minSdkVersion = Build.VERSION_CODES.P)
     public void testSetCallbackWithNullShouldRemoveCallbackMessages() throws Exception {
         mSession.setActive(true);
