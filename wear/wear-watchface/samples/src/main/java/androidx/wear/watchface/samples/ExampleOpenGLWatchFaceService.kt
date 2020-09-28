@@ -560,7 +560,7 @@ class ExampleOpenGLRenderer(
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT)
 
         // Draw the complication first.
-        if (drawMode == DrawMode.AMBIENT || drawMode == DrawMode.INTERACTIVE) {
+        if (drawMode != DrawMode.BASE_WATCHFACE && drawMode != DrawMode.UPPER_LAYER) {
             complicationTexture.renderToTexture(calendar, drawMode)
 
             textureTriangleProgram.bindProgramAndAttribs()
@@ -584,8 +584,7 @@ class ExampleOpenGLRenderer(
         val minIndex = (minutes / 60f * 360f).toInt()
         val hoursIndex = (hours / 12f * 360f).toInt()
 
-        if (drawMode == DrawMode.AMBIENT || drawMode == DrawMode.INTERACTIVE ||
-            drawMode == DrawMode.UPPER_LAYER) {
+        if (drawMode != DrawMode.BASE_WATCHFACE) {
             Matrix.multiplyMM(
                 mvpMatrix,
                 0,
@@ -607,7 +606,7 @@ class ExampleOpenGLRenderer(
             minuteHandTriangle.draw(mvpMatrix)
         }
 
-        if (drawMode == DrawMode.INTERACTIVE || drawMode == DrawMode.UPPER_LAYER) {
+        if (drawMode != DrawMode.AMBIENT && drawMode != DrawMode.BASE_WATCHFACE) {
             Matrix.multiplyMM(
                 mvpMatrix,
                 0,
@@ -620,9 +619,11 @@ class ExampleOpenGLRenderer(
                 ?.draw(mvpMatrix)
         }
 
-        majorTickTriangles.draw(vpMatrix)
-        minorTickTriangles.draw(vpMatrix)
-        coloredTriangleProgram.unbindAttribs()
+        if (drawMode != DrawMode.UPPER_LAYER) {
+            majorTickTriangles.draw(vpMatrix)
+            minorTickTriangles.draw(vpMatrix)
+            coloredTriangleProgram.unbindAttribs()
+        }
     }
 }
 
