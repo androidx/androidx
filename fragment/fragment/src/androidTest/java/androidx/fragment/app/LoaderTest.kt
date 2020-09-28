@@ -130,7 +130,7 @@ class LoaderTest {
         }
 
         override fun onCreateLoader(id: Int, args: Bundle?):
-                Loader<Boolean> = SimpleLoader(requireContext())
+            Loader<Boolean> = SimpleLoader(requireContext())
 
         override fun onLoadFinished(loader: Loader<Boolean>, data: Boolean?) {}
 

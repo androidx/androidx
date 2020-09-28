@@ -226,18 +226,22 @@ class FragmentManagerTest {
                 fail("findFragmentManager on the removed parentRootView should throw")
             } catch (expected: IllegalStateException) {
                 assertThat(expected).hasMessageThat()
-                    .isEqualTo("The Fragment $parentFragment that owns View $parentRootView" +
+                    .isEqualTo(
+                        "The Fragment $parentFragment that owns View $parentRootView" +
                             " has already been destroyed. Nested fragments should always use " +
-                            "the child FragmentManager.")
+                            "the child FragmentManager."
+                    )
             }
             try {
                 FragmentManager.findFragmentManager(childRootView)
                 fail("findFragmentManager on the removed childRootView should throw")
             } catch (expected: IllegalStateException) {
                 assertThat(expected).hasMessageThat()
-                    .isEqualTo("The Fragment $childFragment that owns View $childRootView" +
+                    .isEqualTo(
+                        "The Fragment $childFragment that owns View $childRootView" +
                             " has already been destroyed. Nested fragments should always use " +
-                            "the child FragmentManager.")
+                            "the child FragmentManager."
+                    )
             }
         }
     }
@@ -283,9 +287,11 @@ class FragmentManagerTest {
                 fail("findFragmentManager on the removed outerRootView should throw")
             } catch (expected: IllegalStateException) {
                 assertThat(expected).hasMessageThat()
-                    .isEqualTo("The Fragment $outerFragment that owns View " +
+                    .isEqualTo(
+                        "The Fragment $outerFragment that owns View " +
                             "$outerRootView has already been destroyed. Nested fragments " +
-                            "should always use the child FragmentManager.")
+                            "should always use the child FragmentManager."
+                    )
             }
             // The inner Fragment is still added, so it should still return its
             // childFragmentManager, despite its View being detached

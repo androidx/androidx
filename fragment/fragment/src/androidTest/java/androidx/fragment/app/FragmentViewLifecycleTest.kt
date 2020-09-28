@@ -79,8 +79,10 @@ class FragmentViewLifecycleTest {
             fail("getViewLifecycleOwner should be unavailable if onCreateView returned null")
         } catch (expected: IllegalStateException) {
             assertThat(expected)
-                .hasMessageThat().contains("Can't access the Fragment View's LifecycleOwner when" +
-                        " getView() is null i.e., before onCreateView() or after onDestroyView()")
+                .hasMessageThat().contains(
+                    "Can't access the Fragment View's LifecycleOwner when" +
+                        " getView() is null i.e., before onCreateView() or after onDestroyView()"
+                )
         }
     }
 
@@ -128,22 +130,28 @@ class FragmentViewLifecycleTest {
         val countDownLatch = CountDownLatch(2)
         val fragment = StrictViewFragment(R.layout.fragment_a)
         activityRule.runOnUiThread {
-            fragment.viewLifecycleOwnerLiveData.observe(activity,
+            fragment.viewLifecycleOwnerLiveData.observe(
+                activity,
                 Observer { lifecycleOwner ->
                     if (lifecycleOwner != null) {
-                        assertWithMessage("Fragment View LifecycleOwner should be only be set" +
-                                "after onCreateView()")
+                        assertWithMessage(
+                            "Fragment View LifecycleOwner should be only be set" +
+                                "after onCreateView()"
+                        )
                             .that(fragment.onCreateViewCalled)
                             .isTrue()
                         countDownLatch.countDown()
                     } else {
-                        assertWithMessage("Fragment View LifecycleOwner should be set to null" +
-                                " after onDestroyView()")
+                        assertWithMessage(
+                            "Fragment View LifecycleOwner should be set to null" +
+                                " after onDestroyView()"
+                        )
                             .that(fragment.onDestroyViewCalled)
                             .isTrue()
                         countDownLatch.countDown()
                     }
-                })
+                }
+            )
             fm.beginTransaction().add(R.id.content, fragment).commitNow()
             // Now remove the Fragment to trigger the destruction of the view
             fm.beginTransaction().remove(fragment).commitNow()
@@ -160,13 +168,15 @@ class FragmentViewLifecycleTest {
         val lifecycleObserver = mock(LifecycleEventObserver::class.java)
         lateinit var viewLifecycleOwner: LifecycleOwner
         activityRule.runOnUiThread {
-            fragment.viewLifecycleOwnerLiveData.observe(activity,
+            fragment.viewLifecycleOwnerLiveData.observe(
+                activity,
                 Observer { lifecycleOwner ->
                     if (lifecycleOwner != null) {
                         viewLifecycleOwner = lifecycleOwner
                         lifecycleOwner.lifecycle.addObserver(lifecycleObserver)
                     }
-                })
+                }
+            )
             fragment.lifecycle.addObserver(lifecycleObserver)
             fm.beginTransaction().add(R.id.content, fragment).commitNow()
             // Now remove the Fragment to trigger the destruction of the view
@@ -212,8 +222,10 @@ class FragmentViewLifecycleTest {
             fail("getViewLifecycleOwner should be unavailable after onDestroyView")
         } catch (expected: IllegalStateException) {
             assertThat(expected)
-                .hasMessageThat().contains("Can't access the Fragment View's LifecycleOwner when" +
-                        " getView() is null i.e., before onCreateView() or after onDestroyView()")
+                .hasMessageThat().contains(
+                    "Can't access the Fragment View's LifecycleOwner when" +
+                        " getView() is null i.e., before onCreateView() or after onDestroyView()"
+                )
         }
     }
 
@@ -287,43 +299,67 @@ class FragmentViewLifecycleTest {
             .that(ViewTreeLifecycleOwner.get(fragment.view ?: error("no fragment view created")))
             .isSameInstanceAs(fragment.viewLifecycleOwner)
         assertWithMessage("ViewTreeViewModelStoreOwner should match fragment after commitNow")
-            .that(ViewTreeViewModelStoreOwner.get(fragment.view
-                ?: error("no fragment view created")))
+            .that(
+                ViewTreeViewModelStoreOwner.get(
+                    fragment.view
+                        ?: error("no fragment view created")
+                )
+            )
             .isSameInstanceAs(fragment)
-        assertWithMessage("ViewTreeSavedStateRegistryOwner should match viewLifecycleOwner" +
-                " after commitNow")
-            .that(ViewTreeSavedStateRegistryOwner.get(fragment.view
-                ?: error("no fragment view created")))
+        assertWithMessage(
+            "ViewTreeSavedStateRegistryOwner should match viewLifecycleOwner" +
+                " after commitNow"
+        )
+            .that(
+                ViewTreeSavedStateRegistryOwner.get(
+                    fragment.view
+                        ?: error("no fragment view created")
+                )
+            )
             .isSameInstanceAs(fragment.viewLifecycleOwner)
 
-        assertWithMessage("ViewTreeLifecycleOwner should match viewLifecycleOwner in " +
-                "viewLifecycleOwnerLiveData observer")
+        assertWithMessage(
+            "ViewTreeLifecycleOwner should match viewLifecycleOwner in " +
+                "viewLifecycleOwnerLiveData observer"
+        )
             .that(observedTreeLifecycleOwner)
             .isSameInstanceAs(fragment.viewLifecycleOwner)
-        assertWithMessage("ViewTreeViewModelStoreOwner should match fragment in " +
-                "viewLifecycleOwnerLiveData observer")
+        assertWithMessage(
+            "ViewTreeViewModelStoreOwner should match fragment in " +
+                "viewLifecycleOwnerLiveData observer"
+        )
             .that(observedTreeViewModelStoreOwner)
             .isSameInstanceAs(fragment)
-        assertWithMessage("ViewTreeSavedStateRegistryOwner should match viewLifecycleOwner in " +
-                "viewLifecycleOwnerLiveData observer")
+        assertWithMessage(
+            "ViewTreeSavedStateRegistryOwner should match viewLifecycleOwner in " +
+                "viewLifecycleOwnerLiveData observer"
+        )
             .that(observedTreeViewSavedStateRegistryOwner)
             .isSameInstanceAs(fragment.viewLifecycleOwner)
 
-        assertWithMessage("ViewTreeLifecycleOwner should match observed LifecycleOwner in " +
-                "viewLifecycleOwnerLiveData observer")
+        assertWithMessage(
+            "ViewTreeLifecycleOwner should match observed LifecycleOwner in " +
+                "viewLifecycleOwnerLiveData observer"
+        )
             .that(observedTreeLifecycleOwner)
             .isSameInstanceAs(observedLifecycleOwner)
 
-        assertWithMessage("ViewTreeLifecycleOwner should match viewLifecycleOwner in " +
-                "onViewCreated")
+        assertWithMessage(
+            "ViewTreeLifecycleOwner should match viewLifecycleOwner in " +
+                "onViewCreated"
+        )
             .that(fragment.onViewCreatedLifecycleOwner)
             .isSameInstanceAs(fragment.viewLifecycleOwner)
-        assertWithMessage("ViewTreeViewModelStoreOwner should match fragment in " +
-                "onViewCreated")
+        assertWithMessage(
+            "ViewTreeViewModelStoreOwner should match fragment in " +
+                "onViewCreated"
+        )
             .that(fragment.onViewCreatedViewModelStoreOwner)
             .isSameInstanceAs(fragment)
-        assertWithMessage("ViewTreeSavedStateRegistryOwner should match viewLifecycleOwner in " +
-                "onViewCreated")
+        assertWithMessage(
+            "ViewTreeSavedStateRegistryOwner should match viewLifecycleOwner in " +
+                "onViewCreated"
+        )
             .that(fragment.onViewCreatedSavedStateRegistryOwner)
             .isSameInstanceAs(fragment.viewLifecycleOwner)
     }
@@ -428,14 +464,17 @@ class FragmentViewLifecycleTest {
             val savedStateRegistryOwner = ViewTreeSavedStateRegistryOwner.get(view)!!
             val savedStateLifecycle = savedStateRegistryOwner.lifecycle
             val savedStateRegistry = savedStateRegistryOwner.savedStateRegistry
-            savedStateLifecycle.addObserver(LifecycleEventObserver { _, event ->
-                if (event == Lifecycle.Event.ON_CREATE) {
-                    val restoredBundle = savedStateRegistry.consumeRestoredStateForKey(
-                        "savedState")
-                    stateIsRestored = restoredBundle != null
-                    restoredState = restoredBundle?.getString("state")
+            savedStateLifecycle.addObserver(
+                LifecycleEventObserver { _, event ->
+                    if (event == Lifecycle.Event.ON_CREATE) {
+                        val restoredBundle = savedStateRegistry.consumeRestoredStateForKey(
+                            "savedState"
+                        )
+                        stateIsRestored = restoredBundle != null
+                        restoredState = restoredBundle?.getString("state")
+                    }
                 }
-            })
+            )
             savedStateRegistry.registerSavedStateProvider("savedState") {
                 stateIsSaved = true
                 Bundle().apply {

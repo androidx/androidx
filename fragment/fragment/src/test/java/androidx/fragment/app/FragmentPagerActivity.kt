@@ -24,9 +24,11 @@ open class FragmentPagerActivity : FragmentActivity() {
             adapter = MyAdapter(supportFragmentManager)
         }
 
-        setContentView(LinearLayout(this).apply {
-            addView(pager)
-        })
+        setContentView(
+            LinearLayout(this).apply {
+                addView(pager)
+            }
+        )
     }
 
     fun next() {

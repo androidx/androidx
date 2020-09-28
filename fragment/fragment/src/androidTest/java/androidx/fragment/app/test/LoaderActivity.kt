@@ -27,7 +27,8 @@ import androidx.loader.content.AsyncTaskLoader
 import androidx.loader.content.Loader
 import androidx.testutils.RecreatedActivity
 
-class LoaderActivity : RecreatedActivity(R.layout.activity_loader),
+class LoaderActivity :
+    RecreatedActivity(R.layout.activity_loader),
     LoaderManager.LoaderCallbacks<String> {
 
     lateinit var textView: TextView
@@ -73,7 +74,8 @@ class LoaderActivity : RecreatedActivity(R.layout.activity_loader),
         }
     }
 
-    class TextLoaderFragment : Fragment(R.layout.fragment_c),
+    class TextLoaderFragment :
+        Fragment(R.layout.fragment_c),
         LoaderManager.LoaderCallbacks<String> {
         lateinit var textView: TextView
 

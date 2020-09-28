@@ -86,10 +86,12 @@ class NestedInflatedFragmentTest {
         fm.beginTransaction().add(android.R.id.content, parentFragment).commitNow()
 
         val child = parentFragment.childFragmentManager.findFragmentById(R.id.child_fragment) as
-                InflatedChildFragment
+            InflatedChildFragment
 
-        assertThat(child.name).isEqualTo("androidx.fragment.app" +
-                ".NestedInflatedFragmentTest\$InflatedChildFragment")
+        assertThat(child.name).isEqualTo(
+            "androidx.fragment.app" +
+                ".NestedInflatedFragmentTest\$InflatedChildFragment"
+        )
     }
 
     @Test
@@ -102,10 +104,12 @@ class NestedInflatedFragmentTest {
         fm.beginTransaction().add(android.R.id.content, parentFragment).commitNow()
 
         val child = parentFragment.childFragmentManager.findFragmentById(R.id.child_fragment) as
-                InflatedChildFragment
+            InflatedChildFragment
 
-        assertThat(child.name).isEqualTo("androidx.fragment.app" +
-                ".NestedInflatedFragmentTest\$InflatedChildFragment")
+        assertThat(child.name).isEqualTo(
+            "androidx.fragment.app" +
+                ".NestedInflatedFragmentTest\$InflatedChildFragment"
+        )
     }
 
     /**
@@ -186,7 +190,8 @@ class NestedInflatedFragmentTest {
     }
 
     @Suppress("OverridingDeprecatedMember", "DEPRECATION")
-    class UserVisibleHintParentFragmentContainerView : ParentFragmentContainerView(),
+    class UserVisibleHintParentFragmentContainerView :
+        ParentFragmentContainerView(),
         FragmentOnAttachListener {
         override fun onAttach(context: Context) {
             super.onAttach(context)

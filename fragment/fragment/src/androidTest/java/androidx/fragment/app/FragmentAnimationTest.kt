@@ -797,7 +797,8 @@ class FragmentAnimationTest {
 
         override fun onCreateAnimation(transit: Int, enter: Boolean, nextAnim: Int): Animation? {
             if (nextAnim == 0 ||
-                viewLifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED) {
+                viewLifecycleOwner.lifecycle.currentState == Lifecycle.State.DESTROYED
+            ) {
                 return null
             }
             numAnimators++
@@ -869,7 +870,8 @@ class FragmentAnimationTest {
 
                     override fun onAnimationEnd(animation: Animation) {
                         if (viewLifecycleOwner.lifecycle.currentState
-                            != Lifecycle.State.DESTROYED) {
+                            != Lifecycle.State.DESTROYED
+                        ) {
                             if (enter) {
                                 enterEndCount++
                                 enterLatch.countDown()
