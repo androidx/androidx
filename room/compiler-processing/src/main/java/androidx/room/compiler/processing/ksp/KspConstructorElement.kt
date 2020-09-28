@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package androidx.room.vo
+package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.XMethodElement
+import androidx.room.compiler.processing.XConstructorElement
+import org.jetbrains.kotlin.ksp.symbol.KSFunctionDeclaration
 
-/**
- * Represents a DAO method that delegates to a concrete implementation, such as a concrete function
- * in a Kotlin interface.
- */
-data class KotlinDefaultMethodDelegate(
-    // the original element, not the stub that is generated for DefaultImpls
-    val element: XMethodElement
-)
+internal class KspConstructorElement(
+    env: KspProcessingEnv,
+    containing: KspTypeElement,
+    declaration: KSFunctionDeclaration
+) : KspExecutableElement(
+    env = env,
+    containing = containing,
+    declaration = declaration
+), XConstructorElement

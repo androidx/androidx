@@ -16,6 +16,7 @@
 
 package androidx.room.compiler.processing.ksp
 
+import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.util.KotlinTypeNames.INT_CLASS_NAME
 import androidx.room.compiler.processing.util.KotlinTypeNames.LIST_CLASS_NAME
@@ -23,6 +24,7 @@ import androidx.room.compiler.processing.util.KotlinTypeNames.MUTABLELIST_CLASS_
 import androidx.room.compiler.processing.util.Source
 import androidx.room.compiler.processing.util.getAllFieldNames
 import androidx.room.compiler.processing.util.getField
+import androidx.room.compiler.processing.util.getMethod
 import androidx.room.compiler.processing.util.runKspTest
 import com.google.common.truth.Truth.assertThat
 import com.squareup.javapoet.ClassName
@@ -257,5 +259,215 @@ class KspTypeElementTest {
                 ParameterizedTypeName.get(MUTABLELIST_CLASS_NAME, INT_CLASS_NAME)
             )
         }
+    }
+
+    @Test
+    fun declaredAndInstanceMethods() {
+        val src = Source.kotlin(
+            "Foo.kt", """
+            open class Base(x:Int) {
+                open fun baseFun(): Int = TODO()
+                suspend fun suspendFun(): Int = TODO()
+                private fun privateBaseFun(): Int = TODO()
+                companion object {
+                    @JvmStatic
+                    fun staticBaseFun(): Int = TODO()
+                    fun companionMethod(): Int = TODO()
+                }
+            }
+            open class SubClass : Base {
+                constructor(y:Int): super(y) {
+                }
+                constructor(x:Int, y:Int): super(y) {
+                }
+                override fun baseFun(): Int = TODO()
+                fun subFun(): Int = TODO()
+                private fun privateSubFun(): Int = TODO()
+                companion object {
+                    @JvmStatic
+                    fun staticFun(): Int = TODO()
+                }
+            }
+        """.trimIndent()
+        )
+        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+            val base = invocation.processingEnv.requireTypeElement("Base")
+            assertThat(base.getDeclaredMethods().names()).containsExactly(
+                "baseFun", "suspendFun", "privateBaseFun", "staticBaseFun")
+
+            val sub = invocation.processingEnv.requireTypeElement("SubClass")
+            assertThat(sub.getDeclaredMethods().names()).containsExactly(
+                "baseFun", "subFun", "privateSubFun", "staticFun")
+            assertThat(sub.getAllNonPrivateInstanceMethods().names()).containsExactly(
+                "baseFun", "suspendFun", "subFun"
+            )
+        }
+    }
+
+    @Test
+    fun allMethods() {
+        val src = Source.kotlin(
+            "Foo.kt", """
+            open class Base(x:Int) {
+                constructor(x:Int, y:Int): this(x) {
+                }
+                fun baseMethod(): Int = TODO()
+                open fun overriddenMethod(): Int = TODO()
+                private fun privateBaseMethod(): Int = TODO()
+                companion object {
+                    @JvmStatic
+                    private fun privateBaseCompanionMethod(): Int = TODO()
+                    @JvmStatic
+                    fun baseCompanionMethod(): Int = TODO()
+                }
+            }
+            interface MyInterface {
+                fun interfaceMethod(): Int = TODO()
+            }
+            class SubClass : Base, MyInterface {
+                constructor(x:Int): super(x) {
+                }
+                constructor(x:Int, y:Int): super(y) {
+                }
+                fun subMethod(): Int = TODO()
+                fun privateSubMethod(): Int = TODO()
+                override fun overriddenMethod(): Int = TODO()
+                override fun interfaceMethod(): Int = TODO()
+                companion object {
+                    fun dontSeeThisOne(): Int = TODO()
+                    @JvmStatic
+                    fun subCompanionMethod(): Int = TODO()
+                }
+            }
+        """.trimIndent()
+        )
+        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+            val klass = invocation.processingEnv.requireTypeElement("SubClass")
+            assertThat(klass.getAllMethods().names()).containsExactly(
+                "baseMethod", "overriddenMethod", "baseCompanionMethod",
+                "interfaceMethod", "subMethod", "privateSubMethod", "subCompanionMethod"
+            )
+        }
+    }
+
+    @Test
+    fun gettersSetters() {
+        val src = Source.kotlin("Foo.kt", """
+            open class JustGetter(val x:Int)
+            class GetterSetter(var y:Int) : JustGetter(y)
+        """.trimIndent())
+        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+            invocation.processingEnv.requireTypeElement("JustGetter").let { base ->
+                assertThat(base.getDeclaredMethods().names()).containsExactly(
+                    "getX"
+                )
+                assertThat(base.getAllMethods().names()).containsExactly(
+                    "getX"
+                )
+                assertThat(base.getAllNonPrivateInstanceMethods().names()).containsExactly(
+                    "getX"
+                )
+            }
+            invocation.processingEnv.requireTypeElement("GetterSetter").let { sub ->
+                assertThat(sub.getDeclaredMethods().names()).containsExactly(
+                    "getY", "setY"
+                )
+                assertThat(sub.getAllMethods().names()).containsExactly(
+                    "getX", "getY", "setY"
+                )
+                assertThat(sub.getAllNonPrivateInstanceMethods().names()).containsExactly(
+                    "getX", "getY", "setY"
+                )
+            }
+        }
+    }
+
+    @Test
+    fun gettersSetters_companion() {
+        val src = Source.kotlin("Foo.kt", """
+            open class CompanionSubject {
+                companion object {
+                    @JvmStatic
+                    var mutableStatic: String = "a"
+                    @JvmStatic
+                    val immutableStatic: String = "bar"
+                    val companionProp: Int = 3
+                }
+            }
+            class SubClass : CompanionSubject()
+        """.trimIndent())
+        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+            val subject = invocation.processingEnv.requireTypeElement("CompanionSubject")
+            assertThat(subject.getDeclaredMethods().names()).containsExactly(
+                "getMutableStatic", "setMutableStatic", "getImmutableStatic"
+            )
+            assertThat(subject.getAllMethods().names()).containsExactly(
+                "getMutableStatic", "setMutableStatic", "getImmutableStatic"
+            )
+            assertThat(subject.getAllNonPrivateInstanceMethods().names()).isEmpty()
+            val subClass = invocation.processingEnv.requireTypeElement("SubClass")
+            assertThat(subClass.getDeclaredMethods()).isEmpty()
+            assertThat(subClass.getAllMethods().names()).containsExactly(
+                "getMutableStatic", "setMutableStatic", "getImmutableStatic"
+            )
+        }
+    }
+
+    @Test
+    fun constructors() {
+        val src = Source.kotlin(
+            "Foo.kt", """
+            interface MyInterface
+            open class Base(x:Int)
+            open class ExplicitConstructor {
+                constructor(x:Int)
+            }
+            open class BaseWithSecondary(x:Int) {
+                constructor(y:String):this(3)
+            }
+            class Sub(x:Int) : Base(x)
+            class SubWith3Constructors() : BaseWithSecondary("abc") {
+                constructor(list:List<String>): this()
+                constructor(list:List<String>, x:Int): this()
+            }
+        """.trimIndent()
+        )
+        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+            val constructorCounts = listOf(
+                "MyInterface", "Base", "ExplicitConstructor", "BaseWithSecondary", "Sub",
+                "SubWith3Constructors"
+            ).map {
+                it to invocation.processingEnv.requireTypeElement(it).getConstructors().size
+            }
+            assertThat(constructorCounts)
+                .containsExactly(
+                    "MyInterface" to 0,
+                    "Base" to 1,
+                    "ExplicitConstructor" to 1,
+                    "BaseWithSecondary" to 2,
+                    "Sub" to 1,
+                    "SubWith3Constructors" to 3
+                )
+        }
+    }
+
+    @Test
+    fun jvmDefault() {
+        val src = Source.kotlin("Foo.kt", """
+            interface MyInterface {
+                fun notJvmDefault()
+                @JvmDefault
+                fun jvmDefault()
+            }
+        """.trimIndent())
+        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+            val subject = invocation.processingEnv.requireTypeElement("MyInterface")
+            assertThat(subject.getMethod("notJvmDefault").isJavaDefault()).isFalse()
+            assertThat(subject.getMethod("jvmDefault").isJavaDefault()).isTrue()
+        }
+    }
+
+    private fun List<XMethodElement>.names() = map {
+        it.name
     }
 }

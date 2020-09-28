@@ -18,9 +18,11 @@ package androidx.room.compiler.processing.javac
 
 import androidx.room.compiler.processing.XFieldElement
 import androidx.room.compiler.processing.XHasModifiers
+import androidx.room.compiler.processing.XMethodElement
 import androidx.room.compiler.processing.XTypeElement
 import androidx.room.compiler.processing.javac.kotlin.KotlinMetadataElement
 import com.google.auto.common.MoreElements
+import com.google.auto.common.MoreTypes
 import com.squareup.javapoet.ClassName
 import javax.lang.model.element.ElementKind
 import javax.lang.model.element.TypeElement
@@ -81,8 +83,8 @@ internal class JavacTypeElement(
         }
     }
 
-    override fun getDeclaredMethods(): List<JavacMethodElement> {
-        return ElementFilter.methodsIn(element.enclosedElements).map {
+    private val _declaredMethods by lazy {
+        ElementFilter.methodsIn(element.enclosedElements).map {
             JavacMethodElement(
                 env = env,
                 containing = this,
@@ -91,28 +93,8 @@ internal class JavacTypeElement(
         }
     }
 
-    override fun getAllMethods(): List<JavacMethodElement> {
-        return ElementFilter.methodsIn(env.elementUtils.getAllMembers(element)).map {
-            JavacMethodElement(
-                env = env,
-                containing = this,
-                element = it
-            )
-        }
-    }
-
-    override fun getAllNonPrivateInstanceMethods(): List<JavacMethodElement> {
-        return MoreElements.getLocalAndInheritedMethods(
-            element,
-            env.typeUtils,
-            env.elementUtils
-        ).map {
-            JavacMethodElement(
-                env = env,
-                containing = this,
-                element = it
-            )
-        }
+    override fun getDeclaredMethods(): List<XMethodElement> {
+        return _declaredMethods
     }
 
     override fun getConstructors(): List<JavacConstructorElement> {
@@ -122,6 +104,12 @@ internal class JavacTypeElement(
                 containing = this,
                 element = it
             )
+        }
+    }
+
+    override fun getSuperInterfaceElements(): List<XTypeElement> {
+        return element.interfaces.map {
+            env.wrapTypeElement(MoreTypes.asTypeElement(it))
         }
     }
 

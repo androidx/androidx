@@ -53,8 +53,7 @@ class DaoProcessor(
         val allMethods = element.getAllMethods()
         val methods = allMethods
             .filter {
-                it.isAbstract() &&
-                        it.findKotlinDefaultImpl() == null
+                it.isAbstract() && !it.hasKotlinDefaultImpl()
             }.groupBy { method ->
                 context.checker.check(
                         PROCESSED_ANNOTATIONS.count { method.hasAnnotation(it) } == 1, method,
@@ -134,11 +133,12 @@ class DaoProcessor(
             allMethods.filterNot {
                 allProcessedMethods.contains(it)
             }.mapNotNull { method ->
-                method.findKotlinDefaultImpl()?.let { delegate ->
+                if (method.hasKotlinDefaultImpl()) {
                     KotlinDefaultMethodDelegate(
-                        element = method,
-                        delegateElement = delegate
+                        element = method
                     )
+                } else {
+                    null
                 }
             }
         } else {
