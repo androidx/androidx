@@ -60,6 +60,7 @@ class MediaSessionManagerImplApi28 extends MediaSessionManagerImplApi21 {
      *         issue b) RemoteUserInfos created with public constructors are considers as all
      *                  different.
      */
+    @RequiresApi(28)
     static final class RemoteUserInfoImplApi28 extends RemoteUserInfoImplBase {
         final android.media.session.MediaSessionManager.RemoteUserInfo mObject;
 
@@ -74,6 +75,11 @@ class MediaSessionManagerImplApi28 extends MediaSessionManagerImplApi21 {
             super(remoteUserInfo.getPackageName(), remoteUserInfo.getPid(),
                     remoteUserInfo.getUid());
             mObject = remoteUserInfo;
+        }
+
+        static String getPackageName(
+                android.media.session.MediaSessionManager.RemoteUserInfo remoteUserInfo) {
+            return remoteUserInfo.getPackageName();
         }
     }
 }
