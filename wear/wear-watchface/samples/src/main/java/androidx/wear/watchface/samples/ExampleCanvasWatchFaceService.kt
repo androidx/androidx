@@ -326,10 +326,15 @@ class ExampleCanvasRenderer(
 
         canvas.drawColor(style.backgroundColor)
 
-        drawComplications(canvas, calendar)
-        drawClockHands(canvas, bounds, calendar, style)
+        if (drawMode != DrawMode.BASE_WATCHFACE && drawMode != DrawMode.UPPER_LAYER) {
+            drawComplications(canvas, calendar)
+        }
 
-        if (drawMode != DrawMode.AMBIENT && drawHourPips) {
+        if (drawMode != DrawMode.BASE_WATCHFACE) {
+            drawClockHands(canvas, bounds, calendar, style)
+        }
+
+        if (drawMode != DrawMode.AMBIENT && drawMode != DrawMode.UPPER_LAYER && drawHourPips) {
             drawNumberStyleOuterElement(canvas, bounds, style)
         }
     }
