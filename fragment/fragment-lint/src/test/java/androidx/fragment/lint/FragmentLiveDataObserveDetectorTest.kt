@@ -40,7 +40,8 @@ class FragmentLiveDataObserveDetectorTest : LintDetectorTest() {
     @Test
     fun pass() {
         check(
-            kotlin("""
+            kotlin(
+                """
 package com.example
 
 import androidx.fragment.app.Fragment
@@ -67,8 +68,10 @@ class TestFragment : Fragment {
         test()
     }
 }
-            """),
-            kotlin("""
+            """
+            ),
+            kotlin(
+                """
 package com.example.test
 
 import androidx.fragment.app.Fragment
@@ -84,14 +87,17 @@ class Foo {
 
     fun observe(fragment: Fragment) {}
 }
-            """))
+            """
+            )
+        )
             .expectClean()
     }
 
     @Test
     fun javaLintFixTest() {
         check(
-            java("""
+            java(
+                """
 package com.example;
 
 import androidx.fragment.app.Fragment;
@@ -105,16 +111,23 @@ class TestFragment extends Fragment {
         liveData.observe(this, new Observer<String>() {});
     }
 }
-            """))
+            """
+            )
+        )
             /* ktlint-disable max-line-length */
-            .expect("""
+            .expect(
+                """
 src/com/example/TestFragment.java:12: Error: Use getViewLifecycleOwner() as the LifecycleOwner. [FragmentLiveDataObserve]
         liveData.observe(this, new Observer<String>() {});
                          ~~~~
 1 errors, 0 warnings
-            """)
+            """
+            )
             /* ktlint-enable max-line-length */
-            .checkFix(null, java("""
+            .checkFix(
+                null,
+                java(
+                    """
 package com.example;
 
 import androidx.fragment.app.Fragment;
@@ -128,13 +141,16 @@ class TestFragment extends Fragment {
         liveData.observe(getViewLifecycleOwner(), new Observer<String>() {});
     }
 }
-            """))
+            """
+                )
+            )
     }
 
     @Test
     fun dialogJavaTestPass() {
         check(
-            java("""
+            java(
+                """
 package com.example;
 
 import androidx.fragment.app.DialogFragment;
@@ -148,13 +164,16 @@ class TestFragment extends DialogFragment {
         liveData.observe(this, new Observer<String>() {});
     }
 }
-            """)).expectClean()
+            """
+            )
+        ).expectClean()
     }
 
     @Test
     fun inMethodFails() {
         check(
-            kotlin("""
+            kotlin(
+                """
 package com.example
 
 import androidx.fragment.app.Fragment
@@ -167,16 +186,23 @@ class TestFragment : Fragment {
         liveData.observe(this, Observer<String> {})
     }
 }
-            """))
+            """
+            )
+        )
             /* ktlint-disable max-line-length */
-            .expect("""
+            .expect(
+                """
 src/com/example/TestFragment.kt:11: Error: Use viewLifecycleOwner as the LifecycleOwner. [FragmentLiveDataObserve]
         liveData.observe(this, Observer<String> {})
                          ~~~~
 1 errors, 0 warnings
-            """)
+            """
+            )
             /* ktlint-enable max-line-length */
-            .checkFix(null, kotlin("""
+            .checkFix(
+                null,
+                kotlin(
+                    """
 package com.example
 
 import androidx.fragment.app.Fragment
@@ -189,7 +215,9 @@ class TestFragment : Fragment {
         liveData.observe(viewLifecycleOwner, Observer<String> {})
     }
 }
-            """))
+            """
+                )
+            )
     }
 
     @Test
@@ -217,7 +245,8 @@ class TestFragment : DialogFragment {
     @Test
     fun helperMethodFails() {
         check(
-            kotlin("""
+            kotlin(
+                """
 package com.example
 
 import androidx.fragment.app.Fragment
@@ -234,16 +263,23 @@ class TestFragment : Fragment {
         liveData.observe(this, Observer<String> {})
     }
 }
-            """))
+            """
+            )
+        )
             /* ktlint-disable max-line-length */
-            .expect("""
+            .expect(
+                """
 src/com/example/TestFragment.kt:15: Error: Use viewLifecycleOwner as the LifecycleOwner. [FragmentLiveDataObserve]
         liveData.observe(this, Observer<String> {})
                          ~~~~
 1 errors, 0 warnings
-            """)
+            """
+            )
             /* ktlint-enable max-line-length */
-            .checkFix(null, kotlin("""
+            .checkFix(
+                null,
+                kotlin(
+                    """
 package com.example
 
 import androidx.fragment.app.Fragment
@@ -260,13 +296,16 @@ class TestFragment : Fragment {
         liveData.observe(viewLifecycleOwner, Observer<String> {})
     }
 }
-            """))
+            """
+                )
+            )
     }
 
     @Test
     fun externalCallFails() {
         check(
-            kotlin("""
+            kotlin(
+                """
 package com.example
 
 import androidx.fragment.app.Fragment
@@ -284,8 +323,10 @@ class TestFragment : Fragment {
         foo.observeData(this)
     }
 }
-            """),
-            kotlin("""
+            """
+            ),
+            kotlin(
+                """
 package com.example.test
 
 import androidx.fragment.app.Fragment
@@ -297,21 +338,26 @@ class Foo {
         liveData.observe(fragment, Observer<String> {})
     }
 }
-            """))
+            """
+            )
+        )
             /* ktlint-disable max-line-length */
-            .expect("""
+            .expect(
+                """
 src/com/example/test/Foo.kt:10: Error: Unsafe call to observe with Fragment instance as LifecycleOwner from TestFragment.onCreateView. [FragmentLiveDataObserve]
         liveData.observe(fragment, Observer<String> {})
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
-            """)
-            /* ktlint-enable max-line-length */
+            """
+            )
+        /* ktlint-enable max-line-length */
     }
 
     @Test
     fun externalHelperMethodFails() {
         check(
-            kotlin("""
+            kotlin(
+                """
 package com.example
 
 import androidx.fragment.app.Fragment
@@ -329,8 +375,10 @@ class TestFragment : Fragment {
         foo.observeData(this)
     }
 }
-            """),
-            kotlin("""
+            """
+            ),
+            kotlin(
+                """
 package com.example.test
 
 import androidx.fragment.app.Fragment
@@ -349,21 +397,26 @@ class Foo {
         liveData.observe(fragment, Observer<String> {})
     }
 }
-            """))
+            """
+            )
+        )
             /* ktlint-disable max-line-length */
-            .expect("""
+            .expect(
+                """
 src/com/example/test/Foo.kt:17: Error: Unsafe call to observe with Fragment instance as LifecycleOwner from TestFragment.onCreateView. [FragmentLiveDataObserve]
         liveData.observe(fragment, Observer<String> {})
         ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
-            """)
-            /* ktlint-enable max-line-length */
+            """
+            )
+        /* ktlint-enable max-line-length */
     }
 
     @Test
     fun failWhenUsingLiveDataExtensionWithTheWrongLifecycleOwner() {
         check(
-            kotlin("""
+            kotlin(
+                """
 package com.example
 
 import androidx.fragment.app.Fragment
@@ -378,17 +431,23 @@ class TestFragment: Fragment {
         }
     }
 }
-            """)
+            """
+            )
         )
             /* ktlint-disable max-line-length */
-            .expect("""
+            .expect(
+                """
                 src/com/example/TestFragment.kt:12: Error: Use viewLifecycleOwner as the LifecycleOwner. [FragmentLiveDataObserve]
                         LiveDataKt.observe(liveData, this) {
                                                      ~~~~
                 1 errors, 0 warnings
-            """.trimIndent())
+                """.trimIndent()
+            )
             /* ktlint-enable max-line-length */
-            .checkFix(null, kotlin("""
+            .checkFix(
+                null,
+                kotlin(
+                    """
                 package com.example
 
                 import androidx.fragment.app.Fragment
@@ -403,13 +462,16 @@ class TestFragment: Fragment {
                         }
                     }
                 }
-            """.trimIndent()))
+                    """.trimIndent()
+                )
+            )
     }
 
     @Test
     fun passWhenUsingExtensionCorrectly() {
         check(
-            kotlin("""
+            kotlin(
+                """
 package com.example
 
 import androidx.fragment.app.Fragment
@@ -424,7 +486,8 @@ class TestFragment: Fragment {
         }
     }
 }
-            """)
+            """
+            )
         )
 
             .expectClean()

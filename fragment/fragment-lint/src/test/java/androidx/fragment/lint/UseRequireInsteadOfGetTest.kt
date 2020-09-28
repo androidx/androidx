@@ -165,7 +165,7 @@ class UseRequireInsteadOfGetTest {
                   checkNotNull(fragment.getView());
                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
               7 errors, 0 warnings
-            """.trimIndent()
+                """.trimIndent()
             )
             .expectFixDiffs(
                 """
@@ -197,7 +197,7 @@ class UseRequireInsteadOfGetTest {
               @@ -16 +16
               -     checkNotNull(fragment.getView());
               +     fragment.requireView();
-            """.trimIndent()
+                """.trimIndent()
             )
     }
 
@@ -281,7 +281,7 @@ class UseRequireInsteadOfGetTest {
                   checkNotNull(getView());
                   ~~~~~~~~~~~~~~~~~~~~~~~
               7 errors, 0 warnings
-            """.trimIndent()
+                """.trimIndent()
             )
             .expectFixDiffs(
                 """
@@ -313,7 +313,7 @@ class UseRequireInsteadOfGetTest {
               @@ -14 +14
               -     checkNotNull(getView());
               +     requireView();
-            """.trimIndent()
+                """.trimIndent()
             )
     }
 
@@ -346,7 +346,7 @@ class UseRequireInsteadOfGetTest {
                   Preconditions.checkNotNull(getArguments());
                   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
               1 errors, 0 warnings
-            """.trimIndent()
+                """.trimIndent()
             )
             .expectFixDiffs(
                 """
@@ -354,7 +354,7 @@ class UseRequireInsteadOfGetTest {
               @@ -8 +8
               -     Preconditions.checkNotNull(getArguments());
               +     requireArguments();
-            """.trimIndent()
+                """.trimIndent()
             )
     }
 
@@ -538,7 +538,7 @@ class UseRequireInsteadOfGetTest {
               fragment.view!!
               ~~~~~~~~~~~~~~~
           28 errors, 0 warnings
-        """.trimIndent()
+                """.trimIndent()
             )
             .expectFixDiffs(
                 """
@@ -654,7 +654,7 @@ class UseRequireInsteadOfGetTest {
           @@ -39 +39
           -     fragment.view!!
           +     fragment.requireView()
-        """.trimIndent()
+                """.trimIndent()
             )
     }
 
@@ -686,7 +686,7 @@ class UseRequireInsteadOfGetTest {
               parentFragment?.requireView()!!
               ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
           1 errors, 0 warnings
-        """.trimIndent()
+                """.trimIndent()
             )
             .expectFixDiffs(
                 """
@@ -694,7 +694,7 @@ class UseRequireInsteadOfGetTest {
           @@ -7 +7
           -     parentFragment?.requireView()!!
           +     parentFragment!!.requireView()
-        """.trimIndent()
+                """.trimIndent()
             )
     }
 
@@ -726,7 +726,7 @@ class UseRequireInsteadOfGetTest {
               parentFragment!!.requireView()
               ~~~~~~~~~~~~~~~~
           1 errors, 0 warnings
-        """.trimIndent()
+                """.trimIndent()
             )
             .expectFixDiffs(
                 """
@@ -734,7 +734,7 @@ class UseRequireInsteadOfGetTest {
           @@ -7 +7
           -     parentFragment!!.requireView()
           +     requireParentFragment().requireView()
-        """.trimIndent()
+                """.trimIndent()
             )
     }
 
@@ -916,7 +916,7 @@ class UseRequireInsteadOfGetTest {
               view!!
               ~~~~~~
           28 errors, 0 warnings
-        """.trimIndent()
+                """.trimIndent()
             )
             .expectFixDiffs(
                 """
@@ -1032,7 +1032,7 @@ class UseRequireInsteadOfGetTest {
           @@ -37 +37
           -     view!!
           +     requireView()
-        """.trimIndent()
+                """.trimIndent()
             )
     }
 
