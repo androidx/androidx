@@ -25,6 +25,7 @@ import com.google.protobuf.gradle.protoc
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.tasks.StopExecutionException
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.kotlin.dsl.apply
 import org.gradle.kotlin.dsl.dependencies
 import org.gradle.kotlin.dsl.getPlugin
@@ -35,6 +36,8 @@ import java.io.File
  * resources are generated at build time
  */
 class InspectionPlugin : Plugin<Project> {
+    lateinit var dexTask: TaskProvider<DexInspectorTask>
+
     // project.register* are marked with @ExperimentalStdlibApi, because they use experimental
     // string.capitalize call.
     @ExperimentalStdlibApi
@@ -50,7 +53,7 @@ class InspectionPlugin : Plugin<Project> {
                     foundReleaseVariant = true
                     val unzip = project.registerUnzipTask(variant)
                     val jarJar = project.registerJarJarDependenciesTask(variant, unzip)
-                    project.registerDexInspectorTask(variant, libExtension, jarJar)
+                    dexTask = project.registerDexInspectorTask(variant, libExtension, jarJar)
                 }
             }
             libExtension.sourceSets.findByName("main")!!.resources.srcDirs(
@@ -104,4 +107,27 @@ class InspectionPlugin : Plugin<Project> {
 private fun includeMetaInfServices(library: LibraryExtension) {
     library.sourceSets.getByName("main").resources.include("META-INF/services/*")
     library.sourceSets.getByName("main").resources.include("**/*.proto")
+}
+
+/**
+ * Use this function in [libraryProject] to include inspector that will be compiled into
+ * inspector.jar and packaged in the library's aar.
+ *
+ * @param libraryProject project that is inspected and which aar will host inspector.jar . E.g
+ * work-runtime
+ * @param inspectorProject project of inspector, that will be compiled into inspector.jar. E.g
+ * work-inspection
+ */
+@ExperimentalStdlibApi
+fun packageInspector(libraryProject: Project, inspectorProject: Project) {
+    inspectorProject.project.plugins.withType(InspectionPlugin::class.java) { inspectionPlugin ->
+        val libExtension = libraryProject.extensions.getByType(LibraryExtension::class.java)
+        libExtension.libraryVariants.all { variant ->
+            variant.packageLibraryProvider.configure { zip ->
+                val outputFile = inspectionPlugin.dexTask.get().outputFile
+                zip.from(outputFile)
+                zip.rename(outputFile.asFile.get().name, "inspector.jar")
+            }
+        }
+    }
 }
