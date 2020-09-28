@@ -33,6 +33,7 @@ import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -44,6 +45,14 @@ import java.io.FileOutputStream
 import java.io.IOException
 import java.lang.IllegalStateException
 import java.util.concurrent.atomic.AtomicReference
+
+private class DataAndHash<T>(val value: T, val hashCode: Int) {
+    fun checkHashCode() {
+        check(value.hashCode() == hashCode) {
+            "Data in DataStore was mutated but DataStore is only compatible with Immutable types."
+        }
+    }
+}
 
 /**
  * Single process implementation of DataStore. This is NOT multi-process safe.
@@ -67,7 +76,7 @@ internal class SingleProcessDataStore<T>(
     override val data: Flow<T> = flow {
         val curChannel = downstreamChannel()
         actor.offer(Message.Read(curChannel))
-        emitAll(curChannel.asFlow())
+        emitAll(curChannel.asFlow().map { it.value })
     }
 
     override suspend fun updateData(transform: suspend (t: T) -> T): T {
@@ -98,7 +107,7 @@ internal class SingleProcessDataStore<T>(
      * current on disk data. If the read fails, downStreamChannel will be closed with that cause,
      * and a new instance will be set in its place.
      */
-    private val downstreamChannel: AtomicReference<ConflatedBroadcastChannel<T>> =
+    private val downstreamChannel: AtomicReference<ConflatedBroadcastChannel<DataAndHash<T>>> =
         AtomicReference(ConflatedBroadcastChannel())
 
     private var initTasks: List<suspend (api: InitializerApi<T>) -> Unit>? =
@@ -106,14 +115,14 @@ internal class SingleProcessDataStore<T>(
 
     /** The actions for the actor. */
     private sealed class Message<T> {
-        abstract val dataChannel: ConflatedBroadcastChannel<T>
+        abstract val dataChannel: ConflatedBroadcastChannel<DataAndHash<T>>
 
         /**
          * Represents a read operation. If the data is already cached, this is a no-op. If data
          * has not been cached, it triggers a new read to the specified dataChannel.
          */
         class Read<T>(
-            override val dataChannel: ConflatedBroadcastChannel<T>
+            override val dataChannel: ConflatedBroadcastChannel<DataAndHash<T>>
         ) : Message<T>()
 
         /** Represents an update operation. */
@@ -123,7 +132,7 @@ internal class SingleProcessDataStore<T>(
              * Used to signal (un)successful completion of the update to the caller.
              */
             val ack: CompletableDeferred<T>,
-            override val dataChannel: ConflatedBroadcastChannel<T>
+            override val dataChannel: ConflatedBroadcastChannel<DataAndHash<T>>
         ) : Message<T>()
     }
 
@@ -171,7 +180,7 @@ internal class SingleProcessDataStore<T>(
         failedDataChannel.close(ex)
     }
 
-    private suspend fun readAndInitOnce(dataChannel: ConflatedBroadcastChannel<T>) {
+    private suspend fun readAndInitOnce(dataChannel: ConflatedBroadcastChannel<DataAndHash<T>>) {
         if (dataChannel.valueOrNull != null) {
             // If we already have cached data, we don't try to read it again.
             return
@@ -189,7 +198,7 @@ internal class SingleProcessDataStore<T>(
                     if (initializationComplete) {
                         throw IllegalStateException(
                             "InitializerApi.updateData should not be " +
-                                "called after initialization is complete."
+                                    "called after initialization is complete."
                         )
                     }
 
@@ -210,7 +219,7 @@ internal class SingleProcessDataStore<T>(
             initializationComplete = true
         }
 
-        dataChannel.offer(initData)
+        dataChannel.offer(DataAndHash(initData, initData.hashCode()))
     }
 
     private suspend fun readDataOrHandleCorruption(): T {
@@ -257,15 +266,21 @@ internal class SingleProcessDataStore<T>(
          * Once the transformation is completed and data is durably persisted to disk, and the new
          * value will be offered to this channel.
          */
-        updateDataChannel: ConflatedBroadcastChannel<T>
+        updateDataChannel: ConflatedBroadcastChannel<DataAndHash<T>>
     ): T {
-        val curData = updateDataChannel.value
+        val curDataAndHash = updateDataChannel.value
+        curDataAndHash.checkHashCode()
+        val curData = curDataAndHash.value
         val newData = transform(curData)
+
+        // Check that curData has not changed...
+        curDataAndHash.checkHashCode()
+
         return if (curData == newData) {
             curData
         } else {
             writeData(newData)
-            updateDataChannel.offer(newData)
+            updateDataChannel.offer(DataAndHash(newData, newData.hashCode()))
             newData
         }
     }
@@ -309,7 +324,7 @@ internal class SingleProcessDataStore<T>(
 
     // Convenience function:
     @Suppress("NOTHING_TO_INLINE")
-    private inline fun downstreamChannel(): ConflatedBroadcastChannel<T> {
+    private inline fun downstreamChannel(): ConflatedBroadcastChannel<DataAndHash<T>> {
         return downstreamChannel.get()
     }
 }

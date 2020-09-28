@@ -41,6 +41,8 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.io.File
 import java.io.IOException
+import java.io.InputStream
+import java.io.OutputStream
 import java.lang.IllegalStateException
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
@@ -625,6 +627,38 @@ class SingleProcessDataStoreTest {
         store = newDataStore(corruptionHandler = testingHandler, file = testFile)
 
         assertThat(store.data.first()).isEqualTo(10)
+    }
+
+    @Test
+    fun testMutatingDataStoreFails() = runBlockingTest {
+
+        val dataStore = DataStoreFactory.create(
+            produceFile = { testFile },
+            scope = dataStoreScope,
+            serializer = ByteWrapper.ByteWrapperSerializer()
+        )
+
+        assertThrows<IllegalStateException> {
+            dataStore.updateData { input: ByteWrapper ->
+                // mutating our wrapper causes us to fail
+                input.byte = 123.toByte()
+                input
+            }
+        }
+    }
+
+    // Mutable wrapper around a byte
+    data class ByteWrapper(var byte: Byte) {
+        internal class ByteWrapperSerializer : Serializer<ByteWrapper> {
+            val delegate = TestingSerializer()
+            override fun readFrom(input: InputStream): ByteWrapper {
+                return ByteWrapper(delegate.readFrom(input))
+            }
+
+            override fun writeTo(t: ByteWrapper, output: OutputStream) {
+                delegate.writeTo(t.byte, output)
+            }
+        }
     }
 
     private class TestingCorruptionHandler(
