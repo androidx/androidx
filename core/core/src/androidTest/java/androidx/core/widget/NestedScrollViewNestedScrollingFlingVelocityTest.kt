@@ -141,7 +141,8 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
         }
     }
 
-    inner class NestedScrollingParent(context: Context) : FrameLayout(context),
+    inner class NestedScrollingParent(context: Context) :
+        FrameLayout(context),
         NestedScrollingParent3 {
 
         var preScrollY: Int = 0
@@ -312,9 +313,9 @@ class NestedScrollViewNestedScrollingFlingVelocityTest(
         @JvmStatic
         @Parameterized.Parameters(
             name = "fingerDirectionUp:{0}, " +
-                    "parentIntercepts:{1}, " +
-                    "preScrollConsumption:{2}, " +
-                    "postScrollConsumption:{3}"
+                "parentIntercepts:{1}, " +
+                "preScrollConsumption:{2}, " +
+                "postScrollConsumption:{3}"
         )
         fun data(): Collection<Array<Any>> {
             val configurations = ArrayList<Array<Any>>()
