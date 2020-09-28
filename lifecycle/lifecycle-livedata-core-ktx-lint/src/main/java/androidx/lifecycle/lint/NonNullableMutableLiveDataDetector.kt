@@ -77,8 +77,11 @@ class NonNullableMutableLiveDataDetector : Detector(), SourceCodeScanner {
     override fun getApplicableMethodNames(): List<String>? = listOf("setValue", "postValue")
 
     override fun visitMethodCall(context: JavaContext, node: UCallExpression, method: PsiMethod) {
-        if (!isKotlin(node.sourcePsi) || !context.evaluator.isMemberInSubClassOf(method,
-                "androidx.lifecycle.LiveData", false)) return
+        if (!isKotlin(node.sourcePsi) || !context.evaluator.isMemberInSubClassOf(
+                method,
+                "androidx.lifecycle.LiveData", false
+            )
+        ) return
 
         val fieldTypes = mutableListOf<KtTypeReference>()
 
@@ -89,8 +92,8 @@ class NonNullableMutableLiveDataDetector : Detector(), SourceCodeScanner {
                     if (element is KotlinUField) {
                         (element.sourcePsi?.children?.get(0) as? KtCallExpression)
                             ?.typeArguments?.singleOrNull()?.typeReference?.let {
-                            fieldTypes.add(it)
-                        }
+                                fieldTypes.add(it)
+                            }
                     }
                 }
                 return super.visitClass(node)
@@ -117,27 +120,33 @@ class NonNullableMutableLiveDataDetector : Detector(), SourceCodeScanner {
             val fixes = mutableListOf<LintFix>()
             if (context.getLocation(liveDataType).file == context.file) {
                 // Quick Fixes can only be applied to current file
-                fixes.add(fix()
-                    .name("Change `LiveData` type to nullable")
-                    .replace()
-                    .with("?")
-                    .range(context.getLocation(liveDataType))
-                    .end()
-                    .build())
+                fixes.add(
+                    fix()
+                        .name("Change `LiveData` type to nullable")
+                        .replace()
+                        .with("?")
+                        .range(context.getLocation(liveDataType))
+                        .end()
+                        .build()
+                )
             }
             val argument = node.valueArguments[0]
             if (argument.isNullLiteral()) {
                 // Don't report null!! quick fix.
-                report(context, argument, "Cannot set non-nullable LiveData value to `null`",
-                    fixes)
+                report(
+                    context, argument, "Cannot set non-nullable LiveData value to `null`",
+                    fixes
+                )
             } else if (argument.isNullable()) {
-                fixes.add(fix()
-                    .name("Add non-null asserted (!!) call")
-                    .replace()
-                    .with("!!")
-                    .range(context.getLocation(argument))
-                    .end()
-                    .build())
+                fixes.add(
+                    fix()
+                        .name("Add non-null asserted (!!) call")
+                        .replace()
+                        .with("!!")
+                        .range(context.getLocation(argument))
+                        .end()
+                        .build()
+                )
                 report(context, argument, "Expected non-nullable value", fixes)
             }
         }
@@ -177,8 +186,10 @@ class NonNullableMutableLiveDataDetector : Detector(), SourceCodeScanner {
         if (fixes.isEmpty()) {
             context.report(ISSUE, context.getLocation(element), message)
         } else {
-            context.report(ISSUE, context.getLocation(element), message,
-                fix().alternatives(*fixes.toTypedArray()))
+            context.report(
+                ISSUE, context.getLocation(element), message,
+                fix().alternatives(*fixes.toTypedArray())
+            )
         }
     }
 }
