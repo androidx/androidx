@@ -79,7 +79,8 @@ class SpecialEffectsControllerTest {
 
         // Recreating the controller shouldn't cause the count to increase
         val recreatedController = SpecialEffectsController.getOrCreateController(
-            container, factory)
+            container, factory
+        )
         assertThat(recreatedController)
             .isEqualTo(controller)
         assertThat(recreatedController.container)
@@ -90,7 +91,8 @@ class SpecialEffectsControllerTest {
         // But creating a controller for a different view returns a new instance
         val secondContainer = FrameLayout(InstrumentationRegistry.getInstrumentation().context)
         val secondController = SpecialEffectsController.getOrCreateController(
-            secondContainer, factory)
+            secondContainer, factory
+        )
         assertThat(secondController)
             .isEqualTo(map[secondContainer])
         assertThat(secondController.container)
@@ -120,8 +122,10 @@ class SpecialEffectsControllerTest {
             val fragment = StrictViewFragment()
             val fragmentStore = FragmentStore()
             fragmentStore.nonConfig = FragmentManagerViewModel(true)
-            val fragmentStateManager = FragmentStateManager(fm.lifecycleCallbacksDispatcher,
-                fragmentStore, fragment)
+            val fragmentStateManager = FragmentStateManager(
+                fm.lifecycleCallbacksDispatcher,
+                fragmentStore, fragment
+            )
             // Set up the Fragment and FragmentStateManager as if the Fragment was
             // added to the container via a FragmentTransaction
             fragment.mFragmentManager = fm
@@ -166,8 +170,10 @@ class SpecialEffectsControllerTest {
             val fragment = StrictViewFragment()
             val fragmentStore = FragmentStore()
             fragmentStore.nonConfig = FragmentManagerViewModel(true)
-            val fragmentStateManager = FragmentStateManager(fm.lifecycleCallbacksDispatcher,
-                fragmentStore, fragment)
+            val fragmentStateManager = FragmentStateManager(
+                fm.lifecycleCallbacksDispatcher,
+                fragmentStore, fragment
+            )
             // Set up the Fragment and FragmentStateManager as if the Fragment was
             // added to the container via a FragmentTransaction
             fragment.mFragmentManager = fm
@@ -216,8 +222,10 @@ class SpecialEffectsControllerTest {
             val fragment = StrictViewFragment()
             val fragmentStore = FragmentStore()
             fragmentStore.nonConfig = FragmentManagerViewModel(true)
-            val fragmentStateManager = FragmentStateManager(fm.lifecycleCallbacksDispatcher,
-                fragmentStore, fragment)
+            val fragmentStateManager = FragmentStateManager(
+                fm.lifecycleCallbacksDispatcher,
+                fragmentStore, fragment
+            )
             // Set up the Fragment and FragmentStateManager as if the Fragment was
             // added to the container via a FragmentTransaction
             fragment.mFragmentManager = fm
@@ -283,8 +291,10 @@ class SpecialEffectsControllerTest {
             val fragment = StrictViewFragment()
             val fragmentStore = FragmentStore()
             fragmentStore.nonConfig = FragmentManagerViewModel(true)
-            val fragmentStateManager = FragmentStateManager(fm.lifecycleCallbacksDispatcher,
-                fragmentStore, fragment)
+            val fragmentStateManager = FragmentStateManager(
+                fm.lifecycleCallbacksDispatcher,
+                fragmentStore, fragment
+            )
             // Set up the Fragment and FragmentStateManager as if the Fragment was
             // added to the container via a FragmentTransaction
             fragment.mFragmentManager = fm
@@ -327,8 +337,10 @@ class SpecialEffectsControllerTest {
             val fragment = StrictViewFragment()
             val fragmentStore = FragmentStore()
             fragmentStore.nonConfig = FragmentManagerViewModel(true)
-            val fragmentStateManager = FragmentStateManager(fm.lifecycleCallbacksDispatcher,
-                fragmentStore, fragment)
+            val fragmentStateManager = FragmentStateManager(
+                fm.lifecycleCallbacksDispatcher,
+                fragmentStore, fragment
+            )
             // Set up the Fragment and FragmentStateManager as if the Fragment was
             // added to the container via a FragmentTransaction
             fragment.mFragmentManager = fm
@@ -355,10 +367,11 @@ class SpecialEffectsControllerTest {
                 .isEqualTo(SpecialEffectsController.Operation.LifecycleImpact.ADDING)
 
             var lifecycleImpactOnCompletion:
-                    SpecialEffectsController.Operation.LifecycleImpact? = null
+                SpecialEffectsController.Operation.LifecycleImpact? = null
             firstOperation.addCompletionListener {
                 lifecycleImpactOnCompletion = controller.getAwaitingCompletionLifecycleImpact(
-                    fragmentStateManager)
+                    fragmentStateManager
+                )
             }
             onActivity {
                 // Now force all operations to immediately complete
@@ -388,8 +401,10 @@ class SpecialEffectsControllerTest {
             fragment.postponeEnterTransition()
             val fragmentStore = FragmentStore()
             fragmentStore.nonConfig = FragmentManagerViewModel(true)
-            val fragmentStateManager = FragmentStateManager(fm.lifecycleCallbacksDispatcher,
-                fragmentStore, fragment)
+            val fragmentStateManager = FragmentStateManager(
+                fm.lifecycleCallbacksDispatcher,
+                fragmentStore, fragment
+            )
             // Set up the Fragment and FragmentStateManager as if the Fragment was
             // added to the container via a FragmentTransaction
             fragment.mFragmentManager = fm

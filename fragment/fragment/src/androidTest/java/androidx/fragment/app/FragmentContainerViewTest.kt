@@ -68,8 +68,10 @@ class FragmentContainerViewTest {
         } catch (e: UnsupportedOperationException) {
             assertThat(e)
                 .hasMessageThat()
-                .contains("FragmentContainerView does not support Layout Transitions or " +
-                        "animateLayoutChanges=\"true\".")
+                .contains(
+                    "FragmentContainerView does not support Layout Transitions or " +
+                        "animateLayoutChanges=\"true\"."
+                )
         }
     }
 
@@ -95,8 +97,10 @@ class FragmentContainerViewTest {
         } catch (e: UnsupportedOperationException) {
             assertThat(e)
                 .hasMessageThat()
-                .contains("FragmentContainerView does not support Layout Transitions or " +
-                        "animateLayoutChanges=\"true\".")
+                .contains(
+                    "FragmentContainerView does not support Layout Transitions or " +
+                        "animateLayoutChanges=\"true\"."
+                )
         }
     }
 
@@ -176,7 +180,7 @@ class FragmentContainerViewTest {
             assertThat(e)
                 .hasMessageThat().contains(
                     "Views added to a FragmentContainerView must be associated with a Fragment. " +
-                            "View " + view + " is not associated with a Fragment."
+                        "View " + view + " is not associated with a Fragment."
                 )
         }
     }
@@ -192,7 +196,7 @@ class FragmentContainerViewTest {
             assertThat(e)
                 .hasMessageThat().contains(
                     "Views added to a FragmentContainerView must be associated with a Fragment. " +
-                            "View " + view + " is not associated with a Fragment."
+                        "View " + view + " is not associated with a Fragment."
                 )
         }
     }
@@ -359,8 +363,10 @@ class FragmentContainerViewTest {
         val fragment2 = ChildViewFragment()
 
         fm.beginTransaction()
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .setCustomAnimations(
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right
+            )
             .replace(R.id.fragment_container_view, fragment1, "1")
             .commit()
         activityRule.waitForExecution()
@@ -368,8 +374,10 @@ class FragmentContainerViewTest {
         val frag1View = fragment1.mView as ChildView
 
         fm.beginTransaction()
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .setCustomAnimations(
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right
+            )
             .replace(R.id.fragment_container_view, fragment2, "2")
             .addToBackStack(null)
             .commit()
@@ -412,8 +420,10 @@ class FragmentContainerViewTest {
         val fragment2 = ChildViewFragment("child2")
 
         fm.beginTransaction()
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .setCustomAnimations(
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right
+            )
             .replace(R.id.fragment_container_view, fragment1, "1")
             .commit()
         activityRule.waitForExecution()
@@ -421,8 +431,10 @@ class FragmentContainerViewTest {
         val frag1View = fragment1.mView as ChildView
 
         fm.beginTransaction()
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .setCustomAnimations(
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right
+            )
             .replace(R.id.fragment_container_view, fragment2, "2")
             .setPrimaryNavigationFragment(fragment2)
             .addToBackStack(null)
@@ -445,8 +457,10 @@ class FragmentContainerViewTest {
 
         fm.popBackStack()
         fm.beginTransaction()
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .setCustomAnimations(
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right
+            )
             .replace(R.id.fragment_container_view, fragment1, "1")
             .commit()
         activityRule.waitForExecution()
@@ -471,8 +485,10 @@ class FragmentContainerViewTest {
 
         fm.beginTransaction()
             .setReorderingAllowed(true)
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .setCustomAnimations(
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right
+            )
             .replace(R.id.fragment_container_view, fragment1, "1")
             .commit()
         activityRule.waitForExecution()
@@ -481,8 +497,10 @@ class FragmentContainerViewTest {
 
         fm.beginTransaction()
             .setReorderingAllowed(true)
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .setCustomAnimations(
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right
+            )
             .replace(R.id.fragment_container_view, fragment2, "2")
             .setPrimaryNavigationFragment(fragment2)
             .addToBackStack(null)
@@ -506,8 +524,10 @@ class FragmentContainerViewTest {
         fm.popBackStack()
         fm.beginTransaction()
             .setReorderingAllowed(true)
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .setCustomAnimations(
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right
+            )
             .replace(R.id.fragment_container_view, fragment1, "1")
             .commit()
         activityRule.waitForExecution()
@@ -532,8 +552,10 @@ class FragmentContainerViewTest {
 
         fm.beginTransaction()
             .setReorderingAllowed(true)
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .setCustomAnimations(
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right
+            )
             .replace(R.id.fragment_container_view, fragment1, "1")
             .commit()
         activityRule.waitForExecution()
@@ -542,8 +564,10 @@ class FragmentContainerViewTest {
 
         fm.beginTransaction()
             .setReorderingAllowed(true)
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .setCustomAnimations(
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right
+            )
             .replace(R.id.fragment_container_view, fragment2, "2")
             .setPrimaryNavigationFragment(fragment2)
             .addToBackStack(null)
@@ -567,8 +591,10 @@ class FragmentContainerViewTest {
         fm.popBackStack()
         fm.beginTransaction()
             .setReorderingAllowed(true)
-            .setCustomAnimations(android.R.anim.slide_in_left, android.R.anim.slide_out_right,
-                android.R.anim.slide_in_left, android.R.anim.slide_out_right)
+            .setCustomAnimations(
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right
+            )
             .add(R.id.fragment_container_view, ChildViewFragment(), "1")
             .commit()
         activityRule.waitForExecution()

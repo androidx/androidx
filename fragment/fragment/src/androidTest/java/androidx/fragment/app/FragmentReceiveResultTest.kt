@@ -165,8 +165,10 @@ class FragmentReceiveResultTest {
 
             fragment.startActivityForResult(intent, requestCode)
         }
-        assertThat(fragment.resultReceiveLatch[fragment.onActivityResultCount]
-            .await(1, TimeUnit.SECONDS)).isTrue()
+        assertThat(
+            fragment.resultReceiveLatch[fragment.onActivityResultCount]
+                .await(1, TimeUnit.SECONDS)
+        ).isTrue()
         InstrumentationRegistry.getInstrumentation().waitForIdleSync()
     }
 

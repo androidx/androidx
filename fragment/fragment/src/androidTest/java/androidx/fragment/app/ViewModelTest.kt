@@ -58,8 +58,8 @@ class ViewModelTest {
                 } catch (e: IllegalStateException) {
                     assertThat(e).hasMessageThat().contains(
                         "Calling getViewModelStore() before a Fragment " +
-                                "reaches onCreate() when using setMaxLifecycle(INITIALIZED) is " +
-                                "not supported"
+                            "reaches onCreate() when using setMaxLifecycle(INITIALIZED) is " +
+                            "not supported"
                     )
                 }
             }
@@ -88,8 +88,8 @@ class ViewModelTest {
                 } catch (e: IllegalStateException) {
                     assertThat(e).hasMessageThat().contains(
                         "Calling getViewModelStore() before a Fragment " +
-                                "reaches onCreate() when using setMaxLifecycle(INITIALIZED) is " +
-                                "not supported"
+                            "reaches onCreate() when using setMaxLifecycle(INITIALIZED) is " +
+                            "not supported"
                     )
                 }
             }

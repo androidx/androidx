@@ -744,7 +744,8 @@ class FragmentLifecycleTest {
         fc.shutdown(viewModelStore, false)
 
         fc = FragmentController.createController(
-            ControllerHostCallbacks(activityRule.activity, viewModelStore))
+            ControllerHostCallbacks(activityRule.activity, viewModelStore)
+        )
 
         // Now before we restoreSaveState, add a retained Fragment
         val fragment2 = StrictFragment()
@@ -921,11 +922,15 @@ class FragmentLifecycleTest {
             fm.beginTransaction()
                 .add(fragment1, "1")
                 .commit()
-            fail("Commit when FragmentManager never attached should throw " +
-                    "IllegalStateException")
+            fail(
+                "Commit when FragmentManager never attached should throw " +
+                    "IllegalStateException"
+            )
         } catch (e: IllegalStateException) {
-            assertWithMessage("Commit when FragmentManager never attached should throw an " +
-                    "IllegalStateException")
+            assertWithMessage(
+                "Commit when FragmentManager never attached should throw an " +
+                    "IllegalStateException"
+            )
                 .that(e)
                 .hasMessageThat()
                 .contains("FragmentManager has not been attached to a host.")
@@ -1245,7 +1250,7 @@ class FragmentLifecycleTest {
         fm.popBackStackImmediate()
 
         parentFragment = fm.findFragmentById(android.R.id.content) as
-                RetainedInflatedParentFragmentContainerView
+            RetainedInflatedParentFragmentContainerView
         val childFragment2 = parentFragment.childFragmentManager
             .findFragmentById(R.id.child_fragment) as RetainedInflatedChildFragment
 
@@ -1291,7 +1296,7 @@ class FragmentLifecycleTest {
         fm = fc.supportFragmentManager
 
         parentFragment = fm.findFragmentById(android.R.id.content) as
-                SwappingInflatedParentFragment
+            SwappingInflatedParentFragment
         childFragment = parentFragment.childFragmentManager
             .findFragmentById(R.id.inflated_fragment)
         // Ensure the Fragment is still in the FragmentManager, but hasn't moved
@@ -1304,7 +1309,7 @@ class FragmentLifecycleTest {
         fm = fc.supportFragmentManager
 
         parentFragment = fm.findFragmentById(android.R.id.content) as
-                SwappingInflatedParentFragment
+            SwappingInflatedParentFragment
         childFragment = parentFragment.childFragmentManager
             .findFragmentById(R.id.inflated_fragment)
         // Now that the <fragment> tag is back, the fragment should receive
@@ -1344,7 +1349,7 @@ class FragmentLifecycleTest {
         fm = fc.supportFragmentManager
 
         parentFragment = fm.findFragmentById(android.R.id.content) as
-                SwappingInflatedParentFragment
+            SwappingInflatedParentFragment
         childFragment = parentFragment.childFragmentManager
             .findFragmentById(R.id.inflated_fragment)
         // Ensure the Fragment is still in the FragmentManager, but hasn't moved
@@ -1507,11 +1512,14 @@ class FragmentLifecycleTest {
             container: ViewGroup?,
             savedInstanceState: Bundle?
         ): View? {
-            return inflater.inflate(if (count % 2 == 0) {
-                R.layout.activity_inflated_fragment
-            } else {
-                R.layout.activity_content
-            }, container, false)
+            return inflater.inflate(
+                if (count % 2 == 0) {
+                    R.layout.activity_inflated_fragment
+                } else {
+                    R.layout.activity_content
+                },
+                container, false
+            )
         }
 
         override fun onSaveInstanceState(outState: Bundle) {

@@ -82,7 +82,8 @@ class DialogFragmentInflatedChildTest(
     fun testInflatedChildDialogFragment() {
         with(ActivityScenario.launch(SimpleContainerActivity::class.java)) {
             val dialogFragment = TestInflatedChildDialogFragment.newInstance(
-                false, inflatedView.getLayoutId(), inflateLocation is OnCreateDialog)
+                false, inflatedView.getLayoutId(), inflateLocation is OnCreateDialog
+            )
 
             withActivity {
                 supportFragmentManager.beginTransaction()
@@ -109,7 +110,8 @@ class DialogFragmentInflatedChildTest(
     fun testInflatedChildAppCompatDialogFragment() {
         with(ActivityScenario.launch(TestAppCompatActivity::class.java)) {
             val dialogFragment = TestInflatedChildDialogFragment.newInstance(
-                true, inflatedView.getLayoutId(), inflateLocation is OnCreateDialog)
+                true, inflatedView.getLayoutId(), inflateLocation is OnCreateDialog
+            )
 
             withActivity {
                 supportFragmentManager.beginTransaction()

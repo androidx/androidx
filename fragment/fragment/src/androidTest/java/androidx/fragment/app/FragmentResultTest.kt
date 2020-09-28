@@ -164,8 +164,10 @@ class FragmentResultTest {
                     .add(R.id.fragmentContainer, fragment1)
                     .commitNow()
                 // lets set another listener with the same key as the original
-                fm.setFragmentResultListener("requestKey", fragment1,
-                    FragmentResultListener { _, _ -> })
+                fm.setFragmentResultListener(
+                    "requestKey", fragment1,
+                    FragmentResultListener { _, _ -> }
+                )
             }
 
             // do a replace to force the lifecycle back below STARTED
@@ -203,16 +205,20 @@ class FragmentResultTest {
 
             withActivity {
                 // set a listener
-                fm.setFragmentResultListener("requestKey", fragment1,
+                fm.setFragmentResultListener(
+                    "requestKey", fragment1,
                     FragmentResultListener { _, _ ->
                         firstListenerFired = true
-                    })
+                    }
+                )
 
                 // lets set another listener before the first is fired
-                fm.setFragmentResultListener("requestKey", fragment1,
+                fm.setFragmentResultListener(
+                    "requestKey", fragment1,
                     FragmentResultListener { _, _ ->
                         secondListenerFired = true
-                    })
+                    }
+                )
             }
 
             // set a result while no listener is available so it is stored in the fragment manager
@@ -287,8 +293,11 @@ class FragmentResultTest {
             fm.setFragmentResult("requestKey", resultBundle)
 
             withActivity {
-                fm.setFragmentResultListener("requestKey", fragment1, FragmentResultListener
-                { _, bundle -> actualResult = bundle.getString("bundleKey") })
+                fm.setFragmentResultListener(
+                    "requestKey", fragment1,
+                    FragmentResultListener
+                    { _, bundle -> actualResult = bundle.getString("bundleKey") }
+                )
             }
 
             assertWithMessage("The result is incorrect")
@@ -379,8 +388,11 @@ class ResultFragment : StrictFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        parentFragmentManager.setFragmentResultListener("requestKey", this, FragmentResultListener
-        { _, bundle -> actualResult = bundle.getString("bundleKey") })
+        parentFragmentManager.setFragmentResultListener(
+            "requestKey", this,
+            FragmentResultListener
+            { _, bundle -> actualResult = bundle.getString("bundleKey") }
+        )
     }
 }
 
@@ -390,11 +402,13 @@ class ClearResultFragment : StrictFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        parentFragmentManager.setFragmentResultListener("requestKey", this,
+        parentFragmentManager.setFragmentResultListener(
+            "requestKey", this,
             FragmentResultListener { _, _ ->
                 callbackCount++
                 parentFragmentManager.clearFragmentResultListener("requestKey")
-            })
+            }
+        )
     }
 }
 
@@ -404,8 +418,11 @@ class ParentResultFragment : StrictFragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        childFragmentManager.setFragmentResultListener("requestKey", this, FragmentResultListener
-        { _, bundle -> actualResult = bundle.getString("bundleKey") })
+        childFragmentManager.setFragmentResultListener(
+            "requestKey", this,
+            FragmentResultListener
+            { _, bundle -> actualResult = bundle.getString("bundleKey") }
+        )
     }
 }
 
