@@ -35,9 +35,11 @@ class IndexBasedArrayIteratorTest {
         val iterator = ArraySet<String>().iterator()
         assertThat(iterator.hasNext()).isFalse()
 
-        assertThat(runCatching {
-            iterator.next()
-        }.exceptionOrNull()).isInstanceOf(NoSuchElementException::class.java)
+        assertThat(
+            runCatching {
+                iterator.next()
+            }.exceptionOrNull()
+        ).isInstanceOf(NoSuchElementException::class.java)
     }
 
     @Test
@@ -45,9 +47,11 @@ class IndexBasedArrayIteratorTest {
         val iterator = ArraySet(listOf("a", "b", "c")).iterator()
         iterator.next() // move to next
         iterator.remove()
-        assertThat(runCatching {
-            iterator.remove()
-        }.exceptionOrNull()).isInstanceOf(IllegalStateException::class.java)
+        assertThat(
+            runCatching {
+                iterator.remove()
+            }.exceptionOrNull()
+        ).isInstanceOf(IllegalStateException::class.java)
     }
 
     @Test
