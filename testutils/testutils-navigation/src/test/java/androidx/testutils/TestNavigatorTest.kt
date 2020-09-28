@@ -31,13 +31,19 @@ class TestNavigatorTest {
         val destination = testNavigator.createDestination()
         val args = Bundle()
         testNavigator.navigate(destination, args, null, null)
-        assertEquals("TestNavigator back stack size is 1 after navigate",
-                1,
-                testNavigator.backStack.size)
+        assertEquals(
+            "TestNavigator back stack size is 1 after navigate",
+            1,
+            testNavigator.backStack.size
+        )
         val (foundDestination, foundArgs) = testNavigator.current
-        assertEquals("last() returns last destination navigated to",
-                destination, foundDestination)
-        assertEquals("last() returns arguments Bundle",
-                args, foundArgs)
+        assertEquals(
+            "last() returns last destination navigated to",
+            destination, foundDestination
+        )
+        assertEquals(
+            "last() returns arguments Bundle",
+            args, foundArgs
+        )
     }
 }

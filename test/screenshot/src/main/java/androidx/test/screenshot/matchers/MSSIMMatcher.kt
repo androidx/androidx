@@ -48,7 +48,7 @@ class MSSIMMatcher(
         val SSIMTotal = calculateSSIM(expected, given, width, height)
 
         val stats = "[MSSIM] Required SSIM: $threshold, Actual " +
-                "SSIM: " + "%.3f".format(SSIMTotal)
+            "SSIM: " + "%.3f".format(SSIMTotal)
 
         if (SSIMTotal >= threshold) {
             return MatchResult(

@@ -104,7 +104,7 @@ class UnsafeNewApiCallsDetector : Detector(), SourceCodeScanner {
                 false,
                 false
             ) // Couldn't compute description of method for some reason; probably
-            // failure to resolve parameter types
+                // failure to resolve parameter types
                 ?: return
             var api = apiDatabase.getMethodVersion(owner, name, desc)
             if (api == NO_API_REQUIREMENT) {
@@ -264,7 +264,8 @@ class UnsafeNewApiCallsDetector : Detector(), SourceCodeScanner {
                                             methodOwner, name, desc
                                         )
                                         if (methodApi == NO_API_REQUIREMENT ||
-                                            methodApi <= context.project.minSdk) {
+                                            methodApi <= context.project.minSdk
+                                        ) {
                                             // Yes, we found another call that doesn't have an
                                             // API requirement
                                             return
@@ -305,12 +306,14 @@ class UnsafeNewApiCallsDetector : Detector(), SourceCodeScanner {
                 startsWithEquivalentPrefix(owner, "java/lang/") &&
                 desc.length == 4 &&
                 context.project.isDesugaring(Desugaring.LONG_COMPARE) &&
-                (desc == "(JJ)" ||
+                (
+                    desc == "(JJ)" ||
                         desc == "(ZZ)" ||
                         desc == "(BB)" ||
                         desc == "(CC)" ||
                         desc == "(II)" ||
-                        desc == "(SS)")
+                        desc == "(SS)"
+                    )
             ) {
                 return
             }
@@ -345,18 +348,23 @@ class UnsafeNewApiCallsDetector : Detector(), SourceCodeScanner {
                 // Can't verify if containing class is annotated with @RequiresApi
                 return
             }
-            val potentialRequiresApiVersion = getRequiresApiFromAnnotations(call
-                .getContainingUClass()!!.javaPsi)
+            val potentialRequiresApiVersion = getRequiresApiFromAnnotations(
+                call
+                    .getContainingUClass()!!.javaPsi
+            )
             if (potentialRequiresApiVersion == NO_API_REQUIREMENT ||
-                api > potentialRequiresApiVersion) {
+                api > potentialRequiresApiVersion
+            ) {
                 val containingClassName = call.getContainingUClass()!!.qualifiedName.toString()
-                    context.report(ISSUE, reference, location,
-                        "This call is to a method from API $api, the call containing " +
-                                "class $containingClassName is not annotated with " +
-                                "@RequiresApi(x) where x is at least $api. Either annotate the " +
-                                "containing class with at least @RequiresApi($api) or move the " +
-                                "call to a static method in a wrapper class annotated with at " +
-                                "least @RequiresApi($api).")
+                context.report(
+                    ISSUE, reference, location,
+                    "This call is to a method from API $api, the call containing " +
+                        "class $containingClassName is not annotated with " +
+                        "@RequiresApi(x) where x is at least $api. Either annotate the " +
+                        "containing class with at least @RequiresApi($api) or move the " +
+                        "call to a static method in a wrapper class annotated with at " +
+                        "least @RequiresApi($api)."
+                )
             }
         }
         private fun getInheritanceChain(
@@ -395,8 +403,10 @@ class UnsafeNewApiCallsDetector : Detector(), SourceCodeScanner {
                 val qualifiedName = annotation.qualifiedName
                 if (REQUIRES_API_ANNOTATION.isEquals(qualifiedName)) {
                     val wrapped = JavaUAnnotation.wrap(annotation)
-                    var api = getLongAttribute(context, wrapped,
-                        ATTR_VALUE, NO_API_REQUIREMENT.toLong()).toInt()
+                    var api = getLongAttribute(
+                        context, wrapped,
+                        ATTR_VALUE, NO_API_REQUIREMENT.toLong()
+                    ).toInt()
                     if (api <= 1) {
                         // @RequiresApi has two aliasing attributes: api and value
                         api = getLongAttribute(context, wrapped, "api", NO_API_REQUIREMENT.toLong())
@@ -445,9 +455,10 @@ class UnsafeNewApiCallsDetector : Detector(), SourceCodeScanner {
     }
     companion object {
         const val NO_API_REQUIREMENT = -1
-        val ISSUE = Issue.create("UnsafeNewApiCall",
+        val ISSUE = Issue.create(
+            "UnsafeNewApiCall",
             "Calling method with API level higher than minSdk outside a " +
-                    "@RequiresApi class or with insufficient required API.",
+                "@RequiresApi class or with insufficient required API.",
             """
                 Even though wrapping a call to a method from an API above minSdk
                 inside an SDK_INT check makes it runtime safe, it is not optimal. When

@@ -69,7 +69,7 @@ src/sample/UseJavaExperimentalFromJava.java:56: Error: This declaration is exper
         return dateProvider.getDate() + locationProvider.getLocation();
                                                          ~~~~~~~~~~~
 4 errors, 0 warnings
-    """.trimIndent()
+        """.trimIndent()
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
@@ -188,7 +188,7 @@ src/sample/UseJavaPackageFromJava.java:54: Error: This declaration is experiment
         callPackageExperimental();
         ~~~~~~~~~~~~~~~~~~~~~~~
 3 errors, 0 warnings
-    """.trimIndent()
+        """.trimIndent()
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
@@ -218,7 +218,7 @@ src/sample/UseJavaPackageFromKt.kt:54: Error: This declaration is experimental a
         callPackageExperimental()
         ~~~~~~~~~~~~~~~~~~~~~~~
 3 errors, 0 warnings
-    """.trimIndent()
+        """.trimIndent()
         /* ktlint-enable max-line-length */
 
         check(*input).expect(expected)
@@ -246,7 +246,8 @@ src/sample/UseJavaPackageFromKt.kt:54: Error: This declaration is experimental a
          * This is a workaround for IntelliJ failing to recognize source files if they are also
          * included as resources.
          */
-        val ANDROIDX_EXPERIMENTAL_KT: TestFile = kotlin("""
+        val ANDROIDX_EXPERIMENTAL_KT: TestFile = kotlin(
+            """
             package androidx.annotation.experimental;
 
             import kotlin.annotation.Retention
@@ -262,7 +263,8 @@ src/sample/UseJavaPackageFromKt.kt:54: Error: This declaration is experimental a
                     ERROR
                 }
             }
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         /**
          * [TestFile] containing UseExperimental.kt from the experimental annotation library.
@@ -270,7 +272,8 @@ src/sample/UseJavaPackageFromKt.kt:54: Error: This declaration is experimental a
          * This is a workaround for IntelliJ failing to recognize source files if they are also
          * included as resources.
          */
-        val ANDROIDX_USE_EXPERIMENTAL_KT: TestFile = kotlin("""
+        val ANDROIDX_USE_EXPERIMENTAL_KT: TestFile = kotlin(
+            """
             package androidx.annotation.experimental;
 
             import kotlin.annotation.Retention
@@ -293,7 +296,8 @@ src/sample/UseJavaPackageFromKt.kt:54: Error: This declaration is experimental a
             annotation class UseExperimental(
                 vararg val markerClass: KClass<out Annotation>
             )
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         /**
          * [TestFile] containing Experimental.kt from the Kotlin standard library.
@@ -301,7 +305,8 @@ src/sample/UseJavaPackageFromKt.kt:54: Error: This declaration is experimental a
          * This is a workaround for the Kotlin standard library used by the Lint test harness not
          * including the Experimental annotation by default.
          */
-        val EXPERIMENTAL_KT: TestFile = kotlin("""
+        val EXPERIMENTAL_KT: TestFile = kotlin(
+            """
             package kotlin
 
             import kotlin.annotation.AnnotationRetention.BINARY
@@ -338,7 +343,8 @@ src/sample/UseJavaPackageFromKt.kt:54: Error: This declaration is experimental a
             internal annotation class WasExperimental(
                 vararg val markerClass: KClass<out Annotation>
             )
-        """.trimIndent())
+            """.trimIndent()
+        )
 
         /**
          * [TestFile] containing the package-level annotation for the sample.foo package.
@@ -346,7 +352,9 @@ src/sample/UseJavaPackageFromKt.kt:54: Error: This declaration is experimental a
          * This is a workaround for b/136184987 where package-level annotations cannot be loaded
          * from source code. This is generated from a single-class JAR using toBase64gzip(File).
          */
-        val SAMPLE_FOO_PACKAGE_INFO: TestFile = base64gzip("libs/sample.foo.package-info.jar", "" +
+        val SAMPLE_FOO_PACKAGE_INFO: TestFile = base64gzip(
+            "libs/sample.foo.package-info.jar",
+            "" +
                 "H4sIAAAAAAAAAAvwZmYRYWDg4GBgYFBkYGguSJ4HZB0EYlkGQYbixNyCnFT9" +
                 "tPx8/YLE5OzE9FTdzLy0fL3knMTi4tAQXgZ2BiTg22vI1+Qg4pIe6Lh2y8VD" +
                 "x7hfmJWFic2aMSPjCwv3zwlHn+o3tlaYcfM/WNijwRt8RuSz0ed/NvEMZhKs" +
@@ -355,7 +363,8 @@ src/sample/UseJavaPackageFromKt.kt:54: Error: This declaration is experimental a
                 "I/9amy//7h1f4Lk/s+YBdwCKT3+yX33NA2QJgNwN9Kmva4ijrqefm35iXl5+" +
                 "SWJJZn6ebmpFQWpRZm5qXklijm5OZl4J0PMlqelFENmS1OKS4vii1JzUxOJU" +
                 "vez8EqCK+Nz8lNKcVIyQSU5ISEgD4pakOoYAb0YmEQZcYc7JgAoIxAArxB50" +
-                "M1F9h2zmK5AIdf0KdwMrG4hmAsIbQLqIEcQDAGCtt2pgAgAA")
+                "M1F9h2zmK5AIdf0KdwMrG4hmAsIbQLqIEcQDAGCtt2pgAgAA"
+        )
     }
     /* ktlint-enable max-line-length */
 }

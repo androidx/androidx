@@ -25,7 +25,8 @@ import org.junit.Test
 
 @Ignore("ANDROID_HOME not available on CI")
 class ObsoleteBuildCompatUsageDetectorTest {
-    private val buildCompatStub = java("""
+    private val buildCompatStub = java(
+        """
         package androidx.core.os;
         public class BuildCompat {
           public static boolean isAtLeastN() { return false; }
@@ -35,13 +36,14 @@ class ObsoleteBuildCompatUsageDetectorTest {
           public static boolean isAtLeastP() { return false; }
           public static boolean isAtLeastQ() { return false; }
         }
-    """.trimIndent())
+        """.trimIndent()
+    )
 
     private fun check(vararg code: String): TestLintResult {
         return lint().files(buildCompatStub, *code.map(::java).toTypedArray())
-                .allowMissingSdk(true)
-                .issues(ObsoleteBuildCompatUsageDetector.ISSUE)
-                .run()
+            .allowMissingSdk(true)
+            .issues(ObsoleteBuildCompatUsageDetector.ISSUE)
+            .run()
     }
 
     @Test fun isAtLeastN() {
@@ -69,8 +71,8 @@ class ObsoleteBuildCompatUsageDetectorTest {
             +     if (Build.VERSION.SDK_INT >= 24) {
         """
         check(input.trimIndent())
-                .expect(expected.trimIndent())
-                .expectFixDiffs(expectedDiff.trimIndent())
+            .expect(expected.trimIndent())
+            .expectFixDiffs(expectedDiff.trimIndent())
     }
 
     @Test fun isAtLeastNStaticImport() {
@@ -98,8 +100,8 @@ class ObsoleteBuildCompatUsageDetectorTest {
             +     if (Build.VERSION.SDK_INT >= 24) {
         """
         check(input.trimIndent())
-                .expect(expected.trimIndent())
-                .expectFixDiffs(expectedDiff.trimIndent())
+            .expect(expected.trimIndent())
+            .expectFixDiffs(expectedDiff.trimIndent())
     }
 
     @Test fun isAtLeastNMR1() {
@@ -127,8 +129,8 @@ class ObsoleteBuildCompatUsageDetectorTest {
             +     if (Build.VERSION.SDK_INT >= 25) {
         """
         check(input.trimIndent())
-                .expect(expected.trimIndent())
-                .expectFixDiffs(expectedDiff.trimIndent())
+            .expect(expected.trimIndent())
+            .expectFixDiffs(expectedDiff.trimIndent())
     }
 
     @Test fun isAtLeastO() {
@@ -156,8 +158,8 @@ class ObsoleteBuildCompatUsageDetectorTest {
             +     if (Build.VERSION.SDK_INT >= 26) {
         """
         check(input.trimIndent())
-                .expect(expected.trimIndent())
-                .expectFixDiffs(expectedDiff.trimIndent())
+            .expect(expected.trimIndent())
+            .expectFixDiffs(expectedDiff.trimIndent())
     }
 
     @Test fun isAtLeastOMR1() {
@@ -185,8 +187,8 @@ class ObsoleteBuildCompatUsageDetectorTest {
             +     if (Build.VERSION.SDK_INT >= 27) {
         """
         check(input.trimIndent())
-                .expect(expected.trimIndent())
-                .expectFixDiffs(expectedDiff.trimIndent())
+            .expect(expected.trimIndent())
+            .expectFixDiffs(expectedDiff.trimIndent())
     }
 
     @Test fun isAtLeastP() {

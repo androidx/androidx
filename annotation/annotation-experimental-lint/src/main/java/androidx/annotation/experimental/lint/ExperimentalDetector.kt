@@ -63,13 +63,15 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
     ) {
         when (qualifiedName) {
             JAVA_EXPERIMENTAL_ANNOTATION -> {
-                checkExperimentalUsage(context, annotation, usage,
+                checkExperimentalUsage(
+                    context, annotation, usage,
                     JAVA_USE_EXPERIMENTAL_ANNOTATION, checkMarkerClasses = true
                 )
             }
             KOTLIN_EXPERIMENTAL_ANNOTATION -> {
                 if (!isKotlin(usage.sourcePsi)) {
-                    checkExperimentalUsage(context, annotation, usage,
+                    checkExperimentalUsage(
+                        context, annotation, usage,
                         KOTLIN_USE_EXPERIMENTAL_ANNOTATION, checkMarkerClasses = false
                     )
                 }
@@ -95,18 +97,29 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         checkMarkerClasses: Boolean
     ) {
         val useAnnotation = (annotation.uastParent as? UClass)?.qualifiedName ?: return
-        if (!hasOrUsesAnnotation(context, usage, useAnnotation, useAnnotationName,
-                checkMarkerClasses)) {
+        if (!hasOrUsesAnnotation(
+                context, usage, useAnnotation, useAnnotationName,
+                checkMarkerClasses
+            )
+        ) {
             val level = extractAttribute(annotation, "level")
             if (level != null) {
-                report(context, usage, """
+                report(
+                    context, usage,
+                    """
                     This declaration is experimental and its usage should be marked with
                     '@$useAnnotation' or '@UseExperimental(markerClass = $useAnnotation.class)'
-                """, level)
+                """,
+                    level
+                )
             } else {
-                report(context, annotation, """
+                report(
+                    context, annotation,
+                    """
                     Failed to extract attribute "level" from annotation
-                """, "ERROR")
+                """,
+                    "ERROR"
+                )
             }
         }
     }
@@ -185,8 +198,10 @@ class ExperimentalDetector : Detector(), SourceCodeScanner {
         val issue = when (level) {
             "ERROR" -> ISSUE_ERROR
             "WARNING" -> ISSUE_WARNING
-            else -> throw IllegalArgumentException("Level was \"" + level + "\" but must be one " +
-                    "of: ERROR, WARNING")
+            else -> throw IllegalArgumentException(
+                "Level was \"" + level + "\" but must be one " +
+                    "of: ERROR, WARNING"
+            )
         }
         context.report(issue, usage, context.getNameLocation(usage), message.trimIndent())
     }

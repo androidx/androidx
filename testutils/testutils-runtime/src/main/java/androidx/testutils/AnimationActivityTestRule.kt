@@ -86,9 +86,12 @@ open class AnimationActivityTestRule<T : Activity> : androidx.test.rule.Activity
     override fun apply(base: Statement, description: Description): Statement {
         testType = TestType.NORMAL
         if (Build.VERSION.SDK_INT >= 16 &&
-            (description.annotations.any { it.annotationClass == AnimationTest::class } ||
-                description.testClass.annotations.any
-                    { it.annotationClass == AnimationTest::class })) {
+            (
+                description.annotations.any { it.annotationClass == AnimationTest::class } ||
+                    description.testClass.annotations.any
+                    { it.annotationClass == AnimationTest::class }
+                )
+        ) {
             testType = TestType.ANIMATION
             val wrappedStatement = super.apply(base, description)
             return object : Statement() {

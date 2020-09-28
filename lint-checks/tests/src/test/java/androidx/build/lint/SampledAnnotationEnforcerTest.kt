@@ -42,30 +42,38 @@ class SampledAnnotationEnforcerTest {
 
     private val barFilePath = "foo/src/foo/Bar.kt"
 
-    private val emptySampleFile = kotlin("""
+    private val emptySampleFile = kotlin(
+        """
             package foo.samples
-        """)
+        """
+    )
 
-    private val unannotatedSampleFile = kotlin("""
-            package foo.samples
-
-            fun sampleBar() {}
-        """)
-
-    private val multipleMatchingSampleFile = kotlin("""
+    private val unannotatedSampleFile = kotlin(
+        """
             package foo.samples
 
             fun sampleBar() {}
+        """
+    )
+
+    private val multipleMatchingSampleFile = kotlin(
+        """
+            package foo.samples
 
             fun sampleBar() {}
-        """)
 
-    private val correctlyAnnotatedSampleFile = kotlin("""
+            fun sampleBar() {}
+        """
+    )
+
+    private val correctlyAnnotatedSampleFile = kotlin(
+        """
             package foo.samples
 
             @Sampled
             fun sampleBar() {}
-        """)
+        """
+    )
 
     private fun checkKotlin(
         fooFile: TestFile? = null,
@@ -101,7 +109,8 @@ class SampledAnnotationEnforcerTest {
 
     @Test
     fun missingSampleDirectory_Function() {
-        val fooFile = kotlin("""
+        val fooFile = kotlin(
+            """
             package foo
 
             class Bar {
@@ -110,10 +119,11 @@ class SampledAnnotationEnforcerTest {
                */
               fun bar() {}
             }
-        """)
+        """
+        )
 
         val expected =
-    "src/foo/Bar.kt:6: Error: Couldn't find a valid samples directory in this project" +
+            "src/foo/Bar.kt:6: Error: Couldn't find a valid samples directory in this project" +
 """ [EnforceSampledAnnotation]
                * @sample foo.samples.sampleBar
                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -126,7 +136,8 @@ class SampledAnnotationEnforcerTest {
 
     @Test
     fun unresolvedSampleLink_Function() {
-        val fooFile = kotlin("""
+        val fooFile = kotlin(
+            """
             package foo
 
             class Bar {
@@ -135,12 +146,13 @@ class SampledAnnotationEnforcerTest {
                */
               fun bar() {}
             }
-        """)
+        """
+        )
 
         val sampleFile = emptySampleFile
 
         val expected =
-"$barFilePath:6: Error: Couldn't find a valid function matching foo.samples.sampleBar" +
+            "$barFilePath:6: Error: Couldn't find a valid function matching foo.samples.sampleBar" +
 """ [EnforceSampledAnnotation]
                * @sample foo.samples.sampleBar
                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -153,7 +165,8 @@ class SampledAnnotationEnforcerTest {
 
     @Test
     fun unannotatedSampleFunction_Function() {
-        val fooFile = kotlin("""
+        val fooFile = kotlin(
+            """
             package foo
 
             class Bar {
@@ -162,13 +175,14 @@ class SampledAnnotationEnforcerTest {
                */
               fun bar() {}
             }
-        """)
+        """
+        )
 
         val sampleFile = unannotatedSampleFile
 
         val expected =
-"$barFilePath:6: Error: sampleBar is not annotated with @Sampled, but is linked to from" +
-""" the KDoc of bar [EnforceSampledAnnotation]
+            "$barFilePath:6: Error: sampleBar is not annotated with @Sampled, but is linked to" +
+""" from the KDoc of bar [EnforceSampledAnnotation]
                * @sample foo.samples.sampleBar
                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
@@ -180,7 +194,8 @@ class SampledAnnotationEnforcerTest {
 
     @Test
     fun multipleMatchingSampleFunctions_Function() {
-        val fooFile = kotlin("""
+        val fooFile = kotlin(
+            """
             package foo
 
             class Bar {
@@ -189,12 +204,13 @@ class SampledAnnotationEnforcerTest {
                */
               fun bar() {}
             }
-        """)
+        """
+        )
 
         val sampleFile = multipleMatchingSampleFile
 
         val expected =
-"$barFilePath:6: Error: Found multiple functions matching foo.samples.sampleBar" +
+            "$barFilePath:6: Error: Found multiple functions matching foo.samples.sampleBar" +
 """ [EnforceSampledAnnotation]
                * @sample foo.samples.sampleBar
                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -207,7 +223,8 @@ class SampledAnnotationEnforcerTest {
 
     @Test
     fun correctlyAnnotatedSampleFunction_Function() {
-        val fooFile = kotlin("""
+        val fooFile = kotlin(
+            """
             package foo
 
             class Bar {
@@ -216,7 +233,8 @@ class SampledAnnotationEnforcerTest {
                */
               fun bar() {}
             }
-        """)
+        """
+        )
 
         val sampleFile = correctlyAnnotatedSampleFile
 
@@ -226,17 +244,19 @@ class SampledAnnotationEnforcerTest {
 
     @Test
     fun missingSampleDirectory_Class() {
-        val fooFile = kotlin("""
+        val fooFile = kotlin(
+            """
             package foo
 
             /**
              * @sample foo.samples.sampleBar
              */
             class Bar
-        """)
+        """
+        )
 
         val expected =
-"src/foo/Bar.kt:5: Error: Couldn't find a valid samples directory in this project" +
+            "src/foo/Bar.kt:5: Error: Couldn't find a valid samples directory in this project" +
 """ [EnforceSampledAnnotation]
              * @sample foo.samples.sampleBar
                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -249,19 +269,21 @@ class SampledAnnotationEnforcerTest {
 
     @Test
     fun unresolvedSampleLink_Class() {
-        val fooFile = kotlin("""
+        val fooFile = kotlin(
+            """
             package foo
 
             /**
              * @sample foo.samples.sampleBar
              */
             class Bar
-        """)
+        """
+        )
 
         val sampleFile = emptySampleFile
 
         val expected =
-"$barFilePath:5: Error: Couldn't find a valid function matching foo.samples.sampleBar" +
+            "$barFilePath:5: Error: Couldn't find a valid function matching foo.samples.sampleBar" +
 """ [EnforceSampledAnnotation]
              * @sample foo.samples.sampleBar
                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -274,20 +296,22 @@ class SampledAnnotationEnforcerTest {
 
     @Test
     fun unannotatedSampleFunction_Class() {
-        val fooFile = kotlin("""
+        val fooFile = kotlin(
+            """
             package foo
 
             /**
              * @sample foo.samples.sampleBar
              */
             class Bar
-        """)
+        """
+        )
 
         val sampleFile = unannotatedSampleFile
 
         val expected =
-"$barFilePath:5: Error: sampleBar is not annotated with @Sampled, but is linked to from" +
-""" the KDoc of Bar [EnforceSampledAnnotation]
+            "$barFilePath:5: Error: sampleBar is not annotated with @Sampled, but is linked to" +
+""" from the KDoc of Bar [EnforceSampledAnnotation]
              * @sample foo.samples.sampleBar
                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
@@ -299,19 +323,21 @@ class SampledAnnotationEnforcerTest {
 
     @Test
     fun multipleMatchingSampleFunctions_Class() {
-        val fooFile = kotlin("""
+        val fooFile = kotlin(
+            """
             package foo
 
             /**
              * @sample foo.samples.sampleBar
              */
             class Bar
-        """)
+        """
+        )
 
         val sampleFile = multipleMatchingSampleFile
 
         val expected =
-"$barFilePath:5: Error: Found multiple functions matching foo.samples.sampleBar" +
+            "$barFilePath:5: Error: Found multiple functions matching foo.samples.sampleBar" +
 """ [EnforceSampledAnnotation]
              * @sample foo.samples.sampleBar
                ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -324,14 +350,16 @@ class SampledAnnotationEnforcerTest {
 
     @Test
     fun correctlyAnnotatedSampleFunction_Class() {
-        val fooFile = kotlin("""
+        val fooFile = kotlin(
+            """
             package foo
 
             /**
              * @sample foo.samples.sampleBar
              */
             class Bar
-        """)
+        """
+        )
 
         val sampleFile = correctlyAnnotatedSampleFile
 
@@ -341,7 +369,8 @@ class SampledAnnotationEnforcerTest {
 
     @Test
     fun missingSampleDirectory_Field() {
-        val fooFile = kotlin("""
+        val fooFile = kotlin(
+            """
             package foo
 
             class Bar {
@@ -350,10 +379,11 @@ class SampledAnnotationEnforcerTest {
                */
               const val bar = 0
             }
-        """)
+        """
+        )
 
         val expected =
-"src/foo/Bar.kt:6: Error: Couldn't find a valid samples directory in this project" +
+            "src/foo/Bar.kt:6: Error: Couldn't find a valid samples directory in this project" +
 """ [EnforceSampledAnnotation]
                * @sample foo.samples.sampleBar
                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -366,7 +396,8 @@ class SampledAnnotationEnforcerTest {
 
     @Test
     fun unresolvedSampleLink_Field() {
-        val fooFile = kotlin("""
+        val fooFile = kotlin(
+            """
             package foo
 
             class Bar {
@@ -375,12 +406,13 @@ class SampledAnnotationEnforcerTest {
                */
               const val bar = 0
             }
-        """)
+        """
+        )
 
         val sampleFile = emptySampleFile
 
         val expected =
-"$barFilePath:6: Error: Couldn't find a valid function matching foo.samples.sampleBar" +
+            "$barFilePath:6: Error: Couldn't find a valid function matching foo.samples.sampleBar" +
 """ [EnforceSampledAnnotation]
                * @sample foo.samples.sampleBar
                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -393,7 +425,8 @@ class SampledAnnotationEnforcerTest {
 
     @Test
     fun unannotatedSampleFunction_Field() {
-        val fooFile = kotlin("""
+        val fooFile = kotlin(
+            """
             package foo
 
             class Bar {
@@ -402,13 +435,14 @@ class SampledAnnotationEnforcerTest {
                */
               const val bar = 0
             }
-        """)
+        """
+        )
 
         val sampleFile = unannotatedSampleFile
 
         val expected =
-"$barFilePath:6: Error: sampleBar is not annotated with @Sampled, but is linked to from" +
-""" the KDoc of bar [EnforceSampledAnnotation]
+            "$barFilePath:6: Error: sampleBar is not annotated with @Sampled, but is linked to" +
+""" from the KDoc of bar [EnforceSampledAnnotation]
                * @sample foo.samples.sampleBar
                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 1 errors, 0 warnings
@@ -420,7 +454,8 @@ class SampledAnnotationEnforcerTest {
 
     @Test
     fun multipleMatchingSampleFunctions_Field() {
-        val fooFile = kotlin("""
+        val fooFile = kotlin(
+            """
             package foo
 
             class Bar {
@@ -429,12 +464,13 @@ class SampledAnnotationEnforcerTest {
                */
               const val bar = 0
             }
-        """)
+        """
+        )
 
         val sampleFile = multipleMatchingSampleFile
 
         val expected =
-"$barFilePath:6: Error: Found multiple functions matching foo.samples.sampleBar" +
+            "$barFilePath:6: Error: Found multiple functions matching foo.samples.sampleBar" +
 """ [EnforceSampledAnnotation]
                * @sample foo.samples.sampleBar
                  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -447,7 +483,8 @@ class SampledAnnotationEnforcerTest {
 
     @Test
     fun correctlyAnnotatedSampleFunction_Field() {
-        val fooFile = kotlin("""
+        val fooFile = kotlin(
+            """
             package foo
 
             class Bar {
@@ -456,7 +493,8 @@ class SampledAnnotationEnforcerTest {
                */
               const val bar = 0
             }
-        """)
+        """
+        )
 
         val sampleFile = correctlyAnnotatedSampleFile
 
