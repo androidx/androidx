@@ -16,6 +16,7 @@
 
 package androidx.paging
 
+import androidx.annotation.VisibleForTesting
 import androidx.paging.LoadState.Error
 import androidx.paging.LoadState.Loading
 import androidx.paging.LoadState.NotLoading
@@ -262,16 +263,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                         .drop(if (generationId == 0) 0 else 1)
                         .map { hint -> GenerationalViewportHint(generationId, hint) }
                 }
-                .runningReduce { acc, it ->
-                    when {
-                        // Prioritize hints from new generations, which increments after dropping.
-                        it.generationId > acc.generationId -> it
-                        // Prioritize hints that would load the most items
-                        acc.hint.presentedItemsBefore < it.hint.presentedItemsBefore -> acc
-                        else -> it
-                    }
-                }
-                .conflate()
+                .conflatePrioritizingPrefetchDistance(PREPEND)
                 .collect { generationalHint ->
                     doLoad(this, state, PREPEND, generationalHint)
                 }
@@ -299,16 +291,7 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
                         .drop(if (generationId == 0) 0 else 1)
                         .map { hint -> GenerationalViewportHint(generationId, hint) }
                 }
-                .runningReduce { acc, it ->
-                    when {
-                        // Prioritize hints from new generations, which increments after dropping.
-                        it.generationId > acc.generationId -> it
-                        // Prioritize hints that would load the most items
-                        acc.hint.presentedItemsAfter < it.hint.presentedItemsAfter -> acc
-                        else -> it
-                    }
-                }
-                .conflate()
+                .conflatePrioritizingPrefetchDistance(APPEND)
                 .collect { generationalHint ->
                     doLoad(this, state, APPEND, generationalHint)
                 }
@@ -684,4 +667,35 @@ internal class PageFetcherSnapshot<Key : Any, Value : Any>(
  * Generation of cancel token not [PageFetcherSnapshot]. [generationId] is used to differentiate
  * between loads from jobs that have been cancelled, but continued to run to completion.
  */
-private data class GenerationalViewportHint(val generationId: Int, val hint: ViewportHint)
+@VisibleForTesting
+internal data class GenerationalViewportHint(val generationId: Int, val hint: ViewportHint)
+
+/**
+ * Conflate a [Flow] of [GenerationalViewportHint], after applying a [runningReduce] that
+ * prioritizes new hints that would cause [PageFetcherSnapshot] to load the maximum number of items
+ * for the given [loadType].
+ */
+@VisibleForTesting
+@OptIn(ExperimentalCoroutinesApi::class)
+internal fun Flow<GenerationalViewportHint>.conflatePrioritizingPrefetchDistance(
+    loadType: LoadType
+): Flow<GenerationalViewportHint> = runningReduce { acc, it ->
+    when {
+        // Prioritize hints from new generations, which increments after dropping.
+        it.generationId > acc.generationId -> it
+        // Prioritize hints from most recent presenter state
+        acc.hint.originalPageOffsetFirst != it.hint.originalPageOffsetFirst ||
+                acc.hint.originalPageOffsetLast != it.hint.originalPageOffsetLast -> {
+            it
+        }
+        // Prioritize hints that would load the most items in PREPEND direction.
+        loadType == PREPEND && acc.hint.presentedItemsBefore < it.hint.presentedItemsBefore -> {
+            acc
+        }
+        // Prioritize hints that would load the most items in APPEND direction.
+        loadType == APPEND && acc.hint.presentedItemsAfter < it.hint.presentedItemsAfter -> {
+            acc
+        }
+        else -> it
+    }
+}.conflate()
