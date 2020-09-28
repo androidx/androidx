@@ -14,15 +14,12 @@
  * limitations under the License.
  */
 
-package androidx.room.vo
+package androidx.room.compiler.processing.ksp
 
-import androidx.room.compiler.processing.XMethodElement
+import org.jetbrains.kotlin.ksp.symbol.KSClassDeclaration
 
-/**
- * Represents a DAO method that delegates to a concrete implementation, such as a concrete function
- * in a Kotlin interface.
- */
-data class KotlinDefaultMethodDelegate(
-    // the original element, not the stub that is generated for DefaultImpls
-    val element: XMethodElement
-)
+internal fun KSClassDeclaration.findCompanionObject(): KSClassDeclaration? {
+    return declarations.firstOrNull {
+        it is KSClassDeclaration && it.isCompanionObject
+    } as? KSClassDeclaration
+}
