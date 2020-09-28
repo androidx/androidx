@@ -30,7 +30,9 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TemporaryFolder
 import java.io.File
+import java.lang.IllegalStateException
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 @ObsoleteCoroutinesApi
 @kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -155,7 +157,34 @@ class PreferenceDataStoreFactoryTest {
         }
 
         assertEquals(store.data.first(), preferencesOf(stringKey to "ABCDEF"))
-        mutableReference!!.clear()
+
+        assertFailsWith<IllegalStateException> {
+            mutableReference!!.clear()
+        }
+
+        assertFailsWith<IllegalStateException> {
+            mutableReference!! += preferencesOf(stringKey to "abc")
+        }
+
+        assertFailsWith<IllegalStateException> {
+            mutableReference!! += stringKey to "abc"
+        }
+
+        assertFailsWith<IllegalStateException> {
+            mutableReference!! -= stringKey
+        }
+
+        assertFailsWith<IllegalStateException> {
+            mutableReference!!.remove(stringKey)
+        }
+
+        assertFailsWith<IllegalStateException> {
+            mutableReference!!.putAll(stringKey to "abc")
+        }
+
+        assertFailsWith<IllegalStateException> {
+            mutableReference!![stringKey] = "asdjkfajksdhljkasdhf"
+        }
         assertEquals(store.data.first(), preferencesOf(stringKey to "ABCDEF"))
     }
 }
