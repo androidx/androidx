@@ -57,10 +57,12 @@ class AutoRestarterActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         if (savedInstanceState != null) {
-            lifecycle.addObserver(LifecycleEventObserver { _, _ ->
-                assertThat(restartedValue).isEqualTo("restarted")
-                observerExecuted = true
-            })
+            lifecycle.addObserver(
+                LifecycleEventObserver { _, _ ->
+                    assertThat(restartedValue).isEqualTo("restarted")
+                    observerExecuted = true
+                }
+            )
         }
     }
 }
