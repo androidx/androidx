@@ -30,6 +30,7 @@ val L = "\$L"
 val T = "\$T"
 val N = "\$N"
 val S = "\$S"
+val W = "\$W"
 
 val KClass<*>.typeName: ClassName
         get() = ClassName.get(this.java)
