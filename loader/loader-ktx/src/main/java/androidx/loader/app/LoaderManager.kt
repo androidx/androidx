@@ -61,17 +61,20 @@ inline fun <D> LoaderManager.initLoader(
     crossinline onLoaderReset: () -> Unit = {},
     crossinline onLoadFinished: (data: D) -> Unit
 ) {
-    initLoader(id, null, object : LoaderManager.LoaderCallbacks<D> {
-        override fun onCreateLoader(id: Int, args: Bundle?) = loader
+    initLoader(
+        id, null,
+        object : LoaderManager.LoaderCallbacks<D> {
+            override fun onCreateLoader(id: Int, args: Bundle?) = loader
 
-        override fun onLoadFinished(loader: Loader<D>, data: D) {
-            onLoadFinished(data)
-        }
+            override fun onLoadFinished(loader: Loader<D>, data: D) {
+                onLoadFinished(data)
+            }
 
-        override fun onLoaderReset(loader: Loader<D>) {
-            onLoaderReset()
+            override fun onLoaderReset(loader: Loader<D>) {
+                onLoaderReset()
+            }
         }
-    })
+    )
 }
 
 /**
@@ -108,15 +111,18 @@ inline fun <D> LoaderManager.restartLoader(
     crossinline onLoaderReset: () -> Unit = {},
     crossinline onLoadFinished: (data: D) -> Unit
 ) {
-    restartLoader(id, null, object : LoaderManager.LoaderCallbacks<D> {
-        override fun onCreateLoader(id: Int, args: Bundle?) = loader
+    restartLoader(
+        id, null,
+        object : LoaderManager.LoaderCallbacks<D> {
+            override fun onCreateLoader(id: Int, args: Bundle?) = loader
 
-        override fun onLoadFinished(loader: Loader<D>, data: D) {
-            onLoadFinished(data)
-        }
+            override fun onLoadFinished(loader: Loader<D>, data: D) {
+                onLoadFinished(data)
+            }
 
-        override fun onLoaderReset(loader: Loader<D>) {
-            onLoaderReset()
+            override fun onLoaderReset(loader: Loader<D>) {
+                onLoaderReset()
+            }
         }
-    })
+    )
 }
