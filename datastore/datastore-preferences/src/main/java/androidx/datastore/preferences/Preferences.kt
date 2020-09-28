@@ -18,6 +18,7 @@ package androidx.datastore.preferences
 import androidx.datastore.DataStore
 import java.lang.IllegalArgumentException
 import java.util.Collections
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Get a preference Key of type T. Type T must be one of: Int, Long, Boolean, Float, String.
@@ -76,7 +77,7 @@ inline fun <reified T : Any> preferencesSetKey(name: String): Preferences.Key<Se
  *
  * @return a new Preferences instance with no preferences set
  */
-fun emptyPreferences(): Preferences = MutablePreferences()
+fun emptyPreferences(): Preferences = MutablePreferences(startFrozen = true)
 
 /**
  * Construct a Preferences object with a list of Preferences.Pair<T>. Comparable to mapOf().
@@ -101,7 +102,7 @@ fun preferencesOf(vararg pairs: Preferences.Pair<*>): Preferences = mutablePrefe
  * @param pairs
  */
 fun mutablePreferencesOf(vararg pairs: Preferences.Pair<*>): MutablePreferences =
-    MutablePreferences().apply { putAll(*pairs) }
+    MutablePreferences(startFrozen = false).apply { putAll(*pairs) }
 
 /**
  * Infix function to create a Preferences.Pair.
@@ -178,8 +179,26 @@ abstract class Preferences internal constructor() {
  * Mutable version of [Preferences]. Allows for creating Preferences with different key-value pairs.
  */
 class MutablePreferences internal constructor(
-    internal val preferencesMap: MutableMap<Key<*>, Any> = mutableMapOf()
+    internal val preferencesMap: MutableMap<Key<*>, Any> = mutableMapOf(),
+    startFrozen: Boolean = true
 ) : Preferences() {
+
+    /**
+     * If frozen, mutating methods will throw.
+     */
+    private val frozen = AtomicBoolean(startFrozen)
+
+    internal fun checkNotFrozen() {
+        check(!frozen.get()) { "Do mutate preferences once returned to DataStore." }
+    }
+
+    /**
+     * Causes any future mutations to result in an exception being thrown.
+     */
+    internal fun freeze() {
+        frozen.set(true)
+    }
+
     override operator fun <T> contains(key: Key<T>): Boolean {
         return preferencesMap.containsKey(key)
     }
@@ -217,6 +236,8 @@ class MutablePreferences internal constructor(
      * Private setter function. The type of key and value *must* be the same.
      */
     internal fun setUnchecked(key: Key<*>, value: Any?) {
+        checkNotFrozen()
+
         when (value) {
             null -> remove(key)
             // Copy set so changes to input don't change Preferences. Wrap in unmodifiableSet so
@@ -249,7 +270,7 @@ class MutablePreferences internal constructor(
  * @return a MutablePreferences with all the preferences from this Preferences
  */
 fun Preferences.toMutablePreferences(): MutablePreferences {
-    return MutablePreferences(asMap().toMutableMap())
+    return MutablePreferences(asMap().toMutableMap(), startFrozen = false)
 }
 
 /**
@@ -260,7 +281,7 @@ fun Preferences.toMutablePreferences(): MutablePreferences {
  * @return a copy of this Preferences
  */
 fun Preferences.toPreferences(): Preferences {
-    return MutablePreferences(asMap().toMutableMap())
+    return MutablePreferences(asMap().toMutableMap(), startFrozen = true)
 }
 
 /**
@@ -273,6 +294,7 @@ fun Preferences.toPreferences(): Preferences {
  * @param prefs Preferences to append to this MutablePreferences
  */
 operator fun MutablePreferences.plusAssign(prefs: Preferences) {
+    checkNotFrozen()
     preferencesMap += prefs.asMap()
 }
 
@@ -285,6 +307,7 @@ operator fun MutablePreferences.plusAssign(prefs: Preferences) {
  * @param pair the Preference.Pair to add to this MutablePreferences
  */
 operator fun MutablePreferences.plusAssign(pair: Preferences.Pair<*>) {
+    checkNotFrozen()
     putAll(pair)
 }
 
@@ -298,6 +321,7 @@ operator fun MutablePreferences.plusAssign(pair: Preferences.Pair<*>) {
  * @param key the key to remove from this MutablePreferences
  */
 operator fun MutablePreferences.minusAssign(key: Preferences.Key<*>) {
+    checkNotFrozen()
     remove(key)
 }
 
@@ -307,6 +331,7 @@ operator fun MutablePreferences.minusAssign(key: Preferences.Key<*>) {
  * @param pairs the pairs to append to this MutablePreferences
  */
 fun MutablePreferences.putAll(vararg pairs: Preferences.Pair<*>) {
+    checkNotFrozen()
     pairs.forEach {
         setUnchecked(it.key, it.value)
     }
@@ -320,11 +345,15 @@ fun MutablePreferences.putAll(vararg pairs: Preferences.Pair<*>) {
  */
 @Suppress("UNCHECKED_CAST")
 fun <T> MutablePreferences.remove(key: Preferences.Key<T>): T {
+    checkNotFrozen()
     return preferencesMap.remove(key) as T
 }
 
 /* Removes all preferences from this MutablePreferences. */
-fun MutablePreferences.clear() = preferencesMap.clear()
+fun MutablePreferences.clear() {
+    checkNotFrozen()
+    preferencesMap.clear()
+}
 
 /**
  * Edit the value in DataStore transactionally in an atomic read-modify-write operation. All
@@ -362,7 +391,7 @@ suspend fun DataStore<Preferences>.edit(
     transform: suspend (MutablePreferences) -> Unit
 ): Preferences {
     return this.updateData {
-        // It's safe to return MutablePreferences since we make a defensive copy in
+        // It's safe to return MutablePreferences since we freeze it in
         // PreferencesDataStore.updateData()
         it.toMutablePreferences().apply { transform(this) }
     }
