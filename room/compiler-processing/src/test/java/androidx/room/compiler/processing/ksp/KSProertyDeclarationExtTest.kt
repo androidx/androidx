@@ -29,6 +29,7 @@ import com.squareup.javapoet.ParameterizedTypeName
 import org.jetbrains.kotlin.ksp.getDeclaredProperties
 import org.jetbrains.kotlin.ksp.symbol.KSClassDeclaration
 import org.jetbrains.kotlin.ksp.symbol.KSPropertyDeclaration
+import org.jetbrains.kotlin.ksp.symbol.Nullability
 import org.junit.Test
 
 class KSProertyDeclarationExtTest {
@@ -51,17 +52,18 @@ class KSProertyDeclarationExtTest {
             val base = invocation.requireClass("BaseClass")
             val sub = invocation.requireClass("SubClass").asStarProjectedType()
             base.requireProperty("genericProp").let { prop ->
-                assertThat(prop.typeAsMemberOf(sub).typeName()).isEqualTo(INT_CLASS_NAME)
+                assertThat(prop.typeAsMemberOf(invocation.kspResolver, sub).typeName())
+                    .isEqualTo(INT_CLASS_NAME)
             }
             base.requireProperty("listOfGeneric").let { prop ->
-                assertThat(prop.typeAsMemberOf(sub).typeName())
+                assertThat(prop.typeAsMemberOf(invocation.kspResolver, sub).typeName())
                     .isEqualTo(ParameterizedTypeName.get(LIST_CLASS_NAME, INT_CLASS_NAME))
             }
 
             val listOfStringsTypeName =
                 ParameterizedTypeName.get(LIST_CLASS_NAME, STRING_CLASS_NAME)
             base.requireProperty("mapOfStringToGeneric2").let { prop ->
-                assertThat(prop.typeAsMemberOf(sub).typeName())
+                assertThat(prop.typeAsMemberOf(invocation.kspResolver, sub).typeName())
                     .isEqualTo(
                         ParameterizedTypeName.get(
                             MAP_CLASS_NAME, STRING_CLASS_NAME, listOfStringsTypeName
@@ -70,12 +72,76 @@ class KSProertyDeclarationExtTest {
             }
 
             base.requireProperty("pairOfGenerics").let { prop ->
-                assertThat(prop.typeAsMemberOf(sub).typeName())
+                assertThat(prop.typeAsMemberOf(invocation.kspResolver, sub).typeName())
                     .isEqualTo(
                         ParameterizedTypeName.get(
                             PAIR_CLASS_NAME, INT_CLASS_NAME, listOfStringsTypeName
                         )
                     )
+            }
+        }
+    }
+
+    @Test
+    fun asMemberOfNullabilityResolution() {
+        val src = Source.kotlin(
+            "Foo.kt", """
+            open class MyInterface<T> {
+                val inheritedProp: T = TODO()
+                var nullableProp: T? = TODO()
+                val inheritedGenericProp: List<T> = TODO()
+                val nullableGenericProp: List<T?> = TODO()
+            }
+            abstract class NonNullSubject : MyInterface<String>()
+            abstract class NullableSubject: MyInterface<String?>()
+        """.trimIndent()
+        )
+        runKspTest(sources = listOf(src), succeed = true) { invocation ->
+            val myInterface = invocation.requireClass("MyInterface")
+            val nonNullSubject = invocation.requireClass("NonNullSubject").asStarProjectedType()
+            val nullableSubject = invocation.requireClass("NullableSubject").asStarProjectedType()
+            val inheritedProp = myInterface.requireProperty("inheritedProp")
+            assertThat(
+                inheritedProp.typeAsMemberOf(invocation.kspResolver, nonNullSubject).nullability
+            ).isEqualTo(Nullability.NOT_NULL)
+            assertThat(
+                inheritedProp.typeAsMemberOf(invocation.kspResolver, nullableSubject).nullability
+            ).isEqualTo(Nullability.NULLABLE)
+
+            val nullableProp = myInterface.requireProperty("nullableProp")
+            assertThat(
+                nullableProp.typeAsMemberOf(invocation.kspResolver, nonNullSubject).nullability
+            ).isEqualTo(Nullability.NULLABLE)
+            assertThat(
+                nullableProp.typeAsMemberOf(invocation.kspResolver, nullableSubject).nullability
+            ).isEqualTo(Nullability.NULLABLE)
+
+            val inheritedGenericProp = myInterface.requireProperty("inheritedGenericProp")
+            inheritedGenericProp.typeAsMemberOf(invocation.kspResolver, nonNullSubject).let {
+                assertThat(it.nullability).isEqualTo(Nullability.NOT_NULL)
+                assertThat(
+                    it.arguments.first().type?.resolve()?.nullability
+                ).isEqualTo(Nullability.NOT_NULL)
+            }
+            inheritedGenericProp.typeAsMemberOf(invocation.kspResolver, nullableSubject).let {
+                assertThat(it.nullability).isEqualTo(Nullability.NOT_NULL)
+                assertThat(
+                    it.arguments.first().type?.resolve()?.nullability
+                ).isEqualTo(Nullability.NULLABLE)
+            }
+
+            val nullableGenericProp = myInterface.requireProperty("nullableGenericProp")
+            nullableGenericProp.typeAsMemberOf(invocation.kspResolver, nonNullSubject).let {
+                assertThat(it.nullability).isEqualTo(Nullability.NOT_NULL)
+                assertThat(
+                    it.arguments.first().type?.resolve()?.nullability
+                ).isEqualTo(Nullability.NULLABLE)
+            }
+            nullableGenericProp.typeAsMemberOf(invocation.kspResolver, nullableSubject).let {
+                assertThat(it.nullability).isEqualTo(Nullability.NOT_NULL)
+                assertThat(
+                    it.arguments.first().type?.resolve()?.nullability
+                ).isEqualTo(Nullability.NULLABLE)
             }
         }
     }

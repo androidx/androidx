@@ -17,7 +17,12 @@
 package androidx.room.compiler.processing.util
 
 import androidx.room.compiler.processing.XProcessingEnv
+import androidx.room.compiler.processing.ksp.KspProcessingEnv
+import org.jetbrains.kotlin.ksp.processing.Resolver
 
 class TestInvocation(
     val processingEnv: XProcessingEnv
-)
+) {
+    val kspResolver: Resolver
+        get() = (processingEnv as KspProcessingEnv).resolver
+}
