@@ -40,11 +40,13 @@ public interface CameraDeviceSurfaceManager {
          * Creates a new, initialized instance of a CameraDeviceSurfaceManager.
          *
          * @param context the android context
+         * @param cameraManager the camera manager object used to query the camera information.
          * @return the factory instance
          * @throws InitializationException if it fails to create the factory
          */
         @NonNull
-        CameraDeviceSurfaceManager newInstance(@NonNull Context context)
+        CameraDeviceSurfaceManager newInstance(@NonNull Context context,
+                @Nullable Object cameraManager)
                 throws InitializationException;
     }
 

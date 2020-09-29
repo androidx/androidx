@@ -62,7 +62,8 @@ class CameraUtil {
         CameraManagerCompat cameraManager = CameraManagerCompat.from(context);
         CameraCharacteristics cameraCharacteristics = null;
         try {
-            cameraCharacteristics = cameraManager.getCameraCharacteristics(cameraId);
+            cameraCharacteristics = cameraManager.getCameraCharacteristicsCompat(cameraId)
+                    .toCameraCharacteristics();
         } catch (CameraAccessExceptionCompat e) {
             throw new IllegalArgumentException(
                     "Unable to retrieve info for camera with id " + cameraId + ".", e);

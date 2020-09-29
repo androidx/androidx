@@ -38,6 +38,7 @@ import android.view.Surface;
 import android.view.WindowManager;
 
 import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.AspectRatio;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraUnavailableException;
@@ -113,6 +114,7 @@ public final class SupportedSurfaceCombinationTest {
     private final Size mMod16Size = new Size(960, 544);
     private final CamcorderProfileHelper mMockCamcorderProfileHelper =
             Mockito.mock(CamcorderProfileHelper.class);
+    private CameraManagerCompat mCameraManagerCompat;
 
     /**
      * Except for ImageFormat.JPEG, ImageFormat.YUV, and ImageFormat.RAW_SENSOR, other image formats
@@ -178,7 +180,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLegacySupportedCombinationList();
@@ -195,7 +197,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLegacySupportedCombinationList();
@@ -210,7 +212,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLimitedSupportedCombinationList();
@@ -227,7 +229,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getFullSupportedCombinationList();
@@ -244,7 +246,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLevel3SupportedCombinationList();
@@ -261,7 +263,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLimitedSupportedCombinationList();
@@ -278,7 +280,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLimitedSupportedCombinationList();
@@ -293,7 +295,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getFullSupportedCombinationList();
@@ -310,7 +312,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLevel3SupportedCombinationList();
@@ -327,7 +329,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getFullSupportedCombinationList();
@@ -344,7 +346,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getFullSupportedCombinationList();
@@ -359,7 +361,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLevel3SupportedCombinationList();
@@ -377,7 +379,7 @@ public final class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
                 new int[]{CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_RAW});
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLimitedSupportedCombinationList();
@@ -395,7 +397,7 @@ public final class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
                 new int[]{CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_RAW});
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLegacySupportedCombinationList();
@@ -413,7 +415,7 @@ public final class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
                 new int[]{CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_RAW});
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getFullSupportedCombinationList();
@@ -431,7 +433,7 @@ public final class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL,
                 new int[]{CameraMetadata.REQUEST_AVAILABLE_CAPABILITIES_RAW});
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getRAWSupportedCombinationList();
@@ -448,7 +450,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLevel3SupportedCombinationList();
@@ -465,7 +467,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_3);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<SurfaceCombination> combinationList =
                 supportedSurfaceCombination.getLevel3SupportedCombinationList();
@@ -480,7 +482,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         Rational targetAspectRatio = ASPECT_RATIO_16_9;
         final FakeUseCase fakeUseCase = new FakeUseCaseConfig.Builder()
@@ -519,10 +521,10 @@ public final class SupportedSurfaceCombinationTest {
 
     @Test
     public void checkResolutionForMixedUseCase_AfterBindToLifecycle_InLegacyDevice()
-            throws CameraUnavailableException, CameraUseCaseAdapter.CameraException  {
+            throws CameraUnavailableException, CameraUseCaseAdapter.CameraException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         // The test case make sure the selected result is expected after the regular flow.
         Rational targetAspectRatio = ASPECT_RATIO_16_9;
@@ -580,7 +582,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException, CameraUseCaseAdapter.CameraException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         Preview preview = new Preview.Builder().build();
         preview.setSurfaceProvider(CameraXExecutors.directExecutor(),
@@ -633,7 +635,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         /* This test case is for b/139018208 that get small resolution 144x256 with below
         conditions:
@@ -676,7 +678,7 @@ public final class SupportedSurfaceCombinationTest {
     public void checkAspectRatioMatchedSizeCanBeSelected() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         // Sets each of mSupportedSizes as target resolution and also sets target rotation as
         // Surface.ROTATION to make it aligns the sensor direction and then exactly the same size
@@ -700,7 +702,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         // Sets target resolution as 1200x720, all supported resolutions will be put into aspect
         // ratio not matched list. Then, 1280x720 will be the nearest matched one. Finally,
@@ -724,7 +726,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         ImageCapture imageCapture = new ImageCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
@@ -755,7 +757,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         ImageCapture imageCapture = new ImageCapture.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
@@ -793,7 +795,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         /* This test case is for b/132603284 that divide by zero issue crash happened in below
         conditions:
@@ -834,7 +836,7 @@ public final class SupportedSurfaceCombinationTest {
     public void setTargetAspectRatioForMixedUseCases() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         Preview preview = new Preview.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
@@ -867,7 +869,8 @@ public final class SupportedSurfaceCombinationTest {
     }
 
     @Test
-    public void throwsWhenSetBothTargetResolutionAndAspectRatioForDifferentUseCases() {
+    public void throwsWhenSetBothTargetResolutionAndAspectRatioForDifferentUseCases()
+            throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
 
         boolean previewExceptionHappened = false;
@@ -909,7 +912,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         List<Pair<Integer, Size[]>> formatResolutionsPairList = new ArrayList<>();
         formatResolutionsPairList.add(Pair.create(ImageFormat.JPEG, new Size[]{mAnalysisSize}));
@@ -952,7 +955,7 @@ public final class SupportedSurfaceCombinationTest {
     public void transformSurfaceConfigWithYUVAnalysisSize() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
         SurfaceConfig surfaceConfig =
                 supportedSurfaceCombination.transformSurfaceConfig(
                         ImageFormat.YUV_420_888, mAnalysisSize);
@@ -965,7 +968,7 @@ public final class SupportedSurfaceCombinationTest {
     public void transformSurfaceConfigWithYUVPreviewSize() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
         SurfaceConfig surfaceConfig =
                 supportedSurfaceCombination.transformSurfaceConfig(
                         ImageFormat.YUV_420_888, mPreviewSize);
@@ -978,7 +981,7 @@ public final class SupportedSurfaceCombinationTest {
     public void transformSurfaceConfigWithYUVRecordSize() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
         SurfaceConfig surfaceConfig =
                 supportedSurfaceCombination.transformSurfaceConfig(
                         ImageFormat.YUV_420_888, mRecordSize);
@@ -991,7 +994,7 @@ public final class SupportedSurfaceCombinationTest {
     public void transformSurfaceConfigWithYUVMaximumSize() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
         SurfaceConfig surfaceConfig =
                 supportedSurfaceCombination.transformSurfaceConfig(
                         ImageFormat.YUV_420_888, mMaximumSize);
@@ -1004,7 +1007,7 @@ public final class SupportedSurfaceCombinationTest {
     public void transformSurfaceConfigWithYUVNotSupportSize() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
         SurfaceConfig surfaceConfig =
                 supportedSurfaceCombination.transformSurfaceConfig(
                         ImageFormat.YUV_420_888,
@@ -1018,7 +1021,7 @@ public final class SupportedSurfaceCombinationTest {
     public void transformSurfaceConfigWithJPEGAnalysisSize() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
         SurfaceConfig surfaceConfig =
                 supportedSurfaceCombination.transformSurfaceConfig(
                         ImageFormat.JPEG, mAnalysisSize);
@@ -1031,7 +1034,7 @@ public final class SupportedSurfaceCombinationTest {
     public void transformSurfaceConfigWithJPEGPreviewSize() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
         SurfaceConfig surfaceConfig =
                 supportedSurfaceCombination.transformSurfaceConfig(
                         ImageFormat.JPEG, mPreviewSize);
@@ -1044,7 +1047,7 @@ public final class SupportedSurfaceCombinationTest {
     public void transformSurfaceConfigWithJPEGRecordSize() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
         SurfaceConfig surfaceConfig =
                 supportedSurfaceCombination.transformSurfaceConfig(
                         ImageFormat.JPEG, mRecordSize);
@@ -1057,7 +1060,7 @@ public final class SupportedSurfaceCombinationTest {
     public void transformSurfaceConfigWithJPEGMaximumSize() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
         SurfaceConfig surfaceConfig =
                 supportedSurfaceCombination.transformSurfaceConfig(
                         ImageFormat.JPEG, mMaximumSize);
@@ -1070,7 +1073,7 @@ public final class SupportedSurfaceCombinationTest {
     public void transformSurfaceConfigWithJPEGNotSupportSize() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
         SurfaceConfig surfaceConfig =
                 supportedSurfaceCombination.transformSurfaceConfig(
                         ImageFormat.JPEG,
@@ -1084,7 +1087,7 @@ public final class SupportedSurfaceCombinationTest {
     public void getMaximumSizeForImageFormat() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
         Size maximumYUVSize =
                 supportedSurfaceCombination.getMaxOutputSizeByFormat(ImageFormat.YUV_420_888);
         assertThat(maximumYUVSize).isEqualTo(mMaximumSize);
@@ -1098,7 +1101,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         Preview preview = new Preview.Builder()
                 .setTargetAspectRatio(AspectRatio.RATIO_16_9)
@@ -1150,7 +1153,7 @@ public final class SupportedSurfaceCombinationTest {
     public void getSupportedOutputSizes_noConfigSettings() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().build();
 
@@ -1177,7 +1180,7 @@ public final class SupportedSurfaceCombinationTest {
     public void getSupportedOutputSizes_aspectRatio4x3() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase =
                 new FakeUseCaseConfig.Builder().setTargetAspectRatio(AspectRatio.RATIO_4_3).build();
@@ -1209,7 +1212,7 @@ public final class SupportedSurfaceCombinationTest {
     public void getSupportedOutputSizes_aspectRatio16x9() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase =
                 new FakeUseCaseConfig.Builder().setTargetAspectRatio(
@@ -1243,7 +1246,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase =
                 new FakeUseCaseConfig.Builder().setTargetAspectRatio(
@@ -1301,7 +1304,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetResolution(
                 new Size(1080, 1920)).build();
@@ -1336,7 +1339,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetResolution(
                 new Size(1080, 1920)).build();
@@ -1392,7 +1395,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetRotation(
                 Surface.ROTATION_90).setTargetResolution(new Size(1280, 960)).build();
@@ -1426,7 +1429,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetRotation(
                 Surface.ROTATION_90).setTargetResolution(new Size(320, 240)).build();
@@ -1455,7 +1458,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetRotation(
                 Surface.ROTATION_90).setTargetResolution(new Size(1800, 1440)).build();
@@ -1489,7 +1492,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetResolution(
                 new Size(1280, 600)).setTargetRotation(Surface.ROTATION_90).build();
@@ -1519,7 +1522,7 @@ public final class SupportedSurfaceCombinationTest {
     public void getSupportedOutputSizes_maxResolution1280x720() throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase =
                 new FakeUseCaseConfig.Builder().setMaxResolution(new Size(1280, 720)).build();
@@ -1543,7 +1546,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setDefaultResolution(new Size(1280,
                 720)).build();
@@ -1568,7 +1571,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setDefaultResolution(
                 new Size(1280, 720)).setTargetRotation(Surface.ROTATION_90).setTargetResolution(
@@ -1607,7 +1610,7 @@ public final class SupportedSurfaceCombinationTest {
                 new Size(256, 144)
         });
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetResolution(
                 new Size(1920, 1080)).setTargetRotation(Surface.ROTATION_90).build();
@@ -1633,7 +1636,7 @@ public final class SupportedSurfaceCombinationTest {
                 new Size(256, 144)
         });
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setMaxResolution(
                 new Size(320, 240)).build();
@@ -1662,7 +1665,7 @@ public final class SupportedSurfaceCombinationTest {
                 new Size(256, 144)
         });
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setMaxResolution(
                 new Size(320, 180)).setTargetResolution(new Size(320, 240)).setTargetRotation(
@@ -1692,7 +1695,7 @@ public final class SupportedSurfaceCombinationTest {
                 new Size(256, 144)
         });
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setMaxResolution(
                 new Size(320, 240)).setTargetResolution(new Size(320, 180)).setTargetRotation(
@@ -1718,7 +1721,7 @@ public final class SupportedSurfaceCombinationTest {
             throws CameraUnavailableException {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setMaxResolution(
                 new Size(1920, 1080)).setTargetResolution(new Size(3840, 2160)).setTargetRotation(
@@ -1757,7 +1760,7 @@ public final class SupportedSurfaceCombinationTest {
                 new Size(256, 144)
         });
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setMaxResolution(
                 new Size(320, 200)).setTargetResolution(new Size(320, 190)).setTargetRotation(
@@ -1787,7 +1790,7 @@ public final class SupportedSurfaceCombinationTest {
                 new Size(256, 144)
         });
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetResolution(
                 new Size(192, 144)).setTargetRotation(Surface.ROTATION_90).build();
@@ -1815,7 +1818,7 @@ public final class SupportedSurfaceCombinationTest {
                 new Size(256, 144)
         });
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setMaxResolution(
                 new Size(192, 144)).build();
@@ -1836,7 +1839,7 @@ public final class SupportedSurfaceCombinationTest {
                 new Size(256, 144)
         });
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetResolution(
                 new Size(185, 90)).setTargetRotation(Surface.ROTATION_90).build();
@@ -1872,7 +1875,7 @@ public final class SupportedSurfaceCombinationTest {
                 new Size(384, 288)
         });
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetResolution(
                 new Size(1080, 2016)).build();
@@ -1910,7 +1913,7 @@ public final class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
                 SENSOR_ORIENTATION_0, PORTRAIT_PIXEL_ARRAY_SIZE, supportedSizes, null);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetAspectRatio(
                 AspectRatio.RATIO_16_9).build();
@@ -1956,7 +1959,7 @@ public final class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
                 SENSOR_ORIENTATION_90, PORTRAIT_PIXEL_ARRAY_SIZE, supportedSizes, null);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetAspectRatio(
                 AspectRatio.RATIO_16_9).build();
@@ -1989,7 +1992,7 @@ public final class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
                 SENSOR_ORIENTATION_0, LANDSCAPE_PIXEL_ARRAY_SIZE, mSupportedSizes, null);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetAspectRatio(
                 AspectRatio.RATIO_16_9).build();
@@ -2033,7 +2036,7 @@ public final class SupportedSurfaceCombinationTest {
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LIMITED,
                 SENSOR_ORIENTATION_0, LANDSCAPE_PIXEL_ARRAY_SIZE, supportedSizes, null);
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, CAMERA_ID, mCameraManagerCompat, mMockCamcorderProfileHelper);
 
         FakeUseCase useCase = new FakeUseCaseConfig.Builder().setTargetAspectRatio(
                 AspectRatio.RATIO_16_9).build();
@@ -2124,8 +2127,11 @@ public final class SupportedSurfaceCombinationTest {
         @CameraSelector.LensFacing int lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(
                 CameraCharacteristics.LENS_FACING_BACK);
 
+        mCameraManagerCompat = CameraManagerCompat.from(mContext);
+
         mCameraFactory.insertCamera(lensFacingEnum, CAMERA_ID, () -> new FakeCamera(CAMERA_ID, null,
-                new Camera2CameraInfoImpl(CAMERA_ID, characteristics,
+                new Camera2CameraInfoImpl(CAMERA_ID,
+                        mCameraManagerCompat.getCameraCharacteristicsCompat(CAMERA_ID),
                         mock(Camera2CameraControlImpl.class))));
 
         initCameraX();

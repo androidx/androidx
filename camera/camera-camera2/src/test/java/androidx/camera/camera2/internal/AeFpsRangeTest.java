@@ -24,6 +24,7 @@ import android.os.Build;
 import android.util.Range;
 
 import androidx.camera.camera2.impl.Camera2ImplConfig;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.test.filters.SmallTest;
 
 import org.junit.Test;
@@ -137,7 +138,9 @@ public class AeFpsRangeTest {
         shadowCharacteristics.set(CameraCharacteristics.CONTROL_AE_AVAILABLE_TARGET_FPS_RANGES,
                 availableFpsRanges);
 
-        return new AeFpsRange(characteristics);
+        CameraCharacteristicsCompat characteristicsCompat =
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(characteristics);
+        return new AeFpsRange(characteristicsCompat);
     }
 
     private Range<Integer> getAeFpsRange(AeFpsRange aeFpsRange) {

@@ -27,6 +27,7 @@ import androidx.annotation.GuardedBy;
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.CameraControl.OperationCanceledException;
 import androidx.camera.core.ZoomState;
 import androidx.camera.core.impl.annotation.ExecutedBy;
@@ -85,7 +86,7 @@ final class ZoomControl {
     private boolean mIsActive = false;
 
     ZoomControl(@NonNull Camera2CameraControlImpl camera2CameraControlImpl,
-            @NonNull CameraCharacteristics cameraCharacteristics,
+            @NonNull CameraCharacteristicsCompat cameraCharacteristics,
             @CameraExecutor @NonNull Executor executor) {
         mCamera2CameraControlImpl = camera2CameraControlImpl;
         mExecutor = executor;
@@ -97,7 +98,7 @@ final class ZoomControl {
         camera2CameraControlImpl.addCaptureResultListener(mCaptureResultListener);
     }
 
-    private ZoomImpl createZoomImpl(@NonNull CameraCharacteristics cameraCharacteristics) {
+    private ZoomImpl createZoomImpl(@NonNull CameraCharacteristicsCompat cameraCharacteristics) {
         if (isAndroidRZoomSupported(cameraCharacteristics)) {
             return new AndroidRZoomImpl(cameraCharacteristics);
         } else {
@@ -105,7 +106,7 @@ final class ZoomControl {
         }
     }
 
-    private boolean isAndroidRZoomSupported(CameraCharacteristics cameraCharacteristics) {
+    private boolean isAndroidRZoomSupported(CameraCharacteristicsCompat cameraCharacteristics) {
         return Build.VERSION.SDK_INT >= 30 && cameraCharacteristics.get(
                 CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE) != null;
     }
@@ -279,7 +280,6 @@ final class ZoomControl {
     LiveData<ZoomState> getZoomState() {
         return mZoomStateLiveData;
     }
-
 
     /**
      * A interface for implementing a zoom function. Note that there is no guarantee for the

@@ -52,4 +52,8 @@ class CameraPipeCameraFactory(context: Context, threadConfig: CameraThreadConfig
     override fun getAvailableCameraIds(): Set<String> {
         return emptySet()
     }
+
+    override fun getCameraManager(): Any? {
+        return null
+    }
 }

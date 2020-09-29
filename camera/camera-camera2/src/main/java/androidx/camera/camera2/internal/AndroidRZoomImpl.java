@@ -26,6 +26,7 @@ import android.util.Range;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.CameraControl;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.util.Preconditions;
@@ -33,13 +34,13 @@ import androidx.core.util.Preconditions;
 @RequiresApi(30)
 final class AndroidRZoomImpl implements ZoomControl.ZoomImpl {
     public static final float DEFAULT_ZOOM_RATIO = 1.0f;
-    private final CameraCharacteristics mCameraCharacteristics;
+    private final CameraCharacteristicsCompat mCameraCharacteristics;
     private final Range<Float> mZoomRatioRange;
     private float mCurrentZoomRatio = DEFAULT_ZOOM_RATIO;
     private CallbackToFutureAdapter.Completer<Void> mPendingZoomRatioCompleter;
     private float mPendingZoomRatio = 1.0f;
 
-    AndroidRZoomImpl(@NonNull CameraCharacteristics cameraCharacteristics) {
+    AndroidRZoomImpl(@NonNull CameraCharacteristicsCompat cameraCharacteristics) {
         mCameraCharacteristics = cameraCharacteristics;
         mZoomRatioRange = mCameraCharacteristics
                 .get(CameraCharacteristics.CONTROL_ZOOM_RATIO_RANGE);

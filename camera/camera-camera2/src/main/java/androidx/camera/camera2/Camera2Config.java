@@ -54,13 +54,14 @@ public final class Camera2Config {
         CameraFactory.Provider cameraFactoryProvider = Camera2CameraFactory::new;
 
         // Create the DeviceSurfaceManager for Camera2
-        CameraDeviceSurfaceManager.Provider surfaceManagerProvider = context -> {
-            try {
-                return new Camera2DeviceSurfaceManager(context);
-            } catch (CameraUnavailableException e) {
-                throw new InitializationException(e);
-            }
-        };
+        CameraDeviceSurfaceManager.Provider surfaceManagerProvider =
+                (context, cameraManager) -> {
+                    try {
+                        return new Camera2DeviceSurfaceManager(context, cameraManager);
+                    } catch (CameraUnavailableException e) {
+                        throw new InitializationException(e);
+                    }
+                };
 
         // Create default configuration factory
         UseCaseConfigFactory.Provider configFactoryProvider = context -> {

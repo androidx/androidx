@@ -73,4 +73,10 @@ public final class Camera2CameraFactory implements CameraFactory {
         // Use a LinkedHashSet to preserve order
         return new LinkedHashSet<>(camerasList);
     }
+
+    @NonNull
+    @Override
+    public CameraManagerCompat getCameraManager() {
+        return mCameraManager;
+    }
 }

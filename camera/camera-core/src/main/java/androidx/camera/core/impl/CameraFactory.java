@@ -19,6 +19,7 @@ package androidx.camera.core.impl;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.InitializationException;
 
@@ -67,4 +68,14 @@ public interface CameraFactory {
      */
     @NonNull
     Set<String> getAvailableCameraIds() throws CameraUnavailableException;
+
+    /**
+     * Gets the camera manager instance that is used to access the camera API.
+     *
+     * <p>Notes that actual type of this camera manager depends on the implementation. While it
+     * is CameraManagerCompat in camera2 implementation, it could be some other type in
+     * other implementation.
+     */
+    @Nullable
+    Object getCameraManager();
 }
