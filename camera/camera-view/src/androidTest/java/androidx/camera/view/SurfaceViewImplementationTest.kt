@@ -56,7 +56,7 @@ class SurfaceViewImplementationTest {
     @Suppress("DEPRECATION")
     @get:Rule
     var mActivityRule = androidx.test.rule.ActivityTestRule(
-        FakeActivity::class.java
+        FakeActivity::class.java, false, false
     )
 
     @Throws(Throwable::class)
@@ -67,6 +67,8 @@ class SurfaceViewImplementationTest {
 
     @Before
     fun setUp() {
+        CoreAppTestUtil.clearDeviceUI(mInstrumentation)
+        mActivityRule.launchActivity(null)
         mContext = ApplicationProvider.getApplicationContext<Context>()
         mParent = FrameLayout(mContext)
         setContentView(mParent)
