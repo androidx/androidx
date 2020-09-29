@@ -36,6 +36,7 @@ import android.widget.TextView;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.annotation.RestrictTo;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
@@ -212,13 +213,12 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
      * soft-input when there is no focused editor.</p>
      */
     private void requestInputMethod(Dialog dialog) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
-            // TODO:(b/163914595) Remove the dependency of STATE_ALWAYS_VISIBLE for pre-R.
-            Window window = dialog.getWindow();
-            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+        Window window = dialog.getWindow();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            Api30Impl.showIme(window);
         } else {
-            dialog.getWindow().getDecorView().getWindowInsetsController()
-                    .show(WindowInsets.Type.ime());
+            // TODO:(b/163914595) Remove the dependency of STATE_ALWAYS_VISIBLE for pre-R.
+            window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
         }
     }
 
@@ -278,4 +278,20 @@ public abstract class PreferenceDialogFragmentCompat extends DialogFragment impl
     }
 
     public abstract void onDialogClosed(boolean positiveResult);
+
+    /**
+     * Nested class to avoid verification errors for methods introduced in R.
+     */
+    @RequiresApi(Build.VERSION_CODES.R)
+    private static class Api30Impl {
+        // Prevent instantiation.
+        private Api30Impl() {}
+
+        /**
+         * Shows the IME on demand for the given {@link Window}.
+         */
+        static void showIme(@NonNull Window dialogWindow) {
+            dialogWindow.getDecorView().getWindowInsetsController().show(WindowInsets.Type.ime());
+        }
+    }
 }
