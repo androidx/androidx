@@ -189,10 +189,6 @@ class WatchFaceServiceStub(private val iWatchFaceService: IWatchFaceService) :
 
     override fun getApiVersion() = iWatchFaceService.apiVersion
 
-    override fun setComplicationSupportedTypes(id: Int, types: IntArray?) {
-        iWatchFaceService.setComplicationSupportedTypes(id, types)
-    }
-
     override fun registerWatchFaceType(watchFaceType: Int) {
         iWatchFaceService.registerWatchFaceType(watchFaceType)
     }

@@ -106,11 +106,6 @@ class ComplicationsManager(
                     complication.defaultProviderType
                 )
             }
-
-            watchFaceHostApi.setComplicationSupportedTypes(
-                complication.id,
-                complication.supportedTypes
-            )
         }
 
         // Activate complications.
@@ -151,7 +146,8 @@ class ComplicationsManager(
                     watchFaceHostApi.setComplicationDetails(
                         id,
                         renderer.screenBounds,
-                        ComplicationBoundsType.BACKGROUND
+                        ComplicationBoundsType.BACKGROUND,
+                        complication.supportedTypes
                     )
                 } else {
                     val complicationBounds = complication.computeBounds(renderer.screenBounds)
@@ -168,7 +164,8 @@ class ComplicationsManager(
                     watchFaceHostApi.setComplicationDetails(
                         id,
                         complicationBounds,
-                        ComplicationBoundsType.ROUND_RECT
+                        ComplicationBoundsType.ROUND_RECT,
+                        complication.supportedTypes
                     )
                 }
             }
