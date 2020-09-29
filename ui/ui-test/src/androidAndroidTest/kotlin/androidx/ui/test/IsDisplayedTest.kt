@@ -57,7 +57,7 @@ import org.junit.runners.Parameterized
 
 @MediumTest
 @RunWith(Parameterized::class)
-class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
+class IsDisplayedTest(val config: TestConfig) {
     data class TestConfig(
         val activityClass: Class<out ComponentActivity>
     )
@@ -65,9 +65,9 @@ class IsDisplayedTest(val config: BitmapCapturingTest.TestConfig) {
     companion object {
         @JvmStatic
         @Parameterized.Parameters(name = "{0}")
-        fun createTestSet(): List<BitmapCapturingTest.TestConfig> = listOf(
-            BitmapCapturingTest.TestConfig(ComponentActivity::class.java),
-            BitmapCapturingTest.TestConfig(ActivityWithActionBar::class.java)
+        fun createTestSet(): List<TestConfig> = listOf(
+            TestConfig(ComponentActivity::class.java),
+            TestConfig(ActivityWithActionBar::class.java)
         )
     }
 
