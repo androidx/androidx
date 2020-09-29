@@ -32,7 +32,7 @@ import org.jetbrains.kotlin.ksp.symbol.KSPropertyDeclaration
 import org.jetbrains.kotlin.ksp.symbol.Nullability
 import org.junit.Test
 
-class KSProertyDeclarationExtTest {
+class KSAsMemberOfTest {
     @Test
     fun asMemberOfInheritance() {
         val src = Source.kotlin(
