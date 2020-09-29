@@ -32,8 +32,6 @@ import androidx.camera.core.Preview;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.OptionsBundle;
 import androidx.camera.core.impl.PreviewConfig;
-import androidx.camera.extensions.AdaptingPreviewProcessor;
-import androidx.camera.extensions.AdaptingRequestUpdateProcessor;
 import androidx.camera.extensions.Extensions;
 import androidx.camera.extensions.PreviewExtender;
 import androidx.camera.extensions.impl.AutoPreviewExtenderImpl;

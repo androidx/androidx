@@ -45,6 +45,9 @@ import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.impl.PreviewImageProcessorImpl;
+import androidx.camera.extensions.internal.AdaptingCaptureStage;
+import androidx.camera.extensions.internal.AdaptingPreviewProcessor;
+import androidx.camera.extensions.internal.AdaptingRequestUpdateProcessor;
 
 import java.util.Collection;
 import java.util.List;
@@ -361,8 +364,11 @@ public abstract class PreviewExtender {
     /**
      * A processor that can be closed so that the underlying processing implementation is skipped,
      * if it has been closed.
+     *
+     * @hide
      */
-    interface CloseableProcessor {
+    @RestrictTo(RestrictTo.Scope.LIBRARY)
+    public interface CloseableProcessor {
         void close();
     }
 }

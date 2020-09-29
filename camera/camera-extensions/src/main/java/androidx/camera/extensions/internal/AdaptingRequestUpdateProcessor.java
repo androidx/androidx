@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package androidx.camera.extensions;
+package androidx.camera.extensions.internal;
 
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RestrictTo;
 import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter;
 import androidx.camera.core.ImageInfo;
 import androidx.camera.core.impl.CameraCaptureResult;
 import androidx.camera.core.impl.CameraCaptureResults;
 import androidx.camera.core.impl.CaptureStage;
 import androidx.camera.core.impl.ImageInfoProcessor;
+import androidx.camera.extensions.PreviewExtender;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.PreviewExtenderImpl;
 import androidx.camera.extensions.impl.RequestUpdateProcessorImpl;
@@ -35,10 +35,7 @@ import androidx.core.util.Preconditions;
 
 /**
  * A {@link ImageInfoProcessor} that calls a vendor provided preview processing implementation.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class AdaptingRequestUpdateProcessor implements ImageInfoProcessor,
         PreviewExtender.CloseableProcessor {
     private final PreviewExtenderImpl mPreviewExtenderImpl;

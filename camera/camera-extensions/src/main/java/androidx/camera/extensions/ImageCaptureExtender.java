@@ -47,6 +47,8 @@ import androidx.camera.extensions.ExtensionsManager.EffectMode;
 import androidx.camera.extensions.impl.CaptureProcessorImpl;
 import androidx.camera.extensions.impl.CaptureStageImpl;
 import androidx.camera.extensions.impl.ImageCaptureExtenderImpl;
+import androidx.camera.extensions.internal.AdaptingCaptureProcessor;
+import androidx.camera.extensions.internal.AdaptingCaptureStage;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 The Android Open Source Project
+ * Copyright 2020 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package androidx.camera.extensions;
+package androidx.camera.extensions.internal;
 
 import android.hardware.camera2.CaptureResult;
 import android.hardware.camera2.TotalCaptureResult;
@@ -24,7 +24,6 @@ import android.util.Size;
 import android.view.Surface;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RestrictTo;
 import androidx.camera.camera2.impl.Camera2CameraCaptureResultConverter;
 import androidx.camera.core.ExperimentalGetImage;
 import androidx.camera.core.ImageInfo;
@@ -46,10 +45,7 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * A {@link CaptureProcessor} that calls a vendor provided implementation.
- *
- * @hide
  */
-@RestrictTo(RestrictTo.Scope.LIBRARY)
 public final class AdaptingCaptureProcessor implements CaptureProcessor {
     private final CaptureProcessorImpl mImpl;
 

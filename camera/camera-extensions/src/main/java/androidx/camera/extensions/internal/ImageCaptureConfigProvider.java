@@ -32,7 +32,6 @@ import androidx.camera.core.ImageCapture;
 import androidx.camera.core.impl.ConfigProvider;
 import androidx.camera.core.impl.ImageCaptureConfig;
 import androidx.camera.core.impl.OptionsBundle;
-import androidx.camera.extensions.AdaptingCaptureProcessor;
 import androidx.camera.extensions.Extensions;
 import androidx.camera.extensions.ImageCaptureExtender;
 import androidx.camera.extensions.impl.AutoImageCaptureExtenderImpl;
