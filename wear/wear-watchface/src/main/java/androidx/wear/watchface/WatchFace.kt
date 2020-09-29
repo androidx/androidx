@@ -235,6 +235,7 @@ class WatchFace private constructor(
          * if {@link #getShowUnreadCountIndicator} is true).
          *
          * @param hideNotificationIndicator if true an indicator will be hidden
+         * @hide
          */
         fun setHideNotificationIndicator(hideNotificationIndicator: Boolean) = apply {
             this.hideNotificationIndicator = hideNotificationIndicator

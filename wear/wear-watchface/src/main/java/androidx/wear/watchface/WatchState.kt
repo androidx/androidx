@@ -42,43 +42,57 @@ class WatchState(
     /**
      * Whether or not the watch is in airplane mode. Only valid if
      * {@link android.support.wearable.watchface.WatchFaceStyle#hideNotificationIndicator} is true.
+     *
+     * @hide
      */
     val inAirplaneMode: WatchData<Boolean>,
 
     /**
      * Whether or not we should conserve power due to a low battery which isn't charging. Only
-     * valid if {@link android.support.wearable.watchface
-     * .WatchFaceStyle#hideNotificationIndicator} is true.
+     * valid if {@link android.support.wearable.watchface.WatchFaceStyle#hideNotificationIndicator}
+     * is true.
+     *
+     * @hide
      */
     val isBatteryLowAndNotCharging: WatchData<Boolean>,
 
     /**
      * Whether or not the watch is charging. Only valid if
      * {@link android.support.wearable.watchface.WatchFaceStyle#hideNotificationIndicator} is true.
+     *
+     * @hide
      */
     val isCharging: WatchData<Boolean>,
 
     /**
      * Whether or not the watch is connected to the companion phone. Only valid if
      * {@link android.support.wearable.watchface.WatchFaceStyle#hideNotificationIndicator} is true.
+     *
+     * @hide
      */
     val isConnectedToCompanion: WatchData<Boolean>,
 
     /**
      * Whether or not GPS is active on the watch. Only valid if
      * {@link android.support.wearable.watchface.WatchFaceStyle#hideNotificationIndicator} is true.
+     *
+     * @hide
      */
     val isGpsActive: WatchData<Boolean>,
 
     /**
      * Whether or not the watch's keyguard (lock screen) is locked. Only valid if
      * {@link android.support.wearable.watchface.WatchFaceStyle#hideNotificationIndicator} is true.
+     *
+     * @hide
      */
     val isKeyguardLocked: WatchData<Boolean>,
 
     /**
      * Whether or not the watch is in theater mode. Only valid if
      * {@link android.support.wearable.watchface.WatchFaceStyle#hideNotificationIndicator} is true.
+     *
+     * @hide
      */
     val isInTheaterMode: WatchData<Boolean>,
 
