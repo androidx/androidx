@@ -371,7 +371,7 @@ public class MediaSessionCompatCallbackTest {
      * No callback messages should be posted once {@code setCallback(null)} is done.
      */
     @Test
-    @SmallTest
+    @MediumTest
     public void testSetCallbackWithNull() throws Exception {
         mSession.setActive(true);
         mCallback.reset(1);
@@ -387,7 +387,7 @@ public class MediaSessionCompatCallbackTest {
      * callback methods.
      */
     @Test
-    @SmallTest
+    @MediumTest
     public void testSetCallbackWithNullShouldRemoveCallbackMessages() throws Exception {
         mSession.setActive(true);
         mCallback.reset(1);
@@ -408,7 +408,7 @@ public class MediaSessionCompatCallbackTest {
      * old callback from receiving callback methods.
      */
     @Test
-    @SmallTest
+    @MediumTest
     public void testSetCallbacWithDifferentCallback() throws Exception {
         mSession.setActive(true);
         mCallback.reset(1);
