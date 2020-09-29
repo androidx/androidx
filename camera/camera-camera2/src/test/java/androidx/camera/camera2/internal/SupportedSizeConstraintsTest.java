@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.graphics.ImageFormat;
+import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
@@ -41,7 +42,6 @@ import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
 import androidx.camera.core.impl.ImageFormatConstants;
 import androidx.camera.testing.CameraUtil;
-import androidx.camera.testing.StreamConfigurationMapUtil;
 import androidx.camera.testing.fakes.FakeCamera;
 import androidx.camera.testing.fakes.FakeCameraFactory;
 import androidx.camera.testing.fakes.FakeUseCase;
@@ -242,21 +242,12 @@ public class SupportedSizeConstraintsTest {
 
         int[] supportedFormats = mSupportedFormats;
 
-        // Current robolectric can support to directly mock a StreamConfigurationMap object if
-        // the testing platform target is equal to or newer than API level 23. For API level 21
-        // or 22 testing platform target, keep the original method to create a
-        // StreamConfigurationMap object via reflection.
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            shadowCharacteristics.set(
-                    CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
-                    StreamConfigurationMapUtil.generateFakeStreamConfigurationMap(supportedFormats,
-                            supportedSizes));
-        } else {
-            StreamConfigurationMap mockMap = mock(StreamConfigurationMap.class);
-            when(mockMap.getOutputSizes(anyInt())).thenReturn(supportedSizes);
-            shadowCharacteristics.set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP,
-                    mockMap);
-        }
+        StreamConfigurationMap mockMap = mock(StreamConfigurationMap.class);
+        when(mockMap.getOutputSizes(anyInt())).thenReturn(supportedSizes);
+        // ImageFormat.PRIVATE was supported since API level 23. Before that, the supported
+        // output sizes need to be retrieved via SurfaceTexture.class.
+        when(mockMap.getOutputSizes(SurfaceTexture.class)).thenReturn(mSupportedSizes);
+        shadowCharacteristics.set(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP, mockMap);
 
         @CameraSelector.LensFacing int lensFacingEnum = CameraUtil.getLensFacingEnumFromInt(
                 CameraCharacteristics.LENS_FACING_BACK);

@@ -23,6 +23,7 @@ import android.graphics.SurfaceTexture;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.CamcorderProfile;
+import android.media.MediaRecorder;
 import android.os.Build;
 import android.util.Pair;
 import android.util.Rational;
@@ -1168,25 +1169,67 @@ final class SupportedSurfaceCombination {
      * RECORD refers to the camera device's maximum supported recording resolution, as determined by
      * CamcorderProfile.
      */
+    @NonNull
     private Size getRecordSize() {
         Size recordSize = QUALITY_480P_SIZE;
 
-        // Check whether 2160P, 1080P, 720P, 480P are supported by CamcorderProfile
-        if (mCamcorderProfileHelper.hasProfile(
-                Integer.parseInt(mCameraId), CamcorderProfile.QUALITY_2160P)) {
-            recordSize = QUALITY_2160P_SIZE;
-        } else if (mCamcorderProfileHelper.hasProfile(
-                Integer.parseInt(mCameraId), CamcorderProfile.QUALITY_1080P)) {
-            recordSize = QUALITY_1080P_SIZE;
-        } else if (mCamcorderProfileHelper.hasProfile(
-                Integer.parseInt(mCameraId), CamcorderProfile.QUALITY_720P)) {
-            recordSize = QUALITY_720P_SIZE;
-        } else if (mCamcorderProfileHelper.hasProfile(
-                Integer.parseInt(mCameraId), CamcorderProfile.QUALITY_480P)) {
-            recordSize = QUALITY_480P_SIZE;
+        try {
+            int cameraId = Integer.parseInt(mCameraId);
+
+            // Check whether 2160P, 1080P, 720P, 480P are supported by CamcorderProfile
+            if (mCamcorderProfileHelper.hasProfile(cameraId, CamcorderProfile.QUALITY_2160P)) {
+                recordSize = QUALITY_2160P_SIZE;
+            } else if (mCamcorderProfileHelper.hasProfile(cameraId,
+                    CamcorderProfile.QUALITY_1080P)) {
+                recordSize = QUALITY_1080P_SIZE;
+            } else if (mCamcorderProfileHelper.hasProfile(cameraId,
+                    CamcorderProfile.QUALITY_720P)) {
+                recordSize = QUALITY_720P_SIZE;
+            } else if (mCamcorderProfileHelper.hasProfile(cameraId,
+                    CamcorderProfile.QUALITY_480P)) {
+                recordSize = QUALITY_480P_SIZE;
+            }
+        } catch (NumberFormatException e) {
+            // The camera Id is not an integer because the camera may be a removable device. Use
+            // StreamConfigurationMap to determine the RECORD size.
+            recordSize = getRecordSizeFromStreamConfigurationMap();
         }
 
         return recordSize;
+    }
+
+    /**
+     * Return the maximum supported video size for cameras using data from the stream
+     * configuration map.
+     *
+     * @return Maximum supported video size.
+     */
+    @NonNull
+    private Size getRecordSizeFromStreamConfigurationMap() {
+        StreamConfigurationMap map =
+                mCharacteristics.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
+
+        if (map == null) {
+            throw new IllegalArgumentException("Can not retrieve SCALER_STREAM_CONFIGURATION_MAP");
+        }
+
+        Size[] videoSizeArr = map.getOutputSizes(MediaRecorder.class);
+
+        if (videoSizeArr == null) {
+            return QUALITY_480P_SIZE;
+        }
+
+        Arrays.sort(videoSizeArr, new CompareSizesByArea(true));
+
+        for (Size size: videoSizeArr) {
+            // Returns the largest supported size under 1080P
+            if (size.getWidth() <= QUALITY_1080P_SIZE.getWidth()
+                    && size.getHeight() <= QUALITY_1080P_SIZE.getHeight()) {
+                return size;
+            }
+        }
+
+        return QUALITY_480P_SIZE;
     }
 
     @NonNull
