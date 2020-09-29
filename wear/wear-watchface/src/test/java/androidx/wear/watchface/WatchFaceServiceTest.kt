@@ -32,7 +32,6 @@ import android.support.wearable.watchface.WatchFaceStyle
 import android.support.wearable.watchface.accessibility.ContentDescriptionLabel
 import android.view.SurfaceHolder
 import android.view.ViewConfiguration
-import androidx.lifecycle.Observer
 import androidx.test.core.app.ApplicationProvider
 import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.rendering.ComplicationDrawable
@@ -870,12 +869,12 @@ class WatchFaceServiceTest {
         val isInTheaterModeObserver = mock<Observer<Boolean>>()
         val isGpsActiveObserver = mock<Observer<Boolean>>()
         val isKeyguardLockedObserver = mock<Observer<Boolean>>()
-        watchState.isCharging.observe(isChargingObserver)
-        watchState.inAirplaneMode.observe(inAirplaneModeObserver)
-        watchState.isConnectedToCompanion.observe(isConnectedToCompanionObserver)
-        watchState.isInTheaterMode.observe(isInTheaterModeObserver)
-        watchState.isGpsActive.observe(isGpsActiveObserver)
-        watchState.isKeyguardLocked.observe(isKeyguardLockedObserver)
+        watchState.isCharging.addObserver(isChargingObserver)
+        watchState.inAirplaneMode.addObserver(inAirplaneModeObserver)
+        watchState.isConnectedToCompanion.addObserver(isConnectedToCompanionObserver)
+        watchState.isInTheaterMode.addObserver(isInTheaterModeObserver)
+        watchState.isGpsActive.addObserver(isGpsActiveObserver)
+        watchState.isKeyguardLocked.addObserver(isKeyguardLockedObserver)
 
         // Every indicator onXyz method should be called upon the initial update.
         engineWrapper.onBackgroundAction(Bundle().apply {
@@ -919,8 +918,8 @@ class WatchFaceServiceTest {
 
         val hasLowBitAmbientObserver = mock<Observer<Boolean>>()
         val hasBurnInProtectionObserver = mock<Observer<Boolean>>()
-        watchState.hasLowBitAmbient.observe(hasLowBitAmbientObserver)
-        watchState.hasBurnInProtection.observe(hasBurnInProtectionObserver)
+        watchState.hasLowBitAmbient.addObserver(hasLowBitAmbientObserver)
+        watchState.hasBurnInProtection.addObserver(hasBurnInProtectionObserver)
 
         // Check all the right methods are called on initial onPropertiesChanged call.
         engineWrapper.onPropertiesChanged(bundle)
