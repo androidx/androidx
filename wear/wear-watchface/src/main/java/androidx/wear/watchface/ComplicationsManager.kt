@@ -190,13 +190,13 @@ class ComplicationsManager(
     }
 
     /**
-     * Briefly highlights the complication to provide visual feedback when the user has tapped
-     * on it.
+     * Brings attention to the complication by briefly highlighting it to provide visual
+     * feedback when the user has tapped on it.
      *
      * @param complicationId The watch face's ID of the complication to briefly highlight
      */
     @UiThread
-    fun brieflyHighlightComplication(complicationId: Int) {
+    fun bringAttentionToComplication(complicationId: Int) {
         val complication = requireNotNull(complications[complicationId]) {
             "No complication found with ID $complicationId"
         }

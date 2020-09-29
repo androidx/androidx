@@ -528,7 +528,7 @@ class WatchFace private constructor(
                 complicationsManager.getComplicationAt(tapX, tapY)?.id
 
             override fun brieflyHighlightComplicationId(complicationId: Int) {
-                complicationsManager.brieflyHighlightComplication(complicationId)
+                complicationsManager.bringAttentionToComplication(complicationId)
             }
 
             override fun takeScreenshot(
@@ -802,7 +802,7 @@ class WatchFace private constructor(
                 } else {
                     // Give the user immediate visual feedback, the UI feels sluggish if we defer
                     // this.
-                    complicationsManager.brieflyHighlightComplication(tappedComplication.id)
+                    complicationsManager.bringAttentionToComplication(tappedComplication.id)
 
                     lastTappedComplicationId = tappedComplication.id
 
