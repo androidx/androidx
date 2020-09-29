@@ -89,6 +89,7 @@ import android.util.Log;
 import androidx.media.VolumeProviderCompat;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.filters.MediumTest;
 import androidx.test.filters.SdkSuppress;
 import androidx.test.filters.SmallTest;
 
@@ -668,7 +669,7 @@ public class MediaControllerCompatCallbackTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     @SdkSuppress(minSdkVersion = 21)
     public void testOnSessionReadyCalled_fwkMediaSession() throws Exception {
         mController = null;
@@ -753,7 +754,7 @@ public class MediaControllerCompatCallbackTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testRegisterCallbackTwice() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(2);
 
@@ -767,7 +768,7 @@ public class MediaControllerCompatCallbackTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testUnregisterCallbackTwice() throws InterruptedException {
         CountDownLatch latch = new CountDownLatch(1);
 
@@ -781,7 +782,7 @@ public class MediaControllerCompatCallbackTest {
     }
 
     @Test
-    @SmallTest
+    @MediumTest
     public void testUnregisterUnknownCallback() throws InterruptedException {
         CountDownLatch latch1 = new CountDownLatch(1);
         CountDownLatch latch2 = new CountDownLatch(1);
