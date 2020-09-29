@@ -13,8 +13,6 @@ ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_ACTION_BUTTON_BU
     Inconsistent extra value; expected `androidx.browser.customtabs.extra.ACTION_BUTTON_BUNDLE`, was `android.support.customtabs.extra.ACTION_BUTTON_BUNDLE`
 ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_CLOSE_BUTTON_ICON:
     Inconsistent extra value; expected `androidx.browser.customtabs.extra.CLOSE_BUTTON_ICON`, was `android.support.customtabs.extra.CLOSE_BUTTON_ICON`
-ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_DEFAULT_SHARE_MENU_ITEM:
-    Inconsistent extra value; expected `androidx.browser.customtabs.extra.DEFAULT_SHARE_MENU_ITEM`, was `android.support.customtabs.extra.SHARE_MENU_ITEM`
 ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_ENABLE_INSTANT_APPS:
     Inconsistent extra value; expected `androidx.browser.customtabs.extra.ENABLE_INSTANT_APPS`, was `android.support.customtabs.extra.EXTRA_ENABLE_INSTANT_APPS`
 ActionValue: androidx.browser.customtabs.CustomTabsIntent#EXTRA_ENABLE_URLBAR_HIDING:

@@ -82,7 +82,9 @@ package androidx.navigation {
     method public final CharSequence? getLabel();
     method protected final androidx.navigation.Navigator<? extends D> getNavigator();
     method public final void setLabel(CharSequence? p);
+    property public final int id;
     property public final CharSequence? label;
+    property protected final androidx.navigation.Navigator<? extends D> navigator;
   }
 
   @kotlin.DslMarker public @interface NavDestinationDsl {
@@ -95,6 +97,7 @@ package androidx.navigation {
     method public final <D extends androidx.navigation.NavDestination> void destination(androidx.navigation.NavDestinationBuilder<? extends D> navDestination);
     method public final androidx.navigation.NavigatorProvider getProvider();
     method public final operator void unaryPlus(androidx.navigation.NavDestination);
+    property public final androidx.navigation.NavigatorProvider provider;
   }
 
   public final class NavGraphBuilderKt {

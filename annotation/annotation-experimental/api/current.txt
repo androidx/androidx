@@ -1,19 +1,19 @@
 // Signature format: 3.0
 package androidx.annotation.experimental {
 
-  @kotlin.annotation.Retention(AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets=AnnotationTarget.ANNOTATION_CLASS) public @interface Experimental {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets=kotlin.annotation.AnnotationTarget) public @interface Experimental {
     method public abstract androidx.annotation.experimental.Experimental.Level level() default androidx.annotation.experimental.Experimental.Level.ERROR;
+    property public abstract androidx.annotation.experimental.Experimental.Level level;
   }
 
   public enum Experimental.Level {
-    method public static androidx.annotation.experimental.Experimental.Level valueOf(String name) throws java.lang.IllegalArgumentException;
-    method public static androidx.annotation.experimental.Experimental.Level[] values();
     enum_constant public static final androidx.annotation.experimental.Experimental.Level ERROR;
     enum_constant public static final androidx.annotation.experimental.Experimental.Level WARNING;
   }
 
-  @kotlin.annotation.Retention(AnnotationRetention.BINARY) @kotlin.annotation.Target(allowedTargets={AnnotationTarget.CLASS, AnnotationTarget.PROPERTY, AnnotationTarget.LOCAL_VARIABLE, AnnotationTarget.VALUE_PARAMETER, AnnotationTarget.CONSTRUCTOR, AnnotationTarget.FUNCTION, AnnotationTarget.PROPERTY_GETTER, AnnotationTarget.PROPERTY_SETTER, AnnotationTarget.FILE, AnnotationTarget.TYPEALIAS}) public @interface UseExperimental {
+  @kotlin.annotation.Retention(kotlin.annotation.AnnotationRetention) @kotlin.annotation.Target(allowedTargets={kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget, kotlin.annotation.AnnotationTarget}) public @interface UseExperimental {
     method public abstract Class<? extends java.lang.annotation.Annotation>[] markerClass();
+    property public abstract Class<? extends java.lang.annotation.Annotation>![] markerClass;
   }
 
 }
