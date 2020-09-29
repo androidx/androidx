@@ -73,7 +73,8 @@ internal class WarmupManager {
 
         if (iteration >= MIN_ITERATIONS && totalDurationNs >= MIN_DURATION_NS) {
             if (similarIterationCount > MIN_SIMILAR_ITERATIONS ||
-                totalDurationNs >= MAX_DURATION_NS) {
+                totalDurationNs >= MAX_DURATION_NS
+            ) {
                 // benchmark has stabilized, or we're out of time
                 return true
             }

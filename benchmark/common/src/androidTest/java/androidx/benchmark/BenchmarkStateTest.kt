@@ -120,7 +120,7 @@ class BenchmarkStateTest {
             val currentJitPriority = ThreadPriority.getJit()
             assertTrue(
                 "JIT priority should be bumped," +
-                        " is $currentJitPriority vs ${ThreadPriority.JIT_INITIAL_PRIORITY}",
+                    " is $currentJitPriority vs ${ThreadPriority.JIT_INITIAL_PRIORITY}",
                 currentJitPriority < ThreadPriority.JIT_INITIAL_PRIORITY
             )
         }
@@ -160,7 +160,7 @@ class BenchmarkStateTest {
 
         val report = state.getReport()
         val expectedRepeatCount = BenchmarkState.REPEAT_COUNT_TIME +
-                if (!checkingForThermalThrottling) BenchmarkState.REPEAT_COUNT_ALLOCATION else 0
+            if (!checkingForThermalThrottling) BenchmarkState.REPEAT_COUNT_ALLOCATION else 0
         val expectedCount = report.warmupIterations + report.repeatIterations * expectedRepeatCount
         assertEquals(expectedCount, total)
 

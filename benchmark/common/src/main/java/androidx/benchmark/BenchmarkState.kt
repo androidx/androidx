@@ -122,15 +122,15 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
     private fun checkState() {
         check(state != NOT_STARTED) {
             "The benchmark wasn't started! Every test in a class " +
-                    "with a BenchmarkRule must contain a benchmark. In Kotlin, call " +
-                    "benchmarkRule.measureRepeated {}, or in Java, call " +
-                    "benchmarkRule.getState().keepRunning() to run your benchmark."
+                "with a BenchmarkRule must contain a benchmark. In Kotlin, call " +
+                "benchmarkRule.measureRepeated {}, or in Java, call " +
+                "benchmarkRule.getState().keepRunning() to run your benchmark."
         }
         check(state == FINISHED) {
             "The benchmark hasn't finished! In Java, use " +
-                    "while(BenchmarkState.keepRunning()) to ensure keepRunning() returns " +
-                    "false before ending your test. In Kotlin, just use " +
-                    "benchmarkRule.measureRepeated {} to avoid the problem."
+                "while(BenchmarkState.keepRunning()) to ensure keepRunning() returns " +
+                "false before ending your test. In Kotlin, just use " +
+                "benchmarkRule.measureRepeated {} to avoid the problem."
         }
     }
 
@@ -280,7 +280,8 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         metrics.captureStop()
         repeatCount++
         // overwrite existing data, we don't keep data for warmup
-        if (state == RUNNING_WARMUP_STAGE) { metrics.captureInit()
+        if (state == RUNNING_WARMUP_STAGE) {
+            metrics.captureInit()
             if (warmupManager.onNextIteration(metrics.data.last()[0])) {
                 endRunningStage()
                 beginRunningStage()
@@ -393,8 +394,8 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         if (!firstBenchmark && Arguments.startupMode) {
             throw AssertionError(
                 "Error - multiple benchmarks in startup mode. Only one " +
-                        "benchmark may be run per 'am instrument' call, to ensure result " +
-                        "isolation."
+                    "benchmark may be run per 'am instrument' call, to ensure result " +
+                    "isolation."
             )
         }
         firstBenchmark = false
@@ -438,7 +439,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
 
     private fun throwIfPaused() = check(!paused) {
         "Benchmark loop finished in paused state." +
-                " Call BenchmarkState.resumeTiming() before BenchmarkState.keepRunning()."
+            " Call BenchmarkState.resumeTiming() before BenchmarkState.keepRunning()."
     }
 
     internal data class Report(
@@ -557,7 +558,8 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
         internal val REPEAT_DURATION_TARGET_NS = when (Arguments.profiler?.requiresExtraRuntime) {
             // longer measurements while profiling to ensure we have enough data
             true -> TimeUnit.MILLISECONDS.toNanos(50)
-            else -> TimeUnit.SECONDS.toNanos(Arguments.profilerSampleDurationSeconds) /
+            else ->
+                TimeUnit.SECONDS.toNanos(Arguments.profilerSampleDurationSeconds) /
                     REPEAT_COUNT_TIME
         }
         internal const val MAX_TEST_ITERATIONS = 1_000_000
@@ -616,7 +618,7 @@ class BenchmarkState @RestrictTo(RestrictTo.Scope.LIBRARY_GROUP) constructor() {
             )
             // Report value to Studio console
             val fullTestName = PREFIX +
-                    if (className.isNotEmpty()) "$className.$testName" else testName
+                if (className.isNotEmpty()) "$className.$testName" else testName
             InstrumentationResults.report(
                 InstrumentationResults.getIdeSummaryLine(
                     testName = fullTestName,
