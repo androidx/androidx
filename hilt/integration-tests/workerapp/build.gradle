@@ -46,7 +46,7 @@ dependencies {
     kapt(project(":hilt:hilt-compiler"))
     implementation(KOTLIN_STDLIB)
     implementation(HILT_ANDROID)
-    kapt(HILT_ANDROID_COMPILER)
+    kapt(HILT_COMPILER)
 
     androidTestImplementation(TRUTH)
     androidTestImplementation(ANDROIDX_TEST_CORE)
@@ -54,5 +54,5 @@ dependencies {
     androidTestImplementation(ANDROIDX_TEST_RUNNER)
     androidTestImplementation(project(":work:work-testing"))
     androidTestImplementation(HILT_ANDROID_TESTING)
-    kaptAndroidTest(HILT_ANDROID_COMPILER)
+    kaptAndroidTest(HILT_COMPILER)
 }

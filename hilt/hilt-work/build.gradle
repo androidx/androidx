@@ -37,7 +37,7 @@ dependencies {
     api(project(":hilt:hilt-common"))
     api("androidx.work:work-runtime:2.3.4")
     api(HILT_ANDROID)
-    annotationProcessor(HILT_ANDROID_COMPILER)
+    annotationProcessor(HILT_COMPILER)
 }
 
 android.libraryVariants.all { variant ->
