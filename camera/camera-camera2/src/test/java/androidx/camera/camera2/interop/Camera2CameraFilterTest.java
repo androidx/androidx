@@ -26,6 +26,7 @@ import android.os.Build;
 
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.internal.Camera2CameraInfoImpl;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.CameraFilter;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.impl.CameraInternal;
@@ -69,6 +70,12 @@ public final class Camera2CameraFilterTest {
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)).thenReturn(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_FULL);
         mIdCharMap.put(BACK_ID, mockCharacteristicsBack);
+        CameraCharacteristicsCompat characteristicsCompatBack =
+                mock(CameraCharacteristicsCompat.class);
+        when(characteristicsCompatBack.toCameraCharacteristics())
+                .thenReturn(mockCharacteristicsBack);
+        when(mockCameraInfoBack.getCameraCharacteristicsCompat())
+                .thenReturn(characteristicsCompatBack);
 
         Camera2CameraInfoImpl mockCameraInfoFront = mock(Camera2CameraInfoImpl.class);
         when(mockCameraInfoFront.getCameraId()).thenReturn(FRONT_ID);
@@ -79,6 +86,13 @@ public final class Camera2CameraFilterTest {
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL)).thenReturn(
                 CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY);
         mIdCharMap.put(FRONT_ID, mockCharacteristicsFront);
+        CameraCharacteristicsCompat characteristicsCompatFront =
+                mock(CameraCharacteristicsCompat.class);
+        when(characteristicsCompatFront.toCameraCharacteristics())
+                .thenReturn(mockCharacteristicsFront);
+        when(mockCameraInfoFront.getCameraCharacteristicsCompat())
+                .thenReturn(characteristicsCompatFront);
+
     }
 
     @Test

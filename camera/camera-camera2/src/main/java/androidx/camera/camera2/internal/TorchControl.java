@@ -22,6 +22,7 @@ import android.hardware.camera2.TotalCaptureResult;
 
 import androidx.annotation.NonNull;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.CameraControl.OperationCanceledException;
 import androidx.camera.core.Logger;
 import androidx.camera.core.TorchState;
@@ -69,7 +70,7 @@ final class TorchControl {
      * @param executor the camera executor used to run camera task.
      */
     TorchControl(@NonNull Camera2CameraControlImpl camera2CameraControlImpl,
-            @NonNull CameraCharacteristics cameraCharacteristics,
+            @NonNull CameraCharacteristicsCompat cameraCharacteristics,
             @CameraExecutor @NonNull Executor executor) {
         mCamera2CameraControlImpl = camera2CameraControlImpl;
         mExecutor = executor;

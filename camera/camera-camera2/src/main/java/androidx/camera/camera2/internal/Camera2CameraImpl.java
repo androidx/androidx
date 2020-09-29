@@ -35,6 +35,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RestrictTo;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
 import androidx.camera.camera2.internal.compat.CameraAccessExceptionCompat;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.CameraUnavailableException;
 import androidx.camera.core.Logger;
@@ -194,13 +195,13 @@ final class Camera2CameraImpl implements CameraInternal {
         mCaptureSession = new CaptureSession();
 
         try {
-            CameraCharacteristics cameraCharacteristics =
-                    mCameraManager.getCameraCharacteristics(cameraId);
-            mCameraControlInternal = new Camera2CameraControlImpl(cameraCharacteristics,
+            CameraCharacteristicsCompat cameraCharacteristicsCompat =
+                    mCameraManager.getCameraCharacteristicsCompat(cameraId);
+            mCameraControlInternal = new Camera2CameraControlImpl(cameraCharacteristicsCompat,
                     executorScheduler, mExecutor, new ControlUpdateListenerInternal());
             mCameraInfoInternal = new Camera2CameraInfoImpl(
                     cameraId,
-                    cameraCharacteristics,
+                    cameraCharacteristicsCompat,
                     mCameraControlInternal);
         } catch (CameraAccessExceptionCompat e) {
             throw CameraUnavailableExceptionHelper.createFrom(e);

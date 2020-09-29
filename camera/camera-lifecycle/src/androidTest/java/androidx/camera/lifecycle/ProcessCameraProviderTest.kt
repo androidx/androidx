@@ -440,7 +440,7 @@ class ProcessCameraProviderTest {
 
         val appConfigBuilder = CameraXConfig.Builder()
             .setCameraFactoryProvider(cameraFactoryProvider)
-            .setDeviceSurfaceManagerProvider { FakeCameraDeviceSurfaceManager() }
+            .setDeviceSurfaceManagerProvider { _, _ -> FakeCameraDeviceSurfaceManager() }
             .setUseCaseConfigFactoryProvider { ExtendableUseCaseConfigFactory() }
 
         ProcessCameraProvider.configureInstance(appConfigBuilder.build())

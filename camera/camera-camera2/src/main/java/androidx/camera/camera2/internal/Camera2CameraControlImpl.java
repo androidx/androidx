@@ -36,6 +36,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.VisibleForTesting;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.FocusMeteringAction;
 import androidx.camera.core.FocusMeteringResult;
@@ -100,7 +101,7 @@ final class Camera2CameraControlImpl implements CameraControlInternal {
     @CameraExecutor
     final Executor mExecutor;
     private final Object mLock = new Object();
-    private final CameraCharacteristics mCameraCharacteristics;
+    private final CameraCharacteristicsCompat mCameraCharacteristics;
     private final ControlUpdateCallback mControlUpdateCallback;
     private final SessionConfig.Builder mSessionConfigBuilder = new SessionConfig.Builder();
     @SuppressWarnings("WeakerAccess") /* synthetic accessor */
@@ -134,7 +135,7 @@ final class Camera2CameraControlImpl implements CameraControlInternal {
      * @param executor              Camera executor for synchronizing and offloading all commands.
      * @param controlUpdateCallback Listener which will be notified of control changes.
      */
-    Camera2CameraControlImpl(@NonNull CameraCharacteristics cameraCharacteristics,
+    Camera2CameraControlImpl(@NonNull CameraCharacteristicsCompat cameraCharacteristics,
             @NonNull ScheduledExecutorService scheduler,
             @NonNull @CameraExecutor Executor executor,
             @NonNull ControlUpdateCallback controlUpdateCallback) {

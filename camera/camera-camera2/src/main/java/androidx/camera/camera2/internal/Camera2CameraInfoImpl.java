@@ -23,6 +23,7 @@ import android.view.Surface;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.experimental.UseExperimental;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.camera2.interop.Camera2CameraInfo;
 import androidx.camera.camera2.interop.ExperimentalCamera2Interop;
 import androidx.camera.core.CameraSelector;
@@ -48,7 +49,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     private static final String TAG = "Camera2CameraInfo";
     private final String mCameraId;
-    private final CameraCharacteristics mCameraCharacteristics;
+    private final CameraCharacteristicsCompat mCameraCharacteristicsCompat;
     private final Camera2CameraControlImpl mCamera2CameraControlImpl;
     private final ZoomControl mZoomControl;
     private final TorchControl mTorchControl;
@@ -56,11 +57,10 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     private final Camera2CameraInfo mCamera2CameraInfo;
 
     Camera2CameraInfoImpl(@NonNull String cameraId,
-            @NonNull CameraCharacteristics cameraCharacteristics,
+            @NonNull CameraCharacteristicsCompat cameraCharacteristicsCompat,
             @NonNull Camera2CameraControlImpl camera2CameraControlImpl) {
-        Preconditions.checkNotNull(cameraCharacteristics, "Camera characteristics map is missing");
         mCameraId = Preconditions.checkNotNull(cameraId);
-        mCameraCharacteristics = cameraCharacteristics;
+        mCameraCharacteristicsCompat = cameraCharacteristicsCompat;
         mCamera2CameraControlImpl = camera2CameraControlImpl;
         mZoomControl = camera2CameraControlImpl.getZoomControl();
         mTorchControl = camera2CameraControlImpl.getTorchControl();
@@ -76,14 +76,14 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
     }
 
     @NonNull
-    public CameraCharacteristics getCameraCharacteristics() {
-        return mCameraCharacteristics;
+    public CameraCharacteristicsCompat getCameraCharacteristicsCompat() {
+        return mCameraCharacteristicsCompat;
     }
 
     @Nullable
     @Override
     public Integer getLensFacing() {
-        Integer lensFacing = mCameraCharacteristics.get(CameraCharacteristics.LENS_FACING);
+        Integer lensFacing = mCameraCharacteristicsCompat.get(CameraCharacteristics.LENS_FACING);
         Preconditions.checkNotNull(lensFacing);
         switch (lensFacing) {
             case CameraCharacteristics.LENS_FACING_FRONT:
@@ -114,14 +114,15 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     int getSensorOrientation() {
         Integer sensorOrientation =
-                mCameraCharacteristics.get(CameraCharacteristics.SENSOR_ORIENTATION);
+                mCameraCharacteristicsCompat.get(CameraCharacteristics.SENSOR_ORIENTATION);
         Preconditions.checkNotNull(sensorOrientation);
         return sensorOrientation;
     }
 
     int getSupportedHardwareLevel() {
         Integer deviceLevel =
-                mCameraCharacteristics.get(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
+                mCameraCharacteristicsCompat.get(
+                        CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL);
         Preconditions.checkNotNull(deviceLevel);
         return deviceLevel;
     }
@@ -165,7 +166,7 @@ public final class Camera2CameraInfoImpl implements CameraInfoInternal {
 
     @Override
     public boolean hasFlashUnit() {
-        Boolean hasFlashUnit = mCameraCharacteristics.get(
+        Boolean hasFlashUnit = mCameraCharacteristicsCompat.get(
                 CameraCharacteristics.FLASH_INFO_AVAILABLE);
         Preconditions.checkNotNull(hasFlashUnit);
         return hasFlashUnit;

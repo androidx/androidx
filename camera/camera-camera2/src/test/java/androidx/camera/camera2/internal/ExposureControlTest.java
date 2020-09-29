@@ -31,6 +31,7 @@ import android.util.Range;
 import android.util.Rational;
 
 import androidx.annotation.experimental.UseExperimental;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.ExperimentalExposureCompensation;
 import androidx.camera.core.impl.CameraControlInternal;
@@ -79,14 +80,16 @@ public class ExposureControlTest {
                         Context.CAMERA_SERVICE);
         CameraCharacteristics cameraCharacteristics =
                 cameraManager.getCameraCharacteristics(CAMERA0_ID);
+        CameraCharacteristicsCompat cameraCharacteristicsCompat =
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics);
 
         mCamera2CameraControl = spy(new Camera2CameraControlImpl(
-                cameraCharacteristics,
+                cameraCharacteristicsCompat,
                 CameraXExecutors.mainThreadExecutor(),
                 CameraXExecutors.directExecutor(),
                 updateCallback));
 
-        mExposureControl = new ExposureControl(mCamera2CameraControl, cameraCharacteristics,
+        mExposureControl = new ExposureControl(mCamera2CameraControl, cameraCharacteristicsCompat,
                 CameraXExecutors.directExecutor());
         mExposureControl.setActive(true);
     }
@@ -181,14 +184,15 @@ public class ExposureControlTest {
                         Context.CAMERA_SERVICE);
         CameraCharacteristics cameraCharacteristics =
                 cameraManager.getCameraCharacteristics(CAMERA1_ID);
-
+        CameraCharacteristicsCompat cameraCharacteristicsCompat =
+                CameraCharacteristicsCompat.toCameraCharacteristicsCompat(cameraCharacteristics);
         mCamera2CameraControl = spy(new Camera2CameraControlImpl(
-                cameraCharacteristics,
+                cameraCharacteristicsCompat,
                 CameraXExecutors.mainThreadExecutor(),
                 CameraXExecutors.directExecutor(),
                 mock(CameraControlInternal.ControlUpdateCallback.class)));
 
-        mExposureControl = new ExposureControl(mCamera2CameraControl, cameraCharacteristics,
+        mExposureControl = new ExposureControl(mCamera2CameraControl, cameraCharacteristicsCompat,
                 CameraXExecutors.directExecutor());
         mExposureControl.setActive(true);
 

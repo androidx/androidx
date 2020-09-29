@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.experimental.UseExperimental;
 import androidx.camera.camera2.impl.Camera2ImplConfig;
 import androidx.camera.camera2.internal.annotation.CameraExecutor;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
 import androidx.camera.core.CameraControl;
 import androidx.camera.core.ExposureState;
 import androidx.camera.core.impl.annotation.ExecutedBy;
@@ -84,7 +85,7 @@ public class ExposureControl {
      * @param executor              the camera executor used to run camera task.
      */
     ExposureControl(@NonNull Camera2CameraControlImpl cameraControl,
-            @NonNull CameraCharacteristics cameraCharacteristics,
+            @NonNull CameraCharacteristicsCompat cameraCharacteristics,
             @CameraExecutor @NonNull Executor executor) {
         mCameraControl = cameraControl;
         mExposureStateImpl = new ExposureStateImpl(cameraCharacteristics,

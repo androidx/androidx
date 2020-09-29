@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 
 import android.content.Context;
 import android.graphics.ImageFormat;
+import android.hardware.camera2.CameraAccessException;
 import android.hardware.camera2.CameraCharacteristics;
 import android.hardware.camera2.CameraManager;
 import android.hardware.camera2.params.StreamConfigurationMap;
@@ -33,6 +34,8 @@ import android.util.Size;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.camera.camera2.Camera2Config;
+import androidx.camera.camera2.internal.compat.CameraCharacteristicsCompat;
+import androidx.camera.camera2.internal.compat.CameraManagerCompat;
 import androidx.camera.core.CameraSelector;
 import androidx.camera.core.CameraX;
 import androidx.camera.core.CameraXConfig;
@@ -123,6 +126,16 @@ public class SupportedSizeConstraintsTest {
         CameraX.shutdown().get(10000, TimeUnit.MILLISECONDS);
     }
 
+    private CameraCharacteristicsCompat getCameraCharacteristicsCompat(String cameraId)
+            throws CameraAccessException {
+        CameraManager cameraManager =
+                (CameraManager) ApplicationProvider.getApplicationContext().getSystemService(
+                        Context.CAMERA_SERVICE);
+
+        return CameraCharacteristicsCompat.toCameraCharacteristicsCompat(
+                cameraManager.getCameraCharacteristics(cameraId));
+    }
+
     @Test
     public void sizesCanBeExcluded() throws Exception {
         // Mock the environment to simulate a device that some supported sizes will be excluded.
@@ -134,8 +147,12 @@ public class SupportedSizeConstraintsTest {
         // Setup fake camera with supported sizes.
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, mSupportedSizes,
                 null);
+        CameraCharacteristicsCompat characteristicsCompat =
+                getCameraCharacteristicsCompat(BACK_CAMERA_ID);
+
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, BACK_CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, BACK_CAMERA_ID, CameraManagerCompat.from(mContext),
+                mMockCamcorderProfileHelper);
 
         List<Size> excludedSizes = Arrays.asList(
                 new Size[]{new Size(4160, 3120), new Size(4000, 3000)});
@@ -161,12 +178,15 @@ public class SupportedSizeConstraintsTest {
         fieldSettingsMap.put(Build.class.getField("BRAND"), TEST_BRAND_NAME.toLowerCase());
         fieldSettingsMap.put(Build.class.getField("DEVICE"), TEST_DEVICE_NAME.toLowerCase());
         setFakeBuildEnvironments(fieldSettingsMap);
-
         // Setup fake camera with supported sizes.
         setupCamera(CameraCharacteristics.INFO_SUPPORTED_HARDWARE_LEVEL_LEGACY, mSupportedSizes,
                 null);
+        CameraCharacteristicsCompat characteristicsCompat =
+                getCameraCharacteristicsCompat(BACK_CAMERA_ID);
+
         SupportedSurfaceCombination supportedSurfaceCombination = new SupportedSurfaceCombination(
-                mContext, BACK_CAMERA_ID, mMockCamcorderProfileHelper);
+                mContext, BACK_CAMERA_ID, CameraManagerCompat.from(mContext),
+                mMockCamcorderProfileHelper);
 
         List<Size> excludedSizes = Arrays.asList(
                 new Size[]{new Size(4160, 3120), new Size(4000, 3000)});
@@ -243,9 +263,9 @@ public class SupportedSizeConstraintsTest {
 
         mCameraFactory.insertCamera(lensFacingEnum, BACK_CAMERA_ID,
                 () -> new FakeCamera(BACK_CAMERA_ID, null,
-                        new Camera2CameraInfoImpl(BACK_CAMERA_ID, characteristics,
+                        new Camera2CameraInfoImpl(BACK_CAMERA_ID,
+                                getCameraCharacteristicsCompat(BACK_CAMERA_ID),
                                 mock(Camera2CameraControlImpl.class))));
-
         initCameraX();
     }
 
