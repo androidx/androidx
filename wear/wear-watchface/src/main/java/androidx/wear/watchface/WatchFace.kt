@@ -102,7 +102,7 @@ private fun writePrefs(context: Context, fileName: String, style: UserStyle) {
 }
 
 /**
- * A WatchFace is constructed by a user's {@link WatchFaceService} and brings together rendering,
+ * A WatchFace is constructed by a user's [WatchFaceService] and brings together rendering,
  * styling, complications and state observers.
  */
 @SuppressLint("SyntheticAccessor")
@@ -130,7 +130,7 @@ class WatchFace private constructor(
     }
 
     /**
-     * Builder for a {@link WatchFace}.
+     * Builder for a [WatchFace].
      *
      * If unreadCountIndicator or notificationIndicator are hidden then the WatchState class will
      * receive updates necessary for the watch to draw its own indicators.
@@ -149,19 +149,18 @@ class WatchFace private constructor(
         /** The {@UserStyleRepository} for this WatchFace. */
         internal val userStyleRepository: UserStyleRepository,
 
-        /** The {@link ComplicationsManager} for this WatchFace. */
+        /** The [ComplicationsManager] for this WatchFace. */
         internal var complicationsManager: ComplicationsManager,
 
-        /** The {@link Renderer} for this WatchFace. */
+        /** The [Renderer] for this WatchFace. */
         internal val renderer: Renderer,
 
         /** Holder for the internal API the WatchFace uses to communicate with the host service.  */
         private val watchFaceHost: WatchFaceHost,
 
         /**
-         * The {@link WatchState} of the device we're running on. Contains data needed to draw
-         * surface indicators if we've opted to draw them ourselves (see {@link
-         * #onCreateWatchFaceStyle}).
+         * The [WatchState] of the device we're running on. Contains data needed to draw
+         * surface indicators if we've opted to draw them ourselves (see [onCreateWatchFaceStyle]).
          */
         private val watchState: WatchState
     ) {
@@ -179,8 +178,8 @@ class WatchFace private constructor(
 
         /**
          * @param viewProtectionMode The view protection mode bit field, must be a combination of
-         *     zero or more of {@link #PROTECT_STATUS_BAR}, {@link #PROTECT_HOTWORD_INDICATOR},
-         *     {@link #PROTECT_WHOLE_SCREEN}.
+         *     zero or more of [PROTECT_STATUS_BAR], [PROTECT_HOTWORD_INDICATOR],
+         *     [PROTECT_WHOLE_SCREEN].
          * @throws IllegalArgumentException if viewProtectionMode has an unexpected value
          */
         fun setViewProtectionMode(viewProtectionMode: Int) = apply {
@@ -201,10 +200,10 @@ class WatchFace private constructor(
          * Sets position of status icons (battery state, lack of connection) on the screen.
          *
          * @param statusBarGravity This must be any combination of horizontal Gravity constant
-         *     ({@link Gravity#LEFT}, {@link Gravity#CENTER_HORIZONTAL}, {@link Gravity#RIGHT})
-         *     and vertical Gravity constants ({@link Gravity#TOP}, {@link
-         *     Gravity#CENTER_VERTICAL}, {@link Gravity#BOTTOM}), e.g. {@code Gravity.LEFT |
-         *     Gravity.BOTTOM}. On circular screens, only the vertical gravity is respected.
+         *     ([Gravity.LEFT], [Gravity.CENTER_HORIZONTAL], [Gravity.RIGHT])
+         *     and vertical Gravity constants ([Gravity.TOP], [Gravity,CENTER_VERTICAL},
+         *     [Gravity,BOTTOM]), e.g. {@code Gravity.LEFT | Gravity.BOTTOM}. On circular screens,
+         *     only the vertical gravity is respected.
          */
         fun setStatusBarGravity(statusBarGravity: Int) = apply {
             this.statusBarGravity = statusBarGravity
@@ -232,7 +231,7 @@ class WatchFace private constructor(
          * Sets whether to hide the dot indicator that is displayed at the bottom of the watch face
          * if there are any unread notifications. The default value is false, but note that the
          * dot will not be displayed if the numerical unread count indicator is being shown (i.e.
-         * if {@link #getShowUnreadCountIndicator} is true).
+         * if [getShowUnreadCountIndicator] is true).
          *
          * @param hideNotificationIndicator if true an indicator will be hidden
          * @hide
@@ -245,9 +244,9 @@ class WatchFace private constructor(
          * Sets whether this watchface accepts tap events. The default is false.
          *
          * <p>Watchfaces that set this {@code true} are indicating they are prepared to receive
-         * {@link android.support.wearable.watchface.WatchFaceService#TAP_TYPE_TOUCH}, {@link
-         * android.support.wearable.watchface.WatchFaceService#TAP_TYPE_TOUCH_CANCEL}, and {@link
-         * android.support.wearable.watchface.WatchFaceService#TAP_TYPE_TAP} events.
+         * [android.support.wearable.watchface.WatchFaceService.TAP_TYPE_TOUCH],
+         * [android.support.wearable.watchface.WatchFaceService.TAP_TYPE_TOUCH_CANCEL], and
+         * [android.support.wearable.watchface.WatchFaceService.TAP_TYPE_TAP] events.
          *
          * @param acceptsTapEvents whether to receive touch events.
          */
@@ -261,7 +260,7 @@ class WatchFace private constructor(
             this.systemTimeProvider = systemTimeProvider
         }
 
-        /** Constructs the {@link WatchFace}. */
+        /** Constructs the [WatchFace]. */
         fun build(): WatchFace {
             val componentName =
                 ComponentName(
@@ -630,11 +629,11 @@ class WatchFace private constructor(
     }
 
     /**
-     * Convenience for {@link SurfaceHolder.Callback#surfaceChanged}. Called when the
-     * {@link SurfaceHolder} containing the display surface changes.
+     * Convenience for [SurfaceHolder.Callback.surfaceChanged]. Called when the
+     * [SurfaceHolder] containing the display surface changes.
      *
-     * @param holder The new {@link SurfaceHolder} containing the display surface
-     * @param format The new {@link android.graphics.PixelFormat} of the surface
+     * @param holder The new [SurfaceHolder] containing the display surface
+     * @param format The new [android.graphics.PixelFormat] of the surface
      * @param width The width of the new display surface
      * @param height The height of the new display surface
      */
@@ -729,8 +728,8 @@ class WatchFace private constructor(
      * Called when new complication data is received.
      *
      * @param watchFaceComplicationId The id of the complication that the data relates to. This will
-     *     be an id that was previously sent in a call to {@link #setActiveComplications}.
-     * @param data The {@link ComplicationData} that should be displayed in the complication.
+     *     be an id that was previously sent in a call to [setActiveComplications].
+     * @param data The [ComplicationData] that should be displayed in the complication.
      */
     @UiThread
     internal fun onComplicationDataUpdate(watchFaceComplicationId: Int, data: ComplicationData) {
@@ -835,15 +834,15 @@ class WatchFace private constructor(
         pendingSingleTap.cancel()
     }
 
-    /** Schedules a call to {@link #onDraw} to draw the next frame. */
+    /** Schedules a call to [onDraw] to draw the next frame. */
     @UiThread
     fun invalidate() {
         watchFaceHostApi.invalidate()
     }
 
     /**
-     * Posts a message to schedule a call to {@link #onDraw} to draw the next frame. Unlike {@link
-     * #invalidate}, this method is thread-safe and may be called on any thread.
+     * Posts a message to schedule a call to [onDraw] to draw the next frame. Unlike
+     * [invalidate], this method is thread-safe and may be called on any thread.
      */
     fun postInvalidate() {
         watchFaceHostApi.getHandler().post { watchFaceHostApi.invalidate() }

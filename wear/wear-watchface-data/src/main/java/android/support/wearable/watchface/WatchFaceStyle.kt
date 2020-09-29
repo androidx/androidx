@@ -28,10 +28,10 @@ import androidx.annotation.RestrictTo
  * A style descriptor for watch faces.
  *
  * <p>Parameters here affect how the system UI will be drawn over a watch face. An instance of this
- * class should be passed in to {@link WatchFaceService.Engine#setWatchFaceStyle} in the {@code
- * onCreate} method of your {@link WatchFaceService.Engine#onCreate} override.
+ * class should be passed in to [WatchFaceService.Engine.setWatchFaceStyle] in the `onCreate`
+ * method of your [WatchFaceService.Engine.onCreate] override.
  *
- * <p>To construct a WatchFaceStyle use {@link WatchFaceStyle.Builder}.
+ * <p>To construct a WatchFaceStyle use [WatchFaceStyle.Builder].
  *
  * @hide
  */

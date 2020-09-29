@@ -30,16 +30,16 @@ import androidx.wear.complications.SystemProviders
 import androidx.wear.complications.rendering.ComplicationDrawable
 import androidx.wear.watchface.data.ComplicationBoundsType
 
-/** Common interface for rendering complications onto a {@link Canvas}. */
+/** Common interface for rendering complications onto a [Canvas]. */
 interface CanvasComplicationRenderer {
     /**
-     * Called when the CanvasComplicationRenderer attaches to a {@link Complication}.
+     * Called when the CanvasComplicationRenderer attaches to a [Complication].
      */
     @UiThread
     fun onAttach(complication: Complication)
 
     /**
-     * Called when the CanvasComplicationRenderer detaches from a {@link Complication}.
+     * Called when the CanvasComplicationRenderer detaches from a [Complication].
      */
     @UiThread
     fun onDetach()
@@ -50,10 +50,10 @@ interface CanvasComplicationRenderer {
      * selection UI rendering. The width and height will be the same as that computed by
      * computeBounds but the translation and canvas size may differ.
      *
-     * @param canvas The {@link Canvas} to render into
-     * @param bounds A {@link Rect} describing the bounds of the complication
-     * @param calendar The current {@link Calendar}
-     * @param drawMode The current {@link DrawMode}
+     * @param canvas The [Canvas] to render into
+     * @param bounds A [Rect] describing the bounds of the complication
+     * @param calendar The current [Calendar]
+     * @param drawMode The current [DrawMode]
      */
     @UiThread
     fun render(
@@ -73,15 +73,15 @@ interface CanvasComplicationRenderer {
     fun setIsHighlighted(highlight: Boolean)
 
     /**
-     * Sets the current {@link ComplicationData}.
+     * Sets the current [ComplicationData].
      *
-     * @param data The {@link ComplicationData}
+     * @param data The [ComplicationData]
      */
     @UiThread
     fun setData(data: ComplicationData?)
 
     /**
-     * Returns the current {@link ComplicationData} associated with the CanvasComplicationRenderer.
+     * Returns the current [ComplicationData] associated with the CanvasComplicationRenderer.
      */
     @UiThread
     fun getData(): ComplicationData?
@@ -93,9 +93,9 @@ interface CanvasComplicationRenderer {
     }
 
     /**
-     * Called by the {@link WatchFace}
+     * Called by the [WatchFace]
      *
-     * @param callback The {@link InvalidateCallback} to register
+     * @param callback The [InvalidateCallback] to register
      */
     @UiThread
     @SuppressLint("ExecutorRegistration")
@@ -103,7 +103,7 @@ interface CanvasComplicationRenderer {
 }
 
 /**
- * A complication rendered with {@link ComplicationDrawable} which renders complications in a
+ * A complication rendered with [ComplicationDrawable] which renders complications in a
  * material design style. This renderer can't be shared by multiple complications.
  */
 open class CanvasComplicationDrawableRenderer(
@@ -200,7 +200,7 @@ open class CanvasComplicationDrawableRenderer(
 
 /**
  * Represents a individual complication on the screen. The number of complications is fixed
- * (see {@link ComplicationsManager}) but complications can be enabled or disabled as needed.
+ * (see [ComplicationsManager]) but complications can be enabled or disabled as needed.
  */
 class Complication internal constructor(
     internal val id: Int,
@@ -225,8 +225,8 @@ class Complication internal constructor(
         private val renderer: CanvasComplicationRenderer,
 
         /**
-         * The types of complication supported by this Complication. Passed into {@link
-         * ComplicationHelperActivity#createProviderChooserHelperIntent} during complication
+         * The types of complication supported by this Complication. Passed into
+         * [ComplicationHelperActivity.createProviderChooserHelperIntent] during complication
          * configuration.
          */
         private val supportedTypes: IntArray,
@@ -361,9 +361,9 @@ class Complication internal constructor(
     /**
      * Watch faces should use this method to render a complication. Note the system may call this.
      *
-     * @param canvas The {@link Canvas} to render into
-     * @param calendar The current {@link Calendar}
-     * @param drawMode The current {@link DrawMode}
+     * @param canvas The [Canvas] to render into
+     * @param calendar The current [Calendar]
+     * @param drawMode The current [DrawMode]
      */
     @UiThread
     fun render(

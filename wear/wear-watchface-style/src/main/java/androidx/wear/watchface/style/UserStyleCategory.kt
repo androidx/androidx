@@ -50,15 +50,14 @@ abstract class UserStyleCategory(
     val options: List<Option>,
 
     /**
-     * The default option index, used if nothing has been selected within the {@link #options} list.
+     * The default option index, used if nothing has been selected within the [options] list.
      */
     val defaultOptionIndex: Int,
 
     /**
      * Used by the style configuration UI. Describes which rendering layer this style affects. Must
      * be either 0 (for a style change with no visual effect, e.g. sound controls) or a combination
-     * of {@link #LAYER_WATCH_FACE_BASE}, {@link #LAYER_COMPLICATONS},
-     * {@link #LAYER_WATCH_FACE_UPPER}.
+     * of [LAYER_WATCH_FACE_BASE], [LAYER_COMPLICATONS], [LAYER_WATCH_FACE_UPPER].
      */
     val layerFlags: Int
 ) {
@@ -179,7 +178,7 @@ abstract class UserStyleCategory(
      * categories that can't sensibly be fully enumerated (e.g. a full 24-bit color picker).
      *
      * @param optionId The ID of the option
-     * @return An {@link Option} corresponding to the name. This could either be one of the
+     * @return An [Option] corresponding to the name. This could either be one of the
      *     options from userStyleCategories or a newly constructed Option depending on the nature
      *     of the UserStyleCategory. If optionName is unrecognized then the default value for the
      *     category should be returned.

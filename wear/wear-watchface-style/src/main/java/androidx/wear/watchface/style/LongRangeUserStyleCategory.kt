@@ -21,7 +21,7 @@ import androidx.annotation.RestrictTo
 import androidx.wear.watchface.style.data.LongRangeUserStyleCategoryWireFormat
 
 /**
- * A LongRangeUserStyleCategory represents a category with a {@link Long} value in the range
+ * A LongRangeUserStyleCategory represents a category with a [Long] value in the range
  * [minimumValue .. maximumValue].
  */
 class LongRangeUserStyleCategory : UserStyleCategory {
@@ -76,8 +76,7 @@ class LongRangeUserStyleCategory : UserStyleCategory {
         /**
          * Used by the style configuration UI. Describes which rendering layer this style affects.
          * Must be either 0 (for a style change with no visual effect, e.g. sound controls) or a
-         * combination  of {@link #LAYER_WATCH_FACE_BASE}, {@link #LAYER_COMPLICATONS}, {@link
-         * #LAYER_UPPER}.
+         * combination  of [LAYER_WATCH_FACE_BASE], [LAYER_COMPLICATONS], [LAYER_UPPER].
          */
         layerFlags: Int
     ) : super(
@@ -110,7 +109,7 @@ class LongRangeUserStyleCategory : UserStyleCategory {
         )
 
     /**
-     * Represents an option a {@link Long} in the range [minimumValue .. maximumValue].
+     * Represents an option a [Long] in the range [minimumValue .. maximumValue].
      */
     class LongRangeOption : Option {
         /* The value for this option. Must be within the range [minimumValue..maximumValue]. */

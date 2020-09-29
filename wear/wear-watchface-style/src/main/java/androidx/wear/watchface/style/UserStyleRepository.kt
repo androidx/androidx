@@ -23,8 +23,8 @@ import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 import androidx.wear.watchface.style.data.UserStyleWireFormat
 
 /**
- * The users style choices represented as a map of {@link UserStyleCategory} to
- * {@link UserStyleCategory.Option}.
+ * The users style choices represented as a map of [UserStyleCategory] to
+ * [UserStyleCategory.Option].
  */
 class UserStyle(val options: Map<UserStyleCategory, UserStyleCategory.Option>) {
     /** @hide */
@@ -103,7 +103,7 @@ class UserStyleRepository(
         }
 
     /**
-     * Adds a {@link UserStyleListener} which is called immediately and whenever the style changes.
+     * Adds a [UserStyleListener] which is called immediately and whenever the style changes.
      */
     @UiThread
     @SuppressLint("ExecutorRegistration")
@@ -112,7 +112,7 @@ class UserStyleRepository(
         userStyleListener.onUserStyleChanged(_style)
     }
 
-    /** Removes a {@link UserStyleListener} previously added by {@link #addUserStyleListener}. */
+    /** Removes a [UserStyleListener] previously added by [addUserStyleListener]. */
     @UiThread
     @SuppressLint("ExecutorRegistration")
     fun removeUserStyleListener(userStyleListener: UserStyleListener) {

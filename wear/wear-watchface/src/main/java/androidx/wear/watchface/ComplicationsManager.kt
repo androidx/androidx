@@ -36,9 +36,10 @@ private fun getComponentName(context: Context) = ComponentName(
 )
 
 /**
- * The {@link Complication}s associated with the {@link WatchFace}. Dynamic creation of
+ * The [Complication]s associated with the [WatchFace]. Dynamic creation of
  * complications isn't supported, however complications can be enabled and disabled, perhaps as
- * part of a user style see {@link UserStyleCategory} and {@link Renderer#onStyleChanged}.
+ * part of a user style see [androidx.wear.watchface.style.UserStyleCategory] and
+ * [Renderer.onStyleChanged].
  */
 class ComplicationsManager(
     /**
@@ -112,7 +113,7 @@ class ComplicationsManager(
         scheduleUpdateActiveComplications()
     }
 
-    /** Returns the {@link Complication} corresponding to id or null. */
+    /** Returns the [Complication] corresponding to id or null. */
     operator fun get(id: Int) = complications[id]
 
     internal fun scheduleUpdateActiveComplications() {
@@ -181,8 +182,8 @@ class ComplicationsManager(
      * Called when new complication data is received.
      *
      * @param watchFaceComplicationId The id of the complication that the data relates to. This
-     *     will be an id that was previously sent in a call to {@link #setActiveComplications}.
-     * @param data The {@link ComplicationData} that should be displayed in the complication.
+     *     will be an id that was previously sent in a call to [setActiveComplications].
+     * @param data The [ComplicationData] that should be displayed in the complication.
      */
     @UiThread
     internal fun onComplicationDataUpdate(watchFaceComplicationId: Int, data: ComplicationData) {
@@ -301,7 +302,7 @@ class ComplicationsManager(
     }
 
     /**
-     * Adds a {@link TapListener} which is called whenever the user interacts with a
+     * Adds a [TapListener] which is called whenever the user interacts with a
      * complication.
      */
     @UiThread
@@ -311,7 +312,7 @@ class ComplicationsManager(
     }
 
     /**
-     * Removes a {@link TapListener} previously added by {@link #addComplicationListener}.
+     * Removes a [TapListener] previously added by [addComplicationListener].
      */
     @UiThread
     fun removeTapListener(tapListener: TapListener) {

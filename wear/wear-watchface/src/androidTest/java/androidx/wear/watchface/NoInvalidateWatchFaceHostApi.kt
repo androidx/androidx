@@ -23,7 +23,7 @@ import androidx.wear.watchface.style.data.UserStyleWireFormat
 import androidx.wear.watchface.style.data.UserStyleSchemaWireFormat
 
 /**
- * This test harness wraps {@link WatchFaceHost} and makes invalidate do nothing giving the test
+ * This test harness wraps [WatchFaceHost] and makes invalidate do nothing giving the test
  * full control over when frames are produced.
  */
 class NoInvalidateWatchFaceHostApi(val api: WatchFaceHostApi) : WatchFaceHostApi {

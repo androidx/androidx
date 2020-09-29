@@ -51,7 +51,7 @@ interface WatchFaceConfigDelegate {
      */
     fun getComplicationsMap(): Map<Int, Complication>
 
-    /** Returns the current {@link Calendar}. */
+    /** Returns the current [Calendar]. */
     fun getCalendar(): Calendar
 
     /**

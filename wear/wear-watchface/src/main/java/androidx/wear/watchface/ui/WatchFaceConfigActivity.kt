@@ -38,16 +38,16 @@ import androidx.wear.watchface.style.UserStyleCategory
 /** @hide */
 @RestrictTo(LIBRARY)
 internal interface FragmentController {
-    /** Show the {@link ConfigFragment} which lets the user select what they want to configure. */
+    /** Show the [ConfigFragment] which lets the user select what they want to configure. */
     fun showConfigFragment()
 
     /**
-     * Show the {@link ComplicationConfigFragment} which lets the user select the complication
+     * Show the [ComplicationConfigFragment] which lets the user select the complication
      * they want to configure.
      */
     fun showComplicationConfigSelectionFragment()
 
-    /** Show the {@link StyleConfigFragment} which lets the user configure the watch face style. */
+    /** Show the [StyleConfigFragment] which lets the user configure the watch face style. */
     fun showStyleConfigFragment(
         categoryId: String,
         styleSchema: List<UserStyleCategory>,

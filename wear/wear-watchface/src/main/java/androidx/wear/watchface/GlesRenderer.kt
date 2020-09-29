@@ -52,17 +52,17 @@ private val EGL_CONTEXT_ATTRIB_LIST =
 private val EGL_SURFACE_ATTRIB_LIST = intArrayOf(EGL14.EGL_NONE)
 
 /**
- * Watch faces that require {@link GLES20} rendering should extend their {@link Renderer} from this
+ * Watch faces that require [GLES20] rendering should extend their [Renderer] from this
  * class.
  */
 abstract class GlesRenderer (
-    /** The {@link SurfaceHolder} that {@link onDraw} will draw into. */
+    /** The [SurfaceHolder] that [onDraw] will draw into. */
     surfaceHolder: SurfaceHolder,
 
-    /** The associated {@link UserStyleRepository}. */
+    /** The associated [UserStyleRepository]. */
     userStyleRepository: UserStyleRepository,
 
-    /** The associated {@link WatchState}. */
+    /** The associated [WatchState]. */
     watchState: WatchState
 ) : Renderer(surfaceHolder, userStyleRepository, watchState) {
     private companion object {
@@ -103,16 +103,16 @@ abstract class GlesRenderer (
     private var calledOnGlContextCreated = false
 
     /**
-     * Returns the attributes to be passed to {@link EGL14.eglChooseConfig}. By default this selects
+     * Returns the attributes to be passed to [EGL14.eglChooseConfig]. By default this selects
      * an RGBAB8888 back buffer.
      */
     @SuppressWarnings("SyntheticAccessor")
     protected open fun getConfigAttribList() = EGL_CONFIG_ATTRIB_LIST
 
     /**
-     * Chooses the EGLConfig to use, by default this calls {@link getEglConfigAttribList} to get
-     * the attributes list to pass to {@link EGL14.eglChooseConfig}.
-     * @throws RuntimeException if {@link EGL14.eglChooseConfig} fails
+     * Chooses the EGLConfig to use, by default this calls [getEglConfigAttribList] to get
+     * the attributes list to pass to [EGL14.eglChooseConfig].
+     * @throws RuntimeException if [EGL14.eglChooseConfig] fails
      */
     protected open fun chooseEglConfig(eglDisplay: EGLDisplay): EGLConfig {
         val numEglConfigs = IntArray(1)
@@ -137,7 +137,7 @@ abstract class GlesRenderer (
     }
 
     /**
-     * Returns the attributes to be passed to {@link EGL14.eglCreateWindowSurface}. By default this
+     * Returns the attributes to be passed to [EGL14.eglCreateWindowSurface]. By default this
      * is empty.
      */
     @SuppressWarnings("SyntheticAccessor")
@@ -291,10 +291,10 @@ abstract class GlesRenderer (
 
     /**
      * Sub-classes should override this to implement their rendering logic which should respect
-     * the current {@link DrawMode}. For correct functioning watch faces must use the supplied
-     * {@link Calendar} and avoid using any other ways of getting the time.
+     * the current [DrawMode]. For correct functioning watch faces must use the supplied
+     * [Calendar] and avoid using any other ways of getting the time.
      *
-     * @param calendar The current {@link Calendar}
+     * @param calendar The current [Calendar]
      */
     @UiThread
     abstract fun render(calendar: Calendar)
