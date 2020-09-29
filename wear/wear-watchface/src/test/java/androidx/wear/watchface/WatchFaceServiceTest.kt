@@ -1185,7 +1185,7 @@ class WatchFaceServiceTest {
     fun setComplicationDetails_called() {
         initEngine(
             WatchFaceType.ANALOG,
-            listOf(leftComplication, rightComplication),
+            listOf(leftComplication, rightComplication, backgroundComplication),
             emptyList(),
             apiVersion = 4
         )
@@ -1194,7 +1194,7 @@ class WatchFaceServiceTest {
 
         val complicationId = ArgumentCaptor.forClass(Int::class.java)
         val complicationDetails = ArgumentCaptor.forClass(ComplicationDetails::class.java)
-        verify(iWatchFaceService, times(2)).setComplicationDetails(
+        verify(iWatchFaceService, times(3)).setComplicationDetails(
             complicationId.capture(), complicationDetails.capture()
         )
 
@@ -1203,12 +1203,36 @@ class WatchFaceServiceTest {
             ComplicationBoundsType.ROUND_RECT)
         assertThat(complicationDetails.allValues[0].bounds).isEqualTo(
             Rect(20, 40, 40, 60))
+        assertThat(complicationDetails.allValues[0].supportedTypes).isEqualTo(
+            intArrayOf(
+                ComplicationData.TYPE_RANGED_VALUE,
+                ComplicationData.TYPE_LONG_TEXT,
+                ComplicationData.TYPE_SHORT_TEXT,
+                ComplicationData.TYPE_ICON,
+                ComplicationData.TYPE_SMALL_IMAGE
+            ))
 
         assertThat(complicationId.allValues[1]).isEqualTo(RIGHT_COMPLICATION_ID)
         assertThat(complicationDetails.allValues[1].boundsType).isEqualTo(
             ComplicationBoundsType.ROUND_RECT)
         assertThat(complicationDetails.allValues[1].bounds).isEqualTo(
             Rect(60, 40, 80, 60))
+        assertThat(complicationDetails.allValues[0].supportedTypes).isEqualTo(
+            intArrayOf(
+                ComplicationData.TYPE_RANGED_VALUE,
+                ComplicationData.TYPE_LONG_TEXT,
+                ComplicationData.TYPE_SHORT_TEXT,
+                ComplicationData.TYPE_ICON,
+                ComplicationData.TYPE_SMALL_IMAGE
+            ))
+
+        assertThat(complicationId.allValues[2]).isEqualTo(BACKGROUND_COMPLICATION_ID)
+        assertThat(complicationDetails.allValues[2].boundsType).isEqualTo(
+            ComplicationBoundsType.BACKGROUND)
+        assertThat(complicationDetails.allValues[2].bounds).isEqualTo(
+            Rect(0, 0, 100, 100))
+        assertThat(complicationDetails.allValues[2].supportedTypes).isEqualTo(
+            intArrayOf(ComplicationData.TYPE_LARGE_IMAGE))
     }
 
     @Test
@@ -1247,42 +1271,5 @@ class WatchFaceServiceTest {
         testRenderer.animate = false
         watchFace.maybeUpdateDrawMode()
         assertThat(testRenderer.drawMode).isEqualTo(DrawMode.AMBIENT)
-    }
-
-    @Test
-    fun setComplicationSupportedTypes_called() {
-        initEngine(
-            WatchFaceType.ANALOG,
-            listOf(leftComplication, rightComplication, backgroundComplication),
-            emptyList(),
-            apiVersion = 4
-        )
-
-        verify(iWatchFaceService).setComplicationSupportedTypes(
-            LEFT_COMPLICATION_ID,
-            intArrayOf(
-                ComplicationData.TYPE_RANGED_VALUE,
-                ComplicationData.TYPE_LONG_TEXT,
-                ComplicationData.TYPE_SHORT_TEXT,
-                ComplicationData.TYPE_ICON,
-                ComplicationData.TYPE_SMALL_IMAGE
-            )
-        )
-
-        verify(iWatchFaceService).setComplicationSupportedTypes(
-            RIGHT_COMPLICATION_ID,
-            intArrayOf(
-                ComplicationData.TYPE_RANGED_VALUE,
-                ComplicationData.TYPE_LONG_TEXT,
-                ComplicationData.TYPE_SHORT_TEXT,
-                ComplicationData.TYPE_ICON,
-                ComplicationData.TYPE_SMALL_IMAGE
-            )
-        )
-
-        verify(iWatchFaceService).setComplicationSupportedTypes(
-            BACKGROUND_COMPLICATION_ID,
-            intArrayOf(ComplicationData.TYPE_LARGE_IMAGE)
-        )
     }
 }

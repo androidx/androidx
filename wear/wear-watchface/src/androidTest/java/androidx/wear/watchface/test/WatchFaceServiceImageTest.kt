@@ -127,9 +127,6 @@ private class WatchFaceServiceStub(
 
     override fun getApiVersion() = apiVersion
 
-    override fun setComplicationSupportedTypes(id: Int, types: IntArray?) {
-    }
-
     private fun setComplication(complicationId: Int, complicationData: ComplicationData) {
         engineWrapper.onCommand(
             Constants.COMMAND_COMPLICATION_DATA,

@@ -16,6 +16,7 @@
 
 package androidx.wear.watchface
 
+import android.annotation.SuppressLint
 import android.annotation.TargetApi
 import android.content.BroadcastReceiver
 import android.content.ComponentName
@@ -1033,22 +1034,18 @@ abstract class WatchFaceService : WallpaperService() {
             return iWatchFaceService.storedUserStyle
         }
 
+        @SuppressLint("WrongConstant")
         override fun setComplicationDetails(
             complicationId: Int,
             bounds: Rect,
-            @ComplicationBoundsType boundsType: Int
+            @ComplicationBoundsType boundsType: Int,
+            types: IntArray
         ) {
             if (systemApiVersion >= 3) {
                 iWatchFaceService.setComplicationDetails(
                     complicationId,
-                    ComplicationDetails(bounds, boundsType)
+                    ComplicationDetails(bounds, boundsType, types)
                 )
-            }
-        }
-
-        override fun setComplicationSupportedTypes(complicationId: Int, types: IntArray) {
-            if (systemApiVersion >= 3) {
-                iWatchFaceService.setComplicationSupportedTypes(complicationId, types)
             }
         }
     }

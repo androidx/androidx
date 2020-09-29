@@ -20,6 +20,7 @@ import android.annotation.SuppressLint;
 import android.graphics.Rect;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.wearable.complications.ComplicationData;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RestrictTo;
@@ -45,15 +46,22 @@ public final class ComplicationDetails implements VersionedParcelable, Parcelabl
     @ComplicationBoundsType
     int mBoundsType;
 
+    @ParcelField(3)
+    @NonNull
+    @ComplicationData.ComplicationType
+    int[] mSupportedTypes;
+
     /** Used by VersionedParcelable. */
     ComplicationDetails() {
     }
 
     public ComplicationDetails(
             @NonNull Rect bounds,
-            @ComplicationBoundsType int boundsType) {
+            @ComplicationBoundsType int boundsType,
+            @NonNull @ComplicationData.ComplicationType int[] supportedTypes) {
         mBounds = bounds;
         mBoundsType = boundsType;
+        mSupportedTypes = supportedTypes;
     }
 
     @NonNull
@@ -64,6 +72,12 @@ public final class ComplicationDetails implements VersionedParcelable, Parcelabl
     @ComplicationBoundsType
     public int getBoundsType() {
         return mBoundsType;
+    }
+
+    @NonNull
+    @ComplicationData.ComplicationType
+    public int[] getSupportedTypes() {
+        return mSupportedTypes;
     }
 
     /** Serializes this ComplicationDetails to the specified {@link Parcel}. */

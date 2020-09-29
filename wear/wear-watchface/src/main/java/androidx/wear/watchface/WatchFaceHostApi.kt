@@ -52,15 +52,13 @@ interface WatchFaceHostApi {
     /** Returns the user style stored by the system if there is one or null otherwise. */
     fun getStoredUserStyle(): UserStyleWireFormat?
 
-    /** Registers the current bounds of the specified complication with the system. */
+    /** Registers details of the complications with the system. */
     fun setComplicationDetails(
         complicationId: Int,
         bounds: Rect,
-        @ComplicationBoundsType boundsType: Int
+        @ComplicationBoundsType boundsType: Int,
+        types: IntArray
     )
-
-    /** Registers the supported complication types of the specified complication. */
-    fun setComplicationSupportedTypes(complicationId: Int, types: IntArray)
 
     /**
      * Sets ContentDescriptionLabels for text-to-speech screen readers to make your
