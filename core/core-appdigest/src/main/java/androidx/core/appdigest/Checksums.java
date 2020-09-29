@@ -17,6 +17,7 @@
 package androidx.core.appdigest;
 
 import static androidx.core.appdigest.Checksum.TYPE_WHOLE_MD5;
+import static androidx.core.appdigest.Checksum.TYPE_WHOLE_MERKLE_ROOT_4K_SHA256;
 import static androidx.core.appdigest.Checksum.TYPE_WHOLE_SHA1;
 import static androidx.core.appdigest.Checksum.TYPE_WHOLE_SHA256;
 import static androidx.core.appdigest.Checksum.TYPE_WHOLE_SHA512;
@@ -171,22 +172,26 @@ public final class Checksums {
 
     /**
      * Fetch or calculate checksums for the specific file.
-     *
-     * @param split     split name, null for base
-     * @param file      to fetch checksums for
-     * @param required  mask to forcefully calculate if not available
-     * @param checksums resulting checksums
      */
     @SuppressWarnings("deprecation") /* WHOLE_MD5, WHOLE_SHA1 */
     private static void getRequiredApkChecksums(String split, File file,
-            @Checksum.Type int required,
-            SparseArray<Checksum> checksums) {
+            @Checksum.Type int required, SparseArray<Checksum> checksums) {
         // Manually calculating required checksums if not readily available.
-        // TODO: TYPE_WHOLE_MERKLE_ROOT_4K_SHA256
-        calculateChecksumIfRequested(checksums, split, file, required, TYPE_WHOLE_MD5);
-        calculateChecksumIfRequested(checksums, split, file, required, TYPE_WHOLE_SHA1);
-        calculateChecksumIfRequested(checksums, split, file, required, TYPE_WHOLE_SHA256);
-        calculateChecksumIfRequested(checksums, split, file, required, TYPE_WHOLE_SHA512);
+        if (isRequired(TYPE_WHOLE_MERKLE_ROOT_4K_SHA256, required, checksums)) {
+            try {
+                byte[] generatedRootHash =
+                        VerityTreeBuilder.computeChunkVerityTreeAndDigest(file.getAbsolutePath());
+                checksums.put(TYPE_WHOLE_MERKLE_ROOT_4K_SHA256,
+                        new Checksum(split, TYPE_WHOLE_MERKLE_ROOT_4K_SHA256, generatedRootHash));
+            } catch (IOException | NoSuchAlgorithmException e) {
+                Log.e(TAG, "Error calculating TYPE_WHOLE_MERKLE_ROOT_4K_SHA256", e);
+            }
+        }
+
+        calculateChecksumIfRequired(checksums, split, file, required, TYPE_WHOLE_MD5);
+        calculateChecksumIfRequired(checksums, split, file, required, TYPE_WHOLE_SHA1);
+        calculateChecksumIfRequired(checksums, split, file, required, TYPE_WHOLE_SHA256);
+        calculateChecksumIfRequired(checksums, split, file, required, TYPE_WHOLE_SHA512);
     }
 
     @SuppressWarnings("deprecation") /* WHOLE_MD5, WHOLE_SHA1 */
@@ -206,9 +211,20 @@ public final class Checksums {
         }
     }
 
-    private static void calculateChecksumIfRequested(SparseArray<Checksum> checksums,
+    private static boolean isRequired(@Checksum.Type int type,
+            @Checksum.Type int required, SparseArray<Checksum> checksums) {
+        if ((required & type) == 0) {
+            return false;
+        }
+        if (checksums.indexOfKey(type) >= 0) {
+            return false;
+        }
+        return true;
+    }
+
+    private static void calculateChecksumIfRequired(SparseArray<Checksum> checksums,
             String split, File file, int required, int type) {
-        if ((required & type) != 0 && (checksums.indexOfKey(type) < 0)) {
+        if (isRequired(type, required, checksums)) {
             final byte[] checksum = getApkChecksum(file, type);
             if (checksum != null) {
                 checksums.put(type, new Checksum(split, type, checksum));
