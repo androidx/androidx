@@ -74,8 +74,10 @@ class ProfilerTest {
         file = File(Arguments.testOutputDir, "test-methodTracing.trace")
     )
 
-    @Ignore("b/158303822 - Temporarily disabled in CI, since this currently requires " +
-            "external script setup")
+    @Ignore(
+        "b/158303822 - Temporarily disabled in CI, since this currently requires " +
+            "external script setup"
+    )
     @SdkSuppress(minSdkVersion = 28)
     @Test
     fun methodSamplingSimpleperf() = verifyProfiler(

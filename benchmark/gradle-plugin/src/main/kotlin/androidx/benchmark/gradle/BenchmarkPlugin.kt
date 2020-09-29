@@ -125,7 +125,8 @@ class BenchmarkPlugin : Plugin<Project> {
                     com.android.library plugins or they could not be found. The
                     androidx.benchmark plugin currently only supports android application or
                     library modules. Ensure that the required plugin is applied in the project
-                    build.gradle file.""".trimIndent()
+                    build.gradle file.
+                """.trimIndent()
             )
         }
 
@@ -159,7 +160,7 @@ class BenchmarkPlugin : Plugin<Project> {
                                 Log.LogLevel.INFO,
                                 "Benchmark",
                                 "Benchmark report files generated at $projectBuildDir" +
-                                        "/outputs/connected_android_test_additional_output"
+                                    "/outputs/connected_android_test_additional_output"
                             )
                         }
                     }

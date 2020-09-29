@@ -56,7 +56,7 @@ internal class Stats(data: LongArray, val name: String) {
 
     internal fun getSummary(): String {
         return "Stats for $name: median $median, min $min, max $max, mean $mean, " +
-                "standardDeviation: $standardDeviation"
+            "standardDeviation: $standardDeviation"
     }
 
     internal fun putInBundle(status: Bundle, prefix: String) {
@@ -82,7 +82,7 @@ internal class Stats(data: LongArray, val name: String) {
 
     override fun hashCode(): Int {
         return min.hashCode() + max.hashCode() + median.hashCode() + standardDeviation.hashCode() +
-                mean.hashCode() + percentile90.hashCode() + percentile95.hashCode()
+            mean.hashCode() + percentile90.hashCode() + percentile95.hashCode()
     }
 
     companion object {

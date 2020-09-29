@@ -70,10 +70,10 @@ internal object Arguments {
         dryRunMode = arguments.getArgument("dryRunMode.enable")?.toBoolean() ?: false
 
         startupMode = !dryRunMode &&
-                (arguments.getArgument("startupMode.enable")?.toBoolean() ?: false)
+            (arguments.getArgument("startupMode.enable")?.toBoolean() ?: false)
 
         outputEnable = !dryRunMode &&
-                (arguments.getArgument("output.enable")?.toBoolean() ?: false)
+            (arguments.getArgument("output.enable")?.toBoolean() ?: false)
 
         // Transform comma-delimited list into set of suppressed errors
         // E.g. "DEBUGGABLE, UNLOCKED" -> setOf("DEBUGGABLE", "UNLOCKED")
@@ -88,11 +88,14 @@ internal object Arguments {
             arguments.getArgument("profiling.sampleFrequency")?.ifBlank { null }?.toInt() ?: 10000
         profilerSampleDurationSeconds =
             arguments.getArgument("profiling.sampleDurationSeconds")?.ifBlank { null }?.toLong()
-                ?: 5
+            ?: 5
 
         if (profiler != null) {
-            Log.d(BenchmarkState.TAG, "Profiler ${profiler.javaClass.simpleName}, freq " +
-                    "$profilerSampleFrequency, duration $profilerSampleDurationSeconds")
+            Log.d(
+                BenchmarkState.TAG,
+                "Profiler ${profiler.javaClass.simpleName}, freq " +
+                    "$profilerSampleFrequency, duration $profilerSampleDurationSeconds"
+            )
         }
 
         val additionalTestOutputDir = arguments.getString("additionalTestOutputDir")
