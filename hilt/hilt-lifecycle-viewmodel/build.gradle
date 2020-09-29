@@ -38,7 +38,7 @@ dependencies {
     api("androidx.lifecycle:lifecycle-viewmodel-savedstate:2.2.0")
     implementation("androidx.activity:activity:1.1.0")
     api(HILT_ANDROID)
-    annotationProcessor(HILT_ANDROID_COMPILER)
+    annotationProcessor(HILT_COMPILER)
 }
 
 android.libraryVariants.all { variant ->

@@ -40,13 +40,11 @@ dependencies {
     implementation(AUTO_COMMON)
     implementation(JAVAPOET)
 
+    testImplementation(project(":hilt:hilt-common"))
     testImplementation(JUNIT)
     testImplementation(TRUTH)
     testImplementation(GOOGLE_COMPILE_TESTING)
     testImplementation(HILT_ANDROID)
-    testImplementation fileTree(
-            dir: "${new File(project(":hilt:hilt-common").buildDir, "libJar")}",
-            include : "*.jar")
     testImplementation fileTree(
             dir: "${new File(project(":hilt:hilt-lifecycle-viewmodel").buildDir, "libJar")}",
             include : "*.jar")
@@ -72,7 +70,6 @@ tasks.register("extractHiltJar", Copy).configure {
 }
 
 tasks.named("compileKotlin").configure {
-    dependsOn(":hilt:hilt-common:jarDebug")
     dependsOn(":hilt:hilt-lifecycle-viewmodel:jarDebug")
     dependsOn(":hilt:hilt-work:jarDebug")
     dependsOn(":hilt:hilt-compiler:extractHiltJar")
