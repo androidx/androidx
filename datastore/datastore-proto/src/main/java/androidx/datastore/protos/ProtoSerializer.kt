@@ -16,8 +16,8 @@
 
 package androidx.datastore.protos
 
-import androidx.datastore.CorruptionException
-import androidx.datastore.Serializer
+import androidx.datastore.core.CorruptionException
+import androidx.datastore.core.Serializer
 import com.google.protobuf.ExtensionRegistryLite
 import com.google.protobuf.InvalidProtocolBufferException
 import com.google.protobuf.MessageLite

@@ -9,12 +9,12 @@ package androidx.datastore.preferences {
   }
 
   public final class PreferenceDataStoreFactory {
-    method public androidx.datastore.DataStore<androidx.datastore.preferences.Preferences> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, optional androidx.datastore.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.Preferences>? corruptionHandler, optional java.util.List<? extends androidx.datastore.DataMigration<androidx.datastore.preferences.Preferences>> migrations, optional kotlinx.coroutines.CoroutineScope scope);
+    method public androidx.datastore.core.DataStore<androidx.datastore.preferences.Preferences> create(kotlin.jvm.functions.Function0<? extends java.io.File> produceFile, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.Preferences>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<androidx.datastore.preferences.Preferences>> migrations, optional kotlinx.coroutines.CoroutineScope scope);
     field public static final androidx.datastore.preferences.PreferenceDataStoreFactory INSTANCE;
   }
 
   public final class PreferenceDataStoreFactoryKt {
-    method public static androidx.datastore.DataStore<androidx.datastore.preferences.Preferences> createDataStore(android.content.Context, String name, optional androidx.datastore.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.Preferences>? corruptionHandler, optional java.util.List<? extends androidx.datastore.DataMigration<androidx.datastore.preferences.Preferences>> migrations, optional kotlinx.coroutines.CoroutineScope scope);
+    method public static androidx.datastore.core.DataStore<androidx.datastore.preferences.Preferences> createDataStore(android.content.Context, String name, optional androidx.datastore.core.handlers.ReplaceFileCorruptionHandler<androidx.datastore.preferences.Preferences>? corruptionHandler, optional java.util.List<? extends androidx.datastore.core.DataMigration<androidx.datastore.preferences.Preferences>> migrations, optional kotlinx.coroutines.CoroutineScope scope);
   }
 
   public abstract class Preferences {
@@ -33,7 +33,7 @@ package androidx.datastore.preferences {
 
   public final class PreferencesKt {
     method public static void clear(androidx.datastore.preferences.MutablePreferences);
-    method public static suspend Object? edit(androidx.datastore.DataStore<androidx.datastore.preferences.Preferences>, kotlin.jvm.functions.Function2<? super androidx.datastore.preferences.MutablePreferences,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> transform, kotlin.coroutines.Continuation<? super androidx.datastore.preferences.Preferences> p);
+    method public static suspend Object? edit(androidx.datastore.core.DataStore<androidx.datastore.preferences.Preferences>, kotlin.jvm.functions.Function2<? super androidx.datastore.preferences.MutablePreferences,? super kotlin.coroutines.Continuation<? super kotlin.Unit>,?> transform, kotlin.coroutines.Continuation<? super androidx.datastore.preferences.Preferences> p);
     method public static androidx.datastore.preferences.Preferences emptyPreferences();
     method public static operator void minusAssign(androidx.datastore.preferences.MutablePreferences, androidx.datastore.preferences.Preferences.Key<?> key);
     method public static androidx.datastore.preferences.MutablePreferences mutablePreferencesOf(androidx.datastore.preferences.Preferences.Pair<?>... pairs);

@@ -16,7 +16,7 @@
 
 package androidx.datastore.preferences
 
-import androidx.datastore.CorruptionException
+import androidx.datastore.core.CorruptionException
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test

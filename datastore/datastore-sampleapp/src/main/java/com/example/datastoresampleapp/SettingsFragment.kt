@@ -22,10 +22,10 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import androidx.datastore.CorruptionException
-import androidx.datastore.DataStore
-import androidx.datastore.DataStoreFactory
-import androidx.datastore.Serializer
+import androidx.datastore.core.CorruptionException
+import androidx.datastore.core.DataStore
+import androidx.datastore.core.DataStoreFactory
+import androidx.datastore.core.Serializer
 import androidx.preference.Preference
 import androidx.preference.SwitchPreference
 import androidx.preference.PreferenceFragmentCompat
