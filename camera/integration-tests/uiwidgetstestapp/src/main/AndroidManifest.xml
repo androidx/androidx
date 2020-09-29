@@ -20,29 +20,37 @@
     <application
         android:label="@string/app_name"
         android:theme="@style/AppTheme">
-        <activity android:name=".viewpager.ViewPager2Activity"
-            android:label="ViewPager2 CameraX Test" >
+
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".viewpager.ViewPagerActivity"
-            android:label="ViewPager CameraX Test" >
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <!-- Rotations -->
-        <activity android:name=".rotations.UnlockedOrientationActivity" />
+
+        <activity
+            android:name=".viewpager.ViewPager2Activity"
+            android:label="ViewPager2 CameraX Test" />
+
+        <activity
+            android:name=".viewpager.ViewPagerActivity"
+            android:label="ViewPager CameraX Test" />
+
+        <activity
+            android:name=".rotations.UnlockedOrientationActivity"
+            android:label="Rotation - Unlocked orientation" />
+
         <activity
             android:name=".rotations.LockedOrientationActivity"
+            android:label="Rotation - Locked orientation"
             android:screenOrientation="portrait" />
+
         <activity
             android:name=".rotations.OrientationConfigChangesOverriddenActivity"
-            android:configChanges="orientation|screenSize" />
+            android:configChanges="orientation|screenSize"
+            android:label="Rotation - ConfigChanges overridden" />
+
     </application>
 
     <uses-permission android:name="android.permission.CAMERA" />

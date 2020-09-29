@@ -15,5 +15,10 @@
   -->
 
 <resources>
-    <string name="app_name">UIWidgetsTestApp</string>
+    <string name="app_name">CameraX - UI Widgets Test App</string>
+    <string name="rotation_unlocked_orientation">Rotation - Unlocked orientation</string>
+    <string name="rotation_locked_orientation">Rotation - Locked orientation</string>
+    <string name="rotation_config_changes_overridden">Rotation - ConfigChanges overridden</string>
+    <string name="viewpager">ViewPager</string>
+    <string name="viewpager2">ViewPager2</string>
 </resources>
