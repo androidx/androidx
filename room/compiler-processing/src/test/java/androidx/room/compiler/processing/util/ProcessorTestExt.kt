@@ -113,14 +113,48 @@ fun runProcessorTest(
     }
     // we can compile w/ javac only if all code is in java
     if (sources.all { it is Source.JavaSource }) {
-        val (syntheticJavacProcessor, compileTester) = compileSources(sources, handler)
-        compileTester.compilesWithoutError()
-        syntheticJavacProcessor.throwIfFailed()
+        runJavaProcessorTest(sources = sources, handler = handler, succeed = true)
     }
+    runKaptTest(sources = sources, handler = handler, succeed = true)
+}
+
+fun runProcessorTestForFailedCompilation(
+    sources: List<Source>,
+    handler: (TestInvocation) -> Unit
+) {
+    // run with java processor
+    runJavaProcessorTest(sources = sources, handler = handler, succeed = false)
+    // now run with kapt
+    runKaptTest(sources = sources, handler = handler, succeed = false)
+}
+
+fun runJavaProcessorTest(
+    sources: List<Source>,
+    succeed: Boolean,
+    handler: (TestInvocation) -> Unit
+) {
+    val (syntheticJavacProcessor, compileTester) = compileSources(sources, handler)
+    if (succeed) {
+        compileTester.compilesWithoutError()
+    } else {
+        compileTester.failsToCompile()
+    }
+    syntheticJavacProcessor.throwIfFailed()
+}
+
+fun runKaptTest(
+    sources: List<Source>,
+    succeed: Boolean,
+    handler: (TestInvocation) -> Unit
+) {
     // now run with kapt
     val (kaptProcessor, kotlinCompilation) = compileWithKapt(sources, handler)
     val compilationResult = kotlinCompilation.compile()
-    assertThat(compilationResult.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
+    if (succeed) {
+        assertThat(compilationResult.exitCode).isEqualTo(KotlinCompilation.ExitCode.OK)
+    } else {
+        assertThat(compilationResult.exitCode).isNotEqualTo(KotlinCompilation.ExitCode.OK)
+    }
     kaptProcessor.throwIfFailed()
 }
 
@@ -137,19 +171,4 @@ fun runKspTest(
         assertThat(compilationResult.exitCode).isNotEqualTo(KotlinCompilation.ExitCode.OK)
     }
     kspProcessor.throwIfFailed()
-}
-
-fun runProcessorTestForFailedCompilation(
-    sources: List<Source>,
-    handler: (TestInvocation) -> Unit
-) {
-    val (syntheticJavacProcessor, compileTester) = compileSources(sources, handler)
-    compileTester.failsToCompile()
-    syntheticJavacProcessor.throwIfFailed()
-
-    // now run with kapt
-    val (kaptProcessor, kotlinCompilation) = compileWithKapt(sources, handler)
-    val compilationResult = kotlinCompilation.compile()
-    assertThat(compilationResult.exitCode).isNotEqualTo(KotlinCompilation.ExitCode.OK)
-    kaptProcessor.throwIfFailed()
 }
