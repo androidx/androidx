@@ -24,15 +24,15 @@ import androidx.annotation.CallSuper
 import androidx.annotation.UiThread
 import androidx.wear.watchface.style.UserStyleRepository
 
-/** The base class for {@link CanvasRenderer} and {@link GlesRenderer}. */
+/** The base class for [CanvasRenderer] and [GlesRenderer]. */
 abstract class Renderer(
-    /** The {@link SurfaceHolder} that {@link onDraw} will draw into. */
+    /** The [SurfaceHolder] that [onDraw] will draw into. */
     _surfaceHolder: SurfaceHolder,
 
-    /** The associated {@link UserStyleRepository}. */
+    /** The associated [UserStyleRepository]. */
     internal val userStyleRepository: UserStyleRepository,
 
-    /** The associated {@link WatchState}. */
+    /** The associated [WatchState]. */
     internal val watchState: WatchState
 ) {
     protected var surfaceHolder = _surfaceHolder
@@ -69,22 +69,22 @@ abstract class Renderer(
     open fun onSurfaceDestroyed(holder: SurfaceHolder) {}
 
     /**
-     * Renders the watch face into the {@link #surfaceHolder} using the current {@link #drawMode}
-     * with the user style specified by the {@link #userStyleRepository}.
+     * Renders the watch face into the [surfaceHolder] using the current [drawMode]
+     * with the user style specified by the [userStyleRepository].
      *
      * @param calendar The Calendar to use when rendering the watch face
-     * @return A {@link Bitmap} containing a screenshot of the watch face
+     * @return A [Bitmap] containing a screenshot of the watch face
      */
     @UiThread
     internal abstract fun renderInternal(calendar: Calendar)
 
     /**
      * Renders the watch face into a Bitmap with the user style specified by the
-     * {@link #userStyleRepository}.
+     * [userStyleRepository].
      *
      * @param calendar The Calendar to use when rendering the watch face
-     * @param drawMode The {@link DrawMode} to use when rendering the watch face
-     * @return A {@link Bitmap} containing a screenshot of the watch face
+     * @param drawMode The [DrawMode] to use when rendering the watch face
+     * @return A [Bitmap] containing a screenshot of the watch face
      */
     @UiThread
     internal abstract fun takeScreenshot(
@@ -93,7 +93,7 @@ abstract class Renderer(
     ): Bitmap
 
     /**
-     * Called when the {@link DrawMode} has been updated. Will always be called before the first
+     * Called when the [DrawMode] has been updated. Will always be called before the first
      * call to onDraw().
      */
     @UiThread
@@ -105,7 +105,7 @@ abstract class Renderer(
      * half of the watch face. Watch faces should override this to return the correct bounds for
      * the main clock element.
      *
-     * @return A {@link Rect} describing the bounds of the watch faces' main clock element
+     * @return A [Rect] describing the bounds of the watch faces' main clock element
      */
     @UiThread
     open fun getMainClockElementBounds(): Rect {
@@ -118,11 +118,11 @@ abstract class Renderer(
     }
 
     /**
-     * Convenience for {@link SurfaceHolder.Callback#surfaceChanged}. Called when the
-     * {@link SurfaceHolder} containing the display surface changes.
+     * Convenience for [SurfaceHolder.Callback.surfaceChanged]. Called when the
+     * [SurfaceHolder] containing the display surface changes.
      *
-     * @param holder The new {@link SurfaceHolder} containing the display surface
-     * @param format The new {@link android.graphics.PixelFormat} of the surface
+     * @param holder The new [SurfaceHolder] containing the display surface
+     * @param format The new [android.graphics.PixelFormat] of the surface
      * @param width The width of the new display surface
      * @param height The height of the new display surface
      */
@@ -138,7 +138,7 @@ abstract class Renderer(
      * The system periodically (at least once per minute) calls onTimeTick() to trigger a display
      * update. If the watch face needs to animate with an interactive frame rate, calls to
      * invalidate must be scheduled. This method controls whether or not we should do that and if
-     * shouldAnimate returns true we inhibit entering {@link DrawMode#AMBIENT}.
+     * shouldAnimate returns true we inhibit entering [DrawMode.AMBIENT].
      *
      * By default we remain at an interactive frame rate when the watch face is visible and we're
      * not in ambient mode. Watchfaces with animated transitions for entering ambient mode may

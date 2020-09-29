@@ -43,8 +43,7 @@ open class ListUserStyleCategory : UserStyleCategory {
         /**
          * Used by the style configuration UI. Describes which rendering layer this style affects.
          * Must be either 0 (for a style change with no visual effect, e.g. sound controls) or a
-         * combination of {@link #LAYER_WATCH_FACE_BASE}, {@link #LAYER_COMPLICATONS}, {@link
-         * #LAYER_UPPER}.
+         * combination of [LAYER_WATCH_FACE_BASE], [LAYER_COMPLICATONS], [LAYER_UPPER].
          */
         layerFlags: Int,
 
@@ -76,7 +75,7 @@ open class ListUserStyleCategory : UserStyleCategory {
         )
 
     /**
-     * Represents choice within a {@link ListUserStyleCategory}, these must be enumerated up front.
+     * Represents choice within a [ListUserStyleCategory], these must be enumerated up front.
      */
     open class ListOption : Option {
         /** Localized human readable name for the setting, used in the style selection UI. */

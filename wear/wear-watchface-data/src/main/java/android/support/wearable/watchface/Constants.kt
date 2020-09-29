@@ -30,14 +30,14 @@ class Constants {
     private constructor()
 
     companion object {
-        // Keys for {@link ContentDescriptionLabel}.
+        // Keys for [ContentDescriptionLabel].
         const val KEY_BOUNDS = "KEY_BOUNDS"
         const val KEY_TEXT = "KEY_TEXT"
 
         @SuppressWarnings("IntentName")
         const val KEY_TAP_ACTION = "KEY_TAP_ACTION"
 
-        // Keys for {@link WatchFaceStyle}.
+        // Keys for [WatchFaceStyle].
         const val KEY_COMPONENT = "component"
         const val KEY_VIEW_PROTECTION_MODE = "viewProtectionMode"
         const val KEY_STATUS_BAR_GRAVITY = "statusBarGravity"
@@ -127,7 +127,7 @@ class Constants {
         const val EXTRA_WATCH_FACE_COMMAND_BINDER = "watch_face_command_binder"
 
         /**
-         * Property in bundle passed to {@link Engine#onPropertiesChanged} to indicate whether burn-in
+         * Property in bundle passed to [Engine.onPropertiesChanged] to indicate whether burn-in
          * protection is required. When this property is set to true, views are shifted around
          * periodically in ambient mode. To ensure that content isn't shifted off the screen, watch
          * faces should avoid placing content within 10 pixels of the edge of the screen. Watch faces
@@ -137,7 +137,7 @@ class Constants {
         const val PROPERTY_BURN_IN_PROTECTION = "burn_in_protection"
 
         /**
-         * Property in bundle passed to {@link Engine#onPropertiesChanged} to indicate whether the
+         * Property in bundle passed to [Engine.onPropertiesChanged] to indicate whether the
          * device has low-bit ambient mode. When this property is set to true, the screen supports fewer
          * bits for each color in ambient mode. In this case, watch faces should disable anti-aliasing
          * in ambient mode.
@@ -145,39 +145,39 @@ class Constants {
         const val PROPERTY_LOW_BIT_AMBIENT = "low_bit_ambient"
 
         /**
-         * Key for a boolean value in the bundle passed to {@link Engine#onStatusChanged(Bundle)} that
+         * Key for a boolean value in the bundle passed to [Engine.onStatusChanged(Bundle)] that
          * indicates whether or not the device is charging. This will be true if the current battery
-         * status is either {@link BatteryManager#BATTERY_STATUS_CHARGING} or {@link
-         * BatteryManager#BATTERY_STATUS_FULL}.
+         * status is either [BatteryManager.BATTERY_STATUS_CHARGING] or
+         * [BatteryManager.BATTERY_STATUS_FULL].
          */
         const val STATUS_CHARGING = "charging"
 
         /**
-         * Key for a boolean value in the bundle passed to {@link Engine#onStatusChanged(Bundle)} that
+         * Key for a boolean value in the bundle passed to [Engine.onStatusChanged(Bundle)] that
          * indicates whether or not the device is in airplane mode.
          */
         const val STATUS_AIRPLANE_MODE = "airplane_mode"
 
         /**
-         * Key for a boolean value in the bundle passed to {@link Engine#onStatusChanged(Bundle)} that
+         * Key for a boolean value in the bundle passed to [Engine.onStatusChanged(Bundle)] that
          * indicates whether or not the device is connected to the phone.
          */
         const val STATUS_CONNECTED = "connected"
 
         /**
-         * Key for a boolean value in the bundle passed to {@link Engine#onStatusChanged(Bundle)} that
+         * Key for a boolean value in the bundle passed to [Engine.onStatusChanged(Bundle)] that
          * indicates whether or not the device is in theater mode.
          */
         const val STATUS_THEATER_MODE = "theater_mode"
 
         /**
-         * Key for a boolean value in the bundle passed to {@link Engine#onStatusChanged(Bundle)} that
+         * Key for a boolean value in the bundle passed to [Engine.onStatusChanged(Bundle)] that
          * indicates whether or not GPS is enabled.
          */
         const val STATUS_GPS_ACTIVE = "gps_active"
 
         /**
-         * Key for a boolean value in the bundle passed to {@link Engine#onStatusChanged(Bundle)} that
+         * Key for a boolean value in the bundle passed to [Engine.onStatusChanged(Bundle)] that
          * indicates whether or not the keyguard is locked.
          */
         const val STATUS_KEYGUARD_LOCKED = "keyguard_locked"
