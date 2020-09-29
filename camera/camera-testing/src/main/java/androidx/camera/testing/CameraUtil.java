@@ -574,6 +574,7 @@ public final class CameraUtil {
                 (base, description) -> new Statement() {
                     @Override
                     public void evaluate() throws Throwable {
+                        dumpCameraLensFacingInfo();
                         assumeTrue(deviceHasCamera());
                         base.evaluate();
                     }
@@ -818,5 +819,73 @@ public final class CameraUtil {
                 }
             }
         }
+    }
+
+    /**
+     * Log the camera lensFacing info for b/167201193 debug.
+     * Throw exception with a specific message if the Camera doesn't have both front/back lens
+     * facing in the daily testing.
+     */
+    static void dumpCameraLensFacingInfo() {
+        boolean error = false;
+
+        CameraManager manager =
+                (CameraManager) ApplicationProvider.getApplicationContext().getSystemService(
+                        Context.CAMERA_SERVICE);
+        String[] cameraIds = new String[0];
+        try {
+            cameraIds = manager.getCameraIdList();
+            Logger.d(LOG_TAG, "ids: " + Arrays.toString(cameraIds));
+        } catch (CameraAccessException e) {
+            error = true;
+            Logger.e(LOG_TAG, "Cannot find default camera id");
+        }
+
+        if (cameraIds != null && cameraIds.length > 0) {
+            List<String> ids = Arrays.asList(cameraIds);
+            boolean hasFront = false;
+            boolean hasBack = false;
+            for (String id : cameraIds) {
+                Logger.d(LOG_TAG, "++ Camera id: " + id);
+                try {
+                    CameraCharacteristics c = manager.getCameraCharacteristics(id);
+                    Logger.d(LOG_TAG, id + " character: " + c);
+                    if (c != null) {
+                        Integer lensFacing = c.get(CameraCharacteristics.LENS_FACING);
+                        Logger.d(LOG_TAG, id + " lensFacing: " + lensFacing);
+                        if (lensFacing == CameraCharacteristics.LENS_FACING_BACK) {
+                            hasBack = true;
+                        }
+                        if (lensFacing == CameraCharacteristics.LENS_FACING_FRONT) {
+                            hasFront = true;
+                        }
+                    }
+                } catch (Throwable t) {
+                    Logger.d(LOG_TAG, id + ", failed to get CameraCharacteristics", t);
+                }
+                Logger.d(LOG_TAG, "-- Camera id: " + id);
+            }
+
+            if (!ids.contains("0") || !ids.contains("1")) {
+                error = true;
+                Logger.e(LOG_TAG,
+                        "Camera Id 0 or 1 is missing,  ids: " + Arrays.toString(cameraIds));
+            }
+
+            if (!hasFront || !hasBack) {
+                error = true;
+                Logger.e(LOG_TAG,
+                        "Missing front or back camera, has front camera: " + hasFront + ", has "
+                                + "back camera: " + hasBack);
+            }
+        } else {
+            error = true;
+            Logger.e(LOG_TAG, "cameraIds.length is zero");
+        }
+
+        if (error && Log.isLoggable("CameraXDumpIdList", Log.DEBUG)) {
+            throw new IllegalArgumentException("CameraIdList_incorrect:" + Build.MODEL);
+        }
+
     }
 }
