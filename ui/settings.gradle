@@ -34,6 +34,12 @@ def includeProject(name, filePath) {
     project(name).projectDir = file
 }
 
+def isMultiplatformEnabled() {
+    def mppParameter = startParameter.projectProperties.get("androidx.compose.multiplatformEnabled")
+    if (mppParameter == null) return false
+    return Boolean.parseBoolean(mppParameter)
+}
+
 includeProject(":annotation", "../annotation")
 includeProject(":annotation:annotation-experimental", "../annotation/annotation-experimental")
 includeProject(":annotation:annotation-experimental-lint", "../annotation/annotation-experimental-lint")
@@ -55,7 +61,7 @@ includeProject(":compose:animation:animation:animation-samples", "../compose/ani
 includeProject(":compose:compiler:compiler", "../compose/compiler/compiler")
 includeProject(":compose:compiler:compiler-hosted", "../compose/compiler/compiler-hosted")
 includeProject(":compose:compiler:compiler-hosted:integration-tests", "../compose/compiler/compiler-hosted/integration-tests")
-if (!startParameter.projectProperties.containsKey('compose.desktop.disable')) {
+if (isMultiplatformEnabled()) {
     includeProject(":compose:desktop", "../compose/desktop")
     includeProject(":compose:desktop:desktop", "../compose/desktop/desktop")
     includeProject(":compose:desktop:desktop:desktop-samples", "../compose/desktop/desktop/samples")
